@@ -87,7 +87,7 @@ gint8 class;
 
 if (!next_tvb)
 	return offset; 
- dissect_tcap_param(actx->pinfo,tree,tvb,0);
+ dissect_tcap_param(actx,tree,tvb,0);
  offset += len;
   return offset;
 
@@ -132,9 +132,9 @@ dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, actx, tree, hf_index);
 	guint32 len;
 len = tvb_length_remaining(tvb, offset);
 if (len > 2)  /* arghhh I dont know whether this is constructed or not! */
-		offset = dissect_tcap_param(actx->pinfo,tree,tvb,offset);
+		offset = dissect_tcap_param(actx,tree,tvb,offset);
 else
-offset = dissect_ber_octet_string(TRUE, actx->pinfo, tree, tvb, 0, hf_index,
+offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, 0, hf_index,
                                     NULL);
 
 
@@ -163,7 +163,7 @@ proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
 
-offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, subtree, tvb, offset, hf_tcap_tid,
+offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -201,7 +201,7 @@ proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
 
-offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, subtree, tvb, offset, hf_tcap_tid,
+offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){

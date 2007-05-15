@@ -234,7 +234,7 @@ const value_string x509af_Version_vals[] = {
 
 int
 dissect_x509af_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -247,7 +247,7 @@ static int dissect_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 
 int
 dissect_x509af_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -269,7 +269,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 69 "x509af.cnf"
   const char *name;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_algorithm_id, &algorithm_id);
 
 
   if(algorithm_id) {
@@ -330,7 +330,7 @@ static int dissect_algorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_x509af_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -343,7 +343,7 @@ static int dissect_utcTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_x509af_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -454,7 +454,7 @@ static int dissect_assertionSubjectName(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_x509af_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -492,7 +492,7 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 #line 86 "x509af.cnf"
   const char *name;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &extension_id);
 
 
   if(extension_id) {
@@ -513,7 +513,7 @@ static int dissect_extnId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1044,7 +1044,7 @@ dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag _U_, tvbuff_t
 
 static int
 dissect_x509af_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;

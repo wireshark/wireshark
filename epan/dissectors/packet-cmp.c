@@ -340,7 +340,7 @@ static int dissect_CRLAnnContent_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cmp_KeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -361,7 +361,7 @@ static const value_string cmp_T_pvno_vals[] = {
 
 static int
 dissect_cmp_T_pvno(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -374,7 +374,7 @@ static int dissect_pvno(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_cmp_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -392,7 +392,7 @@ static int dissect_willBeRevokedAt(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cmp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -424,7 +424,7 @@ static int dissect_rspInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_cmp_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -459,7 +459,7 @@ static int dissect_errorDetails(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmp_type_oid, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmp_type_oid, &object_identifier_id);
 
   return offset;
 }
@@ -576,7 +576,7 @@ static int dissect_caCerts(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -609,7 +609,7 @@ const value_string cmp_PKIStatus_vals[] = {
 
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -635,7 +635,7 @@ static const asn_namedbit PKIFailureInfo_bits[] = {
 
 int
 dissect_cmp_PKIFailureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     PKIFailureInfo_bits, hf_index, ett_cmp_PKIFailureInfo,
                                     NULL);
 
@@ -1042,7 +1042,7 @@ static int dissect_crlann(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 
 int
 dissect_cmp_PKIConfirmContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1184,7 +1184,7 @@ static int dissect_body(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 int
 dissect_cmp_PKIProtection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -1230,7 +1230,7 @@ dissect_cmp_ProtectedPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 int
 dissect_cmp_PasswordBasedMac(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1256,7 +1256,7 @@ dissect_cmp_PBMParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 int
 dissect_cmp_DHBasedMac(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1289,7 +1289,7 @@ dissect_cmp_OOBCert(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_cmp_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 

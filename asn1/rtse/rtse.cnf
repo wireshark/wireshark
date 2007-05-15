@@ -79,7 +79,7 @@ EXTERNALt
 #.FN_BODY RTTRapdu
 	tvbuff_t *next_tvb = NULL;
 
-	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &next_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
 
 	if(next_tvb) {
 
@@ -114,7 +114,7 @@ EXTERNALt
 #.FN_BODY EXTERNALt/indirect-reference
   char *oid;
 
-  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
                 hf_rtse_indirect_reference,
                 &indir_ref);
 
@@ -130,7 +130,7 @@ EXTERNALt
 
 #.FN_BODY T_applicationProtocol
 
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index, &app_proto);
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
 
 #.FN_BODY SessionConnectionIdentifier
   if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))

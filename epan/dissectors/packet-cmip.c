@@ -366,7 +366,7 @@ static const value_string cmip_ModifyOperator_vals[] = {
 
 static int
 dissect_cmip_ModifyOperator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -379,7 +379,7 @@ static int dissect_modifyOperator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_cmip_T_attributeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_attributeId_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_attributeId_OID, &object_identifier_id);
 
   return offset;
 }
@@ -428,7 +428,7 @@ dissect_cmip_T_ocglobalForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 #line 183 "cmip.cnf"
   objectclassform = OBJECTCLASS_GLOBAL_FORM;
 
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &objectclass_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &objectclass_identifier_id);
 
   return offset;
 }
@@ -444,7 +444,7 @@ dissect_cmip_T_oclocalForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   objectclassform = OBJECTCLASS_LOCAL_FORM;
 
 
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -485,7 +485,7 @@ static int dissect_baseManagedObjectClass(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_cmip_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &attributevalueassertion_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &attributevalueassertion_id);
 
   return offset;
 }
@@ -577,7 +577,7 @@ static int dissect_distinguishedName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_cmip_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -626,7 +626,7 @@ static int dissect_referenceObjectInstance(proto_tree *tree _U_, tvbuff_t *tvb _
 
 static int
 dissect_cmip_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -647,7 +647,7 @@ static const value_string cmip_T_errorStatus_vals[] = {
 
 static int
 dissect_cmip_T_errorStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -662,7 +662,7 @@ static int
 dissect_cmip_T_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 90 "cmip.cnf"
   attributeform = ATTRIBUTE_GLOBAL_FORM;
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &attribute_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &attribute_identifier_id);
 
 
 
@@ -679,7 +679,7 @@ static int
 dissect_cmip_T_localForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 94 "cmip.cnf"
   attributeform = ATTRIBUTE_LOCAL_FORM;
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_cmip_localForm, NULL);
 
 
 
@@ -880,7 +880,7 @@ static const value_string cmip_T_errorStatus2_vals[] = {
 
 static int
 dissect_cmip_T_errorStatus2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -893,7 +893,7 @@ static int dissect_errorStatus2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_cmip_T_attributeId1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_attributeId_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_attributeId_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1009,7 +1009,7 @@ static const value_string cmip_T_errorStatus1_vals[] = {
 
 static int
 dissect_cmip_T_errorStatus1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1022,7 +1022,7 @@ static int dissect_errorStatus1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_cmip_T_actionType1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1034,7 +1034,7 @@ static int dissect_actionType1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cmip_T_actionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1064,7 +1064,7 @@ static int dissect_actionId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_cmip_T_eventType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1119,7 +1119,7 @@ static int dissect_actionArgument(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cmip_T_actionType3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1167,7 +1167,7 @@ static int dissect_actionInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cmip_T_eventType1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1302,7 +1302,7 @@ static int dissect_actionError_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_cmip_T_errorId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_errorId_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_errorId_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1371,7 +1371,7 @@ static const value_string cmip_T_deleteErrorInfo_vals[] = {
 
 static int
 dissect_cmip_T_deleteErrorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1458,7 +1458,7 @@ static const value_string cmip_CMISSync_vals[] = {
 
 static int
 dissect_cmip_CMISSync(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1478,7 +1478,7 @@ static const value_string cmip_T_namedNumbers_vals[] = {
 
 static int
 dissect_cmip_T_namedNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1491,7 +1491,7 @@ static int dissect_namedNumbers(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_cmip_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1715,7 +1715,7 @@ static int dissect_getResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cmip_T_actionType2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1835,7 +1835,7 @@ dissect_cmip_LinkedReplyArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cmip_T_eventType2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -1897,7 +1897,7 @@ dissect_cmip_EventReportResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_cmip_T_eventType3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
 
   return offset;
 }
@@ -2063,7 +2063,7 @@ static const value_string cmip_AdministrativeState_vals[] = {
 
 static int
 dissect_cmip_AdministrativeState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2114,7 +2114,7 @@ static int dissect_ae_title_form1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cmip_AE_title_form2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2198,7 +2198,7 @@ static const value_string cmip_OperationalState_vals[] = {
 
 static int
 dissect_cmip_OperationalState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2208,7 +2208,7 @@ dissect_cmip_OperationalState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cmip_NameBinding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2355,7 +2355,7 @@ static const value_string cmip_Opcode_vals[] = {
 static int
 dissect_cmip_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 55 "cmip.cnf"
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &opcode);
 
   if(check_col(actx->pinfo->cinfo, COL_INFO)){
@@ -2391,7 +2391,7 @@ static int dissect_rRBody(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_cmip_InvokeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2404,7 +2404,7 @@ static int dissect_present1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmip_InvokeLinkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2417,7 +2417,7 @@ static int dissect_linkedId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_cmip_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -2543,7 +2543,7 @@ static const value_string cmip_GeneralProblem_vals[] = {
 
 static int
 dissect_cmip_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2568,7 +2568,7 @@ static const value_string cmip_InvokeProblem_vals[] = {
 
 static int
 dissect_cmip_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2588,7 +2588,7 @@ static const value_string cmip_ReturnResultProblem_vals[] = {
 
 static int
 dissect_cmip_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2610,7 +2610,7 @@ static const value_string cmip_ReturnErrorProblem_vals[] = {
 
 static int
 dissect_cmip_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2646,7 +2646,7 @@ static const value_string cmip_RejectProblem_vals[] = {
 
 static int
 dissect_cmip_RejectProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2744,7 +2744,7 @@ dissect_cmip_CMIPAbortSource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 46 "cmip.cnf"
   guint32 value;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &value);
 
   if(check_col(actx->pinfo->cinfo, COL_INFO)){
@@ -2790,7 +2790,7 @@ static const asn_namedbit FunctionalUnits_bits[] = {
 
 static int
 dissect_cmip_FunctionalUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     FunctionalUnits_bits, hf_index, ett_cmip_FunctionalUnits,
                                     NULL);
 
@@ -2809,7 +2809,7 @@ static const asn_namedbit ProtocolVersion_bits[] = {
 
 static int
 dissect_cmip_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     ProtocolVersion_bits, hf_index, ett_cmip_ProtocolVersion,
                                     NULL);
 

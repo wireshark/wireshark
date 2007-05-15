@@ -92,7 +92,7 @@ ObjectClass				B "2.9.3.2.7.65" "smi2AttributeID(7)objectClass(65)"
 
 #.FN_BODY AttributeId/localForm
   attributeform = ATTRIBUTE_LOCAL_FORM;
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cmip_localForm, NULL);
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_cmip_localForm, NULL);
 
 #.FN_BODY Attribute/value
   /*XXX handle local form here */

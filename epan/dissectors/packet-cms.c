@@ -326,7 +326,7 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 #line 73 "cms.cnf"
   	const char *name = NULL;
 
-	  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 
 	if(object_identifier_id) {  
@@ -399,7 +399,7 @@ static const value_string cms_CMSVersion_vals[] = {
 
 static int
 dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -497,7 +497,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 #line 115 "cms.cnf"
   const char *name = NULL;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
 
 
   if(object_identifier_id) {
@@ -629,7 +629,7 @@ static int dissect_signatureAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cms_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -745,7 +745,7 @@ static int dissect_issuerAndSerialNumber_impl(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_cms_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -805,7 +805,7 @@ static int dissect_signedAttrs_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 int
 dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -947,7 +947,7 @@ static int dissect_keyEncryptionAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_cms_EncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -980,7 +980,7 @@ static int dissect_ktri(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_cms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -1039,7 +1039,7 @@ static int dissect_originator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_UserKeyingMaterial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1052,7 +1052,7 @@ static int dissect_ukm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_cms_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1067,7 +1067,7 @@ static int dissect_generalTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cms_ci_contentType, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_ci_contentType, &object_identifier_id);
 
   return offset;
 }
@@ -1215,7 +1215,7 @@ static int dissect_kari_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1325,7 +1325,7 @@ static int dissect_contentEncryptionAlgorithm(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1391,7 +1391,7 @@ dissect_cms_EnvelopedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 int
 dissect_cms_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1465,7 +1465,7 @@ static int dissect_authenticatedAttributes_impl(proto_tree *tree _U_, tvbuff_t *
 
 static int
 dissect_cms_MessageAuthenticationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1504,7 +1504,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   proto_item *pi;
   int old_offset = offset;
 
-    offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
  
@@ -1527,7 +1527,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_cms_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -1592,7 +1592,7 @@ dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 #line 166 "cms.cnf"
   guint32 length = 0;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &length);
 
 
@@ -1620,7 +1620,7 @@ static int dissect_rc2WrapParameter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_cms_IV(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1639,7 +1639,7 @@ dissect_cms_CBCParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cms_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1673,7 +1673,7 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 147 "cms.cnf"
   const char *name = NULL;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
 
 
   if(object_identifier_id) {

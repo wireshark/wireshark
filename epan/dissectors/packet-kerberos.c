@@ -1442,7 +1442,7 @@ static int *APOptions_bits[] = {
 static int
 dissect_krb5_APOptions(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_bitstring32(FALSE, actx->pinfo, tree, tvb, offset, APOptions_bits, hf_krb_APOptions, ett_krb_AP_Options, NULL);
+	offset=dissect_ber_bitstring32(FALSE, actx, tree, tvb, offset, APOptions_bits, hf_krb_APOptions, ett_krb_AP_Options, NULL);
 	return offset;
 }
 
@@ -1527,40 +1527,40 @@ static int* KDCOptions_bits[] = {
 static int
 dissect_krb5_KDCOptions(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_bitstring32(FALSE, actx->pinfo, tree, tvb, offset, KDCOptions_bits, hf_krb_KDCOptions, ett_krb_KDC_Options, NULL);
+	offset=dissect_ber_bitstring32(FALSE, actx, tree, tvb, offset, KDCOptions_bits, hf_krb_KDCOptions, ett_krb_KDC_Options, NULL);
 	return offset;
 }
 
 static int
 dissect_krb5_rtime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_rtime);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_rtime);
 	return offset;
 }
 
 int
 dissect_krb5_ctime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_ctime);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_ctime);
 	return offset;
 }
 static int
 dissect_krb5_cusec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_cusec, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_cusec, NULL);
 	return offset;
 }
 
 static int
 dissect_krb5_stime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_stime);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_stime);
 	return offset;
 }
 static int
 dissect_krb5_susec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_susec, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_susec, NULL);
 	return offset;
 }
 
@@ -1568,7 +1568,7 @@ dissect_krb5_susec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 static int
 dissect_krb5_error_code(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_error_code, &krb5_errorcode);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_error_code, &krb5_errorcode);
 	if(krb5_errorcode && check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(actx->pinfo->cinfo, COL_INFO,
 			"KRB Error: %s",
@@ -1583,13 +1583,13 @@ dissect_krb5_error_code(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t 
 static int
 dissect_krb5_till(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_till);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_till);
 	return offset;
 }
 static int
 dissect_krb5_from(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_from);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_from);
 	return offset;
 }
 
@@ -1598,7 +1598,7 @@ dissect_krb5_from(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx 
 static int
 dissect_krb5_nonce(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_nonce, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_nonce, NULL);
 	return offset;
 }
 
@@ -1611,7 +1611,7 @@ dissect_krb5_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 {
 	guint32 etype;
 
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(etype, krb5_encryption_types,
@@ -1633,7 +1633,7 @@ static guint32 authenticator_etype;
 static int
 dissect_krb5_authenticator_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &authenticator_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &authenticator_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(authenticator_etype, krb5_encryption_types,
@@ -1645,7 +1645,7 @@ static guint32 Ticket_etype;
 static int
 dissect_krb5_Ticket_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &Ticket_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &Ticket_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(Ticket_etype, krb5_encryption_types,
@@ -1657,7 +1657,7 @@ static guint32 AP_REP_etype;
 static int
 dissect_krb5_AP_REP_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &AP_REP_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &AP_REP_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(AP_REP_etype, krb5_encryption_types,
@@ -1669,7 +1669,7 @@ static guint32 PA_ENC_TIMESTAMP_etype;
 static int
 dissect_krb5_PA_ENC_TIMESTAMP_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &PA_ENC_TIMESTAMP_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &PA_ENC_TIMESTAMP_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(PA_ENC_TIMESTAMP_etype, krb5_encryption_types,
@@ -1688,7 +1688,7 @@ dissect_krb5_PA_ENC_TIMESTAMP_etype(proto_tree *tree, tvbuff_t *tvb, int offset,
 static guint32 addr_type;
 static int dissect_krb5_addr_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_addr_type, &addr_type);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_addr_type, &addr_type);
 	return offset;
 }
 static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
@@ -1804,7 +1804,7 @@ dissect_krb5_msg_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
 {
 	guint32 msgtype;
 
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_msg_type, &msgtype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_msg_type, &msgtype);
 
 	if (do_col_info & check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_add_str(actx->pinfo->cinfo, COL_INFO,
@@ -1824,7 +1824,7 @@ dissect_krb5_msg_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
 static int
 dissect_krb5_pvno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_pvno, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_pvno, NULL);
 
 	return offset;
 }
@@ -1841,7 +1841,7 @@ static int
 dissect_krb5_name_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_name_type, &name_type);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_name_type, &name_type);
 	if(tree){
 		proto_item_append_text(tree, " (%s):",
 			val_to_str(name_type, krb5_princ_types,
@@ -1855,7 +1855,7 @@ dissect_krb5_name_string(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t
 {
 	char name_string[256];
 
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_name_string, name_string, 255);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_name_string, name_string, 255);
 	if(tree){
 		proto_item_append_text(tree, "%c%s", name_string_separator, name_string);
 		name_string_separator='/';
@@ -1908,28 +1908,28 @@ dissect_krb5_cname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 int
 dissect_krb5_prealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_prealm, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_prealm, NULL, 0);
 	return offset;
 }
 
 int
 dissect_krb5_srealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_srealm, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_srealm, NULL, 0);
 	return offset;
 }
 
 int
 dissect_krb5_realm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_realm, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_realm, NULL, 0);
 	return offset;
 }
 
 static int
 dissect_krb5_crealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_crealm, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_crealm, NULL, 0);
 	return offset;
 }
 
@@ -1938,7 +1938,7 @@ dissect_krb5_crealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 static int
 dissect_krb5_PA_PAC_REQUEST_flag(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_boolean(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_PA_PAC_REQUEST_flag);
+	offset=dissect_ber_boolean(FALSE, actx, tree, tvb, offset, hf_krb_PA_PAC_REQUEST_flag);
 	return offset;
 }
 
@@ -1962,7 +1962,7 @@ dissect_krb5_PA_PAC_REQUEST(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 static int
 dissect_krb5_PA_PROV_SRV_LOCATION(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_provsrv_location, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_provsrv_location, NULL, 0);
 
 	return offset;
 }
@@ -1972,7 +1972,7 @@ dissect_krb5_PA_PROV_SRV_LOCATION(proto_tree *tree, tvbuff_t *tvb, int offset, a
 static int
 dissect_krb5_kvno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_kvno, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_kvno, NULL);
 
 	return offset;
 }
@@ -1982,7 +1982,7 @@ dissect_krb5_kvno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx 
 static int
 dissect_krb5_seq_number(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_seq_number, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_seq_number, NULL);
 
 	return offset;
 }
@@ -1992,14 +1992,14 @@ dissect_krb5_seq_number(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t 
 static int
 dissect_krb5_patimestamp(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_patimestamp);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_patimestamp);
 	return offset;
 }
 #ifdef HAVE_KERBEROS
 static int
 dissect_krb5_pausec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_pausec, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_pausec, NULL);
 	return offset;
 }
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -2048,9 +2048,9 @@ static int
 dissect_krb5_encrypted_PA_ENC_TIMESTAMP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, NULL);
 #endif
 	return offset;
 }
@@ -2076,21 +2076,21 @@ dissect_krb5_PA_ENC_TIMESTAMP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 static int
 dissect_krb5_etype_info_salt(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype_info_salt, NULL);
+	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_etype_info_salt, NULL);
 	return offset;
 }
 
 static int
 dissect_krb5_etype_info2_salt(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_etype_info2_salt, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_etype_info2_salt, NULL, 0);
 	return offset;
 }
 
 static int
 dissect_krb5_etype_info2_s2kparams(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype_info2_s2kparams, NULL);
+	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_etype_info2_s2kparams, NULL);
 	return offset;
 }
 
@@ -2195,7 +2195,7 @@ guint32 krb_PA_DATA_type;
 static int
 dissect_krb5_PA_DATA_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_PA_DATA_type, &krb_PA_DATA_type);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_PA_DATA_type, &krb_PA_DATA_type);
 	krb_PA_DATA_type&=0xff; /*this is really just one single byte */
 
 	if(tree){
@@ -2217,34 +2217,34 @@ dissect_krb5_PA_DATA_value(proto_tree *parent_tree, tvbuff_t *tvb, int offset, a
 
 	switch(krb_PA_DATA_type){
 	case KRB5_PA_TGS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_application_choice);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_application_choice);
  		break;
 	case KRB5_PA_PK_AS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REQ);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REQ);
  		break;
 	case KRB5_PA_PK_AS_REP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REP);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REP);
  		break;
 	case KRB5_PA_PAC_REQUEST:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
  		break;
 	case KRB5_PA_PROV_SRV_LOCATION:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
  		break;
 	case KRB5_PA_ENC_TIMESTAMP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENC_TIMESTAMP);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENC_TIMESTAMP);
  		break;
 	case KRB5_PA_ENCTYPE_INFO:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO);
  		break;
 	case KRB5_PA_ENCTYPE_INFO2:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO2);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO2);
  		break;
 	case KRB5_PA_PW_SALT:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PW_SALT);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PW_SALT);
  		break;
 	default:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, NULL);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, NULL);
 	}
 	return offset;
 /*qqq*/
@@ -2356,7 +2356,7 @@ static int* TicketFlags_bits[] = {
 static int
 dissect_krb5_TicketFlags(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_bitstring32(FALSE, actx->pinfo, tree, tvb, offset, TicketFlags_bits, hf_krb_TicketFlags, ett_krb_Ticket_Flags, NULL);
+	offset=dissect_ber_bitstring32(FALSE, actx, tree, tvb, offset, TicketFlags_bits, hf_krb_TicketFlags, ett_krb_Ticket_Flags, NULL);
 	return offset;
 }
 
@@ -2365,7 +2365,7 @@ static guint32 keytype;
 static int
 dissect_krb5_keytype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_keytype, &keytype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_keytype, &keytype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(keytype, krb5_encryption_types,
@@ -2385,7 +2385,7 @@ store_keyvalue(proto_tree *tree _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 static int
 dissect_krb5_keyvalue(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_keyvalue, store_keyvalue);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_keyvalue, store_keyvalue);
 	return offset;
 }
 
@@ -2699,7 +2699,7 @@ static guint32 IF_RELEVANT_type;
 static int
 dissect_krb5_IF_RELEVANT_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_IF_RELEVANT_type, &IF_RELEVANT_type);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_IF_RELEVANT_type, &IF_RELEVANT_type);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(IF_RELEVANT_type, krb5_ad_types,
@@ -2712,10 +2712,10 @@ dissect_krb5_IF_RELEVANT_value(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
 {
 	switch(IF_RELEVANT_type){
 	case KRB5_AD_WIN2K_PAC:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_advalue, dissect_krb5_AD_WIN2K_PAC);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_AD_WIN2K_PAC);
 		break;
 	default:
-		offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_IF_RELEVANT_value, NULL);
+		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_IF_RELEVANT_value, NULL);
 	}
 	return offset;
 }
@@ -2750,7 +2750,7 @@ static guint32 adtype;
 static int
 dissect_krb5_adtype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_adtype, &adtype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_adtype, &adtype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(adtype, krb5_ad_types,
@@ -2763,10 +2763,10 @@ dissect_krb5_advalue(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
 {
 	switch(adtype){
 	case KRB5_AD_IF_RELEVANT:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_advalue, dissect_krb5_IF_RELEVANT);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_IF_RELEVANT);
 		break;
 	default:
-		offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_advalue, NULL);
+		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_advalue, NULL);
 	}
 	return offset;
 }
@@ -2807,7 +2807,7 @@ dissect_krb5_transited_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 {
 	guint32 trtype;
 
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_transitedtype, &trtype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_transitedtype, &trtype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(trtype, krb5_transited_types,
@@ -2819,7 +2819,7 @@ dissect_krb5_transited_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 static int
 dissect_krb5_transited_contents(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_transitedcontents, NULL);
+	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_transitedcontents, NULL);
 	return offset;
 }
 
@@ -2847,25 +2847,25 @@ dissect_krb5_transited(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *
 static int
 dissect_krb5_authtime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_authtime);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_authtime);
 	return offset;
 }
 static int
 dissect_krb5_starttime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_starttime);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_starttime);
 	return offset;
 }
 static int
 dissect_krb5_endtime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_endtime);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_endtime);
 	return offset;
 }
 static int
 dissect_krb5_renew_till(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_renew_till);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_renew_till);
 	return offset;
 }
 
@@ -2966,14 +2966,14 @@ static const value_string krb5_lr_types[] = {
 static int
 dissect_krb5_lr_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_lr_type, &lr_type);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_lr_type, &lr_type);
 
 	return offset;
 }
 static int
 dissect_krb5_lr_value(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_lr_time);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_lr_time);
 
 	return offset;
 }
@@ -3006,7 +3006,7 @@ dissect_krb5_LastReq_sequence_of(proto_tree *tree, tvbuff_t *tvb, int offset, as
 static int
 dissect_krb5_key_expiration(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_key_expire);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_key_expire);
 	return offset;
 }
 
@@ -3049,7 +3049,7 @@ dissect_krb5_EncKDCRepPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
 static int
 dissect_krb5_authenticator_vno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_authenticator_vno, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_authenticator_vno, NULL);
 
 	return offset;
 }
@@ -3155,7 +3155,7 @@ static guint32 checksum_type;
 static int
 dissect_krb5_checksum_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_checksum_type, &checksum_type);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_checksum_type, &checksum_type);
 
 	return offset;
 }
@@ -3167,11 +3167,11 @@ dissect_krb5_checksum_checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
 
 	switch(checksum_type){
 	case KRB5_CHKSUM_GSSAPI:
-		offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_checksum_checksum, &next_tvb);
+		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_checksum_checksum, &next_tvb);
 		dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
 		break;
 	default:
-		offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_checksum_checksum, NULL);
+		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_checksum_checksum, NULL);
 	}
 	return offset;
 }
@@ -3242,7 +3242,7 @@ static int
 dissect_krb5_PRIV_BODY_user_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	tvbuff_t *new_tvb;
-	offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_PRIV_BODY_user_data, &new_tvb);
+	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_PRIV_BODY_user_data, &new_tvb);
 
 	if (new_tvb)
 		call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA);
@@ -3277,7 +3277,7 @@ static guint32 PRIV_etype;
 static int
 dissect_krb5_PRIV_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &PRIV_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &PRIV_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(PRIV_etype, krb5_encryption_types,
@@ -3329,9 +3329,9 @@ static int
 dissect_krb5_encrypted_PRIV(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, dissect_krb5_decrypt_PRIV);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PRIV, dissect_krb5_decrypt_PRIV);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
 #endif
 	return offset;
 }
@@ -3372,7 +3372,7 @@ static guint32 EncKrbCredPart_etype;
 static int
 dissect_krb5_EncKrbCredPart_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &EncKrbCredPart_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &EncKrbCredPart_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(EncKrbCredPart_etype, krb5_encryption_types,
@@ -3474,9 +3474,9 @@ static int
 dissect_krb5_encrypted_CRED_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, dissect_krb5_decrypt_EncKrbCredPart);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, dissect_krb5_decrypt_EncKrbCredPart);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, NULL);
 #endif
 	return offset;
 }
@@ -3523,7 +3523,7 @@ static int
 dissect_krb5_SAFE_BODY_user_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	tvbuff_t *new_tvb;
-	offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_user_data, &new_tvb);
+	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_SAFE_BODY_user_data, &new_tvb);
 	if (new_tvb)
 		call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA);
 	return offset;
@@ -3531,14 +3531,14 @@ dissect_krb5_SAFE_BODY_user_data(proto_tree *tree, tvbuff_t *tvb, int offset, as
 static int
 dissect_krb5_SAFE_BODY_timestamp(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralizedTime(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_timestamp);
+	offset=dissect_ber_GeneralizedTime(FALSE, actx, tree, tvb, offset, hf_krb_SAFE_BODY_timestamp);
 	return offset;
 }
 
 static int
 dissect_krb5_SAFE_BODY_usec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_usec, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_SAFE_BODY_usec, NULL);
 	return offset;
 }
 
@@ -3753,9 +3753,9 @@ static int
 dissect_krb5_encrypted_authenticator_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_authenticator_data, dissect_krb5_decrypt_authenticator_data);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_authenticator_data, dissect_krb5_decrypt_authenticator_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_authenticator_data, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_authenticator_data, NULL);
 #endif
 	return offset;
 }
@@ -3782,7 +3782,7 @@ dissect_krb5_encrypted_authenticator(proto_tree *tree, tvbuff_t *tvb, int offset
 static int
 dissect_krb5_tkt_vno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_tkt_vno, NULL);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_tkt_vno, NULL);
 	return offset;
 }
 
@@ -3823,9 +3823,9 @@ static int
 dissect_krb5_encrypted_Ticket_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_Ticket_data, dissect_krb5_decrypt_Ticket_data);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_Ticket_data, dissect_krb5_decrypt_Ticket_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_Ticket_data, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_Ticket_data, NULL);
 #endif
 	return offset;
 }
@@ -3959,9 +3959,9 @@ static int
 dissect_krb5_encrypted_AP_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, dissect_krb5_decrypt_AP_REP_data);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, dissect_krb5_decrypt_AP_REP_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, NULL);
 #endif
 	return offset;
 }
@@ -4014,7 +4014,7 @@ static guint32 KDC_REP_etype;
 static int
 dissect_krb5_KDC_REP_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_etype, &KDC_REP_etype);
+	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_etype, &KDC_REP_etype);
 	if(tree){
 		proto_item_append_text(tree, " %s",
 			val_to_str(KDC_REP_etype, krb5_encryption_types,
@@ -4073,9 +4073,9 @@ static int
 dissect_krb5_encrypted_KDC_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, dissect_krb5_decrypt_KDC_REP_data);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, dissect_krb5_decrypt_KDC_REP_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, NULL);
 #endif
 	return offset;
 }
@@ -4138,7 +4138,7 @@ dissect_krb5_KDC_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
 static int
 dissect_krb5_e_text(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_GeneralString(actx->pinfo, tree, tvb, offset, hf_krb_e_text, NULL, 0);
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_e_text, NULL, 0);
 	return offset;
 }
 
@@ -4153,16 +4153,16 @@ dissect_krb5_e_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 		/* ms windows kdc sends e-data of this type containing a "salt"
 		 * that contains the nt_status code for these error codes.
 		 */
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_e_data, dissect_krb5_PA_DATA);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_e_data, dissect_krb5_PA_DATA);
 		break;
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
 	case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_e_data, dissect_krb5_padata);
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_e_data, dissect_krb5_padata);
 
 		break;
 	default:
-		offset=dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_krb_e_data, NULL);
+		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_e_data, NULL);
 	}
 	return offset;
 }

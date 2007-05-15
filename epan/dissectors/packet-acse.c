@@ -312,7 +312,7 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 
 static int
 dissect_acse_T_direct_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -326,7 +326,7 @@ static int
 dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 83 "acse.cnf"
   char *oid;
-  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
                 hf_acse_indirect_reference,
                 &indir_ref);
 
@@ -351,7 +351,7 @@ static int dissect_indirect_reference(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_acse_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_ObjectDescriptor,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -379,7 +379,7 @@ static int dissect_single_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_acse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -392,7 +392,7 @@ static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_acse_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -479,7 +479,7 @@ static const asn_namedbit T_AARQ_protocol_version_bits[] = {
 
 static int
 dissect_acse_T_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     T_AARQ_protocol_version_bits, hf_index, ett_acse_T_AARQ_protocol_version,
                                     NULL);
 
@@ -493,7 +493,7 @@ static int dissect_aARQ_protocol_version_impl(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_acse_ASO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -506,7 +506,7 @@ static int dissect_ASO_context_name_list_item(proto_tree *tree _U_, tvbuff_t *tv
 static int
 dissect_acse_T_AARQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 67 "acse.cnf"
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 
@@ -533,7 +533,7 @@ static int dissect_ap_title_form1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_acse_AP_title_form2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -546,7 +546,7 @@ static int dissect_ap_title_form2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_acse_AP_title_form3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -607,7 +607,7 @@ static int dissect_aso_qualifier_form1(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_acse_ASO_qualifier_form2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -621,7 +621,7 @@ static int dissect_aso_qualifier_form2(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_acse_ASO_qualifier_form3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -634,7 +634,7 @@ static int dissect_aso_qualifier_form3(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_acse_ASO_qualifier_form_octets(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -703,7 +703,7 @@ static int dissect_responding_AE_qualifier(proto_tree *tree _U_, tvbuff_t *tvb _
 
 int
 dissect_acse_AP_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -722,7 +722,7 @@ static int dissect_responding_AP_invocation_identifier(proto_tree *tree _U_, tvb
 
 int
 dissect_acse_AE_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -748,7 +748,7 @@ static const asn_namedbit ACSE_requirements_bits[] = {
 
 static int
 dissect_acse_ACSE_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     ACSE_requirements_bits, hf_index, ett_acse_ACSE_requirements,
                                     NULL);
 
@@ -765,7 +765,7 @@ static int dissect_responder_acse_requirements_impl(proto_tree *tree _U_, tvbuff
 
 static int
 dissect_acse_Mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -778,7 +778,7 @@ static int dissect_mechanism_name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_acse_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -791,7 +791,7 @@ static int dissect_charstring_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_acse_T_other_mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -885,7 +885,7 @@ static int dissect_aSO_context_name_list_impl(proto_tree *tree _U_, tvbuff_t *tv
 static int
 dissect_acse_Implementation_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -898,7 +898,7 @@ static int dissect_implementation_information_impl(proto_tree *tree _U_, tvbuff_
 
 static int
 dissect_acse_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -914,7 +914,7 @@ static int dissect_presentation_context_identifier(proto_tree *tree _U_, tvbuff_
 
 static int
 dissect_acse_Abstract_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -929,7 +929,7 @@ static int dissect_abstract_syntax_name_impl(proto_tree *tree _U_, tvbuff_t *tvb
 
 static int
 dissect_acse_TransferSyntaxName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1057,7 +1057,7 @@ static int dissect_p_context_definition_list(proto_tree *tree _U_, tvbuff_t *tvb
 
 static int
 dissect_acse_ASOI_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1177,7 +1177,7 @@ static const asn_namedbit T_AARE_protocol_version_bits[] = {
 
 static int
 dissect_acse_T_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     T_AARE_protocol_version_bits, hf_index, ett_acse_T_AARE_protocol_version,
                                     NULL);
 
@@ -1192,7 +1192,7 @@ static int dissect_aARE_protocol_version_impl(proto_tree *tree _U_, tvbuff_t *tv
 static int
 dissect_acse_T_AARE_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 71 "acse.cnf"
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 
@@ -1214,7 +1214,7 @@ static const value_string acse_Associate_result_vals[] = {
 
 static int
 dissect_acse_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1246,7 +1246,7 @@ static const value_string acse_T_acse_service_user_vals[] = {
 
 static int
 dissect_acse_T_acse_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1266,7 +1266,7 @@ static const value_string acse_T_acse_service_provider_vals[] = {
 
 static int
 dissect_acse_T_acse_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1311,7 +1311,7 @@ static const value_string acse_Result_vals[] = {
 
 static int
 dissect_acse_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1344,7 +1344,7 @@ static const value_string acse_T_provider_reason_vals[] = {
 
 static int
 dissect_acse_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1435,7 +1435,7 @@ dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 #line 106 "acse.cnf"
   int reason = -1;
  
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &reason);
 
 
@@ -1485,7 +1485,7 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 #line 118 "acse.cnf"
   int reason = -1;
  
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &reason);
 
 
@@ -1531,7 +1531,7 @@ static const value_string acse_ABRT_source_vals[] = {
 
 static int
 dissect_acse_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1554,7 +1554,7 @@ static const value_string acse_ABRT_diagnostic_vals[] = {
 
 static int
 dissect_acse_ABRT_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1603,7 +1603,7 @@ static int dissect_user_information_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_acse_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1724,7 +1724,7 @@ static int dissect_adt_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_acse_T_ACRQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 75 "acse.cnf"
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 
@@ -1762,7 +1762,7 @@ static int dissect_acrq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_acse_T_ACRP_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 79 "acse.cnf"
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 
@@ -1862,7 +1862,7 @@ static int dissect_ae_title_form1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_acse_AE_title_form2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

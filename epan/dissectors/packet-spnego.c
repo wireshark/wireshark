@@ -159,7 +159,7 @@ dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   gssapi_oid_value *value;
 
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &MechType_oid);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &MechType_oid);
 
 
   value = gssapi_lookup_oid_str(MechType_oid);
@@ -249,7 +249,7 @@ static const asn_namedbit ContextFlags_bits[] = {
 
 static int
 dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     ContextFlags_bits, hf_index, ett_spnego_ContextFlags,
                                     NULL);
 
@@ -267,7 +267,7 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   tvbuff_t *mechToken_tvb = NULL;
 
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &mechToken_tvb);
 
 
@@ -318,7 +318,7 @@ dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *t
      * which is what it's supposed to be; that'll cause the
      * right error report if it's not an octet string, either.
      */
-    offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset,
+    offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset,
                                       hf_spnego_mechListMIC, &mechListMIC_tvb);
 
     /*
@@ -368,7 +368,7 @@ static const value_string spnego_T_negResult_vals[] = {
 
 static int
 dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -427,7 +427,7 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   tvbuff_t *responseToken_tvb;
 
 
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &responseToken_tvb);
 
 
@@ -464,7 +464,7 @@ dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   tvbuff_t *mechListMIC_tvb;
 
 
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &mechListMIC_tvb);
 
 
@@ -537,7 +537,7 @@ dissect_spnego_NegotiationToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_spnego_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -706,6 +706,8 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean pc, ind = 0;
 	gint32 tag;
 	guint32 len;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset,
 				   -1, FALSE);
@@ -758,7 +760,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 
 		/* Next, the OID */
-		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_spnego_krb5_oid, &oid);
+		offset=dissect_ber_object_identifier_str(FALSE, &asn1_ctx, subtree, tvb, offset, hf_spnego_krb5_oid, &oid);
 
 		value = gssapi_lookup_oid_str(oid);
 
@@ -1640,7 +1642,7 @@ void proto_register_spnego(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1021 "packet-spnego-template.c"
+#line 1023 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1661,7 +1663,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1030 "packet-spnego-template.c"
+#line 1032 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

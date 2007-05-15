@@ -737,8 +737,10 @@ static void dissect_h248_annexc_acodec(proto_tree* tree,
 										void* implicit_p ) {
 	int len;
 	tvbuff_t* new_tvb;
-	
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, pinfo, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	
 	tree = proto_item_add_subtree(get_ber_last_created_item(),ett_codec);
 	len = tvb_length(new_tvb);
@@ -752,8 +754,10 @@ static void dissect_h248_annexc_BIR(proto_tree* tree,
 									 h248_curr_info_t* h248_info,
 									 void* implicit_p ) {
 	tvbuff_t* new_tvb = NULL;
-	
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, pinfo, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);	
+	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	
 	if ( new_tvb && h248_info->term && ! h248_info->term->bir ) {
 		h248_info->term->bir = se_strdup(tvb_bytes_to_str(new_tvb,0,tvb_length(new_tvb)));
@@ -767,7 +771,10 @@ static void dissect_h248_annexc_NSAP(proto_tree* tree,
 									  h248_curr_info_t* h248_info,
 									  void* implicit_p ) {
 	tvbuff_t* new_tvb = NULL;
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, pinfo, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb) {
 		dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
 		if ( h248_info->term && ! h248_info->term->nsap) {
@@ -785,7 +792,10 @@ static void dissect_h248_annexc_vpvc(proto_tree* tree, tvbuff_t* tvb, packet_inf
 
 static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p) {
 	tvbuff_t* new_tvb = NULL;
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, pinfo, tree, tvb, 0, hfid, &new_tvb);
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb)
 		dissect_q931_bearer_capability_ie(new_tvb, 0, tvb_length(new_tvb), tree);
 }

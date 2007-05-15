@@ -860,7 +860,7 @@ static const value_string dap_FamilyGrouping_vals[] = {
 
 static int
 dissect_dap_FamilyGrouping(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -874,7 +874,7 @@ static int dissect_familyGrouping(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_dap_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -893,7 +893,7 @@ static int dissect_utctime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_dap_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -933,7 +933,7 @@ static int dissect_time(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_dap_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -970,7 +970,7 @@ static const value_string dap_ProtectionRequest_vals[] = {
 
 static int
 dissect_dap_ProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -991,7 +991,7 @@ static const value_string dap_ErrorProtectionRequest_vals[] = {
 
 static int
 dissect_dap_ErrorProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1030,7 +1030,7 @@ static int dissect_securityParameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_dap_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1150,7 +1150,7 @@ static const asn_namedbit ServiceControlOptions_bits[] = {
 
 static int
 dissect_dap_ServiceControlOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     ServiceControlOptions_bits, hf_index, ett_dap_ServiceControlOptions,
                                     NULL);
 
@@ -1171,7 +1171,7 @@ static const value_string dap_T_priority_vals[] = {
 
 static int
 dissect_dap_T_priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1184,7 +1184,7 @@ static int dissect_priority(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_dap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1227,7 +1227,7 @@ static const value_string dap_T_scopeOfReferral_vals[] = {
 
 static int
 dissect_dap_T_scopeOfReferral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1307,7 +1307,7 @@ static int dissect_manageDSAITPlaneRef(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_dap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1362,7 +1362,7 @@ static int dissect_serviceControls(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_dap_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1433,7 +1433,7 @@ static const value_string dap_T_infoTypes_vals[] = {
 
 static int
 dissect_dap_T_infoTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1597,7 +1597,7 @@ static const value_string dap_T_memberSelect_vals[] = {
 
 static int
 dissect_dap_T_memberSelect(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2145,7 +2145,7 @@ dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 	int	len;
 	proto_item	*oct_item;
 
-    	  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
 
 
@@ -2370,7 +2370,7 @@ static int dissect_bindConfAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_dap_BindKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -2540,7 +2540,7 @@ static const asn_namedbit Versions_bits[] = {
 
 static int
 dissect_dap_Versions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     Versions_bits, hf_index, ett_dap_Versions,
                                     NULL);
 
@@ -2621,7 +2621,7 @@ dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 #line 207 "dap.cnf"
   guint32 problem;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem);
 
 
@@ -2660,7 +2660,7 @@ dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 #line 195 "dap.cnf"
   guint32 problem;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem);
 
 
@@ -2878,7 +2878,7 @@ static const asn_namedbit T_permission_bits[] = {
 
 static int
 dissect_dap_T_permission(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     T_permission_bits, hf_index, ett_dap_T_permission,
                                     NULL);
 
@@ -3414,7 +3414,7 @@ dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 231 "dap.cnf"
   guint32 problem;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem);
 
 
@@ -3630,7 +3630,7 @@ dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 #line 243 "dap.cnf"
   guint32 subset;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &subset);
 
 
@@ -3664,7 +3664,7 @@ static const asn_namedbit HierarchySelections_bits[] = {
 
 static int
 dissect_dap_HierarchySelections(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     HierarchySelections_bits, hf_index, ett_dap_HierarchySelections,
                                     NULL);
 
@@ -3693,7 +3693,7 @@ static const asn_namedbit SearchControlOptions_bits[] = {
 
 static int
 dissect_dap_SearchControlOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     SearchControlOptions_bits, hf_index, ett_dap_SearchControlOptions,
                                     NULL);
 
@@ -3726,7 +3726,7 @@ static const value_string dap_T_joinSubset_vals[] = {
 
 static int
 dissect_dap_T_joinSubset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3739,7 +3739,7 @@ static int dissect_joinSubset(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_dap_JoinContextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -3847,7 +3847,7 @@ static const value_string dap_T_joinType_vals[] = {
 
 static int
 dissect_dap_T_joinType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -4810,7 +4810,7 @@ static const value_string dap_AbandonProblem_vals[] = {
 
 static int
 dissect_dap_AbandonProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -4900,7 +4900,7 @@ static const value_string dap_AttributeProblem_vals[] = {
 
 static int
 dissect_dap_AttributeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -5023,7 +5023,7 @@ static const value_string dap_NameProblem_vals[] = {
 
 static int
 dissect_dap_NameProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -5332,7 +5332,7 @@ dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 #line 219 "dap.cnf"
   guint32 problem;
 
-    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem);
 
 

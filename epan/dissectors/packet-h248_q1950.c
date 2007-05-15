@@ -280,12 +280,15 @@ static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_in
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
 	
 	/* XXX: is this enough to guess it? */
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
-		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &bctp_tvb);
+		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &bctp_tvb);
 		
 		if (bctp_tvb) {
 			call_dissector(bctp_dissector,bctp_tvb,pinfo,tree);

@@ -284,12 +284,15 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
 	
 	/* XXX: is this enough to guess it? */
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
-		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sub_tvb );
+		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb );
 		
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(get_ber_last_created_item(),ett_h248_3GTFO_codec);
@@ -306,11 +309,14 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
 	
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
-		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sub_tvb );
+		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb );
 		
 		if (sub_tvb) {
 			proto_tree* pt = proto_item_add_subtree(get_ber_last_created_item(),ett_h248_3GTFO_codec_list);

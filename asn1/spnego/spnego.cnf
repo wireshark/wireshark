@@ -158,7 +158,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
      * which is what it's supposed to be; that'll cause the
      * right error report if it's not an octet string, either.
      */
-    offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset,
+    offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset,
                                       hf_spnego_mechListMIC, &mechListMIC_tvb);
 
     /*

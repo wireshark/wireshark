@@ -833,7 +833,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
  */
 
 static void
-snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tvbuff_t *oid_tvb,
+snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, asn1_ctx_t *actx,tvbuff_t *oid_tvb,
 					 int offset, guint *lengthp, tvbuff_t **out_tvb)
 {
 	int start, vb_value_start;
@@ -865,8 +865,8 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 
 	start = offset;
 	/* parse the type of the object */
-	offset = dissect_ber_identifier(pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
-	offset = dissect_ber_length(pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
+	offset = dissect_ber_identifier(actx->pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_length(actx->pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
 
 	if(vb_length == 0){
 		length = offset - start;
@@ -898,7 +898,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, (void*)&(vb_integer_value));
+		offset = dissect_ber_integer(FALSE, actx, NULL, tvb, start, -1, (void*)&(vb_integer_value));
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -926,7 +926,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	case SNMP_COUNTER:
 	case SNMP_GAUGE:
 	case SNMP_TIMETICKS:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_uinteger_value);
+		offset = dissect_ber_integer(FALSE, actx, NULL, tvb, start, -1, &vb_uinteger_value);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -951,14 +951,14 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		}
 		break;
 	case SNMP_COUNTER64:
-		offset=dissect_ber_integer64(TRUE, pinfo, snmp_tree, tvb, offset, hf_snmp_counter64, NULL);
+		offset=dissect_ber_integer64(TRUE, actx, snmp_tree, tvb, offset, hf_snmp_counter64, NULL);
 		break;
 	case SNMP_OCTETSTR:
 	case SNMP_IPADDR:
 	case SNMP_OPAQUE:
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
-		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, start, -1, out_tvb);
+		offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, start, -1, out_tvb);
 		vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
 
 		length = offset - vb_value_start;
@@ -1015,7 +1015,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		break;
 
 	case SNMP_NULL:
-		dissect_ber_null(FALSE, pinfo, NULL, tvb, start, -1);
+		dissect_ber_null(FALSE, actx, NULL, tvb, start, -1);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, tvb, vb_value_start, length,
@@ -1598,7 +1598,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
 
 	message_length = len + 2;
-	offset = dissect_ber_integer(FALSE, pinfo, 0, tvb, offset, -1, &version);
+	offset = dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
 
 
 	/*

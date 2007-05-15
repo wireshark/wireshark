@@ -694,7 +694,7 @@ dissect_ftam_Protocol_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_bitstring(TRUE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(TRUE, actx, tree, tvb, offset,
                                  Protocol_Version_bits, hf_index, ett_ftam_Protocol_Version,
                                  NULL);
 
@@ -724,7 +724,7 @@ dissect_ftam_Implementation_Information(gboolean implicit_tag _U_, tvbuff_t *tvb
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
   offset = dissect_ber_restricted_string(TRUE, 1,
-                                         actx->pinfo, tree, tvb, offset, hf_index,
+                                         actx, tree, tvb, offset, hf_index,
                                          NULL);
 
 
@@ -739,7 +739,7 @@ static int dissect_implementation_information(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_ftam_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -787,7 +787,7 @@ dissect_ftam_Service_Class(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_bitstring(TRUE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(TRUE, actx, tree, tvb, offset,
                                  Service_Class_bits, hf_index, ett_ftam_Service_Class,
                                  NULL);
 
@@ -834,7 +834,7 @@ dissect_ftam_Functional_Units(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_bitstring(TRUE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(TRUE, actx, tree, tvb, offset,
                                  Functional_Units_bits, hf_index, ett_ftam_Functional_Units,
                                  NULL);
 
@@ -871,7 +871,7 @@ dissect_ftam_Attribute_Groups(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_bitstring(TRUE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(TRUE, actx, tree, tvb, offset,
                                  Attribute_Groups_bits, hf_index, ett_ftam_Attribute_Groups,
                                  NULL);
 
@@ -924,7 +924,7 @@ dissect_ftam_FTAM_Quality_of_Service(gboolean implicit_tag _U_, tvbuff_t *tvb _U
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -939,7 +939,7 @@ static int dissect_ftam_quality_of_Service(proto_tree *tree _U_, tvbuff_t *tvb _
 
 static int
 dissect_ftam_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -964,7 +964,7 @@ dissect_ftam_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_object_identifier(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_object_identifier(TRUE, actx, tree, tvb, offset, hf_index,
                                             NULL);
 
 
@@ -1057,7 +1057,7 @@ dissect_ftam_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
   offset = dissect_ber_restricted_string(TRUE, 22,
-                                         actx->pinfo, tree, tvb, offset, hf_index,
+                                         actx, tree, tvb, offset, hf_index,
                                          NULL);
 
 
@@ -1091,7 +1091,7 @@ dissect_ftam_Account(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
   offset = dissect_ber_restricted_string(TRUE, 4,
-                                         actx->pinfo, tree, tvb, offset, hf_index,
+                                         actx, tree, tvb, offset, hf_index,
                                          NULL);
 
 
@@ -1109,7 +1109,7 @@ static int dissect_actual_values2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ftam_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            actx->pinfo, tree, tvb, offset, hf_index,
+                                            actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -1143,7 +1143,7 @@ static int dissect_Pathname_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ftam_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1256,7 +1256,7 @@ static int dissect_Pass_Passwords_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_ftam_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1386,7 +1386,7 @@ dissect_ftam_State_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -1421,7 +1421,7 @@ dissect_ftam_Action_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -1444,7 +1444,7 @@ static const value_string ftam_T_diagnostic_type_vals[] = {
 
 static int
 dissect_ftam_T_diagnostic_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1467,7 +1467,7 @@ static const value_string ftam_Entity_Reference_vals[] = {
 
 static int
 dissect_ftam_Entity_Reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1851,7 +1851,7 @@ dissect_ftam_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
       offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
       offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
   }
-  offset = dissect_ber_bitstring(TRUE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(TRUE, actx, tree, tvb, offset,
                                  Access_Request_bits, hf_index, ett_ftam_Access_Request,
                                  NULL);
 
@@ -1994,7 +1994,7 @@ static const value_string ftam_Lock_vals[] = {
 
 static int
 dissect_ftam_Lock(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2104,7 +2104,7 @@ dissect_ftam_Referent_Indicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_boolean(TRUE, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(TRUE, actx, tree, tvb, offset, hf_index);
 
 
 
@@ -2185,7 +2185,7 @@ static const value_string ftam_Override_vals[] = {
 
 static int
 dissect_ftam_Override(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2205,7 +2205,7 @@ static const value_string ftam_Object_Type_Attribute_vals[] = {
 
 static int
 dissect_ftam_Object_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2234,7 +2234,7 @@ static const asn_namedbit Permitted_Actions_Attribute_bits[] = {
 
 int
 dissect_ftam_Permitted_Actions_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     Permitted_Actions_Attribute_bits, hf_index, ett_ftam_Permitted_Actions_Attribute,
                                     NULL);
 
@@ -2294,7 +2294,7 @@ dissect_ftam_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_object_identifier(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_object_identifier(TRUE, actx, tree, tvb, offset, hf_index,
                                             NULL);
 
 
@@ -2355,7 +2355,7 @@ static int dissect_contents_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ftam_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -2407,7 +2407,7 @@ static const value_string ftam_T_actual_values8_vals[] = {
 
 static int
 dissect_ftam_T_actual_values8(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2480,7 +2480,7 @@ static const asn_namedbit Concurrency_Key_bits[] = {
 
 static int
 dissect_ftam_Concurrency_Key(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     Concurrency_Key_bits, hf_index, ett_ftam_Concurrency_Key,
                                     NULL);
 
@@ -2727,7 +2727,7 @@ static int dissect_private_use(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ftam_Extension_Set_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2739,7 +2739,7 @@ static int dissect_extension_set_identifier_impl(proto_tree *tree _U_, tvbuff_t 
 
 static int
 dissect_ftam_T_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -2986,7 +2986,7 @@ static const asn_namedbit Attribute_Names_bits[] = {
 
 static int
 dissect_ftam_Attribute_Names(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     Attribute_Names_bits, hf_index, ett_ftam_Attribute_Names,
                                     NULL);
 
@@ -3000,7 +3000,7 @@ static int dissect_attribute_names_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_ftam_Extension_Attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -3096,7 +3096,7 @@ static int dissect_child_objects(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ftam_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -3393,7 +3393,7 @@ static const asn_namedbit T_processing_mode_bits[] = {
 
 static int
 dissect_ftam_T_processing_mode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     T_processing_mode_bits, hf_index, ett_ftam_T_processing_mode,
                                     NULL);
 
@@ -3445,7 +3445,7 @@ dissect_ftam_Activity_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -3467,7 +3467,7 @@ static const value_string ftam_T_request_recovery_mode_vals[] = {
 
 static int
 dissect_ftam_T_request_recovery_mode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3519,7 +3519,7 @@ dissect_ftam_Degree_Of_Overlap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -3568,7 +3568,7 @@ static const value_string ftam_T_response_recovery_mode_vals[] = {
 
 static int
 dissect_ftam_T_response_recovery_mode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3768,7 +3768,7 @@ static const value_string ftam_T_first_last_vals[] = {
 
 static int
 dissect_ftam_T_first_last(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3788,7 +3788,7 @@ static const value_string ftam_T_relative_vals[] = {
 
 static int
 dissect_ftam_T_relative(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3807,7 +3807,7 @@ static const value_string ftam_T_begin_end_vals[] = {
 
 static int
 dissect_ftam_T_begin_end(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3917,7 +3917,7 @@ dissect_ftam_FADU_Lock(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -4100,7 +4100,7 @@ static const value_string ftam_T_access_context_vals[] = {
 
 static int
 dissect_ftam_T_access_context(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -4173,7 +4173,7 @@ static const value_string ftam_T_file_access_data_unit_Operation_vals[] = {
 
 static int
 dissect_ftam_T_file_access_data_unit_Operation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -4243,7 +4243,7 @@ dissect_ftam_Request_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -4503,7 +4503,7 @@ static const asn_namedbit Equality_Comparision_bits[] = {
 
 static int
 dissect_ftam_Equality_Comparision(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     Equality_Comparision_bits, hf_index, ett_ftam_Equality_Comparision,
                                     NULL);
 
@@ -4662,7 +4662,7 @@ static const asn_namedbit Relational_Comparision_bits[] = {
 
 static int
 dissect_ftam_Relational_Comparision(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     Relational_Comparision_bits, hf_index, ett_ftam_Relational_Comparision,
                                     NULL);
 
@@ -4700,7 +4700,7 @@ static int dissect_future_object_size_Pattern_impl(proto_tree *tree _U_, tvbuff_
 
 static int
 dissect_ftam_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     NULL);
 
@@ -4736,7 +4736,7 @@ static int dissect_permitted_actions_Pattern_impl(proto_tree *tree _U_, tvbuff_t
 
 static int
 dissect_ftam_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -4881,7 +4881,7 @@ static int dissect_object_availabiiity_Pattern_impl(proto_tree *tree _U_, tvbuff
 
 static int
 dissect_ftam_T_attribute_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   return offset;
 }
@@ -5097,7 +5097,7 @@ static const value_string ftam_T_retrieval_scope_vals[] = {
 
 static int
 dissect_ftam_T_retrieval_scope(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -5295,7 +5295,7 @@ dissect_ftam_Request_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
 
@@ -5409,7 +5409,7 @@ static const value_string ftam_Error_Action_vals[] = {
 
 static int
 dissect_ftam_Error_Action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;

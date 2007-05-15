@@ -520,15 +520,21 @@ static gcp_wildcard_t wild_term;
 
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
-	dissect_ber_integer(implicit ? *((gboolean*)implicit) : FALSE, pinfo, tree, tvb, 0, hfid, NULL);
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_integer(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
 }
 
 extern void h248_param_ber_octetstring(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
-	dissect_ber_octet_string(implicit ? *((gboolean*)implicit) : FALSE, pinfo, tree, tvb, 0, hfid, NULL);
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_octet_string(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
 }
 
 extern void h248_param_ber_boolean(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
-	dissect_ber_boolean(implicit ? *((gboolean*)implicit) : FALSE, pinfo, tree, tvb, 0, hfid);
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_boolean(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid);
 }
 
 extern void h248_param_item(proto_tree* tree,
@@ -561,9 +567,11 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
   const h248_package_t* pkg = NULL;
   guint i;
   int offset = 0;
-  
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+ 
 	old_offset=offset;
-	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hfid , &new_tvb);
+	offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, offset, hfid , &new_tvb);
   	
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
@@ -714,7 +722,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
   guint i;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
@@ -773,7 +781,7 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
   guint i;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
@@ -850,7 +858,7 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
   guint i;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is always 4 bytes so just read it into two integers */
@@ -971,7 +979,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 	const gchar* strval;
 	proto_item* pi;
 	
-	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset,  hf_index, &next_tvb);
+	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset,  hf_index, &next_tvb);
 	pi = get_ber_last_created_item();
 	
 	switch(tvb_length(next_tvb)) {
@@ -1040,7 +1048,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 	const gchar* strval;
 	proto_item* pi;
 
-	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &next_tvb);
+	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
 	pi = get_ber_last_created_item();
 
 	if (next_tvb) {
@@ -1115,7 +1123,7 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
   int i, len, old_offset;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is either 2 or 4 bytes  so just read it into an integer */

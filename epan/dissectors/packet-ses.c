@@ -35,9 +35,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
+#include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-frame.h"
-#include "packet-ber.h"
+
 #include <epan/prefs.h>
 
 #include <epan/strutil.h>
@@ -336,6 +338,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	guint16       flags;
 	proto_item   *tf;
 	proto_tree   *flags_tree;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	switch (param_type)
 	{
@@ -660,7 +664,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			break;
 		if (tree)
 		{
-			dissect_ber_integer(FALSE, pinfo, param_tree, tvb, offset,
+			dissect_ber_integer(FALSE, &asn1_ctx, param_tree, tvb, offset,
 			    hf_activity_identifier, NULL);
 		}
 		break;

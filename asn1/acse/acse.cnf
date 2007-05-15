@@ -64,24 +64,24 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 /*XXX not implemented yet */
 
 #.FN_BODY AARQ-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY AARE-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY ACRQ-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY ACRP-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY EXTERNALt/indirect-reference
   char *oid;
-  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset,
+  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
                 hf_acse_indirect_reference,
                 &indir_ref);
 

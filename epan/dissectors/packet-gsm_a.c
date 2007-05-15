@@ -7607,7 +7607,7 @@ de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
  */
  static int
 dissect_ROS_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -7626,7 +7626,7 @@ static int dissect_derivable( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
 static int
 dissect_ROS_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &localValue);
 
   return offset;
@@ -7642,7 +7642,7 @@ static int dissect_privateer_impl( proto_tree *tree, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_ROS_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -7744,7 +7744,7 @@ static int dissect_returnResultLast_impl( proto_tree *tree, tvbuff_t *tvb, int o
 
 static int
 dissect_ROS_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -7799,7 +7799,7 @@ static int dissect_returnError_impl( proto_tree *tree, tvbuff_t *tvb, int offset
 
 static int
 dissect_ROS_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -7842,7 +7842,7 @@ static const value_string ROS_GeneralProblem_vals[] = {
 
 static int
 dissect_ROS_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -7867,7 +7867,7 @@ static const value_string ROS_InvokeProblem_vals[] = {
 
 static int
 dissect_ROS_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -7887,7 +7887,7 @@ static const value_string ROS_ReturnResultProblem_vals[] = {
 
 static int
 dissect_ROS_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -7909,7 +7909,7 @@ static const value_string ROS_ReturnErrorProblem_vals[] = {
 
 static int
 dissect_ROS_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;

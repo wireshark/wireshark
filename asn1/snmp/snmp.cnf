@@ -184,7 +184,7 @@ gint pdu_type;
 #.FN_BODY UsmSecurityParameters/msgAuthoritativeEngineID
 	tvbuff_t *parameter_tvb = NULL;
 
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
 	 if (parameter_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
@@ -195,7 +195,7 @@ gint pdu_type;
 	VAL_PTR = &usm_p.user_tvb
 	
 #.FN_BODY UsmSecurityParameters/msgAuthenticationParameters
-	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = get_ber_last_created_item();
 		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
@@ -205,7 +205,7 @@ gint pdu_type;
 
 #.FN_BODY ScopedPduData/encryptedPDU
 	tvbuff_t* crypt_tvb;
-	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
 
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
@@ -336,25 +336,25 @@ gint pdu_type;
 #.FN_BODY String-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, &value_tvb);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, &value_tvb);
 	offset = offset + length;
 
 #.FN_BODY Integer-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 #.FN_BODY ObjectID-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 #.FN_BODY Empty
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 #.FN_BODY NetworkAddress/internet

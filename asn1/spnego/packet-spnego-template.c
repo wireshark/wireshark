@@ -172,6 +172,8 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean pc, ind = 0;
 	gint32 tag;
 	guint32 len;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset,
 				   -1, FALSE);
@@ -224,7 +226,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 
 		/* Next, the OID */
-		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, tvb, offset, hf_spnego_krb5_oid, &oid);
+		offset=dissect_ber_object_identifier_str(FALSE, &asn1_ctx, subtree, tvb, offset, hf_spnego_krb5_oid, &oid);
 
 		value = gssapi_lookup_oid_str(oid);
 

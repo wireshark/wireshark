@@ -45,6 +45,7 @@
 #include "epan/emem.h"
 #include "epan/prefs.h"
 #include "epan/reassemble.h"
+#include <epan/asn1.h>
 #include "packet-ber.h"
 #include "to_str.h"
 
@@ -188,10 +189,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	fragment_data *fd_head=NULL;
 	gssapi_frag_info_t *fi;
 	tvbuff_t *volatile gss_tvb=NULL;
+	asn1_ctx_t asn1_ctx;
 
 	start_offset=0;
 	offset=0;
-
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	/*
 	 * We don't know whether the data is encrypted, so say it's
 	 * not, for now.  The subdissector must set gssapi_data_encrypted
@@ -366,7 +368,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Read oid */
 		oid_start_offset=offset;
-		offset=dissect_ber_object_identifier_str(FALSE, pinfo, subtree, gss_tvb, offset, hf_gssapi_oid, &oid);
+		offset=dissect_ber_object_identifier_str(FALSE, &asn1_ctx, subtree, gss_tvb, offset, hf_gssapi_oid, &oid);
 		oidvalue = gssapi_lookup_oid_str(oid);
 
 

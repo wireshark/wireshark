@@ -85,7 +85,7 @@ dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *p
 
 static int dissect_kpasswd_newpassword(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_kpasswd_newpassword, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kpasswd_newpassword, NULL);
 
 	return offset;
 }

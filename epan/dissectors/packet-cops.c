@@ -77,6 +77,7 @@
 #include <epan/dissectors/format-oid.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
 #include "packet-ber.h"
 
 /* XXX - The "plain" COPS port (3288) can be overridden in the prefs.
@@ -1395,6 +1396,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
   gchar *vb_display_string;
   gchar *vb_display_string2;
+  asn1_ctx_t asn1_ctx;
 
 #ifdef HAVE_NET_SNMP
   struct variable_list variable;
@@ -1412,6 +1414,9 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 #ifdef HAVE_NET_SNMP
     last_decoded_prid_oid[last_decoded_prid_oid_length-1]=epd_attribute_index;
 #endif	/* HAVE_NET_SNMP */
+	
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
 
     /* parse the type of the object */
 
@@ -1438,7 +1443,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
     switch (vb_type) {
 
     case COPS_INTEGER:
-      offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start, -1, (guint*)&vb_integer_value);
+      offset = dissect_ber_integer(FALSE, &asn1_ctx, tree, tvb, start, -1, (guint*)&vb_integer_value);
       length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
@@ -1464,7 +1469,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
     case COPS_UNSIGNED32:
     case COPS_TIMETICKS:
-      offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start, -1, &vb_uinteger_value);
+      offset = dissect_ber_integer(FALSE, &asn1_ctx, tree, tvb, start, -1, &vb_uinteger_value);
       length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
@@ -1494,7 +1499,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
     case COPS_OPAQUE:
     case COPS_UNSIGNED64:
     case COPS_INTEGER64:
-      offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, start, -1, NULL);
+      offset = dissect_ber_octet_string(FALSE, &asn1_ctx, NULL, tvb, start, -1, NULL);
       vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
       length = offset - vb_value_start;
       if (tree) {
@@ -1544,7 +1549,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       break;
 
     case COPS_NULL:
-      offset = dissect_ber_null(FALSE, pinfo, tree,tvb, start, -1);
+      offset = dissect_ber_null(FALSE, &asn1_ctx, tree,tvb, start, -1);
       length = offset - vb_value_start;
       if (tree)
         proto_tree_add_text(tree, tvb, vb_value_start, length, "Value: %s", vb_type_name);

@@ -958,7 +958,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
  */
 
 static void
-snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tvbuff_t *oid_tvb,
+snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, asn1_ctx_t *actx,tvbuff_t *oid_tvb,
 					 int offset, guint *lengthp, tvbuff_t **out_tvb)
 {
 	int start, vb_value_start;
@@ -990,8 +990,8 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 
 	start = offset;
 	/* parse the type of the object */
-	offset = dissect_ber_identifier(pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
-	offset = dissect_ber_length(pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
+	offset = dissect_ber_identifier(actx->pinfo, snmp_tree, tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_length(actx->pinfo, snmp_tree, tvb, offset, &vb_length, &ind);
 
 	if(vb_length == 0){
 		length = offset - start;
@@ -1023,7 +1023,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, (void*)&(vb_integer_value));
+		offset = dissect_ber_integer(FALSE, actx, NULL, tvb, start, -1, (void*)&(vb_integer_value));
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -1051,7 +1051,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	case SNMP_COUNTER:
 	case SNMP_GAUGE:
 	case SNMP_TIMETICKS:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_uinteger_value);
+		offset = dissect_ber_integer(FALSE, actx, NULL, tvb, start, -1, &vb_uinteger_value);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -1076,14 +1076,14 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		}
 		break;
 	case SNMP_COUNTER64:
-		offset=dissect_ber_integer64(TRUE, pinfo, snmp_tree, tvb, offset, hf_snmp_counter64, NULL);
+		offset=dissect_ber_integer64(TRUE, actx, snmp_tree, tvb, offset, hf_snmp_counter64, NULL);
 		break;
 	case SNMP_OCTETSTR:
 	case SNMP_IPADDR:
 	case SNMP_OPAQUE:
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
-		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, start, -1, out_tvb);
+		offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, start, -1, out_tvb);
 		vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
 
 		length = offset - vb_value_start;
@@ -1140,7 +1140,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		break;
 
 	case SNMP_NULL:
-		dissect_ber_null(FALSE, pinfo, NULL, tvb, start, -1);
+		dissect_ber_null(FALSE, actx, NULL, tvb, start, -1);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, tvb, vb_value_start, length,
@@ -1644,7 +1644,7 @@ gboolean check_ScopedPdu(tvbuff_t* tvb) {
 
 static int
 dissect_snmp_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &oid_tvb);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, &oid_tvb);
 
   return offset;
 }
@@ -1663,7 +1663,7 @@ dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 #line 343 "snmp.cnf"
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 
@@ -1681,7 +1681,7 @@ dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 #line 337 "snmp.cnf"
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, &value_tvb);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, &value_tvb);
 	offset = offset + length;
 
 
@@ -1699,7 +1699,7 @@ dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 #line 349 "snmp.cnf"
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 
@@ -1717,7 +1717,7 @@ dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 #line 355 "snmp.cnf"
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 
@@ -1761,7 +1761,7 @@ static int dissect_simple(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1774,7 +1774,7 @@ static int dissect_ipAddress_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_snmp_Counter32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1787,7 +1787,7 @@ static int dissect_counter_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1803,7 +1803,7 @@ static int dissect_time_stamp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_snmp_Opaque(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1816,7 +1816,7 @@ static int dissect_arbitrary_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_snmp_Counter64(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1829,7 +1829,7 @@ static int dissect_big_counter_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_snmp_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1900,7 +1900,7 @@ static int dissect_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_snmp_Integer32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -1980,7 +1980,7 @@ static int dissect_agent_addr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_snmp_IpAddressIpv6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -1990,7 +1990,7 @@ dissect_snmp_IpAddressIpv6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_snmp_IpAddressOther(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -2009,7 +2009,7 @@ static const value_string snmp_Version_vals[] = {
 
 static int
 dissect_snmp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2025,7 +2025,7 @@ static int dissect_msgVersion(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_snmp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -2053,7 +2053,7 @@ static int dissect_password(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2095,7 +2095,7 @@ static const value_string snmp_T_error_status_vals[] = {
 
 static int
 dissect_snmp_T_error_status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2108,7 +2108,7 @@ static int dissect_error_status(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_snmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -2335,7 +2335,7 @@ static int dissect_set_request(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_snmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2361,7 +2361,7 @@ static const value_string snmp_T_generic_trap_vals[] = {
 
 static int
 dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2420,7 +2420,7 @@ static int dissect_trap(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_snmp_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2714,7 +2714,7 @@ dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb
 #line 185 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
 	 if (parameter_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
@@ -2733,7 +2733,7 @@ static int dissect_msgAuthoritativeEngineID(proto_tree *tree _U_, tvbuff_t *tvb 
 
 static int
 dissect_snmp_T_msgAuthoritativeEngineBoots(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &usm_p.boots);
 
   return offset;
@@ -2746,7 +2746,7 @@ static int dissect_msgAuthoritativeEngineBoots(proto_tree *tree _U_, tvbuff_t *t
 
 static int
 dissect_snmp_T_msgAuthoritativeEngineTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &usm_p.time);
 
   return offset;
@@ -2759,7 +2759,7 @@ static int dissect_msgAuthoritativeEngineTime(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_snmp_T_msgUserName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.user_tvb);
 
   return offset;
@@ -2773,7 +2773,7 @@ static int dissect_msgUserName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 198 "snmp.cnf"
-	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = get_ber_last_created_item();
 		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
@@ -2790,7 +2790,7 @@ static int dissect_msgAuthenticationParameters(proto_tree *tree _U_, tvbuff_t *t
 
 static int
 dissect_snmp_T_msgPrivacyParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.priv_tvb);
 
   return offset;
@@ -2822,7 +2822,7 @@ dissect_snmp_UsmSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -2838,7 +2838,7 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 #line 307 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
-   offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (parameter_tvb){
@@ -2865,7 +2865,7 @@ static int dissect_msgFlags(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_snmp_T_msgSecurityModel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &MsgSecurityModel);
 
   return offset;
@@ -2909,7 +2909,7 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 		case SNMP_SEC_V1:	/* 1 */
 		case SNMP_SEC_V2C:	/* 2 */
 		default:
-			  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+			  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
 			break;
@@ -2948,7 +2948,7 @@ static int
 dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 207 "snmp.cnf"
 	tvbuff_t* crypt_tvb;
-	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
 
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
@@ -3087,7 +3087,7 @@ static const value_string snmp_T_smux_version_vals[] = {
 
 static int
 dissect_snmp_T_smux_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3100,7 +3100,7 @@ static int dissect_smux_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_snmp_DisplayString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
@@ -3166,7 +3166,7 @@ static const value_string snmp_ClosePDU_vals[] = {
 
 static int
 dissect_snmp_ClosePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3179,7 +3179,7 @@ static int dissect_close(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_snmp_INTEGER_M1_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3199,7 +3199,7 @@ static const value_string snmp_T_operation_vals[] = {
 
 static int
 dissect_snmp_T_operation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3236,7 +3236,7 @@ static const value_string snmp_RRspPDU_vals[] = {
 
 static int
 dissect_snmp_RRspPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3280,7 +3280,7 @@ static const value_string snmp_SOutPDU_vals[] = {
 
 static int
 dissect_snmp_SOutPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
@@ -3416,7 +3416,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
 
 	message_length = len + 2;
-	offset = dissect_ber_integer(FALSE, pinfo, 0, tvb, offset, -1, &version);
+	offset = dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
 
 
 	/*

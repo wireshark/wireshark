@@ -101,7 +101,7 @@ static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_table;
 
 static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
-static int dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 static int dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 static int dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
@@ -404,7 +404,7 @@ static void init_tcap(void) {
 }
 
 static int
-dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     gint tag_offset, saved_offset, len_offset;
     tvbuff_t	*next_tvb;
@@ -440,7 +440,7 @@ dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 		if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
 		{
 	    	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-	    		dissect_tcap_param(pinfo, subtree,next_tvb,0);
+	    		dissect_tcap_param(actx, subtree,next_tvb,0);
 	    }
 	    	if (ind_field)
 	    		proto_tree_add_text(subtree, tvb, offset+len-2, 2, "CONSTRUCTOR EOC");
@@ -461,7 +461,7 @@ dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 		if (len) /* check for NULLS */
 			{
 	    	next_tvb = tvb_new_subset(tvb, offset, len, len);
-	    	dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_tcap_data,
+	    	dissect_ber_octet_string(TRUE, actx, tree, next_tvb, 0, hf_tcap_data,
         	                        NULL);
         	}
 	    offset += len;
@@ -646,7 +646,7 @@ dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   if (ber_oid_dissector_table && tcapext_oid){
     if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, actx->pinfo, tcap_top_tree))
       {
-		dissect_tcap_param(actx->pinfo,tree,next_tvb,0);
+		dissect_tcap_param(actx,tree,next_tvb,0);
 		offset+=len;
 		return offset;
       }

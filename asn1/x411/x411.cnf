@@ -325,7 +325,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
   /* this is magic I haven't seen used before - I've stripped the tag - but now I'm going to say it is IMPLICIT! */
   offset = dissect_ber_restricted_string(TRUE, BER_UNI_TAG_PrintableString,
-                                         actx->pinfo, tree, tvb, offset, hf_index,
+                                         actx, tree, tvb, offset, hf_index,
                                          NULL);
 
 
@@ -381,7 +381,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
-  offset = dissect_ber_octet_string(FALSE, actx->pinfo, NULL, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
 
   if (next_tvb) {
     if (content_type_id) {

@@ -407,7 +407,7 @@ ldap_conv_info_t *ldap_info;
   int           old_offset = offset;
 
   /* extract the value of the octetstring */
-  offset = dissect_ber_octet_string(FALSE, actx->pinfo, NULL, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
   if(!attr_type || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
@@ -553,7 +553,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY BOOLEAN
 	gboolean val;
 
-	offset = dissect_ber_boolean_value(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &val);
+	offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
 
 	if (hf_index == hf_ldap_dnAttributes) {
 		matching_rule_dnattr = val;
@@ -639,7 +639,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY BindResponse/matchedDN
 	tvbuff_t *new_tvb=NULL;
 
-	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
 
 	if(  new_tvb
 	&&  (tvb_length(new_tvb)>=7)

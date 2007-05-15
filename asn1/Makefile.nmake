@@ -52,6 +52,7 @@ ber: \
 	snmp	\
 	spnego	\
 	tcap	\
+	t38		\
 	wlancertextn	\
 	x411	\
 	x420	\
@@ -239,6 +240,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd t38
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ulp
@@ -550,6 +554,11 @@ t38::
 
 tcap::
 	cd tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+t38::
+	cd t38
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
