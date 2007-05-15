@@ -2923,7 +2923,7 @@ wkssvc_dissect_element_NetWkstaTransportEnum_server_name(tvbuff_t *tvb _U_, int 
 static int
 wkssvc_dissect_element_NetWkstaTransportEnum_server_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_wkssvc_wkssvc_NetWkstaTransportEnum_server_name, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_wkssvc_wkssvc_NetWkstaTransportEnum_server_name, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }

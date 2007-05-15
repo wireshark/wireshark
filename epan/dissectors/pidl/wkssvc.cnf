@@ -29,6 +29,7 @@ PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo101_domain_name_ 5
 PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_server_name_ 5|PIDL_SET_COL_INFO
 PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_domain_name_ 5
 
+PARAM_VALUE wkssvc_dissect_element_NetWkstaTransportEnum_server_name_ 1|PIDL_SET_COL_INFO
 
 
 CODE START
