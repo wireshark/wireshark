@@ -183,7 +183,11 @@ splash_update(register_action_e action, char *message, gpointer client_data)
       return;
     }
     memcpy(&next_tv, &cur_tv, sizeof(next_tv));
-    g_time_val_add(&next_tv, REGISTER_FREQ * 1000);
+    next_tv.tv_usec += REGISTER_FREQ * 1000;
+    if (next_tv.tv_usec >= 1000000) {
+        next_tv.tv_sec++;
+        next_tv.tv_usec -= 1000000;
+    }
 
     if(last_action != action) {
       /* the action has changed */
