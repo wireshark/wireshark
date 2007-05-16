@@ -1,10 +1,18 @@
+Wireshark is distributed under the GNU GPL.  There are no restrictions
+on its use.  There are significant restrictions on its distribution.
 
-		Just to avoid some misunderstandings: 
-	
-While parts of Wireshark can be built and distributed as libraries,
-these parts are still covered by the license below, and NOT by the
-Lesser General Public License or any other license.
+Parts of Wireshark can be built and distributed as libraries.  These
+parts are still covered by the GPL, and NOT by the Lesser General Public
+License or any other license.
 
+If you create a combined work using all or part of Wireshark, then your
+combined work must be released under a license compatible with the GPL.
+
+...and don't get us started on trademarks.
+
+The full text of the GNU GPL follows.
+
+------------------------------------------------------------------------
 
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
