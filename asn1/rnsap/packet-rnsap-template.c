@@ -65,9 +65,6 @@ static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
-static int ett_rnsap_initiatingMessageValue = -1;
-static int ett_rnsap_SuccessfulOutcomeValue = -1;
-static int ett_rnsap_UnsuccessfulOutcomeValue = -1;
 
 #include "packet-rnsap-ett.c"
 

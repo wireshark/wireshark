@@ -65,6 +65,7 @@ ProcedureID/ddMode DdMode
 #.FIELD_RENAME
 
 #.OMIT_ASSIGNMENT
+ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
@@ -591,6 +592,12 @@ RadioLinkSetupFailureFDD               S rnsap.proc.uout "id-radioLinkSetup/fdd"
 RadioLinkSetupRequestTDD               S rnsap.proc.imsg "id-radioLinkSetup/tdd"
 RadioLinkSetupResponseTDD              S rnsap.proc.sout "id-radioLinkSetup/tdd"
 RadioLinkSetupFailureTDD               S rnsap.proc.uout "id-radioLinkSetup/tdd"
+RadioLinkAdditionRequestFDD            S rnsap.proc.imsg "id-radioLinkAddition/fdd"
+RadioLinkAdditionResponseFDD           S rnsap.proc.sout "id-radioLinkAddition/fdd"
+RadioLinkAdditionFailureFDD            S rnsap.proc.uout "id-radioLinkAddition/fdd"
+RadioLinkAdditionRequestTDD            S rnsap.proc.imsg "id-radioLinkAddition/tdd"
+RadioLinkAdditionResponseTDD           S rnsap.proc.sout "id-radioLinkAddition/tdd"
+RadioLinkAdditionFailureTDD            S rnsap.proc.uout "id-radioLinkAddition/tdd"
 RadioLinkDeletionRequest               S rnsap.proc.imsg "id-radioLinkDeletion/common"
 RadioLinkDeletionResponse              S rnsap.proc.sout "id-radioLinkDeletion/common"
 RadioLinkReconfigurationPrepareFDD     S rnsap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
