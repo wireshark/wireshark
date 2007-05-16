@@ -1833,16 +1833,18 @@ properties_cb(GtkWidget *w, gpointer dummy)
        page_num++) {
     /* Get the frame from the scrollable window */
     frame = OBJECT_GET_DATA(sw, E_PAGESW_FRAME_KEY);
-    /* Get the module for this page. */
-    page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
-    if (page_module == NULL)
-      continue;	/* It doesn't have one. */
-    if (page_module == p.module) {
+    /* Get the module for this page (non-protocol prefs don't have one). */
+    if(frame) {
+      page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
+      if (page_module != NULL) {
+	if (page_module == p.module) {
 	  tree_select_node(
 		  OBJECT_GET_DATA(prefs_w, E_PREFSW_TREE_KEY),
 		  OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
 	  return;
 	}
+      }
+    }
   }
 }
 
