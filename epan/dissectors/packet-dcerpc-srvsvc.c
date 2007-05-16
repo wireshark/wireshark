@@ -13911,7 +13911,7 @@ srvsvc_dissect_element_NetCharDevEnum_server_unc(tvbuff_t *tvb _U_, int offset _
 static int
 srvsvc_dissect_element_NetCharDevEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevEnum_server_unc, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevEnum_server_unc, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -13927,7 +13927,7 @@ srvsvc_dissect_element_NetCharDevEnum_level(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 srvsvc_dissect_element_NetCharDevEnum_level_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetCharDevEnum_level, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetCharDevEnum_level, PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14201,7 +14201,7 @@ srvsvc_dissect_element_NetCharDevQEnum_server_unc(tvbuff_t *tvb _U_, int offset 
 static int
 srvsvc_dissect_element_NetCharDevQEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQEnum_server_unc, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQEnum_server_unc, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14217,7 +14217,7 @@ srvsvc_dissect_element_NetCharDevQEnum_user(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 srvsvc_dissect_element_NetCharDevQEnum_user_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQEnum_user, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetCharDevQEnum_user, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14233,7 +14233,7 @@ srvsvc_dissect_element_NetCharDevQEnum_level(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 srvsvc_dissect_element_NetCharDevQEnum_level_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetCharDevQEnum_level, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetCharDevQEnum_level, PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14673,7 +14673,7 @@ srvsvc_dissect_element_NetConnEnum_server_unc(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_element_NetConnEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnEnum_server_unc, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnEnum_server_unc, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14689,7 +14689,7 @@ srvsvc_dissect_element_NetConnEnum_path(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 srvsvc_dissect_element_NetConnEnum_path_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnEnum_path, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetConnEnum_path, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14705,7 +14705,7 @@ srvsvc_dissect_element_NetConnEnum_level(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 srvsvc_dissect_element_NetConnEnum_level_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetConnEnum_level, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetConnEnum_level, PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14832,7 +14832,7 @@ srvsvc_dissect_element_NetFileEnum_server_unc(tvbuff_t *tvb _U_, int offset _U_,
 static int
 srvsvc_dissect_element_NetFileEnum_server_unc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileEnum_server_unc, 0);
+	offset = PIDL_dissect_cvstring(tvb, offset, pinfo, tree, drep, sizeof(guint16), hf_srvsvc_srvsvc_NetFileEnum_server_unc, 1|PIDL_SET_COL_INFO);
 
 	return offset;
 }
@@ -14880,7 +14880,7 @@ srvsvc_dissect_element_NetFileEnum_level(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 srvsvc_dissect_element_NetFileEnum_level_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetFileEnum_level, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_srvsvc_NetFileEnum_level, PIDL_SET_COL_INFO);
 
 	return offset;
 }
