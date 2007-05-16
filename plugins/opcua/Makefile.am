@@ -27,6 +27,10 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
 
+if HAVE_WARNINGS_AS_ERRORS
+AM_CFLAGS = -Werror
+endif
+
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = opcua.la
@@ -34,6 +38,7 @@ opcua_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 opcua_la_LDFLAGS = -module -avoid-version
 opcua_la_LIBADD = @PLUGIN_LIBS@
@@ -116,4 +121,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	Makefile.common		\
-	Makefile.nmake
+	Makefile.nmake		\
+	moduleinfo.nmake	\
+	plugin.rc.in		\
+	README

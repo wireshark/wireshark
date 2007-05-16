@@ -294,11 +294,11 @@ void parseEndpointConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, 
 }
 
 gint ett_opcua_UserIdentityToken = -1;
-void parseUserIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseUserIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset _U_, char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : UserIdentityToken", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_UserIdentityToken);
- 
+  subtree = 0; 
 }
 
 gint ett_opcua_UserNameIdentityToken = -1;
@@ -1155,11 +1155,11 @@ void parseContentFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
 }
 
 gint ett_opcua_FilterOperand = -1;
-void parseFilterOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseFilterOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset _U_, char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : FilterOperand", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_FilterOperand);
- 
+  subtree = 0; 
 }
 
 gint ett_opcua_ElementOperand = -1;
@@ -1269,11 +1269,11 @@ void parseHistoryReadResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
 }
 
 gint ett_opcua_MonitoringFilter = -1;
-void parseMonitoringFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoringFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset _U_, char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoringFilter", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoringFilter);
- 
+  subtree = 0; 
 }
 
 gint ett_opcua_EventFilter = -1;
@@ -1485,11 +1485,11 @@ void parseDataChangeFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
 }
 
 gint ett_opcua_MonitoringFilterResult = -1;
-void parseMonitoringFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoringFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset _U_, char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoringFilterResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoringFilterResult);
- 
+  subtree = 0; 
 }
 
 gint ett_opcua_EventFilterResult = -1;
@@ -1746,4 +1746,5 @@ void registerComplexTypes()
 {
   proto_register_subtree_array(ett, array_length(ett));
 }
+
 

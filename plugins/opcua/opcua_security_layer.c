@@ -38,7 +38,6 @@ static const value_string g_SecSigTable[] = {
   { 3, "Message" },
   { 0, NULL }
 };
-static int hf_opcua_SecuritySigEnum = -1;
 
 static int hf_opcua_security_sig = -1;
 static int hf_opcua_security_policy = -1;
@@ -96,4 +95,5 @@ void parseSecurityLayer(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
         break;
     }
 }
+
 

@@ -148,7 +148,7 @@ void proto_reg_handoff_opcua(void)
   * This function reads the length information from
   * the transport header.
   */
-static guint get_opcua_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+static guint get_opcua_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     gint32 plen;
 
@@ -251,6 +251,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     }
 }    
+
 
 
 

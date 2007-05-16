@@ -75,7 +75,7 @@ void registerApplicationLayerTypes(int proto)
 int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
 {
     gint    iOffset = *pOffset;
-    guint8  EncodingMask, NSId = 0;
+    guint8  EncodingMask;
     guint32 Numeric = 0;
 
 	szFieldName = 0; /* avoid warning */
@@ -92,7 +92,6 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
         iOffset+=1;
         break;
     case 0x01: /* four byte node id */
-        NSId = tvb_get_guint8(tvb, iOffset);
         proto_tree_add_item(tree, hf_opcua_app_nsid, tvb, iOffset, 1, TRUE);
         iOffset+=1;
         Numeric = tvb_get_letohs(tvb, iOffset);
@@ -100,7 +99,6 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
         iOffset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        NSId = tvb_get_letohl(tvb, iOffset);
         proto_tree_add_item(tree, hf_opcua_app_nsid, tvb, iOffset, 4, TRUE);
         iOffset+=4;
         Numeric = tvb_get_letohl(tvb, iOffset);
@@ -119,4 +117,5 @@ int parseServiceNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
 
     return Numeric;
 }
+
 

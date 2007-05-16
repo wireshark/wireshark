@@ -29,16 +29,7 @@ PLUGIN_NAME = opcua
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	opcua.c \
-	opcua_transport_layer.c \
-	opcua_security_layer.c \
-	opcua_application_layer.c \
-	opcua_serviceparser.c \
-	opcua_complextypeparser.c \
-	opcua_enumparser.c \
-	opcua_simpletypes.c \
-	opcua_servicetable.c \
-	opcua_hfindeces.c
+	opcua.c 
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
@@ -51,3 +42,15 @@ DISSECTOR_INCLUDES =	\
 	opcua_application_layer.h \
 	opcua_security_layer.h \
 	opcua_transport_layer.h
+
+# other sources
+DISSECTOR_SUPPORT_SRC = \
+	opcua_transport_layer.c \
+	opcua_security_layer.c \
+	opcua_application_layer.c \
+	opcua_serviceparser.c \
+	opcua_complextypeparser.c \
+	opcua_enumparser.c \
+	opcua_simpletypes.c \
+	opcua_servicetable.c \
+	opcua_hfindeces.c
