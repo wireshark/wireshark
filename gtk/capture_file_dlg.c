@@ -1044,14 +1044,14 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
-          in_filenames[0] = cfile.filename;
-          in_filenames[1] = cf_name;
+          in_filenames[0] = cf_name;
+          in_filenames[1] = cfile.filename;
           merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype,
                                         TRUE);
       } else {
           /* append file */
-          in_filenames[0] = cf_name;
-          in_filenames[1] = cfile.filename;
+          in_filenames[0] = cfile.filename;
+          in_filenames[1] = cf_name;
           merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype,
                                         TRUE);
       }
