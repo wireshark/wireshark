@@ -370,6 +370,7 @@ static void macro_update(void* mp, const gchar** error) {
 					if (c >= '0' && c <= '9') {
 						cnt++;
 						r++;
+						*(w++) = '\0';
 						arg_pos *= 10;
 						arg_pos += c - '0';
 					} else {
