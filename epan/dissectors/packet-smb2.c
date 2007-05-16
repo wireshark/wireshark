@@ -1871,7 +1871,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree:%s", buf);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s", buf);
 	}
 
 
@@ -2107,7 +2107,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern:%s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
 			val_to_str(il, smb2_find_info_levels, "(Level:0x%02x)"),
 			buf);
 	}
@@ -2153,7 +2153,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	if(!pinfo->fd->flags.visited && si->saved && si->saved->extra_info_type==SMB2_EI_FINDPATTERN) {
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern:%s",
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
 				val_to_str(si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
 				(const char *)si->saved->extra_info);
 		}
@@ -3361,7 +3361,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* filename string */
 	fname = dissect_smb2_olb_string(pinfo, tree, tvb, &f_olb, OLB_TYPE_UNICODE_STRING);
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " File:%s", fname);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s", fname);
 	}
 
 	/* save the name if it looks sane */
@@ -4211,7 +4211,7 @@ dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
 }
 
 static int
-dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean first_in_chain)
 {
 	proto_item *seqnum_item;
 	proto_item *item=NULL;
@@ -4220,8 +4220,8 @@ dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 	proto_tree *header_tree=NULL;
 	proto_item *flags_item=NULL;
 	proto_tree *flags_tree=NULL;
-	int chain_offset;
-	int old_offset = offset;
+	int offset = 0;
+	int chain_offset = 0;
 	guint16 header_len;
 	conversation_t *conversation;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
@@ -4266,11 +4266,11 @@ dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		if (old_offset == 0) {
+		if (first_in_chain) {
 			/* first packet */
 			col_clear(pinfo->cinfo, COL_INFO);
 		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, "; ");
+			col_append_str(pinfo->cinfo, COL_INFO, ";");
 		}
 	}
 
@@ -4354,8 +4354,7 @@ dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 	proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, FALSE);
 	offset += 16;
 
-	proto_item_set_len(header_item, offset-old_offset);
-
+	proto_item_set_len(header_item, offset);
 
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -4455,12 +4454,12 @@ dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 	if (chain_offset > 0) {
 		tvbuff_t *next_tvb;
 
-		if ((old_offset+chain_offset) < offset) {
+		if (chain_offset < offset) {
 			THROW(ReportedBoundsError);
 		}
 
 		next_tvb = tvb_new_subset(tvb, chain_offset, -1, -1);
-		offset = dissect_smb2(next_tvb, 0, pinfo, parent_tree);
+		offset = dissect_smb2(next_tvb, pinfo, parent_tree, FALSE);
 	}
 
 	return offset;
@@ -4482,7 +4481,7 @@ dissect_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return FALSE;
 	}
 
-	offset = dissect_smb2(tvb, offset, pinfo, parent_tree);
+	offset = dissect_smb2(tvb, pinfo, parent_tree, TRUE);
 
 	return TRUE;
 }
