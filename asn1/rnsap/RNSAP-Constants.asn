@@ -1,7 +1,7 @@
 -- RNSAP-Constants.asn
 --
--- Taken from 3GPP TS 25.423 V6.13.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-6d0.zip/25423-6d0.DOC
+-- Taken from 3GPP TS 25.423 V7.4.0 (2007-03)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-740.zip/25423-740.DOC
 --
 -- 9.3.6 Constant Definitions
 --
@@ -107,6 +107,8 @@ maxNrOfDPCHs							INTEGER ::= 240
 maxNrOfDPCHsPerRL-1						INTEGER ::= 239 -- maxNrofCCTrCH*maxNrOfULTs-1
 maxNrOfDPCHsLCR							INTEGER ::= 240
 maxNrOfDPCHsLCRPerRL-1					INTEGER ::= 95  -- maxNrofCCTrCH*maxNrOfULTsLCR-1
+maxNrOfDPCHs768							INTEGER ::= 480
+maxNrOfDPCHs768PerRL-1					INTEGER ::= 479
 maxNrOfErrors							INTEGER ::= 256
 maxNrOfMACcshSDU-Length					INTEGER ::= 16
 maxNrOfMBMSServices						INTEGER ::= 128
@@ -133,6 +135,7 @@ maxNrOfFACHs							INTEGER	::=	8
 maxNrOfLCRTDDNeighboursPerRNC			INTEGER ::= 256
 maxIBSEG								INTEGER ::= 16
 maxNrOfSCCPCHs							INTEGER	::=	8
+maxNrOfSCCPCHs768						INTEGER	::=	16
 maxTGPS									INTEGER ::= 6
 maxNrOfTS								INTEGER ::= 15
 maxNrOfLevels							INTEGER ::= 256
@@ -170,7 +173,14 @@ maxNrOfBits-MACe-PDU-non-scheduled		INTEGER ::= 19982
 maxNrOfRefETFCIs						INTEGER ::= 8
 maxNrOfRefETFCI-PO-QUANTSTEPs			INTEGER ::= 29
 maxNrOfEDCHMACdFlows					INTEGER ::= 8
-maxNoOfLogicalChannels					INTEGER ::= 16
+maxNoOfLogicalChannels					INTEGER ::= 16 -- only maximum 15 can be used
+maxNrOfRefBetas							INTEGER ::= 8
+maxNrOfEAGCHCodes						INTEGER ::= 4
+maxNrOfHS-DSCHTBSs						INTEGER ::= 90
+maxNrOfHS-DSCHTBSs-HS-SCCHless			INTEGER ::= 4
+maxHS-PDSCHCodeNrComp-1					INTEGER ::= 15
+maxNrOfEHICHCodes						INTEGER ::= 4
+
 
 
 -- **************************************************************
@@ -635,11 +645,80 @@ id-E-DCH-FDD-Update-Information												ProtocolIE-ID ::= 606
 id-Inter-Frequency-Cell-List												ProtocolIE-ID ::= 607
 id-Inter-Frequency-Cell-Information											ProtocolIE-ID ::= 608
 id-multiple-HSSICHMeasurementValueList-TDD-DM-Rsp							ProtocolIE-ID ::= 609
+id-TDD-Support-PLCCH														ProtocolIE-ID ::= 610
+id-PLCCH-Information-UL-TimeslotLCR-Info									ProtocolIE-ID ::= 611
+id-PLCCH-Information-PhyChReconfRqstTDD 									ProtocolIE-ID ::= 612
+id-TDD768-maxNrDLPhysicalchannelsTS											ProtocolIE-ID ::= 613
+id-RL-InformationResponse-RL-AdditionRspTDD768								ProtocolIE-ID ::= 614
+id-UL-CCTrCH-InformationListIE-RL-AdditionRspTDD768							ProtocolIE-ID ::= 615
+id-DL-CCTrCH-InformationListIE-RL-AdditionRspTDD768							ProtocolIE-ID ::= 616
+id-UL-DPCH-InformationItem-RL-AdditionRspTDD768								ProtocolIE-ID ::= 617
+id-DL-DPCH-InformationItem-RL-AdditionRspTDD768								ProtocolIE-ID ::= 618
+id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD768						ProtocolIE-ID ::= 619
+id-UL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768					ProtocolIE-ID ::= 620
+id-DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD768						ProtocolIE-ID ::= 621
+id-DL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768					ProtocolIE-ID ::= 622
+id-secondary-CCPCH-Info-RL-ReconfReadyTDD768								ProtocolIE-ID ::= 623
+id-hSSCCH-TDD-Specific-InfoList-Response768 								ProtocolIE-ID ::= 624
+id-hSPDSCH-TDD-Specific-InfoList-Response768 								ProtocolIE-ID ::= 625
+id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD768					ProtocolIE-ID ::= 626
+id-UL-Timeslot-InformationList-PhyChReconfRqstTDD768						ProtocolIE-ID ::= 627
+id-DL-Timeslot-InformationList-PhyChReconfRqstTDD768						ProtocolIE-ID ::= 628
+id-CellCapabilityContainer-TDD768											ProtocolIE-ID ::= 629
+id-multiple-DedicatedMeasurementValueList-TDD768-DM-Rsp						ProtocolIE-ID ::= 630
+id-neighbouringTDDCellMeasurementInformation768								ProtocolIE-ID ::= 631
+id-UEMeasurementTimeslotInfo768												ProtocolIE-ID ::= 632
+id-Rx-Timing-Deviation-Value-768											ProtocolIE-ID ::= 633
+id-UEMeasurementValueTransmittedPowerList768								ProtocolIE-ID ::= 634
+id-UEMeasurementValueTimeslotISCPList768									ProtocolIE-ID ::= 635
+id-RL-InformationResponse-RL-SetupRspTDD768									ProtocolIE-ID ::= 636
+id-UL-CCTrCH-InformationListIE-RL-SetupRspTDD768							ProtocolIE-ID ::= 637
+id-DL-CCTrCH-InformationListIE-RL-SetupRspTDD768							ProtocolIE-ID ::= 638
+id-UL-DPCH-InformationItem-RL-SetupRspTDD768								ProtocolIE-ID ::= 639
+id-DL-DPCH-InformationItem-RL-SetupRspTDD768								ProtocolIE-ID ::= 640
+id-TDD768-minimumSpreadingFactor-UL											ProtocolIE-ID ::= 641
+id-TDD768-minimumSpreadingFactor-DL											ProtocolIE-ID ::= 642
+id-TDD768-maxNrDLPhysicalchannels											ProtocolIE-ID ::= 643
+id-DL-DPCH-InformationDeleteList768-RL-ReconfReadyTDD						ProtocolIE-ID ::= 644
+id-DPCH-ID768-DM-Rsp														ProtocolIE-ID ::= 645
+id-DPCH-ID768-DM-Rqst														ProtocolIE-ID ::= 646
+id-DPCH-ID768-DM-Rprt														ProtocolIE-ID ::= 647
 id-EDPCH-Information-RLAdditionReq-FDD										ProtocolIE-ID ::= 648
 id-HSDSCH-Configured-Indicator												ProtocolIE-ID ::= 649
+id-RxTimingDeviationForTAext												ProtocolIE-ID ::= 650
+id-RxTimingDeviationForTA768												ProtocolIE-ID ::= 651
+id-Rx-Timing-Deviation-Value-ext											ProtocolIE-ID ::= 652
+id-E-DCH-PowerOffset-for-SchedulingInfo										ProtocolIE-ID ::= 653
+id-TrCH-SrcStatisticsDescr													ProtocolIE-ID ::= 654
+id-E-DCH-Information														ProtocolIE-ID ::= 655
+id-E-DCH-Serving-RL-ID														ProtocolIE-ID ::= 656
+id-E-DCH-Information-Reconfig												ProtocolIE-ID ::= 657
+id-E-DCH-Information-Response												ProtocolIE-ID ::= 658
+id-E-DCH-768-Information													ProtocolIE-ID ::= 659
+id-E-DCH-768-Information-Reconfig											ProtocolIE-ID ::= 660
+id-E-DCH-768-Information-Response											ProtocolIE-ID ::= 661
+id-ExtendedPropagationDelay													ProtocolIE-ID ::= 662
+id-Extended-Round-Trip-Time-Value											ProtocolIE-ID ::= 663
+id-AlternativeFormatReportingIndicator										ProtocolIE-ID ::= 664
 id-DCH-Indicator-For-E-DCH-HSDPA-Operation									ProtocolIE-ID ::= 665
 id-E-RGCH-E-HICH-ChannelisationCodeValidityIndicator						ProtocolIE-ID ::= 666
 id-E-DCH-Minimum-Set-E-TFCIValidityIndicator								ProtocolIE-ID ::= 667
+id-Fast-Reconfiguration-Mode												ProtocolIE-ID ::= 668
+id-Fast-Reconfiguration-Permission											ProtocolIE-ID ::= 669
+id-Continuous-Packet-Connectivity-DTX-DRX-Information						ProtocolIE-ID ::= 670
+id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information					ProtocolIE-ID ::= 671
+id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response			ProtocolIE-ID ::= 672
+id-CPC-Information															ProtocolIE-ID ::= 673
+id-MIMO-Information															ProtocolIE-ID ::= 674
+id-MIMO-InformationResponse													ProtocolIE-ID ::= 675
+id-MIMO-InformationToModify													ProtocolIE-ID ::= 676
+id-E-DCH-LCR-Information													ProtocolIE-ID ::= 677
+id-E-DCH-LCR-Information-Reconfig											ProtocolIE-ID ::= 678
+id-E-DCH-LCR-Information-Response											ProtocolIE-ID ::= 679
+id-HS-PDSCH-Code-Change-Grant												ProtocolIE-ID ::= 680
+id-HS-PDSCH-Code-Change-Indicator											ProtocolIE-ID ::= 681
+id-SixtyfourQAM-DL-SupportIndicator											ProtocolIE-ID ::= 684
+id-eDCH-MACdFlow-Retransmission-Timer-LCR									ProtocolIE-ID ::= 694
 
 
 END

@@ -65,6 +65,7 @@ ProcedureID/ddMode DdMode
 #.FIELD_RENAME
 
 #.OMIT_ASSIGNMENT
+Presence
 ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
@@ -137,6 +138,9 @@ UpPTSInterferenceValue             N rnsap.ies id-UpPTSInterferenceValue
 Rx-Timing-Deviation-Value-LCR      N rnsap.ies id-Rx-Timing-Deviation-Value-LCR
 Angle-Of-Arrival-Value-LCR         N rnsap.ies id-Angle-Of-Arrival-Value-LCR
 HS-SICH-Reception-Quality-Value    N rnsap.ies id-HS-SICH-Reception-Quality
+Rx-Timing-Deviation-Value-768      N rnsap.ies id-Rx-Timing-Deviation-Value-768
+Rx-Timing-Deviation-Value-ext      N rnsap.ies id-Rx-Timing-Deviation-Value-ext
+Extended-Round-Trip-Time-Value     N rnsap.ies id-Extended-Round-Trip-Time-Value
 IPDL-TDD-ParametersLCR             N rnsap.ies id-IPDL-TDD-ParametersLCR
 Load-Value-IncrDecrThres           N rnsap.ies id-Load-Value-IncrDecrThres
 Transmitted-Carrier-Power-Value-IncrDecrThres N rnsap.ies id-Transmitted-Carrier-Power-Value-IncrDecrThres
@@ -197,6 +201,10 @@ DL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD N rnsap.ies id-DL-CCTrCH-LCR-Info
 DL-DPCH-LCR-InformationItem-RL-SetupRspTDD N rnsap.ies id-DL-DPCH-LCR-InformationItem-RL-SetupRspTDD
 DSCH-LCR-InformationListIEs-RL-SetupRspTDD N rnsap.ies id-DSCH-LCR-InformationListIEs-RL-SetupRspTDD
 USCH-LCR-InformationListIEs-RL-SetupRspTDD N rnsap.ies id-USCH-LCR-InformationListIEs-RL-SetupRspTDD
+UL-CCTrCHInformationListIE-RL-SetupRspTDD768 N rnsap.ies id-UL-CCTrCH-InformationListIE-RL-SetupRspTDD768
+UL-DPCH-InformationItem-RL-SetupRspTDD768 N rnsap.ies id-UL-DPCH-InformationItem-RL-SetupRspTDD768
+DL-CCTrCHInformationListIE-RL-SetupRspTDD768 N rnsap.ies id-DL-CCTrCH-InformationListIE-RL-SetupRspTDD768
+DL-DPCH-InformationItem-RL-SetupRspTDD768 N rnsap.ies id-DL-DPCH-InformationItem-RL-SetupRspTDD768
 CauseLevel-RL-SetupFailureFDD      N rnsap.ies id-CauseLevel-RL-SetupFailureFDD
 UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD N rnsap.ies id-UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD
 SuccessfulRL-InformationResponse-RL-SetupFailureFDD N rnsap.ies id-SuccessfulRL-InformationResponse-RL-SetupFailureFDD
@@ -223,6 +231,10 @@ DL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD N rnsap.ies id-DL-CCTrCH-LCR-I
 DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD N rnsap.ies id-DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD
 DSCH-LCR-InformationListIEs-RL-AdditionRspTDD N rnsap.ies id-DSCH-LCR-InformationListIEs-RL-AdditionRspTDD
 USCH-LCR-InformationListIEs-RL-AdditionRspTDD N rnsap.ies id-USCH-LCR-InformationListIEs-RL-AdditionRspTDD
+UL-CCTrCHInformationListIE-RL-AdditionRspTDD768 N rnsap.ies id-UL-CCTrCH-InformationListIE-RL-AdditionRspTDD768
+UL-DPCH-InformationItem-RL-AdditionRspTDD768 N rnsap.ies id-UL-DPCH-InformationItem-RL-AdditionRspTDD768
+DL-CCTrCHInformationListIE-RL-AdditionRspTDD768 N rnsap.ies id-DL-CCTrCH-InformationListIE-RL-AdditionRspTDD768
+DL-DPCH-InformationItem-RL-AdditionRspTDD768 N rnsap.ies id-DL-DPCH-InformationItem-RL-AdditionRspTDD768
 CauseLevel-RL-AdditionFailureFDD   N rnsap.ies id-CauseLevel-RL-AdditionFailureFDD
 UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD N rnsap.ies id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD
 SuccessfulRL-InformationResponse-RL-AdditionFailureFDD N rnsap.ies id-SuccessfulRL-InformationResponse-RL-AdditionFailureFDD
@@ -373,6 +385,7 @@ FNReportingIndicator               N rnsap.ies id-SFNReportingIndicator
 SFN                                N rnsap.ies id-SFN
 CommonMeasurementAccuracy          N rnsap.ies id-CommonMeasurementAccuracy
 NeighbouringTDDCellMeasurementInformationLCR N rnsap.ies id-neighbouringTDDCellMeasurementInformationLCR
+NeighbouringTDDCellMeasurementInformation768 N rnsap.ies id-neighbouringTDDCellMeasurementInformation768
 CommonMeasurementObjectType-CM-Rsp N rnsap.ies id-CommonMeasurementObjectType-CM-Rsp
 CommonMeasurementObjectType-CM-Rprt N rnsap.ies id-CommonMeasurementObjectType-CM-Rprt
 InformationExchangeID              N rnsap.ies id-InformationExchangeID
@@ -419,17 +432,30 @@ Guaranteed-Rate-Information        N rnsap.extension id-Guaranteed-Rate-Informat
 TrafficClass                       N rnsap.extension id-TrafficClass
 Unidirectional-DCH-Indicator       N rnsap.extension id-Unidirectional-DCH-Indicator
 Allowed-Rate-Information           N rnsap.extension id-Allowed-Rate-Information
+ExtendedPropagationDelay           N rnsap.extension id-ExtendedPropagationDelay
 DL-Power                           N rnsap.extension id-Maximum-DL-Power-TimeslotLCR-InformationItem
 DL-Power                           N rnsap.extension id-Minimum-DL-Power-TimeslotLCR-InformationItem
 DSCH-InitialWindowSize             N rnsap.extension id-DSCH-InitialWindowSize
 BindingID                          N rnsap.extension id-BindingID
 TransportLayerAddress              N rnsap.extension id-TransportLayerAddress
 E-RGCH-E-HICH-ChannelisationCodeValidityIndicator N rnsap.extension id-E-RGCH-E-HICH-ChannelisationCodeValidityIndicator
+E-DCH-PowerOffset-for-SchedulingInfo N rnsap.extension id-E-DCH-PowerOffset-for-SchedulingInfo
+TrCH-SrcStatisticsDescr            N rnsap.extension id-TrCH-SrcStatisticsDescr
 E-DCH-Minimum-Set-E-TFCIValidityIndicator N rnsap.extension id-E-DCH-Minimum-Set-E-TFCIValidityIndicator
+E-DCH-MACdFlow-Retransmission-Timer-LCR N rnsap.extension id-eDCH-MACdFlow-Retransmission-Timer-LCR
 Satellite-Almanac-Information-ExtItem N rnsap.extension id-Satellite-Almanac-Information-ExtItem
 HARQ-Preamble-Mode                 N rnsap.extension id-HARQ-Preamble-Mode
+MIMO-Information                   N rnsap.extension id-MIMO-Information
 User-Plane-Congestion-Fields-Inclusion N rnsap.extension id-User-Plane-Congestion-Fields-Inclusion
 HARQ-Preamble-Mode-Activation-Indicator N rnsap.extension id-HARQ-Preamble-Mode-Activation-Indicator
+MIMO-InformationResponse           N rnsap.extension id-MIMO-InformationResponse
+HS-PDSCH-Code-Change-Grant         N rnsap.extension id-HS-PDSCH-Code-Change-Grant
+MIMO-InformationToModify           N rnsap.extension id-MIMO-InformationToModify
+Continuous-Packet-Connectivity-HS-SCCH-Less-Information N rnsap.extension id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information
+Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response N rnsap.extension id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response
+HSSCCH-TDD-Specific-InfoList-Response768 N rnsap.extension id-hSSCCH-TDD-Specific-InfoList-Response768
+HSPDSCH-TDD-Specific-InfoList-Response768 N rnsap.extension id-hSPDSCH-TDD-Specific-InfoList-Response768
+HS-PDSCH-Code-Change-Indicator     N rnsap.extension id-HS-PDSCH-Code-Change-Indicator
 Neighbouring-LCR-TDD-CellInformation N rnsap.extension id-neighbouring-LCR-TDD-CellInformation
 RestrictionStateIndicator          N rnsap.extension id-RestrictionStateIndicator
 DPC-Mode-Change-SupportIndicator   N rnsap.extension id-DPC-Mode-Change-SupportIndicator
@@ -443,11 +469,15 @@ GERAN-Cell-Capability              N rnsap.extension id-GERAN-Cell-Capability
 GERAN-Classmark                    N rnsap.extension id-GERAN-Classmark
 ExtendedGSMCellIndividualOffset    N rnsap.extension id-ExtendedGSMCellIndividualOffset
 CellCapabilityContainer-TDD        N rnsap.extension id-CellCapabilityContainer-TDD
+CellCapabilityContainer-TDD768     N rnsap.extension id-CellCapabilityContainer-TDD768
 CellCapabilityContainer-TDD-LCR    N rnsap.extension id-CellCapabilityContainer-TDD-LCR
 Cell-Capacity-Class-Value          N rnsap.extension id-Cell-Capacity-Class-Value
 NACC-Related-Data                  N rnsap.extension id-NACC-Related-Data
 MBMS-Bearer-Service-Full-Address   N rnsap.extension id-MBMS-Bearer-Service-Full-Address
 Inter-Frequency-Cell-Information   N rnsap.extension id-Inter-Frequency-Cell-Information
+UEMeasurementValueTransmittedPowerList768 N rnsap.extension id-UEMeasurementValueTransmittedPowerList768
+UEMeasurementValueTimeslotISCPList768 N rnsap.extension id-UEMeasurementValueTimeslotISCPList768
+PLCCHinformation                   N rnsap.extension id-PLCCH-Information-UL-TimeslotLCR-Info
 DPC-Mode                           N rnsap.extension id-DPC-Mode
 UL-DPDCHIndicatorEDCH              N rnsap.extension id-UL-DPDCHIndicatorEDCH
 Enhanced-PrimaryCPICH-EcNo         N rnsap.extension id-Enhanced-PrimaryCPICH-EcNo
@@ -467,8 +497,15 @@ EDCH-Serving-RL                    N rnsap.extension id-Serving-EDCHRL-Id
 F-DPCH-Information-RL-SetupRqstFDD N rnsap.extension id-F-DPCH-Information-RL-SetupRqstFDD
 Initial-DL-DPCH-TimingAdjustment-Allowed N rnsap.extension id-Initial-DL-DPCH-TimingAdjustment-Allowed
 DCH-Indicator-For-E-DCH-HSDPA-Operation N rnsap.extension id-DCH-Indicator-For-E-DCH-HSDPA-Operation
+CFN                                N rnsap.extension id-Serving-cell-change-CFN
+Continuous-Packet-Connectivity-DTX-DRX-Information N rnsap.extension id-Continuous-Packet-Connectivity-DTX-DRX-Information
 Support-8PSK                       N rnsap.extension id-TDD-Support-8PSK
+MinimumSpreadingFactor768          N rnsap.extension id-TDD768-minimumSpreadingFactor-UL
 MaxNrDLPhysicalchannelsTS          N rnsap.extension id-TDD-maxNrDLPhysicalchannels
+Support-PLCCH                      N rnsap.extension id-TDD-Support-PLCCH
+MinimumSpreadingFactor768          N rnsap.extension id-TDD768-minimumSpreadingFactor-DL
+MaxNrDLPhysicalchannels768         N rnsap.extension id-TDD768-maxNrDLPhysicalchannels
+MaxNrDLPhysicalchannelsTS768       N rnsap.extension id-TDD768-maxNrDLPhysicalchannelsTS
 TDD-TPC-UplinkStepSize-LCR         N rnsap.extension id-TDD-TPC-UplinkStepSize-LCR-RL-SetupRqstTDD
 DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-DL-Timeslot-ISCP-LCR-Information-RL-SetupRqstTDD
 TSTD-Support-Indicator             N rnsap.extension id-TSTD-Support-Indicator-RL-SetupRqstTDD
@@ -476,6 +513,10 @@ UL-Synchronisation-Parameters-LCR  N rnsap.extension id-UL-Synchronisation-Param
 PrimaryCCPCH-RSCP-Delta            N rnsap.extension id-PrimaryCCPCH-RSCP-Delta
 HSDSCH-TDD-Information             N rnsap.extension id-HSDSCH-TDD-Information
 RL-ID                              N rnsap.extension id-PDSCH-RL-ID
+E-DCH-Information                  N rnsap.extension id-E-DCH-Information
+RL-ID                              N rnsap.extension id-E-DCH-Serving-RL-ID
+E-DCH-768-Information              N rnsap.extension id-E-DCH-768-Information
+E-DCH-LCR-Information              N rnsap.extension id-E-DCH-LCR-Information
 GA-CellAdditionalShapes            N rnsap.extension id-GA-CellAdditionalShapes
 DL-PowerBalancing-ActivationIndicator N rnsap.extension id-DL-PowerBalancing-ActivationIndicator
 Primary-CPICH-Usage-For-Channel-Estimation N rnsap.extension id-Primary-CPICH-Usage-For-Channel-Estimation
@@ -488,6 +529,7 @@ DCH-InformationResponse            N rnsap.extension id-DCH-InformationResponse
 EDCH-FDD-InformationResponse       N rnsap.extension id-EDCH-FDD-InformationResponse
 HSDSCH-RNTI                        N rnsap.extension id-HSDSCH-RNTI
 HSDSCH-FDD-Information-Response    N rnsap.extension id-HSDSCH-FDD-Information-Response
+SixtyfourQAM-DL-SupportIndicator   N rnsap.extension id-SixtyfourQAM-DL-SupportIndicator
 TimeSlot                           N rnsap.extension id-TimeSlot-RL-SetupRspTDD
 UL-SIR                             N rnsap.extension id-UL-SIR-Target-CCTrCH-InformationItem-RL-SetupRspTDD
 DL-Power                           N rnsap.extension id-CCTrCH-Maximum-DL-Power-RL-SetupRspTDD
@@ -496,12 +538,16 @@ RL-LCR-InformationResponse-RL-SetupRspTDD N rnsap.extension id-RL-LCR-Informatio
 HSDSCH-TDD-Information-Response    N rnsap.extension id-HSDSCH-TDD-Information-Response
 DSCH-RNTI                          N rnsap.extension id-DSCH-RNTI
 Active-MBMS-Bearer-Service-ListTDD-PFL N rnsap.extension id-Active-MBMS-Bearer-ServiceTDD-PFL
+RL-InformationResponse-RL-SetupRspTDD768 N rnsap.extension id-RL-InformationResponse-RL-SetupRspTDD768
+E-DCH-Information-Response         N rnsap.extension id-E-DCH-Information-Response
+E-DCH-768-Information-Response     N rnsap.extension id-E-DCH-768-Information-Response
+E-DCH-LCR-Information-Response     N rnsap.extension id-E-DCH-LCR-Information-Response
 UL-TimingAdvanceCtrl-LCR           N rnsap.extension id-UL-TimingAdvanceCtrl-LCR
 UL-SIR                             N rnsap.extension id-UL-SIR-Target-CCTrCH-LCR-InformationItem-RL-SetupRspTDD
 DL-Power                           N rnsap.extension id-DLReferencePower
 SynchronisationIndicator           N rnsap.extension id-SynchronisationIndicator
 HS-DSCH-serving-cell-change-information N rnsap.extension id-HS-DSCH-serving-cell-change-information
-CFN                                N rnsap.extension id-Serving-cell-change-CFN
+EDPCH-Information-RLAdditionReq-FDD N rnsap.extension id-EDPCH-Information-RLAdditionReq-FDD
 HSDSCH-Configured-Indicator        N rnsap.extension id-HSDSCH-Configured-Indicator
 DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-DL-Timeslot-ISCP-LCR-Information-RL-AdditionRqstTDD
 UL-CCTrCH-InformationList-RL-AdditionRqstTDD N rnsap.extension id-UL-CCTrCH-InformationList-RL-AdditionRqstTDD
@@ -512,6 +558,7 @@ MAChs-ResetIndicator               N rnsap.extension id-MAChs-ResetIndicator
 DL-Power                           N rnsap.extension id-CCTrCH-Maximum-DL-Power-RL-AdditionRspTDD
 DL-Power                           N rnsap.extension id-CCTrCH-Minimum-DL-Power-RL-AdditionRspTDD
 RL-LCR-InformationResponse-RL-AdditionRspTDD N rnsap.extension id-RL-LCR-InformationResponse-RL-AdditionRspTDD
+RL-InformationResponse-RL-AdditionRspTDD768 N rnsap.extension id-RL-InformationResponse-RL-AdditionRspTDD768
 DL-DPCH-Power-Information-RL-ReconfPrepFDD N rnsap.extension id-DL-DPCH-Power-Information-RL-ReconfPrepFDD
 DL-DPCH-TimingAdjustment           N rnsap.extension id-DL-DPCH-TimingAdjustment
 Phase-Reference-Update-Indicator   N rnsap.extension id-Phase-Reference-Update-Indicator
@@ -522,6 +569,8 @@ EDCH-FDD-Information-To-Modify     N rnsap.extension id-EDCH-FDD-Information-To-
 EDCH-MACdFlows-Information         N rnsap.extension id-EDCH-MACdFlows-To-Add
 EDCH-MACdFlows-To-Delete           N rnsap.extension id-EDCH-MACdFlows-To-Delete
 F-DPCH-Information-RL-ReconfPrepFDD N rnsap.extension id-F-DPCH-Information-RL-ReconfPrepFDD
+Fast-Reconfiguration-Mode          N rnsap.extension id-Fast-Reconfiguration-Mode
+CPC-Information                    N rnsap.extension id-CPC-Information
 UL-SIR                             N rnsap.extension id-UL-SIRTarget
 TDD-TPC-UplinkStepSize-LCR         N rnsap.extension id-TDD-TPC-UplinkStepSize-InformationAdd-LCR-RL-ReconfPrepTDD
 TDD-TPC-UplinkStepSize-LCR         N rnsap.extension id-TDD-TPC-UplinkStepSize-InformationModify-LCR-RL-ReconfPrepTDD
@@ -531,16 +580,27 @@ PrimaryCCPCH-RSCP                  N rnsap.extension id-PrimaryCCPCH-RSCP-RL-Rec
 DL-TimeSlot-ISCP-Info              N rnsap.extension id-DL-TimeSlot-ISCP-Info-RL-ReconfPrepTDD
 DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-DL-Timeslot-ISCP-LCR-Information-RL-ReconfPrepTDD
 RL-Information-RL-ReconfPrepTDD    N rnsap.extension id-RL-Information-RL-ReconfPrepTDD
+E-DCH-Information-Reconfig         N rnsap.extension id-E-DCH-Information-Reconfig
+E-DCH-768-Information-Reconfig     N rnsap.extension id-E-DCH-768-Information-Reconfig
+E-DCH-LCR-Information-Reconfig     N rnsap.extension id-E-DCH-LCR-Information-Reconfig
 DL-PowerBalancing-UpdatedIndicator N rnsap.extension id-DL-PowerBalancing-UpdatedIndicator
 Secondary-CPICH-Information-Change N rnsap.extension id-Secondary-CPICH-Information-Change
+Fast-Reconfiguration-Permission    N rnsap.extension id-Fast-Reconfiguration-Permission
 Secondary-LCR-CCPCH-Info-TDD       N rnsap.extension id-secondary-LCR-CCPCH-Info-TDD
+Secondary-CCPCH-Info-TDD768        N rnsap.extension id-secondary-CCPCH-Info-RL-ReconfReadyTDD768
 UL-DPCH-LCR-InformationAddList-RL-ReconfReadyTDD N rnsap.extension id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD
+UL-DPCH-InformationAddList-RL-ReconfReadyTDD768 N rnsap.extension id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD768
+RxTimingDeviationForTAext          N rnsap.extension id-RxTimingDeviationForTAext
 UL-TimeslotLCR-InformationModifyList-RL-ReconfReadyTDD N rnsap.extension id-UL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD
+UL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768 N rnsap.extension id-UL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768
 TDD-UL-DPCH-TimeSlotFormat-LCR     N rnsap.extension id-TDD-UL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD
 DL-DPCH-LCR-InformationAddList-RL-ReconfReadyTDD N rnsap.extension id-DL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD
 DL-Power                           N rnsap.extension id-CCTrCH-Maximum-DL-Power-RL-ReconfReadyTDD
 DL-Power                           N rnsap.extension id-CCTrCH-Minimum-DL-Power-RL-ReconfReadyTDD
+DL-DPCH-InformationAddList-RL-ReconfReadyTDD768 N rnsap.extension id-DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD768
+DL-DPCH-InformationDeleteList768-RL-ReconfReadyTDD N rnsap.extension id-DL-DPCH-InformationDeleteList768-RL-ReconfReadyTDD
 DL-TimeslotLCR-InformationModifyList-RL-ReconfReadyTDD N rnsap.extension id-DL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD
+DL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768 N rnsap.extension id-DL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768
 TDD-DL-DPCH-TimeSlotFormat-LCR     N rnsap.extension id-TDD-DL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD
 DL-Power                           N rnsap.extension id-Maximum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD
 DL-Power                           N rnsap.extension id-Minimum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD
@@ -558,32 +618,43 @@ DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-timeSlot-ISCP-LCR-List-D
 PrimaryCCPCH-RSCP                  N rnsap.extension id-PrimCCPCH-RSCP-DL-PC-RqstTDD
 HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD N rnsap.extension id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD
 HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD N rnsap.extension id-HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD
+HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD768 N rnsap.extension id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD768
 UL-TimeslotLCR-InformationList-PhyChReconfRqstTDD N rnsap.extension id-UL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD
+UL-Timeslot-InformationList-PhyChReconfRqstTDD768 N rnsap.extension id-UL-Timeslot-InformationList-PhyChReconfRqstTDD768
+PLCCHinformation                   N rnsap.extension id-PLCCH-Information-PhyChReconfRqstTDD
 DL-TimeslotLCR-InformationList-PhyChReconfRqstTDD N rnsap.extension id-DL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD
+DL-Timeslot-InformationList-PhyChReconfRqstTDD768 N rnsap.extension id-DL-Timeslot-InformationList-PhyChReconfRqstTDD768
 EDCH-MacdFlowSpecificInformationList-RL-CongestInd N rnsap.extension id-EDCH-MacdFlowSpecificInformationList-RL-CongestInd
 CommonTransportChannelResourcesInitialisationNotRequired N rnsap.extension id-CommonTransportChannelResourcesInitialisationNotRequired
 Active-MBMS-Bearer-Service-ListFDD N rnsap.extension id-Active-MBMS-Bearer-ServiceFDD
 Inter-Frequency-Cell-List          N rnsap.extension id-Inter-Frequency-Cell-List
 Active-MBMS-Bearer-Service-ListTDD N rnsap.extension id-Active-MBMS-Bearer-ServiceTDD
+RxTimingDeviationForTA768          N rnsap.extension id-RxTimingDeviationForTA768
 URA-ID                             N rnsap.extension id-URA-ID
 URA-ID                             N rnsap.extension id-Old-URA-ID
 RNC-ID                             N rnsap.extension id-SRNC-ID
 HSSICH-Info-DM-Rqst                N rnsap.extension id-HSSICH-Info-DM-Rqst
+DPCH-ID768                         N rnsap.extension id-DPCH-ID768-DM-Rqst
 PartialReportingIndicator          N rnsap.extension id-PartialReportingIndicator
 MeasurementRecoveryBehavior        N rnsap.extension id-MeasurementRecoveryBehavior
+AlternativeFormatReportingIndicator N rnsap.extension id-AlternativeFormatReportingIndicator
 HS-SICH-ID                         N rnsap.extension id-HSSICH-Info-DM
 Multiple-DedicatedMeasurementValueList-TDD-DM-Rsp N rnsap.extension id-multiple-DedicatedMeasurementValueList-TDD-DM-Rsp
 Multiple-DedicatedMeasurementValueList-LCR-TDD-DM-Rsp N rnsap.extension id-multiple-DedicatedMeasurementValueList-LCR-TDD-DM-Rsp
 Multiple-HSSICHMeasurementValueList-TDD-DM-Rsp N rnsap.extension id-multiple-HSSICHMeasurementValueList-TDD-DM-Rsp
+Multiple-DedicatedMeasurementValueList-TDD768-DM-Rsp N rnsap.extension id-multiple-DedicatedMeasurementValueList-TDD768-DM-Rsp
+DPCH-ID768                         N rnsap.extension id-DPCH-ID768-DM-Rsp
 MeasurementRecoverySupportIndicator N rnsap.extension id-MeasurementRecoverySupportIndicator
 DedicatedMeasurementObjectType-DM-Fail N rnsap.extension id-DedicatedMeasurementObjectType-DM-Fail
 HS-SICH-ID                         N rnsap.extension id-HSSICH-Info-DM-Rprt
+DPCH-ID768                         N rnsap.extension id-DPCH-ID768-DM-Rprt
 MeasurementRecoveryReportingIndicator N rnsap.extension id-MeasurementRecoveryReportingIndicator
 DedicatedMeasurementObjectType-DM-Fail-Ind N rnsap.extension id-DedicatedMeasurementObjectType-DM-Fail-Ind
 C-ID                               N rnsap.extension id-C-ID
 S-RNTI                             N rnsap.extension id-S-RNTI
 D-RNTI                             N rnsap.extension id-D-RNTI
 E-DCH-FDD-Update-Information       N rnsap.extension id-E-DCH-FDD-Update-Information
+UEMeasurementTimeslotInfo768       N rnsap.extension id-UEMeasurementTimeslotInfo768
 
 #RNSAP-ELEMENTARY-PROCEDURE
 RadioLinkSetupRequestFDD               S rnsap.proc.imsg "id-radioLinkSetup/fdd"
