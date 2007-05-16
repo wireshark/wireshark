@@ -1311,7 +1311,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 		while (current_offset < line_end_offset)
 		{
 			c = tvb_get_guint8(tvb, current_offset);
-			if (!isalpha(c))
+			if (!isalpha(c) && (c != '-'))
 			{
 				break;
 			}
