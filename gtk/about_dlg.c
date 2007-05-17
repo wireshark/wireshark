@@ -150,7 +150,7 @@ splash_new(char *message)
     return win;
 }
 
-#define REGISTER_FREQ 250 /* Milliseconds */
+#define REGISTER_FREQ 100 /* Milliseconds */
 
 void
 splash_update(register_action_e action, char *message, gpointer client_data)
