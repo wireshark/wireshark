@@ -455,7 +455,7 @@ void
 capture_input_closed(capture_options *capture_opts)
 {
     int  err;
-
+    int  packet_count_save;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
     g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
@@ -471,11 +471,13 @@ capture_input_closed(capture_options *capture_opts)
     }
 
     if(capture_opts->real_time_mode) {
-		cf_read_status_t status;
+	cf_read_status_t status;
 
         /* Read what remains of the capture file. */
         status = cf_finish_tail(capture_opts->cf, &err);
 
+        /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
+	packet_count_save = cf_get_packet_count(capture_opts->cf);
         /* Tell the GUI, we are not doing a capture any more.
 		   Must be done after the cf_finish_tail(), so file lengths are displayed 
 		   correct. */
@@ -485,7 +487,7 @@ capture_input_closed(capture_options *capture_opts)
         switch (status) {
 
         case CF_READ_OK:
-            if(cf_get_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
+            if ((packet_count_save == 0) && !capture_opts->restart) {
                 simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
 "%sNo packets captured!%s\n"
 "\n"
