@@ -43,9 +43,15 @@ capture_test_output_print() {
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
-##	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
-
-	{ date; ping -n 20 www.wireshark.org; date; } > ./testout_ping.txt 2>&1 &
+	{
+	date 
+	for (( x=20; x<=50; x++ ))
+	do
+		ping -n 1 -l $x www.wireshark.org # in effect: number the packets
+		sleep 1
+	done
+	date
+	} > ./testout_ping.txt 2>&1 &
 }
 
 ping_cleanup() {
@@ -95,6 +101,7 @@ capture_step_10packets() {
 		test_step_ok
 	else
 		echo
+                $TSHARK -ta -r ./testout.pcap >> ./testout2.txt
 		capture_test_output_print ./testout_ping.txt ./testout.txt ./testout2.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
@@ -288,7 +295,7 @@ capture_step_snapshot() {
 	traffic_gen_ping
 
 	# capture with a snapshot length of 68 bytes for $TRAFFIC_CAPTURE_DURATION seconds
-	# this should result in no packets
+	# this should result in no packets greater than 68 bytes
 	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
@@ -378,6 +385,6 @@ capture_suite() {
 	test_step_set_post capture_cleanup_step
 	test_remark_add "Capture - need some traffic on interface: \"$TRAFFIC_CAPTURE_IFACE\""
 	test_suite_add "TShark capture" tshark_capture_suite
-##	test_suite_add "Wireshark capture" wireshark_capture_suite
+	test_suite_add "Wireshark capture" wireshark_capture_suite
 	test_suite_add "Dumpcap capture" dumpcap_capture_suite
 }
