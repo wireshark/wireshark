@@ -86,7 +86,6 @@ LIBWIRESHARK_SRC = 		\
 	tvbparse.c		\
 	tvbuff.c		\
 	uat.c			\
-	uat_load.c 		\
 	unicode-utils.c		\
 	value_string.c		\
 	ws_strsplit.c 		\
@@ -97,7 +96,8 @@ LIBWIRESHARK_GENERATED_SRC = 	\
 	dtd_grammar.c 		\
 	dtd_parse.c 		\
 	dtd_preparse.c 		\
-	radius_dict.c
+	radius_dict.c 		\
+	uat_load.c
 
 LIBWIRESHARK_ALL_SRC = \
 	$(LIBWIRESHARK_SRC) 	\
