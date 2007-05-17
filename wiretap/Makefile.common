@@ -110,16 +110,10 @@ NONGENERATED_HEADER_FILES = \
 	wtap-capture.h		\
 	wtap-int.h
 
-# Files that generate compileable files
-GENERATOR_SOURCES = \
-	ascend-grammar.y	\
-	ascend-scanner.l \
-	k12text.l
-
 # The C source files they generate.
 GENERATED_C_FILES = \
 	ascend-grammar.c	\
-	ascend-scanner.c \
+	ascend-scanner.c 	\
 	k12text.c
 
 # The header files that they generate.
