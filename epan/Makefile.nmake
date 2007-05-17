@@ -48,7 +48,7 @@ libwireshark_LIBS = \
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_SRC:.c=.obj)
+LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_ALL_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
 #	strerror.obj	\

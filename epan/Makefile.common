@@ -41,9 +41,6 @@ LIBWIRESHARK_SRC = 		\
 	crc16.c			\
 	crc32.c			\
 	crcdrm.c		\
-	dtd_grammar.c   \
-	dtd_parse.c		\
-	dtd_preparse.c  \
 	emem.c			\
 	epan.c			\
 	ex-opt.c		\
@@ -52,9 +49,9 @@ LIBWIRESHARK_SRC = 		\
 	filesystem.c		\
 	follow.c		\
 	frame_data.c		\
-	funnel.c    \
-	gcp.c		\
-	guid-utils.c    \
+	funnel.c    		\
+	gcp.c			\
+	guid-utils.c    	\
 	h225-persistentdata.c	\
 	in_cksum.c		\
 	ipproto.c		\
@@ -68,7 +65,6 @@ LIBWIRESHARK_SRC = 		\
 	prefs.c			\
 	privileges.c		\
 	proto.c			\
-	radius_dict.c		\
 	range.c			\
 	reassemble.c		\
 	reedsolomon.c		\
@@ -90,12 +86,23 @@ LIBWIRESHARK_SRC = 		\
 	tvbparse.c		\
 	tvbuff.c		\
 	uat.c			\
-	uat_load.c \
+	uat_load.c 		\
 	unicode-utils.c		\
 	value_string.c		\
 	ws_strsplit.c 		\
 	xdlc.c			\
 	xmlstub.c
+
+LIBWIRESHARK_GENERATED_SRC = 	\
+	dtd_grammar.c 		\
+	dtd_parse.c 		\
+	dtd_preparse.c 		\
+	radius_dict.c
+
+LIBWIRESHARK_ALL_SRC = \
+	$(LIBWIRESHARK_SRC) 	\
+	$(LIBWIRESHARK_GENERATED_SRC)
+	
 
 LIBWIRESHARK_INCLUDES = 	\
 	addr_and_mask.h		\
@@ -123,8 +130,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	crc32.h			\
 	crcdrm.h		\
 	dtd.h			\
-	dtd_grammar.h		\
-	dtd_parse.h		\
+	dtd_grammar.h 		\
 	emem.h			\
 	epan.h			\
 	epan_dissect.h		\
@@ -192,8 +198,8 @@ LIBWIRESHARK_INCLUDES = 	\
 	to_str.h		\
 	tvbparse.h		\
 	tvbuff.h		\
-	uat.h	\
-	uat-int.h	\
+	uat.h			\
+	uat-int.h		\
 	unicode-utils.h		\
 	value_string.h		\
 	ws_strsplit.h 		\
