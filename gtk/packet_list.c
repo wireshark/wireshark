@@ -621,6 +621,7 @@ packet_list_clear(void)
     packet_history_clear();
 
     eth_clist_clear(ETH_CLIST(packet_list));
+    gtk_widget_queue_draw(packet_list);
 }
 
 void
