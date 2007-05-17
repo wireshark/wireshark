@@ -299,31 +299,7 @@ INT AirPDcapPacketProcess(
                 return AIRPDCAP_RET_WRONG_DATA_SIZE;
         }
 
-        /* get BSSID	*/
-        if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME *)(data+offset))) != NULL) {
-                memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
-#ifdef _DEBUG
-                sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
-#endif
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
-        } else {
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "BSSID not found", AIRPDCAP_DEBUG_LEVEL_5);
-                return AIRPDCAP_RET_REQ_DATA;
-        }
-
-        /* get STA address	*/
-        if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME *)(data+offset))) != NULL) {
-                memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
-#ifdef _DEBUG
-                sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
-#endif
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
-        } else {
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
-                return AIRPDCAP_RET_REQ_DATA;
-        }
-
-        /* search for a cached Security Association for current BSSID and station MAC	*/
+        /* search for a cached Security Association for current BSSID and station MAC */
         if ((index=AirPDcapGetSa(ctx, &id))==-1) {
                 /* create a new Security Association	*/
                 if ((index=AirPDcapStoreSa(ctx, &id))==-1) {
@@ -331,104 +307,125 @@ INT AirPDcapPacketProcess(
                 }
         }
 
-        /* get the Security Association structure	*/
+        /* get the Security Association structure */
         sa=&ctx->sa[index];
 
-        /* cache offset in the packet data (to scan encryption data)	*/
-        offset+=AIRPDCAP_HEADER_LEN(data[offset+1]);
+        /* Do we have WEP, TKIP, or CCMP data? */
+        if (AIRPDCAP_WEP(data[1]) && mngDecrypt && decrypt_data) {
+                /* cache offset in the packet data (to scan encryption data) */
+                offset+=AIRPDCAP_HEADER_LEN(data[offset+1]);
 
-        /*	check if data is encrypted (use the WEP bit in the Frame Control field)	*/
-        if (AIRPDCAP_WEP(data[1])==0)
-        {
-                if (mngHandshake) {
-                        /* data is sent in cleartext, check if is an authentication message or end the process	*/
-                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Unencrypted data", AIRPDCAP_DEBUG_LEVEL_3);
+                /* create new header and data to modify */
+                *decrypt_len=len;
+                memcpy(decrypt_data, data, *decrypt_len);
 
-                        /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24)	*/
-                        if (		data[offset]==0xAA &&	/* DSAP=SNAP								*/
-					data[offset+1]==0xAA &&	/* SSAP=SNAP */
-					data[offset+2]==0x03 &&	/* Control field=Unnumbered frame	*/
-					data[offset+3]==0x00 &&	/* Org. code=encaps. Ethernet */
-					data[offset+4]==0x00 &&
-					data[offset+5]==0x00 &&
-					data[offset+6]==0x88 &&	/* Type: 802.1X authentication */
-					data[offset+7]==0x8E) {
-				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
+                /* encrypted data	*/
+                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Encrypted data", AIRPDCAP_DEBUG_LEVEL_3);
 
-				/* skip LLC header	*/
-				offset+=8;
+                if (fcsPresent)
+                        /*	remove from next computation FCS	*/
+                        *decrypt_len-=4;
 
-				/* check the version of the EAPOL protocol used (IEEE 802.1X-2004, pg. 24)	*/
-				/* TODO EAPOL protocol version to check?	*/
-				/*if (data[offset]!=2) {
-					AIRPDCAP_DEBUG_PRINT_LINE("EAPOL protocol version not recognized", AIRPDCAP_DEBUG_LEVEL_5);
-					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-				}*/
-
-				/*	check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25)	*/
-				if (data[offset+1]!=3) {
-					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_5);
-					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-				}
-
-				/* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
-				bodyLength=pntohs(data+offset+2);
-				if (((len-offset-4)!=bodyLength && !fcsPresent) || ((len-offset-8)!=bodyLength && fcsPresent)) {
-					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
-					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-				}
-
-				/* skip EAPOL MPDU and go to the first byte of the body	*/
-				offset+=4;
-
-				/* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27)	*/
-				if (/*data[offset]!=0x1 &&*/	/* RC4 Key Descriptor Type (deprecated)	*/
-					data[offset]!=0x2 &&		/* IEEE 802.11 Key Descriptor Type			*/
-					data[offset]!=0xFE)		/* TODO what's this value???					*/
-				{
-					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not valid key descriptor type", AIRPDCAP_DEBUG_LEVEL_5);
-					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-				}
-
-				/* start with descriptor body	*/
-				offset+=1;
-
-				/*	manage the 4-way handshake to define the key	*/
-				return AirPDcapRsna4WHandshake(ctx, data, sa, key, offset);
-                        } else {
-				/* cleartext message, not authentication	*/
-				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "No authentication data", AIRPDCAP_DEBUG_LEVEL_5);
-				return AIRPDCAP_RET_NO_DATA_ENCRYPTED;
-                        }
+                /* check the Extension IV to distinguish between WEP encryption and WPA encryption	*/
+                /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,	*/
+                /*		IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,		*/
+                /*		IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP			*/
+                if (AIRPDCAP_EXTIV(data[offset+3])==0) {
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "WEP encryption", AIRPDCAP_DEBUG_LEVEL_3);
+                        return AirPDcapWepMng(ctx, decrypt_data, decrypt_len, key, sa, offset, fcsPresent);
+                } else {
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "TKIP or CCMP encryption", AIRPDCAP_DEBUG_LEVEL_3);
+                        return AirPDcapRsnaMng(decrypt_data, decrypt_len, key, sa, offset, fcsPresent);
                 }
-        } else {
-                if (mngDecrypt) {
+        }
 
-                        if (decrypt_data==NULL)
-                                return AIRPDCAP_RET_UNSUCCESS;
+        /* Build our keying material */
+        if (mngHandshake) {
+                /* get BSSID	*/
+                if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME *)(data+offset))) != NULL) {
+                        memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+                        sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
+#endif
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+                } else {
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "BSSID not found", AIRPDCAP_DEBUG_LEVEL_5);
+                        return AIRPDCAP_RET_REQ_DATA;
+                }
 
-                        /*	create new header and data to modify	*/
-                        *decrypt_len=len;
-                        memcpy(decrypt_data, data, *decrypt_len);
+                /* get STA address	*/
+                if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME *)(data+offset))) != NULL) {
+                        memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+                        sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
+#endif
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+                } else {
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
+                        return AIRPDCAP_RET_REQ_DATA;
+                }
 
-                        /* encrypted data	*/
-                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Encrypted data", AIRPDCAP_DEBUG_LEVEL_3);
+                /* cache offset in the packet data (to scan encryption data)	*/
+                offset+=AIRPDCAP_HEADER_LEN(data[offset+1]);
 
-                        if (fcsPresent)
-                                /*	remove from next computation FCS	*/
-                                *decrypt_len-=4;
+                /* data is sent in cleartext, check if is an authentication message or end the process	*/
+                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Unencrypted data", AIRPDCAP_DEBUG_LEVEL_3);
 
-                        /* check the Extension IV to distinguish between WEP encryption and WPA encryption	*/
-                        /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,	*/
-                        /*		IEEE 802.11i-2004, 8.3.2.2, pag. 45 for TKIP,		*/
-                        /*		IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP			*/
-                        if (AIRPDCAP_EXTIV(data[offset+3])==0) {
-                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "WEP encryption", AIRPDCAP_DEBUG_LEVEL_3);
-                                return AirPDcapWepMng(ctx, decrypt_data, decrypt_len, key, sa, offset, fcsPresent);
-                        } else {
-                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "TKIP or CCMP encryption", AIRPDCAP_DEBUG_LEVEL_3);
-                                return AirPDcapRsnaMng(decrypt_data, decrypt_len, key, sa, offset, fcsPresent);
+                /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24)	*/
+                if (		data[offset]==0xAA &&	/* DSAP=SNAP								*/
+                                data[offset+1]==0xAA &&	/* SSAP=SNAP */
+                                data[offset+2]==0x03 &&	/* Control field=Unnumbered frame	*/
+                                data[offset+3]==0x00 &&	/* Org. code=encaps. Ethernet */
+                                data[offset+4]==0x00 &&
+                                data[offset+5]==0x00 &&
+                                data[offset+6]==0x88 &&	/* Type: 802.1X authentication */
+                                data[offset+7]==0x8E) {
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
+
+                        /* skip LLC header	*/
+                        offset+=8;
+
+                        /* check the version of the EAPOL protocol used (IEEE 802.1X-2004, pg. 24)	*/
+                        /* TODO EAPOL protocol version to check?	*/
+                        /*if (data[offset]!=2) {
+                                AIRPDCAP_DEBUG_PRINT_LINE("EAPOL protocol version not recognized", AIRPDCAP_DEBUG_LEVEL_5);
+                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+                        }*/
+
+                        /*	check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25)	*/
+                        if (data[offset+1]!=3) {
+                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_5);
+                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                         }
+
+                        /* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
+                        bodyLength=pntohs(data+offset+2);
+                        if (((len-offset-4)!=bodyLength && !fcsPresent) || ((len-offset-8)!=bodyLength && fcsPresent)) {
+                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
+                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+                        }
+
+                        /* skip EAPOL MPDU and go to the first byte of the body	*/
+                        offset+=4;
+
+                        /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27)	*/
+                        if (/*data[offset]!=0x1 &&*/	/* RC4 Key Descriptor Type (deprecated)	*/
+                                data[offset]!=0x2 &&		/* IEEE 802.11 Key Descriptor Type			*/
+                                data[offset]!=0xFE)		/* TODO what's this value???					*/
+                        {
+                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not valid key descriptor type", AIRPDCAP_DEBUG_LEVEL_5);
+                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+                        }
+
+                        /* start with descriptor body	*/
+                        offset+=1;
+
+                        /*	manage the 4-way handshake to define the key	*/
+                        return AirPDcapRsna4WHandshake(ctx, data, sa, key, offset);
+                } else {
+                        /* cleartext message, not authentication	*/
+                        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "No authentication data", AIRPDCAP_DEBUG_LEVEL_5);
+                        return AIRPDCAP_RET_NO_DATA_ENCRYPTED;
                 }
         }
 
