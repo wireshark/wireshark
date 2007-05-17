@@ -27,10 +27,12 @@
 # include "config.h"
 #endif
 
+#include <glib.h>
+
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include "asn1.h"
