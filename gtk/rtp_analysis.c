@@ -12,7 +12,7 @@
  *
  * Graph. Copyright 2004, Verso Technology
  * By Alejandro Vaquero <alejandro.vaquero@verso.com>
- * Based on io_stat.c by Ronnie Sahlberg 
+ * Based on io_stat.c by Ronnie Sahlberg
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -128,7 +128,7 @@ typedef struct _dialog_graph_graph_item_t {
 } dialog_graph_graph_item_t;
 
 typedef struct _dialog_graph_graph_t {
-	struct _user_data_t *ud;	
+	struct _user_data_t *ud;
         dialog_graph_graph_item_t items[NUM_GRAPH_ITEMS];
         int plot_style;
         gboolean display;
@@ -157,7 +157,7 @@ typedef struct _dialog_graph_t {
         int pixels_per_tick;
         int max_y_units;
 	double start_time;
-} dialog_graph_t;	
+} dialog_graph_t;
 
 typedef struct _dialog_data_t {
 	GtkWidget *window;
@@ -238,7 +238,7 @@ typedef struct _mimetype_and_clock {
 	const gchar   *pt_mime_name_str;
 	guint32 value;
 } mimetype_and_clock;
-/*	RTP sampling clock rates for 
+/*	RTP sampling clock rates for
 	"In addition to the RTP payload formats (encodings) listed in the RTP
 	Payload Types table, there are additional payload formats that do not
 	have static RTP payload types assigned but instead use dynamic payload
@@ -299,7 +299,7 @@ typedef enum {
 	TAP_RTP_SHORT_FRAME,
 	TAP_RTP_FILE_OPEN_ERROR,
 	TAP_RTP_NO_DATA
-} error_type_t; 
+} error_type_t;
 
 #if GTK_MAJOR_VERSION < 2
 GtkRcStyle *rc_style;
@@ -325,7 +325,7 @@ struct _info_direction {
 #define SILENCE_PCMU	(guint8)0xFF
 #define SILENCE_PCMA	(guint8)0x55
 
-/* structure that holds general information about the connection 
+/* structure that holds general information about the connection
 * and structures for both directions */
 typedef struct _user_data_t {
 	/* tap associated data*/
@@ -370,8 +370,8 @@ static const gchar *titles[9] =  {
 };
 
 #define SAVE_FORWARD_DIRECTION_MASK 0x01
-#define SAVE_REVERSE_DIRECTION_MASK 0x02	
-#define SAVE_BOTH_DIRECTION_MASK	(SAVE_FORWARD_DIRECTION_MASK|SAVE_REVERSE_DIRECTION_MASK) 
+#define SAVE_REVERSE_DIRECTION_MASK 0x02
+#define SAVE_BOTH_DIRECTION_MASK	(SAVE_FORWARD_DIRECTION_MASK|SAVE_REVERSE_DIRECTION_MASK)
 
 #define SAVE_NONE_FORMAT 0
 #define SAVE_WAV_FORMAT	1
@@ -384,7 +384,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 /****************************************************************************/
 static void enable_graph(dialog_graph_graph_t *dgg)
 {
-        
+
         dgg->display=TRUE;
 
 }
@@ -462,7 +462,7 @@ rtp_reset(void *user_data_arg)
 #ifdef USE_CONVERSATION_GRAPH
 	if (user_data->dlg.graph_window != NULL)
 		window_destroy(user_data->dlg.graph_window);
-	
+
 	g_array_free(user_data->series_fwd.value_pairs, TRUE);
 	user_data->series_fwd.value_pairs = g_array_new(FALSE, FALSE, sizeof(value_pair_t));
 
@@ -472,10 +472,10 @@ rtp_reset(void *user_data_arg)
 
 	/* XXX check for error at fclose? */
 	if (user_data->forward.saveinfo.fp != NULL)
-		fclose(user_data->forward.saveinfo.fp); 
+		fclose(user_data->forward.saveinfo.fp);
 	if (user_data->reversed.saveinfo.fp != NULL)
-		fclose(user_data->reversed.saveinfo.fp); 
-	user_data->forward.saveinfo.fp = eth_fopen(user_data->f_tempname, "wb"); 
+		fclose(user_data->reversed.saveinfo.fp);
+	user_data->forward.saveinfo.fp = eth_fopen(user_data->f_tempname, "wb");
 	if (user_data->forward.saveinfo.fp == NULL)
 		user_data->forward.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
 	user_data->reversed.saveinfo.fp = eth_fopen(user_data->r_tempname, "wb");
@@ -556,7 +556,7 @@ static int rtp_packet_add_info(GtkCList *clist,
 	tap_rtp_stat_t *statinfo, packet_info *pinfo,
 	const struct _rtp_info *rtpinfo);
 
-static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo, 
+static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
                                    tap_rtp_stat_t *statinfo,
                                    packet_info *pinfo,
                                    const struct _rtp_info *rtpinfo);
@@ -668,14 +668,14 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
 	/* check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
 	while ((statinfo->bw_history[statinfo->bw_start_index].time+1)<current_time){
-	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;	
+	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;
 		statinfo->bw_start_index++;
 		if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index=0;
 	};
 	statinfo->total_bytes += rtpinfo->info_data_len + 28;
 	statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
 	statinfo->bw_index++;
-	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;	
+	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
 
 
 	/*  is this the first packet we got in this direction? */
@@ -882,9 +882,9 @@ static int rtp_packet_add_info(GtkCList *clist,
 	return 0;
 }
 
-
+#define MAX_SILENCE_TICKS 1000000
 /****************************************************************************/
-static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo, 
+static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
                                    tap_rtp_stat_t *statinfo,
                                    packet_info *pinfo,
                                    const struct _rtp_info *rtpinfo)
@@ -929,13 +929,14 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	/* do we need to insert some silence? */
 	if ((rtpinfo->info_marker_set) &&
 		!(statinfo->flags & STAT_FLAG_FIRST) &&
+		!(statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) &&
 		(statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
 		/* the amount of silence should be the difference between
 		* the last timestamp and the current one minus x
 		* x should equal the amount of information in the last frame
 		* XXX not done yet */
 		for(i=0; i < (statinfo->delta_timestamp - rtpinfo->info_payload_len -
-			rtpinfo->info_padding_count); i++) {
+			rtpinfo->info_padding_count) && i < MAX_SILENCE_TICKS; i++) {
 			switch (statinfo->reg_pt) {
 			case PT_PCMU:
 				tmp = SILENCE_PCMU;
@@ -953,7 +954,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		fflush(saveinfo->fp);
 	}
 
-	
+
 	if (rtpinfo->info_payload_type == PT_CN
 		|| rtpinfo->info_payload_type == PT_CN_OLD) {
 	}
@@ -1095,7 +1096,7 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gchar title1[80];
 	gchar title2[80];
 	GList *list = NULL;
-	
+
 	if (user_data->dlg.graph_window != NULL) {
 		/* There's already a graph window; reactivate it. */
 		reactivate_window(user_data->dlg.graph_window);
@@ -1117,7 +1118,7 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	user_data->series_rev.yvalue = -0.5;
 
 	g_snprintf(title1, 80, "Forward: %s:%u to %s:%u (SSRC=%u)",
-		get_addr_name(&(user_data->ip_src_fwd)), 
+		get_addr_name(&(user_data->ip_src_fwd)),
 		user_data->port_src_fwd,
 		get_addr_name(&(user_data->ip_dst_fwd)),
 		user_data->port_dst_fwd,
@@ -1155,7 +1156,7 @@ static void dialog_graph_set_title(user_data_t* user_data)
 			user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
-	g_free(title);	
+	g_free(title);
 
 }
 
@@ -1180,7 +1181,7 @@ static void dialog_graph_reset(user_data_t* user_data)
 
 	/* create the color titles near the filter buttons */
 	for(i=0;i<MAX_GRAPHS;i++){
-		/* it is forward */ 
+		/* it is forward */
 		if (i<2){
        			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
 			graph_descr[i],
@@ -1201,7 +1202,7 @@ static void dialog_graph_reset(user_data_t* user_data)
 		}
 	}
 
-	dialog_graph_set_title(user_data);	
+	dialog_graph_set_title(user_data);
 }
 
 /****************************************************************************/
@@ -1299,7 +1300,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                         }
                 }
         }
-	
+
         /*
          * Clear out old plot
          */
@@ -1578,7 +1579,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                 layout);
 #endif
 
-	/* Draw the marks */	
+	/* Draw the marks */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint32 interval;
 		guint32 x_pos, prev_x_pos;
@@ -1600,7 +1601,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 				} else {
 				        strcpy(label_string,"m");
 				}
-					
+
 #if GTK_MAJOR_VERSION < 2
                                 lwidth=gdk_string_width(font, label_string);
                                 gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
@@ -1609,7 +1610,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         x_pos-1-lwidth/2,
                                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2)+label_height,
                                         label_string);
-#else				
+#else
                            	pango_layout_set_text(layout, label_string, -1);
                                 pango_layout_get_pixel_size(layout, &lwidth, NULL);
                                 gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1637,11 +1638,11 @@ static void dialog_graph_draw(user_data_t* user_data)
 		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
 	        if (!user_data->dlg.dialog_graph.graph[i].display){
                         continue;
-                }	
+                }
 		/* initialize prev x/y to the low left corner of the graph */
 		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
 		prev_y_pos=draw_height-1+top_y_border;
-		
+
 		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
 			guint32 val;
 			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
@@ -1660,7 +1661,7 @@ static void dialog_graph_draw(user_data_t* user_data)
                                 prev_x_pos=x_pos;
                                 continue;
                         }
-		
+
                         if(val){
 	                        gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.graph[i].gc,
                                 x_pos, draw_height-1+top_y_border,
@@ -1700,7 +1701,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 static void dialog_graph_redraw(user_data_t* user_data)
 {
         user_data->dlg.dialog_graph.needs_redraw=TRUE;
-        dialog_graph_draw(user_data); 
+        dialog_graph_draw(user_data);
 }
 
 /****************************************************************************/
@@ -1845,7 +1846,7 @@ static gint filter_callback(GtkWidget *widget _U_, dialog_graph_graph_t *dgg)
 {
         /* this graph is not active, just update display and redraw */
         if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dgg->display_button))){
-                disable_graph(dgg); 
+                disable_graph(dgg);
                 dialog_graph_redraw(dgg->ud);
 		return 0;
         }
@@ -1940,7 +1941,7 @@ static void yscale_select(GtkWidget *item, gpointer key)
 {
         int val;
 	user_data_t *user_data;
-        
+
         user_data=(user_data_t *)key;
         val=(int)OBJECT_GET_DATA(item, "yscale_max");
 
@@ -2163,7 +2164,7 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
                 return;
         }
 
-	dialog_graph_init_window(user_data);	
+	dialog_graph_init_window(user_data);
 
 }
 
@@ -2187,7 +2188,7 @@ static void draw_stat(user_data_t *user_data);
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 {
 	GString *error_string;
-	
+
 	/* remove tap listener */
 	protect_thread_critical_region();
 	remove_tap_listener(user_data);
@@ -2252,13 +2253,13 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	gchar *g_dest;
 	GtkWidget *rev, *forw, *both;
 	user_data_t *user_data;
-	
+
 	FILE *fp;
 	char *columnText;
 	int i,j;
-	
+
 	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
-	
+
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
 	if (test_for_directory(g_dest) == EISDIR) {
@@ -2268,19 +2269,19 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		file_selection_set_current_folder(fs, get_last_open_dir());
 		return;
 	}
-	
+
 	rev = (GtkWidget*)OBJECT_GET_DATA(bt, "reversed_rb");
 	forw = (GtkWidget*)OBJECT_GET_DATA(bt, "forward_rb");
 	both = (GtkWidget*)OBJECT_GET_DATA(bt, "both_rb");
 	user_data = (user_data_t*)OBJECT_GET_DATA(bt, "user_data");
-	
+
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		fp = eth_fopen(g_dest, "w");
 		if (fp == NULL) {
 			open_failure_alert_box(g_dest, errno, TRUE);
 			return;
 		}
-		
+
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fprintf(fp, "Forward\n");
 			if (ferror(fp)) {
@@ -2289,7 +2290,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				return;
 			}
 		}
-		
+
 		for(j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
 				fprintf(fp,"%s",titles[j]);
@@ -2319,15 +2320,15 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				return;
 			}
 		}
-		
+
 		if (fclose(fp) == EOF) {
 			write_failure_alert_box(g_dest, errno);
 			return;
 		}
 	}
-	
+
 	if (GTK_TOGGLE_BUTTON(rev)->active || GTK_TOGGLE_BUTTON(both)->active) {
-		
+
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fp = eth_fopen(g_dest, "a");
 			if (fp == NULL) {
@@ -2402,65 +2403,65 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	GtkWidget *reversed_rb;
 	GtkWidget *both_rb;
 	GtkWidget *ok_bt;
-	
+
 	if (user_data->dlg.save_csv_as_w != NULL) {
 		/* There's already a Save CSV info dialog box; reactivate it. */
 		reactivate_window(user_data->dlg.save_csv_as_w);
 		return;
 	}
-	
+
 	user_data->dlg.save_csv_as_w = gtk_file_selection_new("Wireshark: Save Data As CSV");
-	
+
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_border_width(GTK_CONTAINER(vertb), 5);
 	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->action_area),
 		vertb, FALSE, FALSE, 0);
 	gtk_widget_show (vertb);
-	
+
 	table1 = gtk_table_new (2, 4, FALSE);
 	gtk_widget_show (table1);
 	gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
 	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
-	
+
 	label_format = gtk_label_new ("Format: Comma Separated Values");
 	gtk_widget_show (label_format);
 	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
-	
+
+
 	channels_label = gtk_label_new ("Channels:");
 	gtk_widget_show (channels_label);
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
-	
+
 	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward  ");
 	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
+
 	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
 	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
+
 	both_rb = gtk_radio_button_new_with_label (channels_group, "both");
 	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (both_rb));
 	gtk_widget_show (both_rb);
 	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
+
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
-	
+
 	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->ok_button;
 	OBJECT_SET_DATA(ok_bt, "forward_rb", forward_rb);
 	OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
@@ -2468,14 +2469,14 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	OBJECT_SET_DATA(ok_bt, "user_data", user_data);
 	SIGNAL_CONNECT(ok_bt, "clicked", save_csv_as_ok_cb,
 		user_data->dlg.save_csv_as_w);
-	
-	window_set_cancel_button(user_data->dlg.save_csv_as_w, 
+
+	window_set_cancel_button(user_data->dlg.save_csv_as_w,
 		GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, window_cancel_button_cb);
-	
+
 	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
 		save_csv_as_destroy_cb, user_data);
-	
+
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
 	window_present(user_data->dlg.save_csv_as_w);
 }
@@ -2506,11 +2507,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	size_t nchars;
 
 	forw_fd = eth_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
-	if (forw_fd < 0) 
+	if (forw_fd < 0)
 		return FALSE;
 	rev_fd = eth_open(user_data->r_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (rev_fd < 0) {
-		eth_close(forw_fd); 
+		eth_close(forw_fd);
 		return FALSE;
 	}
 
@@ -2539,9 +2540,9 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x18; nchars=eth_write(to_fd, pd, 1);
 		/* total length, it is permited to set this to 0xffffffff */
-		*pd = (unsigned char)0xff; nchars=eth_write(to_fd, pd, 1); 
-		nchars=eth_write(to_fd, pd, 1); 
-		nchars=eth_write(to_fd, pd, 1); 
+		*pd = (unsigned char)0xff; nchars=eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
 		nchars=eth_write(to_fd, pd, 1);
 		/* encoding format == 8 bit ulaw */
 		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
@@ -2558,18 +2559,18 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		nchars=eth_write(to_fd, pd, 1);
 		nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
-	
-	
+
+
 		switch (channels) {
 			/* only forward direction */
 			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
 				while ((fread = read(forw_fd, f_pd, 1)) > 0) {
-					if(stop_flag) 
+					if(stop_flag)
 						break;
 					if((count > progbar_nextstep) && (count <= progbar_count)) {
-						update_progress_dlg(progbar, 
+						update_progress_dlg(progbar,
 							(gfloat) count/progbar_count, "Saving");
 						progbar_nextstep = progbar_nextstep + progbar_quantum;
 					}
@@ -2589,7 +2590,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
-					
+
 					fwritten = eth_write(to_fd, pd, 1);
 					if ((fwritten < fread) || (fwritten < 0) || (fread < 0)) {
 						eth_close(forw_fd);
@@ -2606,10 +2607,10 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				progbar_count = user_data->reversed.saveinfo.count;
 				progbar_quantum = user_data->reversed.saveinfo.count/100;
 				while ((rread = read(rev_fd, r_pd, 1)) > 0) {
-					if(stop_flag) 
+					if(stop_flag)
 						break;
 					if((count > progbar_nextstep) && (count <= progbar_count)) {
-						update_progress_dlg(progbar, 
+						update_progress_dlg(progbar,
 							(gfloat) count/progbar_count, "Saving");
 						progbar_nextstep = progbar_nextstep + progbar_quantum;
 					}
@@ -2629,7 +2630,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
-					
+
 					rwritten = eth_write(to_fd, pd, 1);
 					if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
 						eth_close(forw_fd);
@@ -2643,11 +2644,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			}
 			/* both directions */
 			case SAVE_BOTH_DIRECTION_MASK: {
-				(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ? 
-						(progbar_count = user_data->forward.saveinfo.count) : 
+				(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ?
+						(progbar_count = user_data->forward.saveinfo.count) :
 							(progbar_count = user_data->reversed.saveinfo.count);
 				progbar_quantum = progbar_count/100;
-				/* since conversation in one way can start later than in the other one, 
+				/* since conversation in one way can start later than in the other one,
 				 * we have to write some silence information for one channel */
 				if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
 					f_write_silence = (guint32)
@@ -2658,10 +2659,10 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000);
 				}
 				for(;;) {
-					if(stop_flag) 
+					if(stop_flag)
 						break;
 					if((count > progbar_nextstep) && (count <= progbar_count)) {
-						update_progress_dlg(progbar, 
+						update_progress_dlg(progbar,
 							(gfloat) count/progbar_count, "Saving");
 						progbar_nextstep = progbar_nextstep + progbar_quantum;
 					}
@@ -2675,7 +2676,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						case PT_PCMA:
 							*f_pd = SILENCE_PCMA;
 							break;
-						}							
+						}
 						fread = 1;
 						f_write_silence--;
 					}
@@ -2688,15 +2689,15 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						case PT_PCMA:
 							*r_pd = SILENCE_PCMA;
 							break;
-						}							
+						}
 						rread = 1;
 						r_write_silence--;
 					}
 					else {
-						fread = read(forw_fd, f_pd, 1); 
+						fread = read(forw_fd, f_pd, 1);
 						rread = read(rev_fd, r_pd, 1);
 					}
-					if ((rread == 0) && (fread == 0)) 
+					if ((rread == 0) && (fread == 0))
 						break;
 					if ((user_data->forward.statinfo.pt == PT_PCMU) && (user_data->reversed.statinfo.pt == PT_PCMU)){
 						tmp = ulaw2linear(*r_pd);
@@ -2716,8 +2717,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
-					
-					
+
+
 					rwritten = eth_write(to_fd, pd, 1);
 					if ((rwritten < 0) || (rread < 0) || (fread < 0)) {
 						eth_close(forw_fd);
@@ -2757,14 +2758,14 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			}
 		}
 
-		
+
 
 		/* XXX how do you just copy the file? */
 		while ((rread = read(fd, pd, 1)) > 0) {
-			if(stop_flag) 
+			if(stop_flag)
 				break;
 			if((count > progbar_nextstep) && (count <= progbar_count)) {
-				update_progress_dlg(progbar, 
+				update_progress_dlg(progbar,
 					(gfloat) count/progbar_count, "Saving");
 				progbar_nextstep = progbar_nextstep + progbar_quantum;
 			}
@@ -2801,9 +2802,9 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	GtkWidget *rev, *forw, *both;
 	user_data_t *user_data;
 	gint channels , format;
-	
+
 	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
-	
+
 	/* Perhaps the user specified a directory instead of a file.
 	Check whether they did. */
 	if (test_for_directory(g_dest) == EISDIR) {
@@ -2813,7 +2814,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		file_selection_set_current_folder(fs, get_last_open_dir());
 		return;
 	}
-	
+
 	/*wav = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "wav_rb");
 	sw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "sw_rb");*/
 	au = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "au_rb");
@@ -2822,31 +2823,31 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	forw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "forward_rb");
 	both = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "both_rb");
 	user_data = (user_data_t *)OBJECT_GET_DATA(ok_bt, "user_data");
-	
+
 	/* XXX user clicks the ok button, but we know we can't save the voice info because f.e.
 	* we don't support that codec. So we pop up a warning. Maybe it would be better to
 	* disable the ok button or disable the buttons for direction if only one is not ok. The
-	* problem is if we open the save voice dialog and then click the refresh button and maybe 
+	* problem is if we open the save voice dialog and then click the refresh button and maybe
 	* the state changes, so we can't save anymore. In this case we should be able to update
 	* the buttons. For now it is easier if we put the warning when the ok button is pressed.
 	*/
-	
+
 	/* we can not save in both directions */
 	if ((user_data->forward.saveinfo.saved == FALSE) && (user_data->reversed.saveinfo.saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
 		/* there are many combinations here, we just exit when first matches */
-		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) || 
+		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Unsupported codec!");
-		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH) || 
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Wrong length of captured packets!");
-		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR) || 
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: RTP data with padding!");
-		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME) || 
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Not all data in all packets was captured!");
@@ -2857,7 +2858,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	}
 	/* we can not save forward direction */
 	else if ((user_data->forward.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
-		(GTK_TOGGLE_BUTTON (both)->active))) {	
+		(GTK_TOGGLE_BUTTON (both)->active))) {
 		if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: Unsupported codec!");
@@ -2877,7 +2878,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	}
 	/* we can not save reversed direction */
 	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
-		(GTK_TOGGLE_BUTTON (both)->active))) {	
+		(GTK_TOGGLE_BUTTON (both)->active))) {
 		if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Unsupported codec!");
@@ -2898,7 +2899,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 			"Can't save reversed direction in a file: File I/O problem!");
 		return;
 	}
-	
+
 	/*if (GTK_TOGGLE_BUTTON (wav)->active)
 	format = SAVE_WAV_FORMAT;
 	else */if (GTK_TOGGLE_BUTTON (au)->active)
@@ -2909,12 +2910,12 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	format = SAVE_RAW_FORMAT;
 	else
 	format = SAVE_NONE_FORMAT;
-	
+
 	if (GTK_TOGGLE_BUTTON (rev)->active)
 		channels = SAVE_REVERSE_DIRECTION_MASK;
 	else if (GTK_TOGGLE_BUTTON (both)->active)
 		channels = SAVE_BOTH_DIRECTION_MASK;
-	else 
+	else
 		channels = SAVE_FORWARD_DIRECTION_MASK;
 
 	/* direction/format validity*/
@@ -2953,14 +2954,14 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 			"Can't save in a file: Invalid save format");
 		return;
 	}
-	
+
 	if(!copy_file(g_dest, channels, format, user_data)) {
 		/* XXX - report the error type! */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"An error occurred while saving voice in a file!");
 		return;
 	}
-	
+
 	window_destroy(GTK_WIDGET(user_data->dlg.save_voice_as_w));
 }
 
@@ -2982,33 +2983,33 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	GtkWidget *au_rb;
 	GtkWidget *raw_rb;
 	GtkWidget *ok_bt;
-	
+
 	/* if we can't save in a file: wrong codec, cut packets or other errors */
-	/* shold the error arise here or later when you click ok button ? 
+	/* shold the error arise here or later when you click ok button ?
 	* if we do it here, then we must disable the refresh button, so we don't do it here */
-	
+
 	if (user_data->dlg.save_voice_as_w != NULL) {
 		/* There's already a Save voice info dialog box; reactivate it. */
 		reactivate_window(user_data->dlg.save_voice_as_w);
 		return;
 	}
-	
+
     /* XXX - use file_selection from dlg_utils instead! */
 	user_data->dlg.save_voice_as_w = gtk_file_selection_new("Wireshark: Save Payload As ...");
-	
+
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
 	gtk_container_border_width(GTK_CONTAINER(vertb), 5);
 	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->action_area),
 		vertb, FALSE, FALSE, 0);
 	gtk_widget_show (vertb);
-	
+
 	table1 = gtk_table_new (2, 4, FALSE);
 	gtk_widget_show (table1);
 	gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
 	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
-	
+
 	/*label_format = gtk_label_new ("Format: .au (ulaw, 8 bit, 8000 Hz, mono) ");
 	gtk_widget_show (label_format);
 	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
@@ -3029,23 +3030,23 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_table_attach (GTK_TABLE (table1), raw_rb, 1, 2, 0, 1,
 	(GtkAttachOptions) (GTK_FILL),
 	(GtkAttachOptions) (0), 0, 0);
-	
-	  
+
+
 	au_rb = gtk_radio_button_new_with_label (format_group, ".au");
 	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (au_rb));
 	gtk_widget_show (au_rb);
 	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 	(GtkAttachOptions) (GTK_FILL),
 	(GtkAttachOptions) (0), 0, 0);
-	
-	/* we support .au - ulaw*/ 
+
+	/* we support .au - ulaw*/
 	/*	wav_rb = gtk_radio_button_new_with_label (format_group, ".wav");
 	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (wav_rb));
 	gtk_widget_show (wav_rb);
 	gtk_table_attach (GTK_TABLE (table1), wav_rb, 1, 2, 0, 1,
 	(GtkAttachOptions) (GTK_FILL),
 	(GtkAttachOptions) (0), 0, 0);
-	
+
 	  sw_rb = gtk_radio_button_new_with_label (format_group, "8 kHz, 16 bit  ");
 	  format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (sw_rb));
 	  gtk_widget_show (sw_rb);
@@ -3058,40 +3059,40 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	  gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 	  (GtkAttachOptions) (GTK_FILL),
 	  (GtkAttachOptions) (0), 0, 0);
-	*/ 
+	*/
 
-	
+
 	channels_label = gtk_label_new ("Channels:");
 	gtk_widget_show (channels_label);
 	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
-	
+
 	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward  ");
 	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
+
 	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
 	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
+
 	both_rb = gtk_radio_button_new_with_label (channels_group, "both");
 	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (both_rb));
 	gtk_widget_show (both_rb);
 	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
-	
+
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
-	
-	/* if one direction is nok we don't allow saving 
+
+	/* if one direction is nok we don't allow saving
 	XXX this is not ok since the user can click the refresh button and cause changes
 	but we can not update this window. So we move all the decision on the time the ok
 	button is clicked
@@ -3105,7 +3106,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_widget_set_sensitive(both_rb, FALSE);
 	}
 	*/
-	
+
 	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->ok_button;
 	/*OBJECT_SET_DATA(ok_bt, "wav_rb", wav_rb);*/
 	OBJECT_SET_DATA(ok_bt, "au_rb", au_rb);
@@ -3118,10 +3119,10 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	SIGNAL_CONNECT(ok_bt, "clicked", save_voice_as_ok_cb,
                        user_data->dlg.save_voice_as_w);
 
-    window_set_cancel_button(user_data->dlg.save_voice_as_w, 
+    window_set_cancel_button(user_data->dlg.save_voice_as_w,
       GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "delete_event", 
+    SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "delete_event",
                         window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "destroy",
                         save_voice_as_destroy_cb, user_data);
@@ -3152,8 +3153,8 @@ static void draw_stat(user_data_t *user_data)
                 r_perc = (double)(r_lost*100)/(double)r_expected;
         } else {
                 r_perc = 0;
-        } 
-		
+        }
+
 	g_snprintf(label_max, 199, "Max delta = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
@@ -3412,7 +3413,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gchar str_ip_dst[16];
 	column_arrows *col_arrows_fwd;
 	column_arrows *col_arrows_rev;
-	
+
 	window = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: RTP Stream Analysis");
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
 
@@ -3426,8 +3427,8 @@ static void create_rtp_dialog(user_data_t* user_data)
 	strcpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)));
 	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)));
 
-	g_snprintf(label_forward, 149, 
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
+	g_snprintf(label_forward, 149,
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u",
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
@@ -3435,7 +3436,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)));
 
 	g_snprintf(label_reverse, 149,
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u",
 		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
 	/* Start a notebook for flipping between sets of changes */
@@ -3538,7 +3539,7 @@ static void create_rtp_dialog(user_data_t* user_data)
         graph_bt = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
 	gtk_widget_show(graph_bt);
-	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);	
+	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);
 
 
 #ifdef USE_CONVERSATION_GRAPH
@@ -3598,7 +3599,7 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 		hfssrc = proto_registrar_get_byname(proto_field);
 		if (hfssrc == NULL)
 			return FALSE;
-		for(ptree_node=ptree_node->first_child; ptree_node!=NULL; 
+		for(ptree_node=ptree_node->first_child; ptree_node!=NULL;
 					ptree_node=ptree_node->next) {
 			finfo=PITEM_FINFO(ptree_node);
 			if (hfssrc==finfo->hfinfo) {
@@ -3745,7 +3746,7 @@ void rtp_analysis(
 
 /****************************************************************************/
 /* entry point from main menu */
-static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_) 
+static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	address ip_src_fwd;
 	guint16 port_src_fwd;
@@ -3781,7 +3782,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	/* we load the current file into cf variable */
 	cf = &cfile;
 	fdata = cf->current_frame;
-	
+
 	/* we are on the selected frame now */
 	if (fdata == NULL)
 		return; /* if we exit here it's an error */
@@ -3797,7 +3798,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	epan_dissect_prime_dfilter(edt, sfcode);
 	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
 	frame_matched = dfilter_apply_edt(sfcode, edt);
-	
+
 	/* if it is not an rtp frame, show the rtpstream dialog */
 	frame_matched = dfilter_apply_edt(sfcode, edt);
 	if (frame_matched != 1) {
@@ -3825,7 +3826,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
                     "RTP Version != 2 isn't supported!");
                 return;
         }
-	
+
 	/* now we need the SSRC value of the current frame */
 	if (!get_int_value_from_proto_tree(edt->tree, "rtp", "rtp.ssrc", &ssrc_fwd)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
