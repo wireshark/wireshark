@@ -375,216 +375,6 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 }
 
-#define cVALS(x) (const value_string*)(x)
-
-static proto_item *
-h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint32 *return_value)
-{
-	gint offset;
-	guint length;
-	guint bit_length;
-	char *str;
-	header_field_info *hf_field;
-	guint32 value = 0;
-	int bit;
-	guint32 mask = 0, tmp;
-	gboolean is_bytealigned = FALSE;
-	guint8 mask8	= 0xff;
-	guint16 mask16	= 0xffff;
-	guint32 mask24	= 0xffffff;
-	guint32 mask32	= 0xffffffff;
-	guint8 shift;
-	int i;
-
-	if((bit_offset&0x7)==0)
-		is_bytealigned = TRUE;
-
-	hf_field = proto_registrar_get_nth(hf_index);
-
-	offset = bit_offset>>3;
-	bit_length = ((bit_offset&0x7)+no_of_bits);
-	length = bit_length >>3;
-	if((bit_length&0x7)!=0)
-		length = length +1;
-
-	if (no_of_bits < 2){
-		/* Single bit */
-		mask8 = mask8 >>(bit_offset&0x7);
-		value = tvb_get_guint8(tvb,offset) & mask8;
-		mask = 0x80;
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-	}else if(no_of_bits < 9){
-		/* One or 2 bytes */
-		if(length == 1){
-			/* Spans 1 byte */
-			mask8 = mask8>>(bit_offset&0x7);
-			value = tvb_get_guint8(tvb,offset)&mask8;
-			mask = 0x80;
-		}else{
-			/* Spans 2 bytes */	
-			mask16 = mask16>>(bit_offset&0x7);
-			value = tvb_get_ntohs(tvb,offset) & mask16;
-			mask = 0x8000;
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-		
-	}else if (no_of_bits < 17){
-		/* 2 or 3 bytes */
-		if(length == 2){
-			/* Spans 2 bytes */
-			mask16 = mask16>>(bit_offset&0x7);
-			value = tvb_get_ntohs(tvb,offset) & mask16;
-			mask = 0x8000;
-		}else{
-			/* Spans 3 bytes */	
-			mask24 = mask24>>(bit_offset&0x7);
-			value = tvb_get_ntoh24(tvb,offset) & mask24;
-			mask = 0x800000;
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-
-	}else if (no_of_bits < 25){
-		/* 3 or 4 bytes */
-		if(length == 3){
-			/* Spans 3 bytes */
-			mask24 = mask24>>(bit_offset&0x7);
-			value = tvb_get_ntoh24(tvb,offset) & mask24;
-			mask = 0x800000;
-		}else{
-			/* Spans 4 bytes */	
-			mask32 = mask32>>(bit_offset&0x7);
-			value = tvb_get_ntohl(tvb,offset) & mask32;
-			mask = 0x80000000;
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-
-	}else if (no_of_bits < 33){
-		/* 4 or 5 bytes */
-		if(length == 4){
-			/* Spans 4 bytes */	
-			mask32 = mask32>>(bit_offset&0x7);
-			value = tvb_get_ntohl(tvb,offset) & mask32;
-			mask = 0x80000000;
-		}else{
-			/* Spans 5 bytes
-			 * Does not handle unaligned bits over 24
-			 */
-			DISSECTOR_ASSERT_NOT_REACHED();
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-
-	}else{
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-
-	/* prepare the string */
-	str=ep_alloc(256);
-	str[0]='\0';
-	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		strcat(str,".");
-		mask = mask>>1;
-	}
-	/* read the bits for the int */
-	for(i=0;i<no_of_bits;i++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		if(bit&&(!(bit%8))){
-			strcat(str, " ");
-		}
-		bit++;
-		tmp = value & mask;
-		if(tmp != 0){
-			strcat(str, "1");
-		} else {
-			strcat(str, "0");
-		}
-		mask = mask>>1;
-	}
-	for(;bit%8;bit++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		strcat(str,".");
-	}
-
-	if(return_value){
-		*return_value=value;
-	}
-	if(hf_index == -1)
-		return NULL;
-
-	strcat(str," = ");
-	strcat(str,hf_field->name);
-
-	if (hf_field->type == FT_BOOLEAN){
-		/* Boolean field */
-		if (hf_field->strings) {
-			const true_false_string		*tfstring = &tfs_true_false;
-			tfstring = (const struct true_false_string*) hf_field->strings;
-
-			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, value,
-				"%s: %s",
-				str,
-				value ? tfstring->true_string : tfstring->false_string);
-		}else{
-			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, value,
-				"%s: %u",
-				str,
-				value);
-		}
-	}
-	/* 1 - 32 bits field */
-
-	if (hf_field->strings) {
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-                      "%s: %s",
-					  str,
-					  val_to_str(value, cVALS(hf_field->strings), "Unknown"));
-	}
-	switch(hf_field->display){
-	case BASE_DEC:
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-	                 "%s: %u",
-					  str,
-					  value);
-		break;
-	case BASE_HEX:
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-	                 "%s: 0x%x",
-					  str,
-					  value);
-		break;
-	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		return NULL;
-		;
-	}
-
-}
 
 /*
  * 5.3 Macroblock layer
@@ -604,19 +394,19 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset
 
 	if(is_rfc4626){
 		/* GBSC 1xxx xxxx */
-		h263_proto_tree_add_bits(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, NULL);
+		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, FALSE);
 		offset_in_bits++;
 	}else{
 		/* Group of Block Start Code (GBSC) (17 bits) 
 		 * A word of 17 bits. Its value is 0000 0000 0000 0000 1.
 		 */
-		h263_proto_tree_add_bits(tree, hf_h263_gbsc, tvb, offset_in_bits, 17, NULL);
+		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 17, FALSE);
 		offset_in_bits = offset_in_bits +17;
 	}
 	/* 
 	 * Group Number (GN) (5 bits)
 	 */
-	h263_proto_tree_add_bits(tree, hf_h263_GN, tvb, offset_in_bits, 5, NULL);
+	proto_tree_add_bits_item(tree, hf_h263_GN, tvb, offset_in_bits, 5, FALSE);
 	offset_in_bits = offset_in_bits +5;
 	/* 5.2.4 GOB Sub-Bitstream Indicator (GSBI) (2 bits)
 	 * A fixed length codeword of 2 bits that is only present if CPM is "1" in the picture header.
@@ -644,29 +434,29 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *h263_opptype_tree	= NULL;
 	proto_item *opptype_item		= NULL;
 	unsigned int offset_in_bits		= offset << 3;
-	guint32 source_format;
-	guint32 ufep;
-	guint32 picture_coding_type;
-	guint32 PB_frames_mode = 0;
-	guint32 custom_pcf = 0;
-	guint32 picture_type_code =0;
-	guint32 cpm;
-	guint32 pei;
+	guint64 source_format;
+	guint64 ufep;
+	guint64 picture_coding_type;
+	guint64 PB_frames_mode = 0;
+	guint64 custom_pcf = 0;
+	guint64 picture_type_code =0;
+	guint64 cpm;
+	guint64 pei;
 
 	if(is_rfc4626){
 		/* PC 1000 00xx */ 
-		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 6, NULL);
+		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 6, FALSE);
 		offset_in_bits = offset_in_bits +6;
 
 	}else{
 	/* Check for PSC, PSC is a word of 22 bits. 
 	 * Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
 	 */
-		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 22, NULL);
+		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 22, FALSE);
 		offset_in_bits = offset_in_bits +22;
 
 	}
-	h263_proto_tree_add_bits(tree, hf_h263_TR, tvb, offset_in_bits, 8, NULL);
+	proto_tree_add_bits_item(tree, hf_h263_TR, tvb, offset_in_bits, 8, FALSE);
 	offset_in_bits = offset_in_bits +8;
 	/*
 	 * Bit 1: Always "1", in order to avoid start code emulation. 
@@ -674,63 +464,63 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	offset_in_bits = offset_in_bits +2;
 	/* Bit 3: Split screen indicator, "0" off, "1" on. */
-	h263_proto_tree_add_bits( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, NULL);
+	proto_tree_add_bits_item( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, FALSE);
 	offset_in_bits++;
 	/* Bit 4: Document camera indicator, */
-	h263_proto_tree_add_bits( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1, NULL);
+	proto_tree_add_bits_item( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1, FALSE);
 	offset_in_bits++;
 	/* Bit 5: Full Picture Freeze Release, "0" off, "1" on. */
-	h263_proto_tree_add_bits( tree, hf_h263_full_picture_freeze_release, tvb, offset_in_bits, 1, NULL);
+	proto_tree_add_bits_item( tree, hf_h263_full_picture_freeze_release, tvb, offset_in_bits, 1, FALSE);
 	offset_in_bits++;
 	/* Bits 6-8: Source Format, "000" forbidden, "001" sub-QCIF, "010" QCIF, "011" CIF,
 	 * "100" 4CIF, "101" 16CIF, "110" reserved, "111" extended PTYPE.
 	 */
-	h263_proto_tree_add_bits( tree, hf_h263_source_format, tvb, offset_in_bits, 3 ,&source_format);
+	proto_tree_add_bits_ret_val( tree, hf_h263_source_format, tvb, offset_in_bits, 3 ,&source_format, FALSE);
 	offset_in_bits = offset_in_bits +3;
 	if (source_format != H263_PLUSPTYPE){
 		/* Not extended PTYPE */
 		/* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
-		h263_proto_tree_add_bits( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1, &picture_coding_type);
+		proto_tree_add_bits_ret_val( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1, &picture_coding_type, FALSE);
 		if ( check_col( pinfo->cinfo, COL_INFO) )
-			col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str((guint32)picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
 		offset_in_bits++;
 		/* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
-		h263_proto_tree_add_bits( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1, NULL);
+		proto_tree_add_bits_item( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1, FALSE);
 		offset_in_bits++;
 		/* Bit 11: Optional Syntax-based Arithmetic Coding mode (see Annex E), "0" off, "1" on.*/
-		h263_proto_tree_add_bits( tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset_in_bits, 1, NULL);
+		proto_tree_add_bits_item( tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset_in_bits, 1, FALSE);
 		offset_in_bits++;
 		/* Bit 12: Optional Advanced Prediction mode (see Annex F), "0" off, "1" on.*/
-		h263_proto_tree_add_bits( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1, NULL);
+		proto_tree_add_bits_item( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1, FALSE);
 		offset_in_bits++;
 		/* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
-		h263_proto_tree_add_bits( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, &PB_frames_mode);
+		proto_tree_add_bits_ret_val( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, &PB_frames_mode, FALSE);
 		offset_in_bits++;
 	}else{
 		/* Extended PTYPE 
 		 * Update Full Extended PTYPE (UFEP) (3 bits)
 		 */
 		/* .... ..xx x... .... */
-		h263_proto_tree_add_bits( tree, hf_h263_UFEP, tvb, offset_in_bits, 3, &ufep);
+		proto_tree_add_bits_ret_val( tree, hf_h263_UFEP, tvb, offset_in_bits, 3, &ufep, FALSE);
 		offset_in_bits = offset_in_bits +3;
 		if(ufep==1){
 			/* The Optional Part of PLUSPTYPE (OPPTYPE) (18 bits) 
 			 */
 			 /*  .xxx xxxx  xxxx xxxx  xxx. .... */
-			opptype_item = h263_proto_tree_add_bits( tree, hf_h263_opptype, tvb, offset_in_bits, 18, NULL);
+			opptype_item = proto_tree_add_bits_item( tree, hf_h263_opptype, tvb, offset_in_bits, 18, FALSE);
 			h263_opptype_tree = proto_item_add_subtree( opptype_item, ett_h263_optype );
 			/*
 			 * If UFEP is "001", then the following bits are present in PLUSPTYPE:
 			 *  Bits 1-3 Source Format, "000" reserved, "001" sub-QCIF, "010" QCIF, "011" CIF,
 			 * "100" 4CIF, "101" 16CIF, "110" custom source format, "111" reserved;
 			 */
-			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, NULL);
+			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, FALSE);
 			offset_in_bits = offset_in_bits +3;
 			
 			/*
 			 *  Bit 4 Optional Custom PCF, "0" CIF PCF, "1" custom PCF;
 			 */
-			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 3, &custom_pcf);
+			proto_tree_add_bits_ret_val( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 3, &custom_pcf, FALSE);
 			offset_in_bits++;
 			/*
 			 *  Bit 5 Optional Unrestricted Motion Vector (UMV) mode (see Annex D), "0" off, "1" on;
@@ -802,7 +592,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * "110" Reserved;
 		 * "111" Reserved;
 		 */
-		h263_proto_tree_add_bits( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code);
+		proto_tree_add_bits_ret_val( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code, FALSE);
 		offset_in_bits = offset_in_bits +3;
 		/*
 		 *  Bit 4 Optional Reference Picture Resampling (RPR) mode (see Annex P), "0" off, "1" on;
@@ -833,14 +623,14 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows
 		 * immediately after PLUSPTYPE in the picture header.
 		 */
-		h263_proto_tree_add_bits( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm);
+		proto_tree_add_bits_ret_val( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm, FALSE);
 		offset_in_bits++;
 		/* 5.1.21 Picture Sub-Bitstream Indicator (PSBI) (2 bits)
 		 * only present if Continuous Presence Multipoint and Video
 		 * Multiplex mode is indicated by CPM.
 		 */
 		if(cpm==1){
-			h263_proto_tree_add_bits( tree, hf_h263_psbi, tvb, offset_in_bits, 2, NULL);
+			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, FALSE);
 			offset_in_bits = offset_in_bits +2;
 		}
 		/* TODO Add the rest of the fields */
@@ -956,17 +746,17 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 	}
 	/* 5.1.19 Quantizer Information (PQUANT) (5 bits) */
-	h263_proto_tree_add_bits( tree, hf_h263_pquant, tvb, offset_in_bits, 5, NULL);
+	proto_tree_add_bits_item( tree, hf_h263_pquant, tvb, offset_in_bits, 5, FALSE);
 	offset_in_bits = offset_in_bits +5;
 	if (source_format != H263_PLUSPTYPE){
-		h263_proto_tree_add_bits( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm);
+		proto_tree_add_bits_ret_val( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm, FALSE);
 		offset_in_bits++;
 		/* 5.1.21 Picture Sub-Bitstream Indicator (PSBI) (2 bits)
 		 * only present if Continuous Presence Multipoint and Video
 		 * Multiplex mode is indicated by CPM.
 		 */
 		if(cpm==1){
-			h263_proto_tree_add_bits( tree, hf_h263_psbi, tvb, offset_in_bits, 2, NULL);
+			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, FALSE);
 			offset_in_bits = offset_in_bits +2;
 		}
 	}
@@ -977,10 +767,10 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if((PB_frames_mode == 1)||(picture_type_code == 2 )){
 		if(custom_pcf == 0){
-			h263_proto_tree_add_bits( tree, hf_h263_trb, tvb, offset_in_bits, 3, NULL);
+			proto_tree_add_bits_item( tree, hf_h263_trb, tvb, offset_in_bits, 3, FALSE);
 			offset_in_bits = offset_in_bits +3;
 		}else{
-			h263_proto_tree_add_bits( tree, hf_h263_trb, tvb, offset_in_bits, 5, NULL);
+			proto_tree_add_bits_item( tree, hf_h263_trb, tvb, offset_in_bits, 5, FALSE);
 			offset_in_bits = offset_in_bits +5;
 		}
 	}
@@ -993,16 +783,16 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* 5.1.24 Extra Insertion Information (PEI) (1 bit)
 	 * A bit which when set to "1" signals the presence of the following optional data field.
 	 */
-	h263_proto_tree_add_bits( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei);
+	proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, FALSE);
 	while(pei==1)
 	{
 		/*5.1.25 Supplemental Enhancement Information (PSUPP) (0/8/16 ... bits) 
 		 * If PEI is set to "1", then 9 bits follow consisting of 8 bits of data (PSUPP) and then another PEI bit
 		 * to indicate if a further 9 bits follow and so on. Encoders shall use PSUPP as specified in Annex L.
 		 */
-		h263_proto_tree_add_bits( tree, hf_h263_psupp, tvb, offset_in_bits, 8, NULL);
+		proto_tree_add_bits_item( tree, hf_h263_psupp, tvb, offset_in_bits, 8, FALSE);
 		offset_in_bits = offset_in_bits +8;
-		h263_proto_tree_add_bits( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei);
+		proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, FALSE);
 
 	}
 	/* For the first GOB in each picture (with number 0), no GOB header shall be transmitted.
