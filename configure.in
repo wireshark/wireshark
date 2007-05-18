@@ -499,7 +499,7 @@ if test "x$enable_gtk2" = "xyes" -a \
 	GTK_OK=two
 	AM_PATH_GTK_2_0(2.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
 elif test "x$enable_gtk2" != "xyes" -a \
-    -a "(" "x$enable_wireshark" = "xyes" -o "x$enable_wireshark" = "xifgtkavailable" ")"; then
+    "(" "x$enable_wireshark" = "xyes" -o "x$enable_wireshark" = "xifgtkavailable" ")"; then
 	GTK_OK=one
 	AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no )
 else
