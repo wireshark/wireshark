@@ -303,7 +303,7 @@ static const value_string ymsg_service_vals[] = {
 
 static const value_string ymsg_status_vals[] = {
 	{YPACKET_STATUS_DISCONNECTED,"Disconnected"},
-	{YPACKET_STATUS_DEFAULT,""},
+	{YPACKET_STATUS_DEFAULT,"Default"},
 	{YPACKET_STATUS_SERVERACK,"Server Ack"},
 	{YPACKET_STATUS_GAME,"Playing Game"},
 	{YPACKET_STATUS_AWAY, "Away"},
@@ -383,7 +383,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-			"%s, %s",
+			"%s (status=%s)   ",
 			val_to_str(tvb_get_ntohs(tvb, offset + 10),
 				 ymsg_service_vals, "Unknown Service: %u"),
 			val_to_str(tvb_get_ntohl(tvb, offset + 12),
@@ -409,6 +409,11 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 
 		/* Service */
+		proto_item_append_text(ti, " (%s)",
+		                       val_to_str(tvb_get_ntohs(tvb, offset),
+		                                  ymsg_service_vals,
+		                                  "Unknown"));
+
 		proto_tree_add_item(ymsg_tree, hf_ymsg_service, tvb, offset, 2, FALSE);
 		offset += 2;
 
@@ -471,6 +476,8 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+
+	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	return;
 }
