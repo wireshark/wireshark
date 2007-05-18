@@ -3,17 +3,31 @@
 # Copyright 2006 Anders Broman 
 # $Id$
 
+#.OPT
+PER
+UNALIGNED
+#.END
+
 #.PDU
 PDU
 
-#.FN_BODY PDU
+#.OMIT_ASSIGNMENTS_EXCEPT MAP-LCS-DataTypes
+Ext-GeographicalInformation
+maxExt-GeographicalInformation
+VelocityEstimate
+#.END
+
+#.CLASS MAP-EXTENSION
+ExtensionType
+extensionId ObjectIdentifierType
+#.END
+
+#.FN_HDR PDU
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL)) 
-		col_append_str(%(ACTX)s->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
-
-  %(DEFAULT_BODY)s
+	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
+		col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
 #.END
 
 
@@ -25,3 +39,4 @@ tvbuff_t *parameter_tvb = NULL;
 
   if(parameter_tvb)
 	dissect_geographical_description(parameter_tvb, %(ACTX)s->pinfo, tree);
+#.END

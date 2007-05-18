@@ -1,0 +1,38 @@
+-- RRLP-Messages.asn
+--
+-- Taken from 3GPP TS 44.031 V7.4.0 (2007-03)
+-- http://www.3gpp.org/ftp/Specs/archive/44_series/44.031/44031-740.zip/44031-740.doc
+--
+-- 3.1 General Format of RRLP Message
+--
+
+RRLP-Messages
+-- { RRLP-messages }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	MsrPosition-Req, MsrPosition-Rsp, AssistanceData,
+	ProtocolError
+FROM
+	RRLP-Components 	-- { RRLP-Components }
+;
+
+PDU ::= SEQUENCE {
+	referenceNumber			INTEGER (0..7),
+	component				RRLP-Component
+}
+
+RRLP-Component ::= CHOICE {
+	msrPositionReq			MsrPosition-Req,
+	msrPositionRsp			MsrPosition-Rsp,
+	assistanceData			AssistanceData,
+	assistanceDataAck		NULL,
+	protocolError			ProtocolError,
+	...
+
+}
+
+END

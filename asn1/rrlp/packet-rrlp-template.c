@@ -38,8 +38,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-rrlp.h"
-
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-gsm_map.h"

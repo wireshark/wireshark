@@ -124,6 +124,8 @@ EXTRA_DIST = \
 	gnm/packet-gnm-template.c	\
 	gnm/packet-gnm-template.h	\
 	gsmmap/GSMMAP.asn	\
+	gsmmap/MAP-ExtensionDataTypes.asn	\
+	gsmmap/MAP-LCS-DataTypes.asn	\
 	gsmmap/gsmmap.cnf	\
 	gsmmap/gsm_map-exp.cnf	\
 	gsmmap/Makefile	\
@@ -346,8 +348,8 @@ EXTRA_DIST = \
 	rrlp/Makefile	\
 	rrlp/Makefile.nmake	\
 	rrlp/packet-rrlp-template.c	\
-	rrlp/packet-rrlp-template.h	\
-	rrlp/rrlp.asn	\
+	rrlp/RRLP-Messages.asn 	\
+	rrlp/RRLP-Components.asn 	\
 	rrlp/rrlp.cnf	\
 	rtse/Makefile	\
 	rtse/Makefile.nmake	\

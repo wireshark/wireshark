@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-rrlp.c                                                            */
-/* ../../tools/asn2wrs.py -u -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
+/* ../../tools/asn2wrs.py -p rrlp -c rrlp.cnf -s packet-rrlp-template RRLP-Messages.asn RRLP-Components.asn ../gsmmap/MAP-ExtensionDataTypes.asn ../gsmmap/MAP-LCS-DataTypes.asn */
 
 /* Input file: packet-rrlp-template.c */
 
@@ -46,8 +46,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-rrlp.h"
-
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-gsm_map.h"
@@ -89,6 +87,7 @@ static int hf_rrlp_gps_AssistData = -1;           /* GPS_AssistData */
 static int hf_rrlp_extensionContainer = -1;       /* ExtensionContainer */
 static int hf_rrlp_rel98_MsrPosition_Req_extension = -1;  /* Rel98_MsrPosition_Req_Extension */
 static int hf_rrlp_rel5_MsrPosition_Req_extension = -1;  /* Rel5_MsrPosition_Req_Extension */
+static int hf_rrlp_rel7_MsrPosition_Req_extension = -1;  /* Rel7_MsrPosition_Req_Extension */
 static int hf_rrlp_multipleSets = -1;             /* MultipleSets */
 static int hf_rrlp_referenceIdentity = -1;        /* ReferenceIdentity */
 static int hf_rrlp_otd_MeasureInfo = -1;          /* OTD_MeasureInfo */
@@ -97,9 +96,11 @@ static int hf_rrlp_gps_MeasureInfo = -1;          /* GPS_MeasureInfo */
 static int hf_rrlp_locationError = -1;            /* LocationError */
 static int hf_rrlp_rel_98_MsrPosition_Rsp_Extension = -1;  /* Rel_98_MsrPosition_Rsp_Extension */
 static int hf_rrlp_rel_5_MsrPosition_Rsp_Extension = -1;  /* Rel_5_MsrPosition_Rsp_Extension */
+static int hf_rrlp_rel_7_MsrPosition_Rsp_Extension = -1;  /* Rel_7_MsrPosition_Rsp_Extension */
 static int hf_rrlp_moreAssDataToBeSent = -1;      /* MoreAssDataToBeSent */
 static int hf_rrlp_rel98_AssistanceData_Extension = -1;  /* Rel98_AssistanceData_Extension */
 static int hf_rrlp_rel5_AssistanceData_Extension = -1;  /* Rel5_AssistanceData_Extension */
+static int hf_rrlp_rel7_AssistanceData_Extension = -1;  /* Rel7_AssistanceData_Extension */
 static int hf_rrlp_errorCause = -1;               /* ErrorCodes */
 static int hf_rrlp_rel_5_ProtocolError_Extension = -1;  /* Rel_5_ProtocolError_Extension */
 static int hf_rrlp_methodType = -1;               /* MethodType */
@@ -185,6 +186,7 @@ static int hf_rrlp_pseuRangeRMSErr = -1;          /* INTEGER_0_63 */
 static int hf_rrlp_locErrorReason = -1;           /* LocErrorReason */
 static int hf_rrlp_additionalAssistanceData = -1;  /* AdditionalAssistanceData */
 static int hf_rrlp_gpsAssistanceData = -1;        /* GPSAssistanceData */
+static int hf_rrlp_ganssAssistanceData = -1;      /* GANSSAssistanceData */
 static int hf_rrlp_controlHeader = -1;            /* ControlHeader */
 static int hf_rrlp_referenceTime = -1;            /* ReferenceTime */
 static int hf_rrlp_refLocation = -1;              /* RefLocation */
@@ -334,9 +336,177 @@ static int hf_rrlp_otd_MeasureInfo_5_Ext = -1;    /* OTD_MeasureInfo_5_Ext */
 static int hf_rrlp_ulPseudoSegInd = -1;           /* UlPseudoSegInd */
 static int hf_rrlp_smlc_code = -1;                /* INTEGER_0_63 */
 static int hf_rrlp_transaction_ID = -1;           /* INTEGER_0_262143 */
+static int hf_rrlp_velocityRequested = -1;        /* NULL */
+static int hf_rrlp_ganssPositionMethod = -1;      /* GANSSPositioningMethod */
+static int hf_rrlp_ganss_AssistData = -1;         /* GANSS_AssistData */
+static int hf_rrlp_ganssCarrierPhaseMeasurementRequest = -1;  /* NULL */
+static int hf_rrlp_ganssTODGSMTimeAssociationMeasurementRequest = -1;  /* NULL */
+static int hf_rrlp_requiredResponseTime = -1;     /* RequiredResponseTime */
+static int hf_rrlp_ganss_controlHeader = -1;      /* GANSS_ControlHeader */
+static int hf_rrlp_ganssCommonAssistData = -1;    /* GANSSCommonAssistData */
+static int hf_rrlp_ganssGenericAssistDataList = -1;  /* SeqOfGANSSGenericAssistDataElement */
+static int hf_rrlp_ganssReferenceTime = -1;       /* GANSSReferenceTime */
+static int hf_rrlp_ganssRefLocation = -1;         /* GANSSRefLocation */
+static int hf_rrlp_ganssIonosphericModel = -1;    /* GANSSIonosphericModel */
+static int hf_rrlp_SeqOfGANSSGenericAssistDataElement_item = -1;  /* GANSSGenericAssistDataElement */
+static int hf_rrlp_ganssID = -1;                  /* INTEGER_0_7 */
+static int hf_rrlp_ganssTimeModel = -1;           /* SeqOfGANSSTimeModel */
+static int hf_rrlp_ganssDiffCorrections = -1;     /* GANSSDiffCorrections */
+static int hf_rrlp_ganssNavigationModel = -1;     /* GANSSNavModel */
+static int hf_rrlp_ganssRealTimeIntegrity = -1;   /* GANSSRealTimeIntegrity */
+static int hf_rrlp_ganssDataBitAssist = -1;       /* GANSSDataBitAssist */
+static int hf_rrlp_ganssRefMeasurementAssist = -1;  /* GANSSRefMeasurementAssist */
+static int hf_rrlp_ganssAlmanacModel = -1;        /* GANSSAlmanacModel */
+static int hf_rrlp_ganssUTCModel = -1;            /* GANSSUTCModel */
+static int hf_rrlp_ganssRefTimeInfo = -1;         /* GANSSRefTimeInfo */
+static int hf_rrlp_ganssTOD_GSMTimeAssociation = -1;  /* GANSSTOD_GSMTimeAssociation */
+static int hf_rrlp_ganssDay = -1;                 /* INTEGER_0_8191 */
+static int hf_rrlp_ganssTOD = -1;                 /* GANSSTOD */
+static int hf_rrlp_ganssTODUncertainty = -1;      /* GANSSTODUncertainty */
+static int hf_rrlp_ganssTimeID = -1;              /* INTEGER_0_7 */
+static int hf_rrlp_frameDrift = -1;               /* FrameDrift */
+static int hf_rrlp_ganssIonoModel = -1;           /* GANSSIonosphereModel */
+static int hf_rrlp_ganssIonoStormFlags = -1;      /* GANSSIonoStormFlags */
+static int hf_rrlp_ai0 = -1;                      /* INTEGER_0_4095 */
+static int hf_rrlp_ai1 = -1;                      /* INTEGER_0_4095 */
+static int hf_rrlp_ai2 = -1;                      /* INTEGER_0_4095 */
+static int hf_rrlp_ionoStormFlag1 = -1;           /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag2 = -1;           /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag3 = -1;           /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag4 = -1;           /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag5 = -1;           /* INTEGER_0_1 */
+static int hf_rrlp_SeqOfGANSSTimeModel_item = -1;  /* GANSSTimeModelElement */
+static int hf_rrlp_ganssTimeModelRefTime = -1;    /* INTEGER_0_65535 */
+static int hf_rrlp_tA0 = -1;                      /* TA0 */
+static int hf_rrlp_tA1 = -1;                      /* TA1 */
+static int hf_rrlp_tA2 = -1;                      /* TA2 */
+static int hf_rrlp_gnssTOID = -1;                 /* INTEGER_0_7 */
+static int hf_rrlp_weekNumber = -1;               /* INTEGER_0_8191 */
+static int hf_rrlp_dganssRefTime = -1;            /* INTEGER_0_119 */
+static int hf_rrlp_sgnTypeList = -1;              /* SeqOfSgnTypeElement */
+static int hf_rrlp_SeqOfSgnTypeElement_item = -1;  /* SgnTypeElement */
+static int hf_rrlp_ganssSignalID = -1;            /* GANSSSignalID */
+static int hf_rrlp_ganssStatusHealth = -1;        /* INTEGER_0_7 */
+static int hf_rrlp_dganssSgnList = -1;            /* SeqOfDGANSSSgnElement */
+static int hf_rrlp_SeqOfDGANSSSgnElement_item = -1;  /* DGANSSSgnElement */
+static int hf_rrlp_svID = -1;                     /* SVID */
+static int hf_rrlp_iod = -1;                      /* INTEGER_0_1023 */
+static int hf_rrlp_nonBroadcastIndFlag = -1;      /* INTEGER_0_1 */
+static int hf_rrlp_toeMSB = -1;                   /* INTEGER_0_31 */
+static int hf_rrlp_eMSB = -1;                     /* INTEGER_0_127 */
+static int hf_rrlp_sqrtAMBS = -1;                 /* INTEGER_0_63 */
+static int hf_rrlp_ganssSatelliteList = -1;       /* SeqOfGANSSSatelliteElement */
+static int hf_rrlp_SeqOfGANSSSatelliteElement_item = -1;  /* GANSSSatelliteElement */
+static int hf_rrlp_svHealth = -1;                 /* INTEGER_M7_13 */
+static int hf_rrlp_ganssClockModel = -1;          /* GANSSClockModel */
+static int hf_rrlp_ganssOrbitModel = -1;          /* GANSSOrbitModel */
+static int hf_rrlp_keplerianSet = -1;             /* NavModel_KeplerianSet */
+static int hf_rrlp_keplerToeLSB = -1;             /* INTEGER_0_511 */
+static int hf_rrlp_keplerW = -1;                  /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerDeltaN = -1;             /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerM0 = -1;                 /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerOmegaDot = -1;           /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_keplerELSB = -1;               /* INTEGER_0_33554431 */
+static int hf_rrlp_keplerIDot = -1;               /* INTEGER_M8192_8191 */
+static int hf_rrlp_keplerAPowerHalfLSB = -1;      /* INTEGER_0_67108863 */
+static int hf_rrlp_keplerI0 = -1;                 /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerOmega0 = -1;             /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerCrs = -1;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCis = -1;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCus = -1;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCrc = -1;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCic = -1;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCuc = -1;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_standardClockModelList = -1;   /* SeqOfStandardClockModelElement */
+static int hf_rrlp_SeqOfStandardClockModelElement_item = -1;  /* StandardClockModelElement */
+static int hf_rrlp_stanClockTocLSB = -1;          /* INTEGER_0_511 */
+static int hf_rrlp_stanClockAF2 = -1;             /* INTEGER_M2048_2047 */
+static int hf_rrlp_stanClockAF1 = -1;             /* INTEGER_M131072_131071 */
+static int hf_rrlp_stanClockAF0 = -1;             /* INTEGER_M134217728_134217727 */
+static int hf_rrlp_stanClockTgd = -1;             /* INTEGER_M512_511 */
+static int hf_rrlp_stanModelID = -1;              /* INTEGER_0_1 */
+static int hf_rrlp_ganssBadSignalList = -1;       /* SeqOfBadSignalElement */
+static int hf_rrlp_SeqOfBadSignalElement_item = -1;  /* BadSignalElement */
+static int hf_rrlp_badSVID = -1;                  /* SVID */
+static int hf_rrlp_badSignalID = -1;              /* INTEGER_0_3 */
+static int hf_rrlp_ganssTOD1 = -1;                /* INTEGER_0_59 */
+static int hf_rrlp_ganssDataTypeID = -1;          /* INTEGER_0_2 */
+static int hf_rrlp_ganssDataBits = -1;            /* SeqOf_GANSSDataBits */
+static int hf_rrlp_SeqOf_GANSSDataBits_item = -1;  /* GANSSDataBit */
+static int hf_rrlp_ganssSignalID1 = -1;           /* INTEGER_0_3 */
+static int hf_rrlp_ganssRefMeasAssitList = -1;    /* SeqOfGANSSRefMeasurementElement */
+static int hf_rrlp_SeqOfGANSSRefMeasurementElement_item = -1;  /* GANSSRefMeasurementElement */
+static int hf_rrlp_additionalDoppler = -1;        /* AdditionalDopplerFields */
+static int hf_rrlp_intCodePhase1 = -1;            /* INTEGER_0_127 */
+static int hf_rrlp_codePhaseSearchWindow1 = -1;   /* INTEGER_0_31 */
+static int hf_rrlp_additionalAngle = -1;          /* AddionalAngleFields */
+static int hf_rrlp_dopplerUncertainty1 = -1;      /* INTEGER_0_4 */
+static int hf_rrlp_weekNumber1 = -1;              /* INTEGER_0_255 */
+static int hf_rrlp_svIDMask = -1;                 /* SVIDMASK */
+static int hf_rrlp_toa = -1;                      /* INTEGER_0_255 */
+static int hf_rrlp_ioda = -1;                     /* INTEGER_0_3 */
+static int hf_rrlp_ganssAlmanacList = -1;         /* SeqOfGANSSAlmanacElement */
+static int hf_rrlp_SeqOfGANSSAlmanacElement_item = -1;  /* GANSSAlmanacElement */
+static int hf_rrlp_keplerianAlmanacSet = -1;      /* Almanac_KeplerianSet */
+static int hf_rrlp_kepAlmanacE = -1;              /* INTEGER_0_2047 */
+static int hf_rrlp_kepAlmanacDeltaI = -1;         /* INTEGER_M1024_1023 */
+static int hf_rrlp_kepAlmanacOmegaDot = -1;       /* INTEGER_M1024_1023 */
+static int hf_rrlp_kepSVHealth = -1;              /* INTEGER_0_15 */
+static int hf_rrlp_kepAlmanacAPowerHalf = -1;     /* INTEGER_M65536_65535 */
+static int hf_rrlp_kepAlmanacOmega0 = -1;         /* INTEGER_M32768_32767 */
+static int hf_rrlp_kepAlmanacW = -1;              /* INTEGER_M32768_32767 */
+static int hf_rrlp_kepAlmanacM0 = -1;             /* INTEGER_M32768_32767 */
+static int hf_rrlp_kepAlmanacAF0 = -1;            /* INTEGER_M8192_8191 */
+static int hf_rrlp_kepAlmanacAF1 = -1;            /* INTEGER_M1024_1023 */
+static int hf_rrlp_ganssUtcA1 = -1;               /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_ganssUtcA0 = -1;               /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_ganssUtcTot = -1;              /* INTEGER_0_255 */
+static int hf_rrlp_ganssUtcWNt = -1;              /* INTEGER_0_255 */
+static int hf_rrlp_ganssUtcDeltaTls = -1;         /* INTEGER_M128_127 */
+static int hf_rrlp_ganssUtcWNlsf = -1;            /* INTEGER_0_255 */
+static int hf_rrlp_ganssUtcDN = -1;               /* INTEGER_M128_127 */
+static int hf_rrlp_ganssUtcDeltaTlsf = -1;        /* INTEGER_M128_127 */
+static int hf_rrlp_velEstimate = -1;              /* VelocityEstimate */
+static int hf_rrlp_ganssLocationInfo = -1;        /* GANSSLocationInfo */
+static int hf_rrlp_ganssMeasureInfo = -1;         /* GANSSMeasureInfo */
+static int hf_rrlp_referenceFrame = -1;           /* ReferenceFrame */
+static int hf_rrlp_ganssTODm = -1;                /* GANSSTODm */
+static int hf_rrlp_ganssTODFrac = -1;             /* INTEGER_0_16384 */
+static int hf_rrlp_ganssTimeID1 = -1;             /* INTEGER_0_3 */
+static int hf_rrlp_posData = -1;                  /* PositionData */
+static int hf_rrlp_stationaryIndication = -1;     /* INTEGER_0_1 */
+static int hf_rrlp_referenceFN = -1;              /* INTEGER_0_65535 */
+static int hf_rrlp_referenceFNMSB = -1;           /* INTEGER_0_63 */
+static int hf_rrlp_ganssMsrSetList = -1;          /* SeqOfGANSS_MsrSetElement */
+static int hf_rrlp_SeqOfGANSS_MsrSetElement_item = -1;  /* GANSS_MsrSetElement */
+static int hf_rrlp_deltaGNASSTOD = -1;            /* INTEGER_0_127 */
+static int hf_rrlp_ganss_SgnTypeList = -1;        /* SeqOfGANSS_SgnTypeElement */
+static int hf_rrlp_SeqOfGANSS_SgnTypeElement_item = -1;  /* GANSS_SgnTypeElement */
+static int hf_rrlp_ganssSignalID2 = -1;           /* INTEGER_0_15 */
+static int hf_rrlp_ganss_SgnList = -1;            /* SeqOfGANSS_SgnElement */
+static int hf_rrlp_SeqOfGANSS_SgnElement_item = -1;  /* GANSS_SgnElement */
+static int hf_rrlp_mpathDet = -1;                 /* MpathIndic */
+static int hf_rrlp_carrierQualityInd = -1;        /* INTEGER_0_3 */
+static int hf_rrlp_codePhase1 = -1;               /* INTEGER_0_2097151 */
+static int hf_rrlp_integerCodePhase = -1;         /* INTEGER_0_63 */
+static int hf_rrlp_codePhaseRMSError = -1;        /* INTEGER_0_63 */
+static int hf_rrlp_adr = -1;                      /* INTEGER_0_33554431 */
+static int hf_rrlp_privateExtensionList = -1;     /* PrivateExtensionList */
+static int hf_rrlp_pcs_Extensions = -1;           /* PCS_Extensions */
+static int hf_rrlp_slr_Arg_PCS_Extensions = -1;   /* SLR_Arg_PCS_Extensions */
+static int hf_rrlp_PrivateExtensionList_item = -1;  /* PrivateExtension */
+static int hf_rrlp_extId = -1;                    /* OBJECT_IDENTIFIER */
+static int hf_rrlp_extType = -1;                  /* T_extType */
+static int hf_rrlp_na_ESRK_Request = -1;          /* NULL */
+/* named bits */
+static int hf_rrlp_GANSSPositioningMethod_gps = -1;
+static int hf_rrlp_GANSSPositioningMethod_galileo = -1;
+static int hf_rrlp_PositionData_e_otd = -1;
+static int hf_rrlp_PositionData_gps = -1;
+static int hf_rrlp_PositionData_galileo = -1;
 
 /*--- End of included file: packet-rrlp-hf.c ---*/
-#line 66 "packet-rrlp-template.c"
+#line 64 "packet-rrlp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rrlp = -1;
@@ -439,52 +609,87 @@ static gint ett_rrlp_Extended_reference = -1;
 static gint ett_rrlp_Rel5_MsrPosition_Req_Extension = -1;
 static gint ett_rrlp_Rel5_AssistanceData_Extension = -1;
 static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
+static gint ett_rrlp_Rel7_MsrPosition_Req_Extension = -1;
+static gint ett_rrlp_GANSSPositioningMethod = -1;
+static gint ett_rrlp_GANSS_AssistData = -1;
+static gint ett_rrlp_GANSS_ControlHeader = -1;
+static gint ett_rrlp_GANSSCommonAssistData = -1;
+static gint ett_rrlp_SeqOfGANSSGenericAssistDataElement = -1;
+static gint ett_rrlp_GANSSGenericAssistDataElement = -1;
+static gint ett_rrlp_GANSSReferenceTime = -1;
+static gint ett_rrlp_GANSSRefTimeInfo = -1;
+static gint ett_rrlp_GANSSTOD_GSMTimeAssociation = -1;
+static gint ett_rrlp_GANSSRefLocation = -1;
+static gint ett_rrlp_GANSSIonosphericModel = -1;
+static gint ett_rrlp_GANSSIonosphereModel = -1;
+static gint ett_rrlp_GANSSIonoStormFlags = -1;
+static gint ett_rrlp_SeqOfGANSSTimeModel = -1;
+static gint ett_rrlp_GANSSTimeModelElement = -1;
+static gint ett_rrlp_GANSSDiffCorrections = -1;
+static gint ett_rrlp_SeqOfSgnTypeElement = -1;
+static gint ett_rrlp_SgnTypeElement = -1;
+static gint ett_rrlp_SeqOfDGANSSSgnElement = -1;
+static gint ett_rrlp_DGANSSSgnElement = -1;
+static gint ett_rrlp_GANSSNavModel = -1;
+static gint ett_rrlp_SeqOfGANSSSatelliteElement = -1;
+static gint ett_rrlp_GANSSSatelliteElement = -1;
+static gint ett_rrlp_GANSSOrbitModel = -1;
+static gint ett_rrlp_NavModel_KeplerianSet = -1;
+static gint ett_rrlp_GANSSClockModel = -1;
+static gint ett_rrlp_SeqOfStandardClockModelElement = -1;
+static gint ett_rrlp_StandardClockModelElement = -1;
+static gint ett_rrlp_GANSSRealTimeIntegrity = -1;
+static gint ett_rrlp_SeqOfBadSignalElement = -1;
+static gint ett_rrlp_BadSignalElement = -1;
+static gint ett_rrlp_GANSSDataBitAssist = -1;
+static gint ett_rrlp_SeqOf_GANSSDataBits = -1;
+static gint ett_rrlp_GANSSRefMeasurementAssist = -1;
+static gint ett_rrlp_SeqOfGANSSRefMeasurementElement = -1;
+static gint ett_rrlp_GANSSRefMeasurementElement = -1;
+static gint ett_rrlp_AdditionalDopplerFields = -1;
+static gint ett_rrlp_GANSSAlmanacModel = -1;
+static gint ett_rrlp_SeqOfGANSSAlmanacElement = -1;
+static gint ett_rrlp_GANSSAlmanacElement = -1;
+static gint ett_rrlp_Almanac_KeplerianSet = -1;
+static gint ett_rrlp_GANSSUTCModel = -1;
+static gint ett_rrlp_Rel_7_MsrPosition_Rsp_Extension = -1;
+static gint ett_rrlp_GANSSLocationInfo = -1;
+static gint ett_rrlp_PositionData = -1;
+static gint ett_rrlp_ReferenceFrame = -1;
+static gint ett_rrlp_GANSSMeasureInfo = -1;
+static gint ett_rrlp_SeqOfGANSS_MsrSetElement = -1;
+static gint ett_rrlp_GANSS_MsrSetElement = -1;
+static gint ett_rrlp_SeqOfGANSS_SgnTypeElement = -1;
+static gint ett_rrlp_GANSS_SgnTypeElement = -1;
+static gint ett_rrlp_SeqOfGANSS_SgnElement = -1;
+static gint ett_rrlp_GANSS_SgnElement = -1;
+static gint ett_rrlp_Rel7_AssistanceData_Extension = -1;
+static gint ett_rrlp_ExtensionContainer = -1;
+static gint ett_rrlp_SLR_ArgExtensionContainer = -1;
+static gint ett_rrlp_PrivateExtensionList = -1;
+static gint ett_rrlp_PrivateExtension = -1;
+static gint ett_rrlp_PCS_Extensions = -1;
+static gint ett_rrlp_SLR_Arg_PCS_Extensions = -1;
 
 /*--- End of included file: packet-rrlp-ett.c ---*/
-#line 70 "packet-rrlp-template.c"
+#line 68 "packet-rrlp-template.c"
 
 /* Include constants */
 
 /*--- Included file: packet-rrlp-val.h ---*/
 #line 1 "packet-rrlp-val.h"
 #define maxGPSAssistanceData           40
+#define maxGANSSAssistanceData         40
+#define maxNumOfPrivateExtensions      10
+#define maxExt_GeographicalInformation 20
 
 /*--- End of included file: packet-rrlp-val.h ---*/
-#line 73 "packet-rrlp-template.c"
+#line 71 "packet-rrlp-template.c"
 
 
 
 /*--- Included file: packet-rrlp-fn.c ---*/
 #line 1 "packet-rrlp-fn.c"
-
-
-static int
-dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 21 "rrlp.cnf"
-
-tvbuff_t *parameter_tvb = NULL;
-
-    offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 20, &parameter_tvb);
-
-
-  if(parameter_tvb)
-	dissect_geographical_description(parameter_tvb, actx->pinfo, tree);
-
-
-  return offset;
-}
-
-
-
-static int
-dissect_rrlp_ExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, NULL);
-
-  return offset;
-}
-
 
 
 static int
@@ -655,6 +860,25 @@ static int
 dissect_rrlp_TimeSlotScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 35 "rrlp.cnf"
+
+tvbuff_t *parameter_tvb = NULL;
+
+    offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, maxExt_GeographicalInformation, &parameter_tvb);
+
+
+  if(parameter_tvb)
+	dissect_geographical_description(parameter_tvb, actx->pinfo, tree);
+
 
   return offset;
 }
@@ -1777,6 +2001,81 @@ dissect_rrlp_GPS_AssistData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
+dissect_rrlp_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_T_extType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PrivateExtension_sequence[] = {
+  { &hf_rrlp_extId          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_OBJECT_IDENTIFIER },
+  { &hf_rrlp_extType        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_T_extType },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_PrivateExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_PrivateExtension, PrivateExtension_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PrivateExtensionList_sequence_of[1] = {
+  { &hf_rrlp_PrivateExtensionList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_PrivateExtension },
+};
+
+static int
+dissect_rrlp_PrivateExtensionList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_PrivateExtensionList, PrivateExtensionList_sequence_of,
+                                                  1, maxNumOfPrivateExtensions);
+
+  return offset;
+}
+
+
+static const per_sequence_t PCS_Extensions_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_PCS_Extensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_PCS_Extensions, PCS_Extensions_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ExtensionContainer_sequence[] = {
+  { &hf_rrlp_privateExtensionList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_PrivateExtensionList },
+  { &hf_rrlp_pcs_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_PCS_Extensions },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_ExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_ExtensionContainer, ExtensionContainer_sequence);
+
+  return offset;
+}
+
+
+
+static int
 dissect_rrlp_ExpectedOTD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 1250U, NULL, FALSE);
@@ -1983,6 +2282,1001 @@ dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const asn_namedbit GANSSPositioningMethod_bits[] = {
+  {  0, &hf_rrlp_GANSSPositioningMethod_gps, -1, -1, "gps", NULL },
+  {  1, &hf_rrlp_GANSSPositioningMethod_galileo, -1, -1, "galileo", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_rrlp_GANSSPositioningMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     2, 16, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_8191(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 8191U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_GANSSTOD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 86399U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_GANSSTODUncertainty(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRefTimeInfo_sequence[] = {
+  { &hf_rrlp_ganssDay       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_8191 },
+  { &hf_rrlp_ganssTOD       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSTOD },
+  { &hf_rrlp_ganssTODUncertainty, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODUncertainty },
+  { &hf_rrlp_ganssTimeID    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_7 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSRefTimeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSRefTimeInfo, GANSSRefTimeInfo_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_FrameDrift(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -64, 63U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSTOD_GSMTimeAssociation_sequence[] = {
+  { &hf_rrlp_bcchCarrier    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BCCHCarrier },
+  { &hf_rrlp_bsic           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BSIC },
+  { &hf_rrlp_frameNumber    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_FrameNumber },
+  { &hf_rrlp_timeSlot       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TimeSlot },
+  { &hf_rrlp_bitNumber      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BitNumber },
+  { &hf_rrlp_frameDrift     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_FrameDrift },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSTOD_GSMTimeAssociation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSTOD_GSMTimeAssociation, GANSSTOD_GSMTimeAssociation_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSReferenceTime_sequence[] = {
+  { &hf_rrlp_ganssRefTimeInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSRefTimeInfo },
+  { &hf_rrlp_ganssTOD_GSMTimeAssociation, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GANSSTOD_GSMTimeAssociation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSReferenceTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSReferenceTime, GANSSReferenceTime_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRefLocation_sequence[] = {
+  { &hf_rrlp_threeDLocation , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_Ext_GeographicalInformation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSRefLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSRefLocation, GANSSRefLocation_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_4095(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 4095U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSIonosphereModel_sequence[] = {
+  { &hf_rrlp_ai0            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4095 },
+  { &hf_rrlp_ai1            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4095 },
+  { &hf_rrlp_ai2            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4095 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSIonosphereModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSIonosphereModel, GANSSIonosphereModel_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSIonoStormFlags_sequence[] = {
+  { &hf_rrlp_ionoStormFlag1 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { &hf_rrlp_ionoStormFlag2 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { &hf_rrlp_ionoStormFlag3 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { &hf_rrlp_ionoStormFlag4 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { &hf_rrlp_ionoStormFlag5 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSIonoStormFlags(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSIonoStormFlags, GANSSIonoStormFlags_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSIonosphericModel_sequence[] = {
+  { &hf_rrlp_ganssIonoModel , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSIonosphereModel },
+  { &hf_rrlp_ganssIonoStormFlags, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSIonoStormFlags },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSIonosphericModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSIonosphericModel, GANSSIonosphericModel_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSCommonAssistData_sequence[] = {
+  { &hf_rrlp_ganssReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSReferenceTime },
+  { &hf_rrlp_ganssRefLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSRefLocation },
+  { &hf_rrlp_ganssIonosphericModel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSIonosphericModel },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSCommonAssistData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSCommonAssistData, GANSSCommonAssistData_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_TA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -2147483648, 2147483647U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_TA1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -8388608, 8388607U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_TA2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -64, 63U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSTimeModelElement_sequence[] = {
+  { &hf_rrlp_ganssTimeModelRefTime, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
+  { &hf_rrlp_tA0            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_TA0 },
+  { &hf_rrlp_tA1            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_TA1 },
+  { &hf_rrlp_tA2            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_TA2 },
+  { &hf_rrlp_gnssTOID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { &hf_rrlp_weekNumber     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_8191 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSTimeModelElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSTimeModelElement, GANSSTimeModelElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSSTimeModel_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSSTimeModel_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSTimeModelElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSSTimeModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSSTimeModel, SeqOfGANSSTimeModel_sequence_of,
+                                                  1, 7);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_119(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 119U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_GANSSSignalID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 3U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_SVID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 63U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t DGANSSSgnElement_sequence[] = {
+  { &hf_rrlp_svID           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_iod            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1023 },
+  { &hf_rrlp_udre           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_pseudoRangeCor , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2047_2047 },
+  { &hf_rrlp_rangeRateCor   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M127_127 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_DGANSSSgnElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_DGANSSSgnElement, DGANSSSgnElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfDGANSSSgnElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfDGANSSSgnElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_DGANSSSgnElement },
+};
+
+static int
+dissect_rrlp_SeqOfDGANSSSgnElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfDGANSSSgnElement, SeqOfDGANSSSgnElement_sequence_of,
+                                                  1, 16);
+
+  return offset;
+}
+
+
+static const per_sequence_t SgnTypeElement_sequence[] = {
+  { &hf_rrlp_ganssSignalID  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GANSSSignalID },
+  { &hf_rrlp_ganssStatusHealth, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
+  { &hf_rrlp_dganssSgnList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfDGANSSSgnElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_SgnTypeElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_SgnTypeElement, SgnTypeElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfSgnTypeElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfSgnTypeElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SgnTypeElement },
+};
+
+static int
+dissect_rrlp_SeqOfSgnTypeElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfSgnTypeElement, SeqOfSgnTypeElement_sequence_of,
+                                                  1, 3);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSDiffCorrections_sequence[] = {
+  { &hf_rrlp_dganssRefTime  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_119 },
+  { &hf_rrlp_sgnTypeList    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSgnTypeElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSDiffCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSDiffCorrections, GANSSDiffCorrections_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_M7_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -7, 13U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_511(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 511U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_M131072_131071(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -131072, 131071U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_M134217728_134217727(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -134217728, 134217727U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_M512_511(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -512, 511U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t StandardClockModelElement_sequence[] = {
+  { &hf_rrlp_stanClockTocLSB, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_511 },
+  { &hf_rrlp_stanClockAF2   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2048_2047 },
+  { &hf_rrlp_stanClockAF1   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M131072_131071 },
+  { &hf_rrlp_stanClockAF0   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M134217728_134217727 },
+  { &hf_rrlp_stanClockTgd   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_M512_511 },
+  { &hf_rrlp_stanModelID    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_1 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_StandardClockModelElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_StandardClockModelElement, StandardClockModelElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfStandardClockModelElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfStandardClockModelElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_StandardClockModelElement },
+};
+
+static int
+dissect_rrlp_SeqOfStandardClockModelElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfStandardClockModelElement, SeqOfStandardClockModelElement_sequence_of,
+                                                  1, 2);
+
+  return offset;
+}
+
+
+static const value_string rrlp_GANSSClockModel_vals[] = {
+  {   0, "standardClockModelList" },
+  { 0, NULL }
+};
+
+static const per_choice_t GANSSClockModel_choice[] = {
+  {   0, &hf_rrlp_standardClockModelList, ASN1_EXTENSION_ROOT    , dissect_rrlp_SeqOfStandardClockModelElement },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSClockModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_rrlp_GANSSClockModel, GANSSClockModel_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_33554431(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 33554431U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_67108863(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 67108863U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t NavModel_KeplerianSet_sequence[] = {
+  { &hf_rrlp_keplerToeLSB   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_511 },
+  { &hf_rrlp_keplerW        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { &hf_rrlp_keplerDeltaN   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_keplerM0       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { &hf_rrlp_keplerOmegaDot , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { &hf_rrlp_keplerELSB     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_33554431 },
+  { &hf_rrlp_keplerIDot     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8192_8191 },
+  { &hf_rrlp_keplerAPowerHalfLSB, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_67108863 },
+  { &hf_rrlp_keplerI0       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { &hf_rrlp_keplerOmega0   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { &hf_rrlp_keplerCrs      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_keplerCis      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_keplerCus      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_keplerCrc      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_keplerCic      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_keplerCuc      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_NavModel_KeplerianSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_NavModel_KeplerianSet, NavModel_KeplerianSet_sequence);
+
+  return offset;
+}
+
+
+static const value_string rrlp_GANSSOrbitModel_vals[] = {
+  {   0, "keplerianSet" },
+  { 0, NULL }
+};
+
+static const per_choice_t GANSSOrbitModel_choice[] = {
+  {   0, &hf_rrlp_keplerianSet   , ASN1_EXTENSION_ROOT    , dissect_rrlp_NavModel_KeplerianSet },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSOrbitModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_rrlp_GANSSOrbitModel, GANSSOrbitModel_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSSatelliteElement_sequence[] = {
+  { &hf_rrlp_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_svHealth       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M7_13 },
+  { &hf_rrlp_iod            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1023 },
+  { &hf_rrlp_ganssClockModel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSClockModel },
+  { &hf_rrlp_ganssOrbitModel, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSOrbitModel },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSSatelliteElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSSatelliteElement, GANSSSatelliteElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSSSatelliteElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSSSatelliteElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSSatelliteElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSSSatelliteElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSSSatelliteElement, SeqOfGANSSSatelliteElement_sequence_of,
+                                                  1, 32);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSNavModel_sequence[] = {
+  { &hf_rrlp_nonBroadcastIndFlag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1 },
+  { &hf_rrlp_toeMSB         , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_31 },
+  { &hf_rrlp_eMSB           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_127 },
+  { &hf_rrlp_sqrtAMBS       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_63 },
+  { &hf_rrlp_ganssSatelliteList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSSSatelliteElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSNavModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSNavModel, GANSSNavModel_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t BadSignalElement_sequence[] = {
+  { &hf_rrlp_badSVID        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_badSignalID    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_BadSignalElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_BadSignalElement, BadSignalElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfBadSignalElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfBadSignalElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_BadSignalElement },
+};
+
+static int
+dissect_rrlp_SeqOfBadSignalElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfBadSignalElement, SeqOfBadSignalElement_sequence_of,
+                                                  1, 16);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRealTimeIntegrity_sequence[] = {
+  { &hf_rrlp_ganssBadSignalList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfBadSignalElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSRealTimeIntegrity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSRealTimeIntegrity, GANSSRealTimeIntegrity_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_59(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 59U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 2U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_GANSSDataBit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 1U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOf_GANSSDataBits_sequence_of[1] = {
+  { &hf_rrlp_SeqOf_GANSSDataBits_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSDataBit },
+};
+
+static int
+dissect_rrlp_SeqOf_GANSSDataBits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOf_GANSSDataBits, SeqOf_GANSSDataBits_sequence_of,
+                                                  1, 1024);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSDataBitAssist_sequence[] = {
+  { &hf_rrlp_ganssTOD1      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_59 },
+  { &hf_rrlp_svID           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_ganssDataTypeID, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_2 },
+  { &hf_rrlp_ganssDataBits  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOf_GANSSDataBits },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSDataBitAssist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSDataBitAssist, GANSSDataBitAssist_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 4U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalDopplerFields_sequence[] = {
+  { &hf_rrlp_doppler1       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { &hf_rrlp_dopplerUncertainty1, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_AdditionalDopplerFields(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_AdditionalDopplerFields, AdditionalDopplerFields_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRefMeasurementElement_sequence[] = {
+  { &hf_rrlp_svID           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_doppler0       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2048_2047 },
+  { &hf_rrlp_additionalDoppler, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_AdditionalDopplerFields },
+  { &hf_rrlp_codePhase      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1022 },
+  { &hf_rrlp_intCodePhase1  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_127 },
+  { &hf_rrlp_codePhaseSearchWindow1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
+  { &hf_rrlp_additionalAngle, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_AddionalAngleFields },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSRefMeasurementElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSRefMeasurementElement, GANSSRefMeasurementElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSSRefMeasurementElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSSRefMeasurementElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSRefMeasurementElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSSRefMeasurementElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSSRefMeasurementElement, SeqOfGANSSRefMeasurementElement_sequence_of,
+                                                  1, 16);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSRefMeasurementAssist_sequence[] = {
+  { &hf_rrlp_ganssSignalID1 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_ganssRefMeasAssitList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSSRefMeasurementElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSRefMeasurementAssist(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSRefMeasurementAssist, GANSSRefMeasurementAssist_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_SVIDMASK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 36, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_2047(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 2047U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_M65536_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              -65536, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Almanac_KeplerianSet_sequence[] = {
+  { &hf_rrlp_kepAlmanacE    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_2047 },
+  { &hf_rrlp_kepAlmanacDeltaI, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
+  { &hf_rrlp_kepAlmanacOmegaDot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
+  { &hf_rrlp_kepSVHealth    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { &hf_rrlp_kepAlmanacAPowerHalf, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M65536_65535 },
+  { &hf_rrlp_kepAlmanacOmega0, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_kepAlmanacW    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_kepAlmanacM0   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_kepAlmanacAF0  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8192_8191 },
+  { &hf_rrlp_kepAlmanacAF1  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M1024_1023 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_Almanac_KeplerianSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_Almanac_KeplerianSet, Almanac_KeplerianSet_sequence);
+
+  return offset;
+}
+
+
+static const value_string rrlp_GANSSAlmanacElement_vals[] = {
+  {   0, "keplerianAlmanacSet" },
+  { 0, NULL }
+};
+
+static const per_choice_t GANSSAlmanacElement_choice[] = {
+  {   0, &hf_rrlp_keplerianAlmanacSet, ASN1_EXTENSION_ROOT    , dissect_rrlp_Almanac_KeplerianSet },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSAlmanacElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_rrlp_GANSSAlmanacElement, GANSSAlmanacElement_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSSAlmanacElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSSAlmanacElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSAlmanacElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSSAlmanacElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSSAlmanacElement, SeqOfGANSSAlmanacElement_sequence_of,
+                                                  1, 36);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSAlmanacModel_sequence[] = {
+  { &hf_rrlp_weekNumber1    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { &hf_rrlp_svIDMask       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVIDMASK },
+  { &hf_rrlp_toa            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_255 },
+  { &hf_rrlp_ioda           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_ganssAlmanacList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSSAlmanacElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSAlmanacModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSAlmanacModel, GANSSAlmanacModel_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSUTCModel_sequence[] = {
+  { &hf_rrlp_ganssUtcA1     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M8388608_8388607 },
+  { &hf_rrlp_ganssUtcA0     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2147483648_2147483647 },
+  { &hf_rrlp_ganssUtcTot    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { &hf_rrlp_ganssUtcWNt    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { &hf_rrlp_ganssUtcDeltaTls, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { &hf_rrlp_ganssUtcWNlsf  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { &hf_rrlp_ganssUtcDN     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { &hf_rrlp_ganssUtcDeltaTlsf, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M128_127 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSUTCModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSUTCModel, GANSSUTCModel_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSGenericAssistDataElement_sequence[] = {
+  { &hf_rrlp_ganssID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_7 },
+  { &hf_rrlp_ganssTimeModel , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_SeqOfGANSSTimeModel },
+  { &hf_rrlp_ganssDiffCorrections, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSDiffCorrections },
+  { &hf_rrlp_ganssNavigationModel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSNavModel },
+  { &hf_rrlp_ganssRealTimeIntegrity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSRealTimeIntegrity },
+  { &hf_rrlp_ganssDataBitAssist, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSDataBitAssist },
+  { &hf_rrlp_ganssRefMeasurementAssist, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSRefMeasurementAssist },
+  { &hf_rrlp_ganssAlmanacModel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSAlmanacModel },
+  { &hf_rrlp_ganssUTCModel  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSUTCModel },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSGenericAssistDataElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSGenericAssistDataElement, GANSSGenericAssistDataElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSSGenericAssistDataElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSSGenericAssistDataElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSSGenericAssistDataElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSSGenericAssistDataElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSSGenericAssistDataElement, SeqOfGANSSGenericAssistDataElement_sequence_of,
+                                                  1, 8);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSS_ControlHeader_sequence[] = {
+  { &hf_rrlp_ganssCommonAssistData, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GANSSCommonAssistData },
+  { &hf_rrlp_ganssGenericAssistDataList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_SeqOfGANSSGenericAssistDataElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSS_ControlHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSS_ControlHeader, GANSS_ControlHeader_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSS_AssistData_sequence[] = {
+  { &hf_rrlp_ganss_controlHeader, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSS_ControlHeader },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSS_AssistData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSS_AssistData, GANSS_AssistData_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_RequiredResponseTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Rel7_MsrPosition_Req_Extension_sequence[] = {
+  { &hf_rrlp_velocityRequested, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { &hf_rrlp_ganssPositionMethod, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSPositioningMethod },
+  { &hf_rrlp_ganss_AssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSS_AssistData },
+  { &hf_rrlp_ganssCarrierPhaseMeasurementRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { &hf_rrlp_ganssTODGSMTimeAssociationMeasurementRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { &hf_rrlp_requiredResponseTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_RequiredResponseTime },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_Rel7_MsrPosition_Req_Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_Rel7_MsrPosition_Req_Extension, Rel7_MsrPosition_Req_Extension_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MsrPosition_Req_sequence[] = {
   { &hf_rrlp_positionInstruct, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_PositionInstruct },
   { &hf_rrlp_referenceAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceAssistData },
@@ -1992,6 +3286,7 @@ static const per_sequence_t MsrPosition_Req_sequence[] = {
   { &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { &hf_rrlp_rel98_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel98_MsrPosition_Req_Extension },
   { &hf_rrlp_rel5_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel5_MsrPosition_Req_Extension },
+  { &hf_rrlp_rel7_MsrPosition_Req_extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel7_MsrPosition_Req_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2658,6 +3953,9 @@ static const value_string rrlp_LocErrorReason_vals[] = {
   {   8, "notProcessed" },
   {   9, "refBTSForGPSNotServingBTS" },
   {  10, "refBTSForEOTDNotServingBTS" },
+  {  11, "notEnoughGANSSSats" },
+  {  12, "ganssAssDataMissing" },
+  {  13, "refBTSForGANSSNotServingBTS" },
   { 0, NULL }
 };
 
@@ -2665,7 +3963,7 @@ static const value_string rrlp_LocErrorReason_vals[] = {
 static int
 dissect_rrlp_LocErrorReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     11, NULL, TRUE, 0, NULL);
+                                     11, NULL, TRUE, 3, NULL);
 
   return offset;
 }
@@ -2681,9 +3979,20 @@ dissect_rrlp_GPSAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+
+static int
+dissect_rrlp_GANSSAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, maxGANSSAssistanceData, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t AdditionalAssistanceData_sequence[] = {
   { &hf_rrlp_gpsAssistanceData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GPSAssistanceData },
   { &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
+  { &hf_rrlp_ganssAssistanceData, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_GANSSAssistanceData },
   { NULL, 0, 0, NULL }
 };
 
@@ -2777,16 +4086,6 @@ dissect_rrlp_INTEGER_0_9999(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-
-static int
-dissect_rrlp_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 127U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t GPSTimeAssistanceMeasurements_sequence[] = {
   { &hf_rrlp_referenceFrameMSB, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
   { &hf_rrlp_gpsTowSubms    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_9999 },
@@ -2860,6 +4159,226 @@ dissect_rrlp_Rel_5_MsrPosition_Rsp_Extension(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
+
+static int
+dissect_rrlp_VelocityEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 7, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ReferenceFrame_sequence[] = {
+  { &hf_rrlp_referenceFN    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_65535 },
+  { &hf_rrlp_referenceFNMSB , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_63 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_ReferenceFrame(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_ReferenceFrame, ReferenceFrame_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_GANSSTODm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 3599999U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 16384U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const asn_namedbit PositionData_bits[] = {
+  {  0, &hf_rrlp_PositionData_e_otd, -1, -1, "e-otd", NULL },
+  {  1, &hf_rrlp_PositionData_gps, -1, -1, "gps", NULL },
+  {  2, &hf_rrlp_PositionData_galileo, -1, -1, "galileo", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_rrlp_PositionData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     3, 16, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSLocationInfo_sequence[] = {
+  { &hf_rrlp_referenceFrame , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceFrame },
+  { &hf_rrlp_ganssTODm      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODm },
+  { &hf_rrlp_ganssTODFrac   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_16384 },
+  { &hf_rrlp_ganssTODUncertainty, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODUncertainty },
+  { &hf_rrlp_ganssTimeID1   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_fixType        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_FixType },
+  { &hf_rrlp_posData        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_PositionData },
+  { &hf_rrlp_stationaryIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_1 },
+  { &hf_rrlp_posEstimate    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_Ext_GeographicalInformation },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSLocationInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSLocationInfo, GANSSLocationInfo_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rrlp_INTEGER_0_2097151(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 2097151U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSS_SgnElement_sequence[] = {
+  { &hf_rrlp_svID           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
+  { &hf_rrlp_cNo            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { &hf_rrlp_mpathDet       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MpathIndic },
+  { &hf_rrlp_carrierQualityInd, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_codePhase1     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_2097151 },
+  { &hf_rrlp_integerCodePhase, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_63 },
+  { &hf_rrlp_codePhaseRMSError, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
+  { &hf_rrlp_doppler        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_M32768_32767 },
+  { &hf_rrlp_adr            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_33554431 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSS_SgnElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSS_SgnElement, GANSS_SgnElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSS_SgnElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSS_SgnElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSS_SgnElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSS_SgnElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSS_SgnElement, SeqOfGANSS_SgnElement_sequence_of,
+                                                  1, 16);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSS_SgnTypeElement_sequence[] = {
+  { &hf_rrlp_ganssSignalID2 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { &hf_rrlp_ganss_SgnList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSS_SgnElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSS_SgnTypeElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSS_SgnTypeElement, GANSS_SgnTypeElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSS_SgnTypeElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSS_SgnTypeElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSS_SgnTypeElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSS_SgnTypeElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSS_SgnTypeElement, SeqOfGANSS_SgnTypeElement_sequence_of,
+                                                  1, 6);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSS_MsrSetElement_sequence[] = {
+  { &hf_rrlp_referenceFrame , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_ReferenceFrame },
+  { &hf_rrlp_ganssTODm      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODm },
+  { &hf_rrlp_deltaGNASSTOD  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_127 },
+  { &hf_rrlp_ganssTODUncertainty, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODUncertainty },
+  { &hf_rrlp_ganss_SgnTypeList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSS_SgnTypeElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSS_MsrSetElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSS_MsrSetElement, GANSS_MsrSetElement_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SeqOfGANSS_MsrSetElement_sequence_of[1] = {
+  { &hf_rrlp_SeqOfGANSS_MsrSetElement_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GANSS_MsrSetElement },
+};
+
+static int
+dissect_rrlp_SeqOfGANSS_MsrSetElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rrlp_SeqOfGANSS_MsrSetElement, SeqOfGANSS_MsrSetElement_sequence_of,
+                                                  1, 3);
+
+  return offset;
+}
+
+
+static const per_sequence_t GANSSMeasureInfo_sequence[] = {
+  { &hf_rrlp_ganssMsrSetList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSS_MsrSetElement },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_GANSSMeasureInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_GANSSMeasureInfo, GANSSMeasureInfo_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Rel_7_MsrPosition_Rsp_Extension_sequence[] = {
+  { &hf_rrlp_velEstimate    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_VelocityEstimate },
+  { &hf_rrlp_ganssLocationInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSLocationInfo },
+  { &hf_rrlp_ganssMeasureInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSMeasureInfo },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_Rel_7_MsrPosition_Rsp_Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_Rel_7_MsrPosition_Rsp_Extension, Rel_7_MsrPosition_Rsp_Extension_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MsrPosition_Rsp_sequence[] = {
   { &hf_rrlp_multipleSets   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_MultipleSets },
   { &hf_rrlp_referenceIdentity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceIdentity },
@@ -2870,6 +4389,7 @@ static const per_sequence_t MsrPosition_Rsp_sequence[] = {
   { &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { &hf_rrlp_rel_98_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_98_MsrPosition_Rsp_Extension },
   { &hf_rrlp_rel_5_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_5_MsrPosition_Rsp_Extension },
+  { &hf_rrlp_rel_7_MsrPosition_Rsp_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel_7_MsrPosition_Rsp_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -2928,6 +4448,22 @@ dissect_rrlp_Rel5_AssistanceData_Extension(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+static const per_sequence_t Rel7_AssistanceData_Extension_sequence[] = {
+  { &hf_rrlp_ganss_AssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSS_AssistData },
+  { &hf_rrlp_ganssCarrierPhaseMeasurementRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { &hf_rrlp_ganssTODGSMTimeAssociationMeasurementRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_Rel7_AssistanceData_Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_Rel7_AssistanceData_Extension, Rel7_AssistanceData_Extension_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t AssistanceData_sequence[] = {
   { &hf_rrlp_referenceAssistData, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ReferenceAssistData },
   { &hf_rrlp_msrAssistData  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_MsrAssistData },
@@ -2937,6 +4473,7 @@ static const per_sequence_t AssistanceData_sequence[] = {
   { &hf_rrlp_extensionContainer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_ExtensionContainer },
   { &hf_rrlp_rel98_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel98_AssistanceData_Extension },
   { &hf_rrlp_rel5_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel5_AssistanceData_Extension },
+  { &hf_rrlp_rel7_AssistanceData_Extension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_Rel7_AssistanceData_Extension },
   { NULL, 0, 0, NULL }
 };
 
@@ -3035,17 +4572,44 @@ static const per_sequence_t PDU_sequence[] = {
 
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 10 "rrlp.cnf"
+#line 26 "rrlp.cnf"
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
 	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
 		col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
 
-    offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rrlp_PDU, PDU_sequence);
 
+  return offset;
+}
 
+
+static const per_sequence_t SLR_Arg_PCS_Extensions_sequence[] = {
+  { &hf_rrlp_na_ESRK_Request, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_rrlp_NULL },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_SLR_Arg_PCS_Extensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_SLR_Arg_PCS_Extensions, SLR_Arg_PCS_Extensions_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SLR_ArgExtensionContainer_sequence[] = {
+  { &hf_rrlp_privateExtensionList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_PrivateExtensionList },
+  { &hf_rrlp_slr_Arg_PCS_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_SLR_Arg_PCS_Extensions },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rrlp_SLR_ArgExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rrlp_SLR_ArgExtensionContainer, SLR_ArgExtensionContainer_sequence);
 
   return offset;
 }
@@ -3060,7 +4624,7 @@ static void dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rrlp-fn.c ---*/
-#line 76 "packet-rrlp-template.c"
+#line 74 "packet-rrlp-template.c"
 
 
 /*--- proto_register_rrlp -------------------------------------------*/
@@ -3126,7 +4690,7 @@ void proto_register_rrlp(void) {
         "rrlp.GPS_AssistData", HFILL }},
     { &hf_rrlp_extensionContainer,
       { "extensionContainer", "rrlp.extensionContainer",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.ExtensionContainer", HFILL }},
     { &hf_rrlp_rel98_MsrPosition_Req_extension,
       { "rel98-MsrPosition-Req-extension", "rrlp.rel98_MsrPosition_Req_extension",
@@ -3136,6 +4700,10 @@ void proto_register_rrlp(void) {
       { "rel5-MsrPosition-Req-extension", "rrlp.rel5_MsrPosition_Req_extension",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.Rel5_MsrPosition_Req_Extension", HFILL }},
+    { &hf_rrlp_rel7_MsrPosition_Req_extension,
+      { "rel7-MsrPosition-Req-extension", "rrlp.rel7_MsrPosition_Req_extension",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.Rel7_MsrPosition_Req_Extension", HFILL }},
     { &hf_rrlp_multipleSets,
       { "multipleSets", "rrlp.multipleSets",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3168,6 +4736,10 @@ void proto_register_rrlp(void) {
       { "rel-5-MsrPosition-Rsp-Extension", "rrlp.rel_5_MsrPosition_Rsp_Extension",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.Rel_5_MsrPosition_Rsp_Extension", HFILL }},
+    { &hf_rrlp_rel_7_MsrPosition_Rsp_Extension,
+      { "rel-7-MsrPosition-Rsp-Extension", "rrlp.rel_7_MsrPosition_Rsp_Extension",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.Rel_7_MsrPosition_Rsp_Extension", HFILL }},
     { &hf_rrlp_moreAssDataToBeSent,
       { "moreAssDataToBeSent", "rrlp.moreAssDataToBeSent",
         FT_UINT32, BASE_DEC, VALS(rrlp_MoreAssDataToBeSent_vals), 0,
@@ -3180,6 +4752,10 @@ void proto_register_rrlp(void) {
       { "rel5-AssistanceData-Extension", "rrlp.rel5_AssistanceData_Extension",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.Rel5_AssistanceData_Extension", HFILL }},
+    { &hf_rrlp_rel7_AssistanceData_Extension,
+      { "rel7-AssistanceData-Extension", "rrlp.rel7_AssistanceData_Extension",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.Rel7_AssistanceData_Extension", HFILL }},
     { &hf_rrlp_errorCause,
       { "errorCause", "rrlp.errorCause",
         FT_UINT32, BASE_DEC, VALS(rrlp_ErrorCodes_vals), 0,
@@ -3520,6 +5096,10 @@ void proto_register_rrlp(void) {
       { "gpsAssistanceData", "rrlp.gpsAssistanceData",
         FT_BYTES, BASE_HEX, NULL, 0,
         "rrlp.GPSAssistanceData", HFILL }},
+    { &hf_rrlp_ganssAssistanceData,
+      { "ganssAssistanceData", "rrlp.ganssAssistanceData",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "rrlp.GANSSAssistanceData", HFILL }},
     { &hf_rrlp_controlHeader,
       { "controlHeader", "rrlp.controlHeader",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4116,9 +5696,677 @@ void proto_register_rrlp(void) {
       { "transaction-ID", "rrlp.transaction_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_262143", HFILL }},
+    { &hf_rrlp_velocityRequested,
+      { "velocityRequested", "rrlp.velocityRequested",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.NULL", HFILL }},
+    { &hf_rrlp_ganssPositionMethod,
+      { "ganssPositionMethod", "rrlp.ganssPositionMethod",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "rrlp.GANSSPositioningMethod", HFILL }},
+    { &hf_rrlp_ganss_AssistData,
+      { "ganss-AssistData", "rrlp.ganss_AssistData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSS_AssistData", HFILL }},
+    { &hf_rrlp_ganssCarrierPhaseMeasurementRequest,
+      { "ganssCarrierPhaseMeasurementRequest", "rrlp.ganssCarrierPhaseMeasurementRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.NULL", HFILL }},
+    { &hf_rrlp_ganssTODGSMTimeAssociationMeasurementRequest,
+      { "ganssTODGSMTimeAssociationMeasurementRequest", "rrlp.ganssTODGSMTimeAssociationMeasurementRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.NULL", HFILL }},
+    { &hf_rrlp_requiredResponseTime,
+      { "requiredResponseTime", "rrlp.requiredResponseTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.RequiredResponseTime", HFILL }},
+    { &hf_rrlp_ganss_controlHeader,
+      { "ganss-controlHeader", "rrlp.ganss_controlHeader",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSS_ControlHeader", HFILL }},
+    { &hf_rrlp_ganssCommonAssistData,
+      { "ganssCommonAssistData", "rrlp.ganssCommonAssistData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSCommonAssistData", HFILL }},
+    { &hf_rrlp_ganssGenericAssistDataList,
+      { "ganssGenericAssistDataList", "rrlp.ganssGenericAssistDataList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSSGenericAssistDataElement", HFILL }},
+    { &hf_rrlp_ganssReferenceTime,
+      { "ganssReferenceTime", "rrlp.ganssReferenceTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSReferenceTime", HFILL }},
+    { &hf_rrlp_ganssRefLocation,
+      { "ganssRefLocation", "rrlp.ganssRefLocation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSRefLocation", HFILL }},
+    { &hf_rrlp_ganssIonosphericModel,
+      { "ganssIonosphericModel", "rrlp.ganssIonosphericModel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSIonosphericModel", HFILL }},
+    { &hf_rrlp_SeqOfGANSSGenericAssistDataElement_item,
+      { "Item", "rrlp.SeqOfGANSSGenericAssistDataElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSGenericAssistDataElement", HFILL }},
+    { &hf_rrlp_ganssID,
+      { "ganssID", "rrlp.ganssID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_7", HFILL }},
+    { &hf_rrlp_ganssTimeModel,
+      { "ganssTimeModel", "rrlp.ganssTimeModel",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSSTimeModel", HFILL }},
+    { &hf_rrlp_ganssDiffCorrections,
+      { "ganssDiffCorrections", "rrlp.ganssDiffCorrections",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSDiffCorrections", HFILL }},
+    { &hf_rrlp_ganssNavigationModel,
+      { "ganssNavigationModel", "rrlp.ganssNavigationModel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSNavModel", HFILL }},
+    { &hf_rrlp_ganssRealTimeIntegrity,
+      { "ganssRealTimeIntegrity", "rrlp.ganssRealTimeIntegrity",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSRealTimeIntegrity", HFILL }},
+    { &hf_rrlp_ganssDataBitAssist,
+      { "ganssDataBitAssist", "rrlp.ganssDataBitAssist",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSDataBitAssist", HFILL }},
+    { &hf_rrlp_ganssRefMeasurementAssist,
+      { "ganssRefMeasurementAssist", "rrlp.ganssRefMeasurementAssist",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSRefMeasurementAssist", HFILL }},
+    { &hf_rrlp_ganssAlmanacModel,
+      { "ganssAlmanacModel", "rrlp.ganssAlmanacModel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSAlmanacModel", HFILL }},
+    { &hf_rrlp_ganssUTCModel,
+      { "ganssUTCModel", "rrlp.ganssUTCModel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSUTCModel", HFILL }},
+    { &hf_rrlp_ganssRefTimeInfo,
+      { "ganssRefTimeInfo", "rrlp.ganssRefTimeInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSRefTimeInfo", HFILL }},
+    { &hf_rrlp_ganssTOD_GSMTimeAssociation,
+      { "ganssTOD-GSMTimeAssociation", "rrlp.ganssTOD_GSMTimeAssociation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSTOD_GSMTimeAssociation", HFILL }},
+    { &hf_rrlp_ganssDay,
+      { "ganssDay", "rrlp.ganssDay",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_8191", HFILL }},
+    { &hf_rrlp_ganssTOD,
+      { "ganssTOD", "rrlp.ganssTOD",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.GANSSTOD", HFILL }},
+    { &hf_rrlp_ganssTODUncertainty,
+      { "ganssTODUncertainty", "rrlp.ganssTODUncertainty",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.GANSSTODUncertainty", HFILL }},
+    { &hf_rrlp_ganssTimeID,
+      { "ganssTimeID", "rrlp.ganssTimeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_7", HFILL }},
+    { &hf_rrlp_frameDrift,
+      { "frameDrift", "rrlp.frameDrift",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.FrameDrift", HFILL }},
+    { &hf_rrlp_ganssIonoModel,
+      { "ganssIonoModel", "rrlp.ganssIonoModel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSIonosphereModel", HFILL }},
+    { &hf_rrlp_ganssIonoStormFlags,
+      { "ganssIonoStormFlags", "rrlp.ganssIonoStormFlags",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSIonoStormFlags", HFILL }},
+    { &hf_rrlp_ai0,
+      { "ai0", "rrlp.ai0",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_4095", HFILL }},
+    { &hf_rrlp_ai1,
+      { "ai1", "rrlp.ai1",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_4095", HFILL }},
+    { &hf_rrlp_ai2,
+      { "ai2", "rrlp.ai2",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_4095", HFILL }},
+    { &hf_rrlp_ionoStormFlag1,
+      { "ionoStormFlag1", "rrlp.ionoStormFlag1",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_ionoStormFlag2,
+      { "ionoStormFlag2", "rrlp.ionoStormFlag2",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_ionoStormFlag3,
+      { "ionoStormFlag3", "rrlp.ionoStormFlag3",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_ionoStormFlag4,
+      { "ionoStormFlag4", "rrlp.ionoStormFlag4",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_ionoStormFlag5,
+      { "ionoStormFlag5", "rrlp.ionoStormFlag5",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_SeqOfGANSSTimeModel_item,
+      { "Item", "rrlp.SeqOfGANSSTimeModel_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSTimeModelElement", HFILL }},
+    { &hf_rrlp_ganssTimeModelRefTime,
+      { "ganssTimeModelRefTime", "rrlp.ganssTimeModelRefTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_65535", HFILL }},
+    { &hf_rrlp_tA0,
+      { "tA0", "rrlp.tA0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.TA0", HFILL }},
+    { &hf_rrlp_tA1,
+      { "tA1", "rrlp.tA1",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.TA1", HFILL }},
+    { &hf_rrlp_tA2,
+      { "tA2", "rrlp.tA2",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.TA2", HFILL }},
+    { &hf_rrlp_gnssTOID,
+      { "gnssTOID", "rrlp.gnssTOID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_7", HFILL }},
+    { &hf_rrlp_weekNumber,
+      { "weekNumber", "rrlp.weekNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_8191", HFILL }},
+    { &hf_rrlp_dganssRefTime,
+      { "dganssRefTime", "rrlp.dganssRefTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_119", HFILL }},
+    { &hf_rrlp_sgnTypeList,
+      { "sgnTypeList", "rrlp.sgnTypeList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfSgnTypeElement", HFILL }},
+    { &hf_rrlp_SeqOfSgnTypeElement_item,
+      { "Item", "rrlp.SeqOfSgnTypeElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.SgnTypeElement", HFILL }},
+    { &hf_rrlp_ganssSignalID,
+      { "ganssSignalID", "rrlp.ganssSignalID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.GANSSSignalID", HFILL }},
+    { &hf_rrlp_ganssStatusHealth,
+      { "ganssStatusHealth", "rrlp.ganssStatusHealth",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_7", HFILL }},
+    { &hf_rrlp_dganssSgnList,
+      { "dganssSgnList", "rrlp.dganssSgnList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfDGANSSSgnElement", HFILL }},
+    { &hf_rrlp_SeqOfDGANSSSgnElement_item,
+      { "Item", "rrlp.SeqOfDGANSSSgnElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.DGANSSSgnElement", HFILL }},
+    { &hf_rrlp_svID,
+      { "svID", "rrlp.svID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SVID", HFILL }},
+    { &hf_rrlp_iod,
+      { "iod", "rrlp.iod",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1023", HFILL }},
+    { &hf_rrlp_nonBroadcastIndFlag,
+      { "nonBroadcastIndFlag", "rrlp.nonBroadcastIndFlag",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_toeMSB,
+      { "toeMSB", "rrlp.toeMSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_31", HFILL }},
+    { &hf_rrlp_eMSB,
+      { "eMSB", "rrlp.eMSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_127", HFILL }},
+    { &hf_rrlp_sqrtAMBS,
+      { "sqrtAMBS", "rrlp.sqrtAMBS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_63", HFILL }},
+    { &hf_rrlp_ganssSatelliteList,
+      { "ganssSatelliteList", "rrlp.ganssSatelliteList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSSSatelliteElement", HFILL }},
+    { &hf_rrlp_SeqOfGANSSSatelliteElement_item,
+      { "Item", "rrlp.SeqOfGANSSSatelliteElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSSatelliteElement", HFILL }},
+    { &hf_rrlp_svHealth,
+      { "svHealth", "rrlp.svHealth",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M7_13", HFILL }},
+    { &hf_rrlp_ganssClockModel,
+      { "ganssClockModel", "rrlp.ganssClockModel",
+        FT_UINT32, BASE_DEC, VALS(rrlp_GANSSClockModel_vals), 0,
+        "rrlp.GANSSClockModel", HFILL }},
+    { &hf_rrlp_ganssOrbitModel,
+      { "ganssOrbitModel", "rrlp.ganssOrbitModel",
+        FT_UINT32, BASE_DEC, VALS(rrlp_GANSSOrbitModel_vals), 0,
+        "rrlp.GANSSOrbitModel", HFILL }},
+    { &hf_rrlp_keplerianSet,
+      { "keplerianSet", "rrlp.keplerianSet",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.NavModel_KeplerianSet", HFILL }},
+    { &hf_rrlp_keplerToeLSB,
+      { "keplerToeLSB", "rrlp.keplerToeLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_511", HFILL }},
+    { &hf_rrlp_keplerW,
+      { "keplerW", "rrlp.keplerW",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_rrlp_keplerDeltaN,
+      { "keplerDeltaN", "rrlp.keplerDeltaN",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_keplerM0,
+      { "keplerM0", "rrlp.keplerM0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_rrlp_keplerOmegaDot,
+      { "keplerOmegaDot", "rrlp.keplerOmegaDot",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M8388608_8388607", HFILL }},
+    { &hf_rrlp_keplerELSB,
+      { "keplerELSB", "rrlp.keplerELSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_33554431", HFILL }},
+    { &hf_rrlp_keplerIDot,
+      { "keplerIDot", "rrlp.keplerIDot",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M8192_8191", HFILL }},
+    { &hf_rrlp_keplerAPowerHalfLSB,
+      { "keplerAPowerHalfLSB", "rrlp.keplerAPowerHalfLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_67108863", HFILL }},
+    { &hf_rrlp_keplerI0,
+      { "keplerI0", "rrlp.keplerI0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_rrlp_keplerOmega0,
+      { "keplerOmega0", "rrlp.keplerOmega0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_rrlp_keplerCrs,
+      { "keplerCrs", "rrlp.keplerCrs",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_keplerCis,
+      { "keplerCis", "rrlp.keplerCis",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_keplerCus,
+      { "keplerCus", "rrlp.keplerCus",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_keplerCrc,
+      { "keplerCrc", "rrlp.keplerCrc",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_keplerCic,
+      { "keplerCic", "rrlp.keplerCic",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_keplerCuc,
+      { "keplerCuc", "rrlp.keplerCuc",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_standardClockModelList,
+      { "standardClockModelList", "rrlp.standardClockModelList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfStandardClockModelElement", HFILL }},
+    { &hf_rrlp_SeqOfStandardClockModelElement_item,
+      { "Item", "rrlp.SeqOfStandardClockModelElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.StandardClockModelElement", HFILL }},
+    { &hf_rrlp_stanClockTocLSB,
+      { "stanClockTocLSB", "rrlp.stanClockTocLSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_511", HFILL }},
+    { &hf_rrlp_stanClockAF2,
+      { "stanClockAF2", "rrlp.stanClockAF2",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M2048_2047", HFILL }},
+    { &hf_rrlp_stanClockAF1,
+      { "stanClockAF1", "rrlp.stanClockAF1",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M131072_131071", HFILL }},
+    { &hf_rrlp_stanClockAF0,
+      { "stanClockAF0", "rrlp.stanClockAF0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M134217728_134217727", HFILL }},
+    { &hf_rrlp_stanClockTgd,
+      { "stanClockTgd", "rrlp.stanClockTgd",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M512_511", HFILL }},
+    { &hf_rrlp_stanModelID,
+      { "stanModelID", "rrlp.stanModelID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_ganssBadSignalList,
+      { "ganssBadSignalList", "rrlp.ganssBadSignalList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfBadSignalElement", HFILL }},
+    { &hf_rrlp_SeqOfBadSignalElement_item,
+      { "Item", "rrlp.SeqOfBadSignalElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.BadSignalElement", HFILL }},
+    { &hf_rrlp_badSVID,
+      { "badSVID", "rrlp.badSVID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SVID", HFILL }},
+    { &hf_rrlp_badSignalID,
+      { "badSignalID", "rrlp.badSignalID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_3", HFILL }},
+    { &hf_rrlp_ganssTOD1,
+      { "ganssTOD", "rrlp.ganssTOD",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_59", HFILL }},
+    { &hf_rrlp_ganssDataTypeID,
+      { "ganssDataTypeID", "rrlp.ganssDataTypeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_2", HFILL }},
+    { &hf_rrlp_ganssDataBits,
+      { "ganssDataBits", "rrlp.ganssDataBits",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOf_GANSSDataBits", HFILL }},
+    { &hf_rrlp_SeqOf_GANSSDataBits_item,
+      { "Item", "rrlp.SeqOf_GANSSDataBits_item",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.GANSSDataBit", HFILL }},
+    { &hf_rrlp_ganssSignalID1,
+      { "ganssSignalID", "rrlp.ganssSignalID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_3", HFILL }},
+    { &hf_rrlp_ganssRefMeasAssitList,
+      { "ganssRefMeasAssitList", "rrlp.ganssRefMeasAssitList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSSRefMeasurementElement", HFILL }},
+    { &hf_rrlp_SeqOfGANSSRefMeasurementElement_item,
+      { "Item", "rrlp.SeqOfGANSSRefMeasurementElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSRefMeasurementElement", HFILL }},
+    { &hf_rrlp_additionalDoppler,
+      { "additionalDoppler", "rrlp.additionalDoppler",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.AdditionalDopplerFields", HFILL }},
+    { &hf_rrlp_intCodePhase1,
+      { "intCodePhase", "rrlp.intCodePhase",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_127", HFILL }},
+    { &hf_rrlp_codePhaseSearchWindow1,
+      { "codePhaseSearchWindow", "rrlp.codePhaseSearchWindow",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_31", HFILL }},
+    { &hf_rrlp_additionalAngle,
+      { "additionalAngle", "rrlp.additionalAngle",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.AddionalAngleFields", HFILL }},
+    { &hf_rrlp_dopplerUncertainty1,
+      { "dopplerUncertainty", "rrlp.dopplerUncertainty",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_4", HFILL }},
+    { &hf_rrlp_weekNumber1,
+      { "weekNumber", "rrlp.weekNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_255", HFILL }},
+    { &hf_rrlp_svIDMask,
+      { "svIDMask", "rrlp.svIDMask",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "rrlp.SVIDMASK", HFILL }},
+    { &hf_rrlp_toa,
+      { "toa", "rrlp.toa",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_255", HFILL }},
+    { &hf_rrlp_ioda,
+      { "ioda", "rrlp.ioda",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_3", HFILL }},
+    { &hf_rrlp_ganssAlmanacList,
+      { "ganssAlmanacList", "rrlp.ganssAlmanacList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSSAlmanacElement", HFILL }},
+    { &hf_rrlp_SeqOfGANSSAlmanacElement_item,
+      { "Item", "rrlp.SeqOfGANSSAlmanacElement_item",
+        FT_UINT32, BASE_DEC, VALS(rrlp_GANSSAlmanacElement_vals), 0,
+        "rrlp.GANSSAlmanacElement", HFILL }},
+    { &hf_rrlp_keplerianAlmanacSet,
+      { "keplerianAlmanacSet", "rrlp.keplerianAlmanacSet",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.Almanac_KeplerianSet", HFILL }},
+    { &hf_rrlp_kepAlmanacE,
+      { "kepAlmanacE", "rrlp.kepAlmanacE",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_2047", HFILL }},
+    { &hf_rrlp_kepAlmanacDeltaI,
+      { "kepAlmanacDeltaI", "rrlp.kepAlmanacDeltaI",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M1024_1023", HFILL }},
+    { &hf_rrlp_kepAlmanacOmegaDot,
+      { "kepAlmanacOmegaDot", "rrlp.kepAlmanacOmegaDot",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M1024_1023", HFILL }},
+    { &hf_rrlp_kepSVHealth,
+      { "kepSVHealth", "rrlp.kepSVHealth",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_15", HFILL }},
+    { &hf_rrlp_kepAlmanacAPowerHalf,
+      { "kepAlmanacAPowerHalf", "rrlp.kepAlmanacAPowerHalf",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M65536_65535", HFILL }},
+    { &hf_rrlp_kepAlmanacOmega0,
+      { "kepAlmanacOmega0", "rrlp.kepAlmanacOmega0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_kepAlmanacW,
+      { "kepAlmanacW", "rrlp.kepAlmanacW",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_kepAlmanacM0,
+      { "kepAlmanacM0", "rrlp.kepAlmanacM0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M32768_32767", HFILL }},
+    { &hf_rrlp_kepAlmanacAF0,
+      { "kepAlmanacAF0", "rrlp.kepAlmanacAF0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M8192_8191", HFILL }},
+    { &hf_rrlp_kepAlmanacAF1,
+      { "kepAlmanacAF1", "rrlp.kepAlmanacAF1",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M1024_1023", HFILL }},
+    { &hf_rrlp_ganssUtcA1,
+      { "ganssUtcA1", "rrlp.ganssUtcA1",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M8388608_8388607", HFILL }},
+    { &hf_rrlp_ganssUtcA0,
+      { "ganssUtcA0", "rrlp.ganssUtcA0",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_rrlp_ganssUtcTot,
+      { "ganssUtcTot", "rrlp.ganssUtcTot",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_255", HFILL }},
+    { &hf_rrlp_ganssUtcWNt,
+      { "ganssUtcWNt", "rrlp.ganssUtcWNt",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_255", HFILL }},
+    { &hf_rrlp_ganssUtcDeltaTls,
+      { "ganssUtcDeltaTls", "rrlp.ganssUtcDeltaTls",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M128_127", HFILL }},
+    { &hf_rrlp_ganssUtcWNlsf,
+      { "ganssUtcWNlsf", "rrlp.ganssUtcWNlsf",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_255", HFILL }},
+    { &hf_rrlp_ganssUtcDN,
+      { "ganssUtcDN", "rrlp.ganssUtcDN",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M128_127", HFILL }},
+    { &hf_rrlp_ganssUtcDeltaTlsf,
+      { "ganssUtcDeltaTlsf", "rrlp.ganssUtcDeltaTlsf",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_M128_127", HFILL }},
+    { &hf_rrlp_velEstimate,
+      { "velEstimate", "rrlp.velEstimate",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "rrlp.VelocityEstimate", HFILL }},
+    { &hf_rrlp_ganssLocationInfo,
+      { "ganssLocationInfo", "rrlp.ganssLocationInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSLocationInfo", HFILL }},
+    { &hf_rrlp_ganssMeasureInfo,
+      { "ganssMeasureInfo", "rrlp.ganssMeasureInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSSMeasureInfo", HFILL }},
+    { &hf_rrlp_referenceFrame,
+      { "referenceFrame", "rrlp.referenceFrame",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.ReferenceFrame", HFILL }},
+    { &hf_rrlp_ganssTODm,
+      { "ganssTODm", "rrlp.ganssTODm",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.GANSSTODm", HFILL }},
+    { &hf_rrlp_ganssTODFrac,
+      { "ganssTODFrac", "rrlp.ganssTODFrac",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_16384", HFILL }},
+    { &hf_rrlp_ganssTimeID1,
+      { "ganssTimeID", "rrlp.ganssTimeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_3", HFILL }},
+    { &hf_rrlp_posData,
+      { "posData", "rrlp.posData",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "rrlp.PositionData", HFILL }},
+    { &hf_rrlp_stationaryIndication,
+      { "stationaryIndication", "rrlp.stationaryIndication",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_1", HFILL }},
+    { &hf_rrlp_referenceFN,
+      { "referenceFN", "rrlp.referenceFN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_65535", HFILL }},
+    { &hf_rrlp_referenceFNMSB,
+      { "referenceFNMSB", "rrlp.referenceFNMSB",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_63", HFILL }},
+    { &hf_rrlp_ganssMsrSetList,
+      { "ganssMsrSetList", "rrlp.ganssMsrSetList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSS_MsrSetElement", HFILL }},
+    { &hf_rrlp_SeqOfGANSS_MsrSetElement_item,
+      { "Item", "rrlp.SeqOfGANSS_MsrSetElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSS_MsrSetElement", HFILL }},
+    { &hf_rrlp_deltaGNASSTOD,
+      { "deltaGNASSTOD", "rrlp.deltaGNASSTOD",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_127", HFILL }},
+    { &hf_rrlp_ganss_SgnTypeList,
+      { "ganss-SgnTypeList", "rrlp.ganss_SgnTypeList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSS_SgnTypeElement", HFILL }},
+    { &hf_rrlp_SeqOfGANSS_SgnTypeElement_item,
+      { "Item", "rrlp.SeqOfGANSS_SgnTypeElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSS_SgnTypeElement", HFILL }},
+    { &hf_rrlp_ganssSignalID2,
+      { "ganssSignalID", "rrlp.ganssSignalID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_15", HFILL }},
+    { &hf_rrlp_ganss_SgnList,
+      { "ganss-SgnList", "rrlp.ganss_SgnList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.SeqOfGANSS_SgnElement", HFILL }},
+    { &hf_rrlp_SeqOfGANSS_SgnElement_item,
+      { "Item", "rrlp.SeqOfGANSS_SgnElement_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.GANSS_SgnElement", HFILL }},
+    { &hf_rrlp_mpathDet,
+      { "mpathDet", "rrlp.mpathDet",
+        FT_UINT32, BASE_DEC, VALS(rrlp_MpathIndic_vals), 0,
+        "rrlp.MpathIndic", HFILL }},
+    { &hf_rrlp_carrierQualityInd,
+      { "carrierQualityInd", "rrlp.carrierQualityInd",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_3", HFILL }},
+    { &hf_rrlp_codePhase1,
+      { "codePhase", "rrlp.codePhase",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_2097151", HFILL }},
+    { &hf_rrlp_integerCodePhase,
+      { "integerCodePhase", "rrlp.integerCodePhase",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_63", HFILL }},
+    { &hf_rrlp_codePhaseRMSError,
+      { "codePhaseRMSError", "rrlp.codePhaseRMSError",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_63", HFILL }},
+    { &hf_rrlp_adr,
+      { "adr", "rrlp.adr",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.INTEGER_0_33554431", HFILL }},
+    { &hf_rrlp_privateExtensionList,
+      { "privateExtensionList", "rrlp.privateExtensionList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "rrlp.PrivateExtensionList", HFILL }},
+    { &hf_rrlp_pcs_Extensions,
+      { "pcs-Extensions", "rrlp.pcs_Extensions",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.PCS_Extensions", HFILL }},
+    { &hf_rrlp_slr_Arg_PCS_Extensions,
+      { "slr-Arg-PCS-Extensions", "rrlp.slr_Arg_PCS_Extensions",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.SLR_Arg_PCS_Extensions", HFILL }},
+    { &hf_rrlp_PrivateExtensionList_item,
+      { "Item", "rrlp.PrivateExtensionList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.PrivateExtension", HFILL }},
+    { &hf_rrlp_extId,
+      { "extId", "rrlp.extId",
+        FT_OID, BASE_NONE, NULL, 0,
+        "rrlp.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_rrlp_extType,
+      { "extType", "rrlp.extType",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.T_extType", HFILL }},
+    { &hf_rrlp_na_ESRK_Request,
+      { "na-ESRK-Request", "rrlp.na_ESRK_Request",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rrlp.NULL", HFILL }},
+    { &hf_rrlp_GANSSPositioningMethod_gps,
+      { "gps", "rrlp.gps",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_rrlp_GANSSPositioningMethod_galileo,
+      { "galileo", "rrlp.galileo",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_rrlp_PositionData_e_otd,
+      { "e-otd", "rrlp.e-otd",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_rrlp_PositionData_gps,
+      { "gps", "rrlp.gps",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_rrlp_PositionData_galileo,
+      { "galileo", "rrlp.galileo",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
 
 /*--- End of included file: packet-rrlp-hfarr.c ---*/
-#line 85 "packet-rrlp-template.c"
+#line 83 "packet-rrlp-template.c"
   };
 
   /* List of subtrees */
@@ -4223,9 +6471,70 @@ void proto_register_rrlp(void) {
     &ett_rrlp_Rel5_MsrPosition_Req_Extension,
     &ett_rrlp_Rel5_AssistanceData_Extension,
     &ett_rrlp_Rel_5_ProtocolError_Extension,
+    &ett_rrlp_Rel7_MsrPosition_Req_Extension,
+    &ett_rrlp_GANSSPositioningMethod,
+    &ett_rrlp_GANSS_AssistData,
+    &ett_rrlp_GANSS_ControlHeader,
+    &ett_rrlp_GANSSCommonAssistData,
+    &ett_rrlp_SeqOfGANSSGenericAssistDataElement,
+    &ett_rrlp_GANSSGenericAssistDataElement,
+    &ett_rrlp_GANSSReferenceTime,
+    &ett_rrlp_GANSSRefTimeInfo,
+    &ett_rrlp_GANSSTOD_GSMTimeAssociation,
+    &ett_rrlp_GANSSRefLocation,
+    &ett_rrlp_GANSSIonosphericModel,
+    &ett_rrlp_GANSSIonosphereModel,
+    &ett_rrlp_GANSSIonoStormFlags,
+    &ett_rrlp_SeqOfGANSSTimeModel,
+    &ett_rrlp_GANSSTimeModelElement,
+    &ett_rrlp_GANSSDiffCorrections,
+    &ett_rrlp_SeqOfSgnTypeElement,
+    &ett_rrlp_SgnTypeElement,
+    &ett_rrlp_SeqOfDGANSSSgnElement,
+    &ett_rrlp_DGANSSSgnElement,
+    &ett_rrlp_GANSSNavModel,
+    &ett_rrlp_SeqOfGANSSSatelliteElement,
+    &ett_rrlp_GANSSSatelliteElement,
+    &ett_rrlp_GANSSOrbitModel,
+    &ett_rrlp_NavModel_KeplerianSet,
+    &ett_rrlp_GANSSClockModel,
+    &ett_rrlp_SeqOfStandardClockModelElement,
+    &ett_rrlp_StandardClockModelElement,
+    &ett_rrlp_GANSSRealTimeIntegrity,
+    &ett_rrlp_SeqOfBadSignalElement,
+    &ett_rrlp_BadSignalElement,
+    &ett_rrlp_GANSSDataBitAssist,
+    &ett_rrlp_SeqOf_GANSSDataBits,
+    &ett_rrlp_GANSSRefMeasurementAssist,
+    &ett_rrlp_SeqOfGANSSRefMeasurementElement,
+    &ett_rrlp_GANSSRefMeasurementElement,
+    &ett_rrlp_AdditionalDopplerFields,
+    &ett_rrlp_GANSSAlmanacModel,
+    &ett_rrlp_SeqOfGANSSAlmanacElement,
+    &ett_rrlp_GANSSAlmanacElement,
+    &ett_rrlp_Almanac_KeplerianSet,
+    &ett_rrlp_GANSSUTCModel,
+    &ett_rrlp_Rel_7_MsrPosition_Rsp_Extension,
+    &ett_rrlp_GANSSLocationInfo,
+    &ett_rrlp_PositionData,
+    &ett_rrlp_ReferenceFrame,
+    &ett_rrlp_GANSSMeasureInfo,
+    &ett_rrlp_SeqOfGANSS_MsrSetElement,
+    &ett_rrlp_GANSS_MsrSetElement,
+    &ett_rrlp_SeqOfGANSS_SgnTypeElement,
+    &ett_rrlp_GANSS_SgnTypeElement,
+    &ett_rrlp_SeqOfGANSS_SgnElement,
+    &ett_rrlp_GANSS_SgnElement,
+    &ett_rrlp_Rel7_AssistanceData_Extension,
+    &ett_rrlp_ExtensionContainer,
+    &ett_rrlp_SLR_ArgExtensionContainer,
+    &ett_rrlp_PrivateExtensionList,
+    &ett_rrlp_PrivateExtension,
+    &ett_rrlp_PCS_Extensions,
+    &ett_rrlp_SLR_Arg_PCS_Extensions,
 
 /*--- End of included file: packet-rrlp-ettarr.c ---*/
-#line 91 "packet-rrlp-template.c"
+#line 89 "packet-rrlp-template.c"
   };
 
 
