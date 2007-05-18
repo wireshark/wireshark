@@ -66,6 +66,7 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	wtap.def		\
 	file_util.c		\
+	$(GENERATOR_SOURCES) 	\
 	$(GENERATED_FILES)
 
 libwiretap_la_LIBADD = libwiretap_generated.la
