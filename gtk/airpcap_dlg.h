@@ -51,29 +51,6 @@ void
 on_add_key_w_destroy(GtkWidget *button, gpointer data _U_);
 
 /*
- * Pop-up window, used to ask the user if he wants to save the selected interface settings
- * when closing the window.
- */
-void
-airpcap_ask_for_save_before_closing(GtkWidget *w _U_, gpointer data);
-
-/* user confirmed the "Save settings..." dialog */
-void
-airpcap_dialog_save_before_closing_cb(gpointer dialog _U_, gint btn, gpointer data);
-
-/*
- * Pop-up window, used to ask the user if he wants to save the selected interface settings
- */
-void
-airpcap_ask_for_save(GtkWidget *entry _U_, gpointer data);
-
-/*
- * Function used to change the selected interface and advanced dialog box
- */
-void
-airpcap_change_if(GtkWidget *entry _U_, gpointer data);
-
-/*
  * Fill the interface combo box specified
  */
 void
@@ -260,12 +237,6 @@ key_sel_list_button_cb(GtkWidget *widget, GdkEventButton *event,gpointer func_da
  */
 static void
 combo_if_activate_cb(GtkWidget *w _U_, gpointer data);
-
-/*
- * Pop-up window that appears when user confirms the "Save settings..." dialog
- */
-static void
-airpcap_dialog_save_cb(GtkWidget* dialog _U_, gint btn, gpointer data);
 
 /*
  * Thread function used to blink the led

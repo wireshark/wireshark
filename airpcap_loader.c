@@ -64,6 +64,8 @@ static HMODULE AirpcapLib = NULL;
  */
 static gboolean AirpcapLoaded = FALSE;
 
+static int AirpcapVersion = 3;
+
 static AirpcapGetLastErrorHandler g_PAirpcapGetLastError;
 static AirpcapGetDeviceListHandler g_PAirpcapGetDeviceList;
 static AirpcapFreeDeviceListHandler g_PAirpcapFreeDeviceList;
@@ -96,6 +98,9 @@ static AirpcapGetDriverDecryptionStateHandler g_PAirpcapGetDriverDecryptionState
 static AirpcapSetDriverDecryptionStateHandler g_PAirpcapSetDriverDecryptionState;
 static AirpcapStoreCurConfigAsAdapterDefaultHandler g_PAirpcapStoreCurConfigAsAdapterDefault;
 static AirpcapGetVersionHandler g_PAirpcapGetVersion;
+static AirpcapSetDeviceChannelExHandler g_PAirpcapSetDeviceChannelEx;
+static AirpcapGetDeviceChannelExHandler g_PAirpcapGetDeviceChannelEx;
+static AirpcapGetDeviceSupportedChannelsHandler g_PAirpcapGetDeviceSupportedChannels;
 
 /* Airpcap interface list */
 GList *airpcap_if_list = NULL;
@@ -108,6 +113,67 @@ airpcap_if_info_t *airpcap_if_active = NULL;
 
 /* WLAN preferences pointer */
 module_t *wlan_prefs = NULL;
+
+Dot11Channel *pSupportedChannels;
+ULONG numSupportedChannels;
+
+static Dot11Channel Dot11aChannels[] =
+{
+	{34,  5170, 0},
+	{36,  5180, 0},
+	{38,  5190, 0},
+	{40,  5200, 0},
+	{42,  5210, 0},
+	{44,  5220, 0},
+	{46,  5230, 0},
+	{48,  5240, 0},
+	{52,  5260, 0},
+	{56,  5280, 0},
+	{60,  5300, 0},
+	{64,  5320, 0},
+	{149, 5745, 0},
+	{153, 5765, 0},
+	{157, 5785, 0},
+	{161, 5805, 0},
+};
+
+static Dot11Channel Dot11bChannels[] =
+{
+	{1,  2412, 0},
+	{2,  2417, 0},
+	{3,  2422, 0},
+	{4,  2427, 0},
+	{5,  2432, 0},
+	{6,  2437, 0},
+	{7,  2442, 0},
+	{8,  2447, 0},
+  {9,  2452, 0},
+	{10, 2457, 0},
+	{11, 2462, 0},
+	{12, 2467, 0},
+	{13, 2472, 0},
+	{14, 2484, 0},
+};
+
+static AirpcapChannelInfo LegacyChannels[] =
+{
+	{2412, 0, {0,0,0}},
+	{2417, 0, {0,0,0}},
+	{2422, 0, {0,0,0}},
+	{2427, 0, {0,0,0}},
+	{2432, 0, {0,0,0}},
+	{2437, 0, {0,0,0}},
+	{2442, 0, {0,0,0}},
+	{2447, 0, {0,0,0}},
+	{2452, 0, {0,0,0}},
+	{2457, 0, {0,0,0}},
+	{2462, 0, {0,0,0}},
+	{2467, 0, {0,0,0}},
+	{2472, 0, {0,0,0}},
+	{2484, 0, {0,0,0}},
+};
+
+static ULONG num_legacy_channels = 14;
 
 /*
  * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key
@@ -687,6 +753,15 @@ airpcap_if_close(PAirpcapHandle handle)
 }
 
 /*
+ * Retrieve the state of the Airpcap DLL
+ */
+int
+airpcap_get_dll_state()
+{
+  return AirpcapVersion;
+}
+
+/*
  * Airpcap wrapper, used to turn on the led of an airpcap adapter
  */
 BOOL
@@ -717,6 +792,218 @@ airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch)
 }
 
 /*
+ * Airpcap wrapper, used to get the supported channels of an airpcap adapter
+ */
+BOOL
+airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, PULONG nInfo)
+{
+    if (!AirpcapLoaded) return FALSE;
+    if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
+      *nInfo = num_legacy_channels;
+      *cInfo = (AirpcapChannelInfo*)&LegacyChannels;
+
+      return TRUE;
+    } else if (airpcap_get_dll_state() == AIRPCAP_DLL_OK){
+      return g_PAirpcapGetDeviceSupportedChannels(ah, cInfo, nInfo);
+    }
+    return FALSE;
+}
+
+/*
+ * Airpcap wrapper, used to get the supported channels of an airpcap adapter
+ */
+Dot11Channel*
+airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSupportedChannels)
+{
+	AirpcapChannelInfo *chanInfo;
+	ULONG i=0, j=0, numInfo = 0;
+	if (!AirpcapLoaded) return FALSE;
+  if (airpcap_if_get_device_supported_channels(ah, &chanInfo, &numInfo) == FALSE) return NULL;
+	numSupportedChannels = 0;
+
+	/*
+	 * allocate a bigger array
+	 */
+	if (numInfo == 0)
+		return FALSE;
+
+	pSupportedChannels = malloc(numInfo * (sizeof *pSupportedChannels));
+
+	for (i = 0; i < numInfo; i++)
+	{
+		ULONG supportedChannel = 0xFFFFFFFF;
+
+		/*
+		 * search if we have it already
+		 */
+		for (j = 0; j < numSupportedChannels; j++)
+		{
+			if (pSupportedChannels[j].Frequency == chanInfo[i].Frequency)
+			{
+				supportedChannel = j;
+				break;
+			}
+		}
+
+		if (supportedChannel == 0xFFFFFFFF)
+		{
+			/*
+			 * not found, create a new item
+			 */
+			pSupportedChannels[numSupportedChannels].Frequency = chanInfo[i].Frequency;
+
+			switch(chanInfo[i].ExtChannel)
+			{
+			case -1: pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_HIGH; break;
+			case +1: pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_LOW; break;
+			case 0:
+			default: pSupportedChannels[numSupportedChannels].Flags = 0;
+			}
+
+			/*
+			 * match with the ABG channels
+			 */
+
+			for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++)
+			{
+				if (pSupportedChannels[numSupportedChannels].Frequency == Dot11aChannels[j].Frequency)
+				{
+					pSupportedChannels[numSupportedChannels].Flags |= FLAG_IS_A_CHANNEL;
+					pSupportedChannels[numSupportedChannels].Channel = Dot11aChannels[j].Channel;
+					break;
+				}
+			}
+
+			for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++)
+			{
+				if (pSupportedChannels[numSupportedChannels].Frequency == Dot11bChannels[j].Frequency)
+				{
+					pSupportedChannels[numSupportedChannels].Flags |= FLAG_IS_BG_CHANNEL;
+					pSupportedChannels[numSupportedChannels].Channel = Dot11bChannels[j].Channel;
+					break;
+				}
+			}
+
+			if ((pSupportedChannels[numSupportedChannels].Flags & (FLAG_IS_BG_CHANNEL | FLAG_IS_A_CHANNEL)) == 0){
+				pSupportedChannels[numSupportedChannels].Channel = 0;
+			}
+
+			numSupportedChannels++;
+		}
+		else
+		{
+			/*
+			 * just update the ext channel flags
+			 */
+			switch(chanInfo[i].ExtChannel)
+			{
+			case -1: pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_HIGH; break;
+			case +1: pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_LOW; break;
+			case 0:
+			default:
+				break;
+			}
+		}
+	}
+
+	/*
+	 * Now sort the list by frequency
+	 */
+	for (i = 0 ; i < numSupportedChannels - 1; i++)
+	{
+		for (j = i + 1; j < numSupportedChannels; j++)
+		{
+			if (pSupportedChannels[i].Frequency > pSupportedChannels[j].Frequency)
+			{
+				Dot11Channel temp = pSupportedChannels[i];
+				pSupportedChannels[i] = pSupportedChannels[j];
+				pSupportedChannels[j] = temp;
+			}
+		}
+	}
+
+	*pNumSupportedChannels = numSupportedChannels;
+    return pSupportedChannels;
+}
+
+/*
+ * Get channel representation string given a Frequency
+ */
+gchar*
+airpcap_get_channelstr_from_freq(ULONG chan_freq){
+	gchar *channelstr;
+	guint j;
+
+	channelstr = (gchar*)g_malloc(sizeof(gchar)*20);
+	for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++)
+	{
+		if (chan_freq == Dot11aChannels[j].Frequency)
+		{
+			sprintf(channelstr, "%u MHz [A %u]", chan_freq, Dot11aChannels[j].Channel);
+			return channelstr;
+		}
+	}
+
+	for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++)
+	{
+		if (chan_freq == Dot11bChannels[j].Frequency)
+		{
+			sprintf(channelstr, "%u MHz [BG %u]", chan_freq, Dot11bChannels[j].Channel);
+			return channelstr;
+		}
+	}
+
+	sprintf(channelstr, "%u MHz", chan_freq);
+
+	return channelstr;
+}
+
+/*
+ * Get channel number given a Frequency
+ */
+guint
+airpcap_get_channel_number_from_freq(ULONG chan_freq){
+	guint j;
+
+  for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++){
+		if (chan_freq == Dot11bChannels[j].Frequency){
+			return Dot11bChannels[j].Channel;
+		}
+	}
+
+	for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++){
+		if (chan_freq == Dot11aChannels[j].Frequency){
+			return Dot11aChannels[j].Channel;
+		}
+	}
+
+	return 0;
+}
+
+/*
+ * Get Frequency given a Channel number
+ */
+ULONG
+airpcap_get_freq_from_channel_number(guint chan_number){
+	guint j;
+
+  for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++){
+		if (chan_number == Dot11bChannels[j].Channel){
+			return Dot11bChannels[j].Frequency;
+		}
+	}
+
+	for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++){
+		if (chan_number == Dot11aChannels[j].Channel){
+			return Dot11aChannels[j].Frequency;
+		}
+	}
+
+	return 0;
+}
+
+
+/*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
  */
 BOOL
@@ -724,6 +1011,60 @@ airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch)
 {
     if (!AirpcapLoaded) return FALSE;
     return g_PAirpcapSetDeviceChannel(ah,ch);
+}
+
+/*
+ * Airpcap wrapper, used to set the frequency of an airpcap adapter
+ */
+BOOL
+airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelInfo)
+{
+    if (!AirpcapLoaded) return FALSE;
+    if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
+      guint channel = 0;
+      channel = airpcap_get_channel_number_from_freq(ChannelInfo.Frequency);
+
+      if (channel == 0){
+        return FALSE;
+      } else {
+        return airpcap_if_set_device_channel(ah, channel);
+      }
+    } else if (airpcap_get_dll_state() == AIRPCAP_DLL_OK){
+      return g_PAirpcapSetDeviceChannelEx (ah, ChannelInfo);
+    }
+
+    return FALSE;
+}
+
+/*
+ * Airpcap wrapper, used to get the frequency of an airpcap adapter
+ */
+BOOL
+airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannelInfo)
+{
+    if (!AirpcapLoaded) return FALSE;
+
+    pChannelInfo->Frequency = 0;
+    pChannelInfo->ExtChannel = 0;
+    pChannelInfo->Reserved[0] = 0;
+    pChannelInfo->Reserved[1] = 0;
+    pChannelInfo->Reserved[2] = 0;
+
+    if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
+      guint channel = 0;
+      ULONG chan_freq = 0;
+
+      if (!airpcap_if_get_device_channel(ah, &channel)) return FALSE;
+
+      chan_freq = airpcap_get_freq_from_channel_number(channel);
+      if (chan_freq == 0) return FALSE;
+      pChannelInfo->Frequency = chan_freq;
+
+      return TRUE;
+    } else if (airpcap_get_dll_state() == AIRPCAP_DLL_OK){
+      return g_PAirpcapGetDeviceChannelEx (ah, pChannelInfo);
+    }
+    return FALSE;
 }
 
 /*
@@ -881,29 +1222,32 @@ airpcap_if_info_new(char *name, char *description)
     ad = airpcap_if_open(name, ebuf);
     if(ad)
     {
-	if_info = g_malloc(sizeof (airpcap_if_info_t));
-	if_info->name = g_strdup(name);
-	if (description == NULL)
-	    if_info->description = NULL;
-	else
-	    if_info->description = g_strdup(description);
-	if_info->ip_addr = NULL;
-	if_info->loopback = FALSE;
-	airpcap_if_get_fcs_validation(ad,&(if_info->CrcValidationOn));
-	airpcap_if_get_fcs_presence(ad,&(if_info->IsFcsPresent));
-	airpcap_if_get_link_type(ad,&(if_info->linkType));
-	airpcap_if_get_device_channel(ad,&(if_info->channel));
-	airpcap_if_turn_led_on(ad, 0);
-	airpcap_if_get_decryption_state(ad, &(if_info->DecryptionOn));
-	if_info->led = TRUE;
-	if_info->blinking = FALSE;
-	if_info->saved = TRUE; /* NO NEED TO BE SAVED */
+  		if_info = g_malloc(sizeof (airpcap_if_info_t));
+  		if_info->name = g_strdup(name);
+  		if (description == NULL){
+  			if_info->description = NULL;
+  		}else{
+  			if_info->description = g_strdup(description);
+  		}
 
-	/* get the keys, if everything is ok, close the adapter */
-	if(airpcap_if_load_keys(ad,if_info))
-	{
-	    airpcap_if_close(ad);
-	}
+  		if_info->ip_addr = NULL;
+  		if_info->loopback = FALSE;
+  		airpcap_if_get_fcs_validation(ad,&(if_info->CrcValidationOn));
+  		airpcap_if_get_fcs_presence(ad,&(if_info->IsFcsPresent));
+  		airpcap_if_get_link_type(ad,&(if_info->linkType));
+  		airpcap_if_get_device_channel_ex(ad,&(if_info->channelInfo));
+  		if_info->pSupportedChannels = airpcap_if_get_device_supported_channels_array(ad, &(if_info->numSupportedChannels));
+  		airpcap_if_turn_led_on(ad, 0);
+  		airpcap_if_get_decryption_state(ad, &(if_info->DecryptionOn));
+  		if_info->led = TRUE;
+  		if_info->blinking = FALSE;
+  		if_info->saved = TRUE; /* NO NEED TO BE SAVED */
+
+  		/* get the keys, if everything is ok, close the adapter */
+  		if(airpcap_if_load_keys(ad,if_info))
+  		{
+  			airpcap_if_close(ad);
+  		}
     }
     return if_info;
 }
@@ -936,26 +1280,26 @@ airpcap_driver_fake_if_info_new()
     ad = airpcap_if_open(if_info->name, ebuf);
     if(ad)
     {
-	fake_if_info = g_malloc(sizeof (airpcap_if_info_t));
-	fake_if_info->name = g_strdup(if_info->name);
-	fake_if_info->description = g_strdup(if_info->description);
-	fake_if_info->loopback = FALSE;
-	fake_if_info->ip_addr = NULL;
-	airpcap_if_get_driver_decryption_state(ad, &(fake_if_info->DecryptionOn));
-	airpcap_if_get_fcs_validation(ad,&(fake_if_info->CrcValidationOn));
-	airpcap_if_get_fcs_presence(ad,&(fake_if_info->IsFcsPresent));
-	airpcap_if_get_link_type(ad,&(fake_if_info->linkType));
-	airpcap_if_get_device_channel(ad,&(fake_if_info->channel));
-	airpcap_if_turn_led_on(ad, 0);
-	fake_if_info->led = TRUE;
-	fake_if_info->blinking = FALSE;
-	fake_if_info->saved = TRUE; /* NO NEED TO BE SAVED */
+		fake_if_info = g_malloc(sizeof (airpcap_if_info_t));
+		fake_if_info->name = g_strdup(if_info->name);
+		fake_if_info->description = g_strdup(if_info->description);
+		fake_if_info->loopback = FALSE;
+		fake_if_info->ip_addr = NULL;
+		airpcap_if_get_driver_decryption_state(ad, &(fake_if_info->DecryptionOn));
+		airpcap_if_get_fcs_validation(ad,&(fake_if_info->CrcValidationOn));
+		airpcap_if_get_fcs_presence(ad,&(fake_if_info->IsFcsPresent));
+		airpcap_if_get_link_type(ad,&(fake_if_info->linkType));
+		airpcap_if_get_device_channel_ex(ad,&(fake_if_info->channelInfo));
+		airpcap_if_turn_led_on(ad, 0);
+		fake_if_info->led = TRUE;
+		fake_if_info->blinking = FALSE;
+		fake_if_info->saved = TRUE; /* NO NEED TO BE SAVED */
 
-	/* get the keys, if everything is ok, close the adapter */
-	if(airpcap_if_load_driver_keys(ad,fake_if_info))
-	{
-	    airpcap_if_close(ad);
-	}
+		/* get the keys, if everything is ok, close the adapter */
+		if(airpcap_if_load_driver_keys(ad,fake_if_info))
+		{
+			airpcap_if_close(ad);
+		}
     }
 
     return fake_if_info;
@@ -967,27 +1311,38 @@ airpcap_driver_fake_if_info_new()
 void
 airpcap_if_info_print(airpcap_if_info_t* if_info)
 {
+    guint i;
     if(if_info == NULL)
     {
-	g_print("\nWARNING : AirPcap Interface pointer is NULL!\n");
-	return;
+		g_print("\nWARNING : AirPcap Interface pointer is NULL!\n");
+		return;
     }
 
     g_print("\n----------------- AirPcap Interface \n");
-    g_print("              NAME: %s\n",if_info->name);
-    g_print("       DESCRIPTION: %s\n",if_info->description);
-    g_print("          BLINKING: %s\n",if_info->blinking ? "TRUE" : "FALSE");
-    g_print("           CHANNEL: %2u\n",if_info->channel);
-    g_print("     CRCVALIDATION: %s\n",if_info->CrcValidationOn ? "ON" : "OFF");
-    g_print("        DECRYPTION: %s\n",if_info->DecryptionOn ? "ON" : "OFF");
-    g_print("           IP ADDR: %s\n",if_info->ip_addr!=NULL ? "NOT NULL" : "NULL");
-    g_print("        FCSPRESENT: %s\n",if_info->IsFcsPresent ? "TRUE" : "FALSE");
-    g_print("    KEYSCOLLECTION: %s\n",if_info->keysCollection!=NULL ? "NOT NULL" : "NULL");
-    g_print("KEYSCOLLECTIONSIZE: %u\n",if_info->keysCollectionSize);
-    g_print("               LED: %s\n",if_info->led ? "ON" : "OFF");
-    g_print("          LINKTYPE: %d\n",if_info->linkType);
-    g_print("          LOOPBACK: %s\n",if_info->loopback ? "YES" : "NO");
-    g_print("         (GTK) TAG: %d\n",if_info->tag);
+    g_print("                      NAME: %s\n",if_info->name);
+    g_print("               DESCRIPTION: %s\n",if_info->description);
+    g_print("                  BLINKING: %s\n",if_info->blinking ? "TRUE" : "FALSE");
+    g_print("     channelInfo.Frequency: %u\n",if_info->channelInfo.Frequency);
+    g_print("    channelInfo.ExtChannel: %d\n",if_info->channelInfo.ExtChannel);
+    g_print("             CRCVALIDATION: %s\n",if_info->CrcValidationOn ? "ON" : "OFF");
+    g_print("                DECRYPTION: %s\n",if_info->DecryptionOn ? "ON" : "OFF");
+    g_print("                   IP ADDR: %s\n",if_info->ip_addr!=NULL ? "NOT NULL" : "NULL");
+    g_print("                FCSPRESENT: %s\n",if_info->IsFcsPresent ? "TRUE" : "FALSE");
+    g_print("            KEYSCOLLECTION: %s\n",if_info->keysCollection!=NULL ? "NOT NULL" : "NULL");
+    g_print("        KEYSCOLLECTIONSIZE: %u\n",if_info->keysCollectionSize);
+    g_print("                       LED: %s\n",if_info->led ? "ON" : "OFF");
+    g_print("                  LINKTYPE: %d\n",if_info->linkType);
+    g_print("                  LOOPBACK: %s\n",if_info->loopback ? "YES" : "NO");
+    g_print("                 (GTK) TAG: %d\n",if_info->tag);
+    g_print("SUPPORTED CHANNELS POINTER: %lu\n",if_info->pSupportedChannels);
+    g_print("    NUM SUPPORTED CHANNELS: %lu\n",if_info->numSupportedChannels);
+
+    for(i=0; i<(if_info->numSupportedChannels); i++){
+      g_print("\n        SUPPORTED CHANNEL #%u\n",i+1);
+      g_print("                   CHANNEL: %u\n",if_info->pSupportedChannels[i].Channel);
+      g_print("                 FREQUENCY: %lu\n",if_info->pSupportedChannels[i].Frequency);
+      g_print("                     FLAGS: %lu\n",if_info->pSupportedChannels[i].Flags);
+    }
     g_print("\n\n");
 }
 
@@ -1139,17 +1494,17 @@ get_airpcap_interface_list(int *err, char **err_str)
 
     if (!AirpcapLoaded)
     {
-	*err = AIRPCAP_NOT_LOADED;
-	return il;
+		*err = AIRPCAP_NOT_LOADED;
+		return il;
     }
 
     if (!g_PAirpcapGetDeviceList(&devsList, errbuf))
     {
-	/* No interfaces, return il = NULL; */
-	*err = CANT_GET_AIRPCAP_INTERFACE_LIST;
-	if (err_str != NULL)
-	    *err_str = cant_get_airpcap_if_list_error_message(errbuf);
-	return il;
+		/* No interfaces, return il = NULL; */
+		*err = CANT_GET_AIRPCAP_INTERFACE_LIST;
+		if (err_str != NULL)
+			*err_str = cant_get_airpcap_if_list_error_message(errbuf);
+		return il;
     }
 
     /*
@@ -1165,12 +1520,12 @@ get_airpcap_interface_list(int *err, char **err_str)
 
     if(n_adapts == 0)
     {
-	/* No interfaces, return il= NULL */
-	g_PAirpcapFreeDeviceList(devsList);
-	*err = NO_AIRPCAP_INTERFACES_FOUND;
-	if (err_str != NULL)
-	    *err_str = NULL;
-	return il;
+		/* No interfaces, return il= NULL */
+		g_PAirpcapFreeDeviceList(devsList);
+		*err = NO_AIRPCAP_INTERFACES_FOUND;
+		if (err_str != NULL)
+			*err_str = NULL;
+		return il;
     }
 
     /*
@@ -1179,10 +1534,12 @@ get_airpcap_interface_list(int *err, char **err_str)
     adListEntry = devsList;
     for(i = 0; i < n_adapts; i++)
     {
-	if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
-	il = g_list_append(il, if_info);
+		if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
+    if (if_info != NULL){
+      il = g_list_append(il, if_info);
+    }
 
-	adListEntry = adListEntry->next;
+		adListEntry = adListEntry->next;
     }
 
     g_PAirpcapFreeDeviceList(devsList);
@@ -1192,43 +1549,10 @@ get_airpcap_interface_list(int *err, char **err_str)
 }
 
 /*
- * Used to retrieve the name of the interface given the description
- * (the name is used in AirpcapOpen, the description is put in the combo box)
- */
-gchar* get_airpcap_name_from_description(GList* if_list, gchar* description)
-{
-    unsigned int ifn;
-    GList* curr;
-    airpcap_if_info_t* if_info;
-
-    ifn = 0;
-    if(if_list != NULL)
-    {
-	while( ifn < g_list_length(if_list) )
-	{
-	    curr = g_list_nth(if_list, ifn);
-
-	    if_info = NULL;
-	    if(curr != NULL)
-		    if_info = curr->data;
-	    if(if_info != NULL)
-	    {
-		if ( g_ascii_strcasecmp(if_info->description,description) == 0)
-		{
-		    return if_info->name;
-		}
-	    }
-	    ifn++;
-	}
-    }
-    return NULL;
-}
-
-/*
  * Used to retrieve the interface given the name
  * (the name is used in AirpcapOpen)
  */
-airpcap_if_info_t* get_airpcap_if_by_name(GList* if_list, const gchar* name)
+airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name)
 {
     unsigned int ifn;
     GList* curr;
@@ -1328,39 +1652,6 @@ airpcap_if_clear_decryption_settings(airpcap_if_info_t* info_if)
 }
 
 /*
- * Used to retrieve the airpcap_if_info_t of the selected interface given the
- * description (that is the entry of the combo box).
- */
-gpointer get_airpcap_if_from_description(GList* if_list, const gchar* description)
-{
-    unsigned int ifn;
-    GList* curr;
-    airpcap_if_info_t* if_info;
-
-    ifn = 0;
-    if(if_list != NULL)
-    {
-	while( ifn < g_list_length(if_list) )
-	{
-	    curr = g_list_nth(if_list, ifn);
-
-	    if_info = NULL;
-	    if(curr != NULL)
-		    if_info = curr->data;
-	    if(if_info != NULL)
-	    {
-		if ( g_ascii_strcasecmp(if_info->description,description) == 0)
-		{
-		    return if_info;
-		}
-	    }
-	    ifn++;
-	}
-    }
-    return NULL;
-}
-
-/*
  * Used to retrieve the two chars string from interface
  */
 gchar*
@@ -1426,7 +1717,7 @@ airpcap_get_default_if(GList* airpcap_if_list)
     if(prefs.capture_device != NULL)
     {
 	s = g_strdup(get_if_name(prefs.capture_device));
-	if_info = get_airpcap_if_by_name(airpcap_if_list,g_strdup(get_if_name(prefs.capture_device)));
+	if_info = get_airpcap_if_from_name(airpcap_if_list,g_strdup(get_if_name(prefs.capture_device)));
 	g_free(s);
     }
     return if_info;
@@ -1443,7 +1734,7 @@ airpcap_load_selected_if_configuration(airpcap_if_info_t* if_info)
 
     if(if_info != NULL)
     {
-	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, if_info->description), ebuf);
+	ad = airpcap_if_open(if_info->name, ebuf);
 
 	if(ad)
 	{
@@ -1455,7 +1746,7 @@ airpcap_load_selected_if_configuration(airpcap_if_info_t* if_info)
 	    }
 
 	    /* Apply settings... */
-	    airpcap_if_get_device_channel(ad,&(if_info->channel));
+	    airpcap_if_get_device_channel_ex(ad,&(if_info->channelInfo));
 	    airpcap_if_get_fcs_validation(ad,&(if_info->CrcValidationOn));
 	    airpcap_if_get_fcs_presence(ad,&(if_info->IsFcsPresent));
 	    airpcap_if_get_link_type(ad,&(if_info->linkType));
@@ -1484,7 +1775,7 @@ airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info)
 
     if(if_info != NULL)
     {
-	ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list, if_info->description), ebuf);
+	ad = airpcap_if_open(if_info->name, ebuf);
 
 	if(ad)
 	{
@@ -1496,7 +1787,7 @@ airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info)
 	    }
 
 	    /* Apply settings... */
-	    airpcap_if_set_device_channel(ad,if_info->channel);
+	    airpcap_if_set_device_channel_ex(ad,if_info->channelInfo);
 	    airpcap_if_set_fcs_validation(ad,if_info->CrcValidationOn);
 	    airpcap_if_set_fcs_presence(ad,if_info->IsFcsPresent);
 	    airpcap_if_set_link_type(ad,if_info->linkType);
@@ -1960,8 +2251,8 @@ keys_are_equals(decryption_key_t *k1,decryption_key_t *k2)
 	return FALSE;
 
     /* XXX - Remove this check when we will have the WPA/WPA2 decryption in the Driver! */
-    /** //if( (k1->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k1->type == AIRPDCAP_KEY_TYPE_WPA_PMK) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PMK) ) **/
-    /** //	return TRUE;  **/
+    /** if( (k1->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k1->type == AIRPDCAP_KEY_TYPE_WPA_PMK) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PMK) ) **/
+    /** 	return TRUE;  **/
 
     if( g_string_equal(k1->key,k2->key) &&
 	(k1->bits == k2->bits) && /* If the previous is TRUE, this must be TRUE as well */
@@ -2251,7 +2542,7 @@ set_airpcap_decryption(gboolean on_off)
 
 	    if( curr_if != NULL )
 	    {
-		ad = airpcap_if_open(get_airpcap_name_from_description(airpcap_if_list,curr_if->description), ebuf);
+		ad = airpcap_if_open(curr_if->name, ebuf);
 		if(ad)
 		{
 		    curr_if->DecryptionOn = (gboolean)AIRPCAP_DECRYPTION_OFF;
@@ -2278,69 +2569,67 @@ set_airpcap_decryption(gboolean on_off)
 int load_airpcap(void)
 {
     BOOL base_functions = TRUE;
-    BOOL new_functions = TRUE;
+    BOOL eleven_n_functions = TRUE;
 
     if((AirpcapLib =  LoadLibrary(TEXT("airpcap.dll"))) == NULL)
     {
-	/* Report the error but go on */
-	return AIRPCAP_DLL_NOT_FOUND;
+  		/* Report the error but go on */
+      AirpcapVersion = AIRPCAP_DLL_NOT_FOUND;
+  		return AirpcapVersion;
     }
     else
     {
-	if((g_PAirpcapGetLastError = (AirpcapGetLastErrorHandler) GetProcAddress(AirpcapLib, "AirpcapGetLastError")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetDeviceList = (AirpcapGetDeviceListHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceList")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapFreeDeviceList = (AirpcapFreeDeviceListHandler) GetProcAddress(AirpcapLib, "AirpcapFreeDeviceList")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapOpen = (AirpcapOpenHandler) GetProcAddress(AirpcapLib, "AirpcapOpen")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapClose = (AirpcapCloseHandler) GetProcAddress(AirpcapLib, "AirpcapClose")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetLinkType = (AirpcapGetLinkTypeHandler) GetProcAddress(AirpcapLib, "AirpcapGetLinkType")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetLinkType = (AirpcapSetLinkTypeHandler) GetProcAddress(AirpcapLib, "AirpcapSetLinkType")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetKernelBuffer = (AirpcapSetKernelBufferHandler) GetProcAddress(AirpcapLib, "AirpcapSetKernelBuffer")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetFilter = (AirpcapSetFilterHandler) GetProcAddress(AirpcapLib, "AirpcapSetFilter")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetMacAddress = (AirpcapGetMacAddressHandler) GetProcAddress(AirpcapLib, "AirpcapGetMacAddress")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetMinToCopy = (AirpcapSetMinToCopyHandler) GetProcAddress(AirpcapLib, "AirpcapSetMinToCopy")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetReadEvent = (AirpcapGetReadEventHandler) GetProcAddress(AirpcapLib, "AirpcapGetReadEvent")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapRead = (AirpcapReadHandler) GetProcAddress(AirpcapLib, "AirpcapRead")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetStats = (AirpcapGetStatsHandler) GetProcAddress(AirpcapLib, "AirpcapGetStats")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapTurnLedOn = (AirpcapTurnLedOnHandler) GetProcAddress(AirpcapLib, "AirpcapTurnLedOn")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapTurnLedOff = (AirpcapTurnLedOffHandler) GetProcAddress(AirpcapLib, "AirpcapTurnLedOff")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetDeviceChannel = (AirpcapGetDeviceChannelHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceChannel")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetDeviceChannel = (AirpcapSetDeviceChannelHandler) GetProcAddress(AirpcapLib, "AirpcapSetDeviceChannel")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetFcsPresence = (AirpcapGetFcsPresenceHandler) GetProcAddress(AirpcapLib, "AirpcapGetFcsPresence")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetFcsPresence = (AirpcapSetFcsPresenceHandler) GetProcAddress(AirpcapLib, "AirpcapSetFcsPresence")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetFcsValidation = (AirpcapGetFcsValidationHandler) GetProcAddress(AirpcapLib, "AirpcapGetFcsValidation")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetFcsValidation = (AirpcapSetFcsValidationHandler) GetProcAddress(AirpcapLib, "AirpcapSetFcsValidation")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetDeviceKeys = (AirpcapGetDeviceKeysHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceKeys")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetDeviceKeys = (AirpcapSetDeviceKeysHandler) GetProcAddress(AirpcapLib, "AirpcapSetDeviceKeys")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetDecryptionState = (AirpcapGetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDecryptionState")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapSetDecryptionState = (AirpcapSetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDecryptionState")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapStoreCurConfigAsAdapterDefault = (AirpcapStoreCurConfigAsAdapterDefaultHandler) GetProcAddress(AirpcapLib, "AirpcapStoreCurConfigAsAdapterDefault")) == NULL) base_functions = FALSE;
-	if((g_PAirpcapGetVersion = (AirpcapGetVersionHandler) GetProcAddress(AirpcapLib, "AirpcapGetVersion")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetLastError = (AirpcapGetLastErrorHandler) GetProcAddress(AirpcapLib, "AirpcapGetLastError")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetDeviceList = (AirpcapGetDeviceListHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceList")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapFreeDeviceList = (AirpcapFreeDeviceListHandler) GetProcAddress(AirpcapLib, "AirpcapFreeDeviceList")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapOpen = (AirpcapOpenHandler) GetProcAddress(AirpcapLib, "AirpcapOpen")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapClose = (AirpcapCloseHandler) GetProcAddress(AirpcapLib, "AirpcapClose")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetLinkType = (AirpcapGetLinkTypeHandler) GetProcAddress(AirpcapLib, "AirpcapGetLinkType")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetLinkType = (AirpcapSetLinkTypeHandler) GetProcAddress(AirpcapLib, "AirpcapSetLinkType")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetKernelBuffer = (AirpcapSetKernelBufferHandler) GetProcAddress(AirpcapLib, "AirpcapSetKernelBuffer")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetFilter = (AirpcapSetFilterHandler) GetProcAddress(AirpcapLib, "AirpcapSetFilter")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetMacAddress = (AirpcapGetMacAddressHandler) GetProcAddress(AirpcapLib, "AirpcapGetMacAddress")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetMinToCopy = (AirpcapSetMinToCopyHandler) GetProcAddress(AirpcapLib, "AirpcapSetMinToCopy")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetReadEvent = (AirpcapGetReadEventHandler) GetProcAddress(AirpcapLib, "AirpcapGetReadEvent")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapRead = (AirpcapReadHandler) GetProcAddress(AirpcapLib, "AirpcapRead")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetStats = (AirpcapGetStatsHandler) GetProcAddress(AirpcapLib, "AirpcapGetStats")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapTurnLedOn = (AirpcapTurnLedOnHandler) GetProcAddress(AirpcapLib, "AirpcapTurnLedOn")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapTurnLedOff = (AirpcapTurnLedOffHandler) GetProcAddress(AirpcapLib, "AirpcapTurnLedOff")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetDeviceChannel = (AirpcapGetDeviceChannelHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceChannel")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetDeviceChannel = (AirpcapSetDeviceChannelHandler) GetProcAddress(AirpcapLib, "AirpcapSetDeviceChannel")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetFcsPresence = (AirpcapGetFcsPresenceHandler) GetProcAddress(AirpcapLib, "AirpcapGetFcsPresence")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetFcsPresence = (AirpcapSetFcsPresenceHandler) GetProcAddress(AirpcapLib, "AirpcapSetFcsPresence")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetFcsValidation = (AirpcapGetFcsValidationHandler) GetProcAddress(AirpcapLib, "AirpcapGetFcsValidation")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetFcsValidation = (AirpcapSetFcsValidationHandler) GetProcAddress(AirpcapLib, "AirpcapSetFcsValidation")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetDeviceKeys = (AirpcapGetDeviceKeysHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceKeys")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetDeviceKeys = (AirpcapSetDeviceKeysHandler) GetProcAddress(AirpcapLib, "AirpcapSetDeviceKeys")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapGetDecryptionState = (AirpcapGetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDecryptionState")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetDecryptionState = (AirpcapSetDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDecryptionState")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapStoreCurConfigAsAdapterDefault = (AirpcapStoreCurConfigAsAdapterDefaultHandler) GetProcAddress(AirpcapLib, "AirpcapStoreCurConfigAsAdapterDefault")) == NULL) base_functions = FALSE;
+      if((g_PAirpcapGetVersion = (AirpcapGetVersionHandler) GetProcAddress(AirpcapLib, "AirpcapGetVersion")) == NULL) base_functions = FALSE;
+      if((g_PAirpcapGetDriverDecryptionState = (AirpcapGetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverDecryptionState")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetDriverDecryptionState = (AirpcapSetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDriverDecryptionState")) == NULL) base_functions = FALSE;
+      if((g_PAirpcapGetDriverKeys = (AirpcapGetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverKeys")) == NULL) base_functions = FALSE;
+  		if((g_PAirpcapSetDriverKeys = (AirpcapSetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapSetDriverKeys")) == NULL) base_functions = FALSE;
 
-	/* TEST IF WE CAN FIND AIRPCAP NEW DRIVER FEATURES */
-	if((g_PAirpcapGetDriverDecryptionState = (AirpcapGetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverDecryptionState")) == NULL) new_functions = FALSE;
-	if((g_PAirpcapSetDriverDecryptionState = (AirpcapSetDriverDecryptionStateHandler) GetProcAddress(AirpcapLib, "AirpcapSetDriverDecryptionState")) == NULL) new_functions = FALSE;
-	if((g_PAirpcapGetDriverKeys = (AirpcapGetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapGetDriverKeys")) == NULL) new_functions = FALSE;
-	if((g_PAirpcapSetDriverKeys = (AirpcapSetDriverKeysHandler) GetProcAddress(AirpcapLib, "AirpcapSetDriverKeys")) == NULL) new_functions = FALSE;
+  		/* TEST IF AIRPCAP SUPPORTS 11N */
+  		if((g_PAirpcapSetDeviceChannelEx = (AirpcapSetDeviceChannelExHandler) GetProcAddress(AirpcapLib, "AirpcapSetDeviceChannelEx")) == NULL) eleven_n_functions = FALSE;
+      if((g_PAirpcapGetDeviceChannelEx = (AirpcapGetDeviceChannelExHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceChannelEx")) == NULL) eleven_n_functions = FALSE;
+  		if((g_PAirpcapGetDeviceSupportedChannels = (AirpcapGetDeviceSupportedChannelsHandler) GetProcAddress(AirpcapLib, "AirpcapGetDeviceSupportedChannels")) == NULL) eleven_n_functions = FALSE;
 
-	if(base_functions)
-	{
-	    if(new_functions)
-	    {
-		AirpcapLoaded = TRUE;
-		return AIRPCAP_DLL_OK;
-	    }
-	    else
-	    {
-		AirpcapLoaded = TRUE;
-		return AIRPCAP_DLL_OLD;
-	    }
-	}
-	else
-	{
-	    AirpcapLoaded = FALSE;
-	    return AIRPCAP_DLL_ERROR;
-	}
+  		if(base_functions && eleven_n_functions){
+  			AirpcapLoaded = TRUE;
+        AirpcapVersion = AIRPCAP_DLL_OK;
+  		}else if(base_functions){
+  			AirpcapLoaded = TRUE;
+  			AirpcapVersion = AIRPCAP_DLL_OLD;
+        return AIRPCAP_DLL_OK;
+  		}else{
+  			AirpcapLoaded = FALSE;
+  			AirpcapVersion = AIRPCAP_DLL_ERROR;
+  		}
     }
+    return AirpcapVersion;
 }
 
 /*

@@ -120,6 +120,7 @@ typedef struct if_dlg_data_s {
 #endif
     guint32     last_packets;
     gchar       *device;
+    if_info_t   if_info;
 } if_dlg_data_t;
 
 void update_if(if_dlg_data_t *if_dlg_data);
@@ -132,7 +133,7 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
   if_dlg_data_t *if_dlg_data = if_data;
 
 #ifdef HAVE_AIRPCAP
-  airpcap_if_active = get_airpcap_if_from_description(airpcap_if_list, GTK_LABEL(if_dlg_data->descr_lb)->label);
+  airpcap_if_active = get_airpcap_if_from_name(airpcap_if_list, if_dlg_data->if_info.name);
   airpcap_if_selected = airpcap_if_active;
 #endif
 
@@ -390,6 +391,17 @@ combo_channel_new(void)
 	  return channel_cb;
 }
 
+/*
+ * Sorts the Interface List in alphabetical order
+ */
+int if_list_comparator_alph (const if_info_t *first, const if_info_t *second){
+  if(first != NULL && first->description != NULL && second != NULL && second->description != NULL){
+    return g_strcasecmp(first->description, second->description);
+  } else {
+    return 0;
+  }
+}
+
 /* start getting capture stats from all interfaces */
 void
 capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -444,6 +456,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* LOAD THE INTERFACES */
   if_list = get_interface_list(&err, &err_str);
+  if_list = g_list_sort (if_list, if_list_comparator_alph);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
@@ -460,7 +473,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   update_decryption_mode_list(decryption_cm);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+    /* simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str); /* XXX - Do we need to show an error here? */
     g_free(err_str);
   }
 
@@ -552,10 +565,11 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       g_string_assign(if_tool_str, "");
       if_info = curr->data;
       if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
+      if_dlg_data->if_info = *if_info;
 
       /* Kind of adaptor (icon) */
 #ifdef HAVE_AIRPCAP
-      if(get_airpcap_if_from_description(airpcap_if_list,if_info->description) != NULL)
+      if(get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
         icon = xpm_to_widget(capture_airpcap_16_xpm);
       else
         icon = xpm_to_widget(capture_ethernet_16_xpm);

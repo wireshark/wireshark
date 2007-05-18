@@ -3224,18 +3224,18 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   bit_tree = proto_item_add_subtree(ti, ett_mcsbit_tree);
 
   /* Bits 0 - 31 */
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_0to7, tvb, offset, 1, TRUE);
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_8to15, tvb, offset + 1, 1, TRUE);
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_16to23, tvb, offset + 2, 1, TRUE);
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_24to31, tvb, offset + 3, 1, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_0to7, tvb, offset, 4, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_8to15, tvb, offset, 4, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_16to23, tvb, offset, 4, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_24to31, tvb, offset, 4, TRUE);
 
   /* Bits 32 - 52 */
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_32, tvb, offset + 4, 1, TRUE);
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_33to38, tvb, offset + 4, 1, TRUE);
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_39to52, tvb, offset + 4, 3, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_32, tvb, offset + 4, 4, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_33to38, tvb, offset + 4, 4, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_39to52, tvb, offset + 4, 4, TRUE);
 
   /* Bits 53 - 76 */
-  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_53to76, tvb, offset + 6, 3, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_53to76, tvb, offset + 6, 4, TRUE);
 
   capability = tvb_get_letohs (tvb, offset+10);
   proto_tree_add_uint_format(mcs_tree, mcsset_highest_data_rate, tvb, offset + 10, 2,

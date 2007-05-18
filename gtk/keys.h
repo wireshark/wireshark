@@ -53,6 +53,8 @@
 #define AIRPCAP_TOOLBAR_LINK_TYPE_KEY	"airpcap_toolbar_lt_key" 
 #define AIRPCAP_TOOLBAR_CHANNEL_KEY		"airpcap_toolbar_ch_key"
 #define AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY "airpcap_toolbar_ch_lb_key"
+#define AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY	"airpcap_toolbar_ch_offset_key"
+#define AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY "airpcap_toolbar_ch_offset_lb_key"
 #define AIRPCAP_TOOLBAR_FCS_CHECK_KEY	"airpcap_toolbar_fcs_check_key"
 #define AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY	"airpcap_toolbar_fcs_filter_lb_key"
 #define AIRPCAP_TOOLBAR_FCS_FILTER_KEY	"airpcap_toolbar_fcs_filter_key"

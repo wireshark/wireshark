@@ -81,6 +81,21 @@ typedef BOOL (*AirpcapSetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHan
 typedef BOOL (*AirpcapGetDriverDecryptionStateHandler)(PAirpcapHandle AdapterHandle, PAirpcapDecryptionState PEnable);
 typedef BOOL (*AirpcapStoreCurConfigAsAdapterDefaultHandler)(PAirpcapHandle AdapterHandle);
 typedef VOID (*AirpcapGetVersionHandler)(PUINT VersionMajor, PUINT VersionMinor, PUINT VersionRev, PUINT VersionBuild);
+typedef BOOL (*AirpcapSetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo ChannelInfo);
+typedef BOOL (*AirpcapGetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo PChannelInfo);
+typedef BOOL (*AirpcapGetDeviceSupportedChannelsHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo **ppChannelInfo, PULONG pNumChannelInfo);
+
+#define FLAG_CAN_BE_LOW		0x00000001
+#define FLAG_CAN_BE_HIGH	0x00000002
+#define FLAG_IS_BG_CHANNEL	0x00000004
+#define FLAG_IS_A_CHANNEL	0x00000008
+
+typedef struct _Dot11Channel
+{
+	UINT  Channel;
+	ULONG Frequency;
+	ULONG Flags;
+} Dot11Channel;
 
 /*
  * The list of interfaces returned by "get_airpcap_interface_list()" is
@@ -91,17 +106,19 @@ typedef struct {
 	char					*description;		/* from OS, e.g. "Local Area Connection" or NULL */
 	GSList					*ip_addr;			/* containing address values of if_addr_t */
 	gboolean				loopback;			/* TRUE if loopback, FALSE otherwise */
-	AirpcapLinkType			linkType;			/* The link layer type*/
-	UINT					channel;			/* Channel (1-14)*/
+	AirpcapLinkType			linkType;			/* The link layer type */
+	AirpcapChannelInfo		channelInfo;		/* Channel Information */
 	BOOL					IsFcsPresent;		/* Include 802.11 CRC in frames */
 	AirpcapValidationType	CrcValidationOn;	/* Capture Frames with Wrong CRC */
-	AirpcapDecryptionState  DecryptionOn;		/* TRUE if decryption is on, FALSE otherwise*/
+	AirpcapDecryptionState  DecryptionOn;		/* TRUE if decryption is on, FALSE otherwise */
 	PAirpcapKeysCollection  keysCollection;		/* WEP Key collection for the adapter */
 	UINT					keysCollectionSize;	/* Size of the key collection */
-	gboolean				blinking;			/* TRUE if is blinkng, FALSE otherwise*/
-	gboolean				led;				/* TRUE if on, FALSE if off*/
+	gboolean				blinking;			/* TRUE if is blinkng, FALSE otherwise */
+	gboolean				led;				/* TRUE if on, FALSE if off */
 	gboolean				saved;				/* TRUE if current configuration has been saved, FALSE otherwise */
 	gint					tag;				/* int for the gtk blinking callback */
+	Dot11Channel			*pSupportedChannels;
+	ULONG					numSupportedChannels;
 } airpcap_if_info_t;
 
 /*
@@ -123,7 +140,7 @@ extern airpcap_if_info_t *airpcap_if_selected;
 extern airpcap_if_info_t *airpcap_if_active;
 
 /* WLAN preferences pointer */
-//extern module_t *wlan_prefs;
+/*extern module_t *wlan_prefs; - TODO: What is this?? */
 
 /*
  * Function used to read the Decryption Keys from the preferences and store them
@@ -177,7 +194,7 @@ free_airpcap_interface_list(GList *if_list);
  * Used to retrieve the interface given the name
  * (the name is used in AirpcapOpen)
  */
-airpcap_if_info_t* get_airpcap_if_by_name(GList* if_list, const gchar* name);
+airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name);
 
 /*
  * Airpcap wrapper, used to store the current settings for the selected adapter
@@ -264,10 +281,52 @@ BOOL
 airpcap_if_get_device_channel(PAirpcapHandle ah, PUINT ch);
 
 /*
+ * Airpcap wrapper, get the channels supported by the adapter
+ */
+BOOL
+airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, PULONG nInfo);
+
+/*
+ * Airpcap wrapper, get supported channels formatted into an array
+ */
+Dot11Channel*
+airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSupportedChannels);
+
+/*
+ * Get channel representation string given a Frequency
+ */
+gchar*
+airpcap_get_channelstr_from_freq(ULONG chan_freq);
+
+/*
+ * Get channel number given a Frequency
+ */
+guint
+airpcap_get_channel_number_from_freq(ULONG chan_freq);
+
+/*
+ * Get Frequency given a Channel number
+ */
+ULONG
+airpcap_get_freq_from_channel_number(guint chan_number);
+
+/*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
  */
 BOOL
 airpcap_if_set_device_channel(PAirpcapHandle ah, UINT ch);
+
+/*
+ * Airpcap wrapper, used to get the frequency of an airpcap adapter
+ */
+BOOL
+airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannelInfo);
+
+/*
+ * Airpcap wrapper, used to set the frequency of an airpcap adapter
+ */
+BOOL
+airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelInfo);
 
 /*
  * Airpcap wrapper, used to open an airpcap adapter
@@ -278,6 +337,12 @@ PAirpcapHandle airpcap_if_open(PCHAR name, PCHAR err);
  * Airpcap wrapper, used to close an airpcap adapter
  */
 VOID airpcap_if_close(PAirpcapHandle handle);
+
+/*
+ * Retrieve the state of the Airpcap DLL
+ */
+int
+airpcap_get_dll_state();
 
 /*
  * Airpcap wrapper, used to turn on the led of an airpcap adapter
@@ -329,20 +394,6 @@ airpcap_load_selected_if_configuration(airpcap_if_info_t* if_info);
  */
 void
 airpcap_save_selected_if_configuration(airpcap_if_info_t* if_info);
-
-/*
- * Used to retrieve the name of the interface given the description
- * (the name is used in AirpcapOpen, the description is put in the combo box)
- */
-gchar*
-get_airpcap_name_from_description(GList* if_list, gchar* description);
-
-/*
- * Used to retrieve the airpcap_if_info_t of the selected interface given the
- * description (that is the entry of the combo box).
- */
-gpointer
-get_airpcap_if_from_description(GList* if_list, const gchar* description);
 
 /*
  * Used to retrieve the two chars string from interface description

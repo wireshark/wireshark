@@ -35,7 +35,8 @@
 
 #define AIRPCAP_LINK_TYPE_NAME_802_11_ONLY			"802.11 Only"
 #define AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO	"802.11 + Radio"
-#define AIRPCAP_LINK_TYPE_NAME_UNKNOWN					"Unknown"
+#define AIRPCAP_LINK_TYPE_NAME_UNKNOWN				"Unknown"
+#define AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI		"802.11 + PPI"
 
 #define AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK "Wireshark"
 #define AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP   "Driver"
@@ -43,6 +44,9 @@
 
 #define NO_ROW_SELECTED -1
 #define NO_COLUMN_SELECTED -1
+
+/* Controls the releay of settings back to the adapter. */
+extern gboolean change_airpcap_settings;
 
 /*
  * This structure is used because we need to store infos about the currently selected 
@@ -147,10 +151,16 @@ AirpcapValidationType
 airpcap_validation_type_combo_get_type(GtkWidget* c);
 
 /*
+ * Update channel offset combo box to 'offset'.
+ */
+void
+airpcap_update_channel_offset_combo_entry(GtkWidget* w, gchar extChannel);
+
+/*
  * Returns the string corresponding to the given UINT (1-14, for channel only)
  */
-UINT
-airpcap_get_channel_number(const gchar* s);
+ULONG
+airpcap_get_frequency_from_str(const gchar* s);
 
 /*
  * Retrieve the UINT corresponding to the given string (channel only, handle with care!)
@@ -171,6 +181,12 @@ int
 airpcap_if_is_any(airpcap_if_info_t* if_info);
 
 /*
+ * Change channel of Airpcap Adapter
+ */
+gboolean
+airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info);
+
+/*
  * Takes the keys from the GtkList widget, and add them to the interface list
  */
 void 
@@ -181,6 +197,18 @@ airpcap_add_keys_from_list(GtkWidget *w, airpcap_if_info_t *if_info);
  */
 void
 airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info);
+
+/*
+ * Update the channel offset of the given combobox
+ */
+void
+airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkWidget *channel_offset_cb);
+
+/*
+ * Update channel offset combo box given the selected frequency. Return the flags from the given frequency.
+ */
+ULONG
+airpcap_load_channel_offset_cb(airpcap_if_info_t* if_info, GtkWidget* channel_offset_cb, ULONG chan_freq);
 
 /*
  * This function will take the current keys (widget list), specified for the

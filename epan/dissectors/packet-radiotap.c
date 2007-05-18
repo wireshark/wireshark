@@ -152,6 +152,14 @@ static int hf_radiotap_mactime = -1;
 static int hf_radiotap_channel = -1;
 static int hf_radiotap_channel_frequency = -1;
 static int hf_radiotap_channel_flags = -1;
+static int hf_radiotap_channel_flags_turbo = -1;
+static int hf_radiotap_channel_flags_cck = -1;
+static int hf_radiotap_channel_flags_ofdm = -1;
+static int hf_radiotap_channel_flags_2ghz = -1;
+static int hf_radiotap_channel_flags_5ghz = -1;
+static int hf_radiotap_channel_flags_passive = -1;
+static int hf_radiotap_channel_flags_dynamic = -1;
+static int hf_radiotap_channel_flags_gfsk = -1;
 static int hf_radiotap_fhss_hopset = -1;
 static int hf_radiotap_fhss_pattern = -1;
 static int hf_radiotap_datarate = -1;
@@ -198,6 +206,7 @@ static int hf_radiotap_fcs_bad = -1;
 static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
 static gint ett_radiotap_flags = -1;
+static gint ett_radiotap_channel_flags = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
@@ -503,9 +512,34 @@ proto_register_radiotap(void)
 	"Channel frequency in megahertz that this frame was sent/received on", HFILL } },
 
     { &hf_radiotap_channel_flags,
-      { "Channel type", "radiotap.channel.flags",
+      { "Channel type", "radiotap.channel.type",
 	FT_UINT16, BASE_HEX, VALS(phy_type), 0x0,
-	"", HFILL } },
+	"Channel type", HFILL } },
+
+    { &hf_radiotap_channel_flags_turbo,
+       { "Turbo", "radiotap.channel.type.turbo",
+	 FT_BOOLEAN, 16, NULL, 0x0010, "Channel Type Turbo", HFILL } },
+    { &hf_radiotap_channel_flags_cck,
+       { "Complementary Code Keying (CCK)", "radiotap.channel.type.cck",
+	 FT_BOOLEAN, 16, NULL, 0x0020, "Channel Type Complementary Code Keying (CCK) Modulation", HFILL } },
+    { &hf_radiotap_channel_flags_ofdm,
+       { "Orthogonal Frequency-Division Multiplexing (OFDM)", "radiotap.channel.type.ofdm",
+	 FT_BOOLEAN, 16, NULL, 0x0040, "Channel Type Orthogonal Frequency-Division Multiplexing (OFDM)", HFILL } },
+    { &hf_radiotap_channel_flags_2ghz,
+       { "2 GHz spectrum", "radiotap.channel.type.2ghz",
+	 FT_BOOLEAN, 16, NULL, 0x0080, "Channel Type 2 GHz spectrum", HFILL } },
+    { &hf_radiotap_channel_flags_5ghz,
+       { "5 GHz spectrum", "radiotap.channel.type.5ghz",
+	 FT_BOOLEAN, 16, NULL, 0x0100, "Channel Type 5 GHz spectrum", HFILL } },
+    { &hf_radiotap_channel_flags_passive,
+       { "Passive", "radiotap.channel.type.passive",
+	 FT_BOOLEAN, 16, NULL, 0x0200, "Channel Type Passive", HFILL } },
+    { &hf_radiotap_channel_flags_dynamic,
+       { "Dynamic CCK-OFDM", "radiotap.channel.type.dynamic",
+	 FT_BOOLEAN, 16, NULL, 0x0400, "Channel Type Dynamic CCK-OFDM Channel", HFILL } },
+    { &hf_radiotap_channel_flags_gfsk,
+       { "Gaussian Frequency Shift Keying (GFSK)", "radiotap.channel.type.gfsk",
+	 FT_BOOLEAN, 16, NULL, 0x0800, "Channel Type Gaussian Frequency Shift Keying (GFSK) Modulation", HFILL } },
 
     { &hf_radiotap_fhss_hopset,
       { "FHSS Hop Set", "radiotap.fhss.hopset",
@@ -572,7 +606,8 @@ proto_register_radiotap(void)
   static gint *ett[] = {
     &ett_radiotap,
     &ett_radiotap_present,
-    &ett_radiotap_flags
+    &ett_radiotap_flags,
+    &ett_radiotap_channel_flags
   };
 
   proto_radiotap = proto_register_protocol("IEEE 802.11 Radiotap Capture header", "802.11 Radiotap", "radiotap");
@@ -855,6 +890,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining--;
 	    break;
 	case IEEE80211_RADIOTAP_CHANNEL:
+	{
+	    proto_item *it;
+	    proto_tree *flags_tree;
 	    align_offset = ALIGN_OFFSET(offset, 2);
 	    offset += align_offset;
 	    length_remaining -= align_offset;
@@ -875,12 +913,30 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 2, freq);
 		}
 		/* We're already 2-byte aligned. */
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
+		it = proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
 			tvb, offset+2, 2, flags);
+		flags_tree = proto_item_add_subtree(it, ett_radiotap_channel_flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_turbo,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_cck,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_ofdm,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_2ghz,
+			tvb, offset+2, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_5ghz,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_passive,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_dynamic,
+			tvb, offset+3, 1, flags);
+		proto_tree_add_boolean(flags_tree, hf_radiotap_channel_flags_gfsk,
+			tvb, offset+3, 1, flags);
 	    }
 	    offset+=4 /* Channel + flags */;
 	    length_remaining-=4;
 	    break;
+	}
 	case IEEE80211_RADIOTAP_FHSS:
 	    align_offset = ALIGN_OFFSET(offset, 2);
 	    offset += align_offset;

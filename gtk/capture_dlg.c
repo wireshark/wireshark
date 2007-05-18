@@ -207,7 +207,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   /* is it an airpcap interface??? */
   /* retrieve the advanced button pointer */
   advanced_bt = OBJECT_GET_DATA(entry,AIRPCAP_OPTIONS_ADVANCED_KEY);
-  airpcap_if_selected = get_airpcap_if_by_name(airpcap_if_list,if_name);
+  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,if_name);
   airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
   if( airpcap_if_selected != NULL)
 	{
@@ -582,8 +582,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt,
                 *help_bt;
+#if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
 #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_hb, *advanced_bt;
+#endif
 #endif
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
@@ -700,7 +702,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_AIRPCAP
 	/* get the airpcap interface (if it IS an airpcap interface, and update the
 	  toolbar... and of course enable the advanced button...)*/
-	  airpcap_if_selected = get_airpcap_if_by_name(airpcap_if_list,capture_opts->iface);
+	  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,capture_opts->iface);
 #endif
 
   if (capture_opts->iface != NULL) {
@@ -872,6 +874,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
 
   /* advanced row */
+#if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
 #ifdef HAVE_AIRPCAP
   advanced_hb = gtk_hbox_new(FALSE,5);
   gtk_box_pack_start(GTK_BOX(capture_vb), advanced_hb, FALSE, FALSE, 0);
@@ -904,6 +907,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(linktype_hb),advanced_bt,FALSE,FALSE,0);
   gtk_widget_show(advanced_bt);
   gtk_widget_show(advanced_hb);
+#endif
 #endif
 
   /* Capture file-related options frame */
