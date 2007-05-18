@@ -172,7 +172,8 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
+#Temporary disable this flags until complete elimination of 'cast increases required alignment' 
+#AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,
@@ -497,7 +498,7 @@ if test "x$enable_gtk2" = "xyes" -a \
     "(" "x$enable_wireshark" = "xyes" -o "x$enable_wireshark" = "xifgtkavailable" ")"; then
 	GTK_OK=two
 	AM_PATH_GTK_2_0(2.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
-elif test "x$enable_gtk2" != "xyes" \
+elif test "x$enable_gtk2" != "xyes" -a \
     -a "(" "x$enable_wireshark" = "xyes" -o "x$enable_wireshark" = "xifgtkavailable" ")"; then
 	GTK_OK=one
 	AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no )
