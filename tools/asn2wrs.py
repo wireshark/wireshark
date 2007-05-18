@@ -44,6 +44,7 @@ import os
 import os.path
 import time
 import getopt
+import traceback
 
 import __main__ # XXX blech!
 import lex
@@ -1629,6 +1630,7 @@ class EthCnf:
     self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['MODULE']          = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : False }
     self.tblcfg['OMIT_ASSIGNMENT'] = { 'val_nm' : 'omit',     'val_dflt' : False, 'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['NO_OMIT_ASSGN']   = { 'val_nm' : 'omit',     'val_dflt' : True,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['VIRTUAL_ASSGN']   = { 'val_nm' : 'name',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['SET_TYPE']        = { 'val_nm' : 'type',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['TYPE_RENAME']     = { 'val_nm' : 'eth_name', 'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
@@ -1677,6 +1679,16 @@ class EthCnf:
     #print "use_item() - set used for %s %s" % (table, key)
     self.table[table][key]['used'] = True
     return self.table[table][key].get(vname, vdflt)
+
+  def omit_assignment(self, type, ident, module):
+    if self.ectx.conform.use_item('OMIT_ASSIGNMENT', ident): 
+      return True
+    if self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*') or \
+       self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*'+type) or \
+       self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*/'+module) or \
+       self.ectx.conform.use_item('OMIT_ASSIGNMENT', '*'+type+'/'+module):
+      return self.ectx.conform.use_item('NO_OMIT_ASSGN', ident)
+    return False
 
   def add_fn_line(self, name, ctx, line, fn, lineno):
     if not self.fn.has_key(name):
@@ -1826,10 +1838,28 @@ class EthCnf:
           ctx = None
         elif result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
                                     'MODULE', 'MODULE_IMPORT', 
-                                    'OMIT_ASSIGNMENT', 'VIRTUAL_ASSGN', 'SET_TYPE',
+                                    'OMIT_ASSIGNMENT', 'NO_OMIT_ASSGN', 
+                                    'VIRTUAL_ASSGN', 'SET_TYPE',
                                     'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
+        elif result.group('name') in ('OMIT_ALL_ASSIGNMENTS', 'OMIT_ASSIGNMENTS_EXCEPT',
+                                      'OMIT_ALL_TYPE_ASSIGNMENTS', 'OMIT_TYPE_ASSIGNMENTS_EXCEPT',
+                                      'OMIT_ALL_VALUE_ASSIGNMENTS', 'OMIT_VALUE_ASSIGNMENTS_EXCEPT'):
+          ctx = result.group('name')
+          key = '*'
+          if ctx in ('OMIT_ALL_TYPE_ASSIGNMENTS', 'OMIT_TYPE_ASSIGNMENTS_EXCEPT'):
+            key += 'T'
+          if ctx in ('OMIT_ALL_VALUE_ASSIGNMENTS', 'OMIT_VALUE_ASSIGNMENTS_EXCEPT'):
+            key += 'V'
+          par = get_par(line[result.end():], 0, 1, fn=fn, lineno=lineno)
+          if par: 
+            key += '/' + par[0]
+          self.add_item('OMIT_ASSIGNMENT', key, omit=True, fn=fn, lineno=lineno)
+          if ctx in ('OMIT_ASSIGNMENTS_EXCEPT', 'OMIT_TYPE_ASSIGNMENTS_EXCEPT', 'OMIT_VALUE_ASSIGNMENTS_EXCEPT'):
+            ctx = 'NO_OMIT_ASSGN'
+          else:
+            ctx = None
         elif result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
           ctx = result.group('name')
           default_flags = EF_TYPE|EF_VALS
@@ -1992,12 +2022,17 @@ class EthCnf:
         if empty.match(line): continue
         par = get_par(line, 3, 3, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_item('IMPORT_TAG', par[0], ttag=(par[1], par[2]), fn=fn, lineno=lineno)
+        self.add_item(ctx, par[0], ttag=(par[1], par[2]), fn=fn, lineno=lineno)
       elif ctx == 'OMIT_ASSIGNMENT':
         if empty.match(line): continue
         par = get_par(line, 1, 1, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_item('OMIT_ASSIGNMENT', par[0], omit=True, fn=fn, lineno=lineno)
+        self.add_item(ctx, par[0], omit=True, fn=fn, lineno=lineno)
+      elif ctx == 'NO_OMIT_ASSGN':
+        if empty.match(line): continue
+        par = get_par(line, 1, 1, fn=fn, lineno=lineno)
+        if not par: continue
+        self.add_item(ctx, par[0], omit=False, fn=fn, lineno=lineno)
       elif ctx == 'VIRTUAL_ASSGN':
         if empty.match(line): continue
         par = get_par(line, 2, -1, fn=fn, lineno=lineno)
@@ -2349,7 +2384,7 @@ class value_assign (Node):
     Node.__init__ (self,*args, **kw)
 
   def eth_reg(self, ident, ectx):
-    if ectx.conform.use_item('OMIT_ASSIGNMENT', self.ident): return # Assignment to omit
+    if ectx.conform.omit_assignment('V', self.ident, ectx.module()): return # Assignment to omit
     ectx.eth_reg_vassign(self)
     ectx.eth_reg_value(self.ident, self.typ, self.val)
 
@@ -2457,7 +2492,7 @@ class Type (Node):
       nm = ident
     elif self.IsNamed():
       nm = self.name
-    if not ident and ectx.conform.use_item('OMIT_ASSIGNMENT', nm): return # Assignment to omit
+    if not ident and ectx.conform.omit_assignment('T', nm, ectx.module()): return # Assignment to omit
     if not ident:  # Assignment
       ectx.eth_reg_assign(nm, self)
       if self.type == 'Type_Ref':
@@ -2466,7 +2501,7 @@ class Type (Node):
         ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(ectx), pdu=ectx.conform.use_item('PDU', nm))
     virtual_tr = Type_Ref(val=ectx.conform.use_item('SET_TYPE', nm))
     if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
-      if ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm):
+      if ident and (ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm)):
         if ectx.conform.check_item('SET_TYPE', nm):
           ectx.eth_reg_type(nm, virtual_tr)  # dummy Type Reference
         else:
@@ -2616,7 +2651,7 @@ class ObjectClass (Node):
     add_class_ident(self.name)
 
   def eth_reg(self, ident, ectx):
-    if ectx.conform.use_item('OMIT_ASSIGNMENT', ident): return # Assignment to omit
+    if ectx.conform.omit_assignment('C', self.name, ectx.module()): return # Assignment to omit
     ectx.eth_reg_objectclass(self.name)
 
 #--- Tag ---------------------------------------------------------------
@@ -5473,6 +5508,7 @@ object_class_typerefs = {
 }
 
 class_types_creator = {
+  'IntegerType'          : lambda : IntegerType(),
   'ObjectIdentifierType' : lambda : ObjectIdentifierType(),
   'OpenType'             : lambda : OpenType(),
 }
