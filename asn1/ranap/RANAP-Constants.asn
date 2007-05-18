@@ -1,0 +1,296 @@
+-- $Id$
+--9.3.6	Constant Definitions
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+RANAP-Constants { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+umts-Access (20) modules (3) ranap (0) version1 (1) ranap-Constants (4) } 
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+--id-RAB-Assignment					INTEGER ::= 0
+-- WS adaption change INTEGER to ProcedureCode
+id-RAB-Assignment					ProcedureCode ::= 0
+id-Iu-Release						ProcedureCode ::= 1
+id-RelocationPreparation			ProcedureCode ::= 2
+id-RelocationResourceAllocation		ProcedureCode ::= 3
+id-RelocationCancel					ProcedureCode ::= 4
+id-SRNS-ContextTransfer				ProcedureCode ::= 5
+id-SecurityModeControl				ProcedureCode ::= 6
+id-DataVolumeReport					ProcedureCode ::= 7
+id-Reset							ProcedureCode ::= 9
+id-RAB-ReleaseRequest				ProcedureCode ::= 10
+id-Iu-ReleaseRequest				ProcedureCode ::= 11
+id-RelocationDetect					ProcedureCode ::= 12
+id-RelocationComplete				ProcedureCode ::= 13
+id-Paging							ProcedureCode ::= 14
+id-CommonID							ProcedureCode ::= 15
+id-CN-InvokeTrace					ProcedureCode ::= 16
+id-LocationReportingControl			ProcedureCode ::= 17
+id-LocationReport					ProcedureCode ::= 18
+id-InitialUE-Message				ProcedureCode ::= 19
+id-DirectTransfer					ProcedureCode ::= 20
+id-OverloadControl					ProcedureCode ::= 21
+id-ErrorIndication					ProcedureCode ::= 22
+id-SRNS-DataForward					ProcedureCode ::= 23
+id-ForwardSRNS-Context				ProcedureCode ::= 24
+id-privateMessage					ProcedureCode ::= 25
+id-CN-DeactivateTrace				ProcedureCode ::= 26
+id-ResetResource					ProcedureCode ::= 27
+id-RANAP-Relocation					ProcedureCode ::= 28
+id-RAB-ModifyRequest				ProcedureCode ::= 29
+id-LocationRelatedData				ProcedureCode ::= 30
+id-InformationTransfer				ProcedureCode ::= 31
+id-UESpecificInformation			ProcedureCode ::= 32
+id-UplinkInformationExchange		ProcedureCode ::= 33
+id-DirectInformationTransfer		ProcedureCode ::= 34
+id-MBMSSessionStart					ProcedureCode ::= 35
+id-MBMSSessionUpdate				ProcedureCode ::= 36
+id-MBMSSessionStop					ProcedureCode ::= 37
+id-MBMSUELinking					ProcedureCode ::= 38
+id-MBMSRegistration					ProcedureCode ::= 39
+id-MBMSCNDe-Registration-Procedure	ProcedureCode ::= 40
+id-MBMSRABEstablishmentIndication	ProcedureCode ::= 41
+id-MBMSRABRelease					ProcedureCode ::= 42
+
+
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+maxPrivateIEs 						INTEGER ::= 65535
+maxProtocolExtensions 				INTEGER ::= 65535
+maxProtocolIEs						INTEGER ::= 65535
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxNrOfDTs							INTEGER ::= 15
+maxNrOfErrors						INTEGER ::= 256
+maxNrOfIuSigConIds					INTEGER ::= 250
+maxNrOfPDPDirections				INTEGER ::= 2
+maxNrOfPoints						INTEGER ::= 15
+maxNrOfRABs							INTEGER ::= 256
+maxNrOfSeparateTrafficDirections	INTEGER ::= 2
+maxNrOfSRBs							INTEGER ::= 8
+maxNrOfVol							INTEGER ::= 2
+maxNrOfLevels						INTEGER ::= 256 
+maxNrOfAltValues					INTEGER ::= 16
+maxNrOfPLMNsSN						INTEGER ::= 32
+maxNrOfLAs							INTEGER ::= 65536
+maxNrOfSNAs							INTEGER ::= 65536
+maxNrOfUEsToBeTraced				INTEGER ::= 64
+maxNrOfInterfaces					INTEGER ::= 16
+maxRAB-Subflows						INTEGER ::= 7
+maxRAB-SubflowCombination			INTEGER ::= 64
+maxSet								INTEGER ::= 9
+maxNrOfHSDSCHMACdFlows-1			INTEGER	::= 7
+maxnoofMulticastServicesPerUE		INTEGER ::= 128
+maxnoofMulticastServicesPerRNC		INTEGER ::= 512
+maxMBMSSA							INTEGER ::= 256
+maxMBMSRA							INTEGER ::= 65536
+maxNrOfEDCHMACdFlows-1				INTEGER ::= 7
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+-- id-AreaIdentity 								INTEGER ::= 0
+-- WS adaption change INTEGER to ProtocolIE-ID
+id-AreaIdentity 								ProtocolIE-ID ::= 0
+id-CN-DomainIndicator 							ProtocolIE-ID ::= 3
+id-Cause 										ProtocolIE-ID ::= 4
+id-ChosenEncryptionAlgorithm 					ProtocolIE-ID ::= 5
+id-ChosenIntegrityProtectionAlgorithm 			ProtocolIE-ID ::= 6
+id-ClassmarkInformation2 						ProtocolIE-ID ::= 7
+id-ClassmarkInformation3 						ProtocolIE-ID ::= 8
+id-CriticalityDiagnostics 						ProtocolIE-ID ::= 9
+id-DL-GTP-PDU-SequenceNumber 					ProtocolIE-ID ::= 10
+id-EncryptionInformation 						ProtocolIE-ID ::= 11
+id-IntegrityProtectionInformation 				ProtocolIE-ID ::= 12
+id-IuTransportAssociation 						ProtocolIE-ID ::= 13
+id-L3-Information 								ProtocolIE-ID ::= 14
+id-LAI 											ProtocolIE-ID ::= 15
+id-NAS-PDU 										ProtocolIE-ID ::= 16
+id-NonSearchingIndication 						ProtocolIE-ID ::= 17
+id-NumberOfSteps 								ProtocolIE-ID ::= 18
+id-OMC-ID 										ProtocolIE-ID ::= 19
+id-OldBSS-ToNewBSS-Information 					ProtocolIE-ID ::= 20
+id-PagingAreaID 								ProtocolIE-ID ::= 21
+id-PagingCause 									ProtocolIE-ID ::= 22
+id-PermanentNAS-UE-ID 							ProtocolIE-ID ::= 23
+id-RAB-ContextItem 								ProtocolIE-ID ::= 24
+id-RAB-ContextList 								ProtocolIE-ID ::= 25
+id-RAB-DataForwardingItem 						ProtocolIE-ID ::= 26
+id-RAB-DataForwardingItem-SRNS-CtxReq 			ProtocolIE-ID ::= 27
+id-RAB-DataForwardingList 						ProtocolIE-ID ::= 28
+id-RAB-DataForwardingList-SRNS-CtxReq 			ProtocolIE-ID ::= 29
+id-RAB-DataVolumeReportItem 					ProtocolIE-ID ::= 30
+id-RAB-DataVolumeReportList 					ProtocolIE-ID ::= 31
+id-RAB-DataVolumeReportRequestItem 				ProtocolIE-ID ::= 32
+id-RAB-DataVolumeReportRequestList 				ProtocolIE-ID ::= 33
+id-RAB-FailedItem 								ProtocolIE-ID ::= 34
+id-RAB-FailedList 								ProtocolIE-ID ::= 35
+id-RAB-ID 										ProtocolIE-ID ::= 36
+id-RAB-QueuedItem 								ProtocolIE-ID ::= 37
+id-RAB-QueuedList 								ProtocolIE-ID ::= 38
+id-RAB-ReleaseFailedList 						ProtocolIE-ID ::= 39
+id-RAB-ReleaseItem 								ProtocolIE-ID ::= 40
+id-RAB-ReleaseList 								ProtocolIE-ID ::= 41
+id-RAB-ReleasedItem 							ProtocolIE-ID ::= 42
+id-RAB-ReleasedList 							ProtocolIE-ID ::= 43
+id-RAB-ReleasedList-IuRelComp 					ProtocolIE-ID ::= 44
+id-RAB-RelocationReleaseItem 					ProtocolIE-ID ::= 45
+id-RAB-RelocationReleaseList 					ProtocolIE-ID ::= 46
+id-RAB-SetupItem-RelocReq 						ProtocolIE-ID ::= 47
+id-RAB-SetupItem-RelocReqAck 					ProtocolIE-ID ::= 48
+id-RAB-SetupList-RelocReq 						ProtocolIE-ID ::= 49
+id-RAB-SetupList-RelocReqAck 					ProtocolIE-ID ::= 50
+id-RAB-SetupOrModifiedItem 						ProtocolIE-ID ::= 51
+id-RAB-SetupOrModifiedList 						ProtocolIE-ID ::= 52
+id-RAB-SetupOrModifyItem 						ProtocolIE-ID ::= 53
+id-RAB-SetupOrModifyList 						ProtocolIE-ID ::= 54
+id-RAC 											ProtocolIE-ID ::= 55
+id-RelocationType 								ProtocolIE-ID ::= 56
+id-RequestType 									ProtocolIE-ID ::= 57
+id-SAI 											ProtocolIE-ID ::= 58
+id-SAPI 										ProtocolIE-ID ::= 59
+id-SourceID 									ProtocolIE-ID ::= 60
+id-SourceRNC-ToTargetRNC-TransparentContainer 	ProtocolIE-ID ::= 61
+id-TargetID 									ProtocolIE-ID ::= 62
+id-TargetRNC-ToSourceRNC-TransparentContainer 	ProtocolIE-ID ::= 63
+id-TemporaryUE-ID 								ProtocolIE-ID ::= 64
+id-TraceReference 								ProtocolIE-ID ::= 65
+id-TraceType 									ProtocolIE-ID ::= 66
+id-TransportLayerAddress 						ProtocolIE-ID ::= 67
+id-TriggerID 									ProtocolIE-ID ::= 68
+id-UE-ID 										ProtocolIE-ID ::= 69
+id-UL-GTP-PDU-SequenceNumber 					ProtocolIE-ID ::= 70
+id-RAB-FailedtoReportItem						ProtocolIE-ID ::= 71
+id-RAB-FailedtoReportList 						ProtocolIE-ID ::= 72
+id-KeyStatus									ProtocolIE-ID ::= 75
+id-DRX-CycleLengthCoefficient 					ProtocolIE-ID ::= 76
+id-IuSigConIdList								ProtocolIE-ID ::= 77
+id-IuSigConIdItem								ProtocolIE-ID ::= 78
+id-IuSigConId									ProtocolIE-ID ::= 79
+id-DirectTransferInformationItem-RANAP-RelocInf	ProtocolIE-ID ::= 80
+id-DirectTransferInformationList-RANAP-RelocInf	ProtocolIE-ID ::= 81
+id-RAB-ContextItem-RANAP-RelocInf				ProtocolIE-ID ::= 82
+id-RAB-ContextList-RANAP-RelocInf				ProtocolIE-ID ::= 83
+id-RAB-ContextFailedtoTransferItem				ProtocolIE-ID ::= 84
+id-RAB-ContextFailedtoTransferList				ProtocolIE-ID ::= 85
+id-GlobalRNC-ID									ProtocolIE-ID ::= 86
+id-RAB-ReleasedItem-IuRelComp					ProtocolIE-ID ::= 87
+id-MessageStructure								ProtocolIE-ID ::= 88
+id-Alt-RAB-Parameters							ProtocolIE-ID ::= 89
+id-Ass-RAB-Parameters							ProtocolIE-ID ::= 90
+id-RAB-ModifyList								ProtocolIE-ID ::= 91
+id-RAB-ModifyItem								ProtocolIE-ID ::= 92
+id-TypeOfError									ProtocolIE-ID ::= 93
+id-BroadcastAssistanceDataDecipheringKeys		ProtocolIE-ID ::= 94
+id-LocationRelatedDataRequestType				ProtocolIE-ID ::= 95
+id-GlobalCN-ID									ProtocolIE-ID ::= 96
+id-LastKnownServiceArea							ProtocolIE-ID ::= 97
+id-SRB-TrCH-Mapping								ProtocolIE-ID ::= 98
+id-InterSystemInformation-TransparentContainer	ProtocolIE-ID ::= 99
+id-NewBSS-To-OldBSS-Information 						ProtocolIE-ID ::= 100
+id-SourceRNC-PDCP-context-info							ProtocolIE-ID ::= 103
+id-InformationTransferID								ProtocolIE-ID ::= 104
+id-SNA-Access-Information								ProtocolIE-ID ::= 105
+id-ProvidedData											ProtocolIE-ID ::= 106
+id-GERAN-BSC-Container									ProtocolIE-ID ::= 107
+id-GERAN-Classmark										ProtocolIE-ID ::= 108
+id-GERAN-Iumode-RAB-Failed-RABAssgntResponse-Item		ProtocolIE-ID ::= 109
+id-GERAN-Iumode-RAB-FailedList-RABAssgntResponse		ProtocolIE-ID ::= 110
+id-VerticalAccuracyCode									ProtocolIE-ID ::= 111
+id-ResponseTime											ProtocolIE-ID ::= 112
+id-PositioningPriority									ProtocolIE-ID ::= 113
+id-ClientType											ProtocolIE-ID ::= 114
+id-LocationRelatedDataRequestTypeSpecificToGERANIuMode	ProtocolIE-ID ::= 115
+id-SignallingIndication									ProtocolIE-ID ::= 116
+id-hS-DSCH-MAC-d-Flow-ID								ProtocolIE-ID ::= 117
+id-UESBI-Iu												ProtocolIE-ID ::= 118
+id-PositionData											ProtocolIE-ID ::= 119
+id-PositionDataSpecificToGERANIuMode					ProtocolIE-ID ::= 120
+id-CellLoadInformationGroup								ProtocolIE-ID ::= 121
+id-AccuracyFulfilmentIndicator							ProtocolIE-ID ::= 122
+id-InformationTransferType								ProtocolIE-ID ::= 123
+id-TraceRecordingSessionInformation						ProtocolIE-ID ::= 124
+id-TracePropagationParameters							ProtocolIE-ID ::= 125
+id-InterSystemInformationTransferType					ProtocolIE-ID ::= 126
+id-SelectedPLMN-ID										ProtocolIE-ID ::= 127
+id-RedirectionCompleted									ProtocolIE-ID ::= 128
+id-RedirectionIndication								ProtocolIE-ID ::= 129
+id-NAS-SequenceNumber									ProtocolIE-ID ::= 130
+id-RejectCauseValue										ProtocolIE-ID ::= 131
+id-APN													ProtocolIE-ID ::= 132
+id-CNMBMSLinkingInformation								ProtocolIE-ID ::= 133
+id-DeltaRAListofIdleModeUEs								ProtocolIE-ID ::= 134
+id-FrequenceLayerConvergenceFlag						ProtocolIE-ID ::= 135
+id-InformationExchangeID								ProtocolIE-ID ::= 136
+id-InformationExchangeType								ProtocolIE-ID ::= 137
+id-InformationRequested									ProtocolIE-ID ::= 138
+id-InformationRequestType								ProtocolIE-ID ::= 139
+id-IPMulticastAddress									ProtocolIE-ID ::= 140
+id-JoinedMBMSBearerServicesList							ProtocolIE-ID ::= 141
+id-LeftMBMSBearerServicesList							ProtocolIE-ID ::= 142
+id-MBMSBearerServiceType								ProtocolIE-ID ::= 143
+id-MBMSCNDe-Registration								ProtocolIE-ID ::= 144
+id-MBMSServiceArea										ProtocolIE-ID ::= 145
+id-MBMSSessionDuration									ProtocolIE-ID ::= 146
+id-MBMSSessionIdentity									ProtocolIE-ID ::= 147
+id-PDP-TypeInformation									ProtocolIE-ID ::= 148
+id-RAB-Parameters										ProtocolIE-ID ::= 149
+id-RAListofIdleModeUEs									ProtocolIE-ID ::= 150
+id-MBMSRegistrationRequestType							ProtocolIE-ID ::= 151
+id-SessionUpdateID										ProtocolIE-ID ::= 152
+id-TMGI													ProtocolIE-ID ::= 153
+id-TransportLayerInformation							ProtocolIE-ID ::= 154
+id-UnsuccessfulLinkingList								ProtocolIE-ID ::= 155
+id-MBMSLinkingInformation								ProtocolIE-ID ::= 156
+id-MBMSSessionRepetitionNumber							ProtocolIE-ID ::= 157
+id-AlternativeRABConfiguration							ProtocolIE-ID ::= 158
+id-AlternativeRABConfigurationRequest    				ProtocolIE-ID ::= 159
+id-E-DCH-MAC-d-Flow-ID									ProtocolIE-ID ::= 160
+id-SourceBSS-ToTargetBSS-TransparentContainer			ProtocolIE-ID ::= 161
+id-TargetBSS-ToSourceBSS-TransparentContainer			ProtocolIE-ID ::= 162
+id-TimeToMBMSDataTransfer								ProtocolIE-ID ::= 163
+id-IncludeVelocity										ProtocolIE-ID ::= 164
+id-VelocityEstimate										ProtocolIE-ID ::= 165
+id-RedirectAttemptFlag									ProtocolIE-ID ::= 166
+id-RAT-Type												ProtocolIE-ID ::= 167
+id-PeriodicLocationInfo									ProtocolIE-ID ::= 168
+id-MBMSCountingInformation								ProtocolIE-ID ::= 169
+id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf		ProtocolIE-ID ::= 172
+id-Alt-RAB-Parameter-ExtendedMaxBitrateInf				ProtocolIE-ID ::= 173
+id-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList		ProtocolIE-ID ::= 174
+id-Ass-RAB-Parameter-ExtendedMaxBitrateList				ProtocolIE-ID ::= 175
+id-RAB-Parameter-ExtendedGuaranteedBitrateList			ProtocolIE-ID ::= 176
+id-RAB-Parameter-ExtendedMaxBitrateList					ProtocolIE-ID ::= 177
+id-Requested-RAB-Parameter-ExtendedMaxBitrateList		ProtocolIE-ID ::= 178
+id-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList	ProtocolIE-ID ::= 179
+id-LAofIdleModeUEs										ProtocolIE-ID ::= 180
+id-newLAListofIdleModeUEs								ProtocolIE-ID ::= 181
+id-LAListwithNoIdleModeUEsAnyMore						ProtocolIE-ID ::= 182
+
+END
