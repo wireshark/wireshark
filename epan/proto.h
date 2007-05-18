@@ -1586,7 +1586,7 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_hdr, 
  @return the newly created item */
 
 extern proto_item *
-proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
+proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
 
 /** Add bitts to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.

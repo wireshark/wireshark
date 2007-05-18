@@ -337,7 +337,10 @@ extern void tvb_get_letohguid(tvbuff_t *tvb, gint offset, e_guid_t *guid);
 extern void tvb_get_guid(tvbuff_t *tvb, gint offset, e_guid_t *guid, gboolean little_endian);
 
 /* Fetch a specified number of bits from bit offset in a tvb */
-extern guint64 tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
+extern guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits);
+extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
+extern guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
+extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
 
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough

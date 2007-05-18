@@ -5587,7 +5587,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int h
 }
 
 proto_item *
-proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
+proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
 {
 	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
 
@@ -5627,8 +5627,19 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	if ((remaining_bits)!=0)
 		length++;
 
+	if (no_of_bits < 9){
+		value = tvb_get_bits8(tvb, bit_offset, no_of_bits);
+	}else if(no_of_bits < 17){
+		value = tvb_get_bits16(tvb, bit_offset, no_of_bits, little_endian);
+	}else if(no_of_bits < 33){
+		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, little_endian);
+	}else if(no_of_bits < 65){
+		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, little_endian);
+	}else if(no_of_bits>64){
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+	}
 
-	value = tvb_get_bits(tvb, bit_offset, no_of_bits, little_endian);
 
 	mask = 1;
 	mask = mask << (no_of_bits-1);

@@ -583,7 +583,7 @@ make_mask(guint8 num_bits, guint8 shift_value) {
 }
 
 static guint8
-tvb_get_bits8(tvbuff_t *tvb, guint64 bo, guint8 num_bits) {
+bssgp_tvb_get_bits8(tvbuff_t *tvb, guint64 bo, guint8 num_bits) {
   /* Returns 0-8 bits from tvb */
   guint8 shift_value;
   guint16 mask, data;
@@ -2024,7 +2024,7 @@ decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb,
   guint8 bl; /* Bit length */
 
   bl = 4;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "Access Technology Type: %s (%#01x)", 
@@ -2032,13 +2032,13 @@ decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb,
 			 value);
 
   bl = 3;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "GMSK Power Class: Power class %u", value);
 
   bl = 2;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "8PSK Power Class");
@@ -2073,7 +2073,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* RF Power Capability */
   bl = 3;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "RF Power Capability");
@@ -2087,12 +2087,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* A5 bits */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   if (value == 1) {
     bo += bl;
     bl = 7;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     ti = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     proto_item_append_text(ti, "A5 Bits: %#02x", value); 
     tf = proto_item_add_subtree(ti, ett_bssgp_msrac_a5_bits);
@@ -2113,7 +2113,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* ES IND */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "ESD IND: Controlled Early Classmark Sending"" option is%s implemented",
@@ -2122,7 +2122,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* PS */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "PS: PS capability%s present",
@@ -2131,7 +2131,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* VGCS */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "VBCS:%s VGCS capability %s notifications wanted",
@@ -2141,7 +2141,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* VBS */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "VBS:%s VBS capability %s notifications wanted",
@@ -2153,7 +2153,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
      No length is given! */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   if (value == 1) {
     bo += bl;
     ti = bit_proto_tree_add_text(tree, tvb, bo, bl, "Multislot capability"); 
@@ -2162,12 +2162,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     /* HSCSD Multislot Class */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     bo += bl;
     if (value == 1) {
       bl = 5;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "HSCSD Multislot Class");
@@ -2187,12 +2187,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     /* GPRS Multislot Class, GPRS Extended Dynamic Allocation Capability */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     bo += bl;
     if (value == 1) {
       bl = 5;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "GPRS Multislot Class: Multislot Class %u", 
@@ -2200,7 +2200,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 
       bl = 1;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "GPRS Extended Dynamic Allocation Capability: Extended Dynamic Allocation for GPRS is%s implemented",
@@ -2215,12 +2215,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     /* SMS Value, SM Value */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     bo += bl;
     if (value == 1) {
       bl = 4;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, 
@@ -2229,7 +2229,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 
       bl = 4;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, 
@@ -2247,12 +2247,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     /* ECSD Multislot Class */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     bo += bl;
     if (value == 1) {
       bl = 5;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "ECSD Multislot Class");
@@ -2272,12 +2272,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     /* EGPRS Multislot Class, EGPRS Extended Dynamic Allocation Capability */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     bo += bl;
     if (value == 1) {
       bl = 5;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "EGPRS Multislot Class: Multislot Class %u",
@@ -2285,7 +2285,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 
       bl = 1;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "EGPRS Extended Dynamic Allocation Capability: Extended Dynamic Allocation for EGPRS is%s implemented",
@@ -2300,12 +2300,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     /* DTM GPRS Multislot Class */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     bo += bl;
     if (value == 1) {
       bl = 2;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      dgmsc = tvb_get_bits8(tvb, bo, bl);
+      dgmsc = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, "DTM GPRS Multislot Class: %s", 
@@ -2314,7 +2314,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       /* Single slot DTM */
       bl = 1;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
       proto_item_append_text(pi, 
@@ -2324,12 +2324,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       /* DTM EGPRS Multislot Class */
       bl = 1;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-      value = tvb_get_bits8(tvb, bo, bl);
+      value = bssgp_tvb_get_bits8(tvb, bo, bl);
       bo += bl;
       if (value == 1) {
 	bl = 2;
 	if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-	demsc = tvb_get_bits8(tvb, bo, bl);
+	demsc = bssgp_tvb_get_bits8(tvb, bo, bl);
 	pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
 	bo += bl;
 	proto_item_append_text(pi, "DTM EGPRS Multislot Class: %s", 
@@ -2350,12 +2350,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* 8PSK Power Capability */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   bo += bl;
   if (value == 1) {
     bl = 2;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
     proto_item_append_text(pi, "8PSK Power Capability");
@@ -2372,7 +2372,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* COMPACT Interference Measurement Capability */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, 
@@ -2382,7 +2382,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Revision level indicator */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "Revision Level Indicator: The ME is Release '%u %s", 
@@ -2393,7 +2393,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* 3G RAT */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "UMTS FDD Radio Access Technology Capability: UMTS FDD%s supported", 
@@ -2401,7 +2401,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "UMTS 3.84 Mcps TDD Radio Access Technology Capability: UMTS 3.84 Mcps TDD%s supported", 
@@ -2409,7 +2409,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "CDMA 2000 Radio Access Technology Capability: CDMA 2000%s supported", 
@@ -2419,7 +2419,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Additions in release 4*/
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "UMTS 1.28 Mcps TDD Radio Access Technology Capability: UMTS 1.28 Mcps TDD%s supported", 
@@ -2429,7 +2429,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* GERAN Feature Package 1 */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "GERAN Feature Package 1: GERAN Feature Package 1%s supported", 
@@ -2439,12 +2439,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Extended DTM xGPRS Multislot Class */  
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   bo += bl;
   if (value == 1) {
     bl = 2;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
     proto_item_append_text(pi, "Extended DTM GPRS Multi Slot Class: %s", 
@@ -2454,7 +2454,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
        How know? */
     bl = 2;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
     proto_item_append_text(pi, "Extended DTM EGPRS Multi Slot Class: %s", 
@@ -2464,7 +2464,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Modulation based multislot class support */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "Modulation based multislot class support: %s supported", 
@@ -2475,12 +2475,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* High multislot capability */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   bo += bl;
   if (value == 1) {
     bl = 2;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-    value = tvb_get_bits8(tvb, bo, bl);
+    value = bssgp_tvb_get_bits8(tvb, bo, bl);
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
     proto_item_append_text(pi, "High Multislot Capability: %u", value);
@@ -2492,7 +2492,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* XXX: Interpretation? Length? */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "GERAN Iu Mode Capabilities: %s",
@@ -2501,7 +2501,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* GMSK Multislot Power Profile */
   bl = 2;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "GMSK Multislot Power Profile: GMSK_MULTI_SLOT_POWER_PROFILE %u",
@@ -2512,7 +2512,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
      set this field to 00' */
   bl = 2;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "8PSK Multislot Power Profile: 8PSK_MULTI_SLOT_POWER_PROFILE %u",
@@ -2523,7 +2523,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Multiple TBF Capability */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "Multiple TBF Capability: Multiple TBF procedures in A/Gb mode%s supported",
@@ -2532,7 +2532,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Downlink Advanced Receiver Performance */
   bl = 2;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "Donwlink Advanced Receiver Performance: Downlink Advanced Receiver Performance %s supported",
@@ -2542,7 +2542,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   /* Extended RLC_MAC Control Message Segmentation Capability */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
-  value = tvb_get_bits8(tvb, bo, bl);
+  value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
   proto_item_append_text(pi, "Extended RLC/MAC Control Message Segmentation Capability: Extended RLC/MAC Control Message Segmentation%s supported",
@@ -2566,7 +2566,7 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   tf = proto_item_add_subtree(ti, ett_bssgp_msrac_value_part);
 
   bl = 4;
-  att = tvb_get_bits8(tvb, bo, bl);
+  att = bssgp_tvb_get_bits8(tvb, bo, bl);
   att_name = translate_msrac_access_technology_type(att);
   pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
   proto_item_append_text(pi, "Access Technology Type: %s (%#01x)", att_name, att);
@@ -2574,7 +2574,7 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   bo += bl;
 
   bl = 7;
-  length = tvb_get_bits8(tvb, bo, bl);
+  length = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
   proto_item_append_text(pi, "Length: %u bits", length);
   bo += bl;
@@ -2596,7 +2596,7 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   /* else unknown Access Technology Type */
 
   bo += length;
-  bit = tvb_get_bits8(tvb, bo, 1);
+  bit = bssgp_tvb_get_bits8(tvb, bo, 1);
   bo++;
   if (bit == 1) {
     decode_msrac_value_part(tree, tvb, bo);
