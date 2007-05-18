@@ -103,7 +103,6 @@ LIBWIRESHARK_ALL_SRC = \
 	$(LIBWIRESHARK_SRC) 	\
 	$(LIBWIRESHARK_GENERATED_SRC)
 	
-
 LIBWIRESHARK_INCLUDES = 	\
 	addr_and_mask.h		\
 	addr_resolv.h		\
@@ -131,6 +130,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	crcdrm.h		\
 	dtd.h			\
 	dtd_grammar.h 		\
+	dtd_parse.h 		\
 	emem.h			\
 	epan.h			\
 	epan_dissect.h		\
