@@ -1515,7 +1515,6 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 {
 	gint	offset;
 	guint32	value = 0;
-	guint32	tempval = 0;
 	guint8	tot_no_bits;
 
 	if ((no_of_bits<8)||(no_of_bits>16))
@@ -1547,14 +1546,14 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 /* Get 9 - 16 bits */
 /* Bit offset mask for number of bits = 32 - 64 */
 static const guint64 bit_mask64[] = {
-    0xffffffffffffff,
-    0x7fffffffffffff,
-    0x3fffffffffffff,
-    0x1fffffffffffff,
-    0x0fffffffffffff,
-    0x07ffffffffffff,
-    0x03ffffffffffff,
-    0x01ffffffffffff
+    G_GINT64_CONSTANT(0xffffffffffffffU),
+    G_GINT64_CONSTANT(0x7fffffffffffffU),
+    G_GINT64_CONSTANT(0x3fffffffffffffU),
+    G_GINT64_CONSTANT(0x1fffffffffffffU),
+    G_GINT64_CONSTANT(0x0fffffffffffffU),
+    G_GINT64_CONSTANT(0x07ffffffffffffU),
+    G_GINT64_CONSTANT(0x03ffffffffffffU),
+    G_GINT64_CONSTANT(0x01ffffffffffffU)
 };
 
 guint32
@@ -1562,7 +1561,6 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_
 {
 	gint	offset;
 	guint64	value = 0;
-	guint64	tempval = 0;
 	guint8	tot_no_bits;
 
 	if ((no_of_bits<17)||(no_of_bits>32))
