@@ -38,7 +38,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		#Temporarily put cast-align here waiting eradication of 'cast
 		#increases required alignment of target type' on the Solaris
 		#slave. 
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
+		AC_WIRETAP_GCC_CFLAGS_CHECK(-Wcast-align)
 	fi
 ],)
 AC_WIRETAP_GCC_CFLAGS_CHECK(-Wall -W)
