@@ -77,6 +77,8 @@ EXTRA_libwireshark_la_SOURCES =	\
 EXTRA_DIST = \
 	dtd_grammar.lemon 	\
 	dtd_parse.l 		\
+	dtd_parse.c 		\
+	dtd_parse.h 		\
 	dtd_preparse.l 		\
 	enterprise-numbers  	\
 	libwireshark.def	\
@@ -99,6 +101,7 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	$(LIBWIRESHARK_GENERATED_SRC) \
+	dtd_grammar.h 		\
 	dtd_grammar.out
 	
 
