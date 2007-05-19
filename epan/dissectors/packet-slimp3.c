@@ -223,11 +223,12 @@ static const value_string slimp3_mpg_control[] = {
 };
 
 #define MAX_LCD_STR_LEN 128
-static void
+static int
 dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	*slimp3_tree = NULL;
-    proto_item	*ti = NULL;
+    const char		*opcode_str;
+    proto_tree		*slimp3_tree = NULL;
+    proto_item		*ti = NULL;
     gint		i1;
     gint		offset = 0;
     guint16		opcode;
@@ -239,15 +240,24 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean		in_str;
     int			lcd_strlen;
 
+    /*
+     * If it doesn't begin with a known opcode, reject it, so that
+     * traffic that happens to be do or from one of our ports
+     * doesn't get misidentified as SliMP3 traffic.
+     */
+    if (!tvb_bytes_exist(tvb, offset, 1))
+	return 0;	/* not even an opcode */
+    opcode = tvb_get_guint8(tvb, offset);
+    opcode_str = match_strval(opcode, slimp3_opcode_vals);
+    if (opcode_str == NULL)
+	return 0;
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SliMP3");
 
-    opcode = tvb_get_guint8(tvb, offset);
-
     if (check_col(pinfo->cinfo, COL_INFO)) {
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-		     val_to_str(opcode, slimp3_opcode_vals, "Unknown (%c)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", opcode_str);
 
     }
 
@@ -655,6 +665,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     }
+    return tvb_length(tvb);
 }
 
 void
@@ -726,7 +737,7 @@ proto_register_slimp3(void)
   proto_register_field_array(proto_slimp3, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  slimp3_handle = create_dissector_handle(dissect_slimp3, proto_slimp3);
+  slimp3_handle = new_create_dissector_handle(dissect_slimp3, proto_slimp3);
 }
 
 void
