@@ -394,9 +394,10 @@ combo_channel_new(void)
 /*
  * Sorts the Interface List in alphabetical order
  */
-int if_list_comparator_alph (const if_info_t *first, const if_info_t *second){
-  if(first != NULL && first->description != NULL && second != NULL && second->description != NULL){
-    return g_strcasecmp(first->description, second->description);
+gint if_list_comparator_alph (const void *first, const void *second){
+  if (first != NULL && ((if_info_t *)first)->description != NULL && 
+      second != NULL && ((if_info_t *)second)->description != NULL) {
+    return g_strcasecmp(((if_info_t *)first)->description, ((if_info_t *)second)->description);
   } else {
     return 0;
   }
@@ -473,7 +474,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   update_decryption_mode_list(decryption_cm);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-    /* simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str); /* XXX - Do we need to show an error here? */
+    /* simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);  XXX - Do we need to show an error here? */
     g_free(err_str);
   }
 
