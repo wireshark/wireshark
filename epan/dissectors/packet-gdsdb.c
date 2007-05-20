@@ -37,8 +37,6 @@
 
 #define TCP_PORT	3050
 
-void proto_reg_handoff_gdsdb(void);
-
 static int proto_gdsdb = -1;
 static gint ett_gdsdb = -1;
 static int hf_gdsdb_opcode = -1;
