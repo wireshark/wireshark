@@ -291,7 +291,7 @@ GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 # If you don't have the AirPcap developer's pack, comment this line out, 
 # so that AIRPCAP_DIR isn't defined.
 #
-#AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
+AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
 
 
 
@@ -629,7 +629,7 @@ PANGO_LIB_DIR=1.2.0
 !IFDEF AIRPCAP_DIR
 AIRPCAP_CONFIG=^#define HAVE_AIRPCAP 1
 AIRPDCAP_CONFIG=^#define HAVE_AIRPDCAP 1
-AIRPCAP_CFLAGS=/I$(AIRPCAP_DIR)\include
+#AIRPCAP_CFLAGS=/I$(AIRPCAP_DIR)\include
 !ELSE
 AIRPCAP_CONFIG=
 AIRPDCAP_CONFIG=
