@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-MAP_DialoguePDU.c                                                 */
-/* ../../tools/asn2wrs.py -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn */
+/* ../../tools/asn2wrs.py -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP-DialogueInformation.asn */
 
 /* Input file: packet-MAP-DialoguePDU-template.c */
 
@@ -72,9 +72,6 @@ static int hf_MAP_DialoguePDU_userResourceLimitation = -1;  /* NULL */
 static int hf_MAP_DialoguePDU_resourceUnavailable = -1;  /* ResourceUnavailableReason */
 static int hf_MAP_DialoguePDU_applicationProcedureCancellation = -1;  /* ProcedureCancellationReason */
 static int hf_MAP_DialoguePDU_map_ProviderAbortReason = -1;  /* MAP_ProviderAbortReason */
-static int hf_MAP_DialoguePDU_encapsulatedAC = -1;  /* OBJECT_IDENTIFIER */
-static int hf_MAP_DialoguePDU_securityHeader = -1;  /* SecurityHeader */
-static int hf_MAP_DialoguePDU_protectedPayload = -1;  /* ProtectedPayload */
 
 /*--- End of included file: packet-MAP_DialoguePDU-hf.c ---*/
 #line 47 "packet-MAP-DialoguePDU-template.c"
@@ -91,7 +88,6 @@ static gint ett_MAP_DialoguePDU_MAP_RefuseInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_UserAbortInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_UserAbortChoice = -1;
 static gint ett_MAP_DialoguePDU_MAP_ProviderAbortInfo = -1;
-static gint ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU = -1;
 
 /*--- End of included file: packet-MAP_DialoguePDU-ett.c ---*/
 #line 50 "packet-MAP-DialoguePDU-template.c"
@@ -109,12 +105,6 @@ static int dissect_originationReference_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 static int dissect_extensionContainer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExtensionContainer(FALSE, tvb, offset, actx, tree, hf_MAP_DialoguePDU_extensionContainer);
-}
-static int dissect_securityHeader(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gsm_map_SecurityHeader(FALSE, tvb, offset, actx, tree, hf_MAP_DialoguePDU_securityHeader);
-}
-static int dissect_protectedPayload(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gsm_map_ProtectedPayload(FALSE, tvb, offset, actx, tree, hf_MAP_DialoguePDU_protectedPayload);
 }
 
 
@@ -175,8 +165,6 @@ static const value_string MAP_DialoguePDU_Reason_vals[] = {
   {   0, "noReasonGiven" },
   {   1, "invalidDestinationReference" },
   {   2, "invalidOriginatingReference" },
-  {   3, "encapsulatedAC-NotSupported" },
-  {   4, "transportProtectionNotAdequate" },
   { 0, NULL }
 };
 
@@ -202,9 +190,6 @@ dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *t
 }
 static int dissect_alternativeApplicationContext(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_MAP_DialoguePDU_alternativeApplicationContext);
-}
-static int dissect_encapsulatedAC(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_MAP_DialoguePDU_encapsulatedAC);
 }
 
 
@@ -398,22 +383,6 @@ dissect_MAP_DialoguePDU_MAP_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-
-static const ber_sequence_t MAP_ProtectedDialoguePDU_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_encapsulatedAC },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_securityHeader },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_protectedPayload },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_MAP_DialoguePDU_MAP_ProtectedDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MAP_ProtectedDialoguePDU_sequence, hf_index, ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static void dissect_MAP_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -507,18 +476,6 @@ void proto_register_MAP_DialoguePDU(void) {
       { "map-ProviderAbortReason", "MAP_DialoguePDU.map_ProviderAbortReason",
         FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_ProviderAbortReason_vals), 0,
         "MAP_DialoguePDU.MAP_ProviderAbortReason", HFILL }},
-    { &hf_MAP_DialoguePDU_encapsulatedAC,
-      { "encapsulatedAC", "MAP_DialoguePDU.encapsulatedAC",
-        FT_OID, BASE_NONE, NULL, 0,
-        "MAP_DialoguePDU.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_MAP_DialoguePDU_securityHeader,
-      { "securityHeader", "MAP_DialoguePDU.securityHeader",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.SecurityHeader", HFILL }},
-    { &hf_MAP_DialoguePDU_protectedPayload,
-      { "protectedPayload", "MAP_DialoguePDU.protectedPayload",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.ProtectedPayload", HFILL }},
 
 /*--- End of included file: packet-MAP_DialoguePDU-hfarr.c ---*/
 #line 60 "packet-MAP-DialoguePDU-template.c"
@@ -537,7 +494,6 @@ void proto_register_MAP_DialoguePDU(void) {
     &ett_MAP_DialoguePDU_MAP_UserAbortInfo,
     &ett_MAP_DialoguePDU_MAP_UserAbortChoice,
     &ett_MAP_DialoguePDU_MAP_ProviderAbortInfo,
-    &ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU,
 
 /*--- End of included file: packet-MAP_DialoguePDU-ettarr.c ---*/
 #line 65 "packet-MAP-DialoguePDU-template.c"
@@ -555,7 +511,12 @@ void proto_register_MAP_DialoguePDU(void) {
 
 /*--- proto_reg_handoff_MAP_DialoguePDU ---------------------------------------*/
 void proto_reg_handoff_MAP_DialoguePDU(void) {
-	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_MAP_DialoguePDU_PDU, proto_MAP_DialoguePDU, 
-	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) map-DialoguePDU(1) version1(1)");
 
+/*--- Included file: packet-MAP_DialoguePDU-dis-tab.c ---*/
+#line 1 "packet-MAP_DialoguePDU-dis-tab.c"
+  register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_MAP_DialoguePDU_PDU, proto_MAP_DialoguePDU, "map-DialogueAS");
+
+
+/*--- End of included file: packet-MAP_DialoguePDU-dis-tab.c ---*/
+#line 80 "packet-MAP-DialoguePDU-template.c"
 }

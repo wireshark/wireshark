@@ -8,14 +8,15 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=MAP_DialoguePDU
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+MAP_DIALOUGE_PDU_ASN=MAP-DialogueInformation.asn
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py MAP_DialoguePDU.asn packet-MAP-DialoguePDU-template.c packet-MAP-DialoguePDU-template.h MAP_DialoguePDU.cnf
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(MAP_DIALOUGE_PDU_ASN) packet-MAP-DialoguePDU-template.c packet-MAP-DialoguePDU-template.h MAP_DialoguePDU.cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template $(MAP_DIALOUGE_PDU_ASN)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

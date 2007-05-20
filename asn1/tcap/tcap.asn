@@ -1,4 +1,4 @@
-
+-- $Id$
 DialoguePDUs { ccitt recommendation q 773 modules (2) dialoguePDUs(2) version1 (1) }
 
 DEFINITIONS ::=

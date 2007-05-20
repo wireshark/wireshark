@@ -76,7 +76,5 @@ void proto_register_MAP_DialoguePDU(void) {
 
 /*--- proto_reg_handoff_MAP_DialoguePDU ---------------------------------------*/
 void proto_reg_handoff_MAP_DialoguePDU(void) {
-	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_MAP_DialoguePDU_PDU, proto_MAP_DialoguePDU, 
-	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) map-DialoguePDU(1) version1(1)");
-
+#include "packet-MAP_DialoguePDU-dis-tab.c" 
 }
