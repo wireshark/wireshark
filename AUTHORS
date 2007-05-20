@@ -251,7 +251,6 @@ Uwe Girlich             <Uwe.Girlich[AT]philosys.de> {
 	QuakeWorld dissector
 	Quake II dissector
 	Quake 3 Arena dissector
-	Interbase dissector
 	DTPT dissector
 }
 
@@ -2637,6 +2636,10 @@ Victor Fajardo <vfajardo [AT] tari.toshiba.com> {
 
 Tamas Regos <tamas.regos [AT] ericsson.com> {
 	Lua Enhancements
+}
+
+Môshe van der Sterre < moshevds [AT] gmail.com > {
+	Firebird/Interbase dissection
 }
 
 and by:

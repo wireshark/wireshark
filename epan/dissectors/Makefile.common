@@ -385,6 +385,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ftp.c		\
 	packet-fw1.c		\
 	packet-g723.c		\
+	packet-gdsdb.c		\
 	packet-gift.c		\
 	packet-giop.c		\
 	packet-gmrp.c		\
@@ -418,7 +419,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-hyperscsi.c	\
 	packet-iapp.c		\
 	packet-iax2.c		\
-	packet-ib.c		\
 	packet-icap.c		\
 	packet-icep.c		\
 	packet-icmpv6.c		\
