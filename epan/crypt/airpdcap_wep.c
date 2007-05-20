@@ -59,7 +59,7 @@ INT AirPDcapWepDecrypt(
 	UINT8 icv[4];
 	size_t buflen;
 
-	/* Generate key stream (RC4 Pseude-Random Number Generator) */
+	/* Generate key stream (RC4 Pseudo-Random Number Generator) */
 	for (i = 0; i < 256; i++)
 		S[i] = (UINT8)i;
 	for (j = i = 0; i < 256; i++) {

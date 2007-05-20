@@ -71,6 +71,7 @@
  */
 #define	AIRPDCAP_TYPE(FrameControl_0)		(UINT8)((FrameControl_0 >> 2) & 0x3)
 #define	AIRPDCAP_SUBTYPE(FrameControl_0)	(UINT8)((FrameControl_0 >> 4) & 0xF)
+#define	AIRPDCAP_DS_BITS(FrameControl_1)	(UINT8)(FrameControl_1 & 0x3)
 #define	AIRPDCAP_TO_DS(FrameControl_1)		(UINT8)(FrameControl_1 & 0x1)
 #define	AIRPDCAP_FROM_DS(FrameControl_1)	(UINT8)((FrameControl_1 >> 1) & 0x1)
 #define	AIRPDCAP_WEP(FrameControl_1)		(UINT8)((FrameControl_1 >> 6) & 0x1)
