@@ -16859,7 +16859,7 @@ proto_register_smb(void)
 		NULL, 0, "Last Write Time, SMB_TIME format", HFILL }},
 
 	{ &hf_smb_old_file_name,
-		{ "Old File Name", "smb.file", FT_STRING, BASE_NONE,
+		{ "Old File Name", "smb.old_file", FT_STRING, BASE_NONE,
 		NULL, 0, "Old File Name (When renaming a file)", HFILL }},
 
 	{ &hf_smb_offset,
