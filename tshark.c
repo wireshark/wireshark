@@ -721,6 +721,11 @@ main(int argc, char *argv[])
   static const char    optstring[] = OPTSTRING_INIT OPTSTRING_WIN32;
 
   /*
+   * Get credential information for later use.
+   */
+  get_credential_info();
+
+  /*
    * Attempt to get the pathname of the executable file.
    */
   init_progfile_dir_error = init_progfile_dir(argv[0]);
@@ -728,11 +733,6 @@ main(int argc, char *argv[])
     fprintf(stderr, "tshark: Can't get pathname of tshark program: %s.\n",
             init_progfile_dir_error);
   }
-
-  /*
-   * Get credential information for later use.
-   */
-  get_credential_info();
 
   /*
    * Now attempt to get the pathname of the plugins.

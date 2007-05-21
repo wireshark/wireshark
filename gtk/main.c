@@ -2144,20 +2144,20 @@ main(int argc, char *argv[])
     OPTSTRING_INIT OPTSTRING_WIN32;
 
 #ifdef	HAVE_AIRPDCAP
-	/*	Davide Schiera (2006-11-18): init AirPDcap context								*/
-	AirPDcapInitContext(&airpdcap_ctx);
-	/* Davide Schiera (2006-11-18) -------------------------------------------	*/
+  /*	Davide Schiera (2006-11-18): init AirPDcap context								*/
+  AirPDcapInitContext(&airpdcap_ctx);
+  /* Davide Schiera (2006-11-18) -------------------------------------------	*/
 #endif
-
-  /*
-   * Attempt to get the pathname of the executable file.
-   */
-  init_progfile_dir_error = init_progfile_dir(argv[0]);
 
   /*
    * Get credential information for later use.
    */
   get_credential_info();
+
+  /*
+   * Attempt to get the pathname of the executable file.
+   */
+  init_progfile_dir_error = init_progfile_dir(argv[0]);
 
   /*
    * Now attempt to get the pathname of the plugins.

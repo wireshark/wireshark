@@ -67,14 +67,14 @@ main(int argc, char **argv)
 	dfilter_t	*df;
 
 	/*
-	 * Attempt to get the pathname of the executable file.
-	 */
-	init_progfile_dir(argv[0]);
-
-	/*
 	 * Get credential information for later use.
 	 */
 	get_credential_info();
+
+	/*
+	 * Attempt to get the pathname of the executable file.
+	 */
+	init_progfile_dir(argv[0]);
 
 	/*
 	 * Now attempt to get the pathname of the plugins.
