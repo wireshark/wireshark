@@ -63,6 +63,20 @@ struct ptvcursor {
 	gint		offset;
 };
 
+#if GLIB_MAJOR_VERSION < 2
+static void *discard_const(const void *const_ptr)
+{
+	union { 
+		const void *const_ptr;
+		void *ptr;
+	} stupid_const;
+
+	stupid_const.const_ptr = const_ptr;
+
+	return stupid_const.ptr;
+}
+#endif
+
 #define cVALS(x) (const value_string*)(x)
 
 #if 1
@@ -612,7 +626,11 @@ header_field_info*
 proto_registrar_get_byname(const char *field_name)
 {
 	DISSECTOR_ASSERT(field_name != NULL);
+#if GLIB_MAJOR_VERSION < 2
+	return g_tree_lookup(gpa_name_tree, discard_const(field_name));
+#else
 	return g_tree_lookup(gpa_name_tree, field_name);
+#endif
 }
 
 
@@ -3561,8 +3579,13 @@ int proto_get_id_by_filter_name(const gchar* filter_name)
 	GList *list_entry;
 	protocol_t *protocol;
 
+#if GLIB_MAJOR_VERSION < 2
+	list_entry = g_list_find_custom(protocols, discard_const(filter_name),
+	    compare_filter_name);
+#else
 	list_entry = g_list_find_custom(protocols, filter_name,
 	    compare_filter_name);
+#endif
 	if (list_entry == NULL)
 		return -1;
 	protocol = list_entry->data;
@@ -3763,7 +3786,11 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 		 * a byte, and we want to be able to refer to that field
 		 * with one name regardless of whether the packets
 		 * are modulo-8 or modulo-128 packets. */
+#if GLIB_MAJOR_VERSION < 2
+		same_name_hfinfo = g_tree_lookup(gpa_name_tree, discard_const(hfinfo->abbrev));
+#else
 		same_name_hfinfo = g_tree_lookup(gpa_name_tree, hfinfo->abbrev);
+#endif
 		if (same_name_hfinfo) {
 			/* There's already a field with this name.
 			 * Put it after that field in the list of
