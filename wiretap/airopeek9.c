@@ -179,7 +179,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     int ret;
     guint32 fileVersion;
     guint32 mediaType;
-    guint32 mediaSubType;
+    guint32 mediaSubType = 0;
     int file_encap;
     static const int airopeek9_encap[] = {
 	WTAP_ENCAP_ETHERNET,

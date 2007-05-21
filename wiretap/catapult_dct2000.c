@@ -171,7 +171,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     gint64  offset = 0;
     time_t  timestamp;
     guint32 usecs;
-    gint firstline_length;
+    gint firstline_length = 0;
     dct2000_file_externals_t *file_externals;
 
     /* Clear errno before reading from the file */
