@@ -25,10 +25,11 @@
  */
 
 #ifdef _WIN32
-#ifdef HAVE_AIRPCAP
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#ifdef HAVE_AIRPCAP
 
 #ifdef HAVE_LIBPCAP
 #include <glib.h>
