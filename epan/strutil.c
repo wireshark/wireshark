@@ -957,7 +957,8 @@ convert_string_case(const char *string, gboolean case_insensitive)
 gsize
 g_strlcat(gchar *dst, gchar *src, gsize size)
 {
-	int strl, strs;
+	gsize strl;
+	int strs;
 	strl=strlen(dst);
 	strs=strlen(src);
 	if(strl<size)
