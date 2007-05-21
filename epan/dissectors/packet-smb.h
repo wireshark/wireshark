@@ -206,7 +206,8 @@ typedef enum {
 	SMB_EI_T2I,		/* smb_transact2_info_t * */
 	SMB_EI_TIDNAME,	/* tid tracking char * */
 	SMB_EI_FILEDATA,	/* fid tracking */
-	SMB_EI_UID		/* smb_uid_t */
+	SMB_EI_UID,		/* smb_uid_t */
+	SMB_EI_RWINFO		/* read/write offset/count info */ 
 } smb_extra_info_t;
 typedef struct _smb_fid_into_t smb_fid_info_t;
 typedef struct {
