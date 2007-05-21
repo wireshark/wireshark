@@ -329,7 +329,7 @@ reset_tcp_reassembly() {
 static void
 write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
 {
-  fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
-  fwrite( data, 1, sc->dlen, data_out_file );
+  DISSECTOR_ASSERT(1 * sizeof(tcp_stream_chunk) == fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file ));
+  DISSECTOR_ASSERT(1 * sc->dlen == fwrite( data, 1, sc->dlen, data_out_file ));
   bytes_written[index] += sc->dlen;
 }
