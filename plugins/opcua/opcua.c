@@ -25,7 +25,7 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>

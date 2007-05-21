@@ -25,7 +25,7 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 
 void parseReferenceNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);

@@ -25,7 +25,7 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 
 void parseTestStackRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);

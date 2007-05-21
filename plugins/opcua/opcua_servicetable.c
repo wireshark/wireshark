@@ -25,7 +25,7 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include "opcua_identifiers.h"
 #include "opcua_serviceparser.h"
