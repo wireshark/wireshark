@@ -94,7 +94,7 @@ void wtap_load_plugins(char* dirname) {
 		lt_lib_ext = strrchr(hack_path, '.');
 		if (lt_lib_ext == NULL)
 		{
-			gchar null_str[1] = {0};
+			static gchar null_str[1] = {0};
 			/*
 			 * Does this mean there *is* no extension?  Assume so.
 			 *
