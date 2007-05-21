@@ -193,7 +193,7 @@ EXTRA_DIST = \
 	logotype-cert-extn/packet-logotype-cert-extn-template.h	\
 	MAP_Dialogue/Makefile	\
 	MAP_Dialogue/Makefile.nmake	\
-	MAP_Dialogue/MAP_DialoguePDU.asn	\
+	MAP_Dialogue/MAP-DialogueInformation.asn	\
 	MAP_Dialogue/MAP_DialoguePDU.cnf	\
 	MAP_Dialogue/packet-MAP-DialoguePDU-template.c	\
 	MAP_Dialogue/packet-MAP-DialoguePDU-template.h	\
