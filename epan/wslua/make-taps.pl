@@ -186,7 +186,7 @@ print CFILE  <<"TBLFTR";
 	{NULL,NULL}
 };
 
-int wslua_set_tap_enums(lua_State* L) {
+int wslua_set_tap_enums(lua_State* L _U_) {
 TBLFTR
 
 
