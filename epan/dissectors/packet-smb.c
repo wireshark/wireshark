@@ -3913,7 +3913,6 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	guint8 wc;
 	guint16 cnt=0, bc;
 	guint32 ofs=0;
-	smb_info_t *si;
 	unsigned int fid;
 
 	WORD_COUNT;
@@ -3922,15 +3921,6 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	fid = tvb_get_letohs(tvb, offset);
 	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (guint16) fid, FALSE, FALSE, FALSE);
 	offset += 2;
-	if (!pinfo->fd->flags.visited) {
-		/* remember the FID for the processing of the response */
-		si = (smb_info_t *)pinfo->private_data;
-		DISSECTOR_ASSERT(si);
-		if (si->sip) {
-			si->sip->extra_info=GUINT_TO_POINTER(fid);
-			si->sip->extra_info_type=SMB_EI_FID;
-		}
-	}
 
 	/* read count */
 	cnt = tvb_get_letohs(tvb, offset);
@@ -4054,14 +4044,6 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* 8 reserved bytes */
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
 	offset += 8;
-
-	/* If we have seen the request, then print which FID this refers to */
-	/* first check if we have seen the request */
-	if(si->sip != NULL && si->sip->frame_req>0 && si->sip->extra_info_type == SMB_EI_FID){
-		fid=GPOINTER_TO_INT(si->sip->extra_info);
-		dissect_smb_fid(tvb, pinfo, tree, 0, 0, (guint16) fid, FALSE, FALSE, FALSE);
-	}
-
 	BYTE_COUNT;
 
 	/* buffer format */
@@ -6140,13 +6122,6 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	fid = tvb_get_letohs(tvb, offset);
 	dissect_smb_fid(tvb, pinfo, tree, offset, 2, (guint16) fid, FALSE, FALSE, FALSE);
 	offset += 2;
-	if (!pinfo->fd->flags.visited) {
-		/* remember the FID for the processing of the response */
-		if (si->sip) {
-			si->sip->extra_info=GUINT_TO_POINTER(fid);
-			si->sip->extra_info_type=SMB_EI_FID;
-		}
-	}
 
 	/* offset */
 	ofs = tvb_get_letohl(tvb, offset);
@@ -6252,7 +6227,6 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, count_low, count_high;
 	guint32 count=0;
-	smb_info_t *si;
 
 	WORD_COUNT;
 
@@ -6273,14 +6247,6 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	andxoffset = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
 	offset += 2;
-
-	/* If we have seen the request, then print which FID this refers to */
-	si = (smb_info_t *)pinfo->private_data;
-	DISSECTOR_ASSERT(si);
-	/* first check if we have seen the request */
-	if(si->sip != NULL && si->sip->frame_req>0 && si->sip->extra_info_type==SMB_EI_FID){
-		dissect_smb_fid(tvb, pinfo, tree, 0, 0, (guint16) GPOINTER_TO_UINT(si->sip->extra_info), FALSE, FALSE, FALSE);
-	}
 
 	/* write count low */
 	count_low = tvb_get_letohs(tvb, offset);
