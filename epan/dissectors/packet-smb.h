@@ -208,6 +208,7 @@ typedef enum {
 	SMB_EI_FILEDATA,	/* fid tracking */
 	SMB_EI_UID		/* smb_uid_t */
 } smb_extra_info_t;
+typedef struct _smb_fid_into_t smb_fid_info_t;
 typedef struct {
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
@@ -215,6 +216,10 @@ typedef struct {
 	guint8 cmd;
 	void *extra_info;
 	smb_extra_info_t extra_info_type;
+	/* we save the fid in each transaction so that we can get fid filters
+	   to match both request and response */
+	gboolean fid_seen_in_request;
+	guint16 fid;
 } smb_saved_info_t;
 
 /*
@@ -301,12 +306,12 @@ typedef struct _smb_fid_saved_info_t {
 	guint32 share_access;
 	guint32 create_options;
 } smb_fid_saved_info_t;
-typedef struct _smb_fid_into_t {
+struct _smb_fid_into_t {
 	int opened_in;
 	int closed_in;
 	int type;
 	smb_fid_saved_info_t *fsi;
-} smb_fid_info_t;
+};
 
 /* used for tracking tid to sharename openedframe closedframe */
 typedef struct _smb_tid_into_t {

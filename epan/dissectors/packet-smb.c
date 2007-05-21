@@ -3312,6 +3312,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     int len, guint16 fid, gboolean is_created, gboolean is_closed, gboolean is_generated)
 {
 	smb_info_t *si = pinfo->private_data;
+	smb_saved_info_t *sip = si->sip;
 	proto_item *it;
 	proto_tree *tr;
 	smb_fid_info_t *fid_info=NULL;
@@ -3345,6 +3346,18 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	}
 	if(!fid_info){
 		return NULL;
+	}
+
+	/* Store the fid in the transaction structure and remember if
+	   it was in the request or in the reply we saw it 
+	 */
+	if(sip && (!is_generated) && (!pinfo->fd->flags.visited)) {
+		sip->fid=fid;
+		if(si->request){
+			sip->fid_seen_in_request=TRUE;
+		} else {
+			sip->fid_seen_in_request=FALSE;
+		}
 	}
 
 	if((!pinfo->fd->flags.visited) && is_closed){
@@ -15020,6 +15033,7 @@ static int
 dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu)
 {
 	smb_info_t *si;
+	smb_saved_info_t *sip;
 
 	si = pinfo->private_data;
 	DISSECTOR_ASSERT(si);
@@ -15050,6 +15064,18 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 			cmd);
 
 		cmd_tree = proto_item_add_subtree(cmd_item, ett_smb_command);
+
+		/* we track FIDs on a per transaction basis.
+		   if this was a request and the fid was seen in a reply
+		   we add a "generated" fid tree for this pdu and v.v.
+		 */
+		sip = si->sip;
+		if (sip && sip->fid) {
+			if( (si->request && (!sip->fid_seen_in_request))
+			  ||((!si->request) && sip->fid_seen_in_request) ){
+				dissect_smb_fid(tvb, pinfo, cmd_tree, offset, 0, sip->fid, FALSE, FALSE, TRUE);
+			}
+		}
 
 		dissector = (si->request)?
 			smb_dissector[cmd].request:smb_dissector[cmd].response;
@@ -15930,6 +15956,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->cmd = si->cmd;
 				sip->extra_info = NULL;
 				sip->extra_info_type = SMB_EI_NONE;
+				sip->fid=0;
+				sip->fid_seen_in_request=0;
 				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
 				new_key = se_alloc(sizeof(smb_saved_info_key_t));
 				new_key->frame = sip->frame_req;
