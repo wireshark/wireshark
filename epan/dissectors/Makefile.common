@@ -470,6 +470,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
 	packet-klm.c		\
+	packet-kingfisher.c	\
 	packet-kink.c		\
 	packet-kismet.c		\
 	packet-kpasswd.c	\
