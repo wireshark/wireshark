@@ -252,8 +252,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   } else
     cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
-  nstime_set_zero(&first_ts);
-  nstime_set_zero(&prev_dis_ts);
+  nstime_set_unset(&first_ts);
+  nstime_set_unset(&prev_dis_ts);
 
   cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
 	sizeof(frame_data),
@@ -895,7 +895,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-  if (nstime_is_zero(&first_ts)) {
+  if (nstime_is_unset(&first_ts)) {
     first_ts  = fdata->abs_ts;
   }
   /* if this frames is marked as a reference time frame, reset
@@ -908,7 +908,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
      packet. */
-  if (nstime_is_zero(&prev_dis_ts)) {
+  if (nstime_is_unset(&prev_dis_ts)) {
     prev_dis_ts = fdata->abs_ts;
   }
 
@@ -1500,8 +1500,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* Iterate through the list of frames.  Call a routine for each frame
      to check whether it should be displayed and, if so, add it to
      the display list. */
-  nstime_set_zero(&first_ts);
-  nstime_set_zero(&prev_dis_ts);
+  nstime_set_unset(&first_ts);
+  nstime_set_unset(&prev_dis_ts);
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;

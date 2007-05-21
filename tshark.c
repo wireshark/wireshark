@@ -2282,7 +2282,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-  if (nstime_is_zero(&first_ts)) {
+  if (nstime_is_unset(&first_ts)) {
     first_ts = fdata->abs_ts;
   }
 
@@ -2290,7 +2290,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
      it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the previous captured
      packet. */
-  if (nstime_is_zero(&prev_cap_ts)) {
+  if (nstime_is_unset(&prev_cap_ts)) {
     prev_cap_ts = fdata->abs_ts;
   }
 
@@ -2307,7 +2307,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
-  if (nstime_is_zero(&prev_dis_ts))
+  if (nstime_is_unset(&prev_dis_ts))
     nstime_set_zero(&fdata->del_dis_ts);
   else
     nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
@@ -3033,9 +3033,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   } else
     cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
-  nstime_set_zero(&first_ts);
-  nstime_set_zero(&prev_dis_ts);
-  nstime_set_zero(&prev_cap_ts);
+  nstime_set_unset(&first_ts);
+  nstime_set_unset(&prev_dis_ts);
+  nstime_set_unset(&prev_cap_ts);
 
   return CF_OK;
 

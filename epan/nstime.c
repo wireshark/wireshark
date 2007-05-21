@@ -50,6 +50,26 @@ gboolean nstime_is_zero(nstime_t *nstime)
 	}
 }
 
+/* set the given nstime_t to (0,maxint) to mark it as "unset"
+ * That way we can find the first frame even when a timestamp
+ * is zero (fix for bug 1056)
+ */
+void nstime_set_unset(nstime_t *nstime)
+{
+	nstime->secs  = 0;
+	nstime->nsecs = G_MAXINT;
+}
+
+/* is the given nstime_t currently (0,maxint)? */
+gboolean nstime_is_unset(nstime_t *nstime)
+{
+	if(nstime->secs == 0 && nstime->nsecs == G_MAXINT) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
 
 /*
  * function: nstime_delta
