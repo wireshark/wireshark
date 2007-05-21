@@ -379,12 +379,30 @@ module_match(gconstpointer a, gconstpointer b)
 	return strcmp(name, module->name);
 }
 
+#if GLIB_MAJOR_VERSION < 2
+static void *discard_const(const void *const_ptr)
+{
+	union { 
+		const void *const_ptr;
+		void *ptr;
+	} stupid_const;
+
+	stupid_const.const_ptr = const_ptr;
+
+	return stupid_const.ptr;
+}
+#endif
+
 module_t *
 prefs_find_module(const char *name)
 {
 	GList *list_entry;
 
+#if GLIB_MAJOR_VERSION < 2
+	list_entry = g_list_find_custom(modules, discard_const(name), module_match);
+#else
 	list_entry = g_list_find_custom(modules, name, module_match);
+#endif
 	if (list_entry == NULL)
 		return NULL;	/* no such module */
 	return (module_t *) list_entry->data;
@@ -404,8 +422,14 @@ find_subtree(module_t *parent, const char *name)
 {
 	GList *list_entry;
 
+#if GLIB_MAJOR_VERSION < 2
+	list_entry = g_list_find_custom(parent ? parent->submodules : top_level_modules,
+					discard_const(name), subtree_match);
+#else
 	list_entry = g_list_find_custom(parent ? parent->submodules : top_level_modules,
 					name, subtree_match);
+#endif
+
 	if (list_entry == NULL)
 		return NULL;	/* no such module */
 	return (module_t *) list_entry->data;
@@ -583,8 +607,13 @@ find_preference(module_t *module, const char *name)
 {
 	GList *list_entry;
 
+#if GLIB_MAJOR_VERSION < 2
+	list_entry = g_list_find_custom(module->prefs, discard_const(name),
+	    preference_match);
+#else
 	list_entry = g_list_find_custom(module->prefs, name,
 	    preference_match);
+#endif
 	if (list_entry == NULL)
 		return NULL;	/* no such preference */
 	return (struct preference *) list_entry->data;
