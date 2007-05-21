@@ -3566,21 +3566,51 @@ dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
-dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 6, TRUE);
-	offset += 6;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
+	return offset;
+}
+
+static int
+dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
+{
+	switch (si->status) {
+	case 0x00000000: break;
+	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
+	}
+
+	/* buffer code */
+	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 24, TRUE);
-	offset += 24;
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* some unknown bytes */
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* fid */
+	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
+
+	/* in break requests from server to client here're 24 byte zero bytes
+	 * which are likely a bug in windows (they may use 2* 24 bytes instead of just
+	 * 1 *24 bytes
+	 */
 
 	return offset;
 }
@@ -3907,7 +3937,7 @@ static smb2_function smb2_dissector[256] = {
 	{dissect_smb2_setinfo_request,
 	 dissect_smb2_setinfo_response},
   /* 0x12 Break */
-  	{NULL,
+  	{dissect_smb2_break_request,
 	 dissect_smb2_break_response},
   /* 0x13 */  {NULL, NULL},
   /* 0x14 */  {NULL, NULL},
@@ -4155,6 +4185,7 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 	int (*cmd_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si);
 	proto_item *cmd_item;
 	proto_tree *cmd_tree;
+	int old_offset = offset;
 
 	cmd_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s %s (0x%02x)",
@@ -4173,6 +4204,8 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 		proto_tree_add_item(cmd_tree, hf_smb2_unknown, tvb, offset, -1, FALSE);
 		offset=tvb_length(tvb);
 	}
+
+	proto_item_set_len(cmd_item, offset-old_offset);
 
 	return offset;
 }
@@ -4512,6 +4545,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		if (chain_offset < offset) {
 			THROW(ReportedBoundsError);
 		}
+		proto_item_set_len(item, chain_offset);
 
 		next_tvb = tvb_new_subset(tvb, chain_offset, -1, -1);
 		offset = dissect_smb2(next_tvb, pinfo, parent_tree, FALSE);
