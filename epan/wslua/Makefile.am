@@ -30,15 +30,15 @@ INCLUDES = -I$(top_srcdir) @LUA_INCLUDES@
 noinst_LTLIBRARIES = libwslua.la
 
 wslua_modules = 	\
-	wslua_tvb.c \
-	wslua_proto.c \
-	wslua_tree.c \
-	wslua_pinfo.c \
-	wslua_listener.c \
-	wslua_gui.c \
-	wslua_util.c \
-	wslua_field.c \
-	wslua_dumper.c
+	$(srcdir)/wslua_tvb.c \
+	$(srcdir)/wslua_proto.c \
+	$(srcdir)/wslua_tree.c \
+	$(srcdir)/wslua_pinfo.c \
+	$(srcdir)/wslua_listener.c \
+	$(srcdir)/wslua_gui.c \
+	$(srcdir)/wslua_util.c \
+	$(srcdir)/wslua_field.c \
+	$(srcdir)/wslua_dumper.c
 
 libwslua_la_SOURCES = \
 	$(wslua_modules) \
