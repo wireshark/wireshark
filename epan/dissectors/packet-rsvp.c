@@ -91,6 +91,9 @@
 #include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
 
+/* RSVP over UDP encapsulation */
+#define UDP_PORT_PRSVP 3455
+
 static int proto_rsvp = -1;
 
 static dissector_table_t rsvp_dissector_table;
@@ -5472,6 +5475,7 @@ proto_reg_handoff_rsvp(void)
 	rsvp_handle = create_dissector_handle(dissect_rsvp, proto_rsvp);
 	dissector_add("ip.proto", IP_PROTO_RSVP, rsvp_handle);
 	dissector_add("ip.proto", IP_PROTO_RSVPE2EI, rsvp_handle);
+	dissector_add("udp.port", UDP_PORT_PRSVP, rsvp_handle);
 	data_handle = find_dissector("data");
 	rsvp_tap = register_tap("rsvp");
 }
