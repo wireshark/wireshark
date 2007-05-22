@@ -2466,6 +2466,16 @@ dissect_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offse
 {
 	guint8 wc;
 	guint16 bc;
+	smb_info_t *si = pinfo->private_data;
+	proto_item *item=NULL;
+
+	DISSECTOR_ASSERT(si);
+
+	if(si->sip && si->sip->extra_info_type==SMB_EI_FILENAME){
+		item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, si->sip->extra_info);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+		
 
 	WORD_COUNT;
 
@@ -3649,6 +3659,12 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* file name */
 	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
 		FALSE, FALSE, &bc);
+
+	if(si->sip){
+		si->sip->extra_info_type=SMB_EI_FILENAME;
+		si->sip->extra_info=se_strdup(fn);
+	}
+
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
