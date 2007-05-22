@@ -190,6 +190,7 @@ typedef struct {
 	int subcmd;
 	int info_level;
 	gboolean resume_keys; /* if "return resume" keys set in T2 FIND_FIRST request */
+	const char *name;
 } smb_transact2_info_t;
 
 /*

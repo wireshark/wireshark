@@ -10338,6 +10338,9 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
+		if(!t2i->name){
+			t2i->name = se_strdup(fn);
+		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
@@ -12499,6 +12502,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						t2i->subcmd = subcmd;
 						t2i->info_level = -1;
 						t2i->resume_keys = FALSE;
+						t2i->name = NULL;
 						si->sip->extra_info = t2i;
 						si->sip->extra_info_type = SMB_EI_T2I;
 					}
@@ -14491,6 +14495,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	tvbuff_t *pd_tvb=NULL, *d_tvb=NULL, *p_tvb=NULL;
 	tvbuff_t *s_tvb=NULL, *sp_tvb=NULL;
 	gboolean save_fragmented;
+	proto_item *item;
 
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
@@ -14528,6 +14533,12 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				}
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
+				item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
+				PROTO_ITEM_SET_GENERATED(item);
+				if(t2i->name){
+					item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, t2i->name);
+					PROTO_ITEM_SET_GENERATED(item);
+				}
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str(t2i->subcmd,
