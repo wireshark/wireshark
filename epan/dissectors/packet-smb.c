@@ -14121,6 +14121,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
+		item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, si->info_level);
+		PROTO_ITEM_SET_GENERATED(item);
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
@@ -14128,6 +14130,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* identical to QUERY_PATH_INFO */
+		item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, si->info_level);
+		PROTO_ITEM_SET_GENERATED(item);
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
