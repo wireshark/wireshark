@@ -287,8 +287,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
 
-/* this shift can not be right */
-    message = (kfp->message & 0x0f) | ((kfp->message & 0xf0) >> 8);
+    message = (kfp->message & 0x0f) | ((kfp->message & 0xf0) >> 4);
 
     if(tree){
         item = proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, From RTU: %d, Target RTU: %d", kfp->from, kfp->target );
