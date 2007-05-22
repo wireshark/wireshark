@@ -571,21 +571,46 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
     return xpm_to_widget_from_parent(top_level, xpm);
 }
 
+/*
+ * Key to attach the "un-decorated" title to the window, so that if the
+ * user-specified decoration changes, we can correctly update the
+ * window title.
+ */
+#define MAIN_WINDOW_NAME_KEY	"main_window_name"
 
 /* Set the name of the top-level window and its icon to the specified
    string. */
 void
 set_main_window_name(gchar *window_name)
 {
-  gchar *title;
+  gchar *old_window_name;
 
-  /* use user-defined window title if preference is set */
-  title = create_user_window_title(window_name);
-  gtk_window_set_title(GTK_WINDOW(top_level), title);
-  gdk_window_set_icon_name(top_level->window, title);
-  g_free(title);
+  /* Attach the new un-decorated window name to the window. */
+  old_window_name = OBJECT_GET_DATA(top_level, MAIN_WINDOW_NAME_KEY);
+  if (old_window_name != NULL)
+    g_free(old_window_name);
+  OBJECT_SET_DATA(top_level, MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
+
+  update_main_window_name();
 }
 
+/* Update the name of the main window if the user-specified decoration
+   changed. */
+void
+update_main_window_name(void)
+{
+  gchar *window_name;
+  gchar *title;
+
+  window_name = OBJECT_GET_DATA(top_level, MAIN_WINDOW_NAME_KEY);
+  if (window_name != NULL) {
+    /* use user-defined window title if preference is set */
+    title = create_user_window_title(window_name);
+    gtk_window_set_title(GTK_WINDOW(top_level), title);
+    gdk_window_set_icon_name(top_level->window, title);
+    g_free(title);
+  }
+}
 
 /* update the main window */
 void main_window_update(void)
