@@ -1080,9 +1080,14 @@ class EthCtx:
         out += '#define %-12s %3s\n' % (self.eth_enum_item(tname, id), val)
     else:
       out += "typedef enum _%s {\n" % (self.eth_enum_nm(tname))
+      first_line = 1
       for (val, id) in vals:
-        out += '  %-12s = %3s,\n' % (self.eth_enum_item(tname, id), val)
-      out += "} %s;\n" % (self.eth_enum_nm(tname))
+        if (first_line == 1):
+          first_line = 0
+        else:
+          out += ",\n"  
+        out += '  %-12s = %3s' % (self.eth_enum_item(tname, id), val)
+      out += "\n} %s;\n" % (self.eth_enum_nm(tname))
     return out
 
   #--- eth_bits ---------------------------------------------------------------

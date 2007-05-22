@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-rnsap.c                                                           */
+/* ./packet-rnsap.c                                                           */
 /* ../../tools/asn2wrs.py -p rnsap -c rnsap.cnf -s packet-rnsap-template RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
 
 /* Input file: packet-rnsap-template.c */
@@ -211,7 +211,7 @@
 typedef enum _DdMode_enum {
   tdd          =   0,
   fdd          =   1,
-  common       =   2,
+  common       =   2
 } DdMode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -744,7 +744,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_HS_PDSCH_Code_Change_Grant = 680,
   id_HS_PDSCH_Code_Change_Indicator = 681,
   id_SixtyfourQAM_DL_SupportIndicator = 684,
-  id_eDCH_MACdFlow_Retransmission_Timer_LCR = 694,
+  id_eDCH_MACdFlow_Retransmission_Timer_LCR = 694
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
