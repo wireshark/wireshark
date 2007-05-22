@@ -277,6 +277,7 @@ emem_tree_lookup32
 emem_tree_lookup32_le
 emem_tree_lookup32_array
 emem_tree_lookup_string
+empty_tcp_stream           DATA
 epan_cleanup
 epan_dissect_fill_in_columns
 epan_dissect_free
