@@ -485,7 +485,9 @@ mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
 new_register_dissector
 nstime_delta
+nstime_is_unset
 nstime_is_zero
+nstime_set_unset
 nstime_set_zero
 nstime_sum
 nstime_to_msec
