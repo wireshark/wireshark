@@ -81,7 +81,7 @@ static gint ett_per_External_encoding = -1;
 typedef enum {
   CB_ASN1_ENC,
   CB_DISSECTOR,
-  CB_NEW_DISSECTOR,
+  CB_NEW_DISSECTOR
 } type_cb_variant;
 
 /*

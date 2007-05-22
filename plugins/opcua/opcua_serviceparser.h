@@ -104,4 +104,4 @@ void parseTransferSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pO
 void parseTransferSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseDeleteSubscriptionsRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 void parseDeleteSubscriptionsResponse(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void registerServiceTypes();
+void registerServiceTypes(void);

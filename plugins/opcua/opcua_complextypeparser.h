@@ -150,4 +150,4 @@ void parseNotificationMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
 void parseMonitoredItemNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
 void parseDataChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
 void parseTransferResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
-void registerComplexTypes();
+void registerComplexTypes(void);

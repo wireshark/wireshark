@@ -1742,7 +1742,7 @@ static gint *ett[] =
   &ett_opcua_TransferResult,
 };
 
-void registerComplexTypes()
+void registerComplexTypes(void)
 {
   proto_register_subtree_array(ett, array_length(ett));
 }

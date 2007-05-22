@@ -45,7 +45,7 @@ typedef enum {
 	SMB2_EI_NONE,		/* Unassigned / NULL */
 	SMB2_EI_TREENAME,	/* tid tracking  char * */
 	SMB2_EI_FILENAME,	/* fid tracking  char * */
-	SMB2_EI_FINDPATTERN,	/* find tracking  char * */
+	SMB2_EI_FINDPATTERN	/* find tracking  char * */
 } smb2_extra_info_t;
 typedef struct _smb2_saved_info_t {
 	guint8 class;

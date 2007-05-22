@@ -977,7 +977,7 @@ static gint *ett[] =
   &ett_opcua_DeleteSubscriptionsResponse,
 };
 
-void registerServiceTypes()
+void registerServiceTypes(void)
 {
   proto_register_subtree_array(ett, array_length(ett));
 }
