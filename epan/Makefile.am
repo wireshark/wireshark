@@ -77,7 +77,6 @@ EXTRA_libwireshark_la_SOURCES =	\
 EXTRA_DIST = \
 	dtd_grammar.lemon 	\
 	dtd_parse.l 		\
-	dtd_parse.c 		\
 	dtd_parse.h 		\
 	dtd_preparse.l 		\
 	enterprise-numbers  	\
@@ -100,15 +99,14 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	$(LIBWIRESHARK_GENERATED_SRC) \
+	$(LIBWIRESHARK_DISTCLEAN_GENERATED_SRC) \
 	dtd_grammar.h 		\
 	dtd_grammar.out
-	
 
 MAINTAINERCLEANFILES = \
+	$(LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC) \
 	Makefile.in		\
 	sminmpec.c
-
 
 #
 # Add the object files for missing routines, if any.
@@ -212,4 +210,3 @@ doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
-

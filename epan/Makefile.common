@@ -92,12 +92,29 @@ LIBWIRESHARK_SRC = 		\
 	xdlc.c			\
 	xmlstub.c
 
-LIBWIRESHARK_GENERATED_SRC = 	\
-	dtd_grammar.c 		\
+#
+# These get removed on "make distclean", as the tools we use to generate
+# them are part of the Wireshark distribution.
+#
+LIBWIRESHARK_DISTCLEAN_GENERATED_SRC = \
+	dtd_grammar.c
+
+#
+# These don't get removed on "make distclean", as the tools we use to
+# generate them aren't part of the Wireshark distribution, and aren't
+# tools assumed to be present for any system capable of compiling
+# from a tarball (e.g., make and a C compiler are assumed to be present,
+# but Flex isn't).
+#
+LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC = \
 	dtd_parse.c 		\
 	dtd_preparse.c 		\
 	radius_dict.c 		\
 	uat_load.c
+
+LIBWIRESHARK_GENERATED_SRC = 	\
+	$(LIBWIRESHARK_DISTCLEAN_GENERATED_SRC) \
+	$(LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC)
 
 LIBWIRESHARK_ALL_SRC = \
 	$(LIBWIRESHARK_SRC) 	\
@@ -206,5 +223,3 @@ LIBWIRESHARK_INCLUDES = 	\
 	x264_prt_id.h		\
 	xdlc.h			\
 	xmlstub.h
-
-

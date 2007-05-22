@@ -119,9 +119,6 @@ DISTCLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in		\
-	mate_grammar.c		\
-	mate_grammar.h		\
-	mate_grammar.out	\
 	mate_parser.c		\
 	plugin.c
 
