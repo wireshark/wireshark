@@ -3387,6 +3387,8 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 			dissect_file_ext_attr_bits(tvb, tr, 0, fid_info->fsi->file_attributes);
 			dissect_nt_share_access_bits(tvb, tr, 0, fid_info->fsi->share_access);
 			dissect_nt_create_options_bits(tvb, tr, 0, fid_info->fsi->create_options);
+			it=proto_tree_add_uint(tr, hf_smb_nt_create_disposition, tvb, 0, 0, fid_info->fsi->create_disposition);
+			PROTO_ITEM_SET_GENERATED(it);
 		}
 	}		
 
@@ -8024,7 +8026,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	guint32 fn_len, create_flags, access_mask, file_attributes, share_access, create_options;
+	guint32 fn_len, create_flags, access_mask, file_attributes, share_access, create_options, create_disposition;
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -8069,6 +8071,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 4;
 
 		/* create disposition */
+		create_disposition=tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
 		COUNT_BYTES(4);
 
@@ -9464,7 +9467,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	smb_info_t *si = pinfo->private_data;
 	int fn_len;
 	const char *fn;
-	guint32 create_flags=0, access_mask=0, file_attributes=0, share_access=0, create_options=0;
+	guint32 create_flags=0, access_mask=0, file_attributes=0, share_access=0, create_options=0, create_disposition=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -9522,6 +9525,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_nt_share_access_bits(tvb, tree, offset, share_access);
 
 	/* create disposition */
+	create_disposition=tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -9559,6 +9563,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		fsi->file_attributes=file_attributes;
 		fsi->share_access=share_access;
 		fsi->create_options=create_options;
+		fsi->create_disposition=create_disposition;
 
 		si->sip->extra_info_type=SMB_EI_FILEDATA;
 		si->sip->extra_info=fsi;

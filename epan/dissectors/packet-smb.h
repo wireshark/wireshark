@@ -306,6 +306,7 @@ typedef struct _smb_fid_saved_info_t {
 	guint32 file_attributes;
 	guint32 share_access;
 	guint32 create_options;
+	guint32 create_disposition;
 } smb_fid_saved_info_t;
 struct _smb_fid_into_t {
 	int opened_in;
