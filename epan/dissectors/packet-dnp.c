@@ -1089,7 +1089,6 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
   int         hf0 = 0, hf1 = 0, hf2 = 0, hf3 = 0, hf4 = 0, hf5 = 0, hf6 = 0, hf7 = 0;
 
   /* Common code */
-  DISSECTOR_ASSERT(0 <= type && type <= 4);
   proto_item_append_text(point_item, " (Quality: ");
   quality_item = proto_tree_add_text(point_tree, tvb, offset, 1, "Quality: ");
   quality_tree = proto_item_add_subtree(quality_item, ett_dnp3_al_obj_quality);
@@ -1130,20 +1129,6 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
       hf7 = hf_dnp3_al_boq_b7;
       break;
 
-    case COUNTER: /* Counter Quality flags */
-      if (al_ptflags & AL_OBJ_CTR_FLAG5) dnp3_append_2item_text(point_item, quality_item, ", Roll-over");
-      if (al_ptflags & AL_OBJ_CTR_FLAG6) dnp3_append_2item_text(point_item, quality_item, ", Discontinuity");
-
-      hf0 = hf_dnp3_al_ctrq_b0;
-      hf1 = hf_dnp3_al_ctrq_b1;
-      hf2 = hf_dnp3_al_ctrq_b2;
-      hf3 = hf_dnp3_al_ctrq_b3;
-      hf4 = hf_dnp3_al_ctrq_b4;
-      hf5 = hf_dnp3_al_ctrq_b5;
-      hf6 = hf_dnp3_al_ctrq_b6;
-      hf7 = hf_dnp3_al_ctrq_b7;
-      break;
-
     case ANA_IN: /* Analog Input Quality flags */
       if (al_ptflags & AL_OBJ_AI_FLAG5) dnp3_append_2item_text(point_item, quality_item, ", Over-Range");
       if (al_ptflags & AL_OBJ_AI_FLAG6) dnp3_append_2item_text(point_item, quality_item, ", Reference Check");
@@ -1167,6 +1152,20 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
       hf5 = hf_dnp3_al_aoq_b5;
       hf6 = hf_dnp3_al_aoq_b6;
       hf7 = hf_dnp3_al_aoq_b7;
+      break;
+
+    case COUNTER: /* Counter Quality flags */
+      if (al_ptflags & AL_OBJ_CTR_FLAG5) dnp3_append_2item_text(point_item, quality_item, ", Roll-over");
+      if (al_ptflags & AL_OBJ_CTR_FLAG6) dnp3_append_2item_text(point_item, quality_item, ", Discontinuity");
+
+      hf0 = hf_dnp3_al_ctrq_b0;
+      hf1 = hf_dnp3_al_ctrq_b1;
+      hf2 = hf_dnp3_al_ctrq_b2;
+      hf3 = hf_dnp3_al_ctrq_b3;
+      hf4 = hf_dnp3_al_ctrq_b4;
+      hf5 = hf_dnp3_al_ctrq_b5;
+      hf6 = hf_dnp3_al_ctrq_b6;
+      hf7 = hf_dnp3_al_ctrq_b7;
       break;
   }
 
