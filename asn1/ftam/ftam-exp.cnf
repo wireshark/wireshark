@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # .\ftam-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn
+# ../../tools/asn2wrs.py -b -X -T -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn
 
 #.MODULE
 ISO8571-FTAM  ftam
