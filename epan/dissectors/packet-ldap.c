@@ -1007,7 +1007,7 @@ static int dissect_credentials(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t SaslCredentials_sequence[] = {
+static const ber_old_sequence_t SaslCredentials_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_mechanism },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_credentials },
   { 0, 0, 0, NULL }
@@ -1015,8 +1015,8 @@ static const ber_sequence_t SaslCredentials_sequence[] = {
 
 static int
 dissect_ldap_SaslCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SaslCredentials_sequence, hf_index, ett_ldap_SaslCredentials);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SaslCredentials_sequence, hf_index, ett_ldap_SaslCredentials);
 
   return offset;
 }
@@ -1071,7 +1071,7 @@ static const value_string ldap_AuthenticationChoice_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t AuthenticationChoice_choice[] = {
+static const ber_old_choice_t AuthenticationChoice_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_simple_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_sasl_impl },
   {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_ntlmsspNegotiate_impl },
@@ -1086,9 +1086,9 @@ dissect_ldap_AuthenticationChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   gint auth = -1;
   const gchar *valstr;
   
-    offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 AuthenticationChoice_choice, hf_index, ett_ldap_AuthenticationChoice,
-                                 &branch);
+    offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     AuthenticationChoice_choice, hf_index, ett_ldap_AuthenticationChoice,
+                                     &branch);
 
   
   ldap_do_protocolop(actx->pinfo);
@@ -1115,7 +1115,7 @@ static int dissect_authentication(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t BindRequest_sequence[] = {
+static const ber_old_sequence_t BindRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_name },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authentication },
@@ -1124,8 +1124,8 @@ static const ber_sequence_t BindRequest_sequence[] = {
 
 static int
 dissect_ldap_BindRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   BindRequest_sequence, hf_index, ett_ldap_BindRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       BindRequest_sequence, hf_index, ett_ldap_BindRequest);
 
   return offset;
 }
@@ -1272,14 +1272,14 @@ static int dissect_SearchResultReference_item(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t Referral_sequence_of[1] = {
+static const ber_old_sequence_t Referral_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_Referral_item },
 };
 
 static int
 dissect_ldap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Referral_sequence_of, hf_index, ett_ldap_Referral);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Referral_sequence_of, hf_index, ett_ldap_Referral);
 
   return offset;
 }
@@ -1363,7 +1363,7 @@ static int dissect_serverSaslCreds_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t BindResponse_sequence[] = {
+static const ber_old_sequence_t BindResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_bindResponse_resultCode },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN1 },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_errorMessage },
@@ -1374,8 +1374,8 @@ static const ber_sequence_t BindResponse_sequence[] = {
 
 static int
 dissect_ldap_BindResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   BindResponse_sequence, hf_index, ett_ldap_BindResponse);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       BindResponse_sequence, hf_index, ett_ldap_BindResponse);
 
   return offset;
 }
@@ -1537,14 +1537,14 @@ static int dissect_and_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t T_and_set_of[1] = {
+static const ber_old_sequence_t T_and_set_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
 };
 
 static int
 dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 502 "ldap.cnf"
-	const ber_sequence_t and_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
+	const ber_old_sequence_t and_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
 };
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
@@ -1555,7 +1555,7 @@ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "and: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_and);
 	} 
-	offset = dissect_ber_set_of(implicit_tag, actx, tr, tvb, offset,
+	offset = dissect_ber_old_set_of(implicit_tag, actx, tr, tvb, offset,
                                  and_set_of, -1, ett_ldap_T_and);
 
 	proto_item_append_text(it, "%s", and_filter_string);
@@ -1592,14 +1592,14 @@ static int dissect_or_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t T_or_set_of[1] = {
+static const ber_old_sequence_t T_or_set_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
 };
 
 static int
 dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 529 "ldap.cnf"
-	const ber_sequence_t or_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
+	const ber_old_sequence_t or_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
 };
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
@@ -1610,7 +1610,7 @@ dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_or);
 	} 
-	offset = dissect_ber_set_of(implicit_tag, actx, tr, tvb, offset,
+	offset = dissect_ber_old_set_of(implicit_tag, actx, tr, tvb, offset,
                                  or_set_of, -1, ett_ldap_T_or);
 
 	proto_item_append_text(it, "%s", or_filter_string);
@@ -1676,7 +1676,7 @@ static int dissect_matchValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t AttributeValueAssertion_sequence[] = {
+static const ber_old_sequence_t AttributeValueAssertion_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_attributeDesc },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_assertionValue },
   { 0, 0, 0, NULL }
@@ -1684,8 +1684,8 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 static int
 dissect_ldap_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AttributeValueAssertion_sequence, hf_index, ett_ldap_AttributeValueAssertion);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AttributeValueAssertion_sequence, hf_index, ett_ldap_AttributeValueAssertion);
 
   return offset;
 }
@@ -1718,7 +1718,7 @@ static const value_string ldap_T_substringFilter_substrings_item_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_substringFilter_substrings_item_choice[] = {
+static const ber_old_choice_t T_substringFilter_substrings_item_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_initial_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_any_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_final_impl },
@@ -1727,9 +1727,9 @@ static const ber_choice_t T_substringFilter_substrings_item_choice[] = {
 
 static int
 dissect_ldap_T_substringFilter_substrings_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_substringFilter_substrings_item_choice, hf_index, ett_ldap_T_substringFilter_substrings_item,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_substringFilter_substrings_item_choice, hf_index, ett_ldap_T_substringFilter_substrings_item,
+                                     NULL);
 
 #line 577 "ldap.cnf"
 	if (substring_item_final) {
@@ -1753,14 +1753,14 @@ static int dissect_substringFilter_substrings_item(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t T_substringFilter_substrings_sequence_of[1] = {
+static const ber_old_sequence_t T_substringFilter_substrings_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_substringFilter_substrings_item },
 };
 
 static int
 dissect_ldap_T_substringFilter_substrings(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_substringFilter_substrings_sequence_of, hf_index, ett_ldap_T_substringFilter_substrings);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          T_substringFilter_substrings_sequence_of, hf_index, ett_ldap_T_substringFilter_substrings);
 
   return offset;
 }
@@ -1769,7 +1769,7 @@ static int dissect_substringFilter_substrings(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t SubstringFilter_sequence[] = {
+static const ber_old_sequence_t SubstringFilter_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_substringFilter_substrings },
   { 0, 0, 0, NULL }
@@ -1790,7 +1790,7 @@ dissect_ldap_SubstringFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "substring: ");
 		tr=proto_item_add_subtree(it, ett_ldap_SubstringFilter);
 	}
-	offset = dissect_ber_sequence(implicit_tag, actx, tr, tvb, offset,
+	offset = dissect_ber_old_sequence(implicit_tag, actx, tr, tvb, offset,
 				      SubstringFilter_sequence, hf_index,
 				      ett_ldap_SubstringFilter);
 
@@ -1888,7 +1888,7 @@ static int dissect_orderingRule_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t MatchingRuleAssertion_sequence[] = {
+static const ber_old_sequence_t MatchingRuleAssertion_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_matchingRule_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_type_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_matchValue_impl },
@@ -1898,8 +1898,8 @@ static const ber_sequence_t MatchingRuleAssertion_sequence[] = {
 
 static int
 dissect_ldap_MatchingRuleAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MatchingRuleAssertion_sequence, hf_index, ett_ldap_MatchingRuleAssertion);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MatchingRuleAssertion_sequence, hf_index, ett_ldap_MatchingRuleAssertion);
 
   return offset;
 }
@@ -1947,7 +1947,7 @@ static const value_string ldap_Filter_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Filter_choice[] = {
+static const ber_old_choice_t Filter_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_and_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_or_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_not_impl },
@@ -1971,7 +1971,7 @@ dissect_ldap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
 		tr=proto_item_add_subtree(it, ett_ldap_Filter);
 	}
-	offset = dissect_ber_choice(actx, tr, tvb, offset,
+	offset = dissect_ber_old_choice(actx, tr, tvb, offset,
                                  Filter_choice, -1, ett_ldap_Filter,
                                  NULL);
 
@@ -2004,14 +2004,14 @@ static int dissect_filter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t AttributeDescriptionList_sequence_of[1] = {
+static const ber_old_sequence_t AttributeDescriptionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_AttributeDescriptionList_item },
 };
 
 static int
 dissect_ldap_AttributeDescriptionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AttributeDescriptionList_sequence_of, hf_index, ett_ldap_AttributeDescriptionList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          AttributeDescriptionList_sequence_of, hf_index, ett_ldap_AttributeDescriptionList);
 
   return offset;
 }
@@ -2020,7 +2020,7 @@ static int dissect_searchRequest_attributes(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t SearchRequest_sequence[] = {
+static const ber_old_sequence_t SearchRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_baseObject },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_scope },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_derefAliases },
@@ -2034,8 +2034,8 @@ static const ber_sequence_t SearchRequest_sequence[] = {
 
 static int
 dissect_ldap_SearchRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SearchRequest_sequence, hf_index, ett_ldap_SearchRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SearchRequest_sequence, hf_index, ett_ldap_SearchRequest);
 
   return offset;
 }
@@ -2093,14 +2093,14 @@ static int dissect_vals_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t SET_OF_AttributeValue_set_of[1] = {
+static const ber_old_sequence_t SET_OF_AttributeValue_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_vals_item },
 };
 
 static int
 dissect_ldap_SET_OF_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_AttributeValue_set_of, hf_index, ett_ldap_SET_OF_AttributeValue);
+  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
+                                     SET_OF_AttributeValue_set_of, hf_index, ett_ldap_SET_OF_AttributeValue);
 
   return offset;
 }
@@ -2109,7 +2109,7 @@ static int dissect_vals(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t PartialAttributeList_item_sequence[] = {
+static const ber_old_sequence_t PartialAttributeList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_vals },
   { 0, 0, 0, NULL }
@@ -2117,8 +2117,8 @@ static const ber_sequence_t PartialAttributeList_item_sequence[] = {
 
 static int
 dissect_ldap_PartialAttributeList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PartialAttributeList_item_sequence, hf_index, ett_ldap_PartialAttributeList_item);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PartialAttributeList_item_sequence, hf_index, ett_ldap_PartialAttributeList_item);
 
   return offset;
 }
@@ -2127,14 +2127,14 @@ static int dissect_PartialAttributeList_item(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t PartialAttributeList_sequence_of[1] = {
+static const ber_old_sequence_t PartialAttributeList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PartialAttributeList_item },
 };
 
 static int
 dissect_ldap_PartialAttributeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PartialAttributeList_sequence_of, hf_index, ett_ldap_PartialAttributeList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          PartialAttributeList_sequence_of, hf_index, ett_ldap_PartialAttributeList);
 
   return offset;
 }
@@ -2143,7 +2143,7 @@ static int dissect_searchResultEntry_attributes(proto_tree *tree _U_, tvbuff_t *
 }
 
 
-static const ber_sequence_t SearchResultEntry_sequence[] = {
+static const ber_old_sequence_t SearchResultEntry_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_objectName },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_searchResultEntry_attributes },
   { 0, 0, 0, NULL }
@@ -2151,8 +2151,8 @@ static const ber_sequence_t SearchResultEntry_sequence[] = {
 
 static int
 dissect_ldap_SearchResultEntry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SearchResultEntry_sequence, hf_index, ett_ldap_SearchResultEntry);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SearchResultEntry_sequence, hf_index, ett_ldap_SearchResultEntry);
 
   return offset;
 }
@@ -2238,7 +2238,7 @@ static int dissect_resultCode(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t LDAPResult_sequence[] = {
+static const ber_old_sequence_t LDAPResult_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_resultCode },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_errorMessage },
@@ -2248,8 +2248,8 @@ static const ber_sequence_t LDAPResult_sequence[] = {
 
 static int
 dissect_ldap_LDAPResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LDAPResult_sequence, hf_index, ett_ldap_LDAPResult);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LDAPResult_sequence, hf_index, ett_ldap_LDAPResult);
 
   return offset;
 }
@@ -2267,14 +2267,14 @@ static int dissect_searchResDone(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t SearchResultReference_sequence_of[1] = {
+static const ber_old_sequence_t SearchResultReference_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SearchResultReference_item },
 };
 
 static int
 dissect_ldap_SearchResultReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SearchResultReference_sequence_of, hf_index, ett_ldap_SearchResultReference);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SearchResultReference_sequence_of, hf_index, ett_ldap_SearchResultReference);
 
   return offset;
 }
@@ -2303,7 +2303,7 @@ static int dissect_operation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t AttributeTypeAndValues_sequence[] = {
+static const ber_old_sequence_t AttributeTypeAndValues_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_vals },
   { 0, 0, 0, NULL }
@@ -2311,8 +2311,8 @@ static const ber_sequence_t AttributeTypeAndValues_sequence[] = {
 
 static int
 dissect_ldap_AttributeTypeAndValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AttributeTypeAndValues_sequence, hf_index, ett_ldap_AttributeTypeAndValues);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AttributeTypeAndValues_sequence, hf_index, ett_ldap_AttributeTypeAndValues);
 
   return offset;
 }
@@ -2321,7 +2321,7 @@ static int dissect_modification(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t T_modifyRequest_modification_item_sequence[] = {
+static const ber_old_sequence_t T_modifyRequest_modification_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_operation },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modification },
   { 0, 0, 0, NULL }
@@ -2329,8 +2329,8 @@ static const ber_sequence_t T_modifyRequest_modification_item_sequence[] = {
 
 static int
 dissect_ldap_T_modifyRequest_modification_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_modifyRequest_modification_item_sequence, hf_index, ett_ldap_T_modifyRequest_modification_item);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       T_modifyRequest_modification_item_sequence, hf_index, ett_ldap_T_modifyRequest_modification_item);
 
   return offset;
 }
@@ -2339,14 +2339,14 @@ static int dissect_modifyRequest_modification_item(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t ModifyRequest_modification_sequence_of[1] = {
+static const ber_old_sequence_t ModifyRequest_modification_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modifyRequest_modification_item },
 };
 
 static int
 dissect_ldap_ModifyRequest_modification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ModifyRequest_modification_sequence_of, hf_index, ett_ldap_ModifyRequest_modification);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ModifyRequest_modification_sequence_of, hf_index, ett_ldap_ModifyRequest_modification);
 
   return offset;
 }
@@ -2355,7 +2355,7 @@ static int dissect_modifyRequest_modification(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t ModifyRequest_sequence[] = {
+static const ber_old_sequence_t ModifyRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_object },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_modifyRequest_modification },
   { 0, 0, 0, NULL }
@@ -2363,8 +2363,8 @@ static const ber_sequence_t ModifyRequest_sequence[] = {
 
 static int
 dissect_ldap_ModifyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ModifyRequest_sequence, hf_index, ett_ldap_ModifyRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ModifyRequest_sequence, hf_index, ett_ldap_ModifyRequest);
 
   return offset;
 }
@@ -2385,7 +2385,7 @@ static int dissect_modifyResponse(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t AttributeList_item_sequence[] = {
+static const ber_old_sequence_t AttributeList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_vals },
   { 0, 0, 0, NULL }
@@ -2393,8 +2393,8 @@ static const ber_sequence_t AttributeList_item_sequence[] = {
 
 static int
 dissect_ldap_AttributeList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AttributeList_item_sequence, hf_index, ett_ldap_AttributeList_item);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AttributeList_item_sequence, hf_index, ett_ldap_AttributeList_item);
 
   return offset;
 }
@@ -2403,14 +2403,14 @@ static int dissect_AttributeList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t AttributeList_sequence_of[1] = {
+static const ber_old_sequence_t AttributeList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AttributeList_item },
 };
 
 static int
 dissect_ldap_AttributeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AttributeList_sequence_of, hf_index, ett_ldap_AttributeList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          AttributeList_sequence_of, hf_index, ett_ldap_AttributeList);
 
   return offset;
 }
@@ -2419,7 +2419,7 @@ static int dissect_attributes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t AddRequest_sequence[] = {
+static const ber_old_sequence_t AddRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_entry },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributes },
   { 0, 0, 0, NULL }
@@ -2427,8 +2427,8 @@ static const ber_sequence_t AddRequest_sequence[] = {
 
 static int
 dissect_ldap_AddRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AddRequest_sequence, hf_index, ett_ldap_AddRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AddRequest_sequence, hf_index, ett_ldap_AddRequest);
 
   return offset;
 }
@@ -2485,7 +2485,7 @@ static int dissect_newrdn(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t ModifyDNRequest_sequence[] = {
+static const ber_old_sequence_t ModifyDNRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_entry },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_newrdn },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_deleteoldrdn },
@@ -2495,8 +2495,8 @@ static const ber_sequence_t ModifyDNRequest_sequence[] = {
 
 static int
 dissect_ldap_ModifyDNRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ModifyDNRequest_sequence, hf_index, ett_ldap_ModifyDNRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ModifyDNRequest_sequence, hf_index, ett_ldap_ModifyDNRequest);
 
   return offset;
 }
@@ -2517,7 +2517,7 @@ static int dissect_modDNResponse(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t CompareRequest_sequence[] = {
+static const ber_old_sequence_t CompareRequest_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_entry },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ava },
   { 0, 0, 0, NULL }
@@ -2525,8 +2525,8 @@ static const ber_sequence_t CompareRequest_sequence[] = {
 
 static int
 dissect_ldap_CompareRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CompareRequest_sequence, hf_index, ett_ldap_CompareRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CompareRequest_sequence, hf_index, ett_ldap_CompareRequest);
 
   return offset;
 }
@@ -2617,7 +2617,7 @@ static int dissect_cookie(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t ExtendedRequest_sequence[] = {
+static const ber_old_sequence_t ExtendedRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestValue_impl },
   { 0, 0, 0, NULL }
@@ -2625,8 +2625,8 @@ static const ber_sequence_t ExtendedRequest_sequence[] = {
 
 static int
 dissect_ldap_ExtendedRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExtendedRequest_sequence, hf_index, ett_ldap_ExtendedRequest);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExtendedRequest_sequence, hf_index, ett_ldap_ExtendedRequest);
 
   return offset;
 }
@@ -2703,7 +2703,7 @@ static int dissect_responseName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t ExtendedResponse_sequence[] = {
+static const ber_old_sequence_t ExtendedResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_extendedResponse_resultCode },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_errorMessage },
@@ -2715,8 +2715,8 @@ static const ber_sequence_t ExtendedResponse_sequence[] = {
 
 static int
 dissect_ldap_ExtendedResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExtendedResponse_sequence, hf_index, ett_ldap_ExtendedResponse);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExtendedResponse_sequence, hf_index, ett_ldap_ExtendedResponse);
 
   return offset;
 }
@@ -2749,7 +2749,7 @@ static const value_string ldap_ProtocolOp_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ProtocolOp_choice[] = {
+static const ber_old_choice_t ProtocolOp_choice[] = {
   {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_bindRequest },
   {   1, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_bindResponse },
   {   2, BER_CLASS_APP, 2, BER_FLAGS_NOOWNTAG, dissect_unbindRequest },
@@ -2782,9 +2782,9 @@ dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   do_protocolop = TRUE;
 
 
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ProtocolOp_choice, hf_index, ett_ldap_ProtocolOp,
-                                 &ProtocolOp);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ProtocolOp_choice, hf_index, ett_ldap_ProtocolOp,
+                                     &ProtocolOp);
 
 #line 82 "ldap.cnf"
 
@@ -2874,7 +2874,7 @@ static int dissect_controlValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t Control_sequence[] = {
+static const ber_old_sequence_t Control_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_controlType },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_criticality },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_controlValue },
@@ -2883,8 +2883,8 @@ static const ber_sequence_t Control_sequence[] = {
 
 static int
 dissect_ldap_Control(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Control_sequence, hf_index, ett_ldap_Control);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Control_sequence, hf_index, ett_ldap_Control);
 
   return offset;
 }
@@ -2893,14 +2893,14 @@ static int dissect_Controls_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t Controls_sequence_of[1] = {
+static const ber_old_sequence_t Controls_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Controls_item },
 };
 
 static int
 dissect_ldap_Controls(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Controls_sequence_of, hf_index, ett_ldap_Controls);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Controls_sequence_of, hf_index, ett_ldap_Controls);
 
   return offset;
 }
@@ -2909,7 +2909,7 @@ static int dissect_controls_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t LDAPMessage_sequence[] = {
+static const ber_old_sequence_t LDAPMessage_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_messageID },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_protocolOp },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controls_impl },
@@ -2918,8 +2918,8 @@ static const ber_sequence_t LDAPMessage_sequence[] = {
 
 static int
 dissect_ldap_LDAPMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LDAPMessage_sequence, hf_index, ett_ldap_LDAPMessage);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LDAPMessage_sequence, hf_index, ett_ldap_LDAPMessage);
 
   return offset;
 }
@@ -2946,7 +2946,7 @@ static int dissect_maxReturnLength(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t SearchControlValue_sequence[] = {
+static const ber_old_sequence_t SearchControlValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_size },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cookie },
   { 0, 0, 0, NULL }
@@ -2954,14 +2954,14 @@ static const ber_sequence_t SearchControlValue_sequence[] = {
 
 static int
 dissect_ldap_SearchControlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SearchControlValue_sequence, hf_index, ett_ldap_SearchControlValue);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SearchControlValue_sequence, hf_index, ett_ldap_SearchControlValue);
 
   return offset;
 }
 
 
-static const ber_sequence_t SortKeyList_item_sequence[] = {
+static const ber_old_sequence_t SortKeyList_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_attributeType },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_orderingRule_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reverseOrder_impl },
@@ -2970,8 +2970,8 @@ static const ber_sequence_t SortKeyList_item_sequence[] = {
 
 static int
 dissect_ldap_SortKeyList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SortKeyList_item_sequence, hf_index, ett_ldap_SortKeyList_item);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SortKeyList_item_sequence, hf_index, ett_ldap_SortKeyList_item);
 
   return offset;
 }
@@ -2980,14 +2980,14 @@ static int dissect_SortKeyList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t SortKeyList_sequence_of[1] = {
+static const ber_old_sequence_t SortKeyList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SortKeyList_item },
 };
 
 static int
 dissect_ldap_SortKeyList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SortKeyList_sequence_of, hf_index, ett_ldap_SortKeyList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SortKeyList_sequence_of, hf_index, ett_ldap_SortKeyList);
 
   return offset;
 }
@@ -3021,7 +3021,7 @@ static int dissect_sortResult(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t SortResult_sequence[] = {
+static const ber_old_sequence_t SortResult_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_sortResult },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributeType_impl },
   { 0, 0, 0, NULL }
@@ -3029,14 +3029,14 @@ static const ber_sequence_t SortResult_sequence[] = {
 
 static int
 dissect_ldap_SortResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SortResult_sequence, hf_index, ett_ldap_SortResult);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SortResult_sequence, hf_index, ett_ldap_SortResult);
 
   return offset;
 }
 
 
-static const ber_sequence_t ReplControlValue_sequence[] = {
+static const ber_old_sequence_t ReplControlValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_parentsFirst },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_maxReturnLength },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cookie },
@@ -3045,8 +3045,8 @@ static const ber_sequence_t ReplControlValue_sequence[] = {
 
 static int
 dissect_ldap_ReplControlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReplControlValue_sequence, hf_index, ett_ldap_ReplControlValue);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReplControlValue_sequence, hf_index, ett_ldap_ReplControlValue);
 
   return offset;
 }

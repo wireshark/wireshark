@@ -615,6 +615,7 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 }
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
+static int dissect_ber_old_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
 
 /* 8.1 General rules for encoding */
 
@@ -987,11 +988,25 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_
 	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
 		if (hf_id >= 0)
 			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
-		func(tree, out_tvb, 0, actx);
+		/* TODO Should hf_id2 be pased as last parameter???*/
+		func(FALSE, out_tvb, 0, actx, tree, -1);
 	}
 	return offset;
 }
 
+int dissect_ber_old_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_old_callback func)
+{
+	tvbuff_t *out_tvb = NULL;
+
+	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_id, (func)?&out_tvb:NULL);
+	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
+		if (hf_id >= 0)
+			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
+		/* TODO Should hf_id2 be pased as last parameter???*/
+		func(tree, out_tvb, 0, actx);
+	}
+	return offset;
+}
 /* 8.8 Encoding of a null value */
 int
 dissect_ber_null(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id) {
@@ -1203,7 +1218,7 @@ dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
  */
 int dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;
-	gboolean pc, ind = 0, ind_field;
+	gboolean pc, ind = 0, ind_field, imp_tag=FALSE;
 	gint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
@@ -1446,7 +1461,12 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 			/* Assume that we have a malformed packet. */
 			THROW(ReportedBoundsError);
 		}
-		count=seq->func(tree, next_tvb, 0, actx);
+		imp_tag=FALSE;
+		if (seq->flags & BER_FLAGS_IMPLTAG){
+			imp_tag = TRUE;
+		}
+
+		count=seq->func(imp_tag, next_tvb, 0, actx, tree, *seq->p_id);
 
 #ifdef DEBUG_BER
 {
@@ -1502,11 +1522,312 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 	return end_offset;
 }
 
+int dissect_ber_old_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id) {
+	gint8 class;
+	gboolean pc, ind = 0, ind_field;
+	gint32 tag;
+	guint32 len;
+	proto_tree *tree = parent_tree;
+	proto_item *item = NULL;
+	proto_item *cause;
+	int end_offset, s_offset;
+	gint length_remaining;
+	tvbuff_t *next_tvb;
+
+	s_offset = offset;
+#ifdef DEBUG_BER
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(tvb,offset)>3){
+printf("SEQUENCE dissect_ber_old_sequence(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+}else{
+printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
+}
+}
+#endif
+	if(!implicit_tag){
+		/* first we must read the sequence header */
+		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+		if(ind){
+		/*  Fixed the length is correctly returned from dissect ber_length
+		  end_offset = tvb_length(tvb);*/
+		  end_offset = offset + len -2;
+		} else {
+		  end_offset = offset + len;
+		}
+
+		/* sanity check: we only handle Constructed Universal Sequences */
+		if((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
+		if((!pc)
+		||(!implicit_tag&&((class!=BER_CLASS_UNI)
+					||(tag!=BER_UNI_TAG_SEQUENCE)))) {
+			tvb_ensure_bytes_exist(tvb, offset-2, 2);
+			cause = proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+			proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Sequence expected");
+			return end_offset;
+		}
+	} else {
+		/* was implicit tag so just use the length of the tvb */
+		len=tvb_length_remaining(tvb,offset);
+		end_offset=offset+len;
+	}
+
+	/* create subtree */
+	if(hf_id >= 0) {
+		if(parent_tree){
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
+			tree = proto_item_add_subtree(item, ett_id);
+		}
+	}
+	/* loop over all entries until we reach the end of the sequence */
+	while (offset < end_offset){
+		gint8 class;
+		gboolean pc;
+		gint32 tag;
+		guint32 len;
+		int hoffset, eoffset, count;
+
+		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
+					but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
+				/* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
+				offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+				offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+				proto_item_append_text(item," 0 items");
+				return end_offset;
+				/*
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, s_offset, offset+2, "ERROR WRONG SEQ EOC");
+				}
+				return end_offset;
+				*/
+			}
+		/*}*/
+		hoffset = offset;
+		/* read header and len for next field */
+		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		eoffset = offset + len;
+                /* Make sure we move forward */
+		if (eoffset <= hoffset)
+			THROW(ReportedBoundsError);
+
+		/*if(ind_field && (len == 2)){
+    			/ disgusting indefinite length zero length field, what are these people doing /
+			offset = eoffset;
+			continue;
+		}
+		*/
+
+ber_old_sequence_try_again:
+		/* have we run out of known entries in the sequence ?*/
+		if(!seq->func) {
+			/* it was not,  move to the next one and try again */
+			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+			cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: This field lies beyond the end of the known sequence definition.");
+			proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Unknown field in Sequence");
+			offset = eoffset;
+			continue;
+		}
+
+		/* Verify that this one is the one we want.
+		 * Skip check completely if class==ANY
+		 * of if NOCHKTAG is set
+		 */
+/* XXX Bug in asn2eth,
+ * for   scope            [7]  Scope OPTIONAL,
+ * it generates
+ *   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_scope },
+ * and there should not be a NOTCHKTAG here
+ */
+		if( ((seq->class==BER_CLASS_CON)||(seq->class==BER_CLASS_APP)||(seq->class==BER_CLASS_PRI)) && (!(seq->flags&BER_FLAGS_NOOWNTAG)) ){
+		  if( (seq->class!=BER_CLASS_ANY)
+		  &&  (seq->tag!=-1)
+		  &&( (seq->class!=class)
+		    ||(seq->tag!=tag) ) ){
+			/* it was not,  move to the next one and try again */
+			if(seq->flags&BER_FLAGS_OPTIONAL){
+				/* well this one was optional so just skip to the next one and try again. */
+				seq++;
+				goto ber_old_sequence_try_again;
+			}
+			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+			if( seq->class == BER_CLASS_UNI){ 
+			  cause = proto_tree_add_text(tree, tvb, offset, len,
+				    "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d (%s) but found class:%d tag:%d",
+				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
+				    seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),
+				    class,tag);
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in SEQUENCE");
+			}else{
+			  cause = proto_tree_add_text(tree, tvb, offset, len,
+				    "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d but found class:%d tag:%d",
+				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
+				    seq->tag,class,tag);
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in SEQUENCE");
+			}
+			seq++;
+			offset=eoffset;
+			continue;
+		  }
+	        } else if(!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
+		  if( (seq->class!=BER_CLASS_ANY)
+		  &&  (seq->tag!=-1)
+		  &&( (seq->class!=class)
+		    ||(seq->tag!=tag) ) ){
+			/* it was not,  move to the next one and try again */
+			if(seq->flags&BER_FLAGS_OPTIONAL){
+				/* well this one was optional so just skip to the next one and try again. */
+				seq++;
+				goto ber_old_sequence_try_again;
+			}
+
+			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+			if( seq->class == BER_CLASS_UNI){
+			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d(%s) but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in sequence");
+			}else{
+			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in sequence");
+			}
+			seq++;
+			offset=eoffset;
+			continue;
+		  }
+		}
+
+		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
+			/* dissect header and len for field */
+			if(ind_field && (len == 2)){
+				/* This is a Zero length field */
+				next_tvb = tvb_new_subset(tvb, offset, len, len);
+				hoffset = eoffset;
+			}else{
+				hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+				hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+				length_remaining=tvb_length_remaining(tvb, hoffset);
+				if (length_remaining>eoffset-hoffset-(2*ind_field))
+					length_remaining=eoffset-hoffset-(2*ind_field);
+				next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
+			}
+		}
+		else {
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if (length_remaining>eoffset-hoffset)
+				length_remaining=eoffset-hoffset;
+			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+		}
+
+		/* call the dissector for this field */
+		/*if 	((eoffset-hoffset)>length_remaining) {*/
+			/* If the field is indefinite (i.e. we dont know the
+			 * length) of if the tvb is short, then just
+			 * give it all of the tvb and hope for the best.
+			 */
+			/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+		/*} else {*/
+
+		/*}*/
+
+#ifdef DEBUG_BER
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(next_tvb,0)>3){
+printf("SEQUENCE dissect_ber_old_sequence(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
+}else{
+printf("SEQUENCE dissect_ber_old_sequence(%s) calling subdissector\n",name);
+}
+}
+#endif
+		if (next_tvb == NULL) {
+			/* Assume that we have a malformed packet. */
+			THROW(ReportedBoundsError);
+		}
+		count=seq->func(tree, next_tvb, 0, actx);
+
+#ifdef DEBUG_BER
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+printf("SEQUENCE dissect_ber_old_sequence(%s) subdissector ate %d bytes\n",name,count);
+}
+#endif
+		/* if it was optional and no bytes were eaten and it was */
+		/* supposed to (len<>0), just try again. */
+		if((len!=0)&&(count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
+			seq++;
+			goto ber_old_sequence_try_again;
+		/* move the offset to the beginning of the next sequenced item */
+		}
+		offset = eoffset;
+		seq++;
+		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
+			/* if we stripped the tag and length we should also strip the EOC is ind_len 
+			 * Unless its a zero length field (len = 2)
+			 */
+			if((ind_field == 1)&&(len>2))
+			{
+				/* skip over EOC */
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
+				}
+			}
+		}
+	}
+
+	/* if we didnt end up at exactly offset, then we ate too many bytes */
+	if(offset != end_offset) {
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
+		cause = proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence ate %d too many bytes", offset-end_offset);
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: too many bytes in Sequence");
+	}
+	if(ind){
+		/*  need to eat this EOC
+		end_offset = tvb_length(tvb);*/
+		end_offset += 2;
+		if(show_internal_ber_fields){
+			proto_tree_add_text(tree, tvb, end_offset-2,2 , "SEQ EOC");
+		}
+	}
+	return end_offset;
+}
+
 /* This function dissects a BER set
  */
 int dissect_ber_set(gboolean implicit_tag,asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *set, gint hf_id, gint ett_id) {
 	gint8 class;
-	gboolean pc, ind = 0, ind_field;
+	gboolean pc, ind = 0, ind_field, imp_tag = FALSE;
 	gint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
@@ -1679,7 +2000,10 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 				/* Assume that we have a malformed packet. */
 				THROW(ReportedBoundsError);
 			}
-			count=cset->func(tree, next_tvb, 0, actx);
+			imp_tag = TRUE;
+			if ((cset->flags & BER_FLAGS_IMPLTAG))
+				imp_tag = TRUE;
+			count=cset->func(imp_tag, next_tvb, 0, actx, tree, *cset->p_id);
 
 			/* if we consumed some bytes, 
 			   or we knew the length was zero (during the first pass only) */
@@ -1755,7 +2079,256 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 
 }
 
+int dissect_ber_old_set(gboolean implicit_tag,asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *set, gint hf_id, gint ett_id) {
+	gint8 class;
+	gboolean pc, ind = 0, ind_field;
+	gint32 tag;
+	guint32 len;
+	proto_tree *tree = parent_tree;
+	proto_item *item = NULL;
+	proto_item *cause;
+	int end_offset, s_offset;
+	gint length_remaining;
+	tvbuff_t *next_tvb;
+	const ber_old_sequence_t *cset = NULL;
+# define MAX_SET_ELEMENTS 32
+	guint32   mandatory_fields = 0;
+	guint8   set_idx;
+	gboolean first_pass;
+	s_offset = offset;
+#ifdef DEBUG_BER
+	{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(tvb,offset)>3){
+printf("SET dissect_old_ber_set(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+}else{
+printf("SET dissect_old_ber_set(%s) entered\n",name);
+}
+}
+#endif
 
+	if(!implicit_tag){
+		/* first we must read the sequence header */
+		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+		if(ind){
+		/*  Fixed the length is correctly returned from dissect ber_length
+		  end_offset = tvb_length(tvb);*/
+		  end_offset = offset + len -2;
+		} else {
+		  end_offset = offset + len;
+		}
+
+		/* sanity check: we only handle Constructed Universal Sets */
+		if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
+		if ((!pc)
+		||(!implicit_tag&&((class!=BER_CLASS_UNI)
+							||(tag!=BER_UNI_TAG_SET)))) {
+		  tvb_ensure_bytes_exist(tvb, offset-2, 2);
+		  cause = proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: SET expected but Class:%d(%s) PC:%d Tag:%d was found", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+		  proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		  expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: SET expected");
+		  return end_offset;
+		}
+	} else {
+		/* was implicit tag so just use the length of the tvb */
+		len=tvb_length_remaining(tvb,offset);
+		end_offset=offset+len;
+	}
+
+	/* create subtree */
+	if (hf_id >= 0) {
+		if(parent_tree){
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
+			tree = proto_item_add_subtree(item, ett_id);
+		}
+	}
+
+	/* record the mandatory elements of the set so we can check we found everything at the end
+	   we can only record 32 elements for now ... */
+	for(set_idx = 0; (cset=&set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+
+	  if(!(cset->flags & BER_FLAGS_OPTIONAL))
+	      mandatory_fields |= 1 << set_idx;
+
+	}
+
+	/* loop over all entries until we reach the end of the set */
+	while (offset < end_offset){
+		gint8 class;
+		gboolean pc;
+		gint32 tag;
+		guint32 len;
+		int hoffset, eoffset, count;
+
+		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
+		  but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+
+			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, s_offset, offset+2, "SEQ EOC");
+				}
+				return end_offset;
+			}
+			/* } */
+		hoffset = offset;
+		/* read header and len for next field */
+		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		eoffset = offset + len;
+
+		/* Look through the Set to see if this class/id exists and
+		 * hasn't been seen before
+		 * Skip check completely if class==ANY
+		 * of if NOCHKTAG is set
+		 */
+
+
+		for(first_pass=TRUE, cset = set, set_idx = 0; cset->func || first_pass; cset++, set_idx++) {
+
+		  /* we reset for a second pass when we will look for choices */
+		  if(!cset->func) {
+		    first_pass = FALSE;
+
+		    cset=set; /* reset to the beginning */
+		    set_idx = 0;
+		  }
+
+		  if((first_pass && ((cset->class==class) && (cset->tag==tag))) ||
+		     (!first_pass && ((cset->class== BER_CLASS_ANY) && (cset->tag == -1))) ) /* choices */
+		  {
+
+			if (!(cset->flags & BER_FLAGS_NOOWNTAG) ) {
+		      /* dissect header and len for field */
+				hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+				hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+				length_remaining=tvb_length_remaining(tvb, hoffset);
+				if (length_remaining>eoffset-hoffset-(2*ind_field))
+					length_remaining=eoffset-hoffset-(2*ind_field);
+				next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
+		    }
+			else {
+				length_remaining=tvb_length_remaining(tvb, hoffset);
+				if (length_remaining>eoffset-hoffset)
+					length_remaining=eoffset-hoffset;
+				next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+			}
+
+
+			/* call the dissector for this field */
+			/*if 	((eoffset-hoffset)>length_remaining) {*/
+				/* If the field is indefinite (i.e. we dont know the
+				 * length) of if the tvb is short, then just
+				 * give it all of the tvb and hope for the best.
+				 */
+				/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+			/*} else {*/
+
+			/*}*/
+
+#ifdef DEBUG_BER
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(next_tvb,0)>3){
+printf("SET dissect_old_ber_set(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
+}else{
+printf("SET dissect_old_ber_set(%s) calling subdissector\n",name);
+}
+}
+#endif
+			if (next_tvb == NULL) {
+				/* Assume that we have a malformed packet. */
+				THROW(ReportedBoundsError);
+			}
+			count=cset->func(tree, next_tvb, 0, actx);
+
+			/* if we consumed some bytes, 
+			   or we knew the length was zero (during the first pass only) */
+			if(count || (first_pass && (len == 0))) {
+			    /* we found it! */
+			    if(set_idx < MAX_SET_ELEMENTS)
+				  mandatory_fields &= ~(1 << set_idx);
+
+				offset = eoffset;
+
+				if(!(cset->flags & BER_FLAGS_NOOWNTAG) ) {
+				  /* if we stripped the tag and length we should also strip the EOC is ind_len */
+				  if(ind_field == 1){
+					  /* skip over EOC */
+					  if(show_internal_ber_fields){
+						  proto_tree_add_text(tree, tvb, offset, count, "SET FIELD EOC");
+					  }
+				  }
+				}
+				break;
+			}
+		  }
+		}
+
+		if(!cset->func) {
+		  /* we didn't find a match */
+		  cause = proto_tree_add_text(tree, tvb, hoffset, len, "BER Error: Unknown field in SET class:%d(%s) tag:%d",class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+		  proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		  expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Unknown field in SET");
+		  offset = eoffset;
+		}
+	}
+
+	if(mandatory_fields) {
+
+	  /* OK - we didn't find some of the elements we expected */
+
+	  for(set_idx = 0;  (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+
+	    if(mandatory_fields & (1 << set_idx)) {
+
+	      /* here is something we should have seen - but didn't! */
+	      cause = proto_tree_add_text(tree, tvb, offset, len,
+				  "BER Error: Missing field in SET class:%d (%s) tag:%d expected",
+				  cset->class,val_to_str(cset->class,ber_class_codes,"Unknown"),
+				  cset->tag);
+	      proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+	      expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Missing field in SET");
+
+	    }
+
+	  }
+	}
+
+	/* if we didnt end up at exactly offset, then we ate too many bytes */
+	if (offset != end_offset) {
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
+		cause = proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: SET ate %d too many bytes", offset-end_offset);
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: too many bytes in SET");
+	}
+
+	if(ind){
+		/*  need to eat this EOC
+		  end_offset = tvb_length(tvb);*/
+		  end_offset += 2;
+		  if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, end_offset-2,2 , "SET EOC");
+		  }
+	}
+
+	return end_offset;
+
+}
 /* this function dissects a BER choice
  * If we did not find a matching choice,  just return offset unchanged
  * in case it was a CHOICE { } OPTIONAL
@@ -1768,7 +2341,7 @@ int
 dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *choice, gint hf_id, gint ett_id, gint *branch_taken)
 {
 	gint8 class;
-	gboolean pc, ind;
+	gboolean pc, ind, imp_tag = FALSE;
 	gint32 tag;
 	guint32 len;
 	const ber_choice_t *ch;
@@ -1918,7 +2491,10 @@ printf("CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n",name,tvb_le
 				/* Assume that we have a malformed packet. */
 				THROW(ReportedBoundsError);
 			}
-			count=ch->func(tree, next_tvb, 0, actx);
+			imp_tag = FALSE;
+			if ((ch->flags & BER_FLAGS_IMPLTAG))
+				imp_tag = TRUE;
+			count=ch->func(imp_tag, next_tvb, 0, actx, tree, *ch->p_id);
 #ifdef DEBUG_BER_CHOICE
 {
 const char *name;
@@ -1946,6 +2522,229 @@ name=hfinfo->name;
 name="unnamed";
 }
 printf("CHOICE dissect_ber_choice(%s) trying again\n",name);
+}
+#endif
+				goto choice_try_again;
+			}
+			if(!(ch->flags & BER_FLAGS_NOOWNTAG)){
+			 if(ind)
+			 	{
+			 	/* we are traversing a indfinite length choice where we did not pass the tag length */
+			 	/* we need to eat the EOC */
+			 	if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, start_offset, count+2, "CHOICE EOC");
+				}
+			 }
+			}
+			return end_offset;
+			break;
+		}
+		ch++;
+	}
+	if(branch_taken){
+		/* none of the branches were taken so set the param
+		   back to -1 */
+		*branch_taken=-1;
+	}
+
+#ifdef REMOVED
+	/*XXX here we should have another flag to the CHOICE to distinguish
+	 * between teh case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
+
+	/* oops no more entries and we still havent found
+	 * our guy :-(
+	 */
+	cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: This choice field was not found.");
+	proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: This choice field was not found");
+	return end_offset;
+#endif
+
+	return start_offset;
+}
+
+int
+dissect_ber_old_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_choice_t *choice, gint hf_id, gint ett_id, gint *branch_taken)
+{
+	gint8 class;
+	gboolean pc, ind;
+	gint32 tag;
+	guint32 len;
+	const ber_old_choice_t *ch;
+	proto_tree *tree=parent_tree;
+	proto_item *item=NULL;
+	int end_offset, start_offset, count;
+	int hoffset = offset;
+	header_field_info	*hfinfo;
+	gint length, length_remaining;
+	tvbuff_t *next_tvb;
+	gboolean first_pass;
+
+#ifdef DEBUG_BER_CHOICE
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(tvb,offset)>3){
+printf("CHOICE dissect_ber_old_choice(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+}else{
+printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_remaining(tvb,offset));
+}
+}
+#endif
+	start_offset=offset;
+
+	/* read header and len for choice field */
+	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	offset=get_ber_length(parent_tree, tvb, offset, &len, &ind);
+	  end_offset = offset + len ;
+
+	/* Some sanity checks.
+	 * The hf field passed to us MUST be an integer type
+	 */
+	if(hf_id >= 0){
+		hfinfo=proto_registrar_get_nth(hf_id);
+		switch(hfinfo->type) {
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+				break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, len,"dissect_ber_old_choice(): Was passed a HF field that was not integer type : %s",hfinfo->abbrev);
+			fprintf(stderr,"dissect_ber_old_choice(): frame:%u offset:%d Was passed a HF field that was not integer type : %s\n",actx->pinfo->fd->num,offset,hfinfo->abbrev);
+			return end_offset;
+		}
+	}
+
+
+
+	/* loop over all entries until we find the right choice or
+	   run out of entries */
+	ch = choice;
+	if(branch_taken){
+		*branch_taken=-1;
+	}
+	first_pass = TRUE;
+	while(ch->func || first_pass){
+		if(branch_taken){
+			(*branch_taken)++;
+		}
+	  /* we reset for a second pass when we will look for choices */
+	  if(!ch->func) {
+	    first_pass = FALSE;
+	    ch = choice; /* reset to the beginning */
+		if(branch_taken){
+			*branch_taken=-1;
+		}
+	  }
+
+choice_try_again:
+#ifdef DEBUG_BER_CHOICE
+printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n",ch,class,ch->class,tag,ch->tag,ch->flags);
+#endif
+		if( (first_pass && (((ch->class==class)&&(ch->tag==tag))
+		     ||  ((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)))) ||
+		    (!first_pass && (((ch->class == BER_CLASS_ANY) && (ch->tag == -1)))) /* we failed on the first pass so now try any choices */
+		){
+			if(!(ch->flags & BER_FLAGS_NOOWNTAG)){
+				/* dissect header and len for field */
+				hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
+				hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+				start_offset=hoffset;
+				if (ind)
+					{
+					length = len-2;
+					}
+				else
+					{
+					length = len;
+					}
+			}
+			else
+				length = end_offset- hoffset;
+			/* create subtree */
+			if(hf_id >= 0){
+				if(parent_tree){
+					item = proto_tree_add_uint(parent_tree, hf_id, tvb, hoffset, end_offset - hoffset, ch->value);
+					tree = proto_item_add_subtree(item, ett_id);
+				}
+			}
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if(length_remaining>length)
+				length_remaining=length;
+
+#ifdef REMOVED
+			/* This is bogus and makes the OID_1.0.9506.1.1.cap file
+			 * in Steven J Schaeffer's email of 2005-09-12 fail to dissect
+			 * properly.  Maybe we should get rid of 'first_pass'
+			 * completely.
+			 * It was added as a qad workaround for some problem CMIP
+			 * traces anyway.
+			 * God, this file is a mess and it is my fault. /ronnie
+			 */
+			if(first_pass)
+			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
+			else
+			  next_tvb = tvb; /* we didn't make selection on this class/tag so pass it on */
+#endif
+			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
+
+
+#ifdef DEBUG_BER_CHOICE
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(next_tvb,0)>3){
+printf("CHOICE dissect_ber_old_choice(%s) calling subdissector start_offset:%d offset:%d len:%d %02x:%02x:%02x\n",name,start_offset,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
+}else{
+printf("CHOICE dissect_ber_old_choice(%s) calling subdissector len:%d\n",name,tvb_length(next_tvb));
+}
+}
+#endif
+			if (next_tvb == NULL) {
+				/* Assume that we have a malformed packet. */
+				THROW(ReportedBoundsError);
+			}
+			count=ch->func(tree, next_tvb, 0, actx);
+#ifdef DEBUG_BER_CHOICE
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+printf("CHOICE dissect_ber_old_choice(%s) subdissector ate %d bytes\n",name,count);
+}
+#endif
+			if((count==0)&&(((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)) || !first_pass)){
+				/* wrong one, break and try again */
+				ch++;
+#ifdef DEBUG_BER_CHOICE
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+printf("CHOICE dissect_ber_old_choice(%s) trying again\n",name);
 }
 #endif
 				goto choice_try_again;
@@ -2206,7 +3005,7 @@ int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *actx, p
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;
-	gboolean pc, ind = FALSE, ind_field;
+	gboolean pc, ind = FALSE, ind_field, imp_tag = FALSE;
 	gint32 tag;
 	guint32 len;
 
@@ -2230,6 +3029,202 @@ if(tvb_length_remaining(tvb,offset)>3){
 printf("SQ OF dissect_ber_sq_of(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
 }else{
 printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
+}
+}
+#endif
+
+	if(!implicit_tag){
+		/* first we must read the sequence header */
+		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+		if(ind){
+		  /* if the length is indefinite we dont really know (yet) where the
+		   * object ends so assume it spans the rest of the tvb for now.
+        	   */
+		  end_offset = offset + len;
+		} else {
+		  end_offset = offset + len;
+		}
+
+		/* sanity check: we only handle Constructed Universal Sequences */
+		if((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
+		if(!pc
+			||(!implicit_tag&&((class!=BER_CLASS_UNI)
+							||(tag!=type)))) {
+			tvb_ensure_bytes_exist(tvb, offset-2, 2);
+			cause = proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: %s Of expected but Class:%d PC:%d Tag:%d was unexpected",
+							(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence", class, pc, tag);
+			proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: %s Of expected",(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence");
+			return end_offset;
+		}
+	} else {
+		/* the tvb length should be correct now nope we could be comming from an implicit choice or sequence, thus we
+		read the items we match and return the length*/
+		len=tvb_length_remaining(tvb,offset);
+		end_offset = offset + len;
+	}
+
+	/* count number of items */
+	cnt = 0;
+	hoffset = offset;
+	/* only count the number of items IFF we have the full blob,
+	 * else this will just generate a [short frame] before we even start
+	 * dissecting a single item.
+	 */
+	/* XXX Do we really need to count them at all ?  ronnie */
+	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
+		while (offset < end_offset){
+			guint32 len;
+                        gint s_offset;
+
+                        s_offset = offset;
+
+			if(ind){ /* this sequence of was of indefinite length, so check for EOC */
+				if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
+					break;
+				}
+			}
+
+			/* read header and len for next field */
+			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+			offset = get_ber_length(tree, tvb, offset, &len, &ind);
+			/* best place to get real length of implicit sequence of or set of is here... */
+			/* adjust end_offset if we find somthing that doesnt match */
+			offset += len;
+			cnt++;
+			if (offset <= s_offset)
+				THROW(ReportedBoundsError);
+		}
+	}
+	offset = hoffset;
+
+	/* create subtree */
+	if(hf_id >= 0) {
+		hfi = proto_registrar_get_nth(hf_id);
+		if(parent_tree){
+			if(hfi->type == FT_NONE) {
+				item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
+				proto_item_append_text(item, ":");
+			} else {
+				item = proto_tree_add_uint(parent_tree, hf_id, tvb, offset, len, cnt);
+				proto_item_append_text(item, (cnt==1)?" item":" items");
+			}
+			tree = proto_item_add_subtree(item, ett_id);
+		}
+	}
+
+	/* loop over all entries until we reach the end of the sequence */
+	while (offset < end_offset){
+		gint8 class;
+		gboolean pc;
+		gint32 tag;
+		guint32 len;
+		int eoffset;
+		int hoffset, count;
+		proto_item *cause;
+
+		hoffset = offset;
+	 	if(ind){ /*this sequence of was of indefinite length, so check for EOC */
+			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, hoffset, end_offset-hoffset, "SEQ OF EOC");
+				}
+				return offset+2;
+			}
+		}
+		/* read header and len for next field */
+		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		eoffset = offset + len;
+                /* Make sure we move forward */
+		if (eoffset <= hoffset)
+			THROW(ReportedBoundsError);
+
+		if((class==BER_CLASS_UNI)&&(tag==BER_UNI_TAG_EOC)){
+			/* This is a zero length sequence of*/
+			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+			return eoffset;
+		}
+		/* verify that this one is the one we want */
+		/* ahup if we are implicit then we return to the uper layer how much we have used */
+		if(seq->class!=BER_CLASS_ANY){
+		  if((seq->class!=class)
+			||(seq->tag!=tag) ){
+			if(!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
+				cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SQ OF");
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in Sequence Of");
+				offset = eoffset;
+				continue;
+				/* wrong.... */
+			}
+		  }
+		}
+
+		if(!(seq->flags & BER_FLAGS_NOOWNTAG) && !(seq->flags & BER_FLAGS_IMPLTAG)) {
+			/* dissect header and len for field */
+			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+			imp_tag = FALSE;
+		}
+		if((seq->flags == BER_FLAGS_IMPLTAG)&&(seq->class==BER_CLASS_CON)) {
+			/* Constructed sequence of with a tag */
+			/* dissect header and len for field */
+			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+			/* Function has IMPLICIT TAG */
+			imp_tag = TRUE;
+		}
+
+		/* call the dissector for this field */
+		count=seq->func(imp_tag, tvb, 0, actx, tree, *seq->p_id)-hoffset;
+				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
+				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
+				we have eaten to allow the possible upper sequence continue... */
+		cnt++; /* rubbish*/
+		offset = eoffset;
+	}
+
+	/* if we didnt end up at exactly offset, then we ate too many bytes */
+	if(offset != end_offset) {
+		tvb_ensure_bytes_exist(tvb, offset-2, 2);
+		cause =proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: %s Of ate %d too many bytes",
+							(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence", offset-end_offset);
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error:too many byte in %s",(type==BER_UNI_TAG_SEQUENCE)?"Set":"Sequence");
+	}
+
+	return end_offset;
+}
+
+static int dissect_ber_old_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id) {
+	gint8 class;
+	gboolean pc, ind = FALSE, ind_field;
+	gint32 tag;
+	guint32 len;
+
+	proto_tree *tree = parent_tree;
+	proto_item *item = NULL;
+	proto_item *cause;
+	int cnt, hoffset, end_offset;
+	header_field_info *hfi;
+
+#ifdef DEBUG_BER_SQ_OF
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(tvb,offset)>3){
+printf("SQ OF dissect_ber_old_sq_of(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+}else{
+printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 }
 }
 #endif
@@ -2403,6 +3398,14 @@ int dissect_ber_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
 int dissect_ber_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, actx, parent_tree, tvb, offset, seq, hf_id, ett_id);
+}
+
+int dissect_ber_old_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id) {
+	return dissect_ber_old_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, actx, parent_tree, tvb, offset, seq, hf_id, ett_id);
+}
+
+int dissect_ber_old_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id) {
+	return dissect_ber_old_sq_of(implicit_tag, BER_UNI_TAG_SET, actx, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 
 int
@@ -2638,10 +3641,10 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
  *		arbitrary						[2] IMPLICIT BIT STRING } }
  *	
  */
-
+/*
 static int dissect_single_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
 
-	/* FIX ME */
+	/ FIX ME /
   return offset;
 }
 static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -2678,14 +3681,14 @@ static int dissect_data_value_descriptor(proto_tree *tree _U_, tvbuff_t *tvb _U_
 
 	return offset;
 }
-
+*/
 static const value_string ber_T_encoding_vals[] = {
   {   0, "single-ASN1-type" },
   {   1, "octet-aligned" },
   {   2, "arbitrary" },
   { 0, NULL }
 };
-
+/*
 static const ber_choice_t ber_T_encoding_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_single_ASN1_type },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
@@ -2705,10 +3708,10 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
+  { BER_CLASS_ANY/choice/, -1/choice/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
   { 0, 0, 0, NULL }
 };
-
+*/
 static int
 dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_ , proto_tree *tree, int hf_index _U_)
 {
@@ -2722,10 +3725,11 @@ dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_
 		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 	}
+	/*
 
 	offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
                                    EXTERNAL_sequence, hf_index, ett_ber_EXTERNAL);
-
+*/
 	return offset;
 
 }

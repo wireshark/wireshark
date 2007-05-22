@@ -503,7 +503,7 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   if (!next_tvb)
     return offset+len;
 
-  dissect_ber_choice(actx, tree, next_tvb, 0,
+  dissect_ber_old_choice(actx, tree, next_tvb, 0,
 		     Component_choice, hf_index, ett_tcap_Component,NULL);
 
 

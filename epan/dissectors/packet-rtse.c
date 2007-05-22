@@ -312,7 +312,7 @@ static const value_string rtse_CallingSSuserReference_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CallingSSuserReference_choice[] = {
+static const ber_old_choice_t CallingSSuserReference_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_t61String },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_octetString },
   { 0, 0, 0, 0, NULL }
@@ -320,9 +320,9 @@ static const ber_choice_t CallingSSuserReference_choice[] = {
 
 static int
 dissect_rtse_CallingSSuserReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CallingSSuserReference_choice, hf_index, ett_rtse_CallingSSuserReference,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CallingSSuserReference_choice, hf_index, ett_rtse_CallingSSuserReference,
+                                     NULL);
 
   return offset;
 }
@@ -366,7 +366,7 @@ static int dissect_additionalReferenceInformation_impl(proto_tree *tree _U_, tvb
 }
 
 
-static const ber_sequence_t SessionConnectionIdentifier_sequence[] = {
+static const ber_old_sequence_t SessionConnectionIdentifier_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_callingSSuserReference },
   { BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_commonReference },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalReferenceInformation_impl },
@@ -378,8 +378,8 @@ dissect_rtse_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tv
 #line 136 "rtse.cnf"
   if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Recover");
-    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SessionConnectionIdentifier_sequence, hf_index, ett_rtse_SessionConnectionIdentifier);
+    offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SessionConnectionIdentifier_sequence, hf_index, ett_rtse_SessionConnectionIdentifier);
 
 
 
@@ -397,7 +397,7 @@ static const value_string rtse_ConnectionData_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ConnectionData_choice[] = {
+static const ber_old_choice_t ConnectionData_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_open },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_recover_impl },
   { 0, 0, 0, 0, NULL }
@@ -405,9 +405,9 @@ static const ber_choice_t ConnectionData_choice[] = {
 
 static int
 dissect_rtse_ConnectionData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ConnectionData_choice, hf_index, ett_rtse_ConnectionData,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ConnectionData_choice, hf_index, ett_rtse_ConnectionData,
+                                     NULL);
 
   return offset;
 }
@@ -441,7 +441,7 @@ static int dissect_applicationProtocol_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t RTORQapdu_set[] = {
+static const ber_old_sequence_t RTORQapdu_set[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialogueMode_impl },
@@ -457,8 +457,8 @@ dissect_rtse_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
   open_request=TRUE;
-    offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
+    offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
+                                  RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
 
   open_request=FALSE;
 
@@ -471,7 +471,7 @@ static int dissect_rtorq_apdu_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t RTOACapdu_set[] = {
+static const ber_old_sequence_t RTOACapdu_set[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_connectionDataAC },
@@ -485,8 +485,8 @@ dissect_rtse_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
-    offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
+    offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
+                                  RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
 
 
 
@@ -557,7 +557,7 @@ static int dissect_userDataRJ(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t RTORJapdu_set[] = {
+static const ber_old_sequence_t RTORJapdu_set[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_refuseReason_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_userDataRJ },
   { 0, 0, 0, NULL }
@@ -565,8 +565,8 @@ static const ber_sequence_t RTORJapdu_set[] = {
 
 int
 dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RTORJapdu_set, hf_index, ett_rtse_RTORJapdu);
+  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
+                                  RTORJapdu_set, hf_index, ett_rtse_RTORJapdu);
 
   return offset;
 }
@@ -674,7 +674,7 @@ static int dissect_userdataAB(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t RTABapdu_set[] = {
+static const ber_old_sequence_t RTABapdu_set[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_abortReason_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reflectedParameter_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_userdataAB },
@@ -683,8 +683,8 @@ static const ber_sequence_t RTABapdu_set[] = {
 
 int
 dissect_rtse_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RTABapdu_set, hf_index, ett_rtse_RTABapdu);
+  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
+                                  RTABapdu_set, hf_index, ett_rtse_RTABapdu);
 
   return offset;
 }
@@ -703,7 +703,7 @@ static const value_string rtse_RTSE_apdus_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t RTSE_apdus_choice[] = {
+static const ber_old_choice_t RTSE_apdus_choice[] = {
   {   0, BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_rtorq_apdu_impl },
   {   1, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_rtoac_apdu_impl },
   {   2, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_rtorj_apdu_impl },
@@ -715,9 +715,9 @@ static const ber_choice_t RTSE_apdus_choice[] = {
 
 static int
 dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 RTSE_apdus_choice, hf_index, ett_rtse_RTSE_apdus,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     RTSE_apdus_choice, hf_index, ett_rtse_RTSE_apdus,
+                                     NULL);
 
   return offset;
 }
@@ -797,7 +797,7 @@ static const value_string rtse_T_encoding_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_encoding_choice[] = {
+static const ber_old_choice_t T_encoding_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_single_ASN1_type },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_arbitrary_impl },
@@ -806,9 +806,9 @@ static const ber_choice_t T_encoding_choice[] = {
 
 static int
 dissect_rtse_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_encoding_choice, hf_index, ett_rtse_T_encoding,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_encoding_choice, hf_index, ett_rtse_T_encoding,
+                                     NULL);
 
   return offset;
 }
@@ -817,7 +817,7 @@ static int dissect_encoding(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t EXTERNALt_sequence[] = {
+static const ber_old_sequence_t EXTERNALt_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
@@ -842,7 +842,7 @@ dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
      offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
    }
 
-   offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+   offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
 
 

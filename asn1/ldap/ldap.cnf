@@ -499,7 +499,7 @@ ldap_conv_info_t *ldap_info;
 	}
 
 #.FN_BODY Filter/and
-	const ber_sequence_t and_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
+	const ber_old_sequence_t and_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
 };
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
@@ -510,7 +510,7 @@ ldap_conv_info_t *ldap_info;
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "and: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_and);
 	} 
-	offset = dissect_ber_set_of(implicit_tag, actx, tr, tvb, offset,
+	offset = dissect_ber_old_set_of(implicit_tag, actx, tr, tvb, offset,
                                  and_set_of, -1, ett_ldap_T_and);
 
 	proto_item_append_text(it, "%%s", and_filter_string);
@@ -526,7 +526,7 @@ ldap_conv_info_t *ldap_info;
 
 
 #.FN_BODY Filter/or
-	const ber_sequence_t or_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
+	const ber_old_sequence_t or_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
 };
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
@@ -537,7 +537,7 @@ ldap_conv_info_t *ldap_info;
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_or);
 	} 
-	offset = dissect_ber_set_of(implicit_tag, actx, tr, tvb, offset,
+	offset = dissect_ber_old_set_of(implicit_tag, actx, tr, tvb, offset,
                                  or_set_of, -1, ett_ldap_T_or);
 
 	proto_item_append_text(it, "%%s", or_filter_string);
@@ -600,7 +600,7 @@ ldap_conv_info_t *ldap_info;
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "substring: ");
 		tr=proto_item_add_subtree(it, ett_ldap_SubstringFilter);
 	}
-	offset = dissect_ber_sequence(implicit_tag, actx, tr, tvb, offset,
+	offset = dissect_ber_old_sequence(implicit_tag, actx, tr, tvb, offset,
 				      SubstringFilter_sequence, hf_index,
 				      ett_ldap_SubstringFilter);
 
@@ -616,7 +616,7 @@ ldap_conv_info_t *ldap_info;
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
 		tr=proto_item_add_subtree(it, ett_ldap_Filter);
 	}
-	offset = dissect_ber_choice(actx, tr, tvb, offset,
+	offset = dissect_ber_old_choice(actx, tr, tvb, offset,
                                  Filter_choice, -1, ett_ldap_Filter,
                                  NULL);
 

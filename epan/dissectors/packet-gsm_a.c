@@ -7658,7 +7658,7 @@ static const value_string ROS_OPERATION_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t OPERATION_choice[] = {
+static const ber_old_choice_t OPERATION_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
@@ -7666,7 +7666,7 @@ static const ber_choice_t OPERATION_choice[] = {
 
 static int
 dissect_ROS_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               OPERATION_choice, hf_index, ett_ROS_OPERATION, NULL);
 
   return offset;
@@ -7687,7 +7687,7 @@ static int dissect_parameter( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   return dissect_ROS_Parameter(FALSE, tvb, offset, actx, tree, hf_ROS_parameter);
 }
 
-static const ber_sequence_t Invoke_sequence[] = {
+static const ber_old_sequence_t Invoke_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
@@ -7697,7 +7697,7 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_ROS_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                 Invoke_sequence, hf_index, ett_ROS_Invoke);
 
   return offset;
@@ -7706,7 +7706,7 @@ static int dissect_invoke_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn
   return dissect_ROS_Invoke(TRUE, tvb, offset, actx, tree, hf_ROS_invoke);
 }
 
-static const ber_sequence_t T_resultretres_sequence[] = {
+static const ber_old_sequence_t T_resultretres_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
   { 0, 0, 0, NULL }
@@ -7714,7 +7714,7 @@ static const ber_sequence_t T_resultretres_sequence[] = {
 
 static int
 dissect_ROS_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                 T_resultretres_sequence, hf_index, ett_ROS_T_resultretres);
 
   return offset;
@@ -7723,7 +7723,7 @@ static int dissect_resultretres( proto_tree *tree, tvbuff_t *tvb, int offset, as
   return dissect_ROS_T_resultretres(FALSE, tvb, offset, actx, tree, hf_ROS_resultretres);
 }
 
-static const ber_sequence_t ReturnResult_sequence[] = {
+static const ber_old_sequence_t ReturnResult_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_resultretres },
   { 0, 0, 0, NULL }
@@ -7731,7 +7731,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_ROS_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                 ReturnResult_sequence, hf_index, ett_ROS_ReturnResult);
 
   return offset;
@@ -7760,7 +7760,7 @@ static const value_string ROS_ErrorCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ErrorCode_choice[] = {
+static const ber_old_choice_t ErrorCode_choice[] = {
   {  19, BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_nationaler_impl },
   {  20, BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_privateer_impl },
   { 0, 0, 0, 0, NULL }
@@ -7768,7 +7768,7 @@ static const ber_choice_t ErrorCode_choice[] = {
 
 static int
 dissect_ROS_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               ErrorCode_choice, hf_index, ett_ROS_ErrorCode, NULL);
 
   return offset;
@@ -7777,7 +7777,7 @@ static int dissect_errorCode( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   return dissect_ROS_ErrorCode(FALSE, tvb, offset, actx, tree, hf_ROS_errorCode);
 }
 
-static const ber_sequence_t ReturnError_sequence[] = {
+static const ber_old_sequence_t ReturnError_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
   { BER_CLASS_PRI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCode },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
@@ -7786,7 +7786,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_ROS_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                 ReturnError_sequence, hf_index, ett_ROS_ReturnError);
 
   return offset;
@@ -7814,7 +7814,7 @@ static const value_string ROS_T_invokeIDRej_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_invokeIDRej_choice[] = {
+static const ber_old_choice_t T_invokeIDRej_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_derivable },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_not_derivable },
   { 0, 0, 0, 0, NULL }
@@ -7822,7 +7822,7 @@ static const ber_choice_t T_invokeIDRej_choice[] = {
 
 static int
 dissect_ROS_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               T_invokeIDRej_choice, hf_index, ett_ROS_T_invokeIDRej, NULL);
 
   return offset;
@@ -7927,7 +7927,7 @@ static const value_string ROS_T_problem_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_problem_choice[] = {
+static const ber_old_choice_t T_problem_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_generalProblem_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invokeProblem_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultProblem_impl },
@@ -7937,7 +7937,7 @@ static const ber_choice_t T_problem_choice[] = {
 
 static int
 dissect_ROS_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               T_problem_choice, hf_index, ett_ROS_T_problem, NULL);
 
   return offset;
@@ -7946,7 +7946,7 @@ static int dissect_problem( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
   return dissect_ROS_T_problem(FALSE, tvb, offset, actx, tree, hf_ROS_problem);
 }
 
-static const ber_sequence_t Reject_sequence[] = {
+static const ber_old_sequence_t Reject_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeIDRej },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_problem },
   { 0, 0, 0, NULL }
@@ -7954,7 +7954,7 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_ROS_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                 Reject_sequence, hf_index, ett_ROS_Reject);
 
   return offset;
@@ -7972,7 +7972,7 @@ static const value_string ROS_Component_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Component_choice[] = {
+static const ber_old_choice_t Component_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
@@ -7983,7 +7983,7 @@ static const ber_choice_t Component_choice[] = {
 static int
 dissect_ROS_Component(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               Component_choice, hf_index, ett_ROS_Component, NULL);
   /* branch taken will be component type -1 */
 
@@ -7998,7 +7998,7 @@ static const value_string ROS_ERROR_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ERROR_choice[] = {
+static const ber_old_choice_t ERROR_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
@@ -8006,7 +8006,7 @@ static const ber_choice_t ERROR_choice[] = {
 
 static int
 dissect_ROS_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               ERROR_choice, hf_index, ett_ROS_ERROR, NULL);
 
   return offset;

@@ -129,7 +129,7 @@ dissect_pkix1implicit_Dummy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t EDIPartyName_sequence[] = {
+static const ber_old_sequence_t EDIPartyName_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nameAssigner_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_partyName_impl },
   { 0, 0, 0, NULL }
@@ -137,8 +137,8 @@ static const ber_sequence_t EDIPartyName_sequence[] = {
 
 static int
 dissect_pkix1implicit_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EDIPartyName_sequence, hf_index, ett_pkix1implicit_EDIPartyName);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       EDIPartyName_sequence, hf_index, ett_pkix1implicit_EDIPartyName);
 
   return offset;
 }
@@ -156,7 +156,7 @@ static int dissect_accessMethod(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t AccessDescription_sequence[] = {
+static const ber_old_sequence_t AccessDescription_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_accessMethod },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_accessLocation },
   { 0, 0, 0, NULL }
@@ -164,8 +164,8 @@ static const ber_sequence_t AccessDescription_sequence[] = {
 
 static int
 dissect_pkix1implicit_AccessDescription(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AccessDescription_sequence, hf_index, ett_pkix1implicit_AccessDescription);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AccessDescription_sequence, hf_index, ett_pkix1implicit_AccessDescription);
 
   return offset;
 }
@@ -174,14 +174,14 @@ static int dissect_AuthorityInfoAccessSyntax_item(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t AuthorityInfoAccessSyntax_sequence_of[1] = {
+static const ber_old_sequence_t AuthorityInfoAccessSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AuthorityInfoAccessSyntax_item },
 };
 
 int
 dissect_pkix1implicit_AuthorityInfoAccessSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AuthorityInfoAccessSyntax_sequence_of, hf_index, ett_pkix1implicit_AuthorityInfoAccessSyntax);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          AuthorityInfoAccessSyntax_sequence_of, hf_index, ett_pkix1implicit_AuthorityInfoAccessSyntax);
 
   return offset;
 }
@@ -236,7 +236,7 @@ static const value_string pkix1implicit_DisplayText_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t DisplayText_choice[] = {
+static const ber_old_choice_t DisplayText_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_visibleString },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_utf8String },
@@ -245,9 +245,9 @@ static const ber_choice_t DisplayText_choice[] = {
 
 static int
 dissect_pkix1implicit_DisplayText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 DisplayText_choice, hf_index, ett_pkix1implicit_DisplayText,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     DisplayText_choice, hf_index, ett_pkix1implicit_DisplayText,
+                                     NULL);
 
   return offset;
 }
@@ -272,14 +272,14 @@ static int dissect_noticeNumbers_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t T_noticeNumbers_sequence_of[1] = {
+static const ber_old_sequence_t T_noticeNumbers_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers_item },
 };
 
 static int
 dissect_pkix1implicit_T_noticeNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_noticeNumbers_sequence_of, hf_index, ett_pkix1implicit_T_noticeNumbers);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          T_noticeNumbers_sequence_of, hf_index, ett_pkix1implicit_T_noticeNumbers);
 
   return offset;
 }
@@ -288,7 +288,7 @@ static int dissect_noticeNumbers(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t NoticeReference_sequence[] = {
+static const ber_old_sequence_t NoticeReference_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_organization },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers },
   { 0, 0, 0, NULL }
@@ -296,8 +296,8 @@ static const ber_sequence_t NoticeReference_sequence[] = {
 
 static int
 dissect_pkix1implicit_NoticeReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoticeReference_sequence, hf_index, ett_pkix1implicit_NoticeReference);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoticeReference_sequence, hf_index, ett_pkix1implicit_NoticeReference);
 
   return offset;
 }
@@ -306,7 +306,7 @@ static int dissect_noticeRef(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t UserNotice_sequence[] = {
+static const ber_old_sequence_t UserNotice_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_noticeRef },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_explicitText },
   { 0, 0, 0, NULL }
@@ -314,8 +314,8 @@ static const ber_sequence_t UserNotice_sequence[] = {
 
 int
 dissect_pkix1implicit_UserNotice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UserNotice_sequence, hf_index, ett_pkix1implicit_UserNotice);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UserNotice_sequence, hf_index, ett_pkix1implicit_UserNotice);
 
   return offset;
 }

@@ -200,7 +200,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence_of(TRUE,  actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence_of(TRUE,  actx, tree, tvb, offset,
                                    Contents_Type_List_sequence_of, hf_index, ett_ftam_Contents_Type_List);
 
 
@@ -266,7 +266,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Access_Context_sequence, hf_index, ett_ftam_Access_Context);
 
 #.FN_BODY Access-Passwords
@@ -282,7 +282,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Access_Passwords_sequence, hf_index, ett_ftam_Access_Passwords);
 
 #.FN_BODY Access-Request
@@ -363,7 +363,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Change_Attributes_sequence, hf_index, ett_ftam_Change_Attributes);
 
 
@@ -380,7 +380,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence_of(TRUE,  actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence_of(TRUE,  actx, tree, tvb, offset,
                                    Charging_sequence_of, hf_index, ett_ftam_Charging);
 
 
@@ -397,7 +397,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Concurrency_Control_sequence, hf_index, ett_ftam_Concurrency_Control);
 
 
@@ -430,7 +430,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Create_Attributes_sequence, hf_index, ett_ftam_Create_Attributes);
 
 #.FN_BODY Diagnostic
@@ -446,7 +446,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence_of(TRUE,  actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence_of(TRUE,  actx, tree, tvb, offset,
                                    Diagnostic_sequence_of, hf_index, ett_ftam_Diagnostic);
 
 
@@ -481,7 +481,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Read_Attributes_sequence, hf_index, ett_ftam_Read_Attributes);
 
 #.FN_BODY Select-Attributes
@@ -497,7 +497,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 Select_Attributes_sequence, hf_index, ett_ftam_Select_Attributes);
 
 #.FN_BODY State-Result
@@ -545,7 +545,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence_of(TRUE,  actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence_of(TRUE,  actx, tree, tvb, offset,
                                    Scope_sequence_of, hf_index, ett_ftam_Scope);
 
 #.FN_BODY Objects-Attributes-List
@@ -561,7 +561,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence_of(TRUE,  actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence_of(TRUE,  actx, tree, tvb, offset,
                                    Objects_Attributes_List_sequence_of, hf_index, ett_ftam_Objects_Attributes_List);
 
 
@@ -578,7 +578,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_sequence_of(TRUE,  actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence_of(TRUE,  actx, tree, tvb, offset,
                                    Path_Access_Passwords_sequence_of, hf_index, ett_ftam_Path_Access_Passwords);
 
 #.FN_BODY Request-Operation-Result
@@ -655,7 +655,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               Password_choice, hf_index, ett_ftam_Password, NULL);
 
 
@@ -672,7 +672,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               FADU_Identity_choice, hf_index, ett_ftam_FADU_Identity, NULL);
 
 #.FN_BODY Operation-Result
@@ -688,7 +688,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
 #.FN_PARS FTAM-Regime-PDU
 	VAL_PTR = &branch_taken

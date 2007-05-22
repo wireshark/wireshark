@@ -434,14 +434,14 @@ static int dissect_PKIFreeText_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t PKIFreeText_sequence_of[1] = {
+static const ber_old_sequence_t PKIFreeText_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_PKIFreeText_item },
 };
 
 int
 dissect_cmp_PKIFreeText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PKIFreeText_sequence_of, hf_index, ett_cmp_PKIFreeText);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          PKIFreeText_sequence_of, hf_index, ett_cmp_PKIFreeText);
 
   return offset;
 }
@@ -483,7 +483,7 @@ static int dissect_infoValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t InfoTypeAndValue_sequence[] = {
+static const ber_old_sequence_t InfoTypeAndValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_infoType },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_infoValue },
   { 0, 0, 0, NULL }
@@ -491,8 +491,8 @@ static const ber_sequence_t InfoTypeAndValue_sequence[] = {
 
 int
 dissect_cmp_InfoTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InfoTypeAndValue_sequence, hf_index, ett_cmp_InfoTypeAndValue);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       InfoTypeAndValue_sequence, hf_index, ett_cmp_InfoTypeAndValue);
 
   return offset;
 }
@@ -507,14 +507,14 @@ static int dissect_GenRepContent_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_generalInfo_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue);
 
   return offset;
 }
@@ -523,7 +523,7 @@ static int dissect_generalInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t PKIHeader_sequence[] = {
+static const ber_old_sequence_t PKIHeader_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pvno },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_sender },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_recipient },
@@ -541,8 +541,8 @@ static const ber_sequence_t PKIHeader_sequence[] = {
 
 int
 dissect_cmp_PKIHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PKIHeader_sequence, hf_index, ett_cmp_PKIHeader);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PKIHeader_sequence, hf_index, ett_cmp_PKIHeader);
 
   return offset;
 }
@@ -551,14 +551,14 @@ static int dissect_header(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_Certificate_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_SIZE_1_MAX_OF_Certificate_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extraCerts_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_Certificate_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_SIZE_1_MAX_OF_Certificate_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate);
 
   return offset;
 }
@@ -646,7 +646,7 @@ static int dissect_failInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t PKIStatusInfo_sequence[] = {
+static const ber_old_sequence_t PKIStatusInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_status },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_statusString },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_failInfo },
@@ -655,8 +655,8 @@ static const ber_sequence_t PKIStatusInfo_sequence[] = {
 
 int
 dissect_cmp_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PKIStatusInfo_sequence, hf_index, ett_cmp_PKIStatusInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PKIStatusInfo_sequence, hf_index, ett_cmp_PKIStatusInfo);
 
   return offset;
 }
@@ -677,7 +677,7 @@ const value_string cmp_CertOrEncCert_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CertOrEncCert_choice[] = {
+static const ber_old_choice_t CertOrEncCert_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_certificate },
   {   1, BER_CLASS_CON, 1, 0, dissect_encryptedCert },
   { 0, 0, 0, 0, NULL }
@@ -685,9 +685,9 @@ static const ber_choice_t CertOrEncCert_choice[] = {
 
 int
 dissect_cmp_CertOrEncCert(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CertOrEncCert_choice, hf_index, ett_cmp_CertOrEncCert,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CertOrEncCert_choice, hf_index, ett_cmp_CertOrEncCert,
+                                     NULL);
 
   return offset;
 }
@@ -696,7 +696,7 @@ static int dissect_certOrEncCert(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t CertifiedKeyPair_sequence[] = {
+static const ber_old_sequence_t CertifiedKeyPair_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_certOrEncCert },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_privateKey },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_publicationInfo },
@@ -705,8 +705,8 @@ static const ber_sequence_t CertifiedKeyPair_sequence[] = {
 
 int
 dissect_cmp_CertifiedKeyPair(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CertifiedKeyPair_sequence, hf_index, ett_cmp_CertifiedKeyPair);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CertifiedKeyPair_sequence, hf_index, ett_cmp_CertifiedKeyPair);
 
   return offset;
 }
@@ -718,7 +718,7 @@ static int dissect_keyPairHist_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t CertResponse_sequence[] = {
+static const ber_old_sequence_t CertResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_certReqId },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status1 },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_certifiedKeyPair },
@@ -728,8 +728,8 @@ static const ber_sequence_t CertResponse_sequence[] = {
 
 int
 dissect_cmp_CertResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CertResponse_sequence, hf_index, ett_cmp_CertResponse);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CertResponse_sequence, hf_index, ett_cmp_CertResponse);
 
   return offset;
 }
@@ -738,14 +738,14 @@ static int dissect_response_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_CertResponse_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_OF_CertResponse_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_response_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_OF_CertResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_CertResponse_sequence_of, hf_index, ett_cmp_SEQUENCE_OF_CertResponse);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_OF_CertResponse_sequence_of, hf_index, ett_cmp_SEQUENCE_OF_CertResponse);
 
   return offset;
 }
@@ -754,7 +754,7 @@ static int dissect_response(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t CertRepMessage_sequence[] = {
+static const ber_old_sequence_t CertRepMessage_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_caPubs },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_response },
   { 0, 0, 0, NULL }
@@ -762,8 +762,8 @@ static const ber_sequence_t CertRepMessage_sequence[] = {
 
 int
 dissect_cmp_CertRepMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CertRepMessage_sequence, hf_index, ett_cmp_CertRepMessage);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CertRepMessage_sequence, hf_index, ett_cmp_CertRepMessage);
 
   return offset;
 }
@@ -781,7 +781,7 @@ static int dissect_ccp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const ber_sequence_t Challenge_sequence[] = {
+static const ber_old_sequence_t Challenge_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_owf },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_witness },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_challenge },
@@ -790,8 +790,8 @@ static const ber_sequence_t Challenge_sequence[] = {
 
 int
 dissect_cmp_Challenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Challenge_sequence, hf_index, ett_cmp_Challenge);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Challenge_sequence, hf_index, ett_cmp_Challenge);
 
   return offset;
 }
@@ -800,14 +800,14 @@ static int dissect_POPODecKeyChallContent_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t POPODecKeyChallContent_sequence_of[1] = {
+static const ber_old_sequence_t POPODecKeyChallContent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_POPODecKeyChallContent_item },
 };
 
 int
 dissect_cmp_POPODecKeyChallContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      POPODecKeyChallContent_sequence_of, hf_index, ett_cmp_POPODecKeyChallContent);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          POPODecKeyChallContent_sequence_of, hf_index, ett_cmp_POPODecKeyChallContent);
 
   return offset;
 }
@@ -816,14 +816,14 @@ static int dissect_popdecc(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t POPODecKeyRespContent_sequence_of[1] = {
+static const ber_old_sequence_t POPODecKeyRespContent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_POPODecKeyRespContent_item },
 };
 
 int
 dissect_cmp_POPODecKeyRespContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      POPODecKeyRespContent_sequence_of, hf_index, ett_cmp_POPODecKeyRespContent);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          POPODecKeyRespContent_sequence_of, hf_index, ett_cmp_POPODecKeyRespContent);
 
   return offset;
 }
@@ -832,14 +832,14 @@ static int dissect_popdecr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_keyPairHist_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair);
 
   return offset;
 }
@@ -848,7 +848,7 @@ static int dissect_keyPairHist(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t KeyRecRepContent_sequence[] = {
+static const ber_old_sequence_t KeyRecRepContent_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status1 },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_newSigCert },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_caCerts },
@@ -858,8 +858,8 @@ static const ber_sequence_t KeyRecRepContent_sequence[] = {
 
 int
 dissect_cmp_KeyRecRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   KeyRecRepContent_sequence, hf_index, ett_cmp_KeyRecRepContent);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       KeyRecRepContent_sequence, hf_index, ett_cmp_KeyRecRepContent);
 
   return offset;
 }
@@ -868,7 +868,7 @@ static int dissect_krp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const ber_sequence_t RevDetails_sequence[] = {
+static const ber_old_sequence_t RevDetails_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certDetails },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_revocationReason },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_badSinceDate },
@@ -878,8 +878,8 @@ static const ber_sequence_t RevDetails_sequence[] = {
 
 int
 dissect_cmp_RevDetails(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RevDetails_sequence, hf_index, ett_cmp_RevDetails);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RevDetails_sequence, hf_index, ett_cmp_RevDetails);
 
   return offset;
 }
@@ -888,14 +888,14 @@ static int dissect_RevReqContent_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t RevReqContent_sequence_of[1] = {
+static const ber_old_sequence_t RevReqContent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RevReqContent_item },
 };
 
 int
 dissect_cmp_RevReqContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      RevReqContent_sequence_of, hf_index, ett_cmp_RevReqContent);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          RevReqContent_sequence_of, hf_index, ett_cmp_RevReqContent);
 
   return offset;
 }
@@ -904,14 +904,14 @@ static int dissect_rr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo);
 
   return offset;
 }
@@ -920,14 +920,14 @@ static int dissect_status2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertId_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertId_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_revCerts_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_CertId_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_SIZE_1_MAX_OF_CertId_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId);
 
   return offset;
 }
@@ -936,14 +936,14 @@ static int dissect_revCerts(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertificateList_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertificateList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_crls_item },
 };
 
 static int
 dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_CertificateList_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_SIZE_1_MAX_OF_CertificateList_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList);
 
   return offset;
 }
@@ -952,7 +952,7 @@ static int dissect_crls(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t RevRepContent_sequence[] = {
+static const ber_old_sequence_t RevRepContent_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status2 },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_revCerts },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_crls },
@@ -961,8 +961,8 @@ static const ber_sequence_t RevRepContent_sequence[] = {
 
 int
 dissect_cmp_RevRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RevRepContent_sequence, hf_index, ett_cmp_RevRepContent);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RevRepContent_sequence, hf_index, ett_cmp_RevRepContent);
 
   return offset;
 }
@@ -971,7 +971,7 @@ static int dissect_rp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const ber_sequence_t CAKeyUpdAnnContent_sequence[] = {
+static const ber_old_sequence_t CAKeyUpdAnnContent_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_oldWithNew },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_newWithOld },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_newWithNew },
@@ -980,8 +980,8 @@ static const ber_sequence_t CAKeyUpdAnnContent_sequence[] = {
 
 int
 dissect_cmp_CAKeyUpdAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CAKeyUpdAnnContent_sequence, hf_index, ett_cmp_CAKeyUpdAnnContent);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CAKeyUpdAnnContent_sequence, hf_index, ett_cmp_CAKeyUpdAnnContent);
 
   return offset;
 }
@@ -1002,7 +1002,7 @@ static int dissect_cann(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t RevAnnContent_sequence[] = {
+static const ber_old_sequence_t RevAnnContent_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_status },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certId },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_willBeRevokedAt },
@@ -1013,8 +1013,8 @@ static const ber_sequence_t RevAnnContent_sequence[] = {
 
 int
 dissect_cmp_RevAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RevAnnContent_sequence, hf_index, ett_cmp_RevAnnContent);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RevAnnContent_sequence, hf_index, ett_cmp_RevAnnContent);
 
   return offset;
 }
@@ -1023,14 +1023,14 @@ static int dissect_rann(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t CRLAnnContent_sequence_of[1] = {
+static const ber_old_sequence_t CRLAnnContent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CRLAnnContent_item },
 };
 
 int
 dissect_cmp_CRLAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CRLAnnContent_sequence_of, hf_index, ett_cmp_CRLAnnContent);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          CRLAnnContent_sequence_of, hf_index, ett_cmp_CRLAnnContent);
 
   return offset;
 }
@@ -1063,14 +1063,14 @@ static int dissect_nested(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t GenMsgContent_sequence_of[1] = {
+static const ber_old_sequence_t GenMsgContent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_GenMsgContent_item },
 };
 
 int
 dissect_cmp_GenMsgContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GenMsgContent_sequence_of, hf_index, ett_cmp_GenMsgContent);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          GenMsgContent_sequence_of, hf_index, ett_cmp_GenMsgContent);
 
   return offset;
 }
@@ -1079,14 +1079,14 @@ static int dissect_genm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t GenRepContent_sequence_of[1] = {
+static const ber_old_sequence_t GenRepContent_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_GenRepContent_item },
 };
 
 int
 dissect_cmp_GenRepContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GenRepContent_sequence_of, hf_index, ett_cmp_GenRepContent);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          GenRepContent_sequence_of, hf_index, ett_cmp_GenRepContent);
 
   return offset;
 }
@@ -1095,7 +1095,7 @@ static int dissect_genp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t ErrorMsgContent_sequence[] = {
+static const ber_old_sequence_t ErrorMsgContent_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pKIStatusInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_errorCode },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_errorDetails },
@@ -1104,8 +1104,8 @@ static const ber_sequence_t ErrorMsgContent_sequence[] = {
 
 int
 dissect_cmp_ErrorMsgContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ErrorMsgContent_sequence, hf_index, ett_cmp_ErrorMsgContent);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ErrorMsgContent_sequence, hf_index, ett_cmp_ErrorMsgContent);
 
   return offset;
 }
@@ -1141,7 +1141,7 @@ const value_string cmp_PKIBody_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t PKIBody_choice[] = {
+static const ber_old_choice_t PKIBody_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_ir },
   {   1, BER_CLASS_CON, 1, 0, dissect_ip },
   {   2, BER_CLASS_CON, 2, 0, dissect_cr },
@@ -1170,9 +1170,9 @@ static const ber_choice_t PKIBody_choice[] = {
 
 int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PKIBody_choice, hf_index, ett_cmp_PKIBody,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PKIBody_choice, hf_index, ett_cmp_PKIBody,
+                                     NULL);
 
   return offset;
 }
@@ -1195,7 +1195,7 @@ static int dissect_protection(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t PKIMessage_sequence[] = {
+static const ber_old_sequence_t PKIMessage_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_header },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_body },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_protection },
@@ -1205,14 +1205,14 @@ static const ber_sequence_t PKIMessage_sequence[] = {
 
 int
 dissect_cmp_PKIMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PKIMessage_sequence, hf_index, ett_cmp_PKIMessage);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PKIMessage_sequence, hf_index, ett_cmp_PKIMessage);
 
   return offset;
 }
 
 
-static const ber_sequence_t ProtectedPart_sequence[] = {
+static const ber_old_sequence_t ProtectedPart_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_header },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_body },
   { 0, 0, 0, NULL }
@@ -1220,8 +1220,8 @@ static const ber_sequence_t ProtectedPart_sequence[] = {
 
 int
 dissect_cmp_ProtectedPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProtectedPart_sequence, hf_index, ett_cmp_ProtectedPart);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProtectedPart_sequence, hf_index, ett_cmp_ProtectedPart);
 
   return offset;
 }
@@ -1236,7 +1236,7 @@ dissect_cmp_PasswordBasedMac(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t PBMParameter_sequence[] = {
+static const ber_old_sequence_t PBMParameter_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_salt },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_owf },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_iterationCount },
@@ -1246,8 +1246,8 @@ static const ber_sequence_t PBMParameter_sequence[] = {
 
 int
 dissect_cmp_PBMParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PBMParameter_sequence, hf_index, ett_cmp_PBMParameter);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PBMParameter_sequence, hf_index, ett_cmp_PBMParameter);
 
   return offset;
 }
@@ -1262,7 +1262,7 @@ dissect_cmp_DHBasedMac(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t DHBMParameter_sequence[] = {
+static const ber_old_sequence_t DHBMParameter_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_owf },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_mac },
   { 0, 0, 0, NULL }
@@ -1270,8 +1270,8 @@ static const ber_sequence_t DHBMParameter_sequence[] = {
 
 int
 dissect_cmp_DHBMParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DHBMParameter_sequence, hf_index, ett_cmp_DHBMParameter);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DHBMParameter_sequence, hf_index, ett_cmp_DHBMParameter);
 
   return offset;
 }
@@ -1300,7 +1300,7 @@ static int dissect_hashVal(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t OOBCertHash_sequence[] = {
+static const ber_old_sequence_t OOBCertHash_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_hashAlg },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_certId },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_hashVal },
@@ -1309,8 +1309,8 @@ static const ber_sequence_t OOBCertHash_sequence[] = {
 
 int
 dissect_cmp_OOBCertHash(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   OOBCertHash_sequence, hf_index, ett_cmp_OOBCertHash);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       OOBCertHash_sequence, hf_index, ett_cmp_OOBCertHash);
 
   return offset;
 }

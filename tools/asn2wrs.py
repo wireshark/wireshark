@@ -3050,7 +3050,13 @@ class SeqType (SqType):
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
-    table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
+    if (ectx.Ber()):
+        if (ectx.NewBer()):
+            table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
+        else:
+            table = "static const %(ER)s_old_sequence_t %(TABLE)s[] = {\n"
+    else:
+        table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
     else:
@@ -3080,7 +3086,13 @@ class SeqOfType (SqType):
       f = fname + '/' + self.val.name
     else:
       f = fname + '/' + '_item'
-    table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
+    if (ectx.Ber()):
+        if (ectx.NewBer()):
+            table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
+        else:
+            table = "static const %(ER)s_old_sequence_t %(TABLE)s[1] = {\n"
+    else:
+        table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
     table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
     table += "};\n"
     return table
@@ -3130,7 +3142,12 @@ class SequenceOfType (SeqOfType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
+        if (ectx.NewBer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+        else:            
+            body = ectx.eth_fn_call('dissect_%(ER)s_old_sequence_of', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
@@ -3182,7 +3199,12 @@ class SetOfType (SeqOfType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
+        if (ectx.NewBer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+        else:    
+            body = ectx.eth_fn_call('dissect_%(ER)s_old_set_of', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
@@ -3273,7 +3295,12 @@ class SequenceType (SeqType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
+        if(ectx.NewBer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+        else:
+            body = ectx.eth_fn_call('dissect_%(ER)s_old_sequence', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per()):
@@ -3306,7 +3333,12 @@ class SetType(SeqType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
+        if(ectx.NewBer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+        else:
+            body = ectx.eth_fn_call('dissect_%(ER)s_old_set', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per()):
@@ -3489,7 +3521,13 @@ class ChoiceType (Type):
       for e in (lst):
         if (e.GetTag(ectx)[0] != t):
           tagval = False
-    table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
+    if (ectx.Ber()):
+        if (ectx.NewBer()):
+            table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
+        else:
+            table = "static const %(ER)s_old_choice_t %(TABLE)s[] = {\n"
+    else:
+        table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
     cnt = 0
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
@@ -3517,7 +3555,13 @@ class ChoiceType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
+        if (ectx.NewBer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
+                              par=(('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
+        else:
+            body = ectx.eth_fn_call('dissect_%(ER)s_old_choice', ret='offset',
                               par=(('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
                                    ('%(VAL_PTR)s',),))

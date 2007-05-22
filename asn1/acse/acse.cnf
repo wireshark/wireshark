@@ -51,7 +51,7 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 	offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len1, &ind_field);
    }
-   offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
+   offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
                                 EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
 
 #.FN_PARS Authentication-value-other/other-mechanism-name  

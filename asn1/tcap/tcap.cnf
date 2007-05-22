@@ -152,7 +152,7 @@ if (! (subdissector_handle = get_ansi_tcap_subdissector(actx->pinfo->match_port)
 
 call_dissector(subdissector_handle, next_tvb, actx->pinfo, tcap_top_tree);
     
-offset = dissect_ber_choice(actx, tree, tvb, offset,
+offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
 	
 #.FN_BODY OrigTransactionID

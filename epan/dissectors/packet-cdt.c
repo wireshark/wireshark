@@ -164,7 +164,7 @@ static const value_string cdt_CompressionAlgorithmIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CompressionAlgorithmIdentifier_choice[] = {
+static const ber_old_choice_t CompressionAlgorithmIdentifier_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_algorithmID_ShortForm_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_algorithmID_OID_impl },
   { 0, 0, 0, 0, NULL }
@@ -172,9 +172,9 @@ static const ber_choice_t CompressionAlgorithmIdentifier_choice[] = {
 
 static int
 dissect_cdt_CompressionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CompressionAlgorithmIdentifier_choice, hf_index, ett_cdt_CompressionAlgorithmIdentifier,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CompressionAlgorithmIdentifier_choice, hf_index, ett_cdt_CompressionAlgorithmIdentifier,
+                                     NULL);
 
   return offset;
 }
@@ -225,7 +225,7 @@ static const value_string cdt_T_contentType_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_contentType_choice[] = {
+static const ber_old_choice_t T_contentType_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_contentType_ShortForm_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_contentType_OID_impl },
   { 0, 0, 0, 0, NULL }
@@ -233,9 +233,9 @@ static const ber_choice_t T_contentType_choice[] = {
 
 static int
 dissect_cdt_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_contentType_choice, hf_index, ett_cdt_T_contentType,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_contentType_choice, hf_index, ett_cdt_T_contentType,
+                                     NULL);
 
   return offset;
 }
@@ -293,7 +293,7 @@ static int dissect_compressedContent(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t CompressedContentInfo_sequence[] = {
+static const ber_old_sequence_t CompressedContentInfo_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_contentType },
   { BER_CLASS_CON, 0, 0, dissect_compressedContent },
   { 0, 0, 0, NULL }
@@ -301,8 +301,8 @@ static const ber_sequence_t CompressedContentInfo_sequence[] = {
 
 static int
 dissect_cdt_CompressedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CompressedContentInfo_sequence, hf_index, ett_cdt_CompressedContentInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CompressedContentInfo_sequence, hf_index, ett_cdt_CompressedContentInfo);
 
   return offset;
 }
@@ -311,7 +311,7 @@ static int dissect_compressedContentInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t CompressedData_sequence[] = {
+static const ber_old_sequence_t CompressedData_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_compressionAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_compressedContentInfo },
   { 0, 0, 0, NULL }
@@ -319,8 +319,8 @@ static const ber_sequence_t CompressedData_sequence[] = {
 
 int
 dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CompressedData_sequence, hf_index, ett_cdt_CompressedData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CompressedData_sequence, hf_index, ett_cdt_CompressedData);
 
   return offset;
 }

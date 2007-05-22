@@ -156,7 +156,7 @@ static int dissect_hashedMessage(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t MessageImprint_sequence[] = {
+static const ber_old_sequence_t MessageImprint_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_hashAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hashedMessage },
   { 0, 0, 0, NULL }
@@ -164,8 +164,8 @@ static const ber_sequence_t MessageImprint_sequence[] = {
 
 static int
 dissect_pkixtsp_MessageImprint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MessageImprint_sequence, hf_index, ett_pkixtsp_MessageImprint);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MessageImprint_sequence, hf_index, ett_pkixtsp_MessageImprint);
 
   return offset;
 }
@@ -223,7 +223,7 @@ static int dissect_ordering(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t TimeStampReq_sequence[] = {
+static const ber_old_sequence_t TimeStampReq_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_messageImprint },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_reqPolicy },
@@ -235,8 +235,8 @@ static const ber_sequence_t TimeStampReq_sequence[] = {
 
 static int
 dissect_pkixtsp_TimeStampReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TimeStampReq_sequence, hf_index, ett_pkixtsp_TimeStampReq);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TimeStampReq_sequence, hf_index, ett_pkixtsp_TimeStampReq);
 
   return offset;
 }
@@ -290,7 +290,7 @@ static int dissect_failInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t PKIStatusInfo_sequence[] = {
+static const ber_old_sequence_t PKIStatusInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pki_status },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_failInfo },
   { 0, 0, 0, NULL }
@@ -298,8 +298,8 @@ static const ber_sequence_t PKIStatusInfo_sequence[] = {
 
 static int
 dissect_pkixtsp_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PKIStatusInfo_sequence, hf_index, ett_pkixtsp_PKIStatusInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PKIStatusInfo_sequence, hf_index, ett_pkixtsp_PKIStatusInfo);
 
   return offset;
 }
@@ -320,7 +320,7 @@ static int dissect_timeStampToken(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t TimeStampResp_sequence[] = {
+static const ber_old_sequence_t TimeStampResp_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_timeStampToken },
   { 0, 0, 0, NULL }
@@ -328,8 +328,8 @@ static const ber_sequence_t TimeStampResp_sequence[] = {
 
 static int
 dissect_pkixtsp_TimeStampResp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TimeStampResp_sequence, hf_index, ett_pkixtsp_TimeStampResp);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TimeStampResp_sequence, hf_index, ett_pkixtsp_TimeStampResp);
 
   return offset;
 }
@@ -381,7 +381,7 @@ static int dissect_micros_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t Accuracy_sequence[] = {
+static const ber_old_sequence_t Accuracy_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_seconds },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_millis_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_micros_impl },
@@ -390,8 +390,8 @@ static const ber_sequence_t Accuracy_sequence[] = {
 
 static int
 dissect_pkixtsp_Accuracy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Accuracy_sequence, hf_index, ett_pkixtsp_Accuracy);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Accuracy_sequence, hf_index, ett_pkixtsp_Accuracy);
 
   return offset;
 }
@@ -400,7 +400,7 @@ static int dissect_accuracy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t TSTInfo_sequence[] = {
+static const ber_old_sequence_t TSTInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tst_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policy },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_messageImprint },
@@ -416,8 +416,8 @@ static const ber_sequence_t TSTInfo_sequence[] = {
 
 static int
 dissect_pkixtsp_TSTInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TSTInfo_sequence, hf_index, ett_pkixtsp_TSTInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TSTInfo_sequence, hf_index, ett_pkixtsp_TSTInfo);
 
   return offset;
 }

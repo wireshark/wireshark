@@ -90,7 +90,7 @@ static int dissect_kpasswd_newpassword(proto_tree *tree, tvbuff_t *tvb, int offs
 	return offset;
 }
 
-static ber_sequence_t ChangePasswdData_sequence[] = {
+static ber_old_sequence_t ChangePasswdData_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_kpasswd_newpassword },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, 
@@ -107,7 +107,7 @@ dissect_kpasswd_user_data_request(packet_info *pinfo, tvbuff_t *tvb, proto_tree 
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    offset=dissect_ber_sequence(FALSE, &asn1_ctx, tree, tvb, offset, ChangePasswdData_sequence, hf_kpasswd_ChangePasswdData, ett_ChangePasswdData);
+    offset=dissect_ber_old_sequence(FALSE, &asn1_ctx, tree, tvb, offset, ChangePasswdData_sequence, hf_kpasswd_ChangePasswdData, ett_ChangePasswdData);
 
     return offset;
 }

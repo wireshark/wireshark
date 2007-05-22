@@ -193,7 +193,7 @@ static int dissect_thisMech(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t MechTypeList_sequence_of[1] = {
+static const ber_old_sequence_t MechTypeList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_MechTypeList_item },
 };
 
@@ -205,8 +205,8 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   saw_mechanism = FALSE;
 
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      MechTypeList_sequence_of, hf_index, ett_spnego_MechTypeList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          MechTypeList_sequence_of, hf_index, ett_spnego_MechTypeList);
 
 
   /* 
@@ -338,7 +338,7 @@ static int dissect_negTokenInit_mechListMIC(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t NegTokenInit_sequence[] = {
+static const ber_old_sequence_t NegTokenInit_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_mechTypes },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_reqFlags },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_mechToken },
@@ -348,8 +348,8 @@ static const ber_sequence_t NegTokenInit_sequence[] = {
 
 static int
 dissect_spnego_NegTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NegTokenInit_sequence, hf_index, ett_spnego_NegTokenInit);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NegTokenInit_sequence, hf_index, ett_spnego_NegTokenInit);
 
   return offset;
 }
@@ -491,7 +491,7 @@ static int dissect_mechListMIC(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t NegTokenTarg_sequence[] = {
+static const ber_old_sequence_t NegTokenTarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_negResult },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_supportedMech },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_responseToken },
@@ -501,8 +501,8 @@ static const ber_sequence_t NegTokenTarg_sequence[] = {
 
 static int
 dissect_spnego_NegTokenTarg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NegTokenTarg_sequence, hf_index, ett_spnego_NegTokenTarg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NegTokenTarg_sequence, hf_index, ett_spnego_NegTokenTarg);
 
   return offset;
 }
@@ -517,7 +517,7 @@ static const value_string spnego_NegotiationToken_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t NegotiationToken_choice[] = {
+static const ber_old_choice_t NegotiationToken_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_negTokenInit },
   {   1, BER_CLASS_CON, 1, 0, dissect_negTokenTarg },
   { 0, 0, 0, 0, NULL }
@@ -525,9 +525,9 @@ static const ber_choice_t NegotiationToken_choice[] = {
 
 static int
 dissect_spnego_NegotiationToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 NegotiationToken_choice, hf_index, ett_spnego_NegotiationToken,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     NegotiationToken_choice, hf_index, ett_spnego_NegotiationToken,
+                                     NULL);
 
   return offset;
 }
@@ -547,15 +547,15 @@ static int dissect_principal(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t PrincipalSeq_sequence[] = {
+static const ber_old_sequence_t PrincipalSeq_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_principal },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_spnego_PrincipalSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrincipalSeq_sequence, hf_index, ett_spnego_PrincipalSeq);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrincipalSeq_sequence, hf_index, ett_spnego_PrincipalSeq);
 
   return offset;
 }
@@ -616,7 +616,7 @@ static int dissect_innerContextToken(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t InitialContextToken_sequence[] = {
+static const ber_old_sequence_t InitialContextToken_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_thisMech },
   { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_innerContextToken },
   { 0, 0, 0, NULL }
@@ -624,8 +624,8 @@ static const ber_sequence_t InitialContextToken_sequence[] = {
 
 static int
 dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InitialContextToken_sequence, hf_index, ett_spnego_InitialContextToken);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       InitialContextToken_sequence, hf_index, ett_spnego_InitialContextToken);
 
   return offset;
 }

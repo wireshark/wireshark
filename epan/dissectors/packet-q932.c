@@ -253,7 +253,7 @@ static int dissect_publicTypeOfNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t PublicPartyNumber_sequence[] = {
+static const ber_old_sequence_t PublicPartyNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_publicTypeOfNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_publicNumberDigits },
   { 0, 0, 0, NULL }
@@ -261,8 +261,8 @@ static const ber_sequence_t PublicPartyNumber_sequence[] = {
 
 static int
 dissect_q932_PublicPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PublicPartyNumber_sequence, hf_index, ett_q932_PublicPartyNumber);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PublicPartyNumber_sequence, hf_index, ett_q932_PublicPartyNumber);
 
   return offset;
 }
@@ -307,7 +307,7 @@ static int dissect_privateTypeOfNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t PrivatePartyNumber_sequence[] = {
+static const ber_old_sequence_t PrivatePartyNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_privateTypeOfNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_privateNumberDigits },
   { 0, 0, 0, NULL }
@@ -315,8 +315,8 @@ static const ber_sequence_t PrivatePartyNumber_sequence[] = {
 
 static int
 dissect_q932_PrivatePartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrivatePartyNumber_sequence, hf_index, ett_q932_PrivatePartyNumber);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrivatePartyNumber_sequence, hf_index, ett_q932_PrivatePartyNumber);
 
   return offset;
 }
@@ -325,7 +325,7 @@ static int dissect_privatePartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_choice_t PartyNumber_choice[] = {
+static const ber_old_choice_t PartyNumber_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unknownPartyNumber_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_publicPartyNumber_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_nsapEncodedNumber_impl },
@@ -338,9 +338,9 @@ static const ber_choice_t PartyNumber_choice[] = {
 
 int
 dissect_q932_PartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PartyNumber_choice, hf_index, ett_q932_PartyNumber,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PartyNumber_choice, hf_index, ett_q932_PartyNumber,
+                                     NULL);
 
   return offset;
 }
@@ -396,7 +396,7 @@ static int dissect_oddCountIndicator(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t UserSpecifiedSubaddress_sequence[] = {
+static const ber_old_sequence_t UserSpecifiedSubaddress_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_subaddressInformation },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_oddCountIndicator },
   { 0, 0, 0, NULL }
@@ -404,8 +404,8 @@ static const ber_sequence_t UserSpecifiedSubaddress_sequence[] = {
 
 static int
 dissect_q932_UserSpecifiedSubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UserSpecifiedSubaddress_sequence, hf_index, ett_q932_UserSpecifiedSubaddress);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UserSpecifiedSubaddress_sequence, hf_index, ett_q932_UserSpecifiedSubaddress);
 
   return offset;
 }
@@ -427,7 +427,7 @@ static int dissect_nSAPSubaddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_choice_t PartySubaddress_choice[] = {
+static const ber_old_choice_t PartySubaddress_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userSpecifiedSubaddress },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nSAPSubaddress },
   { 0, 0, 0, 0, NULL }
@@ -435,9 +435,9 @@ static const ber_choice_t PartySubaddress_choice[] = {
 
 int
 dissect_q932_PartySubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PartySubaddress_choice, hf_index, ett_q932_PartySubaddress,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PartySubaddress_choice, hf_index, ett_q932_PartySubaddress,
+                                     NULL);
 
   return offset;
 }
@@ -446,7 +446,7 @@ static int dissect_partySubaddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t AddressScreened_sequence[] = {
+static const ber_old_sequence_t AddressScreened_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partyNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_screeninglndicator },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partySubaddress },
@@ -455,8 +455,8 @@ static const ber_sequence_t AddressScreened_sequence[] = {
 
 static int
 dissect_q932_AddressScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AddressScreened_sequence, hf_index, ett_q932_AddressScreened);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AddressScreened_sequence, hf_index, ett_q932_AddressScreened);
 
   return offset;
 }
@@ -486,7 +486,7 @@ static int dissect_numberNotAvailableDueToInterworking_impl(proto_tree *tree _U_
 }
 
 
-static const ber_choice_t PresentedAddressScreened_choice[] = {
+static const ber_old_choice_t PresentedAddressScreened_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_presentationAlIowedAddress_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueTolnterworking_impl },
@@ -496,15 +496,15 @@ static const ber_choice_t PresentedAddressScreened_choice[] = {
 
 int
 dissect_q932_PresentedAddressScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PresentedAddressScreened_choice, hf_index, ett_q932_PresentedAddressScreened,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PresentedAddressScreened_choice, hf_index, ett_q932_PresentedAddressScreened,
+                                     NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t Address_sequence[] = {
+static const ber_old_sequence_t Address_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partyNumber },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partySubaddress },
   { 0, 0, 0, NULL }
@@ -512,8 +512,8 @@ static const ber_sequence_t Address_sequence[] = {
 
 int
 dissect_q932_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Address_sequence, hf_index, ett_q932_Address);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Address_sequence, hf_index, ett_q932_Address);
 
   return offset;
 }
@@ -525,7 +525,7 @@ static int dissect_presentationRestrictedAddress_impl(proto_tree *tree _U_, tvbu
 }
 
 
-static const ber_choice_t PresentedAddressUnscreened_choice[] = {
+static const ber_old_choice_t PresentedAddressUnscreened_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_presentationAllowedAddress_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueTolnterworking_impl },
@@ -535,15 +535,15 @@ static const ber_choice_t PresentedAddressUnscreened_choice[] = {
 
 int
 dissect_q932_PresentedAddressUnscreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PresentedAddressUnscreened_choice, hf_index, ett_q932_PresentedAddressUnscreened,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PresentedAddressUnscreened_choice, hf_index, ett_q932_PresentedAddressUnscreened,
+                                     NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t NumberScreened_sequence[] = {
+static const ber_old_sequence_t NumberScreened_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partyNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_screeningIndicator },
   { 0, 0, 0, NULL }
@@ -551,8 +551,8 @@ static const ber_sequence_t NumberScreened_sequence[] = {
 
 static int
 dissect_q932_NumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NumberScreened_sequence, hf_index, ett_q932_NumberScreened);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NumberScreened_sequence, hf_index, ett_q932_NumberScreened);
 
   return offset;
 }
@@ -564,7 +564,7 @@ static int dissect_presentationRestrictedNumberScreened_impl(proto_tree *tree _U
 }
 
 
-static const ber_choice_t PresentedNumberScreened_choice[] = {
+static const ber_old_choice_t PresentedNumberScreened_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_presentationAllowedNumberScreened_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueToInterworking_impl },
@@ -574,15 +574,15 @@ static const ber_choice_t PresentedNumberScreened_choice[] = {
 
 int
 dissect_q932_PresentedNumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PresentedNumberScreened_choice, hf_index, ett_q932_PresentedNumberScreened,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PresentedNumberScreened_choice, hf_index, ett_q932_PresentedNumberScreened,
+                                     NULL);
 
   return offset;
 }
 
 
-static const ber_choice_t PresentedNumberUnscreened_choice[] = {
+static const ber_old_choice_t PresentedNumberUnscreened_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_presentationAllowedNumber },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueToInterworking_impl },
@@ -592,9 +592,9 @@ static const ber_choice_t PresentedNumberUnscreened_choice[] = {
 
 int
 dissect_q932_PresentedNumberUnscreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PresentedNumberUnscreened_choice, hf_index, ett_q932_PresentedNumberUnscreened,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PresentedNumberUnscreened_choice, hf_index, ett_q932_PresentedNumberUnscreened,
+                                     NULL);
 
   return offset;
 }
@@ -646,7 +646,7 @@ static int dissect_destinationEntityAddress(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t NetworkFacilityExtension_U_sequence[] = {
+static const ber_old_sequence_t NetworkFacilityExtension_U_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sourceEntity_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_sourceEntityAddress },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_destinationEntity_impl },
@@ -656,8 +656,8 @@ static const ber_sequence_t NetworkFacilityExtension_U_sequence[] = {
 
 static int
 dissect_q932_NetworkFacilityExtension_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NetworkFacilityExtension_U_sequence, hf_index, ett_q932_NetworkFacilityExtension_U);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NetworkFacilityExtension_U_sequence, hf_index, ett_q932_NetworkFacilityExtension_U);
 
   return offset;
 }

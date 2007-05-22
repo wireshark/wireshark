@@ -284,7 +284,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
  if(doing_address)
     g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
 
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               CountryName_choice, hf_index, ett_x411_CountryName, NULL);
 
 
@@ -306,7 +306,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
   if(doing_address)
     g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
 
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
 
 #.FN_BODY ContentIdentifier

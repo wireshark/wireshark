@@ -119,7 +119,7 @@ static int dissect_policy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t ProxyPolicy_sequence[] = {
+static const ber_old_sequence_t ProxyPolicy_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policyLanguage },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_policy },
   { 0, 0, 0, NULL }
@@ -127,8 +127,8 @@ static const ber_sequence_t ProxyPolicy_sequence[] = {
 
 static int
 dissect_pkixproxy_ProxyPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProxyPolicy_sequence, hf_index, ett_pkixproxy_ProxyPolicy);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProxyPolicy_sequence, hf_index, ett_pkixproxy_ProxyPolicy);
 
   return offset;
 }
@@ -137,7 +137,7 @@ static int dissect_proxyPolicy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t ProxyCertInfoExtension_sequence[] = {
+static const ber_old_sequence_t ProxyCertInfoExtension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pCPathLenConstraint },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_proxyPolicy },
   { 0, 0, 0, NULL }
@@ -145,8 +145,8 @@ static const ber_sequence_t ProxyCertInfoExtension_sequence[] = {
 
 static int
 dissect_pkixproxy_ProxyCertInfoExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProxyCertInfoExtension_sequence, hf_index, ett_pkixproxy_ProxyCertInfoExtension);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProxyCertInfoExtension_sequence, hf_index, ett_pkixproxy_ProxyCertInfoExtension);
 
   return offset;
 }

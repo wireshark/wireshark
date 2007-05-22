@@ -148,7 +148,7 @@ static const value_string pkinit_TrustedCA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t TrustedCA_choice[] = {
+static const ber_old_choice_t TrustedCA_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_caName },
   {   2, BER_CLASS_CON, 2, 0, dissect_issuerAndSerial },
   { 0, 0, 0, 0, NULL }
@@ -156,9 +156,9 @@ static const ber_choice_t TrustedCA_choice[] = {
 
 static int
 dissect_pkinit_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 TrustedCA_choice, hf_index, ett_pkinit_TrustedCA,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     TrustedCA_choice, hf_index, ett_pkinit_TrustedCA,
+                                     NULL);
 
   return offset;
 }
@@ -167,14 +167,14 @@ static int dissect_trustedCertifiers_item(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_trustedCertifiers_item },
 };
 
 static int
 dissect_pkinit_SEQUENCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
 
   return offset;
 }
@@ -183,7 +183,7 @@ static int dissect_trustedCertifiers(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t PaPkAsReq_sequence[] = {
+static const ber_old_sequence_t PaPkAsReq_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_signedAuthPack },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_trustedCertifiers },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kdcCert },
@@ -192,8 +192,8 @@ static const ber_sequence_t PaPkAsReq_sequence[] = {
 
 static int
 dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PaPkAsReq_sequence, hf_index, ett_pkinit_PaPkAsReq);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PaPkAsReq_sequence, hf_index, ett_pkinit_PaPkAsReq);
 
   return offset;
 }
@@ -228,7 +228,7 @@ static int dissect_paNonce(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t PKAuthenticator_sequence[] = {
+static const ber_old_sequence_t PKAuthenticator_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_cusec },
   { BER_CLASS_CON, 1, 0, dissect_ctime },
   { BER_CLASS_CON, 2, 0, dissect_paNonce },
@@ -238,8 +238,8 @@ static const ber_sequence_t PKAuthenticator_sequence[] = {
 
 static int
 dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
 
   return offset;
 }
@@ -248,14 +248,14 @@ static int dissect_pkAuthenticator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
+static const ber_old_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_supportedCMSTypes_item },
 };
 
 static int
 dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
 
   return offset;
 }
@@ -264,7 +264,7 @@ static int dissect_supportedCMSTypes(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t AuthPack_sequence[] = {
+static const ber_old_sequence_t AuthPack_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_pkAuthenticator },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_clientPublicValue },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_supportedCMSTypes },
@@ -273,8 +273,8 @@ static const ber_sequence_t AuthPack_sequence[] = {
 
 static int
 dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AuthPack_sequence, hf_index, ett_pkinit_AuthPack);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AuthPack_sequence, hf_index, ett_pkinit_AuthPack);
 
   return offset;
 }
@@ -286,7 +286,7 @@ static const value_string pkinit_PaPkAsRep_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t PaPkAsRep_choice[] = {
+static const ber_old_choice_t PaPkAsRep_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_dhSignedData },
   {   1, BER_CLASS_CON, 1, 0, dissect_encKeyPack },
   { 0, 0, 0, 0, NULL }
@@ -294,9 +294,9 @@ static const ber_choice_t PaPkAsRep_choice[] = {
 
 static int
 dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep,
+                                     NULL);
 
   return offset;
 }
@@ -316,7 +316,7 @@ static int dissect_subjectPublicKey(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t KDCDHKeyInfo_sequence[] = {
+static const ber_old_sequence_t KDCDHKeyInfo_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_subjectPublicKey },
   { BER_CLASS_CON, 1, 0, dissect_dhNonce },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dhKeyExpiration },
@@ -325,8 +325,8 @@ static const ber_sequence_t KDCDHKeyInfo_sequence[] = {
 
 static int
 dissect_pkinit_KDCDHKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   KDCDHKeyInfo_sequence, hf_index, ett_pkinit_KDCDHKeyInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       KDCDHKeyInfo_sequence, hf_index, ett_pkinit_KDCDHKeyInfo);
 
   return offset;
 }

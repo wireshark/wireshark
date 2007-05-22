@@ -205,7 +205,7 @@ static int dissect_extnValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t Extension_sequence[] = {
+static const ber_old_sequence_t Extension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extnId },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_critical },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_extnValue },
@@ -214,8 +214,8 @@ static const ber_sequence_t Extension_sequence[] = {
 
 int
 dissect_pkix1explicit_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Extension_sequence, hf_index, ett_pkix1explicit_Extension);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Extension_sequence, hf_index, ett_pkix1explicit_Extension);
 
   return offset;
 }
@@ -224,14 +224,14 @@ static int dissect_Extensions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t Extensions_sequence_of[1] = {
+static const ber_old_sequence_t Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Extensions_item },
 };
 
 int
 dissect_pkix1explicit_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Extensions_sequence_of, hf_index, ett_pkix1explicit_Extensions);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Extensions_sequence_of, hf_index, ett_pkix1explicit_Extensions);
 
   return offset;
 }
@@ -276,7 +276,7 @@ static int dissect_seed(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t ValidationParms_sequence[] = {
+static const ber_old_sequence_t ValidationParms_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_seed },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pgenCounter },
   { 0, 0, 0, NULL }
@@ -284,8 +284,8 @@ static const ber_sequence_t ValidationParms_sequence[] = {
 
 static int
 dissect_pkix1explicit_ValidationParms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ValidationParms_sequence, hf_index, ett_pkix1explicit_ValidationParms);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ValidationParms_sequence, hf_index, ett_pkix1explicit_ValidationParms);
 
   return offset;
 }
@@ -294,7 +294,7 @@ static int dissect_validationParms(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t DomainParameters_sequence[] = {
+static const ber_old_sequence_t DomainParameters_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_g },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_q },
@@ -305,8 +305,8 @@ static const ber_sequence_t DomainParameters_sequence[] = {
 
 static int
 dissect_pkix1explicit_DomainParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DomainParameters_sequence, hf_index, ett_pkix1explicit_DomainParameters);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DomainParameters_sequence, hf_index, ett_pkix1explicit_DomainParameters);
 
   return offset;
 }
@@ -339,7 +339,7 @@ static int dissect_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const ber_sequence_t AttributeTypeAndValue_sequence[] = {
+static const ber_old_sequence_t AttributeTypeAndValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value },
   { 0, 0, 0, NULL }
@@ -347,8 +347,8 @@ static const ber_sequence_t AttributeTypeAndValue_sequence[] = {
 
 int
 dissect_pkix1explicit_AttributeTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AttributeTypeAndValue_sequence, hf_index, ett_pkix1explicit_AttributeTypeAndValue);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AttributeTypeAndValue_sequence, hf_index, ett_pkix1explicit_AttributeTypeAndValue);
 
   return offset;
 }
@@ -357,14 +357,14 @@ static int dissect_RelativeDistinguishedName_item(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
+static const ber_old_sequence_t RelativeDistinguishedName_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RelativeDistinguishedName_item },
 };
 
 int
 dissect_pkix1explicit_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 RelativeDistinguishedName_set_of, hf_index, ett_pkix1explicit_RelativeDistinguishedName);
+  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
+                                     RelativeDistinguishedName_set_of, hf_index, ett_pkix1explicit_RelativeDistinguishedName);
 
   return offset;
 }
@@ -373,14 +373,14 @@ static int dissect_RDNSequence_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t RDNSequence_sequence_of[1] = {
+static const ber_old_sequence_t RDNSequence_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_RDNSequence_item },
 };
 
 int
 dissect_pkix1explicit_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      RDNSequence_sequence_of, hf_index, ett_pkix1explicit_RDNSequence);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          RDNSequence_sequence_of, hf_index, ett_pkix1explicit_RDNSequence);
 
   return offset;
 }
@@ -435,7 +435,7 @@ static int dissect_value1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
+static const ber_old_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_type1 },
   { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_value1 },
   { 0, 0, 0, NULL }
@@ -443,8 +443,8 @@ static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
 
 int
 dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TeletexDomainDefinedAttribute_sequence, hf_index, ett_pkix1explicit_TeletexDomainDefinedAttribute);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TeletexDomainDefinedAttribute_sequence, hf_index, ett_pkix1explicit_TeletexDomainDefinedAttribute);
 
   return offset;
 }

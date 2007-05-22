@@ -2103,7 +2103,7 @@ static const value_string gsm_map_OPERATION_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t OPERATION_choice[] = {
+static const ber_old_choice_t OPERATION_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_operationLocalvalue },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
@@ -2111,9 +2111,9 @@ static const ber_choice_t OPERATION_choice[] = {
 
 static int
 dissect_gsm_map_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 OPERATION_choice, hf_index, ett_gsm_map_OPERATION,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     OPERATION_choice, hf_index, ett_gsm_map_OPERATION,
+                                     NULL);
 
   return offset;
 }
@@ -2137,7 +2137,7 @@ static int dissect_invokeparameter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t Invoke_sequence[] = {
+static const ber_old_sequence_t Invoke_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
@@ -2147,8 +2147,8 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_gsm_map_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Invoke_sequence, hf_index, ett_gsm_map_Invoke);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Invoke_sequence, hf_index, ett_gsm_map_Invoke);
 
   return offset;
 }
@@ -2172,7 +2172,7 @@ static int dissect_returnparameter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t T_resultretres_sequence[] = {
+static const ber_old_sequence_t T_resultretres_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_returnparameter },
   { 0, 0, 0, NULL }
@@ -2180,8 +2180,8 @@ static const ber_sequence_t T_resultretres_sequence[] = {
 
 static int
 dissect_gsm_map_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_resultretres_sequence, hf_index, ett_gsm_map_T_resultretres);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       T_resultretres_sequence, hf_index, ett_gsm_map_T_resultretres);
 
   return offset;
 }
@@ -2190,7 +2190,7 @@ static int dissect_resultretres(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t ReturnResult_sequence[] = {
+static const ber_old_sequence_t ReturnResult_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_resultretres },
   { 0, 0, 0, NULL }
@@ -2198,8 +2198,8 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_gsm_map_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReturnResult_sequence, hf_index, ett_gsm_map_ReturnResult);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReturnResult_sequence, hf_index, ett_gsm_map_ReturnResult);
 
   return offset;
 }
@@ -2299,7 +2299,7 @@ static const value_string gsm_map_ERROR_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ERROR_choice[] = {
+static const ber_old_choice_t ERROR_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localErrorcode },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
@@ -2307,9 +2307,9 @@ static const ber_choice_t ERROR_choice[] = {
 
 static int
 dissect_gsm_map_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ERROR_choice, hf_index, ett_gsm_map_ERROR,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ERROR_choice, hf_index, ett_gsm_map_ERROR,
+                                     NULL);
 
   return offset;
 }
@@ -2333,7 +2333,7 @@ static int dissect_parameter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t ReturnError_sequence[] = {
+static const ber_old_sequence_t ReturnError_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_returnErrorCode },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
@@ -2342,8 +2342,8 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_gsm_map_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReturnError_sequence, hf_index, ett_gsm_map_ReturnError);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReturnError_sequence, hf_index, ett_gsm_map_ReturnError);
 
   return offset;
 }
@@ -2736,7 +2736,7 @@ static const value_string gsm_map_T_invokeIDRej_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_invokeIDRej_choice[] = {
+static const ber_old_choice_t T_invokeIDRej_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_derivable },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_not_derivable },
   { 0, 0, 0, 0, NULL }
@@ -2744,9 +2744,9 @@ static const ber_choice_t T_invokeIDRej_choice[] = {
 
 static int
 dissect_gsm_map_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_invokeIDRej_choice, hf_index, ett_gsm_map_T_invokeIDRej,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_invokeIDRej_choice, hf_index, ett_gsm_map_T_invokeIDRej,
+                                     NULL);
 
   return offset;
 }
@@ -2850,7 +2850,7 @@ static const value_string gsm_map_T_problem_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_problem_choice[] = {
+static const ber_old_choice_t T_problem_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_generalProblem_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invokeProblem_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultProblem_impl },
@@ -2860,9 +2860,9 @@ static const ber_choice_t T_problem_choice[] = {
 
 static int
 dissect_gsm_map_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_problem_choice, hf_index, ett_gsm_map_T_problem,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_problem_choice, hf_index, ett_gsm_map_T_problem,
+                                     NULL);
 
   return offset;
 }
@@ -2871,7 +2871,7 @@ static int dissect_problem(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t Reject_sequence[] = {
+static const ber_old_sequence_t Reject_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeIDRej },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_problem },
   { 0, 0, 0, NULL }
@@ -2879,8 +2879,8 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_gsm_map_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Reject_sequence, hf_index, ett_gsm_map_Reject);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Reject_sequence, hf_index, ett_gsm_map_Reject);
 
   return offset;
 }
@@ -2898,7 +2898,7 @@ static const value_string gsm_map_Component_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Component_choice[] = {
+static const ber_old_choice_t Component_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
@@ -2909,9 +2909,9 @@ static const ber_choice_t Component_choice[] = {
 
 static int
 dissect_gsm_map_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Component_choice, hf_index, ett_gsm_map_Component,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Component_choice, hf_index, ett_gsm_map_Component,
+                                     NULL);
 
   return offset;
 }
@@ -3018,7 +3018,7 @@ static int dissect_extType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t PrivateExtension_sequence[] = {
+static const ber_old_sequence_t PrivateExtension_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extId },
   { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extType },
   { 0, 0, 0, NULL }
@@ -3026,8 +3026,8 @@ static const ber_sequence_t PrivateExtension_sequence[] = {
 
 static int
 dissect_gsm_map_PrivateExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrivateExtension_sequence, hf_index, ett_gsm_map_PrivateExtension);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrivateExtension_sequence, hf_index, ett_gsm_map_PrivateExtension);
 
   return offset;
 }
@@ -3036,14 +3036,14 @@ static int dissect_PrivateExtensionList_item(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t PrivateExtensionList_sequence_of[1] = {
+static const ber_old_sequence_t PrivateExtensionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PrivateExtensionList_item },
 };
 
 static int
 dissect_gsm_map_PrivateExtensionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PrivateExtensionList_sequence_of, hf_index, ett_gsm_map_PrivateExtensionList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          PrivateExtensionList_sequence_of, hf_index, ett_gsm_map_PrivateExtensionList);
 
   return offset;
 }
@@ -3052,14 +3052,14 @@ static int dissect_privateExtensionList_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t PcsExtensions_sequence[] = {
+static const ber_old_sequence_t PcsExtensions_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_PcsExtensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PcsExtensions_sequence, hf_index, ett_gsm_map_PcsExtensions);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PcsExtensions_sequence, hf_index, ett_gsm_map_PcsExtensions);
 
   return offset;
 }
@@ -3068,7 +3068,7 @@ static int dissect_pcsExtensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t ExtensionContainer_sequence[] = {
+static const ber_old_sequence_t ExtensionContainer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateExtensionList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pcsExtensions_impl },
   { 0, 0, 0, NULL }
@@ -3076,8 +3076,8 @@ static const ber_sequence_t ExtensionContainer_sequence[] = {
 
 int
 dissect_gsm_map_ExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExtensionContainer_sequence, hf_index, ett_gsm_map_ExtensionContainer);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExtensionContainer_sequence, hf_index, ett_gsm_map_ExtensionContainer);
 
   return offset;
 }
@@ -3089,7 +3089,7 @@ static int dissect_extensionContainer_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t Bss_APDU_sequence[] = {
+static const ber_old_sequence_t Bss_APDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_protocolId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signalInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3098,8 +3098,8 @@ static const ber_sequence_t Bss_APDU_sequence[] = {
 
 static int
 dissect_gsm_map_Bss_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Bss_APDU_sequence, hf_index, ett_gsm_map_Bss_APDU);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Bss_APDU_sequence, hf_index, ett_gsm_map_Bss_APDU);
 
   return offset;
 }
@@ -3409,7 +3409,7 @@ static const value_string gsm_map_SuperChargerInfo_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SuperChargerInfo_choice[] = {
+static const ber_old_choice_t SuperChargerInfo_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sendSubscriberData_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_subscriberDataStored_impl },
   { 0, 0, 0, 0, NULL }
@@ -3417,9 +3417,9 @@ static const ber_choice_t SuperChargerInfo_choice[] = {
 
 static int
 dissect_gsm_map_SuperChargerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SuperChargerInfo_choice, hf_index, ett_gsm_map_SuperChargerInfo,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SuperChargerInfo_choice, hf_index, ett_gsm_map_SuperChargerInfo,
+                                     NULL);
 
   return offset;
 }
@@ -3510,7 +3510,7 @@ static int dissect_supportedRAT_TypesIndicator_impl(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t VLR_Capability_sequence[] = {
+static const ber_old_sequence_t VLR_Capability_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_supportedCamelPhases_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_solsaSupportIndicator_impl },
@@ -3525,8 +3525,8 @@ static const ber_sequence_t VLR_Capability_sequence[] = {
 
 static int
 dissect_gsm_map_VLR_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   VLR_Capability_sequence, hf_index, ett_gsm_map_VLR_Capability);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       VLR_Capability_sequence, hf_index, ett_gsm_map_VLR_Capability);
 
   return offset;
 }
@@ -3630,7 +3630,7 @@ static int dissect_imei_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t ADD_Info_sequence[] = {
+static const ber_old_sequence_t ADD_Info_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imeisv_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_skipSubscriberDataUpdate_impl },
   { 0, 0, 0, NULL }
@@ -3638,8 +3638,8 @@ static const ber_sequence_t ADD_Info_sequence[] = {
 
 static int
 dissect_gsm_map_ADD_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ADD_Info_sequence, hf_index, ett_gsm_map_ADD_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ADD_Info_sequence, hf_index, ett_gsm_map_ADD_Info);
 
   return offset;
 }
@@ -3648,7 +3648,7 @@ static int dissect_add_info_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t UpdateLocationArg_sequence[] = {
+static const ber_old_sequence_t UpdateLocationArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msc_Number_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_vlr_Number },
@@ -3664,14 +3664,14 @@ static const ber_sequence_t UpdateLocationArg_sequence[] = {
 
 static int
 dissect_gsm_map_UpdateLocationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UpdateLocationArg_sequence, hf_index, ett_gsm_map_UpdateLocationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UpdateLocationArg_sequence, hf_index, ett_gsm_map_UpdateLocationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t UpdateLocationRes_sequence[] = {
+static const ber_old_sequence_t UpdateLocationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_add_Capability },
@@ -3680,22 +3680,22 @@ static const ber_sequence_t UpdateLocationRes_sequence[] = {
 
 static int
 dissect_gsm_map_UpdateLocationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UpdateLocationRes_sequence, hf_index, ett_gsm_map_UpdateLocationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UpdateLocationRes_sequence, hf_index, ett_gsm_map_UpdateLocationRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SLR_Arg_PCS_Extensions_sequence[] = {
+static const ber_old_sequence_t SLR_Arg_PCS_Extensions_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_na_ESRK_Request_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_SLR_Arg_PCS_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SLR_Arg_PCS_Extensions_sequence, hf_index, ett_gsm_map_SLR_Arg_PCS_Extensions);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SLR_Arg_PCS_Extensions_sequence, hf_index, ett_gsm_map_SLR_Arg_PCS_Extensions);
 
   return offset;
 }
@@ -3704,7 +3704,7 @@ static int dissect_slr_Arg_PCS_Extensions_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t SLR_ArgExtensionContainer_sequence[] = {
+static const ber_old_sequence_t SLR_ArgExtensionContainer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateExtensionList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_slr_Arg_PCS_Extensions_impl },
   { 0, 0, 0, NULL }
@@ -3712,8 +3712,8 @@ static const ber_sequence_t SLR_ArgExtensionContainer_sequence[] = {
 
 static int
 dissect_gsm_map_SLR_ArgExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SLR_ArgExtensionContainer_sequence, hf_index, ett_gsm_map_SLR_ArgExtensionContainer);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SLR_ArgExtensionContainer_sequence, hf_index, ett_gsm_map_SLR_ArgExtensionContainer);
 
   return offset;
 }
@@ -3722,7 +3722,7 @@ static int dissect_slr_ArgExtensionContainer_impl(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t IMSI_WithLMSI_sequence[] = {
+static const ber_old_sequence_t IMSI_WithLMSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_lmsi },
   { 0, 0, 0, NULL }
@@ -3730,8 +3730,8 @@ static const ber_sequence_t IMSI_WithLMSI_sequence[] = {
 
 static int
 dissect_gsm_map_IMSI_WithLMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IMSI_WithLMSI_sequence, hf_index, ett_gsm_map_IMSI_WithLMSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IMSI_WithLMSI_sequence, hf_index, ett_gsm_map_IMSI_WithLMSI);
 
   return offset;
 }
@@ -3746,7 +3746,7 @@ static const value_string gsm_map_Identity_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Identity_choice[] = {
+static const ber_old_choice_t Identity_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_imsi_WithLMSI },
   { 0, 0, 0, 0, NULL }
@@ -3754,9 +3754,9 @@ static const ber_choice_t Identity_choice[] = {
 
 static int
 dissect_gsm_map_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Identity_choice, hf_index, ett_gsm_map_Identity,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Identity_choice, hf_index, ett_gsm_map_Identity,
+                                     NULL);
 
   return offset;
 }
@@ -3784,7 +3784,7 @@ static int dissect_cancellationType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t CancelLocationArg_sequence[] = {
+static const ber_old_sequence_t CancelLocationArg_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_identity },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cancellationType },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3793,8 +3793,8 @@ static const ber_sequence_t CancelLocationArg_sequence[] = {
 
 static int
 dissect_gsm_map_CancelLocationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CancelLocationArg_sequence, hf_index, ett_gsm_map_CancelLocationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CancelLocationArg_sequence, hf_index, ett_gsm_map_CancelLocationArg);
 
   return offset;
 }
@@ -3806,7 +3806,7 @@ static const value_string gsm_map_CancelLocationArgV2_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CancelLocationArgV2_choice[] = {
+static const ber_old_choice_t CancelLocationArgV2_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_imsi_WithLMSI },
   { 0, 0, 0, 0, NULL }
@@ -3814,29 +3814,29 @@ static const ber_choice_t CancelLocationArgV2_choice[] = {
 
 static int
 dissect_gsm_map_CancelLocationArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CancelLocationArgV2_choice, hf_index, ett_gsm_map_CancelLocationArgV2,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CancelLocationArgV2_choice, hf_index, ett_gsm_map_CancelLocationArgV2,
+                                     NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t CancelLocationRes_sequence[] = {
+static const ber_old_sequence_t CancelLocationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_CancelLocationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CancelLocationRes_sequence, hf_index, ett_gsm_map_CancelLocationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CancelLocationRes_sequence, hf_index, ett_gsm_map_CancelLocationRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t PurgeMSArg_sequence[] = {
+static const ber_old_sequence_t PurgeMSArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vlr_Number_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgsn_Number_impl },
@@ -3846,14 +3846,14 @@ static const ber_sequence_t PurgeMSArg_sequence[] = {
 
 static int
 dissect_gsm_map_PurgeMSArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PurgeMSArg_sequence, hf_index, ett_gsm_map_PurgeMSArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PurgeMSArg_sequence, hf_index, ett_gsm_map_PurgeMSArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t PurgeMSArgV2_sequence[] = {
+static const ber_old_sequence_t PurgeMSArgV2_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_vlr_Number },
   { 0, 0, 0, NULL }
@@ -3861,14 +3861,14 @@ static const ber_sequence_t PurgeMSArgV2_sequence[] = {
 
 static int
 dissect_gsm_map_PurgeMSArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PurgeMSArgV2_sequence, hf_index, ett_gsm_map_PurgeMSArgV2);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PurgeMSArgV2_sequence, hf_index, ett_gsm_map_PurgeMSArgV2);
 
   return offset;
 }
 
 
-static const ber_sequence_t PurgeMSRes_sequence[] = {
+static const ber_old_sequence_t PurgeMSRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_freezeTMSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_freezeP_TMSI_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -3877,8 +3877,8 @@ static const ber_sequence_t PurgeMSRes_sequence[] = {
 
 static int
 dissect_gsm_map_PurgeMSRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PurgeMSRes_sequence, hf_index, ett_gsm_map_PurgeMSRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PurgeMSRes_sequence, hf_index, ett_gsm_map_PurgeMSRes);
 
   return offset;
 }
@@ -3957,7 +3957,7 @@ static int dissect_hopCounter_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t SendIdentificationArg_sequence[] = {
+static const ber_old_sequence_t SendIdentificationArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_tmsi },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_numberOfRequestedVectors },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_segmentationProhibited },
@@ -3970,8 +3970,8 @@ static const ber_sequence_t SendIdentificationArg_sequence[] = {
 
 static int
 dissect_gsm_map_SendIdentificationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendIdentificationArg_sequence, hf_index, ett_gsm_map_SendIdentificationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendIdentificationArg_sequence, hf_index, ett_gsm_map_SendIdentificationArg);
 
   return offset;
 }
@@ -4022,7 +4022,7 @@ static int dissect_groupKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t AuthenticationTriplet_sequence[] = {
+static const ber_old_sequence_t AuthenticationTriplet_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sres },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_kc },
@@ -4031,8 +4031,8 @@ static const ber_sequence_t AuthenticationTriplet_sequence[] = {
 
 static int
 dissect_gsm_map_AuthenticationTriplet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AuthenticationTriplet_sequence, hf_index, ett_gsm_map_AuthenticationTriplet);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AuthenticationTriplet_sequence, hf_index, ett_gsm_map_AuthenticationTriplet);
 
   return offset;
 }
@@ -4041,14 +4041,14 @@ static int dissect_TripletList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t TripletList_sequence_of[1] = {
+static const ber_old_sequence_t TripletList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_TripletList_item },
 };
 
 static int
 dissect_gsm_map_TripletList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      TripletList_sequence_of, hf_index, ett_gsm_map_TripletList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          TripletList_sequence_of, hf_index, ett_gsm_map_TripletList);
 
   return offset;
 }
@@ -4112,7 +4112,7 @@ static int dissect_autn(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t AuthenticationQuintuplet_sequence[] = {
+static const ber_old_sequence_t AuthenticationQuintuplet_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_xres },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ck },
@@ -4123,8 +4123,8 @@ static const ber_sequence_t AuthenticationQuintuplet_sequence[] = {
 
 static int
 dissect_gsm_map_AuthenticationQuintuplet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AuthenticationQuintuplet_sequence, hf_index, ett_gsm_map_AuthenticationQuintuplet);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AuthenticationQuintuplet_sequence, hf_index, ett_gsm_map_AuthenticationQuintuplet);
 
   return offset;
 }
@@ -4133,14 +4133,14 @@ static int dissect_QuintupletList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t QuintupletList_sequence_of[1] = {
+static const ber_old_sequence_t QuintupletList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_QuintupletList_item },
 };
 
 static int
 dissect_gsm_map_QuintupletList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      QuintupletList_sequence_of, hf_index, ett_gsm_map_QuintupletList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          QuintupletList_sequence_of, hf_index, ett_gsm_map_QuintupletList);
 
   return offset;
 }
@@ -4155,7 +4155,7 @@ static const value_string gsm_map_AuthenticationSetList_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t AuthenticationSetList_choice[] = {
+static const ber_old_choice_t AuthenticationSetList_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tripletList_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_quintupletList_impl },
   { 0, 0, 0, 0, NULL }
@@ -4163,9 +4163,9 @@ static const ber_choice_t AuthenticationSetList_choice[] = {
 
 static int
 dissect_gsm_map_AuthenticationSetList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 AuthenticationSetList_choice, hf_index, ett_gsm_map_AuthenticationSetList,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     AuthenticationSetList_choice, hf_index, ett_gsm_map_AuthenticationSetList,
+                                     NULL);
 
   return offset;
 }
@@ -4190,7 +4190,7 @@ static int dissect_cksn_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t GSM_SecurityContextData_sequence[] = {
+static const ber_old_sequence_t GSM_SecurityContextData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_kc },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cksn },
   { 0, 0, 0, NULL }
@@ -4198,8 +4198,8 @@ static const ber_sequence_t GSM_SecurityContextData_sequence[] = {
 
 static int
 dissect_gsm_map_GSM_SecurityContextData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GSM_SecurityContextData_sequence, hf_index, ett_gsm_map_GSM_SecurityContextData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GSM_SecurityContextData_sequence, hf_index, ett_gsm_map_GSM_SecurityContextData);
 
   return offset;
 }
@@ -4221,7 +4221,7 @@ static int dissect_ksi(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const ber_sequence_t UMTS_SecurityContextData_sequence[] = {
+static const ber_old_sequence_t UMTS_SecurityContextData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ck },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ik },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ksi },
@@ -4230,8 +4230,8 @@ static const ber_sequence_t UMTS_SecurityContextData_sequence[] = {
 
 static int
 dissect_gsm_map_UMTS_SecurityContextData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UMTS_SecurityContextData_sequence, hf_index, ett_gsm_map_UMTS_SecurityContextData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UMTS_SecurityContextData_sequence, hf_index, ett_gsm_map_UMTS_SecurityContextData);
 
   return offset;
 }
@@ -4246,7 +4246,7 @@ static const value_string gsm_map_CurrentSecurityContext_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CurrentSecurityContext_choice[] = {
+static const ber_old_choice_t CurrentSecurityContext_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_SecurityContextData_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_umts_SecurityContextData_impl },
   { 0, 0, 0, 0, NULL }
@@ -4254,9 +4254,9 @@ static const ber_choice_t CurrentSecurityContext_choice[] = {
 
 static int
 dissect_gsm_map_CurrentSecurityContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CurrentSecurityContext_choice, hf_index, ett_gsm_map_CurrentSecurityContext,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CurrentSecurityContext_choice, hf_index, ett_gsm_map_CurrentSecurityContext,
+                                     NULL);
 
   return offset;
 }
@@ -4265,7 +4265,7 @@ static int dissect_currentSecurityContext_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t SendIdentificationRes_sequence[] = {
+static const ber_old_sequence_t SendIdentificationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationSetList },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_currentSecurityContext_impl },
@@ -4275,14 +4275,14 @@ static const ber_sequence_t SendIdentificationRes_sequence[] = {
 
 static int
 dissect_gsm_map_SendIdentificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendIdentificationRes_sequence, hf_index, ett_gsm_map_SendIdentificationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendIdentificationRes_sequence, hf_index, ett_gsm_map_SendIdentificationRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendIdentificationResV2_sequence[] = {
+static const ber_old_sequence_t SendIdentificationResV2_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tripletList },
   { 0, 0, 0, NULL }
@@ -4290,8 +4290,8 @@ static const ber_sequence_t SendIdentificationResV2_sequence[] = {
 
 static int
 dissect_gsm_map_SendIdentificationResV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendIdentificationResV2_sequence, hf_index, ett_gsm_map_SendIdentificationResV2);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendIdentificationResV2_sequence, hf_index, ett_gsm_map_SendIdentificationResV2);
 
   return offset;
 }
@@ -4329,7 +4329,7 @@ static int dissect_cellId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t PrepareHO_Arg_sequence[] = {
+static const ber_old_sequence_t PrepareHO_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_targetCellId },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ho_NumberNotRequired },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_bss_APDU },
@@ -4338,8 +4338,8 @@ static const ber_sequence_t PrepareHO_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareHO_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareHO_Arg_sequence, hf_index, ett_gsm_map_PrepareHO_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareHO_Arg_sequence, hf_index, ett_gsm_map_PrepareHO_Arg);
 
   return offset;
 }
@@ -4429,7 +4429,7 @@ static int dissect_longsignalInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t AccessNetworkSignalInfo_sequence[] = {
+static const ber_old_sequence_t AccessNetworkSignalInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_accessNetworkProtocolId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_longsignalInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -4438,8 +4438,8 @@ static const ber_sequence_t AccessNetworkSignalInfo_sequence[] = {
 
 static int
 dissect_gsm_map_AccessNetworkSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AccessNetworkSignalInfo_sequence, hf_index, ett_gsm_map_AccessNetworkSignalInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AccessNetworkSignalInfo_sequence, hf_index, ett_gsm_map_AccessNetworkSignalInfo);
 
   return offset;
 }
@@ -4576,7 +4576,7 @@ static int dissect_encryptionAlgorithms_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t AllowedUMTS_Algorithms_sequence[] = {
+static const ber_old_sequence_t AllowedUMTS_Algorithms_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_integrityProtectionAlgorithms_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryptionAlgorithms_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4585,8 +4585,8 @@ static const ber_sequence_t AllowedUMTS_Algorithms_sequence[] = {
 
 static int
 dissect_gsm_map_AllowedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AllowedUMTS_Algorithms_sequence, hf_index, ett_gsm_map_AllowedUMTS_Algorithms);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AllowedUMTS_Algorithms_sequence, hf_index, ett_gsm_map_AllowedUMTS_Algorithms);
 
   return offset;
 }
@@ -4614,7 +4614,7 @@ static int dissect_selectedRab_Id_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t RadioResource_sequence[] = {
+static const ber_old_sequence_t RadioResource_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_radioResourceInformation },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_rab_Id },
   { 0, 0, 0, NULL }
@@ -4622,8 +4622,8 @@ static const ber_sequence_t RadioResource_sequence[] = {
 
 static int
 dissect_gsm_map_RadioResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RadioResource_sequence, hf_index, ett_gsm_map_RadioResource);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RadioResource_sequence, hf_index, ett_gsm_map_RadioResource);
 
   return offset;
 }
@@ -4632,14 +4632,14 @@ static int dissect_RadioResourceList_item(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t RadioResourceList_sequence_of[1] = {
+static const ber_old_sequence_t RadioResourceList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RadioResourceList_item },
 };
 
 static int
 dissect_gsm_map_RadioResourceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      RadioResourceList_sequence_of, hf_index, ett_gsm_map_RadioResourceList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          RadioResourceList_sequence_of, hf_index, ett_gsm_map_RadioResourceList);
 
   return offset;
 }
@@ -4690,7 +4690,7 @@ static int dissect_ranap_ServiceHandover_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t BSSMAP_ServiceHandoverInfo_sequence[] = {
+static const ber_old_sequence_t BSSMAP_ServiceHandoverInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_bssmap_ServiceHandover },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_rab_Id },
   { 0, 0, 0, NULL }
@@ -4698,8 +4698,8 @@ static const ber_sequence_t BSSMAP_ServiceHandoverInfo_sequence[] = {
 
 static int
 dissect_gsm_map_BSSMAP_ServiceHandoverInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   BSSMAP_ServiceHandoverInfo_sequence, hf_index, ett_gsm_map_BSSMAP_ServiceHandoverInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       BSSMAP_ServiceHandoverInfo_sequence, hf_index, ett_gsm_map_BSSMAP_ServiceHandoverInfo);
 
   return offset;
 }
@@ -4708,14 +4708,14 @@ static int dissect_BSSMAP_ServiceHandoverList_item(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t BSSMAP_ServiceHandoverList_sequence_of[1] = {
+static const ber_old_sequence_t BSSMAP_ServiceHandoverList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_BSSMAP_ServiceHandoverList_item },
 };
 
 static int
 dissect_gsm_map_BSSMAP_ServiceHandoverList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      BSSMAP_ServiceHandoverList_sequence_of, hf_index, ett_gsm_map_BSSMAP_ServiceHandoverList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          BSSMAP_ServiceHandoverList_sequence_of, hf_index, ett_gsm_map_BSSMAP_ServiceHandoverList);
 
   return offset;
 }
@@ -4801,7 +4801,7 @@ static int dissect_currentlyUsedCodec_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t CodecList_sequence[] = {
+static const ber_old_sequence_t CodecList_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_codec1_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_codec2_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_codec3_impl },
@@ -4816,8 +4816,8 @@ static const ber_sequence_t CodecList_sequence[] = {
 
 static int
 dissect_gsm_map_CodecList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CodecList_sequence, hf_index, ett_gsm_map_CodecList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CodecList_sequence, hf_index, ett_gsm_map_CodecList);
 
   return offset;
 }
@@ -4835,7 +4835,7 @@ static int dissect_geranCodecList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t SupportedCodecsList_sequence[] = {
+static const ber_old_sequence_t SupportedCodecsList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_utranCodecList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_geranCodecList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -4844,8 +4844,8 @@ static const ber_sequence_t SupportedCodecsList_sequence[] = {
 
 static int
 dissect_gsm_map_SupportedCodecsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SupportedCodecsList_sequence, hf_index, ett_gsm_map_SupportedCodecsList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SupportedCodecsList_sequence, hf_index, ett_gsm_map_SupportedCodecsList);
 
   return offset;
 }
@@ -4882,7 +4882,7 @@ static int dissect_uesbi_IuB_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t UESBI_Iu_sequence[] = {
+static const ber_old_sequence_t UESBI_Iu_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uesbi_IuA_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uesbi_IuB_impl },
   { 0, 0, 0, NULL }
@@ -4890,8 +4890,8 @@ static const ber_sequence_t UESBI_Iu_sequence[] = {
 
 static int
 dissect_gsm_map_UESBI_Iu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UESBI_Iu_sequence, hf_index, ett_gsm_map_UESBI_Iu);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UESBI_Iu_sequence, hf_index, ett_gsm_map_UESBI_Iu);
 
   return offset;
 }
@@ -5113,7 +5113,7 @@ static int dissect_mgw_EventList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t TracePropagationList_sequence[] = {
+static const ber_old_sequence_t TracePropagationList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_traceReference_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_traceType_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_traceReference2_impl },
@@ -5131,8 +5131,8 @@ static const ber_sequence_t TracePropagationList_sequence[] = {
 
 static int
 dissect_gsm_map_TracePropagationList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TracePropagationList_sequence, hf_index, ett_gsm_map_TracePropagationList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TracePropagationList_sequence, hf_index, ett_gsm_map_TracePropagationList);
 
   return offset;
 }
@@ -5141,7 +5141,7 @@ static int dissect_tracePropagationList_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t PrepareHO_ArgV3_sequence[] = {
+static const ber_old_sequence_t PrepareHO_ArgV3_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellId_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ho_NumberNotRequired },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetRNCId_impl },
@@ -5173,14 +5173,14 @@ static const ber_sequence_t PrepareHO_ArgV3_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareHO_ArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareHO_ArgV3_sequence, hf_index, ett_gsm_map_PrepareHO_ArgV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareHO_ArgV3_sequence, hf_index, ett_gsm_map_PrepareHO_ArgV3);
 
   return offset;
 }
 
 
-static const ber_sequence_t PrepareHO_Res_sequence[] = {
+static const ber_old_sequence_t PrepareHO_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_handoverNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_bss_APDU },
   { 0, 0, 0, NULL }
@@ -5188,14 +5188,14 @@ static const ber_sequence_t PrepareHO_Res_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareHO_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareHO_Res_sequence, hf_index, ett_gsm_map_PrepareHO_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareHO_Res_sequence, hf_index, ett_gsm_map_PrepareHO_Res);
 
   return offset;
 }
 
 
-static const ber_sequence_t RelocationNumber_sequence[] = {
+static const ber_old_sequence_t RelocationNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_handoverNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_rab_Id },
   { 0, 0, 0, NULL }
@@ -5203,8 +5203,8 @@ static const ber_sequence_t RelocationNumber_sequence[] = {
 
 static int
 dissect_gsm_map_RelocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RelocationNumber_sequence, hf_index, ett_gsm_map_RelocationNumber);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RelocationNumber_sequence, hf_index, ett_gsm_map_RelocationNumber);
 
   return offset;
 }
@@ -5213,14 +5213,14 @@ static int dissect_RelocationNumberList_item(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t RelocationNumberList_sequence_of[1] = {
+static const ber_old_sequence_t RelocationNumberList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RelocationNumberList_item },
 };
 
 static int
 dissect_gsm_map_RelocationNumberList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      RelocationNumberList_sequence_of, hf_index, ett_gsm_map_RelocationNumberList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          RelocationNumberList_sequence_of, hf_index, ett_gsm_map_RelocationNumberList);
 
   return offset;
 }
@@ -5268,7 +5268,7 @@ static int dissect_encryptionAlgorithm_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t SelectedUMTS_Algorithms_sequence[] = {
+static const ber_old_sequence_t SelectedUMTS_Algorithms_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_integrityProtectionAlgorithm_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryptionAlgorithm_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -5277,8 +5277,8 @@ static const ber_sequence_t SelectedUMTS_Algorithms_sequence[] = {
 
 static int
 dissect_gsm_map_SelectedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SelectedUMTS_Algorithms_sequence, hf_index, ett_gsm_map_SelectedUMTS_Algorithms);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SelectedUMTS_Algorithms_sequence, hf_index, ett_gsm_map_SelectedUMTS_Algorithms);
 
   return offset;
 }
@@ -5313,7 +5313,7 @@ static int dissect_chosenSpeechVersion_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t ChosenRadioResourceInformation_sequence[] = {
+static const ber_old_sequence_t ChosenRadioResourceInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_chosenChannelInfo_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_chosenSpeechVersion_impl },
   { 0, 0, 0, NULL }
@@ -5321,8 +5321,8 @@ static const ber_sequence_t ChosenRadioResourceInformation_sequence[] = {
 
 static int
 dissect_gsm_map_ChosenRadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChosenRadioResourceInformation_sequence, hf_index, ett_gsm_map_ChosenRadioResourceInformation);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ChosenRadioResourceInformation_sequence, hf_index, ett_gsm_map_ChosenRadioResourceInformation);
 
   return offset;
 }
@@ -5331,7 +5331,7 @@ static int dissect_chosenRadioResourceInformation_impl(proto_tree *tree _U_, tvb
 }
 
 
-static const ber_sequence_t PrepareHO_ResV3_sequence[] = {
+static const ber_old_sequence_t PrepareHO_ResV3_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoverNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_relocationNumberList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_an_APDU_impl },
@@ -5347,14 +5347,14 @@ static const ber_sequence_t PrepareHO_ResV3_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareHO_ResV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareHO_ResV3_sequence, hf_index, ett_gsm_map_PrepareHO_ResV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareHO_ResV3_sequence, hf_index, ett_gsm_map_PrepareHO_ResV3);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendEndSignalArgV3_sequence[] = {
+static const ber_old_sequence_t SendEndSignalArgV3_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_an_APDU },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -5362,22 +5362,22 @@ static const ber_sequence_t SendEndSignalArgV3_sequence[] = {
 
 static int
 dissect_gsm_map_SendEndSignalArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendEndSignalArgV3_sequence, hf_index, ett_gsm_map_SendEndSignalArgV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendEndSignalArgV3_sequence, hf_index, ett_gsm_map_SendEndSignalArgV3);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendEndSignalRes_sequence[] = {
+static const ber_old_sequence_t SendEndSignalRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_SendEndSignalRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendEndSignalRes_sequence, hf_index, ett_gsm_map_SendEndSignalRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendEndSignalRes_sequence, hf_index, ett_gsm_map_SendEndSignalRes);
 
   return offset;
 }
@@ -5396,7 +5396,7 @@ static int dissect_selectedGSM_Algorithm_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t ProcessAccessSignallingArgV3_sequence[] = {
+static const ber_old_sequence_t ProcessAccessSignallingArgV3_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_an_APDU },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_selectedUMTS_Algorithms_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_selectedGSM_Algorithm_impl },
@@ -5410,8 +5410,8 @@ static const ber_sequence_t ProcessAccessSignallingArgV3_sequence[] = {
 
 static int
 dissect_gsm_map_ProcessAccessSignallingArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProcessAccessSignallingArgV3_sequence, hf_index, ett_gsm_map_ProcessAccessSignallingArgV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProcessAccessSignallingArgV3_sequence, hf_index, ett_gsm_map_ProcessAccessSignallingArgV3);
 
   return offset;
 }
@@ -5436,7 +5436,7 @@ static int dissect_keyStatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t ForwardAccessSignallingArgV3_sequence[] = {
+static const ber_old_sequence_t ForwardAccessSignallingArgV3_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_an_APDU },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_integrityProtectionInfo_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryptionInfo_impl },
@@ -5460,14 +5460,14 @@ static const ber_sequence_t ForwardAccessSignallingArgV3_sequence[] = {
 
 static int
 dissect_gsm_map_ForwardAccessSignallingArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardAccessSignallingArgV3_sequence, hf_index, ett_gsm_map_ForwardAccessSignallingArgV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardAccessSignallingArgV3_sequence, hf_index, ett_gsm_map_ForwardAccessSignallingArgV3);
 
   return offset;
 }
 
 
-static const ber_sequence_t PrepareSubsequentHOArg_sequence[] = {
+static const ber_old_sequence_t PrepareSubsequentHOArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_targetCellId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_targetMSC_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_bss_APDU },
@@ -5476,14 +5476,14 @@ static const ber_sequence_t PrepareSubsequentHOArg_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareSubsequentHOArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareSubsequentHOArg_sequence, hf_index, ett_gsm_map_PrepareSubsequentHOArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareSubsequentHOArg_sequence, hf_index, ett_gsm_map_PrepareSubsequentHOArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t PrepareSubsequentHOArgV3_sequence[] = {
+static const ber_old_sequence_t PrepareSubsequentHOArgV3_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellId_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_targetMSC_Number_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetRNCId_impl },
@@ -5497,14 +5497,14 @@ static const ber_sequence_t PrepareSubsequentHOArgV3_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareSubsequentHOArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareSubsequentHOArgV3_sequence, hf_index, ett_gsm_map_PrepareSubsequentHOArgV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareSubsequentHOArgV3_sequence, hf_index, ett_gsm_map_PrepareSubsequentHOArgV3);
 
   return offset;
 }
 
 
-static const ber_sequence_t PrepareSubsequentHOResV3_sequence[] = {
+static const ber_old_sequence_t PrepareSubsequentHOResV3_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_an_APDU },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -5512,8 +5512,8 @@ static const ber_sequence_t PrepareSubsequentHOResV3_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareSubsequentHOResV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareSubsequentHOResV3_sequence, hf_index, ett_gsm_map_PrepareSubsequentHOResV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareSubsequentHOResV3_sequence, hf_index, ett_gsm_map_PrepareSubsequentHOResV3);
 
   return offset;
 }
@@ -5528,7 +5528,7 @@ dissect_gsm_map_SendAuthenticationInfoArg(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t Re_synchronisationInfo_sequence[] = {
+static const ber_old_sequence_t Re_synchronisationInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_auts },
   { 0, 0, 0, NULL }
@@ -5536,8 +5536,8 @@ static const ber_sequence_t Re_synchronisationInfo_sequence[] = {
 
 static int
 dissect_gsm_map_Re_synchronisationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Re_synchronisationInfo_sequence, hf_index, ett_gsm_map_Re_synchronisationInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Re_synchronisationInfo_sequence, hf_index, ett_gsm_map_Re_synchronisationInfo);
 
   return offset;
 }
@@ -5585,7 +5585,7 @@ static int dissect_plmn_Id_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t SendAuthenticationInfoArgV2_sequence[] = {
+static const ber_old_sequence_t SendAuthenticationInfoArgV2_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numberOfRequestedVectors },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_segmentationProhibited },
@@ -5599,14 +5599,14 @@ static const ber_sequence_t SendAuthenticationInfoArgV2_sequence[] = {
 
 static int
 dissect_gsm_map_SendAuthenticationInfoArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendAuthenticationInfoArgV2_sequence, hf_index, ett_gsm_map_SendAuthenticationInfoArgV2);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendAuthenticationInfoArgV2_sequence, hf_index, ett_gsm_map_SendAuthenticationInfoArgV2);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendAuthenticationInfoRes_item_sequence[] = {
+static const ber_old_sequence_t SendAuthenticationInfoRes_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rand },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sres },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_kc },
@@ -5615,8 +5615,8 @@ static const ber_sequence_t SendAuthenticationInfoRes_item_sequence[] = {
 
 static int
 dissect_gsm_map_SendAuthenticationInfoRes_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendAuthenticationInfoRes_item_sequence, hf_index, ett_gsm_map_SendAuthenticationInfoRes_item);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendAuthenticationInfoRes_item_sequence, hf_index, ett_gsm_map_SendAuthenticationInfoRes_item);
 
   return offset;
 }
@@ -5625,20 +5625,20 @@ static int dissect_SendAuthenticationInfoRes_item(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t SendAuthenticationInfoRes_sequence_of[1] = {
+static const ber_old_sequence_t SendAuthenticationInfoRes_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SendAuthenticationInfoRes_item },
 };
 
 static int
 dissect_gsm_map_SendAuthenticationInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SendAuthenticationInfoRes_sequence_of, hf_index, ett_gsm_map_SendAuthenticationInfoRes);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SendAuthenticationInfoRes_sequence_of, hf_index, ett_gsm_map_SendAuthenticationInfoRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendAuthenticationInfoResV3_sequence[] = {
+static const ber_old_sequence_t SendAuthenticationInfoResV3_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationSetList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -5646,8 +5646,8 @@ static const ber_sequence_t SendAuthenticationInfoResV3_sequence[] = {
 
 static int
 dissect_gsm_map_SendAuthenticationInfoResV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendAuthenticationInfoResV3_sequence, hf_index, ett_gsm_map_SendAuthenticationInfoResV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendAuthenticationInfoResV3_sequence, hf_index, ett_gsm_map_SendAuthenticationInfoResV3);
 
   return offset;
 }
@@ -5672,7 +5672,7 @@ static int dissect_requestedEquipmentInfo(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t CheckIMEIArgV3_sequence[] = {
+static const ber_old_sequence_t CheckIMEIArgV3_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imei },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_requestedEquipmentInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -5681,8 +5681,8 @@ static const ber_sequence_t CheckIMEIArgV3_sequence[] = {
 
 static int
 dissect_gsm_map_CheckIMEIArgV3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CheckIMEIArgV3_sequence, hf_index, ett_gsm_map_CheckIMEIArgV3);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CheckIMEIArgV3_sequence, hf_index, ett_gsm_map_CheckIMEIArgV3);
 
   return offset;
 }
@@ -5708,7 +5708,7 @@ static int dissect_equipmentStatus(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t CheckIMEIRes_sequence[] = {
+static const ber_old_sequence_t CheckIMEIRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_equipmentStatus },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_bmuef },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -5717,8 +5717,8 @@ static const ber_sequence_t CheckIMEIRes_sequence[] = {
 
 static int
 dissect_gsm_map_CheckIMEIRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CheckIMEIRes_sequence, hf_index, ett_gsm_map_CheckIMEIRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CheckIMEIRes_sequence, hf_index, ett_gsm_map_CheckIMEIRes);
 
   return offset;
 }
@@ -5775,7 +5775,7 @@ static const value_string gsm_map_BasicServiceCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t BasicServiceCode_choice[] = {
+static const ber_old_choice_t BasicServiceCode_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_bearerService_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_teleservice_code_impl },
   { 0, 0, 0, 0, NULL }
@@ -5783,9 +5783,9 @@ static const ber_choice_t BasicServiceCode_choice[] = {
 
 static int
 dissect_gsm_map_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 BasicServiceCode_choice, hf_index, ett_gsm_map_BasicServiceCode,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     BasicServiceCode_choice, hf_index, ett_gsm_map_BasicServiceCode,
+                                     NULL);
 
   return offset;
 }
@@ -5800,14 +5800,14 @@ static int dissect_basicServiceGroup_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t BasicServiceGroupList_sequence_of[1] = {
+static const ber_old_sequence_t BasicServiceGroupList_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceGroupList_item },
 };
 
 static int
 dissect_gsm_map_BasicServiceGroupList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      BasicServiceGroupList_sequence_of, hf_index, ett_gsm_map_BasicServiceGroupList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          BasicServiceGroupList_sequence_of, hf_index, ett_gsm_map_BasicServiceGroupList);
 
   return offset;
 }
@@ -5965,7 +5965,7 @@ static int dissect_defaultCallHandling_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t O_BcsmCamelTDPData_sequence[] = {
+static const ber_old_sequence_t O_BcsmCamelTDPData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -5976,8 +5976,8 @@ static const ber_sequence_t O_BcsmCamelTDPData_sequence[] = {
 
 static int
 dissect_gsm_map_O_BcsmCamelTDPData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   O_BcsmCamelTDPData_sequence, hf_index, ett_gsm_map_O_BcsmCamelTDPData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       O_BcsmCamelTDPData_sequence, hf_index, ett_gsm_map_O_BcsmCamelTDPData);
 
   return offset;
 }
@@ -5986,14 +5986,14 @@ static int dissect_O_BcsmCamelTDPDataList_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t O_BcsmCamelTDPDataList_sequence_of[1] = {
+static const ber_old_sequence_t O_BcsmCamelTDPDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_O_BcsmCamelTDPDataList_item },
 };
 
 static int
 dissect_gsm_map_O_BcsmCamelTDPDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      O_BcsmCamelTDPDataList_sequence_of, hf_index, ett_gsm_map_O_BcsmCamelTDPDataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          O_BcsmCamelTDPDataList_sequence_of, hf_index, ett_gsm_map_O_BcsmCamelTDPDataList);
 
   return offset;
 }
@@ -6015,7 +6015,7 @@ static int dissect_camelCapabilityHandling_impl(proto_tree *tree _U_, tvbuff_t *
 }
 
 
-static const ber_sequence_t O_CSI_sequence[] = {
+static const ber_old_sequence_t O_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_o_BcsmCamelTDPDataList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
@@ -6026,8 +6026,8 @@ static const ber_sequence_t O_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_O_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   O_CSI_sequence, hf_index, ett_gsm_map_O_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       O_CSI_sequence, hf_index, ett_gsm_map_O_CSI);
 
   return offset;
 }
@@ -6068,14 +6068,14 @@ static int dissect_ext_BearerService_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t BearerServiceList_sequence_of[1] = {
+static const ber_old_sequence_t BearerServiceList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_BearerServiceList_item },
 };
 
 static int
 dissect_gsm_map_BearerServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      BearerServiceList_sequence_of, hf_index, ett_gsm_map_BearerServiceList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          BearerServiceList_sequence_of, hf_index, ett_gsm_map_BearerServiceList);
 
   return offset;
 }
@@ -6106,14 +6106,14 @@ static int dissect_ext_teleservice(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t TeleserviceList_sequence_of[1] = {
+static const ber_old_sequence_t TeleserviceList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_TeleserviceList_item },
 };
 
 static int
 dissect_gsm_map_TeleserviceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      TeleserviceList_sequence_of, hf_index, ett_gsm_map_TeleserviceList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          TeleserviceList_sequence_of, hf_index, ett_gsm_map_TeleserviceList);
 
   return offset;
 }
@@ -6153,7 +6153,7 @@ const value_string gsm_map_Ext_BasicServiceCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Ext_BasicServiceCode_choice[] = {
+static const ber_old_choice_t Ext_BasicServiceCode_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ext_BearerService_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ext_Teleservice_impl },
   { 0, 0, 0, 0, NULL }
@@ -6161,9 +6161,9 @@ static const ber_choice_t Ext_BasicServiceCode_choice[] = {
 
 int
 dissect_gsm_map_Ext_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Ext_BasicServiceCode_choice, hf_index, ett_gsm_map_Ext_BasicServiceCode,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Ext_BasicServiceCode_choice, hf_index, ett_gsm_map_Ext_BasicServiceCode,
+                                     NULL);
 
   return offset;
 }
@@ -6361,7 +6361,7 @@ static int dissect_longForwardedToNumber_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t Ext_ForwFeature_sequence[] = {
+static const ber_old_sequence_t Ext_ForwFeature_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
@@ -6375,8 +6375,8 @@ static const ber_sequence_t Ext_ForwFeature_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_ForwFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_ForwFeature_sequence, hf_index, ett_gsm_map_Ext_ForwFeature);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_ForwFeature_sequence, hf_index, ett_gsm_map_Ext_ForwFeature);
 
   return offset;
 }
@@ -6385,14 +6385,14 @@ static int dissect_Ext_ForwFeatureList_item(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t Ext_ForwFeatureList_sequence_of[1] = {
+static const ber_old_sequence_t Ext_ForwFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Ext_ForwFeatureList_item },
 };
 
 static int
 dissect_gsm_map_Ext_ForwFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Ext_ForwFeatureList_sequence_of, hf_index, ett_gsm_map_Ext_ForwFeatureList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Ext_ForwFeatureList_sequence_of, hf_index, ett_gsm_map_Ext_ForwFeatureList);
 
   return offset;
 }
@@ -6404,7 +6404,7 @@ static int dissect_ext_forwardingFeatureList_impl(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t Ext_ForwInfo_sequence[] = {
+static const ber_old_sequence_t Ext_ForwInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ext_forwardingFeatureList },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -6413,8 +6413,8 @@ static const ber_sequence_t Ext_ForwInfo_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_ForwInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_ForwInfo_sequence, hf_index, ett_gsm_map_Ext_ForwInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_ForwInfo_sequence, hf_index, ett_gsm_map_Ext_ForwInfo);
 
   return offset;
 }
@@ -6423,7 +6423,7 @@ static int dissect_ext_forwardingInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t Ext_CallBarringFeature_sequence[] = {
+static const ber_old_sequence_t Ext_CallBarringFeature_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -6432,8 +6432,8 @@ static const ber_sequence_t Ext_CallBarringFeature_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_CallBarringFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_CallBarringFeature_sequence, hf_index, ett_gsm_map_Ext_CallBarringFeature);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_CallBarringFeature_sequence, hf_index, ett_gsm_map_Ext_CallBarringFeature);
 
   return offset;
 }
@@ -6442,14 +6442,14 @@ static int dissect_Ext_CallBarFeatureList_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t Ext_CallBarFeatureList_sequence_of[1] = {
+static const ber_old_sequence_t Ext_CallBarFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Ext_CallBarFeatureList_item },
 };
 
 static int
 dissect_gsm_map_Ext_CallBarFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Ext_CallBarFeatureList_sequence_of, hf_index, ett_gsm_map_Ext_CallBarFeatureList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Ext_CallBarFeatureList_sequence_of, hf_index, ett_gsm_map_Ext_CallBarFeatureList);
 
   return offset;
 }
@@ -6461,7 +6461,7 @@ static int dissect_ext_callBarringFeatureList_impl(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t Ext_CallBarInfo_sequence[] = {
+static const ber_old_sequence_t Ext_CallBarInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ext_callBarringFeatureList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -6470,8 +6470,8 @@ static const ber_sequence_t Ext_CallBarInfo_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_CallBarInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_CallBarInfo_sequence, hf_index, ett_gsm_map_Ext_CallBarInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_CallBarInfo_sequence, hf_index, ett_gsm_map_Ext_CallBarInfo);
 
   return offset;
 }
@@ -6529,14 +6529,14 @@ static int dissect_intraCUG_Options(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t Ext_BasicServiceGroupList_sequence_of[1] = {
+static const ber_old_sequence_t Ext_BasicServiceGroupList_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Ext_BasicServiceGroupList_item },
 };
 
 static int
 dissect_gsm_map_Ext_BasicServiceGroupList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Ext_BasicServiceGroupList_sequence_of, hf_index, ett_gsm_map_Ext_BasicServiceGroupList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Ext_BasicServiceGroupList_sequence_of, hf_index, ett_gsm_map_Ext_BasicServiceGroupList);
 
   return offset;
 }
@@ -6545,7 +6545,7 @@ static int dissect_basicServiceGroupList(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t CUG_Subscription_sequence[] = {
+static const ber_old_sequence_t CUG_Subscription_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cug_Index },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cug_Interlock },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_intraCUG_Options },
@@ -6556,8 +6556,8 @@ static const ber_sequence_t CUG_Subscription_sequence[] = {
 
 static int
 dissect_gsm_map_CUG_Subscription(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CUG_Subscription_sequence, hf_index, ett_gsm_map_CUG_Subscription);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CUG_Subscription_sequence, hf_index, ett_gsm_map_CUG_Subscription);
 
   return offset;
 }
@@ -6566,14 +6566,14 @@ static int dissect_CUG_SubscriptionList_item(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t CUG_SubscriptionList_sequence_of[1] = {
+static const ber_old_sequence_t CUG_SubscriptionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CUG_SubscriptionList_item },
 };
 
 static int
 dissect_gsm_map_CUG_SubscriptionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CUG_SubscriptionList_sequence_of, hf_index, ett_gsm_map_CUG_SubscriptionList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          CUG_SubscriptionList_sequence_of, hf_index, ett_gsm_map_CUG_SubscriptionList);
 
   return offset;
 }
@@ -6595,7 +6595,7 @@ static int dissect_interCUG_Restrictions(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t CUG_Feature_sequence[] = {
+static const ber_old_sequence_t CUG_Feature_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_preferentialCUG_Indicator },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_interCUG_Restrictions },
@@ -6605,8 +6605,8 @@ static const ber_sequence_t CUG_Feature_sequence[] = {
 
 static int
 dissect_gsm_map_CUG_Feature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CUG_Feature_sequence, hf_index, ett_gsm_map_CUG_Feature);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CUG_Feature_sequence, hf_index, ett_gsm_map_CUG_Feature);
 
   return offset;
 }
@@ -6615,14 +6615,14 @@ static int dissect_CUG_FeatureList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t CUG_FeatureList_sequence_of[1] = {
+static const ber_old_sequence_t CUG_FeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CUG_FeatureList_item },
 };
 
 static int
 dissect_gsm_map_CUG_FeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CUG_FeatureList_sequence_of, hf_index, ett_gsm_map_CUG_FeatureList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          CUG_FeatureList_sequence_of, hf_index, ett_gsm_map_CUG_FeatureList);
 
   return offset;
 }
@@ -6631,7 +6631,7 @@ static int dissect_cug_FeatureList(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t CUG_Info_sequence[] = {
+static const ber_old_sequence_t CUG_Info_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cug_SubscriptionList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cug_FeatureList },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -6640,8 +6640,8 @@ static const ber_sequence_t CUG_Info_sequence[] = {
 
 int
 dissect_gsm_map_CUG_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CUG_Info_sequence, hf_index, ett_gsm_map_CUG_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CUG_Info_sequence, hf_index, ett_gsm_map_CUG_Info);
 
   return offset;
 }
@@ -6679,7 +6679,7 @@ static const value_string gsm_map_SS_SubscriptionOption_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SS_SubscriptionOption_choice[] = {
+static const ber_old_choice_t SS_SubscriptionOption_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_cliRestrictionOption_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_overrideCategory_impl },
   { 0, 0, 0, 0, NULL }
@@ -6687,9 +6687,9 @@ static const ber_choice_t SS_SubscriptionOption_choice[] = {
 
 static int
 dissect_gsm_map_SS_SubscriptionOption(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SS_SubscriptionOption_choice, hf_index, ett_gsm_map_SS_SubscriptionOption,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SS_SubscriptionOption_choice, hf_index, ett_gsm_map_SS_SubscriptionOption,
+                                     NULL);
 
   return offset;
 }
@@ -6698,7 +6698,7 @@ static int dissect_ss_SubscriptionOption(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t Ext_SS_Data_sequence[] = {
+static const ber_old_sequence_t Ext_SS_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
@@ -6709,8 +6709,8 @@ static const ber_sequence_t Ext_SS_Data_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_SS_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_SS_Data_sequence, hf_index, ett_gsm_map_Ext_SS_Data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_SS_Data_sequence, hf_index, ett_gsm_map_Ext_SS_Data);
 
   return offset;
 }
@@ -6744,7 +6744,7 @@ static int dissect_priority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t EMLPP_Info_sequence[] = {
+static const ber_old_sequence_t EMLPP_Info_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_maximumentitledPriority },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_defaultPriority },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -6753,8 +6753,8 @@ static const ber_sequence_t EMLPP_Info_sequence[] = {
 
 static int
 dissect_gsm_map_EMLPP_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EMLPP_Info_sequence, hf_index, ett_gsm_map_EMLPP_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       EMLPP_Info_sequence, hf_index, ett_gsm_map_EMLPP_Info);
 
   return offset;
 }
@@ -6772,7 +6772,7 @@ static const value_string gsm_map_Ext_SS_Info_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Ext_SS_Info_choice[] = {
+static const ber_old_choice_t Ext_SS_Info_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ext_forwardingInfo_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ext_callBarringInfo_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_cug_Info_impl },
@@ -6783,9 +6783,9 @@ static const ber_choice_t Ext_SS_Info_choice[] = {
 
 static int
 dissect_gsm_map_Ext_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Ext_SS_Info_choice, hf_index, ett_gsm_map_Ext_SS_Info,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Ext_SS_Info_choice, hf_index, ett_gsm_map_Ext_SS_Info,
+                                     NULL);
 
   return offset;
 }
@@ -6794,14 +6794,14 @@ static int dissect_Ext_SS_InfoList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t Ext_SS_InfoList_sequence_of[1] = {
+static const ber_old_sequence_t Ext_SS_InfoList_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Ext_SS_InfoList_item },
 };
 
 static int
 dissect_gsm_map_Ext_SS_InfoList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Ext_SS_InfoList_sequence_of, hf_index, ett_gsm_map_Ext_SS_InfoList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Ext_SS_InfoList_sequence_of, hf_index, ett_gsm_map_Ext_SS_InfoList);
 
   return offset;
 }
@@ -6810,7 +6810,7 @@ static int dissect_provisionedSS_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t ODB_Data_sequence[] = {
+static const ber_old_sequence_t ODB_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_odb_GeneralData },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_odb_HPLMN_Data },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -6819,8 +6819,8 @@ static const ber_sequence_t ODB_Data_sequence[] = {
 
 static int
 dissect_gsm_map_ODB_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ODB_Data_sequence, hf_index, ett_gsm_map_ODB_Data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ODB_Data_sequence, hf_index, ett_gsm_map_ODB_Data);
 
   return offset;
 }
@@ -6851,14 +6851,14 @@ static int dissect_ZoneCodeList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t ZoneCodeList_sequence_of[1] = {
+static const ber_old_sequence_t ZoneCodeList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ZoneCodeList_item },
 };
 
 static int
 dissect_gsm_map_ZoneCodeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ZoneCodeList_sequence_of, hf_index, ett_gsm_map_ZoneCodeList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ZoneCodeList_sequence_of, hf_index, ett_gsm_map_ZoneCodeList);
 
   return offset;
 }
@@ -6919,7 +6919,7 @@ static int dissect_additionalInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t VoiceBroadcastData_sequence[] = {
+static const ber_old_sequence_t VoiceBroadcastData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupid },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_broadcastInitEntitlement },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -6930,8 +6930,8 @@ static const ber_sequence_t VoiceBroadcastData_sequence[] = {
 
 static int
 dissect_gsm_map_VoiceBroadcastData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   VoiceBroadcastData_sequence, hf_index, ett_gsm_map_VoiceBroadcastData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       VoiceBroadcastData_sequence, hf_index, ett_gsm_map_VoiceBroadcastData);
 
   return offset;
 }
@@ -6940,14 +6940,14 @@ static int dissect_VBSDataList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t VBSDataList_sequence_of[1] = {
+static const ber_old_sequence_t VBSDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_VBSDataList_item },
 };
 
 static int
 dissect_gsm_map_VBSDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      VBSDataList_sequence_of, hf_index, ett_gsm_map_VBSDataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          VBSDataList_sequence_of, hf_index, ett_gsm_map_VBSDataList);
 
   return offset;
 }
@@ -6956,7 +6956,7 @@ static int dissect_vbsSubscriptionData_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t VoiceGroupCallData_sequence[] = {
+static const ber_old_sequence_t VoiceGroupCallData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupId },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -6964,8 +6964,8 @@ static const ber_sequence_t VoiceGroupCallData_sequence[] = {
 
 static int
 dissect_gsm_map_VoiceGroupCallData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   VoiceGroupCallData_sequence, hf_index, ett_gsm_map_VoiceGroupCallData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       VoiceGroupCallData_sequence, hf_index, ett_gsm_map_VoiceGroupCallData);
 
   return offset;
 }
@@ -6974,14 +6974,14 @@ static int dissect_VGCSDataList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t VGCSDataList_sequence_of[1] = {
+static const ber_old_sequence_t VGCSDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_VGCSDataList_item },
 };
 
 static int
 dissect_gsm_map_VGCSDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      VGCSDataList_sequence_of, hf_index, ett_gsm_map_VGCSDataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          VGCSDataList_sequence_of, hf_index, ett_gsm_map_VGCSDataList);
 
   return offset;
 }
@@ -6990,14 +6990,14 @@ static int dissect_vgcsSubscriptionData_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t SS_EventList_sequence_of[1] = {
+static const ber_old_sequence_t SS_EventList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SS_EventList_item },
 };
 
 static int
 dissect_gsm_map_SS_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SS_EventList_sequence_of, hf_index, ett_gsm_map_SS_EventList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SS_EventList_sequence_of, hf_index, ett_gsm_map_SS_EventList);
 
   return offset;
 }
@@ -7006,7 +7006,7 @@ static int dissect_ss_EventList(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t SS_CamelData_sequence[] = {
+static const ber_old_sequence_t SS_CamelData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ss_EventList },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsmSCF_Address },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -7015,8 +7015,8 @@ static const ber_sequence_t SS_CamelData_sequence[] = {
 
 static int
 dissect_gsm_map_SS_CamelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_CamelData_sequence, hf_index, ett_gsm_map_SS_CamelData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_CamelData_sequence, hf_index, ett_gsm_map_SS_CamelData);
 
   return offset;
 }
@@ -7025,7 +7025,7 @@ static int dissect_ss_CamelData(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t SS_CSI_sequence[] = {
+static const ber_old_sequence_t SS_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ss_CamelData },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToCSE_impl },
@@ -7035,8 +7035,8 @@ static const ber_sequence_t SS_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_SS_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_CSI_sequence, hf_index, ett_gsm_map_SS_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_CSI_sequence, hf_index, ett_gsm_map_SS_CSI);
 
   return offset;
 }
@@ -7064,14 +7064,14 @@ static int dissect_matchType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t DestinationNumberList_sequence_of[1] = {
+static const ber_old_sequence_t DestinationNumberList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_DestinationNumberList_item },
 };
 
 static int
 dissect_gsm_map_DestinationNumberList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      DestinationNumberList_sequence_of, hf_index, ett_gsm_map_DestinationNumberList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          DestinationNumberList_sequence_of, hf_index, ett_gsm_map_DestinationNumberList);
 
   return offset;
 }
@@ -7093,14 +7093,14 @@ static int dissect_DestinationNumberLengthList_item(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t DestinationNumberLengthList_sequence_of[1] = {
+static const ber_old_sequence_t DestinationNumberLengthList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_DestinationNumberLengthList_item },
 };
 
 static int
 dissect_gsm_map_DestinationNumberLengthList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      DestinationNumberLengthList_sequence_of, hf_index, ett_gsm_map_DestinationNumberLengthList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          DestinationNumberLengthList_sequence_of, hf_index, ett_gsm_map_DestinationNumberLengthList);
 
   return offset;
 }
@@ -7109,7 +7109,7 @@ static int dissect_destinationNumberLengthList_impl(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t DestinationNumberCriteria_sequence[] = {
+static const ber_old_sequence_t DestinationNumberCriteria_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_matchType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberLengthList_impl },
@@ -7118,8 +7118,8 @@ static const ber_sequence_t DestinationNumberCriteria_sequence[] = {
 
 static int
 dissect_gsm_map_DestinationNumberCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DestinationNumberCriteria_sequence, hf_index, ett_gsm_map_DestinationNumberCriteria);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DestinationNumberCriteria_sequence, hf_index, ett_gsm_map_DestinationNumberCriteria);
 
   return offset;
 }
@@ -7128,14 +7128,14 @@ static int dissect_destinationNumberCriteria_impl(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t BasicServiceCriteria_sequence_of[1] = {
+static const ber_old_sequence_t BasicServiceCriteria_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceCriteria_item },
 };
 
 static int
 dissect_gsm_map_BasicServiceCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      BasicServiceCriteria_sequence_of, hf_index, ett_gsm_map_BasicServiceCriteria);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          BasicServiceCriteria_sequence_of, hf_index, ett_gsm_map_BasicServiceCriteria);
 
   return offset;
 }
@@ -7179,14 +7179,14 @@ static int dissect_O_CauseValueCriteria_item(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t O_CauseValueCriteria_sequence_of[1] = {
+static const ber_old_sequence_t O_CauseValueCriteria_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_O_CauseValueCriteria_item },
 };
 
 static int
 dissect_gsm_map_O_CauseValueCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      O_CauseValueCriteria_sequence_of, hf_index, ett_gsm_map_O_CauseValueCriteria);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          O_CauseValueCriteria_sequence_of, hf_index, ett_gsm_map_O_CauseValueCriteria);
 
   return offset;
 }
@@ -7195,7 +7195,7 @@ static int dissect_o_CauseValueCriteria_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t O_BcsmCamelTDP_Criteria_sequence[] = {
+static const ber_old_sequence_t O_BcsmCamelTDP_Criteria_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_o_BcsmTriggerDetectionPoint },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationNumberCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
@@ -7207,8 +7207,8 @@ static const ber_sequence_t O_BcsmCamelTDP_Criteria_sequence[] = {
 
 static int
 dissect_gsm_map_O_BcsmCamelTDP_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   O_BcsmCamelTDP_Criteria_sequence, hf_index, ett_gsm_map_O_BcsmCamelTDP_Criteria);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       O_BcsmCamelTDP_Criteria_sequence, hf_index, ett_gsm_map_O_BcsmCamelTDP_Criteria);
 
   return offset;
 }
@@ -7217,14 +7217,14 @@ static int dissect_O_BcsmCamelTDPCriteriaList_item(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t O_BcsmCamelTDPCriteriaList_sequence_of[1] = {
+static const ber_old_sequence_t O_BcsmCamelTDPCriteriaList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_O_BcsmCamelTDPCriteriaList_item },
 };
 
 static int
 dissect_gsm_map_O_BcsmCamelTDPCriteriaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      O_BcsmCamelTDPCriteriaList_sequence_of, hf_index, ett_gsm_map_O_BcsmCamelTDPCriteriaList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          O_BcsmCamelTDPCriteriaList_sequence_of, hf_index, ett_gsm_map_O_BcsmCamelTDPCriteriaList);
 
   return offset;
 }
@@ -7255,14 +7255,14 @@ static int dissect_MobilityTriggers_item(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t MobilityTriggers_sequence_of[1] = {
+static const ber_old_sequence_t MobilityTriggers_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_MobilityTriggers_item },
 };
 
 static int
 dissect_gsm_map_MobilityTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      MobilityTriggers_sequence_of, hf_index, ett_gsm_map_MobilityTriggers);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          MobilityTriggers_sequence_of, hf_index, ett_gsm_map_MobilityTriggers);
 
   return offset;
 }
@@ -7271,7 +7271,7 @@ static int dissect_mobilityTriggers(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t M_CSI_sequence[] = {
+static const ber_old_sequence_t M_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_mobilityTriggers },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -7283,8 +7283,8 @@ static const ber_sequence_t M_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_M_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   M_CSI_sequence, hf_index, ett_gsm_map_M_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       M_CSI_sequence, hf_index, ett_gsm_map_M_CSI);
 
   return offset;
 }
@@ -7334,7 +7334,7 @@ static int dissect_defaultSMS_Handling_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t SMS_CAMEL_TDP_Data_sequence[] = {
+static const ber_old_sequence_t SMS_CAMEL_TDP_Data_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sms_TriggerDetectionPoint_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
   { BER_CLASS_CON, 2, 0, dissect_gsmSCF_Address },
@@ -7345,8 +7345,8 @@ static const ber_sequence_t SMS_CAMEL_TDP_Data_sequence[] = {
 
 static int
 dissect_gsm_map_SMS_CAMEL_TDP_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SMS_CAMEL_TDP_Data_sequence, hf_index, ett_gsm_map_SMS_CAMEL_TDP_Data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SMS_CAMEL_TDP_Data_sequence, hf_index, ett_gsm_map_SMS_CAMEL_TDP_Data);
 
   return offset;
 }
@@ -7355,14 +7355,14 @@ static int dissect_SMS_CAMEL_TDP_DataList_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t SMS_CAMEL_TDP_DataList_sequence_of[1] = {
+static const ber_old_sequence_t SMS_CAMEL_TDP_DataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SMS_CAMEL_TDP_DataList_item },
 };
 
 static int
 dissect_gsm_map_SMS_CAMEL_TDP_DataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SMS_CAMEL_TDP_DataList_sequence_of, hf_index, ett_gsm_map_SMS_CAMEL_TDP_DataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SMS_CAMEL_TDP_DataList_sequence_of, hf_index, ett_gsm_map_SMS_CAMEL_TDP_DataList);
 
   return offset;
 }
@@ -7371,7 +7371,7 @@ static int dissect_sms_CAMEL_TDP_DataList_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t SMS_CSI_sequence[] = {
+static const ber_old_sequence_t SMS_CSI_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_CAMEL_TDP_DataList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -7382,8 +7382,8 @@ static const ber_sequence_t SMS_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_SMS_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SMS_CSI_sequence, hf_index, ett_gsm_map_SMS_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SMS_CSI_sequence, hf_index, ett_gsm_map_SMS_CSI);
 
   return offset;
 }
@@ -7418,7 +7418,7 @@ static int dissect_t_BcsmTriggerDetectionPoint(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t T_BcsmCamelTDPData_sequence[] = {
+static const ber_old_sequence_t T_BcsmCamelTDPData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BcsmTriggerDetectionPoint },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -7429,8 +7429,8 @@ static const ber_sequence_t T_BcsmCamelTDPData_sequence[] = {
 
 static int
 dissect_gsm_map_T_BcsmCamelTDPData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_BcsmCamelTDPData_sequence, hf_index, ett_gsm_map_T_BcsmCamelTDPData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       T_BcsmCamelTDPData_sequence, hf_index, ett_gsm_map_T_BcsmCamelTDPData);
 
   return offset;
 }
@@ -7439,14 +7439,14 @@ static int dissect_T_BcsmCamelTDPDataList_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t T_BcsmCamelTDPDataList_sequence_of[1] = {
+static const ber_old_sequence_t T_BcsmCamelTDPDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_T_BcsmCamelTDPDataList_item },
 };
 
 static int
 dissect_gsm_map_T_BcsmCamelTDPDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_BcsmCamelTDPDataList_sequence_of, hf_index, ett_gsm_map_T_BcsmCamelTDPDataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          T_BcsmCamelTDPDataList_sequence_of, hf_index, ett_gsm_map_T_BcsmCamelTDPDataList);
 
   return offset;
 }
@@ -7455,7 +7455,7 @@ static int dissect_t_BcsmCamelTDPDataList(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t T_CSI_sequence[] = {
+static const ber_old_sequence_t T_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t_BcsmCamelTDPDataList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
@@ -7466,8 +7466,8 @@ static const ber_sequence_t T_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_T_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_CSI_sequence, hf_index, ett_gsm_map_T_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       T_CSI_sequence, hf_index, ett_gsm_map_T_CSI);
 
   return offset;
 }
@@ -7482,14 +7482,14 @@ static int dissect_vt_IM_CSI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t T_CauseValueCriteria_sequence_of[1] = {
+static const ber_old_sequence_t T_CauseValueCriteria_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_T_CauseValueCriteria_item },
 };
 
 static int
 dissect_gsm_map_T_CauseValueCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_CauseValueCriteria_sequence_of, hf_index, ett_gsm_map_T_CauseValueCriteria);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          T_CauseValueCriteria_sequence_of, hf_index, ett_gsm_map_T_CauseValueCriteria);
 
   return offset;
 }
@@ -7498,7 +7498,7 @@ static int dissect_t_CauseValueCriteria_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t T_BCSM_CAMEL_TDP_Criteria_sequence[] = {
+static const ber_old_sequence_t T_BCSM_CAMEL_TDP_Criteria_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t_BCSM_TriggerDetectionPoint },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceCriteria_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_CauseValueCriteria_impl },
@@ -7507,8 +7507,8 @@ static const ber_sequence_t T_BCSM_CAMEL_TDP_Criteria_sequence[] = {
 
 static int
 dissect_gsm_map_T_BCSM_CAMEL_TDP_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   T_BCSM_CAMEL_TDP_Criteria_sequence, hf_index, ett_gsm_map_T_BCSM_CAMEL_TDP_Criteria);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       T_BCSM_CAMEL_TDP_Criteria_sequence, hf_index, ett_gsm_map_T_BCSM_CAMEL_TDP_Criteria);
 
   return offset;
 }
@@ -7517,14 +7517,14 @@ static int dissect_T_BCSM_CAMEL_TDP_CriteriaList_item(proto_tree *tree _U_, tvbu
 }
 
 
-static const ber_sequence_t T_BCSM_CAMEL_TDP_CriteriaList_sequence_of[1] = {
+static const ber_old_sequence_t T_BCSM_CAMEL_TDP_CriteriaList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_T_BCSM_CAMEL_TDP_CriteriaList_item },
 };
 
 static int
 dissect_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_BCSM_CAMEL_TDP_CriteriaList_sequence_of, hf_index, ett_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          T_BCSM_CAMEL_TDP_CriteriaList_sequence_of, hf_index, ett_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList);
 
   return offset;
 }
@@ -7539,7 +7539,7 @@ static int dissect_vt_IM_BCSM_CAMEL_TDP_CriteriaList_impl(proto_tree *tree _U_, 
 }
 
 
-static const ber_sequence_t DP_AnalysedInfoCriterium_sequence[] = {
+static const ber_old_sequence_t DP_AnalysedInfoCriterium_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_dialledNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsmSCF_Address },
@@ -7550,8 +7550,8 @@ static const ber_sequence_t DP_AnalysedInfoCriterium_sequence[] = {
 
 static int
 dissect_gsm_map_DP_AnalysedInfoCriterium(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DP_AnalysedInfoCriterium_sequence, hf_index, ett_gsm_map_DP_AnalysedInfoCriterium);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DP_AnalysedInfoCriterium_sequence, hf_index, ett_gsm_map_DP_AnalysedInfoCriterium);
 
   return offset;
 }
@@ -7560,14 +7560,14 @@ static int dissect_DP_AnalysedInfoCriteriaList_item(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t DP_AnalysedInfoCriteriaList_sequence_of[1] = {
+static const ber_old_sequence_t DP_AnalysedInfoCriteriaList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DP_AnalysedInfoCriteriaList_item },
 };
 
 static int
 dissect_gsm_map_DP_AnalysedInfoCriteriaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      DP_AnalysedInfoCriteriaList_sequence_of, hf_index, ett_gsm_map_DP_AnalysedInfoCriteriaList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          DP_AnalysedInfoCriteriaList_sequence_of, hf_index, ett_gsm_map_DP_AnalysedInfoCriteriaList);
 
   return offset;
 }
@@ -7576,7 +7576,7 @@ static int dissect_dp_AnalysedInfoCriteriaList_impl(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t D_CSI_sequence[] = {
+static const ber_old_sequence_t D_CSI_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dp_AnalysedInfoCriteriaList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -7587,8 +7587,8 @@ static const ber_sequence_t D_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_D_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   D_CSI_sequence, hf_index, ett_gsm_map_D_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       D_CSI_sequence, hf_index, ett_gsm_map_D_CSI);
 
   return offset;
 }
@@ -7623,14 +7623,14 @@ static int dissect_TPDU_TypeCriterion_item(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t TPDU_TypeCriterion_sequence_of[1] = {
+static const ber_old_sequence_t TPDU_TypeCriterion_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_TPDU_TypeCriterion_item },
 };
 
 static int
 dissect_gsm_map_TPDU_TypeCriterion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      TPDU_TypeCriterion_sequence_of, hf_index, ett_gsm_map_TPDU_TypeCriterion);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          TPDU_TypeCriterion_sequence_of, hf_index, ett_gsm_map_TPDU_TypeCriterion);
 
   return offset;
 }
@@ -7639,7 +7639,7 @@ static int dissect_tpdu_TypeCriterion_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t MT_smsCAMELTDP_Criteria_sequence[] = {
+static const ber_old_sequence_t MT_smsCAMELTDP_Criteria_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_sms_TriggerDetectionPoint },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tpdu_TypeCriterion_impl },
   { 0, 0, 0, NULL }
@@ -7647,8 +7647,8 @@ static const ber_sequence_t MT_smsCAMELTDP_Criteria_sequence[] = {
 
 static int
 dissect_gsm_map_MT_smsCAMELTDP_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MT_smsCAMELTDP_Criteria_sequence, hf_index, ett_gsm_map_MT_smsCAMELTDP_Criteria);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MT_smsCAMELTDP_Criteria_sequence, hf_index, ett_gsm_map_MT_smsCAMELTDP_Criteria);
 
   return offset;
 }
@@ -7657,14 +7657,14 @@ static int dissect_MT_smsCAMELTDP_CriteriaList_item(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t MT_smsCAMELTDP_CriteriaList_sequence_of[1] = {
+static const ber_old_sequence_t MT_smsCAMELTDP_CriteriaList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_MT_smsCAMELTDP_CriteriaList_item },
 };
 
 static int
 dissect_gsm_map_MT_smsCAMELTDP_CriteriaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      MT_smsCAMELTDP_CriteriaList_sequence_of, hf_index, ett_gsm_map_MT_smsCAMELTDP_CriteriaList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          MT_smsCAMELTDP_CriteriaList_sequence_of, hf_index, ett_gsm_map_MT_smsCAMELTDP_CriteriaList);
 
   return offset;
 }
@@ -7673,7 +7673,7 @@ static int dissect_mt_smsCAMELTDP_CriteriaList_impl(proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t VlrCamelSubscriptionInfo_sequence[] = {
+static const ber_old_sequence_t VlrCamelSubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_CSI_impl },
@@ -7691,8 +7691,8 @@ static const ber_sequence_t VlrCamelSubscriptionInfo_sequence[] = {
 
 static int
 dissect_gsm_map_VlrCamelSubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   VlrCamelSubscriptionInfo_sequence, hf_index, ett_gsm_map_VlrCamelSubscriptionInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       VlrCamelSubscriptionInfo_sequence, hf_index, ett_gsm_map_VlrCamelSubscriptionInfo);
 
   return offset;
 }
@@ -7714,7 +7714,7 @@ static int dissect_naea_PreferredCIC_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t NAEA_PreferredCI_sequence[] = {
+static const ber_old_sequence_t NAEA_PreferredCI_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_naea_PreferredCIC_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -7722,8 +7722,8 @@ static const ber_sequence_t NAEA_PreferredCI_sequence[] = {
 
 static int
 dissect_gsm_map_NAEA_PreferredCI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NAEA_PreferredCI_sequence, hf_index, ett_gsm_map_NAEA_PreferredCI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NAEA_PreferredCI_sequence, hf_index, ett_gsm_map_NAEA_PreferredCI);
 
   return offset;
 }
@@ -7917,7 +7917,7 @@ static int dissect_qos2_Negotiated_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t PDP_Context_sequence[] = {
+static const ber_old_sequence_t PDP_Context_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pdp_ContextId },
   { BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_pdp_Type_impl },
   { BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdp_Address_impl },
@@ -7933,8 +7933,8 @@ static const ber_sequence_t PDP_Context_sequence[] = {
 
 static int
 dissect_gsm_map_PDP_Context(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PDP_Context_sequence, hf_index, ett_gsm_map_PDP_Context);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PDP_Context_sequence, hf_index, ett_gsm_map_PDP_Context);
 
   return offset;
 }
@@ -7943,14 +7943,14 @@ static int dissect_GPRSDataList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t GPRSDataList_sequence_of[1] = {
+static const ber_old_sequence_t GPRSDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_GPRSDataList_item },
 };
 
 static int
 dissect_gsm_map_GPRSDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GPRSDataList_sequence_of, hf_index, ett_gsm_map_GPRSDataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          GPRSDataList_sequence_of, hf_index, ett_gsm_map_GPRSDataList);
 
   return offset;
 }
@@ -7959,7 +7959,7 @@ static int dissect_gprsDataList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t GPRSSubscriptionData_sequence[] = {
+static const ber_old_sequence_t GPRSSubscriptionData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_completeDataListIncluded },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprsDataList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -7968,8 +7968,8 @@ static const ber_sequence_t GPRSSubscriptionData_sequence[] = {
 
 static int
 dissect_gsm_map_GPRSSubscriptionData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GPRSSubscriptionData_sequence, hf_index, ett_gsm_map_GPRSSubscriptionData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GPRSSubscriptionData_sequence, hf_index, ett_gsm_map_GPRSSubscriptionData);
 
   return offset;
 }
@@ -8052,7 +8052,7 @@ static int dissect_lsaAttributes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t LSAData_sequence[] = {
+static const ber_old_sequence_t LSAData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lsaIdentity_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lsaAttributes_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lsaActiveModeIndicator_impl },
@@ -8062,8 +8062,8 @@ static const ber_sequence_t LSAData_sequence[] = {
 
 static int
 dissect_gsm_map_LSAData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LSAData_sequence, hf_index, ett_gsm_map_LSAData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LSAData_sequence, hf_index, ett_gsm_map_LSAData);
 
   return offset;
 }
@@ -8072,14 +8072,14 @@ static int dissect_LSADataList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t LSADataList_sequence_of[1] = {
+static const ber_old_sequence_t LSADataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_LSADataList_item },
 };
 
 static int
 dissect_gsm_map_LSADataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      LSADataList_sequence_of, hf_index, ett_gsm_map_LSADataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          LSADataList_sequence_of, hf_index, ett_gsm_map_LSADataList);
 
   return offset;
 }
@@ -8088,7 +8088,7 @@ static int dissect_lsaDataList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t LSAInformation_sequence[] = {
+static const ber_old_sequence_t LSAInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_completeDataListIncluded },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lsaOnlyAccessIndicator_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lsaDataList_impl },
@@ -8098,8 +8098,8 @@ static const ber_sequence_t LSAInformation_sequence[] = {
 
 static int
 dissect_gsm_map_LSAInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LSAInformation_sequence, hf_index, ett_gsm_map_LSAInformation);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LSAInformation_sequence, hf_index, ett_gsm_map_LSAInformation);
 
   return offset;
 }
@@ -8108,14 +8108,14 @@ static int dissect_lsaInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t GMLC_List_sequence_of[1] = {
+static const ber_old_sequence_t GMLC_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_GMLC_List_item },
 };
 
 static int
 dissect_gsm_map_GMLC_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GMLC_List_sequence_of, hf_index, ett_gsm_map_GMLC_List);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          GMLC_List_sequence_of, hf_index, ett_gsm_map_GMLC_List);
 
   return offset;
 }
@@ -8145,7 +8145,7 @@ static int dissect_notificationToMSUser_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t LCSClientExternalID_sequence[] = {
+static const ber_old_sequence_t LCSClientExternalID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_externalAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -8153,8 +8153,8 @@ static const ber_sequence_t LCSClientExternalID_sequence[] = {
 
 int
 dissect_gsm_map_LCSClientExternalID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCSClientExternalID_sequence, hf_index, ett_gsm_map_LCSClientExternalID);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCSClientExternalID_sequence, hf_index, ett_gsm_map_LCSClientExternalID);
 
   return offset;
 }
@@ -8185,7 +8185,7 @@ static int dissect_gmlc_Restriction_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t ExternalClient_sequence[] = {
+static const ber_old_sequence_t ExternalClient_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_clientIdentity },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gmlc_Restriction_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToMSUser_impl },
@@ -8195,8 +8195,8 @@ static const ber_sequence_t ExternalClient_sequence[] = {
 
 static int
 dissect_gsm_map_ExternalClient(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExternalClient_sequence, hf_index, ett_gsm_map_ExternalClient);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExternalClient_sequence, hf_index, ett_gsm_map_ExternalClient);
 
   return offset;
 }
@@ -8208,14 +8208,14 @@ static int dissect_Ext_ExternalClientList_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t ExternalClientList_sequence_of[1] = {
+static const ber_old_sequence_t ExternalClientList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ExternalClientList_item },
 };
 
 static int
 dissect_gsm_map_ExternalClientList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ExternalClientList_sequence_of, hf_index, ett_gsm_map_ExternalClientList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ExternalClientList_sequence_of, hf_index, ett_gsm_map_ExternalClientList);
 
   return offset;
 }
@@ -8249,14 +8249,14 @@ static int dissect_lcsClientInternalID_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t PLMNClientList_sequence_of[1] = {
+static const ber_old_sequence_t PLMNClientList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_PLMNClientList_item },
 };
 
 static int
 dissect_gsm_map_PLMNClientList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PLMNClientList_sequence_of, hf_index, ett_gsm_map_PLMNClientList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          PLMNClientList_sequence_of, hf_index, ett_gsm_map_PLMNClientList);
 
   return offset;
 }
@@ -8265,14 +8265,14 @@ static int dissect_plmnClientList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t Ext_ExternalClientList_sequence_of[1] = {
+static const ber_old_sequence_t Ext_ExternalClientList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Ext_ExternalClientList_item },
 };
 
 static int
 dissect_gsm_map_Ext_ExternalClientList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      Ext_ExternalClientList_sequence_of, hf_index, ett_gsm_map_Ext_ExternalClientList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          Ext_ExternalClientList_sequence_of, hf_index, ett_gsm_map_Ext_ExternalClientList);
 
   return offset;
 }
@@ -8297,7 +8297,7 @@ static int dissect_lcsServiceTypeID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t ServiceType_sequence[] = {
+static const ber_old_sequence_t ServiceType_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceTypeIdentity },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gmlc_Restriction_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToMSUser_impl },
@@ -8307,8 +8307,8 @@ static const ber_sequence_t ServiceType_sequence[] = {
 
 static int
 dissect_gsm_map_ServiceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ServiceType_sequence, hf_index, ett_gsm_map_ServiceType);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ServiceType_sequence, hf_index, ett_gsm_map_ServiceType);
 
   return offset;
 }
@@ -8317,14 +8317,14 @@ static int dissect_ServiceTypeList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t ServiceTypeList_sequence_of[1] = {
+static const ber_old_sequence_t ServiceTypeList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ServiceTypeList_item },
 };
 
 static int
 dissect_gsm_map_ServiceTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ServiceTypeList_sequence_of, hf_index, ett_gsm_map_ServiceTypeList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ServiceTypeList_sequence_of, hf_index, ett_gsm_map_ServiceTypeList);
 
   return offset;
 }
@@ -8333,7 +8333,7 @@ static int dissect_serviceTypeList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t LCS_PrivacyClass_sequence[] = {
+static const ber_old_sequence_t LCS_PrivacyClass_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ext_ss_Status },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToMSUser_impl },
@@ -8347,8 +8347,8 @@ static const ber_sequence_t LCS_PrivacyClass_sequence[] = {
 
 static int
 dissect_gsm_map_LCS_PrivacyClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCS_PrivacyClass_sequence, hf_index, ett_gsm_map_LCS_PrivacyClass);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCS_PrivacyClass_sequence, hf_index, ett_gsm_map_LCS_PrivacyClass);
 
   return offset;
 }
@@ -8357,14 +8357,14 @@ static int dissect_LCS_PrivacyExceptionList_item(proto_tree *tree _U_, tvbuff_t 
 }
 
 
-static const ber_sequence_t LCS_PrivacyExceptionList_sequence_of[1] = {
+static const ber_old_sequence_t LCS_PrivacyExceptionList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_LCS_PrivacyExceptionList_item },
 };
 
 static int
 dissect_gsm_map_LCS_PrivacyExceptionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      LCS_PrivacyExceptionList_sequence_of, hf_index, ett_gsm_map_LCS_PrivacyExceptionList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          LCS_PrivacyExceptionList_sequence_of, hf_index, ett_gsm_map_LCS_PrivacyExceptionList);
 
   return offset;
 }
@@ -8376,7 +8376,7 @@ static int dissect_add_lcs_PrivacyExceptionList(proto_tree *tree _U_, tvbuff_t *
 }
 
 
-static const ber_sequence_t MOLR_Class_sequence[] = {
+static const ber_old_sequence_t MOLR_Class_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ext_ss_Status },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -8385,8 +8385,8 @@ static const ber_sequence_t MOLR_Class_sequence[] = {
 
 static int
 dissect_gsm_map_MOLR_Class(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MOLR_Class_sequence, hf_index, ett_gsm_map_MOLR_Class);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MOLR_Class_sequence, hf_index, ett_gsm_map_MOLR_Class);
 
   return offset;
 }
@@ -8395,14 +8395,14 @@ static int dissect_MOLR_List_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t MOLR_List_sequence_of[1] = {
+static const ber_old_sequence_t MOLR_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_MOLR_List_item },
 };
 
 static int
 dissect_gsm_map_MOLR_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      MOLR_List_sequence_of, hf_index, ett_gsm_map_MOLR_List);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          MOLR_List_sequence_of, hf_index, ett_gsm_map_MOLR_List);
 
   return offset;
 }
@@ -8411,7 +8411,7 @@ static int dissect_molr_List_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t LCSInformation_sequence[] = {
+static const ber_old_sequence_t LCSInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gmlc_List_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcs_PrivacyExceptionList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_molr_List_impl },
@@ -8421,8 +8421,8 @@ static const ber_sequence_t LCSInformation_sequence[] = {
 
 static int
 dissect_gsm_map_LCSInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCSInformation_sequence, hf_index, ett_gsm_map_LCSInformation);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCSInformation_sequence, hf_index, ett_gsm_map_LCSInformation);
 
   return offset;
 }
@@ -8473,7 +8473,7 @@ static int dissect_nbrSN_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t MC_SS_Info_sequence[] = {
+static const ber_old_sequence_t MC_SS_Info_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_nbrSB_impl },
@@ -8484,8 +8484,8 @@ static const ber_sequence_t MC_SS_Info_sequence[] = {
 
 static int
 dissect_gsm_map_MC_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MC_SS_Info_sequence, hf_index, ett_gsm_map_MC_SS_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MC_SS_Info_sequence, hf_index, ett_gsm_map_MC_SS_Info);
 
   return offset;
 }
@@ -8548,7 +8548,7 @@ static int dissect_defaultSessionHandling_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t GPRS_CamelTDPData_sequence[] = {
+static const ber_old_sequence_t GPRS_CamelTDPData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprs_TriggerDetectionPoint_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -8559,8 +8559,8 @@ static const ber_sequence_t GPRS_CamelTDPData_sequence[] = {
 
 static int
 dissect_gsm_map_GPRS_CamelTDPData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GPRS_CamelTDPData_sequence, hf_index, ett_gsm_map_GPRS_CamelTDPData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GPRS_CamelTDPData_sequence, hf_index, ett_gsm_map_GPRS_CamelTDPData);
 
   return offset;
 }
@@ -8569,14 +8569,14 @@ static int dissect_GPRS_CamelTDPDataList_item(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t GPRS_CamelTDPDataList_sequence_of[1] = {
+static const ber_old_sequence_t GPRS_CamelTDPDataList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_GPRS_CamelTDPDataList_item },
 };
 
 static int
 dissect_gsm_map_GPRS_CamelTDPDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GPRS_CamelTDPDataList_sequence_of, hf_index, ett_gsm_map_GPRS_CamelTDPDataList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          GPRS_CamelTDPDataList_sequence_of, hf_index, ett_gsm_map_GPRS_CamelTDPDataList);
 
   return offset;
 }
@@ -8585,7 +8585,7 @@ static int dissect_gprs_CamelTDPDataList_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t GPRS_CSI_sequence[] = {
+static const ber_old_sequence_t GPRS_CSI_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprs_CamelTDPDataList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camelCapabilityHandling_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -8596,8 +8596,8 @@ static const ber_sequence_t GPRS_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_GPRS_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GPRS_CSI_sequence, hf_index, ett_gsm_map_GPRS_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GPRS_CSI_sequence, hf_index, ett_gsm_map_GPRS_CSI);
 
   return offset;
 }
@@ -8606,7 +8606,7 @@ static int dissect_gprs_CSI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t MG_CSI_sequence[] = {
+static const ber_old_sequence_t MG_CSI_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_mobilityTriggers },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -8618,8 +8618,8 @@ static const ber_sequence_t MG_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_MG_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MG_CSI_sequence, hf_index, ett_gsm_map_MG_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MG_CSI_sequence, hf_index, ett_gsm_map_MG_CSI);
 
   return offset;
 }
@@ -8628,7 +8628,7 @@ static int dissect_mg_csi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t SGSN_CAMEL_SubscriptionInfo_sequence[] = {
+static const ber_old_sequence_t SGSN_CAMEL_SubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprs_CSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mo_sms_CSI_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -8640,8 +8640,8 @@ static const ber_sequence_t SGSN_CAMEL_SubscriptionInfo_sequence[] = {
 
 static int
 dissect_gsm_map_SGSN_CAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SGSN_CAMEL_SubscriptionInfo_sequence, hf_index, ett_gsm_map_SGSN_CAMEL_SubscriptionInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SGSN_CAMEL_SubscriptionInfo_sequence, hf_index, ett_gsm_map_SGSN_CAMEL_SubscriptionInfo);
 
   return offset;
 }
@@ -8669,7 +8669,7 @@ static int dissect_accessRestrictionData_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t InsertSubscriberDataArg_sequence[] = {
+static const ber_old_sequence_t InsertSubscriberDataArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_category_impl },
@@ -8703,21 +8703,21 @@ static const ber_sequence_t InsertSubscriberDataArg_sequence[] = {
 
 static int
 dissect_gsm_map_InsertSubscriberDataArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InsertSubscriberDataArg_sequence, hf_index, ett_gsm_map_InsertSubscriberDataArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       InsertSubscriberDataArg_sequence, hf_index, ett_gsm_map_InsertSubscriberDataArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_List_sequence_of[1] = {
+static const ber_old_sequence_t SS_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SS_List_item },
 };
 
 static int
 dissect_gsm_map_SS_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SS_List_sequence_of, hf_index, ett_gsm_map_SS_List);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SS_List_sequence_of, hf_index, ett_gsm_map_SS_List);
 
   return offset;
 }
@@ -8750,7 +8750,7 @@ static int dissect_regionalSubscriptionResponse_impl(proto_tree *tree _U_, tvbuf
 }
 
 
-static const ber_sequence_t InsertSubscriberDataRes_sequence[] = {
+static const ber_old_sequence_t InsertSubscriberDataRes_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_teleserviceList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bearerServiceList_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_List_impl },
@@ -8764,21 +8764,21 @@ static const ber_sequence_t InsertSubscriberDataRes_sequence[] = {
 
 static int
 dissect_gsm_map_InsertSubscriberDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InsertSubscriberDataRes_sequence, hf_index, ett_gsm_map_InsertSubscriberDataRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       InsertSubscriberDataRes_sequence, hf_index, ett_gsm_map_InsertSubscriberDataRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t BasicServiceList_sequence_of[1] = {
+static const ber_old_sequence_t BasicServiceList_sequence_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceList_item },
 };
 
 static int
 dissect_gsm_map_BasicServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      BasicServiceList_sequence_of, hf_index, ett_gsm_map_BasicServiceList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          BasicServiceList_sequence_of, hf_index, ett_gsm_map_BasicServiceList);
 
   return offset;
 }
@@ -8787,14 +8787,14 @@ static int dissect_basicServiceList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t ContextIdList_sequence_of[1] = {
+static const ber_old_sequence_t ContextIdList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ContextIdList_item },
 };
 
 static int
 dissect_gsm_map_ContextIdList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ContextIdList_sequence_of, hf_index, ett_gsm_map_ContextIdList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ContextIdList_sequence_of, hf_index, ett_gsm_map_ContextIdList);
 
   return offset;
 }
@@ -8809,7 +8809,7 @@ static const value_string gsm_map_GPRSSubscriptionDataWithdraw_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t GPRSSubscriptionDataWithdraw_choice[] = {
+static const ber_old_choice_t GPRSSubscriptionDataWithdraw_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allGPRSData },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_contextIdList },
   { 0, 0, 0, 0, NULL }
@@ -8817,9 +8817,9 @@ static const ber_choice_t GPRSSubscriptionDataWithdraw_choice[] = {
 
 static int
 dissect_gsm_map_GPRSSubscriptionDataWithdraw(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 GPRSSubscriptionDataWithdraw_choice, hf_index, ett_gsm_map_GPRSSubscriptionDataWithdraw,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     GPRSSubscriptionDataWithdraw_choice, hf_index, ett_gsm_map_GPRSSubscriptionDataWithdraw,
+                                     NULL);
 
   return offset;
 }
@@ -8828,14 +8828,14 @@ static int dissect_gprsSubscriptionDataWithdraw_impl(proto_tree *tree _U_, tvbuf
 }
 
 
-static const ber_sequence_t LSAIdentityList_sequence_of[1] = {
+static const ber_old_sequence_t LSAIdentityList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_LSAIdentityList_item },
 };
 
 static int
 dissect_gsm_map_LSAIdentityList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      LSAIdentityList_sequence_of, hf_index, ett_gsm_map_LSAIdentityList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          LSAIdentityList_sequence_of, hf_index, ett_gsm_map_LSAIdentityList);
 
   return offset;
 }
@@ -8850,7 +8850,7 @@ static const value_string gsm_map_LSAInformationWithdraw_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t LSAInformationWithdraw_choice[] = {
+static const ber_old_choice_t LSAInformationWithdraw_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_allLSAData },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lsaIdentityList },
   { 0, 0, 0, 0, NULL }
@@ -8858,9 +8858,9 @@ static const ber_choice_t LSAInformationWithdraw_choice[] = {
 
 static int
 dissect_gsm_map_LSAInformationWithdraw(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 LSAInformationWithdraw_choice, hf_index, ett_gsm_map_LSAInformationWithdraw,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     LSAInformationWithdraw_choice, hf_index, ett_gsm_map_LSAInformationWithdraw,
+                                     NULL);
 
   return offset;
 }
@@ -8903,7 +8903,7 @@ static int dissect_specificCSIDeletedList_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t DeleteSubscriberDataArg_sequence[] = {
+static const ber_old_sequence_t DeleteSubscriberDataArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_List_impl },
@@ -8925,14 +8925,14 @@ static const ber_sequence_t DeleteSubscriberDataArg_sequence[] = {
 
 static int
 dissect_gsm_map_DeleteSubscriberDataArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DeleteSubscriberDataArg_sequence, hf_index, ett_gsm_map_DeleteSubscriberDataArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DeleteSubscriberDataArg_sequence, hf_index, ett_gsm_map_DeleteSubscriberDataArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t DeleteSubscriberDataRes_sequence[] = {
+static const ber_old_sequence_t DeleteSubscriberDataRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_regionalSubscriptionResponse_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -8940,8 +8940,8 @@ static const ber_sequence_t DeleteSubscriberDataRes_sequence[] = {
 
 static int
 dissect_gsm_map_DeleteSubscriberDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DeleteSubscriberDataRes_sequence, hf_index, ett_gsm_map_DeleteSubscriberDataRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DeleteSubscriberDataRes_sequence, hf_index, ett_gsm_map_DeleteSubscriberDataRes);
 
   return offset;
 }
@@ -8985,7 +8985,7 @@ static int dissect_ss_Status_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t CallBarringFeature_sequence[] = {
+static const ber_old_sequence_t CallBarringFeature_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { 0, 0, 0, NULL }
@@ -8993,8 +8993,8 @@ static const ber_sequence_t CallBarringFeature_sequence[] = {
 
 static int
 dissect_gsm_map_CallBarringFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CallBarringFeature_sequence, hf_index, ett_gsm_map_CallBarringFeature);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CallBarringFeature_sequence, hf_index, ett_gsm_map_CallBarringFeature);
 
   return offset;
 }
@@ -9003,14 +9003,14 @@ static int dissect_CallBarringFeatureList_item(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t CallBarringFeatureList_sequence_of[1] = {
+static const ber_old_sequence_t CallBarringFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CallBarringFeatureList_item },
 };
 
 static int
 dissect_gsm_map_CallBarringFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CallBarringFeatureList_sequence_of, hf_index, ett_gsm_map_CallBarringFeatureList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          CallBarringFeatureList_sequence_of, hf_index, ett_gsm_map_CallBarringFeatureList);
 
   return offset;
 }
@@ -9052,7 +9052,7 @@ static int dissect_noReplyConditionTime_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t ForwardingFeature_sequence[] = {
+static const ber_old_sequence_t ForwardingFeature_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
@@ -9065,8 +9065,8 @@ static const ber_sequence_t ForwardingFeature_sequence[] = {
 
 static int
 dissect_gsm_map_ForwardingFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardingFeature_sequence, hf_index, ett_gsm_map_ForwardingFeature);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardingFeature_sequence, hf_index, ett_gsm_map_ForwardingFeature);
 
   return offset;
 }
@@ -9075,14 +9075,14 @@ static int dissect_ForwardingFeatureList_item(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t ForwardingFeatureList_sequence_of[1] = {
+static const ber_old_sequence_t ForwardingFeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ForwardingFeatureList_item },
 };
 
 static int
 dissect_gsm_map_ForwardingFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ForwardingFeatureList_sequence_of, hf_index, ett_gsm_map_ForwardingFeatureList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ForwardingFeatureList_sequence_of, hf_index, ett_gsm_map_ForwardingFeatureList);
 
   return offset;
 }
@@ -9094,7 +9094,7 @@ static int dissect_forwardingFeatureList_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t ForwardingInfo_sequence[] = {
+static const ber_old_sequence_t ForwardingInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardingFeatureList },
   { 0, 0, 0, NULL }
@@ -9102,8 +9102,8 @@ static const ber_sequence_t ForwardingInfo_sequence[] = {
 
 static int
 dissect_gsm_map_ForwardingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardingInfo_sequence, hf_index, ett_gsm_map_ForwardingInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardingInfo_sequence, hf_index, ett_gsm_map_ForwardingInfo);
 
   return offset;
 }
@@ -9112,7 +9112,7 @@ static int dissect_forwardingInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t CallBarringInfo_sequence[] = {
+static const ber_old_sequence_t CallBarringInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_callBarringFeatureList },
   { 0, 0, 0, NULL }
@@ -9120,8 +9120,8 @@ static const ber_sequence_t CallBarringInfo_sequence[] = {
 
 static int
 dissect_gsm_map_CallBarringInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CallBarringInfo_sequence, hf_index, ett_gsm_map_CallBarringInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CallBarringInfo_sequence, hf_index, ett_gsm_map_CallBarringInfo);
 
   return offset;
 }
@@ -9142,14 +9142,14 @@ static int dissect_HLR_List_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t HLR_List_sequence_of[1] = {
+static const ber_old_sequence_t HLR_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_HLR_List_item },
 };
 
 static int
 dissect_gsm_map_HLR_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      HLR_List_sequence_of, hf_index, ett_gsm_map_HLR_List);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          HLR_List_sequence_of, hf_index, ett_gsm_map_HLR_List);
 
   return offset;
 }
@@ -9158,7 +9158,7 @@ static int dissect_hlr_List(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t ResetArg_sequence[] = {
+static const ber_old_sequence_t ResetArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_hlr_List },
   { 0, 0, 0, NULL }
@@ -9166,14 +9166,14 @@ static const ber_sequence_t ResetArg_sequence[] = {
 
 static int
 dissect_gsm_map_ResetArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ResetArg_sequence, hf_index, ett_gsm_map_ResetArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ResetArg_sequence, hf_index, ett_gsm_map_ResetArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RestoreDataArg_sequence[] = {
+static const ber_old_sequence_t RestoreDataArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_lmsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -9183,14 +9183,14 @@ static const ber_sequence_t RestoreDataArg_sequence[] = {
 
 static int
 dissect_gsm_map_RestoreDataArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RestoreDataArg_sequence, hf_index, ett_gsm_map_RestoreDataArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RestoreDataArg_sequence, hf_index, ett_gsm_map_RestoreDataArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RestoreDataRes_sequence[] = {
+static const ber_old_sequence_t RestoreDataRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_msNotReachable },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -9199,14 +9199,14 @@ static const ber_sequence_t RestoreDataRes_sequence[] = {
 
 static int
 dissect_gsm_map_RestoreDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RestoreDataRes_sequence, hf_index, ett_gsm_map_RestoreDataRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RestoreDataRes_sequence, hf_index, ett_gsm_map_RestoreDataRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t TraceDepthList_sequence[] = {
+static const ber_old_sequence_t TraceDepthList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msc_s_TraceDepth_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mgw_TraceDepth_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgsn_TraceDepth_impl },
@@ -9218,8 +9218,8 @@ static const ber_sequence_t TraceDepthList_sequence[] = {
 
 static int
 dissect_gsm_map_TraceDepthList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TraceDepthList_sequence, hf_index, ett_gsm_map_TraceDepthList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TraceDepthList_sequence, hf_index, ett_gsm_map_TraceDepthList);
 
   return offset;
 }
@@ -9314,7 +9314,7 @@ static int dissect_bmsc_IList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t TraceInterfaceList_sequence[] = {
+static const ber_old_sequence_t TraceInterfaceList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msc_s_IList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mgw_IList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgsn_IList_impl },
@@ -9326,8 +9326,8 @@ static const ber_sequence_t TraceInterfaceList_sequence[] = {
 
 static int
 dissect_gsm_map_TraceInterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TraceInterfaceList_sequence, hf_index, ett_gsm_map_TraceInterfaceList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TraceInterfaceList_sequence, hf_index, ett_gsm_map_TraceInterfaceList);
 
   return offset;
 }
@@ -9394,7 +9394,7 @@ static int dissect_bmsc_EList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t TraceEventList_sequence[] = {
+static const ber_old_sequence_t TraceEventList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msc_s_EList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mgw_EList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgsn_EList_impl },
@@ -9405,8 +9405,8 @@ static const ber_sequence_t TraceEventList_sequence[] = {
 
 static int
 dissect_gsm_map_TraceEventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TraceEventList_sequence, hf_index, ett_gsm_map_TraceEventList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TraceEventList_sequence, hf_index, ett_gsm_map_TraceEventList);
 
   return offset;
 }
@@ -9415,7 +9415,7 @@ static int dissect_traceEventList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t ActivateTraceModeArg_sequence[] = {
+static const ber_old_sequence_t ActivateTraceModeArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_traceReference_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_traceType_impl },
@@ -9431,14 +9431,14 @@ static const ber_sequence_t ActivateTraceModeArg_sequence[] = {
 
 static int
 dissect_gsm_map_ActivateTraceModeArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ActivateTraceModeArg_sequence, hf_index, ett_gsm_map_ActivateTraceModeArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ActivateTraceModeArg_sequence, hf_index, ett_gsm_map_ActivateTraceModeArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ActivateTraceModeRes_sequence[] = {
+static const ber_old_sequence_t ActivateTraceModeRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_traceSupportIndicator_impl },
   { 0, 0, 0, NULL }
@@ -9446,14 +9446,14 @@ static const ber_sequence_t ActivateTraceModeRes_sequence[] = {
 
 static int
 dissect_gsm_map_ActivateTraceModeRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ActivateTraceModeRes_sequence, hf_index, ett_gsm_map_ActivateTraceModeRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ActivateTraceModeRes_sequence, hf_index, ett_gsm_map_ActivateTraceModeRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t DeactivateTraceModeArg_sequence[] = {
+static const ber_old_sequence_t DeactivateTraceModeArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_traceReference_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -9463,28 +9463,28 @@ static const ber_sequence_t DeactivateTraceModeArg_sequence[] = {
 
 static int
 dissect_gsm_map_DeactivateTraceModeArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DeactivateTraceModeArg_sequence, hf_index, ett_gsm_map_DeactivateTraceModeArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DeactivateTraceModeArg_sequence, hf_index, ett_gsm_map_DeactivateTraceModeArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t DeactivateTraceModeRes_sequence[] = {
+static const ber_old_sequence_t DeactivateTraceModeRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_DeactivateTraceModeRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DeactivateTraceModeRes_sequence, hf_index, ett_gsm_map_DeactivateTraceModeRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DeactivateTraceModeRes_sequence, hf_index, ett_gsm_map_DeactivateTraceModeRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t CUG_CheckInfo_sequence[] = {
+static const ber_old_sequence_t CUG_CheckInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_cug_Interlock },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cug_OutgoingAccess },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -9493,8 +9493,8 @@ static const ber_sequence_t CUG_CheckInfo_sequence[] = {
 
 static int
 dissect_gsm_map_CUG_CheckInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CUG_CheckInfo_sequence, hf_index, ett_gsm_map_CUG_CheckInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CUG_CheckInfo_sequence, hf_index, ett_gsm_map_CUG_CheckInfo);
 
   return offset;
 }
@@ -9581,7 +9581,7 @@ static int dissect_forwardingReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t ExternalSignalInfo_sequence[] = {
+static const ber_old_sequence_t ExternalSignalInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_protocolId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signalInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -9590,8 +9590,8 @@ static const ber_sequence_t ExternalSignalInfo_sequence[] = {
 
 static int
 dissect_gsm_map_ExternalSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExternalSignalInfo_sequence, hf_index, ett_gsm_map_ExternalSignalInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExternalSignalInfo_sequence, hf_index, ett_gsm_map_ExternalSignalInfo);
 
   return offset;
 }
@@ -9630,7 +9630,7 @@ static int dissect_callInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t CamelInfo_sequence[] = {
+static const ber_old_sequence_t CamelInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_supportedCamelPhases },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_suppress_T_CSI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -9640,8 +9640,8 @@ static const ber_sequence_t CamelInfo_sequence[] = {
 
 static int
 dissect_gsm_map_CamelInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CamelInfo_sequence, hf_index, ett_gsm_map_CamelInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CamelInfo_sequence, hf_index, ett_gsm_map_CamelInfo);
 
   return offset;
 }
@@ -9709,7 +9709,7 @@ static int dissect_ext_ProtocolId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t Ext_ExternalSignalInfo_sequence[] = {
+static const ber_old_sequence_t Ext_ExternalSignalInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_ext_ProtocolId },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signalInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -9718,8 +9718,8 @@ static const ber_sequence_t Ext_ExternalSignalInfo_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_ExternalSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_ExternalSignalInfo_sequence, hf_index, ett_gsm_map_Ext_ExternalSignalInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_ExternalSignalInfo_sequence, hf_index, ett_gsm_map_Ext_ExternalSignalInfo);
 
   return offset;
 }
@@ -9741,7 +9741,7 @@ static int dissect_callDiversionTreatmentIndicator_impl(proto_tree *tree _U_, tv
 }
 
 
-static const ber_sequence_t SendRoutingInfoArg_sequence[] = {
+static const ber_old_sequence_t SendRoutingInfoArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_CheckInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_numberOfForwarding_impl },
@@ -9774,14 +9774,14 @@ static const ber_sequence_t SendRoutingInfoArg_sequence[] = {
 
 static int
 dissect_gsm_map_SendRoutingInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendRoutingInfoArg_sequence, hf_index, ett_gsm_map_SendRoutingInfoArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendRoutingInfoArg_sequence, hf_index, ett_gsm_map_SendRoutingInfoArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ForwardingData_sequence[] = {
+static const ber_old_sequence_t ForwardingData_sequence[] = {
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToSubaddress_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardingOptions_impl },
@@ -9792,8 +9792,8 @@ static const ber_sequence_t ForwardingData_sequence[] = {
 
 static int
 dissect_gsm_map_ForwardingData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardingData_sequence, hf_index, ett_gsm_map_ForwardingData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardingData_sequence, hf_index, ett_gsm_map_ForwardingData);
 
   return offset;
 }
@@ -9811,7 +9811,7 @@ static const value_string gsm_map_RoutingInfo_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t RoutingInfo_choice[] = {
+static const ber_old_choice_t RoutingInfo_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_roamingNumber },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_forwardingData },
   { 0, 0, 0, 0, NULL }
@@ -9819,9 +9819,9 @@ static const ber_choice_t RoutingInfo_choice[] = {
 
 static int
 dissect_gsm_map_RoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 RoutingInfo_choice, hf_index, ett_gsm_map_RoutingInfo,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     RoutingInfo_choice, hf_index, ett_gsm_map_RoutingInfo,
+                                     NULL);
 
   return offset;
 }
@@ -9833,7 +9833,7 @@ static int dissect_routingInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t GmscCamelSubscriptionInfo_sequence[] = {
+static const ber_old_sequence_t GmscCamelSubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_t_CSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CSI_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -9845,8 +9845,8 @@ static const ber_sequence_t GmscCamelSubscriptionInfo_sequence[] = {
 
 static int
 dissect_gsm_map_GmscCamelSubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GmscCamelSubscriptionInfo_sequence, hf_index, ett_gsm_map_GmscCamelSubscriptionInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GmscCamelSubscriptionInfo_sequence, hf_index, ett_gsm_map_GmscCamelSubscriptionInfo);
 
   return offset;
 }
@@ -9855,7 +9855,7 @@ static int dissect_gmscCamelSubscriptionInfo_impl(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t CamelRoutingInfo_sequence[] = {
+static const ber_old_sequence_t CamelRoutingInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_forwardingData },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gmscCamelSubscriptionInfo_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -9864,8 +9864,8 @@ static const ber_sequence_t CamelRoutingInfo_sequence[] = {
 
 static int
 dissect_gsm_map_CamelRoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CamelRoutingInfo_sequence, hf_index, ett_gsm_map_CamelRoutingInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CamelRoutingInfo_sequence, hf_index, ett_gsm_map_CamelRoutingInfo);
 
   return offset;
 }
@@ -9880,7 +9880,7 @@ static const value_string gsm_map_ExtendedRoutingInfo_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ExtendedRoutingInfo_choice[] = {
+static const ber_old_choice_t ExtendedRoutingInfo_choice[] = {
   {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_routingInfo },
   {   1, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_camelRoutingInfo_impl },
   { 0, 0, 0, 0, NULL }
@@ -9888,9 +9888,9 @@ static const ber_choice_t ExtendedRoutingInfo_choice[] = {
 
 static int
 dissect_gsm_map_ExtendedRoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ExtendedRoutingInfo_choice, hf_index, ett_gsm_map_ExtendedRoutingInfo,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ExtendedRoutingInfo_choice, hf_index, ett_gsm_map_ExtendedRoutingInfo,
+                                     NULL);
 
   return offset;
 }
@@ -9963,7 +9963,7 @@ static const value_string gsm_map_CellGlobalIdOrServiceAreaIdOrLAI_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CellGlobalIdOrServiceAreaIdOrLAI_choice[] = {
+static const ber_old_choice_t CellGlobalIdOrServiceAreaIdOrLAI_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cellGlobalIdOrServiceAreaIdFixedLength_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_laiFixedLength_impl },
   { 0, 0, 0, 0, NULL }
@@ -9971,9 +9971,9 @@ static const ber_choice_t CellGlobalIdOrServiceAreaIdOrLAI_choice[] = {
 
 static int
 dissect_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CellGlobalIdOrServiceAreaIdOrLAI_choice, hf_index, ett_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CellGlobalIdOrServiceAreaIdOrLAI_choice, hf_index, ett_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI,
+                                     NULL);
 
   return offset;
 }
@@ -10004,7 +10004,7 @@ static int dissect_geodeticInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t LocationInformation_sequence[] = {
+static const ber_old_sequence_t LocationInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ageOfLocationInformation },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_geographicalInformation_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vlr_number_impl },
@@ -10021,8 +10021,8 @@ static const ber_sequence_t LocationInformation_sequence[] = {
 
 int
 dissect_gsm_map_LocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LocationInformation_sequence, hf_index, ett_gsm_map_LocationInformation);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LocationInformation_sequence, hf_index, ett_gsm_map_LocationInformation);
 
   return offset;
 }
@@ -10060,7 +10060,7 @@ const value_string gsm_map_SubscriberState_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SubscriberState_choice[] = {
+static const ber_old_choice_t SubscriberState_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_assumedIdle_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_camelBusy_impl },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_netDetNotReachable },
@@ -10070,9 +10070,9 @@ static const ber_choice_t SubscriberState_choice[] = {
 
 int
 dissect_gsm_map_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SubscriberState_choice, hf_index, ett_gsm_map_SubscriberState,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SubscriberState_choice, hf_index, ett_gsm_map_SubscriberState,
+                                     NULL);
 
   return offset;
 }
@@ -10109,7 +10109,7 @@ static int dissect_routeingAreaIdentity(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t LocationInformationGPRS_sequence[] = {
+static const ber_old_sequence_t LocationInformationGPRS_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_cellGlobalIdOrServiceAreaIdOrLAI },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_routeingAreaIdentity },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_geographicalInformation },
@@ -10125,8 +10125,8 @@ static const ber_sequence_t LocationInformationGPRS_sequence[] = {
 
 static int
 dissect_gsm_map_LocationInformationGPRS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LocationInformationGPRS_sequence, hf_index, ett_gsm_map_LocationInformationGPRS);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LocationInformationGPRS_sequence, hf_index, ett_gsm_map_LocationInformationGPRS);
 
   return offset;
 }
@@ -10193,7 +10193,7 @@ static int dissect_chargingId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t PDP_ContextInfo_sequence[] = {
+static const ber_old_sequence_t PDP_ContextInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pdp_ContextIdentifier_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdp_ContextActive_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_pdp_Type_impl },
@@ -10220,8 +10220,8 @@ static const ber_sequence_t PDP_ContextInfo_sequence[] = {
 
 static int
 dissect_gsm_map_PDP_ContextInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PDP_ContextInfo_sequence, hf_index, ett_gsm_map_PDP_ContextInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PDP_ContextInfo_sequence, hf_index, ett_gsm_map_PDP_ContextInfo);
 
   return offset;
 }
@@ -10230,14 +10230,14 @@ static int dissect_PDP_ContextInfoList_item(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t PDP_ContextInfoList_sequence_of[1] = {
+static const ber_old_sequence_t PDP_ContextInfoList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PDP_ContextInfoList_item },
 };
 
 static int
 dissect_gsm_map_PDP_ContextInfoList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PDP_ContextInfoList_sequence_of, hf_index, ett_gsm_map_PDP_ContextInfoList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          PDP_ContextInfoList_sequence_of, hf_index, ett_gsm_map_PDP_ContextInfoList);
 
   return offset;
 }
@@ -10260,7 +10260,7 @@ static const value_string gsm_map_PS_SubscriberState_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t PS_SubscriberState_choice[] = {
+static const ber_old_choice_t PS_SubscriberState_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_notProvidedFromSGSN_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ps_Detached_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ps_AttachedNotReachableForPaging_impl },
@@ -10273,9 +10273,9 @@ static const ber_choice_t PS_SubscriberState_choice[] = {
 
 static int
 dissect_gsm_map_PS_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PS_SubscriberState_choice, hf_index, ett_gsm_map_PS_SubscriberState,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PS_SubscriberState_choice, hf_index, ett_gsm_map_PS_SubscriberState,
+                                     NULL);
 
   return offset;
 }
@@ -10323,7 +10323,7 @@ static int dissect_mSRadioAccessCapability_impl(proto_tree *tree _U_, tvbuff_t *
 }
 
 
-static const ber_sequence_t GPRSMSClass_sequence[] = {
+static const ber_old_sequence_t GPRSMSClass_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mSNetworkCapability_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSRadioAccessCapability_impl },
   { 0, 0, 0, NULL }
@@ -10331,8 +10331,8 @@ static const ber_sequence_t GPRSMSClass_sequence[] = {
 
 static int
 dissect_gsm_map_GPRSMSClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GPRSMSClass_sequence, hf_index, ett_gsm_map_GPRSMSClass);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GPRSMSClass_sequence, hf_index, ett_gsm_map_GPRSMSClass);
 
   return offset;
 }
@@ -10375,7 +10375,7 @@ static int dissect_numberPortabilityStatus_impl(proto_tree *tree _U_, tvbuff_t *
 }
 
 
-static const ber_sequence_t MNPInfoRes_sequence[] = {
+static const ber_old_sequence_t MNPInfoRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routeingNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
@@ -10386,8 +10386,8 @@ static const ber_sequence_t MNPInfoRes_sequence[] = {
 
 static int
 dissect_gsm_map_MNPInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MNPInfoRes_sequence, hf_index, ett_gsm_map_MNPInfoRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MNPInfoRes_sequence, hf_index, ett_gsm_map_MNPInfoRes);
 
   return offset;
 }
@@ -10396,7 +10396,7 @@ static int dissect_mnpInfoRes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t SubscriberInfo_sequence[] = {
+static const ber_old_sequence_t SubscriberInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationInformation_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_subscriberState },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -10411,8 +10411,8 @@ static const ber_sequence_t SubscriberInfo_sequence[] = {
 
 static int
 dissect_gsm_map_SubscriberInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SubscriberInfo_sequence, hf_index, ett_gsm_map_SubscriberInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SubscriberInfo_sequence, hf_index, ett_gsm_map_SubscriberInfo);
 
   return offset;
 }
@@ -10424,7 +10424,7 @@ static int dissect_subscriberInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t CCBS_Indicators_sequence[] = {
+static const ber_old_sequence_t CCBS_Indicators_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Possible_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_keepCCBS_CallIndicator_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -10433,8 +10433,8 @@ static const ber_sequence_t CCBS_Indicators_sequence[] = {
 
 static int
 dissect_gsm_map_CCBS_Indicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CCBS_Indicators_sequence, hf_index, ett_gsm_map_CCBS_Indicators);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CCBS_Indicators_sequence, hf_index, ett_gsm_map_CCBS_Indicators);
 
   return offset;
 }
@@ -10485,7 +10485,7 @@ static int dissect_unavailabilityCause_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t SendRoutingInfoRes_sequence[] = {
+static const ber_old_sequence_t SendRoutingInfoRes_sequence[] = {
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extendedRoutingInfo },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_CheckInfo_impl },
@@ -10515,8 +10515,8 @@ static const ber_sequence_t SendRoutingInfoRes_sequence[] = {
 
 static int
 dissect_gsm_map_SendRoutingInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendRoutingInfoRes_sequence, hf_index, ett_gsm_map_SendRoutingInfoRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendRoutingInfoRes_sequence, hf_index, ett_gsm_map_SendRoutingInfoRes);
 
   return offset;
 }
@@ -10528,7 +10528,7 @@ static const value_string gsm_map_SubscriberIdentity_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SubscriberIdentity_choice[] = {
+static const ber_old_choice_t SubscriberIdentity_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { 0, 0, 0, 0, NULL }
@@ -10536,9 +10536,9 @@ static const ber_choice_t SubscriberIdentity_choice[] = {
 
 static int
 dissect_gsm_map_SubscriberIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SubscriberIdentity_choice, hf_index, ett_gsm_map_SubscriberIdentity,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SubscriberIdentity_choice, hf_index, ett_gsm_map_SubscriberIdentity,
+                                     NULL);
 
   return offset;
 }
@@ -10556,7 +10556,7 @@ static int dissect_targetMS_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t ProvideRoamingNumberArg_sequence[] = {
+static const ber_old_sequence_t ProvideRoamingNumberArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msc_Number_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
@@ -10582,14 +10582,14 @@ static const ber_sequence_t ProvideRoamingNumberArg_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideRoamingNumberArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideRoamingNumberArg_sequence, hf_index, ett_gsm_map_ProvideRoamingNumberArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideRoamingNumberArg_sequence, hf_index, ett_gsm_map_ProvideRoamingNumberArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ProvideRoamingNumberRes_sequence[] = {
+static const ber_old_sequence_t ProvideRoamingNumberRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_roamingNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_releaseResourcesSupported },
@@ -10598,8 +10598,8 @@ static const ber_sequence_t ProvideRoamingNumberRes_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideRoamingNumberRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideRoamingNumberRes_sequence, hf_index, ett_gsm_map_ProvideRoamingNumberRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideRoamingNumberRes_sequence, hf_index, ett_gsm_map_ProvideRoamingNumberRes);
 
   return offset;
 }
@@ -10631,7 +10631,7 @@ static int dissect_uui_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_sequence_t UU_Data_sequence[] = {
+static const ber_old_sequence_t UU_Data_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uuIndicator_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uui_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uusCFInteraction_impl },
@@ -10641,8 +10641,8 @@ static const ber_sequence_t UU_Data_sequence[] = {
 
 int
 dissect_gsm_map_UU_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UU_Data_sequence, hf_index, ett_gsm_map_UU_Data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UU_Data_sequence, hf_index, ett_gsm_map_UU_Data);
 
   return offset;
 }
@@ -10651,7 +10651,7 @@ static int dissect_uu_Data_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t ResumeCallHandlingArg_sequence[] = {
+static const ber_old_sequence_t ResumeCallHandlingArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callReferenceNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_ext_basicServiceGroup },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardingData_impl },
@@ -10671,22 +10671,22 @@ static const ber_sequence_t ResumeCallHandlingArg_sequence[] = {
 
 static int
 dissect_gsm_map_ResumeCallHandlingArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ResumeCallHandlingArg_sequence, hf_index, ett_gsm_map_ResumeCallHandlingArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ResumeCallHandlingArg_sequence, hf_index, ett_gsm_map_ResumeCallHandlingArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ResumeCallHandlingRes_sequence[] = {
+static const ber_old_sequence_t ResumeCallHandlingRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ResumeCallHandlingRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ResumeCallHandlingRes_sequence, hf_index, ett_gsm_map_ResumeCallHandlingRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ResumeCallHandlingRes_sequence, hf_index, ett_gsm_map_ResumeCallHandlingRes);
 
   return offset;
 }
@@ -10705,7 +10705,7 @@ static int dissect_call_Direction_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t ProvideSIWFSNumberArg_sequence[] = {
+static const ber_old_sequence_t ProvideSIWFSNumberArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_BearerCapability_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_BearerCapability_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_call_Direction_impl },
@@ -10719,14 +10719,14 @@ static const ber_sequence_t ProvideSIWFSNumberArg_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideSIWFSNumberArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideSIWFSNumberArg_sequence, hf_index, ett_gsm_map_ProvideSIWFSNumberArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideSIWFSNumberArg_sequence, hf_index, ett_gsm_map_ProvideSIWFSNumberArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ProvideSIWFSNumberRes_sequence[] = {
+static const ber_old_sequence_t ProvideSIWFSNumberRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sIWFSNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -10734,14 +10734,14 @@ static const ber_sequence_t ProvideSIWFSNumberRes_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideSIWFSNumberRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideSIWFSNumberRes_sequence, hf_index, ett_gsm_map_ProvideSIWFSNumberRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideSIWFSNumberRes_sequence, hf_index, ett_gsm_map_ProvideSIWFSNumberRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SIWFSSignallingModifyArg_sequence[] = {
+static const ber_old_sequence_t SIWFSSignallingModifyArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_chosenChannel_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -10750,14 +10750,14 @@ static const ber_sequence_t SIWFSSignallingModifyArg_sequence[] = {
 
 static int
 dissect_gsm_map_SIWFSSignallingModifyArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SIWFSSignallingModifyArg_sequence, hf_index, ett_gsm_map_SIWFSSignallingModifyArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SIWFSSignallingModifyArg_sequence, hf_index, ett_gsm_map_SIWFSSignallingModifyArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SIWFSSignallingModifyRes_sequence[] = {
+static const ber_old_sequence_t SIWFSSignallingModifyRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -10765,8 +10765,8 @@ static const ber_sequence_t SIWFSSignallingModifyRes_sequence[] = {
 
 static int
 dissect_gsm_map_SIWFSSignallingModifyRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SIWFSSignallingModifyRes_sequence, hf_index, ett_gsm_map_SIWFSSignallingModifyRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SIWFSSignallingModifyRes_sequence, hf_index, ett_gsm_map_SIWFSSignallingModifyRes);
 
   return offset;
 }
@@ -10791,7 +10791,7 @@ static int dissect_ccbs_Monitoring(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t SetReportingStateArg_sequence[] = {
+static const ber_old_sequence_t SetReportingStateArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_imsi },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_lmsi },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_ccbs_Monitoring },
@@ -10801,8 +10801,8 @@ static const ber_sequence_t SetReportingStateArg_sequence[] = {
 
 static int
 dissect_gsm_map_SetReportingStateArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SetReportingStateArg_sequence, hf_index, ett_gsm_map_SetReportingStateArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SetReportingStateArg_sequence, hf_index, ett_gsm_map_SetReportingStateArg);
 
   return offset;
 }
@@ -10828,7 +10828,7 @@ static int dissect_ccbs_SubscriberStatus_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t SetReportingStateRes_sequence[] = {
+static const ber_old_sequence_t SetReportingStateRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_SubscriberStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -10836,14 +10836,14 @@ static const ber_sequence_t SetReportingStateRes_sequence[] = {
 
 static int
 dissect_gsm_map_SetReportingStateRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SetReportingStateRes_sequence, hf_index, ett_gsm_map_SetReportingStateRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SetReportingStateRes_sequence, hf_index, ett_gsm_map_SetReportingStateRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t EventReportData_sequence[] = {
+static const ber_old_sequence_t EventReportData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_SubscriberStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -10851,8 +10851,8 @@ static const ber_sequence_t EventReportData_sequence[] = {
 
 static int
 dissect_gsm_map_EventReportData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EventReportData_sequence, hf_index, ett_gsm_map_EventReportData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       EventReportData_sequence, hf_index, ett_gsm_map_EventReportData);
 
   return offset;
 }
@@ -10900,7 +10900,7 @@ static int dissect_callOutcome_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t CallReportData_sequence[] = {
+static const ber_old_sequence_t CallReportData_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_monitoringMode_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callOutcome_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -10909,8 +10909,8 @@ static const ber_sequence_t CallReportData_sequence[] = {
 
 static int
 dissect_gsm_map_CallReportData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CallReportData_sequence, hf_index, ett_gsm_map_CallReportData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CallReportData_sequence, hf_index, ett_gsm_map_CallReportData);
 
   return offset;
 }
@@ -10919,7 +10919,7 @@ static int dissect_callReportdata_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t StatusReportArg_sequence[] = {
+static const ber_old_sequence_t StatusReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventReportData_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callReportdata_impl },
@@ -10929,22 +10929,22 @@ static const ber_sequence_t StatusReportArg_sequence[] = {
 
 static int
 dissect_gsm_map_StatusReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   StatusReportArg_sequence, hf_index, ett_gsm_map_StatusReportArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       StatusReportArg_sequence, hf_index, ett_gsm_map_StatusReportArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t StatusReportRes_sequence[] = {
+static const ber_old_sequence_t StatusReportRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_StatusReportRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   StatusReportRes_sequence, hf_index, ett_gsm_map_StatusReportRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       StatusReportRes_sequence, hf_index, ett_gsm_map_StatusReportRes);
 
   return offset;
 }
@@ -10973,7 +10973,7 @@ static int dissect_ruf_Outcome_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t IST_AlertArg_sequence[] = {
+static const ber_old_sequence_t IST_AlertArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -10981,8 +10981,8 @@ static const ber_sequence_t IST_AlertArg_sequence[] = {
 
 static int
 dissect_gsm_map_IST_AlertArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IST_AlertArg_sequence, hf_index, ett_gsm_map_IST_AlertArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IST_AlertArg_sequence, hf_index, ett_gsm_map_IST_AlertArg);
 
   return offset;
 }
@@ -11007,7 +11007,7 @@ static int dissect_callTerminationIndicator_impl(proto_tree *tree _U_, tvbuff_t 
 }
 
 
-static const ber_sequence_t IST_AlertRes_sequence[] = {
+static const ber_old_sequence_t IST_AlertRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_istAlertTimer_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_istInformationWithdraw_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callTerminationIndicator_impl },
@@ -11017,14 +11017,14 @@ static const ber_sequence_t IST_AlertRes_sequence[] = {
 
 static int
 dissect_gsm_map_IST_AlertRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IST_AlertRes_sequence, hf_index, ett_gsm_map_IST_AlertRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IST_AlertRes_sequence, hf_index, ett_gsm_map_IST_AlertRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t IST_CommandArg_sequence[] = {
+static const ber_old_sequence_t IST_CommandArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -11032,28 +11032,28 @@ static const ber_sequence_t IST_CommandArg_sequence[] = {
 
 static int
 dissect_gsm_map_IST_CommandArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IST_CommandArg_sequence, hf_index, ett_gsm_map_IST_CommandArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IST_CommandArg_sequence, hf_index, ett_gsm_map_IST_CommandArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t IST_CommandRes_sequence[] = {
+static const ber_old_sequence_t IST_CommandRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_IST_CommandRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IST_CommandRes_sequence, hf_index, ett_gsm_map_IST_CommandRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IST_CommandRes_sequence, hf_index, ett_gsm_map_IST_CommandRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t ReleaseResourcesArg_sequence[] = {
+static const ber_old_sequence_t ReleaseResourcesArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_msrn },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -11061,22 +11061,22 @@ static const ber_sequence_t ReleaseResourcesArg_sequence[] = {
 
 static int
 dissect_gsm_map_ReleaseResourcesArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReleaseResourcesArg_sequence, hf_index, ett_gsm_map_ReleaseResourcesArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReleaseResourcesArg_sequence, hf_index, ett_gsm_map_ReleaseResourcesArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ReleaseResourcesRes_sequence[] = {
+static const ber_old_sequence_t ReleaseResourcesRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ReleaseResourcesRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReleaseResourcesRes_sequence, hf_index, ett_gsm_map_ReleaseResourcesRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReleaseResourcesRes_sequence, hf_index, ett_gsm_map_ReleaseResourcesRes);
 
   return offset;
 }
@@ -11095,7 +11095,7 @@ static int dissect_ccbs_Index_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t CCBS_Feature_sequence[] = {
+static const ber_old_sequence_t CCBS_Feature_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Index_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberNumber_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_b_subscriberSubaddress_impl },
@@ -11105,8 +11105,8 @@ static const ber_sequence_t CCBS_Feature_sequence[] = {
 
 int
 dissect_gsm_map_CCBS_Feature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CCBS_Feature_sequence, hf_index, ett_gsm_map_CCBS_Feature);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CCBS_Feature_sequence, hf_index, ett_gsm_map_CCBS_Feature);
 
   return offset;
 }
@@ -11121,7 +11121,7 @@ static int dissect_CCBS_FeatureList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t RemoteUserFreeArg_sequence[] = {
+static const ber_old_sequence_t RemoteUserFreeArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ccbs_Feature_impl },
@@ -11134,14 +11134,14 @@ static const ber_sequence_t RemoteUserFreeArg_sequence[] = {
 
 static int
 dissect_gsm_map_RemoteUserFreeArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RemoteUserFreeArg_sequence, hf_index, ett_gsm_map_RemoteUserFreeArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RemoteUserFreeArg_sequence, hf_index, ett_gsm_map_RemoteUserFreeArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RemoteUserFreeRes_sequence[] = {
+static const ber_old_sequence_t RemoteUserFreeRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ruf_Outcome_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -11149,14 +11149,14 @@ static const ber_sequence_t RemoteUserFreeRes_sequence[] = {
 
 static int
 dissect_gsm_map_RemoteUserFreeRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RemoteUserFreeRes_sequence, hf_index, ett_gsm_map_RemoteUserFreeRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RemoteUserFreeRes_sequence, hf_index, ett_gsm_map_RemoteUserFreeRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_Data_sequence[] = {
+static const ber_old_sequence_t SS_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
@@ -11168,8 +11168,8 @@ static const ber_sequence_t SS_Data_sequence[] = {
 
 static int
 dissect_gsm_map_SS_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_Data_sequence, hf_index, ett_gsm_map_SS_Data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_Data_sequence, hf_index, ett_gsm_map_SS_Data);
 
   return offset;
 }
@@ -11178,7 +11178,7 @@ static int dissect_ss_Data_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t RegisterSS_Arg_sequence[] = {
+static const ber_old_sequence_t RegisterSS_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_addr_impl },
@@ -11192,8 +11192,8 @@ static const ber_sequence_t RegisterSS_Arg_sequence[] = {
 
 int
 dissect_gsm_map_RegisterSS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RegisterSS_Arg_sequence, hf_index, ett_gsm_map_RegisterSS_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RegisterSS_Arg_sequence, hf_index, ett_gsm_map_RegisterSS_Arg);
 
   return offset;
 }
@@ -11206,7 +11206,7 @@ const value_string gsm_map_SS_Info_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SS_Info_choice[] = {
+static const ber_old_choice_t SS_Info_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_forwardingInfo_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callBarringInfo_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ss_Data_impl },
@@ -11215,22 +11215,22 @@ static const ber_choice_t SS_Info_choice[] = {
 
 int
 dissect_gsm_map_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SS_Info_choice, hf_index, ett_gsm_map_SS_Info,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SS_Info_choice, hf_index, ett_gsm_map_SS_Info,
+                                     NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t CCBS_FeatureList_sequence_of[1] = {
+static const ber_old_sequence_t CCBS_FeatureList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CCBS_FeatureList_item },
 };
 
 static int
 dissect_gsm_map_CCBS_FeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CCBS_FeatureList_sequence_of, hf_index, ett_gsm_map_CCBS_FeatureList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          CCBS_FeatureList_sequence_of, hf_index, ett_gsm_map_CCBS_FeatureList);
 
   return offset;
 }
@@ -11239,7 +11239,7 @@ static int dissect_ccbs_FeatureList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t GenericServiceInfo_sequence[] = {
+static const ber_old_sequence_t GenericServiceInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Status },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cliRestrictionOption },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maximumEntitledPriority_impl },
@@ -11253,8 +11253,8 @@ static const ber_sequence_t GenericServiceInfo_sequence[] = {
 
 static int
 dissect_gsm_map_GenericServiceInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   GenericServiceInfo_sequence, hf_index, ett_gsm_map_GenericServiceInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       GenericServiceInfo_sequence, hf_index, ett_gsm_map_GenericServiceInfo);
 
   return offset;
 }
@@ -11271,7 +11271,7 @@ const value_string gsm_map_InterrogateSS_Res_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t InterrogateSS_Res_choice[] = {
+static const ber_old_choice_t InterrogateSS_Res_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ext_basicServiceGroupList_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_forwardingFeatureList_impl },
@@ -11281,9 +11281,9 @@ static const ber_choice_t InterrogateSS_Res_choice[] = {
 
 int
 dissect_gsm_map_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 InterrogateSS_Res_choice, hf_index, ett_gsm_map_InterrogateSS_Res,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     InterrogateSS_Res_choice, hf_index, ett_gsm_map_InterrogateSS_Res,
+                                     NULL);
 
   return offset;
 }
@@ -11361,7 +11361,7 @@ static int dissect_ussd_String(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t Ussd_Arg_sequence[] = {
+static const ber_old_sequence_t Ussd_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_DataCodingScheme },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_String },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alertingPattern },
@@ -11371,14 +11371,14 @@ static const ber_sequence_t Ussd_Arg_sequence[] = {
 
 int
 dissect_gsm_map_Ussd_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ussd_Arg_sequence, hf_index, ett_gsm_map_Ussd_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ussd_Arg_sequence, hf_index, ett_gsm_map_Ussd_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t Ussd_Res_sequence[] = {
+static const ber_old_sequence_t Ussd_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_DataCodingScheme },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ussd_String },
   { 0, 0, 0, NULL }
@@ -11386,8 +11386,8 @@ static const ber_sequence_t Ussd_Res_sequence[] = {
 
 int
 dissect_gsm_map_Ussd_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ussd_Res_sequence, hf_index, ett_gsm_map_Ussd_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ussd_Res_sequence, hf_index, ett_gsm_map_Ussd_Res);
 
   return offset;
 }
@@ -11455,7 +11455,7 @@ static int dissect_accessType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t AuthenticationFailureReportArg_sequence[] = {
+static const ber_old_sequence_t AuthenticationFailureReportArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_failureCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -11469,22 +11469,22 @@ static const ber_sequence_t AuthenticationFailureReportArg_sequence[] = {
 
 static int
 dissect_gsm_map_AuthenticationFailureReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AuthenticationFailureReportArg_sequence, hf_index, ett_gsm_map_AuthenticationFailureReportArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AuthenticationFailureReportArg_sequence, hf_index, ett_gsm_map_AuthenticationFailureReportArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t AuthenticationFailureReportRes_sequence[] = {
+static const ber_old_sequence_t AuthenticationFailureReportRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_AuthenticationFailureReportRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AuthenticationFailureReportRes_sequence, hf_index, ett_gsm_map_AuthenticationFailureReportRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AuthenticationFailureReportRes_sequence, hf_index, ett_gsm_map_AuthenticationFailureReportRes);
 
   return offset;
 }
@@ -11548,7 +11548,7 @@ static int dissect_serviceIndicator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t CCBS_Data_sequence[] = {
+static const ber_old_sequence_t CCBS_Data_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_ccbs_Feature },
   { BER_CLASS_CON, 1, 0, dissect_translatedB_Number },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_serviceIndicator },
@@ -11559,8 +11559,8 @@ static const ber_sequence_t CCBS_Data_sequence[] = {
 
 static int
 dissect_gsm_map_CCBS_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CCBS_Data_sequence, hf_index, ett_gsm_map_CCBS_Data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CCBS_Data_sequence, hf_index, ett_gsm_map_CCBS_Data);
 
   return offset;
 }
@@ -11569,7 +11569,7 @@ static int dissect_ccbs_Data_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t RegisterCC_EntryArg_sequence[] = {
+static const ber_old_sequence_t RegisterCC_EntryArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Data_impl },
   { 0, 0, 0, NULL }
@@ -11577,28 +11577,28 @@ static const ber_sequence_t RegisterCC_EntryArg_sequence[] = {
 
 static int
 dissect_gsm_map_RegisterCC_EntryArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RegisterCC_EntryArg_sequence, hf_index, ett_gsm_map_RegisterCC_EntryArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RegisterCC_EntryArg_sequence, hf_index, ett_gsm_map_RegisterCC_EntryArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t RegisterCC_EntryRes_sequence[] = {
+static const ber_old_sequence_t RegisterCC_EntryRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Feature_impl },
   { 0, 0, 0, NULL }
 };
 
 int
 dissect_gsm_map_RegisterCC_EntryRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RegisterCC_EntryRes_sequence, hf_index, ett_gsm_map_RegisterCC_EntryRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RegisterCC_EntryRes_sequence, hf_index, ett_gsm_map_RegisterCC_EntryRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t EraseCC_EntryArg_sequence[] = {
+static const ber_old_sequence_t EraseCC_EntryArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ccbs_Index_impl },
   { 0, 0, 0, NULL }
@@ -11606,14 +11606,14 @@ static const ber_sequence_t EraseCC_EntryArg_sequence[] = {
 
 int
 dissect_gsm_map_EraseCC_EntryArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EraseCC_EntryArg_sequence, hf_index, ett_gsm_map_EraseCC_EntryArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       EraseCC_EntryArg_sequence, hf_index, ett_gsm_map_EraseCC_EntryArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t EraseCC_EntryRes_sequence[] = {
+static const ber_old_sequence_t EraseCC_EntryRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { 0, 0, 0, NULL }
@@ -11621,8 +11621,8 @@ static const ber_sequence_t EraseCC_EntryRes_sequence[] = {
 
 int
 dissect_gsm_map_EraseCC_EntryRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EraseCC_EntryRes_sequence, hf_index, ett_gsm_map_EraseCC_EntryRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       EraseCC_EntryRes_sequence, hf_index, ett_gsm_map_EraseCC_EntryRes);
 
   return offset;
 }
@@ -11696,7 +11696,7 @@ static int dissect_sm_RP_SMEA_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t RoutingInfoForSMArg_sequence[] = {
+static const ber_old_sequence_t RoutingInfoForSMArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sm_RP_PRI_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_serviceCentreAddress_impl },
@@ -11709,8 +11709,8 @@ static const ber_sequence_t RoutingInfoForSMArg_sequence[] = {
 
 static int
 dissect_gsm_map_RoutingInfoForSMArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RoutingInfoForSMArg_sequence, hf_index, ett_gsm_map_RoutingInfoForSMArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RoutingInfoForSMArg_sequence, hf_index, ett_gsm_map_RoutingInfoForSMArg);
 
   return offset;
 }
@@ -11722,7 +11722,7 @@ static const value_string gsm_map_Additional_Number_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Additional_Number_choice[] = {
+static const ber_old_choice_t Additional_Number_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_msc_Number_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sgsn_Number_impl },
   { 0, 0, 0, 0, NULL }
@@ -11730,9 +11730,9 @@ static const ber_choice_t Additional_Number_choice[] = {
 
 static int
 dissect_gsm_map_Additional_Number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Additional_Number_choice, hf_index, ett_gsm_map_Additional_Number,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Additional_Number_choice, hf_index, ett_gsm_map_Additional_Number,
+                                     NULL);
 
   return offset;
 }
@@ -11741,7 +11741,7 @@ static int dissect_additional_Number_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t LocationInfoWithLMSI_sequence[] = {
+static const ber_old_sequence_t LocationInfoWithLMSI_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_networkNode_Number_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_lmsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -11752,8 +11752,8 @@ static const ber_sequence_t LocationInfoWithLMSI_sequence[] = {
 
 static int
 dissect_gsm_map_LocationInfoWithLMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LocationInfoWithLMSI_sequence, hf_index, ett_gsm_map_LocationInfoWithLMSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LocationInfoWithLMSI_sequence, hf_index, ett_gsm_map_LocationInfoWithLMSI);
 
   return offset;
 }
@@ -11762,7 +11762,7 @@ static int dissect_locationInfoWithLMSI_impl(proto_tree *tree _U_, tvbuff_t *tvb
 }
 
 
-static const ber_sequence_t RoutingInfoForSM_Res_sequence[] = {
+static const ber_old_sequence_t RoutingInfoForSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_locationInfoWithLMSI_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -11771,8 +11771,8 @@ static const ber_sequence_t RoutingInfoForSM_Res_sequence[] = {
 
 static int
 dissect_gsm_map_RoutingInfoForSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RoutingInfoForSM_Res_sequence, hf_index, ett_gsm_map_RoutingInfoForSM_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RoutingInfoForSM_Res_sequence, hf_index, ett_gsm_map_RoutingInfoForSM_Res);
 
   return offset;
 }
@@ -11786,7 +11786,7 @@ static const value_string gsm_map_Sm_RP_DA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Sm_RP_DA_choice[] = {
+static const ber_old_choice_t Sm_RP_DA_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_serviceCentreAddressDA_impl },
@@ -11796,9 +11796,9 @@ static const ber_choice_t Sm_RP_DA_choice[] = {
 
 static int
 dissect_gsm_map_Sm_RP_DA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Sm_RP_DA_choice, hf_index, ett_gsm_map_Sm_RP_DA,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Sm_RP_DA_choice, hf_index, ett_gsm_map_Sm_RP_DA,
+                                     NULL);
 
   return offset;
 }
@@ -11814,7 +11814,7 @@ static const value_string gsm_map_Sm_RP_OA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Sm_RP_OA_choice[] = {
+static const ber_old_choice_t Sm_RP_OA_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_serviceCentreAddressOA_impl },
   {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_noSM_RP_OA_impl },
@@ -11823,9 +11823,9 @@ static const ber_choice_t Sm_RP_OA_choice[] = {
 
 static int
 dissect_gsm_map_Sm_RP_OA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Sm_RP_OA_choice, hf_index, ett_gsm_map_Sm_RP_OA,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Sm_RP_OA_choice, hf_index, ett_gsm_map_Sm_RP_OA,
+                                     NULL);
 
   return offset;
 }
@@ -11864,7 +11864,7 @@ static int dissect_sm_RP_UI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t Mo_forwardSM_Arg_sequence[] = {
+static const ber_old_sequence_t Mo_forwardSM_Arg_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
@@ -11875,14 +11875,14 @@ static const ber_sequence_t Mo_forwardSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_Mo_forwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Mo_forwardSM_Arg_sequence, hf_index, ett_gsm_map_Mo_forwardSM_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Mo_forwardSM_Arg_sequence, hf_index, ett_gsm_map_Mo_forwardSM_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t Mo_forwardSM_Res_sequence[] = {
+static const ber_old_sequence_t Mo_forwardSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -11890,14 +11890,14 @@ static const ber_sequence_t Mo_forwardSM_Res_sequence[] = {
 
 static int
 dissect_gsm_map_Mo_forwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Mo_forwardSM_Res_sequence, hf_index, ett_gsm_map_Mo_forwardSM_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Mo_forwardSM_Res_sequence, hf_index, ett_gsm_map_Mo_forwardSM_Res);
 
   return offset;
 }
 
 
-static const ber_sequence_t Mt_forwardSM_Arg_sequence[] = {
+static const ber_old_sequence_t Mt_forwardSM_Arg_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
@@ -11908,14 +11908,14 @@ static const ber_sequence_t Mt_forwardSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_Mt_forwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Mt_forwardSM_Arg_sequence, hf_index, ett_gsm_map_Mt_forwardSM_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Mt_forwardSM_Arg_sequence, hf_index, ett_gsm_map_Mt_forwardSM_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t Mt_forwardSM_Res_sequence[] = {
+static const ber_old_sequence_t Mt_forwardSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -11923,14 +11923,14 @@ static const ber_sequence_t Mt_forwardSM_Res_sequence[] = {
 
 static int
 dissect_gsm_map_Mt_forwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Mt_forwardSM_Res_sequence, hf_index, ett_gsm_map_Mt_forwardSM_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Mt_forwardSM_Res_sequence, hf_index, ett_gsm_map_Mt_forwardSM_Res);
 
   return offset;
 }
 
 
-static const ber_sequence_t ForwardSM_Arg_sequence[] = {
+static const ber_old_sequence_t ForwardSM_Arg_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
@@ -11940,8 +11940,8 @@ static const ber_sequence_t ForwardSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardSM_Arg_sequence, hf_index, ett_gsm_map_ForwardSM_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardSM_Arg_sequence, hf_index, ett_gsm_map_ForwardSM_Arg);
 
   return offset;
 }
@@ -11992,7 +11992,7 @@ static int dissect_mobileNotReachableReason_impl(proto_tree *tree _U_, tvbuff_t 
 }
 
 
-static const ber_sequence_t ReportSM_DeliveryStatusArg_sequence[] = {
+static const ber_old_sequence_t ReportSM_DeliveryStatusArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msisdn },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_serviceCentreAddress },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_sm_DeliveryOutcome },
@@ -12007,14 +12007,14 @@ static const ber_sequence_t ReportSM_DeliveryStatusArg_sequence[] = {
 
 static int
 dissect_gsm_map_ReportSM_DeliveryStatusArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReportSM_DeliveryStatusArg_sequence, hf_index, ett_gsm_map_ReportSM_DeliveryStatusArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReportSM_DeliveryStatusArg_sequence, hf_index, ett_gsm_map_ReportSM_DeliveryStatusArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ReportSM_DeliveryStatusRes_sequence[] = {
+static const ber_old_sequence_t ReportSM_DeliveryStatusRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_storedMSISDN },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -12022,8 +12022,8 @@ static const ber_sequence_t ReportSM_DeliveryStatusRes_sequence[] = {
 
 static int
 dissect_gsm_map_ReportSM_DeliveryStatusRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReportSM_DeliveryStatusRes_sequence, hf_index, ett_gsm_map_ReportSM_DeliveryStatusRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReportSM_DeliveryStatusRes_sequence, hf_index, ett_gsm_map_ReportSM_DeliveryStatusRes);
 
   return offset;
 }
@@ -12050,7 +12050,7 @@ static int dissect_mw_Status(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t InformServiceCentreArg_sequence[] = {
+static const ber_old_sequence_t InformServiceCentreArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_storedMSISDN },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_mw_Status },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -12061,14 +12061,14 @@ static const ber_sequence_t InformServiceCentreArg_sequence[] = {
 
 static int
 dissect_gsm_map_InformServiceCentreArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InformServiceCentreArg_sequence, hf_index, ett_gsm_map_InformServiceCentreArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       InformServiceCentreArg_sequence, hf_index, ett_gsm_map_InformServiceCentreArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t AlertServiceCentreArg_sequence[] = {
+static const ber_old_sequence_t AlertServiceCentreArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msisdn },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_serviceCentreAddress },
   { 0, 0, 0, NULL }
@@ -12076,8 +12076,8 @@ static const ber_sequence_t AlertServiceCentreArg_sequence[] = {
 
 static int
 dissect_gsm_map_AlertServiceCentreArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AlertServiceCentreArg_sequence, hf_index, ett_gsm_map_AlertServiceCentreArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AlertServiceCentreArg_sequence, hf_index, ett_gsm_map_AlertServiceCentreArg);
 
   return offset;
 }
@@ -12102,7 +12102,7 @@ static int dissect_alertReason(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t ReadyForSM_Arg_sequence[] = {
+static const ber_old_sequence_t ReadyForSM_Arg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_alertReason },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alertReasonIndicator },
@@ -12112,28 +12112,28 @@ static const ber_sequence_t ReadyForSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_ReadyForSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReadyForSM_Arg_sequence, hf_index, ett_gsm_map_ReadyForSM_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReadyForSM_Arg_sequence, hf_index, ett_gsm_map_ReadyForSM_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ReadyForSM_Res_sequence[] = {
+static const ber_old_sequence_t ReadyForSM_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ReadyForSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReadyForSM_Res_sequence, hf_index, ett_gsm_map_ReadyForSM_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReadyForSM_Res_sequence, hf_index, ett_gsm_map_ReadyForSM_Res);
 
   return offset;
 }
 
 
-static const ber_sequence_t Mt_ForwardSM_VGCS_Arg_sequence[] = {
+static const ber_old_sequence_t Mt_ForwardSM_VGCS_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_asciCallReference },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
@@ -12143,21 +12143,21 @@ static const ber_sequence_t Mt_ForwardSM_VGCS_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_Mt_ForwardSM_VGCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Mt_ForwardSM_VGCS_Arg_sequence, hf_index, ett_gsm_map_Mt_ForwardSM_VGCS_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Mt_ForwardSM_VGCS_Arg_sequence, hf_index, ett_gsm_map_Mt_ForwardSM_VGCS_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t DispatcherList_sequence_of[1] = {
+static const ber_old_sequence_t DispatcherList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_DispatcherList_item },
 };
 
 static int
 dissect_gsm_map_DispatcherList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      DispatcherList_sequence_of, hf_index, ett_gsm_map_DispatcherList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          DispatcherList_sequence_of, hf_index, ett_gsm_map_DispatcherList);
 
   return offset;
 }
@@ -12166,7 +12166,7 @@ static int dissect_dispatcherList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t Mt_ForwardSM_VGCS_Res_sequence[] = {
+static const ber_old_sequence_t Mt_ForwardSM_VGCS_Res_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sm_RP_UI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dispatcherList_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ongoingCall },
@@ -12176,8 +12176,8 @@ static const ber_sequence_t Mt_ForwardSM_VGCS_Res_sequence[] = {
 
 static int
 dissect_gsm_map_Mt_ForwardSM_VGCS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Mt_ForwardSM_VGCS_Res_sequence, hf_index, ett_gsm_map_Mt_ForwardSM_VGCS_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Mt_ForwardSM_VGCS_Res_sequence, hf_index, ett_gsm_map_Mt_ForwardSM_VGCS_Res);
 
   return offset;
 }
@@ -12202,7 +12202,7 @@ static int dissect_requestedDomain_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t RequestedInfo_sequence[] = {
+static const ber_old_sequence_t RequestedInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationInformation_flg_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subscriberState_flg_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -12216,8 +12216,8 @@ static const ber_sequence_t RequestedInfo_sequence[] = {
 
 static int
 dissect_gsm_map_RequestedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RequestedInfo_sequence, hf_index, ett_gsm_map_RequestedInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RequestedInfo_sequence, hf_index, ett_gsm_map_RequestedInfo);
 
   return offset;
 }
@@ -12226,7 +12226,7 @@ static int dissect_requestedInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t ProvideSubscriberInfoArg_sequence[] = {
+static const ber_old_sequence_t ProvideSubscriberInfoArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_requestedInfo_impl },
@@ -12236,14 +12236,14 @@ static const ber_sequence_t ProvideSubscriberInfoArg_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideSubscriberInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideSubscriberInfoArg_sequence, hf_index, ett_gsm_map_ProvideSubscriberInfoArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideSubscriberInfoArg_sequence, hf_index, ett_gsm_map_ProvideSubscriberInfoArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t ProvideSubscriberInfoRes_sequence[] = {
+static const ber_old_sequence_t ProvideSubscriberInfoRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subscriberInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -12251,14 +12251,14 @@ static const ber_sequence_t ProvideSubscriberInfoRes_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideSubscriberInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideSubscriberInfoRes_sequence, hf_index, ett_gsm_map_ProvideSubscriberInfoRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideSubscriberInfoRes_sequence, hf_index, ett_gsm_map_ProvideSubscriberInfoRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t AnyTimeInterrogationArg_sequence[] = {
+static const ber_old_sequence_t AnyTimeInterrogationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_subscriberIdentity },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_requestedInfo_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -12268,14 +12268,14 @@ static const ber_sequence_t AnyTimeInterrogationArg_sequence[] = {
 
 static int
 dissect_gsm_map_AnyTimeInterrogationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AnyTimeInterrogationArg_sequence, hf_index, ett_gsm_map_AnyTimeInterrogationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AnyTimeInterrogationArg_sequence, hf_index, ett_gsm_map_AnyTimeInterrogationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t AnyTimeInterrogationRes_sequence[] = {
+static const ber_old_sequence_t AnyTimeInterrogationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_subscriberInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -12283,14 +12283,14 @@ static const ber_sequence_t AnyTimeInterrogationRes_sequence[] = {
 
 static int
 dissect_gsm_map_AnyTimeInterrogationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AnyTimeInterrogationRes_sequence, hf_index, ett_gsm_map_AnyTimeInterrogationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AnyTimeInterrogationRes_sequence, hf_index, ett_gsm_map_AnyTimeInterrogationRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_ForBS_Code_sequence[] = {
+static const ber_old_sequence_t SS_ForBS_Code_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_longFTN_Supported_impl },
@@ -12299,8 +12299,8 @@ static const ber_sequence_t SS_ForBS_Code_sequence[] = {
 
 int
 dissect_gsm_map_SS_ForBS_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_ForBS_Code_sequence, hf_index, ett_gsm_map_SS_ForBS_Code);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_ForBS_Code_sequence, hf_index, ett_gsm_map_SS_ForBS_Code);
 
   return offset;
 }
@@ -12363,7 +12363,7 @@ static int dissect_additionalRequestedCAMEL_SubscriptionInfo_impl(proto_tree *tr
 }
 
 
-static const ber_sequence_t RequestedSubscriptionInfo_sequence[] = {
+static const ber_old_sequence_t RequestedSubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestedSS_Info_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_odb_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_requestedCAMEL_SubscriptionInfo_impl },
@@ -12377,8 +12377,8 @@ static const ber_sequence_t RequestedSubscriptionInfo_sequence[] = {
 
 static int
 dissect_gsm_map_RequestedSubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RequestedSubscriptionInfo_sequence, hf_index, ett_gsm_map_RequestedSubscriptionInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RequestedSubscriptionInfo_sequence, hf_index, ett_gsm_map_RequestedSubscriptionInfo);
 
   return offset;
 }
@@ -12387,7 +12387,7 @@ static int dissect_requestedSubscriptionInfo_impl(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t AnyTimeSubscriptionInterrogationArg_sequence[] = {
+static const ber_old_sequence_t AnyTimeSubscriptionInterrogationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_subscriberIdentity_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_requestedSubscriptionInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
@@ -12398,14 +12398,14 @@ static const ber_sequence_t AnyTimeSubscriptionInterrogationArg_sequence[] = {
 
 static int
 dissect_gsm_map_AnyTimeSubscriptionInterrogationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AnyTimeSubscriptionInterrogationArg_sequence, hf_index, ett_gsm_map_AnyTimeSubscriptionInterrogationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AnyTimeSubscriptionInterrogationArg_sequence, hf_index, ett_gsm_map_AnyTimeSubscriptionInterrogationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t CallForwardingData_sequence[] = {
+static const ber_old_sequence_t CallForwardingData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ext_forwardingFeatureList },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_notificationToCSE },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -12414,8 +12414,8 @@ static const ber_sequence_t CallForwardingData_sequence[] = {
 
 static int
 dissect_gsm_map_CallForwardingData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CallForwardingData_sequence, hf_index, ett_gsm_map_CallForwardingData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CallForwardingData_sequence, hf_index, ett_gsm_map_CallForwardingData);
 
   return offset;
 }
@@ -12457,7 +12457,7 @@ static int dissect_wrongPasswordAttemptsCounter_impl(proto_tree *tree _U_, tvbuf
 }
 
 
-static const ber_sequence_t CallBarringData_sequence[] = {
+static const ber_old_sequence_t CallBarringData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ext_callBarringFeatureList },
   { BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_password },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_wrongPasswordAttemptsCounter },
@@ -12468,8 +12468,8 @@ static const ber_sequence_t CallBarringData_sequence[] = {
 
 static int
 dissect_gsm_map_CallBarringData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CallBarringData_sequence, hf_index, ett_gsm_map_CallBarringData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CallBarringData_sequence, hf_index, ett_gsm_map_CallBarringData);
 
   return offset;
 }
@@ -12478,7 +12478,7 @@ static int dissect_callBarringData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t ODB_Info_sequence[] = {
+static const ber_old_sequence_t ODB_Info_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_odb_Data },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_notificationToCSE },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -12487,8 +12487,8 @@ static const ber_sequence_t ODB_Info_sequence[] = {
 
 static int
 dissect_gsm_map_ODB_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ODB_Info_sequence, hf_index, ett_gsm_map_ODB_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ODB_Info_sequence, hf_index, ett_gsm_map_ODB_Info);
 
   return offset;
 }
@@ -12497,7 +12497,7 @@ static int dissect_odb_Info_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t CAMEL_SubscriptionInfo_sequence[] = {
+static const ber_old_sequence_t CAMEL_SubscriptionInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_CSI_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_o_BcsmCamelTDP_CriteriaList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_d_CSI_impl },
@@ -12526,8 +12526,8 @@ static const ber_sequence_t CAMEL_SubscriptionInfo_sequence[] = {
 
 static int
 dissect_gsm_map_CAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CAMEL_SubscriptionInfo_sequence, hf_index, ett_gsm_map_CAMEL_SubscriptionInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CAMEL_SubscriptionInfo_sequence, hf_index, ett_gsm_map_CAMEL_SubscriptionInfo);
 
   return offset;
 }
@@ -12536,7 +12536,7 @@ static int dissect_camel_SubscriptionInfo_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t MSISDN_BS_sequence[] = {
+static const ber_old_sequence_t MSISDN_BS_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msisdn },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_basicServiceList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -12545,8 +12545,8 @@ static const ber_sequence_t MSISDN_BS_sequence[] = {
 
 static int
 dissect_gsm_map_MSISDN_BS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MSISDN_BS_sequence, hf_index, ett_gsm_map_MSISDN_BS);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MSISDN_BS_sequence, hf_index, ett_gsm_map_MSISDN_BS);
 
   return offset;
 }
@@ -12555,14 +12555,14 @@ static int dissect_MSISDN_BS_List_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t MSISDN_BS_List_sequence_of[1] = {
+static const ber_old_sequence_t MSISDN_BS_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_MSISDN_BS_List_item },
 };
 
 static int
 dissect_gsm_map_MSISDN_BS_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      MSISDN_BS_List_sequence_of, hf_index, ett_gsm_map_MSISDN_BS_List);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          MSISDN_BS_List_sequence_of, hf_index, ett_gsm_map_MSISDN_BS_List);
 
   return offset;
 }
@@ -12571,7 +12571,7 @@ static int dissect_msisdn_BS_List_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t AnyTimeSubscriptionInterrogationRes_sequence[] = {
+static const ber_old_sequence_t AnyTimeSubscriptionInterrogationRes_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callForwardingData_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callBarringData_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_odb_Info_impl },
@@ -12587,8 +12587,8 @@ static const ber_sequence_t AnyTimeSubscriptionInterrogationRes_sequence[] = {
 
 static int
 dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AnyTimeSubscriptionInterrogationRes_sequence, hf_index, ett_gsm_map_AnyTimeSubscriptionInterrogationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AnyTimeSubscriptionInterrogationRes_sequence, hf_index, ett_gsm_map_AnyTimeSubscriptionInterrogationRes);
 
   return offset;
 }
@@ -12670,7 +12670,7 @@ static int dissect_modifyCSI_State_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t ModificationRequestFor_CF_Info_sequence[] = {
+static const ber_old_sequence_t ModificationRequestFor_CF_Info_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
@@ -12684,8 +12684,8 @@ static const ber_sequence_t ModificationRequestFor_CF_Info_sequence[] = {
 
 static int
 dissect_gsm_map_ModificationRequestFor_CF_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ModificationRequestFor_CF_Info_sequence, hf_index, ett_gsm_map_ModificationRequestFor_CF_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ModificationRequestFor_CF_Info_sequence, hf_index, ett_gsm_map_ModificationRequestFor_CF_Info);
 
   return offset;
 }
@@ -12694,7 +12694,7 @@ static int dissect_modificationRequestFor_CF_Info_impl(proto_tree *tree _U_, tvb
 }
 
 
-static const ber_sequence_t ModificationRequestFor_CB_Info_sequence[] = {
+static const ber_old_sequence_t ModificationRequestFor_CB_Info_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
@@ -12707,8 +12707,8 @@ static const ber_sequence_t ModificationRequestFor_CB_Info_sequence[] = {
 
 static int
 dissect_gsm_map_ModificationRequestFor_CB_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ModificationRequestFor_CB_Info_sequence, hf_index, ett_gsm_map_ModificationRequestFor_CB_Info);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ModificationRequestFor_CB_Info_sequence, hf_index, ett_gsm_map_ModificationRequestFor_CB_Info);
 
   return offset;
 }
@@ -12717,7 +12717,7 @@ static int dissect_modificationRequestFor_CB_Info_impl(proto_tree *tree _U_, tvb
 }
 
 
-static const ber_sequence_t ModificationRequestFor_CSI_sequence[] = {
+static const ber_old_sequence_t ModificationRequestFor_CSI_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedCamel_SubscriptionInfo_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modifyNotificationToCSE_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modifyCSI_State_impl },
@@ -12728,8 +12728,8 @@ static const ber_sequence_t ModificationRequestFor_CSI_sequence[] = {
 
 static int
 dissect_gsm_map_ModificationRequestFor_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ModificationRequestFor_CSI_sequence, hf_index, ett_gsm_map_ModificationRequestFor_CSI);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ModificationRequestFor_CSI_sequence, hf_index, ett_gsm_map_ModificationRequestFor_CSI);
 
   return offset;
 }
@@ -12738,7 +12738,7 @@ static int dissect_modificationRequestFor_CSI_impl(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t ModificationRequestFor_ODB_data_sequence[] = {
+static const ber_old_sequence_t ModificationRequestFor_ODB_data_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_odb_data_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modifyNotificationToCSE_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -12747,8 +12747,8 @@ static const ber_sequence_t ModificationRequestFor_ODB_data_sequence[] = {
 
 static int
 dissect_gsm_map_ModificationRequestFor_ODB_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ModificationRequestFor_ODB_data_sequence, hf_index, ett_gsm_map_ModificationRequestFor_ODB_data);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ModificationRequestFor_ODB_data_sequence, hf_index, ett_gsm_map_ModificationRequestFor_ODB_data);
 
   return offset;
 }
@@ -12757,7 +12757,7 @@ static int dissect_modificationRequestFor_ODB_data(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_sequence_t AnyTimeModificationArg_sequence[] = {
+static const ber_old_sequence_t AnyTimeModificationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_subscriberIdentity_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsmSCF_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modificationRequestFor_CF_Info_impl },
@@ -12771,14 +12771,14 @@ static const ber_sequence_t AnyTimeModificationArg_sequence[] = {
 
 static int
 dissect_gsm_map_AnyTimeModificationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AnyTimeModificationArg_sequence, hf_index, ett_gsm_map_AnyTimeModificationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AnyTimeModificationArg_sequence, hf_index, ett_gsm_map_AnyTimeModificationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t Ext_ForwardingInfoFor_CSE_sequence[] = {
+static const ber_old_sequence_t Ext_ForwardingInfoFor_CSE_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ext_forwardingFeatureList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationToCSE_impl },
@@ -12788,8 +12788,8 @@ static const ber_sequence_t Ext_ForwardingInfoFor_CSE_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_ForwardingInfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_ForwardingInfoFor_CSE_sequence, hf_index, ett_gsm_map_Ext_ForwardingInfoFor_CSE);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_ForwardingInfoFor_CSE_sequence, hf_index, ett_gsm_map_Ext_ForwardingInfoFor_CSE);
 
   return offset;
 }
@@ -12798,7 +12798,7 @@ static int dissect_forwardingInfoFor_CSE_impl(proto_tree *tree _U_, tvbuff_t *tv
 }
 
 
-static const ber_sequence_t Ext_CallBarringInfoFor_CSE_sequence[] = {
+static const ber_old_sequence_t Ext_CallBarringInfoFor_CSE_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ext_callBarringFeatureList_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_password_impl },
@@ -12810,8 +12810,8 @@ static const ber_sequence_t Ext_CallBarringInfoFor_CSE_sequence[] = {
 
 static int
 dissect_gsm_map_Ext_CallBarringInfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ext_CallBarringInfoFor_CSE_sequence, hf_index, ett_gsm_map_Ext_CallBarringInfoFor_CSE);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ext_CallBarringInfoFor_CSE_sequence, hf_index, ett_gsm_map_Ext_CallBarringInfoFor_CSE);
 
   return offset;
 }
@@ -12826,7 +12826,7 @@ static const value_string gsm_map_Ext_SS_InfoFor_CSE_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t Ext_SS_InfoFor_CSE_choice[] = {
+static const ber_old_choice_t Ext_SS_InfoFor_CSE_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_forwardingInfoFor_CSE_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_callBarringInfoFor_CSE_impl },
   { 0, 0, 0, 0, NULL }
@@ -12834,9 +12834,9 @@ static const ber_choice_t Ext_SS_InfoFor_CSE_choice[] = {
 
 static int
 dissect_gsm_map_Ext_SS_InfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Ext_SS_InfoFor_CSE_choice, hf_index, ett_gsm_map_Ext_SS_InfoFor_CSE,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Ext_SS_InfoFor_CSE_choice, hf_index, ett_gsm_map_Ext_SS_InfoFor_CSE,
+                                     NULL);
 
   return offset;
 }
@@ -12845,7 +12845,7 @@ static int dissect_ss_InfoFor_CSE_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t AnyTimeModificationRes_sequence[] = {
+static const ber_old_sequence_t AnyTimeModificationRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_InfoFor_CSE_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SubscriptionInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -12855,14 +12855,14 @@ static const ber_sequence_t AnyTimeModificationRes_sequence[] = {
 
 static int
 dissect_gsm_map_AnyTimeModificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AnyTimeModificationRes_sequence, hf_index, ett_gsm_map_AnyTimeModificationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AnyTimeModificationRes_sequence, hf_index, ett_gsm_map_AnyTimeModificationRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoteSubscriberDataModifiedArg_sequence[] = {
+static const ber_old_sequence_t NoteSubscriberDataModifiedArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msisdn },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardingInfoFor_CSE_impl },
@@ -12876,28 +12876,28 @@ static const ber_sequence_t NoteSubscriberDataModifiedArg_sequence[] = {
 
 static int
 dissect_gsm_map_NoteSubscriberDataModifiedArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoteSubscriberDataModifiedArg_sequence, hf_index, ett_gsm_map_NoteSubscriberDataModifiedArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoteSubscriberDataModifiedArg_sequence, hf_index, ett_gsm_map_NoteSubscriberDataModifiedArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoteSubscriberDataModifiedRes_sequence[] = {
+static const ber_old_sequence_t NoteSubscriberDataModifiedRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NoteSubscriberDataModifiedRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoteSubscriberDataModifiedRes_sequence, hf_index, ett_gsm_map_NoteSubscriberDataModifiedRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoteSubscriberDataModifiedRes_sequence, hf_index, ett_gsm_map_NoteSubscriberDataModifiedRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoteMM_EventArg_sequence[] = {
+static const ber_old_sequence_t NoteMM_EventArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serviceKey },
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventMet_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
@@ -12912,35 +12912,35 @@ static const ber_sequence_t NoteMM_EventArg_sequence[] = {
 
 static int
 dissect_gsm_map_NoteMM_EventArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoteMM_EventArg_sequence, hf_index, ett_gsm_map_NoteMM_EventArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoteMM_EventArg_sequence, hf_index, ett_gsm_map_NoteMM_EventArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoteMM_EventRes_sequence[] = {
+static const ber_old_sequence_t NoteMM_EventRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NoteMM_EventRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoteMM_EventRes_sequence, hf_index, ett_gsm_map_NoteMM_EventRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoteMM_EventRes_sequence, hf_index, ett_gsm_map_NoteMM_EventRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_EventSpecification_sequence_of[1] = {
+static const ber_old_sequence_t SS_EventSpecification_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SS_EventSpecification_item },
 };
 
 static int
 dissect_gsm_map_SS_EventSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SS_EventSpecification_sequence_of, hf_index, ett_gsm_map_SS_EventSpecification);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SS_EventSpecification_sequence_of, hf_index, ett_gsm_map_SS_EventSpecification);
 
   return offset;
 }
@@ -12973,7 +12973,7 @@ static int dissect_ccbs_RequestState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t Ss_InvocationNotificationArg_sequence[] = {
+static const ber_old_sequence_t Ss_InvocationNotificationArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ss_Event_impl },
@@ -12986,22 +12986,22 @@ static const ber_sequence_t Ss_InvocationNotificationArg_sequence[] = {
 
 static int
 dissect_gsm_map_Ss_InvocationNotificationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ss_InvocationNotificationArg_sequence, hf_index, ett_gsm_map_Ss_InvocationNotificationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ss_InvocationNotificationArg_sequence, hf_index, ett_gsm_map_Ss_InvocationNotificationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t Ss_InvocationNotificationRes_sequence[] = {
+static const ber_old_sequence_t Ss_InvocationNotificationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_Ss_InvocationNotificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Ss_InvocationNotificationRes_sequence, hf_index, ett_gsm_map_Ss_InvocationNotificationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Ss_InvocationNotificationRes_sequence, hf_index, ett_gsm_map_Ss_InvocationNotificationRes);
 
   return offset;
 }
@@ -13072,7 +13072,7 @@ static int dissect_vstk_rand_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t PrepareGroupCallArg_sequence[] = {
+static const ber_old_sequence_t PrepareGroupCallArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ext_teleservice },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_asciCallReference },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_codec_Info },
@@ -13089,14 +13089,14 @@ static const ber_sequence_t PrepareGroupCallArg_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareGroupCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareGroupCallArg_sequence, hf_index, ett_gsm_map_PrepareGroupCallArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareGroupCallArg_sequence, hf_index, ett_gsm_map_PrepareGroupCallArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t PrepareGroupCallRes_sequence[] = {
+static const ber_old_sequence_t PrepareGroupCallRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupCallNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -13104,8 +13104,8 @@ static const ber_sequence_t PrepareGroupCallRes_sequence[] = {
 
 static int
 dissect_gsm_map_PrepareGroupCallRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PrepareGroupCallRes_sequence, hf_index, ett_gsm_map_PrepareGroupCallRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrepareGroupCallRes_sequence, hf_index, ett_gsm_map_PrepareGroupCallRes);
 
   return offset;
 }
@@ -13131,7 +13131,7 @@ static int dissect_talkerPriority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t SendGroupCallEndSignalArg_sequence[] = {
+static const ber_old_sequence_t SendGroupCallEndSignalArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_talkerPriority_impl },
@@ -13141,28 +13141,28 @@ static const ber_sequence_t SendGroupCallEndSignalArg_sequence[] = {
 
 static int
 dissect_gsm_map_SendGroupCallEndSignalArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendGroupCallEndSignalArg_sequence, hf_index, ett_gsm_map_SendGroupCallEndSignalArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendGroupCallEndSignalArg_sequence, hf_index, ett_gsm_map_SendGroupCallEndSignalArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendGroupCallEndSignalRes_sequence[] = {
+static const ber_old_sequence_t SendGroupCallEndSignalRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_SendGroupCallEndSignalRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendGroupCallEndSignalRes_sequence, hf_index, ett_gsm_map_SendGroupCallEndSignalRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendGroupCallEndSignalRes_sequence, hf_index, ett_gsm_map_SendGroupCallEndSignalRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t ProcessGroupCallSignallingArg_sequence[] = {
+static const ber_old_sequence_t ProcessGroupCallSignallingArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkRequest_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkReleaseIndication_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseGroupCall_impl },
@@ -13175,14 +13175,14 @@ static const ber_sequence_t ProcessGroupCallSignallingArg_sequence[] = {
 
 static int
 dissect_gsm_map_ProcessGroupCallSignallingArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProcessGroupCallSignallingArg_sequence, hf_index, ett_gsm_map_ProcessGroupCallSignallingArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProcessGroupCallSignallingArg_sequence, hf_index, ett_gsm_map_ProcessGroupCallSignallingArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t StateAttributes_sequence[] = {
+static const ber_old_sequence_t StateAttributes_sequence[] = {
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_downlinkAttached_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkAttached_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dualCommunication_impl },
@@ -13192,8 +13192,8 @@ static const ber_sequence_t StateAttributes_sequence[] = {
 
 static int
 dissect_gsm_map_StateAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   StateAttributes_sequence, hf_index, ett_gsm_map_StateAttributes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       StateAttributes_sequence, hf_index, ett_gsm_map_StateAttributes);
 
   return offset;
 }
@@ -13221,7 +13221,7 @@ static int dissect_groupRequestedInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t SendGroupCallInfoArg_sequence[] = {
+static const ber_old_sequence_t SendGroupCallInfoArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_groupRequestedInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_groupId },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cellId_impl },
@@ -13236,14 +13236,14 @@ static const ber_sequence_t SendGroupCallInfoArg_sequence[] = {
 
 static int
 dissect_gsm_map_SendGroupCallInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendGroupCallInfoArg_sequence, hf_index, ett_gsm_map_SendGroupCallInfoArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendGroupCallInfoArg_sequence, hf_index, ett_gsm_map_SendGroupCallInfoArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendGroupCallInfoRes_sequence[] = {
+static const ber_old_sequence_t SendGroupCallInfoRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_anchorMSC_Address_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_asciCallReference_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
@@ -13256,14 +13256,14 @@ static const ber_sequence_t SendGroupCallInfoRes_sequence[] = {
 
 static int
 dissect_gsm_map_SendGroupCallInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendGroupCallInfoRes_sequence, hf_index, ett_gsm_map_SendGroupCallInfoRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendGroupCallInfoRes_sequence, hf_index, ett_gsm_map_SendGroupCallInfoRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t ForwardGroupCallSignallingArg_sequence[] = {
+static const ber_old_sequence_t ForwardGroupCallSignallingArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkRequestAck_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uplinkReleaseIndication_impl },
@@ -13281,14 +13281,14 @@ static const ber_sequence_t ForwardGroupCallSignallingArg_sequence[] = {
 
 static int
 dissect_gsm_map_ForwardGroupCallSignallingArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardGroupCallSignallingArg_sequence, hf_index, ett_gsm_map_ForwardGroupCallSignallingArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardGroupCallSignallingArg_sequence, hf_index, ett_gsm_map_ForwardGroupCallSignallingArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SGSN_Capability_sequence[] = {
+static const ber_old_sequence_t SGSN_Capability_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_solsaSupportIndicator },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_superChargerSupportedInServingNetworkEntity_impl },
@@ -13303,8 +13303,8 @@ static const ber_sequence_t SGSN_Capability_sequence[] = {
 
 static int
 dissect_gsm_map_SGSN_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SGSN_Capability_sequence, hf_index, ett_gsm_map_SGSN_Capability);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SGSN_Capability_sequence, hf_index, ett_gsm_map_SGSN_Capability);
 
   return offset;
 }
@@ -13313,7 +13313,7 @@ static int dissect_sgsn_Capability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t UpdateGprsLocationArg_sequence[] = {
+static const ber_old_sequence_t UpdateGprsLocationArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sgsn_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sgsn_Address },
@@ -13328,14 +13328,14 @@ static const ber_sequence_t UpdateGprsLocationArg_sequence[] = {
 
 static int
 dissect_gsm_map_UpdateGprsLocationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UpdateGprsLocationArg_sequence, hf_index, ett_gsm_map_UpdateGprsLocationArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UpdateGprsLocationArg_sequence, hf_index, ett_gsm_map_UpdateGprsLocationArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t UpdateGprsLocationRes_sequence[] = {
+static const ber_old_sequence_t UpdateGprsLocationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hlr_Number },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_add_Capability },
@@ -13344,14 +13344,14 @@ static const ber_sequence_t UpdateGprsLocationRes_sequence[] = {
 
 static int
 dissect_gsm_map_UpdateGprsLocationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UpdateGprsLocationRes_sequence, hf_index, ett_gsm_map_UpdateGprsLocationRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UpdateGprsLocationRes_sequence, hf_index, ett_gsm_map_UpdateGprsLocationRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendRoutingInfoForGprsArg_sequence[] = {
+static const ber_old_sequence_t SendRoutingInfoForGprsArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ggsn_Number_impl },
@@ -13361,14 +13361,14 @@ static const ber_sequence_t SendRoutingInfoForGprsArg_sequence[] = {
 
 static int
 dissect_gsm_map_SendRoutingInfoForGprsArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendRoutingInfoForGprsArg_sequence, hf_index, ett_gsm_map_SendRoutingInfoForGprsArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendRoutingInfoForGprsArg_sequence, hf_index, ett_gsm_map_SendRoutingInfoForGprsArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SendRoutingInfoForGprsRes_sequence[] = {
+static const ber_old_sequence_t SendRoutingInfoForGprsRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgsn_Address_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileNotReachableReason_impl },
@@ -13378,14 +13378,14 @@ static const ber_sequence_t SendRoutingInfoForGprsRes_sequence[] = {
 
 static int
 dissect_gsm_map_SendRoutingInfoForGprsRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendRoutingInfoForGprsRes_sequence, hf_index, ett_gsm_map_SendRoutingInfoForGprsRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SendRoutingInfoForGprsRes_sequence, hf_index, ett_gsm_map_SendRoutingInfoForGprsRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t FailureReportArg_sequence[] = {
+static const ber_old_sequence_t FailureReportArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ggsn_Number_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
@@ -13395,14 +13395,14 @@ static const ber_sequence_t FailureReportArg_sequence[] = {
 
 static int
 dissect_gsm_map_FailureReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   FailureReportArg_sequence, hf_index, ett_gsm_map_FailureReportArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       FailureReportArg_sequence, hf_index, ett_gsm_map_FailureReportArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t FailureReportRes_sequence[] = {
+static const ber_old_sequence_t FailureReportRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -13410,14 +13410,14 @@ static const ber_sequence_t FailureReportRes_sequence[] = {
 
 static int
 dissect_gsm_map_FailureReportRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   FailureReportRes_sequence, hf_index, ett_gsm_map_FailureReportRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       FailureReportRes_sequence, hf_index, ett_gsm_map_FailureReportRes);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoteMsPresentForGprsArg_sequence[] = {
+static const ber_old_sequence_t NoteMsPresentForGprsArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sgsn_Address_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ggsn_Address_impl },
@@ -13427,22 +13427,22 @@ static const ber_sequence_t NoteMsPresentForGprsArg_sequence[] = {
 
 static int
 dissect_gsm_map_NoteMsPresentForGprsArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoteMsPresentForGprsArg_sequence, hf_index, ett_gsm_map_NoteMsPresentForGprsArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoteMsPresentForGprsArg_sequence, hf_index, ett_gsm_map_NoteMsPresentForGprsArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoteMsPresentForGprsRes_sequence[] = {
+static const ber_old_sequence_t NoteMsPresentForGprsRes_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NoteMsPresentForGprsRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoteMsPresentForGprsRes_sequence, hf_index, ett_gsm_map_NoteMsPresentForGprsRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoteMsPresentForGprsRes_sequence, hf_index, ett_gsm_map_NoteMsPresentForGprsRes);
 
   return offset;
 }
@@ -13496,7 +13496,7 @@ static int dissect_deferredLocationEventType_impl(proto_tree *tree _U_, tvbuff_t
 }
 
 
-static const ber_sequence_t LocationType_sequence[] = {
+static const ber_old_sequence_t LocationType_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_locationEstimateType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deferredLocationEventType_impl },
   { 0, 0, 0, NULL }
@@ -13504,8 +13504,8 @@ static const ber_sequence_t LocationType_sequence[] = {
 
 int
 dissect_gsm_map_LocationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LocationType_sequence, hf_index, ett_gsm_map_LocationType);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LocationType_sequence, hf_index, ett_gsm_map_LocationType);
 
   return offset;
 }
@@ -13569,7 +13569,7 @@ static int dissect_lcs_FormatIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_sequence_t LCSClientName_sequence[] = {
+static const ber_old_sequence_t LCSClientName_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dataCodingScheme_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_nameString_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcs_FormatIndicator_impl },
@@ -13578,8 +13578,8 @@ static const ber_sequence_t LCSClientName_sequence[] = {
 
 int
 dissect_gsm_map_LCSClientName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCSClientName_sequence, hf_index, ett_gsm_map_LCSClientName);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCSClientName_sequence, hf_index, ett_gsm_map_LCSClientName);
 
   return offset;
 }
@@ -13600,7 +13600,7 @@ static int dissect_requestorIDString_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t LCSRequestorID_sequence[] = {
+static const ber_old_sequence_t LCSRequestorID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dataCodingScheme_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_requestorIDString_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcs_FormatIndicator_impl },
@@ -13609,8 +13609,8 @@ static const ber_sequence_t LCSRequestorID_sequence[] = {
 
 int
 dissect_gsm_map_LCSRequestorID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCSRequestorID_sequence, hf_index, ett_gsm_map_LCSRequestorID);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCSRequestorID_sequence, hf_index, ett_gsm_map_LCSRequestorID);
 
   return offset;
 }
@@ -13619,7 +13619,7 @@ static int dissect_lcsRequestorID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t LCS_ClientID_sequence[] = {
+static const ber_old_sequence_t LCS_ClientID_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lcsClientType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcsClientExternalID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcsClientDialedByMS_impl },
@@ -13632,8 +13632,8 @@ static const ber_sequence_t LCS_ClientID_sequence[] = {
 
 static int
 dissect_gsm_map_LCS_ClientID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCS_ClientID_sequence, hf_index, ett_gsm_map_LCS_ClientID);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCS_ClientID_sequence, hf_index, ett_gsm_map_LCS_ClientID);
 
   return offset;
 }
@@ -13703,15 +13703,15 @@ static int dissect_responseTimeCategory(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t ResponseTime_sequence[] = {
+static const ber_old_sequence_t ResponseTime_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_responseTimeCategory },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ResponseTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ResponseTime_sequence, hf_index, ett_gsm_map_ResponseTime);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ResponseTime_sequence, hf_index, ett_gsm_map_ResponseTime);
 
   return offset;
 }
@@ -13720,7 +13720,7 @@ static int dissect_responseTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t LCS_QoS_sequence[] = {
+static const ber_old_sequence_t LCS_QoS_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_horizontal_accuracy_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_verticalCoordinateRequest_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_vertical_accuracy_impl },
@@ -13732,8 +13732,8 @@ static const ber_sequence_t LCS_QoS_sequence[] = {
 
 int
 dissect_gsm_map_LCS_QoS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCS_QoS_sequence, hf_index, ett_gsm_map_LCS_QoS);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCS_QoS_sequence, hf_index, ett_gsm_map_LCS_QoS);
 
   return offset;
 }
@@ -13791,7 +13791,7 @@ static int dissect_lcsCodewordString_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t LCSCodeword_sequence[] = {
+static const ber_old_sequence_t LCSCodeword_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dataCodingScheme_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lcsCodewordString_impl },
   { 0, 0, 0, NULL }
@@ -13799,8 +13799,8 @@ static const ber_sequence_t LCSCodeword_sequence[] = {
 
 int
 dissect_gsm_map_LCSCodeword(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCSCodeword_sequence, hf_index, ett_gsm_map_LCSCodeword);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCSCodeword_sequence, hf_index, ett_gsm_map_LCSCodeword);
 
   return offset;
 }
@@ -13834,7 +13834,7 @@ static int dissect_callSessionRelated_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t LCS_PrivacyCheck_sequence[] = {
+static const ber_old_sequence_t LCS_PrivacyCheck_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_callSessionUnrelated_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callSessionRelated_impl },
   { 0, 0, 0, NULL }
@@ -13842,8 +13842,8 @@ static const ber_sequence_t LCS_PrivacyCheck_sequence[] = {
 
 static int
 dissect_gsm_map_LCS_PrivacyCheck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCS_PrivacyCheck_sequence, hf_index, ett_gsm_map_LCS_PrivacyCheck);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCS_PrivacyCheck_sequence, hf_index, ett_gsm_map_LCS_PrivacyCheck);
 
   return offset;
 }
@@ -13888,7 +13888,7 @@ static int dissect_areaIdentification_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t Area_sequence[] = {
+static const ber_old_sequence_t Area_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_areaType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_areaIdentification_impl },
   { 0, 0, 0, NULL }
@@ -13896,8 +13896,8 @@ static const ber_sequence_t Area_sequence[] = {
 
 static int
 dissect_gsm_map_Area(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Area_sequence, hf_index, ett_gsm_map_Area);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Area_sequence, hf_index, ett_gsm_map_Area);
 
   return offset;
 }
@@ -13906,14 +13906,14 @@ static int dissect_AreaList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t AreaList_sequence_of[1] = {
+static const ber_old_sequence_t AreaList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AreaList_item },
 };
 
 static int
 dissect_gsm_map_AreaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AreaList_sequence_of, hf_index, ett_gsm_map_AreaList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          AreaList_sequence_of, hf_index, ett_gsm_map_AreaList);
 
   return offset;
 }
@@ -13922,15 +13922,15 @@ static int dissect_areaList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t AreaDefinition_sequence[] = {
+static const ber_old_sequence_t AreaDefinition_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_areaList_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_AreaDefinition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AreaDefinition_sequence, hf_index, ett_gsm_map_AreaDefinition);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AreaDefinition_sequence, hf_index, ett_gsm_map_AreaDefinition);
 
   return offset;
 }
@@ -13971,7 +13971,7 @@ static int dissect_intervalTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t AreaEventInfo_sequence[] = {
+static const ber_old_sequence_t AreaEventInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_areaDefinition_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_occurrenceInfo_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_intervalTime_impl },
@@ -13980,8 +13980,8 @@ static const ber_sequence_t AreaEventInfo_sequence[] = {
 
 int
 dissect_gsm_map_AreaEventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AreaEventInfo_sequence, hf_index, ett_gsm_map_AreaEventInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AreaEventInfo_sequence, hf_index, ett_gsm_map_AreaEventInfo);
 
   return offset;
 }
@@ -14016,7 +14016,7 @@ static int dissect_reportingInterval(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t PeriodicLDRInfo_sequence[] = {
+static const ber_old_sequence_t PeriodicLDRInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_reportingAmount },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_reportingInterval },
   { 0, 0, 0, NULL }
@@ -14024,8 +14024,8 @@ static const ber_sequence_t PeriodicLDRInfo_sequence[] = {
 
 static int
 dissect_gsm_map_PeriodicLDRInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PeriodicLDRInfo_sequence, hf_index, ett_gsm_map_PeriodicLDRInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PeriodicLDRInfo_sequence, hf_index, ett_gsm_map_PeriodicLDRInfo);
 
   return offset;
 }
@@ -14053,7 +14053,7 @@ static int dissect_ran_Technology_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t ReportingPLMN_sequence[] = {
+static const ber_old_sequence_t ReportingPLMN_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_plmn_Id_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ran_Technology_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ran_PeriodicLocationSupport_impl },
@@ -14062,8 +14062,8 @@ static const ber_sequence_t ReportingPLMN_sequence[] = {
 
 static int
 dissect_gsm_map_ReportingPLMN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReportingPLMN_sequence, hf_index, ett_gsm_map_ReportingPLMN);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReportingPLMN_sequence, hf_index, ett_gsm_map_ReportingPLMN);
 
   return offset;
 }
@@ -14072,14 +14072,14 @@ static int dissect_PLMNList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t PLMNList_sequence_of[1] = {
+static const ber_old_sequence_t PLMNList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PLMNList_item },
 };
 
 static int
 dissect_gsm_map_PLMNList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PLMNList_sequence_of, hf_index, ett_gsm_map_PLMNList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          PLMNList_sequence_of, hf_index, ett_gsm_map_PLMNList);
 
   return offset;
 }
@@ -14088,7 +14088,7 @@ static int dissect_plmn_List_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t ReportingPLMNList_sequence[] = {
+static const ber_old_sequence_t ReportingPLMNList_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_plmn_ListPrioritized_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_plmn_List_impl },
   { 0, 0, 0, NULL }
@@ -14096,8 +14096,8 @@ static const ber_sequence_t ReportingPLMNList_sequence[] = {
 
 static int
 dissect_gsm_map_ReportingPLMNList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReportingPLMNList_sequence, hf_index, ett_gsm_map_ReportingPLMNList);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ReportingPLMNList_sequence, hf_index, ett_gsm_map_ReportingPLMNList);
 
   return offset;
 }
@@ -14106,7 +14106,7 @@ static int dissect_reportingPLMNList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const ber_sequence_t ProvideSubscriberLocation_Arg_sequence[] = {
+static const ber_old_sequence_t ProvideSubscriberLocation_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_locationType },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_mlc_Number },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcs_ClientID_impl },
@@ -14133,8 +14133,8 @@ static const ber_sequence_t ProvideSubscriberLocation_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideSubscriberLocation_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideSubscriberLocation_Arg_sequence, hf_index, ett_gsm_map_ProvideSubscriberLocation_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideSubscriberLocation_Arg_sequence, hf_index, ett_gsm_map_ProvideSubscriberLocation_Arg);
 
   return offset;
 }
@@ -14227,7 +14227,7 @@ static int dissect_velocityEstimate_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t ProvideSubscriberLocation_Res_sequence[] = {
+static const ber_old_sequence_t ProvideSubscriberLocation_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_locationEstimate },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ageOfLocationEstimate_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -14245,14 +14245,14 @@ static const ber_sequence_t ProvideSubscriberLocation_Res_sequence[] = {
 
 static int
 dissect_gsm_map_ProvideSubscriberLocation_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ProvideSubscriberLocation_Res_sequence, hf_index, ett_gsm_map_ProvideSubscriberLocation_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ProvideSubscriberLocation_Res_sequence, hf_index, ett_gsm_map_ProvideSubscriberLocation_Res);
 
   return offset;
 }
 
 
-static const ber_sequence_t RoutingInfoForLCS_Arg_sequence[] = {
+static const ber_old_sequence_t RoutingInfoForLCS_Arg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mlcNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_targetMS_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -14261,14 +14261,14 @@ static const ber_sequence_t RoutingInfoForLCS_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_RoutingInfoForLCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RoutingInfoForLCS_Arg_sequence, hf_index, ett_gsm_map_RoutingInfoForLCS_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RoutingInfoForLCS_Arg_sequence, hf_index, ett_gsm_map_RoutingInfoForLCS_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t LCSLocationInfo_sequence[] = {
+static const ber_old_sequence_t LCSLocationInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_networkNode_Number },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lmsi_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
@@ -14281,8 +14281,8 @@ static const ber_sequence_t LCSLocationInfo_sequence[] = {
 
 static int
 dissect_gsm_map_LCSLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LCSLocationInfo_sequence, hf_index, ett_gsm_map_LCSLocationInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LCSLocationInfo_sequence, hf_index, ett_gsm_map_LCSLocationInfo);
 
   return offset;
 }
@@ -14294,7 +14294,7 @@ static int dissect_lcsLocationInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t RoutingInfoForLCS_Res_sequence[] = {
+static const ber_old_sequence_t RoutingInfoForLCS_Res_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_targetMS },
   { BER_CLASS_CON, 1, 0, dissect_lcsLocationInfo },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_extensionContainer },
@@ -14307,8 +14307,8 @@ static const ber_sequence_t RoutingInfoForLCS_Res_sequence[] = {
 
 static int
 dissect_gsm_map_RoutingInfoForLCS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RoutingInfoForLCS_Res_sequence, hf_index, ett_gsm_map_RoutingInfoForLCS_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RoutingInfoForLCS_Res_sequence, hf_index, ett_gsm_map_RoutingInfoForLCS_Res);
 
   return offset;
 }
@@ -14363,7 +14363,7 @@ static int dissect_terminationCause_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t Deferredmt_lrData_sequence[] = {
+static const ber_old_sequence_t Deferredmt_lrData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_deferredLocationEventType },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationCause_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lcsLocationInfo_impl },
@@ -14372,8 +14372,8 @@ static const ber_sequence_t Deferredmt_lrData_sequence[] = {
 
 static int
 dissect_gsm_map_Deferredmt_lrData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Deferredmt_lrData_sequence, hf_index, ett_gsm_map_Deferredmt_lrData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Deferredmt_lrData_sequence, hf_index, ett_gsm_map_Deferredmt_lrData);
 
   return offset;
 }
@@ -14395,7 +14395,7 @@ static int dissect_sequenceNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_sequence_t SubscriberLocationReport_Arg_sequence[] = {
+static const ber_old_sequence_t SubscriberLocationReport_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_lcs_Event },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcs_ClientID },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_lcsLocationInfo },
@@ -14427,14 +14427,14 @@ static const ber_sequence_t SubscriberLocationReport_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_SubscriberLocationReport_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SubscriberLocationReport_Arg_sequence, hf_index, ett_gsm_map_SubscriberLocationReport_Arg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SubscriberLocationReport_Arg_sequence, hf_index, ett_gsm_map_SubscriberLocationReport_Arg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SubscriberLocationReport_Res_sequence[] = {
+static const ber_old_sequence_t SubscriberLocationReport_Res_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_na_ESRK_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_na_ESRD_impl },
@@ -14447,8 +14447,8 @@ static const ber_sequence_t SubscriberLocationReport_Res_sequence[] = {
 
 static int
 dissect_gsm_map_SubscriberLocationReport_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SubscriberLocationReport_Res_sequence, hf_index, ett_gsm_map_SubscriberLocationReport_Res);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SubscriberLocationReport_Res_sequence, hf_index, ett_gsm_map_SubscriberLocationReport_Res);
 
   return offset;
 }
@@ -14486,7 +14486,7 @@ static const value_string gsm_map_OperationCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t OperationCode_choice[] = {
+static const ber_old_choice_t OperationCode_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
@@ -14494,9 +14494,9 @@ static const ber_choice_t OperationCode_choice[] = {
 
 static int
 dissect_gsm_map_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 OperationCode_choice, hf_index, ett_gsm_map_OperationCode,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     OperationCode_choice, hf_index, ett_gsm_map_OperationCode,
+                                     NULL);
 
   return offset;
 }
@@ -14511,7 +14511,7 @@ static const value_string gsm_map_ErrorCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ErrorCode_choice[] = {
+static const ber_old_choice_t ErrorCode_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
@@ -14519,9 +14519,9 @@ static const ber_choice_t ErrorCode_choice[] = {
 
 static int
 dissect_gsm_map_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ErrorCode_choice, hf_index, ett_gsm_map_ErrorCode,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ErrorCode_choice, hf_index, ett_gsm_map_ErrorCode,
+                                     NULL);
 
   return offset;
 }
@@ -14537,7 +14537,7 @@ static const value_string gsm_map_OriginalComponentIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t OriginalComponentIdentifier_choice[] = {
+static const ber_old_choice_t OriginalComponentIdentifier_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_operationCode_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_errorCode_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_userInfo_impl },
@@ -14546,9 +14546,9 @@ static const ber_choice_t OriginalComponentIdentifier_choice[] = {
 
 static int
 dissect_gsm_map_OriginalComponentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 OriginalComponentIdentifier_choice, hf_index, ett_gsm_map_OriginalComponentIdentifier,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     OriginalComponentIdentifier_choice, hf_index, ett_gsm_map_OriginalComponentIdentifier,
+                                     NULL);
 
   return offset;
 }
@@ -14570,7 +14570,7 @@ static int dissect_initialisationVector(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t SecurityHeader_sequence[] = {
+static const ber_old_sequence_t SecurityHeader_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_securityParametersIndex },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_originalComponentIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_initialisationVector },
@@ -14579,8 +14579,8 @@ static const ber_sequence_t SecurityHeader_sequence[] = {
 
 int
 dissect_gsm_map_SecurityHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SecurityHeader_sequence, hf_index, ett_gsm_map_SecurityHeader);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SecurityHeader_sequence, hf_index, ett_gsm_map_SecurityHeader);
 
   return offset;
 }
@@ -14602,7 +14602,7 @@ static int dissect_protectedPayload(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t SecureTransportArg_sequence[] = {
+static const ber_old_sequence_t SecureTransportArg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_securityHeader },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_protectedPayload },
   { 0, 0, 0, NULL }
@@ -14610,14 +14610,14 @@ static const ber_sequence_t SecureTransportArg_sequence[] = {
 
 static int
 dissect_gsm_map_SecureTransportArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SecureTransportArg_sequence, hf_index, ett_gsm_map_SecureTransportArg);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SecureTransportArg_sequence, hf_index, ett_gsm_map_SecureTransportArg);
 
   return offset;
 }
 
 
-static const ber_sequence_t SecureTransportRes_sequence[] = {
+static const ber_old_sequence_t SecureTransportRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_securityHeader },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_protectedPayload },
   { 0, 0, 0, NULL }
@@ -14625,8 +14625,8 @@ static const ber_sequence_t SecureTransportRes_sequence[] = {
 
 static int
 dissect_gsm_map_SecureTransportRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SecureTransportRes_sequence, hf_index, ett_gsm_map_SecureTransportRes);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SecureTransportRes_sequence, hf_index, ett_gsm_map_SecureTransportRes);
 
   return offset;
 }
@@ -14693,14 +14693,14 @@ static int dissect_operatorSS_Code_item(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t T_operatorSS_Code_sequence_of[1] = {
+static const ber_old_sequence_t T_operatorSS_Code_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_operatorSS_Code_item },
 };
 
 static int
 dissect_gsm_map_T_operatorSS_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_operatorSS_Code_sequence_of, hf_index, ett_gsm_map_T_operatorSS_Code);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          T_operatorSS_Code_sequence_of, hf_index, ett_gsm_map_T_operatorSS_Code);
 
   return offset;
 }
@@ -14709,7 +14709,7 @@ static int dissect_operatorSS_Code_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t PlmnContainer_sequence[] = {
+static const ber_old_sequence_t PlmnContainer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msisdn_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_category_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
@@ -14719,14 +14719,14 @@ static const ber_sequence_t PlmnContainer_sequence[] = {
 
 static int
 dissect_gsm_map_PlmnContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PlmnContainer_sequence, hf_index, ett_gsm_map_PlmnContainer);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PlmnContainer_sequence, hf_index, ett_gsm_map_PlmnContainer);
 
   return offset;
 }
 
 
-static const ber_sequence_t ExtensibleSystemFailureParam_sequence[] = {
+static const ber_old_sequence_t ExtensibleSystemFailureParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_networkResource },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalNetworkResource_impl },
@@ -14735,8 +14735,8 @@ static const ber_sequence_t ExtensibleSystemFailureParam_sequence[] = {
 
 static int
 dissect_gsm_map_ExtensibleSystemFailureParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExtensibleSystemFailureParam_sequence, hf_index, ett_gsm_map_ExtensibleSystemFailureParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExtensibleSystemFailureParam_sequence, hf_index, ett_gsm_map_ExtensibleSystemFailureParam);
 
   return offset;
 }
@@ -14751,7 +14751,7 @@ static const value_string gsm_map_SystemFailureParam_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SystemFailureParam_choice[] = {
+static const ber_old_choice_t SystemFailureParam_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_networkResource },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extensibleSystemFailureParam },
   { 0, 0, 0, 0, NULL }
@@ -14759,43 +14759,43 @@ static const ber_choice_t SystemFailureParam_choice[] = {
 
 static int
 dissect_gsm_map_SystemFailureParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SystemFailureParam_choice, hf_index, ett_gsm_map_SystemFailureParam,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SystemFailureParam_choice, hf_index, ett_gsm_map_SystemFailureParam,
+                                     NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t DataMissingParam_sequence[] = {
+static const ber_old_sequence_t DataMissingParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_DataMissingParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DataMissingParam_sequence, hf_index, ett_gsm_map_DataMissingParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DataMissingParam_sequence, hf_index, ett_gsm_map_DataMissingParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t UnexpectedDataParam_sequence[] = {
+static const ber_old_sequence_t UnexpectedDataParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_UnexpectedDataParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UnexpectedDataParam_sequence, hf_index, ett_gsm_map_UnexpectedDataParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UnexpectedDataParam_sequence, hf_index, ett_gsm_map_UnexpectedDataParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t FacilityNotSupParam_sequence[] = {
+static const ber_old_sequence_t FacilityNotSupParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_shapeOfLocationEstimateNotSupported_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_neededLcsCapabilityNotSupportedInServingNode_impl },
@@ -14804,36 +14804,36 @@ static const ber_sequence_t FacilityNotSupParam_sequence[] = {
 
 static int
 dissect_gsm_map_FacilityNotSupParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   FacilityNotSupParam_sequence, hf_index, ett_gsm_map_FacilityNotSupParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       FacilityNotSupParam_sequence, hf_index, ett_gsm_map_FacilityNotSupParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t IncompatibleTerminalParam_sequence[] = {
+static const ber_old_sequence_t IncompatibleTerminalParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_IncompatibleTerminalParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IncompatibleTerminalParam_sequence, hf_index, ett_gsm_map_IncompatibleTerminalParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IncompatibleTerminalParam_sequence, hf_index, ett_gsm_map_IncompatibleTerminalParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t ResourceLimitationParam_sequence[] = {
+static const ber_old_sequence_t ResourceLimitationParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ResourceLimitationParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ResourceLimitationParam_sequence, hf_index, ett_gsm_map_ResourceLimitationParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ResourceLimitationParam_sequence, hf_index, ett_gsm_map_ResourceLimitationParam);
 
   return offset;
 }
@@ -14859,7 +14859,7 @@ static int dissect_unknownSubscriberDiagnostic(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t UnknownSubscriberParam_sequence[] = {
+static const ber_old_sequence_t UnknownSubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_unknownSubscriberDiagnostic },
   { 0, 0, 0, NULL }
@@ -14867,36 +14867,36 @@ static const ber_sequence_t UnknownSubscriberParam_sequence[] = {
 
 static int
 dissect_gsm_map_UnknownSubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UnknownSubscriberParam_sequence, hf_index, ett_gsm_map_UnknownSubscriberParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UnknownSubscriberParam_sequence, hf_index, ett_gsm_map_UnknownSubscriberParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t NumberChangedParam_sequence[] = {
+static const ber_old_sequence_t NumberChangedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NumberChangedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NumberChangedParam_sequence, hf_index, ett_gsm_map_NumberChangedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NumberChangedParam_sequence, hf_index, ett_gsm_map_NumberChangedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t UnidentifiedSubParam_sequence[] = {
+static const ber_old_sequence_t UnidentifiedSubParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_UnidentifiedSubParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UnidentifiedSubParam_sequence, hf_index, ett_gsm_map_UnidentifiedSubParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UnidentifiedSubParam_sequence, hf_index, ett_gsm_map_UnidentifiedSubParam);
 
   return offset;
 }
@@ -14939,7 +14939,7 @@ static int dissect_additionalRoamingNotAllowedCause_impl(proto_tree *tree _U_, t
 }
 
 
-static const ber_sequence_t RoamingNotAllowedParam_sequence[] = {
+static const ber_old_sequence_t RoamingNotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_roamingNotAllowedCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalRoamingNotAllowedCause_impl },
@@ -14948,92 +14948,92 @@ static const ber_sequence_t RoamingNotAllowedParam_sequence[] = {
 
 static int
 dissect_gsm_map_RoamingNotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RoamingNotAllowedParam_sequence, hf_index, ett_gsm_map_RoamingNotAllowedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RoamingNotAllowedParam_sequence, hf_index, ett_gsm_map_RoamingNotAllowedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t IllegalSubscriberParam_sequence[] = {
+static const ber_old_sequence_t IllegalSubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_IllegalSubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IllegalSubscriberParam_sequence, hf_index, ett_gsm_map_IllegalSubscriberParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IllegalSubscriberParam_sequence, hf_index, ett_gsm_map_IllegalSubscriberParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t IllegalEquipmentParam_sequence[] = {
+static const ber_old_sequence_t IllegalEquipmentParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_IllegalEquipmentParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IllegalEquipmentParam_sequence, hf_index, ett_gsm_map_IllegalEquipmentParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IllegalEquipmentParam_sequence, hf_index, ett_gsm_map_IllegalEquipmentParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t BearerServNotProvParam_sequence[] = {
+static const ber_old_sequence_t BearerServNotProvParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_BearerServNotProvParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   BearerServNotProvParam_sequence, hf_index, ett_gsm_map_BearerServNotProvParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       BearerServNotProvParam_sequence, hf_index, ett_gsm_map_BearerServNotProvParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t TeleservNotProvParam_sequence[] = {
+static const ber_old_sequence_t TeleservNotProvParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_TeleservNotProvParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TeleservNotProvParam_sequence, hf_index, ett_gsm_map_TeleservNotProvParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TeleservNotProvParam_sequence, hf_index, ett_gsm_map_TeleservNotProvParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t TracingBufferFullParam_sequence[] = {
+static const ber_old_sequence_t TracingBufferFullParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_TracingBufferFullParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TracingBufferFullParam_sequence, hf_index, ett_gsm_map_TracingBufferFullParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TracingBufferFullParam_sequence, hf_index, ett_gsm_map_TracingBufferFullParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoRoamingNbParam_sequence[] = {
+static const ber_old_sequence_t NoRoamingNbParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NoRoamingNbParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoRoamingNbParam_sequence, hf_index, ett_gsm_map_NoRoamingNbParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoRoamingNbParam_sequence, hf_index, ett_gsm_map_NoRoamingNbParam);
 
   return offset;
 }
@@ -15060,7 +15060,7 @@ static int dissect_absentSubscriberReason_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const ber_sequence_t AbsentSubscriberParam_sequence[] = {
+static const ber_old_sequence_t AbsentSubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_absentSubscriberReason_impl },
   { 0, 0, 0, NULL }
@@ -15068,14 +15068,14 @@ static const ber_sequence_t AbsentSubscriberParam_sequence[] = {
 
 static int
 dissect_gsm_map_AbsentSubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AbsentSubscriberParam_sequence, hf_index, ett_gsm_map_AbsentSubscriberParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AbsentSubscriberParam_sequence, hf_index, ett_gsm_map_AbsentSubscriberParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t BusySubscriberParam_sequence[] = {
+static const ber_old_sequence_t BusySubscriberParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Possible_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ccbs_Busy_impl },
@@ -15084,154 +15084,154 @@ static const ber_sequence_t BusySubscriberParam_sequence[] = {
 
 static int
 dissect_gsm_map_BusySubscriberParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   BusySubscriberParam_sequence, hf_index, ett_gsm_map_BusySubscriberParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       BusySubscriberParam_sequence, hf_index, ett_gsm_map_BusySubscriberParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoSubscriberReplyParam_sequence[] = {
+static const ber_old_sequence_t NoSubscriberReplyParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NoSubscriberReplyParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoSubscriberReplyParam_sequence, hf_index, ett_gsm_map_NoSubscriberReplyParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoSubscriberReplyParam_sequence, hf_index, ett_gsm_map_NoSubscriberReplyParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t ForwardingViolationParam_sequence[] = {
+static const ber_old_sequence_t ForwardingViolationParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ForwardingViolationParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardingViolationParam_sequence, hf_index, ett_gsm_map_ForwardingViolationParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardingViolationParam_sequence, hf_index, ett_gsm_map_ForwardingViolationParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t ForwardingFailedParam_sequence[] = {
+static const ber_old_sequence_t ForwardingFailedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ForwardingFailedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ForwardingFailedParam_sequence, hf_index, ett_gsm_map_ForwardingFailedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ForwardingFailedParam_sequence, hf_index, ett_gsm_map_ForwardingFailedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t ATI_NotAllowedParam_sequence[] = {
+static const ber_old_sequence_t ATI_NotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ATI_NotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ATI_NotAllowedParam_sequence, hf_index, ett_gsm_map_ATI_NotAllowedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ATI_NotAllowedParam_sequence, hf_index, ett_gsm_map_ATI_NotAllowedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t ATSI_NotAllowedParam_sequence[] = {
+static const ber_old_sequence_t ATSI_NotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ATSI_NotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ATSI_NotAllowedParam_sequence, hf_index, ett_gsm_map_ATSI_NotAllowedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ATSI_NotAllowedParam_sequence, hf_index, ett_gsm_map_ATSI_NotAllowedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t ATM_NotAllowedParam_sequence[] = {
+static const ber_old_sequence_t ATM_NotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ATM_NotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ATM_NotAllowedParam_sequence, hf_index, ett_gsm_map_ATM_NotAllowedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ATM_NotAllowedParam_sequence, hf_index, ett_gsm_map_ATM_NotAllowedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t IllegalSS_OperationParam_sequence[] = {
+static const ber_old_sequence_t IllegalSS_OperationParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_IllegalSS_OperationParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IllegalSS_OperationParam_sequence, hf_index, ett_gsm_map_IllegalSS_OperationParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       IllegalSS_OperationParam_sequence, hf_index, ett_gsm_map_IllegalSS_OperationParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_NotAvailableParam_sequence[] = {
+static const ber_old_sequence_t SS_NotAvailableParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_SS_NotAvailableParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_NotAvailableParam_sequence, hf_index, ett_gsm_map_SS_NotAvailableParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_NotAvailableParam_sequence, hf_index, ett_gsm_map_SS_NotAvailableParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_SubscriptionViolationParam_sequence[] = {
+static const ber_old_sequence_t SS_SubscriptionViolationParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_SS_SubscriptionViolationParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_SubscriptionViolationParam_sequence, hf_index, ett_gsm_map_SS_SubscriptionViolationParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_SubscriptionViolationParam_sequence, hf_index, ett_gsm_map_SS_SubscriptionViolationParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t InformationNotAvailableParam_sequence[] = {
+static const ber_old_sequence_t InformationNotAvailableParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_InformationNotAvailableParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InformationNotAvailableParam_sequence, hf_index, ett_gsm_map_InformationNotAvailableParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       InformationNotAvailableParam_sequence, hf_index, ett_gsm_map_InformationNotAvailableParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t SubBusyForMT_SMS_Param_sequence[] = {
+static const ber_old_sequence_t SubBusyForMT_SMS_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gprsConnectionSuspended },
   { 0, 0, 0, NULL }
@@ -15239,8 +15239,8 @@ static const ber_sequence_t SubBusyForMT_SMS_Param_sequence[] = {
 
 static int
 dissect_gsm_map_SubBusyForMT_SMS_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SubBusyForMT_SMS_Param_sequence, hf_index, ett_gsm_map_SubBusyForMT_SMS_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SubBusyForMT_SMS_Param_sequence, hf_index, ett_gsm_map_SubBusyForMT_SMS_Param);
 
   return offset;
 }
@@ -15265,7 +15265,7 @@ static int dissect_callBarringCause(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t ExtensibleCallBarredParam_sequence[] = {
+static const ber_old_sequence_t ExtensibleCallBarredParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_callBarringCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unauthorisedMessageOriginator_impl },
@@ -15274,8 +15274,8 @@ static const ber_sequence_t ExtensibleCallBarredParam_sequence[] = {
 
 static int
 dissect_gsm_map_ExtensibleCallBarredParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ExtensibleCallBarredParam_sequence, hf_index, ett_gsm_map_ExtensibleCallBarredParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ExtensibleCallBarredParam_sequence, hf_index, ett_gsm_map_ExtensibleCallBarredParam);
 
   return offset;
 }
@@ -15290,7 +15290,7 @@ static const value_string gsm_map_CallBarredParam_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t CallBarredParam_choice[] = {
+static const ber_old_choice_t CallBarredParam_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_callBarringCause },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extensibleCallBarredParam },
   { 0, 0, 0, 0, NULL }
@@ -15298,9 +15298,9 @@ static const ber_choice_t CallBarredParam_choice[] = {
 
 static int
 dissect_gsm_map_CallBarredParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CallBarredParam_choice, hf_index, ett_gsm_map_CallBarredParam,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     CallBarredParam_choice, hf_index, ett_gsm_map_CallBarredParam,
+                                     NULL);
 
   return offset;
 }
@@ -15327,7 +15327,7 @@ static int dissect_cug_RejectCause(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t CUG_RejectParam_sequence[] = {
+static const ber_old_sequence_t CUG_RejectParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cug_RejectCause },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -15335,42 +15335,42 @@ static const ber_sequence_t CUG_RejectParam_sequence[] = {
 
 static int
 dissect_gsm_map_CUG_RejectParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CUG_RejectParam_sequence, hf_index, ett_gsm_map_CUG_RejectParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       CUG_RejectParam_sequence, hf_index, ett_gsm_map_CUG_RejectParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t Or_NotAllowedParam_sequence[] = {
+static const ber_old_sequence_t Or_NotAllowedParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_Or_NotAllowedParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Or_NotAllowedParam_sequence, hf_index, ett_gsm_map_Or_NotAllowedParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Or_NotAllowedParam_sequence, hf_index, ett_gsm_map_Or_NotAllowedParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t NoGroupCallNbParam_sequence[] = {
+static const ber_old_sequence_t NoGroupCallNbParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_NoGroupCallNbParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NoGroupCallNbParam_sequence, hf_index, ett_gsm_map_NoGroupCallNbParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       NoGroupCallNbParam_sequence, hf_index, ett_gsm_map_NoGroupCallNbParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t SS_IncompatibilityCause_sequence[] = {
+static const ber_old_sequence_t SS_IncompatibilityCause_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
@@ -15379,8 +15379,8 @@ static const ber_sequence_t SS_IncompatibilityCause_sequence[] = {
 
 static int
 dissect_gsm_map_SS_IncompatibilityCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SS_IncompatibilityCause_sequence, hf_index, ett_gsm_map_SS_IncompatibilityCause);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SS_IncompatibilityCause_sequence, hf_index, ett_gsm_map_SS_IncompatibilityCause);
 
   return offset;
 }
@@ -15403,27 +15403,27 @@ dissect_gsm_map_PW_RegistrationFailureCause(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const ber_sequence_t ShortTermDenialParam_sequence[] = {
+static const ber_old_sequence_t ShortTermDenialParam_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_ShortTermDenialParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ShortTermDenialParam_sequence, hf_index, ett_gsm_map_ShortTermDenialParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ShortTermDenialParam_sequence, hf_index, ett_gsm_map_ShortTermDenialParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t LongTermDenialParam_sequence[] = {
+static const ber_old_sequence_t LongTermDenialParam_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_LongTermDenialParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   LongTermDenialParam_sequence, hf_index, ett_gsm_map_LongTermDenialParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       LongTermDenialParam_sequence, hf_index, ett_gsm_map_LongTermDenialParam);
 
   return offset;
 }
@@ -15453,7 +15453,7 @@ static int dissect_sm_EnumeratedDeliveryFailureCause(proto_tree *tree _U_, tvbuf
 }
 
 
-static const ber_sequence_t SM_DeliveryFailureCause_sequence[] = {
+static const ber_old_sequence_t SM_DeliveryFailureCause_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_sm_EnumeratedDeliveryFailureCause },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_diagnosticInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -15462,28 +15462,28 @@ static const ber_sequence_t SM_DeliveryFailureCause_sequence[] = {
 
 static int
 dissect_gsm_map_SM_DeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SM_DeliveryFailureCause_sequence, hf_index, ett_gsm_map_SM_DeliveryFailureCause);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SM_DeliveryFailureCause_sequence, hf_index, ett_gsm_map_SM_DeliveryFailureCause);
 
   return offset;
 }
 
 
-static const ber_sequence_t MessageWaitListFullParam_sequence[] = {
+static const ber_old_sequence_t MessageWaitListFullParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_MessageWaitListFullParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MessageWaitListFullParam_sequence, hf_index, ett_gsm_map_MessageWaitListFullParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MessageWaitListFullParam_sequence, hf_index, ett_gsm_map_MessageWaitListFullParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t AbsentSubscriberSM_Param_sequence[] = {
+static const ber_old_sequence_t AbsentSubscriberSM_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_absentSubscriberDiagnosticSM },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalAbsentSubscriberDiagnosticSM_impl },
@@ -15492,22 +15492,22 @@ static const ber_sequence_t AbsentSubscriberSM_Param_sequence[] = {
 
 static int
 dissect_gsm_map_AbsentSubscriberSM_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AbsentSubscriberSM_Param_sequence, hf_index, ett_gsm_map_AbsentSubscriberSM_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       AbsentSubscriberSM_Param_sequence, hf_index, ett_gsm_map_AbsentSubscriberSM_Param);
 
   return offset;
 }
 
 
-static const ber_sequence_t UnauthorizedRequestingNetwork_Param_sequence[] = {
+static const ber_old_sequence_t UnauthorizedRequestingNetwork_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_UnauthorizedRequestingNetwork_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UnauthorizedRequestingNetwork_Param_sequence, hf_index, ett_gsm_map_UnauthorizedRequestingNetwork_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UnauthorizedRequestingNetwork_Param_sequence, hf_index, ett_gsm_map_UnauthorizedRequestingNetwork_Param);
 
   return offset;
 }
@@ -15538,7 +15538,7 @@ static int dissect_unauthorizedLCSClient_Diagnostic_impl(proto_tree *tree _U_, t
 }
 
 
-static const ber_sequence_t UnauthorizedLCSClient_Param_sequence[] = {
+static const ber_old_sequence_t UnauthorizedLCSClient_Param_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unauthorizedLCSClient_Diagnostic_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -15546,8 +15546,8 @@ static const ber_sequence_t UnauthorizedLCSClient_Param_sequence[] = {
 
 static int
 dissect_gsm_map_UnauthorizedLCSClient_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UnauthorizedLCSClient_Param_sequence, hf_index, ett_gsm_map_UnauthorizedLCSClient_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UnauthorizedLCSClient_Param_sequence, hf_index, ett_gsm_map_UnauthorizedLCSClient_Param);
 
   return offset;
 }
@@ -15579,7 +15579,7 @@ static int dissect_positionMethodFailure_Diagnostic_impl(proto_tree *tree _U_, t
 }
 
 
-static const ber_sequence_t PositionMethodFailure_Param_sequence[] = {
+static const ber_old_sequence_t PositionMethodFailure_Param_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_positionMethodFailure_Diagnostic_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -15587,70 +15587,70 @@ static const ber_sequence_t PositionMethodFailure_Param_sequence[] = {
 
 static int
 dissect_gsm_map_PositionMethodFailure_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PositionMethodFailure_Param_sequence, hf_index, ett_gsm_map_PositionMethodFailure_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PositionMethodFailure_Param_sequence, hf_index, ett_gsm_map_PositionMethodFailure_Param);
 
   return offset;
 }
 
 
-static const ber_sequence_t UnknownOrUnreachableLCSClient_Param_sequence[] = {
+static const ber_old_sequence_t UnknownOrUnreachableLCSClient_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_UnknownOrUnreachableLCSClient_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UnknownOrUnreachableLCSClient_Param_sequence, hf_index, ett_gsm_map_UnknownOrUnreachableLCSClient_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UnknownOrUnreachableLCSClient_Param_sequence, hf_index, ett_gsm_map_UnknownOrUnreachableLCSClient_Param);
 
   return offset;
 }
 
 
-static const ber_sequence_t MM_EventNotSupported_Param_sequence[] = {
+static const ber_old_sequence_t MM_EventNotSupported_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_MM_EventNotSupported_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MM_EventNotSupported_Param_sequence, hf_index, ett_gsm_map_MM_EventNotSupported_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       MM_EventNotSupported_Param_sequence, hf_index, ett_gsm_map_MM_EventNotSupported_Param);
 
   return offset;
 }
 
 
-static const ber_sequence_t TargetCellOutsideGCA_Param_sequence[] = {
+static const ber_old_sequence_t TargetCellOutsideGCA_Param_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_TargetCellOutsideGCA_Param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TargetCellOutsideGCA_Param_sequence, hf_index, ett_gsm_map_TargetCellOutsideGCA_Param);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       TargetCellOutsideGCA_Param_sequence, hf_index, ett_gsm_map_TargetCellOutsideGCA_Param);
 
   return offset;
 }
 
 
-static const ber_sequence_t OngoingGroupCallParam_sequence[] = {
+static const ber_old_sequence_t OngoingGroupCallParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_gsm_map_OngoingGroupCallParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   OngoingGroupCallParam_sequence, hf_index, ett_gsm_map_OngoingGroupCallParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       OngoingGroupCallParam_sequence, hf_index, ett_gsm_map_OngoingGroupCallParam);
 
   return offset;
 }
 
 
-static const ber_sequence_t SecureTransportErrorParam_sequence[] = {
+static const ber_old_sequence_t SecureTransportErrorParam_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_securityHeader },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_protectedPayload },
   { 0, 0, 0, NULL }
@@ -15658,8 +15658,8 @@ static const ber_sequence_t SecureTransportErrorParam_sequence[] = {
 
 static int
 dissect_gsm_map_SecureTransportErrorParam(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SecureTransportErrorParam_sequence, hf_index, ett_gsm_map_SecureTransportErrorParam);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SecureTransportErrorParam_sequence, hf_index, ett_gsm_map_SecureTransportErrorParam);
 
   return offset;
 }

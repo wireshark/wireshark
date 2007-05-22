@@ -38,8 +38,12 @@ if (check_col(pinfo->cinfo, COL_INFO)){ \
 } \
 tvb_get_guint8(tvb, 9999);
 
-typedef int (*ber_callback)(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+typedef int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 typedef int (*ber_type_fn)(gboolean, tvbuff_t*, int, asn1_ctx_t *actx, proto_tree*, int);
+/* To be removed when the transition to the "New" type is complete */
+
+typedef int (*ber_old_callback)(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+typedef int (*ber_old_type_fn)(gboolean, tvbuff_t*, int, asn1_ctx_t *actx, proto_tree*, int);
 
 
 #define BER_CLASS_UNI	0
@@ -105,6 +109,7 @@ extern int dissect_ber_tagged_type(gboolean implicit_tag, asn1_ctx_t *actx, prot
 
 extern int dissect_ber_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func);
+extern int dissect_ber_old_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_old_callback func);
 
 extern int dissect_ber_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint64 *value);
 
@@ -122,33 +127,55 @@ extern int dissect_ber_external_type(gboolean implicit_tag, proto_tree *parent_t
 #define BER_FLAGS_NOOWNTAG	0x00000004
 #define BER_FLAGS_NOTCHKTAG	0x00000008
 typedef struct _ber_sequence_t {
+	const int *p_id;
 	gint8	class;
 	gint32	tag;
 	guint32	flags;
 	ber_callback	func;
 } ber_sequence_t;
-
-/* this function dissects a BER sequence 
+/* To be removed when the transition to the "New" type is complete */
+typedef struct _ber_old_sequence_t {
+	gint8	class;
+	gint32	tag;
+	guint32	flags;
+	ber_old_callback	func;
+} ber_old_sequence_t;
+/* 
+ * This function dissects a BER sequence 
  */
 extern int dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 extern int dissect_ber_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
+/* To be removed when the transition to the "New" type is complete */
+extern int dissect_ber_old_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
+extern int dissect_ber_old_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
+
 
 typedef struct _ber_choice_t {
 	guint32	value;
+	const int *p_id;
 	gint8	class;
 	gint32	tag;
 	guint32	flags;
 	ber_callback	func;
 } ber_choice_t;
 
-
-/* this function dissects a BER choice 
+typedef struct _ber_old_choice_t {
+	guint32	value;
+	gint8	class;
+	gint32	tag;
+	guint32	flags;
+	ber_old_callback	func;
+} ber_old_choice_t;
+/* 
+ * This function dissects a BER choice 
  */
 extern int dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
+/* To be removed when the transition to the "New" type is complete */
+extern int dissect_ber_old_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
 
-
-/* this function dissects a BER strings
+/* 
+ * This function dissects a BER strings
  */
 extern int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *name_string, guint name_len);
@@ -164,6 +191,10 @@ extern int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *
 extern int dissect_ber_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
 extern int dissect_ber_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
+
+/* To be removed when the transition to the "New" type is complete */
+extern int dissect_ber_old_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
+extern int dissect_ber_old_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
 
 
 extern int dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);

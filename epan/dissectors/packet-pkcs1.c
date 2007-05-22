@@ -123,7 +123,7 @@ static int dissect_coefficient(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t RSAPublicKey_sequence[] = {
+static const ber_old_sequence_t RSAPublicKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
   { 0, 0, 0, NULL }
@@ -131,8 +131,8 @@ static const ber_sequence_t RSAPublicKey_sequence[] = {
 
 int
 dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
 
   return offset;
 }
@@ -151,7 +151,7 @@ static int dissect_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t RSAPrivateKey_sequence[] = {
+static const ber_old_sequence_t RSAPrivateKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
@@ -166,8 +166,8 @@ static const ber_sequence_t RSAPrivateKey_sequence[] = {
 
 int
 dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
 
   return offset;
 }
@@ -198,7 +198,7 @@ static int dissect_digest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const ber_sequence_t DigestInfo_sequence[] = {
+static const ber_old_sequence_t DigestInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digest },
   { 0, 0, 0, NULL }
@@ -206,8 +206,8 @@ static const ber_sequence_t DigestInfo_sequence[] = {
 
 int
 dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
 
   return offset;
 }

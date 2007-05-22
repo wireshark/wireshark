@@ -1737,7 +1737,7 @@ static const value_string snmp_SimpleSyntax_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SimpleSyntax_choice[] = {
+static const ber_old_choice_t SimpleSyntax_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_integer_value },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_string_value },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_objectID_value },
@@ -1747,9 +1747,9 @@ static const ber_choice_t SimpleSyntax_choice[] = {
 
 static int
 dissect_snmp_SimpleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SimpleSyntax_choice, hf_index, ett_snmp_SimpleSyntax,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SimpleSyntax_choice, hf_index, ett_snmp_SimpleSyntax,
+                                     NULL);
 
   return offset;
 }
@@ -1849,7 +1849,7 @@ static const value_string snmp_ApplicationSyntax_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ApplicationSyntax_choice[] = {
+static const ber_old_choice_t ApplicationSyntax_choice[] = {
   {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_ipAddress_value },
   {   1, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_counter_value },
   {   3, BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_timeticks_value },
@@ -1861,9 +1861,9 @@ static const ber_choice_t ApplicationSyntax_choice[] = {
 
 static int
 dissect_snmp_ApplicationSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ApplicationSyntax_choice, hf_index, ett_snmp_ApplicationSyntax,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ApplicationSyntax_choice, hf_index, ett_snmp_ApplicationSyntax,
+                                     NULL);
 
   return offset;
 }
@@ -1878,7 +1878,7 @@ static const value_string snmp_ObjectSyntax_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ObjectSyntax_choice[] = {
+static const ber_old_choice_t ObjectSyntax_choice[] = {
   { -1/*choice*/, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_simple },
   { -1/*choice*/, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_application_wide },
   { 0, 0, 0, 0, NULL }
@@ -1886,9 +1886,9 @@ static const ber_choice_t ObjectSyntax_choice[] = {
 
 static int
 dissect_snmp_ObjectSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ObjectSyntax_choice, hf_index, ett_snmp_ObjectSyntax,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ObjectSyntax_choice, hf_index, ett_snmp_ObjectSyntax,
+                                     NULL);
 
   return offset;
 }
@@ -1959,16 +1959,16 @@ static const value_string snmp_NetworkAddress_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t NetworkAddress_choice[] = {
+static const ber_old_choice_t NetworkAddress_choice[] = {
   {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_internet },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
 dissect_snmp_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 NetworkAddress_choice, hf_index, ett_snmp_NetworkAddress,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     NetworkAddress_choice, hf_index, ett_snmp_NetworkAddress,
+                                     NULL);
 
   return offset;
 }
@@ -2135,7 +2135,7 @@ static const value_string snmp_ValueType_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ValueType_choice[] = {
+static const ber_old_choice_t ValueType_choice[] = {
   {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_value },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_unSpecified },
   {   2, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_noSuchObject_impl },
@@ -2146,9 +2146,9 @@ static const ber_choice_t ValueType_choice[] = {
 
 static int
 dissect_snmp_ValueType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ValueType_choice, hf_index, ett_snmp_ValueType,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ValueType_choice, hf_index, ett_snmp_ValueType,
+                                     NULL);
 
   return offset;
 }
@@ -2157,7 +2157,7 @@ static int dissect_valueType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t VarBind_sequence[] = {
+static const ber_old_sequence_t VarBind_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_name },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_valueType },
   { 0, 0, 0, NULL }
@@ -2168,8 +2168,8 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 #line 323 "snmp.cnf"
 	oid_tvb = NULL;
 	value_tvb = NULL;
-   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   VarBind_sequence, hf_index, ett_snmp_VarBind);
+   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       VarBind_sequence, hf_index, ett_snmp_VarBind);
 
 	if (oid_tvb && value_tvb) {
 		next_tvb_add_string(&var_list, value_tvb, (snmp_var_in_tree) ? tree : NULL, 
@@ -2186,14 +2186,14 @@ static int dissect_VarBindList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t VarBindList_sequence_of[1] = {
+static const ber_old_sequence_t VarBindList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_VarBindList_item },
 };
 
 static int
 dissect_snmp_VarBindList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      VarBindList_sequence_of, hf_index, ett_snmp_VarBindList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          VarBindList_sequence_of, hf_index, ett_snmp_VarBindList);
 
   return offset;
 }
@@ -2202,7 +2202,7 @@ static int dissect_variable_bindings(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const ber_sequence_t PDU_sequence[] = {
+static const ber_old_sequence_t PDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_request_id },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_error_status },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_error_index },
@@ -2212,8 +2212,8 @@ static const ber_sequence_t PDU_sequence[] = {
 
 static int
 dissect_snmp_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PDU_sequence, hf_index, ett_snmp_PDU);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PDU_sequence, hf_index, ett_snmp_PDU);
 
   return offset;
 }
@@ -2371,7 +2371,7 @@ static int dissect_generic_trap(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t Trap_PDU_sequence[] = {
+static const ber_old_sequence_t Trap_PDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_enterprise },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_agent_addr },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_generic_trap },
@@ -2383,8 +2383,8 @@ static const ber_sequence_t Trap_PDU_sequence[] = {
 
 static int
 dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Trap_PDU_sequence, hf_index, ett_snmp_Trap_PDU);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Trap_PDU_sequence, hf_index, ett_snmp_Trap_PDU);
 
   return offset;
 }
@@ -2436,7 +2436,7 @@ static int dissect_max_repetitions(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t BulkPDU_sequence[] = {
+static const ber_old_sequence_t BulkPDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_bulkPDU_request_id },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_non_repeaters },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_max_repetitions },
@@ -2446,8 +2446,8 @@ static const ber_sequence_t BulkPDU_sequence[] = {
 
 static int
 dissect_snmp_BulkPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   BulkPDU_sequence, hf_index, ett_snmp_BulkPDU);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       BulkPDU_sequence, hf_index, ett_snmp_BulkPDU);
 
   return offset;
 }
@@ -2610,7 +2610,7 @@ static const value_string snmp_PDUs_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t PDUs_choice[] = {
+static const ber_old_choice_t PDUs_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_NOOWNTAG, dissect_get_request },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_NOOWNTAG, dissect_get_next_request },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_NOOWNTAG, dissect_get_response },
@@ -2628,9 +2628,9 @@ dissect_snmp_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 #line 30 "snmp.cnf"
 gint pdu_type;
 
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PDUs_choice, hf_index, ett_snmp_PDUs,
-                                 &pdu_type);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     PDUs_choice, hf_index, ett_snmp_PDUs,
+                                     &pdu_type);
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%u)"));
@@ -2650,7 +2650,7 @@ static int dissect_pDUs(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const ber_sequence_t Message_sequence[] = {
+static const ber_old_sequence_t Message_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_community },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_data },
@@ -2659,8 +2659,8 @@ static const ber_sequence_t Message_sequence[] = {
 
 static int
 dissect_snmp_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Message_sequence, hf_index, ett_snmp_Message);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Message_sequence, hf_index, ett_snmp_Message);
 
   return offset;
 }
@@ -2672,7 +2672,7 @@ static const value_string snmp_T_datav2u_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t T_datav2u_choice[] = {
+static const ber_old_choice_t T_datav2u_choice[] = {
   {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_v2u_plaintext },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
   { 0, 0, 0, 0, NULL }
@@ -2680,9 +2680,9 @@ static const ber_choice_t T_datav2u_choice[] = {
 
 static int
 dissect_snmp_T_datav2u(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 T_datav2u_choice, hf_index, ett_snmp_T_datav2u,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_datav2u_choice, hf_index, ett_snmp_T_datav2u,
+                                     NULL);
 
   return offset;
 }
@@ -2691,7 +2691,7 @@ static int dissect_datav2u(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t Messagev2u_sequence[] = {
+static const ber_old_sequence_t Messagev2u_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_parameters },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_datav2u },
@@ -2700,8 +2700,8 @@ static const ber_sequence_t Messagev2u_sequence[] = {
 
 static int
 dissect_snmp_Messagev2u(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Messagev2u_sequence, hf_index, ett_snmp_Messagev2u);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Messagev2u_sequence, hf_index, ett_snmp_Messagev2u);
 
   return offset;
 }
@@ -2800,7 +2800,7 @@ static int dissect_msgPrivacyParameters(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_sequence_t UsmSecurityParameters_sequence[] = {
+static const ber_old_sequence_t UsmSecurityParameters_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgAuthoritativeEngineID },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgAuthoritativeEngineBoots },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgAuthoritativeEngineTime },
@@ -2812,8 +2812,8 @@ static const ber_sequence_t UsmSecurityParameters_sequence[] = {
 
 static int
 dissect_snmp_UsmSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UsmSecurityParameters_sequence, hf_index, ett_snmp_UsmSecurityParameters);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       UsmSecurityParameters_sequence, hf_index, ett_snmp_UsmSecurityParameters);
 
   return offset;
 }
@@ -2875,7 +2875,7 @@ static int dissect_msgSecurityModel(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t HeaderData_sequence[] = {
+static const ber_old_sequence_t HeaderData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgID },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgMaxSize },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgFlags },
@@ -2885,8 +2885,8 @@ static const ber_sequence_t HeaderData_sequence[] = {
 
 static int
 dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   HeaderData_sequence, hf_index, ett_snmp_HeaderData);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       HeaderData_sequence, hf_index, ett_snmp_HeaderData);
 
   return offset;
 }
@@ -2924,7 +2924,7 @@ static int dissect_msgSecurityParameters(proto_tree *tree _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t ScopedPDU_sequence[] = {
+static const ber_old_sequence_t ScopedPDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_contextEngineID },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_contextName },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_data },
@@ -2933,8 +2933,8 @@ static const ber_sequence_t ScopedPDU_sequence[] = {
 
 static int
 dissect_snmp_ScopedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ScopedPDU_sequence, hf_index, ett_snmp_ScopedPDU);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       ScopedPDU_sequence, hf_index, ett_snmp_ScopedPDU);
 
   return offset;
 }
@@ -3004,7 +3004,7 @@ static const value_string snmp_ScopedPduData_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t ScopedPduData_choice[] = {
+static const ber_old_choice_t ScopedPduData_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_plaintext },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_encryptedPDU },
   { 0, 0, 0, 0, NULL }
@@ -3012,9 +3012,9 @@ static const ber_choice_t ScopedPduData_choice[] = {
 
 static int
 dissect_snmp_ScopedPduData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ScopedPduData_choice, hf_index, ett_snmp_ScopedPduData,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     ScopedPduData_choice, hf_index, ett_snmp_ScopedPduData,
+                                     NULL);
 
   return offset;
 }
@@ -3023,7 +3023,7 @@ static int dissect_msgData(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const ber_sequence_t SNMPv3Message_sequence[] = {
+static const ber_old_sequence_t SNMPv3Message_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_msgVersion },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_msgGlobalData },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_msgSecurityParameters },
@@ -3033,8 +3033,8 @@ static const ber_sequence_t SNMPv3Message_sequence[] = {
 
 static int
 dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
 #line 265 "snmp.cnf"
 
@@ -3110,7 +3110,7 @@ static int dissect_description(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t SimpleOpen_sequence[] = {
+static const ber_old_sequence_t SimpleOpen_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_smux_version },
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_identity },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_description },
@@ -3120,8 +3120,8 @@ static const ber_sequence_t SimpleOpen_sequence[] = {
 
 static int
 dissect_snmp_SimpleOpen(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SimpleOpen_sequence, hf_index, ett_snmp_SimpleOpen);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       SimpleOpen_sequence, hf_index, ett_snmp_SimpleOpen);
 
   return offset;
 }
@@ -3135,16 +3135,16 @@ static const value_string snmp_OpenPDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t OpenPDU_choice[] = {
+static const ber_old_choice_t OpenPDU_choice[] = {
   {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_smux_simple },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
 dissect_snmp_OpenPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 OpenPDU_choice, hf_index, ett_snmp_OpenPDU,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     OpenPDU_choice, hf_index, ett_snmp_OpenPDU,
+                                     NULL);
 
   return offset;
 }
@@ -3209,7 +3209,7 @@ static int dissect_operation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t RReqPDU_sequence[] = {
+static const ber_old_sequence_t RReqPDU_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_subtree },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_priority },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_operation },
@@ -3218,8 +3218,8 @@ static const ber_sequence_t RReqPDU_sequence[] = {
 
 static int
 dissect_snmp_RReqPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RReqPDU_sequence, hf_index, ett_snmp_RReqPDU);
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       RReqPDU_sequence, hf_index, ett_snmp_RReqPDU);
 
   return offset;
 }
@@ -3252,7 +3252,7 @@ static const value_string snmp_RegisterResponse_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t RegisterResponse_choice[] = {
+static const ber_old_choice_t RegisterResponse_choice[] = {
   {   0, BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_rRspPDU },
   {   1, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pDUs },
   { 0, 0, 0, 0, NULL }
@@ -3260,9 +3260,9 @@ static const ber_choice_t RegisterResponse_choice[] = {
 
 static int
 dissect_snmp_RegisterResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 RegisterResponse_choice, hf_index, ett_snmp_RegisterResponse,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     RegisterResponse_choice, hf_index, ett_snmp_RegisterResponse,
+                                     NULL);
 
   return offset;
 }
@@ -3299,7 +3299,7 @@ static const value_string snmp_SMUX_PDUs_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t SMUX_PDUs_choice[] = {
+static const ber_old_choice_t SMUX_PDUs_choice[] = {
   {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_open },
   {   1, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_close },
   {   2, BER_CLASS_APP, 2, BER_FLAGS_NOOWNTAG, dissect_registerRequest },
@@ -3310,9 +3310,9 @@ static const ber_choice_t SMUX_PDUs_choice[] = {
 
 static int
 dissect_snmp_SMUX_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 SMUX_PDUs_choice, hf_index, ett_snmp_SMUX_PDUs,
-                                 NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     SMUX_PDUs_choice, hf_index, ett_snmp_SMUX_PDUs,
+                                     NULL);
 
   return offset;
 }

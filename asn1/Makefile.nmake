@@ -29,7 +29,6 @@ ber: \
 	logotype-cert-extn	\
 	MAP_Dialogue	\
 	mms	\
-	mpeg	\
 	ns-cert-exts	\
 	ocsp	\
 	pkcs1	\
@@ -52,7 +51,6 @@ ber: \
 	snmp	\
 	spnego	\
 	tcap	\
-	t38		\
 	wlancertextn	\
 	x411	\
 	x420	\
@@ -67,6 +65,7 @@ per: \
 	h245	\
 	h450	\
 	nbap	\
+	mpeg	\
 	ranap	\
 	rnsap	\
 	rrlp	\

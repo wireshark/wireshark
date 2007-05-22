@@ -1394,7 +1394,7 @@ static int dissect_krb5_PRIV(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_c
 static int dissect_krb5_CRED(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 static int dissect_krb5_ERROR(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 
-static const ber_choice_t kerberos_applications_choice[] = {
+static const ber_old_choice_t kerberos_applications_choice[] = {
 	{ KRB5_MSG_TICKET, 	BER_CLASS_APP,	KRB5_MSG_TICKET,	0, dissect_krb5_Application_1 },
 	{ KRB5_MSG_AUTHENTICATOR, 	BER_CLASS_APP,	KRB5_MSG_AUTHENTICATOR,	0, dissect_krb5_Authenticator },
 	{ KRB5_MSG_ENC_TICKET_PART, BER_CLASS_APP,	KRB5_MSG_ENC_TICKET_PART, 0, dissect_krb5_EncTicketPart },
@@ -1420,7 +1420,7 @@ static const ber_choice_t kerberos_applications_choice[] = {
 static int
 dissect_krb5_application_choice(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_choice(actx, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
+	offset=dissect_ber_old_choice(actx, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
 	return offset;
 }
 
@@ -1619,13 +1619,13 @@ dissect_krb5_etype(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 	}
 	return offset;
 }
-static ber_sequence_t etype_sequence_of[1] = {
+static ber_old_sequence_t etype_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_krb5_etype },
 };
 static int
 dissect_krb5_etype_sequence_of(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, etype_sequence_of, hf_krb_etypes, ett_krb_etypes);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, etype_sequence_of, hf_krb_etypes, ett_krb_etypes);
 
 	return offset;
 }
@@ -1737,7 +1737,7 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
 	offset+=len;
 	return offset;
 }
-static ber_sequence_t HostAddress_sequence[] = {
+static ber_old_sequence_t HostAddress_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_addr_type },
 	{ BER_CLASS_CON, 1, 0, dissect_krb5_address },
 	{ 0, 0, 0, NULL }
@@ -1746,7 +1746,7 @@ static int
 dissect_krb5_HostAddress(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, HostAddress_sequence, hf_krb_HostAddress, ett_krb_HostAddress);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, HostAddress_sequence, hf_krb_HostAddress, ett_krb_HostAddress);
 
 	return offset;
 }
@@ -1754,7 +1754,7 @@ static int
 dissect_krb5_s_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, HostAddress_sequence, hf_krb_s_address, ett_krb_s_address);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, HostAddress_sequence, hf_krb_s_address, ett_krb_s_address);
 
 	return offset;
 }
@@ -1763,7 +1763,7 @@ static int
 dissect_krb5_r_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, HostAddress_sequence, hf_krb_r_address, ett_krb_r_address);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, HostAddress_sequence, hf_krb_r_address, ett_krb_r_address);
 
 	return offset;
 }
@@ -1775,26 +1775,26 @@ dissect_krb5_r_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *
  *  }
  *
  */
-static ber_sequence_t HostAddresses_sequence_of[1] = {
+static ber_old_sequence_t HostAddresses_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_HostAddress },
 };
 static int
 dissect_krb5_HostAddresses(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, HostAddresses_sequence_of, hf_krb_HostAddresses, ett_krb_HostAddresses);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, HostAddresses_sequence_of, hf_krb_HostAddresses, ett_krb_HostAddresses);
 
 	return offset;
 }
 
 
 /* sequence of tickets */
-static ber_sequence_t sequence_of_tickets[1] = {
+static ber_old_sequence_t sequence_of_tickets[1] = {
   { BER_CLASS_APP, 1, 0, dissect_krb5_Application_1},
 };
 static int
 dissect_krb5_sq_tickets(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, sequence_of_tickets, hf_krb_sq_tickets, ett_krb_sq_tickets);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, sequence_of_tickets, hf_krb_sq_tickets, ett_krb_sq_tickets);
 
 	return offset;
 }
@@ -1863,18 +1863,18 @@ dissect_krb5_name_string(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t
 
 	return offset;
 }
-static ber_sequence_t name_stringe_sequence_of[1] = {
+static ber_old_sequence_t name_stringe_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralString, BER_FLAGS_NOOWNTAG, dissect_krb5_name_string },
 };
 static int
 dissect_krb5_name_strings(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	name_string_separator=' ';
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, name_stringe_sequence_of, -1, -1);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, name_stringe_sequence_of, -1, -1);
 
 	return offset;
 }
-static ber_sequence_t PrincipalName_sequence[] = {
+static ber_old_sequence_t PrincipalName_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_name_type },
 	{ BER_CLASS_CON, 1, 0, dissect_krb5_name_strings },
 	{ 0, 0, 0, NULL }
@@ -1883,7 +1883,7 @@ static int
 dissect_krb5_sname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PrincipalName_sequence, hf_krb_sname, ett_krb_sname);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PrincipalName_sequence, hf_krb_sname, ett_krb_sname);
 
 	return offset;
 }
@@ -1891,7 +1891,7 @@ static int
 dissect_krb5_pname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PrincipalName_sequence, hf_krb_pname, ett_krb_pname);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PrincipalName_sequence, hf_krb_pname, ett_krb_pname);
 
 	return offset;
 }
@@ -1899,7 +1899,7 @@ int
 dissect_krb5_cname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PrincipalName_sequence, hf_krb_cname, ett_krb_cname);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PrincipalName_sequence, hf_krb_cname, ett_krb_cname);
 
 	return offset;
 }
@@ -1943,7 +1943,7 @@ dissect_krb5_PA_PAC_REQUEST_flag(proto_tree *tree, tvbuff_t *tvb, int offset, as
 }
 
 
-static ber_sequence_t PA_PAC_REQUEST_sequence[] = {
+static ber_old_sequence_t PA_PAC_REQUEST_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_PA_PAC_REQUEST_flag },
 	{ 0, 0, 0, NULL }
 };
@@ -1951,7 +1951,7 @@ static int
 dissect_krb5_PA_PAC_REQUEST(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PA_PAC_REQUEST_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_PAC_REQUEST_sequence, -1, -1);
 
 	return offset;
 }
@@ -2002,7 +2002,7 @@ dissect_krb5_pausec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_pausec, NULL);
 	return offset;
 }
-static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
+static const ber_old_sequence_t PA_ENC_TS_ENC_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_patimestamp },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_pausec },
 	{ 0, 0, 0, NULL }
@@ -2036,7 +2036,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (proto_tree *tree, tvbuff_t *tvb, int offs
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_sequence(FALSE, actx, tree, next_tvb, 0, PA_ENC_TS_ENC_sequence, -1, -1);
+		offset=dissect_ber_old_sequence(FALSE, actx, tree, next_tvb, 0, PA_ENC_TS_ENC_sequence, -1, -1);
 
 	}
 	return offset;
@@ -2048,13 +2048,13 @@ static int
 dissect_krb5_encrypted_PA_ENC_TIMESTAMP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, NULL);
 #endif
 	return offset;
 }
-static ber_sequence_t PA_ENC_TIMESTAMP_sequence[] = {
+static ber_old_sequence_t PA_ENC_TIMESTAMP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_PA_ENC_TIMESTAMP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -2066,7 +2066,7 @@ static ber_sequence_t PA_ENC_TIMESTAMP_sequence[] = {
 static int
 dissect_krb5_PA_ENC_TIMESTAMP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PA_ENC_TIMESTAMP_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_ENC_TIMESTAMP_sequence, -1, -1);
 
 	return offset;
 }
@@ -2094,7 +2094,7 @@ dissect_krb5_etype_info2_s2kparams(proto_tree *tree, tvbuff_t *tvb, int offset, 
 	return offset;
 }
 
-static ber_sequence_t PA_ENCTYPE_INFO_ENTRY_sequence[] = {
+static ber_old_sequence_t PA_ENCTYPE_INFO_ENTRY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -2104,23 +2104,23 @@ static ber_sequence_t PA_ENCTYPE_INFO_ENTRY_sequence[] = {
 static int
 dissect_krb5_PA_ENCTYPE_INFO_ENTRY(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO_ENTRY_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO_ENTRY_sequence, -1, -1);
 
 	return offset;
 }
 
-static ber_sequence_t PA_ENCTYPE_INFO_sequence_of[1] = {
+static ber_old_sequence_t PA_ENCTYPE_INFO_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_PA_ENCTYPE_INFO_ENTRY },
 };
 static int
 dissect_krb5_PA_ENCTYPE_INFO(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO_sequence_of, -1, -1);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO_sequence_of, -1, -1);
 
 	return offset;
 }
 
-static ber_sequence_t PA_ENCTYPE_INFO2_ENTRY_sequence[] = {
+static ber_old_sequence_t PA_ENCTYPE_INFO2_ENTRY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -2132,18 +2132,18 @@ static ber_sequence_t PA_ENCTYPE_INFO2_ENTRY_sequence[] = {
 static int
 dissect_krb5_PA_ENCTYPE_INFO2_ENTRY(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO2_ENTRY_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO2_ENTRY_sequence, -1, -1);
 
 	return offset;
 }
 
-static ber_sequence_t PA_ENCTYPE_INFO2_sequence_of[1] = {
+static ber_old_sequence_t PA_ENCTYPE_INFO2_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_PA_ENCTYPE_INFO2_ENTRY },
 };
 static int
 dissect_krb5_PA_ENCTYPE_INFO2(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO2_sequence_of, -1, -1);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, PA_ENCTYPE_INFO2_sequence_of, -1, -1);
 
 	return offset;
 }
@@ -2217,40 +2217,40 @@ dissect_krb5_PA_DATA_value(proto_tree *parent_tree, tvbuff_t *tvb, int offset, a
 
 	switch(krb_PA_DATA_type){
 	case KRB5_PA_TGS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_application_choice);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_application_choice);
  		break;
 	case KRB5_PA_PK_AS_REQ:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REQ);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REQ);
  		break;
 	case KRB5_PA_PK_AS_REP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REP);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REP);
  		break;
 	case KRB5_PA_PAC_REQUEST:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
  		break;
 	case KRB5_PA_PROV_SRV_LOCATION:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
  		break;
 	case KRB5_PA_ENC_TIMESTAMP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENC_TIMESTAMP);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENC_TIMESTAMP);
  		break;
 	case KRB5_PA_ENCTYPE_INFO:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO);
  		break;
 	case KRB5_PA_ENCTYPE_INFO2:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO2);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO2);
  		break;
 	case KRB5_PA_PW_SALT:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PW_SALT);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PW_SALT);
  		break;
 	default:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, NULL);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, NULL);
 	}
 	return offset;
 /*qqq*/
 }
 
-static ber_sequence_t PA_DATA_sequence[] = {
+static ber_old_sequence_t PA_DATA_sequence[] = {
 	{ BER_CLASS_CON, 1, 0, dissect_krb5_PA_DATA_type },
 	{ BER_CLASS_CON, 2, 0, dissect_krb5_PA_DATA_value },
 	{ 0, 0, 0, NULL }
@@ -2258,7 +2258,7 @@ static ber_sequence_t PA_DATA_sequence[] = {
 static int
 dissect_krb5_PA_DATA(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PA_DATA_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_DATA_sequence, -1, -1);
 
 	return offset;
 }
@@ -2270,13 +2270,13 @@ dissect_krb5_PA_DATA(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
  * padata[3]             SEQUENCE OF PA-DATA OPTIONAL,
  *
  */
-static ber_sequence_t PA_DATA_sequence_of[1] = {
+static ber_old_sequence_t PA_DATA_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_PA_DATA },
 };
 static int
 dissect_krb5_padata(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, PA_DATA_sequence_of, hf_krb_padata, ett_krb_padata);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, PA_DATA_sequence_of, hf_krb_padata, ett_krb_padata);
 
 	return offset;
 }
@@ -2385,7 +2385,7 @@ store_keyvalue(proto_tree *tree _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 static int
 dissect_krb5_keyvalue(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_keyvalue, store_keyvalue);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_keyvalue, store_keyvalue);
 	return offset;
 }
 
@@ -2395,7 +2395,7 @@ dissect_krb5_keyvalue(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
  *     keytype  [0] int32
  *     keyvalue [1] octet string
  */
-static ber_sequence_t EncryptionKey_sequence[] = {
+static ber_old_sequence_t EncryptionKey_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_keytype },
 	{ BER_CLASS_CON, 1, 0,
@@ -2405,7 +2405,7 @@ static ber_sequence_t EncryptionKey_sequence[] = {
 static int
 dissect_krb5_key(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncryptionKey_sequence, hf_krb_key, ett_krb_key);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncryptionKey_sequence, hf_krb_key, ett_krb_key);
 
 #ifdef HAVE_KERBEROS
 	add_encryption_key(actx->pinfo, keytype, keylength, keyvalue, "key");
@@ -2415,7 +2415,7 @@ dissect_krb5_key(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _
 static int
 dissect_krb5_subkey(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncryptionKey_sequence, hf_krb_subkey, ett_krb_subkey);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncryptionKey_sequence, hf_krb_subkey, ett_krb_subkey);
 #ifdef HAVE_KERBEROS
 	add_encryption_key(actx->pinfo, keytype, keylength, keyvalue, "subkey");
 #endif
@@ -2712,14 +2712,14 @@ dissect_krb5_IF_RELEVANT_value(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
 {
 	switch(IF_RELEVANT_type){
 	case KRB5_AD_WIN2K_PAC:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_AD_WIN2K_PAC);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_AD_WIN2K_PAC);
 		break;
 	default:
 		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_IF_RELEVANT_value, NULL);
 	}
 	return offset;
 }
-static ber_sequence_t IF_RELEVANT_item_sequence[] = {
+static ber_old_sequence_t IF_RELEVANT_item_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_IF_RELEVANT_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2729,19 +2729,19 @@ static ber_sequence_t IF_RELEVANT_item_sequence[] = {
 static int
 dissect_krb5_IF_RELEVANT_item(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, IF_RELEVANT_item_sequence, hf_krb_IF_RELEVANT, ett_krb_IF_RELEVANT);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, IF_RELEVANT_item_sequence, hf_krb_IF_RELEVANT, ett_krb_IF_RELEVANT);
 
 	return offset;
 }
 
-static ber_sequence_t IF_RELEVANT_sequence_of[1] = {
+static ber_old_sequence_t IF_RELEVANT_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_IF_RELEVANT_item },
 };
 
 static int
 dissect_krb5_IF_RELEVANT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, IF_RELEVANT_sequence_of, -1, -1);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, IF_RELEVANT_sequence_of, -1, -1);
 
 	return offset;
 }
@@ -2763,7 +2763,7 @@ dissect_krb5_advalue(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
 {
 	switch(adtype){
 	case KRB5_AD_IF_RELEVANT:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_IF_RELEVANT);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_IF_RELEVANT);
 		break;
 	default:
 		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_advalue, NULL);
@@ -2775,7 +2775,7 @@ dissect_krb5_advalue(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
  *     ad-type  [0] int32
  *     ad-data  [1] octet string
  */
-static ber_sequence_t AuthorizationData_item_sequence[] = {
+static ber_old_sequence_t AuthorizationData_item_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_adtype },
 	{ BER_CLASS_CON, 1, 0,
@@ -2785,18 +2785,18 @@ static ber_sequence_t AuthorizationData_item_sequence[] = {
 static int
 dissect_krb5_AuthorizationData_item(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, AuthorizationData_item_sequence, hf_krb_AuthorizationData, ett_krb_AuthorizationData);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, AuthorizationData_item_sequence, hf_krb_AuthorizationData, ett_krb_AuthorizationData);
 
 	return offset;
 }
 
-static ber_sequence_t AuthorizationData_sequence_of[1] = {
+static ber_old_sequence_t AuthorizationData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_AuthorizationData_item },
 };
 static int
 dissect_krb5_AuthorizationData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, AuthorizationData_sequence_of, -1, -1);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, AuthorizationData_sequence_of, -1, -1);
 
 	return offset;
 }
@@ -2828,7 +2828,7 @@ dissect_krb5_transited_contents(proto_tree *tree, tvbuff_t *tvb, int offset, asn
  *     tr-type  [0] int32
  *     contents [1] octet string
  */
-static ber_sequence_t TransitedEncoding_sequence[] = {
+static ber_old_sequence_t TransitedEncoding_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_transited_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2838,7 +2838,7 @@ static ber_sequence_t TransitedEncoding_sequence[] = {
 static int
 dissect_krb5_transited(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, TransitedEncoding_sequence, hf_krb_TransitedEncoding, ett_krb_TransitedEncoding);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, TransitedEncoding_sequence, hf_krb_TransitedEncoding, ett_krb_TransitedEncoding);
 
 	return offset;
 }
@@ -2884,7 +2884,7 @@ dissect_krb5_renew_till(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t 
  *      authorization-data      [10] AuthorizationData OPTIONAL
  * }
  */
-static ber_sequence_t EncTicketPart_sequence[] = {
+static ber_old_sequence_t EncTicketPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_TicketFlags },
 	{ BER_CLASS_CON, 1, 0,
@@ -2912,7 +2912,7 @@ static ber_sequence_t EncTicketPart_sequence[] = {
 static int
 dissect_krb5_EncTicketPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncTicketPart_sequence, hf_krb_EncTicketPart, ett_krb_EncTicketPart);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncTicketPart_sequence, hf_krb_EncTicketPart, ett_krb_EncTicketPart);
 
 	return offset;
 }
@@ -2930,7 +2930,7 @@ dissect_krb5_EncTicketPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
  *     seq-number               [3] uint32 OPTIONAL
  * }
  */
-static ber_sequence_t EncAPRepPart_sequence[] = {
+static ber_old_sequence_t EncAPRepPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_ctime },
 	{ BER_CLASS_CON, 1, 0,
@@ -2944,7 +2944,7 @@ static ber_sequence_t EncAPRepPart_sequence[] = {
 static int
 dissect_krb5_EncAPRepPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncAPRepPart_sequence, hf_krb_EncAPRepPart, ett_krb_EncAPRepPart);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncAPRepPart_sequence, hf_krb_EncAPRepPart, ett_krb_EncAPRepPart);
 
 	return offset;
 }
@@ -2978,7 +2978,7 @@ dissect_krb5_lr_value(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
 	return offset;
 }
 
-static ber_sequence_t LastReq_sequence[] = {
+static ber_old_sequence_t LastReq_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_lr_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -2988,17 +2988,17 @@ static ber_sequence_t LastReq_sequence[] = {
 static int
 dissect_krb5_LastReq(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, LastReq_sequence, hf_krb_LastReq, ett_krb_LastReq);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, LastReq_sequence, hf_krb_LastReq, ett_krb_LastReq);
 
 	return offset;
 }
-static ber_sequence_t LastReq_sequence_of[1] = {
+static ber_old_sequence_t LastReq_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_LastReq },
 };
 static int
 dissect_krb5_LastReq_sequence_of(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, LastReq_sequence_of, hf_krb_LastReqs, ett_krb_LastReqs);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, LastReq_sequence_of, hf_krb_LastReqs, ett_krb_LastReqs);
 
 	return offset;
 }
@@ -3010,7 +3010,7 @@ dissect_krb5_key_expiration(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 	return offset;
 }
 
-static ber_sequence_t EncKDCRepPart_sequence[] = {
+static ber_old_sequence_t EncKDCRepPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_key },
 	{ BER_CLASS_CON, 1, 0,
@@ -3040,7 +3040,7 @@ static ber_sequence_t EncKDCRepPart_sequence[] = {
 static int
 dissect_krb5_EncKDCRepPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncKDCRepPart_sequence, hf_krb_EncKDCRepPart, ett_krb_EncKDCRepPart);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncKDCRepPart_sequence, hf_krb_EncKDCRepPart, ett_krb_EncKDCRepPart);
 
 	return offset;
 }
@@ -3144,7 +3144,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 	}
 
 	/* this should now be a KRB_CRED message */
-	offset=dissect_ber_choice(actx, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
+	offset=dissect_ber_old_choice(actx, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
 
 
 	return offset;
@@ -3180,7 +3180,7 @@ dissect_krb5_checksum_checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
  * Checksum ::=        SEQUENCE {
  * }
  */
-static ber_sequence_t Checksum_sequence[] = {
+static ber_old_sequence_t Checksum_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_checksum_type },
 	{ BER_CLASS_CON, 1, 0,
@@ -3190,7 +3190,7 @@ static ber_sequence_t Checksum_sequence[] = {
 int
 dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, Checksum_sequence, hf_krb_Checksum, ett_krb_Checksum);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, Checksum_sequence, hf_krb_Checksum, ett_krb_Checksum);
 
 	return offset;
 }
@@ -3208,7 +3208,7 @@ dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
  *     authorization-data       [8] AuthorizationData OPTIONAL
  * }
  */
-static ber_sequence_t Authenticator_sequence[] = {
+static ber_old_sequence_t Authenticator_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_authenticator_vno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3232,7 +3232,7 @@ static ber_sequence_t Authenticator_sequence[] = {
 static int
 dissect_krb5_Authenticator(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, Authenticator_sequence, hf_krb_Authenticator, ett_krb_Authenticator);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, Authenticator_sequence, hf_krb_Authenticator, ett_krb_Authenticator);
 
 	return offset;
 }
@@ -3250,7 +3250,7 @@ dissect_krb5_PRIV_BODY_user_data(proto_tree *tree, tvbuff_t *tvb, int offset, as
 	return offset;
 }
 
-static ber_sequence_t EncKrbPrivPart_sequence[] = {
+static ber_old_sequence_t EncKrbPrivPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_PRIV_BODY_user_data },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3268,7 +3268,7 @@ static ber_sequence_t EncKrbPrivPart_sequence[] = {
 static int
 dissect_krb5_EncKrbPrivPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncKrbPrivPart_sequence, hf_krb_EncKrbPrivPart, ett_krb_EncKrbPrivPart);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncKrbPrivPart_sequence, hf_krb_EncKrbPrivPart, ett_krb_EncKrbPrivPart);
 
 	return offset;
 }
@@ -3310,7 +3310,7 @@ dissect_krb5_decrypt_PRIV (proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
 
-		offset=dissect_ber_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3329,13 +3329,13 @@ static int
 dissect_krb5_encrypted_PRIV(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PRIV, dissect_krb5_decrypt_PRIV);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PRIV, dissect_krb5_decrypt_PRIV);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
 #endif
 	return offset;
 }
-static ber_sequence_t ENC_PRIV_sequence[] = {
+static ber_old_sequence_t ENC_PRIV_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_PRIV_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3347,10 +3347,10 @@ static ber_sequence_t ENC_PRIV_sequence[] = {
 static int
 dissect_krb5_ENC_PRIV(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, ENC_PRIV_sequence, hf_krb_ENC_PRIV, ett_krb_PRIV_enc);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, ENC_PRIV_sequence, hf_krb_ENC_PRIV, ett_krb_PRIV_enc);
 	return offset;
 }
-static ber_sequence_t PRIV_BODY_sequence[] = {
+static ber_old_sequence_t PRIV_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3363,7 +3363,7 @@ static int
 dissect_krb5_PRIV(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, PRIV_BODY_sequence, hf_krb_PRIV_BODY, ett_krb_PRIV);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PRIV_BODY_sequence, hf_krb_PRIV_BODY, ett_krb_PRIV);
 
 	return offset;
 }
@@ -3385,7 +3385,7 @@ dissect_krb5_EncKrbCredPart_etype(proto_tree *tree, tvbuff_t *tvb, int offset, a
 
 
 
-static ber_sequence_t KrbCredInfo_sequence[] = {
+static ber_old_sequence_t KrbCredInfo_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_key },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_prealm },
 	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_krb5_pname },
@@ -3403,22 +3403,22 @@ static int
 dissect_krb5_KrbCredInfo(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, KrbCredInfo_sequence, hf_krb_KrbCredInfo, ett_krb_KrbCredInfo);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, KrbCredInfo_sequence, hf_krb_KrbCredInfo, ett_krb_KrbCredInfo);
 
 	return offset;
 }
 
-static ber_sequence_t KrbCredInfo_sequence_of[1] = {
+static ber_old_sequence_t KrbCredInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_KrbCredInfo },
 };
 static int
 dissect_krb5_KrbCredInfo_sequence_of(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence_of(FALSE, actx, tree, tvb, offset, KrbCredInfo_sequence_of, hf_krb_KrbCredInfos, ett_krb_KrbCredInfos);
+	offset=dissect_ber_old_sequence_of(FALSE, actx, tree, tvb, offset, KrbCredInfo_sequence_of, hf_krb_KrbCredInfos, ett_krb_KrbCredInfos);
 
 	return offset;
 }
-static const ber_sequence_t EncKrbCredPart_sequence[] = {
+static const ber_old_sequence_t EncKrbCredPart_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_KrbCredInfo_sequence_of },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_nonce },
 	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_krb5_ctime },
@@ -3431,7 +3431,7 @@ static const ber_sequence_t EncKrbCredPart_sequence[] = {
 static int
 dissect_krb5_EncKrbCredPart(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, EncKrbCredPart_sequence, hf_krb_EncKrbCredPart, ett_krb_EncKrbCredPart);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, EncKrbCredPart_sequence, hf_krb_EncKrbCredPart, ett_krb_EncKrbCredPart);
 
 	return offset;
 }
@@ -3464,7 +3464,7 @@ dissect_krb5_decrypt_EncKrbCredPart (proto_tree *tree, tvbuff_t *tvb, int offset
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(actx->pinfo, next_tvb, "EncKrbCredPart");
 
-		offset=dissect_ber_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 	}
 	return offset;
 }
@@ -3474,14 +3474,14 @@ static int
 dissect_krb5_encrypted_CRED_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, dissect_krb5_decrypt_EncKrbCredPart);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, dissect_krb5_decrypt_EncKrbCredPart);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_EncKrbCredPart, NULL);
 #endif
 	return offset;
 }
 
-static ber_sequence_t encrypted_CRED_sequence[] = {
+static ber_old_sequence_t encrypted_CRED_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_EncKrbCredPart_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3493,12 +3493,12 @@ static ber_sequence_t encrypted_CRED_sequence[] = {
 static int
 dissect_krb5_encrypted_CRED(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, encrypted_CRED_sequence, hf_krb_CRED_enc, ett_krb_CRED_enc);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, encrypted_CRED_sequence, hf_krb_CRED_enc, ett_krb_CRED_enc);
 
 	return offset;
 }
 
-static ber_sequence_t CRED_BODY_sequence[] = {
+static ber_old_sequence_t CRED_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3513,7 +3513,7 @@ static int
 dissect_krb5_CRED(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, CRED_BODY_sequence, hf_krb_CRED_BODY, ett_krb_CRED);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, CRED_BODY_sequence, hf_krb_CRED_BODY, ett_krb_CRED);
 
 	return offset;
 }
@@ -3542,7 +3542,7 @@ dissect_krb5_SAFE_BODY_usec(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 	return offset;
 }
 
-static ber_sequence_t SAFE_BODY_sequence[] = {
+static ber_old_sequence_t SAFE_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_SAFE_BODY_user_data },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3562,14 +3562,14 @@ static int
 dissect_krb5_SAFE_BODY(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, SAFE_BODY_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, SAFE_BODY_sequence, -1, -1);
 
 	return offset;
 }
 
 
 
-static ber_sequence_t SAFE_sequence[] = {
+static ber_old_sequence_t SAFE_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3584,7 +3584,7 @@ static int
 dissect_krb5_SAFE(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, SAFE_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, SAFE_sequence, -1, -1);
 
 	return offset;
 }
@@ -3611,7 +3611,7 @@ dissect_krb5_SAFE(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx 
  * }
  *
  */
-static ber_sequence_t KDC_REQ_BODY_sequence[] = {
+static ber_old_sequence_t KDC_REQ_BODY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_KDCOptions },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3665,7 +3665,7 @@ dissect_krb5_KDC_REQ_BODY(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_
 		}
 	}
 
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, KDC_REQ_BODY_sequence, hf_krb_KDC_REQ_BODY, ett_krb_request);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, KDC_REQ_BODY_sequence, hf_krb_KDC_REQ_BODY, ett_krb_request);
 
 	return offset;
 }
@@ -3680,7 +3680,7 @@ dissect_krb5_KDC_REQ_BODY(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_
  *          req-body[4]           KDC-REQ-BODY
  * }
  */
-static ber_sequence_t KDC_REQ_sequence[] = {
+static ber_old_sequence_t KDC_REQ_sequence[] = {
 	{ BER_CLASS_CON, 1, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 2, 0,
@@ -3694,7 +3694,7 @@ static ber_sequence_t KDC_REQ_sequence[] = {
 static int
 dissect_krb5_KDC_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, KDC_REQ_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, KDC_REQ_sequence, -1, -1);
 
 	return offset;
 }
@@ -3734,7 +3734,7 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3753,13 +3753,13 @@ static int
 dissect_krb5_encrypted_authenticator_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_authenticator_data, dissect_krb5_decrypt_authenticator_data);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_authenticator_data, dissect_krb5_decrypt_authenticator_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_authenticator_data, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_authenticator_data, NULL);
 #endif
 	return offset;
 }
-static ber_sequence_t encrypted_authenticator_sequence[] = {
+static ber_old_sequence_t encrypted_authenticator_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_authenticator_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3771,7 +3771,7 @@ static ber_sequence_t encrypted_authenticator_sequence[] = {
 static int
 dissect_krb5_encrypted_authenticator(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, encrypted_authenticator_sequence, hf_krb_authenticator_enc, ett_krb_authenticator_enc);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, encrypted_authenticator_sequence, hf_krb_authenticator_enc, ett_krb_authenticator_enc);
 
 	return offset;
 }
@@ -3812,7 +3812,7 @@ dissect_krb5_decrypt_Ticket_data (proto_tree *tree, tvbuff_t *tvb, int offset, a
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3823,13 +3823,13 @@ static int
 dissect_krb5_encrypted_Ticket_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_Ticket_data, dissect_krb5_decrypt_Ticket_data);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_Ticket_data, dissect_krb5_decrypt_Ticket_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_Ticket_data, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_Ticket_data, NULL);
 #endif
 	return offset;
 }
-static ber_sequence_t encrypted_Ticket_sequence[] = {
+static ber_old_sequence_t encrypted_Ticket_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_Ticket_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3841,12 +3841,12 @@ static ber_sequence_t encrypted_Ticket_sequence[] = {
 static int
 dissect_krb5_Ticket_encrypted(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, encrypted_Ticket_sequence, hf_krb_ticket_enc, ett_krb_ticket_enc);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, encrypted_Ticket_sequence, hf_krb_ticket_enc, ett_krb_ticket_enc);
 
 	return offset;
 }
 
-static ber_sequence_t Application_1_sequence[] = {
+static ber_old_sequence_t Application_1_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_tkt_vno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3860,14 +3860,14 @@ static ber_sequence_t Application_1_sequence[] = {
 static int
 dissect_krb5_Application_1(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, Application_1_sequence, hf_krb_ticket, ett_krb_ticket);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, Application_1_sequence, hf_krb_ticket, ett_krb_ticket);
 
 	return offset;
 }
 
 
 
-static const ber_choice_t Ticket_choice[] = {
+static const ber_old_choice_t Ticket_choice[] = {
 	{ 1, BER_CLASS_APP, 1,  0,
 		dissect_krb5_Application_1 },
 	{ 0, 0, 0, 0, NULL }
@@ -3875,7 +3875,7 @@ static const ber_choice_t Ticket_choice[] = {
 static int
 dissect_krb5_Ticket(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_choice(actx, tree, tvb, offset, Ticket_choice, -1, -1, NULL);
+	offset=dissect_ber_old_choice(actx, tree, tvb, offset, Ticket_choice, -1, -1, NULL);
 
 	return offset;
 }
@@ -3892,7 +3892,7 @@ dissect_krb5_Ticket(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
  *                  authenticator[4]              EncryptedData
  *  }
  */
-static ber_sequence_t AP_REQ_sequence[] = {
+static ber_old_sequence_t AP_REQ_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -3908,7 +3908,7 @@ static ber_sequence_t AP_REQ_sequence[] = {
 static int
 dissect_krb5_AP_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, AP_REQ_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, AP_REQ_sequence, -1, -1);
 
 	return offset;
 }
@@ -3947,7 +3947,7 @@ dissect_krb5_decrypt_AP_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, as
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3959,13 +3959,13 @@ static int
 dissect_krb5_encrypted_AP_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, dissect_krb5_decrypt_AP_REP_data);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, dissect_krb5_decrypt_AP_REP_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_AP_REP_data, NULL);
 #endif
 	return offset;
 }
-static ber_sequence_t encrypted_AP_REP_sequence[] = {
+static ber_old_sequence_t encrypted_AP_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_AP_REP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -3977,7 +3977,7 @@ static ber_sequence_t encrypted_AP_REP_sequence[] = {
 static int
 dissect_krb5_encrypted_AP_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, encrypted_AP_REP_sequence, hf_krb_AP_REP_enc, ett_krb_AP_REP_enc);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, encrypted_AP_REP_sequence, hf_krb_AP_REP_enc, ett_krb_AP_REP_enc);
 
 	return offset;
 }
@@ -3989,7 +3989,7 @@ dissect_krb5_encrypted_AP_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
  *             enc-part[2]               EncryptedData
  *  }
  */
-static ber_sequence_t AP_REP_sequence[] = {
+static ber_old_sequence_t AP_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -4001,7 +4001,7 @@ static ber_sequence_t AP_REP_sequence[] = {
 static int
 dissect_krb5_AP_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, AP_REP_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, AP_REP_sequence, -1, -1);
 
 	return offset;
 }
@@ -4061,7 +4061,7 @@ dissect_krb5_decrypt_KDC_REP_data (proto_tree *tree, tvbuff_t *tvb, int offset, 
 		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -4073,13 +4073,13 @@ static int
 dissect_krb5_encrypted_KDC_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 #ifdef HAVE_KERBEROS
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, dissect_krb5_decrypt_KDC_REP_data);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, dissect_krb5_decrypt_KDC_REP_data);
 #else
-	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, NULL);
+	offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_encrypted_KDC_REP_data, NULL);
 #endif
 	return offset;
 }
-static ber_sequence_t encrypted_KDC_REP_sequence[] = {
+static ber_old_sequence_t encrypted_KDC_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_KDC_REP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
@@ -4091,7 +4091,7 @@ static ber_sequence_t encrypted_KDC_REP_sequence[] = {
 static int
 dissect_krb5_encrypted_KDC_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, encrypted_KDC_REP_sequence, hf_krb_KDC_REP_enc, ett_krb_KDC_REP_enc);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, encrypted_KDC_REP_sequence, hf_krb_KDC_REP_enc, ett_krb_KDC_REP_enc);
 
 	return offset;
 }
@@ -4107,7 +4107,7 @@ dissect_krb5_encrypted_KDC_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
  *                enc-part[6]                EncryptedData
  *  }
  */
-static ber_sequence_t KDC_REP_sequence[] = {
+static ber_old_sequence_t KDC_REP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -4127,7 +4127,7 @@ static ber_sequence_t KDC_REP_sequence[] = {
 static int
 dissect_krb5_KDC_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, KDC_REP_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, KDC_REP_sequence, -1, -1);
 
 	return offset;
 }
@@ -4153,12 +4153,12 @@ dissect_krb5_e_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 		/* ms windows kdc sends e-data of this type containing a "salt"
 		 * that contains the nt_status code for these error codes.
 		 */
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_e_data, dissect_krb5_PA_DATA);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_e_data, dissect_krb5_PA_DATA);
 		break;
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
 	case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
-		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_e_data, dissect_krb5_padata);
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_e_data, dissect_krb5_padata);
 
 		break;
 	default:
@@ -4174,7 +4174,7 @@ dissect_krb5_e_data(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 static int
 dissect_krb5_e_checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, Checksum_sequence, hf_krb_e_checksum, ett_krb_e_checksum);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, Checksum_sequence, hf_krb_e_checksum, ett_krb_e_checksum);
 
 	return offset;
 }
@@ -4205,7 +4205,7 @@ dissect_krb5_e_checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t 
  *            authentication method and optionally containing data for
  *            the method:
  */
-static ber_sequence_t ERROR_sequence[] = {
+static ber_old_sequence_t ERROR_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_pvno },
 	{ BER_CLASS_CON, 1, 0,
@@ -4239,7 +4239,7 @@ static ber_sequence_t ERROR_sequence[] = {
 int
 dissect_krb5_ERROR(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_sequence(FALSE, actx, tree, tvb, offset, ERROR_sequence, -1, -1);
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, ERROR_sequence, -1, -1);
 
 	return offset;
 }
@@ -4456,7 +4456,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     TRY {
-	offset=dissect_ber_choice(&asn1_ctx, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
+	offset=dissect_ber_old_choice(&asn1_ctx, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
     } CATCH_ALL {
 	pinfo->private_data=saved_private_data;
 	RETHROW;

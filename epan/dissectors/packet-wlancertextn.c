@@ -94,14 +94,14 @@ static int dissect_SSIDList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t SSIDList_sequence_of[1] = {
+static const ber_old_sequence_t SSIDList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SSIDList_item },
 };
 
 static int
 dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
 
   return offset;
 }
