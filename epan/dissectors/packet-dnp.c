@@ -295,8 +295,8 @@
 #define AL_OBJ_DCTR_16     0x1404   /* 20 04 16-Bit Delta Counter */
 #define AL_OBJ_CTR_32NF    0x1405   /* 20 05 32-Bit Binary Counter Without Flag */
 #define AL_OBJ_CTR_16NF    0x1406   /* 20 06 16-Bit Binary Counter Without Flag */
-                        /* 0x1407      20 07 32-Bit Delta Counter Without Flag */
-                        /* 0x1408      20 08 16-Bit Delta Counter Without Flag */
+#define AL_OBJ_DLTCTR_32NF 0x1407   /* 20 07 32-Bit Delta Counter Without Flag */
+#define AL_OBJ_DLTCTR_16NF 0x1408   /* 20 08 16-Bit Delta Counter Without Flag */
 #define AL_OBJ_FCTR_32     0x1501   /* 21 01 32-Bit Frozen Counter */
 #define AL_OBJ_FCTR_16     0x1502   /* 21 02 16-Bit Frozen Counter */
                         /* 0x1503      21 03 32-Bit Frozen Delta Counter */
@@ -312,12 +312,12 @@
 #define AL_OBJ_CTRC_ALL    0x1600   /* 22 00 Counter Change Event All Variations */
 #define AL_OBJ_CTRC_32     0x1601   /* 22 01 32-Bit Counter Change Event w/o Time */
 #define AL_OBJ_CTRC_16     0x1602   /* 22 02 16-Bit Counter Change Event w/o Time */
-                        /* 0x1603      22 03 32-Bit Delta Counter Change Event w/o Time */
-                        /* 0x1604      22 04 16-Bit Delta Counter Change Event w/o Time */
-                        /* 0x1605      22 05 32-Bit Counter Change Event With Time */
-                        /* 0x1606      22 06 16-Bit Counter Change Event With Time */
-                        /* 0x1607      22 07 32-Bit Delta Counter Change Event With Time */
-                        /* 0x1608      22 08 16-Bit Delta Counter Change Event With Time */
+#define AL_OBJ_DLTCTRC_32  0x1603   /* 22 03 32-Bit Delta Counter Change Event w/o Time */
+#define AL_OBJ_DLTCTRC_16  0x1604   /* 22 04 16-Bit Delta Counter Change Event w/o Time */
+#define AL_OBJ_CTRC_32T    0x1605   /* 22 05 32-Bit Counter Change Event with Time */
+#define AL_OBJ_CTRC_16T    0x1606   /* 22 06 16-Bit Counter Change Event with Time */
+#define AL_OBJ_DLTCTRC_32T 0x1607   /* 22 07 32-Bit Delta Counter Change Event with Time */
+#define AL_OBJ_DLTCTRC_16T 0x1608   /* 22 08 16-Bit Delta Counter Change Event with Time */
                         /* 0x1701      23 01 32-Bit Counter Change Event w/o Time */
                         /* 0x1702      23 02 16-Bit Frozen Counter Change Event w/o Time */
                         /* 0x1703      23 03 32-Bit Frozen Delta Counter Change Event w/o Time */
@@ -693,11 +693,19 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_CTR_16,     "16-Bit Binary Counter (Obj:20, Var:02)" },
   { AL_OBJ_CTR_32NF,   "32-Bit Binary Counter Without Flag (Obj:20, Var:05)" },
   { AL_OBJ_CTR_16NF,   "16-Bit Binary Counter Without Flag (Obj:20, Var:06)" },
+  { AL_OBJ_DLTCTR_32NF,"32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07)" },
+  { AL_OBJ_DLTCTR_16NF,"16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08)" },
   { AL_OBJ_FCTR_32,    "32-Bit Frozen Counter (Obj:21, Var:01)"},
   { AL_OBJ_FCTR_16,    "16-Bit Frozen Counter (Obj:21, Var:02)"},
   { AL_OBJ_CTRC_ALL,   "Binary Counter Change All Variations (Obj:22, Var:All)" },
   { AL_OBJ_CTRC_32,    "32-Bit Counter Change Event w/o Time (Obj:22, Var:01)" },
   { AL_OBJ_CTRC_16,    "16-Bit Counter Change Event w/o Time (Obj:22, Var:02)" },
+  { AL_OBJ_DLTCTRC_32, "32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03)" },
+  { AL_OBJ_DLTCTRC_16, "16-Bit Delta Counter Change Event w/o Time (Obj:22, Var:04)" },
+  { AL_OBJ_CTRC_32T,   "32-Bit Counter Change Event with Time (Obj:22, Var:05)" },
+  { AL_OBJ_CTRC_16T,   "16-Bit Counter Change Event with Time (Obj:22, Var:06)" },
+  { AL_OBJ_DLTCTRC_32T,"32-Bit Delta Counter Change Event with Time (Obj:22, Var:07)" },
+  { AL_OBJ_DLTCTRC_16T,"16-Bit Delta Counter Change Event with Time (Obj:22, Var:08)" },
   { AL_OBJ_AI_ALL,     "Analog Input All Variations (Obj:30, Var:All)" },
   { AL_OBJ_AI_32,      "32-Bit Analog Input (Obj:30, Var:01)" },
   { AL_OBJ_AI_16,      "16-Bit Analog Input (Obj:30, Var:02)" },
@@ -869,7 +877,7 @@ static const fragment_items dnp3_frag_items = {
 /* the number of entries in the memory chunk array */
 #define dnp3_conv_init_count 50
 
-/* define your structure here */
+/* Conversation structure */
 typedef struct {
   guint conv_seq_number;
 } dnp3_conv_t;
@@ -882,6 +890,15 @@ static guint seq_number = 0;
 
 /* desegmentation of DNP3 over TCP */
 static gboolean dnp3_desegment = TRUE;
+
+/* Enum for different quality type fields */
+enum QUALITY_TYPE {
+  BIN_IN,
+  BIN_OUT,
+  ANA_IN,
+  ANA_OUT,
+  COUNTER
+};
 
 /*****************************************************************/
 /*                                                               */
@@ -1064,7 +1081,7 @@ dnp3_append_2item_text(proto_item *item1, proto_item *item2, const gchar *text)
 /* add Point Quality Flag Sub-Tree                               */
 /*****************************************************************/
 static void
-dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *point_tree, proto_item *point_item, int type)
+dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *point_tree, proto_item *point_item, enum QUALITY_TYPE type)
 {
 
   proto_tree  *quality_tree = NULL;
@@ -1089,7 +1106,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
   if (al_ptflags & AL_OBJ_BI_FLAG4) dnp3_append_2item_text(point_item, quality_item, ", Local Force");
 
   switch (type) {
-    case 0: /* Binary Input Quality flags */
+    case BIN_IN: /* Binary Input Quality flags */
       if (al_ptflags & AL_OBJ_BI_FLAG5) dnp3_append_2item_text(point_item, quality_item, ", Chatter Filter");
 
       hf0 = hf_dnp3_al_biq_b0;
@@ -1102,7 +1119,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
       hf7 = hf_dnp3_al_biq_b7;
       break;
 
-    case 1: /* Binary Output Quality flags */
+    case BIN_OUT: /* Binary Output Quality flags */
       hf0 = hf_dnp3_al_boq_b0;
       hf1 = hf_dnp3_al_boq_b1;
       hf2 = hf_dnp3_al_boq_b2;
@@ -1113,7 +1130,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
       hf7 = hf_dnp3_al_boq_b7;
       break;
 
-    case 2: /* Counter Quality flags */
+    case COUNTER: /* Counter Quality flags */
       if (al_ptflags & AL_OBJ_CTR_FLAG5) dnp3_append_2item_text(point_item, quality_item, ", Roll-over");
       if (al_ptflags & AL_OBJ_CTR_FLAG6) dnp3_append_2item_text(point_item, quality_item, ", Discontinuity");
 
@@ -1127,7 +1144,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
       hf7 = hf_dnp3_al_ctrq_b7;
       break;
 
-    case 3: /* Analog Input Quality flags */
+    case ANA_IN: /* Analog Input Quality flags */
       if (al_ptflags & AL_OBJ_AI_FLAG5) dnp3_append_2item_text(point_item, quality_item, ", Over-Range");
       if (al_ptflags & AL_OBJ_AI_FLAG6) dnp3_append_2item_text(point_item, quality_item, ", Reference Check");
 
@@ -1141,7 +1158,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
       hf7 = hf_dnp3_al_aiq_b7;
       break;
 
-    case 4: /* Analog Output Quality flags */
+    case ANA_OUT: /* Analog Output Quality flags */
       hf0 = hf_dnp3_al_aoq_b0;
       hf1 = hf_dnp3_al_aoq_b1;
       hf2 = hf_dnp3_al_aoq_b2;
@@ -1177,14 +1194,14 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
 /* Value is ms since 00:00 on 1/1/1970                                */
 /**********************************************************************/
 static void
-dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int temp_pos)
+dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int data_pos)
 {
 
   guint32    hi, lo;
   guint64    time_ms;
 
-  lo = tvb_get_letohs(tvb, temp_pos);
-  hi = tvb_get_letohl(tvb, temp_pos + 2);
+  lo = tvb_get_letohs(tvb, data_pos);
+  hi = tvb_get_letohl(tvb, data_pos + 2);
 
   time_ms = (guint64)hi * 0x10000 + lo;
 
@@ -1206,7 +1223,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
   guint32       item_num, al_val32, num_items=0, al_ptaddr=0, al_ctlobj_on, al_ctlobj_off;
   nstime_t      al_cto, al_reltime, al_abstime;
   gboolean      al_bit;
-  guint         temp_pos;
+  guint         data_pos;
   gfloat        al_valflt;
   gdouble       al_valdbl;
   int           orig_offset, rangebytes=0, indexbytes=0;
@@ -1317,21 +1334,21 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
 
   offset += rangebytes;
 
-  if (!header_only) {
-    bitindex = 0; /* Temp variable for cycling through points when object values are encoded into
-              bits; primarily objects 0x0101, 0x0301 & 0x1001 */
+  bitindex = 0; /* Temp variable for cycling through points when object values are encoded into
+            bits; primarily objects 0x0101, 0x0301 & 0x1001 */
 
-    for (item_num = 0; item_num < num_items; item_num++)
-    {
-      /* Create Point item and Process Index */
-      point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Point Number");
-      point_tree = proto_item_add_subtree(point_item, ett_dnp3_al_obj_point);
+  for (item_num = 0; item_num < num_items; item_num++)
+  {
+    /* Create Point item and Process Index */
+    point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Point Number");
+    point_tree = proto_item_add_subtree(point_item, ett_dnp3_al_obj_point);
 
-      temp_pos = offset;
-      indexbytes = dnp3_al_obj_procindex(tvb, offset, al_objq_index, &al_ptaddr, point_tree);
-      proto_item_append_text(point_item, " %d", al_ptaddr);
-      temp_pos += indexbytes;
+    data_pos = offset;
+    indexbytes = dnp3_al_obj_procindex(tvb, offset, al_objq_index, &al_ptaddr, point_tree);
+    proto_item_append_text(point_item, " %d", al_ptaddr);
+    data_pos += indexbytes;
 
+    if (!header_only) {
       switch (al_obj)
       {
 
@@ -1343,7 +1360,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
         case AL_OBJ_AI_ALL:      /* Analog Input All Var (Obj:30, Var:All) */
         case AL_OBJ_AIC_ALL:     /* Analog Input Change All Var (Obj:32 Var:All) */
 
-          offset += indexbytes;
+          offset = data_pos;
           break;
 
         case AL_OBJ_BI_1BIT:    /* Single-Bit Binary Input (Obj:01, Var:01) */
@@ -1402,108 +1419,109 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
         case AL_OBJ_BO_STAT:    /* Binary Output Status (Obj:10, Var:02) */
 
           /* Get Point Flags */
-          al_ptflags = tvb_get_guint8(tvb, offset);
-          al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) > 0;
+          al_ptflags = tvb_get_guint8(tvb, data_pos);
 
           switch (al_obj) {
             case AL_OBJ_BI_STAT:
             case AL_OBJ_BIC_NOTIME:
-              dnp3_al_obj_quality(tvb, offset, al_ptflags, point_tree, point_item, 0);
-              proto_item_append_text(point_item, ", Value: %d", al_bit);
-              proto_item_set_len(point_item, indexbytes + 1);
+              dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
               break;
             case AL_OBJ_BO_STAT:
-              dnp3_al_obj_quality(tvb, offset, al_ptflags, point_tree, point_item, 1);
-              proto_item_append_text(point_item, ", Value: %d", al_bit);
-              proto_item_set_len(point_item, indexbytes + 1);
+              dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_OUT);
               break;
           }
+          data_pos += 1;
 
-          offset += (indexbytes + 1);
+          al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) > 0;
+          proto_item_append_text(point_item, ", Value: %d", al_bit);
+
+          proto_item_set_len(point_item, data_pos - offset);
+
+          offset = data_pos;
           break;
 
         case AL_OBJ_2BI_STAT:    /* Double-bit Input With Status (Obj:03, Var:02) */
         case AL_OBJ_2BIC_NOTIME: /* Double-bit Input Change Without Time (Obj:04, Var:01) */
 
           /* Get Point Flags */
-          al_ptflags = tvb_get_guint8(tvb, offset);
+          al_ptflags = tvb_get_guint8(tvb, data_pos);
+          dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
+          data_pos += 1;
+
           al_2bit = (al_ptflags >> 6) & 3;
-
-          dnp3_al_obj_quality(tvb, offset, al_ptflags, point_tree, point_item, 0);
           proto_item_append_text(point_item, ", Value: %d", al_2bit);
-          proto_item_set_len(point_item, indexbytes + 1);
+          proto_item_set_len(point_item, data_pos - offset);
 
-          offset += (indexbytes + 1);
+          offset = data_pos;
           break;
 
         case AL_OBJ_BIC_TIME:   /* Binary Input Change w/ Time (Obj:02, Var:02)  */
 
           /* Get Point Flags */
-          al_ptflags = tvb_get_guint8(tvb, temp_pos);
-          temp_pos += 1;
+          al_ptflags = tvb_get_guint8(tvb, data_pos);
+          dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
+          data_pos += 1;
 
-          al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
 
           /* Get timestamp */
-          dnp3_al_get_timestamp(&al_abstime, tvb, temp_pos);
+          dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+          proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+          data_pos += 6;
 
-          dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, 0);
+          al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
           proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
-          proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, temp_pos, 6, &al_abstime);
-          proto_item_set_len(point_item, indexbytes + 7);
+          proto_item_set_len(point_item, data_pos - offset);
 
-          offset += (indexbytes + 7);
-
+          offset = data_pos;
           break;
 
         case AL_OBJ_2BIC_TIME:   /* Double-bit Input Change w/ Time (Obj:04, Var:02)  */
 
           /* Get Point Flags */
-          al_ptflags = tvb_get_guint8(tvb, temp_pos);
-          temp_pos += 1;
+          al_ptflags = tvb_get_guint8(tvb, data_pos);
+          dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, BIN_IN);
+          data_pos += 1;
 
-          al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
 
           /* Get timestamp */
-          dnp3_al_get_timestamp(&al_abstime, tvb, temp_pos);
+          dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+          proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+          data_pos += 6;
 
-          dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, 0);
+          al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
           proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_2bit, abs_time_to_str(&al_abstime));
-          proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, temp_pos, 6, &al_abstime);
-          proto_item_set_len(point_item, indexbytes + 7);
+          proto_item_set_len(point_item, data_pos - offset);
 
-          offset += (indexbytes + 7);
-
+          offset = data_pos;
           break;
 
         case AL_OBJ_BIC_RTIME:   /* Binary Input Change w/ Relative Time (Obj:02, Var:03)  */
 
           /* Get Point Flags */
-          al_ptflags = tvb_get_guint8(tvb, temp_pos);
-          temp_pos += 1;
-
-          al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
+          al_ptflags = tvb_get_guint8(tvb, data_pos);
+          dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
+          data_pos += 1;
 
           /* Get relative time, and convert to ns_time */
-          al_relms = tvb_get_letohs(tvb, temp_pos);
+          al_relms = tvb_get_letohs(tvb, data_pos);
           al_reltime.secs = al_relms / 1000;
           al_reltime.nsecs = (al_relms % 1000) * 1000;
           /* Now add to CTO time */
           nstime_sum(&al_abstime, &al_cto, &al_reltime);
+          proto_tree_add_time(point_tree, hf_dnp3_al_rel_timestamp, tvb, data_pos, 2, &al_reltime);
+          data_pos += 2;
 
-          dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, 0);
+          al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
           proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
-          proto_tree_add_time(point_tree, hf_dnp3_al_rel_timestamp, tvb, temp_pos, 2, &al_reltime);
-          proto_item_set_len(point_item, indexbytes + 3);
+          proto_item_set_len(point_item, data_pos - offset);
 
-          offset += (indexbytes + 3);
-
+          offset = data_pos;
           break;
 
         case AL_OBJ_CTLOP_BLK:  /* Control Relay Output Block (Obj:12, Var:01) */
 
-          al_ctlobj_code = tvb_get_guint8(tvb, temp_pos);
-          temp_pos += 1;
+          al_ctlobj_code = tvb_get_guint8(tvb, data_pos);
+          data_pos += 1;
 
           /* Bit-Mask xxxx1111 for Control Code 'Code' */
           al_ctlobj_code_c = al_ctlobj_code & AL_OBJCTLC_CODE;
@@ -1518,32 +1536,32 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           ctl_tc_str = val_to_str(al_ctlobj_code_tc, dnp3_al_ctlc_tc_vals, "");
 
           /* Get "Count" Field */
-          al_ctlobj_count = tvb_get_guint8(tvb, temp_pos);
-          temp_pos += 1;
+          al_ctlobj_count = tvb_get_guint8(tvb, data_pos);
+          data_pos += 1;
 
           /* Get "On Time" Field */
-          al_ctlobj_on = tvb_get_letohl(tvb, temp_pos);
-          temp_pos += 4;
+          al_ctlobj_on = tvb_get_letohl(tvb, data_pos);
+          data_pos += 4;
 
           /* Get "Off Time" Field */
-          al_ctlobj_off = tvb_get_letohl(tvb, temp_pos);
-          temp_pos += 4;
+          al_ctlobj_off = tvb_get_letohl(tvb, data_pos);
+          data_pos += 4;
 
-          al_ctlobj_stat = tvb_get_guint8(tvb, temp_pos);
-          proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, temp_pos, 1, TRUE);
+          al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
+          proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, TRUE);
           ctl_status_str = val_to_str(al_ctlobj_stat, dnp3_al_ctl_status_vals, "Invalid Status (0x%02x)");
-          temp_pos += 1;
+          data_pos += 1;
 
           proto_item_append_text(point_item, ", Control Code: [%s,%s,%s (0x%02x)]",
                ctl_code_str, ctl_misc_str, ctl_tc_str, al_ctlobj_code);
 
-          proto_tree_add_text(point_tree, tvb, offset, (indexbytes+11),
+          proto_tree_add_text(point_tree, tvb, data_pos - 11, 11,
              "  [Count: %d] [On-Time: %d] [Off-Time: %d] [Status: %s (0x%02x)]",
                  al_ctlobj_count, al_ctlobj_on, al_ctlobj_off, ctl_status_str, al_ctlobj_stat);
 
-          proto_item_set_len(point_item, temp_pos - offset);
-          offset = temp_pos;
+          proto_item_set_len(point_item, data_pos - offset);
 
+          offset = data_pos;
           break;
 
         case AL_OBJ_AO_32OPB:   /* 32-Bit Analog Output Block (Obj:41, Var:01) */
@@ -1554,63 +1572,73 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           switch (al_obj)
           {
             case AL_OBJ_AO_32OPB:
-              al_val32 = tvb_get_letohl(tvb, temp_pos);
+              al_val32 = tvb_get_letohl(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %d", al_val32);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
             case AL_OBJ_AO_16OPB:
-              al_val32 = tvb_get_letohs(tvb, temp_pos);
+              al_val32 = tvb_get_letohs(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %d", al_val32);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, temp_pos, 2, TRUE);
-              temp_pos += 2;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, TRUE);
+              data_pos += 2;
               break;
             case AL_OBJ_AO_FLTOPB:
-              al_valflt = tvb_get_letohieee_float(tvb, temp_pos);
+              al_valflt = tvb_get_letohieee_float(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %g", al_valflt);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
             case AL_OBJ_AO_DBLOPB:
-              al_valdbl = tvb_get_letohieee_double(tvb, temp_pos);
+              al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %lg", al_valdbl);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, temp_pos, 8, TRUE);
-              temp_pos += 8;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, TRUE);
+              data_pos += 8;
               break;
           }
 
           /* Get control status */
-          al_ctlobj_stat = tvb_get_guint8(tvb, temp_pos);
+          al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
           ctl_status_str = val_to_str(al_ctlobj_stat, dnp3_al_ctl_status_vals, "Invalid Status (0x%02x)");
           proto_item_append_text(point_item, " {Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
-          proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, temp_pos, 1, TRUE);
-          temp_pos += 1;
+          proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, TRUE);
+          data_pos += 1;
 
-          proto_item_set_len(point_item, temp_pos - offset);
-          offset = temp_pos;
+          proto_item_set_len(point_item, data_pos - offset);
 
+          offset = data_pos;
           break;
 
         case AL_OBJ_CTR_32:     /* 32-Bit Binary Counter (Obj:20, Var:01) */
         case AL_OBJ_CTR_16:     /* 16-Bit Binary Counter (Obj:20, Var:02) */
         case AL_OBJ_CTR_32NF:   /* 32-Bit Binary Counter Without Flag (Obj:20, Var:05) */
         case AL_OBJ_CTR_16NF:   /* 16-Bit Binary Counter Without Flag (Obj:20, Var:06) */
+        case AL_OBJ_DLTCTR_32NF:/* 32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07) */
+        case AL_OBJ_DLTCTR_16NF:/* 16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08) */
         case AL_OBJ_FCTR_32:    /* 32-Bit Frozen Counter (Obj:21, Var:01) */
         case AL_OBJ_FCTR_16:    /* 16-Bit Frozen Counter (Obj:21, Var:02) */
         case AL_OBJ_CTRC_32:    /* 32-Bit Counter Change Event w/o Time (Obj:22, Var:01) */
         case AL_OBJ_CTRC_16:    /* 16-Bit Counter Change Event w/o Time (Obj:22, Var:02) */
+        case AL_OBJ_DLTCTRC_32: /* 32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03) */
+        case AL_OBJ_DLTCTRC_16: /* 16-Bit Delta Counter Change Event w/o Time (Obj:22, Var:04) */
+        case AL_OBJ_CTRC_32T:   /* 32-Bit Counter Change Event with Time (Obj:22, Var:05) */
+        case AL_OBJ_CTRC_16T:   /* 16-Bit Counter Change Event with Time (Obj:22, Var:06) */
+        case AL_OBJ_DLTCTRC_32T:/* 32-Bit Delta Counter Change Event with Time (Obj:22, Var:07) */
+        case AL_OBJ_DLTCTRC_16T:/* 16-Bit Delta Counter Change Event with Time (Obj:22, Var:08) */
 
           /* Get Point Flags for those types that have them */
           switch (al_obj)
           {
             case AL_OBJ_CTR_32NF:
             case AL_OBJ_CTR_16NF:
+            case AL_OBJ_DLTCTR_32NF:
+            case AL_OBJ_DLTCTR_16NF:
               break;
 
             default:
-              al_ptflags = tvb_get_guint8(tvb, temp_pos);
-              dnp3_al_obj_quality(tvb, temp_pos, al_ptflags, point_tree, point_item, 2);
-              temp_pos += 1;
+              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, COUNTER);
+              data_pos += 1;
               break;
           }
 
@@ -1618,28 +1646,51 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           {
             case AL_OBJ_CTR_32:
             case AL_OBJ_CTR_32NF:
+            case AL_OBJ_DLTCTR_32NF:
             case AL_OBJ_FCTR_32:
             case AL_OBJ_CTRC_32:
+            case AL_OBJ_DLTCTRC_32:
+            case AL_OBJ_CTRC_32T:
+            case AL_OBJ_DLTCTRC_32T:
 
-              al_val32 = tvb_get_letohl(tvb, temp_pos);
-              proto_item_append_text(point_item, ", Value: %d", al_val32);
-              proto_tree_add_item(point_tree, hf_dnp3_al_cnt32, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              al_val32 = tvb_get_letohl(tvb, data_pos);
+              proto_item_append_text(point_item, ", Count: %d", al_val32);
+              proto_tree_add_item(point_tree, hf_dnp3_al_cnt32, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
 
             case AL_OBJ_CTR_16:
             case AL_OBJ_CTR_16NF:
+            case AL_OBJ_DLTCTR_16NF:
             case AL_OBJ_FCTR_16:
             case AL_OBJ_CTRC_16:
+            case AL_OBJ_DLTCTRC_16:
+            case AL_OBJ_CTRC_16T:
+            case AL_OBJ_DLTCTRC_16T:
 
-              al_val16 = tvb_get_letohs(tvb, temp_pos);
-              proto_item_append_text(point_item, ", Value: %d", al_val16);
-              proto_tree_add_item(point_tree, hf_dnp3_al_cnt16, tvb, temp_pos, 2, TRUE);
-              temp_pos += 2;
+              al_val16 = tvb_get_letohs(tvb, data_pos);
+              proto_item_append_text(point_item, ", Count: %d", al_val16);
+              proto_tree_add_item(point_tree, hf_dnp3_al_cnt16, tvb, data_pos, 2, TRUE);
+              data_pos += 2;
               break;
           }
-          proto_item_set_len(point_item, temp_pos - offset);
-          offset = temp_pos;
+
+          /* Get the time for those points that have it */
+          switch (al_obj)
+          {
+            case AL_OBJ_CTRC_32T:
+            case AL_OBJ_CTRC_16T:
+            case AL_OBJ_DLTCTRC_32T:
+            case AL_OBJ_DLTCTRC_16T:
+              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+              proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(&al_abstime));
+              proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              data_pos += 6;
+              break;
+          }
+
+          proto_item_set_len(point_item, data_pos - offset);
+          offset = data_pos;
 
           break;
 
@@ -1672,9 +1723,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               break;
 
             default:
-              al_ptflags = tvb_get_guint8(tvb, temp_pos);
-              dnp3_al_obj_quality(tvb, temp_pos, al_ptflags, point_tree, point_item, 3);
-              temp_pos += 1;
+              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, ANA_IN);
+              data_pos += 1;
               break;
           }
 
@@ -1685,10 +1736,10 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             case AL_OBJ_AIC_32NT:
             case AL_OBJ_AIC_32T:
 
-              al_val32 = tvb_get_letohl(tvb, temp_pos);
+              al_val32 = tvb_get_letohl(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %d", al_val32);
-              proto_tree_add_item(point_tree, hf_dnp3_al_ana32, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              proto_tree_add_item(point_tree, hf_dnp3_al_ana32, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
 
             case AL_OBJ_AI_16:
@@ -1696,10 +1747,10 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             case AL_OBJ_AIC_16NT:
             case AL_OBJ_AIC_16T:
 
-              al_val16 = tvb_get_letohs(tvb, temp_pos);
+              al_val16 = tvb_get_letohs(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %d", al_val16);
-              proto_tree_add_item(point_tree, hf_dnp3_al_ana16, tvb, temp_pos, 2, TRUE);
-              temp_pos += 2;
+              proto_tree_add_item(point_tree, hf_dnp3_al_ana16, tvb, data_pos, 2, TRUE);
+              data_pos += 2;
               break;
 
             case AL_OBJ_AI_FLT:
@@ -1709,10 +1760,10 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             case AL_OBJ_AIFC_FLTNT:
             case AL_OBJ_AIFC_FLTT:
 
-              al_valflt = tvb_get_letohieee_float(tvb, temp_pos);
+              al_valflt = tvb_get_letohieee_float(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %g", al_valflt);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaflt, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaflt, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
 
             case AL_OBJ_AI_DBL:
@@ -1722,10 +1773,10 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             case AL_OBJ_AIFC_DBLNT:
             case AL_OBJ_AIFC_DBLT:
 
-              al_valdbl = tvb_get_letohieee_double(tvb, temp_pos);
+              al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %lg", al_valdbl);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anadbl, tvb, temp_pos, 8, TRUE);
-              temp_pos += 8;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anadbl, tvb, data_pos, 8, TRUE);
+              data_pos += 8;
               break;
           }
 
@@ -1738,16 +1789,16 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             case AL_OBJ_AIC_DBLT:
             case AL_OBJ_AIFC_FLTT:
             case AL_OBJ_AIFC_DBLT:
-              dnp3_al_get_timestamp(&al_abstime, tvb, temp_pos);
+              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
               proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(&al_abstime));
-              proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, temp_pos, 6, &al_abstime);
-              temp_pos += 6;
+              proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              data_pos += 6;
               break;
           }
 
-          proto_item_set_len(point_item, temp_pos - offset);
-          offset = temp_pos;
+          proto_item_set_len(point_item, data_pos - offset);
 
+          offset = data_pos;
           break;
 
         case AL_OBJ_AO_32:     /* 32-Bit Analog Output Status (Obj:40, Var:01) */
@@ -1756,63 +1807,69 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
         case AL_OBJ_AO_DBL:    /* 64-Bit Floating Point Output Status (Obj:40, Var:04) */
 
           /* Get Point Flags */
-          al_ptflags = tvb_get_guint8(tvb, temp_pos);
-          dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, 4);
-          temp_pos += 1;
+          al_ptflags = tvb_get_guint8(tvb, data_pos);
+          dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, ANA_OUT);
+          data_pos += 1;
 
           switch (al_obj)
           {
             case AL_OBJ_AO_32:     /* 32-Bit Analog Output Status (Obj:40, Var:01) */
 
-              al_val32 = tvb_get_letohl(tvb, temp_pos);
+              al_val32 = tvb_get_letohl(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %d", al_val32);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
 
             case AL_OBJ_AO_16:     /* 16-Bit Analog Output Status (Obj:40, Var:02) */
 
-              al_val16 = tvb_get_letohs(tvb, temp_pos);
+              al_val16 = tvb_get_letohs(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %d", al_val16);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, temp_pos, 2, TRUE);
-              temp_pos += 2;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, TRUE);
+              data_pos += 2;
               break;
 
             case AL_OBJ_AO_FLT:     /* 32-Bit Floating Point Output Status (Obj:40, Var:03) */
 
-              al_valflt = tvb_get_letohieee_float(tvb, temp_pos);
+              al_valflt = tvb_get_letohieee_float(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %g", al_valflt);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, temp_pos, 4, TRUE);
-              temp_pos += 4;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, TRUE);
+              data_pos += 4;
               break;
 
             case AL_OBJ_AO_DBL:     /* 64-Bit Floating Point Output Status (Obj:40, Var:04) */
 
-              al_valdbl = tvb_get_letohieee_double(tvb, temp_pos);
+              al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
               proto_item_append_text(point_item, ", Value: %lg", al_valdbl);
-              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, temp_pos, 8, TRUE);
-              temp_pos += 8;
+              proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, TRUE);
+              data_pos += 8;
               break;
           }
 
-          proto_item_set_len(point_item, temp_pos - offset);
-          offset = temp_pos;
+          proto_item_set_len(point_item, data_pos - offset);
+          offset = data_pos;
 
           break;
 
         case AL_OBJ_TD:    /* Time and Date (Obj:50, Var:01) */
         case AL_OBJ_TDCTO: /* Time and Date CTO (Obj:51, Var:01) */
 
-          dnp3_al_get_timestamp(&al_cto, tvb, offset);
-          proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, offset, 6, &al_cto);
-          offset += (indexbytes + 6);
+          dnp3_al_get_timestamp(&al_cto, tvb, data_pos);
+          proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_cto);
+          data_pos += 6;
+          proto_item_set_len(point_item, data_pos - offset);
+
+          offset = data_pos;
           break;
 
         case AL_OBJ_TDELAYF: /* Time Delay - Fine (Obj:52, Var:02) */
 
-          al_val16 = tvb_get_letohs(tvb, offset);
-          proto_tree_add_text(object_tree, tvb, offset, (indexbytes + 2),"Time Delay: %d ms", al_val16);
-          offset += (indexbytes + 2);
+          al_val16 = tvb_get_letohs(tvb, data_pos);
+          proto_tree_add_text(object_tree, tvb, data_pos, 2, "Time Delay: %d ms", al_val16);
+          data_pos += 2;
+          proto_item_set_len(point_item, data_pos - offset);
+
+          offset = data_pos;
           break;
 
         case AL_OBJ_CLASS0:  /* Class Data Objects */
@@ -1821,13 +1878,13 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
         case AL_OBJ_CLASS3:
 
           /* Process Index */
-          offset += indexbytes;
+          offset = data_pos;
           break;
 
         case AL_OBJ_IIN:     /* IIN Data Object */
 
           /* Process Index */
-          offset += indexbytes;
+          offset = data_pos;
           break;
 
         default:             /* In case of unknown object */
@@ -2786,32 +2843,32 @@ proto_register_dnp3(void)
     { "Relative Timestamp", "dnp3.al.reltimestamp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Object Relative Timestamp", HFILL }},
 
     { &hf_dnp3_fragment,
-    { "DNP 3.0 AL Fragment", "al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "DNP 3.0 Application Layer Fragment", HFILL }},
+    { "DNP 3.0 AL Fragment", "dnp3.al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "DNP 3.0 Application Layer Fragment", HFILL }},
 
     { &hf_dnp3_fragments,
-    { "DNP 3.0 AL Fragments", "al.fragments", FT_NONE, BASE_NONE, NULL, 0x0, "DNP 3.0 Application Layer Fragments", HFILL }},
+    { "DNP 3.0 AL Fragments", "dnp3.al.fragments", FT_NONE, BASE_NONE, NULL, 0x0, "DNP 3.0 Application Layer Fragments", HFILL }},
 
     { &hf_dnp3_fragment_overlap,
-    { "Fragment overlap", "al.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+    { "Fragment overlap", "dnp3.al.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
 
     { &hf_dnp3_fragment_overlap_conflict,
-    { "Conflicting data in fragment overlap", "al.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+    { "Conflicting data in fragment overlap", "dnp3.al.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Overlapping fragments contained conflicting data", HFILL }},
 
     { &hf_dnp3_fragment_multiple_tails,
-    { "Multiple tail fragments found", "al.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+    { "Multiple tail fragments found", "dnp3.al.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Several tails were found when defragmenting the packet", HFILL }},
 
     { &hf_dnp3_fragment_too_long_fragment,
-    { "Fragment too long", "al.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+    { "Fragment too long", "dnp3.al.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Fragment contained data past end of packet", HFILL }},
 
     { &hf_dnp3_fragment_error,
-    { "Defragmentation error", "al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+    { "Defragmentation error", "dnp3.al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
       "Defragmentation error due to illegal fragments", HFILL }},
 
     { &hf_dnp3_fragment_reassembled_in,
-    { "Reassembled PDU In Frame", "al.fragment.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+    { "Reassembled PDU In Frame", "dnp3.al.fragment.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
       "This PDU is reassembled in this frame", HFILL }}
   };
 
