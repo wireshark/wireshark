@@ -363,8 +363,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	}
 	else
 	{
-		u_data->io->min_x=u_data->io->x1_tmp_sec*1000000.0+u_data->io->x1_tmp_usec;
-		u_data->io->max_x=u_data->io->x2_tmp_sec*1000000.0+u_data->io->x2_tmp_usec;		
+		u_data->io->min_x=(guint32)(u_data->io->x1_tmp_sec*1000000.0+u_data->io->x1_tmp_usec);
+		u_data->io->max_x=(guint32)(u_data->io->x2_tmp_sec*1000000.0+u_data->io->x2_tmp_usec);
 		u_data->io->uoff = FALSE;
 	}
 
@@ -1105,7 +1105,16 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		else
 		{
 			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-RIGHT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
+#ifdef _WIN32
+			/*
+			 * The MSVC version used in the buildbot doesn't have
+			 * rint().  (There may be UN*X environments without
+			 * rint(), too, in which case we'll stop using it.)
+			 */
+			y_value = (gint)floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
+#else
 			y_value = (gint)rint((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
+#endif
 			text_color = u_data->io->draw_area->style->black_gc;
 
 			if (u_data->dir == 1)
