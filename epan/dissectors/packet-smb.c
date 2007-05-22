@@ -10244,6 +10244,9 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* search pattern */
 		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, &bc);
 		CHECK_STRING_TRANS(fn);
+		if(!t2i->name){
+			t2i->name = se_strdup(fn);
+		}
 		proto_tree_add_string(tree, hf_smb_search_pattern, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
@@ -14122,13 +14125,9 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		}
 		break;
 	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
-		item=proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
-		PROTO_ITEM_SET_GENERATED(item);
 		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
-		item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, si->info_level);
-		PROTO_ITEM_SET_GENERATED(item);
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
@@ -14136,8 +14135,6 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* identical to QUERY_PATH_INFO */
-		item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, si->info_level);
-		PROTO_ITEM_SET_GENERATED(item);
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
@@ -14533,12 +14530,36 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				}
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
-				item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
-				PROTO_ITEM_SET_GENERATED(item);
-				if(t2i->name){
-					item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, t2i->name);
+				/* FIND_FIRST2 */
+				if(t2i && t2i->subcmd==0x0001){
+					item=proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level);
+					PROTO_ITEM_SET_GENERATED(item);
+					if(t2i->name){
+						item=proto_tree_add_string(tree, hf_smb_search_pattern, tvb, 0, 0, t2i->name);
+						PROTO_ITEM_SET_GENERATED(item);
+					}
+				}
+
+				/* QUERY_PATH_INFORMATION */
+				if(t2i && t2i->subcmd==0x0005){
+					item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
+					PROTO_ITEM_SET_GENERATED(item);
+					if(t2i->name){
+						item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, t2i->name);
+						PROTO_ITEM_SET_GENERATED(item);
+					}
+				}
+				/* QUERY_FILE_INFORMATION */
+				if(t2i && t2i->subcmd==0x0007){
+					item=proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
 				}
+				/* QUERY_FS_INFORMATION */
+				if(t2i && t2i->subcmd==0x0003){
+					item=proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
+					PROTO_ITEM_SET_GENERATED(item);
+				}
+
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str(t2i->subcmd,
