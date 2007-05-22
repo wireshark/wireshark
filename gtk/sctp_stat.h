@@ -83,13 +83,13 @@
 #define MAX_ADDRESS_LEN                47
 #define NUM_CHUNKS                     13
 
-
 typedef struct _tsn {
 	guint32 frame_number;
 	guint32 secs;    /* Absolute seconds */
 	guint32 usecs;
 	address src;
 	address dst;
+	guint32	first_tsn;
 	GList   *tsns;
 } tsn_t;
 
@@ -122,6 +122,7 @@ struct tsn_sort{
 	guint32 usecs;
 	guint32 offset;
 	guint32 length;
+	guint32 framenumber;
 };
 
 typedef struct _sctp_addr_chunk {

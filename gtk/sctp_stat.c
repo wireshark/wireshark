@@ -307,7 +307,7 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	    (a->port2 == b->port2) &&
 	    (a->verification_tag1 == b->verification_tag1) && a->verification_tag1==0 && a->initiate_tag != 0 &&
 	    (a->initiate_tag != b->initiate_tag ))
-		return(ASSOC_NOT_FOUND);
+		return(ASSOC_NOT_FOUND);   /* two INITs that belong to different assocs */
 
 	/* assoc known*/
 	if ((a->port1 == b->port1) &&
@@ -524,7 +524,7 @@ static int
 packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const void *data)
 {
 	struct _sctp_info *sctp_info;
-	guint32 chunk_number = 0, tsnumber;
+	guint32 chunk_number = 0, tsnumber,framenumber;
 	sctp_tmp_info_t tmp_info;
 	sctp_assoc_info_t *info = NULL;
 	sctp_error_info_t *error = NULL;
@@ -546,6 +546,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 
 	sctp_info = (struct _sctp_info *) data;
 	max =0xFFFFFFFF;
+
+	framenumber=pinfo->fd->num;
 
 	type = sctp_info->ip_src.type;
 
@@ -680,7 +682,9 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				tsn  = g_malloc(sizeof(tsn_t));
 				sack = g_malloc(sizeof(tsn_t));
 				tsn->tsns  = NULL;
+				tsn->first_tsn = 0;
 				sack->tsns = NULL;
+				sack->first_tsn = 0;
 				sack->src.type=tsn->src.type = tmp_info.src.type;
 				sack->src.len=tsn->src.len   = tmp_info.src.len;
 				addr = g_malloc(tmp_info.src.len);
@@ -774,6 +778,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					sack = g_malloc(sizeof(tsn_t));
 					tsn->tsns  = NULL;
 					sack->tsns = NULL;
+					tsn->first_tsn = 0;
+					sack->first_tsn = 0;
 				}
 				for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
@@ -805,6 +811,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 							info->n_data_bytes_ep1+=length;
 							info->max_tsn1 = tsnumber;
 						}
+						if (tsn->first_tsn == 0)
+							tsn->first_tsn = tsnumber;
 						t_s_n = g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, 16);
 						tsn->tsns = g_list_append(tsn->tsns, t_s_n);
@@ -814,6 +822,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						tsn_s->secs     = tsn->secs;
 						tsn_s->usecs    = tsn->usecs;
 						tsn_s->offset   = 0;
+						tsn_s->framenumber = framenumber;
 						tsn_s->length   = length-DATA_CHUNK_HEADER_LENGTH;
 						g_ptr_array_add(info->sort_tsn1, tsn_s);
 						info->n_array_tsn1++;
@@ -827,6 +836,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 							info->max_tsn2 = tsnumber;
 						info->n_sack_chunks_ep2++;
 						length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET);
+						if (sack->first_tsn == 0)
+							sack->first_tsn = tsnumber;
 						t_s_n = g_malloc(length);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
 						sack->tsns = g_list_append(sack->tsns, t_s_n);
@@ -836,6 +847,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						tsn_s->secs     = tsn->secs;
 						tsn_s->usecs    = tsn->usecs;
 						tsn_s->offset   = 0;
+						tsn_s->framenumber = framenumber;
 						tsn_s->length   =  tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 						if (tsn_s->length > info->max_window1)
 							info->max_window1 = tsn_s->length;
@@ -894,7 +906,9 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			tsn  = g_malloc(sizeof(tsn_t));
 			sack = g_malloc(sizeof(tsn_t));
 			tsn->tsns  = NULL;
+			tsn->first_tsn = 0;
 			sack->tsns = NULL;
+			sack->first_tsn = 0;
 			sack->src.type = tsn->src.type = tmp_info.src.type;
 			sack->src.len  = tsn->src.len = tmp_info.src.len;
 			addr = g_malloc(tmp_info.src.len);
@@ -1034,8 +1048,10 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			{
 				sack = g_malloc(sizeof(tsn_t));
 				sack->tsns = NULL;
+				sack->first_tsn = 0;
 				tsn = g_malloc(sizeof(tsn_t));
 				tsn->tsns = NULL;
+				tsn->first_tsn = 0;
 			}
 			for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 			{
@@ -1060,6 +1076,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0)) == SCTP_DATA_CHUNK_ID)
 				{
 					tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], DATA_CHUNK_TSN_OFFSET);
+					if (tsn->first_tsn == 0)
+						tsn->first_tsn = tsnumber;
 					t_s_n = g_malloc(16);
 					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, 16);
 					tsn->tsns = g_list_append(tsn->tsns, t_s_n);
@@ -1072,6 +1090,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					tsn_s->secs  = tsn->secs;
 					tsn_s->usecs = tsn->usecs;
 					tsn_s->offset = 0;
+					tsn_s->framenumber = framenumber;
 					tsn_s->length = length;
 	
 					if (info->direction == 1)
@@ -1131,6 +1150,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				{
 					tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
 					length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET);
+					if (sack->first_tsn == 0)
+						sack->first_tsn = tsnumber;
 					t_s_n = g_malloc(length);
 					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
 					sack->tsns = g_list_append(sack->tsns, t_s_n);
@@ -1140,6 +1161,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					tsn_s->secs   = tsn->secs;
 					tsn_s->usecs  = tsn->usecs;
 					tsn_s->offset = 0;
+					tsn_s->framenumber = framenumber;
 					tsn_s->length = tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 	
 	

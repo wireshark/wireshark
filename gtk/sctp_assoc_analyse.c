@@ -349,8 +349,7 @@ void
 sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 {
 	gchar *f_string = NULL;
-	guint32 framenumber=0;
-	GList *list, *srclist, *dstlist;
+	GList *srclist, *dstlist;
 	gchar *str=NULL;
 	GString *gstring=NULL;
 	struct sockaddr_in *infosrc=NULL;
@@ -358,107 +357,87 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 	sctp_assoc_info_t *selected_stream;
 	gchar *filter_string = NULL;
 	selected_stream=u_data->assoc;
-
-	if (selected_stream->n_packets > 8)
-	{	
-		if (selected_stream->check_address==FALSE)
-		{
-			f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
-		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
-		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"
-		                                   "(sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
-		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
-		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))))",
-			selected_stream->port1,
-			selected_stream->port2,
-			selected_stream->verification_tag1,
-			/*selected_stream->verification_tag2,*/
-			selected_stream->initiate_tag,
-			selected_stream->verification_tag2,
-			selected_stream->port2,
-			selected_stream->port1,
-			selected_stream->verification_tag2,
-			/*selected_stream->verification_tag1,*/
-			selected_stream->initiate_tag,
-			selected_stream->verification_tag1);
-			filter_string = f_string;
-		}
-		else
-		{
-			srclist = g_list_first(selected_stream->addr1);
-			infosrc=(struct sockaddr_in *) (srclist->data);
-			gstring = g_string_new(g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && (ip.src==%s",
-				selected_stream->port1, selected_stream->port2, ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr))));
-			srclist= g_list_next(srclist);
-
-			while (srclist)
-			{
-				infosrc=(struct sockaddr_in *) (srclist->data);
-				str =g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
-				g_string_append(gstring, str);
-				srclist= g_list_next(srclist);
-			}
-
-			dstlist = g_list_first(selected_stream->addr2);
-			infodst=(struct sockaddr_in *) (dstlist->data);
-			str = g_strdup_printf(") && (ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
-			g_string_append(gstring, str);
-			dstlist= g_list_next(dstlist);
-			while (dstlist)
-			{
-				infodst=(struct sockaddr_in *) (dstlist->data);
-				str =g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
-				g_string_append(gstring, str);
-				dstlist= g_list_next(dstlist);
-			}
-
-			srclist = g_list_first(selected_stream->addr1);
-			infosrc=(struct sockaddr_in *) (srclist->data);
-			str = g_strdup_printf(")) || (sctp.dstport==%u && sctp.srcport==%u && (ip.dst==%s",
-				selected_stream->port1, selected_stream->port2, ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
-			g_string_append(gstring, str);
-			srclist= g_list_next(srclist);
-
-			while (srclist)
-			{
-				infosrc=(struct sockaddr_in *) (srclist->data);
-				str =g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
-				g_string_append(gstring, str);
-				srclist= g_list_next(srclist);
-			}
-
-			dstlist = g_list_first(selected_stream->addr2);
-			infodst=(struct sockaddr_in *) (dstlist->data);
-			str = g_strdup_printf(") && (ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
-			g_string_append(gstring, str);
-			dstlist= g_list_next(dstlist);
-			while (dstlist)
-			{
-				infodst=(struct sockaddr_in *) (dstlist->data);
-				str =g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
-				g_string_append(gstring, str);
-				dstlist= g_list_next(dstlist);
-			}
-			str = g_strdup_printf(")))");
-			g_string_append(gstring, str);
-			filter_string = gstring->str;
-			g_string_free(gstring,FALSE);
-		}
+	
+	if (selected_stream->check_address==FALSE)
+	{
+		f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+						"(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
+						"(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"
+						"(sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+						"(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
+						"(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))))",
+		selected_stream->port1,
+		selected_stream->port2,
+		selected_stream->verification_tag1,
+		/*selected_stream->verification_tag2,*/
+		selected_stream->initiate_tag,
+		selected_stream->verification_tag2,
+		selected_stream->port2,
+		selected_stream->port1,
+		selected_stream->verification_tag2,
+		/*selected_stream->verification_tag1,*/
+		selected_stream->initiate_tag,
+		selected_stream->verification_tag1);
+		filter_string = f_string;
 	}
 	else
 	{
-		printf("else\n");
-		list = g_list_first(selected_stream->frame_numbers);
-		framenumber = *((guint32 *)(list->data));
-		gstring = g_string_new(g_strdup_printf("frame.number==%u",framenumber));
-		list = g_list_next(list);
-		while (list)
+		srclist = g_list_first(selected_stream->addr1);
+		infosrc=(struct sockaddr_in *) (srclist->data);
+		gstring = g_string_new(g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && (ip.src==%s",
+			selected_stream->port1, selected_stream->port2, ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr))));
+		srclist= g_list_next(srclist);
+
+		while (srclist)
 		{
-			framenumber = *((guint32 *)(list->data));
-			str =g_strdup_printf(" || frame.number==%u",framenumber);
+			infosrc=(struct sockaddr_in *) (srclist->data);
+			str =g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
 			g_string_append(gstring, str);
-			list = g_list_next(list);
+			srclist= g_list_next(srclist);
 		}
+
+		dstlist = g_list_first(selected_stream->addr2);
+		infodst=(struct sockaddr_in *) (dstlist->data);
+		str = g_strdup_printf(") && (ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+		g_string_append(gstring, str);
+		dstlist= g_list_next(dstlist);
+		while (dstlist)
+		{
+			infodst=(struct sockaddr_in *) (dstlist->data);
+			str =g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+			g_string_append(gstring, str);
+			dstlist= g_list_next(dstlist);
+		}
+
+		srclist = g_list_first(selected_stream->addr1);
+		infosrc=(struct sockaddr_in *) (srclist->data);
+		str = g_strdup_printf(")) || (sctp.dstport==%u && sctp.srcport==%u && (ip.dst==%s",
+			selected_stream->port1, selected_stream->port2, ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+		g_string_append(gstring, str);
+		srclist= g_list_next(srclist);
+
+		while (srclist)
+		{
+			infosrc=(struct sockaddr_in *) (srclist->data);
+			str =g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+			g_string_append(gstring, str);
+			srclist= g_list_next(srclist);
+		}
+
+		dstlist = g_list_first(selected_stream->addr2);
+		infodst=(struct sockaddr_in *) (dstlist->data);
+		str = g_strdup_printf(") && (ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+		g_string_append(gstring, str);
+		dstlist= g_list_next(dstlist);
+		while (dstlist)
+		{
+			infodst=(struct sockaddr_in *) (dstlist->data);
+			str =g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+			g_string_append(gstring, str);
+			dstlist= g_list_next(dstlist);
+		}
+		str = g_strdup_printf(")))");
+		g_string_append(gstring, str);
 		filter_string = gstring->str;
 		g_string_free(gstring,FALSE);
 	}
