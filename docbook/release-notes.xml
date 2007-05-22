@@ -124,6 +124,11 @@ Wireshark Info
           data.
         </para></listitem>
 
+        <listitem><para>
+          You must now explicitly pass "--disable-wireshark" to the build
+          environment if you only want to build TShark.
+        </para></listitem>
+
       </itemizedlist>
     </para>
 
