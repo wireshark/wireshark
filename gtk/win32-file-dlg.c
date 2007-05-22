@@ -381,8 +381,8 @@ win32_merge_file (HWND h_wnd) {
 	switch (merge_action) {
 	    case merge_append:
 		/* append file */
-		in_filenames[0] = utf_16to8(file_name);
-		in_filenames[1] = cfile.filename;
+		in_filenames[0] = cfile.filename;
+		in_filenames[1] = utf_16to8(file_name);
 		merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
 		break;
 	    case merge_chrono:
@@ -393,9 +393,9 @@ win32_merge_file (HWND h_wnd) {
 		break;
 	    case merge_prepend:
 		/* prepend file */
-		in_filenames[0] = cfile.filename;
-		in_filenames[1] = utf_16to8(file_name);
-                merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
+		in_filenames[0] = utf_16to8(file_name);
+		in_filenames[1] = cfile.filename;
+		merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
 		break;
 	    default:
 		g_assert_not_reached();
