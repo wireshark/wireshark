@@ -256,7 +256,6 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
             "!(%s)", follow_filter);
 	}
 
-
 	gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
 	/* Run the display filter so it goes in effect - even if it's the
@@ -265,6 +264,16 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* Free the filter string, as we're done with it. */
 	g_free(follow_filter);
+
+	/* Check whether we got any data written to the file. */
+	if (empty_tcp_stream) {
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			  "The packets in the capture file for that stream have no data.");
+	    eth_close(tmp_fd);
+	    unlink(follow_info->data_out_filename);
+	    g_free(follow_info);
+	    return;
+	}
 
 	/* Go back to the top of the file and read the first tcp_stream_chunk
 	 * to ensure that the IP addresses and port numbers in the drop-down

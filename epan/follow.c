@@ -51,7 +51,8 @@ typedef struct _tcp_frag {
 
 FILE* data_out_file = NULL;
 
-gboolean incomplete_tcp_stream = FALSE;
+gboolean empty_tcp_stream;
+gboolean incomplete_tcp_stream;
 
 static guint8  ip_address[2][MAX_IPADDR_LEN];
 static guint   tcp_port[2];
@@ -304,9 +305,12 @@ check_fragments( int index, tcp_stream_chunk *sc ) {
 
 /* this should always be called before we start to reassemble a stream */
 void
-reset_tcp_reassembly() {
+reset_tcp_reassembly(void)
+{
   tcp_frag *current, *next;
   int i;
+
+  empty_tcp_stream = TRUE;
   incomplete_tcp_stream = FALSE;
   for( i=0; i<2; i++ ) {
     seq[i] = 0;
@@ -332,4 +336,5 @@ write_packet_data( int index, tcp_stream_chunk *sc, const char *data )
   DISSECTOR_ASSERT(1 * sizeof(tcp_stream_chunk) == fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file ));
   DISSECTOR_ASSERT(1 * sc->dlen == fwrite( data, 1, sc->dlen, data_out_file ));
   bytes_written[index] += sc->dlen;
+  empty_tcp_stream = FALSE;
 }

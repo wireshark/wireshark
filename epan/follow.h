@@ -32,6 +32,7 @@
 #define MAX_IPADDR_LEN	16
 
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
+WS_VAR_IMPORT gboolean empty_tcp_stream;
 WS_VAR_IMPORT gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_stream_chunk {
