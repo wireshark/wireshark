@@ -119,7 +119,7 @@ static gint ett_ber_octet_string = -1;
 static gint ett_ber_unknown = -1;
 static gint ett_ber_SEQUENCE = -1;
 static gint ett_ber_EXTERNAL = -1;
-static gint ett_ber_encoding = -1;
+static gint ett_ber_T_encoding = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
@@ -1291,7 +1291,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		int hoffset, eoffset, count;
 
 		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
-					but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+					but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				/* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
 				offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -1597,7 +1597,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
 		int hoffset, eoffset, count;
 
 		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
-					but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+					but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				/* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
 				offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -1915,7 +1915,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 		int hoffset, eoffset, count;
 
 		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
-		  but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+		  but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				if(show_internal_ber_fields){
@@ -2169,7 +2169,7 @@ printf("SET dissect_old_ber_set(%s) entered\n",name);
 		int hoffset, eoffset, count;
 
 		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
-		  but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+		  but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				if(show_internal_ber_fields){
@@ -3641,105 +3641,102 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
  *		arbitrary						[2] IMPLICIT BIT STRING } }
  *	
  */
-/*
-static int dissect_single_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
 
-	/ FIX ME /
+static int
+dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
   return offset;
 }
-static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_ber_octet_aligned,
+
+static int
+dissect_ber_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
+static int
+dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
-static int dissect_arbitrary_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  offset = dissect_ber_bitstring(TRUE, actx, tree, tvb, offset,
-                                    NULL, hf_ber_arbitrary, -1,
+  return offset;
+}
+
+static int
+dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_ObjectDescriptor,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+static int
+dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+/* FIX ME */
+	return offset;
+}
+
+static int
+dissect_ber_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
                                     NULL);
 
   return offset;
 }
 
-static int dissect_indirect_reference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_ber_indirect_reference,
-                                  NULL);
-  return offset;
-
-}
-
-static int dissect_direct_reference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset, hf_ber_direct_reference, NULL);
-  return offset;
-}
-
-static int dissect_data_value_descriptor(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-    offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_ObjectDescriptor,
-                                            actx, tree, tvb, offset, hf_ber_data_value_descriptor,
-                                            NULL);
-
-	return offset;
-}
-*/
 static const value_string ber_T_encoding_vals[] = {
   {   0, "single-ASN1-type" },
   {   1, "octet-aligned" },
   {   2, "arbitrary" },
   { 0, NULL }
 };
-/*
-static const ber_choice_t ber_T_encoding_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_single_ASN1_type },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_arbitrary_impl },
-  { 0, 0, 0, 0, NULL }
+
+static const ber_choice_t T_encoding_choice[] = {
+  {   0, &hf_ber_single_ASN1_type, BER_CLASS_CON, 0, 0, dissect_ber_T_single_ASN1_type },
+  {   1, &hf_ber_octet_aligned  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ber_OCTET_STRING },
+  {   2, &hf_ber_arbitrary      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ber_BIT_STRING },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int dissect_encoding(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+
+static int
+dissect_ber_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ber_T_encoding_choice, hf_ber_encoding, ett_ber_encoding,
-                                 &actx->external.ber.encoding);
+                                 T_encoding_choice, hf_index, ett_ber_T_encoding,
+                                 NULL);
 
   return offset;
 }
 
-static const ber_sequence_t EXTERNAL_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
-  { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
-  { BER_CLASS_ANY/choice/, -1/choice/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
-  { 0, 0, 0, NULL }
+
+static const ber_sequence_t external_U_sequence[] = {
+  { &hf_ber_direct_reference, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ber_OBJECT_IDENTIFIER },
+  { &hf_ber_indirect_reference, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ber_INTEGER },
+  { &hf_ber_data_value_descriptor, BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ber_ObjectDescriptor },
+  { &hf_ber_encoding       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ber_T_encoding },
+  { NULL, 0, 0, 0, NULL }
 };
-*/
 static int
-dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_ , proto_tree *tree, int hf_index _U_)
+dissect_ber_etxternal_U(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_ , proto_tree *tree, int hf_index _U_)
 {
-	gint8 class;
-	gboolean pc, ind = FALSE;
-	gint32 tag;
-	guint32 len;
-
-	if(!implicit_tag){
-
-		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-	}
-	/*
-
-	offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
-                                   EXTERNAL_sequence, hf_index, ett_ber_EXTERNAL);
-*/
-	return offset;
-
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   external_U_sequence, hf_index, ett_ber_EXTERNAL);
+  return offset;
 }
 
 int
-dissect_ber_external_type(gboolean implicit_tag, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func){
+dissect_ber_external_type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func){
 
 	actx->external.ber.ber_callback =  func;
 
-	offset = dissect_ber_external(implicit_tag, tvb, offset, actx, parent_tree, hf_id);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_id, BER_CLASS_UNI, 8, TRUE, dissect_ber_etxternal_U);
+
+  return offset;
 
 	asn1_ctx_clean_external(actx);
 
@@ -3902,7 +3899,7 @@ proto_register_ber(void)
 	&ett_ber_unknown,
 	&ett_ber_SEQUENCE,
 	&ett_ber_EXTERNAL,
-	&ett_ber_encoding,
+	&ett_ber_T_encoding,
     };
     module_t *ber_module;
 
