@@ -14118,6 +14118,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		}
 		break;
 	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
+		item=proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
+		PROTO_ITEM_SET_GENERATED(item);
 		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
@@ -17973,7 +17975,7 @@ proto_register_smb(void)
 		NULL, 0, "Latest referral version number understood", HFILL }},
 
 	{ &hf_smb_qfsi_information_level,
-		{ "Level of Interest", "smb.qfi_loi", FT_UINT16, BASE_HEX,
+		{ "Level of Interest", "smb.qfsi_loi", FT_UINT16, BASE_HEX,
 		VALS(qfsi_vals), 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
 
   	{ &hf_smb_nt_rename_level,
