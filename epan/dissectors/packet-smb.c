@@ -2445,6 +2445,12 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* dir name */
 	dn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &dn_len,
 		FALSE, FALSE, &bc);
+
+	if(si->sip){
+		si->sip->extra_info_type=SMB_EI_FILENAME;
+		si->sip->extra_info=se_strdup(dn);
+	}
+
 	if (dn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_dir_name, tvb, offset, dn_len,
