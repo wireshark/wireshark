@@ -18,7 +18,7 @@ platform=`uname -p`
 
 expected_platform="@host_cpu@"
 
-if [ -x $GTK_CONFIG ] ; then
+if [ -x "$GTK_CONFIG" ] ; then
   # First try the GTK location that was used to build wireshark.  This
   # is probably the safest bet.
   gtk_installed=`$GTK_CONFIG --version`
