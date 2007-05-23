@@ -1141,7 +1141,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			for (i=0; i<s_size; i++)
 			{
 				sack = (struct tsn_sort*)(g_ptr_array_index(sacklist, i));
-				if (abs(sack->tsnumber - y_value)<y_tolerance)
+				if ((guint32)abs(sack->tsnumber - y_value)<y_tolerance)
 				{
 					s_diff = fabs((sack->secs+sack->usecs/1000000.0)- x_value);
 					if (s_diff < x_tolerance)
@@ -1153,7 +1153,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			for (i=0; i<t_size; i++)
 			{
 				tsn = (struct tsn_sort*)(g_ptr_array_index(tsnlist, i));
-				if (abs(tsn->tsnumber - y_value)<y_tolerance)
+				if ((guint32)abs(tsn->tsnumber - y_value)<y_tolerance)
 				{
 					t_diff = fabs((tsn->secs+tsn->usecs/1000000.0)- x_value);
 					if (sack_found && s_diff < t_diff)
