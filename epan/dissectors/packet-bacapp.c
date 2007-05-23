@@ -5750,7 +5750,7 @@ fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *o
 	guint8 **outpp = &outp;
 
     if ((icd = iconv_open ("UTF-8", fromcoding)) != (iconv_t) -1) {
-        i = iconv (icd, inpp, inbytesleft, (char**) outpp, outbytesleft);
+        i = iconv (icd, (char**) inpp, inbytesleft, (char**) outpp, outbytesleft);
 		*outpp[0] = '\0';
         iconv_close (icd);
         return i;
