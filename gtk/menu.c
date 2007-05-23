@@ -529,10 +529,10 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/Resize All Columns", NULL, packet_list_resize_columns_cb,
                        0, WIRESHARK_STOCK_RESIZE_COLUMNS),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/E_xpand Subtrees", NULL, expand_tree_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
+    ITEM_FACTORY_ENTRY("/View/E_xpand Subtrees", "<shift>Right", expand_tree_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/_Expand All", "<control>Right", expand_all_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
+    ITEM_FACTORY_ENTRY("/View/Collapse _All", "<control>Left", collapse_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
@@ -540,8 +540,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Display Filter _Macros...", NULL, macros_dialog_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-	
-	
+
+
     ITEM_FACTORY_ENTRY("/View/Show Packet in New _Window", NULL,
                        new_window_cb, 0, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Reload", "<control>R", file_reload_cmd_cb,
@@ -906,7 +906,7 @@ menus_init(void) {
 
     /* init with an empty recent files list */
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
-	
+
   }
 }
 
@@ -1215,7 +1215,7 @@ void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
-#endif	
+#endif
 }
 
 

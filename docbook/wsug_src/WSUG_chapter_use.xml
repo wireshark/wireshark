@@ -169,14 +169,14 @@
 		    </para></entry>
 		</row>
 		<row>
-		  <entry>Ctrl-Down, F8</entry>
+		  <entry>Ctrl+Down, F8</entry>
 		  <entry><para>
 		      Move to the next packet, even if the packet
                       list isn't focused.
 		    </para></entry>
 		</row>
 		<row>
-		  <entry>Ctrl-Up, F7</entry>
+		  <entry>Ctrl+Up, F7</entry>
 		  <entry><para>
 		      Move to the previous packet, even if the packet
                       list isn't focused.
@@ -193,6 +193,25 @@
 		  <entry>Right</entry>
 		  <entry><para>
 		      In the packet detail, opens the selected tree item.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Shift+Right</entry>
+		  <entry><para>
+		      In the packet detail, opens the selected tree item
+                      and all of its subtrees.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Ctrl+Right</entry>
+		  <entry><para>
+		      In the packet detail, opens all tree items.
+		    </para></entry>
+		</row>
+		<row>
+		  <entry>Ctrl+Left</entry>
+		  <entry><para>
+		      In the packet detail, closes all tree items.
 		    </para></entry>
 		</row>
 		<row>
