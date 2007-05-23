@@ -982,7 +982,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
             continue;
-        if (! isprint(buffer[i])) {
+        if (! isprint((guchar)buffer[i])) {
             buffer[i] = '.';
         }
     }
