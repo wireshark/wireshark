@@ -615,6 +615,9 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 					pkt->sd_offset = state->offset;
 				}
 
+				if (n == 0)
+					continue;
+
 				g_assert(num_bytes_to_skip < n);
 				while (num_bytes_to_skip) {
 					if (file_getc(fh) == EOF)
