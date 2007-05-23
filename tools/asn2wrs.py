@@ -1532,11 +1532,8 @@ class EthCtx:
     for t in tmplist:
       msg = "The same type names for different types. Explicit type renaming is recommended.\n"
       msg += t + "\n"
-      x = ''
       for tt in self.eth_type_dupl[t]:
-        msg += " %-20s %s\n" % (t+str(x), tt)
-        if not x: x = 1
-        else: x += 1
+        msg += " %-20s %s\n" % (self.type[tt]['ethname'], tt)
       warnings.warn_explicit(msg, UserWarning, '', '')
     # fields
     tmplist = self.eth_hf_dupl.keys()
