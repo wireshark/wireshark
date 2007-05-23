@@ -191,6 +191,8 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 			case CB_NEW_DISSECTOR:
 				((new_dissector_t)type_cb)(val_tvb, actx->pinfo, subtree);
 				break;
+			case CB_DISSECTOR_HANDLE:
+				break;
 		}
 	} else {
 		actx->created_item = proto_tree_add_text(tree, tvb, offset>>3, BLEN(offset, end_offset), "Unknown Open Type");
