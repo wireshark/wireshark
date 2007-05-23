@@ -972,79 +972,79 @@ static int dissect_nbap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset, a
 	
 	switch(ProcedureCode){
 	case NBAP_ID_AUDIT:											/* 	0 */
-		offset = dissect_id_audit1(tvb, offset, actx, value_tree);
+		offset = dissect_id_audit_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_BLOCKRESOURCE:									/* 	2 */
-		offset = dissect_id_blockResource1(tvb, offset, actx, value_tree);
+		offset = dissect_id_blockResource_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLDELETION:									/* 	3 */
-		offset = dissect_id_cellDeletion1(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellDeletion_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLRECONFIGURATION: 							/* 	4 */
-		offset = dissect_id_cellReconfiguration1(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellReconfiguration_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSETUP:										/* 	5 */
-		offset = dissect_id_cellSetup1(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSetup_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONMEASUREMENTINITIATION: 					/* 	7 */
-		offset = dissect_id_commonMeasurementInitiation1(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonMeasurementInitiation_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONTRANSPORTCHANNELDELETE: 					/*	10 */
-		offset = dissect_id_commonTransportChannelDelete1(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonTransportChannelDelete_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONTRANSPORTCHANNELRECONFIGURE:				/*	11 */
-		offset = dissect_id_commonTransportChannelReconfigure1(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonTransportChannelReconfigure_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONTRANSPORTCHANNELSETUP: 					/*	12 */
-		offset = dissect_id_commonTransportChannelSetup1(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonTransportChannelSetup_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_RESET:											/*	13 */
-		offset = dissect_id_reset1(tvb, offset, actx, value_tree);
+		offset = dissect_id_reset_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_DEDICATEDMEASUREMENTINITIATION: 				/*	17 */
 		offset = dissect_id_dedicatedMeasurementInitiation(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_RADIOLINKADDITION:								/*	23 */
 		if (ddMode==NBAP_FDD){
-			offset = dissect_id_radioLinkAddition1(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkAddition_01(tvb, offset, actx, value_tree);
 		}else{
 			offset = dissect_id_radioLinkAddition_tdd(tvb, offset, actx, value_tree);
 		}
 		break;
 		break;
 	case NBAP_ID_RADIOLINKDELETION:								/*	24 */
-		offset = dissect_id_radioLinkDeletion1(tvb, offset, actx, value_tree);
+		offset = dissect_id_radioLinkDeletion_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_RADIOLINKSETUP: 								/*	27 */
 		if (ddMode==NBAP_FDD){
-			offset = dissect_id_radioLinkSetup1(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkSetup_01(tvb, offset, actx, value_tree);
 		}else{
-			offset = dissect_id_radioLinkSetup_tdd1(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkSetup_tdd_01(tvb, offset, actx, value_tree);
 		}
 		break;
 	case NBAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION: /*	31 */
-		offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation1(tvb, offset, actx, value_tree);
+		offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_SYSTEMINFORMATIONUPDATE: 						/*	32 */
-		offset = dissect_id_systemInformationUpdate1(tvb, offset, actx, value_tree);
+		offset = dissect_id_systemInformationUpdate_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION: 		/*	34 */
-		offset = dissect_id_unSynchronisedRadioLinkReconfiguration1(tvb, offset, actx, value_tree);
+		offset = dissect_id_unSynchronisedRadioLinkReconfiguration_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_PHYSICALSHAREDCHANNELRECONFIGURATION: 			/*	37 */
-		offset = dissect_id_physicalSharedChannelReconfiguration1(tvb, offset, actx, value_tree);
+		offset = dissect_id_physicalSharedChannelReconfiguration_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_INFORMATIONEXCHANGEINITIATION:					/*	41 */
-		offset = dissect_id_informationExchangeInitiation1(tvb, offset, actx, value_tree);
+		offset = dissect_id_informationExchangeInitiation_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSYNCHRONISATIONADJUSTMENT:					/*	44 */
-		offset = dissect_id_cellSynchronisationAdjustment1(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSynchronisationAdjustment_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSYNCHRONISATIONINITIATION:					/*	45 */
-		offset = dissect_id_cellSynchronisationInitiation1(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSynchronisationInitiation_01(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSYNCHRONISATIONRECONFIGURATION:			/*	46 */
-		offset = dissect_id_cellSynchronisationReconfiguration1(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSynchronisationReconfiguration_01(tvb, offset, actx, value_tree);
 		break;
 	default:
 		offset = offset + length;
@@ -1068,66 +1068,66 @@ static int dissect_nbap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, int offset,
 	
 	switch(ProcedureCode){
 	case NBAP_ID_AUDIT:											/* 	0 */
-		offset = dissect_id_audit2(tvb, offset, actx, value_tree);
+		offset = dissect_id_audit_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_BLOCKRESOURCE:									/* 	2 */
-		offset = dissect_id_blockResource2(tvb, offset, actx, value_tree);
+		offset = dissect_id_blockResource_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLDELETION:									/* 	3 */
-		offset = dissect_id_cellReconfiguration2(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellReconfiguration_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSETUP:										/* 	5 */
-		offset = dissect_id_cellSetup2(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSetup_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONMEASUREMENTINITIATION: 					/* 	7 */
-		offset = dissect_id_commonMeasurementInitiation2(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonMeasurementInitiation_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONTRANSPORTCHANNELRECONFIGURE:				/*	11 */
-		offset = dissect_id_commonTransportChannelReconfigure2(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonTransportChannelReconfigure_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_COMMONTRANSPORTCHANNELSETUP: 					/*	12 */
-		offset = dissect_id_commonTransportChannelSetup2(tvb, offset, actx, value_tree);
+		offset = dissect_id_commonTransportChannelSetup_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_DEDICATEDMEASUREMENTINITIATION: 				/*	17 */
-		offset = dissect_id_dedicatedMeasurementInitiation2(tvb, offset, actx, value_tree);
+		offset = dissect_id_dedicatedMeasurementInitiation_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_RADIOLINKADDITION:								/*	23 */
 		if (ddMode==NBAP_FDD){
-			offset = dissect_id_radioLinkAddition2(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkAddition_02(tvb, offset, actx, value_tree);
 		}else{
-			offset = dissect_id_radioLinkAddition_tdd1(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkAddition_tdd_01(tvb, offset, actx, value_tree);
 		}
 		break;
 	case NBAP_ID_RADIOLINKSETUP: 								/*	27 */
 		if (ddMode==NBAP_FDD){
-			offset = dissect_id_radioLinkSetup2(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkSetup_02(tvb, offset, actx, value_tree);
 		}else{
-			offset = dissect_id_radioLinkSetup_tdd2(tvb, offset, actx, value_tree);
+			offset = dissect_id_radioLinkSetup_tdd_02(tvb, offset, actx, value_tree);
 		}
 		break;
 	case NBAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION: /*	31 */
-		offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation2(tvb, offset, actx, value_tree);
+		offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_SYSTEMINFORMATIONUPDATE: 						/*	32 */
-		offset = dissect_id_systemInformationUpdate2(tvb, offset, actx, value_tree);
+		offset = dissect_id_systemInformationUpdate_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION: 		/*	34 */
-		offset = dissect_id_unSynchronisedRadioLinkReconfiguration2(tvb, offset, actx, value_tree);
+		offset = dissect_id_unSynchronisedRadioLinkReconfiguration_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_PHYSICALSHAREDCHANNELRECONFIGURATION: 			/*	37 */
-		offset = dissect_id_physicalSharedChannelReconfiguration2(tvb, offset, actx, value_tree);
+		offset = dissect_id_physicalSharedChannelReconfiguration_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_INFORMATIONEXCHANGEINITIATION:					/*	41 */
-		offset = dissect_id_informationExchangeInitiation2(tvb, offset, actx, value_tree);
+		offset = dissect_id_informationExchangeInitiation_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSYNCHRONISATIONADJUSTMENT:					/*	44 */
-		offset = dissect_id_cellSynchronisationAdjustment2(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSynchronisationAdjustment_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSYNCHRONISATIONINITIATION:					/*	45 */
-		offset = dissect_id_cellSynchronisationInitiation2(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSynchronisationInitiation_02(tvb, offset, actx, value_tree);
 		break;
 	case NBAP_ID_CELLSYNCHRONISATIONRECONFIGURATION:			/*	46 */
-		offset = dissect_id_cellSynchronisationReconfiguration2(tvb, offset, actx, value_tree);
+		offset = dissect_id_cellSynchronisationReconfiguration_02(tvb, offset, actx, value_tree);
 		break;
 	default:
 		offset = offset + length;

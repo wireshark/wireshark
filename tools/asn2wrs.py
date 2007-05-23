@@ -228,7 +228,7 @@ reserved_words = {
   'COMPONENT'   : 'COMPONENT',
   'COMPONENTS'  : 'COMPONENTS',
   'CONSTRAINED' : 'CONSTRAINED',
-#  'CONTAINING'  : 'CONTAINING',
+  'CONTAINING'  : 'CONTAINING',
   'DEFAULT'     : 'DEFAULT',
   'DEFINITIONS' : 'DEFINITIONS',
 #  'EMBEDDED'    : 'EMBEDDED',
@@ -489,7 +489,12 @@ class EthCtx:
     self.output = output
     self.conform.ectx = self
     self.output.ectx = self
+    self.encoding = 'per'
+    self.aligned = False
     self.new_ber = False
+    self.default_oid_variant = ''
+    self.default_opentype_variant = ''
+    self.default_containing_variant = '_pdu_new'
 
   def encp(self):  # encoding protocol
     encp = self.encoding
@@ -775,6 +780,17 @@ class EthCtx:
       self.eth_reg_type('_dummy/'+nm, NullType())
       self.eth_reg_field(nm, '_dummy/'+nm, pdu=self.conform.use_item('PDU', nm))
 
+    #--- required PDUs ----------------------------
+    for t in self.type_ord:
+      pdu = self.type[t]['val'].eth_need_pdu(self)
+      if not pdu: continue
+      f = pdu['type']
+      pdu['reg'] = None
+      pdu['hidden'] = False
+      pdu['need_decl'] = True
+      if not self.field.has_key(f):
+        self.eth_reg_field(f, f, pdu=pdu)
+
     #--- values -> named values -------------------
     v_for_remove = []
     t_for_update = {}
@@ -822,7 +838,7 @@ class EthCtx:
             self.eth_type_dupl[nm].append(t)
           else:
             self.eth_type_dupl[nm] = [self.eth_type[nm]['ref'][0], t]
-          nm += str(len(self.eth_type_dupl[nm])-1)
+          nm += '_%02d' % (len(self.eth_type_dupl[nm])-1)
       if self.eth_type.has_key(nm):
         self.eth_type[nm]['ref'].append(t)
       else:
@@ -935,7 +951,7 @@ class EthCtx:
             self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
             continue
           else:
-            nmx = nm + str(len(self.eth_hf_dupl[nm]))
+            nmx = nm + ('_%02d' % (len(self.eth_hf_dupl[nm])))
             self.eth_hf_dupl[nm][ethtype] = nmx
             nm = nmx
         else:
@@ -946,9 +962,10 @@ class EthCtx:
             self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
             continue
           else:
+            nmx = nm + '_01'
             self.eth_hf_dupl[nm] = {self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified'] : nm, \
-                                    ethtypemod : nm+'1'}
-            nm += '1'
+                                    ethtypemod : nmx}
+            nm = nmx
       if (self.field[f]['pdu']):
         self.eth_hfpdu_ord.append(nm)
       else:
@@ -1331,6 +1348,17 @@ class EthCtx:
         out += '}\n'
       return out
     #end out_field()
+    def out_pdu_decl(f):
+      t = self.eth_hf[f]['ethtype']
+      is_new = self.eth_hf[f]['pdu']['new']
+      out = 'static '
+      if (is_new):
+        out += 'int'
+      else:
+        out += 'void'
+      out += ' dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
+      return out
+    #end out_pdu_decl()
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
       is_new = self.eth_hf[f]['pdu']['new']
@@ -1373,6 +1401,11 @@ class EthCtx:
     #end out_pdu()
     fx = self.output.file_open('fn')
     pos = fx.tell()
+    if (len(self.eth_hfpdu_ord)):
+      for f in self.eth_hfpdu_ord:
+        if (self.eth_hf[f]['pdu'] and self.eth_hf[f]['pdu']['need_decl']):
+          fx.write(out_pdu_decl(f))
+      fx.write('\n')
     if self.eth_dep_cycle:
       fx.write('/*--- Cyclic dependencies ---*/\n\n')
       i = 0
@@ -1725,7 +1758,7 @@ class EthCnf:
     (reg, hidden) = (None, False)
     if (len(par) > 1): reg = par[1]
     if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
-    attr = {'new' : is_new, 'reg' : reg, 'hidden' : hidden}
+    attr = {'new' : is_new, 'reg' : reg, 'hidden' : hidden, 'need_decl' : False}
     self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
     return
 
@@ -2423,6 +2456,9 @@ class Type (Node):
   def HasPermAlph(self):
     return self.HasConstraint() and self.constr.IsPermAlph()
 
+  def HasContentsConstraint(self):
+    return self.HasConstraint() and self.constr.IsContents()
+
   def HasOwnTag(self):
     return len(self.tags) > 0
 
@@ -2473,6 +2509,9 @@ class Type (Node):
 
   def eth_has_enum(self, tname, ectx):
     return self.eth_has_vals() and (ectx.eth_type[tname]['enum'] & EF_ENUM)
+
+  def eth_need_pdu(self, ectx):
+    return None
 
   def eth_named_bits(self):
     return None
@@ -2694,7 +2733,7 @@ class Constraint (Node):
     return "Constraint: type=%s, subtype=%s" % (self.type, self.subtype)
 
   def IsSize(self):
-    return self.type == 'Size' and self.subtype.IsValue() \
+    return (self.type == 'Size' and self.subtype.IsValue()) \
            or (self.type == 'Intersection' and (self.subtype[0].IsSize() or self.subtype[1].IsSize())) \
 
   def GetSize(self, ectx):
@@ -2787,6 +2826,23 @@ class Constraint (Node):
           alph = self.subtype[1].GetPermAlph(ectx)
     return alph
 
+  def IsContents(self):
+    return self.type == 'Contents' \
+           or (self.type == 'Intersection' and (self.subtype[0].IsContents() or self.subtype[1].IsContents())) \
+
+  def GetContents(self, ectx):
+    contents = None
+    if self.IsContents():
+      if self.type == 'Contents':
+        if self.subtype.type == 'Type_Ref':
+          contents = self.subtype.val
+      elif self.type == 'Intersection':
+        if self.subtype[0].IsContents() and not self.subtype[1].IsContents():
+          contents = self.subtype[0].GetContents(ectx)
+        elif not self.subtype[0].IsContents() and self.subtype[1].IsContents():
+          contents = self.subtype[1].GetContents(ectx)
+    return contents
+
   def IsNegativ(self):
     def is_neg(sval):
       return sval[0] == '-'
@@ -2805,7 +2861,7 @@ class Constraint (Node):
         else:
           return str(val)
       except (ValueError, TypeError):
-        return str(val)
+        return asn2c(str(val))
 
     ext = ''
     if hasattr(self, 'ext') and self.ext:
@@ -3704,6 +3760,9 @@ class ExternalType (Type):
   def eth_ftype(self, ectx):
     return ('FT_NONE', 'BASE_NONE')
 
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_EXTERNAL')
+
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
     pars['TYPE_REF_FN'] = 'NULL'
@@ -3752,6 +3811,7 @@ class OpenType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['FN_VARIANT'] = ectx.default_opentype_variant
     t = self.single_type()
     if t:
       t = ectx.type[t]['ethname']
@@ -3881,9 +3941,34 @@ class OctetStringType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_OCTETSTRING')
 
+  def eth_need_pdu(self, ectx):
+    pdu = None
+    if self.HasContentsConstraint():
+      t = self.constr.GetContents(ectx)
+      if t and (ectx.default_containing_variant in ('_pdu', '_pdu_new')):
+        pdu = { 'type' : t,
+                'new' : ectx.default_containing_variant == '_pdu_new' }
+    return pdu
+
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
     (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
+    if self.HasContentsConstraint():
+      pars['FN_VARIANT'] = ectx.default_containing_variant
+      t = self.constr.GetContents(ectx)
+      if t:
+        if pars['FN_VARIANT'] in ('_pdu', '_pdu_new'):
+          t = ectx.field[t]['ethname']
+          pars['TYPE_REF_PROTO'] = ''
+          pars['TYPE_REF_TNAME'] = t
+          pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_TNAME)s'
+        else:
+          t = ectx.type[t]['ethname']
+          pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
+          pars['TYPE_REF_TNAME'] = t
+          pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+      else:
+        pars['TYPE_REF_FN'] = 'NULL'
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -3892,9 +3977,14 @@ class OctetStringType (Type):
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
-                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                   ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s',),))
+      if self.HasContentsConstraint():
+        body = ectx.eth_fn_call('dissect_%(ER)s_octet_string_containing%(FN_VARIANT)s', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TYPE_REF_FN)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body
@@ -4063,6 +4153,11 @@ class ObjectIdentifierType (Type):
 
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_OID')
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['FN_VARIANT'] = ectx.default_oid_variant
+    return pars
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
@@ -4243,6 +4338,15 @@ class BitStringType (Type):
   def eth_need_tree(self):
     return self.named_list
 
+  def eth_need_pdu(self, ectx):
+    pdu = None
+    if self.HasContentsConstraint():
+      t = self.constr.GetContents(ectx)
+      if t and (ectx.default_containing_variant in ('_pdu', '_pdu_new')):
+        pdu = { 'type' : t,
+                'new' : ectx.default_containing_variant == '_pdu_new' }
+    return pdu
+
   def eth_named_bits(self):
     bits = []
     if (self.named_list):
@@ -4258,6 +4362,22 @@ class BitStringType (Type):
     pars['TABLE'] = 'NULL'
     if self.eth_named_bits():
       pars['TABLE'] = '%(TNAME)s_bits'
+    if self.HasContentsConstraint():
+      pars['FN_VARIANT'] = ectx.default_containing_variant
+      t = self.constr.GetContents(ectx)
+      if t:
+        if pars['FN_VARIANT'] in ('_pdu', '_pdu_new'):
+          t = ectx.field[t]['ethname']
+          pars['TYPE_REF_PROTO'] = ''
+          pars['TYPE_REF_TNAME'] = t
+          pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_TNAME)s'
+        else:
+          t = ectx.type[t]['ethname']
+          pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
+          pars['TYPE_REF_TNAME'] = t
+          pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+      else:
+        pars['TYPE_REF_FN'] = 'NULL'
     return pars
 
   def eth_type_default_table(self, ectx, tname):
@@ -4275,9 +4395,14 @@ class BitStringType (Type):
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_bit_string', ret='offset',
-                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                   ('%(MIN_VAL)s', '%(MAX_VAL)s','%(EXT)s','%(VAL_PTR)s'),))
+      if self.HasContentsConstraint():
+        body = ectx.eth_fn_call('dissect_%(ER)s_bit_string_containing%(FN_VARIANT)s', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(TYPE_REF_FN)s'),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_bit_string', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body
@@ -5261,12 +5386,12 @@ def p_SingleValue (t):
 # 47.3 Contained subtype
 # 47.3.1
 def p_ContainedSubtype (t):
-    'ContainedSubtype : Includes Type'
-    t[0] = Constraint(type = 'ContainedSubtype', subtype = t[2]) 
+  'ContainedSubtype : Includes Type'
+  t[0] = Constraint(type = 'ContainedSubtype', subtype = t[2]) 
 
 def p_Includes (t):
-    '''Includes : INCLUDES 
-                | '''
+  '''Includes : INCLUDES 
+              | '''
 
 # 47.4 Value range
 # 47.4.1
@@ -5606,8 +5731,8 @@ def set_type_to_class(cls, fld, typename, typeref = None):
 # 8.1
 def p_GeneralConstraint (t):
   '''GeneralConstraint : UserDefinedConstraint
-                       | TableConstraint'''
-#                         | ContentsConstraint''
+                       | TableConstraint
+                       | ContentsConstraint'''
   t[0] = t[1]
 
 # 9 User-defined constraints --------------------------------------------------
@@ -5634,7 +5759,7 @@ def p_UserDefinedConstraintParameter (t):
   'UserDefinedConstraintParameter : type_ref'
   t[0] = t[1]
 
-# 10 Table constraints, including component relation constraints
+# 10 Table constraints, including component relation constraints --------------
 
 # 10.3
 def p_TableConstraint (t):
@@ -5650,6 +5775,14 @@ def p_SimpleTableConstraint (t):
 def p_ComponentRelationConstraint (t):
   'ComponentRelationConstraint : LBRACE UCASE_IDENT RBRACE LBRACE AT LCASE_IDENT RBRACE'
   t[0] = t[2] + '@' + t[6]
+
+# 11 Contents constraints -----------------------------------------------------
+
+# 11.1
+def p_ContentsConstraint (t):
+  'ContentsConstraint : CONTAINING type_ref'
+  t[0] = Constraint(type = 'Contents', subtype = t[2]) 
+
 
 #--- ITU-T Recommendation X.683 -----------------------------------------------
 
