@@ -183,6 +183,8 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
                                                     "text", 2, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 2);
   gtk_tree_view_append_column(GTK_TREE_VIEW(proto_list), proto_col);
+
+  gtk_tree_view_set_search_column(GTK_TREE_VIEW(proto_list), 1); /* col 1 in the *model* */
   g_object_unref(G_OBJECT(proto_store));
 #endif
   gtk_widget_show(proto_list);
