@@ -1089,6 +1089,49 @@ standard libpcap format.
       </variablelist>
   </section>
 
+      <section id="ChSccpUsers"><title>SCCP users Table</title>
+    <para>
+          Wireshark uses this table to map specific protocols to a certain DPC/SSN combination for SCCP.
+   </para>
+   <para>
+         This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
+      </para>
+      <variablelist>
+	  <varlistentry><term><command>ni</command></term>
+	  <listitem>
+		<para>
+			An Integer representing the network indicator for which this association is valid.
+		</para>
+	  </listitem>
+	  </varlistentry>
+
+	  <varlistentry><term><command>called_pc</command></term>
+	  <listitem>
+		<para>
+			An range of integers representing the dpcs for which this association is valid.
+		</para>
+	  </listitem>
+	  </varlistentry>
+
+	  <varlistentry><term><command>called_ssn</command></term>
+	  <listitem>
+		<para>
+			An range of integers representing the ssns for which this association is valid.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  
+	  <varlistentry><term><command>user</command></term>
+	  <listitem>
+		<para>
+			The protocol that is carried over this association
+		</para>
+	  </listitem>
+	  </varlistentry>
+
+
+      </variablelist>
+  </section>
 
 
 </chapter>
