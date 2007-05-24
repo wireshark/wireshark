@@ -32,12 +32,12 @@ guint32 UlpMessage;
 	}
 #.END
 
-#.FN_BODY RRLPPayload VAL_PTR = &rrlp_tvb
+#.FN_BODY PosPayLoad/rrlpPayload  VAL_PTR = &rrlp_tvb
  tvbuff_t *rrlp_tvb;
 
 %(DEFAULT_BODY)s
 
-  if (rrlp_tvb){
+  if (rrlp_tvb && rrlp_handle) {
 	call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END

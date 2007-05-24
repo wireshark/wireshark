@@ -47,8 +47,8 @@
 #define PSNAME "ULP"
 #define PFNAME "ulp"
 
-static dissector_handle_t ulp_handle=NULL;
-static dissector_handle_t rrlp_handle;
+static dissector_handle_t ulp_handle = NULL;
+static dissector_handle_t rrlp_handle = NULL;
 
 /* IANA Registered Ports  
  * oma-ulp         7275/tcp    OMA UserPlane Location
@@ -90,22 +90,8 @@ dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tcp_dissect_pdus(tvb, pinfo, tree, ulp_desegment, ULP_HEADER_SIZE,
 	    get_ulp_pdu_len, dissect_ULP_PDU_PDU);
 }
-/*--- proto_reg_handoff_ulp ---------------------------------------*/
-void
-proto_reg_handoff_ulp(void)
-{
 
-	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
-
-	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
-
-	/* application/oma-supl-ulp */
-	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
-
-	rrlp_handle = find_dissector("rrlp");
-
-}
-
+void proto_reg_handoff_ulp(void);
 
 /*--- proto_register_ulp -------------------------------------------*/
 void proto_register_ulp(void) {
@@ -148,4 +134,20 @@ void proto_register_ulp(void) {
  
 }
 
+
+/*--- proto_reg_handoff_ulp ---------------------------------------*/
+void
+proto_reg_handoff_ulp(void)
+{
+
+	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
+
+	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
+
+	/* application/oma-supl-ulp */
+	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
+
+	rrlp_handle = find_dissector("rrlp");
+
+}
 

@@ -55,8 +55,8 @@
 #define PSNAME "ULP"
 #define PFNAME "ulp"
 
-static dissector_handle_t ulp_handle=NULL;
-static dissector_handle_t rrlp_handle;
+static dissector_handle_t ulp_handle = NULL;
+static dissector_handle_t rrlp_handle = NULL;
 
 /* IANA Registered Ports  
  * oma-ulp         7275/tcp    OMA UserPlane Location
@@ -146,7 +146,7 @@ static int hf_ulp_posPayLoad = -1;                /* PosPayLoad */
 static int hf_ulp_velocity = -1;                  /* Velocity */
 static int hf_ulp_tia801payload = -1;             /* OCTET_STRING_SIZE_1_8192 */
 static int hf_ulp_rrcPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
-static int hf_ulp_rrlpPayload = -1;               /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_rrlpPayload = -1;               /* T_rrlpPayload */
 static int hf_ulp_statusCode = -1;                /* StatusCode */
 static int hf_ulp_sETNonce = -1;                  /* SETNonce */
 static int hf_ulp_keyIdentity2 = -1;              /* KeyIdentity2 */
@@ -1837,6 +1837,25 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
+
+static int
+dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 36 "ulp.cnf"
+ tvbuff_t *rrlp_tvb;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 8192, &rrlp_tvb);
+
+
+  if (rrlp_tvb && rrlp_handle) {
+	call_dissector(rrlp_handle, rrlp_tvb, actx->pinfo, tree);
+  }
+
+
+  return offset;
+}
+
+
 static const value_string ulp_PosPayLoad_vals[] = {
   {   0, "tia801payload" },
   {   1, "rrcPayload" },
@@ -1847,7 +1866,7 @@ static const value_string ulp_PosPayLoad_vals[] = {
 static const per_choice_t PosPayLoad_choice[] = {
   {   0, &hf_ulp_tia801payload   , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
   {   1, &hf_ulp_rrcPayload      , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
-  {   2, &hf_ulp_rrlpPayload     , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
+  {   2, &hf_ulp_rrlpPayload     , ASN1_EXTENSION_ROOT    , dissect_ulp_T_rrlpPayload },
   { 0, NULL, 0, NULL }
 };
 
@@ -2134,22 +2153,8 @@ dissect_ulp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tcp_dissect_pdus(tvb, pinfo, tree, ulp_desegment, ULP_HEADER_SIZE,
 	    get_ulp_pdu_len, dissect_ULP_PDU_PDU);
 }
-/*--- proto_reg_handoff_ulp ---------------------------------------*/
-void
-proto_reg_handoff_ulp(void)
-{
 
-	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
-
-	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
-
-	/* application/oma-supl-ulp */
-	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
-
-	rrlp_handle = find_dissector("rrlp");
-
-}
-
+void proto_reg_handoff_ulp(void);
 
 /*--- proto_register_ulp -------------------------------------------*/
 void proto_register_ulp(void) {
@@ -2447,7 +2452,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_rrlpPayload,
       { "rrlpPayload", "ulp.rrlpPayload",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_1_8192", HFILL }},
+        "ulp.T_rrlpPayload", HFILL }},
     { &hf_ulp_statusCode,
       { "statusCode", "ulp.statusCode",
         FT_UINT32, BASE_DEC, VALS(ulp_StatusCode_vals), 0,
@@ -2858,7 +2863,7 @@ void proto_register_ulp(void) {
         "ulp.BIT_STRING_SIZE_8", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 117 "packet-ulp-template.c"
+#line 103 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -2927,7 +2932,7 @@ void proto_register_ulp(void) {
     &ett_ulp_Horandveruncert,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 123 "packet-ulp-template.c"
+#line 109 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;
@@ -2956,4 +2961,20 @@ void proto_register_ulp(void) {
  
 }
 
+
+/*--- proto_reg_handoff_ulp ---------------------------------------*/
+void
+proto_reg_handoff_ulp(void)
+{
+
+	ulp_handle = create_dissector_handle(dissect_ulp_tcp, proto_ulp);
+
+	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
+
+	/* application/oma-supl-ulp */
+	dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
+
+	rrlp_handle = find_dissector("rrlp");
+
+}
 
