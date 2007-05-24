@@ -797,6 +797,7 @@ main(int argc, char *argv[])
      by stats_tree_stat.c and need to registered before that */
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
+  register_all_wiretap_modules();
 #endif
   register_all_tap_listeners();
 

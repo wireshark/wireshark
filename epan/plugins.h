@@ -37,6 +37,7 @@ typedef struct _plugin {
     void (*register_protoinfo)(void); /* routine to call to register protocol information */
     void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
     void (*register_tap_listener)(void);   /* routine to call to register tap listener */
+    void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
     struct _plugin *next;         /* forward link */
 } plugin;
 
@@ -45,6 +46,7 @@ WS_VAR_IMPORT plugin *plugin_list;
 extern void init_plugins(void);
 extern void register_all_plugin_handoffs(void);
 extern void register_all_plugin_tap_listeners(void);
+extern void register_all_wiretap_modules(void);
 
 /* get the personal plugin dir */
 /* Return value is g_malloced so the caller should g_free() it. */

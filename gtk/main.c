@@ -2163,7 +2163,7 @@ main(int argc, char *argv[])
    * Now attempt to get the pathname of the plugins.
    */
   init_plugin_dir();
-
+  
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 
@@ -2412,6 +2412,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
+  register_all_wiretap_modules();
 #endif
 
   register_all_tap_listeners();

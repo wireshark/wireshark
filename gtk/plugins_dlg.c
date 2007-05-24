@@ -47,27 +47,29 @@ plugins_scan(GtkWidget *list)
     GString    *type;
     const char       *sep;
 
-    pt_plug = plugin_list;
-    while (pt_plug)
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
     {
         type = g_string_new("");
         sep = "";
         if (pt_plug->register_protoinfo)
         {
-            type = g_string_append(type, sep);
             type = g_string_append(type, "dissector");
-            sep = ",";
+            sep = ", ";
         }
         if (pt_plug->register_tap_listener)
         {
             type = g_string_append(type, sep);
             type = g_string_append(type, "tap");
-            sep = ",";
+            sep = ", ";
+        }
+        if (pt_plug->register_wtap_module)
+        {
+            type = g_string_append(type, sep);
+            type = g_string_append(type, "file_format");
         }
         simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version,
                            2, type->str, -1);
         g_string_free(type, TRUE);
-        pt_plug = pt_plug->next;
     }
 }
 

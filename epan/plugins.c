@@ -68,7 +68,8 @@ plugin *plugin_list;
 static int
 add_plugin(void *handle, gchar *name, gchar *version,
 	   void (*register_protoinfo)(void), void (*reg_handoff)(void),
-	   void (*register_tap_listener)(void))
+	   void (*register_tap_listener)(void),
+	   void (*register_wtap_module)(void))
 {
     plugin *new_plug, *pt_plug;
 
@@ -106,7 +107,9 @@ add_plugin(void *handle, gchar *name, gchar *version,
     new_plug->register_protoinfo = register_protoinfo;
     new_plug->reg_handoff = reg_handoff;
     new_plug->register_tap_listener = register_tap_listener;
+    new_plug->register_wtap_module = register_wtap_module;
     new_plug->next = NULL;
+
     return 0;
 }
 
@@ -141,6 +144,8 @@ plugins_scan_dir(const char *dirname)
     void         (*register_protoinfo)(void);
     void         (*reg_handoff)(void);
     void         (*register_tap_listener)(void);
+    void (*register_wtap_module)(void);
+
     gchar         *dot;
     int            cr;
 
@@ -171,6 +176,7 @@ plugins_scan_dir(const char *dirname)
     while ((file = eth_dir_read_name(dir)) != NULL)
 	{
 	    name = eth_dir_get_name(file);
+
 #if GLIB_MAJOR_VERSION < 2
 	    /* don't try to open "." and ".." */
 	    if (!(strcmp(name, "..") &&
@@ -201,6 +207,7 @@ plugins_scan_dir(const char *dirname)
 			  g_module_error());
 		continue;
 	    }
+
 	    if (!g_module_symbol(handle, "version", &gp))
 	    {
 	        report_failure("The plugin %s has no version symbol", name);
@@ -265,43 +272,55 @@ plugins_scan_dir(const char *dirname)
 		register_tap_listener = NULL;
 	    }
 
-	    /*
+		/*
 	     * Do we have an old-style init routine?
 	     */
 	    if (g_module_symbol(handle, "plugin_init", &gp))
 	    {
-		/*
-		 * Yes - do we also have a register routine or a
-		 * register_tap_listener routine?  If so, this is a bogus
-		 * hybrid of an old-style and new-style plugin.
-		 */
-		if (register_protoinfo != NULL || register_tap_listener != NULL)
-		{
-		    report_failure("The plugin %s has an old plugin init routine\nand a new register or register_tap_listener routine.",
-			name);
-		    g_module_close(handle);
-		    continue;
-		}
+			/*
+			 * Yes - do we also have a register routine or a
+			 * register_tap_listener routine?  If so, this is a bogus
+			 * hybrid of an old-style and new-style plugin.
+			 */
+			if (register_protoinfo != NULL || register_tap_listener != NULL)
+			{
+				report_failure("The plugin '%s' has an old plugin init routine\nand a new register or register_tap_listener routine.",
+				name);
+				g_module_close(handle);
+				continue;
+			}
 
-		/*
-		 * It's just an unsupported old-style plugin;
-		 */
-		report_failure("The plugin %s has an old plugin init routine. Support has been dropped.\n Information on how to update your plugin is available at \nhttp://anonsvn.wireshark.org/wireshark/trunk/doc/README.plugins",
-		    name);
-		g_module_close(handle);
-		continue;
+			/*
+			 * It's just an unsupported old-style plugin;
+			 */
+			report_failure("The plugin '%s' has an old plugin init routine. Support has been dropped.\n Information on how to update your plugin is available at \nhttp://anonsvn.wireshark.org/wireshark/trunk/doc/README.plugins",
+				name);
+			g_module_close(handle);
+			continue;
 	    }
-
+	    
 	    /*
-	     * Does this dissector do anything useful?
-	     */
+		 * Do we have a register_wtap_module routine?
+		 */
+           if (g_module_symbol(handle, "register_wtap_module", &gp))
+           {
+               register_wtap_module = gp;
+           } else {
+               register_wtap_module = NULL;
+           }
+           
+	   /*
+		* Does this dissector do anything useful?
+		*/
 	    if (register_protoinfo == NULL &&
-		register_tap_listener == NULL)
+		    register_tap_listener == NULL && 
+		    register_wtap_module == NULL )
 	    {
 		/*
 		 * No.
 		 */
-		report_failure("The plugin %s has neither a register routine, or a register_tap_listener routine",
+		report_failure("The plugin '%s' has neither a register routine, "
+					   "a register_tap_listener or a register_wtap_module routine",
 		    name);
 		g_module_close(handle);
 		continue;
@@ -312,7 +331,7 @@ plugins_scan_dir(const char *dirname)
 	     */
 	    if ((cr = add_plugin(handle, g_strdup(name), version,
 				 register_protoinfo, reg_handoff,
-				 register_tap_listener)))
+				 register_tap_listener,register_wtap_module)))
 	    {
 		if (cr == EEXIST)
 		    fprintf(stderr, "The plugin %s, version %s\n"
@@ -324,7 +343,7 @@ plugins_scan_dir(const char *dirname)
 		g_module_close(handle);
 		continue;
 	    }
-
+		
 	    /*
 	     * Call its register routine if it has one.
 	     * XXX - just save this and call it with the built-in
@@ -455,6 +474,22 @@ register_all_plugin_tap_listeners(void)
     {
 	if (pt_plug->register_tap_listener)
 	    (pt_plug->register_tap_listener)();
+    }
+}
+
+void
+register_all_wiretap_modules(void)
+{
+    plugin *pt_plug;
+
+    /*
+     * For all plugins with register_wtap_module routines, call the
+     * routines.
+     */
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    {
+		if (pt_plug->register_wtap_module)
+			(pt_plug->register_wtap_module)();
     }
 }
 #endif

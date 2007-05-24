@@ -657,8 +657,10 @@ reassembled_table_init
 register_all_plugin_tap_listeners
 register_all_protocols
 register_all_protocol_handoffs
-register_ber_syntax_dissector
+register_all_protocol_handoffs
+register_all_wiretap_modules
 register_ber_oid_syntax
+register_ber_syntax_dissector
 register_count
 register_dissector
 register_dissector_table
