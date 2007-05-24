@@ -303,6 +303,8 @@ static const value_string sctp_payload_proto_id_values[] = {
   { H323_PAYLOAD_PROTOCOL_ID,            "H.323" },
   { QIPC_PAYLOAD_PROTOCOL_ID,            "Q.IPC/Q.2150.3" },
   { SIMCO_PAYLOAD_PROTOCOL_ID,           "SIMCO" },
+  { DDP_SEG_CHUNK_PROTOCOL_ID,			 "DDP Segment Chunk" }, /*  [RFC-ietf-rddp-sctp-07.txt] */
+  { DDP_STREAM_SES_CTRL_PROTOCOL_ID,	 "DDP Stream Session Control" }, /* [RFC-ietf-rddp-sctp-07.txt] */
   { 0,                                   NULL } };
 
 
