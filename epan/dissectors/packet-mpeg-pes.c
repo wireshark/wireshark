@@ -108,7 +108,7 @@ static int hf_mpeg_pes_second = -1;               /* INTEGER_0_64 */
 static int hf_mpeg_pes_frame = -1;                /* INTEGER_0_64 */
 static int hf_mpeg_pes_closed_gop = -1;           /* BOOLEAN */
 static int hf_mpeg_pes_broken_gop = -1;           /* BOOLEAN */
-static int hf_mpeg_pes_must_be_zero1 = -1;        /* BIT_STRING_SIZE_5 */
+static int hf_mpeg_pes_must_be_zero_01 = -1;      /* BIT_STRING_SIZE_5 */
 static int hf_mpeg_pes_temporal_sequence_number = -1;  /* BIT_STRING_SIZE_10 */
 static int hf_mpeg_pes_frame_type = -1;           /* T_frame_type */
 static int hf_mpeg_pes_vbv_delay = -1;            /* BIT_STRING_SIZE_16 */
@@ -515,7 +515,7 @@ static const per_sequence_t Group_of_pictures_sequence[] = {
   { &hf_mpeg_pes_frame      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_INTEGER_0_64 },
   { &hf_mpeg_pes_closed_gop , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
   { &hf_mpeg_pes_broken_gop , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
-  { &hf_mpeg_pes_must_be_zero1, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BIT_STRING_SIZE_5 },
+  { &hf_mpeg_pes_must_be_zero_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BIT_STRING_SIZE_5 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1018,7 +1018,7 @@ proto_register_mpeg_pes(void)
       { "broken-gop", "mpeg-pes.broken_gop",
         FT_BOOLEAN, 8, NULL, 0,
         "mpeg_pes.BOOLEAN", HFILL }},
-    { &hf_mpeg_pes_must_be_zero1,
+    { &hf_mpeg_pes_must_be_zero_01,
       { "must-be-zero", "mpeg-pes.must_be_zero",
         FT_BYTES, BASE_HEX, NULL, 0,
         "mpeg_pes.BIT_STRING_SIZE_5", HFILL }},

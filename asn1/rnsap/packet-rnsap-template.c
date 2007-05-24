@@ -41,10 +41,7 @@
 
 #include <epan/asn1.h>
 
-#include "packet-ber.h"
 #include "packet-per.h"
-#include "packet-umts_rrc.h"
-/*#include "packet-umts_rrc.h"*/
 
 #define PNAME  "UTRAN Iur interface Radio Network Subsystem Application Part"
 #define PSNAME "RNSAP"
@@ -54,7 +51,9 @@
 
 #include "packet-rnsap-val.h"
 
-static dissector_handle_t rnsap_handle=NULL;
+static dissector_handle_t rnsap_handle = NULL;
+
+static dissector_handle_t rrc_dl_dcch_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
@@ -179,6 +178,8 @@ void proto_register_rnsap(void) {
 void
 proto_reg_handoff_rnsap(void)
 {
+
+	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 
 	dissector_add("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
 	/* Add heuristic dissector

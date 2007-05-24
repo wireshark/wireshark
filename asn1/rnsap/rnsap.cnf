@@ -62,7 +62,30 @@ criticality TypeReference Criticality
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode
 
+ProtocolIE-Field/value     ProtocolIE_Field_value
+PrivateIE-Field/value      PrivateIE_Field_value
+InitiatingMessage/value    InitiatingMessage_value
+SuccessfulOutcome/value    SuccessfulOutcome_value
+UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
+Outcome/value              Outcome_value
+
+MidambleShiftAndBurstType/type1     Type1
+MidambleShiftAndBurstType768/type1  Type7681
+MidambleShiftAndBurstType/type2     Type2
+MidambleShiftAndBurstType768/type2  Type7682
+MidambleShiftAndBurstType/type3     Type3
+MidambleShiftAndBurstType768/type3  Type7683
+
+MidambleShiftAndBurstType/type1/midambleAllocationMode     MidambleAllocationMode1
+MidambleShiftAndBurstType/type2/midambleAllocationMode     MidambleAllocationMode2
+MidambleShiftAndBurstType/type3/midambleAllocationMode     MidambleAllocationMode3
+MidambleShiftAndBurstType768/type1/midambleAllocationMode  MidambleAllocationMode7681
+MidambleShiftAndBurstType768/type2/midambleAllocationMode  MidambleAllocationMode7682
+MidambleShiftAndBurstType768/type3/midambleAllocationMode  MidambleAllocationMode7683
+
 #.FIELD_RENAME
+UEMeasurementTimeslotInfoLCR-IEs/timeSlot timeSlotLCR
+
 
 #.OMIT_ASSIGNMENT
 Presence
@@ -108,20 +131,26 @@ ProtocolIE-ContainerPairList
 
 #.FN_BODY L3-Information  VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb;
+	dissector_handle_t parameter_handle = NULL;
 
 %(DEFAULT_BODY)s
 
 	if (!parameter_tvb)
 		return offset;
 
-	switch (ProcedureCode){
+	switch (ProcedureCode) {
 
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
-		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0, %(ACTX)s, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
+		parameter_handle = rrc_dl_dcch_handle;
+		break;
 	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
 	default:
 		break;
 	}
+
+    if (parameter_handle)
+      call_dissector(parameter_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
+
 #.END
 
 #.TYPE_ATTR

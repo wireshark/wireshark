@@ -3764,7 +3764,6 @@ static int dissect_nbap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn1_ctx
 
 /*--- Included file: packet-nbap-fn.c ---*/
 #line 1 "packet-nbap-fn.c"
-
 /*--- Fields for imported types ---*/
 
 

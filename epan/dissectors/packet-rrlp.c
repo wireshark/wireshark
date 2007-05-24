@@ -173,7 +173,7 @@ static int hf_rrlp_fixType = -1;                  /* FixType */
 static int hf_rrlp_posEstimate = -1;              /* Ext_GeographicalInformation */
 static int hf_rrlp_gpsMsrSetList = -1;            /* SeqOfGPS_MsrSetElement */
 static int hf_rrlp_SeqOfGPS_MsrSetElement_item = -1;  /* GPS_MsrSetElement */
-static int hf_rrlp_gpsTOW1 = -1;                  /* GPSTOW24b */
+static int hf_rrlp_gpsTOW_01 = -1;                /* GPSTOW24b */
 static int hf_rrlp_gps_msrList = -1;              /* SeqOfGPS_MsrElement */
 static int hf_rrlp_SeqOfGPS_MsrElement_item = -1;  /* GPS_MsrElement */
 static int hf_rrlp_satelliteID = -1;              /* SatelliteID */
@@ -211,7 +211,7 @@ static int hf_rrlp_frameNumber = -1;              /* FrameNumber */
 static int hf_rrlp_timeSlot = -1;                 /* TimeSlot */
 static int hf_rrlp_bitNumber = -1;                /* BitNumber */
 static int hf_rrlp_threeDLocation = -1;           /* Ext_GeographicalInformation */
-static int hf_rrlp_gpsTOW2 = -1;                  /* INTEGER_0_604799 */
+static int hf_rrlp_gpsTOW_02 = -1;                /* INTEGER_0_604799 */
 static int hf_rrlp_status = -1;                   /* INTEGER_0_7 */
 static int hf_rrlp_satList = -1;                  /* SeqOfSatElement */
 static int hf_rrlp_SeqOfSatElement_item = -1;     /* SatElement */
@@ -295,7 +295,7 @@ static int hf_rrlp_almanacAF1 = -1;               /* INTEGER_M1024_1023 */
 static int hf_rrlp_timeRelation = -1;             /* TimeRelation */
 static int hf_rrlp_acquisList = -1;               /* SeqOfAcquisElement */
 static int hf_rrlp_SeqOfAcquisElement_item = -1;  /* AcquisElement */
-static int hf_rrlp_gpsTOW3 = -1;                  /* GPSTOW23b */
+static int hf_rrlp_gpsTOW_03 = -1;                /* GPSTOW23b */
 static int hf_rrlp_svid = -1;                     /* SatelliteID */
 static int hf_rrlp_doppler0 = -1;                 /* INTEGER_M2048_2047 */
 static int hf_rrlp_addionalDoppler = -1;          /* AddionalDopplerFields */
@@ -320,7 +320,7 @@ static int hf_rrlp_expectedOTD = -1;              /* ExpectedOTD */
 static int hf_rrlp_expOTDUncertainty = -1;        /* ExpOTDUncertainty */
 static int hf_rrlp_systemInfoAssistListR98_ExpOTD = -1;  /* SeqOfSystemInfoAssistBTS_R98_ExpOTD */
 static int hf_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item = -1;  /* SystemInfoAssistBTS_R98_ExpOTD */
-static int hf_rrlp_present1 = -1;                 /* AssistBTSData_R98_ExpOTD */
+static int hf_rrlp_present_01 = -1;               /* AssistBTSData_R98_ExpOTD */
 static int hf_rrlp_expOTDuncertainty = -1;        /* ExpOTDUncertainty */
 static int hf_rrlp_referenceFrameMSB = -1;        /* INTEGER_0_63 */
 static int hf_rrlp_gpsTowSubms = -1;              /* INTEGER_0_9999 */
@@ -429,19 +429,19 @@ static int hf_rrlp_ganssBadSignalList = -1;       /* SeqOfBadSignalElement */
 static int hf_rrlp_SeqOfBadSignalElement_item = -1;  /* BadSignalElement */
 static int hf_rrlp_badSVID = -1;                  /* SVID */
 static int hf_rrlp_badSignalID = -1;              /* INTEGER_0_3 */
-static int hf_rrlp_ganssTOD1 = -1;                /* INTEGER_0_59 */
+static int hf_rrlp_ganssTOD_01 = -1;              /* INTEGER_0_59 */
 static int hf_rrlp_ganssDataTypeID = -1;          /* INTEGER_0_2 */
 static int hf_rrlp_ganssDataBits = -1;            /* SeqOf_GANSSDataBits */
 static int hf_rrlp_SeqOf_GANSSDataBits_item = -1;  /* GANSSDataBit */
-static int hf_rrlp_ganssSignalID1 = -1;           /* INTEGER_0_3 */
+static int hf_rrlp_ganssSignalID_01 = -1;         /* INTEGER_0_3 */
 static int hf_rrlp_ganssRefMeasAssitList = -1;    /* SeqOfGANSSRefMeasurementElement */
 static int hf_rrlp_SeqOfGANSSRefMeasurementElement_item = -1;  /* GANSSRefMeasurementElement */
 static int hf_rrlp_additionalDoppler = -1;        /* AdditionalDopplerFields */
-static int hf_rrlp_intCodePhase1 = -1;            /* INTEGER_0_127 */
-static int hf_rrlp_codePhaseSearchWindow1 = -1;   /* INTEGER_0_31 */
+static int hf_rrlp_intCodePhase_01 = -1;          /* INTEGER_0_127 */
+static int hf_rrlp_codePhaseSearchWindow_01 = -1;  /* INTEGER_0_31 */
 static int hf_rrlp_additionalAngle = -1;          /* AddionalAngleFields */
-static int hf_rrlp_dopplerUncertainty1 = -1;      /* INTEGER_0_4 */
-static int hf_rrlp_weekNumber1 = -1;              /* INTEGER_0_255 */
+static int hf_rrlp_dopplerUncertainty_01 = -1;    /* INTEGER_0_4 */
+static int hf_rrlp_weekNumber_01 = -1;            /* INTEGER_0_255 */
 static int hf_rrlp_svIDMask = -1;                 /* SVIDMASK */
 static int hf_rrlp_toa = -1;                      /* INTEGER_0_255 */
 static int hf_rrlp_ioda = -1;                     /* INTEGER_0_3 */
@@ -472,7 +472,7 @@ static int hf_rrlp_ganssMeasureInfo = -1;         /* GANSSMeasureInfo */
 static int hf_rrlp_referenceFrame = -1;           /* ReferenceFrame */
 static int hf_rrlp_ganssTODm = -1;                /* GANSSTODm */
 static int hf_rrlp_ganssTODFrac = -1;             /* INTEGER_0_16384 */
-static int hf_rrlp_ganssTimeID1 = -1;             /* INTEGER_0_3 */
+static int hf_rrlp_ganssTimeID_01 = -1;           /* INTEGER_0_3 */
 static int hf_rrlp_posData = -1;                  /* PositionData */
 static int hf_rrlp_stationaryIndication = -1;     /* INTEGER_0_1 */
 static int hf_rrlp_referenceFN = -1;              /* INTEGER_0_65535 */
@@ -482,12 +482,12 @@ static int hf_rrlp_SeqOfGANSS_MsrSetElement_item = -1;  /* GANSS_MsrSetElement *
 static int hf_rrlp_deltaGNASSTOD = -1;            /* INTEGER_0_127 */
 static int hf_rrlp_ganss_SgnTypeList = -1;        /* SeqOfGANSS_SgnTypeElement */
 static int hf_rrlp_SeqOfGANSS_SgnTypeElement_item = -1;  /* GANSS_SgnTypeElement */
-static int hf_rrlp_ganssSignalID2 = -1;           /* INTEGER_0_15 */
+static int hf_rrlp_ganssSignalID_02 = -1;         /* INTEGER_0_15 */
 static int hf_rrlp_ganss_SgnList = -1;            /* SeqOfGANSS_SgnElement */
 static int hf_rrlp_SeqOfGANSS_SgnElement_item = -1;  /* GANSS_SgnElement */
 static int hf_rrlp_mpathDet = -1;                 /* MpathIndic */
 static int hf_rrlp_carrierQualityInd = -1;        /* INTEGER_0_3 */
-static int hf_rrlp_codePhase1 = -1;               /* INTEGER_0_2097151 */
+static int hf_rrlp_codePhase_01 = -1;             /* INTEGER_0_2097151 */
 static int hf_rrlp_integerCodePhase = -1;         /* INTEGER_0_63 */
 static int hf_rrlp_codePhaseRMSError = -1;        /* INTEGER_0_63 */
 static int hf_rrlp_adr = -1;                      /* INTEGER_0_33554431 */
@@ -1407,7 +1407,7 @@ dissect_rrlp_SeqOfSatElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t DGPSCorrections_sequence[] = {
-  { &hf_rrlp_gpsTOW2        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_604799 },
+  { &hf_rrlp_gpsTOW_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_604799 },
   { &hf_rrlp_status         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_7 },
   { &hf_rrlp_satList        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfSatElement },
   { NULL, 0, 0, NULL }
@@ -1825,7 +1825,7 @@ dissect_rrlp_Almanac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static const per_sequence_t TimeRelation_sequence[] = {
-  { &hf_rrlp_gpsTOW3        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW23b },
+  { &hf_rrlp_gpsTOW_03      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW23b },
   { &hf_rrlp_gsmTime        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_GSMTime },
   { NULL, 0, 0, NULL }
 };
@@ -2160,7 +2160,7 @@ static const value_string rrlp_SystemInfoAssistBTS_R98_ExpOTD_vals[] = {
 
 static const per_choice_t SystemInfoAssistBTS_R98_ExpOTD_choice[] = {
   {   0, &hf_rrlp_notPresent     , ASN1_NO_EXTENSIONS     , dissect_rrlp_NULL },
-  {   1, &hf_rrlp_present1       , ASN1_NO_EXTENSIONS     , dissect_rrlp_AssistBTSData_R98_ExpOTD },
+  {   1, &hf_rrlp_present_01     , ASN1_NO_EXTENSIONS     , dissect_rrlp_AssistBTSData_R98_ExpOTD },
   { 0, NULL, 0, NULL }
 };
 
@@ -2967,7 +2967,7 @@ dissect_rrlp_SeqOf_GANSSDataBits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t GANSSDataBitAssist_sequence[] = {
-  { &hf_rrlp_ganssTOD1      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_59 },
+  { &hf_rrlp_ganssTOD_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_59 },
   { &hf_rrlp_svID           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVID },
   { &hf_rrlp_ganssDataTypeID, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_2 },
   { &hf_rrlp_ganssDataBits  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOf_GANSSDataBits },
@@ -2995,7 +2995,7 @@ dissect_rrlp_INTEGER_0_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static const per_sequence_t AdditionalDopplerFields_sequence[] = {
   { &hf_rrlp_doppler1       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
-  { &hf_rrlp_dopplerUncertainty1, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4 },
+  { &hf_rrlp_dopplerUncertainty_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3013,8 +3013,8 @@ static const per_sequence_t GANSSRefMeasurementElement_sequence[] = {
   { &hf_rrlp_doppler0       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_M2048_2047 },
   { &hf_rrlp_additionalDoppler, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_AdditionalDopplerFields },
   { &hf_rrlp_codePhase      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_1022 },
-  { &hf_rrlp_intCodePhase1  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_127 },
-  { &hf_rrlp_codePhaseSearchWindow1, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
+  { &hf_rrlp_intCodePhase_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_127 },
+  { &hf_rrlp_codePhaseSearchWindow_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_31 },
   { &hf_rrlp_additionalAngle, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_AddionalAngleFields },
   { NULL, 0, 0, NULL }
 };
@@ -3043,7 +3043,7 @@ dissect_rrlp_SeqOfGANSSRefMeasurementElement(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static const per_sequence_t GANSSRefMeasurementAssist_sequence[] = {
-  { &hf_rrlp_ganssSignalID1 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_ganssSignalID_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
   { &hf_rrlp_ganssRefMeasAssitList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSSRefMeasurementElement },
   { NULL, 0, 0, NULL }
 };
@@ -3145,7 +3145,7 @@ dissect_rrlp_SeqOfGANSSAlmanacElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const per_sequence_t GANSSAlmanacModel_sequence[] = {
-  { &hf_rrlp_weekNumber1    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
+  { &hf_rrlp_weekNumber_01  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_255 },
   { &hf_rrlp_svIDMask       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SVIDMASK },
   { &hf_rrlp_toa            , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_255 },
   { &hf_rrlp_ioda           , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
@@ -3899,7 +3899,7 @@ dissect_rrlp_SeqOfGPS_MsrElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static const per_sequence_t GPS_MsrSetElement_sequence[] = {
   { &hf_rrlp_refFrame       , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_65535 },
-  { &hf_rrlp_gpsTOW1        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW24b },
+  { &hf_rrlp_gpsTOW_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_GPSTOW24b },
   { &hf_rrlp_gps_msrList    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGPS_MsrElement },
   { NULL, 0, 0, NULL }
 };
@@ -4225,7 +4225,7 @@ static const per_sequence_t GANSSLocationInfo_sequence[] = {
   { &hf_rrlp_ganssTODm      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODm },
   { &hf_rrlp_ganssTODFrac   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_16384 },
   { &hf_rrlp_ganssTODUncertainty, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_GANSSTODUncertainty },
-  { &hf_rrlp_ganssTimeID1   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
+  { &hf_rrlp_ganssTimeID_01 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
   { &hf_rrlp_fixType        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_FixType },
   { &hf_rrlp_posData        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rrlp_PositionData },
   { &hf_rrlp_stationaryIndication, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_1 },
@@ -4257,7 +4257,7 @@ static const per_sequence_t GANSS_SgnElement_sequence[] = {
   { &hf_rrlp_cNo            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
   { &hf_rrlp_mpathDet       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_MpathIndic },
   { &hf_rrlp_carrierQualityInd, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_3 },
-  { &hf_rrlp_codePhase1     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_2097151 },
+  { &hf_rrlp_codePhase_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_2097151 },
   { &hf_rrlp_integerCodePhase, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_0_63 },
   { &hf_rrlp_codePhaseRMSError, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_63 },
   { &hf_rrlp_doppler        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_rrlp_INTEGER_M32768_32767 },
@@ -4289,7 +4289,7 @@ dissect_rrlp_SeqOfGANSS_SgnElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static const per_sequence_t GANSS_SgnTypeElement_sequence[] = {
-  { &hf_rrlp_ganssSignalID2 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
+  { &hf_rrlp_ganssSignalID_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_INTEGER_0_15 },
   { &hf_rrlp_ganss_SgnList  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rrlp_SeqOfGANSS_SgnElement },
   { NULL, 0, 0, NULL }
 };
@@ -5044,7 +5044,7 @@ void proto_register_rrlp(void) {
       { "Item", "rrlp.SeqOfGPS_MsrSetElement_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.GPS_MsrSetElement", HFILL }},
-    { &hf_rrlp_gpsTOW1,
+    { &hf_rrlp_gpsTOW_01,
       { "gpsTOW", "rrlp.gpsTOW",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.GPSTOW24b", HFILL }},
@@ -5196,7 +5196,7 @@ void proto_register_rrlp(void) {
       { "threeDLocation", "rrlp.threeDLocation",
         FT_BYTES, BASE_HEX, NULL, 0,
         "rrlp.Ext_GeographicalInformation", HFILL }},
-    { &hf_rrlp_gpsTOW2,
+    { &hf_rrlp_gpsTOW_02,
       { "gpsTOW", "rrlp.gpsTOW",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_604799", HFILL }},
@@ -5532,7 +5532,7 @@ void proto_register_rrlp(void) {
       { "Item", "rrlp.SeqOfAcquisElement_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.AcquisElement", HFILL }},
-    { &hf_rrlp_gpsTOW3,
+    { &hf_rrlp_gpsTOW_03,
       { "gpsTOW", "rrlp.gpsTOW",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.GPSTOW23b", HFILL }},
@@ -5632,7 +5632,7 @@ void proto_register_rrlp(void) {
       { "Item", "rrlp.SeqOfSystemInfoAssistBTS_R98_ExpOTD_item",
         FT_UINT32, BASE_DEC, VALS(rrlp_SystemInfoAssistBTS_R98_ExpOTD_vals), 0,
         "rrlp.SystemInfoAssistBTS_R98_ExpOTD", HFILL }},
-    { &hf_rrlp_present1,
+    { &hf_rrlp_present_01,
       { "present", "rrlp.present",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.AssistBTSData_R98_ExpOTD", HFILL }},
@@ -6068,7 +6068,7 @@ void proto_register_rrlp(void) {
       { "badSignalID", "rrlp.badSignalID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_3", HFILL }},
-    { &hf_rrlp_ganssTOD1,
+    { &hf_rrlp_ganssTOD_01,
       { "ganssTOD", "rrlp.ganssTOD",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_59", HFILL }},
@@ -6084,7 +6084,7 @@ void proto_register_rrlp(void) {
       { "Item", "rrlp.SeqOf_GANSSDataBits_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.GANSSDataBit", HFILL }},
-    { &hf_rrlp_ganssSignalID1,
+    { &hf_rrlp_ganssSignalID_01,
       { "ganssSignalID", "rrlp.ganssSignalID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_3", HFILL }},
@@ -6100,11 +6100,11 @@ void proto_register_rrlp(void) {
       { "additionalDoppler", "rrlp.additionalDoppler",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.AdditionalDopplerFields", HFILL }},
-    { &hf_rrlp_intCodePhase1,
+    { &hf_rrlp_intCodePhase_01,
       { "intCodePhase", "rrlp.intCodePhase",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_127", HFILL }},
-    { &hf_rrlp_codePhaseSearchWindow1,
+    { &hf_rrlp_codePhaseSearchWindow_01,
       { "codePhaseSearchWindow", "rrlp.codePhaseSearchWindow",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_31", HFILL }},
@@ -6112,11 +6112,11 @@ void proto_register_rrlp(void) {
       { "additionalAngle", "rrlp.additionalAngle",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.AddionalAngleFields", HFILL }},
-    { &hf_rrlp_dopplerUncertainty1,
+    { &hf_rrlp_dopplerUncertainty_01,
       { "dopplerUncertainty", "rrlp.dopplerUncertainty",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_4", HFILL }},
-    { &hf_rrlp_weekNumber1,
+    { &hf_rrlp_weekNumber_01,
       { "weekNumber", "rrlp.weekNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_255", HFILL }},
@@ -6240,7 +6240,7 @@ void proto_register_rrlp(void) {
       { "ganssTODFrac", "rrlp.ganssTODFrac",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_16384", HFILL }},
-    { &hf_rrlp_ganssTimeID1,
+    { &hf_rrlp_ganssTimeID_01,
       { "ganssTimeID", "rrlp.ganssTimeID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_3", HFILL }},
@@ -6280,7 +6280,7 @@ void proto_register_rrlp(void) {
       { "Item", "rrlp.SeqOfGANSS_SgnTypeElement_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.GANSS_SgnTypeElement", HFILL }},
-    { &hf_rrlp_ganssSignalID2,
+    { &hf_rrlp_ganssSignalID_02,
       { "ganssSignalID", "rrlp.ganssSignalID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_15", HFILL }},
@@ -6300,7 +6300,7 @@ void proto_register_rrlp(void) {
       { "carrierQualityInd", "rrlp.carrierQualityInd",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_3", HFILL }},
-    { &hf_rrlp_codePhase1,
+    { &hf_rrlp_codePhase_01,
       { "codePhase", "rrlp.codePhase",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rrlp.INTEGER_0_2097151", HFILL }},
