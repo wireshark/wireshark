@@ -126,7 +126,10 @@ Wireshark Info
 
         <listitem><para>
           You must now explicitly pass "--disable-wireshark" to the build
-          environment if you only want to build TShark.
+          environment if you only want to build TShark; the configure
+          script will fail, rather than automatically building only
+          TShark, if it's run on a system that doesn't have GTK+ headers
+          and libraries installed.
         </para></listitem>
 
       </itemizedlist>
