@@ -176,15 +176,6 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
-#
-# Temporary one-shot to provoke as many warnings as possible.
-#
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,
@@ -224,12 +215,7 @@ AC_ARG_ENABLE(warnings-as-errors,
     AC_MSG_RESULT(no)
   fi
 )
-#
-# Temporary one-shot - as we're turning the warning levels up, don't
-# treat warnings as errors, so the build won't fail.
-#
-#AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
-AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "1" = "0")
+AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
 
 #
 # Add any platform-specific compiler flags needed.
