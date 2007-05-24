@@ -112,6 +112,9 @@ static guint32 max_tsn=0, min_tsn=0;
 static void sctp_graph_set_title(struct sctp_udata *u_data);
 static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data);
 static GtkWidget *zoomout_bt;
+#if defined(_WIN32) && !defined(__MINGW32__)
+static int rint (double );	/* compiler template for Windows */
+#endif
 
 static void draw_sack_graph(struct sctp_udata *u_data)
 {
@@ -1105,16 +1108,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		else
 		{
 			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-RIGHT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
-#ifdef _WIN32
-			/*
-			 * The MSVC version used in the buildbot doesn't have
-			 * rint().  (There may be UN*X environments without
-			 * rint(), too, in which case we'll stop using it.)
-			 */
-			y_value = (gint)floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
-#else
 			y_value = (gint)rint((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
-#endif
 			text_color = u_data->io->draw_area->style->black_gc;
 
 			if (u_data->dir == 1)
@@ -1405,3 +1399,19 @@ void create_graph(guint16 dir, struct sctp_analyse* userdata)
 		gtk_sctpgraph_init(u_data);
 	}
 }
+
+#if defined(_WIN32) && !defined(__MINGW32__)
+/* replacement of Unix rint() for Windows */
+static int rint (double x)
+{
+	char *buf;
+	int i,dec,sig;
+
+	buf = _fcvt(x, 0, &dec, &sig);
+	i = atoi(buf);
+	if(sig == 1) {
+		i = i * -1;
+	}
+	return(i);
+}
+#endif
