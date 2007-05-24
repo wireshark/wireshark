@@ -1402,10 +1402,15 @@ class EthCtx:
     fx = self.output.file_open('fn')
     pos = fx.tell()
     if (len(self.eth_hfpdu_ord)):
+      first_decl = True
       for f in self.eth_hfpdu_ord:
         if (self.eth_hf[f]['pdu'] and self.eth_hf[f]['pdu']['need_decl']):
+          if first_decl:
+            fx.write('/*--- PDUs declarations ---*/\n')
+            first_decl = False
           fx.write(out_pdu_decl(f))
-      fx.write('\n')
+      if not first_decl:
+        fx.write('\n')
     if self.eth_dep_cycle:
       fx.write('/*--- Cyclic dependencies ---*/\n\n')
       i = 0
@@ -1519,7 +1524,8 @@ class EthCtx:
         rport = self.value_get_eth(reg['rport'])
         fx.write('  dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], rport, hnd))
       elif (reg['rtype'] in ('BER', 'PER')):
-        fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), reg['roid'], f, self.eproto, reg['roidname']))
+        roid = self.value_get_eth(reg['roid'])
+        fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), roid, f, self.eproto, reg['roidname']))
       fempty = False
     fx.write('\n')
     self.output.file_close(fx, discard=fempty)
@@ -1779,7 +1785,10 @@ class EthCnf:
     elif (rtype in ('BER', 'PER')): 
       attr['roid'] = par[1]
       attr['roidname'] = '""'
-      if (len(par)>=3): attr['roidname'] = par[2]
+      if (len(par)>=3): 
+        attr['roidname'] = par[2]
+      elif attr['roid'][0] != '"':
+        attr['roidname'] = '"' + attr['roid'] + '"'
       rkey = '/'.join([rtype, attr['roid']])
     self.add_item('REGISTER', rkey, attr=attr, fn=fn, lineno=lineno)
 
@@ -1852,10 +1861,14 @@ class EthCnf:
     default_flags = 0x00
     stack = []
     while 1:
-      line = f.readline()
-      lineno += 1
+      if not f.closed:
+        line = f.readline()
+        lineno += 1
+      else:
+        line = None
       if not line:
-        f.close()
+        if not f.closed:
+          f.close()
         if stack:
           frec = stack.pop()
           fn, f, lineno = frec['fn'], frec['f'], frec['lineno']
@@ -1865,7 +1878,9 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') == 'OPT':
+        if result.group('name') == 'END_OF_CNF':
+          f.close()
+        elif result.group('name') == 'OPT':
           ctx = result.group('name')
           par = get_par(line[result.end():], 0, -1, fn=fn, lineno=lineno)
           if not par: continue
