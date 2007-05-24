@@ -138,6 +138,7 @@ ansi_map_stat_draw(
     ansi_map_stat_t	*stat_p = tapdata;
     int			i, j;
     char		*strp;
+    double		avg;
 
     if (dlg.win && tapdata)
     {
@@ -156,7 +157,12 @@ ansi_map_stat_draw(
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 3, strp);
 	    g_free(strp);
 
-	    strp = g_strdup_printf("%.2f", stat_p->size[ansi_map_opr_code_strings[i].value]/stat_p->message_type[ansi_map_opr_code_strings[i].value]);
+	    avg = 0.0;
+	    if (stat_p->message_type[ansi_map_opr_code_strings[i].value] !=0 )
+	    {
+		avg = stat_p->size[ansi_map_opr_code_strings[i].value]/stat_p->message_type[ansi_map_opr_code_strings[i].value];
+	    }
+	    strp = g_strdup_printf("%.2f", avg);
 	    gtk_clist_set_text(GTK_CLIST(dlg.table), j, 4, strp);
 	    g_free(strp);
 
