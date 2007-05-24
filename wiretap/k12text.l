@@ -6,7 +6,7 @@
 %{
 /* k12text.l
  *
- * $Id: $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
