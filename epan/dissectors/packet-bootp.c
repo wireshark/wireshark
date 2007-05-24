@@ -235,8 +235,9 @@ static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb,
 static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend, int revision);
 
+#define OPT53_DISCOVER "Discover"
 static const value_string opt53_text[] = {
-	{ 1,	"Discover" },
+	{ 1,	OPT53_DISCOVER },
 	{ 2,	"Offer" },
 	{ 3,	"Request" },
 	{ 4,	"Decline" },
@@ -941,20 +942,20 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		 */
 		proto_item_append_text(vti, " = \"%s\"",
 			tvb_format_stringzpad(tvb, optoff, consumed-2));
-		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10, 
+		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10,
 				      strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
-		    (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP15, 
-				      strlen(PACKETCABLE_MTA_CAP10)) == 0)) 
+		    (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP15,
+				      strlen(PACKETCABLE_MTA_CAP10)) == 0))
 		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
-		} 
+		}
 		else {
-		  if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11, 
+		  if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11,
 				      strlen(PACKETCABLE_CM_CAP11)) == 0
 		      ||
-		      tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20, 
-				      strlen(PACKETCABLE_CM_CAP20)) == 0 ) 
+		      tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
+				      strlen(PACKETCABLE_CM_CAP20)) == 0 )
 		  {
 			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
 		  }
@@ -1188,7 +1189,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			switch (algorithm) {
 
 			case AUTHEN_DELAYED_ALGO_HMAC_MD5:
-				if (!strcmp(*dhcp_type_p, val_to_str(1, opt53_text, ""))) {
+				if (*dhcp_type_p && !strcmp(*dhcp_type_p, OPT53_DISCOVER)) {
 					/* Discover has no Secret ID nor HMAC MD5 Hash */
 					break;
 				} else {
@@ -1205,7 +1206,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 					proto_tree_add_text(v_tree, tvb, optoff, 16,
 						"HMAC MD5 Hash: %s",
 						tvb_bytes_to_str(tvb, optoff, 16));
-					break; 
+					break;
 				}
 			default:
 				if (optleft == 0)
@@ -1259,15 +1260,15 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		  /* Handle DSL Forum TR-111 Option 125 */
 		  if ( enterprise == 3561 ) {
-		    
-		    s_end = optoff + s_option_len; 
+
+		    s_end = optoff + s_option_len;
 		    if ( s_end > optend ) {
 		      proto_tree_add_text(v_tree, tvb, optoff, 1,
 					  "no room left in option for enterprise %u data", enterprise);
 		      break;
 		    }
-		    
-		    
+
+
 		    e_tree = proto_item_add_subtree(vti, ett_bootp_option);
 		    while (optoff < s_end) {
 
@@ -1759,7 +1760,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 		case special:
 			if ( subopt == 8 ) {	/* OUI */
-				/* CableLabs specs treat 43.8 inconsistently 
+				/* CableLabs specs treat 43.8 inconsistently
 				 * as either binary (3b) or string (6b) */
 				if (subopt_len == 3) {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
@@ -2002,7 +2003,7 @@ dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	guint8 subopt_len;
 
 	/* Reference: TR-111 DHCP Option 125 Sub-Option Data Fields
-           Page 10. 
+           Page 10.
          */
 
 	static struct opt_info o125_tr111_opt[]= {
@@ -3467,7 +3468,7 @@ proto_register_bootp(void)
 
   /* Allow dissector to find be found by name. */
   register_dissector("bootp", dissect_bootp, proto_bootp);
-  
+
   bootp_module = prefs_register_protocol(proto_bootp, NULL);
 
   prefs_register_bool_preference(bootp_module, "novellserverstring",
