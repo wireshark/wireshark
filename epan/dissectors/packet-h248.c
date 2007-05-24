@@ -109,7 +109,7 @@ static int hf_h248_actionReplies = -1;            /* SEQUENCE_OF_ActionReply */
 static int hf_h248_actionReplies_item = -1;       /* ActionReply */
 static int hf_h248_segmentNumber = -1;            /* SegmentNumber */
 static int hf_h248_segmentationComplete = -1;     /* NULL */
-static int hf_h248_transactionId1 = -1;           /* TransactionId */
+static int hf_h248_transactionId_01 = -1;         /* TransactionId */
 static int hf_h248_TransactionResponseAck_item = -1;  /* TransactionAck */
 static int hf_h248_firstAck = -1;                 /* TransactionId */
 static int hf_h248_lastAck = -1;                  /* TransactionId */
@@ -136,7 +136,7 @@ static int hf_h248_contextList_item = -1;         /* ContextIDinList */
 static int hf_h248_topology = -1;                 /* NULL */
 static int hf_h248_cAAREmergency = -1;            /* NULL */
 static int hf_h248_cAARPriority = -1;             /* NULL */
-static int hf_h248_iepscallind1 = -1;             /* NULL */
+static int hf_h248_iepscallind_01 = -1;           /* NULL */
 static int hf_h248_contextPropAud = -1;           /* SEQUENCE_OF_IndAudPropertyParm */
 static int hf_h248_contextPropAud_item = -1;      /* IndAudPropertyParm */
 static int hf_h248_selectpriority = -1;           /* INTEGER_0_15 */
@@ -211,7 +211,7 @@ static int hf_h248_indAudStreamParms = -1;        /* IndAudStreamParms */
 static int hf_h248_iASPLocalControlDescriptor = -1;  /* IndAudLocalControlDescriptor */
 static int hf_h248_iASPLocalDescriptor = -1;      /* IndAudLocalRemoteDescriptor */
 static int hf_h248_iASPRemoteDescriptor = -1;     /* IndAudLocalRemoteDescriptor */
-static int hf_h248_statisticsDescriptor1 = -1;    /* IndAudStatisticsDescriptor */
+static int hf_h248_statisticsDescriptor_01 = -1;  /* IndAudStatisticsDescriptor */
 static int hf_h248_iALCDStreamMode = -1;          /* NULL */
 static int hf_h248_iALCDReserveValue = -1;        /* NULL */
 static int hf_h248_iALCDReserveGroup = -1;        /* NULL */
@@ -272,12 +272,12 @@ static int hf_h248_remoteDescriptor = -1;         /* LocalRemoteDescriptor */
 static int hf_h248_streamMode = -1;               /* StreamMode */
 static int hf_h248_reserveValue = -1;             /* BOOLEAN */
 static int hf_h248_reserveGroup = -1;             /* BOOLEAN */
-static int hf_h248_propertyParms1 = -1;           /* SEQUENCE_OF_PropertyParm */
+static int hf_h248_propertyParms_01 = -1;         /* SEQUENCE_OF_PropertyParm */
 static int hf_h248_propertyParms_item = -1;       /* PropertyParm */
 static int hf_h248_propertyName = -1;             /* PropertyName */
 static int hf_h248_propertyParamValue = -1;       /* SEQUENCE_OF_PropertyID */
 static int hf_h248_propertyParamValue_item = -1;  /* PropertyID */
-static int hf_h248_extraInfo1 = -1;               /* T_extraInfo1 */
+static int hf_h248_extraInfo_01 = -1;             /* T_extraInfo_01 */
 static int hf_h248_propGrps = -1;                 /* SEQUENCE_OF_PropertyGroup */
 static int hf_h248_propGrps_item = -1;            /* PropertyGroup */
 static int hf_h248_PropertyGroup_item = -1;       /* PropertyParm */
@@ -321,7 +321,7 @@ static int hf_h248_direction = -1;                /* SignalDirection */
 static int hf_h248_intersigDelay = -1;            /* INTEGER_0_65535 */
 static int hf_h248_sigParameterName = -1;         /* SigParameterName */
 static int hf_h248_value = -1;                    /* SigParamValues */
-static int hf_h248_extraInfo2 = -1;               /* T_extraInfo2 */
+static int hf_h248_extraInfo_02 = -1;             /* T_extraInfo_02 */
 static int hf_h248_SigParamValues_item = -1;      /* SigParamValue */
 static int hf_h248_mtl = -1;                      /* SEQUENCE_OF_ModemType */
 static int hf_h248_mtl_item = -1;                 /* ModemType */
@@ -490,7 +490,7 @@ static gint ett_h248_StreamParms = -1;
 static gint ett_h248_LocalControlDescriptor = -1;
 static gint ett_h248_PropertyParm = -1;
 static gint ett_h248_SEQUENCE_OF_PropertyID = -1;
-static gint ett_h248_T_extraInfo1 = -1;
+static gint ett_h248_T_extraInfo_01 = -1;
 static gint ett_h248_LocalRemoteDescriptor = -1;
 static gint ett_h248_SEQUENCE_OF_PropertyGroup = -1;
 static gint ett_h248_PropertyGroup = -1;
@@ -518,7 +518,7 @@ static gint ett_h248_Signal = -1;
 static gint ett_h248_SEQUENCE_OF_SigParameter = -1;
 static gint ett_h248_NotifyCompletion = -1;
 static gint ett_h248_SigParameter = -1;
-static gint ett_h248_T_extraInfo2 = -1;
+static gint ett_h248_T_extraInfo_02 = -1;
 static gint ett_h248_SigParamValues = -1;
 static gint ett_h248_ModemDescriptor = -1;
 static gint ett_h248_SEQUENCE_OF_ModemType = -1;
@@ -1963,8 +1963,8 @@ dissect_h248_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_transactionId1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionId(TRUE, tvb, offset, actx, tree, hf_h248_transactionId1);
+static int dissect_transactionId_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionId(TRUE, tvb, offset, actx, tree, hf_h248_transactionId_01);
 }
 static int dissect_firstAck_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_h248_TransactionId(TRUE, tvb, offset, actx, tree, hf_h248_firstAck);
@@ -2336,14 +2336,14 @@ static int dissect_relation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const value_string h248_T_extraInfo1_vals[] = {
+static const value_string h248_T_extraInfo_01_vals[] = {
   {   0, "relation" },
   {   1, "range" },
   {   2, "sublist" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_extraInfo1_choice[] = {
+static const ber_old_choice_t T_extraInfo_01_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_relation_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_range_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sublist_impl },
@@ -2351,22 +2351,22 @@ static const ber_old_choice_t T_extraInfo1_choice[] = {
 };
 
 static int
-dissect_h248_T_extraInfo1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_extraInfo_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_extraInfo1_choice, hf_index, ett_h248_T_extraInfo1,
+                                     T_extraInfo_01_choice, hf_index, ett_h248_T_extraInfo_01,
                                      NULL);
 
   return offset;
 }
-static int dissect_extraInfo1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_extraInfo1(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo1);
+static int dissect_extraInfo_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_extraInfo_01(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo_01);
 }
 
 
 static const ber_old_sequence_t PropertyParm_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_propertyParamValue_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo1_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -2408,8 +2408,8 @@ dissect_h248_SEQUENCE_OF_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int dissect_contextProp_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_contextProp);
 }
-static int dissect_propertyParms1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_propertyParms1);
+static int dissect_propertyParms_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_propertyParms_01);
 }
 static int dissect_mpl_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_mpl);
@@ -2492,8 +2492,8 @@ static int dissect_cAAREmergency_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 static int dissect_cAARPriority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_cAARPriority);
 }
-static int dissect_iepscallind1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iepscallind1);
+static int dissect_iepscallind_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iepscallind_01);
 }
 static int dissect_andAUDITSelect_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_andAUDITSelect);
@@ -2608,7 +2608,7 @@ static const ber_old_sequence_t ContextAttrAuditRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_topology_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cAAREmergency_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cAARPriority_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iepscallind1_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iepscallind_01_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_contextPropAud_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_selectpriority_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_selectemergency_impl },
@@ -2707,7 +2707,7 @@ static int dissect_serviceState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 
 
 static const ber_old_sequence_t TerminationStateDescriptor_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyParms1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyParms_01_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tSEventBufferControl_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceState_impl },
   { 0, 0, 0, NULL }
@@ -2754,7 +2754,7 @@ static const ber_old_sequence_t LocalControlDescriptor_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamMode_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reserveValue_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reserveGroup_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_propertyParms1_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_propertyParms_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -3407,14 +3407,14 @@ static int dissect_value_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const value_string h248_T_extraInfo2_vals[] = {
+static const value_string h248_T_extraInfo_02_vals[] = {
   {   0, "relation" },
   {   1, "range" },
   {   2, "sublist" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_extraInfo2_choice[] = {
+static const ber_old_choice_t T_extraInfo_02_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_relation_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_range_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sublist_impl },
@@ -3422,22 +3422,22 @@ static const ber_old_choice_t T_extraInfo2_choice[] = {
 };
 
 static int
-dissect_h248_T_extraInfo2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_extraInfo_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_extraInfo2_choice, hf_index, ett_h248_T_extraInfo2,
+                                     T_extraInfo_02_choice, hf_index, ett_h248_T_extraInfo_02,
                                      NULL);
 
   return offset;
 }
-static int dissect_extraInfo2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_extraInfo2(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo2);
+static int dissect_extraInfo_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_extraInfo_02(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo_02);
 }
 
 
 static const ber_old_sequence_t SigParameter_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sigParameterName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo2_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo_02_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -4051,8 +4051,8 @@ dissect_h248_IndAudStatisticsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int dissect_indaudstatisticsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudstatisticsDescriptor);
 }
-static int dissect_statisticsDescriptor1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_statisticsDescriptor1);
+static int dissect_statisticsDescriptor_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_statisticsDescriptor_01);
 }
 
 
@@ -4060,7 +4060,7 @@ static const ber_old_sequence_t IndAudStreamParms_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iASPLocalControlDescriptor_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iASPLocalDescriptor_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iASPRemoteDescriptor_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_statisticsDescriptor1_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_statisticsDescriptor_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -5597,7 +5597,7 @@ static int dissect_transactionResponseAck_impl(proto_tree *tree _U_, tvbuff_t *t
 
 
 static const ber_old_sequence_t SegmentReply_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId_01_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_segmentNumber_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_segmentationComplete_impl },
   { 0, 0, 0, NULL }
@@ -6052,7 +6052,7 @@ void proto_register_h248(void) {
       { "segmentationComplete", "h248.segmentationComplete",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.NULL", HFILL }},
-    { &hf_h248_transactionId1,
+    { &hf_h248_transactionId_01,
       { "transactionId", "h248.transactionId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.TransactionId", HFILL }},
@@ -6160,7 +6160,7 @@ void proto_register_h248(void) {
       { "priority", "h248.priority",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.NULL", HFILL }},
-    { &hf_h248_iepscallind1,
+    { &hf_h248_iepscallind_01,
       { "iepscallind", "h248.iepscallind",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.NULL", HFILL }},
@@ -6460,7 +6460,7 @@ void proto_register_h248(void) {
       { "remoteDescriptor", "h248.remoteDescriptor",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.IndAudLocalRemoteDescriptor", HFILL }},
-    { &hf_h248_statisticsDescriptor1,
+    { &hf_h248_statisticsDescriptor_01,
       { "statisticsDescriptor", "h248.statisticsDescriptor",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.IndAudStatisticsDescriptor", HFILL }},
@@ -6704,7 +6704,7 @@ void proto_register_h248(void) {
       { "reserveGroup", "h248.reserveGroup",
         FT_BOOLEAN, 8, NULL, 0,
         "h248.BOOLEAN", HFILL }},
-    { &hf_h248_propertyParms1,
+    { &hf_h248_propertyParms_01,
       { "propertyParms", "h248.propertyParms",
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SEQUENCE_OF_PropertyParm", HFILL }},
@@ -6724,10 +6724,10 @@ void proto_register_h248(void) {
       { "Item", "h248.value_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.PropertyID", HFILL }},
-    { &hf_h248_extraInfo1,
+    { &hf_h248_extraInfo_01,
       { "extraInfo", "h248.extraInfo",
-        FT_UINT32, BASE_DEC, VALS(h248_T_extraInfo1_vals), 0,
-        "h248.T_extraInfo1", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(h248_T_extraInfo_01_vals), 0,
+        "h248.T_extraInfo_01", HFILL }},
     { &hf_h248_propGrps,
       { "propGrps", "h248.propGrps",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6900,10 +6900,10 @@ void proto_register_h248(void) {
       { "value", "h248.value",
         FT_UINT32, BASE_DEC, NULL, 0,
         "h248.SigParamValues", HFILL }},
-    { &hf_h248_extraInfo2,
+    { &hf_h248_extraInfo_02,
       { "extraInfo", "h248.extraInfo",
-        FT_UINT32, BASE_DEC, VALS(h248_T_extraInfo2_vals), 0,
-        "h248.T_extraInfo2", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(h248_T_extraInfo_02_vals), 0,
+        "h248.T_extraInfo_02", HFILL }},
     { &hf_h248_SigParamValues_item,
       { "Item", "h248.SigParamValues_item",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -7234,7 +7234,7 @@ void proto_register_h248(void) {
     &ett_h248_LocalControlDescriptor,
     &ett_h248_PropertyParm,
     &ett_h248_SEQUENCE_OF_PropertyID,
-    &ett_h248_T_extraInfo1,
+    &ett_h248_T_extraInfo_01,
     &ett_h248_LocalRemoteDescriptor,
     &ett_h248_SEQUENCE_OF_PropertyGroup,
     &ett_h248_PropertyGroup,
@@ -7262,7 +7262,7 @@ void proto_register_h248(void) {
     &ett_h248_SEQUENCE_OF_SigParameter,
     &ett_h248_NotifyCompletion,
     &ett_h248_SigParameter,
-    &ett_h248_T_extraInfo2,
+    &ett_h248_T_extraInfo_02,
     &ett_h248_SigParamValues,
     &ett_h248_ModemDescriptor,
     &ett_h248_SEQUENCE_OF_ModemType,

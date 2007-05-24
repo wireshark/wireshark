@@ -210,7 +210,7 @@ static int hf_ldap_ntlmsspAuth = -1;              /* T_ntlmsspAuth */
 static int hf_ldap_mechanism = -1;                /* Mechanism */
 static int hf_ldap_credentials = -1;              /* Credentials */
 static int hf_ldap_bindResponse_resultCode = -1;  /* BindResponse_resultCode */
-static int hf_ldap_matchedDN1 = -1;               /* T_matchedDN */
+static int hf_ldap_matchedDN_01 = -1;             /* T_matchedDN */
 static int hf_ldap_serverSaslCreds = -1;          /* ServerSaslCreds */
 static int hf_ldap_baseObject = -1;               /* LDAPDN */
 static int hf_ldap_scope = -1;                    /* T_scope */
@@ -1235,8 +1235,8 @@ dissect_ldap_T_matchedDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_matchedDN1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ldap_T_matchedDN(FALSE, tvb, offset, actx, tree, hf_ldap_matchedDN1);
+static int dissect_matchedDN_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ldap_T_matchedDN(FALSE, tvb, offset, actx, tree, hf_ldap_matchedDN_01);
 }
 
 
@@ -1365,7 +1365,7 @@ static int dissect_serverSaslCreds_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 
 static const ber_old_sequence_t BindResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_bindResponse_resultCode },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_matchedDN_01 },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_errorMessage },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_referral_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serverSaslCreds_impl },
@@ -4362,7 +4362,7 @@ void proto_register_ldap(void) {
       { "resultCode", "ldap.resultCode",
         FT_UINT32, BASE_DEC, VALS(ldap_BindResponse_resultCode_vals), 0,
         "ldap.BindResponse_resultCode", HFILL }},
-    { &hf_ldap_matchedDN1,
+    { &hf_ldap_matchedDN_01,
       { "matchedDN", "ldap.matchedDN",
         FT_STRING, BASE_NONE, NULL, 0,
         "ldap.T_matchedDN", HFILL }},

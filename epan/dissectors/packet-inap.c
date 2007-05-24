@@ -137,7 +137,7 @@ static int hf_inap_returnResultProblem = -1;      /* ReturnResultProblem */
 static int hf_inap_returnErrorProblem = -1;       /* ReturnErrorProblem */
 static int hf_inap_localValue = -1;               /* OperationLocalvalue */
 static int hf_inap_globalValue = -1;              /* OBJECT_IDENTIFIER */
-static int hf_inap_localValue1 = -1;              /* LocalErrorcode */
+static int hf_inap_localValue_01 = -1;            /* LocalErrorcode */
 static int hf_inap_originalCallID = -1;           /* CallID */
 static int hf_inap_destinationCallID = -1;        /* CallID */
 static int hf_inap_newLegID = -1;                 /* OCTET_STRING */
@@ -194,7 +194,7 @@ static int hf_inap_gapIndicators = -1;            /* GapIndicators */
 static int hf_inap_controlType = -1;              /* ControlType */
 static int hf_inap_gapTreatment = -1;             /* GapTreatment */
 static int hf_inap_requestedInformationTypeList = -1;  /* RequestedInformationTypeList */
-static int hf_inap_invokeID1 = -1;                /* InvokeID */
+static int hf_inap_invokeID_01 = -1;              /* InvokeID */
 static int hf_inap_allRequests = -1;              /* NULL */
 static int hf_inap_resourceID = -1;               /* ResourceID */
 static int hf_inap_numberingPlan = -1;            /* NumberingPlan */
@@ -353,7 +353,7 @@ static int hf_inap_number = -1;                   /* Digits */
 static int hf_inap_time = -1;                     /* OCTET_STRING_SIZE_2 */
 static int hf_inap_date2 = -1;                    /* OCTET_STRING_SIZE_3 */
 static int hf_inap_price = -1;                    /* OCTET_STRING_SIZE_4 */
-static int hf_inap_problem1 = -1;                 /* T_problem1 */
+static int hf_inap_problem_01 = -1;               /* T_problem_01 */
 static int hf_inap_operation = -1;                /* INTEGER_M128_127 */
 
 /*--- End of included file: packet-inap-hf.c ---*/
@@ -803,8 +803,8 @@ dissect_inap_LocalErrorcode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_localValue1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_inap_LocalErrorcode(FALSE, tvb, offset, actx, tree, hf_inap_localValue1);
+static int dissect_localValue_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_inap_LocalErrorcode(FALSE, tvb, offset, actx, tree, hf_inap_localValue_01);
 }
 
 
@@ -815,7 +815,7 @@ static const value_string inap_ERROR_vals[] = {
 };
 
 static const ber_old_choice_t ERROR_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue1 },
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue_01 },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
   { 0, 0, 0, 0, NULL }
 };
@@ -3160,8 +3160,8 @@ dissect_inap_InvokeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_invokeID1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_inap_InvokeID(TRUE, tvb, offset, actx, tree, hf_inap_invokeID1);
+static int dissect_invokeID_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_inap_InvokeID(TRUE, tvb, offset, actx, tree, hf_inap_invokeID_01);
 }
 
 
@@ -3172,7 +3172,7 @@ static const value_string inap_CancelArg_vals[] = {
 };
 
 static const ber_old_choice_t CancelArg_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_invokeID1_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_invokeID_01_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_allRequests_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -5115,7 +5115,7 @@ dissect_inap_UnavailableNetworkResource(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 
 
-static const value_string inap_T_problem1_vals[] = {
+static const value_string inap_T_problem_01_vals[] = {
   {   0, "unknownOperation" },
   {   1, "tooLate" },
   {   2, "operationNotCancellable" },
@@ -5124,14 +5124,14 @@ static const value_string inap_T_problem1_vals[] = {
 
 
 static int
-dissect_inap_T_problem1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_T_problem_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_problem1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_inap_T_problem1(TRUE, tvb, offset, actx, tree, hf_inap_problem1);
+static int dissect_problem_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_inap_T_problem_01(TRUE, tvb, offset, actx, tree, hf_inap_problem_01);
 }
 
 
@@ -5149,7 +5149,7 @@ static int dissect_operation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 
 static const ber_old_sequence_t CancelFailed_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_problem1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_problem_01_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_operation_impl },
   { 0, 0, 0, NULL }
 };
@@ -6057,7 +6057,7 @@ void proto_register_inap(void) {
       { "globalValue", "inap.globalValue",
         FT_OID, BASE_NONE, NULL, 0,
         "inap.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_inap_localValue1,
+    { &hf_inap_localValue_01,
       { "localValue", "inap.localValue",
         FT_INT32, BASE_DEC, NULL, 0,
         "inap.LocalErrorcode", HFILL }},
@@ -6285,7 +6285,7 @@ void proto_register_inap(void) {
       { "requestedInformationTypeList", "inap.requestedInformationTypeList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "inap.RequestedInformationTypeList", HFILL }},
-    { &hf_inap_invokeID1,
+    { &hf_inap_invokeID_01,
       { "invokeID", "inap.invokeID",
         FT_INT32, BASE_DEC, NULL, 0,
         "inap.InvokeID", HFILL }},
@@ -6921,10 +6921,10 @@ void proto_register_inap(void) {
       { "price", "inap.price",
         FT_BYTES, BASE_HEX, NULL, 0,
         "inap.OCTET_STRING_SIZE_4", HFILL }},
-    { &hf_inap_problem1,
+    { &hf_inap_problem_01,
       { "problem", "inap.problem",
-        FT_UINT32, BASE_DEC, VALS(inap_T_problem1_vals), 0,
-        "inap.T_problem1", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(inap_T_problem_01_vals), 0,
+        "inap.T_problem_01", HFILL }},
     { &hf_inap_operation,
       { "operation", "inap.operation",
         FT_INT32, BASE_DEC, NULL, 0,

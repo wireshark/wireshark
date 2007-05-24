@@ -127,8 +127,8 @@ static int hf_gnm_mpCrossConnection = -1;         /* ObjectInstance */
 static int hf_gnm_legs = -1;                      /* SET_OF_ToTermSpecifier */
 static int hf_gnm_legs_item = -1;                 /* ToTermSpecifier */
 static int hf_gnm_AddTpsToGtpInformation_item = -1;  /* AddTpsToGtpInformation_item */
-static int hf_gnm_tpsAdded1 = -1;                 /* SEQUENCE_OF_TerminationPointInformation */
-static int hf_gnm_tpsAdded_item1 = -1;            /* TerminationPointInformation */
+static int hf_gnm_tpsAdded_01 = -1;               /* SEQUENCE_OF_TerminationPointInformation */
+static int hf_gnm_tpsAdded_item_01 = -1;          /* TerminationPointInformation */
 static int hf_gnm_AddTpsToGtpResult_item = -1;    /* AddTpsToGtpResult_item */
 static int hf_gnm_failed = -1;                    /* Failed */
 static int hf_gnm_addedTps = -1;                  /* AddedTps */
@@ -168,7 +168,7 @@ static int hf_gnm_ptoTpPool = -1;                 /* PtoTPPool */
 static int hf_gnm_explicitPtoMP = -1;             /* ExplicitPtoMP */
 static int hf_gnm_ptoMPools = -1;                 /* PtoMPools */
 static int hf_gnm_notConnected = -1;              /* ObjectInstance */
-static int hf_gnm_connected1 = -1;                /* ObjectInstance */
+static int hf_gnm_connected_01 = -1;              /* ObjectInstance */
 static int hf_gnm_multipleConnections = -1;       /* MultipleConnections */
 static int hf_gnm_alarmStatus = -1;               /* AlarmStatus */
 static int hf_gnm_CurrentProblemList_item = -1;   /* CurrentProblem */
@@ -214,7 +214,7 @@ static int hf_gnm_downstreamNotConnected = -1;    /* ObjectInstance */
 static int hf_gnm_downstreamConnected = -1;       /* ObjectInstance */
 static int hf_gnm_upstreamNotConnected = -1;      /* ObjectInstance */
 static int hf_gnm_upstreamConnected = -1;         /* ObjectInstance */
-static int hf_gnm_redline1 = -1;                  /* BOOLEAN */
+static int hf_gnm_redline_01 = -1;                /* BOOLEAN */
 static int hf_gnm_name = -1;                      /* CrossConnectionName */
 static int hf_gnm_numericName = -1;               /* INTEGER */
 static int hf_gnm_pString = -1;                   /* GraphicString */
@@ -225,8 +225,8 @@ static int hf_gnm_upStream = -1;                  /* SignalRateAndMappingList */
 static int hf_gnm_uniform = -1;                   /* SignalRateAndMappingList */
 static int hf_gnm_pointer = -1;                   /* ObjectInstance */
 static int hf_gnm_null = -1;                      /* NULL */
-static int hf_gnm_fromTp1 = -1;                   /* ObjectInstance */
-static int hf_gnm_toTp1 = -1;                     /* ObjectInstance */
+static int hf_gnm_fromTp_01 = -1;                 /* ObjectInstance */
+static int hf_gnm_toTp_01 = -1;                   /* ObjectInstance */
 static int hf_gnm_xCon = -1;                      /* ObjectInstance */
 static int hf_gnm_toTps = -1;                     /* T_toTps */
 static int hf_gnm_toTps_item = -1;                /* T_toTps_item */
@@ -240,8 +240,8 @@ static int hf_gnm_notAvailable = -1;              /* NULL */
 static int hf_gnm_relatedObject = -1;             /* ObjectInstance */
 static int hf_gnm_RemoveTpsFromGtpInformation_item = -1;  /* RemoveTpsFromGtpInformation_item */
 static int hf_gnm_fromGtp = -1;                   /* ObjectInstance */
-static int hf_gnm_tps1 = -1;                      /* SET_OF_ObjectInstance */
-static int hf_gnm_tps_item1 = -1;                 /* ObjectInstance */
+static int hf_gnm_tps_01 = -1;                    /* SET_OF_ObjectInstance */
+static int hf_gnm_tps_item_01 = -1;               /* ObjectInstance */
 static int hf_gnm_RemoveTpsFromGtpResult_item = -1;  /* RemoveTpsFromGtpResult_item */
 static int hf_gnm_removed = -1;                   /* RemoveTpsResultInformation */
 static int hf_gnm_RemoveTpsFromTpPoolInformation_item = -1;  /* RemoveTpsFromTpPoolInformation_item */
@@ -430,8 +430,8 @@ static int dissect_concatenated_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 static int dissect_notConnected_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmip_ObjectInstance(TRUE, tvb, offset, actx, tree, hf_gnm_notConnected);
 }
-static int dissect_connected1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cmip_ObjectInstance(TRUE, tvb, offset, actx, tree, hf_gnm_connected1);
+static int dissect_connected_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cmip_ObjectInstance(TRUE, tvb, offset, actx, tree, hf_gnm_connected_01);
 }
 static int dissect_DisconnectInformation_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_DisconnectInformation_item);
@@ -487,11 +487,11 @@ static int dissect_ObjectList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 static int dissect_pointer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_pointer);
 }
-static int dissect_fromTp1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_fromTp1);
+static int dissect_fromTp_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_fromTp_01);
 }
-static int dissect_toTp1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_toTp1);
+static int dissect_toTp_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_toTp_01);
 }
 static int dissect_xCon(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_xCon);
@@ -511,8 +511,8 @@ static int dissect_relatedObject(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 static int dissect_fromGtp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_fromGtp);
 }
-static int dissect_tps_item1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_tps_item1);
+static int dissect_tps_item_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_tps_item_01);
 }
 static int dissect_fromTpPool(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmip_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_fromTpPool);
@@ -717,8 +717,8 @@ dissect_gnm_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int dissect_significance_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gnm_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_gnm_significance);
 }
-static int dissect_redline1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gnm_BOOLEAN(FALSE, tvb, offset, actx, tree, hf_gnm_redline1);
+static int dissect_redline_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_gnm_BOOLEAN(FALSE, tvb, offset, actx, tree, hf_gnm_redline_01);
 }
 
 
@@ -1100,8 +1100,8 @@ dissect_gnm_TerminationPointInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_tpsAdded_item1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gnm_TerminationPointInformation(FALSE, tvb, offset, actx, tree, hf_gnm_tpsAdded_item1);
+static int dissect_tpsAdded_item_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_gnm_TerminationPointInformation(FALSE, tvb, offset, actx, tree, hf_gnm_tpsAdded_item_01);
 }
 static int dissect_tps_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gnm_TerminationPointInformation(FALSE, tvb, offset, actx, tree, hf_gnm_tps_item);
@@ -1109,7 +1109,7 @@ static int dissect_tps_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static const ber_old_sequence_t SEQUENCE_OF_TerminationPointInformation_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tpsAdded_item1 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tpsAdded_item_01 },
 };
 
 static int
@@ -1119,13 +1119,13 @@ dissect_gnm_SEQUENCE_OF_TerminationPointInformation(gboolean implicit_tag _U_, t
 
   return offset;
 }
-static int dissect_tpsAdded1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gnm_SEQUENCE_OF_TerminationPointInformation(FALSE, tvb, offset, actx, tree, hf_gnm_tpsAdded1);
+static int dissect_tpsAdded_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_gnm_SEQUENCE_OF_TerminationPointInformation(FALSE, tvb, offset, actx, tree, hf_gnm_tpsAdded_01);
 }
 
 
 static const ber_old_sequence_t AddTpsToGtpInformation_item_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tpsAdded1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tpsAdded_01 },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gtp },
   { 0, 0, 0, NULL }
 };
@@ -1230,8 +1230,8 @@ static int dissect_relatedObjects_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 static int dissect_incorrectInstances(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gnm_SET_OF_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_incorrectInstances);
 }
-static int dissect_tps1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gnm_SET_OF_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_tps1);
+static int dissect_tps_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_gnm_SET_OF_ObjectInstance(FALSE, tvb, offset, actx, tree, hf_gnm_tps_01);
 }
 
 
@@ -1393,7 +1393,7 @@ dissect_gnm_AddTpsToTpPoolInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static const ber_old_sequence_t TpsAddedToTpPool_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_tpPool },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -1628,8 +1628,8 @@ static int dissect_notInTheAcceptableList_impl(proto_tree *tree _U_, tvbuff_t *t
 
 
 static const ber_old_sequence_t PointToPoint_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fromTp1 },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_toTp1 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fromTp_01 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_toTp_01 },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_xCon },
   { 0, 0, 0, NULL }
 };
@@ -1681,7 +1681,7 @@ static int dissect_toTps(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static const ber_old_sequence_t PointToMultipoint_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fromTp1 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fromTp_01 },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_toTps },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_mpXCon },
   { 0, 0, 0, NULL }
@@ -1945,7 +1945,7 @@ static int dissect_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static const ber_old_sequence_t NamedCrossConnection_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_redline1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_redline_01 },
   { BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_name },
   { 0, 0, 0, NULL }
 };
@@ -2164,7 +2164,7 @@ static const value_string gnm_CrossConnectionObjectPointer_vals[] = {
 
 static const ber_old_choice_t CrossConnectionObjectPointer_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_notConnected_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_connected1_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_connected_01_impl },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_multipleConnections },
   { 0, 0, 0, 0, NULL }
 };
@@ -2788,7 +2788,7 @@ dissect_gnm_RelatedObjectInstance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static const ber_old_sequence_t RemoveTpsFromGtpInformation_item_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fromGtp },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -2819,7 +2819,7 @@ dissect_gnm_RemoveTpsFromGtpInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static const ber_old_sequence_t RemoveTpsResultInformation_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_deletedTpPoolOrGTP },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -2875,7 +2875,7 @@ dissect_gnm_RemoveTpsFromGtpResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static const ber_old_sequence_t RemoveTpsFromTpPoolInformation_item_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fromTpPool },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_tps_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -3763,11 +3763,11 @@ void proto_register_gnm(void) {
       { "Item", "gnm.AddTpsToGtpInformation_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.AddTpsToGtpInformation_item", HFILL }},
-    { &hf_gnm_tpsAdded1,
+    { &hf_gnm_tpsAdded_01,
       { "tpsAdded", "gnm.tpsAdded",
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SEQUENCE_OF_TerminationPointInformation", HFILL }},
-    { &hf_gnm_tpsAdded_item1,
+    { &hf_gnm_tpsAdded_item_01,
       { "Item", "gnm.tpsAdded_item",
         FT_UINT32, BASE_DEC, VALS(gnm_TerminationPointInformation_vals), 0,
         "gnm.TerminationPointInformation", HFILL }},
@@ -3927,7 +3927,7 @@ void proto_register_gnm(void) {
       { "notConnected", "gnm.notConnected",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
-    { &hf_gnm_connected1,
+    { &hf_gnm_connected_01,
       { "connected", "gnm.connected",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
@@ -4111,7 +4111,7 @@ void proto_register_gnm(void) {
       { "upstreamConnected", "gnm.upstreamConnected",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
-    { &hf_gnm_redline1,
+    { &hf_gnm_redline_01,
       { "redline", "gnm.redline",
         FT_BOOLEAN, 8, NULL, 0,
         "gnm.BOOLEAN", HFILL }},
@@ -4155,11 +4155,11 @@ void proto_register_gnm(void) {
       { "null", "gnm.null",
         FT_NONE, BASE_NONE, NULL, 0,
         "gnm.NULL", HFILL }},
-    { &hf_gnm_fromTp1,
+    { &hf_gnm_fromTp_01,
       { "fromTp", "gnm.fromTp",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
-    { &hf_gnm_toTp1,
+    { &hf_gnm_toTp_01,
       { "toTp", "gnm.toTp",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
@@ -4215,11 +4215,11 @@ void proto_register_gnm(void) {
       { "fromGtp", "gnm.fromGtp",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},
-    { &hf_gnm_tps1,
+    { &hf_gnm_tps_01,
       { "tps", "gnm.tps",
         FT_UINT32, BASE_DEC, NULL, 0,
         "gnm.SET_OF_ObjectInstance", HFILL }},
-    { &hf_gnm_tps_item1,
+    { &hf_gnm_tps_item_01,
       { "Item", "gnm.tps_item",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
         "cmip.ObjectInstance", HFILL }},

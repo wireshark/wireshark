@@ -200,7 +200,7 @@ static int hf_ftam_change_path_access_control = -1;  /* Access_Control_Change_At
 static int hf_ftam_legal_qualification = -1;      /* Legal_Qualification_Attribute */
 static int hf_ftam_private_use = -1;              /* Private_Use_Attribute */
 static int hf_ftam_attribute_extensions = -1;     /* Attribute_Extensions */
-static int hf_ftam__untag_item1 = -1;             /* Charging_item */
+static int hf_ftam__untag_item_01 = -1;           /* Charging_item */
 static int hf_ftam_resource_identifier = -1;      /* GraphicString */
 static int hf_ftam_charging_unit = -1;            /* GraphicString */
 static int hf_ftam_charging_value = -1;           /* INTEGER */
@@ -216,7 +216,7 @@ static int hf_ftam_object_type = -1;              /* Object_Type_Attribute */
 static int hf_ftam_permitted_actions = -1;        /* Permitted_Actions_Attribute */
 static int hf_ftam_access_control = -1;           /* Access_Control_Attribute */
 static int hf_ftam_path_access_control = -1;      /* Access_Control_Attribute */
-static int hf_ftam__untag_item2 = -1;             /* Diagnostic_item */
+static int hf_ftam__untag_item_02 = -1;           /* Diagnostic_item */
 static int hf_ftam_diagnostic_type = -1;          /* T_diagnostic_type */
 static int hf_ftam_error_identifier = -1;         /* INTEGER */
 static int hf_ftam_error_observer = -1;           /* Entity_Reference */
@@ -336,7 +336,7 @@ static int hf_ftam_extension_set_attributes = -1;  /* SEQUENCE_OF_Extension_Attr
 static int hf_ftam_extension_set_attributes_item = -1;  /* Extension_Attribute */
 static int hf_ftam_extension_attribute_identifier = -1;  /* T_extension_attribute_identifier */
 static int hf_ftam_extension_attribute = -1;      /* T_extension_attribute */
-static int hf_ftam__untag_item3 = -1;             /* Scope_item */
+static int hf_ftam__untag_item_03 = -1;           /* Scope_item */
 static int hf_ftam_root_directory = -1;           /* Pathname_Attribute */
 static int hf_ftam_retrieval_scope = -1;          /* T_retrieval_scope */
 static int hf_ftam_OR_Set_item = -1;              /* AND_Set */
@@ -388,16 +388,16 @@ static int hf_ftam_extension_set_attribute_Patterns = -1;  /* T_extension_set_at
 static int hf_ftam_extension_set_attribute_Patterns_item = -1;  /* T_extension_set_attribute_Patterns_item */
 static int hf_ftam_attribute_extension_attribute_identifier = -1;  /* T_attribute_extension_attribute_identifier */
 static int hf_ftam_extension_attribute_Pattern = -1;  /* T_extension_attribute_Pattern */
-static int hf_ftam__untag_item4 = -1;             /* Read_Attributes */
+static int hf_ftam__untag_item_04 = -1;           /* Read_Attributes */
 static int hf_ftam_success_Object_count = -1;     /* INTEGER */
 static int hf_ftam_success_Object_names = -1;     /* SEQUENCE_OF_Pathname */
 static int hf_ftam_success_Object_names_item = -1;  /* Pathname */
 static int hf_ftam_Pathname_item = -1;            /* GraphicString */
 static int hf_ftam_Pass_Passwords_item = -1;      /* Password */
-static int hf_ftam__untag_item5 = -1;             /* Path_Access_Passwords_item */
+static int hf_ftam__untag_item_05 = -1;           /* Path_Access_Passwords_item */
 static int hf_ftam_ap = -1;                       /* AP_title */
 static int hf_ftam_ae = -1;                       /* AE_qualifier */
-static int hf_ftam__untag_item6 = -1;             /* AND_Set */
+static int hf_ftam__untag_item_06 = -1;           /* AND_Set */
 /* named bits */
 static int hf_ftam_Protocol_Version_U_version_1 = -1;
 static int hf_ftam_Protocol_Version_U_version_2 = -1;
@@ -1137,7 +1137,7 @@ dissect_ftam_Diagnostic_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static const ber_sequence_t Diagnostic_U_sequence_of[1] = {
-  { &hf_ftam__untag_item2   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Diagnostic_item },
+  { &hf_ftam__untag_item_02 , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Diagnostic_item },
 };
 
 static int
@@ -1216,7 +1216,7 @@ dissect_ftam_Charging_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static const ber_sequence_t Charging_U_sequence_of[1] = {
-  { &hf_ftam__untag_item1   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Charging_item },
+  { &hf_ftam__untag_item_01 , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Charging_item },
 };
 
 static int
@@ -1486,7 +1486,7 @@ dissect_ftam_Path_Access_Passwords_item(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t Path_Access_Passwords_U_sequence_of[1] = {
-  { &hf_ftam__untag_item5   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Path_Access_Passwords_item },
+  { &hf_ftam__untag_item_05 , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Path_Access_Passwords_item },
 };
 
 static int
@@ -3923,7 +3923,7 @@ dissect_ftam_AND_Set(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static const ber_sequence_t SEQUENCE_OF_AND_Set_sequence_of[1] = {
-  { &hf_ftam__untag_item6   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_AND_Set },
+  { &hf_ftam__untag_item_06 , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_AND_Set },
 };
 
 static int
@@ -3977,7 +3977,7 @@ dissect_ftam_Scope_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static const ber_sequence_t Scope_U_sequence_of[1] = {
-  { &hf_ftam__untag_item3   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Scope_item },
+  { &hf_ftam__untag_item_03 , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ftam_Scope_item },
 };
 
 static int
@@ -4019,7 +4019,7 @@ dissect_ftam_F_LIST_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static const ber_sequence_t SEQUENCE_OF_Read_Attributes_sequence_of[1] = {
-  { &hf_ftam__untag_item4   , BER_CLASS_APP, 18, BER_FLAGS_NOOWNTAG, dissect_ftam_Read_Attributes },
+  { &hf_ftam__untag_item_04 , BER_CLASS_APP, 18, BER_FLAGS_NOOWNTAG, dissect_ftam_Read_Attributes },
 };
 
 static int
@@ -5382,7 +5382,7 @@ void proto_register_ftam(void) {
       { "attribute-extensions", "ftam.attribute_extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Attribute_Extensions", HFILL }},
-    { &hf_ftam__untag_item1,
+    { &hf_ftam__untag_item_01,
       { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Charging_item", HFILL }},
@@ -5446,7 +5446,7 @@ void proto_register_ftam(void) {
       { "path-access-control", "ftam.path_access_control",
         FT_UINT32, BASE_DEC, VALS(ftam_Access_Control_Attribute_vals), 0,
         "ftam.Access_Control_Attribute", HFILL }},
-    { &hf_ftam__untag_item2,
+    { &hf_ftam__untag_item_02,
       { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Diagnostic_item", HFILL }},
@@ -5926,7 +5926,7 @@ void proto_register_ftam(void) {
       { "extension-attribute", "ftam.extension_attribute",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_attribute", HFILL }},
-    { &hf_ftam__untag_item3,
+    { &hf_ftam__untag_item_03,
       { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Scope_item", HFILL }},
@@ -6134,7 +6134,7 @@ void proto_register_ftam(void) {
       { "extension-attribute-Pattern", "ftam.extension_attribute_Pattern",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_attribute_Pattern", HFILL }},
-    { &hf_ftam__untag_item4,
+    { &hf_ftam__untag_item_04,
       { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Read_Attributes", HFILL }},
@@ -6158,7 +6158,7 @@ void proto_register_ftam(void) {
       { "Item", "ftam.Pass_Passwords_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Password", HFILL }},
-    { &hf_ftam__untag_item5,
+    { &hf_ftam__untag_item_05,
       { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Path_Access_Passwords_item", HFILL }},
@@ -6170,7 +6170,7 @@ void proto_register_ftam(void) {
       { "ae", "ftam.ae",
         FT_UINT32, BASE_DEC, VALS(acse_ASO_qualifier_vals), 0,
         "ftam.AE_qualifier", HFILL }},
-    { &hf_ftam__untag_item6,
+    { &hf_ftam__untag_item_06,
       { "Item", "ftam._untag_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.AND_Set", HFILL }},

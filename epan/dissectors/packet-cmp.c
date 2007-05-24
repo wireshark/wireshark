@@ -134,7 +134,7 @@ static int hf_cmp_caPubs_item = -1;               /* Certificate */
 static int hf_cmp_response = -1;                  /* SEQUENCE_OF_CertResponse */
 static int hf_cmp_response_item = -1;             /* CertResponse */
 static int hf_cmp_certReqId = -1;                 /* INTEGER */
-static int hf_cmp_status1 = -1;                   /* PKIStatusInfo */
+static int hf_cmp_status_01 = -1;                 /* PKIStatusInfo */
 static int hf_cmp_certifiedKeyPair = -1;          /* CertifiedKeyPair */
 static int hf_cmp_rspInfo = -1;                   /* OCTET_STRING */
 static int hf_cmp_certOrEncCert = -1;             /* CertOrEncCert */
@@ -152,7 +152,7 @@ static int hf_cmp_certDetails = -1;               /* CertTemplate */
 static int hf_cmp_revocationReason = -1;          /* ReasonFlags */
 static int hf_cmp_badSinceDate = -1;              /* GeneralizedTime */
 static int hf_cmp_crlEntryDetails = -1;           /* Extensions */
-static int hf_cmp_status2 = -1;                   /* SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo */
+static int hf_cmp_status_02 = -1;                 /* SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo */
 static int hf_cmp_status_item = -1;               /* PKIStatusInfo */
 static int hf_cmp_revCerts = -1;                  /* SEQUENCE_SIZE_1_MAX_OF_CertId */
 static int hf_cmp_revCerts_item = -1;             /* CertId */
@@ -660,8 +660,8 @@ dissect_cmp_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_status1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cmp_PKIStatusInfo(FALSE, tvb, offset, actx, tree, hf_cmp_status1);
+static int dissect_status_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cmp_PKIStatusInfo(FALSE, tvb, offset, actx, tree, hf_cmp_status_01);
 }
 static int dissect_status_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cmp_PKIStatusInfo(FALSE, tvb, offset, actx, tree, hf_cmp_status_item);
@@ -720,7 +720,7 @@ static int dissect_keyPairHist_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static const ber_old_sequence_t CertResponse_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_certReqId },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status_01 },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_certifiedKeyPair },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_rspInfo },
   { 0, 0, 0, NULL }
@@ -849,7 +849,7 @@ static int dissect_keyPairHist(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 
 
 static const ber_old_sequence_t KeyRecRepContent_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status_01 },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_newSigCert },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_caCerts },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_keyPairHist },
@@ -915,8 +915,8 @@ dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_status2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo(FALSE, tvb, offset, actx, tree, hf_cmp_status2);
+static int dissect_status_02(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo(FALSE, tvb, offset, actx, tree, hf_cmp_status_02);
 }
 
 
@@ -953,7 +953,7 @@ static int dissect_crls(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static const ber_old_sequence_t RevRepContent_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status2 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status_02 },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_revCerts },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_crls },
   { 0, 0, 0, NULL }
@@ -1775,7 +1775,7 @@ void proto_register_cmp(void) {
       { "certReqId", "cmp.certReqId",
         FT_INT32, BASE_DEC, NULL, 0,
         "cmp.INTEGER", HFILL }},
-    { &hf_cmp_status1,
+    { &hf_cmp_status_01,
       { "status", "cmp.status",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.PKIStatusInfo", HFILL }},
@@ -1847,7 +1847,7 @@ void proto_register_cmp(void) {
       { "crlEntryDetails", "cmp.crlEntryDetails",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.Extensions", HFILL }},
-    { &hf_cmp_status2,
+    { &hf_cmp_status_02,
       { "status", "cmp.status",
         FT_UINT32, BASE_DEC, NULL, 0,
         "cmp.SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo", HFILL }},

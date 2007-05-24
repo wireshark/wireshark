@@ -77,8 +77,8 @@ static int hf_pkix1explicit_type = -1;            /* OBJECT_IDENTIFIER */
 static int hf_pkix1explicit_value = -1;           /* T_value */
 static int hf_pkix1explicit_RDNSequence_item = -1;  /* RelativeDistinguishedName */
 static int hf_pkix1explicit_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndValue */
-static int hf_pkix1explicit_type1 = -1;           /* TeletexString */
-static int hf_pkix1explicit_value1 = -1;          /* TeletexString */
+static int hf_pkix1explicit_type_01 = -1;         /* TeletexString */
+static int hf_pkix1explicit_value_01 = -1;        /* TeletexString */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
 #line 53 "packet-pkix1explicit-template.c"
@@ -427,17 +427,17 @@ dissect_pkix1explicit_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_type1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_TeletexString(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_type1);
+static int dissect_type_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_TeletexString(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_type_01);
 }
-static int dissect_value1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_TeletexString(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_value1);
+static int dissect_value_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_TeletexString(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_value_01);
 }
 
 
 static const ber_old_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_type1 },
-  { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_value1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_type_01 },
+  { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_value_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -546,11 +546,11 @@ void proto_register_pkix1explicit(void) {
       { "Item", "pkix1explicit.RelativeDistinguishedName_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "pkix1explicit.AttributeTypeAndValue", HFILL }},
-    { &hf_pkix1explicit_type1,
+    { &hf_pkix1explicit_type_01,
       { "type", "pkix1explicit.type",
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.TeletexString", HFILL }},
-    { &hf_pkix1explicit_value1,
+    { &hf_pkix1explicit_value_01,
       { "value", "pkix1explicit.value",
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.TeletexString", HFILL }},

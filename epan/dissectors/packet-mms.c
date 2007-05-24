@@ -164,84 +164,84 @@ static int hf_mms_fileRename = -1;                /* FileRename_Request */
 static int hf_mms_fileDelete = -1;                /* FileDelete_Request */
 static int hf_mms_fileDirectory = -1;             /* FileDirectory_Request */
 static int hf_mms_foo = -1;                       /* INTEGER */
-static int hf_mms_status1 = -1;                   /* Status_Response */
-static int hf_mms_getNameList1 = -1;              /* GetNameList_Response */
-static int hf_mms_identify1 = -1;                 /* Identify_Response */
-static int hf_mms_rename1 = -1;                   /* Rename_Response */
-static int hf_mms_read1 = -1;                     /* Read_Response */
-static int hf_mms_write1 = -1;                    /* Write_Response */
-static int hf_mms_getVariableAccessAttributes1 = -1;  /* GetVariableAccessAttributes_Response */
-static int hf_mms_defineNamedVariable1 = -1;      /* DefineNamedVariable_Response */
-static int hf_mms_defineScatteredAccess1 = -1;    /* DefineScatteredAccess_Response */
-static int hf_mms_getScatteredAccessAttributes1 = -1;  /* GetScatteredAccessAttributes_Response */
-static int hf_mms_deleteVariableAccess1 = -1;     /* DeleteVariableAccess_Response */
-static int hf_mms_defineNamedVariableList1 = -1;  /* DefineNamedVariableList_Response */
-static int hf_mms_getNamedVariableListAttributes1 = -1;  /* GetNamedVariableListAttributes_Response */
-static int hf_mms_deleteNamedVariableList1 = -1;  /* DeleteNamedVariableList_Response */
-static int hf_mms_defineNamedType1 = -1;          /* DefineNamedType_Response */
-static int hf_mms_getNamedTypeAttributes1 = -1;   /* GetNamedTypeAttributes_Response */
-static int hf_mms_deleteNamedType1 = -1;          /* DeleteNamedType_Response */
-static int hf_mms_input1 = -1;                    /* Input_Response */
-static int hf_mms_output1 = -1;                   /* Output_Response */
-static int hf_mms_takeControl1 = -1;              /* TakeControl_Response */
-static int hf_mms_relinquishControl1 = -1;        /* RelinquishControl_Response */
-static int hf_mms_defineSemaphore1 = -1;          /* DefineSemaphore_Response */
-static int hf_mms_deleteSemaphore1 = -1;          /* DeleteSemaphore_Response */
-static int hf_mms_reportSemaphoreStatus1 = -1;    /* ReportSemaphoreStatus_Response */
-static int hf_mms_reportPoolSemaphoreStatus1 = -1;  /* ReportPoolSemaphoreStatus_Response */
-static int hf_mms_reportSemaphoreEntryStatus1 = -1;  /* ReportSemaphoreEntryStatus_Response */
-static int hf_mms_initiateDownloadSequence1 = -1;  /* InitiateDownloadSequence_Response */
-static int hf_mms_downloadSegment1 = -1;          /* DownloadSegment_Response */
-static int hf_mms_terminateDownloadSequence1 = -1;  /* TerminateDownloadSequence_Response */
-static int hf_mms_initiateUploadSequence1 = -1;   /* InitiateUploadSequence_Response */
-static int hf_mms_uploadSegment1 = -1;            /* UploadSegment_Response */
-static int hf_mms_terminateUploadSequence1 = -1;  /* TerminateUploadSequence_Response */
+static int hf_mms_status_01 = -1;                 /* Status_Response */
+static int hf_mms_getNameList_01 = -1;            /* GetNameList_Response */
+static int hf_mms_identify_01 = -1;               /* Identify_Response */
+static int hf_mms_rename_01 = -1;                 /* Rename_Response */
+static int hf_mms_read_01 = -1;                   /* Read_Response */
+static int hf_mms_write_01 = -1;                  /* Write_Response */
+static int hf_mms_getVariableAccessAttributes_01 = -1;  /* GetVariableAccessAttributes_Response */
+static int hf_mms_defineNamedVariable_01 = -1;    /* DefineNamedVariable_Response */
+static int hf_mms_defineScatteredAccess_01 = -1;  /* DefineScatteredAccess_Response */
+static int hf_mms_getScatteredAccessAttributes_01 = -1;  /* GetScatteredAccessAttributes_Response */
+static int hf_mms_deleteVariableAccess_01 = -1;   /* DeleteVariableAccess_Response */
+static int hf_mms_defineNamedVariableList_01 = -1;  /* DefineNamedVariableList_Response */
+static int hf_mms_getNamedVariableListAttributes_01 = -1;  /* GetNamedVariableListAttributes_Response */
+static int hf_mms_deleteNamedVariableList_01 = -1;  /* DeleteNamedVariableList_Response */
+static int hf_mms_defineNamedType_01 = -1;        /* DefineNamedType_Response */
+static int hf_mms_getNamedTypeAttributes_01 = -1;  /* GetNamedTypeAttributes_Response */
+static int hf_mms_deleteNamedType_01 = -1;        /* DeleteNamedType_Response */
+static int hf_mms_input_01 = -1;                  /* Input_Response */
+static int hf_mms_output_01 = -1;                 /* Output_Response */
+static int hf_mms_takeControl_01 = -1;            /* TakeControl_Response */
+static int hf_mms_relinquishControl_01 = -1;      /* RelinquishControl_Response */
+static int hf_mms_defineSemaphore_01 = -1;        /* DefineSemaphore_Response */
+static int hf_mms_deleteSemaphore_01 = -1;        /* DeleteSemaphore_Response */
+static int hf_mms_reportSemaphoreStatus_01 = -1;  /* ReportSemaphoreStatus_Response */
+static int hf_mms_reportPoolSemaphoreStatus_01 = -1;  /* ReportPoolSemaphoreStatus_Response */
+static int hf_mms_reportSemaphoreEntryStatus_01 = -1;  /* ReportSemaphoreEntryStatus_Response */
+static int hf_mms_initiateDownloadSequence_01 = -1;  /* InitiateDownloadSequence_Response */
+static int hf_mms_downloadSegment_01 = -1;        /* DownloadSegment_Response */
+static int hf_mms_terminateDownloadSequence_01 = -1;  /* TerminateDownloadSequence_Response */
+static int hf_mms_initiateUploadSequence_01 = -1;  /* InitiateUploadSequence_Response */
+static int hf_mms_uploadSegment_01 = -1;          /* UploadSegment_Response */
+static int hf_mms_terminateUploadSequence_01 = -1;  /* TerminateUploadSequence_Response */
 static int hf_mms_requestDomainDownLoad = -1;     /* RequestDomainDownload_Response */
-static int hf_mms_requestDomainUpload1 = -1;      /* RequestDomainUpload_Response */
-static int hf_mms_loadDomainContent1 = -1;        /* LoadDomainContent_Response */
-static int hf_mms_storeDomainContent1 = -1;       /* StoreDomainContent_Response */
-static int hf_mms_deleteDomain1 = -1;             /* DeleteDomain_Response */
-static int hf_mms_getDomainAttributes1 = -1;      /* GetDomainAttributes_Response */
-static int hf_mms_createProgramInvocation1 = -1;  /* CreateProgramInvocation_Response */
-static int hf_mms_deleteProgramInvocation1 = -1;  /* DeleteProgramInvocation_Response */
-static int hf_mms_start1 = -1;                    /* Start_Response */
-static int hf_mms_stop1 = -1;                     /* Stop_Response */
-static int hf_mms_resume1 = -1;                   /* Resume_Response */
-static int hf_mms_reset1 = -1;                    /* Reset_Response */
-static int hf_mms_kill1 = -1;                     /* Kill_Response */
-static int hf_mms_getProgramInvocationAttributes1 = -1;  /* GetProgramInvocationAttributes_Response */
-static int hf_mms_obtainFile1 = -1;               /* ObtainFile_Response */
-static int hf_mms_fileOpen1 = -1;                 /* FileOpen_Response */
-static int hf_mms_defineEventCondition1 = -1;     /* DefineEventCondition_Response */
-static int hf_mms_deleteEventCondition1 = -1;     /* DeleteEventCondition_Response */
-static int hf_mms_getEventConditionAttributes1 = -1;  /* GetEventConditionAttributes_Response */
-static int hf_mms_reportEventConditionStatus1 = -1;  /* ReportEventConditionStatus_Response */
-static int hf_mms_alterEventConditionMonitoring1 = -1;  /* AlterEventConditionMonitoring_Response */
-static int hf_mms_triggerEvent1 = -1;             /* TriggerEvent_Response */
-static int hf_mms_defineEventAction1 = -1;        /* DefineEventAction_Response */
-static int hf_mms_deleteEventAction1 = -1;        /* DeleteEventAction_Response */
-static int hf_mms_getEventActionAttributes1 = -1;  /* GetEventActionAttributes_Response */
+static int hf_mms_requestDomainUpload_01 = -1;    /* RequestDomainUpload_Response */
+static int hf_mms_loadDomainContent_01 = -1;      /* LoadDomainContent_Response */
+static int hf_mms_storeDomainContent_01 = -1;     /* StoreDomainContent_Response */
+static int hf_mms_deleteDomain_01 = -1;           /* DeleteDomain_Response */
+static int hf_mms_getDomainAttributes_01 = -1;    /* GetDomainAttributes_Response */
+static int hf_mms_createProgramInvocation_01 = -1;  /* CreateProgramInvocation_Response */
+static int hf_mms_deleteProgramInvocation_01 = -1;  /* DeleteProgramInvocation_Response */
+static int hf_mms_start_01 = -1;                  /* Start_Response */
+static int hf_mms_stop_01 = -1;                   /* Stop_Response */
+static int hf_mms_resume_01 = -1;                 /* Resume_Response */
+static int hf_mms_reset_01 = -1;                  /* Reset_Response */
+static int hf_mms_kill_01 = -1;                   /* Kill_Response */
+static int hf_mms_getProgramInvocationAttributes_01 = -1;  /* GetProgramInvocationAttributes_Response */
+static int hf_mms_obtainFile_01 = -1;             /* ObtainFile_Response */
+static int hf_mms_fileOpen_01 = -1;               /* FileOpen_Response */
+static int hf_mms_defineEventCondition_01 = -1;   /* DefineEventCondition_Response */
+static int hf_mms_deleteEventCondition_01 = -1;   /* DeleteEventCondition_Response */
+static int hf_mms_getEventConditionAttributes_01 = -1;  /* GetEventConditionAttributes_Response */
+static int hf_mms_reportEventConditionStatus_01 = -1;  /* ReportEventConditionStatus_Response */
+static int hf_mms_alterEventConditionMonitoring_01 = -1;  /* AlterEventConditionMonitoring_Response */
+static int hf_mms_triggerEvent_01 = -1;           /* TriggerEvent_Response */
+static int hf_mms_defineEventAction_01 = -1;      /* DefineEventAction_Response */
+static int hf_mms_deleteEventAction_01 = -1;      /* DeleteEventAction_Response */
+static int hf_mms_getEventActionAttributes_01 = -1;  /* GetEventActionAttributes_Response */
 static int hf_mms_reportActionStatus = -1;        /* ReportEventActionStatus_Response */
-static int hf_mms_defineEventEnrollment1 = -1;    /* DefineEventEnrollment_Response */
-static int hf_mms_deleteEventEnrollment1 = -1;    /* DeleteEventEnrollment_Response */
-static int hf_mms_alterEventEnrollment1 = -1;     /* AlterEventEnrollment_Response */
-static int hf_mms_reportEventEnrollmentStatus1 = -1;  /* ReportEventEnrollmentStatus_Response */
-static int hf_mms_getEventEnrollmentAttributes1 = -1;  /* GetEventEnrollmentAttributes_Response */
-static int hf_mms_acknowledgeEventNotification1 = -1;  /* AcknowledgeEventNotification_Response */
-static int hf_mms_getAlarmSummary1 = -1;          /* GetAlarmSummary_Response */
-static int hf_mms_getAlarmEnrollmentSummary1 = -1;  /* GetAlarmEnrollmentSummary_Response */
-static int hf_mms_readJournal1 = -1;              /* ReadJournal_Response */
-static int hf_mms_writeJournal1 = -1;             /* WriteJournal_Response */
-static int hf_mms_initializeJournal1 = -1;        /* InitializeJournal_Response */
-static int hf_mms_reportJournalStatus1 = -1;      /* ReportJournalStatus_Response */
-static int hf_mms_createJournal1 = -1;            /* CreateJournal_Response */
-static int hf_mms_deleteJournal1 = -1;            /* DeleteJournal_Response */
-static int hf_mms_getCapabilityList1 = -1;        /* GetCapabilityList_Response */
-static int hf_mms_fileRead1 = -1;                 /* FileRead_Response */
-static int hf_mms_fileClose1 = -1;                /* FileClose_Response */
-static int hf_mms_fileRename1 = -1;               /* FileRename_Response */
-static int hf_mms_fileDelete1 = -1;               /* FileDelete_Response */
-static int hf_mms_fileDirectory1 = -1;            /* FileDirectory_Response */
+static int hf_mms_defineEventEnrollment_01 = -1;  /* DefineEventEnrollment_Response */
+static int hf_mms_deleteEventEnrollment_01 = -1;  /* DeleteEventEnrollment_Response */
+static int hf_mms_alterEventEnrollment_01 = -1;   /* AlterEventEnrollment_Response */
+static int hf_mms_reportEventEnrollmentStatus_01 = -1;  /* ReportEventEnrollmentStatus_Response */
+static int hf_mms_getEventEnrollmentAttributes_01 = -1;  /* GetEventEnrollmentAttributes_Response */
+static int hf_mms_acknowledgeEventNotification_01 = -1;  /* AcknowledgeEventNotification_Response */
+static int hf_mms_getAlarmSummary_01 = -1;        /* GetAlarmSummary_Response */
+static int hf_mms_getAlarmEnrollmentSummary_01 = -1;  /* GetAlarmEnrollmentSummary_Response */
+static int hf_mms_readJournal_01 = -1;            /* ReadJournal_Response */
+static int hf_mms_writeJournal_01 = -1;           /* WriteJournal_Response */
+static int hf_mms_initializeJournal_01 = -1;      /* InitializeJournal_Response */
+static int hf_mms_reportJournalStatus_01 = -1;    /* ReportJournalStatus_Response */
+static int hf_mms_createJournal_01 = -1;          /* CreateJournal_Response */
+static int hf_mms_deleteJournal_01 = -1;          /* DeleteJournal_Response */
+static int hf_mms_getCapabilityList_01 = -1;      /* GetCapabilityList_Response */
+static int hf_mms_fileRead_01 = -1;               /* FileRead_Response */
+static int hf_mms_fileClose_01 = -1;              /* FileClose_Response */
+static int hf_mms_fileRename_01 = -1;             /* FileRename_Response */
+static int hf_mms_fileDelete_01 = -1;             /* FileDelete_Response */
+static int hf_mms_fileDirectory_01 = -1;          /* FileDirectory_Response */
 static int hf_mms_FileName_item = -1;             /* GraphicString */
 static int hf_mms_vmd_specific = -1;              /* Identifier */
 static int hf_mms_domain_specific = -1;           /* T_domain_specific */
@@ -286,16 +286,16 @@ static int hf_mms_others = -1;                    /* INTEGER */
 static int hf_mms_additionalCode = -1;            /* INTEGER */
 static int hf_mms_additionalDescription = -1;     /* VisibleString */
 static int hf_mms_serviceSpecificInformation = -1;  /* T_serviceSpecificInformation */
-static int hf_mms_obtainFile2 = -1;               /* ObtainFile_Error */
-static int hf_mms_start2 = -1;                    /* Start_Error */
-static int hf_mms_stop2 = -1;                     /* Stop_Error */
-static int hf_mms_resume2 = -1;                   /* Resume_Error */
-static int hf_mms_reset2 = -1;                    /* Reset_Error */
-static int hf_mms_deleteVariableAccess2 = -1;     /* DeleteVariableAccess_Error */
-static int hf_mms_deleteNamedVariableList2 = -1;  /* DeleteNamedVariableList_Error */
-static int hf_mms_deleteNamedType2 = -1;          /* DeleteNamedType_Error */
+static int hf_mms_obtainFile_02 = -1;             /* ObtainFile_Error */
+static int hf_mms_start_02 = -1;                  /* Start_Error */
+static int hf_mms_stop_02 = -1;                   /* Stop_Error */
+static int hf_mms_resume_02 = -1;                 /* Resume_Error */
+static int hf_mms_reset_02 = -1;                  /* Reset_Error */
+static int hf_mms_deleteVariableAccess_02 = -1;   /* DeleteVariableAccess_Error */
+static int hf_mms_deleteNamedVariableList_02 = -1;  /* DeleteNamedVariableList_Error */
+static int hf_mms_deleteNamedType_02 = -1;        /* DeleteNamedType_Error */
 static int hf_mms_defineEventEnrollment_Error = -1;  /* DefineEventEnrollment_Error */
-static int hf_mms_fileRename2 = -1;               /* FileRename_Error */
+static int hf_mms_fileRename_02 = -1;             /* FileRename_Error */
 static int hf_mms_rejectReason = -1;              /* T_rejectReason */
 static int hf_mms_confirmed_requestPDU = -1;      /* T_confirmed_requestPDU */
 static int hf_mms_confirmed_responsePDU = -1;     /* T_confirmed_responsePDU */
@@ -326,29 +326,29 @@ static int hf_mms_modelName = -1;                 /* VisibleString */
 static int hf_mms_revision = -1;                  /* VisibleString */
 static int hf_mms_listOfAbstractSyntaxes = -1;    /* T_listOfAbstractSyntaxes */
 static int hf_mms_listOfAbstractSyntaxes_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_mms_extendedObjectClass1 = -1;      /* T_extendedObjectClass1 */
-static int hf_mms_objectClass1 = -1;              /* T_objectClass1 */
+static int hf_mms_extendedObjectClass_01 = -1;    /* T_extendedObjectClass_01 */
+static int hf_mms_objectClass_01 = -1;            /* T_objectClass_01 */
 static int hf_mms_currentName = -1;               /* ObjectName */
 static int hf_mms_newIdentifier = -1;             /* Identifier */
-static int hf_mms_continueAfter1 = -1;            /* VisibleString */
+static int hf_mms_continueAfter_01 = -1;          /* VisibleString */
 static int hf_mms_listOfCapabilities = -1;        /* T_listOfCapabilities */
 static int hf_mms_listOfCapabilities_item = -1;   /* VisibleString */
 static int hf_mms_domainName = -1;                /* Identifier */
-static int hf_mms_listOfCapabilities1 = -1;       /* T_listOfCapabilities1 */
+static int hf_mms_listOfCapabilities_01 = -1;     /* T_listOfCapabilities_01 */
 static int hf_mms_sharable = -1;                  /* BOOLEAN */
 static int hf_mms_loadData = -1;                  /* T_loadData */
 static int hf_mms_non_coded = -1;                 /* OCTET_STRING */
 static int hf_mms_coded = -1;                     /* EXTERNALt */
 static int hf_mms_discard = -1;                   /* ServiceError */
 static int hf_mms_ulsmID = -1;                    /* Integer32 */
-static int hf_mms_listOfCapabilities2 = -1;       /* T_listOfCapabilities2 */
-static int hf_mms_loadData1 = -1;                 /* T_loadData1 */
-static int hf_mms_listOfCapabilities3 = -1;       /* T_listOfCapabilities3 */
+static int hf_mms_listOfCapabilities_02 = -1;     /* T_listOfCapabilities_02 */
+static int hf_mms_loadData_01 = -1;               /* T_loadData_01 */
+static int hf_mms_listOfCapabilities_03 = -1;     /* T_listOfCapabilities_03 */
 static int hf_mms_fileName = -1;                  /* FileName */
-static int hf_mms_listOfCapabilities4 = -1;       /* T_listOfCapabilities4 */
+static int hf_mms_listOfCapabilities_04 = -1;     /* T_listOfCapabilities_04 */
 static int hf_mms_thirdParty = -1;                /* ApplicationReference */
 static int hf_mms_filenName = -1;                 /* FileName */
-static int hf_mms_listOfCapabilities5 = -1;       /* T_listOfCapabilities5 */
+static int hf_mms_listOfCapabilities_05 = -1;     /* T_listOfCapabilities_05 */
 static int hf_mms_state = -1;                     /* DomainState */
 static int hf_mms_mmsDeletable = -1;              /* BOOLEAN */
 static int hf_mms_listOfProgramInvocations = -1;  /* SEQUENCE_OF_Identifier */
@@ -362,13 +362,13 @@ static int hf_mms_monitorType = -1;               /* BOOLEAN */
 static int hf_mms_executionArgument = -1;         /* T_executionArgument */
 static int hf_mms_simpleString = -1;              /* VisibleString */
 static int hf_mms_encodedString = -1;             /* EXTERNALt */
-static int hf_mms_executionArgument1 = -1;        /* T_executionArgument1 */
-static int hf_mms_state1 = -1;                    /* ProgramInvocationState */
+static int hf_mms_executionArgument_01 = -1;      /* T_executionArgument_01 */
+static int hf_mms_state_01 = -1;                  /* ProgramInvocationState */
 static int hf_mms_listOfDomainNames = -1;         /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfDomainNames_item = -1;    /* Identifier */
 static int hf_mms_monitor = -1;                   /* BOOLEAN */
 static int hf_mms_startArgument = -1;             /* VisibleString */
-static int hf_mms_executionArgument2 = -1;        /* T_executionArgument2 */
+static int hf_mms_executionArgument_02 = -1;      /* T_executionArgument_02 */
 static int hf_mms_typeName = -1;                  /* ObjectName */
 static int hf_mms_array = -1;                     /* T_array */
 static int hf_mms_packed = -1;                    /* BOOLEAN */
@@ -425,30 +425,30 @@ static int hf_mms_listOfVariable = -1;            /* T_listOfVariable */
 static int hf_mms_listOfVariable_item = -1;       /* T_listOfVariable_item */
 static int hf_mms_variableSpecification = -1;     /* VariableSpecification */
 static int hf_mms_alternateAccess = -1;           /* AlternateAccess */
-static int hf_mms_listOfVariable1 = -1;           /* T_listOfVariable1 */
-static int hf_mms_listOfVariable_item1 = -1;      /* T_listOfVariable_item1 */
-static int hf_mms_scopeOfDelete1 = -1;            /* T_scopeOfDelete1 */
+static int hf_mms_listOfVariable_01 = -1;         /* T_listOfVariable_01 */
+static int hf_mms_listOfVariable_item_01 = -1;    /* T_listOfVariable_item_01 */
+static int hf_mms_scopeOfDelete_01 = -1;          /* T_scopeOfDelete_01 */
 static int hf_mms_listOfVariableListName = -1;    /* SEQUENCE_OF_ObjectName */
 static int hf_mms_listOfVariableListName_item = -1;  /* ObjectName */
-static int hf_mms_scopeOfDelete2 = -1;            /* T_scopeOfDelete2 */
+static int hf_mms_scopeOfDelete_02 = -1;          /* T_scopeOfDelete_02 */
 static int hf_mms_listOfTypeName = -1;            /* SEQUENCE_OF_ObjectName */
 static int hf_mms_listOfTypeName_item = -1;       /* ObjectName */
-static int hf_mms_array1 = -1;                    /* SEQUENCE_OF_Data */
+static int hf_mms_array_01 = -1;                  /* SEQUENCE_OF_Data */
 static int hf_mms_array_item = -1;                /* Data */
-static int hf_mms_structure1 = -1;                /* SEQUENCE_OF_Data */
+static int hf_mms_structure_01 = -1;              /* SEQUENCE_OF_Data */
 static int hf_mms_structure_item = -1;            /* Data */
-static int hf_mms_boolean1 = -1;                  /* BOOLEAN */
-static int hf_mms_bit_string1 = -1;               /* BIT_STRING */
-static int hf_mms_integer1 = -1;                  /* INTEGER */
-static int hf_mms_unsigned1 = -1;                 /* INTEGER */
+static int hf_mms_boolean_01 = -1;                /* BOOLEAN */
+static int hf_mms_bit_string_01 = -1;             /* BIT_STRING */
+static int hf_mms_integer_01 = -1;                /* INTEGER */
+static int hf_mms_unsigned_01 = -1;               /* INTEGER */
 static int hf_mms_floating_point = -1;            /* FloatingPoint */
-static int hf_mms_octet_string1 = -1;             /* OCTET_STRING */
-static int hf_mms_visible_string1 = -1;           /* VisibleString */
-static int hf_mms_binary_time1 = -1;              /* TimeOfDay */
-static int hf_mms_bcd1 = -1;                      /* INTEGER */
+static int hf_mms_octet_string_01 = -1;           /* OCTET_STRING */
+static int hf_mms_visible_string_01 = -1;         /* VisibleString */
+static int hf_mms_binary_time_01 = -1;            /* TimeOfDay */
+static int hf_mms_bcd_01 = -1;                    /* INTEGER */
 static int hf_mms_booleanArray = -1;              /* BIT_STRING */
-static int hf_mms_listOfVariable2 = -1;           /* T_listOfVariable2 */
-static int hf_mms_listOfVariable_item2 = -1;      /* T_listOfVariable_item2 */
+static int hf_mms_listOfVariable_02 = -1;         /* T_listOfVariable_02 */
+static int hf_mms_listOfVariable_item_02 = -1;    /* T_listOfVariable_item_02 */
 static int hf_mms_ScatteredAccessDescription_item = -1;  /* ScatteredAccessDescription_item */
 static int hf_mms_variableDescription = -1;       /* T_variableDescription */
 static int hf_mms_invalidated = -1;               /* NULL */
@@ -475,7 +475,7 @@ static int hf_mms_listOfNamedTokens_item = -1;    /* T_listOfNamedTokens_item */
 static int hf_mms_freeNamedToken = -1;            /* Identifier */
 static int hf_mms_ownedNamedToken = -1;           /* Identifier */
 static int hf_mms_hungNamedToken = -1;            /* Identifier */
-static int hf_mms_state2 = -1;                    /* T_state */
+static int hf_mms_state_02 = -1;                  /* T_state */
 static int hf_mms_entryIdToStartAfter = -1;       /* OCTET_STRING */
 static int hf_mms_listOfSemaphoreEntry = -1;      /* SEQUENCE_OF_SemaphoreEntry */
 static int hf_mms_listOfSemaphoreEntry_item = -1;  /* SemaphoreEntry */
@@ -491,7 +491,7 @@ static int hf_mms_inputTimeOut = -1;              /* Unsigned32 */
 static int hf_mms_listOfOutputData = -1;          /* T_listOfOutputData */
 static int hf_mms_listOfOutputData_item = -1;     /* VisibleString */
 static int hf_mms_eventConditionName = -1;        /* ObjectName */
-static int hf_mms_class1 = -1;                    /* EC_Class */
+static int hf_mms_class_01 = -1;                  /* EC_Class */
 static int hf_mms_prio_rity = -1;                 /* Priority */
 static int hf_mms_severity = -1;                  /* Unsigned8 */
 static int hf_mms_alarmSummaryReports = -1;       /* BOOLEAN */
@@ -499,10 +499,10 @@ static int hf_mms_monitoredVariable = -1;         /* VariableSpecification */
 static int hf_mms_evaluationInterval = -1;        /* Unsigned32 */
 static int hf_mms_specific = -1;                  /* SEQUENCE_OF_ObjectName */
 static int hf_mms_specific_item = -1;             /* ObjectName */
-static int hf_mms_aa_specific1 = -1;              /* NULL */
+static int hf_mms_aa_specific_01 = -1;            /* NULL */
 static int hf_mms_domain = -1;                    /* Identifier */
 static int hf_mms_vmd = -1;                       /* NULL */
-static int hf_mms_monitoredVariable1 = -1;        /* T_monitoredVariable */
+static int hf_mms_monitoredVariable_01 = -1;      /* T_monitoredVariable */
 static int hf_mms_variableReference = -1;         /* VariableSpecification */
 static int hf_mms_undefined = -1;                 /* NULL */
 static int hf_mms_currentState = -1;              /* EC_State */
@@ -520,10 +520,10 @@ static int hf_mms_ea = -1;                        /* ObjectName */
 static int hf_mms_scopeOfRequest = -1;            /* T_scopeOfRequest */
 static int hf_mms_eventEnrollmentNames = -1;      /* SEQUENCE_OF_ObjectName */
 static int hf_mms_eventEnrollmentNames_item = -1;  /* ObjectName */
-static int hf_mms_continueAfter2 = -1;            /* ObjectName */
-static int hf_mms_eventConditionName1 = -1;       /* T_eventConditionName */
+static int hf_mms_continueAfter_02 = -1;          /* ObjectName */
+static int hf_mms_eventConditionName_01 = -1;     /* T_eventConditionName */
 static int hf_mms_eventCondition = -1;            /* ObjectName */
-static int hf_mms_eventActionName1 = -1;          /* T_eventActionName */
+static int hf_mms_eventActionName_01 = -1;        /* T_eventActionName */
 static int hf_mms_eventAction = -1;               /* ObjectName */
 static int hf_mms_enrollmentClass = -1;           /* EE_Class */
 static int hf_mms_duration = -1;                  /* EE_Duration */
@@ -533,9 +533,9 @@ static int hf_mms_listOfEventEnrollment_item = -1;  /* EventEnrollment */
 static int hf_mms_eventConditionTransitions = -1;  /* Transitions */
 static int hf_mms_notificationLost = -1;          /* BOOLEAN */
 static int hf_mms_alarmAcknowledgmentRule = -1;   /* AlarmAckRule */
-static int hf_mms_currentState1 = -1;             /* EE_State */
-static int hf_mms_currentState2 = -1;             /* T_currentState */
-static int hf_mms_state3 = -1;                    /* EE_State */
+static int hf_mms_currentState_01 = -1;           /* EE_State */
+static int hf_mms_currentState_02 = -1;           /* T_currentState */
+static int hf_mms_state_03 = -1;                  /* EE_State */
 static int hf_mms_transitionTime = -1;            /* EventTime */
 static int hf_mms_acknowledgedState = -1;         /* EC_State */
 static int hf_mms_timeOfAcknowledgedTransition = -1;  /* EventTime */
@@ -548,19 +548,19 @@ static int hf_mms_leastSevere = -1;               /* Unsigned8 */
 static int hf_mms_listOfAlarmSummary = -1;        /* SEQUENCE_OF_AlarmSummary */
 static int hf_mms_listOfAlarmSummary_item = -1;   /* AlarmSummary */
 static int hf_mms_unacknowledgedState = -1;       /* T_unacknowledgedState */
-static int hf_mms_acknowledgmentFilter1 = -1;     /* T_acknowledgmentFilter1 */
-static int hf_mms_severityFilter1 = -1;           /* T_severityFilter1 */
+static int hf_mms_acknowledgmentFilter_01 = -1;   /* T_acknowledgmentFilter_01 */
+static int hf_mms_severityFilter_01 = -1;         /* T_severityFilter_01 */
 static int hf_mms_listOfAlarmEnrollmentSummary = -1;  /* SEQUENCE_OF_AlarmEnrollmentSummary */
 static int hf_mms_listOfAlarmEnrollmentSummary_item = -1;  /* AlarmEnrollmentSummary */
 static int hf_mms_enrollementState = -1;          /* EE_State */
 static int hf_mms_timeActiveAcknowledged = -1;    /* EventTime */
 static int hf_mms_timeIdleAcknowledged = -1;      /* EventTime */
-static int hf_mms_eventConditionName2 = -1;       /* T_eventConditionName1 */
+static int hf_mms_eventConditionName_02 = -1;     /* T_eventConditionName_01 */
 static int hf_mms_actionResult = -1;              /* T_actionResult */
 static int hf_mms_eventActioName = -1;            /* ObjectName */
 static int hf_mms_eventActionResult = -1;         /* T_eventActionResult */
-static int hf_mms_success1 = -1;                  /* ConfirmedServiceResponse */
-static int hf_mms_failure1 = -1;                  /* ServiceError */
+static int hf_mms_success_01 = -1;                /* ConfirmedServiceResponse */
+static int hf_mms_failure_01 = -1;                /* ServiceError */
 static int hf_mms_causingTransitions = -1;        /* Transitions */
 static int hf_mms_timeOfDayT = -1;                /* TimeOfDay */
 static int hf_mms_timeSequenceIdentifier = -1;    /* Unsigned32 */
@@ -581,8 +581,8 @@ static int hf_mms_listOfJournalEntry_item = -1;   /* JournalEntry */
 static int hf_mms_entryIdentifier = -1;           /* OCTET_STRING */
 static int hf_mms_originatingApplication = -1;    /* ApplicationReference */
 static int hf_mms_entryContent = -1;              /* EntryContent */
-static int hf_mms_listOfJournalEntry1 = -1;       /* SEQUENCE_OF_EntryContent */
-static int hf_mms_listOfJournalEntry_item1 = -1;  /* EntryContent */
+static int hf_mms_listOfJournalEntry_01 = -1;     /* SEQUENCE_OF_EntryContent */
+static int hf_mms_listOfJournalEntry_item_01 = -1;  /* EntryContent */
 static int hf_mms_limitSpecification = -1;        /* T_limitSpecification */
 static int hf_mms_limitingTime = -1;              /* TimeOfDay */
 static int hf_mms_limitingEntry = -1;             /* OCTET_STRING */
@@ -592,8 +592,8 @@ static int hf_mms_additionalDetail = -1;          /* JOU_Additional_Detail */
 static int hf_mms_entryForm = -1;                 /* T_entryForm */
 static int hf_mms_data = -1;                      /* T_data */
 static int hf_mms_event = -1;                     /* T_event */
-static int hf_mms_listOfVariables1 = -1;          /* T_listOfVariables1 */
-static int hf_mms_listOfVariables_item1 = -1;     /* T_listOfVariables_item */
+static int hf_mms_listOfVariables_01 = -1;        /* T_listOfVariables_01 */
+static int hf_mms_listOfVariables_item_01 = -1;   /* T_listOfVariables_item */
 static int hf_mms_variableTag = -1;               /* VisibleString */
 static int hf_mms_valueSpecification = -1;        /* Data */
 static int hf_mms_annotation = -1;                /* VisibleString */
@@ -607,7 +607,7 @@ static int hf_mms_fileData = -1;                  /* OCTET_STRING */
 static int hf_mms_currentFileName = -1;           /* FileName */
 static int hf_mms_newFileName = -1;               /* FileName */
 static int hf_mms_fileSpecification = -1;         /* FileName */
-static int hf_mms_continueAfter3 = -1;            /* FileName */
+static int hf_mms_continueAfter_03 = -1;          /* FileName */
 static int hf_mms_listOfDirectoryEntry = -1;      /* SEQUENCE_OF_DirectoryEntry */
 static int hf_mms_listOfDirectoryEntry_item = -1;  /* DirectoryEntry */
 static int hf_mms_filename = -1;                  /* FileName */
@@ -761,37 +761,37 @@ static gint ett_mms_SEQUENCE_OF_Identifier = -1;
 static gint ett_mms_Identify_Response = -1;
 static gint ett_mms_T_listOfAbstractSyntaxes = -1;
 static gint ett_mms_Rename_Request = -1;
-static gint ett_mms_T_extendedObjectClass1 = -1;
+static gint ett_mms_T_extendedObjectClass_01 = -1;
 static gint ett_mms_GetCapabilityList_Request = -1;
 static gint ett_mms_GetCapabilityList_Response = -1;
 static gint ett_mms_T_listOfCapabilities = -1;
 static gint ett_mms_InitiateDownloadSequence_Request = -1;
-static gint ett_mms_T_listOfCapabilities1 = -1;
+static gint ett_mms_T_listOfCapabilities_01 = -1;
 static gint ett_mms_DownloadSegment_Response = -1;
 static gint ett_mms_T_loadData = -1;
 static gint ett_mms_TerminateDownloadSequence_Request = -1;
 static gint ett_mms_InitiateUploadSequence_Response = -1;
-static gint ett_mms_T_listOfCapabilities2 = -1;
+static gint ett_mms_T_listOfCapabilities_02 = -1;
 static gint ett_mms_UploadSegment_Response = -1;
-static gint ett_mms_T_loadData1 = -1;
+static gint ett_mms_T_loadData_01 = -1;
 static gint ett_mms_RequestDomainDownload_Request = -1;
-static gint ett_mms_T_listOfCapabilities3 = -1;
+static gint ett_mms_T_listOfCapabilities_03 = -1;
 static gint ett_mms_RequestDomainUpload_Request = -1;
 static gint ett_mms_LoadDomainContent_Request = -1;
-static gint ett_mms_T_listOfCapabilities4 = -1;
+static gint ett_mms_T_listOfCapabilities_04 = -1;
 static gint ett_mms_StoreDomainContent_Request = -1;
 static gint ett_mms_GetDomainAttributes_Response = -1;
-static gint ett_mms_T_listOfCapabilities5 = -1;
+static gint ett_mms_T_listOfCapabilities_05 = -1;
 static gint ett_mms_CreateProgramInvocation_Request = -1;
 static gint ett_mms_Start_Request = -1;
 static gint ett_mms_T_executionArgument = -1;
 static gint ett_mms_Stop_Request = -1;
 static gint ett_mms_Resume_Request = -1;
-static gint ett_mms_T_executionArgument1 = -1;
+static gint ett_mms_T_executionArgument_01 = -1;
 static gint ett_mms_Reset_Request = -1;
 static gint ett_mms_Kill_Request = -1;
 static gint ett_mms_GetProgramInvocationAttributes_Response = -1;
-static gint ett_mms_T_executionArgument2 = -1;
+static gint ett_mms_T_executionArgument_02 = -1;
 static gint ett_mms_TypeSpecification = -1;
 static gint ett_mms_T_array = -1;
 static gint ett_mms_T_structure = -1;
@@ -823,8 +823,8 @@ static gint ett_mms_DefineNamedVariableList_Request = -1;
 static gint ett_mms_T_listOfVariable = -1;
 static gint ett_mms_T_listOfVariable_item = -1;
 static gint ett_mms_GetNamedVariableListAttributes_Response = -1;
-static gint ett_mms_T_listOfVariable1 = -1;
-static gint ett_mms_T_listOfVariable_item1 = -1;
+static gint ett_mms_T_listOfVariable_01 = -1;
+static gint ett_mms_T_listOfVariable_item_01 = -1;
 static gint ett_mms_DeleteNamedVariableList_Request = -1;
 static gint ett_mms_DeleteNamedVariableList_Response = -1;
 static gint ett_mms_DefineNamedType_Request = -1;
@@ -834,8 +834,8 @@ static gint ett_mms_DeleteNamedType_Response = -1;
 static gint ett_mms_AccessResult = -1;
 static gint ett_mms_Data = -1;
 static gint ett_mms_VariableAccessSpecification = -1;
-static gint ett_mms_T_listOfVariable2 = -1;
-static gint ett_mms_T_listOfVariable_item2 = -1;
+static gint ett_mms_T_listOfVariable_02 = -1;
+static gint ett_mms_T_listOfVariable_item_02 = -1;
 static gint ett_mms_ScatteredAccessDescription = -1;
 static gint ett_mms_ScatteredAccessDescription_item = -1;
 static gint ett_mms_VariableSpecification = -1;
@@ -888,12 +888,12 @@ static gint ett_mms_GetAlarmSummary_Response = -1;
 static gint ett_mms_SEQUENCE_OF_AlarmSummary = -1;
 static gint ett_mms_AlarmSummary = -1;
 static gint ett_mms_GetAlarmEnrollmentSummary_Request = -1;
-static gint ett_mms_T_severityFilter1 = -1;
+static gint ett_mms_T_severityFilter_01 = -1;
 static gint ett_mms_GetAlarmEnrollmentSummary_Response = -1;
 static gint ett_mms_SEQUENCE_OF_AlarmEnrollmentSummary = -1;
 static gint ett_mms_AlarmEnrollmentSummary = -1;
 static gint ett_mms_EventNotification = -1;
-static gint ett_mms_T_eventConditionName1 = -1;
+static gint ett_mms_T_eventConditionName_01 = -1;
 static gint ett_mms_T_actionResult = -1;
 static gint ett_mms_T_eventActionResult = -1;
 static gint ett_mms_AttachToEventCondition = -1;
@@ -918,7 +918,7 @@ static gint ett_mms_EntryContent = -1;
 static gint ett_mms_T_entryForm = -1;
 static gint ett_mms_T_data = -1;
 static gint ett_mms_T_event = -1;
-static gint ett_mms_T_listOfVariables1 = -1;
+static gint ett_mms_T_listOfVariables_01 = -1;
 static gint ett_mms_T_listOfVariables_item = -1;
 static gint ett_mms_ObtainFile_Request = -1;
 static gint ett_mms_FileOpen_Request = -1;
@@ -1234,8 +1234,8 @@ static int dissect_ea(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int dissect_eventEnrollmentNames_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_ObjectName(FALSE, tvb, offset, actx, tree, hf_mms_eventEnrollmentNames_item);
 }
-static int dissect_continueAfter2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ObjectName(FALSE, tvb, offset, actx, tree, hf_mms_continueAfter2);
+static int dissect_continueAfter_02(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ObjectName(FALSE, tvb, offset, actx, tree, hf_mms_continueAfter_02);
 }
 static int dissect_eventCondition(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_ObjectName(FALSE, tvb, offset, actx, tree, hf_mms_eventCondition);
@@ -1378,8 +1378,8 @@ static int dissect_binary_time_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 static int dissect_specificationWithResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_mms_specificationWithResult);
 }
-static int dissect_boolean1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_mms_boolean1);
+static int dissect_boolean_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_mms_boolean_01);
 }
 static int dissect_abortOnTimeOut_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_mms_abortOnTimeOut);
@@ -1572,8 +1572,8 @@ static int dissect_invalidated_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 static int dissect_noResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_NULL(TRUE, tvb, offset, actx, tree, hf_mms_noResult);
 }
-static int dissect_aa_specific1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_NULL(TRUE, tvb, offset, actx, tree, hf_mms_aa_specific1);
+static int dissect_aa_specific_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_NULL(TRUE, tvb, offset, actx, tree, hf_mms_aa_specific_01);
 }
 static int dissect_vmd_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_NULL(TRUE, tvb, offset, actx, tree, hf_mms_vmd);
@@ -1641,7 +1641,7 @@ static int dissect_identify_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const value_string mms_T_objectClass1_vals[] = {
+static const value_string mms_T_objectClass_01_vals[] = {
   {   0, "namedVariable" },
   {   1, "scatteredAccess" },
   {   2, "namedVariableList" },
@@ -1659,42 +1659,42 @@ static const value_string mms_T_objectClass1_vals[] = {
 
 
 static int
-dissect_mms_T_objectClass1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_objectClass_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_objectClass1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_objectClass1(TRUE, tvb, offset, actx, tree, hf_mms_objectClass1);
+static int dissect_objectClass_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_objectClass_01(TRUE, tvb, offset, actx, tree, hf_mms_objectClass_01);
 }
 
 
-static const value_string mms_T_extendedObjectClass1_vals[] = {
+static const value_string mms_T_extendedObjectClass_01_vals[] = {
   {   0, "objectClass" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_extendedObjectClass1_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_objectClass1_impl },
+static const ber_old_choice_t T_extendedObjectClass_01_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_objectClass_01_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_extendedObjectClass1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_extendedObjectClass_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_extendedObjectClass1_choice, hf_index, ett_mms_T_extendedObjectClass1,
+                                     T_extendedObjectClass_01_choice, hf_index, ett_mms_T_extendedObjectClass_01,
                                      NULL);
 
   return offset;
 }
-static int dissect_extendedObjectClass1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_extendedObjectClass1(FALSE, tvb, offset, actx, tree, hf_mms_extendedObjectClass1);
+static int dissect_extendedObjectClass_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_extendedObjectClass_01(FALSE, tvb, offset, actx, tree, hf_mms_extendedObjectClass_01);
 }
 
 
 static const ber_old_sequence_t Rename_Request_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_extendedObjectClass1 },
+  { BER_CLASS_CON, 0, 0, dissect_extendedObjectClass_01 },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_currentName },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_newIdentifier_impl },
   { 0, 0, 0, NULL }
@@ -1733,8 +1733,8 @@ static int dissect_modelName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 static int dissect_revision_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_VisibleString(TRUE, tvb, offset, actx, tree, hf_mms_revision);
 }
-static int dissect_continueAfter1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_VisibleString(FALSE, tvb, offset, actx, tree, hf_mms_continueAfter1);
+static int dissect_continueAfter_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_VisibleString(FALSE, tvb, offset, actx, tree, hf_mms_continueAfter_01);
 }
 static int dissect_listOfCapabilities_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_VisibleString(FALSE, tvb, offset, actx, tree, hf_mms_listOfCapabilities_item);
@@ -1745,8 +1745,8 @@ static int dissect_simpleString_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 static int dissect_startArgument_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_VisibleString(TRUE, tvb, offset, actx, tree, hf_mms_startArgument);
 }
-static int dissect_visible_string1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_VisibleString(TRUE, tvb, offset, actx, tree, hf_mms_visible_string1);
+static int dissect_visible_string_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_VisibleString(TRUE, tvb, offset, actx, tree, hf_mms_visible_string_01);
 }
 static int dissect_symbolicAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_VisibleString(TRUE, tvb, offset, actx, tree, hf_mms_symbolicAddress);
@@ -1779,8 +1779,8 @@ dissect_mms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int dissect_non_coded_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_mms_non_coded);
 }
-static int dissect_octet_string1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_mms_octet_string1);
+static int dissect_octet_string_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_mms_octet_string_01);
 }
 static int dissect_unconstrainedAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_mms_unconstrainedAddress);
@@ -2197,37 +2197,37 @@ dissect_mms_VariableSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const ber_old_sequence_t T_listOfVariable_item2_sequence[] = {
+static const ber_old_sequence_t T_listOfVariable_item_02_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_variableSpecification },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alternateAccess_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_listOfVariable_item2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfVariable_item_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_listOfVariable_item2_sequence, hf_index, ett_mms_T_listOfVariable_item2);
+                                       T_listOfVariable_item_02_sequence, hf_index, ett_mms_T_listOfVariable_item_02);
 
   return offset;
 }
-static int dissect_listOfVariable_item2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfVariable_item2(FALSE, tvb, offset, actx, tree, hf_mms_listOfVariable_item2);
+static int dissect_listOfVariable_item_02(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfVariable_item_02(FALSE, tvb, offset, actx, tree, hf_mms_listOfVariable_item_02);
 }
 
 
-static const ber_old_sequence_t T_listOfVariable2_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfVariable_item2 },
+static const ber_old_sequence_t T_listOfVariable_02_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfVariable_item_02 },
 };
 
 static int
-dissect_mms_T_listOfVariable2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfVariable_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfVariable2_sequence_of, hf_index, ett_mms_T_listOfVariable2);
+                                          T_listOfVariable_02_sequence_of, hf_index, ett_mms_T_listOfVariable_02);
 
   return offset;
 }
-static int dissect_listOfVariable2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfVariable2(TRUE, tvb, offset, actx, tree, hf_mms_listOfVariable2);
+static int dissect_listOfVariable_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfVariable_02(TRUE, tvb, offset, actx, tree, hf_mms_listOfVariable_02);
 }
 
 
@@ -2238,7 +2238,7 @@ static const value_string mms_VariableAccessSpecification_vals[] = {
 };
 
 static const ber_old_choice_t VariableAccessSpecification_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_listOfVariable2_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_listOfVariable_02_impl },
   {   1, BER_CLASS_CON, 1, 0, dissect_variableListName },
   { 0, 0, 0, 0, NULL }
 };
@@ -2291,11 +2291,11 @@ dissect_mms_SEQUENCE_OF_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int dissect_listOfData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_SEQUENCE_OF_Data(TRUE, tvb, offset, actx, tree, hf_mms_listOfData);
 }
-static int dissect_array1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_SEQUENCE_OF_Data(TRUE, tvb, offset, actx, tree, hf_mms_array1);
+static int dissect_array_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_SEQUENCE_OF_Data(TRUE, tvb, offset, actx, tree, hf_mms_array_01);
 }
-static int dissect_structure1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_SEQUENCE_OF_Data(TRUE, tvb, offset, actx, tree, hf_mms_structure1);
+static int dissect_structure_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_SEQUENCE_OF_Data(TRUE, tvb, offset, actx, tree, hf_mms_structure_01);
 }
 
 
@@ -2308,8 +2308,8 @@ dissect_mms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_bit_string1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_BIT_STRING(TRUE, tvb, offset, actx, tree, hf_mms_bit_string1);
+static int dissect_bit_string_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_BIT_STRING(TRUE, tvb, offset, actx, tree, hf_mms_bit_string_01);
 }
 static int dissect_booleanArray_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_BIT_STRING(TRUE, tvb, offset, actx, tree, hf_mms_booleanArray);
@@ -2333,14 +2333,14 @@ static int dissect_others_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 static int dissect_additionalCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_additionalCode);
 }
-static int dissect_integer1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_integer1);
+static int dissect_integer_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_integer_01);
 }
-static int dissect_unsigned1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_unsigned1);
+static int dissect_unsigned_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_unsigned_01);
 }
-static int dissect_bcd1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_bcd1);
+static int dissect_bcd_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_INTEGER(TRUE, tvb, offset, actx, tree, hf_mms_bcd_01);
 }
 
 
@@ -2365,8 +2365,8 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_binary_time1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_TimeOfDay(TRUE, tvb, offset, actx, tree, hf_mms_binary_time1);
+static int dissect_binary_time_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_TimeOfDay(TRUE, tvb, offset, actx, tree, hf_mms_binary_time_01);
 }
 static int dissect_timeOfDayT_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_TimeOfDay(TRUE, tvb, offset, actx, tree, hf_mms_timeOfDayT);
@@ -2405,17 +2405,17 @@ static const value_string mms_Data_vals[] = {
 };
 
 static const ber_old_choice_t Data_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_array1_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_structure1_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_boolean1_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_bit_string1_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_integer1_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_unsigned1_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_array_01_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_structure_01_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_boolean_01_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_bit_string_01_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_integer_01_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_unsigned_01_impl },
   {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_floating_point_impl },
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_octet_string1_impl },
-  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_visible_string1_impl },
-  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_binary_time1_impl },
-  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_bcd1_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_octet_string_01_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_visible_string_01_impl },
+  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_binary_time_01_impl },
+  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_bcd_01_impl },
   {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_booleanArray_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -2654,7 +2654,7 @@ static int dissect_getNamedVariableListAttributes_impl(proto_tree *tree _U_, tvb
 }
 
 
-static const value_string mms_T_scopeOfDelete1_vals[] = {
+static const value_string mms_T_scopeOfDelete_01_vals[] = {
   {   0, "specific" },
   {   1, "aa-specific" },
   {   2, "domain" },
@@ -2664,19 +2664,19 @@ static const value_string mms_T_scopeOfDelete1_vals[] = {
 
 
 static int
-dissect_mms_T_scopeOfDelete1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_scopeOfDelete_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_scopeOfDelete1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_scopeOfDelete1(TRUE, tvb, offset, actx, tree, hf_mms_scopeOfDelete1);
+static int dissect_scopeOfDelete_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_scopeOfDelete_01(TRUE, tvb, offset, actx, tree, hf_mms_scopeOfDelete_01);
 }
 
 
 static const ber_old_sequence_t DeleteNamedVariableList_Request_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_scopeOfDelete1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_scopeOfDelete_01_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfVariableListName_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_domainName_impl },
   { 0, 0, 0, NULL }
@@ -2724,7 +2724,7 @@ static int dissect_getNamedTypeAttributes_impl(proto_tree *tree _U_, tvbuff_t *t
 }
 
 
-static const value_string mms_T_scopeOfDelete2_vals[] = {
+static const value_string mms_T_scopeOfDelete_02_vals[] = {
   {   0, "specific" },
   {   1, "aa-specific" },
   {   2, "domain" },
@@ -2734,19 +2734,19 @@ static const value_string mms_T_scopeOfDelete2_vals[] = {
 
 
 static int
-dissect_mms_T_scopeOfDelete2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_scopeOfDelete_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_scopeOfDelete2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_scopeOfDelete2(TRUE, tvb, offset, actx, tree, hf_mms_scopeOfDelete2);
+static int dissect_scopeOfDelete_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_scopeOfDelete_02(TRUE, tvb, offset, actx, tree, hf_mms_scopeOfDelete_02);
 }
 
 
 static const ber_old_sequence_t DeleteNamedType_Request_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_scopeOfDelete2_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_scopeOfDelete_02_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfTypeName_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_domainName_impl },
   { 0, 0, 0, NULL }
@@ -3068,14 +3068,14 @@ dissect_mms_T_state(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_state2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_state(TRUE, tvb, offset, actx, tree, hf_mms_state2);
+static int dissect_state_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_state(TRUE, tvb, offset, actx, tree, hf_mms_state_02);
 }
 
 
 static const ber_old_sequence_t ReportSemaphoreEntryStatus_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_semaphoreName },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_state2_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_state_02_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_entryIdToStartAfter_impl },
   { 0, 0, 0, NULL }
 };
@@ -3092,25 +3092,25 @@ static int dissect_reportSemaphoreEntryStatus_impl(proto_tree *tree _U_, tvbuff_
 }
 
 
-static const ber_old_sequence_t T_listOfCapabilities1_sequence_of[1] = {
+static const ber_old_sequence_t T_listOfCapabilities_01_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_listOfCapabilities_item },
 };
 
 static int
-dissect_mms_T_listOfCapabilities1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfCapabilities_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfCapabilities1_sequence_of, hf_index, ett_mms_T_listOfCapabilities1);
+                                          T_listOfCapabilities_01_sequence_of, hf_index, ett_mms_T_listOfCapabilities_01);
 
   return offset;
 }
-static int dissect_listOfCapabilities1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfCapabilities1(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities1);
+static int dissect_listOfCapabilities_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfCapabilities_01(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities_01);
 }
 
 
 static const ber_old_sequence_t InitiateDownloadSequence_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_domainName_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfCapabilities1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfCapabilities_01_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sharable_impl },
   { 0, 0, 0, NULL }
 };
@@ -3467,8 +3467,8 @@ dissect_mms_ObtainFile_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_obtainFile2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ObtainFile_Error(TRUE, tvb, offset, actx, tree, hf_mms_obtainFile2);
+static int dissect_obtainFile_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ObtainFile_Error(TRUE, tvb, offset, actx, tree, hf_mms_obtainFile_02);
 }
 
 
@@ -3493,8 +3493,8 @@ dissect_mms_ProgramInvocationState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_state1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ProgramInvocationState(TRUE, tvb, offset, actx, tree, hf_mms_state1);
+static int dissect_state_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ProgramInvocationState(TRUE, tvb, offset, actx, tree, hf_mms_state_01);
 }
 
 
@@ -3505,8 +3505,8 @@ dissect_mms_Start_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_start2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Start_Error(TRUE, tvb, offset, actx, tree, hf_mms_start2);
+static int dissect_start_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Start_Error(TRUE, tvb, offset, actx, tree, hf_mms_start_02);
 }
 
 
@@ -3517,8 +3517,8 @@ dissect_mms_Stop_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_stop2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Stop_Error(TRUE, tvb, offset, actx, tree, hf_mms_stop2);
+static int dissect_stop_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Stop_Error(TRUE, tvb, offset, actx, tree, hf_mms_stop_02);
 }
 
 
@@ -3529,8 +3529,8 @@ dissect_mms_Resume_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_resume2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Resume_Error(TRUE, tvb, offset, actx, tree, hf_mms_resume2);
+static int dissect_resume_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Resume_Error(TRUE, tvb, offset, actx, tree, hf_mms_resume_02);
 }
 
 
@@ -3541,8 +3541,8 @@ dissect_mms_Reset_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_reset2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Reset_Error(TRUE, tvb, offset, actx, tree, hf_mms_reset2);
+static int dissect_reset_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Reset_Error(TRUE, tvb, offset, actx, tree, hf_mms_reset_02);
 }
 
 
@@ -3553,8 +3553,8 @@ dissect_mms_DeleteVariableAccess_Error(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_deleteVariableAccess2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteVariableAccess_Error(TRUE, tvb, offset, actx, tree, hf_mms_deleteVariableAccess2);
+static int dissect_deleteVariableAccess_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteVariableAccess_Error(TRUE, tvb, offset, actx, tree, hf_mms_deleteVariableAccess_02);
 }
 
 
@@ -3565,8 +3565,8 @@ dissect_mms_DeleteNamedVariableList_Error(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_deleteNamedVariableList2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteNamedVariableList_Error(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedVariableList2);
+static int dissect_deleteNamedVariableList_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteNamedVariableList_Error(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedVariableList_02);
 }
 
 
@@ -3577,8 +3577,8 @@ dissect_mms_DeleteNamedType_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_deleteNamedType2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteNamedType_Error(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedType2);
+static int dissect_deleteNamedType_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteNamedType_Error(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedType_02);
 }
 
 
@@ -3608,8 +3608,8 @@ dissect_mms_FileRename_Error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_fileRename2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileRename_Error(TRUE, tvb, offset, actx, tree, hf_mms_fileRename2);
+static int dissect_fileRename_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileRename_Error(TRUE, tvb, offset, actx, tree, hf_mms_fileRename_02);
 }
 
 
@@ -3628,16 +3628,16 @@ static const value_string mms_T_serviceSpecificInformation_vals[] = {
 };
 
 static const ber_old_choice_t T_serviceSpecificInformation_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_obtainFile2_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_start2_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_stop2_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_resume2_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reset2_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_deleteVariableAccess2_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_deleteNamedVariableList2_impl },
-  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_deleteNamedType2_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_obtainFile_02_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_start_02_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_stop_02_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_resume_02_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reset_02_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_deleteVariableAccess_02_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_deleteNamedVariableList_02_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_deleteNamedType_02_impl },
   {   8, BER_CLASS_CON, 8, 0, dissect_defineEventEnrollment_Error },
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_fileRename2_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_fileRename_02_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3675,8 +3675,8 @@ static int dissect_serviceError_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 static int dissect_discard_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_ServiceError(TRUE, tvb, offset, actx, tree, hf_mms_discard);
 }
-static int dissect_failure1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ServiceError(TRUE, tvb, offset, actx, tree, hf_mms_failure1);
+static int dissect_failure_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ServiceError(TRUE, tvb, offset, actx, tree, hf_mms_failure_01);
 }
 
 
@@ -3734,19 +3734,19 @@ static int dissect_terminateUploadSequence_impl(proto_tree *tree _U_, tvbuff_t *
 }
 
 
-static const ber_old_sequence_t T_listOfCapabilities3_sequence_of[1] = {
+static const ber_old_sequence_t T_listOfCapabilities_03_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_listOfCapabilities_item },
 };
 
 static int
-dissect_mms_T_listOfCapabilities3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfCapabilities_03(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfCapabilities3_sequence_of, hf_index, ett_mms_T_listOfCapabilities3);
+                                          T_listOfCapabilities_03_sequence_of, hf_index, ett_mms_T_listOfCapabilities_03);
 
   return offset;
 }
-static int dissect_listOfCapabilities3_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfCapabilities3(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities3);
+static int dissect_listOfCapabilities_03_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfCapabilities_03(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities_03);
 }
 
 
@@ -3796,8 +3796,8 @@ static int dissect_newFileName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 static int dissect_fileSpecification_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_FileName(TRUE, tvb, offset, actx, tree, hf_mms_fileSpecification);
 }
-static int dissect_continueAfter3_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileName(TRUE, tvb, offset, actx, tree, hf_mms_continueAfter3);
+static int dissect_continueAfter_03_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileName(TRUE, tvb, offset, actx, tree, hf_mms_continueAfter_03);
 }
 static int dissect_filename_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_FileName(TRUE, tvb, offset, actx, tree, hf_mms_filename);
@@ -3806,7 +3806,7 @@ static int dissect_filename_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 static const ber_old_sequence_t RequestDomainDownload_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_domainName_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfCapabilities3_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfCapabilities_03_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sharable_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_fileName_impl },
   { 0, 0, 0, NULL }
@@ -3842,25 +3842,25 @@ static int dissect_requestDomainUpload_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 }
 
 
-static const ber_old_sequence_t T_listOfCapabilities4_sequence_of[1] = {
+static const ber_old_sequence_t T_listOfCapabilities_04_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_listOfCapabilities_item },
 };
 
 static int
-dissect_mms_T_listOfCapabilities4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfCapabilities_04(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfCapabilities4_sequence_of, hf_index, ett_mms_T_listOfCapabilities4);
+                                          T_listOfCapabilities_04_sequence_of, hf_index, ett_mms_T_listOfCapabilities_04);
 
   return offset;
 }
-static int dissect_listOfCapabilities4_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfCapabilities4(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities4);
+static int dissect_listOfCapabilities_04_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfCapabilities_04(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities_04);
 }
 
 
 static const ber_old_sequence_t LoadDomainContent_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_domainName_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfCapabilities4_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfCapabilities_04_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_sharable_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_fileName_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_thirdParty_impl },
@@ -4039,34 +4039,34 @@ static int dissect_stop_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const value_string mms_T_executionArgument1_vals[] = {
+static const value_string mms_T_executionArgument_01_vals[] = {
   {   0, "simpleString" },
   {   1, "encodedString" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_executionArgument1_choice[] = {
+static const ber_old_choice_t T_executionArgument_01_choice[] = {
   {   0, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_simpleString_impl },
   {   1, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_encodedString },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_executionArgument1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_executionArgument_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_executionArgument1_choice, hf_index, ett_mms_T_executionArgument1,
+                                     T_executionArgument_01_choice, hf_index, ett_mms_T_executionArgument_01,
                                      NULL);
 
   return offset;
 }
-static int dissect_executionArgument1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_executionArgument1(FALSE, tvb, offset, actx, tree, hf_mms_executionArgument1);
+static int dissect_executionArgument_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_executionArgument_01(FALSE, tvb, offset, actx, tree, hf_mms_executionArgument_01);
 }
 
 
 static const ber_old_sequence_t Resume_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_programInvocationName_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_executionArgument1 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_executionArgument_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -4161,14 +4161,14 @@ dissect_mms_EC_Class(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_class1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_EC_Class(TRUE, tvb, offset, actx, tree, hf_mms_class1);
+static int dissect_class_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_EC_Class(TRUE, tvb, offset, actx, tree, hf_mms_class_01);
 }
 
 
 static const ber_old_sequence_t DefineEventCondition_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_eventConditionName },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_class1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_class_01_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_prio_rity_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_severity_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alarmSummaryReports_impl },
@@ -4199,7 +4199,7 @@ static const value_string mms_DeleteEventCondition_Request_vals[] = {
 
 static const ber_old_choice_t DeleteEventCondition_Request_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_specific_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_aa_specific1_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_aa_specific_01_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_domain_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_vmd_impl },
   { 0, 0, 0, 0, NULL }
@@ -4309,7 +4309,7 @@ static const value_string mms_DeleteEventAction_Request_vals[] = {
 
 static const ber_old_choice_t DeleteEventAction_Request_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_specific_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_aa_specific1_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_aa_specific_01_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_domain_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_vmd_impl },
   { 0, 0, 0, 0, NULL }
@@ -4483,7 +4483,7 @@ static const ber_old_sequence_t GetEventEnrollmentAttributes_Request_sequence[] 
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_clientApplication },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_eventConditionName },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_eventActionName },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_continueAfter2 },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_continueAfter_02 },
   { 0, 0, 0, NULL }
 };
 
@@ -4624,7 +4624,7 @@ static const ber_old_sequence_t GetAlarmSummary_Request_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_activeAlarmsOnly_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acknowledgmentFilter_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_severityFilter_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_continueAfter2 },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_continueAfter_02 },
   { 0, 0, 0, NULL }
 };
 
@@ -4640,7 +4640,7 @@ static int dissect_getAlarmSummary_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const value_string mms_T_acknowledgmentFilter1_vals[] = {
+static const value_string mms_T_acknowledgmentFilter_01_vals[] = {
   {   0, "not-acked" },
   {   1, "acked" },
   {   2, "all" },
@@ -4649,41 +4649,41 @@ static const value_string mms_T_acknowledgmentFilter1_vals[] = {
 
 
 static int
-dissect_mms_T_acknowledgmentFilter1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_acknowledgmentFilter_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_acknowledgmentFilter1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_acknowledgmentFilter1(TRUE, tvb, offset, actx, tree, hf_mms_acknowledgmentFilter1);
+static int dissect_acknowledgmentFilter_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_acknowledgmentFilter_01(TRUE, tvb, offset, actx, tree, hf_mms_acknowledgmentFilter_01);
 }
 
 
-static const ber_old_sequence_t T_severityFilter1_sequence[] = {
+static const ber_old_sequence_t T_severityFilter_01_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mostSevere_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_leastSevere_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_severityFilter1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_severityFilter_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_severityFilter1_sequence, hf_index, ett_mms_T_severityFilter1);
+                                       T_severityFilter_01_sequence, hf_index, ett_mms_T_severityFilter_01);
 
   return offset;
 }
-static int dissect_severityFilter1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_severityFilter1(TRUE, tvb, offset, actx, tree, hf_mms_severityFilter1);
+static int dissect_severityFilter_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_severityFilter_01(TRUE, tvb, offset, actx, tree, hf_mms_severityFilter_01);
 }
 
 
 static const ber_old_sequence_t GetAlarmEnrollmentSummary_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_enrollmentsOnly_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_activeAlarmsOnly_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acknowledgmentFilter1_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_severityFilter1_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_continueAfter2 },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acknowledgmentFilter_01_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_severityFilter_01_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_continueAfter_02 },
   { 0, 0, 0, NULL }
 };
 
@@ -4847,30 +4847,30 @@ dissect_mms_T_listOfVariables_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_listOfVariables_item1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfVariables_item(FALSE, tvb, offset, actx, tree, hf_mms_listOfVariables_item1);
+static int dissect_listOfVariables_item_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfVariables_item(FALSE, tvb, offset, actx, tree, hf_mms_listOfVariables_item_01);
 }
 
 
-static const ber_old_sequence_t T_listOfVariables1_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfVariables_item1 },
+static const ber_old_sequence_t T_listOfVariables_01_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfVariables_item_01 },
 };
 
 static int
-dissect_mms_T_listOfVariables1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfVariables_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfVariables1_sequence_of, hf_index, ett_mms_T_listOfVariables1);
+                                          T_listOfVariables_01_sequence_of, hf_index, ett_mms_T_listOfVariables_01);
 
   return offset;
 }
-static int dissect_listOfVariables1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfVariables1(TRUE, tvb, offset, actx, tree, hf_mms_listOfVariables1);
+static int dissect_listOfVariables_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfVariables_01(TRUE, tvb, offset, actx, tree, hf_mms_listOfVariables_01);
 }
 
 
 static const ber_old_sequence_t T_data_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_event_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfVariables1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_listOfVariables_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -4928,13 +4928,13 @@ dissect_mms_EntryContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int dissect_entryContent_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_EntryContent(TRUE, tvb, offset, actx, tree, hf_mms_entryContent);
 }
-static int dissect_listOfJournalEntry_item1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_EntryContent(FALSE, tvb, offset, actx, tree, hf_mms_listOfJournalEntry_item1);
+static int dissect_listOfJournalEntry_item_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_EntryContent(FALSE, tvb, offset, actx, tree, hf_mms_listOfJournalEntry_item_01);
 }
 
 
 static const ber_old_sequence_t SEQUENCE_OF_EntryContent_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfJournalEntry_item1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfJournalEntry_item_01 },
 };
 
 static int
@@ -4944,14 +4944,14 @@ dissect_mms_SEQUENCE_OF_EntryContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_listOfJournalEntry1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_SEQUENCE_OF_EntryContent(TRUE, tvb, offset, actx, tree, hf_mms_listOfJournalEntry1);
+static int dissect_listOfJournalEntry_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_SEQUENCE_OF_EntryContent(TRUE, tvb, offset, actx, tree, hf_mms_listOfJournalEntry_01);
 }
 
 
 static const ber_old_sequence_t WriteJournal_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_journalName },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfJournalEntry1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfJournalEntry_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -5050,7 +5050,7 @@ static int dissect_deleteJournal_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 
 static const ber_old_sequence_t GetCapabilityList_Request_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_continueAfter1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_continueAfter_01 },
   { 0, 0, 0, NULL }
 };
 
@@ -5140,7 +5140,7 @@ static int dissect_fileDelete_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static const ber_old_sequence_t FileDirectory_Request_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_fileSpecification_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_continueAfter3_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_continueAfter_03_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -5446,8 +5446,8 @@ dissect_mms_Status_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_status1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Status_Response(TRUE, tvb, offset, actx, tree, hf_mms_status1);
+static int dissect_status_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Status_Response(TRUE, tvb, offset, actx, tree, hf_mms_status_01);
 }
 
 
@@ -5464,8 +5464,8 @@ dissect_mms_GetNameList_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_getNameList1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetNameList_Response(TRUE, tvb, offset, actx, tree, hf_mms_getNameList1);
+static int dissect_getNameList_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetNameList_Response(TRUE, tvb, offset, actx, tree, hf_mms_getNameList_01);
 }
 
 
@@ -5512,8 +5512,8 @@ dissect_mms_Identify_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_identify1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Identify_Response(TRUE, tvb, offset, actx, tree, hf_mms_identify1);
+static int dissect_identify_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Identify_Response(TRUE, tvb, offset, actx, tree, hf_mms_identify_01);
 }
 
 
@@ -5524,8 +5524,8 @@ dissect_mms_Rename_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_rename1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Rename_Response(TRUE, tvb, offset, actx, tree, hf_mms_rename1);
+static int dissect_rename_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Rename_Response(TRUE, tvb, offset, actx, tree, hf_mms_rename_01);
 }
 
 
@@ -5576,17 +5576,17 @@ static const value_string mms_AccessResult_vals[] = {
 
 static const ber_old_choice_t AccessResult_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_failure_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_array1_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_structure1_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_boolean1_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_bit_string1_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_integer1_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_unsigned1_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_array_01_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_structure_01_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_boolean_01_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_bit_string_01_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_integer_01_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_unsigned_01_impl },
   {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_floating_point_impl },
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_octet_string1_impl },
-  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_visible_string1_impl },
-  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_binary_time1_impl },
-  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_bcd1_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_octet_string_01_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_visible_string_01_impl },
+  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_binary_time_01_impl },
+  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_bcd_01_impl },
   {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_booleanArray_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -5633,8 +5633,8 @@ dissect_mms_Read_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_read1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Read_Response(TRUE, tvb, offset, actx, tree, hf_mms_read1);
+static int dissect_read_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Read_Response(TRUE, tvb, offset, actx, tree, hf_mms_read_01);
 }
 
 
@@ -5674,8 +5674,8 @@ dissect_mms_Write_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_write1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Write_Response(TRUE, tvb, offset, actx, tree, hf_mms_write1);
+static int dissect_write_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Write_Response(TRUE, tvb, offset, actx, tree, hf_mms_write_01);
 }
 
 
@@ -5693,8 +5693,8 @@ dissect_mms_GetVariableAccessAttributes_Response(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_getVariableAccessAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetVariableAccessAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getVariableAccessAttributes1);
+static int dissect_getVariableAccessAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetVariableAccessAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getVariableAccessAttributes_01);
 }
 
 
@@ -5705,8 +5705,8 @@ dissect_mms_DefineNamedVariable_Response(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_defineNamedVariable1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineNamedVariable_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineNamedVariable1);
+static int dissect_defineNamedVariable_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineNamedVariable_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineNamedVariable_01);
 }
 
 
@@ -5717,8 +5717,8 @@ dissect_mms_DefineScatteredAccess_Response(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_defineScatteredAccess1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineScatteredAccess_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineScatteredAccess1);
+static int dissect_defineScatteredAccess_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineScatteredAccess_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineScatteredAccess_01);
 }
 
 
@@ -5735,8 +5735,8 @@ dissect_mms_GetScatteredAccessAttributes_Response(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_getScatteredAccessAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetScatteredAccessAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getScatteredAccessAttributes1);
+static int dissect_getScatteredAccessAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetScatteredAccessAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getScatteredAccessAttributes_01);
 }
 
 
@@ -5753,8 +5753,8 @@ dissect_mms_DeleteVariableAccess_Response(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_deleteVariableAccess1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteVariableAccess_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteVariableAccess1);
+static int dissect_deleteVariableAccess_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteVariableAccess_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteVariableAccess_01);
 }
 
 
@@ -5765,48 +5765,48 @@ dissect_mms_DefineNamedVariableList_Response(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_defineNamedVariableList1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineNamedVariableList_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineNamedVariableList1);
+static int dissect_defineNamedVariableList_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineNamedVariableList_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineNamedVariableList_01);
 }
 
 
-static const ber_old_sequence_t T_listOfVariable_item1_sequence[] = {
+static const ber_old_sequence_t T_listOfVariable_item_01_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_variableSpecification },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alternateAccess_impl },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_listOfVariable_item1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfVariable_item_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_listOfVariable_item1_sequence, hf_index, ett_mms_T_listOfVariable_item1);
+                                       T_listOfVariable_item_01_sequence, hf_index, ett_mms_T_listOfVariable_item_01);
 
   return offset;
 }
-static int dissect_listOfVariable_item1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfVariable_item1(FALSE, tvb, offset, actx, tree, hf_mms_listOfVariable_item1);
+static int dissect_listOfVariable_item_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfVariable_item_01(FALSE, tvb, offset, actx, tree, hf_mms_listOfVariable_item_01);
 }
 
 
-static const ber_old_sequence_t T_listOfVariable1_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfVariable_item1 },
+static const ber_old_sequence_t T_listOfVariable_01_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_listOfVariable_item_01 },
 };
 
 static int
-dissect_mms_T_listOfVariable1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfVariable_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfVariable1_sequence_of, hf_index, ett_mms_T_listOfVariable1);
+                                          T_listOfVariable_01_sequence_of, hf_index, ett_mms_T_listOfVariable_01);
 
   return offset;
 }
-static int dissect_listOfVariable1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfVariable1(TRUE, tvb, offset, actx, tree, hf_mms_listOfVariable1);
+static int dissect_listOfVariable_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfVariable_01(TRUE, tvb, offset, actx, tree, hf_mms_listOfVariable_01);
 }
 
 
 static const ber_old_sequence_t GetNamedVariableListAttributes_Response_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mmsDeletable_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfVariable1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfVariable_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -5817,8 +5817,8 @@ dissect_mms_GetNamedVariableListAttributes_Response(gboolean implicit_tag _U_, t
 
   return offset;
 }
-static int dissect_getNamedVariableListAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetNamedVariableListAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getNamedVariableListAttributes1);
+static int dissect_getNamedVariableListAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetNamedVariableListAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getNamedVariableListAttributes_01);
 }
 
 
@@ -5835,8 +5835,8 @@ dissect_mms_DeleteNamedVariableList_Response(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_deleteNamedVariableList1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteNamedVariableList_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedVariableList1);
+static int dissect_deleteNamedVariableList_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteNamedVariableList_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedVariableList_01);
 }
 
 
@@ -5847,8 +5847,8 @@ dissect_mms_DefineNamedType_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_defineNamedType1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineNamedType_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineNamedType1);
+static int dissect_defineNamedType_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineNamedType_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineNamedType_01);
 }
 
 
@@ -5865,8 +5865,8 @@ dissect_mms_GetNamedTypeAttributes_Response(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_getNamedTypeAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetNamedTypeAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getNamedTypeAttributes1);
+static int dissect_getNamedTypeAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetNamedTypeAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getNamedTypeAttributes_01);
 }
 
 
@@ -5883,8 +5883,8 @@ dissect_mms_DeleteNamedType_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_deleteNamedType1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteNamedType_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedType1);
+static int dissect_deleteNamedType_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteNamedType_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteNamedType_01);
 }
 
 
@@ -5897,8 +5897,8 @@ dissect_mms_Input_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_input1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Input_Response(TRUE, tvb, offset, actx, tree, hf_mms_input1);
+static int dissect_input_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Input_Response(TRUE, tvb, offset, actx, tree, hf_mms_input_01);
 }
 
 
@@ -5909,8 +5909,8 @@ dissect_mms_Output_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_output1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Output_Response(TRUE, tvb, offset, actx, tree, hf_mms_output1);
+static int dissect_output_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Output_Response(TRUE, tvb, offset, actx, tree, hf_mms_output_01);
 }
 
 
@@ -5934,8 +5934,8 @@ dissect_mms_TakeControl_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_takeControl1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_TakeControl_Response(FALSE, tvb, offset, actx, tree, hf_mms_takeControl1);
+static int dissect_takeControl_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_TakeControl_Response(FALSE, tvb, offset, actx, tree, hf_mms_takeControl_01);
 }
 
 
@@ -5946,8 +5946,8 @@ dissect_mms_RelinquishControl_Response(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_relinquishControl1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_RelinquishControl_Response(TRUE, tvb, offset, actx, tree, hf_mms_relinquishControl1);
+static int dissect_relinquishControl_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_RelinquishControl_Response(TRUE, tvb, offset, actx, tree, hf_mms_relinquishControl_01);
 }
 
 
@@ -5958,8 +5958,8 @@ dissect_mms_DefineSemaphore_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_defineSemaphore1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineSemaphore_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineSemaphore1);
+static int dissect_defineSemaphore_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineSemaphore_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineSemaphore_01);
 }
 
 
@@ -5970,8 +5970,8 @@ dissect_mms_DeleteSemaphore_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_deleteSemaphore1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteSemaphore_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteSemaphore1);
+static int dissect_deleteSemaphore_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteSemaphore_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteSemaphore_01);
 }
 
 
@@ -6010,8 +6010,8 @@ dissect_mms_ReportSemaphoreStatus_Response(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_reportSemaphoreStatus1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReportSemaphoreStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportSemaphoreStatus1);
+static int dissect_reportSemaphoreStatus_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReportSemaphoreStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportSemaphoreStatus_01);
 }
 
 
@@ -6071,8 +6071,8 @@ dissect_mms_ReportPoolSemaphoreStatus_Response(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_reportPoolSemaphoreStatus1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReportPoolSemaphoreStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportPoolSemaphoreStatus1);
+static int dissect_reportPoolSemaphoreStatus_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReportPoolSemaphoreStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportPoolSemaphoreStatus_01);
 }
 
 
@@ -6148,8 +6148,8 @@ dissect_mms_ReportSemaphoreEntryStatus_Response(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_reportSemaphoreEntryStatus1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReportSemaphoreEntryStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportSemaphoreEntryStatus1);
+static int dissect_reportSemaphoreEntryStatus_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReportSemaphoreEntryStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportSemaphoreEntryStatus_01);
 }
 
 
@@ -6160,8 +6160,8 @@ dissect_mms_InitiateDownloadSequence_Response(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_initiateDownloadSequence1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_InitiateDownloadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_initiateDownloadSequence1);
+static int dissect_initiateDownloadSequence_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_InitiateDownloadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_initiateDownloadSequence_01);
 }
 
 
@@ -6203,8 +6203,8 @@ dissect_mms_DownloadSegment_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_downloadSegment1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DownloadSegment_Response(TRUE, tvb, offset, actx, tree, hf_mms_downloadSegment1);
+static int dissect_downloadSegment_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DownloadSegment_Response(TRUE, tvb, offset, actx, tree, hf_mms_downloadSegment_01);
 }
 
 
@@ -6215,30 +6215,30 @@ dissect_mms_TerminateDownloadSequence_Response(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_terminateDownloadSequence1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_TerminateDownloadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_terminateDownloadSequence1);
+static int dissect_terminateDownloadSequence_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_TerminateDownloadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_terminateDownloadSequence_01);
 }
 
 
-static const ber_old_sequence_t T_listOfCapabilities2_sequence_of[1] = {
+static const ber_old_sequence_t T_listOfCapabilities_02_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_listOfCapabilities_item },
 };
 
 static int
-dissect_mms_T_listOfCapabilities2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfCapabilities_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfCapabilities2_sequence_of, hf_index, ett_mms_T_listOfCapabilities2);
+                                          T_listOfCapabilities_02_sequence_of, hf_index, ett_mms_T_listOfCapabilities_02);
 
   return offset;
 }
-static int dissect_listOfCapabilities2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfCapabilities2(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities2);
+static int dissect_listOfCapabilities_02_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfCapabilities_02(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities_02);
 }
 
 
 static const ber_old_sequence_t InitiateUploadSequence_Response_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ulsmID_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfCapabilities2_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfCapabilities_02_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -6249,38 +6249,38 @@ dissect_mms_InitiateUploadSequence_Response(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_initiateUploadSequence1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_InitiateUploadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_initiateUploadSequence1);
+static int dissect_initiateUploadSequence_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_InitiateUploadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_initiateUploadSequence_01);
 }
 
 
-static const value_string mms_T_loadData1_vals[] = {
+static const value_string mms_T_loadData_01_vals[] = {
   {   0, "non-coded" },
   {   1, "coded" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_loadData1_choice[] = {
+static const ber_old_choice_t T_loadData_01_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_non_coded_impl },
   {   1, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_coded },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_loadData1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_loadData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_loadData1_choice, hf_index, ett_mms_T_loadData1,
+                                     T_loadData_01_choice, hf_index, ett_mms_T_loadData_01,
                                      NULL);
 
   return offset;
 }
-static int dissect_loadData1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_loadData1(FALSE, tvb, offset, actx, tree, hf_mms_loadData1);
+static int dissect_loadData_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_loadData_01(FALSE, tvb, offset, actx, tree, hf_mms_loadData_01);
 }
 
 
 static const ber_old_sequence_t UploadSegment_Response_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_loadData1 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_loadData_01 },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_moreFollows_impl },
   { 0, 0, 0, NULL }
 };
@@ -6292,8 +6292,8 @@ dissect_mms_UploadSegment_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_uploadSegment1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_UploadSegment_Response(TRUE, tvb, offset, actx, tree, hf_mms_uploadSegment1);
+static int dissect_uploadSegment_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_UploadSegment_Response(TRUE, tvb, offset, actx, tree, hf_mms_uploadSegment_01);
 }
 
 
@@ -6304,8 +6304,8 @@ dissect_mms_TerminateUploadSequence_Response(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_terminateUploadSequence1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_TerminateUploadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_terminateUploadSequence1);
+static int dissect_terminateUploadSequence_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_TerminateUploadSequence_Response(TRUE, tvb, offset, actx, tree, hf_mms_terminateUploadSequence_01);
 }
 
 
@@ -6328,8 +6328,8 @@ dissect_mms_RequestDomainUpload_Response(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_requestDomainUpload1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_RequestDomainUpload_Response(TRUE, tvb, offset, actx, tree, hf_mms_requestDomainUpload1);
+static int dissect_requestDomainUpload_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_RequestDomainUpload_Response(TRUE, tvb, offset, actx, tree, hf_mms_requestDomainUpload_01);
 }
 
 
@@ -6340,8 +6340,8 @@ dissect_mms_LoadDomainContent_Response(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_loadDomainContent1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_LoadDomainContent_Response(TRUE, tvb, offset, actx, tree, hf_mms_loadDomainContent1);
+static int dissect_loadDomainContent_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_LoadDomainContent_Response(TRUE, tvb, offset, actx, tree, hf_mms_loadDomainContent_01);
 }
 
 
@@ -6352,8 +6352,8 @@ dissect_mms_StoreDomainContent_Response(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_storeDomainContent1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_StoreDomainContent_Response(TRUE, tvb, offset, actx, tree, hf_mms_storeDomainContent1);
+static int dissect_storeDomainContent_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_StoreDomainContent_Response(TRUE, tvb, offset, actx, tree, hf_mms_storeDomainContent_01);
 }
 
 
@@ -6364,24 +6364,24 @@ dissect_mms_DeleteDomain_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_deleteDomain1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteDomain_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteDomain1);
+static int dissect_deleteDomain_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteDomain_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteDomain_01);
 }
 
 
-static const ber_old_sequence_t T_listOfCapabilities5_sequence_of[1] = {
+static const ber_old_sequence_t T_listOfCapabilities_05_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_listOfCapabilities_item },
 };
 
 static int
-dissect_mms_T_listOfCapabilities5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_listOfCapabilities_05(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_listOfCapabilities5_sequence_of, hf_index, ett_mms_T_listOfCapabilities5);
+                                          T_listOfCapabilities_05_sequence_of, hf_index, ett_mms_T_listOfCapabilities_05);
 
   return offset;
 }
-static int dissect_listOfCapabilities5_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_listOfCapabilities5(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities5);
+static int dissect_listOfCapabilities_05_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_listOfCapabilities_05(TRUE, tvb, offset, actx, tree, hf_mms_listOfCapabilities_05);
 }
 
 
@@ -6437,7 +6437,7 @@ static int dissect_uploadInProgress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_
 
 
 static const ber_old_sequence_t GetDomainAttributes_Response_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_listOfCapabilities5_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_listOfCapabilities_05_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_state_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mmsDeletable_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_sharable_impl },
@@ -6453,8 +6453,8 @@ dissect_mms_GetDomainAttributes_Response(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_getDomainAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetDomainAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getDomainAttributes1);
+static int dissect_getDomainAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetDomainAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getDomainAttributes_01);
 }
 
 
@@ -6465,8 +6465,8 @@ dissect_mms_CreateProgramInvocation_Response(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_createProgramInvocation1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_CreateProgramInvocation_Response(TRUE, tvb, offset, actx, tree, hf_mms_createProgramInvocation1);
+static int dissect_createProgramInvocation_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_CreateProgramInvocation_Response(TRUE, tvb, offset, actx, tree, hf_mms_createProgramInvocation_01);
 }
 
 
@@ -6477,8 +6477,8 @@ dissect_mms_DeleteProgramInvocation_Response(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_deleteProgramInvocation1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteProgramInvocation_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteProgramInvocation1);
+static int dissect_deleteProgramInvocation_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteProgramInvocation_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteProgramInvocation_01);
 }
 
 
@@ -6489,8 +6489,8 @@ dissect_mms_Start_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_start1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Start_Response(TRUE, tvb, offset, actx, tree, hf_mms_start1);
+static int dissect_start_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Start_Response(TRUE, tvb, offset, actx, tree, hf_mms_start_01);
 }
 
 
@@ -6501,8 +6501,8 @@ dissect_mms_Stop_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_stop1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Stop_Response(TRUE, tvb, offset, actx, tree, hf_mms_stop1);
+static int dissect_stop_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Stop_Response(TRUE, tvb, offset, actx, tree, hf_mms_stop_01);
 }
 
 
@@ -6513,8 +6513,8 @@ dissect_mms_Resume_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_resume1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Resume_Response(TRUE, tvb, offset, actx, tree, hf_mms_resume1);
+static int dissect_resume_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Resume_Response(TRUE, tvb, offset, actx, tree, hf_mms_resume_01);
 }
 
 
@@ -6525,8 +6525,8 @@ dissect_mms_Reset_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_reset1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Reset_Response(TRUE, tvb, offset, actx, tree, hf_mms_reset1);
+static int dissect_reset_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Reset_Response(TRUE, tvb, offset, actx, tree, hf_mms_reset_01);
 }
 
 
@@ -6537,44 +6537,44 @@ dissect_mms_Kill_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_kill1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_Kill_Response(TRUE, tvb, offset, actx, tree, hf_mms_kill1);
+static int dissect_kill_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_Kill_Response(TRUE, tvb, offset, actx, tree, hf_mms_kill_01);
 }
 
 
-static const value_string mms_T_executionArgument2_vals[] = {
+static const value_string mms_T_executionArgument_02_vals[] = {
   {   0, "simpleString" },
   {   1, "encodedString" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_executionArgument2_choice[] = {
+static const ber_old_choice_t T_executionArgument_02_choice[] = {
   {   0, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_simpleString_impl },
   {   1, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_encodedString },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_executionArgument2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_executionArgument_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_executionArgument2_choice, hf_index, ett_mms_T_executionArgument2,
+                                     T_executionArgument_02_choice, hf_index, ett_mms_T_executionArgument_02,
                                      NULL);
 
   return offset;
 }
-static int dissect_executionArgument2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_executionArgument2(FALSE, tvb, offset, actx, tree, hf_mms_executionArgument2);
+static int dissect_executionArgument_02(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_executionArgument_02(FALSE, tvb, offset, actx, tree, hf_mms_executionArgument_02);
 }
 
 
 static const ber_old_sequence_t GetProgramInvocationAttributes_Response_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_state1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_state_01_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listOfDomainNames_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mmsDeletable_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_reusable_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_monitor_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_startArgument_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_executionArgument2 },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_executionArgument_02 },
   { 0, 0, 0, NULL }
 };
 
@@ -6585,8 +6585,8 @@ dissect_mms_GetProgramInvocationAttributes_Response(gboolean implicit_tag _U_, t
 
   return offset;
 }
-static int dissect_getProgramInvocationAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetProgramInvocationAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getProgramInvocationAttributes1);
+static int dissect_getProgramInvocationAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetProgramInvocationAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getProgramInvocationAttributes_01);
 }
 
 
@@ -6597,8 +6597,8 @@ dissect_mms_ObtainFile_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_obtainFile1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ObtainFile_Response(TRUE, tvb, offset, actx, tree, hf_mms_obtainFile1);
+static int dissect_obtainFile_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ObtainFile_Response(TRUE, tvb, offset, actx, tree, hf_mms_obtainFile_01);
 }
 
 
@@ -6645,8 +6645,8 @@ dissect_mms_FileOpen_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_fileOpen1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileOpen_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileOpen1);
+static int dissect_fileOpen_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileOpen_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileOpen_01);
 }
 
 
@@ -6657,8 +6657,8 @@ dissect_mms_DefineEventCondition_Response(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_defineEventCondition1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineEventCondition_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineEventCondition1);
+static int dissect_defineEventCondition_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineEventCondition_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineEventCondition_01);
 }
 
 
@@ -6669,8 +6669,8 @@ dissect_mms_DeleteEventCondition_Response(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_deleteEventCondition1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteEventCondition_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteEventCondition1);
+static int dissect_deleteEventCondition_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteEventCondition_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteEventCondition_01);
 }
 
 
@@ -6694,18 +6694,18 @@ dissect_mms_T_monitoredVariable(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_monitoredVariable1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_monitoredVariable(FALSE, tvb, offset, actx, tree, hf_mms_monitoredVariable1);
+static int dissect_monitoredVariable_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_monitoredVariable(FALSE, tvb, offset, actx, tree, hf_mms_monitoredVariable_01);
 }
 
 
 static const ber_old_sequence_t GetEventConditionAttributes_Response_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mmsDeletable_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_class1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_class_01_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_prio_rity_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_severity_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alarmSummaryReports_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_monitoredVariable1 },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_monitoredVariable_01 },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_evaluationInterval_impl },
   { 0, 0, 0, NULL }
 };
@@ -6717,8 +6717,8 @@ dissect_mms_GetEventConditionAttributes_Response(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_getEventConditionAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetEventConditionAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getEventConditionAttributes1);
+static int dissect_getEventConditionAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetEventConditionAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getEventConditionAttributes_01);
 }
 
 
@@ -6738,8 +6738,8 @@ dissect_mms_ReportEventConditionStatus_Response(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_reportEventConditionStatus1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReportEventConditionStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportEventConditionStatus1);
+static int dissect_reportEventConditionStatus_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReportEventConditionStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportEventConditionStatus_01);
 }
 
 
@@ -6750,8 +6750,8 @@ dissect_mms_AlterEventConditionMonitoring_Response(gboolean implicit_tag _U_, tv
 
   return offset;
 }
-static int dissect_alterEventConditionMonitoring1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_AlterEventConditionMonitoring_Response(TRUE, tvb, offset, actx, tree, hf_mms_alterEventConditionMonitoring1);
+static int dissect_alterEventConditionMonitoring_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_AlterEventConditionMonitoring_Response(TRUE, tvb, offset, actx, tree, hf_mms_alterEventConditionMonitoring_01);
 }
 
 
@@ -6762,8 +6762,8 @@ dissect_mms_TriggerEvent_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_triggerEvent1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_TriggerEvent_Response(TRUE, tvb, offset, actx, tree, hf_mms_triggerEvent1);
+static int dissect_triggerEvent_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_TriggerEvent_Response(TRUE, tvb, offset, actx, tree, hf_mms_triggerEvent_01);
 }
 
 
@@ -6774,8 +6774,8 @@ dissect_mms_DefineEventAction_Response(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_defineEventAction1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineEventAction_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineEventAction1);
+static int dissect_defineEventAction_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineEventAction_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineEventAction_01);
 }
 
 
@@ -6786,8 +6786,8 @@ dissect_mms_DeleteEventAction_Response(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_deleteEventAction1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteEventAction_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteEventAction1);
+static int dissect_deleteEventAction_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteEventAction_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteEventAction_01);
 }
 
 
@@ -6804,8 +6804,8 @@ dissect_mms_GetEventActionAttributes_Response(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_getEventActionAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetEventActionAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getEventActionAttributes1);
+static int dissect_getEventActionAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetEventActionAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getEventActionAttributes_01);
 }
 
 
@@ -6828,8 +6828,8 @@ dissect_mms_DefineEventEnrollment_Response(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_defineEventEnrollment1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DefineEventEnrollment_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineEventEnrollment1);
+static int dissect_defineEventEnrollment_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DefineEventEnrollment_Response(TRUE, tvb, offset, actx, tree, hf_mms_defineEventEnrollment_01);
 }
 
 
@@ -6840,8 +6840,8 @@ dissect_mms_DeleteEventEnrollment_Response(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_deleteEventEnrollment1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteEventEnrollment_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteEventEnrollment1);
+static int dissect_deleteEventEnrollment_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteEventEnrollment_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteEventEnrollment_01);
 }
 
 
@@ -6865,11 +6865,11 @@ dissect_mms_EE_State(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_currentState1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_EE_State(TRUE, tvb, offset, actx, tree, hf_mms_currentState1);
+static int dissect_currentState_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_EE_State(TRUE, tvb, offset, actx, tree, hf_mms_currentState_01);
 }
-static int dissect_state3_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_EE_State(TRUE, tvb, offset, actx, tree, hf_mms_state3);
+static int dissect_state_03_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_EE_State(TRUE, tvb, offset, actx, tree, hf_mms_state_03);
 }
 static int dissect_enrollementState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_EE_State(TRUE, tvb, offset, actx, tree, hf_mms_enrollementState);
@@ -6883,7 +6883,7 @@ static const value_string mms_T_currentState_vals[] = {
 };
 
 static const ber_old_choice_t T_currentState_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_state3_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_state_03_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_undefined_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -6896,13 +6896,13 @@ dissect_mms_T_currentState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_currentState2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_currentState(FALSE, tvb, offset, actx, tree, hf_mms_currentState2);
+static int dissect_currentState_02(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_currentState(FALSE, tvb, offset, actx, tree, hf_mms_currentState_02);
 }
 
 
 static const ber_old_sequence_t AlterEventEnrollment_Response_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_currentState2 },
+  { BER_CLASS_CON, 0, 0, dissect_currentState_02 },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_transitionTime },
   { 0, 0, 0, NULL }
 };
@@ -6914,8 +6914,8 @@ dissect_mms_AlterEventEnrollment_Response(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_alterEventEnrollment1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_AlterEventEnrollment_Response(TRUE, tvb, offset, actx, tree, hf_mms_alterEventEnrollment1);
+static int dissect_alterEventEnrollment_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_AlterEventEnrollment_Response(TRUE, tvb, offset, actx, tree, hf_mms_alterEventEnrollment_01);
 }
 
 
@@ -6943,7 +6943,7 @@ static const ber_old_sequence_t ReportEventEnrollmentStatus_Response_sequence[] 
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationLost_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_duration_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alarmAcknowledgmentRule_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_currentState1_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_currentState_01_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -6954,8 +6954,8 @@ dissect_mms_ReportEventEnrollmentStatus_Response(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_reportEventEnrollmentStatus1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReportEventEnrollmentStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportEventEnrollmentStatus1);
+static int dissect_reportEventEnrollmentStatus_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReportEventEnrollmentStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportEventEnrollmentStatus_01);
 }
 
 
@@ -6979,8 +6979,8 @@ dissect_mms_T_eventConditionName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_eventConditionName1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_eventConditionName(FALSE, tvb, offset, actx, tree, hf_mms_eventConditionName1);
+static int dissect_eventConditionName_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_eventConditionName(FALSE, tvb, offset, actx, tree, hf_mms_eventConditionName_01);
 }
 
 
@@ -7004,8 +7004,8 @@ dissect_mms_T_eventActionName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_eventActionName1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_eventActionName(FALSE, tvb, offset, actx, tree, hf_mms_eventActionName1);
+static int dissect_eventActionName_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_eventActionName(FALSE, tvb, offset, actx, tree, hf_mms_eventActionName_01);
 }
 
 
@@ -7030,8 +7030,8 @@ static int dissect_enrollmentClass_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 
 static const ber_old_sequence_t EventEnrollment_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_eventEnrollmentName },
-  { BER_CLASS_CON, 1, 0, dissect_eventConditionName1 },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_eventActionName1 },
+  { BER_CLASS_CON, 1, 0, dissect_eventConditionName_01 },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_eventActionName_01 },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_clientApplication },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mmsDeletable_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_enrollmentClass_impl },
@@ -7082,8 +7082,8 @@ dissect_mms_GetEventEnrollmentAttributes_Response(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_getEventEnrollmentAttributes1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetEventEnrollmentAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getEventEnrollmentAttributes1);
+static int dissect_getEventEnrollmentAttributes_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetEventEnrollmentAttributes_Response(TRUE, tvb, offset, actx, tree, hf_mms_getEventEnrollmentAttributes_01);
 }
 
 
@@ -7094,8 +7094,8 @@ dissect_mms_AcknowledgeEventNotification_Response(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_acknowledgeEventNotification1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_AcknowledgeEventNotification_Response(TRUE, tvb, offset, actx, tree, hf_mms_acknowledgeEventNotification1);
+static int dissect_acknowledgeEventNotification_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_AcknowledgeEventNotification_Response(TRUE, tvb, offset, actx, tree, hf_mms_acknowledgeEventNotification_01);
 }
 
 
@@ -7171,8 +7171,8 @@ dissect_mms_GetAlarmSummary_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_getAlarmSummary1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetAlarmSummary_Response(TRUE, tvb, offset, actx, tree, hf_mms_getAlarmSummary1);
+static int dissect_getAlarmSummary_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetAlarmSummary_Response(TRUE, tvb, offset, actx, tree, hf_mms_getAlarmSummary_01);
 }
 
 
@@ -7232,8 +7232,8 @@ dissect_mms_GetAlarmEnrollmentSummary_Response(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_getAlarmEnrollmentSummary1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetAlarmEnrollmentSummary_Response(TRUE, tvb, offset, actx, tree, hf_mms_getAlarmEnrollmentSummary1);
+static int dissect_getAlarmEnrollmentSummary_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetAlarmEnrollmentSummary_Response(TRUE, tvb, offset, actx, tree, hf_mms_getAlarmEnrollmentSummary_01);
 }
 
 
@@ -7285,8 +7285,8 @@ dissect_mms_ReadJournal_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_readJournal1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReadJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_readJournal1);
+static int dissect_readJournal_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReadJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_readJournal_01);
 }
 
 
@@ -7297,8 +7297,8 @@ dissect_mms_WriteJournal_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_writeJournal1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_WriteJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_writeJournal1);
+static int dissect_writeJournal_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_WriteJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_writeJournal_01);
 }
 
 
@@ -7309,8 +7309,8 @@ dissect_mms_InitializeJournal_Response(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_initializeJournal1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_InitializeJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_initializeJournal1);
+static int dissect_initializeJournal_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_InitializeJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_initializeJournal_01);
 }
 
 
@@ -7327,8 +7327,8 @@ dissect_mms_ReportJournalStatus_Response(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_reportJournalStatus1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ReportJournalStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportJournalStatus1);
+static int dissect_reportJournalStatus_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ReportJournalStatus_Response(TRUE, tvb, offset, actx, tree, hf_mms_reportJournalStatus_01);
 }
 
 
@@ -7339,8 +7339,8 @@ dissect_mms_CreateJournal_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_createJournal1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_CreateJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_createJournal1);
+static int dissect_createJournal_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_CreateJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_createJournal_01);
 }
 
 
@@ -7351,8 +7351,8 @@ dissect_mms_DeleteJournal_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_deleteJournal1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_DeleteJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteJournal1);
+static int dissect_deleteJournal_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_DeleteJournal_Response(TRUE, tvb, offset, actx, tree, hf_mms_deleteJournal_01);
 }
 
 
@@ -7385,8 +7385,8 @@ dissect_mms_GetCapabilityList_Response(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_getCapabilityList1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_GetCapabilityList_Response(TRUE, tvb, offset, actx, tree, hf_mms_getCapabilityList1);
+static int dissect_getCapabilityList_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_GetCapabilityList_Response(TRUE, tvb, offset, actx, tree, hf_mms_getCapabilityList_01);
 }
 
 
@@ -7403,8 +7403,8 @@ dissect_mms_FileRead_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_fileRead1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileRead_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileRead1);
+static int dissect_fileRead_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileRead_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileRead_01);
 }
 
 
@@ -7415,8 +7415,8 @@ dissect_mms_FileClose_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_fileClose1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileClose_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileClose1);
+static int dissect_fileClose_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileClose_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileClose_01);
 }
 
 
@@ -7427,8 +7427,8 @@ dissect_mms_FileRename_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_fileRename1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileRename_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileRename1);
+static int dissect_fileRename_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileRename_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileRename_01);
 }
 
 
@@ -7439,8 +7439,8 @@ dissect_mms_FileDelete_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_fileDelete1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileDelete_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileDelete1);
+static int dissect_fileDelete_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileDelete_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileDelete_01);
 }
 
 
@@ -7491,8 +7491,8 @@ dissect_mms_FileDirectory_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_fileDirectory1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_FileDirectory_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileDirectory1);
+static int dissect_fileDirectory_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_FileDirectory_Response(TRUE, tvb, offset, actx, tree, hf_mms_fileDirectory_01);
 }
 
 
@@ -7579,84 +7579,84 @@ static const value_string mms_ConfirmedServiceResponse_vals[] = {
 };
 
 static const ber_old_choice_t ConfirmedServiceResponse_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_status1_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_getNameList1_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_identify1_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_rename1_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_read1_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_write1_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_getVariableAccessAttributes1_impl },
-  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_defineNamedVariable1_impl },
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_defineScatteredAccess1_impl },
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_getScatteredAccessAttributes1_impl },
-  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_deleteVariableAccess1_impl },
-  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_defineNamedVariableList1_impl },
-  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_getNamedVariableListAttributes1_impl },
-  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_deleteNamedVariableList1_impl },
-  {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_defineNamedType1_impl },
-  {  15, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_getNamedTypeAttributes1_impl },
-  {  16, BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_deleteNamedType1_impl },
-  {  17, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_input1_impl },
-  {  18, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_output1_impl },
-  {  19, BER_CLASS_CON, 19, 0, dissect_takeControl1 },
-  {  20, BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_relinquishControl1_impl },
-  {  21, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_defineSemaphore1_impl },
-  {  22, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_deleteSemaphore1_impl },
-  {  23, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_reportSemaphoreStatus1_impl },
-  {  24, BER_CLASS_CON, 24, BER_FLAGS_IMPLTAG, dissect_reportPoolSemaphoreStatus1_impl },
-  {  25, BER_CLASS_CON, 25, BER_FLAGS_IMPLTAG, dissect_reportSemaphoreEntryStatus1_impl },
-  {  26, BER_CLASS_CON, 26, BER_FLAGS_IMPLTAG, dissect_initiateDownloadSequence1_impl },
-  {  27, BER_CLASS_CON, 27, BER_FLAGS_IMPLTAG, dissect_downloadSegment1_impl },
-  {  28, BER_CLASS_CON, 28, BER_FLAGS_IMPLTAG, dissect_terminateDownloadSequence1_impl },
-  {  29, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_initiateUploadSequence1_impl },
-  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_uploadSegment1_impl },
-  {  31, BER_CLASS_CON, 31, BER_FLAGS_IMPLTAG, dissect_terminateUploadSequence1_impl },
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_status_01_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_getNameList_01_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_identify_01_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_rename_01_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_read_01_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_write_01_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_getVariableAccessAttributes_01_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_defineNamedVariable_01_impl },
+  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_defineScatteredAccess_01_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_getScatteredAccessAttributes_01_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_deleteVariableAccess_01_impl },
+  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_defineNamedVariableList_01_impl },
+  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_getNamedVariableListAttributes_01_impl },
+  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_deleteNamedVariableList_01_impl },
+  {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_defineNamedType_01_impl },
+  {  15, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_getNamedTypeAttributes_01_impl },
+  {  16, BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_deleteNamedType_01_impl },
+  {  17, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_input_01_impl },
+  {  18, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_output_01_impl },
+  {  19, BER_CLASS_CON, 19, 0, dissect_takeControl_01 },
+  {  20, BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_relinquishControl_01_impl },
+  {  21, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_defineSemaphore_01_impl },
+  {  22, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_deleteSemaphore_01_impl },
+  {  23, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_reportSemaphoreStatus_01_impl },
+  {  24, BER_CLASS_CON, 24, BER_FLAGS_IMPLTAG, dissect_reportPoolSemaphoreStatus_01_impl },
+  {  25, BER_CLASS_CON, 25, BER_FLAGS_IMPLTAG, dissect_reportSemaphoreEntryStatus_01_impl },
+  {  26, BER_CLASS_CON, 26, BER_FLAGS_IMPLTAG, dissect_initiateDownloadSequence_01_impl },
+  {  27, BER_CLASS_CON, 27, BER_FLAGS_IMPLTAG, dissect_downloadSegment_01_impl },
+  {  28, BER_CLASS_CON, 28, BER_FLAGS_IMPLTAG, dissect_terminateDownloadSequence_01_impl },
+  {  29, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_initiateUploadSequence_01_impl },
+  {  30, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_uploadSegment_01_impl },
+  {  31, BER_CLASS_CON, 31, BER_FLAGS_IMPLTAG, dissect_terminateUploadSequence_01_impl },
   {  32, BER_CLASS_CON, 32, BER_FLAGS_IMPLTAG, dissect_requestDomainDownLoad_impl },
-  {  33, BER_CLASS_CON, 33, BER_FLAGS_IMPLTAG, dissect_requestDomainUpload1_impl },
-  {  34, BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_loadDomainContent1_impl },
-  {  35, BER_CLASS_CON, 35, BER_FLAGS_IMPLTAG, dissect_storeDomainContent1_impl },
-  {  36, BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_deleteDomain1_impl },
-  {  37, BER_CLASS_CON, 37, BER_FLAGS_IMPLTAG, dissect_getDomainAttributes1_impl },
-  {  38, BER_CLASS_CON, 38, BER_FLAGS_IMPLTAG, dissect_createProgramInvocation1_impl },
-  {  39, BER_CLASS_CON, 39, BER_FLAGS_IMPLTAG, dissect_deleteProgramInvocation1_impl },
-  {  40, BER_CLASS_CON, 40, BER_FLAGS_IMPLTAG, dissect_start1_impl },
-  {  41, BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_stop1_impl },
-  {  42, BER_CLASS_CON, 42, BER_FLAGS_IMPLTAG, dissect_resume1_impl },
-  {  43, BER_CLASS_CON, 43, BER_FLAGS_IMPLTAG, dissect_reset1_impl },
-  {  44, BER_CLASS_CON, 44, BER_FLAGS_IMPLTAG, dissect_kill1_impl },
-  {  45, BER_CLASS_CON, 45, BER_FLAGS_IMPLTAG, dissect_getProgramInvocationAttributes1_impl },
-  {  46, BER_CLASS_CON, 46, BER_FLAGS_IMPLTAG, dissect_obtainFile1_impl },
-  {  72, BER_CLASS_CON, 72, BER_FLAGS_IMPLTAG, dissect_fileOpen1_impl },
-  {  47, BER_CLASS_CON, 47, BER_FLAGS_IMPLTAG, dissect_defineEventCondition1_impl },
-  {  48, BER_CLASS_CON, 48, BER_FLAGS_IMPLTAG, dissect_deleteEventCondition1_impl },
-  {  49, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_getEventConditionAttributes1_impl },
-  {  50, BER_CLASS_CON, 50, BER_FLAGS_IMPLTAG, dissect_reportEventConditionStatus1_impl },
-  {  51, BER_CLASS_CON, 51, BER_FLAGS_IMPLTAG, dissect_alterEventConditionMonitoring1_impl },
-  {  52, BER_CLASS_CON, 52, BER_FLAGS_IMPLTAG, dissect_triggerEvent1_impl },
-  {  53, BER_CLASS_CON, 53, BER_FLAGS_IMPLTAG, dissect_defineEventAction1_impl },
-  {  54, BER_CLASS_CON, 54, BER_FLAGS_IMPLTAG, dissect_deleteEventAction1_impl },
-  {  55, BER_CLASS_CON, 55, BER_FLAGS_IMPLTAG, dissect_getEventActionAttributes1_impl },
+  {  33, BER_CLASS_CON, 33, BER_FLAGS_IMPLTAG, dissect_requestDomainUpload_01_impl },
+  {  34, BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_loadDomainContent_01_impl },
+  {  35, BER_CLASS_CON, 35, BER_FLAGS_IMPLTAG, dissect_storeDomainContent_01_impl },
+  {  36, BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_deleteDomain_01_impl },
+  {  37, BER_CLASS_CON, 37, BER_FLAGS_IMPLTAG, dissect_getDomainAttributes_01_impl },
+  {  38, BER_CLASS_CON, 38, BER_FLAGS_IMPLTAG, dissect_createProgramInvocation_01_impl },
+  {  39, BER_CLASS_CON, 39, BER_FLAGS_IMPLTAG, dissect_deleteProgramInvocation_01_impl },
+  {  40, BER_CLASS_CON, 40, BER_FLAGS_IMPLTAG, dissect_start_01_impl },
+  {  41, BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_stop_01_impl },
+  {  42, BER_CLASS_CON, 42, BER_FLAGS_IMPLTAG, dissect_resume_01_impl },
+  {  43, BER_CLASS_CON, 43, BER_FLAGS_IMPLTAG, dissect_reset_01_impl },
+  {  44, BER_CLASS_CON, 44, BER_FLAGS_IMPLTAG, dissect_kill_01_impl },
+  {  45, BER_CLASS_CON, 45, BER_FLAGS_IMPLTAG, dissect_getProgramInvocationAttributes_01_impl },
+  {  46, BER_CLASS_CON, 46, BER_FLAGS_IMPLTAG, dissect_obtainFile_01_impl },
+  {  72, BER_CLASS_CON, 72, BER_FLAGS_IMPLTAG, dissect_fileOpen_01_impl },
+  {  47, BER_CLASS_CON, 47, BER_FLAGS_IMPLTAG, dissect_defineEventCondition_01_impl },
+  {  48, BER_CLASS_CON, 48, BER_FLAGS_IMPLTAG, dissect_deleteEventCondition_01_impl },
+  {  49, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_getEventConditionAttributes_01_impl },
+  {  50, BER_CLASS_CON, 50, BER_FLAGS_IMPLTAG, dissect_reportEventConditionStatus_01_impl },
+  {  51, BER_CLASS_CON, 51, BER_FLAGS_IMPLTAG, dissect_alterEventConditionMonitoring_01_impl },
+  {  52, BER_CLASS_CON, 52, BER_FLAGS_IMPLTAG, dissect_triggerEvent_01_impl },
+  {  53, BER_CLASS_CON, 53, BER_FLAGS_IMPLTAG, dissect_defineEventAction_01_impl },
+  {  54, BER_CLASS_CON, 54, BER_FLAGS_IMPLTAG, dissect_deleteEventAction_01_impl },
+  {  55, BER_CLASS_CON, 55, BER_FLAGS_IMPLTAG, dissect_getEventActionAttributes_01_impl },
   {  56, BER_CLASS_CON, 56, BER_FLAGS_IMPLTAG, dissect_reportActionStatus_impl },
-  {  57, BER_CLASS_CON, 57, BER_FLAGS_IMPLTAG, dissect_defineEventEnrollment1_impl },
-  {  58, BER_CLASS_CON, 58, BER_FLAGS_IMPLTAG, dissect_deleteEventEnrollment1_impl },
-  {  59, BER_CLASS_CON, 59, BER_FLAGS_IMPLTAG, dissect_alterEventEnrollment1_impl },
-  {  60, BER_CLASS_CON, 60, BER_FLAGS_IMPLTAG, dissect_reportEventEnrollmentStatus1_impl },
-  {  61, BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_getEventEnrollmentAttributes1_impl },
-  {  62, BER_CLASS_CON, 62, BER_FLAGS_IMPLTAG, dissect_acknowledgeEventNotification1_impl },
-  {  63, BER_CLASS_CON, 63, BER_FLAGS_IMPLTAG, dissect_getAlarmSummary1_impl },
-  {  64, BER_CLASS_CON, 64, BER_FLAGS_IMPLTAG, dissect_getAlarmEnrollmentSummary1_impl },
-  {  65, BER_CLASS_CON, 65, BER_FLAGS_IMPLTAG, dissect_readJournal1_impl },
-  {  66, BER_CLASS_CON, 66, BER_FLAGS_IMPLTAG, dissect_writeJournal1_impl },
-  {  67, BER_CLASS_CON, 67, BER_FLAGS_IMPLTAG, dissect_initializeJournal1_impl },
-  {  68, BER_CLASS_CON, 68, BER_FLAGS_IMPLTAG, dissect_reportJournalStatus1_impl },
-  {  69, BER_CLASS_CON, 69, BER_FLAGS_IMPLTAG, dissect_createJournal1_impl },
-  {  70, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_deleteJournal1_impl },
-  {  71, BER_CLASS_CON, 71, BER_FLAGS_IMPLTAG, dissect_getCapabilityList1_impl },
-  {  73, BER_CLASS_CON, 73, BER_FLAGS_IMPLTAG, dissect_fileRead1_impl },
-  {  74, BER_CLASS_CON, 74, BER_FLAGS_IMPLTAG, dissect_fileClose1_impl },
-  {  75, BER_CLASS_CON, 75, BER_FLAGS_IMPLTAG, dissect_fileRename1_impl },
-  {  76, BER_CLASS_CON, 76, BER_FLAGS_IMPLTAG, dissect_fileDelete1_impl },
-  {  77, BER_CLASS_CON, 77, BER_FLAGS_IMPLTAG, dissect_fileDirectory1_impl },
+  {  57, BER_CLASS_CON, 57, BER_FLAGS_IMPLTAG, dissect_defineEventEnrollment_01_impl },
+  {  58, BER_CLASS_CON, 58, BER_FLAGS_IMPLTAG, dissect_deleteEventEnrollment_01_impl },
+  {  59, BER_CLASS_CON, 59, BER_FLAGS_IMPLTAG, dissect_alterEventEnrollment_01_impl },
+  {  60, BER_CLASS_CON, 60, BER_FLAGS_IMPLTAG, dissect_reportEventEnrollmentStatus_01_impl },
+  {  61, BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_getEventEnrollmentAttributes_01_impl },
+  {  62, BER_CLASS_CON, 62, BER_FLAGS_IMPLTAG, dissect_acknowledgeEventNotification_01_impl },
+  {  63, BER_CLASS_CON, 63, BER_FLAGS_IMPLTAG, dissect_getAlarmSummary_01_impl },
+  {  64, BER_CLASS_CON, 64, BER_FLAGS_IMPLTAG, dissect_getAlarmEnrollmentSummary_01_impl },
+  {  65, BER_CLASS_CON, 65, BER_FLAGS_IMPLTAG, dissect_readJournal_01_impl },
+  {  66, BER_CLASS_CON, 66, BER_FLAGS_IMPLTAG, dissect_writeJournal_01_impl },
+  {  67, BER_CLASS_CON, 67, BER_FLAGS_IMPLTAG, dissect_initializeJournal_01_impl },
+  {  68, BER_CLASS_CON, 68, BER_FLAGS_IMPLTAG, dissect_reportJournalStatus_01_impl },
+  {  69, BER_CLASS_CON, 69, BER_FLAGS_IMPLTAG, dissect_createJournal_01_impl },
+  {  70, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_deleteJournal_01_impl },
+  {  71, BER_CLASS_CON, 71, BER_FLAGS_IMPLTAG, dissect_getCapabilityList_01_impl },
+  {  73, BER_CLASS_CON, 73, BER_FLAGS_IMPLTAG, dissect_fileRead_01_impl },
+  {  74, BER_CLASS_CON, 74, BER_FLAGS_IMPLTAG, dissect_fileClose_01_impl },
+  {  75, BER_CLASS_CON, 75, BER_FLAGS_IMPLTAG, dissect_fileRename_01_impl },
+  {  76, BER_CLASS_CON, 76, BER_FLAGS_IMPLTAG, dissect_fileDelete_01_impl },
+  {  77, BER_CLASS_CON, 77, BER_FLAGS_IMPLTAG, dissect_fileDirectory_01_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7671,8 +7671,8 @@ dissect_mms_ConfirmedServiceResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 static int dissect_confirmedServiceResponse(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_mms_ConfirmedServiceResponse(FALSE, tvb, offset, actx, tree, hf_mms_confirmedServiceResponse);
 }
-static int dissect_success1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_ConfirmedServiceResponse(FALSE, tvb, offset, actx, tree, hf_mms_success1);
+static int dissect_success_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_ConfirmedServiceResponse(FALSE, tvb, offset, actx, tree, hf_mms_success_01);
 }
 
 
@@ -7744,28 +7744,28 @@ static int dissect_unsolicitedStatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 }
 
 
-static const value_string mms_T_eventConditionName1_vals[] = {
+static const value_string mms_T_eventConditionName_01_vals[] = {
   {   0, "eventCondition" },
   {   1, "undefined" },
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_eventConditionName1_choice[] = {
+static const ber_old_choice_t T_eventConditionName_01_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_eventCondition },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_undefined_impl },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
-dissect_mms_T_eventConditionName1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_eventConditionName_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_eventConditionName1_choice, hf_index, ett_mms_T_eventConditionName1,
+                                     T_eventConditionName_01_choice, hf_index, ett_mms_T_eventConditionName_01,
                                      NULL);
 
   return offset;
 }
-static int dissect_eventConditionName2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_mms_T_eventConditionName1(FALSE, tvb, offset, actx, tree, hf_mms_eventConditionName2);
+static int dissect_eventConditionName_02(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_mms_T_eventConditionName_01(FALSE, tvb, offset, actx, tree, hf_mms_eventConditionName_02);
 }
 
 
@@ -7776,8 +7776,8 @@ static const value_string mms_T_eventActionResult_vals[] = {
 };
 
 static const ber_old_choice_t T_eventActionResult_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_success1 },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_failure1_impl },
+  {   0, BER_CLASS_CON, 0, 0, dissect_success_01 },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_failure_01_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7814,7 +7814,7 @@ static int dissect_actionResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 
 static const ber_old_sequence_t EventNotification_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_eventEnrollmentName },
-  { BER_CLASS_CON, 1, 0, dissect_eventConditionName2 },
+  { BER_CLASS_CON, 1, 0, dissect_eventConditionName_02 },
   { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_severity_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_currentState_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_NOTCHKTAG, dissect_transitionTime },
@@ -9035,131 +9035,131 @@ void proto_register_mms(void) {
       { "foo", "mms.foo",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.INTEGER", HFILL }},
-    { &hf_mms_status1,
+    { &hf_mms_status_01,
       { "status", "mms.status",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Status_Response", HFILL }},
-    { &hf_mms_getNameList1,
+    { &hf_mms_getNameList_01,
       { "getNameList", "mms.getNameList",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetNameList_Response", HFILL }},
-    { &hf_mms_identify1,
+    { &hf_mms_identify_01,
       { "identify", "mms.identify",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Identify_Response", HFILL }},
-    { &hf_mms_rename1,
+    { &hf_mms_rename_01,
       { "rename", "mms.rename",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Rename_Response", HFILL }},
-    { &hf_mms_read1,
+    { &hf_mms_read_01,
       { "read", "mms.read",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Read_Response", HFILL }},
-    { &hf_mms_write1,
+    { &hf_mms_write_01,
       { "write", "mms.write",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.Write_Response", HFILL }},
-    { &hf_mms_getVariableAccessAttributes1,
+    { &hf_mms_getVariableAccessAttributes_01,
       { "getVariableAccessAttributes", "mms.getVariableAccessAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetVariableAccessAttributes_Response", HFILL }},
-    { &hf_mms_defineNamedVariable1,
+    { &hf_mms_defineNamedVariable_01,
       { "defineNamedVariable", "mms.defineNamedVariable",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineNamedVariable_Response", HFILL }},
-    { &hf_mms_defineScatteredAccess1,
+    { &hf_mms_defineScatteredAccess_01,
       { "defineScatteredAccess", "mms.defineScatteredAccess",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineScatteredAccess_Response", HFILL }},
-    { &hf_mms_getScatteredAccessAttributes1,
+    { &hf_mms_getScatteredAccessAttributes_01,
       { "getScatteredAccessAttributes", "mms.getScatteredAccessAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetScatteredAccessAttributes_Response", HFILL }},
-    { &hf_mms_deleteVariableAccess1,
+    { &hf_mms_deleteVariableAccess_01,
       { "deleteVariableAccess", "mms.deleteVariableAccess",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteVariableAccess_Response", HFILL }},
-    { &hf_mms_defineNamedVariableList1,
+    { &hf_mms_defineNamedVariableList_01,
       { "defineNamedVariableList", "mms.defineNamedVariableList",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineNamedVariableList_Response", HFILL }},
-    { &hf_mms_getNamedVariableListAttributes1,
+    { &hf_mms_getNamedVariableListAttributes_01,
       { "getNamedVariableListAttributes", "mms.getNamedVariableListAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetNamedVariableListAttributes_Response", HFILL }},
-    { &hf_mms_deleteNamedVariableList1,
+    { &hf_mms_deleteNamedVariableList_01,
       { "deleteNamedVariableList", "mms.deleteNamedVariableList",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteNamedVariableList_Response", HFILL }},
-    { &hf_mms_defineNamedType1,
+    { &hf_mms_defineNamedType_01,
       { "defineNamedType", "mms.defineNamedType",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineNamedType_Response", HFILL }},
-    { &hf_mms_getNamedTypeAttributes1,
+    { &hf_mms_getNamedTypeAttributes_01,
       { "getNamedTypeAttributes", "mms.getNamedTypeAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetNamedTypeAttributes_Response", HFILL }},
-    { &hf_mms_deleteNamedType1,
+    { &hf_mms_deleteNamedType_01,
       { "deleteNamedType", "mms.deleteNamedType",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteNamedType_Response", HFILL }},
-    { &hf_mms_input1,
+    { &hf_mms_input_01,
       { "input", "mms.input",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.Input_Response", HFILL }},
-    { &hf_mms_output1,
+    { &hf_mms_output_01,
       { "output", "mms.output",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Output_Response", HFILL }},
-    { &hf_mms_takeControl1,
+    { &hf_mms_takeControl_01,
       { "takeControl", "mms.takeControl",
         FT_UINT32, BASE_DEC, VALS(mms_TakeControl_Response_vals), 0,
         "mms.TakeControl_Response", HFILL }},
-    { &hf_mms_relinquishControl1,
+    { &hf_mms_relinquishControl_01,
       { "relinquishControl", "mms.relinquishControl",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.RelinquishControl_Response", HFILL }},
-    { &hf_mms_defineSemaphore1,
+    { &hf_mms_defineSemaphore_01,
       { "defineSemaphore", "mms.defineSemaphore",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineSemaphore_Response", HFILL }},
-    { &hf_mms_deleteSemaphore1,
+    { &hf_mms_deleteSemaphore_01,
       { "deleteSemaphore", "mms.deleteSemaphore",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteSemaphore_Response", HFILL }},
-    { &hf_mms_reportSemaphoreStatus1,
+    { &hf_mms_reportSemaphoreStatus_01,
       { "reportSemaphoreStatus", "mms.reportSemaphoreStatus",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReportSemaphoreStatus_Response", HFILL }},
-    { &hf_mms_reportPoolSemaphoreStatus1,
+    { &hf_mms_reportPoolSemaphoreStatus_01,
       { "reportPoolSemaphoreStatus", "mms.reportPoolSemaphoreStatus",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReportPoolSemaphoreStatus_Response", HFILL }},
-    { &hf_mms_reportSemaphoreEntryStatus1,
+    { &hf_mms_reportSemaphoreEntryStatus_01,
       { "reportSemaphoreEntryStatus", "mms.reportSemaphoreEntryStatus",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReportSemaphoreEntryStatus_Response", HFILL }},
-    { &hf_mms_initiateDownloadSequence1,
+    { &hf_mms_initiateDownloadSequence_01,
       { "initiateDownloadSequence", "mms.initiateDownloadSequence",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.InitiateDownloadSequence_Response", HFILL }},
-    { &hf_mms_downloadSegment1,
+    { &hf_mms_downloadSegment_01,
       { "downloadSegment", "mms.downloadSegment",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DownloadSegment_Response", HFILL }},
-    { &hf_mms_terminateDownloadSequence1,
+    { &hf_mms_terminateDownloadSequence_01,
       { "terminateDownloadSequence", "mms.terminateDownloadSequence",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.TerminateDownloadSequence_Response", HFILL }},
-    { &hf_mms_initiateUploadSequence1,
+    { &hf_mms_initiateUploadSequence_01,
       { "initiateUploadSequence", "mms.initiateUploadSequence",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.InitiateUploadSequence_Response", HFILL }},
-    { &hf_mms_uploadSegment1,
+    { &hf_mms_uploadSegment_01,
       { "uploadSegment", "mms.uploadSegment",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.UploadSegment_Response", HFILL }},
-    { &hf_mms_terminateUploadSequence1,
+    { &hf_mms_terminateUploadSequence_01,
       { "terminateUploadSequence", "mms.terminateUploadSequence",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.TerminateUploadSequence_Response", HFILL }},
@@ -9167,99 +9167,99 @@ void proto_register_mms(void) {
       { "requestDomainDownLoad", "mms.requestDomainDownLoad",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.RequestDomainDownload_Response", HFILL }},
-    { &hf_mms_requestDomainUpload1,
+    { &hf_mms_requestDomainUpload_01,
       { "requestDomainUpload", "mms.requestDomainUpload",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.RequestDomainUpload_Response", HFILL }},
-    { &hf_mms_loadDomainContent1,
+    { &hf_mms_loadDomainContent_01,
       { "loadDomainContent", "mms.loadDomainContent",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.LoadDomainContent_Response", HFILL }},
-    { &hf_mms_storeDomainContent1,
+    { &hf_mms_storeDomainContent_01,
       { "storeDomainContent", "mms.storeDomainContent",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.StoreDomainContent_Response", HFILL }},
-    { &hf_mms_deleteDomain1,
+    { &hf_mms_deleteDomain_01,
       { "deleteDomain", "mms.deleteDomain",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteDomain_Response", HFILL }},
-    { &hf_mms_getDomainAttributes1,
+    { &hf_mms_getDomainAttributes_01,
       { "getDomainAttributes", "mms.getDomainAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetDomainAttributes_Response", HFILL }},
-    { &hf_mms_createProgramInvocation1,
+    { &hf_mms_createProgramInvocation_01,
       { "createProgramInvocation", "mms.createProgramInvocation",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.CreateProgramInvocation_Response", HFILL }},
-    { &hf_mms_deleteProgramInvocation1,
+    { &hf_mms_deleteProgramInvocation_01,
       { "deleteProgramInvocation", "mms.deleteProgramInvocation",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteProgramInvocation_Response", HFILL }},
-    { &hf_mms_start1,
+    { &hf_mms_start_01,
       { "start", "mms.start",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Start_Response", HFILL }},
-    { &hf_mms_stop1,
+    { &hf_mms_stop_01,
       { "stop", "mms.stop",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Stop_Response", HFILL }},
-    { &hf_mms_resume1,
+    { &hf_mms_resume_01,
       { "resume", "mms.resume",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Resume_Response", HFILL }},
-    { &hf_mms_reset1,
+    { &hf_mms_reset_01,
       { "reset", "mms.reset",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Reset_Response", HFILL }},
-    { &hf_mms_kill1,
+    { &hf_mms_kill_01,
       { "kill", "mms.kill",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.Kill_Response", HFILL }},
-    { &hf_mms_getProgramInvocationAttributes1,
+    { &hf_mms_getProgramInvocationAttributes_01,
       { "getProgramInvocationAttributes", "mms.getProgramInvocationAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetProgramInvocationAttributes_Response", HFILL }},
-    { &hf_mms_obtainFile1,
+    { &hf_mms_obtainFile_01,
       { "obtainFile", "mms.obtainFile",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ObtainFile_Response", HFILL }},
-    { &hf_mms_fileOpen1,
+    { &hf_mms_fileOpen_01,
       { "fileOpen", "mms.fileOpen",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.FileOpen_Response", HFILL }},
-    { &hf_mms_defineEventCondition1,
+    { &hf_mms_defineEventCondition_01,
       { "defineEventCondition", "mms.defineEventCondition",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineEventCondition_Response", HFILL }},
-    { &hf_mms_deleteEventCondition1,
+    { &hf_mms_deleteEventCondition_01,
       { "deleteEventCondition", "mms.deleteEventCondition",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.DeleteEventCondition_Response", HFILL }},
-    { &hf_mms_getEventConditionAttributes1,
+    { &hf_mms_getEventConditionAttributes_01,
       { "getEventConditionAttributes", "mms.getEventConditionAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetEventConditionAttributes_Response", HFILL }},
-    { &hf_mms_reportEventConditionStatus1,
+    { &hf_mms_reportEventConditionStatus_01,
       { "reportEventConditionStatus", "mms.reportEventConditionStatus",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReportEventConditionStatus_Response", HFILL }},
-    { &hf_mms_alterEventConditionMonitoring1,
+    { &hf_mms_alterEventConditionMonitoring_01,
       { "alterEventConditionMonitoring", "mms.alterEventConditionMonitoring",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.AlterEventConditionMonitoring_Response", HFILL }},
-    { &hf_mms_triggerEvent1,
+    { &hf_mms_triggerEvent_01,
       { "triggerEvent", "mms.triggerEvent",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.TriggerEvent_Response", HFILL }},
-    { &hf_mms_defineEventAction1,
+    { &hf_mms_defineEventAction_01,
       { "defineEventAction", "mms.defineEventAction",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineEventAction_Response", HFILL }},
-    { &hf_mms_deleteEventAction1,
+    { &hf_mms_deleteEventAction_01,
       { "deleteEventAction", "mms.deleteEventAction",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.DeleteEventAction_Response", HFILL }},
-    { &hf_mms_getEventActionAttributes1,
+    { &hf_mms_getEventActionAttributes_01,
       { "getEventActionAttributes", "mms.getEventActionAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetEventActionAttributes_Response", HFILL }},
@@ -9267,83 +9267,83 @@ void proto_register_mms(void) {
       { "reportActionStatus", "mms.reportActionStatus",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.ReportEventActionStatus_Response", HFILL }},
-    { &hf_mms_defineEventEnrollment1,
+    { &hf_mms_defineEventEnrollment_01,
       { "defineEventEnrollment", "mms.defineEventEnrollment",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DefineEventEnrollment_Response", HFILL }},
-    { &hf_mms_deleteEventEnrollment1,
+    { &hf_mms_deleteEventEnrollment_01,
       { "deleteEventEnrollment", "mms.deleteEventEnrollment",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.DeleteEventEnrollment_Response", HFILL }},
-    { &hf_mms_alterEventEnrollment1,
+    { &hf_mms_alterEventEnrollment_01,
       { "alterEventEnrollment", "mms.alterEventEnrollment",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.AlterEventEnrollment_Response", HFILL }},
-    { &hf_mms_reportEventEnrollmentStatus1,
+    { &hf_mms_reportEventEnrollmentStatus_01,
       { "reportEventEnrollmentStatus", "mms.reportEventEnrollmentStatus",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReportEventEnrollmentStatus_Response", HFILL }},
-    { &hf_mms_getEventEnrollmentAttributes1,
+    { &hf_mms_getEventEnrollmentAttributes_01,
       { "getEventEnrollmentAttributes", "mms.getEventEnrollmentAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetEventEnrollmentAttributes_Response", HFILL }},
-    { &hf_mms_acknowledgeEventNotification1,
+    { &hf_mms_acknowledgeEventNotification_01,
       { "acknowledgeEventNotification", "mms.acknowledgeEventNotification",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.AcknowledgeEventNotification_Response", HFILL }},
-    { &hf_mms_getAlarmSummary1,
+    { &hf_mms_getAlarmSummary_01,
       { "getAlarmSummary", "mms.getAlarmSummary",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetAlarmSummary_Response", HFILL }},
-    { &hf_mms_getAlarmEnrollmentSummary1,
+    { &hf_mms_getAlarmEnrollmentSummary_01,
       { "getAlarmEnrollmentSummary", "mms.getAlarmEnrollmentSummary",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetAlarmEnrollmentSummary_Response", HFILL }},
-    { &hf_mms_readJournal1,
+    { &hf_mms_readJournal_01,
       { "readJournal", "mms.readJournal",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReadJournal_Response", HFILL }},
-    { &hf_mms_writeJournal1,
+    { &hf_mms_writeJournal_01,
       { "writeJournal", "mms.writeJournal",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.WriteJournal_Response", HFILL }},
-    { &hf_mms_initializeJournal1,
+    { &hf_mms_initializeJournal_01,
       { "initializeJournal", "mms.initializeJournal",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.InitializeJournal_Response", HFILL }},
-    { &hf_mms_reportJournalStatus1,
+    { &hf_mms_reportJournalStatus_01,
       { "reportJournalStatus", "mms.reportJournalStatus",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ReportJournalStatus_Response", HFILL }},
-    { &hf_mms_createJournal1,
+    { &hf_mms_createJournal_01,
       { "createJournal", "mms.createJournal",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.CreateJournal_Response", HFILL }},
-    { &hf_mms_deleteJournal1,
+    { &hf_mms_deleteJournal_01,
       { "deleteJournal", "mms.deleteJournal",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.DeleteJournal_Response", HFILL }},
-    { &hf_mms_getCapabilityList1,
+    { &hf_mms_getCapabilityList_01,
       { "getCapabilityList", "mms.getCapabilityList",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.GetCapabilityList_Response", HFILL }},
-    { &hf_mms_fileRead1,
+    { &hf_mms_fileRead_01,
       { "fileRead", "mms.fileRead",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.FileRead_Response", HFILL }},
-    { &hf_mms_fileClose1,
+    { &hf_mms_fileClose_01,
       { "fileClose", "mms.fileClose",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.FileClose_Response", HFILL }},
-    { &hf_mms_fileRename1,
+    { &hf_mms_fileRename_01,
       { "fileRename", "mms.fileRename",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.FileRename_Response", HFILL }},
-    { &hf_mms_fileDelete1,
+    { &hf_mms_fileDelete_01,
       { "fileDelete", "mms.fileDelete",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.FileDelete_Response", HFILL }},
-    { &hf_mms_fileDirectory1,
+    { &hf_mms_fileDirectory_01,
       { "fileDirectory", "mms.fileDirectory",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.FileDirectory_Response", HFILL }},
@@ -9523,35 +9523,35 @@ void proto_register_mms(void) {
       { "serviceSpecificInformation", "mms.serviceSpecificInformation",
         FT_UINT32, BASE_DEC, VALS(mms_T_serviceSpecificInformation_vals), 0,
         "mms.T_serviceSpecificInformation", HFILL }},
-    { &hf_mms_obtainFile2,
+    { &hf_mms_obtainFile_02,
       { "obtainFile", "mms.obtainFile",
         FT_INT32, BASE_DEC, VALS(mms_ObtainFile_Error_vals), 0,
         "mms.ObtainFile_Error", HFILL }},
-    { &hf_mms_start2,
+    { &hf_mms_start_02,
       { "start", "mms.start",
         FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
         "mms.Start_Error", HFILL }},
-    { &hf_mms_stop2,
+    { &hf_mms_stop_02,
       { "stop", "mms.stop",
         FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
         "mms.Stop_Error", HFILL }},
-    { &hf_mms_resume2,
+    { &hf_mms_resume_02,
       { "resume", "mms.resume",
         FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
         "mms.Resume_Error", HFILL }},
-    { &hf_mms_reset2,
+    { &hf_mms_reset_02,
       { "reset", "mms.reset",
         FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
         "mms.Reset_Error", HFILL }},
-    { &hf_mms_deleteVariableAccess2,
+    { &hf_mms_deleteVariableAccess_02,
       { "deleteVariableAccess", "mms.deleteVariableAccess",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.DeleteVariableAccess_Error", HFILL }},
-    { &hf_mms_deleteNamedVariableList2,
+    { &hf_mms_deleteNamedVariableList_02,
       { "deleteNamedVariableList", "mms.deleteNamedVariableList",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.DeleteNamedVariableList_Error", HFILL }},
-    { &hf_mms_deleteNamedType2,
+    { &hf_mms_deleteNamedType_02,
       { "deleteNamedType", "mms.deleteNamedType",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.DeleteNamedType_Error", HFILL }},
@@ -9559,7 +9559,7 @@ void proto_register_mms(void) {
       { "defineEventEnrollment-Error", "mms.defineEventEnrollment_Error",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.DefineEventEnrollment_Error", HFILL }},
-    { &hf_mms_fileRename2,
+    { &hf_mms_fileRename_02,
       { "fileRename", "mms.fileRename",
         FT_INT32, BASE_DEC, VALS(mms_FileRename_Error_vals), 0,
         "mms.FileRename_Error", HFILL }},
@@ -9683,14 +9683,14 @@ void proto_register_mms(void) {
       { "Item", "mms.listOfAbstractSyntaxes_item",
         FT_OID, BASE_NONE, NULL, 0,
         "mms.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_mms_extendedObjectClass1,
+    { &hf_mms_extendedObjectClass_01,
       { "extendedObjectClass", "mms.extendedObjectClass",
-        FT_UINT32, BASE_DEC, VALS(mms_T_extendedObjectClass1_vals), 0,
-        "mms.T_extendedObjectClass1", HFILL }},
-    { &hf_mms_objectClass1,
+        FT_UINT32, BASE_DEC, VALS(mms_T_extendedObjectClass_01_vals), 0,
+        "mms.T_extendedObjectClass_01", HFILL }},
+    { &hf_mms_objectClass_01,
       { "objectClass", "mms.objectClass",
-        FT_INT32, BASE_DEC, VALS(mms_T_objectClass1_vals), 0,
-        "mms.T_objectClass1", HFILL }},
+        FT_INT32, BASE_DEC, VALS(mms_T_objectClass_01_vals), 0,
+        "mms.T_objectClass_01", HFILL }},
     { &hf_mms_currentName,
       { "currentName", "mms.currentName",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
@@ -9699,7 +9699,7 @@ void proto_register_mms(void) {
       { "newIdentifier", "mms.newIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.Identifier", HFILL }},
-    { &hf_mms_continueAfter1,
+    { &hf_mms_continueAfter_01,
       { "continueAfter", "mms.continueAfter",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.VisibleString", HFILL }},
@@ -9715,10 +9715,10 @@ void proto_register_mms(void) {
       { "domainName", "mms.domainName",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.Identifier", HFILL }},
-    { &hf_mms_listOfCapabilities1,
+    { &hf_mms_listOfCapabilities_01,
       { "listOfCapabilities", "mms.listOfCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfCapabilities1", HFILL }},
+        "mms.T_listOfCapabilities_01", HFILL }},
     { &hf_mms_sharable,
       { "sharable", "mms.sharable",
         FT_BOOLEAN, 8, NULL, 0,
@@ -9743,26 +9743,26 @@ void proto_register_mms(void) {
       { "ulsmID", "mms.ulsmID",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.Integer32", HFILL }},
-    { &hf_mms_listOfCapabilities2,
+    { &hf_mms_listOfCapabilities_02,
       { "listOfCapabilities", "mms.listOfCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfCapabilities2", HFILL }},
-    { &hf_mms_loadData1,
+        "mms.T_listOfCapabilities_02", HFILL }},
+    { &hf_mms_loadData_01,
       { "loadData", "mms.loadData",
-        FT_UINT32, BASE_DEC, VALS(mms_T_loadData1_vals), 0,
-        "mms.T_loadData1", HFILL }},
-    { &hf_mms_listOfCapabilities3,
+        FT_UINT32, BASE_DEC, VALS(mms_T_loadData_01_vals), 0,
+        "mms.T_loadData_01", HFILL }},
+    { &hf_mms_listOfCapabilities_03,
       { "listOfCapabilities", "mms.listOfCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfCapabilities3", HFILL }},
+        "mms.T_listOfCapabilities_03", HFILL }},
     { &hf_mms_fileName,
       { "fileName", "mms.fileName",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.FileName", HFILL }},
-    { &hf_mms_listOfCapabilities4,
+    { &hf_mms_listOfCapabilities_04,
       { "listOfCapabilities", "mms.listOfCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfCapabilities4", HFILL }},
+        "mms.T_listOfCapabilities_04", HFILL }},
     { &hf_mms_thirdParty,
       { "thirdParty", "mms.thirdParty",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9771,10 +9771,10 @@ void proto_register_mms(void) {
       { "filenName", "mms.filenName",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.FileName", HFILL }},
-    { &hf_mms_listOfCapabilities5,
+    { &hf_mms_listOfCapabilities_05,
       { "listOfCapabilities", "mms.listOfCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfCapabilities5", HFILL }},
+        "mms.T_listOfCapabilities_05", HFILL }},
     { &hf_mms_state,
       { "state", "mms.state",
         FT_INT32, BASE_DEC, VALS(mms_DomainState_vals), 0,
@@ -9827,11 +9827,11 @@ void proto_register_mms(void) {
       { "encodedString", "mms.encodedString",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.EXTERNALt", HFILL }},
-    { &hf_mms_executionArgument1,
+    { &hf_mms_executionArgument_01,
       { "executionArgument", "mms.executionArgument",
-        FT_UINT32, BASE_DEC, VALS(mms_T_executionArgument1_vals), 0,
-        "mms.T_executionArgument1", HFILL }},
-    { &hf_mms_state1,
+        FT_UINT32, BASE_DEC, VALS(mms_T_executionArgument_01_vals), 0,
+        "mms.T_executionArgument_01", HFILL }},
+    { &hf_mms_state_01,
       { "state", "mms.state",
         FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
         "mms.ProgramInvocationState", HFILL }},
@@ -9851,10 +9851,10 @@ void proto_register_mms(void) {
       { "startArgument", "mms.startArgument",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.VisibleString", HFILL }},
-    { &hf_mms_executionArgument2,
+    { &hf_mms_executionArgument_02,
       { "executionArgument", "mms.executionArgument",
-        FT_UINT32, BASE_DEC, VALS(mms_T_executionArgument2_vals), 0,
-        "mms.T_executionArgument2", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(mms_T_executionArgument_02_vals), 0,
+        "mms.T_executionArgument_02", HFILL }},
     { &hf_mms_typeName,
       { "typeName", "mms.typeName",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
@@ -10079,18 +10079,18 @@ void proto_register_mms(void) {
       { "alternateAccess", "mms.alternateAccess",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.AlternateAccess", HFILL }},
-    { &hf_mms_listOfVariable1,
+    { &hf_mms_listOfVariable_01,
       { "listOfVariable", "mms.listOfVariable",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfVariable1", HFILL }},
-    { &hf_mms_listOfVariable_item1,
+        "mms.T_listOfVariable_01", HFILL }},
+    { &hf_mms_listOfVariable_item_01,
       { "Item", "mms.listOfVariable_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "mms.T_listOfVariable_item1", HFILL }},
-    { &hf_mms_scopeOfDelete1,
+        "mms.T_listOfVariable_item_01", HFILL }},
+    { &hf_mms_scopeOfDelete_01,
       { "scopeOfDelete", "mms.scopeOfDelete",
-        FT_INT32, BASE_DEC, VALS(mms_T_scopeOfDelete1_vals), 0,
-        "mms.T_scopeOfDelete1", HFILL }},
+        FT_INT32, BASE_DEC, VALS(mms_T_scopeOfDelete_01_vals), 0,
+        "mms.T_scopeOfDelete_01", HFILL }},
     { &hf_mms_listOfVariableListName,
       { "listOfVariableListName", "mms.listOfVariableListName",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10099,10 +10099,10 @@ void proto_register_mms(void) {
       { "Item", "mms.listOfVariableListName_item",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_scopeOfDelete2,
+    { &hf_mms_scopeOfDelete_02,
       { "scopeOfDelete", "mms.scopeOfDelete",
-        FT_INT32, BASE_DEC, VALS(mms_T_scopeOfDelete2_vals), 0,
-        "mms.T_scopeOfDelete2", HFILL }},
+        FT_INT32, BASE_DEC, VALS(mms_T_scopeOfDelete_02_vals), 0,
+        "mms.T_scopeOfDelete_02", HFILL }},
     { &hf_mms_listOfTypeName,
       { "listOfTypeName", "mms.listOfTypeName",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10111,7 +10111,7 @@ void proto_register_mms(void) {
       { "Item", "mms.listOfTypeName_item",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_array1,
+    { &hf_mms_array_01,
       { "array", "mms.array",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.SEQUENCE_OF_Data", HFILL }},
@@ -10119,7 +10119,7 @@ void proto_register_mms(void) {
       { "Item", "mms.array_item",
         FT_UINT32, BASE_DEC, VALS(mms_Data_vals), 0,
         "mms.Data", HFILL }},
-    { &hf_mms_structure1,
+    { &hf_mms_structure_01,
       { "structure", "mms.structure",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.SEQUENCE_OF_Data", HFILL }},
@@ -10127,19 +10127,19 @@ void proto_register_mms(void) {
       { "Item", "mms.structure_item",
         FT_UINT32, BASE_DEC, VALS(mms_Data_vals), 0,
         "mms.Data", HFILL }},
-    { &hf_mms_boolean1,
+    { &hf_mms_boolean_01,
       { "boolean", "mms.boolean",
         FT_BOOLEAN, 8, NULL, 0,
         "mms.BOOLEAN", HFILL }},
-    { &hf_mms_bit_string1,
+    { &hf_mms_bit_string_01,
       { "bit-string", "mms.bit_string",
         FT_BYTES, BASE_HEX, NULL, 0,
         "mms.BIT_STRING", HFILL }},
-    { &hf_mms_integer1,
+    { &hf_mms_integer_01,
       { "integer", "mms.integer",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.INTEGER", HFILL }},
-    { &hf_mms_unsigned1,
+    { &hf_mms_unsigned_01,
       { "unsigned", "mms.unsigned",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.INTEGER", HFILL }},
@@ -10147,19 +10147,19 @@ void proto_register_mms(void) {
       { "floating-point", "mms.floating_point",
         FT_BYTES, BASE_HEX, NULL, 0,
         "mms.FloatingPoint", HFILL }},
-    { &hf_mms_octet_string1,
+    { &hf_mms_octet_string_01,
       { "octet-string", "mms.octet_string",
         FT_BYTES, BASE_HEX, NULL, 0,
         "mms.OCTET_STRING", HFILL }},
-    { &hf_mms_visible_string1,
+    { &hf_mms_visible_string_01,
       { "visible-string", "mms.visible_string",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.VisibleString", HFILL }},
-    { &hf_mms_binary_time1,
+    { &hf_mms_binary_time_01,
       { "binary-time", "mms.binary_time",
         FT_BYTES, BASE_HEX, NULL, 0,
         "mms.TimeOfDay", HFILL }},
-    { &hf_mms_bcd1,
+    { &hf_mms_bcd_01,
       { "bcd", "mms.bcd",
         FT_INT32, BASE_DEC, NULL, 0,
         "mms.INTEGER", HFILL }},
@@ -10167,14 +10167,14 @@ void proto_register_mms(void) {
       { "booleanArray", "mms.booleanArray",
         FT_BYTES, BASE_HEX, NULL, 0,
         "mms.BIT_STRING", HFILL }},
-    { &hf_mms_listOfVariable2,
+    { &hf_mms_listOfVariable_02,
       { "listOfVariable", "mms.listOfVariable",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfVariable2", HFILL }},
-    { &hf_mms_listOfVariable_item2,
+        "mms.T_listOfVariable_02", HFILL }},
+    { &hf_mms_listOfVariable_item_02,
       { "Item", "mms.listOfVariable_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "mms.T_listOfVariable_item2", HFILL }},
+        "mms.T_listOfVariable_item_02", HFILL }},
     { &hf_mms_ScatteredAccessDescription_item,
       { "Item", "mms.ScatteredAccessDescription_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10279,7 +10279,7 @@ void proto_register_mms(void) {
       { "hungNamedToken", "mms.hungNamedToken",
         FT_STRING, BASE_NONE, NULL, 0,
         "mms.Identifier", HFILL }},
-    { &hf_mms_state2,
+    { &hf_mms_state_02,
       { "state", "mms.state",
         FT_INT32, BASE_DEC, VALS(mms_T_state_vals), 0,
         "mms.T_state", HFILL }},
@@ -10343,7 +10343,7 @@ void proto_register_mms(void) {
       { "eventConditionName", "mms.eventConditionName",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_class1,
+    { &hf_mms_class_01,
       { "class", "mms.class",
         FT_INT32, BASE_DEC, VALS(mms_EC_Class_vals), 0,
         "mms.EC_Class", HFILL }},
@@ -10375,7 +10375,7 @@ void proto_register_mms(void) {
       { "Item", "mms.specific_item",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_aa_specific1,
+    { &hf_mms_aa_specific_01,
       { "aa-specific", "mms.aa_specific",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.NULL", HFILL }},
@@ -10387,7 +10387,7 @@ void proto_register_mms(void) {
       { "vmd", "mms.vmd",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.NULL", HFILL }},
-    { &hf_mms_monitoredVariable1,
+    { &hf_mms_monitoredVariable_01,
       { "monitoredVariable", "mms.monitoredVariable",
         FT_UINT32, BASE_DEC, VALS(mms_T_monitoredVariable_vals), 0,
         "mms.T_monitoredVariable", HFILL }},
@@ -10459,11 +10459,11 @@ void proto_register_mms(void) {
       { "Item", "mms.eventEnrollmentNames_item",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_continueAfter2,
+    { &hf_mms_continueAfter_02,
       { "continueAfter", "mms.continueAfter",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_eventConditionName1,
+    { &hf_mms_eventConditionName_01,
       { "eventConditionName", "mms.eventConditionName",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventConditionName_vals), 0,
         "mms.T_eventConditionName", HFILL }},
@@ -10471,7 +10471,7 @@ void proto_register_mms(void) {
       { "eventCondition", "mms.eventCondition",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_eventActionName1,
+    { &hf_mms_eventActionName_01,
       { "eventActionName", "mms.eventActionName",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventActionName_vals), 0,
         "mms.T_eventActionName", HFILL }},
@@ -10511,15 +10511,15 @@ void proto_register_mms(void) {
       { "alarmAcknowledgmentRule", "mms.alarmAcknowledgmentRule",
         FT_INT32, BASE_DEC, VALS(mms_AlarmAckRule_vals), 0,
         "mms.AlarmAckRule", HFILL }},
-    { &hf_mms_currentState1,
+    { &hf_mms_currentState_01,
       { "currentState", "mms.currentState",
         FT_INT32, BASE_DEC, VALS(mms_EE_State_vals), 0,
         "mms.EE_State", HFILL }},
-    { &hf_mms_currentState2,
+    { &hf_mms_currentState_02,
       { "currentState", "mms.currentState",
         FT_UINT32, BASE_DEC, VALS(mms_T_currentState_vals), 0,
         "mms.T_currentState", HFILL }},
-    { &hf_mms_state3,
+    { &hf_mms_state_03,
       { "state", "mms.state",
         FT_INT32, BASE_DEC, VALS(mms_EE_State_vals), 0,
         "mms.EE_State", HFILL }},
@@ -10571,14 +10571,14 @@ void proto_register_mms(void) {
       { "unacknowledgedState", "mms.unacknowledgedState",
         FT_INT32, BASE_DEC, VALS(mms_T_unacknowledgedState_vals), 0,
         "mms.T_unacknowledgedState", HFILL }},
-    { &hf_mms_acknowledgmentFilter1,
+    { &hf_mms_acknowledgmentFilter_01,
       { "acknowledgmentFilter", "mms.acknowledgmentFilter",
-        FT_INT32, BASE_DEC, VALS(mms_T_acknowledgmentFilter1_vals), 0,
-        "mms.T_acknowledgmentFilter1", HFILL }},
-    { &hf_mms_severityFilter1,
+        FT_INT32, BASE_DEC, VALS(mms_T_acknowledgmentFilter_01_vals), 0,
+        "mms.T_acknowledgmentFilter_01", HFILL }},
+    { &hf_mms_severityFilter_01,
       { "severityFilter", "mms.severityFilter",
         FT_NONE, BASE_NONE, NULL, 0,
-        "mms.T_severityFilter1", HFILL }},
+        "mms.T_severityFilter_01", HFILL }},
     { &hf_mms_listOfAlarmEnrollmentSummary,
       { "listOfAlarmEnrollmentSummary", "mms.listOfAlarmEnrollmentSummary",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10599,10 +10599,10 @@ void proto_register_mms(void) {
       { "timeIdleAcknowledged", "mms.timeIdleAcknowledged",
         FT_UINT32, BASE_DEC, VALS(mms_EventTime_vals), 0,
         "mms.EventTime", HFILL }},
-    { &hf_mms_eventConditionName2,
+    { &hf_mms_eventConditionName_02,
       { "eventConditionName", "mms.eventConditionName",
-        FT_UINT32, BASE_DEC, VALS(mms_T_eventConditionName1_vals), 0,
-        "mms.T_eventConditionName1", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(mms_T_eventConditionName_01_vals), 0,
+        "mms.T_eventConditionName_01", HFILL }},
     { &hf_mms_actionResult,
       { "actionResult", "mms.actionResult",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10615,11 +10615,11 @@ void proto_register_mms(void) {
       { "eventActionResult", "mms.eventActionResult",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventActionResult_vals), 0,
         "mms.T_eventActionResult", HFILL }},
-    { &hf_mms_success1,
+    { &hf_mms_success_01,
       { "success", "mms.success",
         FT_UINT32, BASE_DEC, VALS(mms_ConfirmedServiceResponse_vals), 0,
         "mms.ConfirmedServiceResponse", HFILL }},
-    { &hf_mms_failure1,
+    { &hf_mms_failure_01,
       { "failure", "mms.failure",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.ServiceError", HFILL }},
@@ -10703,11 +10703,11 @@ void proto_register_mms(void) {
       { "entryContent", "mms.entryContent",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.EntryContent", HFILL }},
-    { &hf_mms_listOfJournalEntry1,
+    { &hf_mms_listOfJournalEntry_01,
       { "listOfJournalEntry", "mms.listOfJournalEntry",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.SEQUENCE_OF_EntryContent", HFILL }},
-    { &hf_mms_listOfJournalEntry_item1,
+    { &hf_mms_listOfJournalEntry_item_01,
       { "Item", "mms.listOfJournalEntry_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.EntryContent", HFILL }},
@@ -10747,11 +10747,11 @@ void proto_register_mms(void) {
       { "event", "mms.event",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.T_event", HFILL }},
-    { &hf_mms_listOfVariables1,
+    { &hf_mms_listOfVariables_01,
       { "listOfVariables", "mms.listOfVariables",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.T_listOfVariables1", HFILL }},
-    { &hf_mms_listOfVariables_item1,
+        "mms.T_listOfVariables_01", HFILL }},
+    { &hf_mms_listOfVariables_item_01,
       { "Item", "mms.listOfVariables_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.T_listOfVariables_item", HFILL }},
@@ -10807,7 +10807,7 @@ void proto_register_mms(void) {
       { "fileSpecification", "mms.fileSpecification",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.FileName", HFILL }},
-    { &hf_mms_continueAfter3,
+    { &hf_mms_continueAfter_03,
       { "continueAfter", "mms.continueAfter",
         FT_UINT32, BASE_DEC, NULL, 0,
         "mms.FileName", HFILL }},
@@ -11286,37 +11286,37 @@ void proto_register_mms(void) {
     &ett_mms_Identify_Response,
     &ett_mms_T_listOfAbstractSyntaxes,
     &ett_mms_Rename_Request,
-    &ett_mms_T_extendedObjectClass1,
+    &ett_mms_T_extendedObjectClass_01,
     &ett_mms_GetCapabilityList_Request,
     &ett_mms_GetCapabilityList_Response,
     &ett_mms_T_listOfCapabilities,
     &ett_mms_InitiateDownloadSequence_Request,
-    &ett_mms_T_listOfCapabilities1,
+    &ett_mms_T_listOfCapabilities_01,
     &ett_mms_DownloadSegment_Response,
     &ett_mms_T_loadData,
     &ett_mms_TerminateDownloadSequence_Request,
     &ett_mms_InitiateUploadSequence_Response,
-    &ett_mms_T_listOfCapabilities2,
+    &ett_mms_T_listOfCapabilities_02,
     &ett_mms_UploadSegment_Response,
-    &ett_mms_T_loadData1,
+    &ett_mms_T_loadData_01,
     &ett_mms_RequestDomainDownload_Request,
-    &ett_mms_T_listOfCapabilities3,
+    &ett_mms_T_listOfCapabilities_03,
     &ett_mms_RequestDomainUpload_Request,
     &ett_mms_LoadDomainContent_Request,
-    &ett_mms_T_listOfCapabilities4,
+    &ett_mms_T_listOfCapabilities_04,
     &ett_mms_StoreDomainContent_Request,
     &ett_mms_GetDomainAttributes_Response,
-    &ett_mms_T_listOfCapabilities5,
+    &ett_mms_T_listOfCapabilities_05,
     &ett_mms_CreateProgramInvocation_Request,
     &ett_mms_Start_Request,
     &ett_mms_T_executionArgument,
     &ett_mms_Stop_Request,
     &ett_mms_Resume_Request,
-    &ett_mms_T_executionArgument1,
+    &ett_mms_T_executionArgument_01,
     &ett_mms_Reset_Request,
     &ett_mms_Kill_Request,
     &ett_mms_GetProgramInvocationAttributes_Response,
-    &ett_mms_T_executionArgument2,
+    &ett_mms_T_executionArgument_02,
     &ett_mms_TypeSpecification,
     &ett_mms_T_array,
     &ett_mms_T_structure,
@@ -11348,8 +11348,8 @@ void proto_register_mms(void) {
     &ett_mms_T_listOfVariable,
     &ett_mms_T_listOfVariable_item,
     &ett_mms_GetNamedVariableListAttributes_Response,
-    &ett_mms_T_listOfVariable1,
-    &ett_mms_T_listOfVariable_item1,
+    &ett_mms_T_listOfVariable_01,
+    &ett_mms_T_listOfVariable_item_01,
     &ett_mms_DeleteNamedVariableList_Request,
     &ett_mms_DeleteNamedVariableList_Response,
     &ett_mms_DefineNamedType_Request,
@@ -11359,8 +11359,8 @@ void proto_register_mms(void) {
     &ett_mms_AccessResult,
     &ett_mms_Data,
     &ett_mms_VariableAccessSpecification,
-    &ett_mms_T_listOfVariable2,
-    &ett_mms_T_listOfVariable_item2,
+    &ett_mms_T_listOfVariable_02,
+    &ett_mms_T_listOfVariable_item_02,
     &ett_mms_ScatteredAccessDescription,
     &ett_mms_ScatteredAccessDescription_item,
     &ett_mms_VariableSpecification,
@@ -11413,12 +11413,12 @@ void proto_register_mms(void) {
     &ett_mms_SEQUENCE_OF_AlarmSummary,
     &ett_mms_AlarmSummary,
     &ett_mms_GetAlarmEnrollmentSummary_Request,
-    &ett_mms_T_severityFilter1,
+    &ett_mms_T_severityFilter_01,
     &ett_mms_GetAlarmEnrollmentSummary_Response,
     &ett_mms_SEQUENCE_OF_AlarmEnrollmentSummary,
     &ett_mms_AlarmEnrollmentSummary,
     &ett_mms_EventNotification,
-    &ett_mms_T_eventConditionName1,
+    &ett_mms_T_eventConditionName_01,
     &ett_mms_T_actionResult,
     &ett_mms_T_eventActionResult,
     &ett_mms_AttachToEventCondition,
@@ -11443,7 +11443,7 @@ void proto_register_mms(void) {
     &ett_mms_T_entryForm,
     &ett_mms_T_data,
     &ett_mms_T_event,
-    &ett_mms_T_listOfVariables1,
+    &ett_mms_T_listOfVariables_01,
     &ett_mms_T_listOfVariables_item,
     &ett_mms_ObtainFile_Request,
     &ett_mms_FileOpen_Request,
