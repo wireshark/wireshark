@@ -127,7 +127,7 @@ static gboolean print_packet_info;	/* TRUE if we're to print packet information 
 typedef enum {
 	WRITE_TEXT,	/* summary or detail text */
 	WRITE_XML,	/* PDML or PSML */
-    WRITE_FIELDS /* User defined list of fields */
+	WRITE_FIELDS	/* User defined list of fields */
 	/* Add CSV and the like here */
 } output_action_e;
 static output_action_e output_action;
@@ -1532,7 +1532,13 @@ main(int argc, char *argv[])
         exit(status);
     }
 
-    if (!print_packet_info && !quiet) {
+    if (print_packet_info) {
+      if (!write_preamble(NULL)) {
+        err = errno;
+        show_print_file_io_error(err);
+        return err;
+      }
+    } else if (!quiet) {
       /*
        * We're not printing information for each packet, and the user
        * didn't ask us not to print a count of packets as they arrive,
@@ -1553,6 +1559,13 @@ main(int argc, char *argv[])
 
     if (capture_opts.multi_files_on) {
       ringbuf_free();
+    }
+
+    if (print_packet_info) {
+      if (!write_finale()) {
+        err = errno;
+        show_print_file_io_error(err);
+      }
     }
 #else
     /* No - complain. */
@@ -2493,7 +2506,7 @@ write_preamble(capture_file *cf)
   switch (output_action) {
 
   case WRITE_TEXT:
-    return print_preamble(print_stream, cf->filename);
+    return print_preamble(print_stream, cf ? cf->filename : NULL);
     break;
 
   case WRITE_XML:
