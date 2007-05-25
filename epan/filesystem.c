@@ -638,7 +638,7 @@ get_datafile_dir(void)
  */
 static const char *plugin_dir = NULL;
 
-void
+static void
 init_plugin_dir(void)
 {
 #ifdef _WIN32

@@ -38,13 +38,9 @@ extern char *init_progfile_dir(const char *arg0);
 extern const char *get_progfile_dir(void);
 
 /*
- * Find the directory in which plugins are stored; this must be called
- * after init_progfile_dir() is called.
- */
-extern void init_plugin_dir(void);
-
-/*
- * Get the directory in which plugins are stored.
+ * Get the directory in which plugins are stored; this must not be called
+ * before init_progfile_dir() is called, as they might be stored in a
+ * subdirectory of the program file directory.
  */
 extern const char *get_plugin_dir(void);
 

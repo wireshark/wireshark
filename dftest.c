@@ -59,6 +59,7 @@ static void read_failure_message(const char *filename, int err);
 int
 main(int argc, char **argv)
 {
+	char		*init_progfile_dir_error;
 	char		*text;
 	char		*gpf_path, *pf_path;
 	int		gpf_open_errno, gpf_read_errno;
@@ -74,12 +75,11 @@ main(int argc, char **argv)
 	/*
 	 * Attempt to get the pathname of the executable file.
 	 */
-	init_progfile_dir(argv[0]);
-
-	/*
-	 * Now attempt to get the pathname of the plugins.
-	 */
-	init_plugin_dir();
+	init_progfile_dir_error = init_progfile_dir(argv[0]);
+	if (init_progfile_dir_error != NULL) {
+		fprintf(stderr, "dftest: Can't get pathname of dftest program: %s.\n",
+		    init_progfile_dir_error);
+	}
 
 	timestamp_set_type(TS_RELATIVE);
 
