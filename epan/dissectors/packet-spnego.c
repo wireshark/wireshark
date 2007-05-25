@@ -1003,7 +1003,7 @@ decrypt_arcfour(packet_info *pinfo,
 
 	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
 	memcpy(SND_SEQ, (unsigned char *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 8, 8), 8);
-	crypt_rc4(&rc4_state, SND_SEQ, 8);
+	crypt_rc4(&rc4_state, (unsigned char *)SND_SEQ, 8);
 
 	memset(k6_data, 0, sizeof(k6_data));
     }
@@ -1021,7 +1021,7 @@ decrypt_arcfour(packet_info *pinfo,
 	    Klocaldata[i] = ((guint8 *)key_value)[i] ^ 0xF0;
     }
     ret = arcfour_mic_key(Klocaldata,sizeof(Klocaldata),key_type,
-			  SND_SEQ, 4,
+			  (unsigned char *)SND_SEQ, 4,
 			  k6_data);
     memset(Klocaldata, 0, sizeof(Klocaldata));
     if (ret) {
