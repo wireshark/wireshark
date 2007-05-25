@@ -32,7 +32,7 @@ extern "C" {
 /*
  * Push a message referring to file access onto the statusbar.
  */
-void statusbar_push_file_msg(gchar *msg);
+void statusbar_push_file_msg(const gchar *msg);
 
 /*
  * Pop a message referring to file access off the statusbar.
@@ -42,7 +42,7 @@ void statusbar_pop_file_msg(void);
 /*
  * Push a message referring to the currently-selected field onto the statusbar.
  */
-void statusbar_push_field_msg(gchar *msg);
+void statusbar_push_field_msg(const gchar *msg);
 
 /*
  * Pop a message referring to the currently-selected field off the statusbar.

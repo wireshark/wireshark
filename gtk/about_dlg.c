@@ -81,7 +81,7 @@ about_wireshark(GtkWidget *parent, GtkWidget *main_vb, const char *title)
 }
 
 static void
-splash_update_label(GtkWidget *win, char *message)
+splash_update_label(GtkWidget *win, const char *message)
 {
     GtkWidget *main_lb;
 
@@ -96,7 +96,7 @@ splash_update_label(GtkWidget *win, char *message)
 }
 
 GtkWidget*
-splash_new(char *message)
+splash_new(const char *message)
 {
     GtkWidget *win;
     GtkWidget *main_lb;
@@ -153,16 +153,16 @@ splash_new(char *message)
 #define REGISTER_FREQ 100 /* Milliseconds */
 
 void
-splash_update(register_action_e action, char *message, gpointer client_data)
+splash_update(register_action_e action, const char *message, gpointer client_data)
 {
-    GtkWidget *win;
-    GtkWidget *main_lb;
-    GtkWidget *prog_bar;
-    GtkWidget *percentage_lb;
-    gfloat    percentage;
-    gulong    ul_percentage;
-    gchar     tmp[100];
-    char      *action_msg;
+    GtkWidget  *win;
+    GtkWidget  *main_lb;
+    GtkWidget  *prog_bar;
+    GtkWidget  *percentage_lb;
+    gfloat     percentage;
+    gulong     ul_percentage;
+    gchar      tmp[100];
+    const char *action_msg;
 
     static gulong ul_sofar = 0;
     static gulong ul_count = 0;

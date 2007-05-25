@@ -39,7 +39,7 @@ typedef enum {
   RA_CONFIGURATION      /* configuration files */
 } register_action_e;
 
-typedef void (*register_cb)(register_action_e action, char *message, gpointer client_data);
+typedef void (*register_cb)(register_action_e action, const char *message, gpointer client_data);
 
 extern void register_all_protocols(register_cb cb, gpointer client_data);
 extern void register_all_protocol_handoffs(register_cb cb, gpointer client_data);

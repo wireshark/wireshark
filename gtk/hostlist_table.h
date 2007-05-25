@@ -66,7 +66,7 @@ typedef struct _hostlist_table {
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func);
+extern void register_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func);
 
 /** Init the hostlist table for the single hostlist window.
  *

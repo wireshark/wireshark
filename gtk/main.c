@@ -926,7 +926,7 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
  * Push a message referring to file access onto the statusbar.
  */
 void
-statusbar_push_file_msg(gchar *msg)
+statusbar_push_file_msg(const gchar *msg)
 {
     /*g_warning("statusbar_push: %s", msg);*/
 	gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
@@ -950,7 +950,7 @@ statusbar_pop_file_msg(void)
  * Push a message referring to the currently-selected field onto the statusbar.
  */
 void
-statusbar_push_field_msg(gchar *msg)
+statusbar_push_field_msg(const gchar *msg)
 {
 	gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
 }

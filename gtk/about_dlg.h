@@ -35,7 +35,7 @@
  * @param message the new message to be displayed
  * @return the newly created window handle
  */
-extern GtkWidget *splash_new(char *message);
+extern GtkWidget *splash_new(const char *message);
 
 /** Update the splash screen message when loading dissectors and handoffs
  *
@@ -43,7 +43,7 @@ extern GtkWidget *splash_new(char *message);
  * @param message additional information
  * @param client_data the window handle from splash_new()
  */
-extern void splash_update(register_action_e action, char *message, void *call_data);
+extern void splash_update(register_action_e action, const char *message, void *call_data);
 
 /** Destroy the splash screen. 
  *

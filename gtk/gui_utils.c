@@ -581,7 +581,7 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
 /* Set the name of the top-level window and its icon to the specified
    string. */
 void
-set_main_window_name(gchar *window_name)
+set_main_window_name(const gchar *window_name)
 {
   gchar *old_window_name;
 

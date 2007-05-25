@@ -51,7 +51,7 @@
 
 
 static void
-add_string_to_table_sensitive(GtkWidget *list, guint *row, gchar *title, gchar *value, gboolean sensitive)
+add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
 {
     GtkWidget *label;
     gchar     *indent;

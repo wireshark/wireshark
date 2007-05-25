@@ -811,7 +811,7 @@ hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 static hostlist_table *
-init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+init_hostlist_notebook_page_cb(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     gboolean ret;
     GtkWidget *page_vbox;
@@ -837,9 +837,9 @@ init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_
 
 typedef struct {
     gboolean hide_ports;       /* hide TCP / UDP port columns */
-    char *table_name;          /* GUI output name */
-    char *tap_name;            /* internal name */
-    char *filter;              /* display filter string (unused) */
+    const char *table_name;    /* GUI output name */
+    const char *tap_name;      /* internal name */
+    const char *filter;        /* display filter string (unused) */
     tap_packet_cb packet_func; /* function to be called for new incoming packets */
 } register_hostlist_t;
 
@@ -847,7 +847,7 @@ typedef struct {
 static GSList *registered_hostlist_tables = NULL;
 
 void
-register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+register_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     register_hostlist_t *table;
 

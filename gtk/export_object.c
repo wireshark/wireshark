@@ -253,7 +253,7 @@ eo_draw(void *tapdata)
 }
 
 void
-export_object_window(gchar *tapname, gchar *name, tap_packet_cb tap_packet)
+export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_packet)
 {
 	GtkWidget *sw;
 	GtkCellRenderer *renderer;
