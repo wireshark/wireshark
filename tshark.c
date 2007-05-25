@@ -1941,7 +1941,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
   const guchar *wtap_pd;
-  loop_data *ld = (loop_data *) user;
+  loop_data *ld = (void *) user;
   int loop_err;
   int err;
   int save_file_fd;
