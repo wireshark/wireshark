@@ -1,0 +1,30 @@
+#
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../wimax /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+#LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF ENABLE_LIBWIRESHARK
+LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
+CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS=packet-m2m.obj wimax_tlv.obj
+
+m2m.dll m2m.exp m2m.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:m2m.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) m2m.dll m2m.exp m2m.lib $(PDB_FILE)
+
+distclean: clean
+
+maintainer-clean: distclean

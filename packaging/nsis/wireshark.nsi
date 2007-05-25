@@ -742,6 +742,7 @@ File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\h223\h223.dll"
 File "..\..\plugins\irda\irda.dll"
 File "..\..\plugins\lwres\lwres.dll"
+File "..\..\plugins\m2m\m2m.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 File "..\..\plugins\opsi\opsi.dll"
 File "..\..\plugins\pcli\pcli.dll"
@@ -751,6 +752,7 @@ File "..\..\plugins\rtnet\rtnet.dll"
 File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\sbus\sbus.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
+File "..\..\plugins\wimax\wimax.dll"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree

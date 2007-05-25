@@ -77,6 +77,7 @@ PLUGINS= \
 	../../plugins/h223/h223.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/lwres/lwres.dll \
+	../../plugins/m2m/m2m.dll \
 	../../plugins/mate/mate.dll \
 	../../plugins/mgcp/mgcp.dll \
 	../../plugins/opsi/opsi.dll \
@@ -86,7 +87,8 @@ PLUGINS= \
 	../../plugins/rudp/rudp.dll \
 	../../plugins/sbus/sbus.dll \
 	../../plugins/stats_tree/stats_tree.dll \
-	../../plugins/v5ua/v5ua.dll
+	../../plugins/v5ua/v5ua.dll \
+	../../plugins/wimax/wimax.dll
 
 NSI=wireshark.nsi \
 	GetWindowsVersion.nsh \

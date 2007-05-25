@@ -53,24 +53,25 @@
 /* Types of produceable packets */
 enum {
 	PKT_ARP,
+	PKT_BGP,
+	PKT_BVLC,
 	PKT_DNS,
 	PKT_ETHERNET,
 	PKT_FDDI,
+	PKT_GIOP,
 	PKT_ICMP,
 	PKT_IP,
 	PKT_LLC,
+	PKT_M2M,
+	PKT_MEGACO,
 	PKT_NBNS,
+	PKT_NCP2222,
+	PKT_SCTP,
 	PKT_SYSLOG,
 	PKT_TCP,
-	PKT_TR,
-	PKT_UDP,
-	PKT_BVLC,
-	PKT_NCP2222,
-	PKT_GIOP,
-	PKT_BGP,
 	PKT_TDS,
-	PKT_SCTP,
-	PKT_MEGACO
+	PKT_TR,
+	PKT_UDP
 };
 
 typedef struct {
@@ -136,6 +137,14 @@ guint8 pkt_llc[] = {
 	0x19, 0x69, 0x95, 0x8b,
 	0x00, 0x01, 0xfa, 0x68,
 	0xc4, 0x67
+};
+
+/* Ethernet, indicating WiMAX M2M */
+guint8 pkt_m2m[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x00, 0x00,
+	0x32, 0x25, 0x0f, 0xff,
+	0x08, 0xf0
 };
 
 /* Ethernet+IP+UDP, indicating NBNS */
@@ -385,6 +394,9 @@ pkt_example examples[] = {
 
 	{ "llc", "Logical Link Control",
 		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_llc) },
+
+	{ "m2m", "WiMAX M2M Encapsulation Protocol",
+		PKT_M2M,	pkt_m2m,	WTAP_ENCAP_ETHERNET,	array_length(pkt_m2m) },
 
 	{ "megaco", "MEGACO",
 		PKT_MEGACO,	pkt_megaco,	WTAP_ENCAP_ETHERNET,	array_length(pkt_megaco) },

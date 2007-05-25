@@ -902,6 +902,7 @@ install-common-files:
 	xcopy ".\plugins\h223\h223.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\lwres\lwres.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\m2m\m2m.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\mate\mate.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\mgcp\mgcp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\opcua\opcua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
@@ -914,6 +915,7 @@ install-common-files:
 	xcopy ".\plugins\sbus\sbus.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\stats_tree\stats_tree.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\v5ua\v5ua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\wimax\wimax.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)
 
 install-deps1: install-common-deps1

@@ -1,0 +1,40 @@
+#
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+#LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF ENABLE_LIBWIRESHARK
+LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
+CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS=packet-wmx.obj wimax_cdma_code_decoder.obj wimax_fch_decoder.obj \
+	wimax_pdu_decoder.obj wimax_ffb_decoder.obj wimax_hack_decoder.obj \
+	wimax_phy_attributes_decoder.obj mac_hd_generic_decoder.obj \
+	mac_hd_type1_decoder.obj mac_hd_type2_decoder.obj \
+	mac_mgmt_msg_decoder.obj msg_dcd.obj msg_ucd.obj msg_dlmap.obj msg_ulmap.obj \
+	msg_rng_req.obj msg_rng_rsp.obj msg_reg_req.obj msg_reg_rsp.obj msg_dsa.obj \
+	msg_dsc.obj msg_dsd.obj msg_arq.obj msg_sbc.obj msg_pkm.obj msg_aas_fbck.obj \
+	msg_dreg.obj msg_fpc.obj msg_pmc.obj msg_prc_lt_ctrl.obj wimax_harq_map_decoder.obj \
+	msg_aas_beam.obj msg_res_cmd.obj msg_rep.obj msg_clk_cmp.obj msg_dsx_rvd.obj \
+	wimax_compact_dlmap_ie_decoder.obj wimax_compact_ulmap_ie_decoder.obj \
+	wimax_utils.obj crc.obj crc_data.obj wimax_tlv.obj
+
+wimax.dll wimax.exp wimax.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:wimax.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) wimax.dll wimax.exp wimax.lib $(PDB_FILE)
+
+distclean: clean
+
+maintainer-clean: distclean

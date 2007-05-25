@@ -19,6 +19,7 @@ all: \
 	h223 \
 	irda \
 	lwres \
+	m2m \
 	mate \
 	mgcp \
 	opcua \
@@ -30,7 +31,8 @@ all: \
 	rudp \
 	sbus \
 	stats_tree \
-	v5ua
+	v5ua \
+	wimax
 
 
 agentx:: 
@@ -88,6 +90,11 @@ irda::
 
 lwres::
 	cd lwres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+m2m::
+	cd m2m
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -151,6 +158,11 @@ v5ua::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+wimax:: 
+	cd wimax
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 clean:
 	rm -rf $(VERSION)
 	cd agentx
@@ -184,6 +196,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd lwres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd m2m
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd mate
@@ -220,6 +235,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd wimax
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
@@ -258,6 +276,9 @@ distclean: clean
 	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
+	cd m2m
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
 	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
@@ -292,6 +313,9 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd v5ua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+	cd wimax
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
@@ -330,6 +354,9 @@ maintainer-clean: distclean
 	cd lwres
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	cd m2m
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
 	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -363,6 +390,9 @@ maintainer-clean: distclean
 	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	cd wimax
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake maintainer-clean
 
 ################################################################################
@@ -385,6 +415,7 @@ install-plugins:
 	xcopy h223\*.dll $(VERSION) /d
 	xcopy irda\*.dll $(VERSION) /d
 	xcopy lwres\*.dll $(VERSION) /d
+	xcopy m2m\*.dll $(VERSION) /d
 	xcopy mate\*.dll $(VERSION) /d
 	xcopy mgcp\*.dll $(VERSION) /d
 	xcopy opcua\*.dll $(VERSION) /d
@@ -397,6 +428,7 @@ install-plugins:
 	xcopy sbus\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
+	xcopy wimax\*.dll $(VERSION) /d
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
 

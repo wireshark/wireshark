@@ -1479,6 +1479,7 @@ AC_OUTPUT(
   plugins/h223/Makefile
   plugins/irda/Makefile
   plugins/lwres/Makefile
+  plugins/m2m/Makefile
   plugins/mate/Makefile
   plugins/mgcp/Makefile
   plugins/opcua/Makefile
@@ -1491,6 +1492,7 @@ AC_OUTPUT(
   plugins/sbus/Makefile
   plugins/stats_tree/Makefile
   plugins/v5ua/Makefile
+  plugins/wimax/Makefile
   tools/Makefile
   tools/idl2wrs.sh
   tools/lemon/Makefile

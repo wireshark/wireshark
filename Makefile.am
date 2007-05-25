@@ -223,6 +223,7 @@ plugin_ldadd = \
 	-dlopen plugins/h223/h223.la \
 	-dlopen plugins/irda/irda.la \
 	-dlopen plugins/lwres/lwres.la \
+	-dlopen plugins/m2m/m2m.la \
 	-dlopen plugins/mate/mate.la \
 	-dlopen plugins/mgcp/mgcp.la \
 	-dlopen plugins/opcua/opcua.la \
@@ -234,7 +235,8 @@ plugin_ldadd = \
 	-dlopen plugins/rudp/rudp.la \
 	-dlopen plugins/sbus/sbus.la \
 	-dlopen plugins/stats_tree/stats_tree.la \
-	-dlopen plugins/v5ua/v5ua.la
+	-dlopen plugins/v5ua/v5ua.la \
+	-dlopen plugins/wimax/wimax.la
 
 else		# HAVE_PLUGINS
 
