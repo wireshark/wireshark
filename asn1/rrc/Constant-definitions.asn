@@ -1,0 +1,125 @@
+-- Constant-definitions.asn
+--
+-- Taken from 3GPP TS 25.331 V7.4.0 (2007-03)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-740.zip/25331-740.doc
+--
+-- 11.4	Constant definitions
+--
+
+Constant-definitions DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+hiPDSCHidentities			INTEGER ::= 64
+hiPUSCHidentities			INTEGER ::= 64
+hiRM						INTEGER ::= 256
+maxAC						INTEGER ::= 16
+maxAdditionalMeas 			INTEGER ::= 4
+maxASC						INTEGER ::= 8
+maxASCmap					INTEGER ::= 7
+maxASCpersist				INTEGER ::= 6
+maxCCTrCH					INTEGER ::= 8
+maxCellMeas 				INTEGER ::= 32
+maxCellMeas-1				INTEGER ::= 31
+maxCNdomains				INTEGER ::= 4
+maxCPCHsets					INTEGER ::= 16
+maxDPCH-DLchan				INTEGER ::= 8
+maxDPDCH-UL					INTEGER ::= 6
+maxDRACclasses				INTEGER ::= 8
+maxE-DCHMACdFlow			INTEGER ::= 8
+maxE-DCHMACdFlow-1			INTEGER ::= 7
+maxEDCHRL					INTEGER ::= 4
+maxFACHPCH					INTEGER ::= 8
+maxFreq						INTEGER ::= 8
+maxFreqBandsFDD				INTEGER ::= 8
+maxFreqBandsFDD-ext			INTEGER ::= 15	-- maxFreqBandsFDD-ext ::= 22 - (maxFreqBandsFDD - 1)
+maxFreqBandsTDD				INTEGER ::= 4
+maxFreqBandsGSM				INTEGER ::= 16
+maxGERAN-SI					INTEGER ::= 8
+maxGSMTargetCells			INTEGER ::= 32
+maxHProcesses 				INTEGER ::= 8
+maxHS-SCCHLessTrBlk			INTEGER ::= 4
+maxHSDSCHTBIndex			INTEGER ::= 64
+maxHSDSCHTBIndex-tdd384		INTEGER ::= 512
+maxHSSCCHs					INTEGER ::= 4
+maxInterSysMessages 		INTEGER ::= 4
+maxLoCHperRLC				INTEGER ::= 2
+maxMAC-d-PDUsizes			INTEGER ::= 8
+maxMBMS-CommonCCTrCh		INTEGER ::= 32
+maxMBMS-CommonPhyCh			INTEGER ::= 32
+maxMBMS-CommonRB			INTEGER ::= 32
+maxMBMS-CommonTrCh			INTEGER ::= 32
+maxMBMS-Freq				INTEGER ::= 4
+maxMBMS-L1CP				INTEGER ::= 4
+maxMBMSservCount			INTEGER ::= 8
+maxMBMSservModif			INTEGER ::= 32
+maxMBMSservSched			INTEGER ::= 16
+maxMBMSservSelect			INTEGER ::= 8
+maxMBMSservUnmodif			INTEGER ::= 64
+maxMBMSTransmis				INTEGER ::= 4
+maxMeasEvent				INTEGER ::= 8
+maxMeasIntervals			INTEGER ::= 3
+maxMeasParEvent				INTEGER ::= 2
+maxNumCDMA2000Freqs			INTEGER ::=  8
+maxNumE-AGCH				INTEGER ::= 8
+maxNumE-HICH				INTEGER ::= 4
+maxNumGSMFreqRanges			INTEGER ::= 32
+maxNumFDDFreqs				INTEGER ::=  8
+maxNumTDDFreqs				INTEGER ::=  8
+maxNoOfMeas					INTEGER ::= 16
+maxOtherRAT					INTEGER ::= 15
+maxOtherRAT-16				INTEGER ::= 16
+maxPage1					INTEGER ::= 8
+maxPCPCH-APsig				INTEGER ::= 16
+maxPCPCH-APsubCh			INTEGER ::= 12
+maxPCPCH-CDsig				INTEGER ::= 16
+maxPCPCH-CDsubCh			INTEGER ::= 12
+maxPCPCH-SF					INTEGER ::= 7
+maxPCPCHs					INTEGER ::= 64
+maxPDCPAlgoType				INTEGER ::= 8
+maxPDSCH					INTEGER ::= 8
+maxPDSCH-TFCIgroups	 		INTEGER ::= 256
+maxPRACH					INTEGER ::= 16
+maxPRACH-FPACH				INTEGER ::= 8
+maxPredefConfig				INTEGER ::= 16
+maxPUSCH					INTEGER ::= 8
+maxQueueIDs					INTEGER ::= 8
+maxRABsetup					INTEGER ::= 16
+maxRAT						INTEGER ::= 16
+maxRB						INTEGER ::= 32
+maxRBallRABs				INTEGER ::= 27
+maxRBMuxOptions				INTEGER ::= 8
+maxRBperRAB					INTEGER ::= 8
+maxRBperTrCh				INTEGER ::= 16
+maxReportedGSMCells			INTEGER ::= 8
+maxRL						INTEGER ::= 8
+maxRL-1						INTEGER ::= 7
+maxRLCPDUsizePerLogChan		INTEGER ::= 32
+maxRFC3095-CID				INTEGER ::= 16384
+maxROHC-PacketSizes-r4		INTEGER ::= 16
+maxROHC-Profile-r4			INTEGER ::= 8
+maxSat						INTEGER ::= 16
+maxSCCPCH					INTEGER ::= 16
+maxSIB						INTEGER ::= 32
+maxSIB-FACH					INTEGER ::= 8
+maxSIBperMsg				INTEGER ::= 16
+maxSRBsetup					INTEGER ::= 8
+maxSystemCapability			INTEGER ::= 16
+maxTF						INTEGER ::= 32
+maxTF-CPCH					INTEGER ::= 16
+maxTFC						INTEGER ::= 1024
+maxTFCsub					INTEGER ::= 1024
+maxTFCI-2-Combs	 			INTEGER ::= 512
+maxTGPS						INTEGER ::= 6
+maxTrCH						INTEGER ::= 32
+-- maxTrCHpreconf should be 16 but has been set to 32 for compatibility
+maxTrCHpreconf				INTEGER ::= 32
+maxTS						INTEGER ::= 14
+maxTS-1						INTEGER ::= 13 
+maxTS-2						INTEGER ::= 12
+maxTS-LCR					INTEGER ::= 6
+maxTS-LCR-1					INTEGER ::= 5 
+maxURA						INTEGER ::= 8
+maxURNTI-Group				INTEGER ::= 8
+
+END

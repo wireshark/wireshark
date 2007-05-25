@@ -128,6 +128,7 @@ ASN_DISSECTOR_SRC = \
 	packet-ranap.c \
 	packet-rnsap.c \
 	packet-ros.c \
+	packet-rrc.c \
 	packet-rrlp.c \
 	packet-rtse.c \
 	packet-s4406.c \
@@ -136,9 +137,6 @@ ASN_DISSECTOR_SRC = \
 	packet-spnego.c \
 	packet-tcap.c \
 	packet-ulp.c \
-	packet-umts_rrc.c \
-	packet-umts_rrc_ies.c \
-	packet-umts_rrc_pdu_def.c \
 	packet-wlancertextn.c \
 	packet-x411.c \
 	packet-x420.c \
@@ -1016,9 +1014,6 @@ DISSECTOR_INCLUDES =	\
 	packet-tr.h	\
 	packet-udp.h	\
 	packet-umts_fp.h	\
-	packet-umts_rrc.h	\
-	packet-umts_rrc_ies.h	\
-	packet-umts_rrc_pdu_def.h	\
 	packet-usb.h	\
 	packet-vines.h	\
 	packet-vlan.h	\

@@ -1,0 +1,26 @@
+# rrc.cnf
+# rrc conformation file
+# Copyright 2006 Anders Broman 
+# $Id$
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.PDU
+
+DL-DCCH-Message    @dl.dcch
+UL-DCCH-Message    @ul.dcch
+DL-CCCH-Message    @dl.ccch
+UL-CCCH-Message    @ul.ccch
+PCCH-Message       @pcch
+DL-SHCCH-Message   @dl.shcch
+UL-SHCCH-Message   @ul.shcch
+BCCH-FACH-Message  @bcch.fach
+BCCH-BCH-Message   @bcch.bch
+MCCH-Message       @mcch
+MSCH-Message       @msch
+
+#.END
+

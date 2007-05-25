@@ -68,12 +68,10 @@ per: \
 	mpeg	\
 	ranap	\
 	rnsap	\
+	rrc		\
 	rrlp	\
-	t38	\
-	ulp		\
-	umts_rrc	\
-	umts_rrc_ies	\
-	umts_rrc_pdu_def	
+	t38		\
+	ulp
 	
 clean:
 	cd acse
@@ -220,6 +218,9 @@ clean:
 	cd rtse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd rrc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd rrlp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -245,15 +246,6 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ulp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd umts_rrc
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd umts_rrc_ies
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd umts_rrc_pdu_def
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd wlancertextn
@@ -516,6 +508,11 @@ ros::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
+rrc::
+	cd rrc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
 rrlp::
 	cd rrlp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
@@ -563,21 +560,6 @@ t38::
 
 ulp::
 	cd ulp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-umts_rrc::
-	cd umts_rrc
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-umts_rrc_ies::
-	cd umts_rrc_ies
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-umts_rrc_pdu_def::
-	cd umts_rrc_pdu_def
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
