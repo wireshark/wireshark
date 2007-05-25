@@ -6563,6 +6563,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
      * whatever reassembly is in progress, if any, and see
      * if it's done.
      */
+    if (reported_len < 0)
+      THROW(ReportedBoundsError);
     fd_head = fragment_add_seq_802_11(next_tvb, hdr_len, pinfo, seq_number,
         wlan_fragment_table,
         wlan_reassembled_table,
