@@ -161,11 +161,11 @@ static int hf_ulp_sessionId = -1;                 /* INTEGER_0_65535 */
 static int hf_ulp_setId = -1;                     /* SETId */
 static int hf_ulp_msisdn = -1;                    /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_mdn = -1;                       /* OCTET_STRING_SIZE_8 */
-static int hf_ulp_min_01 = -1;                    /* BIT_STRING_SIZE_34 */
+static int hf_ulp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
 static int hf_ulp_imsi = -1;                      /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
-static int hf_ulp_sessionID_01 = -1;              /* OCTET_STRING_SIZE_4 */
+static int hf_ulp_sessionSlpID = -1;              /* OCTET_STRING_SIZE_4 */
 static int hf_ulp_slpId = -1;                     /* SLPAddress */
 static int hf_ulp_ipv4Address = -1;               /* OCTET_STRING_SIZE_4 */
 static int hf_ulp_ipv6Address = -1;               /* OCTET_STRING_SIZE_16 */
@@ -207,9 +207,9 @@ static int hf_ulp_refUC = -1;                     /* INTEGER_0_268435455 */
 static int hf_ulp_frequencyInfo = -1;             /* FrequencyInfo */
 static int hf_ulp_primaryScramblingCode = -1;     /* INTEGER_0_511 */
 static int hf_ulp_measuredResultsList = -1;       /* MeasuredResultsList */
-static int hf_ulp_modeSpecificInfo = -1;          /* T_modeSpecificInfo */
-static int hf_ulp_fdd = -1;                       /* FrequencyInfoFDD */
-static int hf_ulp_tdd = -1;                       /* FrequencyInfoTDD */
+static int hf_ulp_modeSpecificFrequencyInfo = -1;  /* FrequencySpecificInfo */
+static int hf_ulp_fdd_fr = -1;                    /* FrequencyInfoFDD */
+static int hf_ulp_tdd_fr = -1;                    /* FrequencyInfoTDD */
 static int hf_ulp_uarfcn_UL = -1;                 /* UARFCN */
 static int hf_ulp_uarfcn_DL = -1;                 /* UARFCN */
 static int hf_ulp_uarfcn_Nt = -1;                 /* UARFCN */
@@ -222,13 +222,13 @@ static int hf_ulp_utra_CarrierRSSI = -1;          /* UTRA_CarrierRSSI */
 static int hf_ulp_cellMeasuredResultsList = -1;   /* CellMeasuredResultsList */
 static int hf_ulp_CellMeasuredResultsList_item = -1;  /* CellMeasuredResults */
 static int hf_ulp_cellIdentity = -1;              /* INTEGER_0_268435455 */
-static int hf_ulp_modeSpecificInfo_01 = -1;       /* T_modeSpecificInfo_01 */
-static int hf_ulp_fdd_01 = -1;                    /* T_fdd */
+static int hf_ulp_modeSpecificInfo = -1;          /* T_modeSpecificInfo */
+static int hf_ulp_fdd = -1;                       /* T_fdd */
 static int hf_ulp_primaryCPICH_Info = -1;         /* PrimaryCPICH_Info */
 static int hf_ulp_cpich_Ec_N0 = -1;               /* CPICH_Ec_N0 */
 static int hf_ulp_cpich_RSCP = -1;                /* CPICH_RSCP */
 static int hf_ulp_pathloss = -1;                  /* Pathloss */
-static int hf_ulp_tdd_01 = -1;                    /* T_tdd */
+static int hf_ulp_tdd = -1;                       /* T_tdd */
 static int hf_ulp_cellParametersID = -1;          /* CellParametersID */
 static int hf_ulp_proposedTGSN = -1;              /* TGSN */
 static int hf_ulp_primaryCCPCH_RSCP = -1;         /* PrimaryCCPCH_RSCP */
@@ -296,7 +296,7 @@ static gint ett_ulp_CdmaCellInformation = -1;
 static gint ett_ulp_GsmCellInformation = -1;
 static gint ett_ulp_WcdmaCellInformation = -1;
 static gint ett_ulp_FrequencyInfo = -1;
-static gint ett_ulp_T_modeSpecificInfo = -1;
+static gint ett_ulp_FrequencySpecificInfo = -1;
 static gint ett_ulp_FrequencyInfoFDD = -1;
 static gint ett_ulp_FrequencyInfoTDD = -1;
 static gint ett_ulp_NMR = -1;
@@ -305,7 +305,7 @@ static gint ett_ulp_MeasuredResultsList = -1;
 static gint ett_ulp_MeasuredResults = -1;
 static gint ett_ulp_CellMeasuredResultsList = -1;
 static gint ett_ulp_CellMeasuredResults = -1;
-static gint ett_ulp_T_modeSpecificInfo_01 = -1;
+static gint ett_ulp_T_modeSpecificInfo = -1;
 static gint ett_ulp_T_fdd = -1;
 static gint ett_ulp_T_tdd = -1;
 static gint ett_ulp_TimeslotISCP_List = -1;
@@ -459,7 +459,7 @@ static const value_string ulp_SETId_vals[] = {
 static const per_choice_t SETId_choice[] = {
   {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
-  {   2, &hf_ulp_min_01          , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
+  {   2, &hf_ulp_minsi           , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
   {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
@@ -525,7 +525,7 @@ dissect_ulp_SLPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 static const per_sequence_t SlpSessionID_sequence[] = {
-  { &hf_ulp_sessionID_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_4 },
+  { &hf_ulp_sessionSlpID    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_4 },
   { &hf_ulp_slpId           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_SLPAddress },
   { NULL, 0, 0, NULL }
 };
@@ -974,22 +974,22 @@ dissect_ulp_FrequencyInfoTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const value_string ulp_T_modeSpecificInfo_vals[] = {
+static const value_string ulp_FrequencySpecificInfo_vals[] = {
   {   0, "fdd" },
   {   1, "tdd" },
   { 0, NULL }
 };
 
-static const per_choice_t T_modeSpecificInfo_choice[] = {
-  {   0, &hf_ulp_fdd             , ASN1_EXTENSION_ROOT    , dissect_ulp_FrequencyInfoFDD },
-  {   1, &hf_ulp_tdd             , ASN1_EXTENSION_ROOT    , dissect_ulp_FrequencyInfoTDD },
+static const per_choice_t FrequencySpecificInfo_choice[] = {
+  {   0, &hf_ulp_fdd_fr          , ASN1_EXTENSION_ROOT    , dissect_ulp_FrequencyInfoFDD },
+  {   1, &hf_ulp_tdd_fr          , ASN1_EXTENSION_ROOT    , dissect_ulp_FrequencyInfoTDD },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_ulp_T_modeSpecificInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ulp_FrequencySpecificInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_ulp_T_modeSpecificInfo, T_modeSpecificInfo_choice,
+                                 ett_ulp_FrequencySpecificInfo, FrequencySpecificInfo_choice,
                                  NULL);
 
   return offset;
@@ -997,7 +997,7 @@ dissect_ulp_T_modeSpecificInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t FrequencyInfo_sequence[] = {
-  { &hf_ulp_modeSpecificInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_modeSpecificInfo },
+  { &hf_ulp_modeSpecificFrequencyInfo, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_FrequencySpecificInfo },
   { NULL, 0, 0, NULL }
 };
 
@@ -1163,22 +1163,22 @@ dissect_ulp_T_tdd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 }
 
 
-static const value_string ulp_T_modeSpecificInfo_01_vals[] = {
+static const value_string ulp_T_modeSpecificInfo_vals[] = {
   {   0, "fdd" },
   {   1, "tdd" },
   { 0, NULL }
 };
 
-static const per_choice_t T_modeSpecificInfo_01_choice[] = {
-  {   0, &hf_ulp_fdd_01          , ASN1_NO_EXTENSIONS     , dissect_ulp_T_fdd },
-  {   1, &hf_ulp_tdd_01          , ASN1_NO_EXTENSIONS     , dissect_ulp_T_tdd },
+static const per_choice_t T_modeSpecificInfo_choice[] = {
+  {   0, &hf_ulp_fdd             , ASN1_NO_EXTENSIONS     , dissect_ulp_T_fdd },
+  {   1, &hf_ulp_tdd             , ASN1_NO_EXTENSIONS     , dissect_ulp_T_tdd },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_ulp_T_modeSpecificInfo_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ulp_T_modeSpecificInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_ulp_T_modeSpecificInfo_01, T_modeSpecificInfo_01_choice,
+                                 ett_ulp_T_modeSpecificInfo, T_modeSpecificInfo_choice,
                                  NULL);
 
   return offset;
@@ -1187,7 +1187,7 @@ dissect_ulp_T_modeSpecificInfo_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static const per_sequence_t CellMeasuredResults_sequence[] = {
   { &hf_ulp_cellIdentity    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_268435455 },
-  { &hf_ulp_modeSpecificInfo_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_T_modeSpecificInfo_01 },
+  { &hf_ulp_modeSpecificInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_T_modeSpecificInfo },
   { NULL, 0, 0, NULL }
 };
 
@@ -1840,7 +1840,7 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "ulp.cnf"
+#line 50 "ulp.cnf"
  tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2084,7 +2084,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 24 "ulp.cnf"
+#line 38 "ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -2113,7 +2113,7 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 15 "ulp.cnf"
+#line 29 "ulp.cnf"
 	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
 
 	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
@@ -2509,7 +2509,7 @@ void proto_register_ulp(void) {
       { "mdn", "ulp.mdn",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ulp.OCTET_STRING_SIZE_8", HFILL }},
-    { &hf_ulp_min_01,
+    { &hf_ulp_minsi,
       { "min", "ulp.min",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ulp.BIT_STRING_SIZE_34", HFILL }},
@@ -2525,7 +2525,7 @@ void proto_register_ulp(void) {
       { "iPAddress", "ulp.iPAddress",
         FT_UINT32, BASE_DEC, VALS(ulp_IPAddress_vals), 0,
         "ulp.IPAddress", HFILL }},
-    { &hf_ulp_sessionID_01,
+    { &hf_ulp_sessionSlpID,
       { "sessionID", "ulp.sessionID",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ulp.OCTET_STRING_SIZE_4", HFILL }},
@@ -2693,15 +2693,15 @@ void proto_register_ulp(void) {
       { "measuredResultsList", "ulp.measuredResultsList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.MeasuredResultsList", HFILL }},
-    { &hf_ulp_modeSpecificInfo,
+    { &hf_ulp_modeSpecificFrequencyInfo,
       { "modeSpecificInfo", "ulp.modeSpecificInfo",
-        FT_UINT32, BASE_DEC, VALS(ulp_T_modeSpecificInfo_vals), 0,
-        "ulp.T_modeSpecificInfo", HFILL }},
-    { &hf_ulp_fdd,
+        FT_UINT32, BASE_DEC, VALS(ulp_FrequencySpecificInfo_vals), 0,
+        "ulp.FrequencySpecificInfo", HFILL }},
+    { &hf_ulp_fdd_fr,
       { "fdd", "ulp.fdd",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.FrequencyInfoFDD", HFILL }},
-    { &hf_ulp_tdd,
+    { &hf_ulp_tdd_fr,
       { "tdd", "ulp.tdd",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.FrequencyInfoTDD", HFILL }},
@@ -2753,11 +2753,11 @@ void proto_register_ulp(void) {
       { "cellIdentity", "ulp.cellIdentity",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.INTEGER_0_268435455", HFILL }},
-    { &hf_ulp_modeSpecificInfo_01,
+    { &hf_ulp_modeSpecificInfo,
       { "modeSpecificInfo", "ulp.modeSpecificInfo",
-        FT_UINT32, BASE_DEC, VALS(ulp_T_modeSpecificInfo_01_vals), 0,
-        "ulp.T_modeSpecificInfo_01", HFILL }},
-    { &hf_ulp_fdd_01,
+        FT_UINT32, BASE_DEC, VALS(ulp_T_modeSpecificInfo_vals), 0,
+        "ulp.T_modeSpecificInfo", HFILL }},
+    { &hf_ulp_fdd,
       { "fdd", "ulp.fdd",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.T_fdd", HFILL }},
@@ -2777,7 +2777,7 @@ void proto_register_ulp(void) {
       { "pathloss", "ulp.pathloss",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ulp.Pathloss", HFILL }},
-    { &hf_ulp_tdd_01,
+    { &hf_ulp_tdd,
       { "tdd", "ulp.tdd",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.T_tdd", HFILL }},
@@ -2910,7 +2910,7 @@ void proto_register_ulp(void) {
     &ett_ulp_GsmCellInformation,
     &ett_ulp_WcdmaCellInformation,
     &ett_ulp_FrequencyInfo,
-    &ett_ulp_T_modeSpecificInfo,
+    &ett_ulp_FrequencySpecificInfo,
     &ett_ulp_FrequencyInfoFDD,
     &ett_ulp_FrequencyInfoTDD,
     &ett_ulp_NMR,
@@ -2919,7 +2919,7 @@ void proto_register_ulp(void) {
     &ett_ulp_MeasuredResults,
     &ett_ulp_CellMeasuredResultsList,
     &ett_ulp_CellMeasuredResults,
-    &ett_ulp_T_modeSpecificInfo_01,
+    &ett_ulp_T_modeSpecificInfo,
     &ett_ulp_T_fdd,
     &ett_ulp_T_tdd,
     &ett_ulp_TimeslotISCP_List,

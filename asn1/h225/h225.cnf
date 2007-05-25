@@ -30,7 +30,12 @@ PresentationIndicator
 ScreeningIndicator
 CallIdentifier
 GenericData
+#.END
 #----------------------------------------------------------------------------------------
+
+#.OMIT_ASSIGNMENT
+EncodedFastStartToken
+#.END
 
 #.VIRTUAL_ASSGN
 FastStart  Setup-UUIE/fastStart 

@@ -11,10 +11,14 @@ UNALIGNED
 #.PDU
 PDU
 
-#.OMIT_ASSIGNMENTS_EXCEPT MAP-LCS-DataTypes
+#.OMIT_ASSIGNMENTS_EXCEPT  MAP-LCS-DataTypes
 Ext-GeographicalInformation
 maxExt-GeographicalInformation
 VelocityEstimate
+#.END
+
+#.OMIT_ASSIGNMENT  MAP-ExtensionDataTypes
+SLR-ArgExtensionContainer
 #.END
 
 #.CLASS MAP-EXTENSION

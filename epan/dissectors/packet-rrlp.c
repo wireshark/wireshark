@@ -493,7 +493,6 @@ static int hf_rrlp_codePhaseRMSError = -1;        /* INTEGER_0_63 */
 static int hf_rrlp_adr = -1;                      /* INTEGER_0_33554431 */
 static int hf_rrlp_privateExtensionList = -1;     /* PrivateExtensionList */
 static int hf_rrlp_pcs_Extensions = -1;           /* PCS_Extensions */
-static int hf_rrlp_slr_Arg_PCS_Extensions = -1;   /* SLR_Arg_PCS_Extensions */
 static int hf_rrlp_PrivateExtensionList_item = -1;  /* PrivateExtension */
 static int hf_rrlp_extId = -1;                    /* OBJECT_IDENTIFIER */
 static int hf_rrlp_extType = -1;                  /* T_extType */
@@ -665,7 +664,6 @@ static gint ett_rrlp_SeqOfGANSS_SgnElement = -1;
 static gint ett_rrlp_GANSS_SgnElement = -1;
 static gint ett_rrlp_Rel7_AssistanceData_Extension = -1;
 static gint ett_rrlp_ExtensionContainer = -1;
-static gint ett_rrlp_SLR_ArgExtensionContainer = -1;
 static gint ett_rrlp_PrivateExtensionList = -1;
 static gint ett_rrlp_PrivateExtension = -1;
 static gint ett_rrlp_PCS_Extensions = -1;
@@ -868,7 +866,7 @@ dissect_rrlp_TimeSlotScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "rrlp.cnf"
+#line 39 "rrlp.cnf"
 
 tvbuff_t *parameter_tvb = NULL;
 
@@ -4572,7 +4570,7 @@ static const per_sequence_t PDU_sequence[] = {
 
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 26 "rrlp.cnf"
+#line 30 "rrlp.cnf"
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
@@ -4595,21 +4593,6 @@ static int
 dissect_rrlp_SLR_Arg_PCS_Extensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rrlp_SLR_Arg_PCS_Extensions, SLR_Arg_PCS_Extensions_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SLR_ArgExtensionContainer_sequence[] = {
-  { &hf_rrlp_privateExtensionList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_PrivateExtensionList },
-  { &hf_rrlp_slr_Arg_PCS_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rrlp_SLR_Arg_PCS_Extensions },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_rrlp_SLR_ArgExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_rrlp_SLR_ArgExtensionContainer, SLR_ArgExtensionContainer_sequence);
 
   return offset;
 }
@@ -6324,10 +6307,6 @@ void proto_register_rrlp(void) {
       { "pcs-Extensions", "rrlp.pcs_Extensions",
         FT_NONE, BASE_NONE, NULL, 0,
         "rrlp.PCS_Extensions", HFILL }},
-    { &hf_rrlp_slr_Arg_PCS_Extensions,
-      { "slr-Arg-PCS-Extensions", "rrlp.slr_Arg_PCS_Extensions",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rrlp.SLR_Arg_PCS_Extensions", HFILL }},
     { &hf_rrlp_PrivateExtensionList_item,
       { "Item", "rrlp.PrivateExtensionList_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6527,7 +6506,6 @@ void proto_register_rrlp(void) {
     &ett_rrlp_GANSS_SgnElement,
     &ett_rrlp_Rel7_AssistanceData_Extension,
     &ett_rrlp_ExtensionContainer,
-    &ett_rrlp_SLR_ArgExtensionContainer,
     &ett_rrlp_PrivateExtensionList,
     &ett_rrlp_PrivateExtension,
     &ett_rrlp_PCS_Extensions,

@@ -571,7 +571,7 @@ static const per_sequence_t ENCRYPTED_sequence[] = {
 
 int
 dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "h235.cnf"
+#line 56 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -601,7 +601,7 @@ static const per_sequence_t SIGNED_sequence[] = {
 
 int
 dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 46 "h235.cnf"
+#line 53 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -764,7 +764,7 @@ static const per_sequence_t ClearToken_sequence[] = {
 
 int
 dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "h235.cnf"
+#line 63 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -783,7 +783,7 @@ static const per_sequence_t HASHED_sequence[] = {
 
 int
 dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "h235.cnf"
+#line 59 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -795,26 +795,8 @@ dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
-dissect_h235_EncodedGeneralToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_h235_ClearToken);
-
-  return offset;
-}
-
-
-
-static int
 dissect_h235_PwdCertToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h235_ClearToken(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_h235_EncodedPwdCertToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_h235_PwdCertToken);
 
   return offset;
 }
@@ -884,7 +866,7 @@ static const per_choice_t CryptoToken_choice[] = {
 
 int
 dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 60 "h235.cnf"
+#line 67 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -913,15 +895,6 @@ dissect_h235_KeySignedMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-
-static int
-dissect_h235_EncodedKeySignedMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_h235_KeySignedMaterial);
-
-  return offset;
-}
-
-
 static const per_sequence_t ReturnSig_sequence[] = {
   { &hf_h235_generalId      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_Identifier },
   { &hf_h235_responseRandom , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_RandomVal },
@@ -939,15 +912,6 @@ dissect_h235_ReturnSig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
-
-static int
-dissect_h235_EncodedReturnSig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_h235_ReturnSig);
-
-  return offset;
-}
-
-
 static const per_sequence_t KeySyncMaterial_sequence[] = {
   { &hf_h235_generalID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h235_Identifier },
   { &hf_h235_keyMaterial    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h235_KeyMaterial },
@@ -958,15 +922,6 @@ static int
 dissect_h235_KeySyncMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h235_KeySyncMaterial, KeySyncMaterial_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_h235_EncodedKeySyncMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_h235_KeySyncMaterial);
 
   return offset;
 }

@@ -10,6 +10,20 @@ UNALIGNED
 
 #.PDU
 ULP-PDU
+#.END
+
+
+#.TYPE_RENAME
+FrequencyInfo/modeSpecificInfo FrequencySpecificInfo
+#.END
+
+#.FIELD_RENAME
+FrequencyInfo/modeSpecificInfo  modeSpecificFrequencyInfo
+FrequencyInfo/modeSpecificInfo/fdd  fdd_fr
+FrequencyInfo/modeSpecificInfo/tdd  tdd_fr
+SlpSessionID/sessionID  sessionSlpID
+SETId/min  minsi
+#.END
 
 #.FN_HDR ULP-PDU
 	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);

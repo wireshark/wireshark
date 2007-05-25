@@ -18,12 +18,19 @@ AuthenticationMechanism
 
 SrtpCryptoCapability
 SrtpKeys
+#.END
 
 #.OMIT_ASSIGNMENT
-
 ECGDSASignature
 H235CertificateSignature
- 
+
+EncodedGeneralToken
+EncodedPwdCertToken
+EncodedKeySignedMaterial
+EncodedReturnSig
+EncodedKeySyncMaterial
+#.END
+
 #.FIELD_RENAME
 
 TypedCertificate/certificate           certificatedata
