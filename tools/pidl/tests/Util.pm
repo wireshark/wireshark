@@ -119,6 +119,7 @@ SKIP: {
 	ok(-f $outfile, "($name) compile");
 
 	my $ret = system($outfile, ()) >> 8;
+	print "# cmd: $cmd\n" if ($ret != 0);
 	print "# return code: $ret\n" if ($ret != 0);
 
 	ok($ret == 0, "($name) run");
