@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <errno.h>
 
 #ifdef HAVE_UNISTD_H
@@ -44,6 +45,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/filesystem.h>
+#include <epan/plugins.h>
+#include <epan/report_err.h>
 #include "wtap.h"
 
 #ifdef NEED_GETOPT_H
@@ -247,6 +251,18 @@ static void usage(gboolean is_error)
   fprintf(output, "If no options are given, default is to display all infos\n");
 }
 
+/*
+ * Errors are reported with a console message.
+ */
+static void
+failure_message(const char *msg_format, va_list ap)
+{
+	fprintf(stderr, "capinos: ");
+	vfprintf(stderr, msg_format, ap);
+	fprintf(stderr, "\n");
+}
+
+
 int main(int argc, char *argv[])
 {
   wtap *wth;
@@ -256,8 +272,20 @@ int main(int argc, char *argv[])
   extern int optind;
   int opt;
   int status = 0;
+  char* init_progfile_dir_error;
+	
+  /* Register wiretap plugins */
 
-  /* Process the options first */
+    if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
+	g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+	g_free(init_progfile_dir_error);
+    } else {
+	init_report_err(failure_message,NULL,NULL);
+	init_plugins();
+	register_all_wiretap_modules();
+    }
+    
+  /* Process the options */
 
   while ((opt = getopt(argc, argv, "tcsduaeyizvh")) !=-1) {
 

@@ -2159,11 +2159,6 @@ main(int argc, char *argv[])
    */
   init_progfile_dir_error = init_progfile_dir(argv[0]);
 
-  /*
-   * Now attempt to get the pathname of the plugins.
-   */
-  init_plugin_dir();
-  
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 

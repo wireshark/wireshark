@@ -31,6 +31,14 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
+ *  Initialize the report err routines
+ */
+extern void init_report_err(
+	void (*report_failure)(const char *, va_list),
+	void (*report_open_failure)(const char *, int, gboolean),
+	void (*report_read_failure)(const char *, int));
+
+/*
  * Report an error when trying to open a file.
  */
 extern void report_open_failure(const char *filename, int err,

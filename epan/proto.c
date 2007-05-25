@@ -354,6 +354,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 	if(cb) 
 	  (*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	init_plugins();
+	register_all_plugin_registrations();
 #endif
 
 	/* Now call the "handoff registration" routines of all built-in

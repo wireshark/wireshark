@@ -207,7 +207,18 @@ mergecap_SOURCES = \
 # editcap specifics
 editcap_SOURCES = \
 	editcap.c	\
-	epan/crypt/crypt-md5.c
+	epan/crypt/crypt-md5.c \
+	epan/plugins.c \
+	epan/report_err.c \
+	epan/privileges.c \
+	epan/filesystem.c
+
+capinfos_SOURCES = \
+	capinfos.c \
+        epan/plugins.c \
+        epan/report_err.c \
+        epan/privileges.c \
+        epan/filesystem.c
 
 # dftest specifics
 dftest_SOURCES =	\

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 /*
  * Just make sure we include the prototype for strptime as well
@@ -54,6 +55,9 @@
 #endif
 
 #include "epan/crypt/crypt-md5.h"
+#include "epan/plugins.h"
+#include "epan/report_err.h"
+#include "epan/filesystem.h"
 
 #include "svnversion.h"
 
@@ -346,6 +350,14 @@ static void list_encap_types(void) {
     }
 }
 
+static void
+failure_message(const char *msg_format, va_list ap)
+{
+	fprintf(stderr, "editcap: ");
+	vfprintf(stderr, msg_format, ap);
+	fprintf(stderr, "\n");
+}
+
 int main(int argc, char *argv[])
 
 {
@@ -368,9 +380,19 @@ int main(int argc, char *argv[])
   int split_packet_count = 0;
   int written_count = 0;
   char *filename;
-
-  /* Process the options first */
-
+  char* init_progfile_dir_error;
+  
+  /* Register wiretap plugins */
+    if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
+	g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+	g_free(init_progfile_dir_error);
+    } else {
+	init_report_err(failure_message,NULL,NULL);
+	init_plugins();
+	register_all_wiretap_modules();
+    }
+    
+  /* Process the options */
   while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {
 
     switch (opt) {

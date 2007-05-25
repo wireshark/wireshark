@@ -58,10 +58,6 @@
 	int wslua_init(void*);
 #endif
 
-static void (*report_failure_func)(const char *, va_list);
-static void (*report_open_failure_func)(const char *, int, gboolean);
-static void (*report_read_failure_func)(const char *, int);
-
 gchar*
 epan_get_version(void) {
   return VERSION;
@@ -76,9 +72,7 @@ epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
 	  void (*report_open_failure)(const char *, int, gboolean),
 	  void (*report_read_failure)(const char *, int))
 {
-	report_failure_func = report_failure;
-	report_open_failure_func = report_open_failure;
-	report_read_failure_func = report_read_failure;
+	init_report_err(report_failure, report_open_failure, report_read_failure);
 
 	/* initialize memory allocation subsystem */
 	ep_init_chunk();
@@ -134,42 +128,6 @@ void
 epan_circuit_init(void)
 {
 	circuit_init();
-}
-
-/*
- * Report a general error.
- */
-void
-report_failure(const char *msg_format, ...)
-{
-	va_list ap;
-
-	va_start(ap, msg_format);
-	(*report_failure_func)(msg_format, ap);
-	va_end(ap);
-}
-
-/*
- * Report an error when trying to open or create a file.
- * "err" is assumed to be an error code from Wiretap; positive values are
- * UNIX-style errnos, so this can be used for open failures not from
- * Wiretap as long as the failue code is just an errno.
- */
-void
-report_open_failure(const char *filename, int err,
-    gboolean for_writing)
-{
-	(*report_open_failure_func)(filename, err, for_writing);
-}
-
-/*
- * Report an error when trying to read a file.
- * "err" is assumed to be a UNIX-style errno.
- */
-void
-report_read_failure(const char *filename, int err)
-{
-	(*report_read_failure_func)(filename, err);
 }
 
 epan_dissect_t*

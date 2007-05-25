@@ -75,11 +75,11 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ENDIF
 
 capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
+	wsock32.lib user32.lib shell32.lib \
 	$(GLIB_LIBS)
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
+	wsock32.lib user32.lib shell32.lib \
 	$(GLIB_LIBS)
 
 mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -214,19 +214,19 @@ tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj epan image\tshar
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
-capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+capinfos.exe	: config.h capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(capinfos_LIBS) image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(capinfos_LIBS) image\capinfos.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
 !ENDIF
 
-editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj $(editcap_LIBS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan/unicode-utils.obj epan\crypt\crypt-md5.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(editcap_LIBS) image\editcap.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
@@ -870,6 +870,8 @@ install-common-files:
 	xcopy ".\cfilters" $(INSTALL_DIR) /d
 	xcopy ".\colorfilters" $(INSTALL_DIR) /d
 	xcopy ".\dfilters" $(INSTALL_DIR) /d
+	xcopy ".\epan\wslua\init.lua" $(INSTALL_DIR) /d
+	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
     xcopy doc\*.html $(INSTALL_DIR) /d
 !IFDEF ETHEREAL_EUG_DIR
     xcopy $(ETHEREAL_EUG_DIR) $(INSTALL_DIR) /d
@@ -1025,4 +1027,5 @@ clean-deps2:
 	cd ..
 
 clean-deps: clean-deps1 clean-deps2
+
 

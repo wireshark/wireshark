@@ -735,11 +735,6 @@ main(int argc, char *argv[])
   }
 
   /*
-   * Now attempt to get the pathname of the plugins.
-   */
-  init_plugin_dir();
-
-  /*
    * In order to have the -X opts assigned before the wslua machine starts
    * we need to call getopts before epan_init() gets called.
    */

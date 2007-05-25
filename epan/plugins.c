@@ -173,6 +173,7 @@ plugins_scan_dir(const char *dirname)
 
     if ((dir = eth_dir_open(dirname, 0, NULL)) != NULL)
     {
+
     while ((file = eth_dir_read_name(dir)) != NULL)
 	{
 	    name = eth_dir_get_name(file);
@@ -344,14 +345,6 @@ plugins_scan_dir(const char *dirname)
 		continue;
 	    }
 		
-	    /*
-	     * Call its register routine if it has one.
-	     * XXX - just save this and call it with the built-in
-	     * dissector register routines?
-	     */
-	    if (register_protoinfo != NULL)
-		    register_protoinfo();
-
 	}
 	eth_dir_close(dir);
 	}
@@ -437,6 +430,27 @@ init_plugins(void)
 	    plugins_scan_dir(plugins_pers_dir);
 	    g_free(plugins_pers_dir);
 	}
+    }
+}
+
+void
+register_all_plugin_registrations(void)
+{
+    plugin *pt_plug;
+	
+    /*
+     * For all plugins with register-handoff routines, call the routines.
+     * This is called from "proto_init()"; it must be called after
+     * "register_all_protocols()" and "init_plugins()" are called,
+     * in case one plugin registers itself either with a built-in
+     * dissector or with another plugin; we must first register all
+     * dissectors, whether built-in or plugin, so their dissector tables
+     * are initialized, and only then register all handoffs.
+     */
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    {
+		if (pt_plug->register_protoinfo)
+			(pt_plug->register_protoinfo)();
     }
 }
 

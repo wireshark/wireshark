@@ -636,7 +636,7 @@ get_datafile_dir(void)
  * of the plugin directory, so it can just fetch the plugins built
  * as part of the build process.
  */
-static const char *plugin_dir;
+static const char *plugin_dir = NULL;
 
 void
 init_plugin_dir(void)
@@ -694,6 +694,7 @@ init_plugin_dir(void)
 const char *
 get_plugin_dir(void)
 {
+	if (!plugin_dir) init_plugin_dir();
 	return plugin_dir;
 }
 

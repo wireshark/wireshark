@@ -68,6 +68,7 @@ LIBWIRESHARK_SRC = 		\
 	range.c			\
 	reassemble.c		\
 	reedsolomon.c		\
+	report_err.c		\
 	req_resp_hdrs.c		\
 	sigcomp_state_hdlr.c	\
 	sigcomp-udvm.c		\
