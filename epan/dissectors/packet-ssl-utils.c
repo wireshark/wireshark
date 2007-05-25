@@ -972,15 +972,15 @@ tls_prf(StringInfo* secret, const gchar *usage,
     
     ssl_print_string("PRF out",out);
 free_all:    
-    free(s2.data);
+    g_free(s2.data);
 free_s1:    
-    free(s1.data);
+    g_free(s1.data);
 free_seed:    
-    free(seed.data);
+    g_free(seed.data);
 free_md5:
-    free(md5_out.data);    
+    g_free(md5_out.data);    
 free_sha:
-    free(sha_out.data);
+    g_free(sha_out.data);
     return r;    
 }
 
@@ -1768,7 +1768,7 @@ ssl_load_key(FILE* fp)
         ssl_debug_printf("ssl_load_key: can't import pem data\n");
         return NULL;
     }
-    free(key.data);
+    g_free(key.data);
     
     /* RSA get parameter */
     if (gnutls_x509_privkey_export_rsa_raw(priv_key, &m, &e, &d, &p, &q, &u) != 0) {
