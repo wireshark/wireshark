@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-spnego.c                                                          */
+/* ./packet-spnego.c                                                          */
 /* ../../tools/asn2wrs.py -b -e -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
 
 /* Input file: packet-spnego-template.c */
@@ -968,7 +968,9 @@ decrypt_arcfour(packet_info *pinfo,
     int ret;
     gint32 seq_number;
     size_t datalen;
-    guint8 k6_data[16], SND_SEQ[8], Confounder[8];
+    guint8 k6_data[16];
+    guint32 SND_SEQ[2];
+    guint8 Confounder[8];
     guint8 cksum_data[8];
     int cmp;
     int conf_flag;
@@ -1006,14 +1008,9 @@ decrypt_arcfour(packet_info *pinfo,
 	memset(k6_data, 0, sizeof(k6_data));
     }
 
-    seq_number=g_ntohl(*((guint32 *)SND_SEQ));
+    seq_number=g_ntohl(SND_SEQ[0]);
 
-    cmp = memcmp(&SND_SEQ[4], "\xff\xff\xff\xff", 4);
-    if(cmp){
-	cmp = memcmp(&SND_SEQ[4], "\x00\x00\x00\x00", 4);
-    }
-
-    if (cmp != 0) {
+    if (SND_SEQ[1] != 0xFFFFFFFF && SND_SEQ[1] != 0x00000000) {
 	return -6;
     }
 
@@ -1642,7 +1639,7 @@ void proto_register_spnego(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1023 "packet-spnego-template.c"
+#line 1020 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1663,7 +1660,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1032 "packet-spnego-template.c"
+#line 1029 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

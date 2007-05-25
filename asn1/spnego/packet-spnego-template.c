@@ -434,7 +434,9 @@ decrypt_arcfour(packet_info *pinfo,
     int ret;
     gint32 seq_number;
     size_t datalen;
-    guint8 k6_data[16], SND_SEQ[8], Confounder[8];
+    guint8 k6_data[16];
+    guint32 SND_SEQ[2];
+    guint8 Confounder[8];
     guint8 cksum_data[8];
     int cmp;
     int conf_flag;
@@ -472,14 +474,9 @@ decrypt_arcfour(packet_info *pinfo,
 	memset(k6_data, 0, sizeof(k6_data));
     }
 
-    seq_number=g_ntohl(*((guint32 *)SND_SEQ));
+    seq_number=g_ntohl(SND_SEQ[0]);
 
-    cmp = memcmp(&SND_SEQ[4], "\xff\xff\xff\xff", 4);
-    if(cmp){
-	cmp = memcmp(&SND_SEQ[4], "\x00\x00\x00\x00", 4);
-    }
-
-    if (cmp != 0) {
+    if (SND_SEQ[1] != 0xFFFFFFFF && SND_SEQ[1] != 0x00000000) {
 	return -6;
     }
 
