@@ -418,15 +418,18 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  * PROTO macros
  */
 
-#define UAT_PROTO_DEF(basename,field_name,rec_t) \
+#define UAT_PROTO_DEF(basename, field_name, dissector_field, name_field, rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	if (len) { \
-		char* name = ep_strndup(buf,len); g_strdown(name); g_strchug(name); \
-		((rec_t*)rec)->field_name = find_dissector(name); \
-	} else { ((rec_t*)rec)->field_name = find_dissector("data"); } } \
+		((rec_t*)rec)->name_field = ep_strndup(buf,len); g_strdown(((rec_t*)rec)->name_field ); g_strchug(((rec_t*)rec)->name_field); \
+		((rec_t*)rec)->dissector_field = find_dissector(((rec_t*)rec)->name_field); \
+	} else { \
+		((rec_t*)rec)->dissector_field = find_dissector("data"); \
+		((rec_t*)rec)->name_field = NULL; \
+		} } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
-	if ( ((rec_t*)rec)->field_name ) { \
-		char *name = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(name); *out_ptr = name; \
+	if ( ((rec_t*)rec)->name_field ) { \
+		*out_ptr = (((rec_t*)rec)->name_field); \
 		*out_len = strlen(*out_ptr); \
 	} else { \
 		*out_ptr = ""; *out_len = 0; } } 

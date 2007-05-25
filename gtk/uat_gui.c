@@ -912,14 +912,15 @@ static GtkWidget* uat_window(void* u) {
 	
 	
 	rep->scrolledwindow = scrolled_window_new(NULL, NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), rep->scrolledwindow, TRUE, TRUE, 0);
 
 #if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rep->scrolledwindow), GTK_SHADOW_IN);
 #endif
 	
 	rep->clist = gtk_clist_new(uat->ncols);
-		
+	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), rep->clist);
+	gtk_box_pack_start(GTK_BOX(hbox), rep->scrolledwindow, TRUE, TRUE, 0);
+
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].name);
 		gtk_clist_set_column_auto_resize(GTK_CLIST(rep->clist), colnum, TRUE);
@@ -941,8 +942,6 @@ static GtkWidget* uat_window(void* u) {
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
 #endif
 	
-	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), rep->clist);
-
 	rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 	
 #if (GLIB_MAJOR_VERSION >= 2)

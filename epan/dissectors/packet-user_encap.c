@@ -43,8 +43,11 @@
 
 typedef struct _user_encap_t {
 	guint encap;
+	char* payload_proto_name;
 	dissector_handle_t payload_proto;
+	char* header_proto_name;
 	dissector_handle_t header_proto;
+	char* trailer_proto_name;
 	dissector_handle_t trailer_proto;
 	guint header_size;
 	guint trailer_size;
@@ -127,11 +130,11 @@ static void user_update_cb(void* r _U_, const char** err _U_) {
 }
 
 UAT_VS_DEF(user_encap, encap, user_encap_t, WTAP_ENCAP_USER0, ENCAP0_STR)
-UAT_PROTO_DEF(user_encap, payload_proto, user_encap_t)
+UAT_PROTO_DEF(user_encap, payload_proto, payload_proto, payload_proto_name, user_encap_t)
 UAT_DEC_CB_DEF(user_encap, header_size, user_encap_t)
 UAT_DEC_CB_DEF(user_encap, trailer_size, user_encap_t)
-UAT_PROTO_DEF(user_encap, header_proto, user_encap_t)
-UAT_PROTO_DEF(user_encap, trailer_proto, user_encap_t)
+UAT_PROTO_DEF(user_encap, header_proto, header_proto, header_proto_name, user_encap_t)
+UAT_PROTO_DEF(user_encap, trailer_proto, trailer_proto, trailer_proto_name, user_encap_t)
 
 static dissector_handle_t user_encap_handle;
 
