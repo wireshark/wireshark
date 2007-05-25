@@ -1666,7 +1666,7 @@ static void
 capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd)
 {
-  loop_data *ld = (loop_data *) user;
+  loop_data *ld = (void *) user;
   int err;
 
   /* if the user told us to stop after x packets, do we have enough? */
