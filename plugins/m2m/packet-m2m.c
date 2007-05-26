@@ -43,13 +43,7 @@
 #include <plugins/wimax/wimax_tlv.h>
 #include "wmxtypes.h"
 
-/* Define version if we are not building wireshark statically */
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
 /* forward reference */
-void proto_register_m2m();
 static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
