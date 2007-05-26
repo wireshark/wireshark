@@ -50,7 +50,6 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 
 /* forward reference */
 void proto_register_m2m();
-void proto_reg_handoff_m2m(void);
 static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
@@ -366,23 +365,6 @@ static hf_register_info hf_tlv[] =
 		}
 	}
 };
-
-#ifndef ENABLE_STATIC
-/* for plugins only */
-G_MODULE_EXPORT void plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_m2m == -1)
-	{ /* execute protocol initialization only once */
-		proto_register_m2m();
-	}
-}
-
-G_MODULE_EXPORT void plugin_reg_handoff(void)
-{
- 	proto_reg_handoff_m2m();
-}
-#endif
 
 /* Register M2M defrag table init routine. */
 static void
