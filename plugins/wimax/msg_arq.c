@@ -344,7 +344,7 @@ void proto_register_mac_mgmt_msg_arq_reset(void)
 }
 
 /* Decode ARQ-Feedback messages. */
-void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint arq_feedback_ie_count = 0;
@@ -442,7 +442,7 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 }
 
 /* Decode ARQ-Discard messages. */
-void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint tvb_len, payload_type;
 	proto_item *arq_discard_item = NULL;
@@ -474,7 +474,7 @@ void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* Decode ARQ-Reset messages. */
-void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint tvb_len, payload_type;
 	proto_item *arq_reset_item = NULL;
