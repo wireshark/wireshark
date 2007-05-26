@@ -44,11 +44,6 @@
 #include "wimax_tlv.h"
 #include "wimax_bits.h"
 
-/* Define version if we are not building Wireshark statically */
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
-
 /* WiMax dissector function prototypes */
 extern void proto_register_wimax_cdma(void);
 extern void proto_register_wimax_fch(void);
@@ -810,23 +805,6 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 	return tlv_tree;
 }
 
-
-#ifndef ENABLE_STATIC
-/* for plugins only */
-G_MODULE_EXPORT void plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_wimax == -1)
-	{ /* execute protocol initialization only once */
-		proto_register_wimax();
-	}
-}
-
-G_MODULE_EXPORT void plugin_reg_handoff(void)
-{
- 	proto_reg_wimax();
-}
-#endif
 
 /* Register Wimax Protocol */
 void proto_register_wimax(void)
