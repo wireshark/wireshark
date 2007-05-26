@@ -461,7 +461,6 @@ ieee802a_add_oui
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
 init_dissection
-init_plugin_dir
 init_progfile_dir
 ip6_to_str
 ipv4_get_net_order_addr
