@@ -181,6 +181,8 @@ static int hf_icmp_mip_m = -1;
 static int hf_icmp_mip_g = -1;
 static int hf_icmp_mip_v = -1;
 static int hf_icmp_mip_rt = -1;
+static int hf_icmp_mip_u = -1;
+static int hf_icmp_mip_x = -1;
 static int hf_icmp_mip_reserved = -1;
 static int hf_icmp_mip_coa = -1;
 static int hf_icmp_mip_challenge = -1;
@@ -1497,7 +1499,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 {
   guint8       type;
   guint8       length;
-  guint8       flags;
+  guint16      flags;
   proto_item   *ti;
   proto_tree   *mip_tree=NULL;
   proto_tree   *flags_tree=NULL;
@@ -1552,25 +1554,23 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 						  2, FALSE);
 	  offset+=2;
 	  /* flags */
-	  flags = tvb_get_guint8(tvb, offset);
-	  ti = proto_tree_add_item(mip_tree, hf_icmp_mip_flags, tvb, offset,
-							   1, FALSE);
+	  flags = tvb_get_ntohs(tvb, offset);
+	  ti = proto_tree_add_uint(mip_tree, hf_icmp_mip_flags, tvb, offset, 2, flags);
 	  flags_tree = proto_item_add_subtree(ti, ett_icmp_mip_flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_r, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_b, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_h, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_f, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_m, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_g, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_v, tvb, offset, 1, flags);
-	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_rt, tvb, offset, 1, flags);
-
-	  offset++;
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_r, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_b, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_h, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_f, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_m, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_g, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_v, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_rt, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_u, tvb, offset, 2, flags);
+	  proto_tree_add_boolean(flags_tree, hf_icmp_mip_x, tvb, offset, 2, flags);
 
 	  /* Reserved */
-	  proto_tree_add_item(mip_tree, hf_icmp_mip_reserved, tvb, offset,
-						  1, FALSE);
-	  offset++;
+	  proto_tree_add_uint(flags_tree, hf_icmp_mip_reserved, tvb, offset, 2, flags);
+	  offset+=2;
 
 	  /* COAs */
 	  numCOAs = (length - 6) / 4;
@@ -2522,44 +2522,52 @@ proto_register_icmp(void)
 	"", HFILL}},
 
     { &hf_icmp_mip_flags,
-      { "Flags", "icmp.mip.flags",            FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "Flags", "icmp.mip.flags",            FT_UINT16, BASE_HEX, NULL, 0x0,
 	"", HFILL}},
 
     { &hf_icmp_mip_r,
-      { "Registration Required", "icmp.mip.r", FT_BOOLEAN, 8, NULL, 128,
+      { "Registration Required", "icmp.mip.r", FT_BOOLEAN, 16, NULL, 32768,
 	"Registration with this FA is required", HFILL }},
 
     { &hf_icmp_mip_b,
-      { "Busy", "icmp.mip.b", FT_BOOLEAN, 8, NULL, 64,
+      { "Busy", "icmp.mip.b", FT_BOOLEAN, 16, NULL, 16384,
 	"This FA will not accept requests at this time", HFILL }},
 
     { &hf_icmp_mip_h,
-      { "Home Agent", "icmp.mip.h", FT_BOOLEAN, 8, NULL, 32,
+      { "Home Agent", "icmp.mip.h", FT_BOOLEAN, 16, NULL, 8192,
 	"Home Agent Services Offered", HFILL }},
 
     { &hf_icmp_mip_f,
-      { "Foreign Agent", "icmp.mip.f", FT_BOOLEAN, 8, NULL, 16,
+      { "Foreign Agent", "icmp.mip.f", FT_BOOLEAN, 16, NULL, 4096,
 	"Foreign Agent Services Offered", HFILL }},
 
     { &hf_icmp_mip_m,
-      { "Minimal Encapsulation", "icmp.mip.m", FT_BOOLEAN, 8, NULL, 8,
+      { "Minimal Encapsulation", "icmp.mip.m", FT_BOOLEAN, 16, NULL, 2048,
 	"Minimal encapsulation tunneled datagram support", HFILL }},
 
     { &hf_icmp_mip_g,
-      { "GRE", "icmp.mip.g", FT_BOOLEAN, 8, NULL, 4,
+      { "GRE", "icmp.mip.g", FT_BOOLEAN, 16, NULL, 1024,
 	"GRE encapsulated tunneled datagram support", HFILL }},
 
     { &hf_icmp_mip_v,
-      { "VJ Comp", "icmp.mip.v", FT_BOOLEAN, 8, NULL, 2,
+      { "VJ Comp", "icmp.mip.v", FT_BOOLEAN, 16, NULL, 512,
 	"Van Jacobson Header Compression Support", HFILL }},
 
     { &hf_icmp_mip_rt,
-      { "Reverse tunneling", "icmp.mip.rt", FT_BOOLEAN, 8, NULL, 1,
+      { "Reverse tunneling", "icmp.mip.rt", FT_BOOLEAN, 16, NULL, 256,
        "Reverse tunneling support", HFILL }},
+
+    { &hf_icmp_mip_u,
+      { "UDP tunneling", "icmp.mip.u", FT_BOOLEAN, 16, NULL, 128,
+       "UDP tunneling support", HFILL }},
+
+    { &hf_icmp_mip_x,
+      { "Revocation support", "icmp.mip.x", FT_BOOLEAN, 16, NULL, 64,
+       "Registration revocation support", HFILL }},
 
 
     { &hf_icmp_mip_reserved,
-      { "Reserved", "icmp.mip.reserved",     FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "Reserved", "icmp.mip.reserved",     FT_UINT16, BASE_HEX, NULL, 0x003f,
 	"", HFILL}},
 
     { &hf_icmp_mip_coa,
