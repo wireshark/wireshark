@@ -255,7 +255,7 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 	}
 }
 
-void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type, data_type;
@@ -304,7 +304,7 @@ void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo
 	}
 }
 
-void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type, data_type;

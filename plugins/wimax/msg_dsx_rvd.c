@@ -87,7 +87,7 @@ void proto_register_mac_mgmt_msg_dsx_rvd(void)
 }
 
 /* Decode DSX-RVD messages. */
-void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;

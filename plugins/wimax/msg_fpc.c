@@ -129,7 +129,7 @@ void proto_register_mac_mgmt_msg_fpc(void)
 }
 
 /* Decode FPC messages. */
-void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint i;

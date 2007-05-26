@@ -220,7 +220,7 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 #endif
 }
 
-void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
@@ -253,7 +253,7 @@ void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pi
 }
 
 #ifdef OFDM
-static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
@@ -297,7 +297,7 @@ static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info
 	}
 }
 
-static void dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type, report_type;

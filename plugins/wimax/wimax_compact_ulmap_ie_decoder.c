@@ -1589,7 +1589,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 }
 
 /* Compact UL-MAP Reduced CID IE (6.3.2.3.43.3) decoder */
-static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint length = 0;
 	guint prefix;
@@ -1680,7 +1680,7 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 }
 
 /* Compact UL-MAP HARQ Control IE (6.3.2.3.43.4) decoder */
-static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint byte, prefix, length = 0;
 
@@ -1746,7 +1746,7 @@ static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packe
 #define EXTENSION_LENGTH_SHIFT    4
 
 /* Compact UL-MAP Extension IE (6.3.2.3.43.7.7) decoder */
-static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint tvb_value, ul_map_type, sub_type, length;
 
@@ -1825,7 +1825,7 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 }
 
 /* 8.4.5.4.3 (table 290) */
-guint wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+guint wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint byte;
 
@@ -1892,7 +1892,7 @@ guint wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo, tvb
 #define UL_ALLOCATION_START_IE             10
 
 /* 8.4.5.4.4.1 (table 290b) */
-guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint ext_uiuc, length, m, i;
 	guint8 byte;
