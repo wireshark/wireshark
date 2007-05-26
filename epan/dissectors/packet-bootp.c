@@ -2502,7 +2502,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 	unsigned long raw_val;
 	int off = DOCS_CM_TLV_OFF + voff;
 	int tlv_len, i;
-	guint8 asc_val[3] = "  ";
+	guint8 asc_val[4] = "  ";
 	proto_item *ti;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
