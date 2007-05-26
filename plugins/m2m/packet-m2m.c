@@ -367,6 +367,18 @@ m2m_defragment_init(void)
 	fragment_table_init(&pdu_frag_table);
 }
 
+/* Register Wimax Mac to Mac Protocol handler */
+void proto_reg_handoff_m2m(void)
+{
+	static int Initialized = FALSE;
+
+	if (!Initialized)
+	{
+		m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
+		dissector_add("ethertype", WMX_M2M, m2m_handle);
+	}
+}
+
 /* Register Wimax Mac to Mac Protocol */
 void proto_register_m2m(void)
 {
@@ -390,18 +402,6 @@ void proto_register_m2m(void)
 	register_init_routine(m2m_defragment_init);
 
 	/* Add new protocols here */
-}
-
-/* Register Wimax Mac to Mac Protocol handler */
-void proto_reg_handoff_m2m(void)
-{
-	static int Initialized = FALSE;
-
-	if (!Initialized)
-	{
-		m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
-		dissector_add("ethertype", WMX_M2M, m2m_handle);
-	}
 }
 
 /* WiMax MAC to MAC protocol dissector */
