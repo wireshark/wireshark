@@ -46,7 +46,7 @@ extern gint man_ofdma;
 extern	gboolean include_cor2_changes;
 
 /* Forward reference */
-static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, gint dreg_decoder);
+static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len);
 void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -328,7 +328,7 @@ static hf_register_info hf[] =
 
 
 /* Decode sub-TLV's of either DREG-REQ or DREG-CMD. */
-static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, gint dreg_decoder)
+static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len)
 {
 	guint tvb_len;
 	/*guint tlv_len;*/
@@ -469,7 +469,7 @@ void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 				default:
 					/* Decode DREG-REQ sub-TLV's */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_req_tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, tlv_offset, tlv_len, "DREG-REQ sub-TLV's (%u byte(s))", tlv_len);
-					dissect_dreg_tlv(tlv_tree, tlv_type, tvb, tlv_offset, tlv_len, proto_mac_mgmt_msg_dreg_req_decoder);
+					dissect_dreg_tlv(tlv_tree, tlv_type, tvb, tlv_offset, tlv_len);
 					break;
 			}
 
@@ -558,7 +558,7 @@ void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 				default:
 					/* Decode DREG-CMD sub-TLV's */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dreg_decoder, dreg_cmd_tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, tlv_offset, tlv_len, "DREG-CMD sub-TLV's (%u byte(s))", tlv_len);
-					dissect_dreg_tlv(tlv_tree, tlv_type, tvb, tlv_offset, tlv_len, proto_mac_mgmt_msg_dreg_cmd_decoder);
+					dissect_dreg_tlv(tlv_tree, tlv_type, tvb, tlv_offset, tlv_len);
 					break;
 			}
 
