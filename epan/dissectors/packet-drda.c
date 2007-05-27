@@ -69,6 +69,7 @@ static int hf_drda_ddm_codepoint = -1;
 static int hf_drda_param_length = -1;
 static int hf_drda_param_codepoint = -1;
 static int hf_drda_param_data = -1;
+static int hf_drda_sqlstatement = -1;
 
 static gint ett_drda = -1;
 static gint ett_drda_ddm = -1;
@@ -745,6 +746,14 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, FALSE);
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, FALSE);
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, FALSE);
+						if (iCommand == DRDA_CP_SQLSTT)
+						{
+							/* Extract SQL statement from packet */
+							tvbuff_t* next_tvb = NULL;
+							next_tvb = tvb_new_subset(tvb, offset + 5, iLengthParam - 6, iLengthParam - 6);
+							add_new_data_source(pinfo, next_tvb, "SQL statement");
+							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 6, FALSE);
+						}
 					}					
 					offset += iLengthParam;
 				}
@@ -847,7 +856,10 @@ proto_register_drda(void)
       { "Code point", "drda.param.codepoint", FT_UINT16, BASE_HEX, VALS(drda_opcode_abbr), 0x0, "Param code point", HFILL }},
 
    { &hf_drda_param_data,
-      { "Data", "drda.param.data", FT_STRINGZ, BASE_DEC, NULL, 0x0, "Param data", HFILL }}
+      { "Data", "drda.param.data", FT_STRINGZ, BASE_DEC, NULL, 0x0, "Param data", HFILL }},
+
+   { &hf_drda_sqlstatement,
+      { "SQL statement", "drda.sqlstatement", FT_STRINGZ, BASE_DEC, NULL, 0x0, "SQL statement", HFILL }}
 
   };
   static gint *ett[] = {
