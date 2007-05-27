@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -112,8 +112,8 @@ static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	}
 	if (tree)
 	{	/* we are being asked for details */
-		/* get the tvb length */
-		length = tvb_length(tvb);
+		/* get the tvb reported length */
+		length = tvb_reported_length(tvb);
 		/* display CDMA dissector info */
 		cdma_item = proto_tree_add_protocol_format(tree, proto_wimax_cdma_code_decoder, tvb, offset, length, "CDMA Code Attribute (%u bytes)", length);
 		/* add CDMA Code subtree */

@@ -34,7 +34,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_mac.h"
 
@@ -234,8 +234,8 @@ void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pi
 		/* ensure the message type is AAS-BEAM-SELECT */
 		if(payload_type != MAC_MGMT_MSG_AAS_BEAM_SELECT)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, tvb_len, "AAS Beam Select (AAS-BEAM-SELECT) (%u bytes)", tvb_len);
 		/* add subtree */
@@ -267,8 +267,8 @@ static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info
 		/* ensure the message type is AAS-BEAM-REQ */
 		if(payload_type != MAC_MGMT_MSG_AAS_BEAM_REQ)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, tvb_len, "AAS Beam Request (AAS-BEAM-REQ) (%u bytes)", tvb_len);
 		/* add subtree */
@@ -312,8 +312,8 @@ static void dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info
 		/* ensure the message type is AAS-BEAM-RSP */
 		if(payload_type != MAC_MGMT_MSG_AAS_BEAM_RSP)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		aas_beam_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_beam_decoder, tvb, offset, tvb_len, "AAS Beam Response (AAS-BEAM-RSP) (%u bytes)", tvb_len);
 		/* add subtree */

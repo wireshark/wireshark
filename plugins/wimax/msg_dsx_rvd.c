@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_mac.h"
 
@@ -101,8 +101,8 @@ void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* ensure the message type is DSX-RVD */
 		if(payload_type != MAC_MGMT_MSG_DSX_RVD)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		dsx_rvd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsx_rvd_decoder, tvb, offset, tvb_len, "DSx Received (DSX-RVD) (%u bytes)",  tvb_len);
 		/* add MAC DSx subtree */

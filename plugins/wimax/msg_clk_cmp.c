@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "wimax_mac.h"
@@ -140,8 +140,8 @@ void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type CLK_CMP */
 		clk_cmp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_clk_cmp_decoder, tvb, offset, tvb_len, "Clock Comparision (CLK-CMP) (%u bytes)", tvb_len);
 		/* add MAC CLK_CMP subtree */

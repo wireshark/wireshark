@@ -34,7 +34,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
@@ -1710,8 +1710,8 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	offset = 0;
 	/* display error parameter information */
 	ceps_item = proto_tree_add_protocol_format(tree, proto_wimax_utility_decoders, tvb, offset, tvb_len, "Error Parameter Set (%u bytes)", tvb_len);
@@ -1798,8 +1798,8 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 	if((sfe_type < SFE_CSPER_ATM) || (sfe_type > SFE_CSPER_PACKET_IP_802_3_ECRTP_COMPRESSION))
 		return; /* invalid CS Parameter Encodings */
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	offset = 0;
 	/* display SFE information */
 	csper_item = proto_tree_add_protocol_format(tree, proto_wimax_utility_decoders, tvb, offset, tvb_len, "Convergence Service Parameter Encoding Rules (%u bytes)", tvb_len);
@@ -2171,8 +2171,8 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 #ifdef DEBUG /* for debug only */
 	/* display dissector information */
 	proto_tree_add_protocol_format(tree, proto_wimax_utility_decoders, tvb, 0, tvb_len, "WiMax Service Flow Encodings (%u bytes)", tvb_len);
@@ -2617,8 +2617,8 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -2738,8 +2738,8 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -2811,8 +2811,8 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -3038,8 +3038,8 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -3125,8 +3125,8 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tlv_tree;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -3220,8 +3220,8 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -3306,8 +3306,8 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree *tlv_tree = NULL;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -3378,8 +3378,8 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 	gint  tlv_type;
 	tlv_info_t tlv_info;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return;
@@ -3468,8 +3468,8 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	tlv_info_t tlv_info;
 	gfloat current_power;
 
-	/* get the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* get the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	/* do nothing if the TLV fields is not exist */
 	if(!tvb_len)
 		return 0;

@@ -43,7 +43,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -457,8 +457,8 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	if (tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display the MAC Type I Header message */
 		ti = proto_tree_add_protocol_format(tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Mac Type I Header (%u bytes)", WIMAX_MAC_HEADER_SIZE);
 		/* add subtree */

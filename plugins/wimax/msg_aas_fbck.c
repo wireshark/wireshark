@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_mac.h"
 
@@ -269,8 +269,8 @@ void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo
 		/* ensure the message type is AAS-FBCK-REQ */
 		if(payload_type != MAC_MGMT_MSG_AAS_FBCK_REQ)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		aas_fbck_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_fbck_decoder, tvb, offset, tvb_len, "AAS Channel Feedback Request (AAS-FBCK-REQ) (%u bytes)", tvb_len);
 		/* add subtree */
@@ -318,8 +318,8 @@ void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo
 		/* ensure the message type is AAS-FBCK-RSP */
 		if(payload_type != MAC_MGMT_MSG_AAS_FBCK_RSP)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		aas_fbck_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_fbck_decoder, tvb, offset, tvb_len, "AAS Channel Feedback Response (AAS-FBCK-RSP) (%u bytes)", tvb_len);
 		/* add subtree */

@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -126,8 +126,8 @@ static void dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 	if (tree)
 	{	/* we are being asked for details */
-		/* get the tvb length */
-		length = tvb_length(tvb);
+		/* get the tvb reported length */
+		length = tvb_reported_length(tvb);
 		/* display HARQ ACK Burst dissector info */
 		hack_item = proto_tree_add_protocol_format(tree, proto_wimax_hack_decoder, tvb, offset, length, "HARQ ACK Burst (%u bytes)", length);
 		/* add HARQ ACK Burst subtree */

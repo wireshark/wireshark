@@ -36,7 +36,7 @@
 #define DEBUG
 */
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
@@ -144,8 +144,8 @@ void dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* ensure the message type is DSC REQ/RSP/ACK */
 		if(payload_type != MAC_MGMT_MSG_DSC_REQ)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		dsc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsc_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsc_msgs[payload_type - MAC_MGMT_MSG_DSC_REQ], tvb_len);
 		/* add MAC DSx subtree */
@@ -181,8 +181,8 @@ void dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* ensure the message type is DSC REQ/RSP/ACK */
 		if(payload_type != MAC_MGMT_MSG_DSC_RSP)
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		dsc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsc_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsc_msgs[payload_type - MAC_MGMT_MSG_DSC_REQ], tvb_len);
 		/* add MAC DSx subtree */
@@ -222,8 +222,8 @@ void dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* ensure the message type is DSC REQ/RSP/ACK */
 		if((payload_type < MAC_MGMT_MSG_DSC_REQ) || (payload_type > MAC_MGMT_MSG_DSC_ACK))
 			return;
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
 		dsc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsc_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsc_msgs[payload_type - MAC_MGMT_MSG_DSC_REQ], tvb_len);
 		/* add MAC DSx subtree */

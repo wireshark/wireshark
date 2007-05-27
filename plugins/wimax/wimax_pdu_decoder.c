@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "crc.h"
@@ -131,7 +131,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 #endif
 
 	/* parsing the PDU burst */
-	for(offset = 0; offset < tvb_length(tvb); )
+	for(offset = 0; offset < tvb_reported_length(tvb); )
 	{
 		if (offset == 0)
 		{
@@ -142,7 +142,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			first_gmh = FALSE;
 		}
 		/* get the length of the remainder */
-		length = tvb_length_remaining(tvb, offset);
+		length = tvb_reported_length_remaining(tvb, offset);
 		/* get the first byte at offset */
 		first_byte = tvb_get_guint8(tvb, offset);
 		/* check for padding */

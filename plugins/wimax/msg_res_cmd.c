@@ -38,7 +38,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "wimax_tlv.h"
@@ -116,8 +116,8 @@ void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	if(tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type RES-CMD */
 		res_cmd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_res_cmd_decoder, tvb, offset, tvb_len, "Reset Command (RES-CMD) (%u bytes)", tvb_len);
 		/* add MAC RES-CMD subtree */

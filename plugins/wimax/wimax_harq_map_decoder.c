@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "crc.h"
@@ -131,8 +131,8 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	guint32 harq_map_msg_crc, calculated_crc;
 	guint32 first_24bits;
 
-	/* check the tvb length */
-	tvb_len = tvb_length(tvb);
+	/* check the tvb reported length */
+	tvb_len = tvb_reported_length(tvb);
 	if(!tvb_len)
 	{	/* do nothing if tvb is empty */
 		return;

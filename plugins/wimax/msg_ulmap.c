@@ -34,7 +34,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "crc.h"
@@ -2269,7 +2269,7 @@ void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
     guint tvb_len;
     const guint8 *bufptr;
 
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_reported_length(tvb);
     bufptr = tvb_get_ptr(tvb, offset, tvb_len);
 
     UNREFERENCED_PARAMETER(pinfo);

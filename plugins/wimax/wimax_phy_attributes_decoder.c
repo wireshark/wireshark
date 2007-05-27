@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -156,8 +156,8 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 	}
 	if (tree)
 	{	/* we are being asked for details */
-		/* get the tvb length */
-		tvb_len = tvb_length(tvb);
+		/* get the tvb reported length */
+		tvb_len = tvb_reported_length(tvb);
 		/* display PDU Burst Physical Attributes dissector info */
 		phy_item = proto_tree_add_protocol_format(tree, proto_wimax_phy_attributes_decoder, tvb, offset, tvb_len, "PDU Burst Physical Attributes (%u bytes)", tvb_len);
 		/* add PDU Burst Physical Attributes subtree */

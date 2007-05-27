@@ -34,7 +34,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "crc.h"
@@ -333,8 +333,8 @@ static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb
 	guint tvb_len;
 	/*guint tlv_len;*/
 
-	/* Get the tvb length */
-	tvb_len =  tvb_length(tvb);
+	/* Get the tvb reported length */
+	tvb_len =  tvb_reported_length(tvb);
 
 	switch (tlv_type) {
 		case DREG_PAGING_INFO:
@@ -419,8 +419,8 @@ void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type DREG-REQ */
 		dreg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dreg_req_decoder, tvb, 0, tvb_len, "MAC Management Message, DREG-REQ (49)");
 		/* add MAC DREG REQ subtree */
@@ -505,8 +505,8 @@ void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type DREG-CMD */
 		dreg_cmd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dreg_cmd_decoder, tvb, 0, tvb_len, "MAC Management Message, DREG-CMD (29)");
 		/* add MAC DREG CMD subtree */

@@ -1528,7 +1528,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		}
 #endif
 		/* Get the frame length */
-		tvb_len =  tvb_length(tvb);
+		tvb_len =  tvb_reported_length(tvb);
 		if (tvb_len < WIMAX_MAC_HEADER_SIZE)
 		{	/* display the error message */
 			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, tvb_len, "Error: the size of Generic MAC Header tvb is too small! (%u bytes)", tvb_len);
@@ -2073,8 +2073,8 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ext subhdrs");
 	}
 
-	/* Get the tvb length */
-	length =  tvb_length(tvb);
+	/* Get the tvb reported length */
+	length =  tvb_reported_length(tvb);
 	if (!length)
 	{	/* display the error message */
 		proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error: extended subheader tvb is empty ! (%u bytes)", length);
@@ -2214,8 +2214,8 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* reset the offset */
 	offset = 0;
 
-	/* Get the tvb length */
-	length =  tvb_length(tvb);
+	/* Get the tvb reported length */
+	length =  tvb_reported_length(tvb);
 	if (!length)
 	{	/* display the error message */
 		proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error: ARQ feedback payload tvb is empty ! (%u bytes)", length);

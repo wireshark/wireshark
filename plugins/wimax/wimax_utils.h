@@ -28,7 +28,7 @@
 #ifndef WIMAX_UTILS_H
 #define WIMAX_UTILS_H
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 
 extern void proto_register_wimax_utility_decoders(void);

@@ -36,7 +36,7 @@
 #include "moduleinfo.h"
 
 #include <string.h>
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -439,8 +439,8 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{	/* we are being asked for details */
 		m2m_item = proto_tree_add_item(tree, proto_m2m, tvb, 0, -1, FALSE);
 		m2m_tree = proto_item_add_subtree(m2m_item, ett_m2m);
-		/* get the tvb length */
-		length =  tvb_length(tvb);
+		/* get the tvb reported length */
+		length =  tvb_reported_length(tvb);
 		/* add the size info */
         /*
 		proto_item_append_text(m2m_item, " (%u bytes) - Packet Sequence Number,Number of TLVs", length);

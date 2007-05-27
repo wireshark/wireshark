@@ -38,7 +38,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "wimax_tlv.h"
@@ -154,8 +154,8 @@ void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	if(tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type PKM-REQ */
 		pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, tvb_len, "Privacy Key Management Request (PKM-REQ) (%u bytes)", tvb_len);
 		/* add MAC PKM subtree */
@@ -196,8 +196,8 @@ void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	if(tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type PKM-RSP */
 		pkm_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pkm_decoder, tvb, offset, tvb_len, "Privacy Key Management Response (PKM-RSP) (%u bytes)", tvb_len);
 		/* add MAC PKM subtree */

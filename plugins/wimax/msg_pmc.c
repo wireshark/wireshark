@@ -34,7 +34,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "crc.h"
@@ -216,8 +216,8 @@ void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type PMC-REQ */
 		pmc_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pmc_req_decoder, tvb, 0, tvb_len, "MAC Management Message, PMC-REQ (63)");
 		/* add MAC PMC REQ subtree */
@@ -259,8 +259,8 @@ void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	if (tree)
 	{	/* we are being asked for details */
 
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type PMC-RSP */
 		pmc_rsp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_pmc_rsp_decoder, tvb, 0, tvb_len, "MAC Management Message, PMC-RSP (64)");
 		/* add MAC PMC RSP subtree */

@@ -38,7 +38,7 @@
 
 #include "moduleinfo.h"
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "wimax_tlv.h"
@@ -2229,8 +2229,8 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	if (tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type SBC-REQ */
 		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Request (SBC-REQ) (%u bytes)", tvb_len);
 		/* add MAC SBC subtree */
@@ -2790,8 +2790,8 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	if (tree)
 	{	/* we are being asked for details */
-		/* Get the tvb length */
-		tvb_len =  tvb_length(tvb);
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type SBC-RSP */
 		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Response (SBC-RSP) (%u bytes)", tvb_len);
 		/* add MAC SBC subtree */
