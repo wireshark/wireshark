@@ -40,7 +40,7 @@
 #include "config.h"
 #endif
 
-#include "wimax_tlv.h"
+#include <plugins/wimax/wimax_tlv.h>
 
 /*************************************************************/
 /* init_tlv_info()                                           */
