@@ -36,8 +36,7 @@ DISSECTOR_INCLUDES =	\
 	wimax_bits.h	\
 	wimax_mac.h	\
 	wimax_tlv.h	\
-	wimax_utils.h	\
-	wmxtypes.h
+	wimax_utils.h
 
 # Dissector helpers.  They're included in the source files in this
 # directory, but they're not dissectors themselves, i.e. they're not
