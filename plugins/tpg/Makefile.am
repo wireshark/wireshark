@@ -73,4 +73,3 @@ $(TPG)/TPG.pm: $(TPG)/TPG.yp
 
 http-parser.c: http.tpg $(TPG)/tpg.pl $(TPG)/TPG.pm
 	$(PERL) -I$(TPG) $(TPG)/tpg.pl http.tpg
-

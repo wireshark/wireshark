@@ -124,4 +124,3 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	moduleinfo.nmake	\
 	plugin.rc.in
-
