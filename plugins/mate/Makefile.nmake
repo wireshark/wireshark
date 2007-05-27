@@ -46,6 +46,7 @@ $(PLUGIN_NAME).rc : moduleinfo.nmake
 $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) $(RESOURCE)
 	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS) $(RESOURCE)
+
 #
 # Build plugin.c, which contains the plugin version[] string, a
 # function plugin_register() that calls the register routines for all
@@ -92,8 +93,8 @@ plugin.c: $(DISSECTOR_SRC) ../../tools/make-dissector-reg.py ../../tools/make-di
 
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
-		$(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
-        $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
+	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
+	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
 
 # We remove the generated files with "distclean" because one of them,
 # "mate_parser.c", needs different #includes for UN*X and Windows
