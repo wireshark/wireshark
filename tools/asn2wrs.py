@@ -3560,9 +3560,13 @@ class ChoiceType (Type):
     #print "eth_reg_sub(ident='%s')" % (ident)
     for e in (self.elt_list):
         e.eth_reg(ident, ectx, tstrip=1, parent=ident)
+        if ectx.conform.check_item('EXPORTS', ident + '.' + e.name):
+          ectx.eth_sel_req(ident, e.name)
     if hasattr(self, 'ext_list'):
         for e in (self.ext_list):
             e.eth_reg(ident, ectx, tstrip=1, parent=ident)
+            if ectx.conform.check_item('EXPORTS', ident + '.' + e.name):
+              ectx.eth_sel_req(ident, e.name)
 
   def sel_item(self, ident, sel, ectx):
     lst = self.elt_list
