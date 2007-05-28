@@ -607,6 +607,20 @@ class EthCtx:
     self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
     self.type_imp.append(ident)
 
+  #--- dummy_import_type --------------------------------------------------------
+  def dummy_import_type(self, ident):
+    # dummy imported
+    if self.type.has_key(ident):
+        raise "Try to dummy import for existing type :" + ident
+    ethtype = asn2c(ident)
+    self.type[ident] = {'import'  : 'xxx', 'proto' : 'xxx',
+                        'ethname' : ethtype }
+    self.type[ident]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
+                                 'STRINGS' : 'NULL', 'BITMASK' : '0' }
+    self.eth_type[ethtype] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'create_field' : False, 'ref' : []}
+    print "Dummy imported: %s (%s)" % (ident, ethtype)
+    return ethtype
+
   #--- eth_import_class --------------------------------------------------------
   def eth_import_class(self, ident, mod, proto):
     #print "eth_import_class(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto)
@@ -636,6 +650,14 @@ class EthCtx:
     self.value[ident] = {'import'  : mod, 'proto' : proto,
                          'ethname' : ''}
     self.value_imp.append(ident)
+
+  #--- eth_sel_req ------------------------------------------------------------
+  def eth_sel_req(self, typ, sel):
+    key = typ + '.' + sel
+    if not self.sel_req.has_key(key):
+      self.sel_req[key] = { 'typ' : typ , 'sel' : sel}
+      self.sel_req_ord.append(key)
+    return key
 
   #--- eth_dep_add ------------------------------------------------------------
   def eth_dep_add(self, type, dep):
@@ -748,6 +770,8 @@ class EthCtx:
     self.type_ord = []
     self.type_imp = []
     self.type_dep = {}
+    self.sel_req = {}
+    self.sel_req_ord = []
     self.vassign = {}
     self.vassign_ord = []
     self.value = {}
@@ -817,6 +841,17 @@ class EthCtx:
     for t in t_for_update.keys():
       self.type[t]['attr']['STRINGS'] = self.type[t]['val'].eth_strings()
       self.type[t]['attr'].update(self.conform.use_item('TYPE_ATTR', t))
+
+    #--- required selection types ---------------------------
+    #print "self.sel_req_ord = ", self.sel_req_ord
+    for t in self.sel_req_ord:
+      tt = self.sel_req[t]['typ']
+      if not self.type.has_key(tt):
+        self.dummy_import_type(t)
+      elif self.type[tt]['import']:
+        self.eth_import_type(t, self.type[tt]['import'], self.type[tt]['proto'])
+      else:
+        self.type[tt]['val'].sel_req(t, self.sel_req[t]['sel'], self)
 
     #--- types -------------------
     for t in self.type_imp:
@@ -939,14 +974,7 @@ class EthCtx:
       if self.type.has_key(t):
         ethtype = self.type[t]['ethname']
       else:  # undefined type
-        # dummy imported
-        print "Dummy imported: ", t
-        self.type[t] = {'import'  : 'xxx', 'proto' : 'xxx',
-                        'ethname' : t }
-        self.type[t]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
-                                 'STRINGS' : 'NULL', 'BITMASK' : '0' }
-        self.eth_type[t] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'create_field' : False, 'ref' : []}
-        ethtype = t
+        ethtype = self.dummy_import_type(t)
       ethtypemod = ethtype + self.field[f]['modified']
       if self.eth_hf.has_key(nm):
         if self.eth_hf_dupl.has_key(nm):
@@ -2550,18 +2578,22 @@ class Type (Node):
   def eth_reg_sub(self, ident, ectx):
     pass
 
-  def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, idx='', parent=None):
-    #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(parent))
+  def sel_req(self, sel, ectx):
+    print "#Selection '%s' required for non-CHOICE type %s" % (sel, self.type)
+    print self.str_depth(1)
+    
+  def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, selflag=False, idx='', parent=None):
+    #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
     if (ectx.Tag() and (len(self.tags) > tstrip)):
       tagged_type = TaggedType(val=self, tstrip=tstrip)
       tagged_type.AddTag(self.tags[tstrip])
       if not tagflag:  # 1st tagged level
-        if self.IsNamed():
+        if self.IsNamed() and not selflag:
           tagged_type.SetName(self.name)
       tagged_type.eth_reg(ident, ectx, tstrip=1, tagflag=tagflag, idx=idx, parent=parent)
       return
     nm = ''
-    if ident and self.IsNamed() and not tagflag:
+    if ident and self.IsNamed() and not tagflag and not selflag:
       nm = ident + '/' + self.name
     elif ident:
       nm = ident
@@ -3044,6 +3076,55 @@ class Type_Ref (Type):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- SelectionType ------------------------------------------------------------
+class SelectionType (Type):
+  def to_python (self, ctx):
+    return self.val
+
+  def sel_of_typeref(self):
+    return self.typ.type == 'Type_Ref'
+
+  def eth_reg_sub(self, ident, ectx):
+    if not self.sel_of_typeref():
+      self.seltype = ''
+      return
+    self.seltype = ectx.eth_sel_req(self.typ.val, self.sel)
+    ectx.eth_dep_add(ident, self.seltype)
+
+  def GetTTag(self, ectx):
+    #print "GetTTag(%s)\n" % self.seltype;
+    if (ectx.type[self.seltype]['import']):
+      if not ectx.type[self.seltype].has_key('ttag'):
+        if not ectx.conform.check_item('IMPORT_TAG', self.seltype):
+          msg = 'Missing tag information for imported type %s from %s (%s)' % (self.seltype, ectx.type[self.seltype]['import'], ectx.type[self.seltype]['proto'])
+          warnings.warn_explicit(msg, UserWarning, '', '')
+        ectx.type[self.seltype]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.seltype, val_dflt=('-1 /*imported*/', '-1 /*imported*/'))
+      return ectx.type[self.seltype]['ttag']
+    else:
+      return ectx.type[self.typ.val]['val'].GetTTagSel(self.sel, ectx)
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    if self.sel_of_typeref():
+      t = ectx.type[self.seltype]['ethname']
+      pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
+      pars['TYPE_REF_TNAME'] = t
+      pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if not self.sel_of_typeref():
+      body = '#error Can not decode %s' % (tname)
+    elif (ectx.Ber()):
+      body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
+    elif (ectx.Per()):
+      body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
 #--- TaggedType -----------------------------------------------------------------
 class TaggedType (Type):
   def eth_tname(self):
@@ -3476,12 +3557,31 @@ class ChoiceType (Type):
       return rv
 
   def eth_reg_sub(self, ident, ectx):
-      #print "eth_reg_sub(ident='%s')" % (ident)
-      for e in (self.elt_list):
-          e.eth_reg(ident, ectx, tstrip=1, parent=ident)
-      if hasattr(self, 'ext_list'):
-          for e in (self.ext_list):
-              e.eth_reg(ident, ectx, tstrip=1, parent=ident)
+    #print "eth_reg_sub(ident='%s')" % (ident)
+    for e in (self.elt_list):
+        e.eth_reg(ident, ectx, tstrip=1, parent=ident)
+    if hasattr(self, 'ext_list'):
+        for e in (self.ext_list):
+            e.eth_reg(ident, ectx, tstrip=1, parent=ident)
+
+  def sel_item(self, ident, sel, ectx):
+    lst = self.elt_list
+    if hasattr(self, 'ext_list'):
+      lst.extend(self.ext_list)
+    ee = None
+    for e in (self.elt_list):
+      if e.IsNamed() and (e.name == sel):
+        ee = e
+        break
+    if not ee:
+      print "#CHOICE %s does not contain item %s" % (ident, sel)
+    return ee
+
+  def sel_req(self, ident, sel, ectx):
+    #print "sel_req(ident='%s', sel=%s)" % (ident, sel)
+    ee = self.sel_item(ident, sel, ectx)
+    if ee:
+      ee.eth_reg(ident, ectx, tstrip=0, selflag=True)
 
   def eth_ftype(self, ectx):
     return ('FT_UINT32', 'BASE_DEC')
@@ -3506,6 +3606,13 @@ class ChoiceType (Type):
     #  if (e.GetTag(ectx)[0] != cls):
     #    cls = '-1/*choice*/'
     return (cls, '-1/*choice*/')
+
+  def GetTTagSel(self, sel, ectx):
+    ee = self.sel_item('', sel, ectx)
+    if ee:
+      return ee.GetTag(ectx)
+    else:
+      return ('BER_CLASS_ANY/*unknown selection*/', '-1/*unknown selection*/')
 
   def IndetermTag(self, ectx):
     #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
@@ -4718,14 +4825,14 @@ def p_BuiltinType (t):
                  | SequenceOfType
                  | SetType
                  | SetOfType
-                 | selection_type
                  | TaggedType'''
   t[0] = t[1]
 
 # 16.3
 def p_ReferencedType (t):
   '''ReferencedType : DefinedType
-                    | UsefulType'''
+                    | UsefulType
+                    | SelectionType'''
   t[0] = t[1]
 
 # 16.5
@@ -5114,9 +5221,12 @@ def p_alternative_type_list_2 (t):
     'alternative_type_list : alternative_type_list COMMA NamedType'
     t[0] = t[1] + [t[3]]
 
-def p_selection_type (t): # XXX what is this?
-    'selection_type : identifier LT Type'
-    return Node ('seltype', ident = t[1], typ = t[3])
+# 29 Notation for selection types
+
+# 29.1
+def p_SelectionType (t): #
+  'SelectionType : identifier LT Type'
+  t[0] = SelectionType (typ = t[3], sel = t[1])
 
 # 30 Notation for tagged types ------------------------------------------------
 
