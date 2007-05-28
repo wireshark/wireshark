@@ -487,6 +487,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
   { PARAM_TYPE_MCID_REQ_IND,           "MCID request indicators"},
   { PARAM_TYPE_MCID_RSP_IND,           "MCID response indicators"},
   { PARAM_TYPE_HOP_COUNTER,            "Hop counter"},
+  { PARAM_TYPE_ORIG_LINE_INFO,         "Originating line info"},
   { PARAM_TYPE_TRANSM_MEDIUM_RQUR_PR,  "Transmission medium requirement prime"},
   { PARAM_TYPE_LOCATION_NR,            "Location number"},
   { PARAM_TYPE_REDIR_NR_RSTRCT,        "Redirection number restriction"},
@@ -511,6 +512,8 @@ static const value_string ansi_isup_parameter_type_value[] = {
   { PARAM_TYPE_REDIRECT_COUNTER,       "Redirect counter (reserved for national use)"},
   { PARAM_TYPE_COLLECT_CALL_REQ,       "Collect call request"},
   { PARAM_TYPE_GENERIC_NR,             "Generic number"},
+  { PARAM_TYPE_JURISDICTION,           "Jurisdiction"},
+  { PARAM_TYPE_GENERIC_NAME,           "Generic name"},
   { PARAM_TYPE_GENERIC_DIGITS,         "Generic digits (national use)"},
   { PARAM_TYPE_APPLICATON_TRANS,       "Application transport"},
   { ANSI_ISUP_PARAM_TYPE_OPER_SERV_INF,	"Operator Services information"},
@@ -540,6 +543,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
 #define BICC_COMMON_HEADER_LENGTH              (BICC_CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 
 #define MAXDIGITS                              32 /* Max number of address digits */
+#define MAXGNAME                               15 /* Max number of characters in generic name */
 
 #define PARAMETER_TYPE_LENGTH                  1
 #define PARAMETER_POINTER_LENGTH               1
@@ -574,6 +578,7 @@ static const value_string ansi_isup_parameter_type_value[] = {
 #define FORWARD_CALL_IND_LENGTH                2
 #define GENERIC_NOTIFICATION_IND_LENGTH        1
 #define HOP_COUNTER_LENGTH                     1
+#define ORIG_LINE_INFO_LENGTH                  1
 #define INFO_IND_LENGTH                        2
 #define INFO_REQUEST_IND_LENGTH                2
 #define LOOP_PREVENTION_IND_LENGTH             1
@@ -682,6 +687,16 @@ static const value_string isup_preferences_ind_value[] = {
 static const true_false_string isup_ISDN_originating_access_ind_value = {
   "originating access ISDN",
   "originating access non-ISDN"
+};
+
+static const true_false_string isup_ISDN_ported_num_trans_ind_value = {
+  "number translated",
+  "number not translated"
+};
+
+static const true_false_string isup_ISDN_qor_attempt_ind_value = {
+  "QoR routing attempt in progress",
+  "no QoR routing attempt in progress"
 };
 
 #define NO_INDICATION                                0
@@ -892,6 +907,14 @@ static const true_false_string isup_odd_even_ind_value = {
 #define ISUP_CALLED_PARTY_NATURE_NATIONAL_NR    3
 #define ISUP_CALLED_PARTY_NATURE_INTERNATNL_NR  4
 #define ISUP_CALLED_PARTY_NATURE_NETW_SPEC_NR   5
+
+#define ISUP_CHARGE_NATURE_ANI_CGPA_SUB_NR		1
+#define ISUP_CHARGE_NATURE_ANI_NA				2
+#define ISUP_CHARGE_NATURE_ANI_CGPA_NAT_NR		3
+#define ISUP_CHARGE_NATURE_ANI_CDPA_SUB_NR		5
+#define ISUP_CHARGE_NATURE_ANI_CDPA_NO_NR		6
+#define ISUP_CHARGE_NATURE_ANI_CDPA_NAT_NR		7
+
 static const value_string isup_called_party_nature_of_address_ind_value[] = {
   { ISUP_CALLED_PARTY_NATURE_SUBSCRIBER_NR,     "subscriber number (national use)"},
   { ISUP_CALLED_PARTY_NATURE_UNKNOWN,           "unknown (national use)"},
@@ -905,6 +928,48 @@ static const value_string isup_calling_party_nature_of_address_ind_value[] = {
   { ISUP_CALLED_PARTY_NATURE_UNKNOWN,           "unknown (national use)"},
   { ISUP_CALLED_PARTY_NATURE_NATIONAL_NR,       "national (significant) number"},
   { ISUP_CALLED_PARTY_NATURE_INTERNATNL_NR,     "international number"},
+  { 0,                                 NULL}};
+
+static const value_string isup_charge_number_nature_of_address_ind_value[] = {
+  { ISUP_CHARGE_NATURE_ANI_CGPA_SUB_NR,		"ANI of the calling party; subscriber number"},
+  { ISUP_CHARGE_NATURE_ANI_NA,				"ANI not available or not provided"},
+  { ISUP_CHARGE_NATURE_ANI_CGPA_NAT_NR,     "ANI of the calling party; national number"},
+  { ISUP_CHARGE_NATURE_ANI_CDPA_SUB_NR,     "ANI of the called party; subscriber number"},
+  { ISUP_CHARGE_NATURE_ANI_CDPA_NO_NR,		"ANI of the called party; no number present"},
+  { ISUP_CHARGE_NATURE_ANI_CDPA_NAT_NR,     "ANI of the called party; national number"},
+  { 0,                                 NULL}};
+
+#define ISUP_GENERIC_NAME_PRESENTATION_ALLOWED		0
+#define ISUP_GENERIC_NAME_PRESENTATION_RESTRICT		1
+#define ISUP_GENERIC_NAME_PRESENTATION_BLOCK_TOGGLE	2
+#define ISUP_GENERIC_NAME_PRESENTATION_NO_INDIC		3
+#define ISUP_GENERIC_NAME_TYPE_SPARE				0
+#define ISUP_GENERIC_NAME_TYPE_CALLING				1
+#define ISUP_GENERIC_NAME_TYPE_ORIG_CALLED			2
+#define ISUP_GENERIC_NAME_TYPE_REDIRECTING			3
+#define ISUP_GENERIC_NAME_TYPE_CONNECTED			4
+
+static const value_string isup_generic_name_presentation_value[] = {
+  { ISUP_GENERIC_NAME_PRESENTATION_ALLOWED,			"presentation allowed"},
+  { ISUP_GENERIC_NAME_PRESENTATION_RESTRICT,		"presentation restricted"},
+  { ISUP_GENERIC_NAME_PRESENTATION_BLOCK_TOGGLE,	"blocking toggle"},
+  { ISUP_GENERIC_NAME_PRESENTATION_NO_INDIC,		"no indication"},
+  { 0,                                 NULL}};
+
+static const true_false_string isup_generic_name_availability_value = {
+  "name not available",
+  "name available/unknown"
+};
+
+static const value_string isup_generic_name_type_value[] = {
+  { ISUP_GENERIC_NAME_TYPE_SPARE,			"spare"},
+  { ISUP_GENERIC_NAME_TYPE_CALLING,			"calling name"},
+  { ISUP_GENERIC_NAME_TYPE_ORIG_CALLED,		"original called name"},
+  { ISUP_GENERIC_NAME_TYPE_REDIRECTING,		"redirecting name"},
+  { ISUP_GENERIC_NAME_TYPE_CONNECTED,		"connected name"},
+  { 5,										"spare"},
+  { 6,										"spare"},
+  { 7,										"spare"},
   { 0,                                 NULL}};
 
 static const true_false_string isup_INN_ind_value = {
@@ -1360,6 +1425,7 @@ static const true_false_string isup_Sequence_ind_value = {
 #define GF_8BIT_MASK 0x60
 #define HG_8BIT_MASK 0xC0
 #define GFE_8BIT_MASK 0x70
+#define HGF_8BIT_MASK 0xE0
 #define DCBA_8BIT_MASK 0x0F
 #define EDCBA_8BIT_MASK 0x1F
 #define HGFE_8BIT_MASK 0xF0
@@ -1435,6 +1501,8 @@ static int hf_isup_forw_call_end_to_end_info_indicator = -1;
 static int hf_isup_forw_call_isdn_user_part_indicator = -1;
 static int hf_isup_forw_call_preferences_indicator = -1;
 static int hf_isup_forw_call_isdn_access_indicator = -1;
+static int hf_isup_forw_call_ported_num_trans_indicator = -1;
+static int hf_isup_forw_call_qor_attempt_indicator = -1;
 static int hf_isup_forw_call_sccp_method_indicator = -1;
 
 static int hf_isup_calling_partys_category = -1;
@@ -1455,6 +1523,11 @@ static int hf_isup_calling_party_odd_address_signal_digit = -1;
 static int hf_isup_called_party_even_address_signal_digit		= -1;
 static int hf_isup_calling_party_even_address_signal_digit		= -1;
 
+static int hf_isup_generic_name_presentation  = -1;
+static int hf_isup_generic_name_availability  = -1;
+static int hf_isup_generic_name_type          = -1;
+static int hf_isup_generic_name_ia5           = -1;
+
 static int hf_isup_OECD_inf_ind						= -1;
 static int hf_isup_IECD_inf_ind						= -1;
 static int hf_isup_OECD_req_ind						= -1;
@@ -1464,6 +1537,7 @@ static int hf_isup_calling_party_address_request_indicator = -1;
 static int hf_isup_info_req_holding_indicator = -1;
 static int hf_isup_calling_partys_category_request_indicator = -1;
 static int hf_isup_charge_information_request_indicator = -1;
+static int hf_isup_charge_number_nature_of_address_indicator = -1;
 static int hf_isup_malicious_call_identification_request_indicator = -1;
 
 static int hf_isup_calling_party_address_response_indicator = -1;
@@ -1775,6 +1849,8 @@ dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_tre
   proto_tree_add_uint(parameter_tree, hf_isup_forw_call_preferences_indicator, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
   proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_isdn_access_indicator, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
   proto_tree_add_uint(parameter_tree, hf_isup_forw_call_sccp_method_indicator, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
+  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_ported_num_trans_indicator, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
+  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_qor_attempt_indicator, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
 
   proto_item_set_text(parameter_item, "Forward Call Indicators: 0x%x", forward_call_ind );
 }
@@ -2091,13 +2167,83 @@ const value_string q850_cause_code_vals[] = {
 };
 
 static const value_string ansi_isup_cause_code_vals[] = {
-	{ 23, "Unallocated destination number" },
-	{ 24, "Undefined buissines group" },
-	{ 25, "Exchange routeing error" },
-	{ 45, "Preemption" },
-	{ 46, "Precedence call blocked" },
-	{ 51, "Call type incompatible with service request" },
-	{ 54, "Call blocked due to group restriction" },
+	{ 0x00,	"Valid cause code not yet received" },
+	{ 0x01,	"Unallocated (unassigned) number" },
+	{ 0x02,	"No route to specified transit network" },
+	{ 0x03,	"No route to destination" },
+	{ 0x04,	"Send special information tone" },
+	{ 0x05,	"Misdialled trunk prefix" },
+	{ 0x06,	"Channel unacceptable" },
+	{ 0x07,	"Call awarded and being delivered in an established channel" },
+	{ 0x08,	"Preemption" },
+	{ 0x09,	"Preemption - circuit reserved for reuse" },
+	{ 0x0E,	"QoR: ported number" },
+	{ 0x10,	"Normal call clearing" },
+	{ 0x11,	"User busy" },
+	{ 0x12,	"No user responding" },
+	{ 0x13,	"No answer from user (user alerted)" },
+	{ 0x14,	"Subscriber absent" },
+	{ 0x15,	"Call rejected" },
+	{ 0x16,	"Number changed" },
+	{ 23,   "Unallocated destination number" },
+	{ 24,   "Undefined business group" },
+	{ 0x19,	"Exchange routing error" },
+	{ 0x1A,	"Non-selected user clearing" },
+	{ 0x1B,	"Destination out of order" },
+	{ 0x1C,	"Invalid number format (address incomplete)" },
+	{ 0x1D,	"Facility rejected" },
+	{ 0x1E,	"Response to STATUS ENQUIRY" },
+	{ 0x1F,	"Normal unspecified" },
+	{ 0x21,	"Circuit out of order" },
+	{ 0x22,	"No circuit/channel available" },
+	{ 0x26,	"Network out of order" },
+	{ 0x27,	"Permanent frame mode connection out of service" },
+	{ 0x28,	"Permanent frame mode connection operational" },
+	{ 0x29,	"Temporary failure" },
+	{ 0x2A,	"Switching equipment congestion" },
+	{ 0x2B,	"Access information discarded" },
+	{ 0x2C,	"Requested circuit/channel not available" },
+	{ 45,   "Preemption" },
+	{ 0x2E,	"Precedence call blocked" },
+	{ 0x2F,	"Resources unavailable, unspecified" },
+	{ 0x31,	"Quality of service unavailable" },
+	{ 0x32,	"Requested facility not subscribed" },
+	{ 51,   "Call type incompatible with service request" },
+	{ 0x35,	"Outgoing calls barred within CUG" },
+	{ 54,   "Call blocked due to group restriction" },
+	{ 0x37,	"Incoming calls barred within CUG" },
+	{ 0x38,	"Call waiting not subscribed" },
+	{ 0x39,	"Bearer capability not authorized" },
+	{ 0x3A,	"Bearer capability not presently available" },
+	{ 0x3E,	"Inconsistency in designated outgoing access information and subscriber class" },
+	{ 0x3F,	"Service or option not available, unspecified" },
+	{ 0x41,	"Bearer capability not implemented" },
+	{ 0x42,	"Channel type not implemented" },
+	{ 0x45,	"Requested facility not implemented" },
+	{ 0x46,	"Only restricted digital information bearer capability is available" },
+	{ 0x4F,	"Service or option not implemented, unspecified" },
+	{ 0x51,	"Invalid call reference value" },
+	{ 0x52,	"Identified channel does not exist" },
+	{ 0x53,	"Call identity does not exist for suspended call" },
+	{ 0x54,	"Call identity in use" },
+	{ 0x55,	"No call suspended" },
+	{ 0x56,	"Call having the requested call identity has been cleared" },
+	{ 0x57,	"Called user not member of CUG" },
+	{ 0x58,	"Incompatible destination" },
+	{ 0x5A,	"Non-existing CUG" },
+	{ 0x5B,	"Invalid transit network selection (national use)" },
+	{ 0x5F,	"Invalid message, unspecified" },
+	{ 0x60,	"Mandatory information element is missing" },
+	{ 0x61,	"Message type non-existent or not implemented" },
+	{ 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
+	{ 0x63,	"Information element nonexistant or not implemented" },
+	{ 0x64,	"Invalid information element contents" },
+	{ 0x65,	"Message not compatible with call state" },
+	{ 0x66,	"Recovery on timer expiry" },
+	{ 0x67,	"Parameter non-existent or not implemented - passed on" },
+	{ 0x6E,	"Message with unrecognized parameter discarded" },
+	{ 0x6F,	"Protocol error, unspecified" },
+	{ 0x7F,	"Internetworking, unspecified" },
 	{ 0,	NULL }
 };
 
@@ -2122,18 +2268,34 @@ static void
 dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
 	guint8 coding_standard;
+	guint8 cause_value;
 	int offset = 0;
 	guint length = tvb_reported_length(parameter_tvb);
 
-	coding_standard = (tvb_get_guint8(parameter_tvb, offset)&& 0x60)>>5;
-	proto_tree_add_text(parameter_tree, parameter_tvb,0, -1, "Cause indicators");
+	coding_standard = (tvb_get_guint8(parameter_tvb, offset)&&0x60)>>5;
 
 	switch (coding_standard) {
-	case 1:
-		/* ITU Cause */
-		dissect_q931_cause_ie(parameter_tvb,0,length,
-					    parameter_tree,
-					    hf_isup_cause_indicator, &tap_cause_value);
+	case 0:
+		/*CCITT*/
+		proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, FALSE);
+		proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
+		proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
+		offset ++;
+		length--;
+		if (length == 0)
+			return;
+		proto_tree_add_item(parameter_tree, hf_isup_cause_indicator, parameter_tvb, offset, 1, FALSE);
+		cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
+		offset ++;
+		length--;
+		if (length == 0) {
+			proto_item_set_text(parameter_item, "Cause indicators: %s (%u)", val_to_str(cause_value, q850_cause_code_vals, "spare"),cause_value );
+			return;
+		}
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset,
+		    length, "Diagnostic: %s",
+		    tvb_bytes_to_str(parameter_tvb, offset, length));
+		return;
 		break;
 	case 2:
 		/*ANSI*/
@@ -2147,8 +2309,11 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 		proto_tree_add_item(parameter_tree, hf_ansi_isup_cause_indicator, parameter_tvb, offset, 1, FALSE);
 		offset ++;
 		length--;
-		if (length == 0)
+		cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
+		if (length == 0) {
+			proto_item_set_text(parameter_item, "Cause indicators: %s (%u)", val_to_str(cause_value, ansi_isup_cause_code_vals, "spare"),cause_value );
 			return;
+		}
 		proto_tree_add_text(parameter_tree, parameter_tvb, offset,
 		    length, "Diagnostic: %s",
 		    tvb_bytes_to_str(parameter_tvb, offset, length));
@@ -4425,6 +4590,17 @@ dissect_isup_hop_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   proto_item_set_text(parameter_item,  "Hop counter: %u", counter);
 }
 /* ------------------------------------------------------------------
+  Dissector Parameter Originating line information
+ */
+static void
+dissect_isup_orig_line_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{ guint8 info;
+
+  info = tvb_get_guint8(parameter_tvb, 0);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, ORIG_LINE_INFO_LENGTH, "Originating line info: %u", info);
+  proto_item_set_text(parameter_item,  "Originating line info: %u (ANI II if < 51, reserved otherwise)", info);
+}
+/* ------------------------------------------------------------------
   Dissector Parameter Transmission medium requirement prime
  */
 static void
@@ -4938,6 +5114,77 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 
 }
 /* ------------------------------------------------------------------
+  Dissector Parameter  Jurisdiction parameter
+ */
+static void
+dissect_isup_jurisdiction_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  proto_item *address_digits_item;
+  proto_tree *address_digits_tree;
+  guint8 address_digit_pair=0;
+  gint offset=0;
+  gint i=0;
+  gint length;
+  char called_number[MAXDIGITS + 1]="";
+
+  offset = 0;
+
+  address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
+					    offset, -1,
+					    "Jurisdiction");
+  address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
+
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
+    address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
+    proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+    called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    if (i > MAXDIGITS)
+      THROW(ReportedBoundsError);
+    if ((length - 1) > 0 ){
+      proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      if (i > MAXDIGITS)
+	THROW(ReportedBoundsError);
+    }
+    offset++;
+  }
+
+  if (tvb_length(parameter_tvb) > 0){
+      proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
+      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      if (i > MAXDIGITS)
+	THROW(ReportedBoundsError);
+  }
+  called_number[i++] = '\0';
+
+  proto_item_set_text(address_digits_item, "Jurisdiction: %s", called_number);
+  proto_item_set_text(parameter_item, "Jurisdiction: %s", called_number);
+
+}/* ------------------------------------------------------------------
+  Dissector Parameter Generic name
+ */
+static void
+dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  guint8 indicator;
+  gint gen_name_length;
+  char *gen_name=NULL;
+  
+  gen_name=ep_alloc(MAXGNAME + 1);
+  gen_name[0] = '\0';
+  gen_name_length = tvb_length(parameter_tvb) - 1;
+  indicator = tvb_get_guint8(parameter_tvb, 0);
+  proto_tree_add_uint(parameter_tree, hf_isup_generic_name_presentation, parameter_tvb, 1, 1, indicator);
+  proto_tree_add_boolean(parameter_tree, hf_isup_generic_name_availability, parameter_tvb, 1, 1, indicator);
+  proto_tree_add_uint(parameter_tree, hf_isup_generic_name_type, parameter_tvb, 1, 1, indicator);
+  gen_name = tvb_get_string(parameter_tvb,1,gen_name_length); 
+  gen_name[gen_name_length] = '\0';
+  proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 2, gen_name_length, gen_name);
+  proto_item_set_text(parameter_item, "Generic name: %s", gen_name);
+  
+  }
+  
+/* ------------------------------------------------------------------
  Dissector Parameter Generic digits
  */
 static void
@@ -4945,6 +5192,63 @@ dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 { guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Generic digits (refer to 3.24/Q.673 for detailed decoding)");
   proto_item_set_text(parameter_item, "Generic digits (%u Byte%s)", length , plurality(length, "", "s"));
+}
+
+/* ------------------------------------------------------------------
+  Dissector Parameter Charge number
+ */
+void
+dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  proto_item *address_digits_item;
+  proto_tree *address_digits_tree;
+  guint8 indicators1, indicators2;
+  guint8 address_digit_pair=0;
+  gint offset=0;
+  gint i=0;
+  gint length;
+  char calling_number[MAXDIGITS + 1]="";
+
+  indicators1 = tvb_get_guint8(parameter_tvb, 0);
+  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
+  proto_tree_add_uint(parameter_tree, hf_isup_charge_number_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
+  indicators2 = tvb_get_guint8(parameter_tvb, 1);
+  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
+  offset = 2;
+
+  address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
+					    offset, -1,
+					    "Charge Number");
+  address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
+
+  length = tvb_length_remaining(parameter_tvb, offset);
+  while(length > 0){
+    address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
+    proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    if (i > MAXDIGITS)
+      THROW(ReportedBoundsError);
+    if ((length - 1) > 0 ){
+      proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      if (i > MAXDIGITS)
+	THROW(ReportedBoundsError);
+    }
+    offset++;
+    length = tvb_length_remaining(parameter_tvb, offset);
+  }
+
+  if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
+      proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
+      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      if (i > MAXDIGITS)
+	THROW(ReportedBoundsError);
+  }
+  calling_number[i++] = '\0';
+
+  proto_item_set_text(address_digits_item, "Charge Number: %s", calling_number);
+  proto_item_set_text(parameter_item, "Charge Number: %s", calling_number);
+
 }
 /* ------------------------------------------------------------------ */
 static void
@@ -5463,6 +5767,9 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
 			case PARAM_TYPE_HOP_COUNTER:
 				dissect_isup_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
+			case PARAM_TYPE_ORIG_LINE_INFO:
+				dissect_isup_orig_line_info_parameter(parameter_tvb, parameter_tree, parameter_item);
+				break;
 			case PARAM_TYPE_TRANSM_MEDIUM_RQUR_PR:
 				dissect_isup_transmission_medium_requirement_prime_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
@@ -5535,8 +5842,17 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
 			case PARAM_TYPE_GENERIC_NR:
 				dissect_isup_generic_number_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
+			case PARAM_TYPE_JURISDICTION:
+				dissect_isup_jurisdiction_parameter(parameter_tvb, parameter_tree, parameter_item);
+				break;
+			case PARAM_TYPE_GENERIC_NAME:
+				dissect_isup_generic_name_parameter(parameter_tvb, parameter_tree, parameter_item);
+				break;
 			case PARAM_TYPE_GENERIC_DIGITS:
 				dissect_isup_generic_digits_parameter(parameter_tvb, parameter_tree, parameter_item);
+				break;
+			case PARAM_TYPE_CHARGE_NR:
+				dissect_isup_charge_number_parameter(parameter_tvb, parameter_tree, parameter_item);
 				break;
 			case PARAM_TYPE_APPLICATON_TRANS:
 				dissect_isup_application_transport_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
@@ -5879,7 +6195,7 @@ dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   parameter_item = proto_tree_add_text(isup_tree, message_tvb,
 				       offset +  parameter_pointer,
 				       parameter_length + PARAMETER_LENGTH_IND_LENGTH,
-				       "Cause indicators, see Q.850");
+				       "Cause indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);
@@ -7008,6 +7324,16 @@ proto_register_isup(void)
 			FT_UINT16, BASE_HEX, VALS(isup_SCCP_method_ind_value), KJ_16BIT_MASK,
 			"", HFILL }},
 
+		{ &hf_isup_forw_call_ported_num_trans_indicator,
+			{ "Ported number translation indicator",  "isup.forw_call_ported_num_trans_indicator",
+			FT_BOOLEAN, 16, TFS(&isup_ISDN_ported_num_trans_ind_value), M_16BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_forw_call_qor_attempt_indicator,
+			{ "Query on Release attempt indicator",  "isup.forw_call_isdn_access_indicator",
+			FT_BOOLEAN, 16, TFS(&isup_ISDN_qor_attempt_ind_value), N_16BIT_MASK,
+			"", HFILL }},
+
 		{ &hf_isup_calling_partys_category,
 			{ "Calling Party's category",  "isup.calling_partys_category",
 			FT_UINT8, BASE_HEX, VALS(isup_calling_partys_category_value), 0x0,
@@ -7023,6 +7349,26 @@ proto_register_isup(void)
 			FT_BOOLEAN, 8, TFS(&isup_odd_even_ind_value), ISUP_ODD_EVEN_MASK,
 			"", HFILL }},
 
+		{ &hf_isup_generic_name_presentation,
+			{ "Presentation indicator",  "isup.isdn_generic_name_presentation",
+			FT_UINT8, BASE_DEC, VALS(isup_generic_name_presentation_value), BA_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_generic_name_availability,
+			{ "Availability indicator",  "isup.isdn_generic_name_availability",
+			FT_BOOLEAN, 8, TFS(&isup_generic_name_availability_value), E_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_generic_name_type,
+			{ "Type indicator",  "isup.isdn_generic_name_type",
+			FT_UINT8, BASE_DEC, VALS(isup_generic_name_type_value), HGF_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_generic_name_ia5,
+			{ "Generic Name",  "isup.isdn_generic_name_ia5",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
 		{ &hf_isup_called_party_nature_of_address_indicator,
 			{ "Nature of address indicator",  "isup.called_party_nature_of_address_indicator",
 			FT_UINT8, BASE_DEC, VALS(isup_called_party_nature_of_address_ind_value), ISUP_NATURE_OF_ADDRESS_IND_MASK,
@@ -7031,6 +7377,11 @@ proto_register_isup(void)
 		{ &hf_isup_calling_party_nature_of_address_indicator,
 			{ "Nature of address indicator",  "isup.calling_party_nature_of_address_indicator",
 			FT_UINT8, BASE_DEC, VALS(isup_calling_party_nature_of_address_ind_value), ISUP_NATURE_OF_ADDRESS_IND_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_charge_number_nature_of_address_indicator,
+			{ "Nature of address indicator",  "isup.charge_number_nature_of_address_indicator",
+			FT_UINT8, BASE_DEC, VALS(isup_charge_number_nature_of_address_ind_value), ISUP_NATURE_OF_ADDRESS_IND_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_inn_indicator,
