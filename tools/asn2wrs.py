@@ -551,6 +551,14 @@ class EthCtx:
       ethname = self.value[nm]['ethname']
     return ethname
 
+  def value_get_val(self, nm):
+    val = nm
+    if self.value.has_key(nm) and not self.value[nm]['import']:
+      val = self.value[nm]['value']
+      if isinstance (val, Value):
+        val = val.to_str(self)
+    return val
+
   def eth_get_type_attr(self, type):
     types = [type]
     while (not self.type[type]['import'] 
@@ -689,10 +697,14 @@ class EthCtx:
         # replace imported value
         del self.value[ident]
         self.value_imp.remove(ident)
+      elif ethname:
+        self.value[ident]['ethname'] = ethname
+        return
       else:
         raise "Duplicate value for " + ident
     self.value[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto,
-                          'type' : type, 'value' : value }
+                          'type' : type, 'value' : value,
+                          'no_emit' : False }
     self.value[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.value[ident]['ethname'] = ''
     if (ethname): self.value[ident]['ethname'] = ethname
@@ -792,7 +804,6 @@ class EthCtx:
         self.eth_reg_field(f, f, pdu=pdu)
 
     #--- values -> named values -------------------
-    v_for_remove = []
     t_for_update = {}
     for v in self.value_ord:
       if (self.value[v]['type'].type == 'Type_Ref'):
@@ -801,11 +812,8 @@ class EthCtx:
            and not self.type[tnm]['import'] \
            and (self.type[tnm]['val'].type == 'IntegerType'):
           self.type[tnm]['val'].add_named_value(v, self.value[v]['value'])
-          v_for_remove.append(v)
+          self.value[v]['no_emit'] = True
           t_for_update[tnm] = True
-    for v in v_for_remove:
-      self.value_ord.remove(v)
-      del self.value[v]
     for t in t_for_update.keys():
       self.type[t]['attr']['STRINGS'] = self.type[t]['val'].eth_strings()
       self.type[t]['attr'].update(self.conform.use_item('TYPE_ATTR', t))
@@ -907,14 +915,13 @@ class EthCtx:
     for v in self.value_ord:
       if (self.value[v]['ethname']):
         continue
+      if (self.value[v]['no_emit']):
+        continue
       nm = asn2c(v)
       self.eth_value[nm] = { 'import' : None, 
                              'proto' : asn2c(self.value[v]['proto']),
                              'export' : self.value[v]['export'], 'ref' : [v] }
-      if isinstance (self.value[v]['value'], Value):
-        self.eth_value[nm]['value'] = self.value[v]['value'].to_str()
-      else:
-        self.eth_value[nm]['value'] = self.value[v]['value']
+      self.eth_value[nm]['value'] = self.value[v]['value']
       self.eth_value_ord.append(nm)
       self.value[v]['ethname'] = nm
 
@@ -1299,7 +1306,10 @@ class EthCtx:
     if (not len(self.eth_value_ord1)): return
     fx = self.output.file_open('val', ext='h')
     for v in self.eth_value_ord1:
-      fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
+      vv = self.eth_value[v]['value']
+      if isinstance (vv, Value):
+        vv = vv.to_str(self)
+      fx.write("#define %-30s %s\n" % (v, vv))
     for t in self.eth_type_ord1:
       if self.eth_type[t]['import']:
         continue
@@ -1312,7 +1322,10 @@ class EthCtx:
     if (not len(self.eth_vexport_ord)): return
     fx = self.output.file_open('valexp', ext='h')
     for v in self.eth_vexport_ord:
-      fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
+      vv = self.eth_value[v]['value']
+      if isinstance (vv, Value):
+        vv = vv.to_str(self)
+      fx.write("#define %-30s %s\n" % (v, vv))
     self.output.file_close(fx)
 
   #--- eth_output_types -------------------------------------------------------
@@ -1588,7 +1601,10 @@ class EthCtx:
       print "%-40s %s" % ("Wireshark name", "Value")
       print "-" * 100
       for v in self.eth_vexport_ord:
-        print "%-40s %s" % (v, self.eth_value[v]['value'])
+        vv = self.eth_value[v]['value']
+        if isinstance (vv, Value):
+          vv = vv.to_str(self)
+        print "%-40s %s" % (v, vv)
       print "\n# ASN.1 Object Classes"
       print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
       print "-" * 100
@@ -1606,18 +1622,21 @@ class EthCtx:
         print "%-31s %d" % (t, len(self.eth_type[t]['ref'])),
         print ', '.join(self.eth_type[t]['ref'])
       print "\n# ASN.1 Values"
-      print "%-40s %-18s %s" % ("ASN.1 unique name", "Type", "Value")
+      print "%-40s %-18s %-20s %s" % ("ASN.1 unique name", "Type", "Value", "Wireshark value")
       print "-" * 100
       for v in self.value_ord:
-        if isinstance (self.value[v]['value'], Value):
-          print "%-40s %-18s %s" % (v, self.value[v]['type'].eth_tname(), self.value[v]['value'].to_str())
-        else:
-          print "%-40s %-18s %s" % (v, self.value[v]['type'].eth_tname(), self.value[v]['value'])
+        vv = self.value[v]['value']
+        if isinstance (vv, Value):
+          vv = vv.to_str(self)
+        print "%-40s %-18s %-20s %s" % (v, self.value[v]['type'].eth_tname(), vv, self.value[v]['ethname'])
       print "\n# Wireshark Values"
       print "%-40s %s" % ("Wireshark name", "Value")
       print "-" * 100
       for v in self.eth_value_ord:
-        print "%-40s %s" % (v, self.eth_value[v]['value'])
+        vv = self.eth_value[v]['value']
+        if isinstance (vv, Value):
+          vv = vv.to_str(self)
+        print "%-40s %s" % (v, vv)
       print "\n# ASN.1 Fields"
       print "ASN.1 unique name                        Wireshark name        ASN.1 type"
       print "-" * 100
@@ -2690,7 +2709,7 @@ class Value (Node):
   def SetName(self, name) :
     self.name = name
 
-  def to_str(self):
+  def to_str(self, ectx):
     return str(self)
 
   def get_dep(self):
@@ -4187,7 +4206,7 @@ class ObjectIdentifierValue (Value):
   def get_num(self, path, val):
     return str(oid_names.get(path + '/' + val, val))
 
-  def to_str(self):
+  def to_str(self, ectx):
     out = ''
     path = ''
     first = True
@@ -4199,11 +4218,13 @@ class ObjectIdentifierValue (Value):
         vstr = v
       else:
         vstr = self.get_num(path, v)
+      if not first and not vstr.isdigit():
+        vstr = ectx.value_get_val(vstr)
       if first:
         if vstr.isdigit():
           out += '"' + vstr
         else:
-          out += vstr + '"'
+          out += ectx.value_get_eth(vstr) + '"'
       else:
        out += sep + vstr
       path += sep + vstr
@@ -4630,14 +4651,18 @@ def p_DefinedType (t):
   t[0] = t[1]
 
 def p_DefinedValue(t):
-  '''DefinedValue : ext_val_ref
+  '''DefinedValue : ExternalValueReference
                   | identifier'''
   t[0] = t[1]
 
 # 13.6
 def p_ExternalTypeReference (t):
-    'ExternalTypeReference : type_ref DOT type_ref'
-    t[0] = Node ('ExternalTypeReference', module = t[1], typ = t[3])
+  'ExternalTypeReference : modulereference DOT type_ref'
+  t[0] = Node ('ExternalTypeReference', module = t[1], typ = t[3])
+
+def p_ExternalValueReference (t):
+  'ExternalValueReference : modulereference DOT identifier'
+  t[0] = Node ('ExternalValueReference', module = t[1], ident = t[3])
 
 
 # 15 Assigning types and values -----------------------------------------------
@@ -5408,35 +5433,36 @@ def p_Includes (t):
 # 47.4 Value range
 # 47.4.1
 def p_ValueRange (t):
-    'ValueRange : lower_end_point RANGE upper_end_point'
-    t[0] = Constraint(type = 'ValueRange', subtype = [t[1], t[3]])
+  'ValueRange : LowerEndpoint RANGE UpperEndpoint'
+  t[0] = Constraint(type = 'ValueRange', subtype = [t[1], t[3]])
 
 # 47.4.3
-def p_lower_end_point_1 (t):
-    'lower_end_point : lower_end_value '
-    t[0] = t[1]
+def p_LowerEndpoint_1 (t):
+  'LowerEndpoint : LowerEndValue'
+  t[0] = t[1]
 
-def p_lower_end_point_2 (t):
-    'lower_end_point : lower_end_value LT' # XXX LT first?
-    t[0] = t[1] # but not inclusive range
+def p_LowerEndpoint_2 (t):
+  'LowerEndpoint : LowerEndValue LT'
+  t[0] = t[1] # but not inclusive range
     
-def p_upper_end_point_1 (t):
-    'upper_end_point : upper_end_value'
-    t[0] = t[1]
+def p_UpperEndpoint_1 (t):
+  'UpperEndpoint : UpperEndValue'
+  t[0] = t[1]
 
-def p_upper_end_point_2 (t):
-    'upper_end_point : LT upper_end_value'
-    t[0] = t[1] # but not inclusive range
+def p_UpperEndpoint_2 (t):
+  'UpperEndpoint : LT UpperEndValue'
+  t[0] = t[1] # but not inclusive range
 
-def p_lower_end_value (t):
-    '''lower_end_value : Value
-                       | MIN'''
-    t[0] = t[1] # XXX
+# 47.4.4
+def p_LowerEndValue (t):
+  '''LowerEndValue : Value
+                   | MIN'''
+  t[0] = t[1] # XXX
 
-def p_upper_end_value (t):
-    '''upper_end_value : Value
-                       | MAX'''
-    t[0] = t[1]
+def p_UpperEndValue (t):
+  '''UpperEndValue : Value
+                    | MAX'''
+  t[0] = t[1]
 
 # 47.5 Size constraint
 # 47.5.1
@@ -5538,12 +5564,6 @@ def p_ExceptionSpec (t):
 #  /*-----------------------------------------------------------------------*/
 
 
-
-
-def p_ext_val_ref (t):
-    'ext_val_ref : type_ref DOT identifier'
-    # XXX coerce type_ref to module_ref
-    return Node ('ext_val_ref', module = t[1], ident = t[3])
 
 
 # see X.208 if you are dubious about lcase only for identifier 
