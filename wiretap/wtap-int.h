@@ -289,6 +289,27 @@ extern gint wtap_num_file_types;
 	 ((((x)&0xFF00)>>8) | \
 	  (((x)&0x00FF)<<8))
 
+/* Macros to byte-swap possibly-unaligned 32-bit and 16-bit quantities;
+ * they take a pointer to the quantity, and byte-swap it in place.
+ */
+#define PBSWAP32(p) \
+	{			\
+	guint8 tmp;		\
+	tmp = (p)[3];		\
+	(p)[3] = (p)[0];	\
+	(p)[0] = tmp;		\
+	tmp = (p)[2];		\
+	(p)[2] = (p)[1];	\
+	(p)[1] = tmp;		\
+	}
+#define PBSWAP16(p) \
+	{			\
+	guint8 tmp;		\
+	tmp = (p)[1];		\
+	(p)[1] = (p)[0];	\
+	(p)[0] = tmp;		\
+	}
+
 /* Turn host-byte-order values into little-endian values. */
 #define htoles(s) GUINT16_TO_LE(s)
 #define htolel(l) GUINT32_TO_LE(l)
@@ -297,8 +318,10 @@ extern gint wtap_num_file_types;
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
  * The pletoh[sl] versions return the little-endian representation.
- * We also provide pntohll and phtolell, which extract 64-bit integral
+ * We also provide pntohll and pletohll, which extract 64-bit integral
  * quantities.
+ *
+ * These will work regardless of the byte alignment of the pointer.
  */
 
 #ifndef pntohs
@@ -332,19 +355,6 @@ extern gint wtap_num_file_types;
 #endif
 
 
-#ifndef phtons
-#define phtons(p)  ((guint16)                       \
-                    ((guint16)*((const guint8 *)(p)+0)<<8|  \
-                     (guint16)*((const guint8 *)(p)+1)<<0))
-#endif
-
-#ifndef phtonl
-#define phtonl(p)  ((guint32)*((const guint8 *)(p)+0)<<24|  \
-                    (guint32)*((const guint8 *)(p)+1)<<16|  \
-                    (guint32)*((const guint8 *)(p)+2)<<8|   \
-                    (guint32)*((const guint8 *)(p)+3)<<0)
-#endif
-
 #ifndef pletohs
 #define pletohs(p) ((guint16)                       \
                     ((guint16)*((const guint8 *)(p)+1)<<8|  \
@@ -375,6 +385,28 @@ extern gint wtap_num_file_types;
                      (guint64)*((const guint8 *)(p)+2)<<16|  \
                      (guint64)*((const guint8 *)(p)+1)<<8|   \
                      (guint64)*((const guint8 *)(p)+0)<<0)
+#endif
+
+/* Pointer routines to put items out in a particular byte order.
+ * These will work regardless of the byte alignment of the pointer.
+ */
+
+#ifndef phtons
+#define phtons(p, v) \
+	{ 			\
+	(p)[0] = (v) >> 8;	\
+	(p)[1] = (v);		\
+	}
+#endif
+
+#ifndef phtonl
+#define phtonl(p, v) \
+	{ 				\
+	(p)[0] = ((v) >> 24);	\
+	(p)[1] = ((v) >> 16);	\
+	(p)[2] = ((v) >> 8);	\
+	(p)[3] = (v);		\
+	}
 #endif
 
 #define wtap_file_read_unknown_bytes(target, num_bytes, fh, err) \

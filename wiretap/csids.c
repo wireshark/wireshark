@@ -184,14 +184,10 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
   wth->phdr.ts.secs = hdr.seconds;
   wth->phdr.ts.nsecs = 0;
 
-  if( wth->capture.csids->byteswapped == TRUE ) {
-    guint16* swap = (guint16*)buf;
-    swap++;
-    *(swap) = BSWAP16(*swap); /* the ip len */
-    swap++;
-    *(swap) = BSWAP16(*swap); /* ip id */
-    swap++;
-    *(swap) = BSWAP16(*swap); /* ip flags and fragoff */
+  if( wth->capture.csids->byteswapped ) {
+    PBSWAP16(buf);   /* the ip len */
+    PBSWAP16(buf+2); /* ip id */
+    PBSWAP16(buf+4); /* ip flags and fragoff */
   }
 
   return TRUE;
@@ -240,14 +236,10 @@ csids_seek_read (wtap *wth,
     return FALSE;
   }
 
-  if( wth->capture.csids->byteswapped == TRUE ) {
-    guint16* swap = (guint16*)pd;
-    swap++;
-    *(swap) = BSWAP16(*swap); /* the ip len */
-    swap++;
-    *(swap) = BSWAP16(*swap); /* ip id */
-    swap++;
-    *(swap) = BSWAP16(*swap); /* ip flags and fragoff */
+  if( wth->capture.csids->byteswapped ) {
+    PBSWAP16(pd);   /* the ip len */
+    PBSWAP16(pd+2); /* ip id */
+    PBSWAP16(pd+4); /* ip flags and fragoff */
   }
 
   return TRUE;

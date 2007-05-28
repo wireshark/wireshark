@@ -45,56 +45,59 @@
 #endif
 
 /*
+ * Various pseudo-headers that appear at the beginning of packet data.
+ *
+ * We represent them as sets of offsets, as they might not be aligned on
+ * an appropriate structure boundary in the buffer, and as that makes them
+ * independent of the way the compiler might align fields.
+ */
+
+/*
  * The link-layer header on SunATM packets.
  */
-struct sunatm_hdr {
-	guint8	flags;		/* destination and traffic type */
-	guint8	vpi;		/* VPI */
-	guint16	vci;		/* VCI */
-};
+#define SUNATM_FLAGS	0	/* destination and traffic type - 1 byte */
+#define SUNATM_VPI	1	/* VPI - 1 byte */
+#define SUNATM_VCI	2	/* VCI - 2 bytes */
+#define SUNATM_LEN	4	/* length of the header */
 
 /*
  * The link-layer header on Nokia IPSO ATM packets.
  */
-struct nokiaatm_hdr {
-	guint8	flags;		/* destination */
-	guint8	vpi;		/* VPI */
-	guint16	vci;		/* VCI */
-};
+#define NOKIAATM_FLAGS	0	/* destination - 1 byte */
+#define NOKIAATM_VPI	1	/* VPI - 1 byte */
+#define NOKIAATM_VCI	2	/* VCI - 2 bytes */
+#define NOKIAATM_LEN	4	/* length of the header */
 
 /*
  * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
  * to libpcap.
  */
-struct irda_sll_hdr {
-    guint16 sll_pkttype;    /* packet type */
-    guint8 unused[12];      /* usused SLL header fields */
-    guint16 sll_protocol;   /* protocol, should be 0x0017 */
-};
+#define IRDA_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
+/* 12 unused bytes */
+#define IRDA_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
+#define IRDA_SLL_LEN			16	/* length of the header */
 
 /*
  * A header containing additional MTP information.
  */
-struct mtp2_hdr {
-	guint8  sent;
-	guint8  annex_a_used;
-	guint16 link_number;
-};
+#define MTP2_SENT_OFFSET		0	/* 1 byte */
+#define MTP2_ANNEX_A_USED_OFFSET	1	/* 1 byte */
+#define MTP2_LINK_NUMBER_OFFSET		2	/* 2 bytes */
+#define MTP2_HDR_LEN			4	/* length of the header */
 
+/*
+ * The fake link-layer header of LAPD packets.
+ */
 #ifndef ETH_P_LAPD
 #define ETH_P_LAPD 0x0030
 #endif
 
-/*
- * The fake link-layer header of LAPD packets
- */
-struct lapd_sll_hdr {
-    guint16 sll_pkttype;    /* packet type */
-    guint16 sll_hatype;
-    guint16 sll_halen;
-    guint8 sll_addr[8];
-    guint16 sll_protocol;   /* protocol, should be ETH_P_LAPD */
-};
+#define LAPD_SLL_PKTTYPE_OFFSET		0	/* packet type - 2 bytes */
+#define LAPD_SLL_HATYPE_OFFSET		2	/* hardware address type - 2 bytes */
+#define LAPD_SLL_HALEN_OFFSET		4	/* hardware address length - 2 bytes */
+#define LAPD_SLL_ADDR_OFFSET		6	/* address - 8 bytes */
+#define LAPD_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
+#define LAPD_SLL_LEN			16	/* length of the header */
 
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
@@ -120,21 +123,21 @@ static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
 static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
-static void libpcap_get_sunatm_pseudoheader(const struct sunatm_hdr *atm_phdr,
+static void libpcap_get_sunatm_pseudoheader(const guint8 *atm_phdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_sunatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_read_nokiaatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
-static gboolean libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
+static gboolean libpcap_get_irda_pseudoheader(const guint8 *irda_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_irda_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-static gboolean libpcap_get_mtp2_pseudoheader(const struct mtp2_hdr *mtp2_hdr,
+static gboolean libpcap_get_mtp2_pseudoheader(const guint8 *mtp2_hdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_mtp2_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-static gboolean libpcap_get_lapd_pseudoheader(const struct lapd_sll_hdr *lapd_phdr,
+static gboolean libpcap_get_lapd_pseudoheader(const guint8 *lapd_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_lapd_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -1221,7 +1224,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 			/*
 			 * Nokia IPSO ATM.
 			 */
-			if (packet_size < sizeof (struct nokiaatm_hdr)) {
+			if (packet_size < NOKIAATM_LEN) {
 				/*
 				 * Uh-oh, the packet isn't big enough to even
 				 * have a pseudo-header.
@@ -1239,14 +1242,14 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 			 * Don't count the pseudo-header as part of the
 			 * packet.
 			 */
-			orig_size -= sizeof (struct nokiaatm_hdr);
-			packet_size -= sizeof (struct nokiaatm_hdr);
-			wth->data_offset += sizeof (struct nokiaatm_hdr);
+			orig_size -= NOKIAATM_LEN;
+			packet_size -= NOKIAATM_LEN;
+			wth->data_offset += NOKIAATM_LEN;
 		} else {
 			/*
 			 * SunATM.
 			 */
-			if (packet_size < sizeof (struct sunatm_hdr)) {
+			if (packet_size < SUNATM_LEN) {
 				/*
 				 * Uh-oh, the packet isn't big enough to even
 				 * have a pseudo-header.
@@ -1264,9 +1267,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 			 * Don't count the pseudo-header as part of the
 			 * packet.
 			 */
-			orig_size -= sizeof (struct sunatm_hdr);
-			packet_size -= sizeof (struct sunatm_hdr);
-			wth->data_offset += sizeof (struct sunatm_hdr);
+			orig_size -= SUNATM_LEN;
+			packet_size -= SUNATM_LEN;
+			wth->data_offset += SUNATM_LEN;
 		}
 		break;
 
@@ -1293,7 +1296,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		break;
 
 	case WTAP_ENCAP_IRDA:
-		if (packet_size < sizeof (struct irda_sll_hdr)) {
+		if (packet_size < IRDA_SLL_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1310,13 +1313,13 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct irda_sll_hdr);
-		packet_size -= sizeof (struct irda_sll_hdr);
-		wth->data_offset += sizeof (struct irda_sll_hdr);
+		orig_size -= IRDA_SLL_LEN;
+		packet_size -= IRDA_SLL_LEN;
+		wth->data_offset += IRDA_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
-		if (packet_size < sizeof (struct mtp2_hdr)) {
+		if (packet_size < MTP2_HDR_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1333,13 +1336,13 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct mtp2_hdr);
-		packet_size -= sizeof (struct mtp2_hdr);
-		wth->data_offset += sizeof (struct mtp2_hdr);
+		orig_size -= MTP2_HDR_LEN;
+		packet_size -= MTP2_HDR_LEN;
+		wth->data_offset += MTP2_HDR_LEN;
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
-		if (packet_size < sizeof (struct lapd_sll_hdr)) {
+		if (packet_size < LAPD_SLL_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -1356,9 +1359,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		orig_size -= sizeof (struct lapd_sll_hdr);
-		packet_size -= sizeof (struct lapd_sll_hdr);
-		wth->data_offset += sizeof (struct lapd_sll_hdr);
+		orig_size -= LAPD_SLL_LEN;
+		packet_size -= LAPD_SLL_LEN;
+		wth->data_offset += LAPD_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
@@ -1661,16 +1664,16 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 }
 
 static void
-libpcap_get_sunatm_pseudoheader(const struct sunatm_hdr *atm_phdr,
+libpcap_get_sunatm_pseudoheader(const guint8 *atm_phdr,
     union wtap_pseudo_header *pseudo_header)
 {
 	guint8	vpi;
 	guint16	vci;
 
-	vpi = atm_phdr->vpi;
-	vci = pntohs(&atm_phdr->vci);
+	vpi = atm_phdr[SUNATM_VPI];
+	vci = pntohs(&atm_phdr[SUNATM_VCI]);
 
-	switch (atm_phdr->flags & 0x0F) {
+	switch (atm_phdr[SUNATM_FLAGS] & 0x0F) {
 
 	case 0x01:	/* LANE */
 		pseudo_header->atm.aal = AAL_5;
@@ -1725,7 +1728,7 @@ libpcap_get_sunatm_pseudoheader(const struct sunatm_hdr *atm_phdr,
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = (atm_phdr->flags & 0x80) ? 0 : 1;
+	pseudo_header->atm.channel = (atm_phdr[SUNATM_FLAGS] & 0x80) ? 0 : 1;
 
 	/* We don't have this information */
 	pseudo_header->atm.flags = 0;
@@ -1739,19 +1742,19 @@ static gboolean
 libpcap_read_sunatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err)
 {
-	struct sunatm_hdr atm_phdr;
+	guint8	atm_phdr[SUNATM_LEN];
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&atm_phdr, 1, sizeof (struct sunatm_hdr), fh);
-	if (bytes_read != sizeof (struct sunatm_hdr)) {
+	bytes_read = file_read(atm_phdr, 1, SUNATM_LEN, fh);
+	if (bytes_read != SUNATM_LEN) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
 
-	libpcap_get_sunatm_pseudoheader(&atm_phdr, pseudo_header);
+	libpcap_get_sunatm_pseudoheader(atm_phdr, pseudo_header);
 
 	return TRUE;
 }
@@ -1760,26 +1763,26 @@ static gboolean
 libpcap_read_nokiaatm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err)
 {
-	struct nokiaatm_hdr atm_phdr;
+	guint8	atm_phdr[NOKIAATM_LEN];
 	int	bytes_read;
 	guint8	vpi;
 	guint16	vci;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&atm_phdr, 1, sizeof (struct nokiaatm_hdr), fh);
-	if (bytes_read != sizeof (struct nokiaatm_hdr)) {
+	bytes_read = file_read(atm_phdr, 1, NOKIAATM_LEN, fh);
+	if (bytes_read != NOKIAATM_LEN) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
 
-	vpi = atm_phdr.vpi;
-	vci = pntohs(&atm_phdr.vci);
+	vpi = atm_phdr[NOKIAATM_VPI];
+	vci = pntohs(&atm_phdr[NOKIAATM_VCI]);
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = (atm_phdr.flags & 0x80) ? 0 : 1;
+	pseudo_header->atm.channel = (atm_phdr[NOKIAATM_FLAGS] & 0x80) ? 0 : 1;
 
 	/* We don't have this information */
 	pseudo_header->atm.flags = 0;
@@ -1792,17 +1795,17 @@ libpcap_read_nokiaatm_pseudoheader(FILE_T fh,
 }
 
 static gboolean
-libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
+libpcap_get_irda_pseudoheader(const guint8 *irda_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
-	if (pntohs(&irda_phdr->sll_protocol) != 0x0017) {
+	if (pntohs(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
 		*err = WTAP_ERR_BAD_RECORD;
 		if (err_info != NULL)
 			*err_info = g_strdup("libpcap: IrDA capture has a packet with an invalid sll_protocol field\n");
 		return FALSE;
 	}
 
-	pseudo_header->irda.pkttype = pntohs(&irda_phdr->sll_pkttype);
+	pseudo_header->irda.pkttype = pntohs(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
 
 	return TRUE;
 }
@@ -1811,28 +1814,28 @@ static gboolean
 libpcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     int *err, gchar **err_info)
 {
-	struct irda_sll_hdr irda_phdr;
+	guint8	irda_phdr[IRDA_SLL_LEN];
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&irda_phdr, 1, sizeof (struct irda_sll_hdr), fh);
-	if (bytes_read != sizeof (struct irda_sll_hdr)) {
+	bytes_read = file_read(irda_phdr, 1, IRDA_SLL_LEN, fh);
+	if (bytes_read != IRDA_SLL_LEN) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
 
-	return libpcap_get_irda_pseudoheader(&irda_phdr, pseudo_header, err,
+	return libpcap_get_irda_pseudoheader(irda_phdr, pseudo_header, err,
 	    err_info);
 }
 
 static gboolean
-libpcap_get_mtp2_pseudoheader(const struct mtp2_hdr *mtp2_hdr, union wtap_pseudo_header *pseudo_header)
+libpcap_get_mtp2_pseudoheader(const guint8 *mtp2_hdr, union wtap_pseudo_header *pseudo_header)
 {
-	pseudo_header->mtp2.sent         = mtp2_hdr->sent;
-	pseudo_header->mtp2.annex_a_used = mtp2_hdr->annex_a_used;
-	pseudo_header->mtp2.link_number  = pntohs(&mtp2_hdr->link_number);
+	pseudo_header->mtp2.sent         = mtp2_hdr[MTP2_SENT_OFFSET];
+	pseudo_header->mtp2.annex_a_used = mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET];
+	pseudo_header->mtp2.link_number  = pntohs(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
 
 	return TRUE;
 }
@@ -1840,35 +1843,35 @@ libpcap_get_mtp2_pseudoheader(const struct mtp2_hdr *mtp2_hdr, union wtap_pseudo
 static gboolean
 libpcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
 {
-	struct mtp2_hdr mtp2_hdr;
+	guint8 mtp2_hdr[MTP2_HDR_LEN];
 	int    bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&mtp2_hdr, 1, sizeof (struct mtp2_hdr), fh);
-	if (bytes_read != sizeof (struct mtp2_hdr)) {
+	bytes_read = file_read(mtp2_hdr, 1, MTP2_HDR_LEN, fh);
+	if (bytes_read != MTP2_HDR_LEN) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
 
-	return libpcap_get_mtp2_pseudoheader(&mtp2_hdr, pseudo_header);
+	return libpcap_get_mtp2_pseudoheader(mtp2_hdr, pseudo_header);
 
 }
 
 static gboolean
-libpcap_get_lapd_pseudoheader(const struct lapd_sll_hdr *lapd_phdr,
+libpcap_get_lapd_pseudoheader(const guint8 *lapd_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
-	if (pntohs(&lapd_phdr->sll_protocol) != ETH_P_LAPD) {
+	if (pntohs(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
 		*err = WTAP_ERR_BAD_RECORD;
 		if (err_info != NULL)
 			*err_info = g_strdup("libpcap: LAPD capture has a packet with an invalid sll_protocol field\n");
 		return FALSE;
 	}
 
-	pseudo_header->lapd.pkttype = pntohs(&lapd_phdr->sll_pkttype);
-	pseudo_header->lapd.we_network = !!lapd_phdr->sll_addr[0];
+	pseudo_header->lapd.pkttype = pntohs(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
+	pseudo_header->lapd.we_network = !!lapd_phdr[LAPD_SLL_ADDR_OFFSET+0];
 
 	return TRUE;
 }
@@ -1877,19 +1880,19 @@ static gboolean
 libpcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     int *err, gchar **err_info)
 {
-	struct lapd_sll_hdr lapd_phdr;
+	guint8	lapd_phdr[LAPD_SLL_LEN];
 	int	bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&lapd_phdr, 1, sizeof (struct lapd_sll_hdr), fh);
-	if (bytes_read != sizeof (struct lapd_sll_hdr)) {
+	bytes_read = file_read(lapd_phdr, 1, LAPD_SLL_LEN, fh);
+	if (bytes_read != LAPD_SLL_LEN) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
 
-	return libpcap_get_lapd_pseudoheader(&lapd_phdr, pseudo_header, err,
+	return libpcap_get_lapd_pseudoheader(lapd_phdr, pseudo_header, err,
 	    err_info);
 }
 
@@ -2042,7 +2045,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 	switch (linktype) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		if (whdr->caplen < sizeof (struct sunatm_hdr)) {
+		if (whdr->caplen < SUNATM_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -2052,15 +2055,14 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-		libpcap_get_sunatm_pseudoheader((const struct sunatm_hdr *)pd,
-		    pseudo_header);
+		libpcap_get_sunatm_pseudoheader(pd, pseudo_header);
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		whdr->len -= sizeof (struct sunatm_hdr);
-		whdr->caplen -= sizeof (struct sunatm_hdr);
-		pd += sizeof (struct sunatm_hdr);
+		whdr->len -= SUNATM_LEN;
+		whdr->caplen -= SUNATM_LEN;
+		pd += SUNATM_LEN;
 
 		/*
 		 * If this is ATM LANE traffic, try to guess what type of
@@ -2071,7 +2073,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		break;
 
 	case WTAP_ENCAP_IRDA:
-		if (whdr->caplen < sizeof (struct irda_sll_hdr)) {
+		if (whdr->caplen < IRDA_SLL_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -2081,20 +2083,19 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-		if (!libpcap_get_irda_pseudoheader((const struct irda_sll_hdr *)pd,
-			pseudo_header, err, NULL))
+		if (!libpcap_get_irda_pseudoheader(pd, pseudo_header, err, NULL))
 			return NULL;
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		whdr->len -= sizeof (struct irda_sll_hdr);
-		whdr->caplen -= sizeof (struct irda_sll_hdr);
-		pd += sizeof (struct irda_sll_hdr);
+		whdr->len -= IRDA_SLL_LEN;
+		whdr->caplen -= IRDA_SLL_LEN;
+		pd += IRDA_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
-		if (whdr->caplen < sizeof (struct mtp2_hdr)) {
+		if (whdr->caplen < MTP2_HDR_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -2104,19 +2105,19 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-		if (!libpcap_get_mtp2_pseudoheader((const struct mtp2_hdr *)pd,	pseudo_header))
+		if (!libpcap_get_mtp2_pseudoheader(pd, pseudo_header))
 			return NULL;
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		whdr->len -= sizeof (struct mtp2_hdr);
-		whdr->caplen -= sizeof (struct mtp2_hdr);
-		pd += sizeof (struct mtp2_hdr);
+		whdr->len -= MTP2_HDR_LEN;
+		whdr->caplen -= MTP2_HDR_LEN;
+		pd += MTP2_HDR_LEN;
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
-		if (whdr->caplen < sizeof (struct lapd_sll_hdr)) {
+		if (whdr->caplen < LAPD_SLL_LEN) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
@@ -2126,16 +2127,15 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-		if (!libpcap_get_lapd_pseudoheader((const struct lapd_sll_hdr *)pd,
-			pseudo_header, err, NULL))
+		if (!libpcap_get_lapd_pseudoheader(pd, pseudo_header, err, NULL))
 			return NULL;
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		whdr->len -= sizeof (struct lapd_sll_hdr);
-		whdr->caplen -= sizeof (struct lapd_sll_hdr);
-		pd += sizeof (struct lapd_sll_hdr);
+		whdr->len -= LAPD_SLL_LEN;
+		whdr->caplen -= LAPD_SLL_LEN;
+		pd += LAPD_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
@@ -2268,28 +2268,28 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	struct pcaprec_ss990915_hdr rec_hdr;
 	size_t hdr_size;
 	size_t nwritten;
-	struct sunatm_hdr atm_hdr;
-	struct irda_sll_hdr irda_hdr;
-	struct lapd_sll_hdr lapd_hdr;
-	struct mtp2_hdr mtp2_hdr;
+	guint8 atm_hdr[SUNATM_LEN];
+	guint8 irda_hdr[IRDA_SLL_LEN];
+	guint8 lapd_hdr[LAPD_SLL_LEN];
+	guint8 mtp2_hdr[MTP2_HDR_LEN];
 	int hdrsize;
 
 	switch (wdh->encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		hdrsize = sizeof (struct sunatm_hdr);
+		hdrsize = SUNATM_LEN;
 		break;
 
 	case WTAP_ENCAP_IRDA:
-		hdrsize = sizeof (struct irda_sll_hdr);
+		hdrsize = IRDA_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
-		hdrsize = sizeof (struct mtp2_hdr);
+		hdrsize = MTP2_HDR_LEN;
 		break;
 
 	case WTAP_ENCAP_LINUX_LAPD:
-		hdrsize = sizeof (struct lapd_sll_hdr);
+		hdrsize = LAPD_SLL_LEN;
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
@@ -2385,13 +2385,13 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		/*
 		 * Write the ATM header.
 		 */
-		atm_hdr.flags =
+		atm_hdr[SUNATM_FLAGS] =
 		    (pseudo_header->atm.channel == 0) ? 0x80 : 0x00;
 		switch (pseudo_header->atm.aal) {
 
 		case AAL_SIGNALLING:
 			/* Q.2931 */
-			atm_hdr.flags |= 0x06;
+			atm_hdr[SUNATM_FLAGS] |= 0x06;
 			break;
 
 		case AAL_5:
@@ -2399,24 +2399,24 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 			case TRAF_LANE:
 				/* LANE */
-				atm_hdr.flags |= 0x01;
+				atm_hdr[SUNATM_FLAGS] |= 0x01;
 				break;
 
 			case TRAF_LLCMX:
 				/* RFC 1483 LLC multiplexed traffic */
-				atm_hdr.flags |= 0x02;
+				atm_hdr[SUNATM_FLAGS] |= 0x02;
 				break;
 
 			case TRAF_ILMI:
 				/* ILMI */
-				atm_hdr.flags |= 0x05;
+				atm_hdr[SUNATM_FLAGS] |= 0x05;
 				break;
 			}
 			break;
 		}
-		atm_hdr.vpi = (guint8) pseudo_header->atm.vpi;
-		atm_hdr.vci = phtons(&pseudo_header->atm.vci);
-		nwritten = wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr);
+		atm_hdr[SUNATM_VPI] = pseudo_header->atm.vpi;
+		phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
+		nwritten = wtap_dump_file_write(wdh, atm_hdr, sizeof atm_hdr);
 		if (nwritten != sizeof atm_hdr) {
 			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
 				*err = wtap_dump_file_ferror(wdh);
@@ -2431,10 +2431,11 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		/*
 		 * Write the IrDA header.
 		 */
-		memset(&irda_hdr, 0, sizeof(irda_hdr));
-		irda_hdr.sll_pkttype  = phtons(&pseudo_header->irda.pkttype);
-		irda_hdr.sll_protocol = g_htons(0x0017);
-		nwritten = wtap_dump_file_write(wdh, &irda_hdr, sizeof(irda_hdr));
+		memset(irda_hdr, 0, sizeof(irda_hdr));
+		phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET],
+		    pseudo_header->irda.pkttype);
+		phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
+		nwritten = wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr));
 		if (nwritten != sizeof(irda_hdr)) {
 			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
 				*err = wtap_dump_file_ferror(wdh);
@@ -2450,10 +2451,11 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		 * Write the MTP2 header.
 		 */
 		memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
-		mtp2_hdr.sent         = pseudo_header->mtp2.sent;
-		mtp2_hdr.annex_a_used = pseudo_header->mtp2.annex_a_used;
-		mtp2_hdr.link_number  = phtons(&pseudo_header->mtp2.link_number);
-		nwritten = wtap_dump_file_write(wdh, &mtp2_hdr, sizeof(mtp2_hdr));
+		mtp2_hdr[MTP2_SENT_OFFSET] = pseudo_header->mtp2.sent;
+		mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
+		phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
+		    pseudo_header->mtp2.link_number);
+		nwritten = wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr));
 		if (nwritten != sizeof(mtp2_hdr)) {
 			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
 				*err = wtap_dump_file_ferror(wdh);
@@ -2469,9 +2471,11 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		 * Write the LAPD header.
 		 */
 		memset(&lapd_hdr, 0, sizeof(lapd_hdr));
-		lapd_hdr.sll_pkttype  = phtons(&pseudo_header->lapd.pkttype);
-		lapd_hdr.sll_protocol = g_htons(ETH_P_LAPD);
-		lapd_hdr.sll_addr[0] = pseudo_header->lapd.we_network?0x01:0x00;
+		phtons(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET],
+		    pseudo_header->lapd.pkttype);
+		phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
+		lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
+		    pseudo_header->lapd.we_network?0x01:0x00;
 		nwritten = fwrite(&lapd_hdr, 1, sizeof(lapd_hdr), wdh->fh);
 		if (nwritten != sizeof(lapd_hdr)) {
 			if (nwritten == 0 && ferror(wdh->fh))
