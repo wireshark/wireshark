@@ -369,6 +369,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-fcfzs.c		\
 	packet-fcip.c		\
 	packet-fclctl.c		\
+	packet-fcoe.c		\
 	packet-fcp.c		\
 	packet-fcsb3.c		\
 	packet-fcsp.c		\

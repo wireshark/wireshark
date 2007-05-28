@@ -340,6 +340,10 @@
 #define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
 
+#ifndef ETHERTYPE_FCOE
+#define ETHERTYPE_FCOE		0x8906	/* Fibre Channel over Ethernet */
+#endif
+
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif

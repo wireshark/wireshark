@@ -131,6 +131,7 @@ const value_string etype_vals[] = {
     {PPP_PAP,			"PPP Password Authentication Protocol" },
     {PPP_CCP,			"PPP Compression Control Protocol" },
     {ETHERTYPE_LLT,		"Veritas Low Latency Transport (not officially registered)"},
+    {ETHERTYPE_FCOE,		"Fibre Channel over Ethernet" },
     {0,				NULL				} };
 
 static void add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
