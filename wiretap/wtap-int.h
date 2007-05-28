@@ -393,19 +393,19 @@ extern gint wtap_num_file_types;
 
 #ifndef phtons
 #define phtons(p, v) \
-	{ 			\
-	(p)[0] = (v) >> 8;	\
-	(p)[1] = (v);		\
+	{ 				\
+	(p)[0] = (guint8)((v) >> 8);	\
+	(p)[1] = (guint8)((v) >> 0);	\
 	}
 #endif
 
 #ifndef phtonl
 #define phtonl(p, v) \
 	{ 				\
-	(p)[0] = ((v) >> 24);	\
-	(p)[1] = ((v) >> 16);	\
-	(p)[2] = ((v) >> 8);	\
-	(p)[3] = (v);		\
+	(p)[0] = (guint8)((v) >> 24);	\
+	(p)[1] = (guint8)((v) >> 16);	\
+	(p)[2] = (guint8)((v) >> 8);	\
+	(p)[3] = (guint8)((v) >> 0);	\
 	}
 #endif
 

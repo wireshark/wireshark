@@ -2414,7 +2414,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			}
 			break;
 		}
-		atm_hdr[SUNATM_VPI] = pseudo_header->atm.vpi;
+		atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
 		phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
 		nwritten = wtap_dump_file_write(wdh, atm_hdr, sizeof atm_hdr);
 		if (nwritten != sizeof atm_hdr) {
