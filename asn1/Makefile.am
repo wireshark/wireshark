@@ -383,7 +383,6 @@ EXTRA_DIST = \
 	snmp/Makefile.nmake	\
 	snmp/packet-snmp-template.c	\
 	snmp/packet-snmp-template.h	\
-	snmp/README.txt	\
 	snmp/snmp.asn	\
 	snmp/snmp.cnf	\
 	snmp/snmp-exp.cnf	\
