@@ -17,24 +17,28 @@
 
    1.3 Where can I get help?
 
-   1.4 How much does Wireshark cost?
+   1.4 What kind of shark is Wireshark?
 
-   1.5 Can I use Wireshark commercially?
+   1.5 How is Wireshark pronounced, spelled and capitalized?
 
-   1.6 Can I use Wireshark as part of my commercial product?
+   1.6 How much does Wireshark cost?
 
-   1.7 What protocols are currently supported?
+   1.7 Can I use Wireshark commercially?
 
-   1.8 Are there any plans to support {your favorite protocol}?
+   1.8 Can I use Wireshark as part of my commercial product?
 
-   1.9 Can Wireshark read capture files from {your favorite network
+   1.9 What protocols are currently supported?
+
+   1.10 Are there any plans to support {your favorite protocol}?
+
+   1.11 Can Wireshark read capture files from {your favorite network
    analyzer}?
 
-   1.10 What devices can Wireshark use to capture packets?
+   1.12 What devices can Wireshark use to capture packets?
 
-   1.11 Does Wireshark work on Windows Me?
+   1.13 Does Wireshark work on Windows Me?
 
-   1.12 Does Wireshark work on Windows XP?
+   1.14 Does Wireshark work on Windows XP?
 
 2. Downloading Wireshark:
 
@@ -225,21 +229,26 @@
 
    Q 1.1: What is Wireshark?
 
-   A: Gerald Combs, the creator of Ethereal®, has initiated the Wireshark
-   network protocol analyzer project, a successor to Ethereal®. The
-   Ethereal® core developer team has moved with Gerald to the Wireshark
-   project. It is the world's most popular network protocol analyzer. It
-   has a rich and powerful feature set, and runs on most computing
-   platforms including Windows, OS X, and Linux. It is freely available as
-   open source, and is released under the GNU General Public License.
+   A: Wireshark is the world's most popular network protocol analyzer. It
+   has a rich and powerful feature set and runs on most computing
+   platforms including Windows, OS X, and Linux. Network professionals,
+   security experts, developers, and educators around the world use it
+   regularly. It is freely available as open source, and is released under
+   the GNU General Public License.
+
+   It is developed and maintained by a global team of protocol experts,
+   and it is an example of a disruptive technology. Wireshark used to be
+   known as Ethereal®. See the next question for details about the name
+   change. If you're still using Ethereal, it is strongly recommended that
+   you upgrade to Wireshark.
 
    For more information, please see the About Wireshark page.
 
    Q 1.2: What's up with the name change? Is Wireshark a fork?
 
-   A: In May of 2006, the original author of Ethereal® went to work for
-   CACE Technologies (best known for WinPcap). Unfortunately, he had to
-   leave the Ethereal® trademarks behind.
+   A: In May of 2006, Gerald Combs (the original author of Ethereal®) went
+   to work for CACE Technologies (best known for WinPcap). Unfortunately,
+   he had to leave the Ethereal® trademarks behind.
 
    This left the project in an awkward position. The only reasonable way
    to ensure the continued success of the project was to change the name.
@@ -250,8 +259,11 @@
    support infrastructures, etc. This is the case with Wireshark except
    for one notable exception -- every member of the core development team
    is now working on Wireshark. As far as anyone knows, there has been no
-   active development on Ethereal since the name change. More information
-   on the name change can be found here:
+   active development on Ethereal since the name change. Several parts of
+   the Ethereal web site (such as the mailing lists, source code
+   repository, and build farm) have gone offline.
+
+   More information on the name change can be found here:
      *
      *
 
@@ -263,10 +275,26 @@
    channel dedicated to Wireshark can be found at
    irc://irc.freenode.net/wireshark.
 
-   Commercial support, training, and development services are available
-   from CACE Technologies.
+   Self-paced and instructor-led training is available at Wireshark
+   University. A certification program will be announced in Q2 2007.
 
-   Q 1.4: How much does Wireshark cost?
+   Commercial support and development services are available from CACE
+   Technologies.
+
+   Q 1.4: What kind of shark is Wireshark?
+
+   A: carcharodon photoshopia.
+
+   Q 1.5: How is Wireshark pronounced, spelled and capitalized?
+
+   A: Wireshark is pronounced as the word wire followed immediately by the
+   word shark. Exact pronunciation and emphasis may vary depending on your
+   locale (e.g. Arkansas).
+
+   It's spelled with a capital W, followed by a lower-case ireshark. It is
+   not a CamelCase word, i.e., WireShark is incorrect.
+
+   Q 1.6: How much does Wireshark cost?
 
    A: Wireshark is "free software"; you can download it without paying any
    license fee. The version of Wireshark you download isn't a "demo"
@@ -276,7 +304,7 @@
    The license under which Wireshark is issued is the GNU General Public
    License. See the GNU GPL FAQ for some more information.
 
-   Q 1.5: Can I use Wireshark commercially?
+   Q 1.7: Can I use Wireshark commercially?
 
    A: Yes, if, for example, you mean "I work for a commercial
    organization; can I use Wireshark to capture and analyze network
@@ -285,7 +313,7 @@
    If you mean "Can I use Wireshark as part of my commercial product?",
    see the next entry in the FAQ.
 
-   Q 1.6: Can I use Wireshark as part of my commercial product?
+   Q 1.8: Can I use Wireshark as part of my commercial product?
 
    A: As noted, Wireshark is licensed under the GNU General Public
    License. The GPL imposes conditions on your use of GPL'ed code in your
@@ -303,18 +331,18 @@
    program as long as they communicate "at arm's length", as per this item
    in the GPL FAQ.
 
-   Q 1.7: What protocols are currently supported?
+   Q 1.9: What protocols are currently supported?
 
    A: There are currently hundreds of supported protocols and media.
    Details can be found in the wireshark(1) man page.
 
-   Q 1.8: Are there any plans to support {your favorite protocol}?
+   Q 1.10: Are there any plans to support {your favorite protocol}?
 
    A: Support for particular protocols is added to Wireshark as a result
    of people contributing that support; no formal plans for adding support
    for particular protocols in particular future releases exist.
 
-   Q 1.9: Can Wireshark read capture files from {your favorite network
+   Q 1.11: Can Wireshark read capture files from {your favorite network
    analyzer}?
 
    A: Support for particular protocols is added to Wireshark as a result
@@ -339,7 +367,7 @@
    Note that there is no guarantee that we will be able to
    reverse-engineer a capture file format.
 
-   Q 1.10: What devices can Wireshark use to capture packets?
+   Q 1.12: What devices can Wireshark use to capture packets?
 
    A: Wireshark can read live data from Ethernet, Token-Ring, FDDI, serial
    (PPP and SLIP) (if the OS on which it's running allows Wireshark to do
@@ -382,14 +410,14 @@
    other applications or equipment, even if it cannot itself capture on
    those network types.
 
-   Q 1.11: Does Wireshark work on Windows Me?
+   Q 1.13: Does Wireshark work on Windows Me?
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.02 and earlier versions of WinPcap
    didn't support Windows Me. You should also install the latest version
    of Wireshark as well.
 
-   Q 1.12: Does Wireshark work on Windows XP?
+   Q 1.14: Does Wireshark work on Windows XP?
 
    A: Yes, but if you want to capture packets, you will need to install
    the latest version of WinPcap, as 2.2 and earlier versions of WinPcap
