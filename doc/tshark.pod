@@ -205,33 +205,44 @@ This can be useful on systems that don't have a command to list them
 the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
 
-Note that "can capture" means that B<TShark> was able to open
-that device to do a live capture. Depending on your system you may need to run tshark from an account 
-with special privileges (for example, as root) to be able to capture 
-network traffic.
-If B<TShark -D> is not run from such an account, it will not list 
-any interfaces.
+Note that "can capture" means that B<TShark> was able to open that
+device to do a live capture.  Depending on your system you may need to
+run tshark from an account with special privileges (for example, as
+root) to be able to capture network traffic.  If B<TShark -D> is not run
+from such an account, it will not list any interfaces.
 
 =item -e  E<lt>fieldE<gt>
 
-Add a field to the list of fields to display if B<-T fields> is selected. This option can be used multiple times
-on the command line. At least one field must be provided if the fields option is selected.
+Add a field to the list of fields to display if B<-T fields> is
+selected.  This option can be used multiple times on the command line. 
+At least one field must be provided if the B<-T fields> option is
+selected.
 
 Example: B<-e frame.number -e ip.addr -e udp>
 
-Giving a protocol rather than a single field will print multiple items of data about the protocol as a single field. Fields are separated by tab characters by default. B<-E> controls the format of the printed fields.
+Giving a protocol rather than a single field will print multiple items
+of data about the protocol as a single field.  Fields are separated by
+tab characters by default.  B<-E> controls the format of the printed
+fields.
 
 =item -E  E<lt>field print optionE<gt>
 
-Set an option controlling the printing of fields when B<-T fields> is selected.
+Set an option controlling the printing of fields when B<-T fields> is
+selected.
 
 Options are:
 
-B<header=y|n> If B<y>, print a list of the field names given using B<-e> as the first line of the output; the field name will be separated using the same character as the field values. Defaults to B<n>.
+B<header=y|n> If B<y>, print a list of the field names given using B<-e>
+as the first line of the output; the field name will be separated using
+the same character as the field values.  Defaults to B<n>.
 
-B<separator=/t|/s|>E<lt>characterE<gt> Set the separator character to use for fields. If B</t> tab will be used (this is the default), if B</s>, s single space will be used. Otherwise any character that can be accepted by the command line as part of the option may be used.
+B<separator=/t|/s|>E<lt>characterE<gt> Set the separator character to
+use for fields.  If B</t> tab will be used (this is the default), if
+B</s>, s single space will be used.  Otherwise any character that can be
+accepted by the command line as part of the option may be used.
 
-B<quote=d|s|n> Set the quote character to use to surround fields. B<d> uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).
+B<quote=d|s|n> Set the quote character to use to surround fields.  B<d>
+uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).
 
 =item -f  E<lt>capture filterE<gt>
 
@@ -393,7 +404,7 @@ captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
-=item -T  pdml|psml|ps|text
+=item -T  pdml|psml|ps|text|fields
 
 Set the format of the output when viewing decoded packet data.  The
 options are one of:
@@ -413,6 +424,9 @@ whether the B<-V> flag was specified.
 B<text> Text of a human-readable one-line summary of each of the packets, or a
 multi-line view of the details of each of the packets, depending on
 whether the B<-V> flag was specified.  This is the default.
+
+B<fields> The values of fields specified with the B<-e> option, in a
+form specified by the B<-E> option.
 
 =item -v
 
