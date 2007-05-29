@@ -494,7 +494,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     /* If get here, must have failed */
     *err = errno;
     *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
-                                "line at position %lld", (long long) seek_off);
+                                "line at position %" G_GINT64_MODIFIER "d",
+                                seek_off);
     return FALSE;
 }
 
