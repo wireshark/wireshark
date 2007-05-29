@@ -153,22 +153,7 @@ struct netxray_hdr {
  * corresponding network type and captype.
  *
  * TpS...[] entries of 0.0 mean that no capture file for the
- * corresponding captype/timeunit values has yet been seen
- *
- * Note that the "realtick" value is wrong in many captures, so
- * we no longer use it.  We don't know what significance it has.
- * In at least one capture where "realtick" doesn't correspond
- * to the value from the appropriate TpS table, the per-packet header's
- * "xxx" field is all zero, so it's not as if a 2.x header includes
- * a "compatibility" time stamp corresponding to the value from the
- * TpS table and a "real" time stamp corresponding to "realtick".
- *
- * XXX - the third item is 1193180.0, presumably because somebody found
- * it gave the right answer for some captures, but 3 times that, i.e.
- * 3579540.0, appears to give the right answer for some other captures.
- * Some captures have realtick of 1193182, some have 3579545, and some
- * have 1193000.  Most of those, in one set of captures somebody has,
- * are wrong.
+ * corresponding captype/timeunit values has yet been seen.
  *
  * XXX - 05/29/07: For Ethernet captype = 0 (NDIS) and timeunit = 2:
  *  Perusal of a number of Sniffer captures
@@ -180,17 +165,40 @@ struct netxray_hdr {
  *  (It might be that realtick should be used for Ethernet captype = 0 
  *  and timeunit = 1 but I've not yet enough captures to be sure).
  *
+ *  Note that the "realtick" value is wrong in some captures, so
+ *  we don't use it for all captures.
+ *
+ *  In at least one capture where "realtick" doesn't correspond
+ *  to the value from the appropriate TpS table, the per-packet header's
+ *  "xxx" field is all zero, so it's not as if a 2.x header includes
+ *  a "compatibility" time stamp corresponding to the value from the
+ *  TpS table and a "real" time stamp corresponding to "realtick".
+ *
+ * XXX - the item corresponding to timeunit = 2 is 1193180.0, presumably
+ *  because somebody found it gave the right answer for some captures, but
+ *  3 times that, i.e. 3579540.0, appears to give the right answer for some
+ *  other captures.
+ *
+ *  Some captures have realtick of 1193182, some have 3579545, and some
+ *  have 1193000.  Most of those, in one set of captures somebody has,
+ *  are wrong.  (Did that mean "wrong for some capture files, but not
+ *  for the files in which they occurred", or "wrong for the files in
+ *  which they occurred?  If it's "wrong for some capture files, but
+ *  not for the files in which they occurred", perhaps those were Ethernet
+ *  captures with a captype of 0 and timeunit = 2, so that we now use
+ *  realtick, and perhaps that fixes the problems.)
+ *
  * XXX - in at least one ATM capture, hdr.realtick is 1193180.0
- * and hdr.timeunit is 0.  Does that capture have a captype of
- * CAPTYPE_ATM?  If so, what should the table for ATM captures with
- * that captype be?
+ *  and hdr.timeunit is 0.  Does that capture have a captype of
+ *  CAPTYPE_ATM?  If so, what should the table for ATM captures with
+ *  that captype be?
  */
 static double TpS[] = { 1e6, 1193000.0, 1193182.0 };
 #define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD.
- * 0.0 means "unknown.
+ * 0.0 means "unknown".
  *
  * It appears that, at least for Ethernet captures, if captype is
  * ETH_CAPTYPE_GIGPOD, that indicates that it's a gigabit Ethernet
@@ -835,6 +843,10 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 *            bytes to 'FCS presence' may actually be 
 		 *            a 'false positive'.
 		 *           ToDo: Review analysis and update code.
+		 *           It might be that the ticks-per-second value
+		 *           is hardware-dependent, and that hardware with
+		 *           a particular realtick value puts an FCS there
+		 *	     and other hardware doesn't.
 		 */
 		if (version_major == 2) {
 			if (hdr.realtick[1] == 0x34 && hdr.realtick[2] == 0x12)
