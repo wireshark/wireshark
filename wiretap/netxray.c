@@ -101,11 +101,10 @@ struct netxray_hdr {
 /*
  * Capture type, in hdr.captype.
  *
- * XXX - S6040-model Sniffers with gigabit blades store 6 here for
- * Ethernet captures, and some other Ethernet captures had a capture
- * type of 3, so presumably the interpretation of the capture type
- * depends on the network type.  We prefix all the capture types
- * for WAN captures with WAN_.
+ * Values other than 0 are dependent on the network type.
+ * For Ethernet captures, it indicates the type of capture pod.
+ * For WAN captures (all of which are done with a pod), it indicates
+ * the link-layer type.
  */
 #define CAPTYPE_NDIS	0		/* Capture on network interface using NDIS 			*/
 
@@ -150,10 +149,12 @@ struct netxray_hdr {
  *
  * Instead, if a value in a TpS table is wrong, check whether captype
  * has a non-zero value; if so, perhaps we need a new TpS table for the
- * corresponding network type and captype.
+ * corresponding network type and captype, or perhaps the 'realtick'
+ * field contains the correct ticks-per-second value.
  *
  * TpS...[] entries of 0.0 mean that no capture file for the
- * corresponding captype/timeunit values has yet been seen.
+ * corresponding captype/timeunit values has yet been seen, or that
+ * we're using the 'realtick' value.
  *
  * XXX - 05/29/07: For Ethernet captype = 0 (NDIS) and timeunit = 2:
  *  Perusal of a number of Sniffer captures
@@ -212,6 +213,8 @@ static double TpS[] = { 1e6, 1193000.0, 1193182.0 };
  * the values below are correct; for 002.002, it's claimed that
  * the right value for TpS_gigpod[2] is 1250000.0, but at least one
  * 002.002 gigabit pod capture has 31250000.0 as the right value.
+ *
+ * XXX - is 'realtick' valid for these captures?
  */
 static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
 #define NUM_NETXRAY_TIMEUNITS_GIGPOD (sizeof TpS_gigpod / sizeof TpS_gigpod[0])
