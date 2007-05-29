@@ -76,7 +76,7 @@
 /* extract the word at the given nibble address 'n' of buffer 'b' */
 #define NIB_WORD(n,b) \
     (n) & 1 \
-    ? (g_ntohl(*(guint32 *)((b) + (n)/2)) >> 12) & 0x0000FFFF \
+    ? (gint)((g_ntohl(*(guint32 *)((b) + (n)/2)) >> 12) & 0x0000FFFF) \
     : g_ntohs(*(guint16 *)((b) + (n)/2))
     /*
     : AS16((b) + (n)/2)
@@ -93,12 +93,13 @@
     : AS32((b) + (n)/2)
     */
 
+/* Only currently used with nib == 1 or 2 */
 #define NIB_NIBS(nib, buf, num) \
     ((num) == 1 ? NIB_NIBBLE(nib,buf) : \
     ((num) == 2 ? NIB_BYTE(nib,buf) : \
     ((num) == 3 ? NIB_BITS12(nib,buf) : \
     ((num) == 4 ? NIB_WORD(nib,buf) : \
-                  NIB_LONG(nib,buf) ))))
+    0))))
 
 
 /* to highlight nibfields correctly in wireshark
@@ -184,11 +185,11 @@
       | BIT_BITS64b(bit,buf,num) )
 
 #define BIT_BITS(bit, buf, num) \
-    ((num) ==  1 ? BIT_BIT(bit,buf) : \
-    ((num) <=  9 ? BIT_BITS16(bit,buf,num) : \
-    ((num) <= 24 ? BIT_BITS32(bit,buf,num) : \
-    ((num) <= 32 ? BIT_BITS64(bit,buf,num) : \
-                  0 ))))
+    ((num) ==  1 ? (gint)BIT_BIT(bit,buf) : \
+    ((num) <=  9 ? (gint)BIT_BITS16(bit,buf,num) : \
+    ((num) <= 24 ? (gint)BIT_BITS32(bit,buf,num) : \
+    ((num) <= 32 ? (gint)BIT_BITS64(bit,buf,num) : \
+                   (gint)0 ))))
 
 /* to highlight bitfields correctly in wireshark
  * AddItem(..., WSADDR(buf,bit), WSLEN(bit), ...) */
