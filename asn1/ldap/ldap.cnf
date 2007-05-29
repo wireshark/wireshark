@@ -30,19 +30,20 @@ AssertionValue TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 
 #.REGISTER
 SearchControlValue 	B "1.2.840.113556.1.4.319" "pagedResultsControl"
-SortKeyList	   	B "1.2.840.113556.1.4.473" "sortKeyList"
-SortResult		B "1.2.840.113556.1.4.474" "sortResult"
+SortKeyList	   		B "1.2.840.113556.1.4.473" "sortKeyList"
+SortResult			B "1.2.840.113556.1.4.474" "sortResult"
 ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 
 #.FN_FTR LDAPURL
 	PROTO_ITEM_SET_URL(get_ber_last_created_item());
 
-#.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
 #.FN_HDR LDAPOID
 
 	tvbuff_t	*parameter_tvb;
 	const gchar *name;
 	proto_item	*item = NULL;
+
+#.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
 
 #.FN_FTR LDAPOID
 	
@@ -62,9 +63,7 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 	}
 
 
-#.FN_PARS MessageID VAL_PTR = &MessageID
-
-#.FN_BODY MessageID
+#.FN_BODY MessageID VAL_PTR = &MessageID
 
   %(DEFAULT_BODY)s
   
@@ -124,8 +123,7 @@ ldap_conv_info_t *ldap_info;
 
 	actx->pinfo->private_data = ldap_info;
 
-#.FN_PARS Mechanism VAL_PTR = &parameter_tvb
-#.FN_BODY Mechanism
+#.FN_BODY Mechanism VAL_PTR = &parameter_tvb
 
 ldap_conv_info_t *ldap_info;
 tvbuff_t	*parameter_tvb;
@@ -163,8 +161,7 @@ char *mechanism = NULL;
     }
 	actx->pinfo->private_data = ldap_info;
 
-#.FN_PARS Credentials VAL_PTR = &parameter_tvb
-#.FN_BODY Credentials
+#.FN_BODY Credentials VAL_PTR = &parameter_tvb
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
@@ -189,8 +186,7 @@ ldap_conv_info_t *ldap_info;
 	}
 	actx->pinfo->private_data = ldap_info;
 
-#.FN_PARS ServerSaslCreds VAL_PTR = &parameter_tvb
-#.FN_BODY ServerSaslCreds
+#.FN_BODY ServerSaslCreds VAL_PTR = &parameter_tvb
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
@@ -251,9 +247,7 @@ ldap_conv_info_t *ldap_info;
 	}
 	actx->pinfo->private_data = ldap_info;
 
-#.FN_PARS LDAPString VAL_PTR = &parameter_tvb
-
-#.FN_BODY LDAPString
+#.FN_BODY LDAPString VAL_PTR = &parameter_tvb
   tvbuff_t	*parameter_tvb = NULL;
   char          *ldapstring;
   gchar		*sc = NULL; /* semi-colon pointer */
@@ -334,9 +328,7 @@ ldap_conv_info_t *ldap_info;
      
   }
 
-#.FN_PARS T_scope VAL_PTR = &scope
-
-#.FN_BODY T_scope
+#.FN_BODY T_scope VAL_PTR = &scope
 
   gint 	scope;
   const gchar *valstr;
@@ -353,9 +345,7 @@ ldap_conv_info_t *ldap_info;
   if(ldm_tree)
     proto_item_append_text(ldm_tree, " %%s", valstr); 
 
-#.FN_PARS T_resultCode VAL_PTR = &result
-
-#.FN_BODY T_resultCode
+#.FN_BODY T_resultCode VAL_PTR = &result
 
   const gchar *valstr;
 
@@ -375,9 +365,7 @@ ldap_conv_info_t *ldap_info;
 
   }
 
-#.FN_PARS BindResponse_resultCode VAL_PTR = &result
-
-#.FN_BODY BindResponse_resultCode
+#.FN_BODY BindResponse_resultCode VAL_PTR = &result
 
   const gchar *valstr;
 
@@ -433,9 +421,7 @@ ldap_conv_info_t *ldap_info;
 
   }
   
-#.FN_PARS AuthenticationChoice VAL_PTR = &branch
-  
-#.FN_BODY AuthenticationChoice
+#.FN_BODY AuthenticationChoice VAL_PTR = &branch
   gint branch = -1;
   gint auth = -1;
   const gchar *valstr;
@@ -499,8 +485,6 @@ ldap_conv_info_t *ldap_info;
 	}
 
 #.FN_BODY Filter/and
-	const ber_old_sequence_t and_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
-};
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
 	char *old_and_filter_string=and_filter_string;
@@ -509,9 +493,10 @@ ldap_conv_info_t *ldap_info;
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "and: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_and);
+		tree = tr;
 	} 
-	offset = dissect_ber_old_set_of(implicit_tag, actx, tr, tvb, offset,
-                                 and_set_of, -1, ett_ldap_T_and);
+
+%(DEFAULT_BODY)s
 
 	proto_item_append_text(it, "%%s", and_filter_string);
 	Filter_string=ep_strdup_printf("%%s",and_filter_string);
@@ -526,8 +511,6 @@ ldap_conv_info_t *ldap_info;
 
 
 #.FN_BODY Filter/or
-	const ber_old_sequence_t or_set_of[1] = {  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_or_item },
-};
 	proto_tree *tr=NULL;
 	proto_item *it=NULL;
 	char *old_or_filter_string=or_filter_string;
@@ -536,10 +519,9 @@ ldap_conv_info_t *ldap_info;
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_or);
+		tree = tr;
 	} 
-	offset = dissect_ber_old_set_of(implicit_tag, actx, tr, tvb, offset,
-                                 or_set_of, -1, ett_ldap_T_or);
-
+%(DEFAULT_BODY)s
 	proto_item_append_text(it, "%%s", or_filter_string);
 	Filter_string=ep_strdup_printf("%%s",or_filter_string);
 	or_filter_string=old_or_filter_string;
@@ -599,11 +581,9 @@ ldap_conv_info_t *ldap_info;
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "substring: ");
 		tr=proto_item_add_subtree(it, ett_ldap_SubstringFilter);
+		tree = tr;
 	}
-	offset = dissect_ber_old_sequence(implicit_tag, actx, tr, tvb, offset,
-				      SubstringFilter_sequence, hf_index,
-				      ett_ldap_SubstringFilter);
-
+%(DEFAULT_BODY)s
 	Filter_string=ep_strdup_printf("(%%s=%%s)",attr_type,substring_value);
 	proto_item_append_text(it, "%%s", Filter_string);
 	substring_value=old_substring_value;
@@ -615,11 +595,9 @@ ldap_conv_info_t *ldap_info;
 	if(tree){
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Filter: ");
 		tr=proto_item_add_subtree(it, ett_ldap_Filter);
+		tree = tr;
 	}
-	offset = dissect_ber_old_choice(actx, tr, tvb, offset,
-                                 Filter_choice, -1, ett_ldap_Filter,
-                                 NULL);
-
+%(DEFAULT_BODY)s
 	proto_item_append_text(it, "%%s", Filter_string);
 
 #.FN_BODY AuthenticationChoice/ntlmsspNegotiate
