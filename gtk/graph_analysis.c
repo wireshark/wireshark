@@ -170,6 +170,7 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 	user_data->dlg.left_x_border=0;
 	user_data->dlg.selected_item=0xFFFFFFFF;    /*not item selected */
 	user_data->dlg.window=NULL;
+	user_data->dlg.parent_w=NULL;
 	user_data->dlg.inverse = FALSE;
 	user_data->dlg.title=NULL;
 }
@@ -1655,6 +1656,13 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 
         gtk_widget_show(user_data->dlg.window);
         window_present(user_data->dlg.window);
+
+	/* Destroy our graph window with our parent if the caller specified the parent */
+	if(user_data->dlg.parent_w) {
+		gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.window),
+					     GTK_WINDOW(user_data->dlg.parent_w));
+		gtk_window_set_destroy_with_parent(GTK_WINDOW(user_data->dlg.window), TRUE);
+	}
 }
 
 /* Return the index array if the node is in the array. Return -1 if there is room in the array

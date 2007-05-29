@@ -81,6 +81,7 @@ typedef struct _display_items {
 
 typedef struct _dialog_data_t {
 	GtkWidget *window;
+	GtkWidget *parent_w;
 	gboolean needs_redraw;
 	gboolean inverse;          /* set the nodes in reverse mode as "dst <---- src" instead of "src ----> dst"*/
 	gint selected_row;

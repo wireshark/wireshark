@@ -406,7 +406,7 @@ static void flow_graph_packet_draw(void *prs _U_)
 /****************************************************************************/
 static void
 flow_graph_on_ok                    (GtkButton       *button _U_,
-                                        gpointer         user_data _U_)
+                                        gpointer         user_data)
 {
 
 	if ((have_frame_tap_listener==TRUE)
@@ -455,6 +455,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 		graph_analysis_update(graph_analysis_data);		/* refresh it xxx */
 	}
 	else{
+		graph_analysis_data->dlg.parent_w = user_data;
 		graph_analysis_create(graph_analysis_data);
 	}
 
@@ -617,7 +618,7 @@ static void flow_graph_dlg_create (void)
 	bt_ok = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_ok);
 	gtk_tooltips_set_tip (tooltips, bt_ok, "Show the flow graph", NULL);
-	SIGNAL_CONNECT(bt_ok, "clicked", flow_graph_on_ok, NULL);
+	SIGNAL_CONNECT(bt_ok, "clicked", flow_graph_on_ok, flow_graph_dlg_w);
 	gtk_widget_show(bt_ok);
 
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
