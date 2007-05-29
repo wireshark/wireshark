@@ -47,6 +47,7 @@ struct _rtcp_conversation_info
     /* Stored result of calculation */
     guchar  lsr_matched;
     guint32 calculated_delay_used_frame;
+    gint    calculated_delay_report_gap;
     gint32  calculated_delay;
 };
 
