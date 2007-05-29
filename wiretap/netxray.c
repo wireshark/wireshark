@@ -506,8 +506,8 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				/* 
-				XXX: 05/29/07: Use 'realtick' instead of TpS table in this
-					specific case; Using 'realtick' here results
+				XXX: 05/29/07: Use 'realtick' instead of TpS table if timeunit=2;
+					Using 'realtick' in this case results
 					in the correct 'ticks per second' for all the captures that 
 					I have of this type (including captures from a number of Wirshark
 					bug reports).
