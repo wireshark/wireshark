@@ -107,7 +107,7 @@ typedef struct {
 
 typedef struct {
 	time_t		start_time;
-	double		timeunit;
+	double		ticks_per_sec;
 	double		start_timestamp;
 	gboolean	wrapped;
 	guint32		nframes;

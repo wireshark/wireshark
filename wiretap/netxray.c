@@ -77,7 +77,9 @@ struct netxray_hdr {
 	guint32 linespeed;	/* speed of network, in bits/second		*/
 
 	guint8	xxx_x40[12];	/* unknown [other stuff]			*/
-	guint8	realtick[4];	/* in v2, means ???                     	*/
+	guint8	realtick[4];	/* (ticks/sec for Ethernet/Ndis/Timeunit=2 ?)	*/
+				/* (realtick[1], realtick[2] also curently	*/
+				/*  used as flag for 'FCS presence')		*/
 
 	guint8	xxx_x50[4];	/* unknown [other stuff]			*/
 	guint8	captype;	/* capture type					*/
@@ -167,6 +169,16 @@ struct netxray_hdr {
  * Some captures have realtick of 1193182, some have 3579545, and some
  * have 1193000.  Most of those, in one set of captures somebody has,
  * are wrong.
+ *
+ * XXX - 05/29/07: For Ethernet captype = 0 (NDIS) and timeunit = 2:
+ *  Perusal of a number of Sniffer captures
+ *  (including those from Wireshark bug reports
+ *  and those from the Wireshark 'menagerie)
+ *  suggests that 'realtick' for this case
+ *  contains the correct ticks/second to be used.
+ *  So: we'll use realtick for Ethernet captype=0 and timeunit=2.
+ *  (It might be that realtick should be used for Ethernet captype = 0 
+ *  and timeunit = 1 but I've not yet enough captures to be sure).
  *
  * XXX - in at least one ATM capture, hdr.realtick is 1193180.0
  * and hdr.timeunit is 0.  Does that capture have a captype of
@@ -302,7 +314,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	gboolean is_old;
 	struct netxray_hdr hdr;
 	guint network_type;
-	double timeunit;
+	double ticks_per_sec;
 	int version_major, version_minor;
 	int file_type;
 	double start_timestamp;
@@ -451,12 +463,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	switch (file_type) {
 
 	case WTAP_FILE_NETXRAY_OLD:
-		timeunit = 1000.0;
+		ticks_per_sec = 1000.0;
 		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 		break;
 
 	case WTAP_FILE_NETXRAY_1_0:
-		timeunit = 1000.0;
+		ticks_per_sec = 1000.0;
 		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 		break;
 
@@ -467,7 +479,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * rather than the milliseconds time stamps in NetXRay
 		 * and older versions of Windows Sniffer.
 		 */
-		timeunit = 1000000.0;
+		ticks_per_sec = 1000000.0;
 		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
@@ -493,7 +505,19 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					    hdr.timeunit, hdr.version);
 					return -1;
 				}
-				timeunit = TpS[hdr.timeunit];
+				/* 
+				XXX: 05/29/07: Use 'realtick' instead of TpS table in this
+					specific case; Using 'realtick' here results
+					in the correct 'ticks per second' for all the captures that 
+					I have of this type (including captures from a number of Wirshark
+					bug reports).
+				*/
+				if (hdr.timeunit == 2) {
+					ticks_per_sec = pletohl(hdr.realtick);
+				}
+				else {
+					ticks_per_sec = TpS[hdr.timeunit];
+				}
 				break;
 
 			case ETH_CAPTYPE_GIGPOD:
@@ -505,7 +529,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					    hdr.timeunit, hdr.version);
 					return -1;
 				}
-				timeunit = TpS_gigpod[hdr.timeunit];
+				ticks_per_sec = TpS_gigpod[hdr.timeunit];
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -525,7 +549,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					    hdr.timeunit, hdr.version);
 					return -1;
 				}
-				timeunit = TpS_otherpod[hdr.timeunit];
+				ticks_per_sec = TpS_otherpod[hdr.timeunit];
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -545,7 +569,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					    hdr.timeunit, hdr.version);
 					return -1;
 				}
-				timeunit = TpS_otherpod2[hdr.timeunit];
+				ticks_per_sec = TpS_otherpod2[hdr.timeunit];
 				/*
 				 * XXX: start time stamp in the one capture file examined of this type was 0;
 				 *      We'll assume the start time handling is the same as for other pods.
@@ -567,7 +591,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					    hdr.timeunit, hdr.version);
 					return -1;
 				}
-				timeunit = TpS_gigpod2[hdr.timeunit];
+				ticks_per_sec = TpS_gigpod2[hdr.timeunit];
                                 /*
                                  * XXX: start time stamp in the one capture file examined of this type was 0;
                                  *      We'll assume the start time handling is the same as for other pods.
@@ -598,7 +622,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				    hdr.version);
 				return -1;
 			}
-			timeunit = TpS[hdr.timeunit];
+			ticks_per_sec = TpS[hdr.timeunit];
 			break;
 		}
 
@@ -612,7 +636,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * 1 microsecond to display more digits of precision?
 		 * XXX - Seems reasonable to use nanosecs only if TPS >= 10M
 		 */
-		if (timeunit >= 1e7)
+		if (ticks_per_sec >= 1e7)
 			wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 		else
 			wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -620,9 +644,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		g_assert_not_reached();
-		timeunit = 0.0;
+		ticks_per_sec = 0.0;
 	}
-	start_timestamp = start_timestamp/timeunit;
+	start_timestamp = start_timestamp/ticks_per_sec;
 
 	if (network_type == 4) {
 		/*
@@ -724,7 +748,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
-	wth->capture.netxray->timeunit = timeunit;
+	wth->capture.netxray->ticks_per_sec = ticks_per_sec;
 	wth->capture.netxray->start_timestamp = start_timestamp;
 	wth->capture.netxray->version_major = version_major;
 
@@ -805,6 +829,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * There don't seem to be any other values in any of the
 		 * xxx_x5..., xxx_x6...., xxx_x7.... fields
 		 * that obviously correspond to frames having an FCS.
+		 *
+		 * 05/29/07: Examination of numerous sniffer captures suggests
+		 *            that the apparent correlation of certain realtick 
+		 *            bytes to 'FCS presence' may actually be 
+		 *            a 'false positive'.
+		 *           ToDo: Review analysis and update code.
 		 */
 		if (version_major == 2) {
 			if (hdr.realtick[1] == 0x34 && hdr.realtick[2] == 0x12)
@@ -938,7 +968,7 @@ reread:
 	if (wth->capture.netxray->version_major == 0) {
 		t = (double)pletohl(&hdr.old_hdr.timelo)
 		    + (double)pletohl(&hdr.old_hdr.timehi)*4294967296.0;
-		t /= wth->capture.netxray->timeunit;
+		t /= wth->capture.netxray->ticks_per_sec;
 		t -= wth->capture.netxray->start_timestamp;
 		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
 		wth->phdr.ts.nsecs = (unsigned long)((t-(double)(unsigned long)(t))
@@ -952,7 +982,7 @@ reread:
 	} else {
 		t = (double)pletohl(&hdr.hdr_1_x.timelo)
 		    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
-		t /= wth->capture.netxray->timeunit;
+		t /= wth->capture.netxray->ticks_per_sec;
 		t -= wth->capture.netxray->start_timestamp;
 		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
 		wth->phdr.ts.nsecs = (unsigned long)((t-(double)(unsigned long)(t))
