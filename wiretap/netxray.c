@@ -117,7 +117,7 @@ struct netxray_hdr {
 					/*  Captype 5 seen in capture from Distributed Sniffer with:	*/
 					/*    Version 4.50.211 software					*/
 					/*    SysKonnect SK-9843 Gigabit Ethernet Server Adapter	*/
-#define ETH_CAPTYPE_GIGPOD2	6	/* gigabit Ethernet captured with pod */
+#define ETH_CAPTYPE_GIGPOD2	6	/* gigabit Ethernet, captured with blade on S6040-model Sniffer */
 
 /*
  * WAN capture types.
