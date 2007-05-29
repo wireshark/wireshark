@@ -379,7 +379,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 static void
 dcerpcstat_version_select(GtkWidget *item _U_, gpointer key)
 {
-	int vers=(int)key;
+	int vers=(long)key;
 
 	dcerpc_version=vers;
 }
@@ -401,7 +401,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 	g_snprintf(vs, 5, "%u",k->ver);
 	menu_item=gtk_menu_item_new_with_label(vs);
 	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_version_select,
-                       ((int)k->ver));
+                       ((long)k->ver));
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(vers_menu), menu_item);
 

@@ -151,7 +151,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     SslDataInfo* appl_data;
     gint total_len;
     guchar *p;
-    int proto_ssl = (int) ssl;
+    int proto_ssl = (long) ssl;
     SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
 
     /* skip packet without decrypted data payload*/    

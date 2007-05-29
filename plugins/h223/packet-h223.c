@@ -189,7 +189,7 @@ static gint circuit_chain_equal(gconstpointer v, gconstpointer w)
 static guint circuit_chain_hash (gconstpointer v)
 {
     const circuit_chain_key *key = (const circuit_chain_key *)v;
-    guint hash_val = ((guint32)(key->call))^(((guint32)key->vc) << 16);
+    guint hash_val = ((guint32)(unsigned long)(key->call))^(((guint32)key->vc) << 16);
     return hash_val;
 }
 

@@ -487,7 +487,7 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
     guint32 pt;
     int rownum;
 
-    rownum=gtk_clist_find_row_from_data(hl->table, (gpointer)hostlist_idx);
+    rownum=gtk_clist_find_row_from_data(hl->table, (gpointer)(long)hostlist_idx);
 
     if (!hl->resolve_names)
         entry=address_to_str(&hl->hosts[hostlist_idx].address);
@@ -544,7 +544,7 @@ draw_hostlist_table_data(hostlist_table *hl)
     for(i=0;i<hl->num_hosts;i++){
         char str[16];
 
-        j=gtk_clist_find_row_from_data(hl->table, (gpointer)i);
+        j=gtk_clist_find_row_from_data(hl->table, (gpointer)(unsigned long)i);
 
         g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
         gtk_clist_set_text(hl->table, j, 2, str);
@@ -1068,7 +1068,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         entries[7]=rxbytes;
 
         gtk_clist_insert(hl->table, talker_idx, entries);
-        gtk_clist_set_row_data(hl->table, talker_idx, (gpointer) talker_idx);
+        gtk_clist_set_row_data(hl->table, talker_idx, (gpointer)(long) talker_idx);
 
 		draw_hostlist_table_address(hl, talker_idx);
     }

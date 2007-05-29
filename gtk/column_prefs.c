@@ -547,7 +547,7 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
-        cur_fmt = (gint) data;
+	cur_fmt = (gint)(long) data;
         gtk_tree_model_get(model, &iter, 2, &clp, -1);
         cfmt    = (fmt_data *) clp->data;
 

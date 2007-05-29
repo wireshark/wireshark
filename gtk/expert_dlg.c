@@ -516,7 +516,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	for(i=0; expert_severity_om_vals[i].strptr != NULL;i++){
 		menu_item=gtk_menu_item_new_with_label(expert_severity_om_vals[i].strptr);
 		OBJECT_SET_DATA(menu_item, "tapdata", etd);
-		SIGNAL_CONNECT(menu_item, "activate", expert_dlg_severity_cb, i);
+		SIGNAL_CONNECT(menu_item, "activate", expert_dlg_severity_cb, (long) i);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 		if(expert_severity_om_vals[i].value == (guint) etd->severity_report_level) {
 			gtk_menu_set_active(GTK_MENU(menu), i);

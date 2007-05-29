@@ -1038,7 +1038,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     guint32 pt;
     int rownum;
 
-    rownum=gtk_clist_find_row_from_data(ct->table, (gpointer)conversation_idx);
+    rownum=gtk_clist_find_row_from_data(ct->table, (gpointer)(long)conversation_idx);
 
     if(!ct->resolve_names)
         entry=address_to_str(&ct->conversations[conversation_idx].src_address);
@@ -1115,7 +1115,7 @@ draw_ct_table_data(conversations_table *ct)
     for(i=0;i<ct->num_conversations;i++){
         char str[16];
 
-        j=gtk_clist_find_row_from_data(ct->table, (gpointer)i);
+        j=gtk_clist_find_row_from_data(ct->table, (gpointer)(unsigned long)i);
 
         g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].tx_frames+ct->conversations[i].rx_frames);
         gtk_clist_set_text(ct->table, j, 4, str);
@@ -1684,7 +1684,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         entries[9]=rxbytes;
 
         gtk_clist_insert(ct->table, conversation_idx, entries);
-        gtk_clist_set_row_data(ct->table, conversation_idx, (gpointer) conversation_idx);
+        gtk_clist_set_row_data(ct->table, conversation_idx, (gpointer)(long) conversation_idx);
 
         draw_ct_table_address(ct, conversation_idx);
     }

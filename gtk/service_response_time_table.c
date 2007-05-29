@@ -479,7 +479,7 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 	 */
 	if (rp->stats.num==0){
 		row=gtk_clist_append(rst->table, rst->procedures[index].entries);
-		gtk_clist_set_row_data(rst->table, row, (gpointer) index);
+		gtk_clist_set_row_data(rst->table, row, (gpointer)(long) index);
 	}
 
 	/* calculate time delta between request and reply */
@@ -508,7 +508,7 @@ draw_srt_table_data(srt_stat_table *rst)
 		td=td*100000+(int)rst->procedures[i].stats.tot.nsecs/10000;
 		td/=rst->procedures[i].stats.num;
 
-		j=gtk_clist_find_row_from_data(rst->table, (gpointer)i);
+		j=gtk_clist_find_row_from_data(rst->table, (gpointer)(long)i);
 		strp=g_strdup_printf("%d", rst->procedures[i].stats.num);
 		gtk_clist_set_text(rst->table, j, 2, strp);
 		g_free(rst->procedures[i].entries[2]);

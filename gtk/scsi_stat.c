@@ -111,7 +111,7 @@ dlg_destroy_cb(void)
 static void
 scsistat_program_select(GtkWidget *item _U_, gpointer key)
 {
-	int k=(int)key;
+	int k=(long)key;
 
 	scsi_program=k;
 }

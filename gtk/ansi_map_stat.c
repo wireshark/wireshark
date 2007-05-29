@@ -146,7 +146,7 @@ ansi_map_stat_draw(
 
 	while (ansi_map_opr_code_strings[i].strptr)
 	{
-	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer) i);
+	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg.table), (gpointer)(long) i);
 
 	    strp = g_strdup_printf("%d",
 		    stat_p->message_type[ansi_map_opr_code_strings[i].value]);
@@ -403,7 +403,7 @@ ansi_map_stat_gtk_cb(
 	dlg.entries[4] = g_strdup("0");
 
 	gtk_clist_insert(GTK_CLIST(dlg.table), i, dlg.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg.table), i, (gpointer) i);
+	gtk_clist_set_row_data(GTK_CLIST(dlg.table), i, (gpointer)(long) i);
 
 	i++;
     }

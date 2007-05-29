@@ -1943,7 +1943,7 @@ static void yscale_select(GtkWidget *item, gpointer key)
 	user_data_t *user_data;
 
         user_data=(user_data_t *)key;
-        val=(int)OBJECT_GET_DATA(item, "yscale_max");
+        val=(long)OBJECT_GET_DATA(item, "yscale_max");
 
         user_data->dlg.dialog_graph.max_y_units=val;
         dialog_graph_redraw(user_data);
@@ -1956,7 +1956,7 @@ static void pixels_per_tick_select(GtkWidget *item, gpointer key)
         user_data_t *user_data;
 
         user_data=(user_data_t *)key;
-        val=(int)OBJECT_GET_DATA(item, "pixels_per_tick");
+        val=(long)OBJECT_GET_DATA(item, "pixels_per_tick");
         user_data->dlg.dialog_graph.pixels_per_tick=val;
         dialog_graph_redraw(user_data);
 }
@@ -1968,7 +1968,7 @@ static void tick_interval_select(GtkWidget *item, gpointer key)
         user_data_t *user_data;
 
         user_data=(user_data_t *)key;
-        val=(int)OBJECT_GET_DATA(item, "tick_interval");
+        val=(long)OBJECT_GET_DATA(item, "tick_interval");
 
         user_data->dlg.dialog_graph.interval=val;
         cf_retap_packets(&cfile, FALSE);

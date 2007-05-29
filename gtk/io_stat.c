@@ -1264,7 +1264,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)OBJECT_GET_DATA(item, "tick_interval");
+	val=(long)OBJECT_GET_DATA(item, "tick_interval");
 
 	io->interval=val;
 	cf_retap_packets(&cfile, FALSE);
@@ -1278,7 +1278,7 @@ pixels_per_tick_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)OBJECT_GET_DATA(item, "pixels_per_tick");
+	val=(long)OBJECT_GET_DATA(item, "pixels_per_tick");
 	io->pixels_per_tick=val;
 	io_stat_redraw(io);
 }
@@ -1290,7 +1290,7 @@ plot_style_select(GtkWidget *item, gpointer key)
 	io_stat_graph_t *ppt;
 
 	ppt=(io_stat_graph_t *)key;
-	val=(int)OBJECT_GET_DATA(item, "plot_style");
+	val=(long)OBJECT_GET_DATA(item, "plot_style");
 
 	ppt->plot_style=val;
 
@@ -1326,7 +1326,7 @@ yscale_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)OBJECT_GET_DATA(item, "yscale_max");
+	val=(long)OBJECT_GET_DATA(item, "yscale_max");
 
 	io->max_y_units=val;
 	io_stat_redraw(io);
@@ -1391,7 +1391,7 @@ count_type_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(int)OBJECT_GET_DATA(item, "count_type");
+	val=(long)OBJECT_GET_DATA(item, "count_type");
 
 	io->count_type=val;
 

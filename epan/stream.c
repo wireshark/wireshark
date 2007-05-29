@@ -106,7 +106,7 @@ guint stream_hash_func(gconstpointer k)
     const stream_key_t *key = (const stream_key_t *)k;
 
     /* is_circuit is redundant to the circuit/conversation pointer */
-    return ((guint)key->circ.circuit) ^ key->p2p_dir;
+    return ((guint)(unsigned long)key->circ.circuit) ^ key->p2p_dir;
 }
 
 /* compare func */
@@ -278,7 +278,7 @@ typedef struct fragment_key {
 guint fragment_hash_func(gconstpointer k)
 {
     const fragment_key_t *key = (const fragment_key_t *)k;
-    return ((guint)key->stream) + ((guint)key -> framenum) + ((guint)key->offset);
+    return ((guint)(unsigned long)key->stream) + ((guint)key -> framenum) + ((guint)key->offset);
 }
 
 /* compare func */

@@ -136,7 +136,7 @@ ansi_a_stat_draw(
 
 	while (ansi_a_bsmap_strings[i].strptr)
 	{
-	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_bsmap.table), (gpointer) i);
+	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_bsmap.table), (gpointer)(long) i);
 
 	    strp = g_strdup_printf("%d",
 		    stat_p->bsmap_message_type[ansi_a_bsmap_strings[i].value]);
@@ -155,7 +155,7 @@ ansi_a_stat_draw(
 
 	while (ansi_a_dtap_strings[i].strptr)
 	{
-	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_dtap.table), (gpointer) i);
+	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_dtap.table), (gpointer)(long) i);
 
 	    strp = g_strdup_printf("%d",
 		    stat_p->dtap_message_type[ansi_a_dtap_strings[i].value]);
@@ -393,7 +393,7 @@ ansi_a_stat_gtk_bsmap_cb(
 	dlg_bsmap.entries[2] = g_strdup("0");
 
 	gtk_clist_insert(GTK_CLIST(dlg_bsmap.table), i, dlg_bsmap.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg_bsmap.table), i, (gpointer) i);
+	gtk_clist_set_row_data(GTK_CLIST(dlg_bsmap.table), i, (gpointer)(long) i);
 
 	i++;
     }
@@ -440,7 +440,7 @@ ansi_a_stat_gtk_dtap_cb(
 	dlg_dtap.entries[2] = g_strdup("0");
 
 	gtk_clist_insert(GTK_CLIST(dlg_dtap.table), i, dlg_dtap.entries);
-	gtk_clist_set_row_data(GTK_CLIST(dlg_dtap.table), i, (gpointer) i);
+	gtk_clist_set_row_data(GTK_CLIST(dlg_dtap.table), i, (gpointer)(long) i);
 
 	i++;
     }

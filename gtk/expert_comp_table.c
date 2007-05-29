@@ -246,7 +246,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     gtk_tree_model_get (model, &iter, PROTOCOL_COLUMN, &expert_data.protocol, -1);
     gtk_tree_model_get (model, &iter, SUMMARY_COLUMN, &expert_data.summary, -1);
     
-    if (strcmp((char *)expert_data.group, "Packet:")==0) {
+    if (strcmp((char *)(unsigned long)expert_data.group, "Packet:")==0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
         return;
     }

@@ -1757,7 +1757,7 @@ dissector_dump_decodes_display(const gchar *table_name,
     ftenum_t selector_type _U_, gpointer key, gpointer value,
     gpointer user_data _U_)
 {
-	guint32 selector = (guint32) key;
+	guint32 selector = (guint32)(unsigned long) key;
 	dissector_table_t sub_dissectors = find_dissector_table(table_name);
 	dtbl_entry_t *dtbl_entry;
 	dissector_handle_t handle;

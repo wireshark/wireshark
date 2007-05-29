@@ -341,7 +341,7 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 static void
 rpcstat_version_select(GtkWidget *item _U_, gpointer key)
 {
-	int vers=(int)key;
+	int vers=(long)key;
 
 	rpc_version=vers;
 }
@@ -370,7 +370,7 @@ rpcstat_program_select(GtkWidget *item _U_, gpointer key)
 		g_snprintf(vs, 5, "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
 		SIGNAL_CONNECT(menu_item, "activate", rpcstat_version_select,
-                               i);
+                               (long) i);
 
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
@@ -471,7 +471,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		g_snprintf(vs, 5, "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
 		SIGNAL_CONNECT(menu_item, "activate", rpcstat_version_select,
-                               i);
+                               (long) i);
 
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
