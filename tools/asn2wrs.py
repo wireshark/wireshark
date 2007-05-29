@@ -33,6 +33,9 @@
 # ITU-T Recommendation X.683 (07/2002), 
 #   Information technology - Abstract Syntax Notation One (ASN.1): Parameterization of ASN.1 specifications
 #
+# ITU-T Recommendation X.880 (07/1994), 
+#   Information technology - Remote Operations: Concepts, model and notation
+#
 
 from __future__ import nested_scopes
 
@@ -322,6 +325,7 @@ def t_QSTRING (t):
 def t_UCASE_IDENT (t):
     r"[A-Z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
     if (is_class_ident(t.value)): t.type = 'CLASS_IDENT'
+    if (is_x880_syntax(t.value)): t.type = t.value
     t.type = reserved_words.get(t.value, t.type)
     return t
 
@@ -495,6 +499,7 @@ class EthCtx:
     self.default_oid_variant = ''
     self.default_opentype_variant = ''
     self.default_containing_variant = '_pdu_new'
+    self.default_external_type_cb = None
 
   def encp(self):  # encoding protocol
     encp = self.encoding
@@ -659,6 +664,10 @@ class EthCtx:
       self.sel_req_ord.append(key)
     return key
 
+  #--- eth_comp_req ------------------------------------------------------------
+  def eth_comp_req(self, type):
+    self.comp_req_ord.append(type)
+
   #--- eth_dep_add ------------------------------------------------------------
   def eth_dep_add(self, type, dep):
     if not self.type_dep.has_key(type): 
@@ -772,6 +781,7 @@ class EthCtx:
     self.type_dep = {}
     self.sel_req = {}
     self.sel_req_ord = []
+    self.comp_req_ord = []
     self.vassign = {}
     self.vassign_ord = []
     self.value = {}
@@ -841,6 +851,11 @@ class EthCtx:
     for t in t_for_update.keys():
       self.type[t]['attr']['STRINGS'] = self.type[t]['val'].eth_strings()
       self.type[t]['attr'].update(self.conform.use_item('TYPE_ATTR', t))
+
+    #--- required components of ---------------------------
+    #print "self.comp_req_ord = ", self.comp_req_ord
+    for t in self.comp_req_ord:
+      self.type[t]['val'].eth_reg_sub(t, self, components_available=True)
 
     #--- required selection types ---------------------------
     #print "self.sel_req_ord = ", self.sel_req_ord
@@ -1685,6 +1700,7 @@ class EthCtx:
     self.output.outnm = self.outnm_opt
     if (not self.output.outnm):
       self.output.outnm = self.proto
+      self.output.outnm = self.output.outnm.replace('.', '-')
     self.eth_output_hf()
     self.eth_output_ett()
     self.eth_output_types()
@@ -2271,6 +2287,10 @@ class EthCnf:
     elif opt in ("-L",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.suppress_line = True
+    elif opt in ("EXTERNAL_TYPE_CB",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.default_external_type_cb = par[0]
     else:
       warnings.warn_explicit("Unknown option %s" % (opt),
                              UserWarning, fn, lineno)
@@ -2317,9 +2337,28 @@ class EthOut:
     self.outnm = None
     self.outdir = '.'
     self.single_file = None
-    self.created_files = []
-    self.unique_created_files = []
+    self.created_files = {}
+    self.created_files_ord = []
     self.keep = False
+
+  def outcomment(self, ln, comment=None):
+    if comment:
+      return '%s %s\n' % (comment, ln)
+    else:
+      return '/* %-74s */\n' % (ln)
+
+  def created_file_add(self, name, keep_anyway):
+    name = os.path.normcase(os.path.abspath(name))
+    if not self.created_files.has_key(name):
+      self.created_files_ord.append(name)
+      self.created_files[name] = keep_anyway
+    else:
+      self.created_files[name] = self.created_files[name] or keep_anyway
+
+  def created_file_exists(self, name):
+    name = os.path.normcase(os.path.abspath(name))
+    return self.created_files.has_key(name)
+
   #--- output_fname -------------------------------------------------------
   def output_fname(self, ftype, ext='c'):
     fn = ''
@@ -2336,39 +2375,42 @@ class EthOut:
   #--- file_open -------------------------------------------------------
   def file_open(self, ftype, ext='c'):
     fn = self.output_fullname(ftype, ext=ext)
-    fx = file(fn, 'w')
+    if self.created_file_exists(fn):
+      fx = file(fn, 'a')
+    else:
+      fx = file(fn, 'w')
+    comment = None
     if ext in ('cnf',):
-      fx.write(self.fhdr(fn, comment = '#'))
+      comment = '#'
+      fx.write(self.fhdr(fn, comment = comment))
     else:
       if (not self.single_file):
         fx.write(self.fhdr(fn))
+    if not self.ectx.merge_modules:
+      fx.write(self.outcomment("--- Module %s --- --- ---" % (self.ectx.module()), comment))
+      fx.write('\n')
     return fx
   #--- file_close -------------------------------------------------------
   def file_close(self, fx, discard=False, keep_anyway=False):
     fx.close()
-    if (discard): 
+    if discard and not self.created_file_exists(fx.name): 
       os.unlink(fx.name)
-    elif (not keep_anyway):
-      self.created_files.append(os.path.normcase(os.path.abspath(fx.name)))
+    else:
+      self.created_file_add(fx.name, keep_anyway)
   #--- fhdr -------------------------------------------------------
   def fhdr(self, fn, comment=None):
-    def outln(ln):
-      if comment:
-        return '# %s\n' % (ln)
-      else:
-        return '/* %-74s */\n' % (ln)
     out = ''
-    out += outln('Do not modify this file.')
-    out += outln('It is created automatically by the ASN.1 to Wireshark dissector compiler')
-    out += outln(fn)
-    out += outln(' '.join(sys.argv))
+    out += self.outcomment('Do not modify this file.', comment)
+    out += self.outcomment('It is created automatically by the ASN.1 to Wireshark dissector compiler', comment)
+    out += self.outcomment(fn, comment)
+    out += self.outcomment(' '.join(sys.argv), comment)
     out += '\n'
     return out
 
   #--- dbg_print -------------------------------------------------------
   def dbg_print(self):
     print "\n# Output files"
-    print "\n".join(self.created_files)
+    print "\n".join(self.created_files_ord)
     print "\n"
 
   #--- make_single_file -------------------------------------------------------
@@ -2382,16 +2424,15 @@ class EthOut:
       out_nm = self.output_fullname('', ext='h')
       self.do_include(out_nm, in_nm)
     if (not self.keep):
-      self.unique_created_files = []
-      [self.unique_created_files.append(wrd) for wrd in self.created_files if not self.unique_created_files.count(wrd)]
-      for fn in self.unique_created_files:
-        os.unlink(fn)
+      for fn in self.created_files_ord:
+        if not self.created_files[fn]:
+          os.unlink(fn)
 
   #--- do_include -------------------------------------------------------
   def do_include(self, out_nm, in_nm):
     def check_file(fn, fnlist):
       fnfull = os.path.normcase(os.path.abspath(fn))
-      if ((fnfull in fnlist) and os.path.exists(fnfull)):
+      if (fnlist.has_key(fnfull) and os.path.exists(fnfull)):
         return os.path.normpath(fn)
       return None
     fin = file(in_nm, "r")
@@ -2577,6 +2618,11 @@ class Type (Node):
 
   def eth_reg_sub(self, ident, ectx):
     pass
+
+  def get_components(self, ectx):
+    print "#Unhandled  get_components() in %s" % (self.type)
+    print self.str_depth(1)
+    return []
 
   def sel_req(self, sel, ectx):
     print "#Selection '%s' required for non-CHOICE type %s" % (sel, self.type)
@@ -3039,6 +3085,14 @@ class Type_Ref (Type):
   def eth_tname(self):
     return asn2c(self.val)
 
+  def get_components(self, ectx):
+    if not ectx.type.has_key(self.val) or ectx.type[self.val]['import']:
+      msg = "Can not get COMPONENTS OF %s which is imported type" % (self.val)
+      warnings.warn_explicit(msg, UserWarning, '', '')
+      return []
+    else:
+      return ectx.type[self.val]['val'].get_components(ectx)
+
   def GetTTag(self, ectx):
     #print "GetTTag(%s)\n" % self.val;
     if (ectx.type[self.val]['import']):
@@ -3215,6 +3269,36 @@ class SqType (Type):
 
 #--- SeqType -----------------------------------------------------------
 class SeqType (SqType):
+
+  def need_components(self):
+    lst = []
+    lst.extend(self.elt_list)
+    if hasattr(self, 'ext_list'):
+      lst.extend(self.ext_list)
+    for e in (self.elt_list):
+      if e.type == 'components_of':
+        return True
+    return False
+
+  def expand_components(self, ectx):
+    while self.need_components():
+      for i in range(len(self.elt_list)):
+        if self.elt_list[i].type == 'components_of':
+          comp = self.elt_list[i].typ.get_components(ectx)
+          self.elt_list[i:i+1] = comp
+          break
+      if hasattr(self, 'ext_list'):
+        for i in range(len(self.ext_list)):
+          if self.ext_list[i].type == 'components_of':
+            comp = self.ext_list[i].typ.get_components(ectx)
+            self.ext_list[i:i+1] = comp
+            break
+
+  def get_components(self, ectx):
+    comp = []
+    comp.extend(self.elt_list)
+    return comp
+
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
@@ -3443,12 +3527,18 @@ class SequenceType (SeqType):
       ctx.outdent ()
       return rv
 
-  def eth_reg_sub(self, ident, ectx):
-      for e in (self.elt_list):
-          e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
-      if hasattr(self, 'ext_list'):
-          for e in (self.ext_list):
-              e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+  def eth_reg_sub(self, ident, ectx, components_available=False):
+    if self.need_components():
+      if components_available:
+        self.expand_components(ectx)
+      else:
+        ectx.eth_comp_req(ident)
+        return
+    for e in (self.elt_list):
+        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+    if hasattr(self, 'ext_list'):
+        for e in (self.ext_list):
+            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_need_tree(self):
     return True
@@ -3481,7 +3571,14 @@ class SequenceType (SeqType):
 
 #--- SetType ------------------------------------------------------------------
 class SetType(SeqType):
-  def eth_reg_sub(self, ident, ectx):
+
+  def eth_reg_sub(self, ident, ectx, components_available=False):
+    if self.need_components():
+      if components_available:
+        self.expand_components(ectx)
+      else:
+        ectx.eth_comp_req(ident)
+        return
     for e in (self.elt_list):
       e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
     if hasattr(self, 'ext_list'):
@@ -3569,7 +3666,8 @@ class ChoiceType (Type):
               ectx.eth_sel_req(ident, e.name)
 
   def sel_item(self, ident, sel, ectx):
-    lst = self.elt_list
+    lst = []
+    lst.extend(self.elt_list)
     if hasattr(self, 'ext_list'):
       lst.extend(self.ext_list)
     ee = None
@@ -3907,7 +4005,10 @@ class ExternalType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    pars['TYPE_REF_FN'] = 'NULL'
+    if ectx.default_external_type_cb:
+      pars['TYPE_REF_FN'] = ectx.default_external_type_cb
+    else:
+      pars['TYPE_REF_FN'] = 'NULL'
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -4691,8 +4792,15 @@ def p_SymbolsFromModuleList_2 (t):
 def p_SymbolsFromModule (t):
   'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
   t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
-  for s in t[1]: 
+  for s in (t[0].symbol_list): 
     if (isinstance(s, str) and s[0].islower()): lcase_ident_assigned[s] = t[3]
+  if t[0].module.val == 'Remote-Operations-Information-Objects':
+    for i in range(len(t[0].symbol_list)):
+      s = t[0].symbol_list[i]
+      if isinstance(s, Type_Ref) or isinstance(s, Class_Ref):
+        x880_import(s.val)
+        if isinstance(s, Type_Ref) and is_class_ident(s.val):
+          t[0].symbol_list[i] = Class_Ref (val = s.val)
 
 def p_GlobalModuleReference (t):
   'GlobalModuleReference : modulereference AssignedIdentifier'
@@ -5031,39 +5139,43 @@ def p_NullType (t):
 
 # 24.1
 def p_SequenceType_1 (t):
-    'SequenceType : SEQUENCE LBRACE RBRACE'
-    t[0] = SequenceType (elt_list = [])
+  'SequenceType : SEQUENCE LBRACE RBRACE'
+  t[0] = SequenceType (elt_list = [])
 
 def p_SequenceType_2 (t):
-    'SequenceType : SEQUENCE LBRACE ComponentTypeLists RBRACE'
-    if t[3].has_key('ext_list'):
-        t[0] = SequenceType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
-    else:
-        t[0] = SequenceType (elt_list = t[3]['elt_list'])
+  'SequenceType : SEQUENCE LBRACE ComponentTypeLists RBRACE'
+  if t[3].has_key('ext_list'):
+      t[0] = SequenceType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
+  else:
+      t[0] = SequenceType (elt_list = t[3]['elt_list'])
 
 def p_ExtensionAndException_1 (t):
-    'ExtensionAndException : ELLIPSIS'
-    t[0] = []
+  'ExtensionAndException : ELLIPSIS'
+  t[0] = []
 
 def p_OptionalExtensionMarker_1 (t):
-    'OptionalExtensionMarker : COMMA ELLIPSIS'
-    t[0] = True
+  'OptionalExtensionMarker : COMMA ELLIPSIS'
+  t[0] = True
 
 def p_OptionalExtensionMarker_2 (t):
-    'OptionalExtensionMarker : '
-    t[0] = False
+  'OptionalExtensionMarker : '
+  t[0] = False
 
 def p_ComponentTypeLists_1 (t):
-    'ComponentTypeLists : element_type_list'
-    t[0] = {'elt_list' : t[1]}
+  'ComponentTypeLists : ComponentTypeList'
+  t[0] = {'elt_list' : t[1]}
 
 def p_ComponentTypeLists_2 (t):
-    'ComponentTypeLists : element_type_list COMMA ExtensionAndException extension_additions OptionalExtensionMarker'
+    'ComponentTypeLists : ComponentTypeList COMMA ExtensionAndException extension_additions OptionalExtensionMarker'
     t[0] = {'elt_list' : t[1], 'ext_list' : t[4]}
 
 def p_ComponentTypeLists_3 (t):
     'ComponentTypeLists : ExtensionAndException extension_additions OptionalExtensionMarker'
     t[0] = {'elt_list' : [], 'ext_list' : t[2]}
+
+#def p_RootComponentTypeList (t):
+#    'RootComponentTypeList : ComponentTypeList'
+#    t[0] = t[1]
 
 def p_extension_additions_1 (t):
     'extension_additions : extension_addition_list'
@@ -5082,34 +5194,32 @@ def p_extension_addition_list_2 (t):
     t[0] = t[1] + [t[3]]
 
 def p_extension_addition_1 (t):
-    'extension_addition : element_type'
+    'extension_addition : ComponentType'
     t[0] = t[1]
 
-def p_element_type_list_1 (t):
-    'element_type_list : element_type'
-    t[0] = [t[1]]
+def p_ComponentTypeList_1 (t):
+  'ComponentTypeList : ComponentType'
+  t[0] = [t[1]]
 
-def p_element_type_list_2 (t):
-    'element_type_list : element_type_list COMMA element_type'
-    t[0] = t[1] + [t[3]]
+def p_ComponentTypeList_2 (t):
+  'ComponentTypeList : ComponentTypeList COMMA ComponentType'
+  t[0] = t[1] + [t[3]]
 
-def p_element_type_1 (t):
-    'element_type : NamedType'
-    t[0] = Node ('elt_type', val = t[1], optional = 0)
+def p_ComponentType_1 (t):
+  'ComponentType : NamedType'
+  t[0] = Node ('elt_type', val = t[1], optional = 0)
 
-def p_element_type_2 (t):
-    'element_type : NamedType OPTIONAL'
-    t[0] = Node ('elt_type', val = t[1], optional = 1)
+def p_ComponentType_2 (t):
+  'ComponentType : NamedType OPTIONAL'
+  t[0] = Node ('elt_type', val = t[1], optional = 1)
 
-def p_element_type_3 (t):
-    'element_type : NamedType DEFAULT DefaultValue'
-    t[0] = Node ('elt_type', val = t[1], optional = 1, default = t[3])
-#          /*
-#           * this rules uses NamedValue instead of Value
-#           * for the stupid choice value syntax (fieldname value)
-#           * it should be like a set/seq value (ie with
-#           * enclosing { }
-#           */
+def p_ComponentType_3 (t):
+  'ComponentType : NamedType DEFAULT DefaultValue'
+  t[0] = Node ('elt_type', val = t[1], optional = 1, default = t[3])
+
+def p_ComponentType_4 (t):
+  'ComponentType : COMPONENTS OF Type'
+  t[0] = Node ('components_of', typ = t[3])
 
 def p_DefaultValue_1 (t):
   '''DefaultValue : ReferencedValue 
@@ -5124,8 +5234,6 @@ def p_DefaultValue_1 (t):
 def p_DefaultValue_2 (t):
   'DefaultValue : lbraceignore rbraceignore'
   t[0] = ''
-
-# XXX get to COMPONENTS later
 
 # 24.17
 def p_SequenceValue_1 (t):
@@ -5741,6 +5849,10 @@ def p_DefinedObjectClass (t):
                         | UsefulObjectClassReference'''
   t[0] = t[1]
 
+def p_DefinedObject (t):
+  '''DefinedObject : objectreference'''
+  t[0] = t[1]
+
 # 8.4
 def p_UsefulObjectClassReference (t):
   '''UsefulObjectClassReference : TYPE_IDENTIFIER 
@@ -5784,9 +5896,15 @@ def p_ObjectAssignment (t):
   'ObjectAssignment : objectreference CLASS_IDENT ASSIGNMENT Object'
   t[0] = Node('ObjectAssignment', name=t[1], cls=t[2], val=t[4])
 
-# 11.4
+# 11.3
 def p_Object (t):
-  'Object : lbraceignore rbraceignore'
+  '''Object : DefinedObject
+            | ObjectDefn'''
+  t[0] = t[1]
+
+# 11.4
+def p_ObjectDefn (t):
+  'ObjectDefn : lbraceignore rbraceignore'
   t[0] = None
 
 # 12 Information object set definition and assignment
@@ -5808,9 +5926,6 @@ def p_ObjectClassFieldType (t):
   'ObjectClassFieldType : DefinedObjectClass DOT FieldName'
   t[0] = get_type_from_class(t[1], t[3])
 
-class_names = {
-}
-
 useful_object_class_types = {
   # Annex A
   'TYPE-IDENTIFIER/id'   : lambda : ObjectIdentifierType(),
@@ -5821,17 +5936,17 @@ useful_object_class_types = {
   'ABSTRACT-SYNTAX/property' : lambda : BitStringType(),
 }
 
-object_class_types = {
-}
+object_class_types = { }
 
-object_class_typerefs = {
-}
+object_class_typerefs = { }
 
 class_types_creator = {
   'IntegerType'          : lambda : IntegerType(),
   'ObjectIdentifierType' : lambda : ObjectIdentifierType(),
   'OpenType'             : lambda : OpenType(),
 }
+
+class_names = { }
 
 def is_class_ident(name):
   return class_names.has_key(name)
@@ -6002,6 +6117,48 @@ def p_ActualParameterList (t):
 #                     | Value'''
 #  t[0] = t[1]
 
+
+#--- ITU-T Recommendation X.880 -----------------------------------------------
+
+x880_syntaxes = {
+  'OPERATION' : {
+    'ARGUMENT'       : 'ARGUMENT',
+    'RESULT'         : 'RESULT',         
+    'RETURN'         : 'RETURN',         
+    'ERRORS'         : 'ERRORS',         
+    'LINKED'         : 'LINKED',         
+    'SYNCHRONOUS'    : 'SYNCHRONOUS',    
+    'IDEMPOTENT'     : 'IDEMPOTENT',     
+    'ALWAYS'         : 'ALWAYS',         
+    'RESPONDS'       : 'RESPONDS',       
+    'INVOKE'         : 'INVOKE',         
+    'PRIORITY'       : 'PRIORITY',       
+    'RESULT-PRIORITY': 'RESULT-PRIORITY',
+    'CODE'           : 'CODE',           
+  },
+  'ERROR' : {
+  },
+  'OPERATION-PACKAGE' : {
+  },
+  'CONNECTION-PACKAGE' : {
+  },
+  'CONTRACT' : {
+  },
+  'ROS-OBJECT-CLASS' : {
+  },
+
+}
+
+x880_syntaxes_enabled = { }
+x880_current_syntaxes = None
+
+def x880_import(name):
+  if x880_syntaxes.has_key(name):
+    x880_syntaxes_enabled[name] = True
+    add_class_ident(name)
+
+def is_x880_syntax(name):
+  return False
 
 #  {...} OID value
 #def p_lbrace_oid(t):
