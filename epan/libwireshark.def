@@ -157,6 +157,9 @@ dissect_ber_null
 dissect_ber_object_identifier
 dissect_ber_object_identifier_str
 dissect_ber_octet_string
+dissect_ber_old_choice
+dissect_ber_old_sequence
+dissect_ber_old_sequence_of
 dissect_ber_restricted_string
 dissect_ber_sequence
 dissect_ber_sequence_of
