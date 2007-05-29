@@ -412,6 +412,7 @@ static int hf_rtcp_setup_method = -1;
 
 /* RTCP roundtrip delay fields */
 static int hf_rtcp_last_sr_timestamp_frame  = -1;
+static int hf_rtcp_time_since_last_sr = -1;
 static int hf_rtcp_roundtrip_delay  = -1;
 
 
@@ -457,7 +458,9 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr);
 static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
                                       proto_tree *tree, guint32 lsr, guint32 dlsr);
 static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree, guint frame, gint delay);
+                                     proto_tree *tree,
+                                     guint frame,
+                                     guint gap_between_reports, gint delay);
 
 
 /* Set up an RTCP conversation using the info given */
@@ -928,16 +931,14 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 					/* Display name */
 					item_len = tvb_get_guint8( tvb, offset );
-					if (item_len != 0) {
-						/* Item len of 1 because its an FT_UINT_STRING... */
-						proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_disp_name,
-						                    tvb, offset, 1, FALSE);
-					}
+					/* Item len of 1 because its an FT_UINT_STRING... */
+					proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_disp_name,
+					                    tvb, offset, 1, FALSE);
 					offset++;
 
 					if (check_col(pinfo->cinfo, COL_INFO)) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
-										tvb_get_ephemeral_string(tvb, offset, item_len));
+						                tvb_get_ephemeral_string(tvb, offset, item_len));
 					}
 
 					offset += item_len;
@@ -2113,6 +2114,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 		/* Show info. */
 		add_roundtrip_delay_info(tvb, pinfo, tree,
 		                         p_packet_data->calculated_delay_used_frame,
+		                         p_packet_data->calculated_delay_report_gap,
 		                         p_packet_data->calculated_delay);
 		return;
 	}
@@ -2185,24 +2187,35 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			if (dlsr)
 			{
 				p_packet_data->calculated_delay = delay;
+				p_packet_data->calculated_delay_report_gap = total_gap;
 				p_packet_data->calculated_delay_used_frame = p_conv_data->last_received_frame_number;
 			}
 
 			/* Show info. */
-			add_roundtrip_delay_info(tvb, pinfo, tree, p_conv_data->last_received_frame_number, delay);
+			add_roundtrip_delay_info(tvb, pinfo, tree,
+			                         p_conv_data->last_received_frame_number,
+			                         total_gap,
+			                         delay);
 		}
 	}
 }
 
 /* Show the calcaulted roundtrip delay info by adding protocol tree items
    and appending text to the info column */
-static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree, guint frame, gint delay)
+static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                     guint frame, guint gap_between_reports,
+                                     gint delay)
 {
 	/* 'Last SR' frame used in calculation.  Show this even if no delay shown */
 	proto_item* item = proto_tree_add_uint(tree,
 	                                       hf_rtcp_last_sr_timestamp_frame,
 	                                       tvb, 0, 0, frame);
+	PROTO_ITEM_SET_GENERATED(item);
+
+	/* Time elapsed since 'Last SR' time in capture */
+	item = proto_tree_add_uint(tree,
+	                           hf_rtcp_time_since_last_sr,
+	                           tvb, 0, 0, gap_between_reports);
 	PROTO_ITEM_SET_GENERATED(item);
 
 	/* Don't report on calculated delays below the threshold.
@@ -3334,6 +3347,18 @@ proto_register_rtcp(void)
 				NULL,
 				0x0,
 				"Frame matching LSR field (used to calculate roundtrip delay)", HFILL
+			}
+		},
+		{
+			&hf_rtcp_time_since_last_sr,
+			{
+				"Time since Last SR captured",
+				"rtcp.lsr-frame-captured",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Time since frame matching LSR field was captured", HFILL
 			}
 		},
 		{
