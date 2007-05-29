@@ -2019,7 +2019,7 @@ static void h245_free_labels(guint32 new_frame_num)
 }
 
 /* add the frame_label and comment to h245_labels and free the actual one if it is different frame num */ 
-static void h245_add_label(guint32 new_frame_num, gchar *frame_label, gchar *comment)
+static void h245_add_label(guint32 new_frame_num, const gchar *frame_label, const gchar *comment)
 {
 	h245_free_labels(new_frame_num);
 
