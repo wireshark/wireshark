@@ -507,7 +507,7 @@ proto_tree_free(proto_tree *tree)
 }
 
 static void
-free_GPtrArray_value(gpointer key _U_, gpointer value, gpointer user_data _U_)
+free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 {
 	GPtrArray   *ptrs = value;
 	gint hfid = (gint)(long)key;
@@ -5768,15 +5768,13 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		switch(hf_field->display){
 			case BASE_DEC:
 				return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
-				         "%s: %llu",
-						  str,
-						  (unsigned long long) value);
+				         "%s: %" G_GINT64_MODIFIER "u",
+						  str, value);
 				break;
 			case BASE_HEX:
 				return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
-			             "%s: 0x%llx",
-						  str,
-						  (unsigned long long) value);
+			             "%s: 0x%" G_GINT64_MODIFIER "x",
+						  str, value);
 				break;
 			default:
 				DISSECTOR_ASSERT_NOT_REACHED();

@@ -1194,6 +1194,44 @@ AC_C_BIGENDIAN
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
 
+#
+# Does GLib define G_GINT64_MODIFIER?
+#
+AC_MSG_CHECKING([[whether glib.h defines the G_GINT64_MODIFIER macro]])
+AC_COMPILE_IFELSE(
+  [
+    AC_LANG_SOURCE(
+      [[
+	#include <glib.h>
+	#if GTK_MAJOR_VERSION >= 2
+	#include <glib/gprintf.h>
+	#endif
+	#include <stdio.h>
+
+	main()
+	{
+	  char strbuf[16+1];
+	  g_snprintf(strbuf, sizeof strbuf, "%" G_GINT64_MODIFIER "x\n", (gint64)1);
+	}
+      ]])
+  ],
+  [
+    AC_MSG_RESULT(yes)
+  ],
+  [
+    AC_MSG_RESULT(no)
+    AC_WIRESHARK_CHECK_64BIT_FORMAT(ll,
+      [
+	AC_WIRESHARK_CHECK_64BIT_FORMAT(L,
+	  [
+	    AC_WIRESHARK_CHECK_64BIT_FORMAT(q,
+	      [
+		AC_MSG_ERROR([neither %llx nor %Lx nor %qx worked on a 64-bit integer])
+	      ])
+	  ])
+      ])
+  ])
+
 GETOPT_C=""
 GETOPT_O=""
 AC_CHECK_FUNC(getopt, GETOPT_O="",

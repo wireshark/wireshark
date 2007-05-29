@@ -1430,11 +1430,11 @@ set_display_filename(capture_file *cf)
 
   /* convert file size */
   if (cf->f_datalen/1024/1024 > 10) {
-    size_str = g_strdup_printf("%lld MB", (long long) cf->f_datalen/1024/1024);
+    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", cf->f_datalen/1024/1024);
   } else if (cf->f_datalen/1024 > 10) {
-    size_str = g_strdup_printf("%lld KB", (long long) cf->f_datalen/1024);
+    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", cf->f_datalen/1024);
   } else {
-    size_str = g_strdup_printf("%lld Bytes", (long long) cf->f_datalen);
+    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", cf->f_datalen);
   }
 
   /* statusbar */
@@ -1704,20 +1704,20 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
     }
 #endif
     if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld MB",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
-            (long long) cf->f_datalen/1024/1024);
+            cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld KB",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
-            (long long) cf->f_datalen/1024);
+            cf->f_datalen/1024);
     } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld Bytes",
+        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
             get_interface_descriptive_name(capture_opts->iface),
             capture_opts->save_file,
-            (long long) cf->f_datalen);
+            cf->f_datalen);
     }
 
     statusbar_push_file_msg(capture_msg);

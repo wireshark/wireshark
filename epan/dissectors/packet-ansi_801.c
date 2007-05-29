@@ -1062,15 +1062,13 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 18);
 
 	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "CLOCK_BIAS: (%llu)",
-	    (unsigned long long) temp_int);
+	    "CLOCK_BIAS: (%" G_GINT64_MODIFIER "u)", temp_int);
 
 	offset = new_offset;
 	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 16);
 
 	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "CLOCK_DRIFT: (%llu)",
-	    (unsigned long long) temp_int);
+	    "CLOCK_DRIFT: (%" G_GINT64_MODIFIER "u)", temp_int);
 
 	offset = new_offset;
 	bit_mask = 0x80 >> (8 - bit_offset);
@@ -1147,15 +1145,13 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 14);
 
 	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "HEIGHT: (%llu)",
-	    (unsigned long long) temp_int);
+	    "HEIGHT: (%" G_GINT64_MODIFIER "u)", temp_int);
 
 	offset = new_offset;
 	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 5);
 
 	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "LOC_UNCRTNTY_V: (%llu)",
-	    (unsigned long long) temp_int);
+	    "LOC_UNCRTNTY_V: (%" G_GINT64_MODIFIER "u)", temp_int);
 
 	offset = new_offset;
 	bit_mask = 0x80 >> (8 - bit_offset);
@@ -1232,8 +1228,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	    temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 5);
 
 	    proto_tree_add_text(tree, tvb, offset, 1,
-		"BAD_SV_PRN_NUM: (%llu)",
-		(unsigned long long) temp_int);
+		"BAD_SV_PRN_NUM: (%" G_GINT64_MODIFIER "u)", temp_int);
 
 	    offset = new_offset;
 	}

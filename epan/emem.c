@@ -1536,7 +1536,7 @@ emem_tree_print_nodes(emem_tree_node_t* node, int level)
 		printf("    ");
 	}
 
-	printf("NODE:%08x parent:%08x left:0x%08x right:%08x key:%d data:0x%08x\n",(int)(long)node,(int)(long)node->parent,(int)(long)node->left,(int)(long)node->right,node->key32,(int)(long)node->data);
+	printf("NODE:%p parent:%p left:0x%p right:%px key:%d data:%p\n",node,node->parent,node->left,node->right,node->key32,node->data);
 	if(node->left)
 		emem_tree_print_nodes(node->left, level+1);
 	if(node->right)
@@ -1548,7 +1548,7 @@ emem_print_tree(emem_tree_t* emem_tree)
 	if (!emem_tree)
 		return;
 
-	printf("EMEM tree type:%d name:%s tree:0x%08x\n",emem_tree->type,emem_tree->name,(int)(long)emem_tree->tree);
+	printf("EMEM tree type:%d name:%s tree:%p\n",emem_tree->type,emem_tree->name,emem_tree->tree);
 	if(emem_tree->tree)
 		emem_tree_print_nodes(emem_tree->tree, 0);
 }
