@@ -126,11 +126,18 @@ unsigned integers.
 
 When printing or displaying the values of 64-bit integral data types,
 don't assume use "%lld", "%llu", "%llx", or "%llo" - not all platforms
-support "%ll" for printing 64-bit integral data types.  Instead, use
-PRId64, PRIu64, PRIx64, and PRIo64, for example
+support "%ll" for printing 64-bit integral data types.  Instead, for
+GLib routines, and routines that use them, such as all the routines in
+Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
 
     proto_tree_add_text(tree, tvb, offset, 8,
-			"Sequence Number: %" PRIu64, sequence_number);
+			"Sequence Number: %" G_GINT64_MODIFIER "u",
+			sequence_number);
+
+When using standard C routines, such as printf and scanf, use
+PRId64, PRIu64, PRIx64, PRIX64, and PRIo64, for example:
+
+   printf("Sequence Number: %" PRIu64 "\n", sequence_number);
 
 When specifying an integral constant that doesn't fit in 32 bits, don't
 use "LL" at the end of the constant - not all compilers use "LL" for
