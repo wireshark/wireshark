@@ -778,6 +778,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     int  seconds_chars;
     char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS+1];
     int  subsecond_decimals_chars;
+    int  skip_first_byte = FALSE;
 
     gboolean atm_header_present = FALSE;
 
@@ -959,7 +960,13 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     else
     if (strcmp(protocol_name, "isdn_l3") == 0)
     {
-        /* Despite the name, this does seem to correspond to L2... */
+       /* TODO: find out what this byte means... */
+        skip_first_byte = TRUE;
+        *encap = WTAP_ENCAP_ISDN;
+    }
+    else
+    if (strcmp(protocol_name, "isdn_l2") == 0)
+    {
         *encap = WTAP_ENCAP_ISDN;
     }
     else
@@ -1081,7 +1088,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (n < line_length);
          n++, seconds_chars++)
     {
-	if (!isdigit((int)linebuff[n]))
+        if (!isdigit((int)linebuff[n]))
         {
             /* Found a non-digit before decimal point. Fail */
             return FALSE;
@@ -1113,7 +1120,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (n < line_length);
          n++, subsecond_decimals_chars++)
     {
-	if (!isdigit((int)linebuff[n]))
+        if (!isdigit((int)linebuff[n]))
         {
             return FALSE;
         }
@@ -1151,14 +1158,13 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Set number of chars that comprise the hex string protocol data */
     *data_chars = line_length - n;
 
-    /* Need to skip first byte (2 hex string chars) from ISDN messages.
-       TODO: find out what this byte means...
-    */
-    if (*encap == WTAP_ENCAP_ISDN)
+    /* May need to skip first byte (2 hex string chars) */
+    if (skip_first_byte)
     {
         *data_offset += 2;
         *data_chars -= 2;
     }
+
 
     return TRUE;
 }
