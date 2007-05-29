@@ -1117,21 +1117,21 @@ draw_ct_table_data(conversations_table *ct)
 
         j=gtk_clist_find_row_from_data(ct->table, (gpointer)(unsigned long)i);
 
-        g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].tx_frames+ct->conversations[i].rx_frames);
+        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_frames+ct->conversations[i].rx_frames);
         gtk_clist_set_text(ct->table, j, 4, str);
-        g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].tx_bytes+ct->conversations[i].rx_bytes);
+        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_bytes+ct->conversations[i].rx_bytes);
         gtk_clist_set_text(ct->table, j, 5, str);
 
 
-        g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].tx_frames);
+        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_frames);
         gtk_clist_set_text(ct->table, j, 6, str);
-        g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].tx_bytes);
+        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_bytes);
         gtk_clist_set_text(ct->table, j, 7, str);
 
 
-        g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].rx_frames);
+        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].rx_frames);
         gtk_clist_set_text(ct->table, j, 8, str);
-        g_snprintf(str, 16, "%" PRIu64, ct->conversations[i].rx_bytes);
+        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].rx_bytes);
         gtk_clist_set_text(ct->table, j, 9, str);
 
     }
@@ -1668,19 +1668,19 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         entries[2] = "";
         entries[3] = "";
 
-        g_snprintf(frames, 16, "%" PRIu64, conversation->tx_frames+conversation->rx_frames);
+        g_snprintf(frames, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_frames+conversation->rx_frames);
         entries[4]=frames;
-        g_snprintf(bytes, 16, "%" PRIu64, conversation->tx_bytes+conversation->rx_bytes);
+        g_snprintf(bytes, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_bytes+conversation->rx_bytes);
         entries[5]=bytes;
 
-        g_snprintf(txframes, 16, "%" PRIu64, conversation->tx_frames);
+        g_snprintf(txframes, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_frames);
         entries[6]=txframes;
-        g_snprintf(txbytes, 16, "%" PRIu64, conversation->tx_bytes);
+        g_snprintf(txbytes, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_bytes);
         entries[7]=txbytes;
 
-        g_snprintf(rxframes, 16, "%" PRIu64, conversation->rx_frames);
+        g_snprintf(rxframes, 16, "%" G_GINT64_MODIFIER "u", conversation->rx_frames);
         entries[8]=rxframes;
-        g_snprintf(rxbytes, 16, "%" PRIu64, conversation->rx_bytes);
+        g_snprintf(rxbytes, 16, "%" G_GINT64_MODIFIER "u", conversation->rx_bytes);
         entries[9]=rxbytes;
 
         gtk_clist_insert(ct->table, conversation_idx, entries);

@@ -279,7 +279,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 			offset += 1;
 
 			proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6, 
-						"Program Clock Reference: base(%" PRIu64 ") * 300 + ext(%u) = %" PRIu64, 
+						"Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u", 
 						pcr_base, pcr_ext, pcr_base * 300 + pcr_ext);
 		}
 
@@ -314,7 +314,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 			offset += 1;
 
 			proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_opcr, tvb, offset - 6, 6, 
-						"Original Program Clock Reference: base(%" PRIu64 ") * 300 + ext(%u) = %" PRIu64, 
+						"Original Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u", 
 						opcr_base, opcr_ext, opcr_base * 300 + opcr_ext);
 	
 			offset += 6;

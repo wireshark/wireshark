@@ -3146,7 +3146,7 @@ dissect_rsvp_integrity (proto_item *ti _U_, proto_tree *rsvp_object_tree,
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 6,
 			"Key Identifier: %s", tvb_bytes_to_str(tvb, offset2+2, 6));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 8,
-			"Sequence Number: %" PRIu64, tvb_get_ntoh64(tvb, offset2+8));
+			"Sequence Number: %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, offset2+8));
     proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, obj_length - 20,
 			"Hash: %s", tvb_bytes_to_str(tvb, offset2+16, obj_length - 20));
 }

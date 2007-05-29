@@ -479,7 +479,7 @@ dissect_tdma_sync(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
   ti = proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
   time = tvb_get_ntoh64(tvb, offset) - tvb_get_ntoh64(tvb, offset+8);
-  proto_item_append_text(ti, " (%s%" PRId64 ")", (time > 0) ? "+" : "", time);
+  proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (time > 0) ? "+" : "", time);
   offset += 8;
 
   proto_tree_add_item(tree, hf_tdma_sync_sched_xmit, tvb, offset, 8, FALSE);
@@ -511,7 +511,7 @@ dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   offset += 8;
 
   ti = proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
-  proto_item_append_text(ti, " (%s%" PRId64 ")", (time > 0) ? "+" : "", time);
+  proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (time > 0) ? "+" : "", time);
 }
 
 static void

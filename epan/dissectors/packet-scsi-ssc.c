@@ -963,7 +963,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                 offset += 4;
 
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Block Number: %" PRIu64,
+                                     "Block Number: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
                  offset += 8;
             } else
@@ -971,12 +971,12 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
             if (!(flags & MPU)) {
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "File Number: %" PRIu64,
+                                     "File Number: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
 
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Set Number: %" PRIu64,
+                                     "Set Number: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
             } else
@@ -1012,12 +1012,12 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
             if (!(flags & BPU)) {
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "First Block Location: %" PRIu64,
+                                     "First Block Location: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
 
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Last Block Location: %" PRIu64,
+                                     "Last Block Location: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
                 offset += 8;
             } else
@@ -1027,7 +1027,7 @@ dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
             if (!(flags & BYCU)) {
                 proto_tree_add_text (tree, tvb, offset, 8,
-                                     "Number of Bytes in Buffer: %" PRIu64,
+                                     "Number of Bytes in Buffer: %" G_GINT64_MODIFIER "u",
                                      tvb_get_ntoh64 (tvb, offset));
             }
             offset += 8;

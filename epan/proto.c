@@ -4550,19 +4550,19 @@ hfinfo_uint64_format(header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
 		case BASE_DEC:
-			format = "%s: %" PRIu64;
+			format = "%s: %" G_GINT64_MODIFIER "u";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" PRIu64 " (%" PRIx64 ")";
+			format = "%s: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %" PRIo64;
+			format = "%s: %" G_GINT64_MODIFIER "o";
 			break;
 		case BASE_HEX:
-			format = "%s: 0x%016" PRIx64;
+			format = "%s: 0x%016" G_GINT64_MODIFIER "x";
 			break;
 		case BASE_HEX_DEC:
-			format = "%s: 0x%016" PRIx64 " (%" PRIu64 ")";
+			format = "%s: 0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "u)";
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -4655,19 +4655,19 @@ hfinfo_int64_format(header_field_info *hfinfo)
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
 		case BASE_DEC:
-			format = "%s: %" PRId64;
+			format = "%s: %" G_GINT64_MODIFIER "d";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" PRId64 " (%" PRIx64 ")";
+			format = "%s: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
-			format = "%s: %" PRIo64;
+			format = "%s: %" G_GINT64_MODIFIER "o";
 			break;
 		case BASE_HEX:
-			format = "%s: 0x%016" PRIx64;
+			format = "%s: 0x%016" G_GINT64_MODIFIER "x";
 			break;
 		case BASE_HEX_DEC:
-			format = "%s: 0x%016" PRIx64 " (%" PRId64 ")";
+			format = "%s: 0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)";
 			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -5200,7 +5200,7 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 						format = "%s == %u";
 						break;
 					case FT_UINT64:
-						format = "%s == %" PRIu64;
+						format = "%s == %" G_GINT64_MODIFIER "u";
 						break;
 					case FT_INT8:
 					case FT_INT16:
@@ -5209,7 +5209,7 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 						format = "%s == %d";
 						break;
 					case FT_INT64:
-						format = "%s == %" PRId64;
+						format = "%s == %" G_GINT64_MODIFIER "d";
 						break;
 					default:
 						DISSECTOR_ASSERT_NOT_REACHED();
@@ -5232,7 +5232,7 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 						format = "%s == 0x%08x";
 						break;
 					case FT_UINT64:
-						format = "%s == 0x%016" PRIx64;
+						format = "%s == 0x%016" G_GINT64_MODIFIER "x";
 						break;
 					default:
 						DISSECTOR_ASSERT_NOT_REACHED();

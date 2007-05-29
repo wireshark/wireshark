@@ -276,7 +276,7 @@ gint parseField_Bitmask(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_Parser
     else
     {
         proto_tree_add_text(tree, tvb, offset, numBytes,
-            "Unknown Appearance Type (%" PRIu64 ")", uintVal);
+            "Unknown Appearance Type (%" G_GINT64_MODIFIER "u)", uintVal);
     }
 
     offset += numBytes;
@@ -311,7 +311,7 @@ gint parseField_UInt(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     }
 
-    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" PRIu64,
+    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" G_GINT64_MODIFIER "u",
         parserNode.fieldLabel, uintVal);
 
     if (parserNode.outputVar != 0)
@@ -351,7 +351,7 @@ gint parseField_Int(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode
         break;
     }
 
-    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" PRId64,
+    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" G_GINT64_MODIFIER "d",
         parserNode.fieldLabel, uintVal);
 
     offset += numBytes;

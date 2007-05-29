@@ -72,7 +72,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tisub = proto_tree_add_text (subtree, tvb, 4, 4,
                             "Flags: 0x%08x", flags);
   tisub = proto_tree_add_text (subtree, tvb, 8, 8,
-                            "Circuit: 0x%" PRIx64, circuit);
+                            "Circuit: 0x%" G_GINT64_MODIFIER "x", circuit);
   tisub = proto_tree_add_text (subtree, tvb, 16, 2,
                             "Length: %u", length);
   tisub = proto_tree_add_text (subtree, tvb, 18, 2,

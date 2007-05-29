@@ -74632,7 +74632,7 @@ static void decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenc
 
         s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-8,8,"expiresIn = %" PRId64,s_octet8);
+           proto_tree_add_text(tree,tvb,*offset-8,8,"expiresIn = %" G_GINT64_MODIFIER "d",s_octet8);
         }
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -75125,7 +75125,7 @@ static void decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpir
 
         s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-8,8,"expiresIn = %" PRId64,s_octet8);
+           proto_tree_add_text(tree,tvb,*offset-8,8,"expiresIn = %" G_GINT64_MODIFIER "d",s_octet8);
         }
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -75249,7 +75249,7 @@ static void decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence
 
         s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-8,8,"expiresIn = %" PRId64,s_octet8);
+           proto_tree_add_text(tree,tvb,*offset-8,8,"expiresIn = %" G_GINT64_MODIFIER "d",s_octet8);
         }
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -93288,7 +93288,7 @@ static void decode_org_csapi_pam_TpPAMAttribute_st(tvbuff_t *tvb _U_, packet_inf
 
     s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMAttribute_ExpiresIn = %" PRId64,s_octet8);
+       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMAttribute_ExpiresIn = %" G_GINT64_MODIFIER "d",s_octet8);
     }
 
 }
@@ -94488,7 +94488,7 @@ static void decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet
 
     s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMACPSEventData_ReportingPeriod = %" PRId64,s_octet8);
+       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMACPSEventData_ReportingPeriod = %" G_GINT64_MODIFIER "d",s_octet8);
     }
 
 }
@@ -94628,7 +94628,7 @@ static void decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_
 
     s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMAPSEventData_ReportingPeriod = %" PRId64,s_octet8);
+       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMAPSEventData_ReportingPeriod = %" G_GINT64_MODIFIER "d",s_octet8);
     }
 
 }
@@ -94759,7 +94759,7 @@ static void decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_
 
     s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMIPSEventData_ReportingPeriod = %" PRId64,s_octet8);
+       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMIPSEventData_ReportingPeriod = %" G_GINT64_MODIFIER "d",s_octet8);
     }
 
 }
@@ -94908,7 +94908,7 @@ static void decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_
 
     s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMAVCEventData_ReportingPeriod = %" PRId64,s_octet8);
+       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMAVCEventData_ReportingPeriod = %" G_GINT64_MODIFIER "d",s_octet8);
     }
 
 }
@@ -95035,7 +95035,7 @@ static void decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_i
 
     s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMWCEventData_ReportingPeriod = %" PRId64,s_octet8);
+       proto_tree_add_text(tree,tvb,*offset-8,8,"TpPAMWCEventData_ReportingPeriod = %" G_GINT64_MODIFIER "d",s_octet8);
     }
 
 }
@@ -96147,7 +96147,7 @@ static void decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet
      
         s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-8,8,"Int64Value = %" PRId64,s_octet8);
+           proto_tree_add_text(tree,tvb,*offset-8,8,"Int64Value = %" G_GINT64_MODIFIER "d",s_octet8);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -96157,7 +96157,7 @@ static void decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet
      
         u_octet8 = get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-8,8,"UnsignedInt64Value = %" PRIu64,u_octet8);
+           proto_tree_add_text(tree,tvb,*offset-8,8,"UnsignedInt64Value = %" G_GINT64_MODIFIER "u",u_octet8);
         }
 
         return;     /* End Compare for this discriminant type */

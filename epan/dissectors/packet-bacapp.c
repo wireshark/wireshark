@@ -1612,7 +1612,7 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	/* only support up to an 8 byte (64-bit) integer */
 	if (fUnsigned64 (tvb, offset + tag_len, lvt, &val))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s(Unsigned) %" PRIu64, label, val);
+			"%s(Unsigned) %" G_GINT64_MODIFIER "u", label, val);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s - %u octets (Unsigned)", label, lvt);
@@ -1674,7 +1674,7 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 	if (fSigned64 (tvb, offset + tag_len, lvt, &val))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s(Signed) %" PRId64, label, val);
+			"%s(Signed) %" G_GINT64_MODIFIER "d", label, val);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s - %u octets (Signed)", label, lvt);

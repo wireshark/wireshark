@@ -4498,9 +4498,9 @@ dissect_nfs3_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" PRIu64 " Len:%u", hash, off, len);
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" G_GINT64_MODIFIER "u Len:%u", hash, off, len);
 	}
-	proto_item_append_text(tree, ", READ Call FH:0x%08x Offset:%" PRIu64 " Len:%u", hash, off, len);
+	proto_item_append_text(tree, ", READ Call FH:0x%08x Offset:%" G_GINT64_MODIFIER "u Len:%u", hash, off, len);
 
 	return offset;
 }
@@ -4595,9 +4595,9 @@ dissect_nfs3_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_stable_how(tvb, offset, tree, hf_nfs_write_stable);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" PRIu64 " Len:%u %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" G_GINT64_MODIFIER "u Len:%u %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
 	}
-	proto_item_append_text(tree, ", WRITE Call FH:0x%08x Offset:%" PRIu64 " Len:%u %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
+	proto_item_append_text(tree, ", WRITE Call FH:0x%08x Offset:%" G_GINT64_MODIFIER "u Len:%u %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
 
 	offset = dissect_nfsdata   (tvb, offset, tree, hf_nfs_data);
 

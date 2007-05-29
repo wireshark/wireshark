@@ -1170,7 +1170,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
 			proto_tree_add_text(v_tree, tvb, optoff, 8,
-				    "RDM Replay Detection Value: %" PRIx64,
+				    "RDM Replay Detection Value: %" G_GINT64_MODIFIER "x",
 				    tvb_get_ntoh64(tvb, optoff));
 			break;
 

@@ -730,7 +730,7 @@ static int dissect_edonkey_start_offset_64(tvbuff_t *tvb, packet_info *pinfo _U_
 {
     /* <Start Offset> ::= guint64 */
     guint64 start = tvb_get_letoh64(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 8, "Start Offset: %" PRIu64, start);
+    proto_tree_add_text(tree, tvb, offset, 8, "Start Offset: %" G_GINT64_MODIFIER "u", start);
     return offset+8;
 }
 
@@ -749,7 +749,7 @@ static int dissect_edonkey_end_offset_64(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     /* <End Offset> ::= guint64 */
     guint64 end = tvb_get_letoh64(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 8, "End Offset: %" PRIu64, end);
+    proto_tree_add_text(tree, tvb, offset, 8, "End Offset: %" G_GINT64_MODIFIER "u", end);
     return offset+8;
 }
 
@@ -876,7 +876,7 @@ static int dissect_emule_multipacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
   if (isext) {
     guint64 filelen = tvb_get_letoh64(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 8, "File Length: %" PRIu64, filelen);
+    proto_tree_add_text(tree, tvb, offset, 8, "File Length: %" G_GINT64_MODIFIER "u", filelen);
     offset += 8;
   }
 

@@ -605,7 +605,7 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset)
 	vers = tvb_get_letohs(tvb,offset+1);
 	path = tvb_get_letoh64(tvb,offset+1+4);
 
-	qid_item = proto_tree_add_text(tree,tvb,offset,13,"Qid type=0x%02x vers=%d path=%"PRIu64,type,vers,path);
+	qid_item = proto_tree_add_text(tree,tvb,offset,13,"Qid type=0x%02x vers=%d path=%" G_GINT64_MODIFIER "u",type,vers,path);
 	qid_tree = proto_item_add_subtree(qid_item,ett_9P_qid);
 
 	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, TRUE);

@@ -2407,7 +2407,7 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
         if (longlba) {
             if(tvb_length_remaining(tvb, offset)<8)
                 return;
-            proto_tree_add_text (scsi_tree, tvb, offset, 8, "No. of Blocks: %" PRIu64,
+            proto_tree_add_text (scsi_tree, tvb, offset, 8, "No. of Blocks: %" G_GINT64_MODIFIER "u",
                                  tvb_get_ntoh64 (tvb, offset));
             offset += 8;
 

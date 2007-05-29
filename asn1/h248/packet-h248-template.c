@@ -640,7 +640,7 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			offset++;
 		}
 		if (trx_id > 0xffffffff) {
-			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,"transactionId %" PRIu64, trx_id);
+			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,"transactionId %" G_GINT64_MODIFIER "u", trx_id);
             proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 
             *trx_id_p = 0;
@@ -680,7 +680,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 
 		if (ctx_id > 0xffffffff) {
 			proto_item* pi = proto_tree_add_text(tree, tvb, offset-len, len,
-                                                 "contextId: %" PRIu64, ctx_id);
+                                                 "contextId: %" G_GINT64_MODIFIER "u", ctx_id);
             proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 
             *ctx_id_p = 0xfffffffd;

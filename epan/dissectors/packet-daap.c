@@ -250,7 +250,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb, int offset, int length)
 	 break;
       case daap_mper:
 	 /* Tags conain uint64 */
-	 proto_item_append_text(ti, ", Persistent Id: %" PRIu64, 
+	 proto_item_append_text(ti, ", Persistent Id: %" G_GINT64_MODIFIER "u", 
 				tvb_get_ntoh64(tvb, offset));
 	 break;
       case daap_mstt:

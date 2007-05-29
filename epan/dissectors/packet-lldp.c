@@ -507,7 +507,7 @@ get_latitude_or_longitude(int option, guint64 value)
 			direction = "East";
 	}
 
-	return ep_strdup_printf("%u.%04" PRIu64 " degrees %s",
+	return ep_strdup_printf("%u.%04" G_GINT64_MODIFIER "u degrees %s",
 	    integerPortion, tempValue, direction);
 }
 
@@ -1731,7 +1731,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" PRIX64 ")",
+				proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" G_GINT64_MODIFIER "X)",
 				    get_latitude_or_longitude(0, temp64bit),
 				    temp64bit);
 
@@ -1749,7 +1749,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 			;
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" PRIX64 ")",
+				proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" G_GINT64_MODIFIER "X)",
 				    get_latitude_or_longitude(1,temp64bit),
 				    temp64bit);
 

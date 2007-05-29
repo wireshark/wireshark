@@ -530,7 +530,7 @@ draw_srt_table_data(srt_stat_table *rst)
 		g_free(rst->procedures[i].entries[4]);
 		rst->procedures[i].entries[4]=strp;
 
-		strp=g_strdup_printf("%3" PRId64 ".%05" PRId64,
+		strp=g_strdup_printf("%3" G_GINT64_MODIFIER "d.%05" G_GINT64_MODIFIER "d",
 		    td/100000, td%100000);
 		gtk_clist_set_text(rst->table, j, 5, strp);
 		g_free(rst->procedures[i].entries[5]);

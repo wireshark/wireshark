@@ -177,7 +177,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
         wtap_close(wth);
         return NULL;
     }
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%" PRId64 " bytes", filesize);
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_MODIFIER "d bytes", filesize);
     label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 

@@ -653,7 +653,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s [%s] Seq=%" PRIu64,
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s [%s] Seq=%" G_GINT64_MODIFIER "u",
 			     get_dccp_port(dcph->sport),
 			     get_dccp_port(dcph->dport),
 			     val_to_str(dcph->type, dcp_packet_type_vals, "Unknown Type"),
@@ -665,7 +665,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dcp_item =
 				proto_tree_add_protocol_format(tree, proto_dcp, tvb, offset, dcph->data_offset*4,
 							       "Datagram Congestion Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)"
-							       " [%s] Seq=%" PRIu64,
+							       " [%s] Seq=%" G_GINT64_MODIFIER "u",
 							       get_dccp_port(dcph->sport), dcph->sport,
 							       get_dccp_port(dcph->dport), dcph->dport,
 							       val_to_str(dcph->type, dcp_packet_type_vals, "Unknown Type"),
@@ -797,7 +797,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(tree)
 			proto_tree_add_uint64(dcp_tree, hf_dcp_ack, tvb, offset + 2, 6, dcph->ack);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dcph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 
@@ -836,7 +836,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if(tree)
 				proto_tree_add_uint64(dcp_tree, hf_dcp_ack, tvb, offset + 2, 6, dcph->ack);
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dcph->ack);
 
 			offset+=8; /* Skip over Acknowledgement Number Subheader */
 		} else {
@@ -854,7 +854,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if(tree)
 				proto_tree_add_uint64(dcp_tree, hf_dcp_ack, tvb, offset + 1, 3, dcph->ack);
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dcph->ack);
 
 			offset+=4; /* Skip over Acknowledgement Number Subheader */
 		}
@@ -875,7 +875,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(tree)
 			proto_tree_add_uint64(dcp_tree, hf_dcp_ack, tvb, offset + 2, 6, dcph->ack);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dcph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 
@@ -913,7 +913,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(tree)
 			proto_tree_add_uint64(dcp_tree, hf_dcp_ack, tvb, offset + 2, 6, dcph->ack);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dcph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 		break;

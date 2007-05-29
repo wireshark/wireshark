@@ -224,12 +224,12 @@ void lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, pro
 void lct_info_column(struct _lct *lct, packet_info *pinfo)
 {
 	if (lct->tsi_present)
-		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" PRIu64, lct->tsi);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" G_GINT64_MODIFIER "u", lct->tsi);
 
 	if (lct->toi_present)
 	{
 		if (lct->toi_size <= 8)
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" PRIu64, lct->toi);
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" G_GINT64_MODIFIER "u", lct->toi);
 		else
 			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: 0x%s", bytes_to_str(lct->toi_extended, lct->toi_size));
 	}

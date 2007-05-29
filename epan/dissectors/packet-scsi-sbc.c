@@ -335,7 +335,7 @@ dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
                              tvb_get_ntoh64 (tvb, offset+1),
                              tvb_get_ntohl (tvb, offset+9));
     }
@@ -369,7 +369,7 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
                              tvb_get_ntoh64 (tvb, offset+1),
                              tvb_get_ntohl (tvb, offset+9));
     }
@@ -698,7 +698,7 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
                              tvb_get_ntoh64 (tvb, offset+1),
                              tvb_get_ntohl (tvb, offset+9));
     }
@@ -733,7 +733,7 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
                              tvb_get_ntoh64 (tvb, offset+1),
                              tvb_get_ntohl (tvb, offset+9));
     }
@@ -894,7 +894,7 @@ dissect_sbc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
                              tvb_get_ntoh64 (tvb, offset+1),
                              tvb_get_ntohl (tvb, offset+9));
     }
@@ -1006,7 +1006,7 @@ dissect_sbc_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
                              tvb_get_ntoh64 (tvb, offset+1),
                              tvb_get_ntohl (tvb, offset+9));
     }
@@ -1326,7 +1326,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 		offset++;
 
         	proto_tree_add_text (tree, tvb, offset, 8,
-                             "Logical Block Address: %" PRIu64,
+                             "Logical Block Address: %" G_GINT64_MODIFIER "u",
                               tvb_get_ntoh64 (tvb, offset));
         	offset += 8;
 
@@ -1353,7 +1353,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 		offset++;
 
         	proto_tree_add_text (tree, tvb, offset, 8,
-                             "Logical Block Address: %" PRIu64,
+                             "Logical Block Address: %" G_GINT64_MODIFIER "u",
                               tvb_get_ntoh64 (tvb, offset));
         	offset+=8;
 
@@ -1387,7 +1387,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                     tot_len/=1024;
                     un="GB";
                 }
-                proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" PRIu64 " (%" PRIu64 " %s)",
+                proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u %s)",
                              len, tot_len, un);
                 proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+8, 4, 0);
                 break;

@@ -473,7 +473,7 @@ cf_read(capture_file *cf)
 #endif
 
             g_snprintf(status_str, sizeof(status_str),
-                       "%" PRId64 "KB of %" PRId64 "KB",
+                       "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
                        file_pos / 1024, size / 1024);
             update_progress_dlg(progbar, progbar_val, status_str);
           }
@@ -1236,7 +1236,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
-                     "%" PRId64 "KB of %" PRId64 "KB",
+                     "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
                      file_pos / 1024, f_len / 1024);
           update_progress_dlg(progbar, progbar_val, status_str);
         }

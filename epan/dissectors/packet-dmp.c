@@ -1208,7 +1208,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 			failure = dmp_dec_xbyte_sic (value, sic, length, any);
 			bf = proto_tree_add_string_format (sic_tree, hf_message_sic, tvb,
 							   offset, bytes, sic,
-							   "SIC %d: %s (%d bytes: %" PRIx64 ")%s",
+							   "SIC %d: %s (%d bytes: %" G_GINT64_MODIFIER "x)%s",
 							   i + 1, sic, bytes, value,
 							   failure ? " (invalid)": "");
 			if (bitmap & (1 << (7 - i))) {
@@ -2115,7 +2115,7 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
 
 	case STRUCT_ID_UINT64:
 		id_guint64 = tvb_get_ntoh64 (tvb, offset);
-		g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%" PRIu64, id_guint64);
+		g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%" G_GINT64_MODIFIER "u", id_guint64);
 		tf = proto_tree_add_item (body_tree, hf_message_bodyid_uint64, tvb,
 					  offset, 8, FALSE);
 		break;

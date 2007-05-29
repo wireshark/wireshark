@@ -252,7 +252,7 @@ void dcom_interface_dump(void) {
 
         for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
             object = objects->data;
-            g_warning(" Object(#%4u): OID:0x%" PRIx64 " private:%p", object->first_packet, object->oid, object->private_data);
+            g_warning(" Object(#%4u): OID:0x%" G_GINT64_MODIFIER "x private:%p", object->first_packet, object->oid, object->private_data);
 
             for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
                 interf = interfaces->data;

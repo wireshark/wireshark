@@ -4712,7 +4712,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
             offset++;
             start_time = tvb_get_letoh64 (tvb, offset);
-            proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIx64, start_time);
+            proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" G_GINT64_MODIFIER "x", start_time);
 
             offset += 8;
             duration = tvb_get_letohs (tvb, offset);

@@ -398,7 +398,7 @@ void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo 
 		case 8: {
 			guint64 uint64 = tvb_get_ntoh64(tvb,offset);
 			proto_tree_add_uint64(tree,a->hf64,tvb,offset,len,uint64);
-			proto_item_append_text(avp_item, "%" PRIu64, uint64);
+			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uint64);
 			return;
 		}
 		default:

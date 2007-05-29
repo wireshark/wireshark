@@ -586,19 +586,19 @@ dissect_PNPTCP_Header(tvbuff_t *tvb, int offset,
         delayms = (guint32) (delayns / (1000 * 1000));
 
         if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", Delay=%11" PRIu64 "ns",
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", Delay=%11" G_GINT64_MODIFIER "uns",
             delayns);
-          proto_item_append_text(item, ", Delay=%" PRIu64 "ns", delayns);
+          proto_item_append_text(item, ", Delay=%" G_GINT64_MODIFIER "uns", delayns);
 
         if(delayns != 0) {
-            proto_item_append_text(header_item, ", Delay=%" PRIu64 "ns (%u.%03u,%03u,%03u sec)",
+            proto_item_append_text(header_item, ", Delay=%" G_GINT64_MODIFIER "uns (%u.%03u,%03u,%03u sec)",
                 delayns,
                 delayms / 1000,
                 delayms % 1000,
                 (delay10ns % (1000*100)) / 100,
                  delay10ns % 100 * 10 + delay1ns);
         } else {
-            proto_item_append_text(header_item, ", Delay=%" PRIu64 "ns",
+            proto_item_append_text(header_item, ", Delay=%" G_GINT64_MODIFIER "uns",
                 delayns);
         }
     }
