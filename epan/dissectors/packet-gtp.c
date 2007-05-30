@@ -405,8 +405,21 @@ static const value_string pt_types[] = {
 #define GTP_MBMS_SES_START_RES		117
 #define GTP_MBMS_SES_STOP_REQ		118
 #define GTP_MBMS_SES_STOP_RES		119
+#define GTP_MBMS_SES_UPD_REQ		120
+#define GTP_MBMS_SES_UPD_RES		121
+/* 122-127	For future use. Shall not be sent. 
+ * If received, shall be treated as an Unknown message.
+ */
+#define GTP_MS_INFO_CNG_NOT_REQ		121
+#define GTP_MS_INFO_CNG_NOT_RES		122
+/* 130-239	For future use. Shall not be sent. 
+ * If received, shall be treated as an Unknown message.
+ */
 #define GTP_MSG_DATA_TRANSF_REQ		0xF0
 #define GTP_MSG_DATA_TRANSF_RESP	0xF1
+/* 242-254	For future use. Shall not be sent. 
+ * If received, shall be treated as an Unknown message.
+ */
 #define GTP_MSG_TPDU				0xFF
 
 static const value_string message_type[] = {
@@ -472,6 +485,13 @@ static const value_string message_type[] = {
 	{ GTP_MBMS_SES_START_RES,		"MBMS Session Start Response" },
 	{ GTP_MBMS_SES_STOP_REQ,		"MBMS Session Stop Request" },
 	{ GTP_MBMS_SES_STOP_RES,		"MBMS Session Stop Response" },
+	{ GTP_MBMS_SES_UPD_REQ,			"MBMS Session Update Request" },
+	{ GTP_MBMS_SES_UPD_RES,			"MBMS Session Update Response" },
+/* 122-127	For future use. Shall not be sent. 
+ * If received, shall be treated as an Unknown message.
+ */
+	{ GTP_MS_INFO_CNG_NOT_REQ,		"MS Info Change Notification Request" },
+	{ GTP_MS_INFO_CNG_NOT_RES,		"MS Info Change Notification Response" },
 	{ GTP_MSG_DATA_TRANSF_REQ,		"Data record transfer request" },
 	{ GTP_MSG_DATA_TRANSF_RESP,		"Data record transfer response" },
 	{ GTP_MSG_TPDU,					"T-PDU" },
@@ -571,12 +591,22 @@ static const value_string message_type[] = {
 #define GTP_EXT_CELL_ID				0xAE	/* 3G	174 TLV Cell Identification 7.7.73 */
 #define GTP_EXT_PDU_NO				0xAF	/* 3G	175 TLV PDU Numbers 7.7.74 */
 #define GTP_EXT_BSSGP_CAUSE			0xA0	/* 3G	176 TLV BSSGP Cause 7.7.75 */
+#define GTP_EXT_REQ_MBMS_BEARER_CAP 0xA1	/* 3G	177	TLV	Required MBMS bearer capabilities	7.7.76 */
+#define GTP_EXT_RIM_ROUTING_ADDR_DISC 0xA2	/* 3G	178	TLV	RIM Routing Address Discriminator	7.7.77 */
+#define GTP_EXT_LIST_OF_SETUP_PFCS	0xA3	/* 3G	179	TLV	List of set-up PFCs	7.7.78 */
+#define GTP_EXT_PS_HANDOWER_XIP_PAR 0xA4	/* 3G	180	TLV	PS Handover XID Parameters	7.7.79 */
+#define GTP_EXT_MS_INF_CHG_REP_ACT	0xA5	/* 3G	181	TLV	MS Info Change Reporting Action	7.7.80 */
+#define GTP_EXT_DIRECT_TUNNEL_FLGS	0xA6	/* 3G	182	TLV	Direct Tunnel Flags	7.7.81 */
+#define GTP_EXT_CORRELATION_ID		0xA7	/* 3G	183	TLV	Correlation-ID	7.7.82 */
+#define GTP_EXT_BEARER_CONTROL_MODE 0xA8	/* 3G	184	TLV	Bearer Control Mode	7.7.83 */
+/* 239-250	Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
 #define GTP_EXT_C1			0xC1
 #define GTP_EXT_C2			0xC2
 #define GTP_EXT_REL_PACK	0xF9	/* charging */
 #define GTP_EXT_CAN_PACK	0xFA	/* charging */
-#define GTP_EXT_CHRG_ADDR	0xFB
+#define GTP_EXT_CHRG_ADDR	0xFB	/* 3G	251	TLV	Charging Gateway Address	7.7.44*/
+/* 252-254	Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 #define GTP_EXT_DATA_REQ	0xFC	/* charging */
 #define GTP_EXT_DATA_RESP	0xFD	/* charging */
 #define GTP_EXT_NODE_ADDR	0xFE	/* charging */
@@ -676,6 +706,14 @@ static const value_string gtp_val[] = {
 	{ GTP_EXT_CELL_ID,				"Cell Identification" },						/* 7.7.73 */
 	{ GTP_EXT_PDU_NO,				"PDU Numbers" },								/* 7.7.74 */
 	{ GTP_EXT_BSSGP_CAUSE,			"BSSGP Cause" },								/* 7.7.75 */
+	{ GTP_EXT_REQ_MBMS_BEARER_CAP,	"Required MBMS bearer capabilities" },			/* 7.7.76 */
+	{ GTP_EXT_RIM_ROUTING_ADDR_DISC,"RIM Routing Address Discriminator" },			/* 7.7.77 */
+	{ GTP_EXT_LIST_OF_SETUP_PFCS,	"List of set-up PFCs" },						/* 7.7.78 */
+	{ GTP_EXT_PS_HANDOWER_XIP_PAR,	"PS Handover XID Parameters" },					/* 7.7.79 */
+	{ GTP_EXT_MS_INF_CHG_REP_ACT,	"MS Info Change Reporting Action" },			/* 7.7.80 */
+	{ GTP_EXT_DIRECT_TUNNEL_FLGS,	"Direct Tunnel Flags" },						/* 7.7.81 */
+	{ GTP_EXT_CORRELATION_ID,		"Correlation-ID" },								/* 7.7.82 */
+	{ GTP_EXT_BEARER_CONTROL_MODE,	"Bearer Control Mode" },						/* 7.7.83 */
 	{ GTP_EXT_REL_PACK,				"Sequence numbers of released packets IE" },	/* charging */
 	{ GTP_EXT_CAN_PACK,				"Sequence numbers of canceled packets IE" },	/* charging */
 	{ GTP_EXT_CHRG_ADDR,			"Charging Gateway address" },	
@@ -832,6 +870,8 @@ static const value_string cause_type[] = {
 	{ 222,	"APN access denied - no subscription" },
 	{ 223,	"APN Restriction type incompatibility with currently active PDP Contexts" },
 	{ 224,	"MS MBMS Capabilities Insufficient" },
+	{ 225,	"Invalid Correlation-ID" },
+	{ 226,	"MBMS Bearer Context Superseded" },
 	{ 252,	"Request related to possibly duplicated packets already fulfilled" },	/* charging */
 	{ 253,	"Request already fulfilled" },	/* charging */
 	{ 254,	"Sequence numbers of released/cancelled packets IE incorrect" }, 	/* charging */
@@ -5379,6 +5419,50 @@ decode_gtp_bssgp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	return 3 + length;
 
  }
+/*
+ * Required MBMS bearer capabilities	7.7.76
+ */
+static int
+decode_gtp_mbms_bearer_cap(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
+	guint16		length;
+	proto_tree	*ext_tree;
+	proto_item	*te;
+
+	length = tvb_get_ntohs(tvb, offset+1);
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_BSSGP_CAUSE, gtp_val, "Unknown"));
+	ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bssgp_cause);
+	
+	offset++;
+	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
+	/* The payload shall be encoded as per the 
+	 * Required-MBMS-Bearer-Capabilities AVP defined in 3GPP TS 29.061 [27],
+	 * excluding the AVP Header fields (as defined in IETF RFC 3588 [36], section 4.1).
+	 */
+	/* TODO Add decoding (call Diameter dissector???)*/
+}
+
+/*
+ * RIM Routing Address Discriminator	7.7.77
+ */
+/*
+ * List of set-up PFCs	7.7.78
+ */
+/*
+ * PS Handover XID Parameters	7.7.79
+ */
+/*
+ * MS Info Change Reporting Action	7.7.80
+ */
+/*
+ * Direct Tunnel Flags	7.7.81
+ */
+/*
+ * Correlation-ID	7.7.82
+ */
+/*
+ * Bearer Control Mode	7.7.83
+ */
 
 /* GPRS:	12.15
  * UMTS:	33.015
