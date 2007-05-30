@@ -496,8 +496,8 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	case WTAP_FILE_NETXRAY_2_00x:
 		/*
-		 * Get the time stamp value from the appropriate TpS
-		 * table.
+		 * Get the time stamp units from the appropriate TpS
+		 * table or from the file header.
 		 */
 		switch (network_type) {
 
