@@ -140,6 +140,13 @@ remove_tap_listener_flow_graph(void)
 static void
 flow_graph_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 {
+#if GTK_MAJOR_VERSION < 2
+	/* Destroy the graph analysis window when we're destroyed.  This is
+	 * handled under GTK2 with a call to gtk_window_set_destroy_with_parent
+	 * in graph_analysis.c */
+	window_destroy(graph_analysis_data->dlg.window);
+#endif
+
 	/* remove_tap_listeners */
 	remove_tap_listener_flow_graph();
 
