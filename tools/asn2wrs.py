@@ -218,7 +218,7 @@ static_tokens = {
 reserved_words = {
   'ABSENT'      : 'ABSENT',
   'ABSTRACT-SYNTAX' : 'ABSTRACT_SYNTAX',
-#  'ALL'         : 'ALL',
+  'ALL'         : 'ALL',
   'APPLICATION' : 'APPLICATION',
   'AUTOMATIC'   : 'AUTOMATIC',
   'BEGIN'       : 'BEGIN',
@@ -486,6 +486,53 @@ EF_UCASE   = 0x0100
 EF_TABLE   = 0x0400
 EF_DEFINE  = 0x0800
 
+#--- common dependency computation ---
+# Input  : list of items
+#          dictionary with lists of dependency
+#
+#           
+# Output : list of two outputs:
+#          [0] list of items in dependency
+#          [1] list of cycle dependency cycles
+def dependency_compute(items, dependency, map_fn = lambda t: t, ignore_fn = lambda t: False):
+  item_ord = []
+  item_cyc = []
+  x = {}  # already emitted
+  #print '# Dependency computation'
+  for t in items:
+    if x.has_key(map_fn(t)):
+      #print 'Continue: %s : %s' % (t, (map_fn(t))
+      continue
+    stack = [t]
+    stackx = {t : dependency.get(t, [])[:]}
+    #print 'Push: %s : %s' % (t, str(stackx[t]))
+    while stack:
+      if stackx[stack[-1]]:  # has dependencies
+        d = stackx[stack[-1]].pop(0)
+        if x.has_key(map_fn(d)) or ignore_fn(d):
+          continue
+        if stackx.has_key(d):  # cyclic dependency
+          c = stack[:]
+          c.reverse()
+          c = [d] + c[0:c.index(d)+1]
+          c.reverse()
+          item_cyc.append(c)
+          #print 'Cyclic: %s ' % (' -> '.join(c))
+          continue
+        stack.append(d)
+        stackx[d] = dependency.get(d, [])[:]
+        #print 'Push: %s : %s' % (d, str(stackx[d]))
+      else:
+        #print 'Pop: %s' % (stack[-1])
+        del stackx[stack[-1]]
+        e = map_fn(stack.pop())
+        if x.has_key(e):
+          continue
+        #print 'Add: %s' % (e)
+        item_ord.append(e)
+        x[e] = True
+  return (item_ord, item_cyc)
+
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
   def __init__(self, conform, output, indent = 0):
@@ -500,6 +547,10 @@ class EthCtx:
     self.default_opentype_variant = ''
     self.default_containing_variant = '_pdu_new'
     self.default_external_type_cb = None
+    self.module = {}
+    self.module_ord = []
+    self.all_tags = {}
+    self.all_vals = {}
 
   def encp(self):  # encoding protocol
     encp = self.encoding
@@ -515,7 +566,7 @@ class EthCtx:
   def Tag(self): return self.tag_opt # or self.Ber() - temporary comment out (experimental feature)
   def NAPI(self): return False  # disable planned features
 
-  def module(self):  # current module name
+  def Module(self):  # current module name
     return self.modules[-1][0]
 
   def dbg(self, d):
@@ -557,11 +608,22 @@ class EthCtx:
     return ethname
 
   def value_get_val(self, nm):
-    val = nm
-    if self.value.has_key(nm) and not self.value[nm]['import']:
-      val = self.value[nm]['value']
-      if isinstance (val, Value):
-        val = val.to_str(self)
+    val = asn2c(nm)
+    if self.value.has_key(nm):
+      if self.value[nm]['import']:
+        v = self.get_val_from_all(nm, self.value[nm]['import'])
+        if v is None:
+          msg = 'Need value of imported value identifier %s from %s (%s)' % (nm, self.value[nm]['import'], self.value[nm]['proto'])
+          warnings.warn_explicit(msg, UserWarning, '', '')
+        else:
+          val = v
+      else:
+        val = self.value[nm]['value']
+        if isinstance (val, Value):
+          val = val.to_str(self)
+    else:
+      msg = 'Need value of unknown value identifier %s' % (nm)
+      warnings.warn_explicit(msg, UserWarning, '', '')
     return val
 
   def eth_get_type_attr(self, type):
@@ -577,6 +639,45 @@ class EthCtx:
       attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
     return attr
 
+  def get_ttag_from_all(self, type, module):
+    ttag = None
+    if self.all_tags.has_key(module) and self.all_tags[module].has_key(type):
+      ttag = self.all_tags[module][type]
+    return ttag
+
+  def get_val_from_all(self, nm, module):
+    val = None
+    if self.all_vals.has_key(module) and self.all_vals[module].has_key(nm):
+      val = self.all_vals[module][nm]
+    return val
+
+  #--- eth_reg_module -----------------------------------------------------------
+  def eth_reg_module(self, module):
+    #print "eth_reg_module(module='%s')" % (module)
+    self.modules.append((module, self.proto))
+    if self.module.has_key(module):
+      raise "Duplicate module for " + module
+    self.module[module] = []
+    self.module_ord.append(module)
+
+  #--- eth_module_dep_add ------------------------------------------------------------
+  def eth_module_dep_add(self, module, dep):
+    self.module[module].append(dep)
+
+  #--- eth_exports ------------------------------------------------------------
+  def eth_exports(self, exports):
+    self.exports_all = False
+    if ((len(exports) == 1) and (exports[0] == 'ALL')):
+      self.exports_all = True
+      return
+    for e in (exports):
+      if isinstance(e, Type_Ref):
+        self.exports.append(e.val)
+      elif isinstance(e, Class_Ref):
+        self.cexports.append(e.val)
+      else:
+        self.vexports.append(e)
+
   #--- eth_reg_assign ---------------------------------------------------------
   def eth_reg_assign(self, ident, val, virt=False):
     #print "eth_reg_assign(ident='%s')" % (ident)
@@ -584,6 +685,8 @@ class EthCtx:
       raise "Duplicate assignment for " + ident
     self.assign[ident] = { 'val' : val , 'virt' : virt }
     self.assign_ord.append(ident)
+    if  (self.exports_all):
+      self.exports.append(ident)
 
   #--- eth_reg_vassign --------------------------------------------------------
   def eth_reg_vassign(self, vassign):
@@ -593,6 +696,8 @@ class EthCtx:
       raise "Duplicate value assignment for " + ident
     self.vassign[ident] = vassign
     self.vassign_ord.append(ident)
+    if  (self.exports_all):
+      self.vexports.append(ident)
 
   #--- eth_import_type --------------------------------------------------------
   def eth_import_type(self, ident, mod, proto):
@@ -678,14 +783,14 @@ class EthCtx:
   def eth_reg_type(self, ident, val):
     #print "eth_reg_type(ident='%s', type='%s')" % (ident, val.type)
     if self.type.has_key(ident):
-      if self.type[ident]['import'] and (self.type[ident]['import'] == self.module()) :
+      if self.type[ident]['import'] and (self.type[ident]['import'] == self.Module()) :
         # replace imported type
         del self.type[ident]
         self.type_imp.remove(ident)
       else:
         raise "Duplicate type for " + ident
     self.type[ident] = { 'val' : val, 'import' : None }
-    self.type[ident]['module'] = self.module()
+    self.type[ident]['module'] = self.Module()
     self.type[ident]['proto'] = self.proto
     if len(ident.split('/')) > 1:
       self.type[ident]['tname'] = val.eth_tname()
@@ -710,13 +815,13 @@ class EthCtx:
   def eth_reg_objectclass(self, ident):
     #print "eth_reg_objectclass(ident='%s')" % (ident)
     if self.objectclass.has_key(ident):
-      if self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == self.module()) :
+      if self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == self.Module()) :
         # replace imported object class
         del self.objectclass[ident]
         self.objectclass_imp.remove(ident)
       else:
         raise "Duplicate object class for " + ident
-    self.objectclass[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto }
+    self.objectclass[ident] = { 'import' : None, 'module' : self.Module(), 'proto' : self.proto }
     self.objectclass[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.objectclass_ord.append(ident)
 
@@ -724,7 +829,7 @@ class EthCtx:
   def eth_reg_value(self, ident, type, value, ethname=None):
     #print "eth_reg_value(ident='%s')" % (ident)
     if self.value.has_key(ident):
-      if self.value[ident]['import'] and (self.value[ident]['import'] == self.module()) :
+      if self.value[ident]['import'] and (self.value[ident]['import'] == self.Module()) :
         # replace imported value
         del self.value[ident]
         self.value_imp.remove(ident)
@@ -733,7 +838,7 @@ class EthCtx:
         return
       else:
         raise "Duplicate value for " + ident
-    self.value[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto,
+    self.value[ident] = { 'import' : None, 'module' : self.Module(), 'proto' : self.proto,
                           'type' : type, 'value' : value,
                           'no_emit' : False }
     self.value[ident]['export'] = self.conform.use_item('EXPORTS', ident)
@@ -792,6 +897,10 @@ class EthCtx:
     self.objectclass_imp = []
     #--- Modules ------------
     self.modules = []
+    self.exports_all = False
+    self.exports = []
+    self.cexports = []
+    self.vexports = []
     #--- types -------------------
     self.eth_type = {}
     self.eth_type_ord = []
@@ -1034,40 +1143,7 @@ class EthCtx:
       self.field[f]['ethname'] = nm
       self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
     #--- type dependencies -------------------
-    x = {}  # already emitted
-    #print '# Dependency computation'
-    for t in self.type_ord:
-      if x.has_key(self.type[t]['ethname']):
-        #print 'Continue: %s : %s' % (t, self.type[t]['ethname'])
-        continue
-      stack = [t]
-      stackx = {t : self.type_dep.get(t, [])[:]}
-      #print 'Push: %s : %s' % (t, str(stackx[t]))
-      while stack:
-        if stackx[stack[-1]]:  # has dependencies
-          d = stackx[stack[-1]].pop(0)
-          if x.has_key(self.type[d]['ethname']) or self.type[d]['import']:
-            continue
-          if stackx.has_key(d):  # cyclic dependency
-            c = stack[:]
-            c.reverse()
-            c = [d] + c[0:c.index(d)+1]
-            c.reverse()
-            self.eth_dep_cycle.append(c)
-            #print 'Cyclic: %s ' % (' -> '.join(c))
-            continue
-          stack.append(d)
-          stackx[d] = self.type_dep.get(d, [])[:]
-          #print 'Push: %s : %s' % (d, str(stackx[d]))
-        else:
-          #print 'Pop: %s' % (stack[-1])
-          del stackx[stack[-1]]
-          e = self.type[stack.pop()]['ethname']
-          if x.has_key(e):
-            continue
-          #print 'Add: %s' % (e)
-          self.eth_type_ord1.append(e)
-          x[e] = True
+    (self.eth_type_ord1, self.eth_dep_cycle) = dependency_compute(self.type_ord, self.type_dep, map_fn = lambda t: self.type[t]['ethname'], ignore_fn = lambda t: self.type[t]['import'])
     i = 0
     while i < len(self.eth_dep_cycle):
       t = self.type[self.eth_dep_cycle[i][0]]['ethname']
@@ -1080,6 +1156,29 @@ class EthCtx:
         self.eth_vexport_ord.append(v)
       else:
         self.eth_value_ord1.append(v)
+
+    #--- export tags, values, ... ---
+    for t in self.exports:
+      if not self.type.has_key(t):
+        continue
+      if self.type[t]['import']:
+        continue
+      m = self.type[t]['module']
+      if not self.all_tags.has_key(m):
+        self.all_tags[m] = {}
+      self.all_tags[m][t] = self.type[t]['val'].GetTTag(self)
+    for v in self.vexports:
+      if not self.value.has_key(v):
+        continue
+      if self.value[v]['import']:
+        continue
+      m = self.value[v]['module']
+      if not self.all_vals.has_key(m):
+        self.all_vals[m] = {}
+      vv = self.value[v]['value']
+      if isinstance (vv, Value):
+        vv = vv.to_str(self)
+      self.all_vals[m][v] = vv
 
   #--- eth_vals_nm ------------------------------------------------------------
   def eth_vals_nm(self, tname):
@@ -1618,7 +1717,8 @@ class EthCtx:
         if (self.assign[a]['virt']): v = '*'
         print v, a
       print "\n# Value assignments"
-      print "\n".join(self.vassign_ord)
+      for a in self.vassign_ord:
+        print ' ', a
     if self.dbg('t'):
       print "\n# Imported Types"
       print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
@@ -1672,14 +1772,14 @@ class EthCtx:
         if isinstance (vv, Value):
           vv = vv.to_str(self)
         print "%-40s %-18s %-20s %s" % (v, self.value[v]['type'].eth_tname(), vv, self.value[v]['ethname'])
-      print "\n# Wireshark Values"
-      print "%-40s %s" % ("Wireshark name", "Value")
-      print "-" * 100
-      for v in self.eth_value_ord:
-        vv = self.eth_value[v]['value']
-        if isinstance (vv, Value):
-          vv = vv.to_str(self)
-        print "%-40s %s" % (v, vv)
+      #print "\n# Wireshark Values"
+      #print "%-40s %s" % ("Wireshark name", "Value")
+      #print "-" * 100
+      #for v in self.eth_value_ord:
+      #  vv = self.eth_value[v]['value']
+      #  if isinstance (vv, Value):
+      #    vv = vv.to_str(self)
+      #  print "%-40s %s" % (v, vv)
       print "\n# ASN.1 Fields"
       print "ASN.1 unique name                        Wireshark name        ASN.1 type"
       print "-" * 100
@@ -1714,6 +1814,34 @@ class EthCtx:
     self.eth_output_dis_hnd()
     self.eth_output_dis_reg()
     self.eth_output_dis_tab()
+
+  def dbg_modules(self):
+    def print_mod(m):
+      print "%-30s " % (m),
+      dep = self.module[m][:]
+      for i in range(len(dep)):
+        if not self.module.has_key(dep[i]): 
+          dep[i] = '*' + dep[i]
+      print ', '.join(dep)
+    # end of print_mod()
+    (mod_ord, mod_cyc) = dependency_compute(self.module_ord, self.module, ignore_fn = lambda t: not self.module.has_key(t))
+    print "\n# ASN.1 Moudules"
+    print "Module name                     Dependency"
+    print "-" * 100
+    new_ord = False
+    for m in (self.module_ord):
+      print_mod(m)
+      new_ord = new_ord or (self.module_ord.index(m) != mod_ord.index(m))
+    if new_ord:
+      print "\n# ASN.1 Moudules - in dependency order"
+      print "Module name                     Dependency"
+      print "-" * 100
+      for m in (mod_ord):
+        print_mod(m)
+    if mod_cyc:
+      print "\nCyclic dependencies:"
+      print "mod_cyc = ", mod_cyc
+
 
 #--- EthCnf -------------------------------------------------------------------
 class EthCnf:
@@ -2384,10 +2512,11 @@ class EthOut:
       comment = '#'
       fx.write(self.fhdr(fn, comment = comment))
     else:
-      if (not self.single_file):
+      if (not self.single_file and not self.created_file_exists(fn)):
         fx.write(self.fhdr(fn))
     if not self.ectx.merge_modules:
-      fx.write(self.outcomment("--- Module %s --- --- ---" % (self.ectx.module()), comment))
+      fx.write('\n')
+      fx.write(self.outcomment("--- Module %s --- --- ---" % (self.ectx.Module()), comment))
       fx.write('\n')
     return fx
   #--- file_close -------------------------------------------------------
@@ -2522,7 +2651,7 @@ class value_assign (Node):
     Node.__init__ (self,*args, **kw)
 
   def eth_reg(self, ident, ectx):
-    if ectx.conform.omit_assignment('V', self.ident, ectx.module()): return # Assignment to omit
+    if ectx.conform.omit_assignment('V', self.ident, ectx.Module()): return # Assignment to omit
     ectx.eth_reg_vassign(self)
     ectx.eth_reg_value(self.ident, self.typ, self.val)
 
@@ -2645,7 +2774,7 @@ class Type (Node):
       nm = ident
     elif self.IsNamed():
       nm = self.name
-    if not ident and ectx.conform.omit_assignment('T', nm, ectx.module()): return # Assignment to omit
+    if not ident and ectx.conform.omit_assignment('T', nm, ectx.Module()): return # Assignment to omit
     if not ident:  # Assignment
       ectx.eth_reg_assign(nm, self)
       if self.type == 'Type_Ref':
@@ -2804,7 +2933,7 @@ class ObjectClass (Node):
     add_class_ident(self.name)
 
   def eth_reg(self, ident, ectx):
-    if ectx.conform.omit_assignment('C', self.name, ectx.module()): return # Assignment to omit
+    if ectx.conform.omit_assignment('C', self.name, ectx.Module()): return # Assignment to omit
     ectx.eth_reg_objectclass(self.name)
 
 #--- Tag ---------------------------------------------------------------
@@ -2996,29 +3125,34 @@ class Module (Node):
     if (not ectx.proto):
       ectx.proto = ectx.conform.use_item('MODULE', self.ident.val, val_dflt=self.ident.val)
     ectx.tag_def = self.tag_def.dfl_tag
-    ectx.modules.append((self.ident.val, ectx.proto))
+    ectx.eth_reg_module(self.ident.val)
     self.body.to_eth(ectx)
 
 class Module_Body (Node):
-    def to_python (self, ctx):
-        # XXX handle exports, imports.
-        l = map (lambda x: x.to_python (ctx), self.assign_list)
-        l = [a for a in l if a <> '']
-        return "\n".join (l)
+  def to_python (self, ctx):
+    # XXX handle exports, imports.
+    l = map (lambda x: x.to_python (ctx), self.assign_list)
+    l = [a for a in l if a <> '']
+    return "\n".join (l)
 
-    def to_eth(self, ectx):
-        for i in self.imports:
-          mod = i.module.val
-          proto = ectx.conform.use_item('MODULE', mod, val_dflt=mod)
-          for s in i.symbol_list:
-            if isinstance(s, Type_Ref):
-              ectx.eth_import_type(s.val, mod, proto)
-            elif isinstance(s, Class_Ref):
-              ectx.eth_import_class(s.val, mod, proto)
-            else:
-              ectx.eth_import_value(s, mod, proto)
-        for a in self.assign_list:
-          a.eth_reg('', ectx)
+  def to_eth(self, ectx):
+    # Exports
+    ectx.eth_exports(self.exports)
+    # Imports
+    for i in self.imports:
+      mod = i.module.val
+      proto = ectx.conform.use_item('MODULE', mod, val_dflt=mod)
+      ectx.eth_module_dep_add(ectx.Module(), mod)
+      for s in i.symbol_list:
+        if isinstance(s, Type_Ref):
+          ectx.eth_import_type(s.val, mod, proto)
+        elif isinstance(s, Class_Ref):
+          ectx.eth_import_class(s.val, mod, proto)
+        else:
+          ectx.eth_import_value(s, mod, proto)
+    # AssignmentList
+    for a in self.assign_list:
+      a.eth_reg('', ectx)
 
 class Default_Tags (Node):
     def to_python (self, ctx): # not to be used directly
@@ -3097,10 +3231,12 @@ class Type_Ref (Type):
     #print "GetTTag(%s)\n" % self.val;
     if (ectx.type[self.val]['import']):
       if not ectx.type[self.val].has_key('ttag'):
-        if not ectx.conform.check_item('IMPORT_TAG', self.val):
+        ttag = ectx.get_ttag_from_all(self.val, ectx.type[self.val]['import'])
+        if not ttag and not ectx.conform.check_item('IMPORT_TAG', self.val):
           msg = 'Missing tag information for imported type %s from %s (%s)' % (self.val, ectx.type[self.val]['import'], ectx.type[self.val]['proto'])
           warnings.warn_explicit(msg, UserWarning, '', '')
-        ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.val, val_dflt=('-1 /*imported*/', '-1 /*imported*/'))
+          ttag = ('-1 /*imported*/', '-1 /*imported*/')
+        ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.val, val_dflt=ttag)
       return ectx.type[self.val]['ttag']
     else:
       return ectx.type[self.val]['val'].GetTag(ectx)
@@ -3271,8 +3407,7 @@ class SqType (Type):
 class SeqType (SqType):
 
   def need_components(self):
-    lst = []
-    lst.extend(self.elt_list)
+    lst = self.elt_list[:]
     if hasattr(self, 'ext_list'):
       lst.extend(self.ext_list)
     for e in (self.elt_list):
@@ -3295,9 +3430,7 @@ class SeqType (SqType):
             break
 
   def get_components(self, ectx):
-    comp = []
-    comp.extend(self.elt_list)
-    return comp
+    return self.elt_list[:]
 
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
@@ -3666,8 +3799,7 @@ class ChoiceType (Type):
               ectx.eth_sel_req(ident, e.name)
 
   def sel_item(self, ident, sel, ectx):
-    lst = []
-    lst.extend(self.elt_list)
+    lst = self.elt_list[:]
     if hasattr(self, 'ext_list'):
       lst.extend(self.ext_list)
     ee = None
@@ -3723,7 +3855,7 @@ class ChoiceType (Type):
   def get_vals(self, ectx):
     tagval = False
     if (ectx.Ber()):
-      lst = self.elt_list
+      lst = self.elt_list[:]
       if hasattr(self, 'ext_list'):
         lst.extend(self.ext_list)
       if (len(lst) > 0):
@@ -3806,7 +3938,7 @@ class ChoiceType (Type):
     fname = ectx.eth_type[tname]['ref'][0]
     tagval = False
     if (ectx.Ber()):
-      lst = self.elt_list
+      lst = self.elt_list[:]
       if hasattr(self, 'ext_list'):
         lst.extend(self.ext_list)
       if (len(lst) > 0):
@@ -4652,15 +4784,43 @@ class BitStringType (Type):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- BStringValue ------------------------------------------------------------
+bstring_tab = {
+  '0000' : '0',
+  '0001' : '1',
+  '0010' : '2',
+  '0011' : '3',
+  '0100' : '4',
+  '0101' : '5',
+  '0110' : '6',
+  '0111' : '7',
+  '1000' : '8',
+  '1001' : '9',
+  '1010' : 'A',
+  '1011' : 'B',
+  '1100' : 'C',
+  '1101' : 'D',
+  '1110' : 'E',
+  '1111' : 'F',
+}
+class BStringValue (Value):
+  def to_str(self, ectx):
+    v = self.val[1:-2]
+    if len(v) % 8:
+      v += '0' * (8 - len(v) % 8)
+    vv = '0x'
+    for i in (range(0, len(v), 4)):
+      vv += bstring_tab[v[i:i+4]]
+    return vv
 
 #==============================================================================
     
 def p_module_list_1 (t):
-    'module_list : module_list module_def'
+    'module_list : module_list ModuleDefinition'
     t[0] = t[1] + [t[2]]
 
 def p_module_list_2 (t):
-    'module_list : module_def'
+    'module_list : ModuleDefinition'
     t[0] = [t[1]]
 
 
@@ -4693,9 +4853,9 @@ def p_modulereference (t):
 # 12 Module definition --------------------------------------------------------
 
 # 12.1
-def p_module_def (t):
-    'module_def : ModuleIdentifier DEFINITIONS TagDefault ASSIGNMENT BEGIN module_body END'
-    t[0] = Module (ident = t[1], tag_def = t[3], body = t[6])
+def p_ModuleDefinition (t):
+  'ModuleDefinition : ModuleIdentifier DEFINITIONS TagDefault ASSIGNMENT BEGIN ModuleBody END'
+  t[0] = Module (ident = t[1], tag_def = t[3], body = t[6])
 
 def p_TagDefault_1 (t):
   '''TagDefault : EXPLICIT TAGS
@@ -4720,31 +4880,29 @@ def p_DefinitiveIdentifier (t):
   'DefinitiveIdentifier : ObjectIdentifierValue'
   t[0] = t[1]
 
-# XXX originally we had both type_ref and module_ref, but that caused
-# a reduce/reduce conflict (because both were UCASE_IDENT).  Presumably
-# this didn't cause a problem in the original ESNACC grammar because it
-# was LALR(1) and PLY is (as of 1.1) only SLR.
-
 #def p_module_ref (t):
 #    'module_ref : UCASE_IDENT'
 #    t[0] = t[1]
 
-def p_module_body_1 (t):
-    'module_body : exports Imports AssignmentList'
-    t[0] = Module_Body (exports = t[1], imports = t[2], assign_list = t[3])
+def p_ModuleBody_1 (t):
+  'ModuleBody : Exports Imports AssignmentList'
+  t[0] = Module_Body (exports = t[1], imports = t[2], assign_list = t[3])
 
-def p_module_body_2 (t):
-    'module_body : '
-    t[0] = Node ('module_body', exports = [], imports = [],
-                 assign_list = [])
+def p_ModuleBody_2 (t):
+  'ModuleBody : '
+  t[0] = Node ('module_body', exports = [], imports = [], assign_list = [])
 
-def p_exports_1 (t):
-    'exports : EXPORTS syms_exported SEMICOLON'
+def p_Exports_1 (t):
+    'Exports : EXPORTS syms_exported SEMICOLON'
     t[0] = t[2]
 
-def p_exports_2 (t):
-    'exports : '
-    t[0] = []
+def p_Exports_2 (t):
+    'Exports : EXPORTS ALL SEMICOLON'
+    t[0] = [ 'ALL' ]
+
+def p_Exports_3 (t):
+    'Exports : '
+    t[0] = [ 'ALL' ]
 
 def p_syms_exported_1 (t):
     'syms_exported : exp_sym_list'
@@ -5787,12 +5945,9 @@ def p_ExceptionSpec (t):
 
 
 
-
-# see X.208 if you are dubious about lcase only for identifier 
-
 def p_binary_string (t):
     'binary_string : BSTRING'
-    t[0] = t[1]
+    t[0] = BStringValue(val = t[1])
 
 def p_hex_string (t):
     'hex_string : HSTRING'
@@ -6261,7 +6416,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -L            : suppress #line directive from .cnf file
   input_file(s) : input ASN.1 file(s)
 
-  -d dbg     : debug output, dbg = [l][y][p][s][a][t][c][o]
+  -d dbg     : debug output, dbg = [l][y][p][s][a][t][c][m][o]
                l - lex 
                y - yacc
                p - parsing
@@ -6269,6 +6424,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
                a - list of assignments
                t - tables
                c - conformance values
+               m - list of compiled modules with dependency
                o - list of output files
 """
 
@@ -6344,6 +6500,9 @@ def eth_main():
   if (ectx.merge_modules):  # common output for all module
     ectx.eth_prepare()
     ectx.eth_do_output()
+
+  if ectx.dbg('m'):
+    ectx.dbg_modules()
 
   if ectx.dbg('c'):
     ectx.conform.dbg_print()
