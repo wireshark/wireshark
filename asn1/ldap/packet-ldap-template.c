@@ -1682,7 +1682,10 @@ proto_reg_handoff_ldap(void)
 	add_oid_str_name("1.2.840.113556.1.4.521","LDAP_SERVER_CROSSDOM_MOVE_TARGET_OID");
 	add_oid_str_name("1.2.840.113556.1.4.528","LDAP_SERVER_NOTIFICATION_OID");
 	add_oid_str_name("1.2.840.113556.1.4.529","LDAP_SERVER_EXTENDED_DN_OID");
+	add_oid_str_name("1.2.840.113556.1.4.582","meetingAdvertiseScope");
 	add_oid_str_name("1.2.840.113556.1.4.619","LDAP_SERVER_LAZY_COMMIT_OID");
+	add_oid_str_name("1.2.840.113556.1.4.650","mhsORAddress");
+	add_oid_str_name("1.2.840.113556.1.4.654","managedObjects");
 	add_oid_str_name("1.2.840.113556.1.4.800","LDAP_CAP_ACTIVE_DIRECTORY_OID");
 	add_oid_str_name("1.2.840.113556.1.4.801","LDAP_SERVER_SD_FLAGS_OID");
 	add_oid_str_name("1.2.840.113556.1.4.804","LDAP_OID_COMPARATOR_OR");
@@ -1697,7 +1700,13 @@ proto_reg_handoff_ldap(void)
 	add_oid_str_name("1.2.840.113556.1.4.1670","LDAP_CAP_ACTIVE_DIRECTORY_V51_OID");
 	add_oid_str_name("1.2.840.113556.1.4.1781","LDAP_SERVER_FAST_BIND_OID");
 	add_oid_str_name("1.2.840.113556.1.4.1791","LDAP_CAP_ACTIVE_DIRECTORY_LDAP_INTEG_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1840","msDS-ObjectReference");
+	add_oid_str_name("1.2.840.113556.1.4.1848","msDS-QuotaEffective");
 	add_oid_str_name("1.2.840.113556.1.4.1851","LDAP_CAP_ACTIVE_DIRECTORY_ADAM_OID");
+	add_oid_str_name("1.2.840.113556.1.4.1860","msDS-PortSSL");
+	add_oid_str_name("1.2.840.113556.1.4.1960","msDS-isRODC");
+	add_oid_str_name("1.2.840.113556.1.4.1711","msDS-SDReferenceDomain");
+	add_oid_str_name("1.2.840.113556.1.4.1717","msDS-AdditionalDnsHostName");
 	add_oid_str_name("1.3.6.1.4.1.1466.101.119.1","None");
 	add_oid_str_name("1.3.6.1.4.1.1466.20037","LDAP_START_TLS_OID");
 	add_oid_str_name("2.16.840.1.113730.3.4.9","LDAP_CONTROL_VLVREQUEST VLV");
