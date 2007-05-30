@@ -3334,6 +3334,10 @@ class TaggedType (Type):
     self.val_name = ident + '/' + '_untag'
     self.val.eth_reg(self.val_name, ectx, tstrip=self.tstrip+1, tagflag=True, parent=ident)
 
+  def GetTTag(self, ectx):
+    #print "GetTTag(%s)\n" % self.seltype;
+    return self.GetTag(ectx)
+
   def eth_ftype(self, ectx):
     return self.val.eth_ftype(ectx)
 
