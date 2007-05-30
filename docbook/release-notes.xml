@@ -100,6 +100,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The DHCP/BOOTP dissector was susceptible to an off-by-one error.
+            <!-- Fixed in r21947 -->
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1416">1416</ulink>)
+          </para>
+          <para>Versions affected: ?</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
