@@ -1,0 +1,214 @@
+-- $Id$
+-- 17.7.2	Operation and maintenance data types
+-- 3GPP TS 29.002 V8.1.0 (2007-03) 
+MAP-OM-DataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version11 (11)}
+
+DEFINITIONS
+
+IMPLICIT TAGS
+
+::=
+
+BEGIN
+
+EXPORTS
+	ActivateTraceModeArg,
+	ActivateTraceModeRes,
+	DeactivateTraceModeArg,
+	DeactivateTraceModeRes,
+	TracePropagationList
+;
+
+IMPORTS
+	AddressString,
+	IMSI
+FROM MAP-CommonDataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
+
+	ExtensionContainer
+FROM MAP-ExtensionDataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version11 (11)}
+
+;
+
+ActivateTraceModeArg ::= SEQUENCE {
+	imsi			[0] IMSI		OPTIONAL,
+	traceReference	[1] TraceReference,
+	traceType		[2] TraceType,
+	omc-Id		[3] AddressString	OPTIONAL,
+	extensionContainer	[4] ExtensionContainer	OPTIONAL,
+	...,
+	traceReference2	[5] TraceReference2	OPTIONAL,
+	traceDepthList	[6] TraceDepthList	OPTIONAL,
+	traceNE-TypeList	[7] TraceNE-TypeList	OPTIONAL,
+	traceInterfaceList	[8] TraceInterfaceList	OPTIONAL,
+	traceEventList	[9] TraceEventList	OPTIONAL
+	}
+
+TraceReference ::= OCTET STRING (SIZE (1..2))
+
+TraceReference2 ::= OCTET STRING (SIZE (3))
+
+TraceRecordingSessionReference ::= OCTET STRING (SIZE (2))
+
+TraceType ::= INTEGER
+	(0..255)
+	-- Trace types are fully defined in  3GPP TS 52.008. [61]
+
+TraceDepthList ::= SEQUENCE {
+	msc-s-TraceDepth	[0] TraceDepth	OPTIONAL,
+	mgw-TraceDepth	[1] TraceDepth	OPTIONAL,
+	sgsn-TraceDepth	[2] TraceDepth	OPTIONAL,
+	ggsn-TraceDepth	[3] TraceDepth	OPTIONAL,
+	rnc-TraceDepth	[4] TraceDepth	OPTIONAL,
+	bmsc-TraceDepth	[5] TraceDepth	OPTIONAL,
+	...}
+
+TraceDepth ::= ENUMERATED {
+	minimum (0),
+	medium (1),
+	maximum (2),
+	...}
+-- The value medium is applicable only for RNC. For other network elements, if value medium
+-- is received, value minimum shall be applied.
+
+TraceNE-TypeList ::= BIT STRING {
+	msc-s (0),
+	mgw (1),
+	sgsn (2),
+	ggsn (3),
+	rnc (4),
+	bm-sc (5)} (SIZE (6..16))
+-- Other bits than listed above shall be discarded.
+
+TraceInterfaceList ::= SEQUENCE {
+	msc-s-List	[0] MSC-S-InterfaceList	OPTIONAL,
+	mgw-List		[1] MGW-InterfaceList	OPTIONAL,
+	sgsn-List		[2] SGSN-InterfaceList	OPTIONAL,
+	ggsn-List		[3] GGSN-InterfaceList	OPTIONAL,
+	rnc-List		[4] RNC-InterfaceList	OPTIONAL,
+	bmsc-List		[5] BMSC-InterfaceList	OPTIONAL,
+	...}
+
+MSC-S-InterfaceList ::= BIT STRING {
+	a (0),
+	iu (1),
+	mc (2),
+	map-g (3),
+	map-b (4),
+	map-e (5),
+	map-f (6),
+	cap (7),
+	map-d (8),
+	map-c (9)} (SIZE (10..16))
+-- Other bits than listed above shall be discarded.
+
+MGW-InterfaceList ::= BIT STRING {
+	mc (0),
+	nb-up (1),
+	iu-up (2)} (SIZE (3..8))
+-- Other bits than listed above shall be discarded.
+
+SGSN-InterfaceList ::= BIT STRING {
+	gb (0),
+	iu (1),
+	gn (2),
+	map-gr (3),
+	map-gd (4),
+	map-gf (5),
+	gs (6),
+	ge (7)} (SIZE (8..16))
+-- Other bits than listed above shall be discarded.
+
+GGSN-InterfaceList ::= BIT STRING {
+	gn (0),
+	gi (1),
+	gmb (2)} (SIZE (3..8))
+-- Other bits than listed above shall be discarded.
+
+RNC-InterfaceList ::= BIT STRING {
+	iu (0),
+	iur (1),
+	iub (2),
+	uu (3)} (SIZE (4..8))
+-- Other bits than listed above shall be discarded.
+
+BMSC-InterfaceList ::= BIT STRING {
+	gmb (0)} (SIZE (1..8))
+-- Other bits than listed above shall be discarded.
+
+TraceEventList ::= SEQUENCE {
+	msc-s-List	[0] MSC-S-EventList	OPTIONAL,
+	mgw-List		[1] MGW-EventList	OPTIONAL,
+	sgsn-List		[2] SGSN-EventList	OPTIONAL,
+	ggsn-List		[3] GGSN-EventList	OPTIONAL,
+	bmsc-List		[4] BMSC-EventList	OPTIONAL,
+	...}
+
+MSC-S-EventList ::= BIT STRING {
+	mo-mtCall (0),
+	mo-mt-sms (1),
+	lu-imsiAttach-imsiDetach (2),
+	handovers (3),
+	ss (4)} (SIZE (5..16))
+-- Other bits than listed above shall be discarded.
+
+MGW-EventList ::= BIT STRING {
+	context (0)} (SIZE (1..8))
+-- Other bits than listed above shall be discarded.
+
+SGSN-EventList ::= BIT STRING {
+	pdpContext (0),
+	mo-mt-sms (1),
+	rau-gprsAttach-gprsDetach (2),
+	mbmsContext (3)} (SIZE (4..16))
+-- Other bits than listed above shall be discarded.
+
+GGSN-EventList ::= BIT STRING {
+	pdpContext (0),
+	mbmsContext (1)} (SIZE (2..8))
+-- Other bits than listed above shall be discarded.
+
+BMSC-EventList ::= BIT STRING {
+	mbmsMulticastServiceActivation (0)} (SIZE (1..8))
+-- Other bits than listed above shall be discarded.
+
+
+TracePropagationList ::= SEQUENCE {
+	traceReference	[0] TraceReference	OPTIONAL,
+	traceType		[1] TraceType	OPTIONAL,
+	traceReference2	[2] TraceReference2	OPTIONAL,
+	traceRecordingSessionReference	[3] TraceRecordingSessionReference OPTIONAL,
+	rnc-TraceDepth	[4] TraceDepth	OPTIONAL,
+	rnc-InterfaceList	[5] RNC-InterfaceList	OPTIONAL,
+	msc-s-TraceDepth	[6] TraceDepth	OPTIONAL,
+	msc-s-InterfaceList	[7] MSC-S-InterfaceList	OPTIONAL,
+	msc-s-EventList	[8] MSC-S-EventList	OPTIONAL,
+	mgw-TraceDepth	[9] TraceDepth	OPTIONAL,
+	mgw-InterfaceList	[10] MGW-InterfaceList	OPTIONAL,
+	mgw-EventList	[11] MGW-EventList	OPTIONAL,
+	...}
+
+ActivateTraceModeRes ::= SEQUENCE {
+	extensionContainer	[0] ExtensionContainer	OPTIONAL,
+	...,
+	traceSupportIndicator	[1]	NULL		OPTIONAL
+	}
+
+DeactivateTraceModeArg ::= SEQUENCE {
+	imsi			[0] IMSI		OPTIONAL,
+	traceReference	[1] TraceReference,
+	extensionContainer	[2] ExtensionContainer	OPTIONAL,
+	...,
+	traceReference2	[3] TraceReference2	OPTIONAL
+	}
+
+DeactivateTraceModeRes ::= SEQUENCE {
+	extensionContainer	[0] ExtensionContainer	OPTIONAL,
+	...}
+
+END
