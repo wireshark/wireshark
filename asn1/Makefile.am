@@ -205,6 +205,7 @@ EXTRA_DIST = \
 	mms/packet-mms-template.c	\
 	mms/packet-mms-template.h	\
 	mpeg/Makefile \
+	mpeg/Makefile.nmake \
 	mpeg/mpeg-audio.asn \
 	mpeg/mpeg-audio.cnf \
 	mpeg/mpeg-pes.asn \
@@ -235,6 +236,12 @@ EXTRA_DIST = \
 	pkcs1/packet-pkcs1-template.h	\
 	pkcs1/PKCS1.asn	\
 	pkcs1/pkcs1.cnf	\
+	pkcs12/Makefile	\
+	pkcs12/Makefile.nmake	\
+	pkcs12/packet-pkcs12-template.c	\
+	pkcs12/packet-pkcs12-template.h	\
+	pkcs12/pkcs12.asn	\
+	pkcs12/pkcs12.cnf	\
 	pkinit/Makefile	\
 	pkinit/Makefile.nmake	\
 	pkinit/packet-pkinit-template.c	\
