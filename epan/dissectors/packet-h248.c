@@ -4378,7 +4378,6 @@ static const value_string h248_AmmDescriptor_vals[] = {
   {   6, "digitMapDescriptor" },
   {   7, "auditDescriptor" },
   {   8, "statisticsDescriptor" },
-  {   8, "statisticsDescriptor" },
   { 0, NULL }
 };
 
@@ -4391,8 +4390,6 @@ static const ber_old_choice_t AmmDescriptor_choice[] = {
   {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_signalsDescriptor_impl },
   {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_digitMapDescriptor_impl },
   {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_auditDescriptor_impl },
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_statisticsDescriptor_impl },
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_statisticsDescriptor_impl },
   {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_statisticsDescriptor_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -5253,7 +5250,6 @@ static const value_string h248_AuditReply_vals[] = {
   {   1, "error" },
   {   2, "auditResult" },
   {   3, "auditResultTermList" },
-  {   3, "auditResultTermList" },
   { 0, NULL }
 };
 
@@ -5261,8 +5257,6 @@ static const ber_old_choice_t AuditReply_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_contextAuditResult_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_error_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_auditResult_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_auditResultTermList_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_auditResultTermList_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_auditResultTermList_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -5621,7 +5615,6 @@ static const value_string h248_Transaction_vals[] = {
   {   2, "transactionReply" },
   {   3, "transactionResponseAck" },
   {   4, "segmentReply" },
-  {   4, "segmentReply" },
   { 0, NULL }
 };
 
@@ -5630,8 +5623,6 @@ static const ber_old_choice_t Transaction_choice[] = {
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_transactionPending_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_transactionReply_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_transactionResponseAck_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_segmentReply_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_segmentReply_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_segmentReply_impl },
   { 0, 0, 0, 0, NULL }
 };

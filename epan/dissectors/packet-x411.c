@@ -4868,15 +4868,12 @@ dissect_x411_ReportDeliveryArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static const value_string x411_ReportDeliveryResult_vals[] = {
   {   0, "empty-result" },
   {   1, "extensions" },
-  {   2, "extensions" },
   { 0, NULL }
 };
 
 static const ber_old_choice_t ReportDeliveryResult_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_empty_result },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_extensions },
-  {   2, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_extensions },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_extensions },
   { 0, 0, 0, 0, NULL }
 };
 

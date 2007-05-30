@@ -560,7 +560,6 @@ const value_string acse_AP_title_vals[] = {
   {   0, "ap-title-form1" },
   {   1, "ap-title-form2" },
   {   2, "ap-title-form3" },
-  {   3, "ap-title-form3" },
   { 0, NULL }
 };
 
@@ -568,8 +567,6 @@ static const ber_old_choice_t AP_title_choice[] = {
   {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ap_title_form1 },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ap_title_form2 },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_ap_title_form3 },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_ap_title_form3 },
-  {   4, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_ap_title_form3 },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -649,8 +646,6 @@ const value_string acse_ASO_qualifier_vals[] = {
   {   1, "aso-qualifier-form2" },
   {   2, "aso-qualifier-form3" },
   {   3, "aso-qualifier-form-any-octets" },
-  {   4, "aso-qualifier-form3" },
-  {   5, "aso-qualifier-form-any-octets" },
   { 0, NULL }
 };
 
@@ -659,10 +654,6 @@ static const ber_old_choice_t ASO_qualifier_choice[] = {
   {   1, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form2 },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
   {   3, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form_any_octets },
-  {   4, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
-  {   5, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form_any_octets },
-  {   6, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form3 },
-  {   7, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_aso_qualifier_form_any_octets },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1804,9 +1795,6 @@ static const value_string acse_ACSE_apdu_vals[] = {
   {   5, "adt" },
   {   6, "acrq" },
   {   7, "acrp" },
-  {   5, "adt" },
-  {   6, "acrq" },
-  {   7, "acrp" },
   { 0, NULL }
 };
 
@@ -1816,12 +1804,6 @@ static const ber_old_choice_t ACSE_apdu_choice[] = {
   {   2, BER_CLASS_APP, 2, BER_FLAGS_IMPLTAG, dissect_rlrq_impl },
   {   3, BER_CLASS_APP, 3, BER_FLAGS_IMPLTAG, dissect_rlre_impl },
   {   4, BER_CLASS_APP, 4, BER_FLAGS_IMPLTAG, dissect_abrt_impl },
-  {   5, BER_CLASS_APP, 5, BER_FLAGS_IMPLTAG, dissect_adt_impl },
-  {   6, BER_CLASS_APP, 6, BER_FLAGS_IMPLTAG, dissect_acrq_impl },
-  {   7, BER_CLASS_APP, 7, BER_FLAGS_IMPLTAG, dissect_acrp_impl },
-  {   5, BER_CLASS_APP, 5, BER_FLAGS_IMPLTAG, dissect_adt_impl },
-  {   6, BER_CLASS_APP, 6, BER_FLAGS_IMPLTAG, dissect_acrq_impl },
-  {   7, BER_CLASS_APP, 7, BER_FLAGS_IMPLTAG, dissect_acrp_impl },
   {   5, BER_CLASS_APP, 5, BER_FLAGS_IMPLTAG, dissect_adt_impl },
   {   6, BER_CLASS_APP, 6, BER_FLAGS_IMPLTAG, dissect_acrq_impl },
   {   7, BER_CLASS_APP, 7, BER_FLAGS_IMPLTAG, dissect_acrp_impl },

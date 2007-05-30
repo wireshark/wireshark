@@ -58,8 +58,6 @@ static dissector_handle_t rrc_dl_dcch_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
 
-static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
-
 #include "packet-rnsap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -139,11 +137,6 @@ void proto_register_rnsap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-    { &hf_rnsap_L3_DL_DCCH_Message_PDU,
-      { "DL-DCCH-Message", "rnsap.DL_DCCH_Message",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DL-DCCH-Message", HFILL }},
-
 #include "packet-rnsap-hfarr.c"
   };
 

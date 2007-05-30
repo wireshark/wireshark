@@ -754,8 +754,6 @@ static dissector_handle_t rrc_dl_dcch_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
 
-static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
-
 
 /*--- Included file: packet-rnsap-hf.c ---*/
 #line 1 "packet-rnsap-hf.c"
@@ -2733,7 +2731,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 64 "packet-rnsap-template.c"
+#line 62 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -3736,7 +3734,7 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 69 "packet-rnsap-template.c"
+#line 67 "packet-rnsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -33104,7 +33102,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 90 "packet-rnsap-template.c"
+#line 88 "packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -33157,11 +33155,6 @@ void proto_register_rnsap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-    { &hf_rnsap_L3_DL_DCCH_Message_PDU,
-      { "DL-DCCH-Message", "rnsap.DL_DCCH_Message",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DL-DCCH-Message", HFILL }},
-
 
 /*--- Included file: packet-rnsap-hfarr.c ---*/
 #line 1 "packet-rnsap-hfarr.c"
@@ -41055,7 +41048,7 @@ void proto_register_rnsap(void) {
         "rnsap.Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 148 "packet-rnsap-template.c"
+#line 141 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -42059,7 +42052,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 154 "packet-rnsap-template.c"
+#line 147 "packet-rnsap-template.c"
   };
 
 
@@ -42715,7 +42708,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 192 "packet-rnsap-template.c"
+#line 185 "packet-rnsap-template.c"
 }
 
 
