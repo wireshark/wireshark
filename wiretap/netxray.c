@@ -165,7 +165,10 @@ struct netxray_hdr {
  *  So: we'll use realtick for Ethernet captype=0 and timeunit=2.
  *  (It might be that realtick should be used for Ethernet captype = 0 
  *  and timeunit = 1 but I've not yet enough captures to be sure).
- *
+ *   Based upon the captures reviewed to date, realtick cannot be used for
+ *   any of the other Ethernet captype/timeunit combinations for which there
+ *   are non-zero values in the TpS tables.
+ *  
  *  Note that the "realtick" value is wrong in some captures, so
  *  we don't use it for all captures.
  *
@@ -213,8 +216,11 @@ static double TpS[] = { 1e6, 1193000.0, 1193182.0 };
  * the values below are correct; for 002.002, it's claimed that
  * the right value for TpS_gigpod[2] is 1250000.0, but at least one
  * 002.002 gigabit pod capture has 31250000.0 as the right value.
- *
- * XXX - is 'realtick' valid for these captures?
+ * XXX: Note that the TpS_otherpod[2] value is 1250000.0; It seems
+ *  reasonable to suspect that the original claim might actually 
+ *  have been for a capture with a captype of 'otherpod'.
+ *  (Based upon captures reviewed realtick does not contain the 
+ *   correct TpS values for 'otherpod' or 'gigpod' captypes).
  */
 static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
 #define NUM_NETXRAY_TIMEUNITS_GIGPOD (sizeof TpS_gigpod / sizeof TpS_gigpod[0])
