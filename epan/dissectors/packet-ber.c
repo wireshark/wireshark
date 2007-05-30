@@ -938,7 +938,8 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		end_offset=offset+len;
 	}
 
-	ber_last_created_item = NULL;
+	actx->created_item=ber_last_created_item = NULL;
+
 	if (pc) {
 		/* constructed */
 		end_offset = reassemble_octet_string(actx, tree, tvb, offset, len, ind, out_tvb);
@@ -960,7 +961,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		}
 		if(hf_id >= 0) {
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, length_remaining, FALSE);
-			ber_last_created_item = it;
+			actx->created_item=ber_last_created_item = it;
 		} else {
 			proto_item *pi;
 
@@ -1112,7 +1113,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 		}
 	}
 
-	ber_last_created_item=NULL;
+	actx->created_item=ber_last_created_item=NULL;
 
 	if(hf_id >= 0){
 		/*  */
@@ -1127,19 +1128,19 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 			case FT_UINT16:
 			case FT_UINT24:
 			case FT_UINT32:
-				ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-len, len, (guint32)val);
+				actx->created_item=ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-len, len, (guint32)val);
 				break;
 			case FT_INT8:
 			case FT_INT16:
 			case FT_INT24:
 			case FT_INT32:
-				ber_last_created_item=proto_tree_add_int(tree, hf_id, tvb, offset-len, len, (gint32)val);
+				actx->created_item=ber_last_created_item=proto_tree_add_int(tree, hf_id, tvb, offset-len, len, (gint32)val);
 				break;
 			case FT_INT64:
-				ber_last_created_item=proto_tree_add_int64(tree, hf_id, tvb, offset-len, len, val);
+				actx->created_item=ber_last_created_item=proto_tree_add_int64(tree, hf_id, tvb, offset-len, len, val);
 				break;
 			case FT_UINT64:
-				ber_last_created_item=proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
+				actx->created_item=ber_last_created_item=proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
 				break;
 			default:
 				DISSECTOR_ASSERT_NOT_REACHED();
@@ -1188,14 +1189,14 @@ dissect_ber_boolean_value(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *t
 	val=tvb_get_guint8(tvb, offset);
 	offset+=1;
 
-	ber_last_created_item=NULL;
+	actx->created_item=ber_last_created_item=NULL;
 
 	if(hf_id >= 0){
 		hfi = proto_registrar_get_nth(hf_id);
 		if(hfi->type == FT_BOOLEAN)
-			ber_last_created_item=proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
+			actx->created_item=ber_last_created_item=proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
 		else
-			ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val?1:0);
+			actx->created_item=ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val?1:0);
 	}
 
 	if(value){
@@ -3005,7 +3006,7 @@ int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *actx, p
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;
-	gboolean pc, ind = FALSE, ind_field, imp_tag = FALSE;
+	gboolean pc, ind = FALSE, ind_field;
 	gint32 tag;
 	guint32 len;
 
@@ -3123,6 +3124,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		int eoffset;
 		int hoffset, count;
 		proto_item *cause;
+		gboolean imp_tag;
 
 		hoffset = offset;
 	 	if(ind){ /*this sequence of was of indefinite length, so check for EOC */
@@ -3167,7 +3169,6 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 			/* dissect header and len for field */
 			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
-			imp_tag = FALSE;
 		}
 		if((seq->flags == BER_FLAGS_IMPLTAG)&&(seq->class==BER_CLASS_CON)) {
 			/* Constructed sequence of with a tag */
@@ -3175,11 +3176,13 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
 			/* Function has IMPLICIT TAG */
-			imp_tag = TRUE;
 		}
 
+		imp_tag = FALSE;
+		if(seq->flags == BER_FLAGS_IMPLTAG)
+			imp_tag = TRUE;
 		/* call the dissector for this field */
-		count=seq->func(imp_tag, tvb, 0, actx, tree, *seq->p_id)-hoffset;
+		count=seq->func(imp_tag, tvb, hoffset, actx, tree, *seq->p_id)-hoffset;
 				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
@@ -3501,7 +3504,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 	  end_offset=offset+len;
 	}
 
-	ber_last_created_item = NULL;
+	actx->created_item=ber_last_created_item = NULL;
 
 	if(pc) {
 		/* constructed */
@@ -3520,7 +3523,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 		len--;
 		if( hf_id >= 0) {
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
-			ber_last_created_item = item;
+			actx->created_item=ber_last_created_item = item;
 			if(ett_id != -1) {
 				tree = proto_item_add_subtree(item, ett_id);
 			}
