@@ -1661,7 +1661,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	if(user_data->dlg.parent_w) {
 		gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.window),
 					     GTK_WINDOW(user_data->dlg.parent_w));
-#if GTK_MAJOR_VERSION > 2
+#if GTK_MAJOR_VERSION >= 2
 		/* XXX - This function only works in GTK2.  We need to find similar functionality
 		 * for GTK1.  See bug #1530. */
 		gtk_window_set_destroy_with_parent(GTK_WINDOW(user_data->dlg.window), TRUE);
