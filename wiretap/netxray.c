@@ -168,9 +168,6 @@ struct netxray_hdr {
  *   Based upon the captures reviewed to date, realtick cannot be used for
  *   any of the other Ethernet captype/timeunit combinations for which there
  *   are non-zero values in the TpS tables.
- *  
- *  Note that the "realtick" value is wrong in some captures, so
- *  we don't use it for all captures.
  *
  *  In at least one capture where "realtick" doesn't correspond
  *  to the value from the appropriate TpS table, the per-packet header's
