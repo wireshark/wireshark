@@ -76,19 +76,6 @@ Wireshark Info
 
         <listitem>
           <para>
-            Defining a display filter macro with no arguments would make
-            Wireshark crash.
-            <!-- Fixed in r21664 -->
-            <!-- CID 232 -->
-          </para>
-          <para>Versions affected: 0.99.5</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
             Wireshark could loop excessively while reading a malformed SSL
             packet.
             <!-- Fixed in r? -->
@@ -144,6 +131,12 @@ Wireshark Info
           and libraries installed.
         </para></listitem>
 
+        <listitem><para>
+	  Capture from named pipes (via "-i
+	  \\&lt;server&gt;\pipe\&lt;pipename&gt;") now works under
+	  Windows.
+        </para></listitem>
+
       </itemizedlist>
     </para>
 
@@ -158,6 +151,7 @@ Wireshark Info
       - HTTP object export
       - Delta times
       - Code cleanup
+      - Display filter macros
       -->
 
     </para>
