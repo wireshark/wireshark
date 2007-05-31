@@ -1302,7 +1302,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		ssrc = tvb_get_ntohl( tvb, offset );
 		sdes_item = proto_tree_add_text(tree, tvb, offset, -1,
-		    "Chunk %u, SSRC/CSRC %u", chunk, ssrc);
+		    "Chunk %u, SSRC/CSRC 0x%X", chunk, ssrc);
 		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
 
 		/* SSRC_n source identifier, 32 bits */
@@ -2575,7 +2575,7 @@ proto_register_rtcp(void)
 				"Sender SSRC",
 				"rtcp.senderssrc",
 				FT_UINT32,
-				BASE_DEC,
+				BASE_HEX_DEC,
 				NULL,
 				0x0,
 				"", HFILL
@@ -2659,7 +2659,7 @@ proto_register_rtcp(void)
 				"Identifier",
 				"rtcp.ssrc.identifier",
 				FT_UINT32,
-				BASE_DEC,
+				BASE_HEX_DEC,
 				NULL,
 				0x0,
 				"", HFILL
@@ -2767,7 +2767,7 @@ proto_register_rtcp(void)
 				"SSRC / CSRC identifier",
 				"rtcp.sdes.ssrc_csrc",
 				FT_UINT32,
-				BASE_DEC,
+				BASE_HEX_DEC,
 				NULL,
 				0x0,
 				"", HFILL

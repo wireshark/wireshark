@@ -595,7 +595,7 @@ static void RTP_packet_draw(void *prs _U_)
 					if (rtp_listinfo->first_frame_num == gai->frame_num){
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
 						g_free(gai->comment);
-						gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us ssrc:%u", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
+						gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us SSRC:0x%X", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						break;
 					}
 
@@ -615,7 +615,7 @@ static void RTP_packet_draw(void *prs _U_)
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
 						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event")); 
 						g_free(rtp_listinfo->pt_str);
-						new_gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us ssrc:%u", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
+						new_gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us SSRC:0x%X", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
 						new_gai->display=FALSE;
 						new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */

@@ -1117,14 +1117,14 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	user_data->series_rev.color.blue = 0xffff;
 	user_data->series_rev.yvalue = -0.5;
 
-	g_snprintf(title1, 80, "Forward: %s:%u to %s:%u (SSRC=%u)",
+	g_snprintf(title1, 80, "Forward: %s:%u to %s:%u (SSRC=0x%X)",
 		get_addr_name(&(user_data->ip_src_fwd)),
 		user_data->port_src_fwd,
 		get_addr_name(&(user_data->ip_dst_fwd)),
 		user_data->port_dst_fwd,
 		user_data->ssrc_fwd);
 
-	g_snprintf(title2, 80, "Reverse: %s:%u to %s:%u (SSRC=%u)",
+	g_snprintf(title2, 80, "Reverse: %s:%u to %s:%u (SSRC=0x%X)",
 		get_addr_name(&(user_data->ip_src_rev)),
 		user_data->port_src_rev,
 		get_addr_name(&(user_data->ip_dst_rev)),
@@ -1183,7 +1183,7 @@ static void dialog_graph_reset(user_data_t* user_data)
 	for(i=0;i<MAX_GRAPHS;i++){
 		/* it is forward */
 		if (i<2){
-       			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
+       			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=0x%X)",
 			graph_descr[i],
                 	get_addr_name(&(user_data->ip_src_fwd)),
                 	user_data->port_src_fwd,
@@ -1192,7 +1192,7 @@ static void dialog_graph_reset(user_data_t* user_data)
                 	user_data->ssrc_fwd);
 		/* it is reverse */
 		} else {
-			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
+			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=0x%X)",
 			graph_descr[i],
                 	get_addr_name(&(user_data->ip_src_rev)),
                 	user_data->port_src_rev,
@@ -3428,7 +3428,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)));
 
 	g_snprintf(label_forward, 149,
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u",
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
@@ -3436,7 +3436,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)));
 
 	g_snprintf(label_reverse, 149,
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u",
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
 		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
 	/* Start a notebook for flipping between sets of changes */

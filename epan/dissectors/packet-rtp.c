@@ -976,7 +976,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		col_add_fstr( pinfo->cinfo, COL_INFO,
-		    "PT=%s, SSRC=%u, Seq=%u, Time=%u%s",
+		    "PT=%s, SSRC=0x%X, Seq=%u, Time=%u%s",
 			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown (%u)" ),
 		    sync_src,
 		    seq_num,
@@ -1046,7 +1046,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			if ( tree ) proto_tree_add_uint_format( rtp_csrc_tree,
 			    hf_rtp_csrc_item, tvb, offset, 4,
 			    csrc_item,
-			    "CSRC item %d: %u",
+			    "CSRC item %d: 0x%X",
 			    i, csrc_item );
 			offset += 4;
 		}
@@ -1474,7 +1474,7 @@ proto_register_rtp(void)
 				"Synchronization Source identifier",
 				"rtp.ssrc",
 				FT_UINT32,
-				BASE_DEC,
+				BASE_HEX_DEC,
 				NULL,
 				0x0,
 				"", HFILL
@@ -1510,7 +1510,7 @@ proto_register_rtp(void)
 				"CSRC item",
 				"rtp.csrc.item",
 				FT_UINT32,
-				BASE_DEC,
+				BASE_HEX_DEC,
 				NULL,
 				0x0,
 				"", HFILL

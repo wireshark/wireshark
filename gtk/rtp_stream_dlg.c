@@ -102,7 +102,7 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	data[1] = g_strdup_printf("%u", strinfo->src_port);
 	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
 	data[3] = g_strdup_printf("%u", strinfo->dest_port);
-	data[4] = g_strdup_printf("%u", strinfo->ssrc);
+	data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
 	if(strinfo->pt>95){
 		if(strinfo->info_payload_type_str != NULL){
 			data[5] = g_strdup(strinfo->info_payload_type_str);
@@ -381,7 +381,7 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 			strcpy(ip_version,"");
 		}
 		filter_string_fwd = g_strdup_printf(
-			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
+			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
 			ip_version,
 			address_to_str(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
@@ -401,7 +401,7 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 			strcpy(ip_version,"");
 		}
 		filter_string_rev = g_strdup_printf(
-			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
+			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
 			ip_version,
 			address_to_str(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
@@ -537,7 +537,7 @@ rtpstream_on_select_row(GtkCList *clist,
 	/* update the labels */
 	if (event==NULL || event->state & GDK_SHIFT_MASK) {
 		selected_stream_rev = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-		g_snprintf(label_text, 80, "Reverse: %s:%u -> %s:%u, SSRC=%u",
+		g_snprintf(label_text, 80, "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
 			get_addr_name(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
 			get_addr_name(&(selected_stream_rev->dest_addr)),
@@ -548,7 +548,7 @@ rtpstream_on_select_row(GtkCList *clist,
 	}
 	else {
 		selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-		g_snprintf(label_text, 80, "Forward: %s:%u -> %s:%u, SSRC=%u",
+		g_snprintf(label_text, 80, "Forward: %s:%u -> %s:%u, SSRC=0x%X",
 			get_addr_name(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			get_addr_name(&(selected_stream_fwd->dest_addr)),
@@ -695,7 +695,7 @@ static void rtpstream_dlg_create (void)
     gtk_clist_set_column_width (GTK_CLIST (clist), 4, 64);
     gtk_clist_set_column_width (GTK_CLIST (clist), 5, 96);
     gtk_clist_set_column_width (GTK_CLIST (clist), 6, 50);
-    gtk_clist_set_column_width (GTK_CLIST (clist), 7, 50);
+    gtk_clist_set_column_width (GTK_CLIST (clist), 7, 64);
     gtk_clist_set_column_width (GTK_CLIST (clist), 8, 80);
     gtk_clist_set_column_width (GTK_CLIST (clist), 9, 80);
     gtk_clist_set_column_width (GTK_CLIST (clist), 10, 80);
