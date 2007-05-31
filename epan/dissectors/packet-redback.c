@@ -6,7 +6,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  *
  * Start of RedBack SE400/800 tcpdump trace disassembly
- * Copyright 2005,2006 Florian Lohoff <flo@rfc822.org>
+ * Copyright 2005-2007 Florian Lohoff <flo@rfc822.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -41,6 +41,7 @@ static dissector_handle_t ipv4_handle;
 static dissector_handle_t eth_handle;
 static dissector_handle_t clnp_handle;
 static dissector_handle_t arp_handle;
+static dissector_handle_t ppp_handle;
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
 static void
@@ -81,47 +82,69 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             "Layer3 Offset: %u", l3off);
   tisub = proto_tree_add_text (subtree, tvb, 22, 2,
                             "Data Offset: %u", dataoff);
-  next_tvb = tvb_new_subset(tvb, l3off, -1, -1);
 
   /* Mark the gap as "Data" for now */
   if (dataoff > l3off) {
 	proto_tree_add_text (subtree, tvb, 24, l3off-24, "Data (%d bytes)", l3off-24);	
   }
 
-  /*
-   * Just a guess - In case we see a difference in dataoff vs l3off
-   * we assume there is an ethernet header. Traces from an OC12 didnt
-   * show any header in here
-   */
-  if (dataoff > l3off) {
-    call_dissector(eth_handle, next_tvb, pinfo, tree);
-  } else {
-    switch(proto) {
-      case 0x01:
+  switch(proto) {
+    case 0x01:
         /*
 	 * IP - We assume IPv6 has a different protocol although
 	 * i might be wrong - Havent seen any traces
 	 */
-        call_dissector(ipv4_handle, next_tvb, pinfo, tree);
-        break;
-      case 0x02:
+      next_tvb = tvb_new_subset(tvb, dataoff, -1, -1);
+      call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+      break;
+    case 0x02:
 	/*
-	 * It is CLNP although it seem the Packet Asic fills
-	 * some data in the packet so we have a "broken" packet in
-	 * the trace
+	 * Most of the time i have seen this protocol type
+	 * as 802.3 Ethernet containing CLNP for ISIS.
+	 *
+	 * Sometimes the 802.3 header is missing and the packet
+	 * seems to be CLNP anyway. Dissecting this shows
+	 * a broken packet for an unknown reason.
+	 *
 	 */
-        call_dissector(clnp_handle, next_tvb, pinfo, tree);
-        break;
-      case 0x03: /* Unicast Ethernet tx - Seen with PPPoE PADO */
-      case 0x04: /* Unicast Ethernet rx - Seen with ARP  */
-      case 0x08: /* Broadcast Ethernet rx - Seen with PPPoE PADI */
+      next_tvb = tvb_new_subset(tvb, l3off, -1, -1);
+      if (dataoff > l3off) {
+	      call_dissector(eth_handle, next_tvb, pinfo, tree);
+      } else {
+	      call_dissector(clnp_handle, next_tvb, pinfo, tree);
+      }
+      break;
+    case 0x06:
+
+      /* HACK This is a guess - i dont know what this flag means
+       * but my best guess is that it means "incoming" e.g.
+       * the direction of the packet. In case of incoming PPP
+       * packets there seems to be some padding which does
+       * not get reflected in the l3off/dataoff
+       */
+      if (flags & 0x00400000) {
+        next_tvb = tvb_new_subset(tvb, l3off, -1, -1);
+      } else {
+        proto_tree_add_text (subtree, tvb, l3off, 4, "Unknown Data (%d bytes)", 4);
+        next_tvb = tvb_new_subset(tvb, l3off+4, -1, -1);
+      }
+
+      if (l3off == dataoff) {
+        call_dissector(ppp_handle, next_tvb, pinfo, tree);
+      } else {
         call_dissector(eth_handle, next_tvb, pinfo, tree);
-        break;
-      default:
-	tisub = proto_tree_add_text (subtree, tvb, 24, length-24,
+      }
+      break;
+    case 0x03: /* Unicast Ethernet tx - Seen with PPPoE PADO */
+    case 0x04: /* Unicast Ethernet rx - Seen with ARP  */
+    case 0x08: /* Broadcast Ethernet rx - Seen with PPPoE PADI */
+      next_tvb = tvb_new_subset(tvb, l3off, -1, -1);
+      call_dissector(eth_handle, next_tvb, pinfo, tree);
+      break;
+    default:
+      tisub = proto_tree_add_text (subtree, tvb, 24, length-24,
 				"Unknown Protocol Data %u", proto);
-        break;
-    }
+      break;
   }
   return;
 }
@@ -147,6 +170,7 @@ proto_reg_handoff_redback(void)
   eth_handle = find_dissector("eth_withoutfcs");
   clnp_handle = find_dissector("clnp");
   arp_handle = find_dissector("arp");
+  ppp_handle = find_dissector("ppp");
 
   redback_handle = create_dissector_handle(dissect_redback, proto_redback);
   dissector_add("wtap_encap", WTAP_ENCAP_REDBACK, redback_handle);
