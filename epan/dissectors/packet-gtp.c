@@ -5419,6 +5419,8 @@ decode_gtp_bssgp_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	return 3 + length;
 
  }
+
+#if 0
 /*
  * Required MBMS bearer capabilities	7.7.76
  */
@@ -5441,6 +5443,7 @@ decode_gtp_mbms_bearer_cap(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	 */
 	/* TODO Add decoding (call Diameter dissector???)*/
 }
+#endif /* 0 */
 
 /*
  * RIM Routing Address Discriminator	7.7.77
