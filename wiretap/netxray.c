@@ -224,18 +224,22 @@ static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_OTHERPOD.
+ *  (Based upon captures reviewed realtick does not contain the 
+ *   correct TpS values for 'otherpod' or 'gigpod' captypes).
  */
 static double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 }; 
 #define NUM_NETXRAY_TIMEUNITS_OTHERPOD (sizeof TpS_otherpod / sizeof TpS_otherpod[0])
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_OTHERPOD2.
+ * XXX - does realtick contain the correct TpS values for any of these captypes?)
  */
 static double TpS_otherpod2[] = { 1e6, 0.0, 0.0 }; 
 #define NUM_NETXRAY_TIMEUNITS_OTHERPOD2 (sizeof TpS_otherpod2 / sizeof TpS_otherpod2[0])
 
 /*
  * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD2. 
+ * XXX - does realtick contain the correct TpS values for any of these captypes?)
  */
 static double TpS_gigpod2[] = { 1e9, 0.0, 20000000.0 };
 #define NUM_NETXRAY_TIMEUNITS_GIGPOD2 (sizeof TpS_gigpod2 / sizeof TpS_gigpod2[0])
