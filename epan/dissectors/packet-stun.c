@@ -67,7 +67,7 @@ static int stun_att_lifetime = -1;
 static int stun_att_magic_cookie = -1;
 static int stun_att_bandwidth = -1;
 static int stun_att_data = -1;
-
+static int stun_att_connection_request_binding = -1;
 
 
 /* Message Types */
@@ -87,6 +87,7 @@ static int stun_att_data = -1;
 #define SET_ACTIVE_DESTINATION_REQUEST	0x0006
 #define SET_ACTIVE_DESTINATION_RESPONSE	0x0106
 #define SET_ACTIVE_DESTINATION_ERROR_RESPONSE	0x0116
+
 
 /* Attribute Types */
 #define MAPPED_ADDRESS		0x0001
@@ -113,6 +114,8 @@ static int stun_att_data = -1;
 #define XOR_MAPPED_ADDRESS	0x8020
 #define XOR_ONLY		0x0021
 #define SERVER			0x8022
+#define CONNECTION_REQUEST_BINDING      0xc001
+#define BINDING_CHANGE                  0xc002
 
 
 
@@ -179,6 +182,8 @@ static const value_string attributes[] = {
 	{XOR_MAPPED_ADDRESS, "XOR_MAPPED_ADDRESS"},
 	{XOR_ONLY, "XOR_ONLY"},
 	{SERVER, "SERVER"},
+	{CONNECTION_REQUEST_BINDING, "CONNECTION-REQUEST-BINDING"},
+	{BINDING_CHANGE, "BINDING-CHANGE"},
 	{0x00, NULL}
 };
 
@@ -423,6 +428,10 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, FALSE);
 					break;
 
+				case CONNECTION_REQUEST_BINDING:
+					proto_tree_add_item(att_tree, stun_att_connection_request_binding, tvb, offset, att_length, FALSE);
+					break;				    
+
 				default:
 					break;
 			}
@@ -551,6 +560,10 @@ proto_register_stun(void)
 		{ &stun_att_data,
 			{ "Data",	"stun.att.data",	FT_BYTES,
 			BASE_HEX,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_connection_request_binding,
+		        { "Connection Request Binding", "stun.att.connection_request_binding", FT_STRING,
+			  BASE_NONE,      NULL, 0x0,    "",     HFILL }
 		},
 	};
 
