@@ -44,6 +44,7 @@
 #include "prefs.h"
 #include "strutil.h"
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>
 
@@ -59,6 +60,7 @@ static int hf_sigcomp_destination					= -1;
 static int hf_sigcomp_partial_state					= -1;
 static int hf_sigcomp_remaining_message_bytes		= -1;
 static int hf_sigcomp_compression_ratio				= -1;
+static int hf_sigcomp_udvm_bytecode					= -1;
 static int hf_sigcomp_udvm_instr					= -1;
 static int hf_udvm_multitype_bytecode				= -1;
 static int hf_udvm_reference_bytecode				= -1;
@@ -103,6 +105,7 @@ static int hf_udvm_uncompressed						= -1;
 static int hf_udvm_offset							= -1;
 static int hf_udvm_addr_offset						= -1;
 static int hf_udvm_start_value						= -1;
+static int hf_udvm_execution_trace					= -1;
 static int hf_sigcomp_nack_ver						= -1;
 static int hf_sigcomp_nack_reason_code				= -1;
 static int hf_sigcomp_nack_failed_op_code			= -1;
@@ -110,7 +113,7 @@ static int hf_sigcomp_nack_pc						= -1;
 static int hf_sigcomp_nack_sha1						= -1;
 static int hf_sigcomp_nack_state_id					= -1;
 static int hf_sigcomp_nack_memory_size				= -1;
-static int hf_sigcomp_nack_cycles_per_bit			= -1;				
+static int hf_sigcomp_nack_cycles_per_bit			= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sigcomp				= -1;
@@ -556,6 +559,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 	guint16		state_instruction;
 	guint16		result_code;
 	gchar		*partial_state_str;
+	guint8		nack_version;
 
 
 
@@ -755,8 +759,9 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 			udvm2_tvb = tvb_new_subset(udvm_tvb, state_address, state_length, state_length);
 			/* TODO Check if buff needs to be free'd */
-			udvm_exe_item = proto_tree_add_text(sigcomp_tree, udvm2_tvb, 0, state_length, 
-				"UDVM execution trace");
+			udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
+			                                    udvm2_tvb, 0, state_length,
+			                                    FALSE);
 			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 
 			decomp_tvb = decompress_sigcomp_message(udvm2_tvb, msg_tvb, pinfo,
@@ -811,18 +816,27 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 			offset = offset + len;
 		}
 		len = tvb_get_ntohs(tvb, offset) >> 4;
-		if (len == 0){
+		nack_version = tvb_get_guint8(tvb, offset+1) & 0x0f;
+		if ((len == 0) && (nack_version == 1)){
 			/* NACK MESSAGE */
+			proto_item *reason_ti;
 			guint8 opcode;
 			offset++;
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_ver, tvb, offset, 1, FALSE);
 			offset++;
 			octet = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_reason_code, tvb, offset, 1, FALSE);
+			reason_ti = proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_reason_code, tvb, offset, 1, FALSE);
 			offset++;
 			opcode = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_failed_op_code, tvb, offset, 1, FALSE);
 			offset++;
+
+			/* Add expert item for NACK */
+			expert_add_info_format(pinfo, reason_ti, PI_SEQUENCE, PI_WARN,
+			                       "SigComp NACK (reason=%s, opcode=%s)",
+			                       val_to_str(octet, sigcomp_nack_reason_code_vals, "Unknown"),
+			                       val_to_str(opcode, udvm_instruction_code_vals, "Unknown"));
+
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, FALSE);
 			offset = offset +2;
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, 20, FALSE);
@@ -864,8 +878,10 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 			bytecode_len = len;
 			bytecode_offset = offset;
-			udvm_bytecode_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
-				"Uploaded UDVM bytecode %u (0x%x) bytes", bytecode_len, bytecode_len);
+			udvm_bytecode_item = proto_tree_add_item(sigcomp_tree, hf_sigcomp_udvm_bytecode, tvb,
+			                                         bytecode_offset, bytecode_len, FALSE);
+			proto_item_append_text(udvm_bytecode_item,
+			                       " %u (0x%x) bytes", bytecode_len, bytecode_len);
 			sigcomp_udvm_tree = proto_item_add_subtree( udvm_bytecode_item, ett_sigcomp_udvm);
 
 			udvm_tvb = tvb_new_subset(tvb, offset, len, len);
@@ -874,15 +890,19 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 			offset = offset + len;
 			msg_len = tvb_reported_length_remaining(tvb, offset);
-			if(msg_len>0)
-				proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
-					tvb_reported_length_remaining(tvb, offset));
+			if (msg_len>0) {
+				proto_item *ti = proto_tree_add_text(sigcomp_tree, tvb, offset, -1,
+				                                     "Remaining SigComp message %u bytes",
+				                                     tvb_reported_length_remaining(tvb, offset));
+				PROTO_ITEM_SET_GENERATED(ti);
+			}
 			if ( decompress ){
 
 				msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
 	
-				udvm_exe_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
-					"UDVM execution trace");
+				udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
+				                                    tvb, bytecode_offset, bytecode_len, 
+				                                    FALSE);
 				sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 				decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
 						   sigcomp_udvm_exe_tree, destination, 
@@ -2329,10 +2349,20 @@ proto_register_sigcomp(void)
 			FT_UINT8, BASE_HEX, VALS(&destination_address_encoding_vals), 0xf,          
 			"Destination", HFILL }
 		},
+		{ &hf_sigcomp_udvm_bytecode,
+			{ "Uploaded UDVM bytecode","sigcomp.udvm.byte-code",
+			FT_NONE, BASE_NONE, NULL, 0x0,          
+			"Uploaded UDVM bytecode", HFILL }
+		},
 		{ &hf_sigcomp_udvm_instr,
 			{ "UDVM instruction code","sigcomp.udvm.instr",
 			FT_UINT8, BASE_DEC, VALS(&udvm_instruction_code_vals), 0x0,          
 			"UDVM instruction code", HFILL }
+		},
+		{ &hf_udvm_execution_trace,
+			{ "UDVM execution trace","sigcomp.udvm.execution-trace",
+			FT_NONE, BASE_NONE, NULL, 0x0,          
+			"UDVM execution trace", HFILL }
 		},
 		{ &hf_udvm_multitype_bytecode,
 			{ "UDVM bytecode", "sigcomp.udvm.multyt.bytecode",
