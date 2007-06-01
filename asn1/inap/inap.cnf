@@ -7,24 +7,29 @@
 
 #.EXPORTS
 
-
-#.PDU
-Component
-
 #.NO_EMIT
 
+#.CLASS EXTENSION
+id           TypeReference ExtensionType
+Type         
+absent       
+criticality  TypeReference Criticality
+
+
+#.END
 #.TYPE_RENAME
 
 #.FIELD_RENAME
 
 #.PDU
-InitialDP
+Component
+InitialDPArg
 OriginationAttemptAuthorizedArg
 CollectedInformationArg
 AnalysedInformationArg
 RouteSelectFailureArg
 OCalledPartyBusyArg
-ONoAnswer
+ONoAnswerArg
 OAnswerArg
 ODisconnectArg
 TermAttemptAuthorizedArg
@@ -41,7 +46,7 @@ HoldCallInNetworkArg
 ReleaseCallArg
 RequestReportBCSMEventArg
 EventReportBCSMArg
-RequestNotificationChargingEvent
+RequestNotificationChargingEventArg
 EventNotificationChargingArg
 CollectInformationArg
 AnalyseInformationArg
@@ -68,6 +73,10 @@ SpecializedResourceReportArg
 CancelArg
 RequestCurrentStatusReportResultArg
 ReceivedInformationArg
+
+#.FN_BODY T_value
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
 #.FN_BODY InvokeParameter
 	offset = dissect_invokeData(tree, tvb, offset, actx);
@@ -120,11 +129,11 @@ VAL_PTR = &parameter_tvb
 	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
 
 
-#.FN_PARS  BearerCap
+#.FN_PARS  BearerCapability/bearerCap
 
   VAL_PTR = &parameter_tvb
 
-#.FN_BODY BearerCap
+#.FN_BODY BearerCapability/bearerCap
 
  tvbuff_t	*parameter_tvb;
 

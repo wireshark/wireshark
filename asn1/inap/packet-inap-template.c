@@ -186,7 +186,7 @@ TC-Invokable OPERATION ::=
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   switch(opcode){
   case 0: /*InitialDP*/
-    offset=dissect_inap_InitialDP(FALSE, tvb, offset, actx, tree, hf_inap_InitialDP_PDU);
+    offset=dissect_inap_InitialDPArg(FALSE, tvb, offset, actx, tree, hf_inap_InitialDPArg_PDU);
     break;
   case 1: /*1 OriginationAttemptAuthorized */
     offset=dissect_inap_OriginationAttemptAuthorizedArg(FALSE, tvb, offset, actx, tree, hf_inap_OriginationAttemptAuthorizedArg_PDU);
@@ -204,7 +204,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, actx, tree, hf_inap_OCalledPartyBusyArg_PDU);
     break;	 
   case 6: /*6 oNoAnswer */
-    offset=dissect_inap_ONoAnswer(FALSE, tvb, offset, actx, tree, hf_inap_ONoAnswer_PDU);
+    offset=dissect_inap_ONoAnswerArg(FALSE, tvb, offset, actx, tree, hf_inap_ONoAnswerArg_PDU);
     break;
   case 7: /*7 oAnswer */
     offset=dissect_inap_OAnswerArg(FALSE, tvb, offset, actx, tree, hf_inap_OAnswerArg_PDU);
@@ -262,7 +262,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_inap_EventReportBCSMArg(FALSE, tvb, offset, actx, tree, hf_inap_EventReportBCSMArg_PDU);
     break;
   case  25: /*25, "RequestNotificationChargingEvent */
-    offset=dissect_inap_RequestNotificationChargingEvent(FALSE, tvb, offset, actx, tree, hf_inap_RequestNotificationChargingEvent_PDU);
+    offset=dissect_inap_RequestNotificationChargingEventArg(FALSE, tvb, offset, actx, tree, hf_inap_RequestNotificationChargingEventArg_PDU);
     break;
   case  26: /*26, "EventNotificationCharging */
     offset=dissect_inap_EventNotificationChargingArg(FALSE, tvb, offset, actx, tree, hf_inap_EventNotificationChargingArg_PDU);
