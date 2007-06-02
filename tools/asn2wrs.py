@@ -234,7 +234,7 @@ reserved_words = {
   'CONTAINING'  : 'CONTAINING',
   'DEFAULT'     : 'DEFAULT',
   'DEFINITIONS' : 'DEFINITIONS',
-#  'EMBEDDED'    : 'EMBEDDED',
+  'EMBEDDED'    : 'EMBEDDED',
 #  'ENCODED'     : 'ENCODED',
   'END'         : 'END',
   'ENUMERATED'  : 'ENUMERATED',
@@ -264,7 +264,7 @@ reserved_words = {
   'OF'          : 'OF',
   'OPTIONAL'    : 'OPTIONAL',
   'PATTERN'     : 'PATTERN',
-#  'PDV'         : 'PDV',
+  'PDV'         : 'PDV',
   'PLUS-INFINITY' : 'PLUS_INFINITY',
   'PRESENT'     : 'PRESENT',
   'PRIVATE'     : 'PRIVATE',
@@ -4127,6 +4127,21 @@ class EnumeratedType (Type):
     else:
       body = '#error Can not decode %s' % (tname)
     return body
+#--- EmbeddedPDVType -----------------------------------------------------------
+class EmbeddedPDVType (Type):
+  def eth_tname(self):
+    return 'EMBEDDED_PDV'
+
+  def eth_ftype(self, ectx):
+    return ('FT_NONE', 'BASE_NONE')
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_EMBEDDED_PDV')
+
+
+  def eth_type_default_body(self, ectx, tname):
+    body = '#error Can not decode %s' % (tname)
+    return body
 
 #--- ExternalType -----------------------------------------------------------
 class ExternalType (Type):
@@ -5087,6 +5102,7 @@ def p_BuiltinType (t):
                  | BooleanType
                  | CharacterStringType
                  | ChoiceType
+                 | EmbeddedPDVType
                  | EnumeratedType
                  | ExternalType
                  | IntegerType
@@ -5586,6 +5602,12 @@ def p_NameAndNumberForm (t):
   '''NameAndNumberForm : LCASE_IDENT_ASSIGNED LPAREN NumberForm RPAREN
                        | LCASE_IDENT LPAREN NumberForm RPAREN'''
   t[0] = Node('name_and_number', ident = t[1], number = t[3])
+  
+# 33 Notation for the embedded-pdv type -------------------------------------------
+# 33.1
+def p_EmbeddedPDVType (t):
+  'EmbeddedPDVType : EMBEDDED PDV'
+  t[0] = EmbeddedPDVType()
 
 # 34 Notation for the external type -------------------------------------------
 
