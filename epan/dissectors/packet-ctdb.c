@@ -67,6 +67,7 @@ static int hf_ctdb_hopcount = -1;
 static int hf_ctdb_rsn = -1;
 static int hf_ctdb_ctrl_opcode = -1;
 static int hf_ctdb_srvid = -1;
+static int hf_ctdb_clientid = -1;
 static int hf_ctdb_ctrl_flags = -1;
 
 /* Initialize the subtree pointers */
@@ -320,7 +321,9 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	proto_tree_add_item(tree, hf_ctdb_dbid, tvb, offset, 4, endianess);
 	offset+=4;
 
+
 	/* rsn */
+	offset=(offset+7)&0xfffff8; /* fixup alignment*/
 	proto_tree_add_item(tree, hf_ctdb_rsn, tvb, offset, 8, endianess);
 	offset+=8;
 
@@ -376,6 +379,7 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	offset+=4;
 
 	/* rsn */
+	offset=(offset+7)&0xfffff8; /* fixup alignment*/
 	proto_tree_add_item(tree, hf_ctdb_rsn, tvb, offset, 8, endianess);
 	offset+=8;
 
@@ -428,6 +432,8 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	return offset;
 }
 
+
+
 static int
 dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid _U_, int endianess)
 {
@@ -452,6 +458,9 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	proto_tree_add_item(tree, hf_ctdb_srvid, tvb, offset, 8, endianess);
 	offset+=8;
 
+	/* client id */
+	proto_tree_add_item(tree, hf_ctdb_clientid, tvb, offset, 4, endianess);
+	offset+=4;
 
 	/* ctrl flags */
 	proto_tree_add_item(tree, hf_ctdb_ctrl_flags, tvb, offset, 4, endianess);
@@ -781,6 +790,9 @@ proto_register_ctdb(void)
 	  VALS(ctrl_opcode_vals), 0x0, "", HFILL }},
 	{ &hf_ctdb_srvid, { 
 	  "SrvId", "ctdb.srvid", FT_UINT64, BASE_HEX, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_clientid, { 
+	  "ClientId", "ctdb.clientid", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
 	{ &hf_ctdb_ctrl_flags, { 
 	  "CTRL Flags", "ctdb.ctrl_flags", FT_UINT32, BASE_HEX, 
