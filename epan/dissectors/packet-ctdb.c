@@ -207,6 +207,15 @@ static const value_string ctrl_opcode_vals[] = {
 	{0, NULL}
 };
 
+static const value_string ctdb_dbid_vals[] = {
+	{0x435d3410, 		"notify.tdb"},
+	{0x42fe72c5,		"locking.tdb"},
+	{0x1421fb78,		"brlock.tdb"},
+	{0x17055d90,		"connections.tdb"},
+	{0xc0bdde6a,		"sessionid.tdb"},
+	{0, NULL}
+};
+
 static void
 ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_trans_t *ctdb_trans)
 {
@@ -715,7 +724,7 @@ proto_register_ctdb(void)
 	  TFS(&flags_immediate_tfs), 0x00000001, "Force migration of DMASTER?", HFILL }},
 	{ &hf_ctdb_dbid, { 
 	  "DB Id", "ctdb.dbid", FT_UINT32, BASE_HEX, 
-	  NULL, 0x0, "Database ID", HFILL }},
+	  VALS(ctdb_dbid_vals), 0x0, "Database ID", HFILL }},
 	{ &hf_ctdb_callid, { 
 	  "Call Id", "ctdb.callid", FT_UINT32, BASE_DEC, 
 	  NULL, 0x0, "Call ID", HFILL }},
