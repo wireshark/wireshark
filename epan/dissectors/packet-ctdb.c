@@ -455,6 +455,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	}
 
 	/* srvid */
+	offset=(offset+7)&0xfffff8; /* fixup alignment*/
 	proto_tree_add_item(tree, hf_ctdb_srvid, tvb, offset, 8, endianess);
 	offset+=8;
 
