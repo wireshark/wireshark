@@ -210,6 +210,7 @@ dissect_per_choice
 dissect_per_constrained_integer
 dissect_per_constrained_sequence_of
 dissect_per_constrained_set_of
+dissect_per_enumerated
 dissect_per_GeneralString
 dissect_per_IA5String
 dissect_per_integer
