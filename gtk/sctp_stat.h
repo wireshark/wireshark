@@ -24,7 +24,7 @@
  
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

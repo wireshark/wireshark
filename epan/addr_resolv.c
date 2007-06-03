@@ -1624,11 +1624,11 @@ host_name_lookup_init(void) {
   char *hostspath;
 
 #ifdef HAVE_GNU_ADNS
-#ifdef WIN32
+#ifdef _WIN32
   char *sysroot;
   static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
   static char rootpath_ot[] = "\\hosts";
-#endif /* WIN32 */
+#endif /* _WIN32 */
 #endif /*GNU_ADNS */
 
   /*
@@ -1654,7 +1654,7 @@ host_name_lookup_init(void) {
    * We're using GNU ADNS, which doesn't check the system hosts file;
    * we load that file ourselves.
    */
-#ifdef WIN32
+#ifdef _WIN32
 
   sysroot = getenv_utf8("WINDIR");
   if (sysroot != NULL) {
@@ -1675,9 +1675,9 @@ host_name_lookup_init(void) {
     }
     g_free(hostspath);
   }
-#else /* WIN32 */
+#else /* _WIN32 */
   read_hosts_file("/etc/hosts");
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and

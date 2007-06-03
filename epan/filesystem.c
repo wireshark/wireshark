@@ -738,7 +738,7 @@ get_systemfile_dir(void)
 #define PF_DIR ".wireshark"
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 /* utf8 version of getenv, needed to get win32 filename paths */
 char *getenv_utf8(const char *varname)
 {

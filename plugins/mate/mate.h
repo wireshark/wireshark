@@ -58,7 +58,7 @@
 
 #define DEFAULT_GOG_EXPIRATION 2.0
 
-#ifdef WIN32
+#ifdef _WIN32
 #define DIR_SEP '\\'
 #else
 #define DIR_SEP '/'
