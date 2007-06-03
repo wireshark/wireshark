@@ -1,7 +1,13 @@
 # $Id$
 
 DISSECTOR_FILES=packet-inap.c packet-inap.h
-ASN_FILE_LIST=inap.asn IN-CS-1-Datatypes.asn IN-CS-1-Datatypes-appendix.asn
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+ROS_ASN= ../ros/Remote-Operations-Information-Objects.asn 
+1248_1_ASN_FILES= IN-object-identifiers.asn IN-common-datatypes.asn
+1248_2_ASN_FILES=IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn
+1248_3_ASN_FILES=IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn
+1248_CLASSES_ASN=IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn
+ASN_FILE_LIST=$(ROS_ASN) $(1248_CLASSES_ASN) inap.asn $(1248_1_ASN_FILES) $(1248_2_ASN_FILES) $(1248_3_ASN_FILES)
 
 all: generate_dissector
 

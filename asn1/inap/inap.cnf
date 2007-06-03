@@ -1,6 +1,5 @@
 # inap.cnf
 # inap conformation file
-
 # $Id$
 
 #.MODULE_IMPORT
@@ -10,19 +9,34 @@
 #.NO_EMIT
 
 #.CLASS EXTENSION
-id           TypeReference ExtensionType
-Type         
-absent       
-criticality  TypeReference Criticality
-
-
+ExtensionType  
+criticality    TypeReference Criticality
+id             TypeReference Code
 #.END
+
+#.CLASS COMMON-BOUNDS
+numOfExtensions  TypeReference NUM-OF-EXTENSIONS
+#.END
+#.CLASS SCF-SSF-BOUNDS
+highLayerCompatibilityLength   
+#.END
+#.CLASS TRIGGER
+Parameter  
+id         
+#.END
+
+#.CLASS UISCRIPT
+SpecificInfo  
+Result        
+id            TypeReference Code
+#.END
+
 #.TYPE_RENAME
 
 #.FIELD_RENAME
 
 #.PDU
-Component
+INAP-Component
 InitialDPArg
 OriginationAttemptAuthorizedArg
 CollectedInformationArg
@@ -73,6 +87,26 @@ SpecializedResourceReportArg
 CancelArg
 RequestCurrentStatusReportResultArg
 ReceivedInformationArg
+
+#.FN_BODY T_triggerId
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+#.FN_BODY T_triggerPar
+/* FIX ME */
+#.FN_BODY T_uIScriptSpecificInfo
+/* FIX ME */
+
+#.FN_BODY T_uIScriptResult
+/* FIX ME */
+
+#.FN_BODY T_uIScriptSpecificInfo
+/* FIX ME */
+
+#.FN_BODY T_uIScriptSpecificInfo_01
+/* FIX ME */
+#.FN_BODY T_uIScriptSpecificInfo_02
+/* FIX ME */
+
 
 #.FN_BODY T_value
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,

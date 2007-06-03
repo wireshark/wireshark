@@ -1,3 +1,6 @@
+-- $Id$
+-- ETSI ETR 091 ed.1 http://www.etsi.org
+
 MobileDomainDefinitions {ccitt (0) identified-organization (4) etsi (0)
 mobileDomain (0) mobileDomainDefinitions (0) version1 (1)}
 

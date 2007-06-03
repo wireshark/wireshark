@@ -4138,9 +4138,20 @@ class EmbeddedPDVType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_EMBEDDED_PDV')
 
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    if ectx.default_external_type_cb:
+      pars['TYPE_REF_FN'] = ectx.default_external_type_cb
+    else:
+      pars['TYPE_REF_FN'] = 'NULL'
+    return pars
 
   def eth_type_default_body(self, ectx, tname):
-    body = '#error Can not decode %s' % (tname)
+    if (ectx.Ber()):  
+      body = ectx.eth_fn_call('dissect_%(ER)s_EmbeddedPDV_Type', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
     return body
 
 #--- ExternalType -----------------------------------------------------------

@@ -121,6 +121,7 @@ extern int dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tr
 extern int dissect_ber_boolean_value(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value);
 
 extern int dissect_ber_external_type(gboolean implicit_tag, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func);
+extern int dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func);
 
 #define BER_FLAGS_OPTIONAL	0x00000001
 #define BER_FLAGS_IMPLTAG	0x00000002
