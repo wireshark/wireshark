@@ -3745,7 +3745,7 @@ dissect_ber_external_type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *tvb
 }
 /* Experimental */
 int
-dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func){
+dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func _U_){
 
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,

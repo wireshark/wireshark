@@ -96,8 +96,8 @@ const value_string inap_opr_code_strings[] = {
 	{21,"HoldCallInNetwork"},
 	{22, "ReleaseCall"},
 	{23, "RequestReportBCSMEven"},
-	{23,"RequestReportBCSMEvent"},
-	{24,"EventReportBCSM"},
+	{23, "RequestReportBCSMEvent"},
+	{24, "EventReportBCSM"},
 	{25, "RequestNotificationChargingEvent"},
 	{26, "EventNotificationCharging"},
 	{27, "CollectInformation"},
@@ -106,8 +106,8 @@ const value_string inap_opr_code_strings[] = {
 	{30, "SelectFacility"},
 	{31, "Continue"},
 	{32, "InitiateCallAttempt"},
-	{33,"ResetTimer"},
-	{34,"FurnishChargingInformation"},
+	{33, "ResetTimer"},
+	{34, "FurnishChargingInformation"},
 	{35, "ApplyCharging"},
 	{36, "ApplyChargingReport"},
 	{37, "RequestCurrentStatusReport"},
@@ -120,12 +120,47 @@ const value_string inap_opr_code_strings[] = {
 	{44, "CallInformationReport"},
 	{45, "CallInformationRequest"},
 	{46, "SendChargingInformation"},
-	{47,"PlayAnnouncement"},
-	{48,"PromptAndCollectUserInformation"},
-	{49,"SpecializedResourceReport"},
+	{47, "PlayAnnouncement"},
+	{48, "PromptAndCollectUserInformation"},
+	{49, "SpecializedResourceReport"},
 	{53, "Cancel"},
+	{54, "CancelStatusReportRequest"},
 	{55, "ActivityTest"},
+	{80, "FacilitySelectedAndAvailable"},
+	{81, "OriginationAttempt"},
+	{82, "TerminationAttempt"},
+	{83, "OAbandon"},
+	{84, "OSuspended"},
+	{85, "TSuspended"},
+	{87, "AuthorizeTermination"},
+	{88, "ContinueWithArgument"},
+	{89, "CreateCallSegmentAssociation "},
+	{90, "DisconnectLeg"},
+	{91, "MergeCallSegments"},
+	{92, "MoveCallSegments"},
+	{93, "MoveLeg"},
+	{94, "Reconnect"},
+	{95, "SplitLeg"},
+	{96, "EntityReleased"},
+	{97, "ManageTriggerData"},
+	{98, "requestReportUTSI"},
 	{99,"ReceivedInformation"}, /*???????*/
+	{100, "sendSTUI"},
+	{101, "reportUTSI"},
+	{102, "sendFacilityInformation"},
+	{103, "requestReportFacilityEvent"},
+	{104, "eventReportFacility"},
+	{107, "promptAndReceiveMessage"},
+	{108, "scriptInformation"},
+	{109, "scriptEvent"},
+	{110, "scriptRun"},
+	{111, "scriptClose"},
+	{135, "createOrRemoveTriggerData"},
+	{136, "setServiceProfile"},
+	{139, "srfCallGap"},
+	{145, "CallFiltering"},
+	{146, "monitorRouteRequest"},
+	{147, "monitorRouteReport"},
 	{0, NULL}
 };
 
@@ -334,8 +369,113 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  53: /*Cancel*/
     offset=dissect_inap_CancelArg(FALSE, tvb, offset, actx, tree, hf_inap_CancelArg_PDU);
     break;
+  case  80: /*FacilitySelectedAndAvailable*/
+	offset = dissect_inap_FacilitySelectedAndAvailableArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  81: /*OriginationAttempt*/
+	offset = dissect_inap_OriginationAttemptArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  82: /*TerminationAttempt*/
+	offset = dissect_inap_TerminationAttemptArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  83: /*OAbandon*/
+	offset =dissect_inap_OAbandonArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  84: /*OSuspended*/
+	offset = dissect_inap_OSuspendedArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  85: /*TSuspended*/
+	offset = dissect_inap_TSuspendedArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  87: /*AuthorizeTermination*/
+	offset = dissect_inap_AuthorizeTerminationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  88: /*continueWithArgument*/
+    offset=dissect_inap_ContinueWithArgumentArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  89: /*CreateCallSegmentAssociation */
+	offset = dissect_inap_CreateCallSegmentAssociationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  90: /*DisconnectLeg*/
+	offset = dissect_inap_DisconnectLegArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  91: /*MergeCallSegments*/
+	offset = dissect_inap_MergeCallSegmentsArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  92: /*MoveCallSegments*/
+	offset = dissect_inap_MoveCallSegmentsArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  93: /*MoveLeg*/
+	offset = dissect_inap_MoveLegArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  94: /*Reconnect*/
+	offset = dissect_inap_ReconnectArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  95: /*SplitLeg*/
+	offset = dissect_inap_SplitLegArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  96: /*EntityReleased*/
+	offset = dissect_inap_EntityReleasedArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  97: /*ManageTriggerData*/
+	offset = dissect_inap_ManageTriggerDataArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  98: /*requestReportUTSI*/
+	offset = dissect_inap_RequestReportUTSIArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  99: /* ReceivedInformation /*???????*/
+	offset = dissect_inap_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  100: /*sendSTUI*/
+	offset = dissect_inap_SendSTUIArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  101: /*reportUTSI*/
+	offset = dissect_inap_ReportUTSIArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  102: /*sendFacilityInformation*/
+	offset = dissect_inap_SendFacilityInformationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  103: /*requestReportFacilityEvent*/
+	offset = dissect_inap_RequestReportFacilityEventArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  104: /*eventReportFacility*/
+	offset = dissect_inap_EventReportFacilityArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  107: /*promptAndReceiveMessage*/
+	offset = dissect_inap_PromptAndReceiveMessageArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  108: /*scriptInformation*/
+	offset = dissect_inap_ScriptInformationArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  109: /*scriptEvent*/
+	offset = dissect_inap_ScriptEventArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  110: /*scriptRun*/
+	offset = dissect_inap_ScriptRunArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  111: /*scriptClose*/
+	offset = dissect_inap_ScriptCloseArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  135: /*createOrRemoveTriggerData*/
+	offset = dissect_inap_CreateOrRemoveTriggerDataArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  139: /*srfCallGap*/
+	offset = dissect_inap_SRFCallGapArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  136: /*setServiceProfile*/
+	offset = dissect_inap_SetServiceProfileArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  145: /*CallFiltering*/
+	offset = dissect_inap_CallFilteringArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  146: /*monitorRouteRequest*/
+	offset = (FALSE, tvb, offset, actx, tree, -1);
+    break;
+  case  147: /*monitorRouteReport*/
+	offset = dissect_inap_MonitorRouteRequestArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
 	/*55 ActivityTest*/
-   default:
+   default: 
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
   }
