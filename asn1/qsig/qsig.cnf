@@ -36,11 +36,6 @@ IntResultList
 
 #.END
 
-#.CLASS EXTENSION
-ArgumentType 
-extensionId ObjectIdentifierType
-#.END
-
 #.TYPE_RENAME
 ActivateDivArg/extension    ADExtension
 DeactivateDivArg/extension  DDExtension

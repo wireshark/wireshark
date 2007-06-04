@@ -18,47 +18,6 @@ ProcedureCode
 ProtocolIE-ID
 ProcedureID/ddMode
 
-#.CLASS RNSAP-PROTOCOL-IES
-id           TypeReference ProtocolIE-ID
-criticality  TypeReference Criticality
-Value
-presence     TypeReference Presence
-#.END
-
-#.CLASS RNSAP-PROTOCOL-IES-PAIR
-id                 TypeReference ProtocolIE-ID
-firstCriticality   TypeReference Criticality
-FirstValue
-secondCriticality  TypeReference Criticality
-SecondValue
-presence           TypeReference Presence
-#.END
-
-#.CLASS RNSAP-PROTOCOL-EXTENSION
-id           TypeReference ProtocolIE-ID
-criticality  TypeReference Criticality
-Extension
-presence     TypeReference Presence
-#.END
-
-#.CLASS RNSAP-PRIVATE-IES
-id           TypeReference PrivateIE-ID
-criticality  TypeReference Criticality
-Value
-presence     TypeReference Presence
-#.END
-
-
-#.CLASS RNSAP-ELEMENTARY-PROCEDURE
-InitiatingMessage
-SuccessfulOutcome
-UnsuccessfulOutcome
-Outcome
-procedureID TypeReference ProcedureID
-criticality TypeReference Criticality
-#.END
-
-
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode
 

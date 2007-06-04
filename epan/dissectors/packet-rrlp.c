@@ -866,7 +866,7 @@ dissect_rrlp_TimeSlotScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rrlp_Ext_GeographicalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 39 "rrlp.cnf"
+#line 34 "rrlp.cnf"
 
 tvbuff_t *parameter_tvb = NULL;
 
@@ -4570,7 +4570,7 @@ static const per_sequence_t PDU_sequence[] = {
 
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 30 "rrlp.cnf"
+#line 25 "rrlp.cnf"
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 

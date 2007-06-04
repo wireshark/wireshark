@@ -200,13 +200,13 @@ static_tokens = {
   r'\[' : 'LBRACK',
   r'\]' : 'RBRACK',
   r'-'  : 'MINUS',
-#  r':'  : 'COLON',
+  r':'  : 'COLON',
   #r'='  : 'EQ',
   #r'"'  : 'QUOTATION',
   #r"'"  : 'APOSTROPHE',
   r';'  : 'SEMICOLON',
   r'@'  : 'AT',
-  #r'\!' : 'EXCLAMATION',
+  r'\!' : 'EXCLAMATION',
   r'\^' : 'CIRCUMFLEX',
   r'\&' : 'AMPERSAND',
   r'\|' : 'BAR'
@@ -279,7 +279,7 @@ reserved_words = {
   'TRUE'        : 'TRUE',
   'TYPE-IDENTIFIER' : 'TYPE_IDENTIFIER',
   'UNION'       : 'UNION',
-#  'UNIQUE'      : 'UNIQUE',
+  'UNIQUE'      : 'UNIQUE',
   'UNIVERSAL'   : 'UNIVERSAL',
   'UTCTime'     : 'UTCTime',
   'WITH'        : 'WITH',
@@ -546,6 +546,7 @@ class EthCtx:
     self.default_oid_variant = ''
     self.default_opentype_variant = ''
     self.default_containing_variant = '_pdu_new'
+    self.default_embedded_pdv_cb = None
     self.default_external_type_cb = None
     self.module = {}
     self.module_ord = []
@@ -812,7 +813,7 @@ class EthCtx:
     self.type_ord.append(ident)
 
   #--- eth_reg_objectclass ----------------------------------------------------------
-  def eth_reg_objectclass(self, ident):
+  def eth_reg_objectclass(self, ident, val):
     #print "eth_reg_objectclass(ident='%s')" % (ident)
     if self.objectclass.has_key(ident):
       if self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == self.Module()) :
@@ -822,6 +823,7 @@ class EthCtx:
       else:
         raise "Duplicate object class for " + ident
     self.objectclass[ident] = { 'import' : None, 'module' : self.Module(), 'proto' : self.proto }
+    self.objectclass[ident]['val'] = val
     self.objectclass[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.objectclass_ord.append(ident)
 
@@ -1427,6 +1429,17 @@ class EthCtx:
     for (m, p) in self.modules:
       fx.write("%-*s  %s\n" % (maxw, m, p))
     fx.write('#.END\n\n')
+    for cls in self.objectclass_ord:
+      if self.objectclass[cls]['export']:
+        fx.write('#.CLASS %s\n' % (cls))
+        maxw = 2
+        for fld in self.objectclass[cls]['val'].fields:
+          w = len(fld.fld_repr()[0])  
+          if (w > maxw): maxw = w
+        for fld in self.objectclass[cls]['val'].fields:
+          repr = fld.fld_repr()
+          fx.write('%-*s  %s\n' % (maxw, repr[0], ' '.join(repr[1:])))
+        fx.write('#.END\n\n')
     if self.Ber():
       fx.write('#.IMPORT_TAG\n')
       for t in self.eth_export_ord:  # tags
@@ -2347,9 +2360,7 @@ class EthCnf:
         if empty.match(line): continue
         par = get_par(line, 1, 3, fn=fn, lineno=lineno)
         if not par: continue
-        if (len(par) < 2): par.append('OpenType')
-        if (len(par) < 3): par.append(None)
-        if not set_type_to_class(name, par[0], par[1], par[2]):
+        if not set_type_to_class(name, par[0], par[1:]):
           warnings.warn_explicit("Could not set type of class member %s.&%s to %s" % (name, par[0], par[1]),
                                   UserWarning, fn, lineno)
 
@@ -2415,6 +2426,10 @@ class EthCnf:
     elif opt in ("-L",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.suppress_line = True
+    elif opt in ("EMBEDDED_PDV_CB",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.default_embedded_pdv_cb = par[0]
     elif opt in ("EXTERNAL_TYPE_CB",):
       par = self.check_par(par, 1, 1, fn, lineno)
       if not par: return
@@ -2662,6 +2677,7 @@ class Type (Node):
     self.name = None
     self.constr = None
     self.tags = []
+    self.named_list = None
     Node.__init__ (self,*args, **kw)
 
   def IsNamed(self):
@@ -2917,7 +2933,7 @@ class Value (Node):
     self.name = name
 
   def to_str(self, ectx):
-    return str(self)
+    return str(self.val)
 
   def get_dep(self):
     return None
@@ -2934,7 +2950,19 @@ class ObjectClass (Node):
 
   def eth_reg(self, ident, ectx):
     if ectx.conform.omit_assignment('C', self.name, ectx.Module()): return # Assignment to omit
-    ectx.eth_reg_objectclass(self.name)
+    ectx.eth_reg_objectclass(self.name, self)
+
+#--- Class_Ref -----------------------------------------------------------------
+class Class_Ref (ObjectClass):
+  pass
+
+#--- ObjectClassDefn ---------------------------------------------------------------------
+class ObjectClassDefn (ObjectClass):
+  def reg_types(self):
+    for fld in self.fields:
+      repr = fld.fld_repr()
+      set_type_to_class(self.name, repr[0], repr[1:])
+
 
 #--- Tag ---------------------------------------------------------------
 class Tag (Node):
@@ -2969,6 +2997,9 @@ class Constraint (Node):
     return self.subtype.typ.to_python (ctx)
   def __str__ (self):
     return "Constraint: type=%s, subtype=%s" % (self.type, self.subtype)
+
+  def eth_tname(self):
+    return '#' + self.type + '_' + str(id(self))
 
   def IsSize(self):
     return (self.type == 'Size' and self.subtype.IsValue()) \
@@ -3200,14 +3231,6 @@ class PyQuote (Node):
     def to_python (self, ctx):
         return ctx.register_pyquote (self.val)
 
-#--- Class_Ref -----------------------------------------------------------------
-class Class_Ref (Type):
-  def to_python (self, ctx):
-    return self.val
-
-  def eth_tname(self):
-    return asn2c(self.val)
-
 #--- Type_Ref -----------------------------------------------------------------
 class Type_Ref (Type):
   def to_python (self, ctx):
@@ -3414,7 +3437,9 @@ class SeqType (SqType):
     lst = self.elt_list[:]
     if hasattr(self, 'ext_list'):
       lst.extend(self.ext_list)
-    for e in (self.elt_list):
+    if hasattr(self, 'elt_list2'):
+      lst.extend(self.elt_list2)
+    for e in (lst):
       if e.type == 'components_of':
         return True
     return False
@@ -3432,9 +3457,18 @@ class SeqType (SqType):
             comp = self.ext_list[i].typ.get_components(ectx)
             self.ext_list[i:i+1] = comp
             break
+      if hasattr(self, 'elt_list2'):
+        for i in range(len(self.elt_list2)):
+          if self.elt_list2[i].type == 'components_of':
+            comp = self.elt_list2[i].typ.get_components(ectx)
+            self.elt_list2[i:i+1] = comp
+            break
 
   def get_components(self, ectx):
-    return self.elt_list[:]
+    lst = self.elt_list[:]
+    if hasattr(self, 'elt_list2'):
+      lst.extend(self.elt_list2)
+    return lst
 
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
@@ -3457,6 +3491,10 @@ class SeqType (SqType):
       for e in (self.ext_list):
         f = fname + '/' + e.val.name
         table += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
+    if hasattr(self, 'elt_list2'):
+      for e in (self.elt_list2):
+        f = fname + '/' + e.val.name
+        table += self.out_item(f, e.val, e.optional, ext, ectx)
     if (ectx.Ber()):
       if (ectx.NewBer()):
         table += "  { NULL, 0, 0, 0, NULL }\n};\n"
@@ -3675,6 +3713,9 @@ class SequenceType (SeqType):
         e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
     if hasattr(self, 'ext_list'):
         for e in (self.ext_list):
+            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+    if hasattr(self, 'elt_list2'):
+        for e in (self.elt_list2):
             e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_need_tree(self):
@@ -4006,6 +4047,11 @@ class ChoiceType (Type):
       body = '#error Can not decode %s' % (tname)
     return body
    
+#--- ChoiceValue ----------------------------------------------------
+class ChoiceValue (Value):
+  def to_str(self, ectx):
+    return self.val.to_str(ectx)
+
 #--- EnumeratedType -----------------------------------------------------------
 class EnumeratedType (Type):
   def to_python (self, ctx):
@@ -4127,6 +4173,7 @@ class EnumeratedType (Type):
     else:
       body = '#error Can not decode %s' % (tname)
     return body
+
 #--- EmbeddedPDVType -----------------------------------------------------------
 class EmbeddedPDVType (Type):
   def eth_tname(self):
@@ -4140,8 +4187,8 @@ class EmbeddedPDVType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    if ectx.default_external_type_cb:
-      pars['TYPE_REF_FN'] = ectx.default_external_type_cb
+    if ectx.default_embedded_pdv_cb:
+      pars['TYPE_REF_FN'] = ectx.default_embedded_pdv_cb
     else:
       pars['TYPE_REF_FN'] = 'NULL'
     return pars
@@ -4150,6 +4197,9 @@ class EmbeddedPDVType (Type):
     if (ectx.Ber()):  
       body = ectx.eth_fn_call('dissect_%(ER)s_EmbeddedPDV_Type', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+    elif (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_embedded_pdv', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body
@@ -4275,6 +4325,11 @@ class NullType (Type):
     else:
       body = '#error Can not decode %s' % (tname)
     return body
+
+#--- NullValue ----------------------------------------------------
+class NullValue (Value):
+  def to_str(self, ectx):
+    return 'NULL'
 
 #--- RealType -----------------------------------------------------------------
 class RealType (Type):
@@ -4843,6 +4898,47 @@ class BStringValue (Value):
       vv += bstring_tab[v[i:i+4]]
     return vv
 
+
+#--- FieldSpec ----------------------------------------------------------------
+class FieldSpec (Node):
+  def __init__(self,*args, **kw) :
+    self.name = None
+    Node.__init__ (self,*args, **kw)
+
+  def SetName(self, name):
+    self.name = name
+
+  def get_repr(self):
+    return ['#UNSUPPORTED_' + self.type]
+
+  def fld_repr(self):
+    repr = [self.name]
+    repr.extend(self.get_repr())
+    return repr
+
+class TypeFieldSpec (FieldSpec):
+  def get_repr(self):
+    return []
+
+class FixedTypeValueFieldSpec (FieldSpec):
+  def get_repr(self):
+    if isinstance(self.typ, Type_Ref):
+      repr = ['TypeReference', self.typ.val]
+    else:
+      repr = [self.typ.type]
+    return repr
+
+class FixedTypeValueSetFieldSpec (FieldSpec):
+  pass
+
+class ObjectFieldSpec (FieldSpec):
+  def get_repr(self):
+    return ['ClassReference', self.cls]
+
+class ObjectSetFieldSpec (FieldSpec):
+  def get_repr(self):
+    return ['ClassReference', self.cls]
+
 #==============================================================================
     
 def p_module_list_1 (t):
@@ -5040,11 +5136,12 @@ def p_AssignmentList_3 (t):
 def p_Assignment (t):
   '''Assignment : TypeAssignment
                 | ValueAssignment
+                | ValueSetTypeAssignment
                 | ObjectClassAssignment
                 | ObjectAssignment
                 | ObjectSetAssignment
-                | ParameterizedTypeAssignment
-                | pyquote'''
+                | ParameterizedAssignment
+                | pyquote '''
   t[0] = t[1]
 
 
@@ -5092,9 +5189,19 @@ def p_ValueType (t):
                | IntegerType
                | ObjectIdentifierType
                | OctetStringType
-               | RealType'''
+               | RealType '''
 
   t[0] = t[1]
+
+# 15.6
+def p_ValueSetTypeAssignment (t):
+  'ValueSetTypeAssignment : UCASE_IDENT ValueType ASSIGNMENT ValueSet'
+  t[0] = Node('ValueSetTypeAssignment', name=t[1], typ=t[2], val=t[4])
+
+# 15.7
+def p_ValueSet (t):
+  'ValueSet : lbraceignore rbraceignore'
+  t[0] = None
 
 
 # 16 Definition of types and values -------------------------------------------
@@ -5151,6 +5258,7 @@ def p_Value (t):
 # 16.9
 def p_BuiltinValue (t):
   '''BuiltinValue : BooleanValue
+                  | ChoiceValue
                   | IntegerValue
                   | ObjectIdentifierValue
                   | RealValue
@@ -5162,7 +5270,8 @@ def p_BuiltinValue (t):
 
 # 16.11
 def p_ReferencedValue (t):
-  '''ReferencedValue : DefinedValue'''
+  '''ReferencedValue : DefinedValue
+                     | ValueFromObject'''
   t[0] = t[1]
 
 # 16.13
@@ -5315,13 +5424,13 @@ def p_OctetStringType (t):
 
 # 23.1
 def p_NullType (t):
-    'NullType : NULL'
-    t[0] = NullType ()
+  'NullType : NULL'
+  t[0] = NullType ()
 
 # 23.3
-#def p_NullValue (t):
-#    'NullValue : NULL'
-#    t[0] = t[1]
+def p_NullValue (t):
+  'NullValue : NULL'
+  t[0] = NullValue ()
 
 
 # 24 Notation for sequence types ----------------------------------------------
@@ -5333,10 +5442,11 @@ def p_SequenceType_1 (t):
 
 def p_SequenceType_2 (t):
   'SequenceType : SEQUENCE LBRACE ComponentTypeLists RBRACE'
+  t[0] = SequenceType (elt_list = t[3]['elt_list'])
   if t[3].has_key('ext_list'):
-      t[0] = SequenceType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
-  else:
-      t[0] = SequenceType (elt_list = t[3]['elt_list'])
+    t[0].ext_list = t[3]['ext_list']
+  if t[3].has_key('elt_list2'):
+    t[0].ext_list = t[3]['elt_list2']
 
 def p_ExtensionAndException_1 (t):
   'ExtensionAndException : ELLIPSIS'
@@ -5355,32 +5465,52 @@ def p_ComponentTypeLists_1 (t):
   t[0] = {'elt_list' : t[1]}
 
 def p_ComponentTypeLists_2 (t):
-    'ComponentTypeLists : ComponentTypeList COMMA ExtensionAndException extension_additions OptionalExtensionMarker'
-    t[0] = {'elt_list' : t[1], 'ext_list' : t[4]}
+    'ComponentTypeLists : ComponentTypeList COMMA ExtensionAndException OptionalExtensionMarker'
+    t[0] = {'elt_list' : t[1], 'ext_list' : []}
 
 def p_ComponentTypeLists_3 (t):
-    'ComponentTypeLists : ExtensionAndException extension_additions OptionalExtensionMarker'
+    'ComponentTypeLists : ComponentTypeList COMMA ExtensionAndException ExtensionAdditionList OptionalExtensionMarker'
+    t[0] = {'elt_list' : t[1], 'ext_list' : t[4]}
+
+def p_ComponentTypeLists_4 (t):
+    'ComponentTypeLists : ComponentTypeList COMMA ExtensionAndException ExtensionEndMarker COMMA ComponentTypeList'
+    t[0] = {'elt_list' : t[1], 'ext_list' : [], 'elt_list2' : t[6]}
+
+def p_ComponentTypeLists_5 (t):
+    'ComponentTypeLists : ComponentTypeList COMMA ExtensionAndException ExtensionAdditionList ExtensionEndMarker COMMA ComponentTypeList'
+    t[0] = {'elt_list' : t[1], 'ext_list' : t[4], 'elt_list2' : t[7]}
+
+def p_ComponentTypeLists_6 (t):
+    'ComponentTypeLists : ExtensionAndException OptionalExtensionMarker'
+    t[0] = {'elt_list' : [], 'ext_list' : []}
+
+def p_ComponentTypeLists_7 (t):
+    'ComponentTypeLists : ExtensionAndException ExtensionAdditionList OptionalExtensionMarker'
     t[0] = {'elt_list' : [], 'ext_list' : t[2]}
 
 #def p_RootComponentTypeList (t):
 #    'RootComponentTypeList : ComponentTypeList'
 #    t[0] = t[1]
 
-def p_extension_additions_1 (t):
-    'extension_additions : extension_addition_list'
-    t[0] = t[1]
+def p_ExtensionEndMarker (t):
+  'ExtensionEndMarker : COMMA ELLIPSIS'
+  pass
 
-def p_extension_additions_2 (t):
-    'extension_additions : '
-    t[0] = []
+#def p_extension_additions_1 (t):
+#    'extension_additions : extension_addition_list'
+#    t[0] = t[1]
 
-def p_extension_addition_list_1 (t):
-    'extension_addition_list : COMMA extension_addition'
-    t[0] = [t[2]]
+#def p_extension_additions_2 (t):
+#    'extension_additions : '
+#    t[0] = []
 
-def p_extension_addition_list_2 (t):
-    'extension_addition_list : extension_addition_list COMMA extension_addition'
-    t[0] = t[1] + [t[3]]
+def p_ExtensionAdditionList_1 (t):
+  'ExtensionAdditionList : COMMA extension_addition'
+  t[0] = [t[2]]
+
+def p_ExtensionAdditionList_2 (t):
+  'ExtensionAdditionList : ExtensionAdditionList COMMA extension_addition'
+  t[0] = t[1] + [t[3]]
 
 def p_extension_addition_1 (t):
     'extension_addition : ComponentType'
@@ -5413,6 +5543,7 @@ def p_ComponentType_4 (t):
 def p_DefaultValue_1 (t):
   '''DefaultValue : ReferencedValue 
                   | BooleanValue
+                  | ChoiceValue
                   | IntegerValue
                   | RealValue
                   | hex_string
@@ -5521,6 +5652,15 @@ def p_alternative_type_list_1 (t):
 def p_alternative_type_list_2 (t):
     'alternative_type_list : alternative_type_list COMMA NamedType'
     t[0] = t[1] + [t[3]]
+
+# 28.10
+def p_ChoiceValue_1 (t):
+  '''ChoiceValue : identifier COLON Value
+                 | identifier COLON NullValue '''
+  val = t[3]
+  if not isinstance(val, Value):
+    val = Value(val=val)
+  t[0] = ChoiceValue (choice = t[1], val = val)
 
 # 29 Notation for selection types
 
@@ -5972,9 +6112,19 @@ def p_PatternConstraint (t):
 # 49 The exception identifier
 
 # 49.4
-def p_ExceptionSpec (t):
-    'ExceptionSpec : '
-    pass
+def p_ExceptionSpec_1 (t):
+  'ExceptionSpec : EXCLAMATION ExceptionIdentification'
+  pass
+
+def p_ExceptionSpec_2 (t):
+  'ExceptionSpec : '
+  pass
+
+def p_ExceptionIdentification (t):
+  '''ExceptionIdentification : SignedNumber
+                             | DefinedValue
+                             | Type COLON Value '''
+  pass
 
 #  /*-----------------------------------------------------------------------*/
 #  /* Value Notation Productions */
@@ -6017,21 +6167,28 @@ def p_objectreference (t):
 
 # 7.3 Information object set references
 
-def p_objectsetreference (t):
-  'objectsetreference : UCASE_IDENT'
-  t[0] = t[1]
+#def p_objectsetreference (t):
+#  'objectsetreference : UCASE_IDENT'
+#  t[0] = t[1]
 
 # 7.4 Type field references
-
-def p_typefieldreference (t):
-  'typefieldreference : AMPERSAND UCASE_IDENT'
-  t[0] = t[2]
-
+# ucasefieldreference
 # 7.5 Value field references
+# lcasefieldreference
+# 7.6 Value set field references
+# ucasefieldreference
+# 7.7 Object field references
+# lcasefieldreference
+# 7.8 Object set field references
+# ucasefieldreference
 
-def p_valuefieldreference (t):
-  'valuefieldreference : AMPERSAND LCASE_IDENT'
-  t[0] = t[2]
+def p_ucasefieldreference (t):
+  'ucasefieldreference : AMPERSAND UCASE_IDENT'
+  t[0] = '&' + t[2]
+
+def p_lcasefieldreference (t):
+  'lcasefieldreference : AMPERSAND LCASE_IDENT'
+  t[0] = '&' + t[2]
 
 # 8 Referencing definitions
 
@@ -6059,33 +6216,140 @@ def p_ObjectClassAssignment (t):
                            | UCASE_IDENT ASSIGNMENT ObjectClass'''
   t[0] = t[3]
   t[0].SetName(t[1])
+  if isinstance(t[0], ObjectClassDefn):
+    t[0].reg_types()
 
 # 9.2
 def p_ObjectClass (t):
-  '''ObjectClass : ObjectClassDefn'''
+  '''ObjectClass : DefinedObjectClass
+                 | ObjectClassDefn'''
   t[0] = t[1]
 
 # 9.3
 def p_ObjectClassDefn (t):
-  '''ObjectClassDefn : CLASS lbraceignore rbraceignore
-                     | CLASS lbraceignore rbraceignore WithSyntaxSpec'''
-  t[0] = ObjectClass()
+  '''ObjectClassDefn : CLASS LBRACE FieldSpecs RBRACE
+                     | CLASS LBRACE FieldSpecs RBRACE WithSyntaxSpec'''
+  t[0] = ObjectClassDefn(fields = t[3])
+
+def p_FieldSpecs_1 (t):
+  'FieldSpecs : FieldSpec'
+  t[0] = [t[1]]
+
+def p_FieldSpecs_2 (t):
+  'FieldSpecs : FieldSpecs COMMA FieldSpec'
+  t[0] = t[1] + [t[3]]
 
 def p_WithSyntaxSpec (t):
   'WithSyntaxSpec : WITH SYNTAX lbraceignore rbraceignore'
   t[0] = None
 
-# 9.14
-def p_FieldName (t):
-  '''FieldName : typefieldreference
-               | valuefieldreference'''
+# 9.4
+def p_FieldSpec (t):
+  '''FieldSpec : TypeFieldSpec
+               | FixedTypeValueFieldSpec
+               | FixedTypeValueSetFieldSpec
+               | ObjectFieldSpec
+               | ObjectSetFieldSpec '''
   t[0] = t[1]
+
+# 9.5
+def p_TypeFieldSpec (t):
+  '''TypeFieldSpec : ucasefieldreference
+                   | ucasefieldreference TypeOptionalitySpec '''
+  t[0] = TypeFieldSpec()
+  t[0].SetName(t[1])
+
+def p_TypeOptionalitySpec_1 (t):
+  'TypeOptionalitySpec ::= OPTIONAL'
+  pass
+
+def p_TypeOptionalitySpec_2 (t):
+  'TypeOptionalitySpec ::= DEFAULT Type'
+  pass
+
+# 9.6
+def p_FixedTypeValueFieldSpec (t):
+  '''FixedTypeValueFieldSpec : lcasefieldreference Type
+                             | lcasefieldreference Type UNIQUE
+                             | lcasefieldreference Type ValueOptionalitySpec
+                             | lcasefieldreference Type UNIQUE ValueOptionalitySpec '''
+  t[0] = FixedTypeValueFieldSpec(typ = t[2])
+  t[0].SetName(t[1])
+
+def p_ValueOptionalitySpec_1 (t):
+  'ValueOptionalitySpec ::= OPTIONAL'
+  pass
+
+def p_ValueOptionalitySpec_2 (t):
+  'ValueOptionalitySpec ::= DEFAULT Value'
+  pass
+
+# 9.9
+def p_FixedTypeValueSetFieldSpec (t):
+  '''FixedTypeValueSetFieldSpec : ucasefieldreference Type
+                                | ucasefieldreference Type ValueSetOptionalitySpec '''
+  t[0] = FixedTypeValueSetFieldSpec()
+  t[0].SetName(t[1])
+
+def p_ValueSetOptionalitySpec_1 (t):
+  'ValueSetOptionalitySpec ::= OPTIONAL'
+  pass
+
+def p_TypeOptionalitySpec_2 (t):
+  'ValueSetOptionalitySpec ::= DEFAULT ValueSet'
+  pass
+
+# 9.11
+def p_ObjectFieldSpec (t):
+  '''ObjectFieldSpec : lcasefieldreference CLASS_IDENT
+                     | lcasefieldreference CLASS_IDENT ObjectOptionalitySpec '''
+  t[0] = ObjectFieldSpec(cls=t[2])
+  t[0].SetName(t[1])
+
+def p_ObjectOptionalitySpec_1 (t):
+  'ObjectOptionalitySpec ::= OPTIONAL'
+  pass
+
+def p_ObjectOptionalitySpec_2 (t):
+  'ObjectOptionalitySpec ::= DEFAULT Object'
+  pass
+
+# 9.12
+def p_ObjectSetFieldSpec (t):
+  '''ObjectSetFieldSpec : ucasefieldreference CLASS_IDENT
+                        | ucasefieldreference CLASS_IDENT ObjectSetOptionalitySpec '''
+  t[0] = ObjectSetFieldSpec(cls=t[2])
+  t[0].SetName(t[1])
+
+def p_ObjectSetOptionalitySpec_1 (t):
+  'ObjectSetOptionalitySpec ::= OPTIONAL'
+  pass
+
+def p_ObjectSetOptionalitySpec_2 (t):
+  'ObjectSetOptionalitySpec ::= DEFAULT ObjectSet'
+  pass
+
+# 9.13
+def p_PrimitiveFieldName (t):
+  '''PrimitiveFieldName : ucasefieldreference
+                        | lcasefieldreference '''
+  t[0] = t[1]
+
+# 9.13
+def p_FieldName_1 (t):
+  'FieldName : PrimitiveFieldName'
+  t[0] = t[1]
+
+def p_FieldName_2 (t):
+  'FieldName : FieldName DOT PrimitiveFieldName'
+  t[0] = t[1] + '.' + t[3]
 
 # 11 Information object definition and assignment
 
 # 11.1
 def p_ObjectAssignment (t):
-  'ObjectAssignment : objectreference CLASS_IDENT ASSIGNMENT Object'
+  '''ObjectAssignment : objectreference CLASS_IDENT ASSIGNMENT Object
+                      | objectreference UsefulObjectClassReference ASSIGNMENT Object'''
   t[0] = Node('ObjectAssignment', name=t[1], cls=t[2], val=t[4])
 
 # 11.3
@@ -6103,7 +6367,7 @@ def p_ObjectDefn (t):
 
 # 12.1
 def p_ObjectSetAssignment (t):
-  'ObjectSetAssignment : objectsetreference CLASS_IDENT ASSIGNMENT ObjectSet'
+  'ObjectSetAssignment : UCASE_IDENT CLASS_IDENT ASSIGNMENT ObjectSet'
   t[0] = Node('ObjectSetAssignment', name=t[1], cls=t[2], val=t[4])
 
 # 12.3
@@ -6118,21 +6382,32 @@ def p_ObjectClassFieldType (t):
   'ObjectClassFieldType : DefinedObjectClass DOT FieldName'
   t[0] = get_type_from_class(t[1], t[3])
 
+# 15 Information from objects
+
+# 15.1
+
+def p_ValueFromObject (t):
+  'ValueFromObject : LCASE_IDENT DOT FieldName'
+  t[0] = t[1] + '.' + t[3]
+
 useful_object_class_types = {
   # Annex A
-  'TYPE-IDENTIFIER/id'   : lambda : ObjectIdentifierType(),
-  'TYPE-IDENTIFIER/Type' : lambda : OpenType(),
+  'TYPE-IDENTIFIER.&id'   : lambda : ObjectIdentifierType(),
+  'TYPE-IDENTIFIER.&Type' : lambda : OpenType(),
   # Annex B
-  'ABSTRACT-SYNTAX/id'       : lambda : ObjectIdentifierType(),
-  'ABSTRACT-SYNTAX/Type'     : lambda : OpenType(),
-  'ABSTRACT-SYNTAX/property' : lambda : BitStringType(),
+  'ABSTRACT-SYNTAX.&id'       : lambda : ObjectIdentifierType(),
+  'ABSTRACT-SYNTAX.&Type'     : lambda : OpenType(),
+  'ABSTRACT-SYNTAX.&property' : lambda : BitStringType(),
 }
 
 object_class_types = { }
 
 object_class_typerefs = { }
 
+object_class_classrefs = { }
+
 class_types_creator = {
+  'BooleanType'          : lambda : BooleanType(),
   'IntegerType'          : lambda : IntegerType(),
   'ObjectIdentifierType' : lambda : ObjectIdentifierType(),
   'OpenType'             : lambda : OpenType(),
@@ -6147,10 +6422,14 @@ def add_class_ident(name):
   class_names[name] = name
 
 def get_type_from_class(cls, fld):
+  flds = fld.split('.')
   if (isinstance(cls, Class_Ref)):
-    key = cls.val + '/' + fld
+    key = cls.val + '.' + flds[0]
   else:
-    key = cls + '/' + fld
+    key = cls + '.' + flds[0]
+
+  if object_class_classrefs.has_key(key):
+    return get_type_from_class(object_class_classrefs[key], '.'.join(flds[1:]))
 
   if object_class_typerefs.has_key(key):
     return Type_Ref(val=object_class_typerefs[key])
@@ -6160,10 +6439,23 @@ def get_type_from_class(cls, fld):
   creator = object_class_types.get(key, creator)
   return creator()
 
-def set_type_to_class(cls, fld, typename, typeref = None):
-  key = cls + '/' + fld
+def set_type_to_class(cls, fld, pars):
+  key = cls + '.' + fld
+  typename = 'OpenType'
+  if (len(pars) > 0):
+    typename = pars[0]
+  typeref = None
+  if (len(pars) > 1):
+    typeref = pars[1]
+
   if object_class_types.has_key(key): return False
   if object_class_typerefs.has_key(key): return False
+  if object_class_classrefs.has_key(key): return False
+
+  if (typename == 'ClassReference'):
+    if not typeref: return False
+    object_class_classrefs[key] = typeref
+    return True
 
   if (typename == 'TypeReference'):
     if not typeref: return False
@@ -6226,8 +6518,24 @@ def p_SimpleTableConstraint (t):
 
 # 10.7
 def p_ComponentRelationConstraint (t):
-  'ComponentRelationConstraint : LBRACE UCASE_IDENT RBRACE LBRACE AT LCASE_IDENT RBRACE'
-  t[0] = t[2] + '@' + t[6]
+  'ComponentRelationConstraint : LBRACE UCASE_IDENT RBRACE LBRACE AtNotation RBRACE'
+  t[0] = t[2] + t[5]
+
+def p_AtNotation_1 (t):
+  'AtNotation : AT LCASE_IDENT'
+  t[0] = '@' + t[2]
+
+def p_AtNotation_2 (t):
+  'AtNotation : AT DOT Level LCASE_IDENT'
+  t[0] = '@.' + t[3] + t[4]
+
+def p_Level_1 (t):
+  'Level : DOT Level'
+  t[0] = '.' + t[2]
+
+def p_Level_2 (t):
+  'Level : '
+  t[0] = ''
 
 # 11 Contents constraints -----------------------------------------------------
 
@@ -6242,12 +6550,25 @@ def p_ContentsConstraint (t):
 # 8 Parameterized assignments -------------------------------------------------
 
 # 8.1
+def p_ParameterizedAssignment (t):
+  '''ParameterizedAssignment : ParameterizedTypeAssignment
+                             | ParameterizedObjectAssignment
+                             | ParameterizedObjectSetAssignment'''
+  t[0] = t[1]
 
 # 8.2
 def p_ParameterizedTypeAssignment (t):
   'ParameterizedTypeAssignment : UCASE_IDENT ParameterList ASSIGNMENT Type'
   t[0] = t[4]
   t[0].SetName(t[1])  # t[0].SetName(t[1] + 'xxx')
+
+def p_ParameterizedObjectAssignment (t):
+  'ParameterizedObjectAssignment : objectreference ParameterList CLASS_IDENT ASSIGNMENT Object'
+  t[0] = Node('ObjectAssignment', name=t[1], cls=t[3], val=t[5])
+
+def p_ParameterizedObjectSetAssignment (t):
+  'ParameterizedObjectSetAssignment : UCASE_IDENT ParameterList CLASS_IDENT ASSIGNMENT ObjectSet'
+  t[0] = Node('ObjectSetAssignment', name=t[1], cls=t[3], val=t[5])
 
 # 8.3
 def p_ParameterList (t):
