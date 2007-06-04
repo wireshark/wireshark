@@ -2528,6 +2528,7 @@ proto_reg_handoff_bssap(void)
 {
 
     heur_dissector_add("sccp", dissect_bssap_heur, proto_bssap);
+    heur_dissector_add("sua", dissect_bssap_heur, proto_bssap);
 	/* BSSAP+ */
 	bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
 	dissector_add("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
