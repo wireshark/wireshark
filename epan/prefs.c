@@ -43,6 +43,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
+#include "cfile.h"
 #include <epan/column.h>
 #include "print.h"
 #include <wiretap/file_util.h>

@@ -330,4 +330,6 @@ extern void create_console(void);
 /* Fill in capture options with values from the preferences */
 extern void prefs_to_capture_opts(void);
 
+extern GtkWidget *pkt_scrollw;
+
 #endif /* __MAIN_H__ */

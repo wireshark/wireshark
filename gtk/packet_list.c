@@ -433,7 +433,7 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
 
 /* Set the selection mode of the packet list window. */
 void
-packet_list_set_sel_browse(gboolean val)
+packet_list_set_sel_browse(gboolean val, gboolean force_set)
 {
         GtkSelectionMode new_mode;
         /* initialize with a mode we don't use, so that the mode == new_mode
@@ -444,7 +444,7 @@ packet_list_set_sel_browse(gboolean val)
          * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
         new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
 
-	if (mode == new_mode) {
+	if ((mode == new_mode) && !force_set) {
 		/*
 		 * The mode isn't changing, so don't do anything.
 		 * In particular, don't gratuitiously unselect the
@@ -538,7 +538,7 @@ packet_list_new(e_prefs *prefs)
     /* Column titles are filled in below */
     gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
-    packet_list_set_sel_browse(prefs->gui_plist_sel_browse);
+    packet_list_set_sel_browse(prefs->gui_plist_sel_browse, FALSE);
     packet_list_set_font(user_font_get_regular());
     gtk_widget_set_name(packet_list, "packet list");
     SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
@@ -566,6 +566,26 @@ packet_list_new(e_prefs *prefs)
     gtk_widget_show(packet_list);
 
     return pkt_scrollw;
+}
+
+void
+packet_list_recreate(void)
+{
+    gtk_widget_destroy(pkt_scrollw);
+
+    prefs.num_cols = g_list_length(prefs.col_list);
+
+    build_column_format_array(&cfile, FALSE);
+
+    pkt_scrollw = packet_list_new(&prefs);
+    gtk_widget_show(pkt_scrollw);
+    packet_list_set_column_titles();
+    packet_list_set_sel_browse(prefs.gui_plist_sel_browse, TRUE);
+
+    main_widgets_rearrange();
+    
+    if(cfile.state != FILE_CLOSED)
+        cf_reload(&cfile);
 }
 
 void

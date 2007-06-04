@@ -190,6 +190,9 @@ gui_prefs_show(void)
 	/* The font haven't been changed yet. */
 	font_changed = FALSE;
 
+	/* The columns haven't been changed yet */
+	cfile.cinfo.columns_changed = FALSE;
+
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
 	gtk_container_border_width( GTK_CONTAINER(main_vb), 5 );
@@ -473,9 +476,9 @@ gui_prefs_apply(GtkWidget *w _U_)
 
 	/* XXX: redraw the toolbar only, if style changed */
 	toolbar_redraw_all();
-	
+
 	set_scrollbar_placement_all();
-	packet_list_set_sel_browse(prefs.gui_plist_sel_browse);
+	packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_tree_styles_all();
 	main_widgets_rearrange();

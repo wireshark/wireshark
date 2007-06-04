@@ -37,6 +37,9 @@
  */
 extern GtkWidget *packet_list_new(e_prefs *prefs);
 
+/** Recreate the packet list (for use after columns are changed) */
+extern void packet_list_recreate(void);
+
 /** Fill in column titles.  This must be done after the top level window
  *  is displayed.
  *
@@ -95,8 +98,10 @@ extern void packet_list_set_font(FONT_TYPE *font);
 /** Set the selection mode of the packet list window.
  *
  * @param val TRUE for GTK_SELECTION_SINGLE, FALSE for GTK_SELECTION_BROWSE
+ * @param force_set TRUE to force setting of the selection mode even if it
+ *                  was already set (used within packet_list_recreate).
  */
-extern void packet_list_set_sel_browse(gboolean val);
+extern void packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
 /** Move to the next packet
  */

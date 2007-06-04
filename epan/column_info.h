@@ -47,6 +47,7 @@ typedef struct _column_info {
   gchar      **col_expr;     /* Filter expression */
   gchar      **col_expr_val; /* Value for filter expression */
   gboolean     writable;     /* Are we still writing to the columns? */
+  gboolean columns_changed;  /* Have the columns been changed in the prefs? */
 } column_info;
 
 /*

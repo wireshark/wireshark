@@ -199,10 +199,11 @@
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
+GtkWidget   *pkt_scrollw;
 static GtkWidget   *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
 static GtkWidget   *main_first_pane, *main_second_pane;
 static GtkWidget   *status_pane;
-static GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
+static GtkWidget   *menubar, *main_vbox, *main_tb, *stat_hbox, *filter_tb;
 
 #ifdef HAVE_AIRPCAP
 GtkWidget *airpcap_tb;
@@ -2090,7 +2091,6 @@ main(int argc, char *argv[])
 {
   char                *init_progfile_dir_error;
   char                *s;
-  int                  i;
   int                  opt;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
@@ -2841,36 +2841,7 @@ main(int argc, char *argv[])
     set_disabled_protos_list();
   }
 
-  /* Build the column format array */
-  col_setup(&cfile.cinfo, prefs->num_cols);
-  for (i = 0; i < cfile.cinfo.num_cols; i++) {
-    cfile.cinfo.col_fmt[i] = get_column_format(i);
-    cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
-    cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
-      NUM_COL_FMTS);
-    get_column_format_matches(cfile.cinfo.fmt_matx[i], cfile.cinfo.col_fmt[i]);
-    cfile.cinfo.col_data[i] = NULL;
-    if (cfile.cinfo.col_fmt[i] == COL_INFO)
-      cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
-    else
-      cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-    cfile.cinfo.col_fence[i] = 0;
-    cfile.cinfo.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-    cfile.cinfo.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-  }
-
-  for (i = 0; i < cfile.cinfo.num_cols; i++) {
-      int j;
-
-      for (j = 0; j < NUM_COL_FMTS; j++) {
-         if (!cfile.cinfo.fmt_matx[i][j])
-             continue;
-
-         if (cfile.cinfo.col_first[j] == -1)
-             cfile.cinfo.col_first[j] = i;
-         cfile.cinfo.col_last[j] = i;
-      }
-  }
+  build_column_format_array(&cfile, TRUE);
 
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);

@@ -44,6 +44,9 @@ const gchar         *get_column_width_string(gint, gint);
 const char          *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);
 
+void
+build_column_format_array(capture_file *cfile, gboolean reset_fences);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

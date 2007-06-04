@@ -35,6 +35,7 @@
 #include <epan/column.h>
 #include "compat_macros.h"
 #include "gui_utils.h"
+#include "packet_list.h"
 
 static GtkWidget *column_l, *del_bt, *title_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
@@ -264,7 +265,6 @@ column_prefs_show() {
 
   title_te = gtk_entry_new();
   gtk_table_attach_defaults(GTK_TABLE(tb), title_te, 1, 2, 0, 1);
-  SIGNAL_CONNECT(title_te, "changed", column_entry_changed_cb, column_l);
   gtk_widget_set_sensitive(title_te, FALSE);
   gtk_widget_show(title_te);
 
@@ -292,11 +292,6 @@ column_prefs_show() {
   gtk_widget_set_sensitive(fmt_m, FALSE);
   gtk_box_pack_start(GTK_BOX(props_hb), fmt_m, FALSE, FALSE, 0);
   gtk_widget_show(fmt_m);
-
-  lb = gtk_label_new("Unlike all other preferences, you have to restart Wireshark to let column changes take effect!");
-  gtk_misc_set_alignment(GTK_MISC(lb), 0.5, 0.5);
-  gtk_box_pack_start (GTK_BOX (main_vb), lb, FALSE, FALSE, 0);
-  gtk_widget_show(lb);
 
   /* select the first row */
 #if GTK_MAJOR_VERSION < 2
@@ -386,7 +381,8 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_tree_path_free(path);
 
         title = g_strdup(cfmt->title);
-        gtk_entry_set_text(GTK_ENTRY(title_te), title);
+	gtk_entry_set_text(GTK_ENTRY(title_te), title);
+	SIGNAL_CONNECT(title_te, "changed", column_entry_changed_cb, column_l);
         g_free(title);
 
         gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
@@ -458,6 +454,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l)),
                                    &iter);
 #endif
+    cfile.cinfo.columns_changed = TRUE;
 }
 
 static void
@@ -494,6 +491,7 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
 
     gtk_clist_remove(GTK_CLIST(column_l), cur_row);
 #endif
+    cfile.cinfo.columns_changed = TRUE;
 }
 
 /* The user changed the column title entry box. */
@@ -532,6 +530,7 @@ column_entry_changed_cb(GtkEditable *te, gpointer data) {
         cfmt->title = title;
     }
 #endif
+    cfile.cinfo.columns_changed = TRUE;
 }
 
 /* The user changed the format menu. */
@@ -569,6 +568,7 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
         cfmt->fmt = g_strdup(col_format_to_string(cur_fmt));
     }
 #endif
+    cfile.cinfo.columns_changed = TRUE;
 }
 
 static void
@@ -655,6 +655,7 @@ column_arrow_cb(GtkWidget *w, gpointer data _U_) {
         g_free(format2);
     }
 #endif
+    cfile.cinfo.columns_changed = TRUE;
 }
 
 void
@@ -675,7 +676,13 @@ column_prefs_fetch(GtkWidget *w _U_) {
 }
 
 void
-column_prefs_apply(GtkWidget *w _U_) {
+column_prefs_apply(GtkWidget *w _U_)
+{
+    /* Redraw the packet list if the columns were changed */
+    if(cfile.cinfo.columns_changed) {
+        packet_list_recreate();
+	cfile.cinfo.columns_changed = FALSE; /* Reset value */
+    }
 }
 
 void
