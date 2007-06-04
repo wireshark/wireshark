@@ -90,8 +90,9 @@ typedef struct _ctdb_trans_t {
 #define CTDB_REPLY_DMASTER		3
 #define CTDB_REPLY_ERROR		4
 #define CTDB_REQ_MESSAGE		5
-#define CTDB_REQ_CONTROL		6
-#define CTDB_REPLY_CONTROL		7
+#define CTDB_REQ_CONTROL		7
+#define CTDB_REPLY_CONTROL		8
+#define CTDB_REQ_KEEPALIVE		9
 static const value_string ctdb_opcodes[] = {
 	{CTDB_REQ_CALL,		"CTDB_REQ_CALL"},
 	{CTDB_REPLY_CALL,		"CTDB_REPLY_CALL"},
@@ -101,6 +102,7 @@ static const value_string ctdb_opcodes[] = {
 	{CTDB_REQ_MESSAGE,		"CTDB_REQ_MESSAGE"},
 	{CTDB_REQ_CONTROL,		"CTDB_REQ_CONTROL"},
 	{CTDB_REPLY_CONTROL,		"CTDB_REPLY_CONTROL"},
+	{CTDB_REQ_KEEPALIVE,		"CTDB_REQ_KEEPALIVE"},
 	{0,NULL}
 };
 
