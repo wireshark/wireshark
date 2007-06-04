@@ -84,15 +84,14 @@ typedef struct _ctdb_trans_t {
 } ctdb_trans_t;
 
 
-#define CTDB_REQ_CALL		0
-#define CTDB_REPLY_CALL		1
+#define CTDB_REQ_CALL			0
+#define CTDB_REPLY_CALL			1
 #define CTDB_REQ_DMASTER		2
 #define CTDB_REPLY_DMASTER		3
 #define CTDB_REPLY_ERROR		4
 #define CTDB_REQ_MESSAGE		5
-#define CTDB_REQ_FINISHED		6
-#define CTDB_REQ_CONTROL		7
-#define CTDB_REPLY_CONTROL		8
+#define CTDB_REQ_CONTROL		6
+#define CTDB_REPLY_CONTROL		7
 static const value_string ctdb_opcodes[] = {
 	{CTDB_REQ_CALL,		"CTDB_REQ_CALL"},
 	{CTDB_REPLY_CALL,		"CTDB_REPLY_CALL"},
@@ -100,7 +99,6 @@ static const value_string ctdb_opcodes[] = {
 	{CTDB_REPLY_DMASTER,		"CTDB_REPLY_DMASTER"},
 	{CTDB_REPLY_ERROR,		"CTDB_REPLY_ERROR"},
 	{CTDB_REQ_MESSAGE,		"CTDB_REQ_MESSAGE"},
-	{CTDB_REQ_FINISHED,		"CTDB_REQ_FINISHED"},
 	{CTDB_REQ_CONTROL,		"CTDB_REQ_CONTROL"},
 	{CTDB_REPLY_CONTROL,		"CTDB_REPLY_CONTROL"},
 	{0,NULL}
@@ -693,8 +691,6 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case CTDB_REPLY_ERROR:
 		break;
 	case CTDB_REQ_MESSAGE:
-		break;
-	case CTDB_REQ_FINISHED:
 		break;
 	case CTDB_REQ_CONTROL:
 		offset=dissect_ctdb_req_control(tvb, offset, pinfo, tree, reqid, endianess);
