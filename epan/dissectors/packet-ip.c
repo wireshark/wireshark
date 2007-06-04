@@ -340,6 +340,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define IPOPT_SID	(8 |IPOPT_CONTROL|IPOPT_COPY)
 #define IPOPT_SSRR	(9 |IPOPT_CONTROL|IPOPT_COPY)
 #define IPOPT_RA	(20|IPOPT_CONTROL|IPOPT_COPY)
+#define IPOPT_QS	(25|IPOPT_CONTROL)
 
 /* IP option lengths */
 #define IPOLEN_SEC      11
@@ -349,6 +350,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define IPOLEN_SID      4
 #define IPOLEN_SSRR_MIN 3
 #define IPOLEN_RA       4
+#define IPOLEN_QS       8
 #define IPOLEN_CIPSO_MIN 10
 
 #define IPSEC_UNCLASSIFIED	0x0000
@@ -861,6 +863,53 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   return;
 }
 
+static void
+dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+		guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+  /* Quick-Start TCP option, as defined by RFC4782 */
+  static const value_string qs_rates[] = {
+    { 0, "0 bit/s"},
+    { 1, "80 kbit/s"},
+    { 2, "160 kbit/s"},
+    { 3, "320 kbit/s"},
+    { 4, "640 kbit/s"},
+    { 5, "1.28 Mbit/s"},
+    { 6, "2.56 Mbit/s"},
+    { 7, "5.12 Mbit/s"}, 
+    { 8, "10.24 Mbit/s"},
+    { 9, "20.48 Mbit/s"},
+    {10, "40.96 Mbit/s"},
+    {11, "81.92 Mbit/s"},
+    {12, "163.84 Mbit/s"},
+    {13, "327.68 Mbit/s"},
+    {14, "655.36 Mbit/s"},
+    {15, "1.31072 Gbit/s"},
+    {0, NULL}
+  };
+
+  guint8 command = tvb_get_guint8(tvb, offset + 2);
+  guint8 function = command >> 4;
+  guint8 rate = command & 0x0f;
+
+  switch (function) {
+  case 0x00: /* rate request */ 
+    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
+			"%s: Rate request, %s, QS TTL %u", optp->name, 
+		      val_to_str(rate, qs_rates, "Unknown"), 
+		      tvb_get_guint8(tvb, offset + 3));
+    break;
+  case 0x08: /* rate report */
+    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
+			"%s: Rate report, %s", optp->name, 
+			val_to_str(rate, qs_rates, "Unknown"));
+    break;
+  default:
+    proto_tree_add_text(opt_tree, tvb, offset,      optlen,
+			"%s: Unknown function", optp->name);
+  }
+}
+
 static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_END,
@@ -942,6 +991,14 @@ static const ip_tcp_opt ipopts[] = {
     IPOLEN_RA,
     dissect_ipopt_ra
   },
+  {
+    IPOPT_QS,
+    "Quick-Start",
+    NULL,
+    FIXED_LENGTH,
+    IPOLEN_QS,
+    dissect_ipopt_qs
+  }
 };
 
 #define N_IP_OPTS	(sizeof ipopts / sizeof ipopts[0])

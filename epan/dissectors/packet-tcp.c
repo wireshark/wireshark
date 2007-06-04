@@ -139,6 +139,7 @@ static int hf_tcp_option_cc = -1;
 static int hf_tcp_option_ccnew = -1;
 static int hf_tcp_option_ccecho = -1;
 static int hf_tcp_option_md5 = -1;
+static int hf_tcp_option_qs = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -1223,6 +1224,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 #define TCPOPT_CCNEW            12
 #define TCPOPT_CCECHO           13
 #define TCPOPT_MD5              19      /* RFC2385 */
+#define TCPOPT_QS               27      /* RFC4782 */
 
 /*
  *     TCP option lengths
@@ -1239,6 +1241,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 #define TCPOLEN_CCNEW          6
 #define TCPOLEN_CCECHO         6
 #define TCPOLEN_MD5            18
+#define TCPOLEN_QS             8
 
 
 
@@ -1981,6 +1984,43 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
   tcp_info_append_uint(pinfo, "CC", cc);
 }
 
+static void
+dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+  /* Quick-Start TCP option, as defined by RFC4782 */
+  static const value_string qs_rates[] = {
+    { 0, "0 bit/s"},
+    { 1, "80 kbit/s"},
+    { 2, "160 kbit/s"},
+    { 3, "320 kbit/s"},
+    { 4, "640 kbit/s"},
+    { 5, "1.28 Mbit/s"},
+    { 6, "2.56 Mbit/s"},
+    { 7, "5.12 Mbit/s"}, 
+    { 8, "10.24 Mbit/s"},
+    { 9, "20.48 Mbit/s"},
+    {10, "40.96 Mbit/s"},
+    {11, "81.92 Mbit/s"},
+    {12, "163.84 Mbit/s"},
+    {13, "327.68 Mbit/s"},
+    {14, "655.36 Mbit/s"},
+    {15, "1.31072 Gbit/s"},
+    {0, NULL}
+  };
+
+  guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
+
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_qs, tvb, offset,
+				optlen, TRUE);
+  proto_tree_add_text(opt_tree, tvb, offset,      optlen,
+		      "%s: Rate response, %s, TTL diff %u ", optp->name, 
+		      val_to_str(rate, qs_rates, "Unknown"), 
+		      tvb_get_guint8(tvb, offset + 3));
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str(rate, qs_rates, "Unknown"));
+}
+
 static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_EOL,
@@ -2085,6 +2125,14 @@ static const ip_tcp_opt tcpopts[] = {
     FIXED_LENGTH,
     TCPOLEN_MD5,
     NULL
+  },
+  {
+    TCPOPT_QS,
+    "Quick-Start",
+    NULL,
+    FIXED_LENGTH,
+    TCPOLEN_QS,
+    dissect_tcpopt_qs
   }
 };
 
@@ -3185,6 +3233,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_md5,
 		  { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
 		    NULL, 0x0, "TCP MD5 Option", HFILL}},
+
+		{ &hf_tcp_option_qs,
+		  { "TCP QS Option", "tcp.options.qs", FT_BOOLEAN, BASE_NONE,
+		    NULL, 0x0, "TCP QS Option", HFILL}},
 
 		{ &hf_tcp_pdu_time,
 		  { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
