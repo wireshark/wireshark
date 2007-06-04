@@ -1,5 +1,4 @@
 -- $Id$
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
 -- Module IN-SCF-SRF-ops-args (Q.1248.3:07/2001)
 IN-SCF-SRF-ops-args {itu-t recommendation q 1248 modules(1)
   in-scf-srf-ops-args(12) version1(0)} DEFINITIONS IMPLICIT TAGS ::=
@@ -38,12 +37,12 @@ IMPORTS
     FROM IN-common-classes common-classes;
 
 -- The following three definitions are local short-hand notation for convenience.
---B1 ::=
---  COMMON-BOUNDS  defined in Q.1248.1 (Part 1 of Recommendation Q.1248)
+B1 ::=
+  COMMON-BOUNDS -- defined in Q.1248.1 (Part 1 of Recommendation Q.1248)
 
---B2 ::= SCF-SSF-BOUNDS  defined in Q.1248.2 (Part 2 of Recommendation Q.1248)
+B2 ::= SCF-SSF-BOUNDS -- defined in Q.1248.2 (Part 2 of Recommendation Q.1248)
 
---B3 ::= SCF-SRF-BOUNDS  defined in this Recommendation (Q.1248.3)
+B3 ::= SCF-SRF-BOUNDS -- defined in this Recommendation (Q.1248.3)
 
 -- activityTest OPERATION 
 -- This operation is described in Recommendation Q.1248.2. 
@@ -51,7 +50,7 @@ IMPORTS
 -- This operation is described in Recommendation Q.1248.2. 
 --cancel OPERATION 
 -- This operation is described in Recommendation Q.1248.2. 
-playAnnouncement--{B1:b1, B2:b2, B3:b3}-- OPERATION ::= {
+playAnnouncement{B1:b1, B2:b2, B3:b3} OPERATION ::= {
   ARGUMENT         PlayAnnouncementArg {b1,
                                         b2,
                                         b3}
@@ -72,7 +71,7 @@ playAnnouncement--{B1:b1, B2:b2, B3:b3}-- OPERATION ::= {
 -- standard tones (congestion tone ...) or standard announcements. In the latter case, the SRF is always 
 -- collocated with the SSF in the switch. Any error is returned to the SCF. The timer associated with this 
 -- operation must be of a sufficient duration to allow its linked operation to be correctly correlated.
-PlayAnnouncementArg--{B1:b1, B2:b2, B3:b3}-- ::= SEQUENCE {
+PlayAnnouncementArg{B1:b1, B2:b2, B3:b3} ::= SEQUENCE {
   informationToSend            [0]  InformationToSend{b2, b3},
   disconnectFromIPForbidden    [1]  BOOLEAN DEFAULT TRUE,
   requestAnnouncementComplete  [2]  BOOLEAN DEFAULT TRUE,
@@ -83,7 +82,7 @@ PlayAnnouncementArg--{B1:b1, B2:b2, B3:b3}-- ::= SEQUENCE {
   ...
 }
 
-promptAndCollectUserInformation--{B1:b1, B2:b2, B3:b3}-- OPERATION ::= {
+promptAndCollectUserInformation{B1:b1, B2:b2, B3:b3} OPERATION ::= {
   ARGUMENT  PromptAndCollectUserInformationArg {b1,
                                                 b2,
                                                 b3}
@@ -97,7 +96,7 @@ promptAndCollectUserInformation--{B1:b1, B2:b2, B3:b3}-- OPERATION ::= {
 
 -- Direction: SCF -> SRF, Timer: Tpc 
 -- This operation is used to interact with a user to collect information.
-PromptAndCollectUserInformationArg--{B1:b1, B2:b2, B3:b3}-- ::= SEQUENCE {
+PromptAndCollectUserInformationArg{B1:b1, B2:b2, B3:b3} ::= SEQUENCE {
   collectedInfo              [0]  CollectedInfo,
   disconnectFromIPForbidden  [1]  BOOLEAN DEFAULT TRUE,
   informationToSend          [2]  InformationToSend{b2, b3} OPTIONAL,
@@ -112,7 +111,7 @@ ReceivedInformationArg{B2:b2} ::= CHOICE {
   modemdetected   [2]  BOOLEAN
 }
 
-promptAndReceiveMessage--{B1:b1, B2:b2, B3:b3}-- OPERATION ::= {
+promptAndReceiveMessage{B1:b1, B2:b2, B3:b3} OPERATION ::= {
   ARGUMENT  PromptAndReceiveMessageArg {b1,
                                         b2,
                                         b3}
@@ -127,7 +126,7 @@ promptAndReceiveMessage--{B1:b1, B2:b2, B3:b3}-- OPERATION ::= {
 
 -- Direction: SCF ->SRF, Timer: Tprm
 -- Used to prompt a user to store a message
-PromptAndReceiveMessageArg--{B1:b1, B2:b2, B3:b3}-- ::= SEQUENCE {
+PromptAndReceiveMessageArg{B1:b1, B2:b2, B3:b3} ::= SEQUENCE {
   disconnectFromIPForbidden  [0]  BOOLEAN DEFAULT TRUE,
   informationToSend          [1]  InformationToSend{b2, b3} OPTIONAL,
   extensions                 [3]  Extensions{b1} OPTIONAL,
@@ -142,7 +141,7 @@ PromptAndReceiveMessageArg--{B1:b1, B2:b2, B3:b3}-- ::= SEQUENCE {
 MessageReceivedArg{B1:b1, B3:b3} ::= SEQUENCE {
   receivedStatus        [0]  ReceivedStatus,
   recordedMessageID     [1]  RecordedMessageID OPTIONAL,
-  recordedMessageUnits  [2]  INTEGER(1..--b3.&--maxRecordedMessageUnits) OPTIONAL,
+  recordedMessageUnits  [2]  INTEGER(1..b3.&maxRecordedMessageUnits) OPTIONAL,
   extensions            [3]  Extensions{b1} OPTIONAL,
   ...
 }
@@ -153,7 +152,7 @@ MessageReceivedArg{B1:b1, B3:b3} ::= SEQUENCE {
 -- This operation is described in Recommendation Q.1248.2. 
 -- sendSTUI OPERATION 
 -- This operation is described in Recommendation Q.1248.2. 
-scriptClose--{B1:b1, B2:b2}-- OPERATION ::= {
+scriptClose{B1:b1, B2:b2} OPERATION ::= {
   ARGUMENT         ScriptCloseArg {b1,
                                    b2}
   RETURN RESULT    FALSE
@@ -167,7 +166,7 @@ scriptClose--{B1:b1, B2:b2}-- OPERATION ::= {
 -- Direction:SCF-> SRF. Timer :TCl
 -- This operation is issued by the SCF to deallocate the resources used to perform the
 -- instance of the "User Interaction" script: the context is released.
-ScriptCloseArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
+ScriptCloseArg{B1:b1, B2:b2} ::= SEQUENCE {
   uIScriptId            UISCRIPT.&id({SupportedUIScripts}),
   uIScriptSpecificInfo
     [0]  UISCRIPT.&SpecificInfo({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
@@ -176,7 +175,7 @@ ScriptCloseArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
   ...
 }
 
-scriptEvent--{B1:b1, B2:b2}-- OPERATION ::= {
+scriptEvent{B1:b1, B2:b2} OPERATION ::= {
   ARGUMENT         ScriptEventArg {b1,
                                    b2}
   RETURN RESULT    FALSE
@@ -187,7 +186,7 @@ scriptEvent--{B1:b1, B2:b2}-- OPERATION ::= {
 -- Direction:SRF-> SCF. Timer :TRe
 -- This operation is issued by the SRF to return information to the SCF on the results of the
 -- execution of the instance of User Interaction script.
-ScriptEventArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
+ScriptEventArg{B1:b1, B2:b2} ::= SEQUENCE {
   uIScriptId          UISCRIPT.&id({SupportedUIScripts}),
   uIScriptResult
     [0]  UISCRIPT.&Result({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
@@ -197,7 +196,7 @@ ScriptEventArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
   ...
 }
 
-scriptInformation--{B1:b1, B2:b2}-- OPERATION ::= {
+scriptInformation{B1:b1, B2:b2} OPERATION ::= {
   ARGUMENT         ScriptInformationArg {b1,
                                          b2}
   RETURN RESULT    FALSE
@@ -209,7 +208,7 @@ scriptInformation--{B1:b1, B2:b2}-- OPERATION ::= {
 }
 
 -- Direction:SCF-> SRF. Timer :Tinf
-ScriptInformationArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
+ScriptInformationArg{B1:b1, B2:b2} ::= SEQUENCE {
   uIScriptId            UISCRIPT.&id({SupportedUIScripts}),
   uIScriptSpecificInfo
     [0]  UISCRIPT.&SpecificInfo({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
@@ -218,7 +217,7 @@ ScriptInformationArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
   ...
 }
 
-scriptRun--{B1:b1, B2:b2}-- OPERATION ::= {
+scriptRun{B1:b1, B2:b2} OPERATION ::= {
   ARGUMENT         ScriptRunArg {b1,
                                  b2}
   RETURN RESULT    FALSE
@@ -233,7 +232,7 @@ scriptRun--{B1:b1, B2:b2}-- OPERATION ::= {
 -- This operation is issued by the SCF to allocate the necessary resources to perform the
 -- instance of the "User Interaction" script and then to activate this "User Interaction" script
 -- instance. A context is partially defined for it if necessary.
-ScriptRunArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
+ScriptRunArg{B1:b1, B2:b2} ::= SEQUENCE {
   uIScriptId                 UISCRIPT.&id({SupportedUIScripts}),
   uIScriptSpecificInfo
     [0]  UISCRIPT.&SpecificInfo({SupportedUIScripts}{@uIScriptId}) OPTIONAL,
@@ -255,7 +254,7 @@ specializedResourceReport OPERATION ::= {
 -- report indication is set. 
 SpecializedResourceReportArg ::= NULL
 
-sRFCallGap--{B1:b1, B2:b2}-- OPERATION ::= {
+sRFCallGap{B1:b1, B2:b2} OPERATION ::= {
   ARGUMENT         SRFCallGapArg {b1,
                                   b2}
   RETURN RESULT    FALSE
@@ -266,12 +265,12 @@ sRFCallGap--{B1:b1, B2:b2}-- OPERATION ::= {
 -- Direction: SRF -> SCF, Timer: Tcg 
 -- This operation is used to request the SCF to reduce the rate at which specific service requests are sent to 
 -- the SRF. 
-SRFCallGapArg--{B1:b1, B2:b2}-- ::= SEQUENCE {
+SRFCallGapArg{B1:b1, B2:b2} ::= SEQUENCE {
   sRFgapCriteria  [0]  SRFGapCriteria{b2},
   gapIndicators   [1]  GapIndicators,
   controlType     [2]  ControlType OPTIONAL,
   ...,
---  ...,
+  ...,
   extensions      [30]  Extensions{b1} OPTIONAL
 }
 

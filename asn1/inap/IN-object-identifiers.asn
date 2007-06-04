@@ -1,5 +1,4 @@
 -- $Id$
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
 -- Module IN-object-identifiers (Q.1248.1:07/2001)
 IN-object-identifiers {itu-t recommendation q 1248 modules(1)
   in-object-identifiers(0) version1(0)} DEFINITIONS ::=

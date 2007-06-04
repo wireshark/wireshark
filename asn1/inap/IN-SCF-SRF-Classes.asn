@@ -1,5 +1,4 @@
 -- $Id$
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
 -- Module IN-SCF-SRF-Classes (Q.1248.3:07/2001)
 IN-SCF-SRF-Classes {itu-t recommendation q 1248 modules(1)
   in-scf-srf-classes(11) version1(0)} DEFINITIONS ::=

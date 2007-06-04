@@ -1,6 +1,5 @@
--- Module IN-common-datatypes (Q.1248.1:07/2001)
 -- $Id$
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
+-- Module IN-common-datatypes (Q.1248.1:07/2001)
 IN-common-datatypes {itu-t recommendation q 1248 modules(1)
   in-common-datatypes(1) version1(0)} DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
@@ -15,7 +14,7 @@ IMPORTS
 CriticalityType ::= ENUMERATED {ignore(0), abort(1)}
 
 Extensions{COMMON-BOUNDS:b1} ::=
-  SEQUENCE SIZE (1..numOfExtensions) OF ExtensionField
+  SEQUENCE SIZE (1..b1.&numOfExtensions) OF ExtensionField
 
 ExtensionField ::= SEQUENCE {
   type         EXTENSION.&id({SupportedExtensions}),

@@ -1,6 +1,5 @@
--- Module IN-common-classes (Q.1248.1:07/2001)
 -- $Id$
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
+-- Module IN-common-classes (Q.1248.1:07/2001)
 IN-common-classes {itu-t recommendation q 1248 modules(1) in-common-classes(5)
   version1(0)} DEFINITIONS ::=
 BEGIN

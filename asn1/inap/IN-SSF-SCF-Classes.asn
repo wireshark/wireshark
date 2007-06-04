@@ -1,5 +1,4 @@
--- $Id: IN-CS-1-Datatypes.asn 22021 2007-06-01 19:52:26Z etxrab $
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
+-- $Id: IN-object-identifiers.asn 22031 2007-06-03 19:58:59Z etxrab $
 -- Module IN-SSF-SCF-Classes (Q.1248.2:07/2001)
 IN-SSF-SCF-Classes {itu-t recommendation q 1248 modules(1)
   in-ssf-scf-classes(7) version1(0)} DEFINITIONS ::=
