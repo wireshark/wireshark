@@ -34,6 +34,7 @@ BandRejectReason_vals           DATA
 ber_decode_as
 ber_decode_as_foreach
 ber_set_filename
+build_column_format_array
 build_follow_filter
 bytes_to_str_punct
 bytes_to_str
