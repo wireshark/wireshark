@@ -7,7 +7,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py mms.asn packet-mms-template.c packet-mms-template.h mms.cnf
-	python ../../tools/asn2wrs.py -b -e -p mms -c mms.cnf -s packet-mms-template mms.asn
+	python ../../tools/asn2wrs.py -b -X -T -e -p mms -c mms.cnf -s packet-mms-template mms.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
