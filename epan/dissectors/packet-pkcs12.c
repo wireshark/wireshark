@@ -89,17 +89,17 @@ static int hf_pkcs12_digestAlgorithm = -1;        /* DigestAlgorithmIdentifier *
 static int hf_pkcs12_digest = -1;                 /* Digest */
 static int hf_pkcs12_AuthenticatedSafe_item = -1;  /* ContentInfo */
 static int hf_pkcs12_SafeContents_item = -1;      /* SafeBag */
-static int hf_pkcs12_bagId = -1;                  /* OBJECT_IDENTIFIER */
+static int hf_pkcs12_bagId = -1;                  /* T_bagId */
 static int hf_pkcs12_bagValue = -1;               /* T_bagValue */
 static int hf_pkcs12_bagAttributes = -1;          /* SET_OF_PKCS12Attribute */
 static int hf_pkcs12_bagAttributes_item = -1;     /* PKCS12Attribute */
-static int hf_pkcs12_certId = -1;                 /* OBJECT_IDENTIFIER */
+static int hf_pkcs12_certId = -1;                 /* T_certId */
 static int hf_pkcs12_certValue = -1;              /* T_certValue */
-static int hf_pkcs12_crlId = -1;                  /* OBJECT_IDENTIFIER */
+static int hf_pkcs12_crlId = -1;                  /* T_crlId */
 static int hf_pkcs12_crlValue = -1;               /* T_crlValue */
 static int hf_pkcs12_secretTypeId = -1;           /* OBJECT_IDENTIFIER */
 static int hf_pkcs12_secretValue = -1;            /* T_secretValue */
-static int hf_pkcs12_attrId = -1;                 /* OBJECT_IDENTIFIER */
+static int hf_pkcs12_attrId = -1;                 /* T_attrId */
 static int hf_pkcs12_attrValues = -1;             /* T_attrValues */
 static int hf_pkcs12_attrValues_item = -1;        /* T_attrValues_item */
 static int hf_pkcs12_privateKeyVersion = -1;      /* Version */
@@ -150,6 +150,14 @@ static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
 #line 62 "packet-pkcs12-template.c"
+
+static void append_oid(proto_tree *tree, const char *oid)
+{
+  	const char *name = NULL;
+
+	name = get_oid_str_name(oid);
+	proto_item_append_text(tree, " (%%s)", name ? name : oid); 
+}
 
 
 /*--- Included file: packet-pkcs12-fn.c ---*/
@@ -342,41 +350,23 @@ dissect_pkcs12_AuthenticatedSafe(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
-dissect_pkcs12_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "pkcs12.cnf"
-  	const char *name = NULL;
+dissect_pkcs12_T_bagId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
-	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
-
-  
-	name = get_oid_str_name(object_identifier_id);
-	proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
-
-
+#line 86 "pkcs12.cnf"
+  append_oid(tree, object_identifier_id);
 
   return offset;
 }
 static int dissect_bagId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkcs12_bagId);
-}
-static int dissect_certId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkcs12_certId);
-}
-static int dissect_crlId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkcs12_crlId);
-}
-static int dissect_secretTypeId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkcs12_secretTypeId);
-}
-static int dissect_attrId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkcs12_attrId);
+  return dissect_pkcs12_T_bagId(FALSE, tvb, offset, actx, tree, hf_pkcs12_bagId);
 }
 
 
 
 static int
 dissect_pkcs12_T_bagValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "pkcs12.cnf"
+#line 110 "pkcs12.cnf"
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -391,8 +381,23 @@ static int dissect_bagValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
+dissect_pkcs12_T_attrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+#line 106 "pkcs12.cnf"
+  append_oid(tree, object_identifier_id);
+
+  return offset;
+}
+static int dissect_attrId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs12_T_attrId(FALSE, tvb, offset, actx, tree, hf_pkcs12_attrId);
+}
+
+
+
+static int
 dissect_pkcs12_T_attrValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "pkcs12.cnf"
+#line 114 "pkcs12.cnf"
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -599,8 +604,23 @@ dissect_pkcs12_PKCS8ShroudedKeyBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static int
+dissect_pkcs12_T_certId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+#line 91 "pkcs12.cnf"
+  append_oid(tree, object_identifier_id);
+
+  return offset;
+}
+static int dissect_certId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs12_T_certId(FALSE, tvb, offset, actx, tree, hf_pkcs12_certId);
+}
+
+
+
+static int
 dissect_pkcs12_T_certValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "pkcs12.cnf"
+#line 118 "pkcs12.cnf"
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -630,8 +650,23 @@ dissect_pkcs12_CertBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
+dissect_pkcs12_T_crlId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+#line 96 "pkcs12.cnf"
+  append_oid(tree, object_identifier_id);
+
+  return offset;
+}
+static int dissect_crlId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs12_T_crlId(FALSE, tvb, offset, actx, tree, hf_pkcs12_crlId);
+}
+
+
+
+static int
 dissect_pkcs12_T_crlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "pkcs12.cnf"
+#line 122 "pkcs12.cnf"
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -661,8 +696,20 @@ dissect_pkcs12_CRLBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
+dissect_pkcs12_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+static int dissect_secretTypeId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkcs12_secretTypeId);
+}
+
+
+
+static int
 dissect_pkcs12_T_secretValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 112 "pkcs12.cnf"
+#line 126 "pkcs12.cnf"
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -859,7 +906,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 64 "packet-pkcs12-template.c"
+#line 72 "packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb, proto_tree *tree) 
 {
@@ -1031,7 +1078,7 @@ void proto_register_pkcs12(void) {
     { &hf_pkcs12_bagId,
       { "bagId", "pkcs12.bagId",
         FT_OID, BASE_NONE, NULL, 0,
-        "pkcs12.OBJECT_IDENTIFIER", HFILL }},
+        "pkcs12.T_bagId", HFILL }},
     { &hf_pkcs12_bagValue,
       { "bagValue", "pkcs12.bagValue",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1047,7 +1094,7 @@ void proto_register_pkcs12(void) {
     { &hf_pkcs12_certId,
       { "certId", "pkcs12.certId",
         FT_OID, BASE_NONE, NULL, 0,
-        "pkcs12.OBJECT_IDENTIFIER", HFILL }},
+        "pkcs12.T_certId", HFILL }},
     { &hf_pkcs12_certValue,
       { "certValue", "pkcs12.certValue",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1055,7 +1102,7 @@ void proto_register_pkcs12(void) {
     { &hf_pkcs12_crlId,
       { "crlId", "pkcs12.crlId",
         FT_OID, BASE_NONE, NULL, 0,
-        "pkcs12.OBJECT_IDENTIFIER", HFILL }},
+        "pkcs12.T_crlId", HFILL }},
     { &hf_pkcs12_crlValue,
       { "crlValue", "pkcs12.crlValue",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1071,7 +1118,7 @@ void proto_register_pkcs12(void) {
     { &hf_pkcs12_attrId,
       { "attrId", "pkcs12.attrId",
         FT_OID, BASE_NONE, NULL, 0,
-        "pkcs12.OBJECT_IDENTIFIER", HFILL }},
+        "pkcs12.T_attrId", HFILL }},
     { &hf_pkcs12_attrValues,
       { "attrValues", "pkcs12.attrValues",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1150,7 +1197,7 @@ void proto_register_pkcs12(void) {
         "x509af.AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 138 "packet-pkcs12-template.c"
+#line 146 "packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1180,7 +1227,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 143 "packet-pkcs12-template.c"
+#line 151 "packet-pkcs12-template.c"
   };
 
   /* Register protocol */
@@ -1227,7 +1274,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 161 "packet-pkcs12-template.c"
+#line 169 "packet-pkcs12-template.c"
 
 }
 

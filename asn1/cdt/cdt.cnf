@@ -9,10 +9,10 @@ CompressedData
 #.REGISTER
 CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
-#.FN_PARS AlgorithmID_ShortForm
+#.FN_PARS AlgorithmID-ShortForm
   VAL_PTR = &value
 
-#.FN_BODY AlgorithmID_ShortForm
+#.FN_BODY AlgorithmID-ShortForm
   guint32 value;
 
   %(DEFAULT_BODY)s
@@ -25,10 +25,10 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                      val_to_str (value, cdt_AlgorithmID_ShortForm_vals, 
                                  "unknown"));
 
-#.FN_PARS ContentType_ShortForm
+#.FN_PARS ContentType-ShortForm
   VAL_PTR = &value
 
-#.FN_BODY ContentType_ShortForm
+#.FN_BODY ContentType-ShortForm
   guint32 value;
 
   %(DEFAULT_BODY)s
@@ -41,10 +41,10 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
                      val_to_str (value, cdt_ContentType_ShortForm_vals, 
                                  "unknown"));
 
-#.FN_PARS OBJECT_IDENTIFIER
+#.FN_PARS CompressedContentInfo/contentType/contentType-OID
   FN_VARIANT = _str  VAL_PTR = &obj_id
 
-#.FN_BODY OBJECT_IDENTIFIER
+#.FN_BODY CompressedContentInfo/contentType/contentType-OID
   const char *obj_id = NULL;
 
   %(DEFAULT_BODY)s

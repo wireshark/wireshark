@@ -81,34 +81,48 @@ AuthenticatedSafe
 	/* restore the original dissector */
 	dissector_reset_string("ber.oid", "1.2.840.113549.1.7.1");
 
-#.FN_PARS OBJECT_IDENTIFIER
-	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_PARS SafeBag/bagId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_FTR SafeBag/bagId
+  append_oid(tree, object_identifier_id);
+#.END
 
-#.FN_BODY OBJECT_IDENTIFIER
-  	const char *name = NULL;
+#.FN_PARS CertBag/certId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_FTR CertBag/certId
+  append_oid(tree, object_identifier_id);
+#.END
 
-	%(DEFAULT_BODY)s
-  
-	name = get_oid_str_name(object_identifier_id);
-	proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
+#.FN_PARS CRLBag/crlId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_FTR CRLBag/crlId
+  append_oid(tree, object_identifier_id);
+#.END
 
-#.FN_BODY T_bagValue	
+#.FN_PARS SecretBag/secretId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_FTR SecretBag/secretId
+  append_oid(tree, object_identifier_id);
+#.END
+
+#.FN_PARS PKCS12Attribute/attrId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_FTR PKCS12Attribute/attrId
+  append_oid(tree, object_identifier_id);
+#.END
+
+#.FN_BODY SafeBag/bagValue	
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY T_attrValues_item	
+#.FN_BODY PKCS12Attribute/attrValues/_item	
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY T_certValue
+#.FN_BODY CertBag/certValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY T_crlValue
+#.FN_BODY CRLBag/crlValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY T_secretValue
+#.FN_BODY SecretBag/secretValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 

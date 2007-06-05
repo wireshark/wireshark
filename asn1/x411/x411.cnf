@@ -244,7 +244,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 #.FN_BODY RegistrationTypes/extensions/_item
 /*XXX not implemented yet */
 
-#.FN_BODY ExtensionValue
+#.FN_BODY ExtensionField/value
 	const char *name;
 
 	if(extension_id != -1) 
@@ -256,7 +256,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	}
 		
 
-#.FN_BODY CategoryValue
+#.FN_BODY SecurityCategory/value
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
@@ -329,13 +329,13 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
                                          NULL);
 
 
-#.FN_PARS INTEGER
+#.FN_PARS ExtensionType/standard-extension
 	VAL_PTR = &extension_id
 
-#.FN_PARS OBJECT_IDENTIFIER
-	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
-#.FN_BODY OBJECT_IDENTIFIER
+	
+
+#.FN_BODY ExtensionType/private-extension  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 	%(DEFAULT_BODY)s
 	extension_id = -1;
@@ -706,11 +706,11 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
   }
 
-#.FN_BODY T_value
+#.FN_BODY TokenData/value
 
 	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY T_bilateral_information
+#.FN_BODY PerDomainBilateralInformation/bilateral-information
 	proto_item *item = NULL;
 	int 	    loffset = 0;
 	guint32	    len = 0;

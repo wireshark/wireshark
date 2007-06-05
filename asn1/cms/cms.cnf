@@ -154,7 +154,7 @@ EncryptedContentInfo/contentType	encryptedContentType
     cap_tree = tree;
   }
 
-#.FN_BODY T_parameters
+#.FN_BODY SMIMECapability/parameters
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 

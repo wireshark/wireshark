@@ -32,10 +32,10 @@ EstablishParameter	B "dop.establish.roleb.2.5.19.1" 	"shadow-establish-roleb"
 ModificationParameter 	B "dop.modify.rolea.2.5.19.1" 	"shadow-modify-rolea"
 ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
-#.FN_PARS T_standard
-	VAL_PTR = &update
 
-#.FN_BODY T_standard
+
+
+#.FN_BODY RequestShadowUpdateArgumentData/requestedStrategy/standard  VAL_PTR=&update
   guint32 update;
 
   %(DEFAULT_BODY)s

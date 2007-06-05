@@ -328,7 +328,7 @@ ldap_conv_info_t *ldap_info;
      
   }
 
-#.FN_BODY T_scope VAL_PTR = &scope
+#.FN_BODY SearchRequest/scope VAL_PTR = &scope
 
   gint 	scope;
   const gchar *valstr;
@@ -345,7 +345,7 @@ ldap_conv_info_t *ldap_info;
   if(ldm_tree)
     proto_item_append_text(ldm_tree, " %%s", valstr); 
 
-#.FN_BODY T_resultCode VAL_PTR = &result
+#.FN_BODY LDAPResult/resultCode VAL_PTR = &result
 
   const gchar *valstr;
 

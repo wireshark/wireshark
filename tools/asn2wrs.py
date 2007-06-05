@@ -1314,18 +1314,20 @@ class EthCtx:
       out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
       out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
-    if self.conform.get_fn_presence(tname):
-      out += self.conform.get_fn_text(tname, 'FN_HDR')
-    elif self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
+    #if self.conform.get_fn_presence(tname):
+    #  out += self.conform.get_fn_text(tname, 'FN_HDR')
+    #el
+    if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
       out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
     return out
 
   #--- eth_type_fn_ftr --------------------------------------------------------
   def eth_type_fn_ftr(self, tname):
     out = '\n'
-    if self.conform.get_fn_presence(tname):
-      out += self.conform.get_fn_text(tname, 'FN_FTR')
-    elif self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
+    #if self.conform.get_fn_presence(tname):
+    #  out += self.conform.get_fn_text(tname, 'FN_FTR')
+    #el
+    if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
       out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_FTR')
     out += "  return offset;\n"
     out += "}\n"

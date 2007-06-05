@@ -236,10 +236,10 @@ TokenData/time		utctime
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%%d)"));
   }
 
-#.FN_PARS T_subset
-	VAL_PTR = &subset
+#.END
 
-#.FN_BODY T_subset
+
+#.FN_BODY SearchArgumentData/subset  VAL_PTR=&subset
   guint32 subset;
 
   %(DEFAULT_BODY)s
@@ -259,7 +259,7 @@ TokenData/time		utctime
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
 	}
 
-#.FN_BODY T_subordinates_item
+#.FN_BODY ListResultData/listInfo/subordinates/_item
 	proto_item *sub_item;
 
 	%(DEFAULT_BODY)s

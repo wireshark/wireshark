@@ -110,7 +110,7 @@ static int hf_x509ce_dNSName = -1;                /* IA5String */
 static int hf_x509ce_x400Address = -1;            /* ORAddress */
 static int hf_x509ce_directoryName = -1;          /* Name */
 static int hf_x509ce_ediPartyName = -1;           /* EDIPartyName */
-static int hf_x509ce_uniformResourceIdentifier = -1;  /* IA5String */
+static int hf_x509ce_uniformResourceIdentifier = -1;  /* T_uniformResourceIdentifier */
 static int hf_x509ce_iPAddress = -1;              /* T_iPAddress */
 static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_x509ce_type_id = -1;                /* OtherNameType */
@@ -392,11 +392,6 @@ dissect_x509ce_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 127 "x509ce.cnf"
-  if(hf_index == hf_x509ce_uniformResourceIdentifier)
-	PROTO_ITEM_SET_URL(get_ber_last_created_item());
-
-
   return offset;
 }
 static int dissect_rfc822Name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -404,9 +399,6 @@ static int dissect_rfc822Name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 }
 static int dissect_dNSName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509ce_IA5String(TRUE, tvb, offset, actx, tree, hf_x509ce_dNSName);
-}
-static int dissect_uniformResourceIdentifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x509ce_IA5String(TRUE, tvb, offset, actx, tree, hf_x509ce_uniformResourceIdentifier);
 }
 
 
@@ -425,6 +417,25 @@ dissect_x509ce_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 static int dissect_ediPartyName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509ce_EDIPartyName(TRUE, tvb, offset, actx, tree, hf_x509ce_ediPartyName);
+}
+
+
+
+static int
+dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+#line 127 "x509ce.cnf"
+  
+	PROTO_ITEM_SET_URL(get_ber_last_created_item());
+
+
+  return offset;
+}
+static int dissect_uniformResourceIdentifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_x509ce_T_uniformResourceIdentifier(TRUE, tvb, offset, actx, tree, hf_x509ce_uniformResourceIdentifier);
 }
 
 
@@ -1980,7 +1991,7 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_uniformResourceIdentifier,
       { "uniformResourceIdentifier", "x509ce.uniformResourceIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509ce.IA5String", HFILL }},
+        "x509ce.T_uniformResourceIdentifier", HFILL }},
     { &hf_x509ce_iPAddress,
       { "iPAddress", "x509ce.iPAddress",
         FT_BYTES, BASE_HEX, NULL, 0,

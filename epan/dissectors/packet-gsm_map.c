@@ -190,7 +190,7 @@ static int hf_gsm_map_subscriberDataStored = -1;  /* AgeIndicator */
 static int hf_gsm_map_imeisv = -1;                /* IMEI */
 static int hf_gsm_map_skipSubscriberDataUpdate = -1;  /* NULL */
 static int hf_gsm_map_PrivateExtensionList_item = -1;  /* PrivateExtension */
-static int hf_gsm_map_extId = -1;                 /* OBJECT_IDENTIFIER */
+static int hf_gsm_map_extId = -1;                 /* T_extId */
 static int hf_gsm_map_extType = -1;               /* T_extType */
 static int hf_gsm_map_privateExtensionList = -1;  /* PrivateExtensionList */
 static int hf_gsm_map_slr_Arg_PCS_Extensions = -1;  /* SLR_Arg_PCS_Extensions */
@@ -2085,15 +2085,12 @@ static int dissect_operationLocalvalue(proto_tree *tree _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_gsm_map_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
 static int dissect_globalValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_gsm_map_globalValue);
-}
-static int dissect_extId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gsm_map_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_gsm_map_extId);
 }
 
 
@@ -2991,6 +2988,18 @@ static int dissect_signalInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 }
 static int dissect_diagnosticInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SignalInfo(FALSE, tvb, offset, actx, tree, hf_gsm_map_diagnosticInfo);
+}
+
+
+
+static int
+dissect_gsm_map_T_extId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
+
+  return offset;
+}
+static int dissect_extId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_gsm_map_T_extId(FALSE, tvb, offset, actx, tree, hf_gsm_map_extId);
 }
 
 
@@ -17615,7 +17624,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_extId,
       { "extId", "gsm_map.extId",
         FT_OID, BASE_NONE, NULL, 0,
-        "gsm_map.OBJECT_IDENTIFIER", HFILL }},
+        "gsm_map.T_extId", HFILL }},
     { &hf_gsm_map_extType,
       { "extType", "gsm_map.extType",
         FT_NONE, BASE_NONE, NULL, 0,

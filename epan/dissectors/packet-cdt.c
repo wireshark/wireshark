@@ -68,7 +68,7 @@ static int hf_cdt_algorithmID_ShortForm = -1;     /* AlgorithmID_ShortForm */
 static int hf_cdt_algorithmID_OID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_cdt_contentType = -1;               /* T_contentType */
 static int hf_cdt_contentType_ShortForm = -1;     /* ContentType_ShortForm */
-static int hf_cdt_contentType_OID = -1;           /* OBJECT_IDENTIFIER */
+static int hf_cdt_contentType_OID = -1;           /* T_contentType_OID */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
@@ -128,33 +128,12 @@ static int dissect_algorithmID_ShortForm_impl(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "cdt.cnf"
-  const char *obj_id = NULL;
-
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
-
-  if (obj_id) {
-    const char *name = get_oid_str_name (obj_id);
-
-    if (!name) {
-      name = obj_id;
-    }
-
-    proto_item_append_text (cdt_item, ", %s", name);
-
-    if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", name);
-  }
-
-
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
 static int dissect_algorithmID_OID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_cdt_algorithmID_OID);
-}
-static int dissect_contentType_OID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_cdt_contentType_OID);
 }
 
 
@@ -216,6 +195,36 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 static int dissect_contentType_ShortForm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_ContentType_ShortForm(TRUE, tvb, offset, actx, tree, hf_cdt_contentType_ShortForm);
+}
+
+
+
+static int
+dissect_cdt_T_contentType_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 48 "cdt.cnf"
+  const char *obj_id = NULL;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
+
+  if (obj_id) {
+    const char *name = get_oid_str_name (obj_id);
+
+    if (!name) {
+      name = obj_id;
+    }
+
+    proto_item_append_text (cdt_item, ", %s", name);
+
+    if (check_col (actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", name);
+  }
+
+
+
+  return offset;
+}
+static int dissect_contentType_OID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_T_contentType_OID(TRUE, tvb, offset, actx, tree, hf_cdt_contentType_OID);
 }
 
 
@@ -401,7 +410,7 @@ void proto_register_cdt (void) {
     { &hf_cdt_contentType_OID,
       { "contentType-OID", "cdt.contentType_OID",
         FT_OID, BASE_NONE, NULL, 0,
-        "cdt.OBJECT_IDENTIFIER", HFILL }},
+        "cdt.T_contentType_OID", HFILL }},
     { &hf_cdt_compressedContent,
       { "compressedContent", "cdt.compressedContent",
         FT_BYTES, BASE_HEX, NULL, 0,

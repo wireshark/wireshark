@@ -19,8 +19,8 @@ FileTransferParameters
 FileTransferParameters	B	"2.6.1.11.12"	"id-ep-file-transfer"
 FileTransferData	B	"2.6.1.4.12"	"id-et-file-transfer"
 
-#.FN_BODY T_parameter
+#.FN_BODY Contents-Type-Attribute/document-type/parameter
 /* XXX: Not implemented yet */
 
-#.FN_BODY T_compression_algorithm_param
+#.FN_BODY CompressionParameter/compression-algorithm-param
 /* XXX: Not implemented yet */

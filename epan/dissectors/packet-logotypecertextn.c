@@ -75,7 +75,7 @@ static int hf_logotypecertextn_mediaType = -1;    /* IA5String */
 static int hf_logotypecertextn_logotypeHash = -1;  /* SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue */
 static int hf_logotypecertextn_logotypeHash_item = -1;  /* HashAlgAndValue */
 static int hf_logotypecertextn_logotypeURI = -1;  /* T_logotypeURI */
-static int hf_logotypecertextn_logotypeURI_item = -1;  /* IA5String */
+static int hf_logotypecertextn_logotypeURI_item = -1;  /* T_logotypeURI_item */
 static int hf_logotypecertextn_type = -1;         /* LogotypeImageType */
 static int hf_logotypecertextn_fileSize = -1;     /* INTEGER */
 static int hf_logotypecertextn_xSize = -1;        /* INTEGER */
@@ -92,7 +92,7 @@ static int hf_logotypecertextn_info = -1;         /* LogotypeInfo */
 static int hf_logotypecertextn_refStructHash = -1;  /* SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue */
 static int hf_logotypecertextn_refStructHash_item = -1;  /* HashAlgAndValue */
 static int hf_logotypecertextn_refStructURI = -1;  /* T_refStructURI */
-static int hf_logotypecertextn_refStructURI_item = -1;  /* IA5String */
+static int hf_logotypecertextn_refStructURI_item = -1;  /* T_refStructURI_item */
 static int hf_logotypecertextn_hashAlg = -1;      /* AlgorithmIdentifier */
 static int hf_logotypecertextn_hashValue = -1;    /* OCTET_STRING */
 
@@ -144,25 +144,13 @@ dissect_logotypecertextn_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 18 "logotype-cert-extn.cnf"
-	if((hf_index == hf_logotypecertextn_logotypeURI_item) ||
-	   (hf_index == hf_logotypecertextn_refStructURI_item)) 
-	   PROTO_ITEM_SET_URL(get_ber_last_created_item());
-
-
   return offset;
 }
 static int dissect_mediaType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_IA5String(FALSE, tvb, offset, actx, tree, hf_logotypecertextn_mediaType);
 }
-static int dissect_logotypeURI_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_logotypecertextn_IA5String(FALSE, tvb, offset, actx, tree, hf_logotypecertextn_logotypeURI_item);
-}
 static int dissect_language_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_IA5String(TRUE, tvb, offset, actx, tree, hf_logotypecertextn_language);
-}
-static int dissect_refStructURI_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_logotypecertextn_IA5String(FALSE, tvb, offset, actx, tree, hf_logotypecertextn_refStructURI_item);
 }
 
 
@@ -216,6 +204,24 @@ static int dissect_logotypeHash(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 }
 static int dissect_refStructHash(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue(FALSE, tvb, offset, actx, tree, hf_logotypecertextn_refStructHash);
+}
+
+
+
+static int
+dissect_logotypecertextn_T_logotypeURI_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+#line 18 "logotype-cert-extn.cnf"
+	   PROTO_ITEM_SET_URL(get_ber_last_created_item());
+
+
+  return offset;
+}
+static int dissect_logotypeURI_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_logotypecertextn_T_logotypeURI_item(FALSE, tvb, offset, actx, tree, hf_logotypecertextn_logotypeURI_item);
 }
 
 
@@ -461,6 +467,24 @@ dissect_logotypecertextn_LogotypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 static int dissect_direct_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeData(TRUE, tvb, offset, actx, tree, hf_logotypecertextn_direct);
+}
+
+
+
+static int
+dissect_logotypecertextn_T_refStructURI_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+#line 21 "logotype-cert-extn.cnf"
+	   PROTO_ITEM_SET_URL(get_ber_last_created_item());
+
+
+  return offset;
+}
+static int dissect_refStructURI_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_logotypecertextn_T_refStructURI_item(FALSE, tvb, offset, actx, tree, hf_logotypecertextn_refStructURI_item);
 }
 
 
@@ -718,7 +742,7 @@ void proto_register_logotypecertextn(void) {
     { &hf_logotypecertextn_logotypeURI_item,
       { "Item", "logotypecertextn.logotypeURI_item",
         FT_STRING, BASE_NONE, NULL, 0,
-        "logotypecertextn.IA5String", HFILL }},
+        "logotypecertextn.T_logotypeURI_item", HFILL }},
     { &hf_logotypecertextn_type,
       { "type", "logotypecertextn.type",
         FT_INT32, BASE_DEC, VALS(logotypecertextn_LogotypeImageType_vals), 0,
@@ -786,7 +810,7 @@ void proto_register_logotypecertextn(void) {
     { &hf_logotypecertextn_refStructURI_item,
       { "Item", "logotypecertextn.refStructURI_item",
         FT_STRING, BASE_NONE, NULL, 0,
-        "logotypecertextn.IA5String", HFILL }},
+        "logotypecertextn.T_refStructURI_item", HFILL }},
     { &hf_logotypecertextn_hashAlg,
       { "hashAlg", "logotypecertextn.hashAlg",
         FT_NONE, BASE_NONE, NULL, 0,

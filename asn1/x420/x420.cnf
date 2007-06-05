@@ -119,7 +119,7 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
   name = get_oid_str_name(object_identifier_id);
   proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
 
-#.FN_BODY T_value
+#.FN_BODY IPMSExtension/value
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 

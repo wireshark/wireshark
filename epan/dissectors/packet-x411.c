@@ -349,8 +349,8 @@ static int hf_x411_ContentTypes_item = -1;        /* ContentType */
 static int hf_x411_built_in = -1;                 /* BuiltInContentType */
 static int hf_x411_extended = -1;                 /* ExtendedContentType */
 static int hf_x411_OtherRecipientNames_item = -1;  /* OtherRecipientName */
-static int hf_x411_standard_extension = -1;       /* INTEGER */
-static int hf_x411_private_extension = -1;        /* OBJECT_IDENTIFIER */
+static int hf_x411_standard_extension = -1;       /* T_standard_extension */
+static int hf_x411_private_extension = -1;        /* T_private_extension */
 static int hf_x411_extension_type = -1;           /* ExtensionType */
 static int hf_x411_criticality = -1;              /* Criticality */
 static int hf_x411_extension_value = -1;          /* ExtensionValue */
@@ -1169,18 +1169,9 @@ static int dissect_privacy_mark(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x411_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 339 "x411.cnf"
-
-	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
-
-	extension_id = -1;
-
-
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_private_extension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x411_private_extension);
 }
 static int dissect_category_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x411_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x411_category_type);
@@ -2000,7 +1991,7 @@ static int dissect_built_in_domain_defined_attributes(proto_tree *tree _U_, tvbu
 static int
 dissect_x411_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &extension_id);
+                                  NULL);
 
   return offset;
 }
@@ -2009,9 +2000,6 @@ static int dissect_messages_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 }
 static int dissect_delivery_queue_octets_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x411_INTEGER(TRUE, tvb, offset, actx, tree, hf_x411_delivery_queue_octets);
-}
-static int dissect_standard_extension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_INTEGER(TRUE, tvb, offset, actx, tree, hf_x411_standard_extension);
 }
 static int dissect_extension_attribute_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x411_INTEGER(TRUE, tvb, offset, actx, tree, hf_x411_extension_attribute_type);
@@ -2852,6 +2840,37 @@ dissect_x411_TraceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 static int dissect_trace_information(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x411_TraceInformation(FALSE, tvb, offset, actx, tree, hf_x411_trace_information);
+}
+
+
+
+static int
+dissect_x411_T_standard_extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  &extension_id);
+
+  return offset;
+}
+static int dissect_standard_extension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_x411_T_standard_extension(TRUE, tvb, offset, actx, tree, hf_x411_standard_extension);
+}
+
+
+
+static int
+dissect_x411_T_private_extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 339 "x411.cnf"
+
+	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+	extension_id = -1;
+
+
+
+  return offset;
+}
+static int dissect_private_extension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_x411_T_private_extension(TRUE, tvb, offset, actx, tree, hf_x411_private_extension);
 }
 
 
@@ -8778,11 +8797,11 @@ void proto_register_x411(void) {
     { &hf_x411_standard_extension,
       { "standard-extension", "x411.standard_extension",
         FT_INT32, BASE_DEC, NULL, 0,
-        "x411.INTEGER", HFILL }},
+        "x411.T_standard_extension", HFILL }},
     { &hf_x411_private_extension,
       { "private-extension", "x411.private_extension",
         FT_OID, BASE_NONE, NULL, 0,
-        "x411.OBJECT_IDENTIFIER", HFILL }},
+        "x411.T_private_extension", HFILL }},
     { &hf_x411_extension_type,
       { "type", "x411.type",
         FT_UINT32, BASE_DEC, VALS(x411_ExtensionType_vals), 0,

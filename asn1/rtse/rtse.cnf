@@ -49,7 +49,7 @@ EXTERNALt
 
   %(DEFAULT_BODY)s
 
-#.FN_BODY T_open
+#.FN_BODY ConnectionData/open
 
 	char *oid = NULL;
 
@@ -128,7 +128,7 @@ EXTERNALt
   offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
 
-#.FN_BODY T_applicationProtocol
+#.FN_BODY RTORQapdu/applicationProtocol
 
   offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
 

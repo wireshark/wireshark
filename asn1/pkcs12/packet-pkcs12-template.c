@@ -60,6 +60,14 @@ static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pin
 /* Initialize the subtree pointers */
 #include "packet-pkcs12-ett.c"
 
+static void append_oid(proto_tree *tree, const char *oid)
+{
+  	const char *name = NULL;
+
+	name = get_oid_str_name(oid);
+	proto_item_append_text(tree, " (%%s)", name ? name : oid); 
+}
+
 #include "packet-pkcs12-fn.c"
 
 static int strip_octet_string(tvbuff_t *tvb, proto_tree *tree) 

@@ -61,7 +61,7 @@ MMMessageParameters		B "1.3.26.0.4406.0.7.10" "mm-message-parameters"
 InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
 
 
-#.FN_BODY T_dist_value
+#.FN_BODY DistributionExtensionField/dist-value
 /* XXX: not implemented */
 
 #.FN_PARS PrimaryPrecedence
