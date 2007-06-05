@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-qsig.c                                                            */
-/* ../../tools/asn2wrs.py -b -T -e -p qsig -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn qsig-na.asn qsig-cf.asn */
+/* ../../tools/asn2wrs.py -b -T -X -e -p qsig -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn qsig-na.asn qsig-cf.asn */
 
 /* Input file: packet-qsig-template.c */
 
@@ -644,9 +644,6 @@ static dissector_handle_t data_handle = NULL;
 
 /*--- Included file: packet-qsig-fn.c ---*/
 #line 1 "packet-qsig-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -654,9 +651,6 @@ dissect_qsig_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_extensionId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_qsig_extensionId);
 }
 
 
@@ -669,29 +663,20 @@ dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_extensionArgument(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_T_extensionArgument(FALSE, tvb, offset, actx, tree, hf_qsig_extensionArgument);
-}
 
 
-static const ber_old_sequence_t Extension_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extensionId },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_extensionArgument },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Extension_sequence[] = {
+  { &hf_qsig_extensionId    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_qsig_OBJECT_IDENTIFIER },
+  { &hf_qsig_extensionArgument, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_qsig_T_extensionArgument },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Extension_sequence, hf_index, ett_qsig_Extension);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Extension_sequence, hf_index, ett_qsig_Extension);
 
   return offset;
-}
-static int dissect_single_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Extension(TRUE, tvb, offset, actx, tree, hf_qsig_single);
-}
-static int dissect_multiple_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Extension(FALSE, tvb, offset, actx, tree, hf_qsig_multiple_item);
 }
 
 
@@ -713,9 +698,6 @@ dissect_qsig_PSS1InformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_pSS1InfoElement(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PSS1InformationElement(FALSE, tvb, offset, actx, tree, hf_qsig_pSS1InfoElement);
-}
 
 
 
@@ -726,24 +708,6 @@ dissect_qsig_NumberDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                             NULL);
 
   return offset;
-}
-static int dissect_unknownPartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberDigits(TRUE, tvb, offset, actx, tree, hf_qsig_unknownPartyNumber);
-}
-static int dissect_dataPartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberDigits(TRUE, tvb, offset, actx, tree, hf_qsig_dataPartyNumber);
-}
-static int dissect_telexPartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberDigits(TRUE, tvb, offset, actx, tree, hf_qsig_telexPartyNumber);
-}
-static int dissect_nationalStandardPartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberDigits(TRUE, tvb, offset, actx, tree, hf_qsig_nationalStandardPartyNumber);
-}
-static int dissect_publicNumberDigits(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberDigits(FALSE, tvb, offset, actx, tree, hf_qsig_publicNumberDigits);
-}
-static int dissect_privateNumberDigits(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberDigits(FALSE, tvb, offset, actx, tree, hf_qsig_privateNumberDigits);
 }
 
 
@@ -765,26 +729,20 @@ dissect_qsig_PublicTypeOfNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_publicTypeOfNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PublicTypeOfNumber(FALSE, tvb, offset, actx, tree, hf_qsig_publicTypeOfNumber);
-}
 
 
-static const ber_old_sequence_t PublicPartyNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_publicTypeOfNumber },
-  { BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_publicNumberDigits },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PublicPartyNumber_sequence[] = {
+  { &hf_qsig_publicTypeOfNumber, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_PublicTypeOfNumber },
+  { &hf_qsig_publicNumberDigits, BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_qsig_NumberDigits },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PublicPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PublicPartyNumber_sequence, hf_index, ett_qsig_PublicPartyNumber);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PublicPartyNumber_sequence, hf_index, ett_qsig_PublicPartyNumber);
 
   return offset;
-}
-static int dissect_publicPartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PublicPartyNumber(TRUE, tvb, offset, actx, tree, hf_qsig_publicPartyNumber);
 }
 
 
@@ -806,26 +764,20 @@ dissect_qsig_PrivateTypeOfNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_privateTypeOfNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PrivateTypeOfNumber(FALSE, tvb, offset, actx, tree, hf_qsig_privateTypeOfNumber);
-}
 
 
-static const ber_old_sequence_t PrivatePartyNumber_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_privateTypeOfNumber },
-  { BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_privateNumberDigits },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PrivatePartyNumber_sequence[] = {
+  { &hf_qsig_privateTypeOfNumber, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_PrivateTypeOfNumber },
+  { &hf_qsig_privateNumberDigits, BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_qsig_NumberDigits },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PrivatePartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PrivatePartyNumber_sequence, hf_index, ett_qsig_PrivatePartyNumber);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PrivatePartyNumber_sequence, hf_index, ett_qsig_PrivatePartyNumber);
 
   return offset;
-}
-static int dissect_privatePartyNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PrivatePartyNumber(TRUE, tvb, offset, actx, tree, hf_qsig_privatePartyNumber);
 }
 
 
@@ -839,50 +791,23 @@ static const value_string qsig_PartyNumber_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PartyNumber_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_unknownPartyNumber_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_publicPartyNumber_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_dataPartyNumber_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_telexPartyNumber_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_privatePartyNumber_impl },
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_nationalStandardPartyNumber_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PartyNumber_choice[] = {
+  {   0, &hf_qsig_unknownPartyNumber, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_qsig_NumberDigits },
+  {   1, &hf_qsig_publicPartyNumber, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_PublicPartyNumber },
+  {   3, &hf_qsig_dataPartyNumber, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_qsig_NumberDigits },
+  {   4, &hf_qsig_telexPartyNumber, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_qsig_NumberDigits },
+  {   5, &hf_qsig_privatePartyNumber, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_qsig_PrivatePartyNumber },
+  {   8, &hf_qsig_nationalStandardPartyNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_qsig_NumberDigits },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PartyNumber_choice, hf_index, ett_qsig_PartyNumber,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PartyNumber_choice, hf_index, ett_qsig_PartyNumber,
+                                 NULL);
 
   return offset;
-}
-static int dissect_presentationAllowedAddressNU(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_presentationAllowedAddressNU);
-}
-static int dissect_presentationRestrictedAddressNU(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_presentationRestrictedAddressNU);
-}
-static int dissect_partyNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_partyNumber);
-}
-static int dissect_servedUserNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_servedUserNr);
-}
-static int dissect_activatingUserNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_activatingUserNr);
-}
-static int dissect_deactivatingUserNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_deactivatingUserNr);
-}
-static int dissect_interrogatingUserNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_interrogatingUserNr);
-}
-static int dissect_divertedToNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_divertedToNr);
-}
-static int dissect_nominatedNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartyNumber(FALSE, tvb, offset, actx, tree, hf_qsig_nominatedNr);
 }
 
 
@@ -902,9 +827,6 @@ dissect_qsig_ScreeningIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_screeningIndicator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_ScreeningIndicator(FALSE, tvb, offset, actx, tree, hf_qsig_screeningIndicator);
-}
 
 
 
@@ -915,9 +837,6 @@ dissect_qsig_SubaddressInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_subaddressInformation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_SubaddressInformation(FALSE, tvb, offset, actx, tree, hf_qsig_subaddressInformation);
-}
 
 
 
@@ -927,29 +846,20 @@ dissect_qsig_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_oddCountIndicator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_BOOLEAN(FALSE, tvb, offset, actx, tree, hf_qsig_oddCountIndicator);
-}
-static int dissect_remoteEnabled(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_BOOLEAN(FALSE, tvb, offset, actx, tree, hf_qsig_remoteEnabled);
-}
 
 
-static const ber_old_sequence_t UserSpecifiedSubaddress_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_subaddressInformation },
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_oddCountIndicator },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UserSpecifiedSubaddress_sequence[] = {
+  { &hf_qsig_subaddressInformation, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_qsig_SubaddressInformation },
+  { &hf_qsig_oddCountIndicator, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_qsig_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_UserSpecifiedSubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       UserSpecifiedSubaddress_sequence, hf_index, ett_qsig_UserSpecifiedSubaddress);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UserSpecifiedSubaddress_sequence, hf_index, ett_qsig_UserSpecifiedSubaddress);
 
   return offset;
-}
-static int dissect_userSpecifiedSubaddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_UserSpecifiedSubaddress(FALSE, tvb, offset, actx, tree, hf_qsig_userSpecifiedSubaddress);
 }
 
 
@@ -961,9 +871,6 @@ dissect_qsig_NSAPSubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_nSAPSubaddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NSAPSubaddress(FALSE, tvb, offset, actx, tree, hf_qsig_nSAPSubaddress);
-}
 
 
 static const value_string qsig_PartySubaddress_vals[] = {
@@ -972,47 +879,35 @@ static const value_string qsig_PartySubaddress_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PartySubaddress_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_userSpecifiedSubaddress },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nSAPSubaddress },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PartySubaddress_choice[] = {
+  {   0, &hf_qsig_userSpecifiedSubaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_UserSpecifiedSubaddress },
+  {   1, &hf_qsig_nSAPSubaddress , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_qsig_NSAPSubaddress },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PartySubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PartySubaddress_choice, hf_index, ett_qsig_PartySubaddress,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PartySubaddress_choice, hf_index, ett_qsig_PartySubaddress,
+                                 NULL);
 
   return offset;
 }
-static int dissect_partySubaddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartySubaddress(FALSE, tvb, offset, actx, tree, hf_qsig_partySubaddress);
-}
-static int dissect_callingPartySubaddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PartySubaddress(FALSE, tvb, offset, actx, tree, hf_qsig_callingPartySubaddress);
-}
 
 
-static const ber_old_sequence_t AddressScreened_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partyNumber },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_screeningIndicator },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partySubaddress },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AddressScreened_sequence[] = {
+  { &hf_qsig_partyNumber    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_screeningIndicator, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_ScreeningIndicator },
+  { &hf_qsig_partySubaddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartySubaddress },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_AddressScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AddressScreened_sequence, hf_index, ett_qsig_AddressScreened);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AddressScreened_sequence, hf_index, ett_qsig_AddressScreened);
 
   return offset;
-}
-static int dissect_presentationAllowedAddressS_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_AddressScreened(TRUE, tvb, offset, actx, tree, hf_qsig_presentationAllowedAddressS);
-}
-static int dissect_presentationRestrictedAddressS_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_AddressScreened(TRUE, tvb, offset, actx, tree, hf_qsig_presentationRestrictedAddressS);
 }
 
 
@@ -1022,18 +917,6 @@ dissect_qsig_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
-}
-static int dissect_presentationRestricted_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NULL(TRUE, tvb, offset, actx, tree, hf_qsig_presentationRestricted);
-}
-static int dissect_numberNotAvailableDueToInterworking_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NULL(TRUE, tvb, offset, actx, tree, hf_qsig_numberNotAvailableDueToInterworking);
-}
-static int dissect_namePresentationRestrictedNull_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NULL(TRUE, tvb, offset, actx, tree, hf_qsig_namePresentationRestrictedNull);
-}
-static int dissect_null(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NULL(FALSE, tvb, offset, actx, tree, hf_qsig_null);
 }
 
 
@@ -1045,48 +928,36 @@ static const value_string qsig_PresentedAddressScreened_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PresentedAddressScreened_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_presentationAllowedAddressS_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueToInterworking_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_presentationRestrictedAddressS_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PresentedAddressScreened_choice[] = {
+  {   0, &hf_qsig_presentationAllowedAddressS, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_qsig_AddressScreened },
+  {   1, &hf_qsig_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   2, &hf_qsig_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   3, &hf_qsig_presentationRestrictedAddressS, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_qsig_AddressScreened },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PresentedAddressScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PresentedAddressScreened_choice, hf_index, ett_qsig_PresentedAddressScreened,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PresentedAddressScreened_choice, hf_index, ett_qsig_PresentedAddressScreened,
+                                 NULL);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t Address_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partyNumber },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partySubaddress },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Address_sequence[] = {
+  { &hf_qsig_partyNumber    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_partySubaddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartySubaddress },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Address_sequence, hf_index, ett_qsig_Address);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Address_sequence, hf_index, ett_qsig_Address);
 
   return offset;
-}
-static int dissect_presentationAllowedAddressU_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Address(TRUE, tvb, offset, actx, tree, hf_qsig_presentationAllowedAddressU);
-}
-static int dissect_presentationRestrictedAddressU_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Address(TRUE, tvb, offset, actx, tree, hf_qsig_presentationRestrictedAddressU);
-}
-static int dissect_divertedToAddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Address(FALSE, tvb, offset, actx, tree, hf_qsig_divertedToAddress);
-}
-static int dissect_calledAddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Address(FALSE, tvb, offset, actx, tree, hf_qsig_calledAddress);
 }
 
 
@@ -1098,42 +969,36 @@ static const value_string qsig_PresentedAddressUnscreened_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PresentedAddressUnscreened_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_presentationAllowedAddressU_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueToInterworking_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_presentationRestrictedAddressU_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PresentedAddressUnscreened_choice[] = {
+  {   0, &hf_qsig_presentationAllowedAddressU, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_qsig_Address },
+  {   1, &hf_qsig_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   2, &hf_qsig_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   3, &hf_qsig_presentationRestrictedAddressU, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_qsig_Address },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PresentedAddressUnscreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PresentedAddressUnscreened_choice, hf_index, ett_qsig_PresentedAddressUnscreened,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PresentedAddressUnscreened_choice, hf_index, ett_qsig_PresentedAddressUnscreened,
+                                 NULL);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t NumberScreened_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_partyNumber },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_screeningIndicator },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t NumberScreened_sequence[] = {
+  { &hf_qsig_partyNumber    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_screeningIndicator, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_ScreeningIndicator },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_NumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       NumberScreened_sequence, hf_index, ett_qsig_NumberScreened);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NumberScreened_sequence, hf_index, ett_qsig_NumberScreened);
 
   return offset;
-}
-static int dissect_presentationAllowedAddressNS_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberScreened(TRUE, tvb, offset, actx, tree, hf_qsig_presentationAllowedAddressNS);
-}
-static int dissect_presentationRestrictedAddressNS_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NumberScreened(TRUE, tvb, offset, actx, tree, hf_qsig_presentationRestrictedAddressNS);
 }
 
 
@@ -1145,24 +1010,21 @@ static const value_string qsig_PresentedNumberScreened_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PresentedNumberScreened_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_presentationAllowedAddressNS_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueToInterworking_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_presentationRestrictedAddressNS_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PresentedNumberScreened_choice[] = {
+  {   0, &hf_qsig_presentationAllowedAddressNS, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_qsig_NumberScreened },
+  {   1, &hf_qsig_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   2, &hf_qsig_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   3, &hf_qsig_presentationRestrictedAddressNS, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_qsig_NumberScreened },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PresentedNumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PresentedNumberScreened_choice, hf_index, ett_qsig_PresentedNumberScreened,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PresentedNumberScreened_choice, hf_index, ett_qsig_PresentedNumberScreened,
+                                 NULL);
 
   return offset;
-}
-static int dissect_callingNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PresentedNumberScreened(FALSE, tvb, offset, actx, tree, hf_qsig_callingNumber);
 }
 
 
@@ -1174,30 +1036,21 @@ static const value_string qsig_PresentedNumberUnscreened_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PresentedNumberUnscreened_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_presentationAllowedAddressNU },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_presentationRestricted_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_numberNotAvailableDueToInterworking_impl },
-  {   3, BER_CLASS_CON, 3, 0, dissect_presentationRestrictedAddressNU },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PresentedNumberUnscreened_choice[] = {
+  {   0, &hf_qsig_presentationAllowedAddressNU, BER_CLASS_CON, 0, 0, dissect_qsig_PartyNumber },
+  {   1, &hf_qsig_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   2, &hf_qsig_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  {   3, &hf_qsig_presentationRestrictedAddressNU, BER_CLASS_CON, 3, 0, dissect_qsig_PartyNumber },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_PresentedNumberUnscreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PresentedNumberUnscreened_choice, hf_index, ett_qsig_PresentedNumberUnscreened,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PresentedNumberUnscreened_choice, hf_index, ett_qsig_PresentedNumberUnscreened,
+                                 NULL);
 
   return offset;
-}
-static int dissect_lastRerouteingNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PresentedNumberUnscreened(FALSE, tvb, offset, actx, tree, hf_qsig_lastRerouteingNr);
-}
-static int dissect_originalCalledNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PresentedNumberUnscreened(FALSE, tvb, offset, actx, tree, hf_qsig_originalCalledNr);
-}
-static int dissect_divertingNr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PresentedNumberUnscreened(FALSE, tvb, offset, actx, tree, hf_qsig_divertingNr);
 }
 
 
@@ -1208,9 +1061,6 @@ dissect_qsig_PresentationAllowedIndicator(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_presentationAllowedIndicator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_PresentationAllowedIndicator(FALSE, tvb, offset, actx, tree, hf_qsig_presentationAllowedIndicator);
-}
 
 
 
@@ -1220,15 +1070,6 @@ dissect_qsig_NameData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
                                        NULL);
 
   return offset;
-}
-static int dissect_namePresentationAllowedSimple_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameData(TRUE, tvb, offset, actx, tree, hf_qsig_namePresentationAllowedSimple);
-}
-static int dissect_namePresentationRestrictedSimple_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameData(TRUE, tvb, offset, actx, tree, hf_qsig_namePresentationRestrictedSimple);
-}
-static int dissect_nameData(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameData(FALSE, tvb, offset, actx, tree, hf_qsig_nameData);
 }
 
 
@@ -1253,29 +1094,20 @@ dissect_qsig_CharacterSet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_characterSet(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_CharacterSet(FALSE, tvb, offset, actx, tree, hf_qsig_characterSet);
-}
 
 
-static const ber_old_sequence_t NameSet_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nameData },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_characterSet },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t NameSet_sequence[] = {
+  { &hf_qsig_nameData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_qsig_NameData },
+  { &hf_qsig_characterSet   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_qsig_CharacterSet },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_NameSet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       NameSet_sequence, hf_index, ett_qsig_NameSet);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   NameSet_sequence, hf_index, ett_qsig_NameSet);
 
   return offset;
-}
-static int dissect_namePresentationAllowedExtended_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameSet(TRUE, tvb, offset, actx, tree, hf_qsig_namePresentationAllowedExtended);
-}
-static int dissect_namePresentationRestrictedExtended_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameSet(TRUE, tvb, offset, actx, tree, hf_qsig_namePresentationRestrictedExtended);
 }
 
 
@@ -1285,22 +1117,19 @@ static const value_string qsig_NamePresentationAllowed_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t NamePresentationAllowed_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_namePresentationAllowedSimple_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_namePresentationAllowedExtended_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t NamePresentationAllowed_choice[] = {
+  {   0, &hf_qsig_namePresentationAllowedSimple, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_qsig_NameData },
+  {   1, &hf_qsig_namePresentationAllowedExtended, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_NameSet },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_NamePresentationAllowed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     NamePresentationAllowed_choice, hf_index, ett_qsig_NamePresentationAllowed,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 NamePresentationAllowed_choice, hf_index, ett_qsig_NamePresentationAllowed,
+                                 NULL);
 
   return offset;
-}
-static int dissect_namePresentationAllowed(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NamePresentationAllowed(FALSE, tvb, offset, actx, tree, hf_qsig_namePresentationAllowed);
 }
 
 
@@ -1311,23 +1140,20 @@ static const value_string qsig_NamePresentationRestricted_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t NamePresentationRestricted_choice[] = {
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_namePresentationRestrictedSimple_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_namePresentationRestrictedExtended_impl },
-  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_namePresentationRestrictedNull_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t NamePresentationRestricted_choice[] = {
+  {   2, &hf_qsig_namePresentationRestrictedSimple, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_NameData },
+  {   3, &hf_qsig_namePresentationRestrictedExtended, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_qsig_NameSet },
+  {   7, &hf_qsig_namePresentationRestrictedNull, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_qsig_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_NamePresentationRestricted(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     NamePresentationRestricted_choice, hf_index, ett_qsig_NamePresentationRestricted,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 NamePresentationRestricted_choice, hf_index, ett_qsig_NamePresentationRestricted,
+                                 NULL);
 
   return offset;
-}
-static int dissect_namePresentationRestricted(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NamePresentationRestricted(FALSE, tvb, offset, actx, tree, hf_qsig_namePresentationRestricted);
 }
 
 
@@ -1339,56 +1165,35 @@ dissect_qsig_NameNotAvailable(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_nameNotAvailable(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameNotAvailable(FALSE, tvb, offset, actx, tree, hf_qsig_nameNotAvailable);
-}
 
 
-static const ber_old_choice_t Name_choice[] = {
-  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_namePresentationAllowed },
-  {   1, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_namePresentationRestricted },
-  {   2, BER_CLASS_CON, 4, BER_FLAGS_NOOWNTAG, dissect_nameNotAvailable },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Name_choice[] = {
+  {   0, &hf_qsig_namePresentationAllowed, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_qsig_NamePresentationAllowed },
+  {   1, &hf_qsig_namePresentationRestricted, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_qsig_NamePresentationRestricted },
+  {   2, &hf_qsig_nameNotAvailable, BER_CLASS_CON, 4, BER_FLAGS_NOOWNTAG, dissect_qsig_NameNotAvailable },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_qsig_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Name_choice, hf_index, ett_qsig_Name,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Name_choice, hf_index, ett_qsig_Name,
+                                 NULL);
 
   return offset;
 }
-static int dissect_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Name(FALSE, tvb, offset, actx, tree, hf_qsig_name);
-}
-static int dissect_callingName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Name(FALSE, tvb, offset, actx, tree, hf_qsig_callingName);
-}
-static int dissect_redirectingName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Name(FALSE, tvb, offset, actx, tree, hf_qsig_redirectingName);
-}
-static int dissect_originalCalledName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Name(FALSE, tvb, offset, actx, tree, hf_qsig_originalCalledName);
-}
-static int dissect_redirectionName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Name(FALSE, tvb, offset, actx, tree, hf_qsig_redirectionName);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_Extension_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_multiple_item },
+static const ber_sequence_t SEQUENCE_OF_Extension_sequence_of[1] = {
+  { &hf_qsig_multiple_item  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Extension },
 };
 
 static int
 dissect_qsig_SEQUENCE_OF_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_Extension_sequence_of, hf_index, ett_qsig_SEQUENCE_OF_Extension);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_Extension_sequence_of, hf_index, ett_qsig_SEQUENCE_OF_Extension);
 
   return offset;
-}
-static int dissect_multiple_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_SEQUENCE_OF_Extension(TRUE, tvb, offset, actx, tree, hf_qsig_multiple);
 }
 
 
@@ -1398,40 +1203,34 @@ static const value_string qsig_NameExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t NameExtension_choice[] = {
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t NameExtension_choice[] = {
+  {   5, &hf_qsig_single         , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   6, &hf_qsig_multiple       , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_NameExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     NameExtension_choice, hf_index, ett_qsig_NameExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 NameExtension_choice, hf_index, ett_qsig_NameExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionNA(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_NameExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionNA);
-}
 
 
-static const ber_old_sequence_t T_nameSequence_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_name },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionNA },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t T_nameSequence_sequence[] = {
+  { &hf_qsig_name           , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_extensionNA    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_NameExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_T_nameSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_nameSequence_sequence, hf_index, ett_qsig_T_nameSequence);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_nameSequence_sequence, hf_index, ett_qsig_T_nameSequence);
 
   return offset;
-}
-static int dissect_nameSequence(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_T_nameSequence(FALSE, tvb, offset, actx, tree, hf_qsig_nameSequence);
 }
 
 
@@ -1441,17 +1240,17 @@ static const value_string qsig_NameArg_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t NameArg_choice[] = {
-  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_name },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_nameSequence },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t NameArg_choice[] = {
+  {   0, &hf_qsig_name           , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_qsig_Name },
+  {   1, &hf_qsig_nameSequence   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_T_nameSequence },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_NameArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     NameArg_choice, hf_index, ett_qsig_NameArg,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 NameArg_choice, hf_index, ett_qsig_NameArg,
+                                 NULL);
 
   return offset;
 }
@@ -1471,9 +1270,6 @@ dissect_qsig_Procedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
                                   NULL);
 
   return offset;
-}
-static int dissect_procedure(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_Procedure(FALSE, tvb, offset, actx, tree, hf_qsig_procedure);
 }
 
 
@@ -1498,9 +1294,6 @@ dissect_qsig_BasicService(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_basicService(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_BasicService(FALSE, tvb, offset, actx, tree, hf_qsig_basicService);
-}
 
 
 static const value_string qsig_ADExtension_vals[] = {
@@ -1509,39 +1302,36 @@ static const value_string qsig_ADExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ADExtension_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ADExtension_choice[] = {
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_ADExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ADExtension_choice, hf_index, ett_qsig_ADExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ADExtension_choice, hf_index, ett_qsig_ADExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionAD(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_ADExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionAD);
-}
 
 
-static const ber_old_sequence_t ActivateDivArg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_procedure },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_basicService },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_divertedToAddress },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_servedUserNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_activatingUserNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionAD },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ActivateDivArg_sequence[] = {
+  { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
+  { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
+  { &hf_qsig_divertedToAddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Address },
+  { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_activatingUserNr, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_extensionAD    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_ADExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_ActivateDivArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ActivateDivArg_sequence, hf_index, ett_qsig_ActivateDivArg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ActivateDivArg_sequence, hf_index, ett_qsig_ActivateDivArg);
 
   return offset;
 }
@@ -1554,18 +1344,18 @@ static const value_string qsig_ActivateDivRes_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ActivateDivRes_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_null },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ActivateDivRes_choice[] = {
+  {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_ActivateDivRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ActivateDivRes_choice, hf_index, ett_qsig_ActivateDivRes,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ActivateDivRes_choice, hf_index, ett_qsig_ActivateDivRes,
+                                 NULL);
 
   return offset;
 }
@@ -1577,38 +1367,35 @@ static const value_string qsig_DDExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DDExtension_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DDExtension_choice[] = {
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DDExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DDExtension_choice, hf_index, ett_qsig_DDExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DDExtension_choice, hf_index, ett_qsig_DDExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionDD(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DDExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionDD);
-}
 
 
-static const ber_old_sequence_t DeactivateDivArg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_procedure },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_basicService },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_servedUserNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_deactivatingUserNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionDD },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DeactivateDivArg_sequence[] = {
+  { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
+  { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
+  { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_deactivatingUserNr, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_extensionDD    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_DDExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DeactivateDivArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DeactivateDivArg_sequence, hf_index, ett_qsig_DeactivateDivArg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DeactivateDivArg_sequence, hf_index, ett_qsig_DeactivateDivArg);
 
   return offset;
 }
@@ -1621,18 +1408,18 @@ static const value_string qsig_DeactivateDivRes_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DeactivateDivRes_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_null },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DeactivateDivRes_choice[] = {
+  {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DeactivateDivRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DeactivateDivRes_choice, hf_index, ett_qsig_DeactivateDivRes,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DeactivateDivRes_choice, hf_index, ett_qsig_DeactivateDivRes,
+                                 NULL);
 
   return offset;
 }
@@ -1644,38 +1431,35 @@ static const value_string qsig_IDExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t IDExtension_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t IDExtension_choice[] = {
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_IDExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     IDExtension_choice, hf_index, ett_qsig_IDExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 IDExtension_choice, hf_index, ett_qsig_IDExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionID(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_IDExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionID);
-}
 
 
-static const ber_old_sequence_t InterrDivArg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_procedure },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_basicService },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_servedUserNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_interrogatingUserNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionID },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterrDivArg_sequence[] = {
+  { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
+  { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
+  { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_interrogatingUserNr, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_extensionID    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_IDExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_InterrDivArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       InterrDivArg_sequence, hf_index, ett_qsig_InterrDivArg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   InterrDivArg_sequence, hf_index, ett_qsig_InterrDivArg);
 
   return offset;
 }
@@ -1687,37 +1471,34 @@ static const value_string qsig_CHRExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t CHRExtension_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t CHRExtension_choice[] = {
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_CHRExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     CHRExtension_choice, hf_index, ett_qsig_CHRExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 CHRExtension_choice, hf_index, ett_qsig_CHRExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionCHR(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_CHRExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionCHR);
-}
 
 
-static const ber_old_sequence_t ChkResArg_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_servedUserNr },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_basicService },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_divertedToNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionCHR },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ChkResArg_sequence[] = {
+  { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
+  { &hf_qsig_divertedToNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_extensionCHR   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_CHRExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_ChkResArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ChkResArg_sequence, hf_index, ett_qsig_ChkResArg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ChkResArg_sequence, hf_index, ett_qsig_ChkResArg);
 
   return offset;
 }
@@ -1730,18 +1511,18 @@ static const value_string qsig_ChkResRes_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ChkResRes_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_null },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ChkResRes_choice[] = {
+  {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_ChkResRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ChkResRes_choice, hf_index, ett_qsig_ChkResRes,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ChkResRes_choice, hf_index, ett_qsig_ChkResRes,
+                                 NULL);
 
   return offset;
 }
@@ -1763,18 +1544,6 @@ dissect_qsig_DiversionReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_rerouteingReason(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DiversionReason(FALSE, tvb, offset, actx, tree, hf_qsig_rerouteingReason);
-}
-static int dissect_originalRerouteingReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DiversionReason(TRUE, tvb, offset, actx, tree, hf_qsig_originalRerouteingReason);
-}
-static int dissect_diversionReason(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DiversionReason(FALSE, tvb, offset, actx, tree, hf_qsig_diversionReason);
-}
-static int dissect_originalDiversionReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DiversionReason(TRUE, tvb, offset, actx, tree, hf_qsig_originalDiversionReason);
-}
 
 
 
@@ -1784,9 +1553,6 @@ dissect_qsig_INTEGER_1_15(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                   NULL);
 
   return offset;
-}
-static int dissect_diversionCounter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_INTEGER_1_15(FALSE, tvb, offset, actx, tree, hf_qsig_diversionCounter);
 }
 
 
@@ -1805,12 +1571,6 @@ dissect_qsig_SubscriptionOption(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_subscriptionOption(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_SubscriptionOption(FALSE, tvb, offset, actx, tree, hf_qsig_subscriptionOption);
-}
-static int dissect_subscriptionOption_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_SubscriptionOption(TRUE, tvb, offset, actx, tree, hf_qsig_subscriptionOption);
-}
 
 
 static const value_string qsig_CRRExtension_vals[] = {
@@ -1819,47 +1579,44 @@ static const value_string qsig_CRRExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t CRRExtension_choice[] = {
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t CRRExtension_choice[] = {
+  {   9, &hf_qsig_single         , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {  10, &hf_qsig_multiple       , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_CRRExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     CRRExtension_choice, hf_index, ett_qsig_CRRExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 CRRExtension_choice, hf_index, ett_qsig_CRRExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionCRR(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_CRRExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionCRR);
-}
 
 
-static const ber_old_sequence_t CallRrArg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_rerouteingReason },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalRerouteingReason_impl },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_calledAddress },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_diversionCounter },
-  { BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_pSS1InfoElement },
-  { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_lastRerouteingNr },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_subscriptionOption_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_callingPartySubaddress },
-  { BER_CLASS_CON, 4, BER_FLAGS_NOTCHKTAG, dissect_callingNumber },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_callingName },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_originalCalledNr },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_redirectingName },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_originalCalledName },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionCRR },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CallRrArg_sequence[] = {
+  { &hf_qsig_rerouteingReason, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_DiversionReason },
+  { &hf_qsig_originalRerouteingReason, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qsig_DiversionReason },
+  { &hf_qsig_calledAddress  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Address },
+  { &hf_qsig_diversionCounter, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_INTEGER_1_15 },
+  { &hf_qsig_pSS1InfoElement, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_qsig_PSS1InformationElement },
+  { &hf_qsig_lastRerouteingNr, BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_qsig_PresentedNumberUnscreened },
+  { &hf_qsig_subscriptionOption, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SubscriptionOption },
+  { &hf_qsig_callingPartySubaddress, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartySubaddress },
+  { &hf_qsig_callingNumber  , BER_CLASS_CON, 4, BER_FLAGS_NOTCHKTAG, dissect_qsig_PresentedNumberScreened },
+  { &hf_qsig_callingName    , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_originalCalledNr, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_PresentedNumberUnscreened },
+  { &hf_qsig_redirectingName, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_originalCalledName, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_extensionCRR   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_CRRExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_CallRrArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CallRrArg_sequence, hf_index, ett_qsig_CallRrArg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CallRrArg_sequence, hf_index, ett_qsig_CallRrArg);
 
   return offset;
 }
@@ -1872,18 +1629,18 @@ static const value_string qsig_CallRrRes_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t CallRrRes_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_null },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t CallRrRes_choice[] = {
+  {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_CallRrRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     CallRrRes_choice, hf_index, ett_qsig_CallRrRes,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 CallRrRes_choice, hf_index, ett_qsig_CallRrRes,
+                                 NULL);
 
   return offset;
 }
@@ -1895,37 +1652,34 @@ static const value_string qsig_DLI1Extension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DLI1Extension_choice[] = {
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DLI1Extension_choice[] = {
+  {   9, &hf_qsig_single         , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {  10, &hf_qsig_multiple       , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DLI1Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DLI1Extension_choice, hf_index, ett_qsig_DLI1Extension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DLI1Extension_choice, hf_index, ett_qsig_DLI1Extension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionDLI1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DLI1Extension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionDLI1);
-}
 
 
-static const ber_old_sequence_t DivLegInf1Arg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_diversionReason },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_subscriptionOption },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_nominatedNr },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionDLI1 },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DivLegInf1Arg_sequence[] = {
+  { &hf_qsig_diversionReason, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_DiversionReason },
+  { &hf_qsig_subscriptionOption, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_SubscriptionOption },
+  { &hf_qsig_nominatedNr    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_extensionDLI1  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_DLI1Extension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DivLegInf1Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DivLegInf1Arg_sequence, hf_index, ett_qsig_DivLegInf1Arg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DivLegInf1Arg_sequence, hf_index, ett_qsig_DivLegInf1Arg);
 
   return offset;
 }
@@ -1937,41 +1691,38 @@ static const value_string qsig_DLI2Extension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DLI2Extension_choice[] = {
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DLI2Extension_choice[] = {
+  {   5, &hf_qsig_single         , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   6, &hf_qsig_multiple       , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DLI2Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DLI2Extension_choice, hf_index, ett_qsig_DLI2Extension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DLI2Extension_choice, hf_index, ett_qsig_DLI2Extension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionDLI2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DLI2Extension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionDLI2);
-}
 
 
-static const ber_old_sequence_t DivLegInf2Arg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_diversionCounter },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_diversionReason },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalDiversionReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_divertingNr },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_originalCalledNr },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_redirectingName },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_originalCalledName },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionDLI2 },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DivLegInf2Arg_sequence[] = {
+  { &hf_qsig_diversionCounter, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_INTEGER_1_15 },
+  { &hf_qsig_diversionReason, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_DiversionReason },
+  { &hf_qsig_originalDiversionReason, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qsig_DiversionReason },
+  { &hf_qsig_divertingNr    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_PresentedNumberUnscreened },
+  { &hf_qsig_originalCalledNr, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_PresentedNumberUnscreened },
+  { &hf_qsig_redirectingName, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_originalCalledName, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_extensionDLI2  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_DLI2Extension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DivLegInf2Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DivLegInf2Arg_sequence, hf_index, ett_qsig_DivLegInf2Arg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DivLegInf2Arg_sequence, hf_index, ett_qsig_DivLegInf2Arg);
 
   return offset;
 }
@@ -1983,36 +1734,33 @@ static const value_string qsig_DLI3Extension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DLI3Extension_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DLI3Extension_choice[] = {
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DLI3Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DLI3Extension_choice, hf_index, ett_qsig_DLI3Extension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DLI3Extension_choice, hf_index, ett_qsig_DLI3Extension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionDLI3(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_DLI3Extension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionDLI3);
-}
 
 
-static const ber_old_sequence_t DivLegInf3Arg_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_presentationAllowedIndicator },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_redirectionName },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionDLI3 },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DivLegInf3Arg_sequence[] = {
+  { &hf_qsig_presentationAllowedIndicator, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_qsig_PresentationAllowedIndicator },
+  { &hf_qsig_redirectionName, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
+  { &hf_qsig_extensionDLI3  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_DLI3Extension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DivLegInf3Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DivLegInf3Arg_sequence, hf_index, ett_qsig_DivLegInf3Arg);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DivLegInf3Arg_sequence, hf_index, ett_qsig_DivLegInf3Arg);
 
   return offset;
 }
@@ -2025,18 +1773,18 @@ static const value_string qsig_DivLegFailArg_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DivLegFailArg_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_null },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DivLegFailArg_choice[] = {
+  {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_DivLegFailArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DivLegFailArg_choice, hf_index, ett_qsig_DivLegFailArg,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DivLegFailArg_choice, hf_index, ett_qsig_DivLegFailArg,
+                                 NULL);
 
   return offset;
 }
@@ -2048,55 +1796,49 @@ static const value_string qsig_IRExtension_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t IRExtension_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_single_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_multiple_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t IRExtension_choice[] = {
+  {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_IRExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     IRExtension_choice, hf_index, ett_qsig_IRExtension,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 IRExtension_choice, hf_index, ett_qsig_IRExtension,
+                                 NULL);
 
   return offset;
 }
-static int dissect_extensionIR(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_IRExtension(FALSE, tvb, offset, actx, tree, hf_qsig_extensionIR);
-}
 
 
-static const ber_old_sequence_t IntResult_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_servedUserNr },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_basicService },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_procedure },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_divertedToAddress },
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_remoteEnabled },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extensionIR },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IntResult_sequence[] = {
+  { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
+  { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
+  { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
+  { &hf_qsig_divertedToAddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Address },
+  { &hf_qsig_remoteEnabled  , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_qsig_BOOLEAN },
+  { &hf_qsig_extensionIR    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_IRExtension },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_qsig_IntResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       IntResult_sequence, hf_index, ett_qsig_IntResult);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IntResult_sequence, hf_index, ett_qsig_IntResult);
 
   return offset;
 }
-static int dissect_IntResultList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_qsig_IntResult(FALSE, tvb, offset, actx, tree, hf_qsig_IntResultList_item);
-}
 
 
-static const ber_old_sequence_t IntResultList_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_IntResultList_item },
+static const ber_sequence_t IntResultList_set_of[1] = {
+  { &hf_qsig_IntResultList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_IntResult },
 };
 
 static int
 dissect_qsig_IntResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     IntResultList_set_of, hf_index, ett_qsig_IntResultList);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 IntResultList_set_of, hf_index, ett_qsig_IntResultList);
 
   return offset;
 }

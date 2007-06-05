@@ -18,7 +18,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(Q932_FILES): ../../tools/asn2wrs.py $(Q932_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -T -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(Q932_ASN)
+	$(PYTHON) "../../tools/asn2wrs.py" -b -T -X -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(Q932_ASN)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
@@ -26,7 +26,7 @@ $(Q932_FILES): ../../tools/asn2wrs.py $(Q932_ASN) packet-$(PROTOCOL_NAME)-templa
 
 $(Q932_ROS_FILES): ../../tools/asn2wrs.py $(PROTOCOL_NAME)-ros.asn packet-$(PROTOCOL_NAME)-ros-template.c packet-$(PROTOCOL_NAME)-ros-template.h $(PROTOCOL_NAME)-ros.cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -T -p $(PROTOCOL_NAME).ros -c $(PROTOCOL_NAME)-ros.cnf -o $(PROTOCOL_NAME)-ros -s packet-$(PROTOCOL_NAME)-ros-template $(PROTOCOL_NAME)-ros.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -T -X -p $(PROTOCOL_NAME).ros -c $(PROTOCOL_NAME)-ros.cnf -o $(PROTOCOL_NAME)-ros -s packet-$(PROTOCOL_NAME)-ros-template $(PROTOCOL_NAME)-ros.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
