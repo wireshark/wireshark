@@ -87,18 +87,22 @@ ACIItem		B	"2.5.24.4" "id-aca-prescriptiveACI"
 ACIItem		B	"2.5.24.5" "id-aca-entryACI"
 ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
 
-#.FN_PARS	OBJECT_IDENTIFIER
-	FN_VARIANT = _str VAL_PTR = &binding_type
+#.VIRTUAL_ASSGN
+BindingType EstablishOperationalBindingArgumentData/bindingType
+#.SET_TYPE
+EstablishOperationalBindingArgumentData/bindingType  BindingType
+EstablishOperationalBindingResult/bindingType  BindingType
+ModifyOperationalBindingArgumentData/bindingType  BindingType
+ModifyOperationalBindingResultData/bindingType  BindingType
+TerminateOperationalBindingArgumentData/bindingType  BindingType
+TerminateOperationalBindingResultData/bindingType  BindingType
+OpBindingErrorParam/bindingType  BindingType
+#.END
 
-#.FN_BODY	OBJECT_IDENTIFIER
-  const char *name;
-
-  %(DEFAULT_BODY)s
-
-  if(check_col(actx->pinfo->cinfo, COL_INFO)) {
-    name = get_oid_str_name(binding_type);
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", name ? name : binding_type);
-  }
+#.FN_PARS	BindingType  FN_VARIANT = _str VAL_PTR = &binding_type
+#.FN_FTR	BindingType
+  append_oid(actx->pinfo, binding_type);
+#.END
 
 #.FN_BODY	EstablishSymmetric
 
@@ -136,23 +140,23 @@ ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
 
   offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
-#.FN_BODY	T_agreement
+#.FN_BODY	EstablishOperationalBindingArgumentData/agreement
 
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
-#.FN_BODY	T_symmetric
+#.FN_BODY	EstablishOperationalBindingResult/initiator/symmetric
 
   offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric"); 
 
-#.FN_BODY	T_roleA_replies
+#.FN_BODY	EstablishOperationalBindingResult/initiator/roleA-replies
 
   offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
-#.FN_BODY	T_roleB_replies
+#.FN_BODY	EstablishOperationalBindingResult/initiator/roleB-replies
 
   offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
-#.FN_BODY	T_agreementProposal
+#.FN_BODY	OpBindingErrorParam/agreementProposal
 
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
@@ -165,20 +169,24 @@ ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
   offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 
-#.FN_PARS INTEGER
-	VAL_PTR	= &value
-
-#.FN_BODY INTEGER
+#.FN_BODY OperationalBindingID/identifier  VAL_PTR	= &value
 	guint32	value;
 
 	%(DEFAULT_BODY)s
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		if(hf_index == hf_dop_identifier) {
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%%d", value);
-		} else if (hf_index == hf_dop_version) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, ",%%d", value);
-		}
+  	}
+
+
+
+#.FN_BODY OperationalBindingID/version	VAL_PTR	= &value
+	guint32	value;
+
+	%(DEFAULT_BODY)s
+
+	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%%d", value);
   	}
 
 #.FN_PARS Precedence VAL_PTR = &precedence

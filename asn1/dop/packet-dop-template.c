@@ -74,6 +74,16 @@ static int call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, pack
 static gint ett_dop = -1;
 #include "packet-dop-ett.c"
 
+static void append_oid(packet_info *pinfo, const char *oid)
+{
+  	const char *name = NULL;
+
+  if(check_col(pinfo->cinfo, COL_INFO)) {
+    name = get_oid_str_name(oid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", name ? name : oid);
+  }
+}
+
 #include "packet-dop-fn.c"
 
 static int
