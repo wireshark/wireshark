@@ -869,10 +869,17 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
     strval = (char *) tvb_get_ephemeral_stringz(tvb, *offset, &len);
     if (*strval)
     {
-	if (smpp_mktime(strval, &tmptime.secs, &tmptime.nsecs))
-	    proto_tree_add_time(tree, field_R, tvb, *offset, len, &tmptime);
+	if (len >= 16)
+	{
+	    if (smpp_mktime(strval, &tmptime.secs, &tmptime.nsecs))
+		proto_tree_add_time(tree, field_R, tvb, *offset, len, &tmptime);
+	    else
+		proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
+	}
 	else
-	    proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
+	{
+	    proto_tree_add_text(tree, tvb, *offset, len, "Invalid time: %s", strval);
+	}
     }
     *offset += len;
 }
