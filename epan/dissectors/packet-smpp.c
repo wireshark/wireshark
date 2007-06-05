@@ -2464,6 +2464,13 @@ proto_register_smpp(void)
 		HFILL
 	    }
 	},
+	{   &hf_smpp_sms_signal,
+	    {   "SMS signal", "smpp.sms_signal",
+		FT_UINT16, BASE_HEX, NULL, 0x00,
+		"Alert the user according to the information contained within this information element.",
+		HFILL
+	    }
+	},
 	{   &hf_smpp_ms_validity,
 	    {   "Validity info", "smpp.ms_validity",
 		FT_UINT8, BASE_DEC, VALS(vals_ms_validity), 0x00,
