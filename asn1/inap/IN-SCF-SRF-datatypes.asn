@@ -1,5 +1,3 @@
--- $Id$
--- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
 -- Module IN-SCF-SRF-datatypes (Q.1248.3:07/2001)
 IN-SCF-SRF-datatypes {itu-t recommendation q 1248 modules(1)
   in-scf-srf-datatypes(10) version1(0)} DEFINITIONS IMPLICIT TAGS ::=
@@ -24,12 +22,12 @@ IMPORTS
     FROM IN-SCF-SRF-Classes scf-srf-classes;
 
 -- The following three definitions are local short-hand notation for convenience.
--- B1 ::=
---  COMMON-BOUNDS  defined in Q.1248.1 (Part 1 of Recommendation Q.1248)
+B1 ::=
+  COMMON-BOUNDS -- defined in Q.1248.1 (Part 1 of Recommendation Q.1248)
 
---B2 ::= SCF-SSF-BOUNDS  defined in Q.1248.2 (Part 2 of Recommendation Q.1248)
+B2 ::= SCF-SSF-BOUNDS -- defined in Q.1248.2 (Part 2 of Recommendation Q.1248)
 
--- B3 ::= SCF-SRF-BOUNDS  defined in this Recommendation (Q.1248.3)
+B3 ::= SCF-SRF-BOUNDS -- defined in this Recommendation (Q.1248.3)
 
 CollectedDigits ::= SEQUENCE {
   minimumNbOfDigits    [0]  INTEGER(1..127) DEFAULT 1,
@@ -66,7 +64,7 @@ ErrorTreatment ::= ENUMERATED {reportErrorToScf(0), help(1), repeatPrompt(2)}
 GapOnResource ::=
   Code
 
-InbandInfo--{B2:b2, B3:b3} -- ::= SEQUENCE {
+InbandInfo{B2:b2, B3:b3} ::= SEQUENCE {
   messageID            [0]  MessageID{b2, b3},
   numberOfRepetitions  [1]  INTEGER(1..127) OPTIONAL,
   duration             [2]  INTEGER(0..32767) OPTIONAL,
@@ -83,7 +81,7 @@ InformationToRecord{B3:b3} ::= SEQUENCE {
   messageID               [0]  ElementaryMessageID OPTIONAL,
   messageDeletionTimeOut  [1]  INTEGER(1..3600) OPTIONAL,
   --Time units = hours
-  timeToRecord            [3]  INTEGER(0..--b3.&--maxRecordingTime) OPTIONAL,
+  timeToRecord            [3]  INTEGER(0..b3.&maxRecordingTime) OPTIONAL,
   --Time units = seconds
   controlDigits
     [4]  SEQUENCE {endOfRecordingDigit
@@ -100,7 +98,7 @@ InformationToRecord{B3:b3} ::= SEQUENCE {
   ...
 }
 
-InformationToSend--{B2:b2, B3:b3} -- ::= CHOICE {
+InformationToSend{B2:b2, B3:b3} ::= CHOICE {
   inbandInfo          [0]  InbandInfo{b2, b3},
   tone                [1]  Tone,
   displayInformation  [2]  DisplayInformation{b2},
@@ -111,28 +109,28 @@ Language ::= PrintableString(SIZE (3)) -- ISO 639 codes only;
                             
 
 MailBoxID{B3:b3} ::=
-  OCTET STRING(SIZE (--b3.&--minMailBoxIDLength..--b3.&--maxMailBoxIDLength))
+  OCTET STRING(SIZE (b3.&minMailBoxIDLength..b3.&maxMailBoxIDLength))
 
 Media ::= ENUMERATED {voiceMail(0), faxGroup3(1), faxGroup4(2)}
 
-MessageID--{B2:b2, B3:b3} -- ::= CHOICE {
+MessageID{B2:b2, B3:b3} ::= CHOICE {
   elementaryMessageID   [0]  Integer4,
   text
     [1]  SEQUENCE {messageContent
                      [0]  IA5String
-                            (SIZE (--b3.&--minMessageContentLength..
-                                     --b3.&--maxMessageContentLength)),
+                            (SIZE (b3.&minMessageContentLength..
+                                     b3.&maxMessageContentLength)),
                    attributes
                      [1]  OCTET STRING
-                            (SIZE (--b3.&--minAttributesLength..
-                                     --b3.&--maxAttributesLength)) OPTIONAL,
+                            (SIZE (b3.&minAttributesLength..
+                                     b3.&maxAttributesLength)) OPTIONAL,
                    ...},
   elementaryMessageIDs
-    [29]  SEQUENCE SIZE (1..--b3.&--numOfMessageIDs) OF Integer4,
+    [29]  SEQUENCE SIZE (1..b3.&numOfMessageIDs) OF Integer4,
   variableMessage
     [30]  SEQUENCE {elementaryMessageID  [0]  Integer4,
                     variableParts
-                      [1]  SEQUENCE SIZE (1..--b3.&--maxVariableParts) OF
+                      [1]  SEQUENCE SIZE (1..b3.&maxVariableParts) OF
                              VariablePart{b2},
                     ...}
 }

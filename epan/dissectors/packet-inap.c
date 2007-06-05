@@ -529,7 +529,7 @@ static int hf_inap_interval_02 = -1;              /* INTEGER_0_32767 */
 static int hf_inap_preferredLanguage = -1;        /* Language */
 static int hf_inap_messageID_01 = -1;             /* ElementaryMessageID */
 static int hf_inap_messageDeletionTimeOut = -1;   /* INTEGER_1_3600 */
-static int hf_inap_timeToRecord = -1;             /* INTEGER_0_maxRecordingTime */
+static int hf_inap_timeToRecord = -1;             /* INTEGER_0_b3__maxRecordingTime */
 static int hf_inap_controlDigits = -1;            /* T_controlDigits */
 static int hf_inap_endOfRecordingDigit = -1;      /* OCTET_STRING_SIZE_1_2 */
 static int hf_inap_replayDigit = -1;              /* OCTET_STRING_SIZE_1_2 */
@@ -540,12 +540,12 @@ static int hf_inap_inbandInfo = -1;               /* InbandInfo */
 static int hf_inap_tone = -1;                     /* Tone */
 static int hf_inap_elementaryMessageID = -1;      /* Integer4 */
 static int hf_inap_text = -1;                     /* T_text */
-static int hf_inap_messageContent = -1;           /* IA5String_SIZE_minMessageContentLength_maxMessageContentLength */
-static int hf_inap_attributes = -1;               /* OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength */
-static int hf_inap_elementaryMessageIDs = -1;     /* SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4 */
+static int hf_inap_messageContent = -1;           /* IA5String_SIZE_b3__minMessageContentLength_b3__maxMessageContentLength */
+static int hf_inap_attributes = -1;               /* OCTET_STRING_SIZE_b3__minAttributesLength_b3__maxAttributesLength */
+static int hf_inap_elementaryMessageIDs = -1;     /* SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4 */
 static int hf_inap_elementaryMessageIDs_item = -1;  /* Integer4 */
 static int hf_inap_variableMessage = -1;          /* T_variableMessage */
-static int hf_inap_variableParts = -1;            /* SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart */
+static int hf_inap_variableParts = -1;            /* SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart */
 static int hf_inap_variableParts_item = -1;       /* VariablePart */
 static int hf_inap_iPAddressValue = -1;           /* Digits */
 static int hf_inap_gapOnResource = -1;            /* GapOnResource */
@@ -570,7 +570,7 @@ static int hf_inap_informationToRecord = -1;      /* InformationToRecord */
 static int hf_inap_media = -1;                    /* Media */
 static int hf_inap_receivedStatus = -1;           /* ReceivedStatus */
 static int hf_inap_recordedMessageID = -1;        /* RecordedMessageID */
-static int hf_inap_recordedMessageUnits = -1;     /* INTEGER_1_maxRecordedMessageUnits */
+static int hf_inap_recordedMessageUnits = -1;     /* INTEGER_1_b3__maxRecordedMessageUnits */
 static int hf_inap_uIScriptId = -1;               /* Code */
 static int hf_inap_uIScriptSpecificInfo = -1;     /* T_uIScriptSpecificInfo */
 static int hf_inap_uIScriptResult = -1;           /* T_uIScriptResult */
@@ -814,9 +814,9 @@ static gint ett_inap_T_controlDigits = -1;
 static gint ett_inap_InformationToSend = -1;
 static gint ett_inap_MessageID = -1;
 static gint ett_inap_T_text = -1;
-static gint ett_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4 = -1;
+static gint ett_inap_SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4 = -1;
 static gint ett_inap_T_variableMessage = -1;
-static gint ett_inap_SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart = -1;
+static gint ett_inap_SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart = -1;
 static gint ett_inap_SRFGapCriteria = -1;
 static gint ett_inap_T_iPAddressAndresource = -1;
 static gint ett_inap_Tone = -1;
@@ -2838,7 +2838,7 @@ dissect_inap_T_action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_inap_IA5String_SIZE_minMessageContentLength_maxMessageContentLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_IA5String_SIZE_b3__minMessageContentLength_b3__maxMessageContentLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -2849,7 +2849,7 @@ dissect_inap_IA5String_SIZE_minMessageContentLength_maxMessageContentLength(gboo
 
 
 static int
-dissect_inap_OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_OCTET_STRING_SIZE_b3__minAttributesLength_b3__maxAttributesLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -2858,8 +2858,8 @@ dissect_inap_OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength(gboolean 
 
 
 static const ber_sequence_t T_text_sequence[] = {
-  { &hf_inap_messageContent , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_IA5String_SIZE_minMessageContentLength_maxMessageContentLength },
-  { &hf_inap_attributes     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength },
+  { &hf_inap_messageContent , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_IA5String_SIZE_b3__minMessageContentLength_b3__maxMessageContentLength },
+  { &hf_inap_attributes     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_OCTET_STRING_SIZE_b3__minAttributesLength_b3__maxAttributesLength },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2872,14 +2872,14 @@ dissect_inap_T_text(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4_sequence_of[1] = {
   { &hf_inap_elementaryMessageIDs_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_inap_Integer4 },
 };
 
 static int
-dissect_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4);
+                                      SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4);
 
   return offset;
 }
@@ -2943,14 +2943,14 @@ dissect_inap_VariablePart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart_sequence_of[1] = {
   { &hf_inap_variableParts_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_inap_VariablePart },
 };
 
 static int
-dissect_inap_SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart);
+                                      SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart_sequence_of, hf_index, ett_inap_SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart);
 
   return offset;
 }
@@ -2958,7 +2958,7 @@ dissect_inap_SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart(gboolean implicit_
 
 static const ber_sequence_t T_variableMessage_sequence[] = {
   { &hf_inap_elementaryMessageID, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_Integer4 },
-  { &hf_inap_variableParts  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_inap_SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart },
+  { &hf_inap_variableParts  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_inap_SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2982,7 +2982,7 @@ static const value_string inap_MessageID_vals[] = {
 static const ber_choice_t MessageID_choice[] = {
   {   0, &hf_inap_elementaryMessageID, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_Integer4 },
   {   1, &hf_inap_text           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_inap_T_text },
-  {  29, &hf_inap_elementaryMessageIDs, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4 },
+  {  29, &hf_inap_elementaryMessageIDs, BER_CLASS_CON, 29, BER_FLAGS_IMPLTAG, dissect_inap_SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4 },
   {  30, &hf_inap_variableMessage, BER_CLASS_CON, 30, BER_FLAGS_IMPLTAG, dissect_inap_T_variableMessage },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -7410,7 +7410,7 @@ dissect_inap_INTEGER_1_3600(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_inap_INTEGER_0_maxRecordingTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_INTEGER_0_b3__maxRecordingTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7440,7 +7440,7 @@ dissect_inap_T_controlDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static const ber_sequence_t InformationToRecord_sequence[] = {
   { &hf_inap_messageID_01   , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_ElementaryMessageID },
   { &hf_inap_messageDeletionTimeOut, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_INTEGER_1_3600 },
-  { &hf_inap_timeToRecord   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_INTEGER_0_maxRecordingTime },
+  { &hf_inap_timeToRecord   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_INTEGER_0_b3__maxRecordingTime },
   { &hf_inap_controlDigits  , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_inap_T_controlDigits },
   { NULL, 0, 0, 0, NULL }
 };
@@ -7662,7 +7662,7 @@ dissect_inap_PromptAndReceiveMessageArg(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static int
-dissect_inap_INTEGER_1_maxRecordedMessageUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_inap_INTEGER_1_b3__maxRecordedMessageUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7673,7 +7673,7 @@ dissect_inap_INTEGER_1_maxRecordedMessageUnits(gboolean implicit_tag _U_, tvbuff
 static const ber_sequence_t MessageReceivedArg_sequence[] = {
   { &hf_inap_receivedStatus , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_inap_ReceivedStatus },
   { &hf_inap_recordedMessageID, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_RecordedMessageID },
-  { &hf_inap_recordedMessageUnits, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_INTEGER_1_maxRecordedMessageUnits },
+  { &hf_inap_recordedMessageUnits, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_INTEGER_1_b3__maxRecordedMessageUnits },
   { &hf_inap_extensions     , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_inap_Extensions },
   { NULL, 0, 0, 0, NULL }
 };
@@ -10349,7 +10349,7 @@ void proto_register_inap(void) {
     { &hf_inap_timeToRecord,
       { "timeToRecord", "inap.timeToRecord",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "inap.INTEGER_0_maxRecordingTime", HFILL }},
+        "inap.INTEGER_0_b3__maxRecordingTime", HFILL }},
     { &hf_inap_controlDigits,
       { "controlDigits", "inap.controlDigits",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -10393,15 +10393,15 @@ void proto_register_inap(void) {
     { &hf_inap_messageContent,
       { "messageContent", "inap.messageContent",
         FT_STRING, BASE_NONE, NULL, 0,
-        "inap.IA5String_SIZE_minMessageContentLength_maxMessageContentLength", HFILL }},
+        "inap.IA5String_SIZE_b3__minMessageContentLength_b3__maxMessageContentLength", HFILL }},
     { &hf_inap_attributes,
       { "attributes", "inap.attributes",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "inap.OCTET_STRING_SIZE_minAttributesLength_maxAttributesLength", HFILL }},
+        "inap.OCTET_STRING_SIZE_b3__minAttributesLength_b3__maxAttributesLength", HFILL }},
     { &hf_inap_elementaryMessageIDs,
       { "elementaryMessageIDs", "inap.elementaryMessageIDs",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "inap.SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4", HFILL }},
+        "inap.SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4", HFILL }},
     { &hf_inap_elementaryMessageIDs_item,
       { "Item", "inap.elementaryMessageIDs_item",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10413,7 +10413,7 @@ void proto_register_inap(void) {
     { &hf_inap_variableParts,
       { "variableParts", "inap.variableParts",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "inap.SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart", HFILL }},
+        "inap.SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart", HFILL }},
     { &hf_inap_variableParts_item,
       { "Item", "inap.variableParts_item",
         FT_UINT32, BASE_DEC, VALS(inap_VariablePart_vals), 0,
@@ -10513,7 +10513,7 @@ void proto_register_inap(void) {
     { &hf_inap_recordedMessageUnits,
       { "recordedMessageUnits", "inap.recordedMessageUnits",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "inap.INTEGER_1_maxRecordedMessageUnits", HFILL }},
+        "inap.INTEGER_1_b3__maxRecordedMessageUnits", HFILL }},
     { &hf_inap_uIScriptId,
       { "uIScriptId", "inap.uIScriptId",
         FT_UINT32, BASE_DEC, VALS(inap_Code_vals), 0,
@@ -10772,9 +10772,9 @@ void proto_register_inap(void) {
     &ett_inap_InformationToSend,
     &ett_inap_MessageID,
     &ett_inap_T_text,
-    &ett_inap_SEQUENCE_SIZE_1_numOfMessageIDs_OF_Integer4,
+    &ett_inap_SEQUENCE_SIZE_1_b3__numOfMessageIDs_OF_Integer4,
     &ett_inap_T_variableMessage,
-    &ett_inap_SEQUENCE_SIZE_1_maxVariableParts_OF_VariablePart,
+    &ett_inap_SEQUENCE_SIZE_1_b3__maxVariableParts_OF_VariablePart,
     &ett_inap_SRFGapCriteria,
     &ett_inap_T_iPAddressAndresource,
     &ett_inap_Tone,
