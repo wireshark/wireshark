@@ -147,6 +147,7 @@ def asn2c(id):
   return id.replace('-', '_').replace('.', '_')
 
 input_file = None
+g_conform = None
 lexer = None
 in_oid = False
 
@@ -383,6 +384,7 @@ def t_braceignore_rbrace(t):
 
 def t_braceignore_QSTRING (t):
   r'"([^"]|"")*"'
+  t.lexer.lineno += t.value.count("\n")
 
 def t_braceignore_COMMENT(t):
   r"--(-[^\-\n]|[^\-\n])*(--|\n|-\n|$|-$)"
@@ -820,6 +822,10 @@ class EthCtx:
         # replace imported object class
         del self.objectclass[ident]
         self.objectclass_imp.remove(ident)
+      elif isinstance(self.objectclass[ident]['val'], Class_Ref) and \
+           isinstance(val, Class_Ref) and \
+           (self.objectclass[ident]['val'].val == val.val):
+        pass  # ignore duplicated CLASS1 ::= CLASS2
       else:
         raise "Duplicate object class for " + ident
     self.objectclass[ident] = { 'import' : None, 'module' : self.Module(), 'proto' : self.proto }
@@ -1853,7 +1859,8 @@ class EthCtx:
         print_mod(m)
     if mod_cyc:
       print "\nCyclic dependencies:"
-      print "mod_cyc = ", mod_cyc
+      for i in (range(len(mod_cyc))):
+        print "%02d: %s" % (i + 1, str(mod_cyc[i]))
 
 
 #--- EthCnf -------------------------------------------------------------------
@@ -1886,6 +1893,7 @@ class EthCnf:
     self.tblcfg['ETYPE_ATTR']      = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : False }
     self.tblcfg['FIELD_ATTR']      = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['EFIELD_ATTR']     = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['ASSIGNED_ID']     = { 'val_nm' : 'ids',      'val_dflt' : {},    'chk_dup' : False,'chk_use' : False }
 
 
     for k in self.tblcfg.keys() :
@@ -1906,6 +1914,7 @@ class EthCnf:
     if not self.table[table].has_key(key):
       self.table[table][key] = {'fn' : fn, 'lineno' : lineno, 'used' : False}
       self.order[table].append(key)
+      self.table[table][key][self.tblcfg[table]['val_nm']] = {}
     self.table[table][key][self.tblcfg[table]['val_nm']].update(kw[self.tblcfg[table]['val_nm']])
 
   def get_order(self, table):
@@ -2180,6 +2189,10 @@ class EthCnf:
           if not name.isupper():
             warnings.warn_explicit("No lower-case letters shall be included in information object class name (%s)" % (name),
                                     UserWarning, fn, lineno)
+        elif result.group('name') == 'ASSIGNED_OBJECT_IDENTIFIER':
+          par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
+          if not par: continue
+          self.update_item('ASSIGNED_ID', 'OBJECT_IDENTIFIER', ids={par[0] : par[0]}, fn=fn, lineno=lineno)
         elif result.group('name') == 'INCLUDE':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: 
@@ -5048,10 +5061,17 @@ def p_exp_sym_list_2 (t):
     
 
 def p_Imports_1 (t):
-  'Imports : IMPORTS SymbolsImported SEMICOLON'
-  t[0] = t[2]
+  'Imports : importsbegin IMPORTS SymbolsImported SEMICOLON'
+  t[0] = t[3]
   global lcase_ident_assigned
   lcase_ident_assigned = {}
+
+def p_importsbegin (t):
+  'importsbegin : '
+  global lcase_ident_assigned
+  global g_conform
+  lcase_ident_assigned = {}
+  lcase_ident_assigned.update(g_conform.use_item('ASSIGNED_ID', 'OBJECT_IDENTIFIER'))
 
 def p_Imports_2 (t):
   'Imports : '
@@ -5118,7 +5138,8 @@ def p_Symbol (t):
 def p_Reference (t):
   '''Reference : type_ref
                | valuereference
-               | objectclassreference'''
+               | objectclassreference
+               | LCASE_IDENT_ASSIGNED'''
   t[0] = t[1]
 
 def p_AssignmentList_1 (t):
@@ -5946,7 +5967,7 @@ def p_IElems (t):
   t[0] = t[1]
 
 def p_IntersectionElements (t):
-  'IntersectionElements : SubtypeElements'
+  'IntersectionElements : Elements'
   t[0] = t[1]
 
 def p_UnionMark (t):
@@ -5956,6 +5977,15 @@ def p_UnionMark (t):
 def p_IntersectionMark (t):
   '''IntersectionMark : CIRCUMFLEX
                       | INTERSECTION'''
+
+# 46.5
+def p_Elements_1 (t):
+  'Elements : SubtypeElements'
+  t[0] = t[1]
+
+def p_Elements_2 (t):
+  'Elements : LPAREN ElementSetSpec RPAREN'
+  t[0] = t[2]
 
 # 47 Subtype elements ---------------------------------------------------------
 
@@ -6355,7 +6385,8 @@ def p_ObjectAssignment (t):
 # 11.3
 def p_Object (t):
   '''Object : DefinedObject
-            | ObjectDefn'''
+            | ObjectDefn
+            | ParameterizedObject'''
   t[0] = t[1]
 
 # 11.4
@@ -6518,15 +6549,23 @@ def p_SimpleTableConstraint (t):
 
 # 10.7
 def p_ComponentRelationConstraint (t):
-  'ComponentRelationConstraint : LBRACE UCASE_IDENT RBRACE LBRACE AtNotation RBRACE'
-  t[0] = t[2] + t[5]
+  'ComponentRelationConstraint : LBRACE UCASE_IDENT RBRACE LBRACE AtNotations RBRACE'
+  t[0] = t[2] + str(t[5])
+
+def p_AtNotations_1 (t):
+  'AtNotations : AtNotation'
+  t[0] = [t[1]]
+
+def p_AtNotations_2 (t):
+  'AtNotations : AtNotations COMMA  AtNotation'
+  t[0] = t[1] + [t[3]]
 
 def p_AtNotation_1 (t):
-  'AtNotation : AT LCASE_IDENT'
+  'AtNotation : AT ComponentIdList'
   t[0] = '@' + t[2]
 
 def p_AtNotation_2 (t):
-  'AtNotation : AT DOT Level LCASE_IDENT'
+  'AtNotation : AT DOT Level ComponentIdList'
   t[0] = '@.' + t[3] + t[4]
 
 def p_Level_1 (t):
@@ -6536,6 +6575,14 @@ def p_Level_1 (t):
 def p_Level_2 (t):
   'Level : '
   t[0] = ''
+
+def p_ComponentIdList_1 (t):
+  'ComponentIdList : LCASE_IDENT'
+  t[0] = t[1]
+
+def p_ComponentIdList_2 (t):
+  'ComponentIdList : ComponentIdList DOT LCASE_IDENT'
+  t[0] = t[1] + '.' + t[3]
 
 # 11 Contents constraints -----------------------------------------------------
 
@@ -6599,13 +6646,19 @@ def p_ParameterList (t):
 
 # 9.1
 def p_ParameterizedReference (t):
-  'ParameterizedReference : type_ref LBRACE RBRACE'
+  'ParameterizedReference : Reference LBRACE RBRACE'
   t[0] = t[1]
   #t[0].val += 'xxx'
 
 # 9.2
 def p_ParameterizedType (t):
   'ParameterizedType : type_ref ActualParameterList'
+  t[0] = t[1]
+  #t[0].val += 'xxx'
+
+
+def p_ParameterizedObject (t):
+  'ParameterizedObject : DefinedObject ActualParameterList'
   t[0] = t[1]
   #t[0].val += 'xxx'
 
@@ -6788,6 +6841,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 
 def eth_main():
   global input_file
+  global g_conform
   global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
@@ -6841,6 +6895,7 @@ def eth_main():
   if ectx.dbg('p'): pd = 2
   lexer = lex.lex(debug=ld)
   yacc.yacc(method='LALR', debug=yd)
+  g_conform = ectx.conform
   ast = []
   for fn in args:
     input_file = fn
