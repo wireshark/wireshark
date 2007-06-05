@@ -144,7 +144,7 @@ oid_names = {
 }
 
 def asn2c(id):
-  return id.replace('-', '_').replace('.', '_')
+  return id.replace('-', '_').replace('.', '_').replace('&', '_')
 
 input_file = None
 g_conform = None
