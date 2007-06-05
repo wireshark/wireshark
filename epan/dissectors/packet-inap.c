@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-inap.c                                                            */
+/* ./packet-inap.c                                                            */
 /* ../../tools/asn2wrs.py -b -X -e -p inap -c inap.cnf -s packet-inap-template ../ros/Remote-Operations-Information-Objects.asn IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn inap.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn */
 
 /* Input file: packet-inap-template.c */
@@ -8311,7 +8311,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  98: /*requestReportUTSI*/
 	offset = dissect_inap_RequestReportUTSIArg(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case  99: /* ReceivedInformation /*???????*/
+  case  99: /* ReceivedInformation - ???????*/
 	offset = dissect_inap_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  100: /*sendSTUI*/
@@ -8357,10 +8357,10 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	offset = dissect_inap_CallFilteringArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  146: /*monitorRouteRequest*/
-	offset = (FALSE, tvb, offset, actx, tree, -1);
+	offset = dissect_inap_MonitorRouteRequestArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  147: /*monitorRouteReport*/
-	offset = dissect_inap_MonitorRouteRequestArg(FALSE, tvb, offset, actx, tree, -1);
+	offset = dissect_inap_MonitorRouteReportArg(FALSE, tvb, offset, actx, tree, -1);
     break;
 	/*55 ActivityTest*/
    default: 

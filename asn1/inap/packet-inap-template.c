@@ -423,7 +423,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  98: /*requestReportUTSI*/
 	offset = dissect_inap_RequestReportUTSIArg(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case  99: /* ReceivedInformation /*???????*/
+  case  99: /* ReceivedInformation - ???????*/
 	offset = dissect_inap_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  100: /*sendSTUI*/
@@ -469,10 +469,10 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	offset = dissect_inap_CallFilteringArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  146: /*monitorRouteRequest*/
-	offset = (FALSE, tvb, offset, actx, tree, -1);
+	offset = dissect_inap_MonitorRouteRequestArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  147: /*monitorRouteReport*/
-	offset = dissect_inap_MonitorRouteRequestArg(FALSE, tvb, offset, actx, tree, -1);
+	offset = dissect_inap_MonitorRouteReportArg(FALSE, tvb, offset, actx, tree, -1);
     break;
 	/*55 ActivityTest*/
    default: 
