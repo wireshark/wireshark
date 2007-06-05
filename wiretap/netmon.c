@@ -817,7 +817,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	case WTAP_FILE_NETMON_1_x:
 		magicp = netmon_1_x_magic;
 		magic_size = sizeof netmon_1_x_magic;
-		/* current NetMon version, for 1.x, is 1.1 */
+		/* NetMon file version, for 1.x, is 1.1 */
 		file_hdr.ver_major = 1;
 		file_hdr.ver_minor = 1;
 		break;
@@ -825,7 +825,10 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	case WTAP_FILE_NETMON_2_x:
 		magicp = netmon_2_x_magic;
 		magic_size = sizeof netmon_2_x_magic;
-		/* current NetMon version, for 2.x, is 2.0 */
+		/*
+		 * NetMon file version, for 2.x, is 2.0;
+		 * for 3.0, it's 2.1.
+		 */
 		file_hdr.ver_major = 2;
 		file_hdr.ver_minor = 0;
 		break;
