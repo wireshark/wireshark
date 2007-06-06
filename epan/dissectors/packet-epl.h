@@ -304,6 +304,30 @@ static const value_string epl_nmt_ms_vals[] = {
     {0,NULL}
 };
 
+
+
+// EPL Device Profiles according to CANopen
+#define EPL_PROFILE_NO              0
+#define EPL_PROFILE_GENERIC_IO      401
+#define EPL_PROFILE_DRIVE           402
+#define EPL_PROFILE_HMI             403
+#define EPL_PROFILE_MEASURING       404
+#define EPL_PROFILE_PLC             405
+#define EPL_PROFILE_ENCODER         406
+
+
+static const value_string epl_device_profiles[] = {
+    {EPL_PROFILE_NO,         "No Standard Device"},
+    {EPL_PROFILE_GENERIC_IO, "Generic I/O module"},
+    {EPL_PROFILE_DRIVE,      "Drive and motion control"},
+    {EPL_PROFILE_HMI,        "Human Machine Interface"},
+    {EPL_PROFILE_MEASURING,  "Measuring device"},
+    {EPL_PROFILE_PLC,        "IEC 61131-3 PLC"},
+    {EPL_PROFILE_ENCODER,    "Encoder"},
+    {0,NULL}
+};
+
+
 /* SDO SequenceLayer */
 #define EPL_ASND_SDO_SEQ_RECEIVE_SEQUENCE_NUMBER_OFFSET        4
 #define EPL_ASND_SDO_SEQ_RECEIVE_CON_OFFSET                    4

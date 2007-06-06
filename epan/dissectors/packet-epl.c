@@ -119,6 +119,7 @@ static gint hf_epl_asnd_identresponse_pis            = -1;
 static gint hf_epl_asnd_identresponse_pos            = -1;
 static gint hf_epl_asnd_identresponse_rst            = -1;
 static gint hf_epl_asnd_identresponse_dt             = -1;
+static gint hf_epl_asnd_identresponse_profile        = -1;
 static gint hf_epl_asnd_identresponse_vid            = -1;
 static gint hf_epl_asnd_identresponse_productcode    = -1;
 static gint hf_epl_asnd_identresponse_rno            = -1;
@@ -784,6 +785,7 @@ gint
 dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
     guint8  eplversion;
+    guint16 profile,additional;
     guint32 epl_asnd_identresponse_ipa, epl_asnd_identresponse_snm, epl_asnd_identresponse_gtw;
     guint32 epl_asnd_ires_feat, device_type;
     proto_item  *ti_feat;
@@ -848,7 +850,13 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
         proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rst, tvb, offset, 4, TRUE);
         offset += 6;
 
-        proto_tree_add_uint(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset, 4, device_type);
+        profile    = tvb_get_letohs(tvb, offset);
+        additional = tvb_get_letohs(tvb, offset+2);
+        proto_tree_add_string_format(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset,
+            4, "", "Device Type: Profil %d (%s), Additional Information: 0x%4.4X", 
+            profile, val_to_str(profile, epl_device_profiles, "Unkown Profile"), additional);
+            
+        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, TRUE);    
         offset += 4;
 
         proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vid, tvb, offset, 4, TRUE);
@@ -899,7 +907,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "DevType = 0x%08X", device_type);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(profile, epl_device_profiles, "Device Profile %d"));
     }
 
     return offset;
@@ -1392,7 +1400,8 @@ static hf_register_info hf[] = {
 { &hf_epl_asnd_identresponse_pis,     { "PollInSize",               "epl.asnd.ires.pollinsize",     FT_UINT16,  BASE_DEC, NULL,                 0x00, "", HFILL }},
 { &hf_epl_asnd_identresponse_pos,     { "PollOutSize",              "epl.asnd.ires.polloutsizes",   FT_UINT16,  BASE_DEC, NULL,                 0x00, "", HFILL }},
 { &hf_epl_asnd_identresponse_rst,     { "ResponseTime",             "epl.asnd.ires.resptime",       FT_UINT32,  BASE_DEC, NULL,                 0x00, "", HFILL }},
-{ &hf_epl_asnd_identresponse_dt,      { "DeviceType",               "epl.asnd.ires.devicetype",     FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, "", HFILL }},
+{ &hf_epl_asnd_identresponse_dt,      { "DeviceType",               "epl.asnd.ires.devicetype",     FT_STRING,  BASE_DEC, NULL,                 0x00, "", HFILL }},
+{ &hf_epl_asnd_identresponse_profile, { "Profile",                  "epl.asnd.ires.profile",        FT_UINT16,  BASE_DEC, NULL,                 0x00, "", HFILL }},
 { &hf_epl_asnd_identresponse_vid,     { "VendorId",                 "epl.asnd.ires.vendorid",       FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, "", HFILL }},
 { &hf_epl_asnd_identresponse_productcode,{ "ProductCode",           "epl.asnd.ires.productcode",    FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, "", HFILL }},
 { &hf_epl_asnd_identresponse_rno,     { "RevisionNumber",           "epl.asnd.ires.revisionno",     FT_UINT32,  BASE_DEC_HEX, NULL,                 0x00, "", HFILL }},
@@ -1503,7 +1512,7 @@ static hf_register_info hf[] = {
 
     prefs_register_bool_preference(epl_module, "show_soc_flags", "Show flags of SoC frame in Info column",
         "If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
-
+    
     /* tap-registration */
     /*  epl_tap = register_tap("epl");*/
 }
