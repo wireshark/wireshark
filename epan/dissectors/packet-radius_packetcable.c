@@ -181,6 +181,7 @@ static value_string packetcable_em_header_element_type_vals[] =
 	{1,  "CMS"},
 	{2,  "CMTS"},
 	{3,  "Media Gateway Controller"},
+	{4,  "Policy Server"},
 	{0, NULL}
 };
 
@@ -190,21 +191,21 @@ static value_string packetcable_em_header_status_error_indicator_vals[] =
 	{1,  "Possible Error"},
 	{2,  "Known Error"},
 	{3,  "Reserved"},
-	{0, NULL},
+	{0, NULL}
 };
 
 static value_string packetcable_em_header_status_event_origin_vals[] =
 {
 	{0,  "Trusted Element"},
 	{1,  "Untrusted Element"},
-	{0, NULL},
+	{0, NULL}
 };
 
 static value_string packetcable_em_header_status_event_message_proxied_vals[] =
 {
 	{0,  "Not proxied"},
 	{1,  "Proxied"},
-	{0, NULL},
+	{0, NULL}
 };
 
 static value_string packetcable_call_termination_cause_vals[] =
@@ -212,7 +213,7 @@ static value_string packetcable_call_termination_cause_vals[] =
 	{0,  "Reserved"},
 	{1,  "BAF"},
 	{2,  "Reserved"},
-	{0, NULL},
+	{0, NULL}
 };
 
 static value_string packetcable_trunk_type_vals[] =
@@ -224,7 +225,7 @@ static value_string packetcable_trunk_type_vals[] =
 	{5,  "Not Used"},
 	{6,  "SS7 from IC to AT and non-SS7 from AT to EO (terminating only)"},
 	{9,  "Signaling type not specified"},
-	{0, NULL},
+	{0, NULL}
 };
 
 static value_string packetcable_state_indication_vals[] =
