@@ -288,7 +288,7 @@ reserved_words = {
   'ANY'         : 'ANY',
 }
 
-for k in static_tokens.keys ():
+for k in static_tokens.keys():
     if static_tokens [k] == None:
         static_tokens [k] = k
 
@@ -6689,6 +6689,38 @@ def p_ActualParameterList (t):
 
 #--- ITU-T Recommendation X.880 -----------------------------------------------
 
+x880_classes = {
+  'OPERATION' : {
+    '&ArgumentType'         : [],      
+    '&argumentTypeOptional' : [ 'BooleanType' ],
+    '&returnResult'         : [ 'BooleanType' ],
+    '&ResultType'           : [],            
+    '&resultTypeOptional'   : [ 'BooleanType' ],
+    '&Errors'               : [ 'ClassReference', 'ERROR' ],
+    '&Linked'               : [ 'ClassReference', 'OPERATION' ],
+    '&synchronous'          : [ 'BooleanType' ],
+    '&idempotent'           : [ 'BooleanType' ],
+    '&alwaysReturns'        : [ 'BooleanType' ],
+#    '&InvokePriority'         #UNSUPPORTED_FixedTypeValueSetFieldSpec
+#    '&ResultPriority'         #UNSUPPORTED_FixedTypeValueSetFieldSpec
+    '&operationCode'        : [ 'TypeReference', 'Code' ],
+  },
+  'ERROR' : {
+    '&ParameterType'         : [],                
+    '&parameterTypeOptional' : [ 'BooleanType' ],
+#    '&ErrorPriority'          #UNSUPPORTED_FixedTypeValueSetFieldSpec
+    '&errorCode'             : [ 'TypeReference', 'Code' ],
+  },
+  'OPERATION-PACKAGE' : {
+  },
+  'CONNECTION-PACKAGE' : {
+  },
+  'CONTRACT' : {
+  },
+  'ROS-OBJECT-CLASS' : {
+  },
+}
+
 x880_syntaxes = {
   'OPERATION' : {
     'ARGUMENT'       : 'ARGUMENT',
@@ -6715,7 +6747,6 @@ x880_syntaxes = {
   },
   'ROS-OBJECT-CLASS' : {
   },
-
 }
 
 x880_syntaxes_enabled = { }
@@ -6724,7 +6755,10 @@ x880_current_syntaxes = None
 def x880_import(name):
   if x880_syntaxes.has_key(name):
     x880_syntaxes_enabled[name] = True
+  if x880_classes.has_key(name):
     add_class_ident(name)
+    for f in (x880_classes[name].keys()):
+      set_type_to_class(name, f, x880_classes[name][f])
 
 def is_x880_syntax(name):
   return False
