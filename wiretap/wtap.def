@@ -32,7 +32,8 @@ wtap_pseudoheader
 wtap_read
 wtap_read_so_far
 wtap_register_open_routine
-wtap_register_open_routine
+wtap_register_file_type
+wtap_register_encap_type
 wtap_seek_read
 wtap_sequential_close
 wtap_short_string_to_encap
@@ -40,6 +41,8 @@ wtap_short_string_to_file_type
 wtap_snapshot_length
 wtap_strerror
 
+file_seek
+buffer_assure_space
 eth_stdio_open
 eth_stdio_rename
 eth_stdio_mkdir

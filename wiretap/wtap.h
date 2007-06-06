@@ -739,7 +739,7 @@ int wtap_get_num_encap_types(void);
 int wtap_get_num_file_types(void);
 void wtap_register_open_routine(wtap_open_routine_t,gboolean);
 int wtap_register_encap_type(char* name, char* short_name);
-void wtap_register_file_type(const struct file_type_info*);
+int wtap_register_file_type(const struct file_type_info*);
 /*
  * Wiretap error codes.
  */

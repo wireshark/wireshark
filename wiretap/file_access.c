@@ -165,7 +165,6 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 		g_array_append_val(open_routines_arr,open_routine);
 	
 	open_routines = (void*)open_routines_arr->data;
-	wtap_num_file_types++;
 }
 
 /*
@@ -366,7 +365,7 @@ success:
 }
 
 /* Table of the file types we know about. */
-static const struct file_type_info dump_open_table[] = {
+static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL, FALSE,
 	  NULL, NULL },
@@ -560,7 +559,32 @@ static const struct file_type_info dump_open_table[] = {
 	  k12text_dump_can_write_encap, k12text_dump_open },
 };
 
-gint wtap_num_file_types = sizeof(dump_open_table) / sizeof(struct file_type_info);
+gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
+
+static GArray*  dump_open_table_arr = NULL;
+static const struct file_type_info* dump_open_table = dump_open_table_base;
+
+/* initialize the open routines array if it has not being initialized yet */
+static void init_file_types(void) {
+	
+	if (dump_open_table_arr) return;
+
+	dump_open_table_arr = g_array_new(FALSE,TRUE,sizeof(struct file_type_info));
+	
+	g_array_append_vals(dump_open_table_arr,dump_open_table_base,wtap_num_file_types);
+	
+	dump_open_table = (void*)dump_open_table_arr->data;
+}
+
+int wtap_register_file_type(const struct file_type_info* fi) {
+	init_file_types();
+
+	g_array_append_val(dump_open_table_arr,*fi);
+	
+	dump_open_table = (void*)dump_open_table_arr->data;
+	
+	return wtap_num_file_types++;
+}
 
 int wtap_get_num_file_types(void)
 {
@@ -570,7 +594,7 @@ int wtap_get_num_file_types(void)
 /* Name that should be somewhat descriptive. */
 const char *wtap_file_type_string(int filetype)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES) {
+	if (filetype < 0 || filetype >= wtap_num_file_types) {
 		g_error("Unknown capture file type %d", filetype);
 		return NULL;
 	} else
@@ -580,7 +604,7 @@ const char *wtap_file_type_string(int filetype)
 /* Name to use in, say, a command-line flag specifying the type. */
 const char *wtap_file_type_short_string(int filetype)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES)
+	if (filetype < 0 || filetype >= wtap_num_file_types)
 		return NULL;
 	else
 		return dump_open_table[filetype].short_name;
@@ -591,7 +615,7 @@ int wtap_short_string_to_file_type(const char *short_name)
 {
 	int filetype;
 
-	for (filetype = 0; filetype < WTAP_NUM_FILE_TYPES; filetype++) {
+	for (filetype = 0; filetype < wtap_num_file_types; filetype++) {
 		if (dump_open_table[filetype].short_name != NULL &&
 		    strcmp(short_name, dump_open_table[filetype].short_name) == 0)
 			return filetype;
@@ -602,7 +626,7 @@ int wtap_short_string_to_file_type(const char *short_name)
 /* file extensions to use. */
 const char *wtap_file_extensions_string(int filetype)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES)
+	if (filetype < 0 || filetype >= wtap_num_file_types)
 		return NULL;
 	else
 		return dump_open_table[filetype].file_extensions;
@@ -611,7 +635,7 @@ const char *wtap_file_extensions_string(int filetype)
 /* default file extension to use. */
 const char *wtap_file_extension_default_string(int filetype)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES)
+	if (filetype < 0 || filetype >= wtap_num_file_types)
 		return NULL;
 	else
 		return dump_open_table[filetype].file_extension_default;
@@ -619,7 +643,7 @@ const char *wtap_file_extension_default_string(int filetype)
 
 gboolean wtap_dump_can_open(int filetype)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
+	if (filetype < 0 || filetype >= wtap_num_file_types
 	    || dump_open_table[filetype].dump_open == NULL)
 		return FALSE;
 
@@ -628,7 +652,7 @@ gboolean wtap_dump_can_open(int filetype)
 
 gboolean wtap_dump_can_write_encap(int filetype, int encap)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
+	if (filetype < 0 || filetype >= wtap_num_file_types
 	    || dump_open_table[filetype].can_write_encap == NULL)
 		return FALSE;
 
@@ -641,7 +665,7 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 gboolean wtap_dump_can_compress(int filetype)
 {
 #ifdef HAVE_LIBZ
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
+	if (filetype < 0 || filetype >= wtap_num_file_types
 	    || dump_open_table[filetype].can_compress == FALSE)
 		return FALSE;
 
