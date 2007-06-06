@@ -110,7 +110,7 @@ static int hf_ros_general = -1;                   /* GeneralProblem */
 static int hf_ros_invokeProblem = -1;             /* InvokeProblem */
 static int hf_ros_rejectResult = -1;              /* ReturnResultProblem */
 static int hf_ros_rejectError = -1;               /* ReturnErrorProblem */
-static int hf_ros_present = -1;                   /* INTEGER */
+static int hf_ros_present = -1;                   /* T_present */
 static int hf_ros_absent = -1;                    /* NULL */
 static int hf_ros_local = -1;                     /* INTEGER */
 static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
@@ -319,20 +319,14 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 
 static int
-dissect_ros_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ros_T_present(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &invokeid);
 
   return offset;
 }
-static int dissect_linkedId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ros_INTEGER(TRUE, tvb, offset, actx, tree, hf_ros_linkedId);
-}
 static int dissect_present(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ros_INTEGER(FALSE, tvb, offset, actx, tree, hf_ros_present);
-}
-static int dissect_local(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ros_INTEGER(FALSE, tvb, offset, actx, tree, hf_ros_local);
+  return dissect_ros_T_present(FALSE, tvb, offset, actx, tree, hf_ros_present);
 }
 
 
@@ -370,6 +364,22 @@ dissect_ros_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 static int dissect_invokeId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_ros_InvokeId(FALSE, tvb, offset, actx, tree, hf_ros_invokeId);
+}
+
+
+
+static int
+dissect_ros_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_linkedId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ros_INTEGER(TRUE, tvb, offset, actx, tree, hf_ros_linkedId);
+}
+static int dissect_local(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ros_INTEGER(FALSE, tvb, offset, actx, tree, hf_ros_local);
 }
 
 
@@ -1122,7 +1132,7 @@ void proto_register_ros(void) {
     { &hf_ros_present,
       { "present", "ros.present",
         FT_INT32, BASE_DEC, NULL, 0,
-        "ros.INTEGER", HFILL }},
+        "ros.T_present", HFILL }},
     { &hf_ros_absent,
       { "absent", "ros.absent",
         FT_NONE, BASE_NONE, NULL, 0,

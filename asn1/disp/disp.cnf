@@ -56,10 +56,10 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RefreshInformation_vals, "unknown(%%d)"));
   }
 
-#.FN_PARS StandardUpdate
-	VAL_PTR = &update
+#.END
 
-#.FN_BODY StandardUpdate
+
+#.FN_BODY CoordinateShadowUpdateArgumentData/updateStrategy/standard  VAL_PTR = &update
   guint32 update;
 
   %(DEFAULT_BODY)s

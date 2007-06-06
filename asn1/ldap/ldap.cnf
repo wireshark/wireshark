@@ -365,7 +365,7 @@ ldap_conv_info_t *ldap_info;
 
   }
 
-#.FN_BODY BindResponse_resultCode VAL_PTR = &result
+#.FN_BODY BindResponse/resultCode  VAL_PTR = &result
 
   const gchar *valstr;
 
@@ -532,14 +532,14 @@ ldap_conv_info_t *ldap_info;
 #.FN_FTR Filter/not
 	Filter_string=ep_strdup_printf("(!%s)",Filter_string);
 
-#.FN_BODY BOOLEAN
+#.FN_BODY MatchingRuleAssertion/dnAttributes 
 	gboolean val;
 
-	offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
+offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
 
-	if (hf_index == hf_ldap_dnAttributes) {
+
 		matching_rule_dnattr = val;
-	}
+
 
 #.FN_HDR Filter/extensibleMatch
 	attr_type=NULL;

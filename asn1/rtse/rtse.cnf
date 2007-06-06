@@ -137,9 +137,9 @@ EXTERNALt
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Recover");
   %(DEFAULT_BODY)s
 
-#.FN_PARS T61String
-  VAL_PTR=&string
-#.FN_BODY T61String
+#.END
+  
+#.FN_BODY CallingSSuserReference/t61String  VAL_PTR=&string
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
   if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
@@ -153,9 +153,9 @@ EXTERNALt
   if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
-#.FN_PARS OCTET_STRING
-  VAL_PTR=&string
-#.FN_BODY OCTET_STRING
+#.END
+  
+#.FN_BODY CallingSSuserReference/octetString  VAL_PTR=&string
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
   if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))

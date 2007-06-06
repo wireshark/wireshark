@@ -15,9 +15,9 @@ Reject/problem/returnResult	rejectResult
 
 #.FN_PARS ErrorCode VAL_PTR = &opcode
 
-#.FN_PARS INTEGER VAL_PTR = &invokeid
+#.FN_PARS InvokeId/present VAL_PTR = &invokeid
 
-#.FN_BODY T_argument
+#.FN_BODY Invoke/argument
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
@@ -32,7 +32,7 @@ Reject/problem/returnResult	rejectResult
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
-#.FN_BODY OperationResult
+#.FN_BODY ReturnResult/result/result
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -47,7 +47,7 @@ Reject/problem/returnResult	rejectResult
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
-#.FN_BODY T_parameter
+#.FN_BODY ReturnError/parameter
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
@@ -63,7 +63,7 @@ Reject/problem/returnResult	rejectResult
   }
 
 
-#.FN_BODY T_bind_invoke
+#.FN_BODY ROS/bind-invoke
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-invoke");
@@ -74,7 +74,7 @@ Reject/problem/returnResult	rejectResult
     offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
-#.FN_BODY T_bind_result
+#.FN_BODY ROS/bind-result
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-result");
@@ -85,7 +85,7 @@ Reject/problem/returnResult	rejectResult
     offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
-#.FN_BODY T_bind_error
+#.FN_BODY ROS/bind-error
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-error");
@@ -97,7 +97,7 @@ Reject/problem/returnResult	rejectResult
   }
 
 
-#.FN_BODY T_unbind_invoke
+#.FN_BODY ROS/unbind-invoke
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-invoke");
@@ -109,7 +109,7 @@ Reject/problem/returnResult	rejectResult
   }
 
 
-#.FN_BODY T_unbind_result
+#.FN_BODY ROS/unbind-result
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-result");
@@ -120,7 +120,7 @@ Reject/problem/returnResult	rejectResult
     offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
-#.FN_BODY T_unbind_error
+#.FN_BODY ROS/unbind-error
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-error");

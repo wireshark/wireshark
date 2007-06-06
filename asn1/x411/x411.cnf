@@ -485,12 +485,10 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
 	}
 
+#.VIRTUAL_ASSGN
+AddrNumericString  	UserAddress/x121/x121-address CountryName/x121-dcc-code PhysicalDeliveryCountryName/x121-dcc-code PostalCode/numeric-code
 
-
-#.FN_PARS NumericString
-	VAL_PTR=&nstring
-
-#.FN_BODY NumericString
+#.FN_BODY AddrNumericString  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
@@ -498,9 +496,10 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	if(doing_address && nstring)
 		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
 
-#.FN_PARS TeletexString
+#.VIRTUAL_ASSGN
+AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name TeletexPersonalName/initials TeletexPersonalName/generation-qualifier TeletexDomainDefinedAttribute/type TeletexDomainDefinedAttribute/value
 
-#.FN_BODY TeletexString
+#.FN_BODY AddrTeletexString  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
@@ -509,28 +508,60 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
 
 
-#.FN_PARS PrintableString
-	VAL_PTR=&pstring
-
-#.FN_BODY PrintableString
+#.FN_BODY PersonalName/surname  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
-	char 		*fmt = NULL;
 
 	%(DEFAULT_BODY)s
 
 	if(doing_address && pstring) {
-  	  if(hf_index == hf_x411_printable_surname)			fmt = "/S=";
-	  else if(hf_index == hf_x411_printable_given_name)		fmt = "/G=";
-	  else if(hf_index == hf_x411_printable_initials)		fmt = "/I=";
-	  else if(hf_index == hf_x411_printable_generation_qualifier)	fmt = "/GQ=";
-	  else if(hf_index == hf_x411_printable_type)			fmt = "/DD.";
-	  else if(hf_index == hf_x411_printable_value)			fmt = "=";
-		
-	  if(fmt)
-	    g_strlcat(oraddress, fmt, MAX_ORA_STR_LEN);
-
+	    g_strlcat(oraddress, "/S=", MAX_ORA_STR_LEN);
 	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	}
+#.FN_BODY PersonalName/given-name  VAL_PTR=&pstring
+	tvbuff_t	*pstring = NULL;
 
+	%(DEFAULT_BODY)s
+
+	if(doing_address && pstring) {
+	    g_strlcat(oraddress, "/G=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	}
+#.FN_BODY PersonalName/initials  VAL_PTR=&pstring
+	tvbuff_t	*pstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && pstring) {
+	    g_strlcat(oraddress, "/I=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	}
+#.FN_BODY PersonalName/generation-qualifier  VAL_PTR=&pstring
+	tvbuff_t	*pstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && pstring) {
+	    g_strlcat(oraddress, "/GQ=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_BODY BuiltInDomainDefinedAttribute/type  VAL_PTR=&pstring
+	tvbuff_t	*pstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && pstring) {
+	    g_strlcat(oraddress, "/DD.", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	}
+#.FN_BODY BuiltInDomainDefinedAttribute/value  VAL_PTR=&pstring
+	tvbuff_t	*pstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && pstring) {
+	    g_strlcat(oraddress, "=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
 	}
 
 #.FN_BODY ORAddress

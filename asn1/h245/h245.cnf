@@ -433,7 +433,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY DataModeApplication  VAL_PTR = &value
+#.FN_BODY DataMode/application  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s

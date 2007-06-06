@@ -1336,9 +1336,10 @@ class EthCtx:
   #--- eth_type_fn_body -------------------------------------------------------
   def eth_type_fn_body(self, tname, body, pars=None):
     out = body
-    if self.conform.get_fn_body_presence(tname):
-      out = self.conform.get_fn_text(tname, 'FN_BODY')
-    elif self.conform.get_fn_body_presence(self.eth_type[tname]['ref'][0]):
+    #if self.conform.get_fn_body_presence(tname):
+    #  out = self.conform.get_fn_text(tname, 'FN_BODY')
+    #el
+    if self.conform.get_fn_body_presence(self.eth_type[tname]['ref'][0]):
       out = self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_BODY')
     if pars:
       try:

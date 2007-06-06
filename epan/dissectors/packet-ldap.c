@@ -239,7 +239,7 @@ static int hf_ldap_any = -1;                      /* LDAPString */
 static int hf_ldap_final = -1;                    /* LDAPString */
 static int hf_ldap_matchingRule = -1;             /* MatchingRuleId */
 static int hf_ldap_matchValue = -1;               /* AssertionValue */
-static int hf_ldap_dnAttributes = -1;             /* BOOLEAN */
+static int hf_ldap_dnAttributes = -1;             /* T_dnAttributes */
 static int hf_ldap_objectName = -1;               /* LDAPDN */
 static int hf_ldap_searchResultEntry_attributes = -1;  /* PartialAttributeList */
 static int hf_ldap_PartialAttributeList_item = -1;  /* PartialAttributeList_item */
@@ -1384,16 +1384,7 @@ dissect_ldap_INTEGER_0_maxInt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_ldap_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 536 "ldap.cnf"
-	gboolean val;
-
-	offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
-
-	if (hf_index == hf_ldap_dnAttributes) {
-		matching_rule_dnattr = val;
-	}
-
-
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1698,11 +1689,29 @@ dissect_ldap_MatchingRuleId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
+
+static int
+dissect_ldap_T_dnAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 536 "ldap.cnf"
+	gboolean val;
+
+offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
+
+
+		matching_rule_dnattr = val;
+
+
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t MatchingRuleAssertion_sequence[] = {
   { &hf_ldap_matchingRule   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ldap_MatchingRuleId },
   { &hf_ldap_type           , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ldap_AttributeDescription },
   { &hf_ldap_matchValue     , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ldap_AssertionValue },
-  { &hf_ldap_dnAttributes   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ldap_BOOLEAN },
+  { &hf_ldap_dnAttributes   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ldap_T_dnAttributes },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4148,7 +4157,7 @@ void proto_register_ldap(void) {
     { &hf_ldap_dnAttributes,
       { "dnAttributes", "ldap.dnAttributes",
         FT_BOOLEAN, 8, NULL, 0,
-        "ldap.BOOLEAN", HFILL }},
+        "ldap.T_dnAttributes", HFILL }},
     { &hf_ldap_objectName,
       { "objectName", "ldap.objectName",
         FT_STRING, BASE_NONE, NULL, 0,

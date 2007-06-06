@@ -110,27 +110,27 @@ TokenData/name		distinguished-name
 
 TokenData/time		utctime
 
-#.FN_BODY	T_initial
+#.FN_BODY	FilterItem/substrings/strings/_item/initial
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
 	proto_item_append_text(it," XXX: Not yet implemented!");
 
-#.FN_BODY	T_any
+#.FN_BODY	FilterItem/substrings/strings/_item/any
 	/* XXX: not yet implemented */
 
-#.FN_BODY	T_final
+#.FN_BODY	FilterItem/substrings/strings/_item/final
 	/* XXX: not yet implemented */
 
-#.FN_BODY	T_matchValue
+#.FN_BODY	MatchingRuleAssertion/matchValue
 	/* XXX: not yet implemented */
 
-#.FN_BODY	T_req
+#.FN_BODY	SpkmCredentials/req
 	/* XXX: not yet implemented */
 
-#.FN_BODY	T_rep
+#.FN_BODY	SpkmCredentials/rep
 	/* XXX: not yet implemented */
 
-#.FN_BODY	T_spkmInfo
+#.FN_BODY	SecurityErrorData/spkmInfo
 	/* XXX: not yet implemented */
 
 #.FN_BODY 	DirectoryBindArgument
@@ -159,10 +159,10 @@ TokenData/time		utctime
 	if(check_col(actx->pinfo->cinfo, COL_INFO))	
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", x509if_get_last_dn());
 
-#.FN_PARS OCTET_STRING
-	VAL_PTR=&out_tvb 
+
 	
-#.FN_BODY OCTET_STRING
+	
+#.FN_BODY PagedResultsRequest/queryReference  VAL_PTR=&out_tvb 
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;

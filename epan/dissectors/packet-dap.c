@@ -164,7 +164,7 @@ static int hf_dap_sortKeys = -1;                  /* SEQUENCE_OF_SortKey */
 static int hf_dap_sortKeys_item = -1;             /* SortKey */
 static int hf_dap_reverse = -1;                   /* BOOLEAN */
 static int hf_dap_unmerged = -1;                  /* BOOLEAN */
-static int hf_dap_queryReference = -1;            /* OCTET_STRING */
+static int hf_dap_queryReference = -1;            /* T_queryReference */
 static int hf_dap_orderingRule = -1;              /* OBJECT_IDENTIFIER */
 static int hf_dap_certification_path = -1;        /* CertificationPath */
 static int hf_dap_distinguished_name = -1;        /* DistinguishedName */
@@ -283,6 +283,7 @@ static int hf_dap_unexplored_item = -1;           /* ContinuationReference */
 static int hf_dap_unavailableCriticalExtensions = -1;  /* BOOLEAN */
 static int hf_dap_unknownErrors = -1;             /* T_unknownErrors */
 static int hf_dap_unknownErrors_item = -1;        /* OBJECT_IDENTIFIER */
+static int hf_dap_queryReference_01 = -1;         /* OCTET_STRING */
 static int hf_dap_overspecFilter = -1;            /* Filter */
 static int hf_dap_entryCount = -1;                /* T_entryCount */
 static int hf_dap_bestEstimate = -1;              /* INTEGER */
@@ -2138,7 +2139,7 @@ static int dissect_newRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_T_queryReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 166 "dap.cnf"
 	tvbuff_t *out_tvb;
 	int 	i;
@@ -2172,13 +2173,7 @@ dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   return offset;
 }
 static int dissect_queryReference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_dap_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_dap_queryReference);
-}
-static int dissect_unprotected(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_dap_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_dap_unprotected);
-}
-static int dissect_protectedPassword(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_dap_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_dap_protectedPassword);
+  return dissect_dap_T_queryReference(FALSE, tvb, offset, actx, tree, hf_dap_queryReference);
 }
 
 
@@ -2277,6 +2272,25 @@ static int dissect_validity(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
+
+static int
+dissect_dap_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_unprotected(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_dap_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_dap_unprotected);
+}
+static int dissect_protectedPassword(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_dap_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_dap_protectedPassword);
+}
+static int dissect_queryReference_01(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_dap_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_dap_queryReference_01);
+}
+
+
 static const ber_old_sequence_t T_protected_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_protectedPassword },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithmIdentifier },
@@ -2339,6 +2353,9 @@ dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 	if(check_col(actx->pinfo->cinfo, COL_INFO))	
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x509if_get_last_dn());
 
+
+	
+	
 
 
   return offset;
@@ -3493,7 +3510,7 @@ static const ber_old_sequence_t PartialOutcomeQualifier_set[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_unexplored },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_unavailableCriticalExtensions },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_unknownErrors },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_queryReference },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_queryReference_01 },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_overspecFilter },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_notification },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_entryCount },
@@ -6008,7 +6025,7 @@ void proto_register_dap(void) {
     { &hf_dap_queryReference,
       { "queryReference", "dap.queryReference",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "dap.OCTET_STRING", HFILL }},
+        "dap.T_queryReference", HFILL }},
     { &hf_dap_orderingRule,
       { "orderingRule", "dap.orderingRule",
         FT_OID, BASE_NONE, NULL, 0,
@@ -6481,6 +6498,10 @@ void proto_register_dap(void) {
       { "Item", "dap.unknownErrors_item",
         FT_OID, BASE_NONE, NULL, 0,
         "dap.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_dap_queryReference_01,
+      { "queryReference", "dap.queryReference",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "dap.OCTET_STRING", HFILL }},
     { &hf_dap_overspecFilter,
       { "overspecFilter", "dap.overspecFilter",
         FT_UINT32, BASE_DEC, VALS(dap_Filter_vals), 0,

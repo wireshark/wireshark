@@ -91,7 +91,7 @@ if (!next_tvb)
  offset += len;
   return offset;
 
-#.FN_BODY User_information
+#.FN_BODY User-information
 tvbuff_t	*next_tvb;
 gint8 class;
 	gboolean pc;

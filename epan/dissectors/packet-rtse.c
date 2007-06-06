@@ -95,8 +95,8 @@ static int hf_rtse_recover = -1;                  /* SessionConnectionIdentifier
 static int hf_rtse_callingSSuserReference = -1;   /* CallingSSuserReference */
 static int hf_rtse_commonReference = -1;          /* CommonReference */
 static int hf_rtse_additionalReferenceInformation = -1;  /* AdditionalReferenceInformation */
-static int hf_rtse_t61String = -1;                /* T61String */
-static int hf_rtse_octetString = -1;              /* OCTET_STRING */
+static int hf_rtse_t61String = -1;                /* T_t61String */
+static int hf_rtse_octetString = -1;              /* T_octetString */
 static int hf_rtse_direct_reference = -1;         /* OBJECT_IDENTIFIER */
 static int hf_rtse_indirect_reference = -1;       /* T_indirect_reference */
 static int hf_rtse_data_value_descriptor = -1;    /* ObjectDescriptor */
@@ -264,7 +264,7 @@ static int dissect_open(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_rtse_T61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_rtse_T_t61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 143 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -279,13 +279,13 @@ dissect_rtse_T61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   return offset;
 }
 static int dissect_t61String(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T61String(FALSE, tvb, offset, actx, tree, hf_rtse_t61String);
+  return dissect_rtse_T_t61String(FALSE, tvb, offset, actx, tree, hf_rtse_t61String);
 }
 
 
 
 static int
-dissect_rtse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_rtse_T_octetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 159 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -299,10 +299,7 @@ dissect_rtse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   return offset;
 }
 static int dissect_octetString(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_rtse_octetString);
-}
-static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_rtse_octet_aligned);
+  return dissect_rtse_T_octetString(FALSE, tvb, offset, actx, tree, hf_rtse_octetString);
 }
 
 
@@ -790,6 +787,19 @@ static int dissect_single_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
+
+static int
+dissect_rtse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_rtse_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_rtse_octet_aligned);
+}
+
+
 static const value_string rtse_T_encoding_vals[] = {
   {   0, "single-ASN1-type" },
   {   1, "octet-aligned" },
@@ -1005,11 +1015,11 @@ void proto_register_rtse(void) {
     { &hf_rtse_t61String,
       { "t61String", "rtse.t61String",
         FT_STRING, BASE_NONE, NULL, 0,
-        "rtse.T61String", HFILL }},
+        "rtse.T_t61String", HFILL }},
     { &hf_rtse_octetString,
       { "octetString", "rtse.octetString",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "rtse.OCTET_STRING", HFILL }},
+        "rtse.T_octetString", HFILL }},
     { &hf_rtse_direct_reference,
       { "direct-reference", "rtse.direct_reference",
         FT_OID, BASE_NONE, NULL, 0,

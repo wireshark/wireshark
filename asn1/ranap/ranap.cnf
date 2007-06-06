@@ -67,7 +67,7 @@ VAL_PTR = &ProtocolIE_ID
 	
 	offset = dissect_ranap_messages(tvb, offset, %(ACTX)s, tree);
 
-#.FN_BODY RANAP_PROTOCOL_IES_Value
+#.FN_BODY RANAP-PROTOCOL-IES-Value
 
 	offset = dissect_ranap_ies(tvb, offset, %(ACTX)s, tree);
 
@@ -90,7 +90,7 @@ tvbuff_t *nas_pdu_tvb=NULL;
 
 	offset = dissect_ranap_ies(tvb, offset, %(ACTX)s, tree);
 
-#.FN_BODY RANAP_PRIVATE_IES_Value
+#.FN_BODY RANAP-PRIVATE-IES-Value
 /* FIX ME */
 
 #.FN_BODY PLMNidentity  VAL_PTR = &parameter_tvb
