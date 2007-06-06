@@ -792,6 +792,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree  *epl_feat_tree;
 
     device_type = tvb_get_letohl(tvb, offset + 22);
+	profile    = tvb_get_letohs(tvb, offset + 22);
 
     if (epl_tree)
     {
@@ -850,7 +851,6 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
         proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rst, tvb, offset, 4, TRUE);
         offset += 6;
 
-        profile    = tvb_get_letohs(tvb, offset);
         additional = tvb_get_letohs(tvb, offset+2);
         proto_tree_add_string_format(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset,
             4, "", "Device Type: Profil %d (%s), Additional Information: 0x%4.4X", 
