@@ -271,7 +271,7 @@ static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb) 
 	tvb_memcpy(tvb, packetcable_buf,  30, 8); packetcable_buf[8] = '\0';
 	proto_tree_add_text(tree, tvb,  30, 8, "Element ID: %s", packetcable_buf );
 	tvb_memcpy(tvb, packetcable_buf,  39, 7); packetcable_buf[7] = '\0';
-	proto_tree_add_text(tree, tvb,  38, 8, "Time Zone: DST: %c, Offset: %s", tvb_get_guint8(tvb,  40), packetcable_buf);
+	proto_tree_add_text(tree, tvb,  38, 8, "Time Zone: DST: %c, Offset: %s", tvb_get_guint8(tvb,  38), packetcable_buf);
 	proto_tree_add_item(tree, hf_packetcable_em_header_sequence_number, tvb,  46, 4, FALSE);
 	tvb_memcpy(tvb, packetcable_buf,  50, 18); packetcable_buf[18] = '\0';
 	proto_tree_add_text(tree, tvb,  50, 18, "Event Time: %s", packetcable_buf);
