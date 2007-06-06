@@ -307,7 +307,7 @@ EXTRA_DIST = \
 	q932/Interpretation-component.asn	\
 	q932/Network-Facility-Extension.asn	\
 	q932/Network-Protocol-Profile-component.asn	\
-	q932/q932-ros.asn	\
+	q932/Facility-Information-Element-Components.asn	\
 	q932/q932.cnf	\
 	q932/q932-ros.cnf	\
 	q932/q932-exp.cnf	\
