@@ -97,6 +97,9 @@ static gboolean wlan_defragment = TRUE;
 /* Check for the presence of the 802.11 FCS */
 static gboolean wlan_check_fcs = FALSE;
 
+/* Ignore vendor-specific HT elements */
+static gboolean wlan_ignore_draft_ht = FALSE;
+
 /* Ignore the WEP bit; assume packet is decrypted */
 #define WLAN_IGNORE_WEP_NO     0
 #define WLAN_IGNORE_WEP_WO_IV  1
@@ -3385,6 +3388,9 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
     return;
   }
 
+  if (wlan_ignore_draft_ht && vs)
+    return;
+
   /* 2 byte HT Capabilities  Info*/
   capability = tvb_get_letohs (tvb, offset);
   cap_item = proto_tree_add_item(tree, vs ? ht_vs_cap : ht_cap, tvb,
@@ -3433,7 +3439,8 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 1;
   tag_val_off += 1;
 
-  dissect_mcs_set(cap_tree, tvb, offset, FALSE, vs);
+  /* 16 byte MCS set */
+  dissect_mcs_set(tree, tvb, offset, FALSE, vs);
   offset += 16;
   tag_val_off += 16;
 
@@ -3556,6 +3563,9 @@ dissect_ht_info_ie_1_0(proto_tree * tree, tvbuff_t * tvb, int offset,
               "HT Additional Capabilities IE content length must be 22");
     return;
   }
+
+  if (wlan_ignore_draft_ht)
+    return;
 
   g_snprintf(out_buff, SHORT_STR, "Control Channel %d",
              tvb_get_guint8(tvb, offset));
@@ -10019,6 +10029,11 @@ proto_register_ieee80211 (void)
       "Reassemble fragmented 802.11 datagrams",
       "Whether fragmented 802.11 datagrams should be reassembled",
       &wlan_defragment);
+
+  prefs_register_bool_preference(wlan_module, "ignore_draft_ht",
+    "Ignore vendor-specific HT elements",
+    "Don't dissect 802.11n draft HT elements (which might contain duplicate information).",
+    &wlan_ignore_draft_ht);
 
   prefs_register_bool_preference(wlan_module, "check_fcs",
     "Assume packets have FCS",
