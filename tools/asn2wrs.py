@@ -49,7 +49,6 @@ import time
 import getopt
 import traceback
 
-import __main__ # XXX blech!
 import lex
 import yacc
 
@@ -306,8 +305,10 @@ tokens = static_tokens.values() \
             'REAL_NUMBER', 'NUMBER', 'PYQUOTE']
 
 
+cur_mod = __import__ (__name__) # XXX blech!
+
 for (k, v) in static_tokens.items ():
-  __main__.__dict__['t_' + v] = k
+    cur_mod.__dict__['t_' + v] = k
 
 # 11.10 Binary strings
 def t_BSTRING (t):
@@ -552,6 +553,7 @@ class EthCtx:
     self.default_external_type_cb = None
     self.module = {}
     self.module_ord = []
+    self.all_type_attr = {}
     self.all_tags = {}
     self.all_vals = {}
 
@@ -571,6 +573,9 @@ class EthCtx:
 
   def Module(self):  # current module name
     return self.modules[-1][0]
+
+  def groups(self):
+    return self.group_by_prot or (self.conform.last_group > 0)
 
   def dbg(self, d):
     if (self.dbgopt.find(d) >= 0):
@@ -638,8 +643,18 @@ class EthCtx:
     attr = {}
     while len(types):
       t = types.pop()
-      attr.update(self.type[t]['attr'])
-      attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+      if (self.type[t]['import']):
+        attr.update(self.type[t]['attr'])
+        attr.update(self.eth_get_type_attr_from_all(t, self.type[t]['import']))
+      else:
+        attr.update(self.type[t]['attr'])
+        attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+    return attr
+
+  def eth_get_type_attr_from_all(self, type, module):
+    attr = {}
+    if self.all_type_attr.has_key(module) and self.all_type_attr[module].has_key(type):
+      attr = self.all_type_attr[module][type]
     return attr
 
   def get_ttag_from_all(self, type, module):
@@ -657,11 +672,12 @@ class EthCtx:
   #--- eth_reg_module -----------------------------------------------------------
   def eth_reg_module(self, module):
     #print "eth_reg_module(module='%s')" % (module)
-    self.modules.append((module, self.proto))
-    if self.module.has_key(module):
-      raise "Duplicate module for " + module
-    self.module[module] = []
-    self.module_ord.append(module)
+    name = module.get_name()
+    self.modules.append([name, module.get_proto(self)])
+    if self.module.has_key(name):
+      raise "Duplicate module for " + name
+    self.module[name] = []
+    self.module_ord.append(name)
 
   #--- eth_module_dep_add ------------------------------------------------------------
   def eth_module_dep_add(self, module, dep):
@@ -1175,6 +1191,9 @@ class EthCtx:
       if not self.all_tags.has_key(m):
         self.all_tags[m] = {}
       self.all_tags[m][t] = self.type[t]['val'].GetTTag(self)
+      if not self.all_type_attr.has_key(m):
+        self.all_type_attr[m] = {}
+      self.all_type_attr[m][t] = self.eth_get_type_attr(t).copy()
     for v in self.vexports:
       if not self.value.has_key(v):
         continue
@@ -2424,6 +2443,9 @@ class EthCnf:
     elif opt in ("-S",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.ectx.merge_modules = True
+    elif opt in ("GROUP_BY_PROT",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.group_by_prot = True
     elif opt in ("-o",):
       par = self.check_par(par, 1, 1, fn, lineno)
       if not par: return
@@ -2547,7 +2569,15 @@ class EthOut:
         fx.write(self.fhdr(fn))
     if not self.ectx.merge_modules:
       fx.write('\n')
-      fx.write(self.outcomment("--- Module %s --- --- ---" % (self.ectx.Module()), comment))
+      mstr = "--- "
+      if self.ectx.groups():
+        mstr += "Modules"
+        for (m, p) in self.ectx.modules:
+          mstr += " %s" % (m)
+      else:
+        mstr += "Module %s" % (self.ectx.Module())
+      mstr += " --- --- ---"
+      fx.write(self.outcomment(mstr, comment))
       fx.write('\n')
     return fx
   #--- file_close -------------------------------------------------------
@@ -3167,12 +3197,21 @@ class Module (Node):
     return """#%s
 %s""" % (self.ident, self.body.to_python (ctx))
 
-  def to_eth (self, ectx):
+  def get_name(self):
+    return self.ident.val
+
+  def get_proto(self, ectx):
+    if (ectx.proto):
+      prot = ectx.proto
+    else:
+      prot = ectx.conform.use_item('MODULE', self.get_name(), val_dflt=self.get_name())
+    return prot
+
+  def to_eth(self, ectx):
     ectx.tags_def = 'EXPLICIT' # default = explicit
-    if (not ectx.proto):
-      ectx.proto = ectx.conform.use_item('MODULE', self.ident.val, val_dflt=self.ident.val)
+    ectx.proto = self.get_proto(ectx)
     ectx.tag_def = self.tag_def.dfl_tag
-    ectx.eth_reg_module(self.ident.val)
+    ectx.eth_reg_module(self)
     self.body.to_eth(ectx)
 
 class Module_Body (Node):
@@ -6902,6 +6941,8 @@ def eth_main():
   ectx.new = True
   ectx.expcnf = False
   ectx.merge_modules = False
+  ectx.group_by_prot = False
+  ectx.conform.last_group = 0
   ectx.conform.suppress_line = False;
   ectx.output.outnm = None
   ectx.output.single_file = None
@@ -6941,15 +6982,36 @@ def eth_main():
     ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
     f.close ()
   ectx.eth_clean()
-  for module in ast:
-    eth_do_module(module, ectx)
-    if (not ectx.merge_modules):  # output for each module
-      ectx.eth_prepare()
-      ectx.eth_do_output()
-      ectx.eth_clean()
   if (ectx.merge_modules):  # common output for all module
+    ectx.eth_clean()
+    for module in ast:
+      eth_do_module(module, ectx)
     ectx.eth_prepare()
     ectx.eth_do_output()
+  elif (ectx.groups()):  # group by protocols/group
+    groups = []
+    pr2gr = {}
+    if (ectx.group_by_prot):  # group by protocols
+      for module in ast:
+        prot = module.get_proto(ectx)
+        if not pr2gr.has_key(prot):
+          pr2gr[prot] = len(groups)
+          groups.append([])
+        groups[pr2gr[prot]].append(module)
+    else:  # group by groups
+      pass
+    for gm in (groups):
+      ectx.eth_clean()
+      for module in gm:
+        eth_do_module(module, ectx)
+      ectx.eth_prepare()
+      ectx.eth_do_output()
+  else:   # output for each module
+    for module in ast:
+      ectx.eth_clean()
+      eth_do_module(module, ectx)
+      ectx.eth_prepare()
+      ectx.eth_do_output()
 
   if ectx.dbg('m'):
     ectx.dbg_modules()
