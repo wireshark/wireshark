@@ -156,8 +156,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->p2p_dir = pinfo->pseudo_header->mtp2.sent ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;
 			pinfo->link_number  = pinfo->pseudo_header->mtp2.link_number;
-			pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used ?
-			    MTP2_ANNEX_A_USED : MTP2_ANNEX_A_NOT_USED;
+			pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used;
 			break;
 
 		}

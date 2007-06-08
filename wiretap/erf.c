@@ -88,8 +88,8 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	char *s;
 	guint32 records_for_erf_check = RECORDS_FOR_ERF_CHECK;
 	guint32 atm_encap = WTAP_ENCAP_ATM_PDUS;
+	guint32 hdlc_encap = WTAP_ENCAP_UNKNOWN;
 	gboolean is_rawatm = FALSE;
-	gboolean is_ppp = FALSE;
 	int common_type = 0;
 	erf_timestamp_t prevts;
 
@@ -107,6 +107,22 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 			atm_encap = WTAP_ENCAP_ATM_RFC1483;
 		}
 	}
+
+	if ((s = getenv("ERF_HDLC_ENCAP")) != NULL) {
+		if (!strcmp(s, "chdlc")) {
+			hdlc_encap = WTAP_ENCAP_CHDLC;
+		} else
+		if (!strcmp(s, "ppp_serial")) {
+			hdlc_encap = WTAP_ENCAP_PPP;
+		} else
+		if (!strcmp(s, "frelay")) {
+			hdlc_encap = WTAP_ENCAP_FRELAY;
+		} else
+		if (!strcmp(s, "mtp2")) {
+			hdlc_encap = WTAP_ENCAP_MTP2_WITH_PHDR;
+		}
+	}
+
 
 	/* number of records to scan before deciding if this really is ERF (dflt=3) */
 	if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
@@ -136,9 +152,17 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 		packet_size = g_ntohs(header.rlen) - sizeof(header);
 
 		/* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
-		/* Only header type up to Multi Channel HDLC are taken into account in this software version */
-		if (header.type == 0 || header.type > TYPE_MC_HDLC ) {
+		/* Not all types within this range are decoded, but it is a first filter */
+		if (header.type == 0 || header.type > TYPE_MAX ) {
 			return 0;
+		}
+
+		/* Skip PAD records, timestamps may not be set */
+		if (header.type == TYPE_PAD) {
+			if (file_seek(wth->fh, packet_size, SEEK_CUR, err) == -1) {
+				return -1;
+			}
+			continue;
 		}
 
 		if ((ts = pletohll(&header.ts)) < prevts) {
@@ -156,15 +180,46 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 			common_type = -1;
 		}
 
-		if (header.type == TYPE_HDLC_POS && !is_ppp) {
+		/* Read over MC header */
+		if ( (header.type == TYPE_MC_HDLC) ||
+		     (header.type == TYPE_MC_RAW) ||
+		     (header.type == TYPE_MC_ATM) ||
+		     (header.type == TYPE_MC_RAW_CHANNEL) ||
+		     (header.type == TYPE_MC_AAL5) ||
+		     (header.type == TYPE_MC_AAL2) ||
+		     (header.type == TYPE_COLOR_MC_HDLC_POS) ) {
+			guint32 mc_hdr;
+			if (file_read(&mc_hdr,1,sizeof(mc_hdr),wth->fh) != sizeof(mc_hdr)) {
+				*err = file_error(wth->fh);
+			}
+			packet_size -= sizeof(mc_hdr);
+		}
+
+		/* Try to guess hdlc type if user didn't specify */
+		if ( ( (header.type == TYPE_HDLC_POS) ||
+		       (header.type == TYPE_MC_HDLC) ||
+		       (header.type == TYPE_COLOR_HDLC_POS) ||
+		       (header.type == TYPE_COLOR_MC_HDLC_POS) ) &&
+		     hdlc_encap == WTAP_ENCAP_UNKNOWN) {
 			guint16 chdlc_hdr;
 			if (file_read(&chdlc_hdr,1,sizeof(chdlc_hdr),wth->fh) != sizeof(chdlc_hdr)) {
 				*err = file_error(wth->fh);
 			}
 			packet_size -= sizeof(chdlc_hdr);
+
+			/* Looks like PPP in HDLC-like framing*/
 			if (g_ntohs(chdlc_hdr) == 0xff03) {
-				is_ppp = TRUE;
+				hdlc_encap = WTAP_ENCAP_PPP;
 			}
+			/* Looks like Cisco HDLC */
+			else if (g_ntohs(chdlc_hdr) == 0x0f00) {
+				hdlc_encap = WTAP_ENCAP_CHDLC;
+			}
+			/* How to guess between FRELAY and MTP2?
+			 * For now be backward compatible with Florent's
+			 * established behaviour */
+			else
+				hdlc_encap = WTAP_ENCAP_MTP2_WITH_PHDR;
 		}
 
 		if (file_seek(wth->fh, packet_size, SEEK_CUR, err) == -1) {
@@ -182,7 +237,7 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->file_type = WTAP_FILE_ERF;
 	wth->snapshot_length = 0;	/* not available in header, only in frame */
 	wth->capture.erf = g_malloc(sizeof(erf_t));
-	wth->capture.erf->is_ppp = is_ppp;
+	wth->capture.erf->hdlc_encap = hdlc_encap;
 	if (common_type == TYPE_AAL5) {
 		wth->capture.erf->atm_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
 		wth->capture.erf->is_rawatm = FALSE;
@@ -220,13 +275,15 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = wth->data_offset;
 
-	if (!erf_read_header(
-			wth->fh,
-			&wth->phdr, &wth->pseudo_header, &erf_header, wth->capture.erf,
-			err, err_info, &bytes_read, &packet_size)) {
-		return FALSE;
-	}
-	wth->data_offset += bytes_read;
+	do {
+		if (!erf_read_header(
+			    wth->fh,
+			    &wth->phdr, &wth->pseudo_header, &erf_header, wth->capture.erf,
+			    err, err_info, &bytes_read, &packet_size)) {
+			return FALSE;
+		}
+		wth->data_offset += bytes_read;
+	} while ( erf_header.type == TYPE_PAD );
 
 	buffer_assure_space(wth->frame_buffer, packet_size+(wth->capture.erf->is_rawatm?(sizeof(atm_hdr_t)+1):0));
 
@@ -297,6 +354,7 @@ static int erf_read_header(
 	guint32 *packet_size)
 {
 	guint32 rec_size, skip;
+	guint32 mc_hdr;
 
 	wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err);
 	if (bytes_read != NULL) {
@@ -305,6 +363,7 @@ static int erf_read_header(
 
 	rec_size = g_ntohs(erf_header->rlen);
 	*packet_size = rec_size - sizeof(*erf_header);
+
 	skip = 0; /* # bytes of payload to ignore */
 
 	if (*packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -322,21 +381,41 @@ static int erf_read_header(
 		guint64 ts = pletohll(&erf_header->ts);
 
 		phdr->ts.secs = (long) (ts >> 32);
-		ts = ((ts & 0xffffffff) * 1000 * 1000);
+		ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
 		ts += (ts & 0x80000000) << 1; /* rounding */
-		phdr->ts.nsecs = ((long) (ts >> 32)) * 1000;
+		phdr->ts.nsecs = ((long) (ts >> 32));
 		if (phdr->ts.nsecs >= 1000000000) {
 			phdr->ts.nsecs -= 1000000000;
 			phdr->ts.secs += 1;
 		}
 	}
 
+	/* Save off the ERF MC header if persent */
+	switch (erf_header->type) {
+	case TYPE_MC_HDLC:
+	case TYPE_MC_RAW:
+	case TYPE_MC_ATM:
+	case TYPE_MC_RAW_CHANNEL:
+	case TYPE_MC_AAL5:
+	case TYPE_MC_AAL2:
+	case TYPE_COLOR_MC_HDLC_POS:
+		wtap_file_read_expected_bytes(&mc_hdr, sizeof(mc_hdr), fh, err);
+		if (bytes_read != NULL) {
+			*bytes_read += sizeof(mc_hdr);
+		}
+		*packet_size -= sizeof(mc_hdr);
+
+		mc_hdr = g_ntohl(mc_hdr);
+	}
+
 	switch (erf_header->type) {
 
 	case TYPE_ATM:
 	case TYPE_AAL5:
+	case TYPE_MC_ATM:
+	case TYPE_MC_AAL5:
 		if (phdr != NULL) {
-			if (erf_header->type == TYPE_AAL5) {
+			if ( (erf_header->type == TYPE_AAL5) || (erf_header->type == TYPE_MC_AAL5) ) {
 				phdr->caplen = phdr->len = *packet_size - sizeof(atm_hdr_t);
 			} else {
 				phdr->caplen = ATM_SLEN(erf_header, NULL);
@@ -371,14 +450,20 @@ static int erf_read_header(
 			skip = 4;
 		}
 		break;
+
 	case TYPE_ETH:
+	case TYPE_COLOR_ETH:
+	case TYPE_DSM_COLOR_ETH:
 		if (phdr != NULL) {
 			phdr->caplen = ETHERNET_SLEN(erf_header, erf);
 			phdr->len = ETHERNET_WLEN(erf_header, erf);
 		}
 		skip = 2;
 		break;
+
 	case TYPE_HDLC_POS:
+	case TYPE_COLOR_HDLC_POS:
+	case TYPE_DSM_COLOR_HDLC_POS:
 		if (phdr != NULL) {
 			phdr->caplen = HDLC_SLEN(erf_header, erf);
 			phdr->len = HDLC_WLEN(erf_header, erf);
@@ -386,15 +471,22 @@ static int erf_read_header(
 		memset(&pseudo_header->p2p, 0, sizeof(pseudo_header->p2p));
 		pseudo_header->p2p.sent = ((erf_header->flags & 0x01) ? TRUE : FALSE);
 		break;
+
 	case TYPE_MC_HDLC:
+	case TYPE_COLOR_MC_HDLC_POS:
 	        if (phdr != NULL) {
-		  phdr->caplen = MC_HDLC_SLEN(erf_header, erf);
-		  phdr->len = MC_HDLC_WLEN(erf_header, erf);
+			phdr->caplen = MC_HDLC_SLEN(erf_header, erf);
+			phdr->len = MC_HDLC_WLEN(erf_header, erf);
 		}
-		/* Skip the MC header, so the first data to dissect will be the MTP2 header */ 
-		skip = 4;
-		memset(&pseudo_header->mtp2, 0, sizeof(pseudo_header->mtp2));
+		/* create mtp2 pseudo header.
+		 * Currently blank, but lets insert the ERF MC channel id into
+		 * the mtp2.link_number.
+		 */
+		pseudo_header->mtp2.link_number = mc_hdr&0x1ff;
+		pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
+		pseudo_header->mtp2.sent = 0;
 		break;
+		
 	default:
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("erf: unknown record encapsulation %u",
@@ -426,16 +518,23 @@ static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap)
 	switch (erf_encap) {
 	case TYPE_ATM:
 	case TYPE_AAL5:
+	case TYPE_MC_ATM:
+	case TYPE_MC_AAL5:
+	case TYPE_MC_AAL2:
+	case TYPE_AAL2:
 		wtap_encap = erf->atm_encap;
 		break;
 	case TYPE_ETH:
+	case TYPE_COLOR_ETH:
+	case TYPE_DSM_COLOR_ETH:
 		wtap_encap = WTAP_ENCAP_ETHERNET;
 		break;
 	case TYPE_HDLC_POS:
-		wtap_encap = (erf->is_ppp ? WTAP_ENCAP_PPP : WTAP_ENCAP_CHDLC);
-		break;
 	case TYPE_MC_HDLC:
-	        wtap_encap = WTAP_ENCAP_MTP2;
+	case TYPE_COLOR_HDLC_POS:
+	case TYPE_DSM_COLOR_HDLC_POS:
+	case TYPE_COLOR_MC_HDLC_POS:
+		wtap_encap = (erf->hdlc_encap ? erf->hdlc_encap : WTAP_ENCAP_MTP2_WITH_PHDR);
 		break;
 	default:
 		break;
@@ -447,7 +546,9 @@ static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap)
 static void erf_set_pseudo_header(
 	guint8 type, erf_t *erf, guchar *pd, int length, union wtap_pseudo_header *pseudo_header)
 {
-	if (type == TYPE_ETH) {
+	if ( (type == TYPE_ETH) ||
+		(type == TYPE_COLOR_ETH) ||
+		(type == TYPE_DSM_COLOR_ETH) ) {
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
 		 */
@@ -464,4 +565,5 @@ static void erf_set_pseudo_header(
 		pseudo_header->atm.type = TRAF_UNKNOWN;
 		pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 	}
+	/* mtp2 pseudo header is created in erf_read_header() */
 }

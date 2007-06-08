@@ -138,8 +138,8 @@ typedef struct {
 
 typedef struct {
 	guint32		atm_encap;
+	guint32		hdlc_encap;
 	gboolean	is_rawatm;
-	gboolean	is_ppp;
 } erf_t;
 
 typedef struct _k12_t k12_t;

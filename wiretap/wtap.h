@@ -498,6 +498,10 @@ struct nettl_phdr {
 
 /* Packet "pseudo-header" for MTP2 files. */
 
+#define MTP2_ANNEX_A_NOT_USED      0
+#define MTP2_ANNEX_A_USED          1
+#define MTP2_ANNEX_A_USED_UNKNOWN  2
+
 struct mtp2_phdr {
 	guint8  sent;
 	guint8  annex_a_used;

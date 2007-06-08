@@ -447,7 +447,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL},
 
 	/* WTAP_FILE_ERF */
-	{ "Endace DAG capture", "erf", "*.erf", ".erf", FALSE,
+	{ "Endace ERF capture", "erf", "*.erf", ".erf", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_EYESDN */

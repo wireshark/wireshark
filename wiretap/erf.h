@@ -39,16 +39,30 @@
 #define __W_ERF_H__
 
 /* Record type defines */
-#define TYPE_LEGACY	0
-#define TYPE_HDLC_POS	1
-#define TYPE_ETH	2
-#define TYPE_ATM	3
-#define TYPE_AAL5	4
-#define TYPE_MC_HDLC	5
-#define TYPE_MC_RAW	6
-#define TYPE_MC_ATM	7
-#define TYPE_MC_AAL2	9
-#define TYPE_MC_AAL5	12
+#define TYPE_LEGACY             0
+#define TYPE_HDLC_POS           1
+#define TYPE_ETH                2
+#define TYPE_ATM                3
+#define TYPE_AAL5               4
+#define TYPE_MC_HDLC            5
+#define TYPE_MC_RAW             6
+#define TYPE_MC_ATM             7
+#define TYPE_MC_RAW_CHANNEL     8
+#define TYPE_MC_AAL5            9
+#define TYPE_COLOR_HDLC_POS     10
+#define TYPE_COLOR_ETH          11
+#define TYPE_MC_AAL2            12
+#define TYPE_IP_COUNTER         13
+#define TYPE_TCP_FLOW_COUNTER   14
+#define TYPE_DSM_COLOR_HDLC_POS 15
+#define TYPE_DSM_COLOR_ETH      16
+#define TYPE_COLOR_MC_HDLC_POS  17
+#define TYPE_AAL2               18
+
+#define TYPE_PAD                48
+
+#define TYPE_MIN  1   /* sanity checking */
+#define TYPE_MAX  48  /* sanity checking */
 
  /*
   * The timestamp is 64bit unsigned fixed point little-endian value with
@@ -100,7 +114,7 @@ typedef struct erf_record {
  * Size of MC_HDLC payload
  */
 #define MC_HDLC_WLEN(h, e)		(g_htons((h)->wlen))
-#define MC_HDLC_SLEN(h, e)		min(HDLC_WLEN(h, e), g_htons((h)->rlen) - sizeof(*(h)) )
+#define MC_HDLC_SLEN(h, e)		min(MC_HDLC_WLEN(h, e), g_htons((h)->rlen) - sizeof(*(h)) )
 
 int erf_open(wtap *wth, int *err, gchar **err_info);
 

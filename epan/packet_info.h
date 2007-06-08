@@ -33,10 +33,6 @@
 #define P2P_DIR_SENT	0
 #define P2P_DIR_RECV	1
 
-#define MTP2_ANNEX_A_USED_UNKNOWN -1
-#define MTP2_ANNEX_A_NOT_USED      0
-#define MTP2_ANNEX_A_USED          1
-
 #define PINFO_SOF_FIRST_FRAME   0x1
 #define PINFO_SOF_SOFF          0x2
 #define PINFO_EOF_LAST_FRAME    0x80
@@ -172,7 +168,7 @@ typedef struct _packet_info {
   void    *private_data;	/* pointer to data passed from one dissector to another */
   GString *layer_names; 	/* layers of each protocol */
   guint16 link_number;
-  gchar   annex_a_used;
+  guint8  annex_a_used;
   guint16 profinet_type; 	/* the type of PROFINET packet (0: not a PROFINET packet) */
   void *usb_conv_info;
   void *tcp_tree;		/* proto_tree for the tcp layer */
