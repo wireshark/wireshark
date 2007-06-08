@@ -1840,8 +1840,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		for(fhhash=0,i=0;i<(fhlen-3);i+=4){
 			guint32 val;
 			val = tvb_get_ntohl(tvb, offset+i);
-			fhhash ^= val;
-			fhhash += val;
+			fhhash ^= (val >> 16) ^ val;
 		}
 		if(hidden){
 			fh_item=proto_tree_add_uint_hidden(tree, hf_nfs_fh_hash, tvb, offset,
