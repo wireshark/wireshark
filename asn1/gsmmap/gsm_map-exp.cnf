@@ -1,15 +1,287 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # .\gsm_map-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module Remote-Operations-Information-Objects --- --- ---
 
 #.MODULE
-MAP-Protocol  gsm_map
+Remote-Operations-Information-Objects  Remote-Operations-Information-Objects
 #.END
 
 #.IMPORT_TAG
-GSMMAPLocalErrorcode     BER_CLASS_UNI BER_UNI_TAG_INTEGER
-SupportedCamelPhases     BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MobileDomainDefinitions --- --- ---
+
+#.MODULE
+MobileDomainDefinitions  MobileDomainDefinitions
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-ApplicationContexts --- --- ---
+
+#.MODULE
+MAP-ApplicationContexts  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-SS-Code --- --- ---
+
+#.MODULE
+MAP-SS-Code  gsm_map
+#.END
+
+#.IMPORT_TAG
+SS-Code                  BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+#.END
+
+#.TYPE_ATTR
+SS-Code                  TYPE = FT_UINT8   DISPLAY = BASE_DEC   STRINGS = VALS(ssCode_vals)  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-BS-Code --- --- ---
+
+#.MODULE
+MAP-BS-Code  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-TS-Code --- --- ---
+
+#.MODULE
+MAP-TS-Code  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-ExtensionDataTypes --- --- ---
+
+#.MODULE
+MAP-ExtensionDataTypes  gsm_map
+#.END
+
+#.IMPORT_TAG
+ExtensionContainer       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+ExtensionContainer       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-CommonDataTypes --- --- ---
+
+#.MODULE
+MAP-CommonDataTypes  gsm_map
+#.END
+
+#.IMPORT_TAG
+AddressString            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+ISDN-AddressString       BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+ISDN-SubaddressString    BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+AlertingPattern          BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+IMSI                     BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+IMEI                     BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+LCSClientExternalID      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+LCSServiceTypeID         BER_CLASS_UNI BER_UNI_TAG_INTEGER
+CellGlobalIdOrServiceAreaIdFixedLength BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+LAIFixedLength           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+Ext-BasicServiceCode     BER_CLASS_ANY/*choice*/ -1/*choice*/
+AgeOfLocationInformation BER_CLASS_UNI BER_UNI_TAG_INTEGER
+#.END
+
+#.TYPE_ATTR
+AddressString            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+ISDN-AddressString       TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+ISDN-SubaddressString    TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+AlertingPattern          TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+IMSI                     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+IMEI                     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+LCSClientExternalID      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+LCSServiceTypeID         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_LCSServiceTypeID_vals)  BITMASK = 0
+CellGlobalIdOrServiceAreaIdFixedLength TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+LAIFixedLength           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+Ext-BasicServiceCode     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_Ext_BasicServiceCode_vals)  BITMASK = 0
+AgeOfLocationInformation TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-SS-DataTypes --- --- ---
+
+#.MODULE
+MAP-SS-DataTypes  gsm_map.ss
+#.END
+
+#.IMPORT_TAG
+RegisterSS-Arg           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+SS-Info                  BER_CLASS_ANY/*choice*/ -1/*choice*/
+SS-Status                BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+SS-ForBS-Code            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+CCBS-Feature             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+InterrogateSS-Res        BER_CLASS_ANY/*choice*/ -1/*choice*/
+USSD-Arg                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+USSD-Res                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+USSD-DataCodingScheme    BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+USSD-String              BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+RegisterCC-EntryRes      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+EraseCC-EntryArg         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+EraseCC-EntryRes         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+RegisterSS-Arg           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SS-Info                  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_ss_SS_Info_vals)  BITMASK = 0
+SS-Status                TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+SS-ForBS-Code            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+CCBS-Feature             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+InterrogateSS-Res        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_ss_InterrogateSS_Res_vals)  BITMASK = 0
+USSD-Arg                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+USSD-Res                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+USSD-DataCodingScheme    TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+USSD-String              TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+RegisterCC-EntryRes      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+EraseCC-EntryArg         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+EraseCC-EntryRes         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-ER-DataTypes --- --- ---
+
+#.MODULE
+MAP-ER-DataTypes  gsm_map.er
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-SM-DataTypes --- --- ---
+
+#.MODULE
+MAP-SM-DataTypes  gsm_map.sm
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-OM-DataTypes --- --- ---
+
+#.MODULE
+MAP-OM-DataTypes  gsm_map.om
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-MS-DataTypes --- --- ---
+
+#.MODULE
+MAP-MS-DataTypes  gsm_map.ms
+#.END
+
+#.IMPORT_TAG
+GSN-Address              BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 QoS-Subscribed           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 Ext-QoS-Subscribed       BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 Ext2-QoS-Subscribed      BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
@@ -18,44 +290,69 @@ CUG-Info                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CUG-Index                BER_CLASS_UNI BER_UNI_TAG_INTEGER
 CUG-Interlock            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 NotificationToMSUser     BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
-AlertingPattern          BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-IMSI                     BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-IMEI                     BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-LCSClientExternalID      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-LCSServiceTypeID         BER_CLASS_UNI BER_UNI_TAG_INTEGER
-CellGlobalIdOrServiceAreaIdFixedLength BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-LAIFixedLength           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+SupportedCamelPhases     BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+OfferedCamel4Functionalities BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+MS-Classmark2            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 LocationInformation      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RAIdentity               BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 GeographicalInformation  BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 SubscriberState          BER_CLASS_ANY/*choice*/ -1/*choice*/
 GPRSChargingID           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+#.END
+
+#.TYPE_ATTR
+GSN-Address              TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+QoS-Subscribed           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+Ext-QoS-Subscribed       TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+Ext2-QoS-Subscribed      TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+LSAIdentity              TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+CUG-Info                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+CUG-Index                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+CUG-Interlock            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+NotificationToMSUser     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_ms_NotificationToMSUser_vals)  BITMASK = 0
+SupportedCamelPhases     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+OfferedCamel4Functionalities TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+MS-Classmark2            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+LocationInformation      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RAIdentity               TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+GeographicalInformation  TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+SubscriberState          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_ms_SubscriberState_vals)  BITMASK = 0
+GPRSChargingID           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-CH-DataTypes --- --- ---
+
+#.MODULE
+MAP-CH-DataTypes  gsm_map.ch
+#.END
+
+#.IMPORT_TAG
 UU-Data                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-RegisterSS-Arg           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-SS-Info                  BER_CLASS_ANY/*choice*/ -1/*choice*/
-InterrogateSS-Res        BER_CLASS_ANY/*choice*/ -1/*choice*/
-Ussd-Arg                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-Ussd-Res                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-USSD-DataCodingScheme    BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-USSD-String              BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-SS-Code                  BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-NewPassword              BER_CLASS_UNI BER_UNI_TAG_NumericString
-GetPasswordArg           BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
-CurrentPassword          BER_CLASS_UNI BER_UNI_TAG_NumericString
-RegisterCC-EntryRes      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-EraseCC-EntryArg         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-EraseCC-EntryRes         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-MS-Classmark2            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-OfferedCamel4Functionalities BER_CLASS_UNI BER_UNI_TAG_BITSTRING
-SS-ForBS-Code            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-CCBS-Feature             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-SS-Status                BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-AgeOfLocationInformation BER_CLASS_UNI BER_UNI_TAG_INTEGER
-Ext-BasicServiceCode     BER_CLASS_ANY/*choice*/ -1/*choice*/
-AddressString            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-ISDN-AddressString       BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-ISDN-SubaddressString    BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-GSN-Address              BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+#.END
+
+#.TYPE_ATTR
+UU-Data                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-LCS-DataTypes --- --- ---
+
+#.MODULE
+MAP-LCS-DataTypes  gsm_map.lcs
+#.END
+
+#.IMPORT_TAG
 LocationType             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 DeferredLocationEventType BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 LCSClientName            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -66,61 +363,11 @@ LCS-ReferenceNumber      BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 LCSCodeword              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AreaEventInfo            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Ext-GeographicalInformation BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+VelocityEstimate         BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 Add-GeographicalInformation BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-SecurityHeader           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-ProtectedPayload         BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
-ExtensionContainer       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
-GSMMAPLocalErrorcode     TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_GSMMAPLocalErrorcode_vals)  BITMASK = 0
-SupportedCamelPhases     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-QoS-Subscribed           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-Ext-QoS-Subscribed       TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-Ext2-QoS-Subscribed      TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-LSAIdentity              TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-CUG-Info                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-CUG-Index                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-CUG-Interlock            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-NotificationToMSUser     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_NotificationToMSUser_vals)  BITMASK = 0
-AlertingPattern          TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-IMSI                     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-IMEI                     TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-LCSClientExternalID      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-LCSServiceTypeID         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-CellGlobalIdOrServiceAreaIdFixedLength TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-LAIFixedLength           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-LocationInformation      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-RAIdentity               TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-GeographicalInformation  TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-SubscriberState          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_SubscriberState_vals)  BITMASK = 0
-GPRSChargingID           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-UU-Data                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-RegisterSS-Arg           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-SS-Info                  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_SS_Info_vals)  BITMASK = 0
-InterrogateSS-Res        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_InterrogateSS_Res_vals)  BITMASK = 0
-Ussd-Arg                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-Ussd-Res                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-USSD-DataCodingScheme    TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-USSD-String              TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-SS-Code                  TYPE = FT_UINT8   DISPLAY = BASE_DEC   STRINGS = VALS(ssCode_vals)  BITMASK = 0
-NewPassword              TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-GetPasswordArg           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_GetPasswordArg_vals)  BITMASK = 0
-CurrentPassword          TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-RegisterCC-EntryRes      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-EraseCC-EntryArg         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-EraseCC-EntryRes         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-MS-Classmark2            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-OfferedCamel4Functionalities TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-SS-ForBS-Code            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-CCBS-Feature             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-SS-Status                TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-AgeOfLocationInformation TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-Ext-BasicServiceCode     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_map_Ext_BasicServiceCode_vals)  BITMASK = 0
-AddressString            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-ISDN-AddressString       TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-ISDN-SubaddressString    TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-GSN-Address              TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 LocationType             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DeferredLocationEventType TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 LCSClientName            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
@@ -131,9 +378,253 @@ LCS-ReferenceNumber      TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  
 LCSCodeword              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AreaEventInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Ext-GeographicalInformation TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+VelocityEstimate         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 Add-GeographicalInformation TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-GR-DataTypes --- --- ---
+
+#.MODULE
+MAP-GR-DataTypes  gsm_map.gr
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-DialogueInformation --- --- ---
+
+#.MODULE
+MAP-DialogueInformation  gsm_map.dialogue
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-LocationServiceOperations --- --- ---
+
+#.MODULE
+MAP-LocationServiceOperations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-Group-Call-Operations --- --- ---
+
+#.MODULE
+MAP-Group-Call-Operations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-ShortMessageServiceOperations --- --- ---
+
+#.MODULE
+MAP-ShortMessageServiceOperations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-SupplementaryServiceOperations --- --- ---
+
+#.MODULE
+MAP-SupplementaryServiceOperations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-CallHandlingOperations --- --- ---
+
+#.MODULE
+MAP-CallHandlingOperations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-OperationAndMaintenanceOperations --- --- ---
+
+#.MODULE
+MAP-OperationAndMaintenanceOperations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-MobileServiceOperations --- --- ---
+
+#.MODULE
+MAP-MobileServiceOperations  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module MAP-Protocol --- --- ---
+
+#.MODULE
+MAP-Protocol  gsm_map
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module DummyMAP --- --- ---
+
+#.MODULE
+DummyMAP  gsm_old
+#.END
+
+#.IMPORT_TAG
+GSMMAPLocalErrorcode     BER_CLASS_UNI BER_UNI_TAG_INTEGER
+NewPassword              BER_CLASS_UNI BER_UNI_TAG_NumericString
+GetPasswordArg           BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
+CurrentPassword          BER_CLASS_UNI BER_UNI_TAG_NumericString
+SecurityHeader           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+ProtectedPayload         BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+#.END
+
+#.TYPE_ATTR
+GSMMAPLocalErrorcode     TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(gsm_old_GSMMAPLocalErrorcode_vals)  BITMASK = 0
+NewPassword              TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+GetPasswordArg           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(gsm_old_GetPasswordArg_vals)  BITMASK = 0
+CurrentPassword          TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SecurityHeader           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ProtectedPayload         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
-ExtensionContainer       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module SS-DataTypes --- --- ---
+
+#.MODULE
+SS-DataTypes  gsm_ss
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
+#.END
+
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\gsm_map-exp.cnf
+# ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn
+
+
+# --- Module SS-Operations --- --- ---
+
+#.MODULE
+SS-Operations  gsm_ss
+#.END
+
+#.IMPORT_TAG
+#.END
+
+#.TYPE_ATTR
 #.END
 

@@ -102,7 +102,6 @@
 #include <epan/asn1.h>
 
 #include "packet-bssap.h"
-#include "packet-gsm_ss.h"
 #include "packet-ber.h"
 #include "packet-q931.h"
 #include "packet-gsm_a.h"
@@ -1162,29 +1161,6 @@ static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_chnl_needed_ch1 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch2 = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
-static int hf_ROS_component = -1;
-static int hf_ROS_invoke = -1;                    /* Invoke */
-static int hf_ROS_returnResultLast = -1;          /* ReturnResult */
-static int hf_ROS_returnError = -1;               /* ReturnError */
-static int hf_ROS_reject = -1;                    /* Reject */
-static int hf_ROS_invokeID = -1;                  /* InvokeIdType */
-static int hf_ROS_linkedID = -1;                  /* InvokeIdType */
-static int hf_ROS_opCode = -1;                    /* OPERATION */
-static int hf_ROS_parameter = -1;                 /* Parameter */
-static int hf_ROS_resultretres = -1;              /* T_resultretres */
-static int hf_ROS_errorCode = -1;                 /* ErrorCode */
-static int hf_ROS_invokeIDRej = -1;               /* T_invokeIDRej */
-static int hf_ROS_derivable = -1;                 /* InvokeIdType */
-static int hf_ROS_not_derivable = -1;             /* NULL */
-static int hf_ROS_problem = -1;                   /* T_problem */
-static int hf_ROS_generalProblem = -1;            /* GeneralProblem */
-static int hf_ROS_invokeProblem = -1;             /* InvokeProblem */
-static int hf_ROS_returnResultProblem = -1;       /* ReturnResultProblem */
-static int hf_ROS_returnErrorProblem = -1;        /* ReturnErrorProblem */
-static int hf_ROS_localValue = -1;                /* INTEGER */
-static int hf_ROS_globalValue = -1;               /* OBJECT_IDENTIFIER */
-static int hf_ROS_nationaler = -1;                /* INTEGER_M32768_32767 */
-static int hf_ROS_privateer = -1;                 /* INTEGER */
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6 = -1;
@@ -1265,24 +1241,13 @@ static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
 
-static gint ett_ros = -1;
-static gint ett_ROS_Component = -1;
-static gint ett_ROS_Invoke = -1;
-static gint ett_ROS_ReturnResult = -1;
-static gint ett_ROS_T_resultretres = -1;
-static gint ett_ROS_ReturnError = -1;
-static gint ett_ROS_Reject = -1;
-static gint ett_ROS_T_invokeIDRej = -1;
-static gint ett_ROS_T_problem = -1;
-static gint ett_ROS_OPERATION = -1;
-static gint ett_ROS_ERROR = -1;
-static gint ett_ROS_ErrorCode = -1;
 
 static gint ett_sm_tft = -1;
 
 static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
+static dissector_handle_t gsm_map_handle;
 static dissector_handle_t bssmap_handle;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t rp_handle;
@@ -7605,413 +7570,7 @@ de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 /*
  * [6] 3.6
  */
- static int
-dissect_ROS_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
 
-  return offset;
-}
-static int dissect_invokeID( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_InvokeIdType(FALSE, tvb, offset, actx, tree, hf_ROS_invokeID);
-}
-static int dissect_linkedID_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_InvokeIdType(TRUE, tvb, offset, actx, tree, hf_ROS_linkedID);
-}
-static int dissect_derivable( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_InvokeIdType(FALSE, tvb, offset, actx, tree, hf_ROS_derivable);
-}
-
-
-
-static int
-dissect_ROS_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &localValue);
-
-  return offset;
-}
-static int dissect_localValue( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_INTEGER(FALSE, tvb, offset, actx, tree, hf_ROS_localValue);
-}
-static int dissect_privateer_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_INTEGER(TRUE, tvb, offset, actx, tree, hf_ROS_privateer);
-}
-
-
-
-static int
-dissect_ROS_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_globalValue( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_ROS_globalValue);
-}
-
-
-static const value_string ROS_OPERATION_vals[] = {
-  {   0, "localValue" },
-  {   1, "globalValue" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t OPERATION_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              OPERATION_choice, hf_index, ett_ROS_OPERATION, NULL);
-
-  return offset;
-}
-static int dissect_opCode( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_OPERATION(FALSE, tvb, offset, actx, tree, hf_ROS_opCode);
-}
-
-
-
-static int
-dissect_ROS_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = gsm_ss_dissect(tvb, tree, offset, actx, localValue, comp_type_tag);
-	
-  return offset;
-}
-static int dissect_parameter( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_Parameter(FALSE, tvb, offset, actx, tree, hf_ROS_parameter);
-}
-
-static const ber_old_sequence_t Invoke_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                Invoke_sequence, hf_index, ett_ROS_Invoke);
-
-  return offset;
-}
-static int dissect_invoke_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_Invoke(TRUE, tvb, offset, actx, tree, hf_ROS_invoke);
-}
-
-static const ber_old_sequence_t T_resultretres_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                T_resultretres_sequence, hf_index, ett_ROS_T_resultretres);
-
-  return offset;
-}
-static int dissect_resultretres( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_T_resultretres(FALSE, tvb, offset, actx, tree, hf_ROS_resultretres);
-}
-
-static const ber_old_sequence_t ReturnResult_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_resultretres },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                ReturnResult_sequence, hf_index, ett_ROS_ReturnResult);
-
-  return offset;
-}
-static int dissect_returnResultLast_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_ReturnResult(TRUE, tvb, offset, actx, tree, hf_ROS_returnResultLast);
-}
-
-
-
-static int
-dissect_ROS_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_nationaler_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_INTEGER_M32768_32767(TRUE, tvb, offset, actx, tree, hf_ROS_nationaler);
-}
-
-
-static const value_string ROS_ErrorCode_vals[] = {
-  {  19, "nationaler" },
-  {  20, "privateer" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t ErrorCode_choice[] = {
-  {  19, BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_nationaler_impl },
-  {  20, BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_privateer_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              ErrorCode_choice, hf_index, ett_ROS_ErrorCode, NULL);
-
-  return offset;
-}
-static int dissect_errorCode( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_ErrorCode(FALSE, tvb, offset, actx, tree, hf_ROS_errorCode);
-}
-
-static const ber_old_sequence_t ReturnError_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
-  { BER_CLASS_PRI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                ReturnError_sequence, hf_index, ett_ROS_ReturnError);
-
-  return offset;
-}
-static int dissect_returnError_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_ReturnError(TRUE, tvb, offset, actx, tree, hf_ROS_returnError);
-}
-
-
-
-static int
-dissect_ROS_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-static int dissect_not_derivable( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_NULL(FALSE, tvb, offset, actx, tree, hf_ROS_not_derivable);
-}
-
-
-static const value_string ROS_T_invokeIDRej_vals[] = {
-  {   0, "derivable" },
-  {   1, "not-derivable" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t T_invokeIDRej_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_derivable },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_not_derivable },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              T_invokeIDRej_choice, hf_index, ett_ROS_T_invokeIDRej, NULL);
-
-  return offset;
-}
-static int dissect_invokeIDRej( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_T_invokeIDRej(FALSE, tvb, offset, actx, tree, hf_ROS_invokeIDRej);
-}
-
-
-static const value_string ROS_GeneralProblem_vals[] = {
-  {   0, "unrecognizedComponent" },
-  {   1, "mistypedComponent" },
-  {   2, "badlyStructuredComponent" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ROS_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_generalProblem_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_GeneralProblem(TRUE, tvb, offset, actx, tree, hf_ROS_generalProblem);
-}
-
-
-static const value_string ROS_InvokeProblem_vals[] = {
-  {   0, "duplicateInvokeID" },
-  {   1, "unrecognizedOperation" },
-  {   2, "mistypedParameter" },
-  {   3, "resourceLimitation" },
-  {   4, "initiatingRelease" },
-  {   5, "unrecognizedLinkedID" },
-  {   6, "linkedResponseUnexpected" },
-  {   7, "unexpectedLinkedOperation" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ROS_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_invokeProblem_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_InvokeProblem(TRUE, tvb, offset, actx, tree, hf_ROS_invokeProblem);
-}
-
-
-static const value_string ROS_ReturnResultProblem_vals[] = {
-  {   0, "unrecognizedInvokeID" },
-  {   1, "returnResultUnexpected" },
-  {   2, "mistypedParameter" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ROS_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_returnResultProblem_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_ReturnResultProblem(TRUE, tvb, offset, actx, tree, hf_ROS_returnResultProblem);
-}
-
-
-static const value_string ROS_ReturnErrorProblem_vals[] = {
-  {   0, "unrecognizedInvokeID" },
-  {   1, "returnErrorUnexpected" },
-  {   2, "unrecognizedError" },
-  {   3, "unexpectedError" },
-  {   4, "mistypedParameter" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ROS_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_returnErrorProblem_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_ReturnErrorProblem(TRUE, tvb, offset, actx, tree, hf_ROS_returnErrorProblem);
-}
-
-
-static const value_string ROS_T_problem_vals[] = {
-  {   0, "generalProblem" },
-  {   1, "invokeProblem" },
-  {   2, "returnResultProblem" },
-  {   3, "returnErrorProblem" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t T_problem_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_generalProblem_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invokeProblem_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultProblem_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnErrorProblem_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              T_problem_choice, hf_index, ett_ROS_T_problem, NULL);
-
-  return offset;
-}
-static int dissect_problem( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_T_problem(FALSE, tvb, offset, actx, tree, hf_ROS_problem);
-}
-
-static const ber_old_sequence_t Reject_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeIDRej },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_problem },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                Reject_sequence, hf_index, ett_ROS_Reject);
-
-  return offset;
-}
-static int dissect_reject_impl( proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
-  return dissect_ROS_Reject(TRUE, tvb, offset, actx, tree, hf_ROS_reject);
-}
-
-
-static const value_string ROS_Component_vals[] = {
-  {   1, "invoke" },
-  {   2, "returnResultLast" },
-  {   3, "returnError" },
-  {   4, "reject" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t Component_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_Component(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              Component_choice, hf_index, ett_ROS_Component, NULL);
-  /* branch taken will be component type -1 */
-
-  return offset;
-}
-
-
-#if 0
-static const value_string ROS_ERROR_vals[] = {
-  {   0, "localValue" },
-  {   1, "globalValue" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t ERROR_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ROS_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              ERROR_choice, hf_index, ett_ROS_ERROR, NULL);
-
-  return offset;
-}
-#endif
 
 static guint8
 de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
@@ -8024,10 +7583,15 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 	guint32 header_end_offset;
 	guint32 header_len;
 	asn1_ctx_t asn1_ctx;
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, g_pinfo);
+	tvbuff_t *SS_tvb = NULL;
+	void *save_private_data;
 
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, g_pinfo);
 	
+	
+	save_private_data= g_pinfo->private_data;
 	saved_offset = offset;
+	g_pinfo->private_data = NULL;
 	while ( fac_len > (offset - saved_offset)){ 
 
 		/* Get the length of the component there can be more tnan one component in a facility message */
@@ -8041,10 +7605,15 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		}
 		header_len = header_end_offset - offset;
 		component_len = header_len + component_len;
+		/*
 		dissect_ROS_Component(FALSE, tvb, offset, &asn1_ctx, tree, hf_ROS_component);
+		TODO Call gsm map here
+		*/
+	    SS_tvb = tvb_new_subset(tvb, offset, component_len, component_len);
+		call_dissector(gsm_map_handle, SS_tvb, g_pinfo, g_tree);
 		offset = offset + component_len;
-
 	} 
+	g_pinfo->private_data = save_private_data;
 	return(fac_len);
 
 
@@ -18984,98 +18553,6 @@ proto_register_gsm_a(void)
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_suspension_cause_vals), 0x0,          
 		"Suspension cause value", HFILL }
 	},
-    { &hf_ROS_component,
-      { "component", "ROS.component",
-        FT_UINT8, BASE_DEC, VALS(ROS_Component_vals), 0,
-        "Component", HFILL }},
-    { &hf_ROS_invoke,
-      { "invoke", "ROS.invoke",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Component/invoke", HFILL }},
-    { &hf_ROS_returnResultLast,
-      { "returnResultLast", "ROS.returnResultLast",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Component/returnResultLast", HFILL }},
-    { &hf_ROS_returnError,
-      { "returnError", "ROS.returnError",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Component/returnError", HFILL }},
-    { &hf_ROS_reject,
-      { "reject", "ROS.reject",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Component/reject", HFILL }},
-    { &hf_ROS_invokeID,
-      { "invokeID", "ROS.invokeID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_ROS_linkedID,
-      { "linkedID", "ROS.linkedID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Invoke/linkedID", HFILL }},
-    { &hf_ROS_opCode,
-      { "opCode", "ROS.opCode",
-        FT_UINT32, BASE_DEC, VALS(ROS_OPERATION_vals), 0,
-        "", HFILL }},
-    { &hf_ROS_parameter,
-      { "parameter", "ROS.parameter",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_ROS_resultretres,
-      { "resultretres", "ROS.resultretres",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ReturnResult/resultretres", HFILL }},
-    { &hf_ROS_errorCode,
-      { "errorCode", "ROS.errorCode",
-        FT_UINT32, BASE_DEC, VALS(ROS_ErrorCode_vals), 0,
-        "ReturnError/errorCode", HFILL }},
-    { &hf_ROS_invokeIDRej,
-      { "invokeIDRej", "ROS.invokeIDRej",
-        FT_UINT32, BASE_DEC, VALS(ROS_T_invokeIDRej_vals), 0,
-        "Reject/invokeIDRej", HFILL }},
-    { &hf_ROS_derivable,
-      { "derivable", "ROS.derivable",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Reject/invokeIDRej/derivable", HFILL }},
-    { &hf_ROS_not_derivable,
-      { "not-derivable", "ROS.not_derivable",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Reject/invokeIDRej/not-derivable", HFILL }},
-    { &hf_ROS_problem,
-      { "problem", "ROS.problem",
-        FT_UINT32, BASE_DEC, VALS(ROS_T_problem_vals), 0,
-        "Reject/problem", HFILL }},
-    { &hf_ROS_generalProblem,
-      { "generalProblem", "ROS.generalProblem",
-        FT_INT32, BASE_DEC, VALS(ROS_GeneralProblem_vals), 0,
-        "Reject/problem/generalProblem", HFILL }},
-    { &hf_ROS_invokeProblem,
-      { "invokeProblem", "ROS.invokeProblem",
-        FT_INT32, BASE_DEC, VALS(ROS_InvokeProblem_vals), 0,
-        "Reject/problem/invokeProblem", HFILL }},
-    { &hf_ROS_returnResultProblem,
-      { "returnResultProblem", "ROS.returnResultProblem",
-        FT_INT32, BASE_DEC, VALS(ROS_ReturnResultProblem_vals), 0,
-        "Reject/problem/returnResultProblem", HFILL }},
-    { &hf_ROS_returnErrorProblem,
-      { "returnErrorProblem", "ROS.returnErrorProblem",
-        FT_INT32, BASE_DEC, VALS(ROS_ReturnErrorProblem_vals), 0,
-        "Reject/problem/returnErrorProblem", HFILL }},
-    { &hf_ROS_localValue,
-      { "localValue", "ROS.localValue",
-        FT_INT32, BASE_DEC, VALS(gsm_ss_opr_code_strings), 0,
-        "", HFILL }},
-    { &hf_ROS_globalValue,
-      { "globalValue", "ROS.globalValue",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_ROS_nationaler,
-      { "nationaler", "ROS.nationaler",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ErrorCode/nationaler", HFILL }},
-    { &hf_ROS_privateer,
-      { "privateer", "ROS.privateer",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "ErrorCode/privateer", HFILL }},
 	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
       { "12,2 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b8",
 		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x80,          
@@ -19223,7 +18700,7 @@ proto_register_gsm_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	50
+#define	NUM_INDIVIDUAL_ELEMS	38
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
@@ -19272,18 +18749,6 @@ proto_register_gsm_a(void)
 
     ett[37] = &ett_sm_tft;
 
-    ett[38] = &ett_ros,
-    ett[39] = &ett_ROS_Component,
-    ett[40] = &ett_ROS_Invoke,
-    ett[41] = &ett_ROS_ReturnResult,
-    ett[42] = &ett_ROS_T_resultretres,
-    ett[43] = &ett_ROS_ReturnError,
-    ett[44] = &ett_ROS_Reject,
-    ett[45] = &ett_ROS_T_invokeIDRej,
-    ett[46] = &ett_ROS_T_problem,
-    ett[47] = &ett_ROS_OPERATION,
-    ett[48] = &ett_ROS_ERROR,
-    ett[49] = &ett_ROS_ErrorCode,
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -19398,5 +18863,6 @@ proto_reg_handoff_gsm_a(void)
     dissector_add("ranap.nas_pdu",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("llcgprs.sapi", 1 , dtap_handle);
     data_handle = find_dissector("data");
+	gsm_map_handle = find_dissector("gsm_map");
 }
 

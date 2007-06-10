@@ -3587,7 +3587,7 @@ dissect_camel_T_tDisconnectSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t T_oTermSeizedSpecificInfo_sequence[] = {
-  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LocationInformation },
+  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3601,7 +3601,7 @@ dissect_camel_T_oTermSeizedSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t T_callAcceptedSpecificInfo_sequence[] = {
-  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LocationInformation },
+  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3695,7 +3695,7 @@ dissect_camel_MetDPCriteriaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static const ber_sequence_t T_oChangeOfPositionSpecificInfo_sequence[] = {
-  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LocationInformation },
+  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { &hf_camel_metDPCriteriaList, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_MetDPCriteriaList },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3710,7 +3710,7 @@ dissect_camel_T_oChangeOfPositionSpecificInfo(gboolean implicit_tag _U_, tvbuff_
 
 
 static const ber_sequence_t T_tChangeOfPositionSpecificInfo_sequence[] = {
-  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LocationInformation },
+  { &hf_camel_locationInformation, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { &hf_camel_metDPCriteriaList, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_MetDPCriteriaList },
   { NULL, 0, 0, 0, NULL }
 };
@@ -4293,8 +4293,8 @@ static const value_string camel_GPRS_QoS_vals[] = {
 };
 
 static const ber_choice_t GPRS_QoS_choice[] = {
-  {   0, &hf_camel_short_QoS_format, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_QoS_Subscribed },
-  {   1, &hf_camel_long_QoS_format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_Ext_QoS_Subscribed },
+  {   0, &hf_camel_short_QoS_format, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_QoS_Subscribed },
+  {   1, &hf_camel_long_QoS_format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext_QoS_Subscribed },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -4309,7 +4309,7 @@ dissect_camel_GPRS_QoS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static const ber_sequence_t GPRS_QoS_Extension_sequence[] = {
-  { &hf_camel_supplement_to_long_QoS_format, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_Ext2_QoS_Subscribed },
+  { &hf_camel_supplement_to_long_QoS_format, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_Ext2_QoS_Subscribed },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4462,10 +4462,10 @@ dissect_camel_ExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static const ber_sequence_t LocationInformationGPRS_sequence[] = {
   { &hf_camel_cellGlobalIdOrServiceAreaIdOrLAI, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_CellGlobalIdOrServiceAreaIdOrLAI },
-  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_RAIdentity },
-  { &hf_camel_geographicalInformation, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GeographicalInformation },
+  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RAIdentity },
+  { &hf_camel_geographicalInformation, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GeographicalInformation },
   { &hf_camel_sgsn_Number   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
-  { &hf_camel_selectedLSAIdentity, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LSAIdentity },
+  { &hf_camel_selectedLSAIdentity, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LSAIdentity },
   { &hf_camel_extensionContainer, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ExtensionContainer },
   { &hf_camel_saiPresent    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { NULL, 0, 0, 0, NULL }
@@ -4636,12 +4636,12 @@ dissect_camel_TimeAndTimezone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static const ber_sequence_t T_pdp_ContextchangeOfPositionSpecificInformation_sequence[] = {
   { &hf_camel_accessPointName, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_AccessPointName },
-  { &hf_camel_chargingID    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GPRSChargingID },
+  { &hf_camel_chargingID    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GPRSChargingID },
   { &hf_camel_locationInformationGPRS, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LocationInformationGPRS },
   { &hf_camel_pDPType       , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_PDPType },
   { &hf_camel_qualityOfService, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_QualityOfService },
   { &hf_camel_timeAndTimeZone, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_TimeAndTimezone },
-  { &hf_camel_gGSNAddress   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GSN_Address },
+  { &hf_camel_gGSNAddress   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GSN_Address },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4740,12 +4740,12 @@ dissect_camel_T_pDPContextEstablishmentSpecificInformation(gboolean implicit_tag
 
 static const ber_sequence_t T_pDPContextEstablishmentAcknowledgementSpecificInformation_sequence[] = {
   { &hf_camel_accessPointName, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_AccessPointName },
-  { &hf_camel_chargingID    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GPRSChargingID },
+  { &hf_camel_chargingID    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GPRSChargingID },
   { &hf_camel_pDPType       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_PDPType },
   { &hf_camel_qualityOfService, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_QualityOfService },
   { &hf_camel_locationInformationGPRS, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LocationInformationGPRS },
   { &hf_camel_timeAndTimeZone, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_TimeAndTimezone },
-  { &hf_camel_gGSNAddress   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GSN_Address },
+  { &hf_camel_gGSNAddress   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GSN_Address },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5691,7 +5691,7 @@ dissect_camel_OfferedCamel4Functionalities(gboolean implicit_tag _U_, tvbuff_t *
 static const ber_sequence_t InitialDPArgExtension_sequence[] = {
   { &hf_camel_gmscAddress   , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
   { &hf_camel_forwardingDestinationNumber, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_CalledPartyNumber },
-  { &hf_camel_ms_Classmark2 , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_MS_Classmark2 },
+  { &hf_camel_ms_Classmark2 , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_MS_Classmark2 },
   { &hf_camel_iMEI          , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
   { &hf_camel_supportedCamelPhases, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SupportedCamelPhases },
   { &hf_camel_offeredCamel4Functionalities, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_OfferedCamel4Functionalities },
@@ -5701,7 +5701,7 @@ static const ber_sequence_t InitialDPArgExtension_sequence[] = {
   { &hf_camel_lowLayerCompatibility, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LowLayerCompatibility },
   { &hf_camel_lowLayerCompatibility2, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LowLayerCompatibility },
   { &hf_camel_enhancedDialledServicesAllowed, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
-  { &hf_camel_uu_Data       , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_UU_Data },
+  { &hf_camel_uu_Data       , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ch_UU_Data },
   { &hf_camel_collectInformationAllowed, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { NULL, 0, 0, 0, NULL }
 };
@@ -5862,7 +5862,7 @@ static const ber_sequence_t ConnectArg_sequence[] = {
   { &hf_camel_serviceInteractionIndicatorsTwo, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ServiceInteractionIndicatorsTwo },
   { &hf_camel_chargeNumber  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ChargeNumber },
   { &hf_camel_legToBeConnected, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_camel_LegID },
-  { &hf_camel_cug_Interlock , BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_CUG_Interlock },
+  { &hf_camel_cug_Interlock , BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CUG_Interlock },
   { &hf_camel_cug_OutgoingAccess, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { &hf_camel_suppressionOfAnnouncement, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SuppressionOfAnnouncement },
   { &hf_camel_oCSIApplicable, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_OCSIApplicable },
@@ -5943,7 +5943,7 @@ static const ber_sequence_t ContinueWithArgumentArg_sequence[] = {
   { &hf_camel_serviceInteractionIndicatorsTwo, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ServiceInteractionIndicatorsTwo },
   { &hf_camel_callingPartysCategory, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_CallingPartysCategory },
   { &hf_camel_genericNumbers, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_GenericNumbers },
-  { &hf_camel_cug_Interlock , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_CUG_Interlock },
+  { &hf_camel_cug_Interlock , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CUG_Interlock },
   { &hf_camel_cug_OutgoingAccess, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { &hf_camel_chargeNumber  , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ChargeNumber },
   { &hf_camel_carrier       , BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Carrier },
@@ -6274,13 +6274,13 @@ static const ber_sequence_t InitialDPGPRSArg_sequence[] = {
   { &hf_camel_pDPType       , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_PDPType },
   { &hf_camel_qualityOfService, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_QualityOfService },
   { &hf_camel_accessPointName, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_AccessPointName },
-  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_RAIdentity },
-  { &hf_camel_chargingID    , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GPRSChargingID },
+  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RAIdentity },
+  { &hf_camel_chargingID    , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GPRSChargingID },
   { &hf_camel_sGSNCapabilities, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SGSNCapabilities },
   { &hf_camel_locationInformationGPRS, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LocationInformationGPRS },
   { &hf_camel_pDPInitiationType, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_PDPInitiationType },
   { &hf_camel_extensions    , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ExtensionsArray },
-  { &hf_camel_gGSNAddress   , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_GSN_Address },
+  { &hf_camel_gGSNAddress   , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GSN_Address },
   { &hf_camel_secondaryPDPContext, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { &hf_camel_iMEI          , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
   { NULL, 0, 0, 0, NULL }
@@ -6332,12 +6332,12 @@ static const ber_sequence_t InitialDPArg_sequence[] = {
   { &hf_camel_cause         , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Cause },
   { &hf_camel_serviceInteractionIndicatorsTwo, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ServiceInteractionIndicatorsTwo },
   { &hf_camel_carrier       , BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Carrier },
-  { &hf_camel_cug_Index     , BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_CUG_Index },
-  { &hf_camel_cug_Interlock , BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_CUG_Interlock },
+  { &hf_camel_cug_Index     , BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CUG_Index },
+  { &hf_camel_cug_Interlock , BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CUG_Interlock },
   { &hf_camel_cug_OutgoingAccess, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { &hf_camel_iMSI          , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
   { &hf_camel_subscriberState, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_camel_SubscriberState },
-  { &hf_camel_locationInformation, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LocationInformation },
+  { &hf_camel_locationInformation, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { &hf_camel_ext_basicServiceCode, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_Ext_BasicServiceCode },
   { &hf_camel_callReferenceNumber, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_CallReferenceNumber },
   { &hf_camel_mscAddress    , BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
@@ -6363,7 +6363,7 @@ static const ber_sequence_t InitialDPSMSArg_sequence[] = {
   { &hf_camel_callingPartyNumberas, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SMS_AddressString },
   { &hf_camel_eventTypeSMS  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_EventTypeSMS },
   { &hf_camel_iMSI          , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
-  { &hf_camel_locationInformationMSC, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_LocationInformation },
+  { &hf_camel_locationInformationMSC, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LocationInformation },
   { &hf_camel_locationInformationGPRS, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LocationInformationGPRS },
   { &hf_camel_sMSCAddress   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
   { &hf_camel_timeAndTimezone, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_TimeAndTimezone },
@@ -6375,7 +6375,7 @@ static const ber_sequence_t InitialDPSMSArg_sequence[] = {
   { &hf_camel_smsReferenceNumber, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_CallReferenceNumber },
   { &hf_camel_mscAddress    , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
   { &hf_camel_sgsnNumber    , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
-  { &hf_camel_ms_Classmark2 , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_MS_Classmark2 },
+  { &hf_camel_ms_Classmark2 , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_MS_Classmark2 },
   { &hf_camel_gPRSMSClass   , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_GPRSMSClass },
   { &hf_camel_iMEI          , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
   { &hf_camel_calledPartyNumberSMS, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_ISDN_AddressString },
@@ -7894,7 +7894,7 @@ void proto_register_camel(void) {
     { &hf_camel_locationInformation,
       { "locationInformation", "camel.locationInformation",
         FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.LocationInformation", HFILL }},
+        "gsm_map_ms.LocationInformation", HFILL }},
     { &hf_camel_callAcceptedSpecificInfo,
       { "callAcceptedSpecificInfo", "camel.callAcceptedSpecificInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7978,15 +7978,15 @@ void proto_register_camel(void) {
     { &hf_camel_short_QoS_format,
       { "short-QoS-format", "camel.short_QoS_format",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.QoS_Subscribed", HFILL }},
+        "gsm_map_ms.QoS_Subscribed", HFILL }},
     { &hf_camel_long_QoS_format,
       { "long-QoS-format", "camel.long_QoS_format",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.Ext_QoS_Subscribed", HFILL }},
+        "gsm_map_ms.Ext_QoS_Subscribed", HFILL }},
     { &hf_camel_supplement_to_long_QoS_format,
       { "supplement-to-long-QoS-format", "camel.supplement_to_long_QoS_format",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.Ext2_QoS_Subscribed", HFILL }},
+        "gsm_map_ms.Ext2_QoS_Subscribed", HFILL }},
     { &hf_camel_gPRSEventType,
       { "gPRSEventType", "camel.gPRSEventType",
         FT_UINT32, BASE_DEC, VALS(camel_GPRSEventType_vals), 0,
@@ -8010,7 +8010,7 @@ void proto_register_camel(void) {
     { &hf_camel_chargingID,
       { "chargingID", "camel.chargingID",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.GPRSChargingID", HFILL }},
+        "gsm_map_ms.GPRSChargingID", HFILL }},
     { &hf_camel_pDPType,
       { "pDPType", "camel.pDPType",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8026,7 +8026,7 @@ void proto_register_camel(void) {
     { &hf_camel_gGSNAddress,
       { "gGSNAddress", "camel.gGSNAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.GSN_Address", HFILL }},
+        "gsm_map_ms.GSN_Address", HFILL }},
     { &hf_camel_detachSpecificInformation,
       { "detachSpecificInformation", "camel.detachSpecificInformation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8098,11 +8098,11 @@ void proto_register_camel(void) {
     { &hf_camel_routeingAreaIdentity,
       { "routeingAreaIdentity", "camel.routeingAreaIdentity",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.RAIdentity", HFILL }},
+        "gsm_map_ms.RAIdentity", HFILL }},
     { &hf_camel_geographicalInformation,
       { "geographicalInformation", "camel.geographicalInformation",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.GeographicalInformation", HFILL }},
+        "gsm_map_ms.GeographicalInformation", HFILL }},
     { &hf_camel_sgsn_Number,
       { "sgsn-Number", "camel.sgsn_Number",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -8110,7 +8110,7 @@ void proto_register_camel(void) {
     { &hf_camel_selectedLSAIdentity,
       { "selectedLSAIdentity", "camel.selectedLSAIdentity",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.LSAIdentity", HFILL }},
+        "gsm_map_ms.LSAIdentity", HFILL }},
     { &hf_camel_extensionContainer,
       { "extensionContainer", "camel.extensionContainer",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8486,7 +8486,7 @@ void proto_register_camel(void) {
     { &hf_camel_ms_Classmark2,
       { "ms-Classmark2", "camel.ms_Classmark2",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.MS_Classmark2", HFILL }},
+        "gsm_map_ms.MS_Classmark2", HFILL }},
     { &hf_camel_iMEI,
       { "iMEI", "camel.iMEI",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -8522,7 +8522,7 @@ void proto_register_camel(void) {
     { &hf_camel_uu_Data,
       { "uu-Data", "camel.uu_Data",
         FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.UU_Data", HFILL }},
+        "gsm_map_ch.UU_Data", HFILL }},
     { &hf_camel_collectInformationAllowed,
       { "collectInformationAllowed", "camel.collectInformationAllowed",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8654,7 +8654,7 @@ void proto_register_camel(void) {
     { &hf_camel_cug_Interlock,
       { "cug-Interlock", "camel.cug_Interlock",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.CUG_Interlock", HFILL }},
+        "gsm_map_ms.CUG_Interlock", HFILL }},
     { &hf_camel_cug_OutgoingAccess,
       { "cug-OutgoingAccess", "camel.cug_OutgoingAccess",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8870,10 +8870,10 @@ void proto_register_camel(void) {
     { &hf_camel_cug_Index,
       { "cug-Index", "camel.cug_Index",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "gsm_map.CUG_Index", HFILL }},
+        "gsm_map_ms.CUG_Index", HFILL }},
     { &hf_camel_subscriberState,
       { "subscriberState", "camel.subscriberState",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_SubscriberState_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(gsm_map_ms_SubscriberState_vals), 0,
         "camel.SubscriberState", HFILL }},
     { &hf_camel_mscAddress,
       { "mscAddress", "camel.mscAddress",
@@ -8902,7 +8902,7 @@ void proto_register_camel(void) {
     { &hf_camel_locationInformationMSC,
       { "locationInformationMSC", "camel.locationInformationMSC",
         FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.LocationInformation", HFILL }},
+        "gsm_map_ms.LocationInformation", HFILL }},
     { &hf_camel_tPShortMessageSpecificInfo,
       { "tPShortMessageSpecificInfo", "camel.tPShortMessageSpecificInfo",
         FT_BYTES, BASE_HEX, NULL, 0,

@@ -97,7 +97,6 @@ ASN_DISSECTOR_SRC = \
 	packet-ftbp.c \
 	packet-gnm.c \
 	packet-gsm_map.c \
-	packet-gsm_ss.c \
 	packet-h225.c \
 	packet-h235.c \
 	packet-h245.c \
@@ -106,7 +105,6 @@ ASN_DISSECTOR_SRC = \
 	packet-inap.c \
 	packet-ldap.c \
 	packet-logotypecertextn.c \
-	packet-MAP_DialoguePDU.c \
 	packet-mms.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
@@ -864,7 +862,6 @@ DISSECTOR_INCLUDES =	\
 	packet-gsm_a.h	\
 	packet-gsm_map.h	\
 	packet-gsm_sms.h	\
-	packet-gsm_ss.h	\
 	packet-gssapi.h	\
 	packet-h225.h	\
 	packet-h235.h	\
@@ -904,7 +901,6 @@ DISSECTOR_INCLUDES =	\
 	packet-ldp.h	\
 	packet-llc.h	\
 	packet-logotypecertextn.h	\
-	packet-MAP_DialoguePDU.h	\
 	packet-mikey.h	\
 	packet-mip6.h	\
 	packet-mms.h	\

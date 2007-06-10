@@ -1,6 +1,5 @@
--- $Id$
 -- 17.7.1	Mobile Service data types
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+
 MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MS-DataTypes (11) version11 (11)}
@@ -313,13 +312,6 @@ CancelLocationArg ::= [3] SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
 
---   V2 ARGUMENT WS adaptation
-
-CancelLocationArgV2 ::= CHOICE {
-	imsi			IMSI,
-	imsi-WithLMSI	IMSI-WithLMSI}
-
-
 CancellationType ::= ENUMERATED {
 	updateProcedure	(0),
 	subscriptionWithdraw	(1),
@@ -336,11 +328,6 @@ PurgeMS-Arg ::= [3] SEQUENCE {
 	sgsn-Number	[1]	ISDN-AddressString	OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
--- WS adaptation
-PurgeMSArgV2 ::= SEQUENCE {
-  imsi                 IMSI, 
-  vlr-Number           ISDN-AddressString OPTIONAL, 
-  ... }
 
 PurgeMS-Res ::= SEQUENCE {
 	freezeTMSI	[0]	NULL		OPTIONAL,
@@ -372,12 +359,6 @@ SendIdentificationRes ::= [3] SEQUENCE {
 	currentSecurityContext	[2]CurrentSecurityContext	OPTIONAL,
 	extensionContainer	[3] ExtensionContainer	OPTIONAL,
 	...}
--- WS adaptation
-SendIdentificationResV2 ::= SEQUENCE {
-  imsi				IMSI OPTIONAL,
-  tripletList    	        TripletList OPTIONAL,
-  ...}
-
 
 -- authentication management types
 
@@ -575,12 +556,6 @@ KeyStatus ::= ENUMERATED {
 	-- received values in range 2-31 shall be treated as "old"
 	-- received values greater than 31 shall be treated as "new"
 
-PrepareHO-ArgOld ::= SEQUENCE {
-         targetCellId           GlobalCellId OPTIONAL, 
-         ho-NumberNotRequired   NULL OPTIONAL, 
-         bss-APDU               Bss-APDU OPTIONAL, 
-         ... }
-
 PrepareHO-Arg ::= [3] SEQUENCE {
 	targetCellId	[0] GlobalCellId	OPTIONAL,
 	ho-NumberNotRequired	NULL			OPTIONAL, 
@@ -643,11 +618,6 @@ RadioResource ::= SEQUENCE {
 
 maxNumOfRadioResources  INTEGER ::= 7
 
-PrepareHO-ResOld ::= SEQUENCE {
-         handoverNumber   ISDN-AddressString OPTIONAL, 
-         bss-APDU         Bss-APDU OPTIONAL, 
-         ... }
-
 PrepareHO-Res ::= [3] SEQUENCE {
 	handoverNumber	[0] ISDN-AddressString	OPTIONAL,
 	relocationNumberList	[1]	RelocationNumberList	OPTIONAL,
@@ -690,12 +660,6 @@ ChosenChannelInfo ::= OCTET STRING (SIZE (1))
 ChosenSpeechVersion ::= OCTET STRING (SIZE (1))
 	-- Octets are coded according the Speech Version (chosen) information element in 3GPP TS
 	-- 48.008 
-
-PrepareSubsequentHO-ArgOld ::= SEQUENCE {
-         targetCellId       GlobalCellId, 
-         targetMSC-Number   ISDN-AddressString, 
-         bss-APDU           Bss-APDU, 
-         ... }
 
 PrepareSubsequentHO-Arg ::= [3] SEQUENCE {
 	targetCellId	[0] GlobalCellId	OPTIONAL,
@@ -819,8 +783,6 @@ maxNumOfEncryptionInfo INTEGER ::= 100
 
 -- authentication management types
 
-SendAuthenticationInfoArgOld ::= IMSI
-
 SendAuthenticationInfoArg ::= SEQUENCE {
 	imsi			[0] IMSI,
 	numberOfRequestedVectors	NumberOfRequestedVectors,
@@ -839,13 +801,6 @@ Re-synchronisationInfo ::= SEQUENCE {
 	rand			RAND,
 	auts			AUTS,
 	...}
-
-SendAuthenticationInfoResOld ::= SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
-         SEQUENCE {
-            rand       RAND, 
-            sres       SRES, 
-            kc         Kc, 
-            ... }
 
 SendAuthenticationInfoRes ::= [3] SEQUENCE {
 	authenticationSetList	AuthenticationSetList 	OPTIONAL,
@@ -906,21 +861,7 @@ EquipmentStatus ::= ENUMERATED {
 
 InsertSubscriberDataArg ::= SEQUENCE {
 	imsi			[0] IMSI		OPTIONAL,
---	COMPONENTS OF	SubscriberData,
--- WS expanded here
-   msisdn                          [1] IMPLICIT ISDN-AddressString OPTIONAL, 
-	category						[2] IMPLICIT Category OPTIONAL,
-	subscriberStatus				[3] IMPLICIT SubscriberStatus OPTIONAL,
-    bearerserviceList               [4] IMPLICIT BearerServiceList OPTIONAL, 
-	teleserviceList					[6] IMPLICIT TeleserviceList OPTIONAL,
-	provisionedSS					[7] IMPLICIT Ext-SS-InfoList OPTIONAL,
-	odb-Data						[8] IMPLICIT ODB-Data OPTIONAL,
-	roamingRestrictionDueToUnsupportedFeature [9] IMPLICIT NULL OPTIONAL,
-	regionalSubscriptionData		[10] IMPLICIT ZoneCodeList OPTIONAL,
-	vbsSubscriptionData				[11] IMPLICIT VBSDataList OPTIONAL,
-	vgcsSubscriptionData			[12] IMPLICIT VGCSDataList OPTIONAL,
-	vlrCamelSubscriptionInfo		[13] IMPLICIT VlrCamelSubscriptionInfo OPTIONAL,
--- End expansion
+	COMPONENTS OF	SubscriberData,
 	extensionContainer	[14] ExtensionContainer	OPTIONAL,
 	... ,	
 	naea-PreferredCI	[15] NAEA-PreferredCI	OPTIONAL,
@@ -2182,16 +2123,16 @@ MSRadioAccessCapability ::= OCTET STRING (SIZE (1..50))
 	-- This parameter carries the value part of the MS Radio Access Capability IE defined in
 	-- 3GPP TS 24.008 [35].
 
--- RequestedInfo ::= SEQUENCE {
---	locationInformation	[0] NULL		OPTIONAL,
---	subscriberState	[1] NULL		OPTIONAL,
---	extensionContainer	[2] ExtensionContainer	OPTIONAL,
---	..., 
---	currentLocation	[3] NULL		OPTIONAL,
---	requestedDomain	[4] DomainType	OPTIONAL,
---	imei			[6] NULL		OPTIONAL,
---	ms-classmark	[5] NULL		OPTIONAL,
---	mnpRequestedInfo	[7] NULL 		OPTIONAL }
+RequestedInfo ::= SEQUENCE {
+	locationInformation	[0] NULL		OPTIONAL,
+	subscriberState	[1] NULL		OPTIONAL,
+	extensionContainer	[2] ExtensionContainer	OPTIONAL,
+	..., 
+	currentLocation	[3] NULL		OPTIONAL,
+	requestedDomain	[4] DomainType	OPTIONAL,
+	imei			[6] NULL		OPTIONAL,
+	ms-classmark	[5] NULL		OPTIONAL,
+	mnpRequestedInfo	[7] NULL 		OPTIONAL }
 
 --	currentLocation shall be absent if locationInformation is absent
 
