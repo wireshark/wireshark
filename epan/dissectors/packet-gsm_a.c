@@ -1257,7 +1257,6 @@ static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Prot
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 static gint comp_type_tag;
-static guint32 localValue;
 
 static sccp_msg_info_t* sccp_msg;
 static sccp_assoc_info_t* sccp_assoc;
