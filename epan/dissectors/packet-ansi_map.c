@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-ansi_map.c                                                        */
-/* ../../tools/asn2wrs.py -b -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
+/* ../../tools/asn2wrs.py -b -X -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
 
@@ -4257,12 +4257,6 @@ static const value_string ansi_map_VoicePrivacyReport_vals[]  = {
 
 /*--- Included file: packet-ansi_map-fn.c ---*/
 #line 1 "packet-ansi_map-fn.c"
-/*--- Fields for imported types ---*/
-
-static int dissect_imsi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_gsm_map_IMSI(TRUE, tvb, offset, actx, tree, hf_ansi_map_imsi);
-}
-
 
 
 static int
@@ -4271,9 +4265,6 @@ dissect_ansi_map_OCTET_STRING_SIZE_0_2(gboolean implicit_tag _U_, tvbuff_t *tvb 
                                        NULL);
 
   return offset;
-}
-static int dissect_componentIDs_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OCTET_STRING_SIZE_0_2(TRUE, tvb, offset, actx, tree, hf_ansi_map_componentIDs);
 }
 
 
@@ -4284,12 +4275,6 @@ dissect_ansi_map_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb _
                                   NULL);
 
   return offset;
-}
-static int dissect_national_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_INTEGER_M32768_32767(TRUE, tvb, offset, actx, tree, hf_ansi_map_national);
-}
-static int dissect_nationaler_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_INTEGER_M32768_32767(TRUE, tvb, offset, actx, tree, hf_ansi_map_nationaler);
 }
 
 
@@ -4307,9 +4292,6 @@ dissect_ansi_map_PrivateOperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_private_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PrivateOperationCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_private);
-}
 
 
 static const value_string ansi_map_OperationCode_vals[] = {
@@ -4318,22 +4300,19 @@ static const value_string ansi_map_OperationCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t OperationCode_choice[] = {
-  {  16, BER_CLASS_PRI, 16, BER_FLAGS_IMPLTAG, dissect_national_impl },
-  {  17, BER_CLASS_PRI, 17, BER_FLAGS_IMPLTAG, dissect_private_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t OperationCode_choice[] = {
+  {  16, &hf_ansi_map_national   , BER_CLASS_PRI, 16, BER_FLAGS_IMPLTAG, dissect_ansi_map_INTEGER_M32768_32767 },
+  {  17, &hf_ansi_map_private    , BER_CLASS_PRI, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateOperationCode },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     OperationCode_choice, hf_index, ett_ansi_map_OperationCode,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 OperationCode_choice, hf_index, ett_ansi_map_OperationCode,
+                                 NULL);
 
   return offset;
-}
-static int dissect_operationCode(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OperationCode(FALSE, tvb, offset, actx, tree, hf_ansi_map_operationCode);
 }
 
 
@@ -4363,30 +4342,21 @@ dissect_ansi_map_InvokeParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_invokeParameters_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InvokeParameters(TRUE, tvb, offset, actx, tree, hf_ansi_map_invokeParameters);
-}
 
 
-static const ber_old_sequence_t InvokePDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_componentIDs_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_operationCode },
-  { BER_CLASS_PRI, 18, BER_FLAGS_IMPLTAG, dissect_invokeParameters_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InvokePDU_sequence[] = {
+  { &hf_ansi_map_componentIDs, BER_CLASS_PRI, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OCTET_STRING_SIZE_0_2 },
+  { &hf_ansi_map_operationCode, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_OperationCode },
+  { &hf_ansi_map_invokeParameters, BER_CLASS_PRI, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_InvokeParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InvokePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       InvokePDU_sequence, hf_index, ett_ansi_map_InvokePDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   InvokePDU_sequence, hf_index, ett_ansi_map_InvokePDU);
 
   return offset;
-}
-static int dissect_invokeLast_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InvokePDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_invokeLast);
-}
-static int dissect_invokeNotLast_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InvokePDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_invokeNotLast);
 }
 
 
@@ -4397,9 +4367,6 @@ dissect_ansi_map_ComponentID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
                                        NULL);
 
   return offset;
-}
-static int dissect_componentID(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ComponentID(FALSE, tvb, offset, actx, tree, hf_ansi_map_componentID);
 }
 
 
@@ -4460,29 +4427,20 @@ dissect_ansi_map_ReturnParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_returnResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReturnParameters(TRUE, tvb, offset, actx, tree, hf_ansi_map_returnResult);
-}
 
 
-static const ber_old_sequence_t ReturnResultPDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_componentID },
-  { BER_CLASS_PRI, 18, BER_FLAGS_IMPLTAG, dissect_returnResult_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnResultPDU_sequence[] = {
+  { &hf_ansi_map_componentID, BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ComponentID },
+  { &hf_ansi_map_returnResult, BER_CLASS_PRI, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReturnParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ReturnResultPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnResultPDU_sequence, hf_index, ett_ansi_map_ReturnResultPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnResultPDU_sequence, hf_index, ett_ansi_map_ReturnResultPDU);
 
   return offset;
-}
-static int dissect_returnResultLast_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReturnResultPDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_returnResultLast);
-}
-static int dissect_returnResultNotLast_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReturnResultPDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_returnResultNotLast);
 }
 
 
@@ -4494,9 +4452,6 @@ dissect_ansi_map_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_privateer_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_INTEGER(TRUE, tvb, offset, actx, tree, hf_ansi_map_privateer);
-}
 
 
 static const value_string ansi_map_ErrorCode_vals[] = {
@@ -4505,22 +4460,19 @@ static const value_string ansi_map_ErrorCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ErrorCode_choice[] = {
-  {  19, BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_nationaler_impl },
-  {  20, BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_privateer_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ErrorCode_choice[] = {
+  {  19, &hf_ansi_map_nationaler , BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_ansi_map_INTEGER_M32768_32767 },
+  {  20, &hf_ansi_map_privateer  , BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_ansi_map_INTEGER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ErrorCode_choice, hf_index, ett_ansi_map_ErrorCode,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ErrorCode_choice, hf_index, ett_ansi_map_ErrorCode,
+                                 NULL);
 
   return offset;
-}
-static int dissect_errorCode(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ErrorCode(FALSE, tvb, offset, actx, tree, hf_ansi_map_errorCode);
 }
 
 
@@ -4533,30 +4485,21 @@ dissect_ansi_map_RejectParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_parameterre(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RejectParameters(FALSE, tvb, offset, actx, tree, hf_ansi_map_parameterre);
-}
-static int dissect_parameterrj(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RejectParameters(FALSE, tvb, offset, actx, tree, hf_ansi_map_parameterrj);
-}
 
 
-static const ber_old_sequence_t ReturnErrorPDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_componentID },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_parameterre },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnErrorPDU_sequence[] = {
+  { &hf_ansi_map_componentID, BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ComponentID },
+  { &hf_ansi_map_errorCode  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_ErrorCode },
+  { &hf_ansi_map_parameterre, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RejectParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ReturnErrorPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnErrorPDU_sequence, hf_index, ett_ansi_map_ReturnErrorPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnErrorPDU_sequence, hf_index, ett_ansi_map_ReturnErrorPDU);
 
   return offset;
-}
-static int dissect_returnError_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReturnErrorPDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_returnError);
 }
 
 
@@ -4575,27 +4518,21 @@ dissect_ansi_map_ProblemPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_rejectProblem_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ProblemPDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_rejectProblem);
-}
 
 
-static const ber_old_sequence_t RejectPDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_componentID },
-  { BER_CLASS_PRI, 21, BER_FLAGS_IMPLTAG, dissect_rejectProblem_impl },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_parameterrj },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RejectPDU_sequence[] = {
+  { &hf_ansi_map_componentID, BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ComponentID },
+  { &hf_ansi_map_rejectProblem, BER_CLASS_PRI, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_ProblemPDU },
+  { &hf_ansi_map_parameterrj, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RejectParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RejectPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RejectPDU_sequence, hf_index, ett_ansi_map_RejectPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RejectPDU_sequence, hf_index, ett_ansi_map_RejectPDU);
 
   return offset;
-}
-static int dissect_reject_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RejectPDU(TRUE, tvb, offset, actx, tree, hf_ansi_map_reject);
 }
 
 
@@ -4609,21 +4546,21 @@ static const value_string ansi_map_ComponentPDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ComponentPDU_choice[] = {
-  {   9, BER_CLASS_PRI, 9, BER_FLAGS_IMPLTAG, dissect_invokeLast_impl },
-  {  10, BER_CLASS_PRI, 10, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
-  {  11, BER_CLASS_PRI, 11, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
-  {  12, BER_CLASS_PRI, 12, BER_FLAGS_IMPLTAG, dissect_reject_impl },
-  {  13, BER_CLASS_PRI, 13, BER_FLAGS_IMPLTAG, dissect_invokeNotLast_impl },
-  {  14, BER_CLASS_PRI, 14, BER_FLAGS_IMPLTAG, dissect_returnResultNotLast_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ComponentPDU_choice[] = {
+  {   9, &hf_ansi_map_invokeLast , BER_CLASS_PRI, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_InvokePDU },
+  {  10, &hf_ansi_map_returnResultLast, BER_CLASS_PRI, 10, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReturnResultPDU },
+  {  11, &hf_ansi_map_returnError, BER_CLASS_PRI, 11, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReturnErrorPDU },
+  {  12, &hf_ansi_map_reject     , BER_CLASS_PRI, 12, BER_FLAGS_IMPLTAG, dissect_ansi_map_RejectPDU },
+  {  13, &hf_ansi_map_invokeNotLast, BER_CLASS_PRI, 13, BER_FLAGS_IMPLTAG, dissect_ansi_map_InvokePDU },
+  {  14, &hf_ansi_map_returnResultNotLast, BER_CLASS_PRI, 14, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReturnResultPDU },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ComponentPDU_choice, hf_index, ett_ansi_map_ComponentPDU,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ComponentPDU_choice, hf_index, ett_ansi_map_ComponentPDU,
+                                 NULL);
 
   return offset;
 }
@@ -4647,12 +4584,6 @@ dissect_ansi_map_ElectronicSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb
                                        NULL);
 
   return offset;
-}
-static int dissect_electronicSerialNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ElectronicSerialNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_electronicSerialNumber);
-}
-static int dissect_lectronicSerialNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ElectronicSerialNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_lectronicSerialNumber);
 }
 
 
@@ -4681,9 +4612,6 @@ dissect_ansi_map_MobileIdentificationNumber(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_mobileIdentificationNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MobileIdentificationNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_mobileIdentificationNumber);
-}
 
 
 static const value_string ansi_map_MSID_vals[] = {
@@ -4692,22 +4620,19 @@ static const value_string ansi_map_MSID_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t MSID_choice[] = {
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { 242, BER_CLASS_CON, 242, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t MSID_choice[] = {
+  {   8, &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { 242, &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_MSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     MSID_choice, hf_index, ett_ansi_map_MSID,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 MSID_choice, hf_index, ett_ansi_map_MSID,
+                                 NULL);
 
   return offset;
-}
-static int dissect_msid(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSID(FALSE, tvb, offset, actx, tree, hf_ansi_map_msid);
 }
 
 
@@ -4719,9 +4644,6 @@ dissect_ansi_map_AuthenticationAlgorithmVersion(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_authenticationAlgorithmVersion_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationAlgorithmVersion(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationAlgorithmVersion);
-}
 
 
 
@@ -4731,9 +4653,6 @@ dissect_ansi_map_AuthenticationResponseReauthentication(gboolean implicit_tag _U
                                        NULL);
 
   return offset;
-}
-static int dissect_authenticationResponseReauthentication_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationResponseReauthentication(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationResponseReauthentication);
 }
 
 
@@ -4745,9 +4664,6 @@ dissect_ansi_map_AuthenticationResponseUniqueChallenge(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_authenticationResponseUniqueChallenge_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationResponseUniqueChallenge(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationResponseUniqueChallenge);
-}
 
 
 
@@ -4758,9 +4674,6 @@ dissect_ansi_map_CallHistoryCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_callHistoryCount_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallHistoryCount(TRUE, tvb, offset, actx, tree, hf_ansi_map_callHistoryCount);
-}
 
 
 
@@ -4770,9 +4683,6 @@ dissect_ansi_map_CDMAPrivateLongCodeMask(gboolean implicit_tag _U_, tvbuff_t *tv
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaPrivateLongCodeMask_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAPrivateLongCodeMask(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaPrivateLongCodeMask);
 }
 
 
@@ -4801,9 +4711,6 @@ dissect_ansi_map_CarrierDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_carrierDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CarrierDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_carrierDigits);
-}
 
 
 static const value_string ansi_map_DenyAccess_vals[] = {
@@ -4829,9 +4736,6 @@ dissect_ansi_map_DenyAccess(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_denyAccess_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DenyAccess(TRUE, tvb, offset, actx, tree, hf_ansi_map_denyAccess);
-}
 
 
 
@@ -4840,9 +4744,6 @@ dissect_ansi_map_DestinationDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_destinationDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DestinationDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_destinationDigits);
 }
 
 
@@ -4854,9 +4755,6 @@ dissect_ansi_map_LocationAreaID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_locationAreaID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_LocationAreaID(TRUE, tvb, offset, actx, tree, hf_ansi_map_locationAreaID);
-}
 
 
 
@@ -4867,9 +4765,6 @@ dissect_ansi_map_RandomVariableReauthentication(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_randomVariableReauthentication_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariableReauthentication(TRUE, tvb, offset, actx, tree, hf_ansi_map_randomVariableReauthentication);
-}
 
 
 
@@ -4878,9 +4773,6 @@ dissect_ansi_map_MobileStationMIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   offset = dissect_ansi_map_MINType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_mobileStationMIN_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MobileStationMIN(TRUE, tvb, offset, actx, tree, hf_ansi_map_mobileStationMIN);
 }
 
 
@@ -4900,9 +4792,6 @@ dissect_ansi_map_MSCID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_mscid_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSCID(TRUE, tvb, offset, actx, tree, hf_ansi_map_mscid);
-}
 
 
 
@@ -4912,9 +4801,6 @@ dissect_ansi_map_RandomVariableSSD(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
                                        NULL);
 
   return offset;
-}
-static int dissect_randomVariableSSD_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariableSSD(TRUE, tvb, offset, actx, tree, hf_ansi_map_randomVariableSSD);
 }
 
 
@@ -4926,9 +4812,6 @@ dissect_ansi_map_RandomVariableUniqueChallenge(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_randomVariableUniqueChallenge_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariableUniqueChallenge(TRUE, tvb, offset, actx, tree, hf_ansi_map_randomVariableUniqueChallenge);
-}
 
 
 
@@ -4938,12 +4821,6 @@ dissect_ansi_map_RoutingDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_routingDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoutingDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_routingDigits);
-}
-static int dissect_outingDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoutingDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_outingDigits);
-}
 
 
 
@@ -4952,9 +4829,6 @@ dissect_ansi_map_SenderIdentificationNumber(gboolean implicit_tag _U_, tvbuff_t 
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_senderIdentificationNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SenderIdentificationNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_senderIdentificationNumber);
 }
 
 
@@ -4966,9 +4840,6 @@ dissect_ansi_map_SharedSecretData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_sharedSecretData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SharedSecretData(TRUE, tvb, offset, actx, tree, hf_ansi_map_sharedSecretData);
-}
 
 
 
@@ -4978,9 +4849,6 @@ dissect_ansi_map_SignalingMessageEncryptionKey(gboolean implicit_tag _U_, tvbuff
                                        NULL);
 
   return offset;
-}
-static int dissect_signalingMessageEncryptionKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SignalingMessageEncryptionKey(TRUE, tvb, offset, actx, tree, hf_ansi_map_signalingMessageEncryptionKey);
 }
 
 
@@ -4998,9 +4866,6 @@ dissect_ansi_map_SSDNotShared(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ssdnotShared_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SSDNotShared(TRUE, tvb, offset, actx, tree, hf_ansi_map_ssdnotShared);
-}
 
 
 static const value_string ansi_map_UpdateCount_vals[] = {
@@ -5017,63 +4882,54 @@ dissect_ansi_map_UpdateCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_updateCount_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UpdateCount(TRUE, tvb, offset, actx, tree, hf_ansi_map_updateCount);
-}
 
 
-static const ber_old_sequence_t AuthenticationDirective_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 77, BER_FLAGS_IMPLTAG, dissect_authenticationAlgorithmVersion_impl },
-  { BER_CLASS_CON, 182, BER_FLAGS_IMPLTAG, dissect_authenticationResponseReauthentication_impl },
-  { BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponseUniqueChallenge_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 191, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableReauthentication_impl },
-  { BER_CLASS_CON, 184, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileStationMIN_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableSSD_impl },
-  { BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableUniqueChallenge_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sharedSecretData_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ssdnotShared_impl },
-  { BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_updateCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationDirective_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_authenticationAlgorithmVersion, BER_CLASS_CON, 77, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationAlgorithmVersion },
+  { &hf_ansi_map_authenticationResponseReauthentication, BER_CLASS_CON, 182, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseReauthentication },
+  { &hf_ansi_map_authenticationResponseUniqueChallenge, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseUniqueChallenge },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_randomVariableReauthentication, BER_CLASS_CON, 191, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableReauthentication },
+  { &hf_ansi_map_mobileStationMIN, BER_CLASS_CON, 184, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileStationMIN },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_randomVariableSSD, BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableSSD },
+  { &hf_ansi_map_randomVariableUniqueChallenge, BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableUniqueChallenge },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_sharedSecretData, BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SharedSecretData },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_ssdnotShared, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SSDNotShared },
+  { &hf_ansi_map_updateCount, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UpdateCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationDirective_set, hf_index, ett_ansi_map_AuthenticationDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationDirective_set, hf_index, ett_ansi_map_AuthenticationDirective);
 
   return offset;
 }
-static int dissect_authenticationDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationDirective);
-}
 
 
-static const ber_old_sequence_t AuthenticationDirectiveRes_set[] = {
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationDirectiveRes_set[] = {
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationDirectiveRes_set, hf_index, ett_ansi_map_AuthenticationDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationDirectiveRes_set, hf_index, ett_ansi_map_AuthenticationDirectiveRes);
 
   return offset;
-}
-static int dissect_authenticationDirectiveRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationDirectiveRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationDirectiveRes);
 }
 
 
@@ -5093,29 +4949,23 @@ dissect_ansi_map_InterMSCCircuitID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_interMSCCircuitID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterMSCCircuitID(TRUE, tvb, offset, actx, tree, hf_ansi_map_interMSCCircuitID);
-}
 
 
-static const ber_old_sequence_t AuthenticationDirectiveForward_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponseUniqueChallenge_impl },
-  { BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableUniqueChallenge_impl },
-  { BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_updateCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationDirectiveForward_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_authenticationResponseUniqueChallenge, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseUniqueChallenge },
+  { &hf_ansi_map_randomVariableUniqueChallenge, BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableUniqueChallenge },
+  { &hf_ansi_map_updateCount, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UpdateCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationDirectiveForward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationDirectiveForward_set, hf_index, ett_ansi_map_AuthenticationDirectiveForward);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationDirectiveForward_set, hf_index, ett_ansi_map_AuthenticationDirectiveForward);
 
   return offset;
-}
-static int dissect_authenticationDirectiveForward(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationDirectiveForward(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationDirectiveForward);
 }
 
 
@@ -5127,9 +4977,6 @@ dissect_ansi_map_CountUpdateReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_countUpdateReport_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CountUpdateReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_countUpdateReport);
-}
 
 
 
@@ -5140,26 +4987,20 @@ dissect_ansi_map_UniqueChallengeReport(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_uniqueChallengeReport_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UniqueChallengeReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_uniqueChallengeReport);
-}
 
 
-static const ber_old_sequence_t AuthenticationDirectiveForwardRes_set[] = {
-  { BER_CLASS_CON, 138, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_countUpdateReport_impl },
-  { BER_CLASS_CON, 124, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uniqueChallengeReport_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationDirectiveForwardRes_set[] = {
+  { &hf_ansi_map_countUpdateReport, BER_CLASS_CON, 138, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CountUpdateReport },
+  { &hf_ansi_map_uniqueChallengeReport, BER_CLASS_CON, 124, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UniqueChallengeReport },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationDirectiveForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationDirectiveForwardRes_set, hf_index, ett_ansi_map_AuthenticationDirectiveForwardRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationDirectiveForwardRes_set, hf_index, ett_ansi_map_AuthenticationDirectiveForwardRes);
 
   return offset;
-}
-static int dissect_authenticationDirectiveForwardRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationDirectiveForwardRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationDirectiveForwardRes);
 }
 
 
@@ -5192,12 +5033,6 @@ dissect_ansi_map_ReportType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_reportType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReportType(TRUE, tvb, offset, actx, tree, hf_ansi_map_reportType);
-}
-static int dissect_reportType2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReportType(TRUE, tvb, offset, actx, tree, hf_ansi_map_reportType2);
-}
 
 
 static const value_string ansi_map_SystemAccessType_vals[] = {
@@ -5222,9 +5057,6 @@ dissect_ansi_map_SystemAccessType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_systemAccessType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SystemAccessType(TRUE, tvb, offset, actx, tree, hf_ansi_map_systemAccessType);
-}
 
 
 
@@ -5244,9 +5076,6 @@ dissect_ansi_map_SystemCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_systemCapabilities_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SystemCapabilities(TRUE, tvb, offset, actx, tree, hf_ansi_map_systemCapabilities);
-}
 
 
 
@@ -5256,9 +5085,6 @@ dissect_ansi_map_CallHistoryCountExpected(gboolean implicit_tag _U_, tvbuff_t *t
                                   NULL);
 
   return offset;
-}
-static int dissect_callHistoryCountExpected_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallHistoryCountExpected(TRUE, tvb, offset, actx, tree, hf_ansi_map_callHistoryCountExpected);
 }
 
 
@@ -5293,64 +5119,55 @@ dissect_ansi_map_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_terminalType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminalType(TRUE, tvb, offset, actx, tree, hf_ansi_map_terminalType);
-}
 
 
-static const ber_old_sequence_t AuthenticationFailureReport_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 44, BER_FLAGS_IMPLTAG, dissect_reportType_impl },
-  { BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
-  { BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 79, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCountExpected_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 44, BER_FLAGS_IMPLTAG, dissect_reportType2_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationFailureReport_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_reportType , BER_CLASS_CON, 44, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReportType },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_callHistoryCountExpected, BER_CLASS_CON, 79, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCountExpected },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_reportType2, BER_CLASS_CON, 44, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReportType },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationFailureReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationFailureReport_set, hf_index, ett_ansi_map_AuthenticationFailureReport);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationFailureReport_set, hf_index, ett_ansi_map_AuthenticationFailureReport);
 
   return offset;
 }
-static int dissect_authenticationFailureReport(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationFailureReport(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationFailureReport);
-}
 
 
-static const ber_old_sequence_t AuthenticationFailureReportRes_set[] = {
-  { BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationAlgorithmVersion_impl },
-  { BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponseUniqueChallenge_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableSSD_impl },
-  { BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableUniqueChallenge_impl },
-  { BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sharedSecretData_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ssdnotShared_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_updateCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationFailureReportRes_set[] = {
+  { &hf_ansi_map_authenticationAlgorithmVersion, BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationAlgorithmVersion },
+  { &hf_ansi_map_authenticationResponseUniqueChallenge, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseUniqueChallenge },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_randomVariableSSD, BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableSSD },
+  { &hf_ansi_map_randomVariableUniqueChallenge, BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableUniqueChallenge },
+  { &hf_ansi_map_sharedSecretData, BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SharedSecretData },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_ssdnotShared, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SSDNotShared },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_updateCount, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UpdateCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationFailureReportRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationFailureReportRes_set, hf_index, ett_ansi_map_AuthenticationFailureReportRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationFailureReportRes_set, hf_index, ett_ansi_map_AuthenticationFailureReportRes);
 
   return offset;
-}
-static int dissect_authenticationFailureReportRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationFailureReportRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationFailureReportRes);
 }
 
 
@@ -5362,9 +5179,6 @@ dissect_ansi_map_AuthenticationData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_authenticationData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationData(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationData);
-}
 
 
 
@@ -5375,9 +5189,6 @@ dissect_ansi_map_AuthenticationResponse(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_authenticationResponse_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationResponse(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationResponse);
-}
 
 
 
@@ -5387,9 +5198,6 @@ dissect_ansi_map_CDMANetworkIdentification(gboolean implicit_tag _U_, tvbuff_t *
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaNetworkIdentification_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMANetworkIdentification(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaNetworkIdentification);
 }
 
 
@@ -5408,9 +5216,6 @@ dissect_ansi_map_ConfidentialityModes(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_confidentialityModes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ConfidentialityModes(TRUE, tvb, offset, actx, tree, hf_ansi_map_confidentialityModes);
-}
 
 
 
@@ -5421,9 +5226,6 @@ dissect_ansi_map_ControlChannelMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_controlChannelMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ControlChannelMode(TRUE, tvb, offset, actx, tree, hf_ansi_map_controlChannelMode);
-}
 
 
 
@@ -5432,21 +5234,6 @@ dissect_ansi_map_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_digits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Digits(TRUE, tvb, offset, actx, tree, hf_ansi_map_digits);
-}
-static int dissect_digits_Destination_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Digits(TRUE, tvb, offset, actx, tree, hf_ansi_map_digits_Destination);
-}
-static int dissect_digits_carrier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Digits(TRUE, tvb, offset, actx, tree, hf_ansi_map_digits_carrier);
-}
-static int dissect_digits_dest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Digits(TRUE, tvb, offset, actx, tree, hf_ansi_map_digits_dest);
-}
-static int dissect_digits_Carrier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Digits(TRUE, tvb, offset, actx, tree, hf_ansi_map_digits_Carrier);
 }
 
 
@@ -5466,12 +5253,6 @@ dissect_ansi_map_PC_SSN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_pc_ssn_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PC_SSN(TRUE, tvb, offset, actx, tree, hf_ansi_map_pc_ssn);
-}
-static int dissect_pC_SSN_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PC_SSN(TRUE, tvb, offset, actx, tree, hf_ansi_map_pC_SSN);
-}
 
 
 
@@ -5482,9 +5263,6 @@ dissect_ansi_map_RandomVariable(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_randomVariable_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariable(TRUE, tvb, offset, actx, tree, hf_ansi_map_randomVariable);
-}
 
 
 
@@ -5494,9 +5272,6 @@ dissect_ansi_map_ServiceRedirectionCause(gboolean implicit_tag _U_, tvbuff_t *tv
                                        NULL);
 
   return offset;
-}
-static int dissect_serviceRedirectionCause_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceRedirectionCause(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceRedirectionCause);
 }
 
 
@@ -5514,9 +5289,6 @@ dissect_ansi_map_SuspiciousAccess(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                   NULL);
 
   return offset;
-}
-static int dissect_suspiciousAccess_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SuspiciousAccess(TRUE, tvb, offset, actx, tree, hf_ansi_map_suspiciousAccess);
 }
 
 
@@ -5536,43 +5308,37 @@ dissect_ansi_map_TransactionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_transactionCapability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TransactionCapability(TRUE, tvb, offset, actx, tree, hf_ansi_map_transactionCapability);
-}
 
 
-static const ber_old_sequence_t AuthenticationRequest_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
-  { BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { BER_CLASS_CON, 161, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationData_impl },
-  { BER_CLASS_CON, 35, BER_FLAGS_IMPLTAG, dissect_authenticationResponse_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaNetworkIdentification_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 237, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceRedirectionCause_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 285, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_suspiciousAccess_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationRequest_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { &hf_ansi_map_authenticationData, BER_CLASS_CON, 161, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationData },
+  { &hf_ansi_map_authenticationResponse, BER_CLASS_CON, 35, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponse },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_cdmaNetworkIdentification, BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMANetworkIdentification },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_serviceRedirectionCause, BER_CLASS_CON, 237, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionCause },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_suspiciousAccess, BER_CLASS_CON, 285, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SuspiciousAccess },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationRequest_set, hf_index, ett_ansi_map_AuthenticationRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationRequest_set, hf_index, ett_ansi_map_AuthenticationRequest);
 
   return offset;
-}
-static int dissect_authenticationRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationRequest);
 }
 
 
@@ -5584,26 +5350,20 @@ dissect_ansi_map_AnalogRedirectInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_analogRedirectInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnalogRedirectInfo(TRUE, tvb, offset, actx, tree, hf_ansi_map_analogRedirectInfo);
-}
 
 
-static const ber_old_sequence_t AnalogRedirectRecord_sequence[] = {
-  { BER_CLASS_CON, 224, BER_FLAGS_IMPLTAG, dissect_analogRedirectInfo_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AnalogRedirectRecord_sequence[] = {
+  { &hf_ansi_map_analogRedirectInfo, BER_CLASS_CON, 224, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectInfo },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AnalogRedirectRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AnalogRedirectRecord_sequence, hf_index, ett_ansi_map_AnalogRedirectRecord);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AnalogRedirectRecord_sequence, hf_index, ett_ansi_map_AnalogRedirectRecord);
 
   return offset;
-}
-static int dissect_analogRedirectRecord_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnalogRedirectRecord(TRUE, tvb, offset, actx, tree, hf_ansi_map_analogRedirectRecord);
 }
 
 
@@ -5615,9 +5375,6 @@ dissect_ansi_map_CDMABandClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_cdmaBandClass_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMABandClass(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaBandClass);
-}
 
 
 
@@ -5628,65 +5385,50 @@ dissect_ansi_map_CDMAChannelNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_cdmaChannelNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAChannelNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaChannelNumber);
-}
-static int dissect_cdmaChannelNumber2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAChannelNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaChannelNumber2);
-}
 
 
-static const ber_old_sequence_t CDMAChannelNumberList_item_sequence[] = {
-  { BER_CLASS_CON, 226, BER_FLAGS_IMPLTAG, dissect_cdmaChannelNumber_impl },
-  { BER_CLASS_CON, 226, BER_FLAGS_IMPLTAG, dissect_cdmaChannelNumber2_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMAChannelNumberList_item_sequence[] = {
+  { &hf_ansi_map_cdmaChannelNumber, BER_CLASS_CON, 226, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelNumber },
+  { &hf_ansi_map_cdmaChannelNumber2, BER_CLASS_CON, 226, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMAChannelNumberList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMAChannelNumberList_item_sequence, hf_index, ett_ansi_map_CDMAChannelNumberList_item);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMAChannelNumberList_item_sequence, hf_index, ett_ansi_map_CDMAChannelNumberList_item);
 
   return offset;
 }
-static int dissect_CDMAChannelNumberList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAChannelNumberList_item(FALSE, tvb, offset, actx, tree, hf_ansi_map_CDMAChannelNumberList_item);
-}
 
 
-static const ber_old_sequence_t CDMAChannelNumberList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CDMAChannelNumberList_item },
+static const ber_sequence_t CDMAChannelNumberList_sequence_of[1] = {
+  { &hf_ansi_map_CDMAChannelNumberList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CDMAChannelNumberList_item },
 };
 
 static int
 dissect_ansi_map_CDMAChannelNumberList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CDMAChannelNumberList_sequence_of, hf_index, ett_ansi_map_CDMAChannelNumberList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CDMAChannelNumberList_sequence_of, hf_index, ett_ansi_map_CDMAChannelNumberList);
 
   return offset;
 }
-static int dissect_cdmaChannelNumberList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAChannelNumberList(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaChannelNumberList);
-}
 
 
-static const ber_old_sequence_t CDMARedirectRecord_sequence[] = {
-  { BER_CLASS_CON, 170, BER_FLAGS_IMPLTAG, dissect_cdmaBandClass_impl },
-  { BER_CLASS_CON, 227, BER_FLAGS_IMPLTAG, dissect_cdmaChannelNumberList_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 232, BER_FLAGS_IMPLTAG, dissect_cdmaNetworkIdentification_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMARedirectRecord_sequence[] = {
+  { &hf_ansi_map_cdmaBandClass, BER_CLASS_CON, 170, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMABandClass },
+  { &hf_ansi_map_cdmaChannelNumberList, BER_CLASS_CON, 227, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelNumberList },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_cdmaNetworkIdentification, BER_CLASS_CON, 232, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMANetworkIdentification },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMARedirectRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMARedirectRecord_sequence, hf_index, ett_ansi_map_CDMARedirectRecord);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMARedirectRecord_sequence, hf_index, ett_ansi_map_CDMARedirectRecord);
 
   return offset;
-}
-static int dissect_cdmaRedirectRecord_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMARedirectRecord(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaRedirectRecord);
 }
 
 
@@ -5698,9 +5440,6 @@ dissect_ansi_map_DataKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_dataKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataKey(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataKey);
-}
 
 
 
@@ -5710,9 +5449,6 @@ dissect_ansi_map_RoamingIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
                                        NULL);
 
   return offset;
-}
-static int dissect_roamingIndication_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoamingIndication(TRUE, tvb, offset, actx, tree, hf_ansi_map_roamingIndication);
 }
 
 
@@ -5724,9 +5460,6 @@ dissect_ansi_map_ServiceRedirectionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_serviceRedirectionInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceRedirectionInfo(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceRedirectionInfo);
-}
 
 
 
@@ -5737,45 +5470,39 @@ dissect_ansi_map_VoicePrivacyMask(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_voicePrivacyMask_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_VoicePrivacyMask(TRUE, tvb, offset, actx, tree, hf_ansi_map_voicePrivacyMask);
-}
 
 
-static const ber_old_sequence_t AuthenticationRequestRes_set[] = {
-  { BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_analogRedirectRecord_impl },
-  { BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationAlgorithmVersion_impl },
-  { BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponseUniqueChallenge_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaRedirectRecord_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_roamingIndication_impl },
-  { BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceRedirectionInfo_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableSSD_impl },
-  { BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableUniqueChallenge_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sharedSecretData_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ssdnotShared_impl },
-  { BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_updateCount_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationRequestRes_set[] = {
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_authenticationAlgorithmVersion, BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationAlgorithmVersion },
+  { &hf_ansi_map_authenticationResponseUniqueChallenge, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseUniqueChallenge },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
+  { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_randomVariableSSD, BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableSSD },
+  { &hf_ansi_map_randomVariableUniqueChallenge, BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableUniqueChallenge },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_sharedSecretData, BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SharedSecretData },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_ssdnotShared, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SSDNotShared },
+  { &hf_ansi_map_updateCount, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UpdateCount },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationRequestRes_set, hf_index, ett_ansi_map_AuthenticationRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationRequestRes_set, hf_index, ett_ansi_map_AuthenticationRequestRes);
 
   return offset;
-}
-static int dissect_authenticationRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationRequestRes);
 }
 
 
@@ -5786,9 +5513,6 @@ dissect_ansi_map_ReauthenticationReport(gboolean implicit_tag _U_, tvbuff_t *tvb
                                        NULL);
 
   return offset;
-}
-static int dissect_reauthenticationReport_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReauthenticationReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_reauthenticationReport);
 }
 
 
@@ -5822,9 +5546,6 @@ dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_serviceIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceIndicator);
-}
 
 
 
@@ -5834,9 +5555,6 @@ dissect_ansi_map_SignalingMessageEncryptionReport(gboolean implicit_tag _U_, tvb
                                        NULL);
 
   return offset;
-}
-static int dissect_signalingMessageEncryptionReport_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SignalingMessageEncryptionReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_signalingMessageEncryptionReport);
 }
 
 
@@ -5848,9 +5566,6 @@ dissect_ansi_map_SSDUpdateReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_ssdUpdateReport_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SSDUpdateReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_ssdUpdateReport);
-}
 
 
 
@@ -5861,64 +5576,55 @@ dissect_ansi_map_VoicePrivacyReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_voicePrivacyReport_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_VoicePrivacyReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_voicePrivacyReport);
-}
 
 
-static const ber_old_sequence_t AuthenticationStatusReport_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { BER_CLASS_CON, 138, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_countUpdateReport_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 192, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reauthenticationReport_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceIndicator_impl },
-  { BER_CLASS_CON, 194, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionReport_impl },
-  { BER_CLASS_CON, 156, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ssdUpdateReport_impl },
-  { BER_CLASS_CON, 124, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uniqueChallengeReport_impl },
-  { BER_CLASS_CON, 196, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyReport_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationStatusReport_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { &hf_ansi_map_countUpdateReport, BER_CLASS_CON, 138, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CountUpdateReport },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_reauthenticationReport, BER_CLASS_CON, 192, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReauthenticationReport },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_serviceIndicator, BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceIndicator },
+  { &hf_ansi_map_signalingMessageEncryptionReport, BER_CLASS_CON, 194, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionReport },
+  { &hf_ansi_map_ssdUpdateReport, BER_CLASS_CON, 156, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SSDUpdateReport },
+  { &hf_ansi_map_uniqueChallengeReport, BER_CLASS_CON, 124, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UniqueChallengeReport },
+  { &hf_ansi_map_voicePrivacyReport, BER_CLASS_CON, 196, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyReport },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationStatusReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationStatusReport_set, hf_index, ett_ansi_map_AuthenticationStatusReport);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationStatusReport_set, hf_index, ett_ansi_map_AuthenticationStatusReport);
 
   return offset;
 }
-static int dissect_authenticationStatusReport(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationStatusReport(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationStatusReport);
-}
 
 
-static const ber_old_sequence_t AuthenticationStatusReportRes_set[] = {
-  { BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationAlgorithmVersion_impl },
-  { BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponseUniqueChallenge_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableSSD_impl },
-  { BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariableUniqueChallenge_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sharedSecretData_impl },
-  { BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ssdnotShared_impl },
-  { BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_updateCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthenticationStatusReportRes_set[] = {
+  { &hf_ansi_map_authenticationAlgorithmVersion, BER_CLASS_CON, 77, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationAlgorithmVersion },
+  { &hf_ansi_map_authenticationResponseUniqueChallenge, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseUniqueChallenge },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_randomVariableSSD, BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableSSD },
+  { &hf_ansi_map_randomVariableUniqueChallenge, BER_CLASS_CON, 43, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableUniqueChallenge },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_sharedSecretData, BER_CLASS_CON, 46, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SharedSecretData },
+  { &hf_ansi_map_ssdnotShared, BER_CLASS_CON, 52, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SSDNotShared },
+  { &hf_ansi_map_updateCount, BER_CLASS_CON, 51, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UpdateCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AuthenticationStatusReportRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AuthenticationStatusReportRes_set, hf_index, ett_ansi_map_AuthenticationStatusReportRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AuthenticationStatusReportRes_set, hf_index, ett_ansi_map_AuthenticationStatusReportRes);
 
   return offset;
-}
-static int dissect_authenticationStatusReportRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationStatusReportRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_authenticationStatusReportRes);
 }
 
 
@@ -5930,29 +5636,23 @@ dissect_ansi_map_RandomVariableBaseStation(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_randomVariableBaseStation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariableBaseStation(TRUE, tvb, offset, actx, tree, hf_ansi_map_randomVariableBaseStation);
-}
 
 
-static const ber_old_sequence_t BaseStationChallenge_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_randomVariableBaseStation_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceIndicator_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t BaseStationChallenge_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_randomVariableBaseStation, BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableBaseStation },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_serviceIndicator, BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceIndicator },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_BaseStationChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  BaseStationChallenge_set, hf_index, ett_ansi_map_BaseStationChallenge);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              BaseStationChallenge_set, hf_index, ett_ansi_map_BaseStationChallenge);
 
   return offset;
-}
-static int dissect_baseStationChallenge(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BaseStationChallenge(FALSE, tvb, offset, actx, tree, hf_ansi_map_baseStationChallenge);
 }
 
 
@@ -5964,92 +5664,77 @@ dissect_ansi_map_AuthenticationResponseBaseStation(gboolean implicit_tag _U_, tv
 
   return offset;
 }
-static int dissect_authenticationResponseBaseStation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationResponseBaseStation(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationResponseBaseStation);
-}
 
 
-static const ber_old_sequence_t BaseStationChallengeRes_set[] = {
-  { BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_authenticationResponseBaseStation_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t BaseStationChallengeRes_set[] = {
+  { &hf_ansi_map_authenticationResponseBaseStation, BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseBaseStation },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_BaseStationChallengeRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  BaseStationChallengeRes_set, hf_index, ett_ansi_map_BaseStationChallengeRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              BaseStationChallengeRes_set, hf_index, ett_ansi_map_BaseStationChallengeRes);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t Blocking_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Blocking_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_Blocking(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  Blocking_set, hf_index, ett_ansi_map_Blocking);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Blocking_set, hf_index, ett_ansi_map_Blocking);
 
   return offset;
 }
-static int dissect_blocking(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Blocking(FALSE, tvb, offset, actx, tree, hf_ansi_map_blocking);
-}
 
 
-static const ber_old_sequence_t BulkDeregistration_set[] = {
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t BulkDeregistration_set[] = {
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_BulkDeregistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  BulkDeregistration_set, hf_index, ett_ansi_map_BulkDeregistration);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              BulkDeregistration_set, hf_index, ett_ansi_map_BulkDeregistration);
 
   return offset;
 }
-static int dissect_bulkDeregistration(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BulkDeregistration(FALSE, tvb, offset, actx, tree, hf_ansi_map_bulkDeregistration);
-}
 
 
-static const ber_old_sequence_t CountRequest_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CountRequest_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CountRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CountRequest_set, hf_index, ett_ansi_map_CountRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CountRequest_set, hf_index, ett_ansi_map_CountRequest);
 
   return offset;
 }
-static int dissect_countRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CountRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_countRequest);
-}
 
 
-static const ber_old_sequence_t CountRequestRes_set[] = {
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CountRequestRes_set[] = {
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CountRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CountRequestRes_set, hf_index, ett_ansi_map_CountRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CountRequestRes_set, hf_index, ett_ansi_map_CountRequestRes);
 
   return offset;
-}
-static int dissect_countRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CountRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_countRequestRes);
 }
 
 
@@ -6069,9 +5754,6 @@ dissect_ansi_map_BillingID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_billingID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BillingID(TRUE, tvb, offset, actx, tree, hf_ansi_map_billingID);
-}
 
 
 
@@ -6090,9 +5772,6 @@ dissect_ansi_map_ChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_channelData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ChannelData(TRUE, tvb, offset, actx, tree, hf_ansi_map_channelData);
-}
 
 
 
@@ -6102,9 +5781,6 @@ dissect_ansi_map_InterSwitchCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                   NULL);
 
   return offset;
-}
-static int dissect_interSwitchCount_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSwitchCount(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSwitchCount);
 }
 
 
@@ -6116,9 +5792,6 @@ dissect_ansi_map_ServingCellID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_servingCellID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServingCellID(TRUE, tvb, offset, actx, tree, hf_ansi_map_servingCellID);
-}
 
 
 
@@ -6129,9 +5802,6 @@ dissect_ansi_map_StationClassMark(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_stationClassMark_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_StationClassMark(TRUE, tvb, offset, actx, tree, hf_ansi_map_stationClassMark);
-}
 
 
 
@@ -6141,12 +5811,6 @@ dissect_ansi_map_TargetCellID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                        NULL);
 
   return offset;
-}
-static int dissect_targetCellID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TargetCellID(TRUE, tvb, offset, actx, tree, hf_ansi_map_targetCellID);
-}
-static int dissect_targetCellID1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TargetCellID(TRUE, tvb, offset, actx, tree, hf_ansi_map_targetCellID1);
 }
 
 
@@ -6167,9 +5831,6 @@ dissect_ansi_map_HandoffReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_handoffReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffReason(TRUE, tvb, offset, actx, tree, hf_ansi_map_handoffReason);
-}
 
 
 
@@ -6188,9 +5849,6 @@ dissect_ansi_map_HandoffState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_handoffState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffState(TRUE, tvb, offset, actx, tree, hf_ansi_map_handoffState);
-}
 
 
 
@@ -6200,9 +5858,6 @@ dissect_ansi_map_TDMABurstIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                        NULL);
 
   return offset;
-}
-static int dissect_tdmaBurstIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMABurstIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaBurstIndicator);
 }
 
 
@@ -6214,9 +5869,6 @@ dissect_ansi_map_TDMACallMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_tdmaCallMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMACallMode(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaCallMode);
-}
 
 
 
@@ -6227,61 +5879,52 @@ dissect_ansi_map_TDMAChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_tdmaChannelData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMAChannelData(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaChannelData);
-}
 
 
-static const ber_old_sequence_t FacilitiesDirective_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffState_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitiesDirective_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitiesDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitiesDirective_set, hf_index, ett_ansi_map_FacilitiesDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitiesDirective_set, hf_index, ett_ansi_map_FacilitiesDirective);
 
   return offset;
 }
-static int dissect_facilitiesDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitiesDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitiesDirective);
-}
 
 
-static const ber_old_sequence_t FacilitiesDirectiveRes_set[] = {
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitiesDirectiveRes_set[] = {
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitiesDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitiesDirectiveRes_set, hf_index, ett_ansi_map_FacilitiesDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitiesDirectiveRes_set, hf_index, ett_ansi_map_FacilitiesDirectiveRes);
 
   return offset;
-}
-static int dissect_facilitiesDirectiveRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitiesDirectiveRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitiesDirectiveRes);
 }
 
 
@@ -6292,9 +5935,6 @@ dissect_ansi_map_BaseStationManufacturerCode(gboolean implicit_tag _U_, tvbuff_t
                                        NULL);
 
   return offset;
-}
-static int dissect_baseStationManufacturerCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BaseStationManufacturerCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_baseStationManufacturerCode);
 }
 
 
@@ -6313,9 +5953,6 @@ dissect_ansi_map_AlertCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
   return offset;
-}
-static int dissect_alertCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AlertCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_alertCode);
 }
 
 
@@ -6340,9 +5977,6 @@ dissect_ansi_map_CDMA2000HandoffInvokeIOSData(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_cdma2000HandoffInvokeIOSData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMA2000HandoffInvokeIOSData(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdma2000HandoffInvokeIOSData);
-}
 
 
 
@@ -6359,9 +5993,6 @@ dissect_ansi_map_CDMACallMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
   return offset;
-}
-static int dissect_cdmaCallMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMACallMode(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaCallMode);
 }
 
 
@@ -6381,9 +6012,6 @@ dissect_ansi_map_CDMAChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_cdmaChannelData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAChannelData(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaChannelData);
-}
 
 
 
@@ -6393,9 +6021,6 @@ dissect_ansi_map_CDMAConnectionReference(gboolean implicit_tag _U_, tvbuff_t *tv
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaConnectionReference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAConnectionReference(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaConnectionReference);
 }
 
 
@@ -6416,12 +6041,6 @@ dissect_ansi_map_CDMAServiceOption(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_cdmaServiceOption_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAServiceOption(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaServiceOption);
-}
-static int dissect_CDMAServiceOptionList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAServiceOption(TRUE, tvb, offset, actx, tree, hf_ansi_map_CDMAServiceOptionList_item);
-}
 
 
 
@@ -6431,9 +6050,6 @@ dissect_ansi_map_CDMAState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAState(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaState);
 }
 
 
@@ -6445,9 +6061,6 @@ dissect_ansi_map_DataPrivacyParameters(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_dataPrivacyParameters_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataPrivacyParameters(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataPrivacyParameters);
-}
 
 
 
@@ -6458,66 +6071,51 @@ dissect_ansi_map_CDMAServiceOptionConnectionIdentifier(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_cdmaServiceOptionConnectionIdentifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAServiceOptionConnectionIdentifier(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaServiceOptionConnectionIdentifier);
-}
 
 
-static const ber_old_sequence_t CDMAConnectionReferenceInformation_sequence[] = {
-  { BER_CLASS_CON, 208, BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReference_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 213, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaState_impl },
-  { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
-  { BER_CLASS_CON, 361, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionConnectionIdentifier_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMAConnectionReferenceInformation_sequence[] = {
+  { &hf_ansi_map_cdmaConnectionReference, BER_CLASS_CON, 208, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReference },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaState  , BER_CLASS_CON, 213, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAState },
+  { &hf_ansi_map_dataPrivacyParameters, BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataPrivacyParameters },
+  { &hf_ansi_map_cdmaServiceOptionConnectionIdentifier, BER_CLASS_CON, 361, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionConnectionIdentifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMAConnectionReferenceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMAConnectionReferenceInformation_sequence, hf_index, ett_ansi_map_CDMAConnectionReferenceInformation);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMAConnectionReferenceInformation_sequence, hf_index, ett_ansi_map_CDMAConnectionReferenceInformation);
 
   return offset;
 }
-static int dissect_cdmaConnectionReferenceInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAConnectionReferenceInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaConnectionReferenceInformation);
-}
-static int dissect_cdmaConnectionReferenceInformation2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAConnectionReferenceInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaConnectionReferenceInformation2);
-}
 
 
-static const ber_old_sequence_t CDMAConnectionReferenceList_item_sequence[] = {
-  { BER_CLASS_CON, 211, BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceInformation_impl },
-  { BER_CLASS_CON, 211, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceInformation2_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMAConnectionReferenceList_item_sequence[] = {
+  { &hf_ansi_map_cdmaConnectionReferenceInformation, BER_CLASS_CON, 211, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceInformation },
+  { &hf_ansi_map_cdmaConnectionReferenceInformation2, BER_CLASS_CON, 211, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceInformation },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMAConnectionReferenceList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMAConnectionReferenceList_item_sequence, hf_index, ett_ansi_map_CDMAConnectionReferenceList_item);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMAConnectionReferenceList_item_sequence, hf_index, ett_ansi_map_CDMAConnectionReferenceList_item);
 
   return offset;
 }
-static int dissect_CDMAConnectionReferenceList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAConnectionReferenceList_item(FALSE, tvb, offset, actx, tree, hf_ansi_map_CDMAConnectionReferenceList_item);
-}
 
 
-static const ber_old_sequence_t CDMAConnectionReferenceList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CDMAConnectionReferenceList_item },
+static const ber_sequence_t CDMAConnectionReferenceList_sequence_of[1] = {
+  { &hf_ansi_map_CDMAConnectionReferenceList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CDMAConnectionReferenceList_item },
 };
 
 static int
 dissect_ansi_map_CDMAConnectionReferenceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CDMAConnectionReferenceList_sequence_of, hf_index, ett_ansi_map_CDMAConnectionReferenceList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CDMAConnectionReferenceList_sequence_of, hf_index, ett_ansi_map_CDMAConnectionReferenceList);
 
   return offset;
-}
-static int dissect_cdmaConnectionReferenceList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAConnectionReferenceList(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaConnectionReferenceList);
 }
 
 
@@ -6529,9 +6127,6 @@ dissect_ansi_map_CDMAMobileProtocolRevision(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_cdmaMobileProtocolRevision_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAMobileProtocolRevision(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaMobileProtocolRevision);
-}
 
 
 
@@ -6541,9 +6136,6 @@ dissect_ansi_map_CDMAMSMeasuredChannelIdentity(gboolean implicit_tag _U_, tvbuff
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaMSMeasuredChannelIdentity_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAMSMeasuredChannelIdentity(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaMSMeasuredChannelIdentity);
 }
 
 
@@ -6555,24 +6147,18 @@ dissect_ansi_map_CDMAServiceConfigurationRecord(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_cdmaServiceConfigurationRecord_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAServiceConfigurationRecord(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaServiceConfigurationRecord);
-}
 
 
-static const ber_old_sequence_t CDMAServiceOptionList_sequence_of[1] = {
-  { BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_CDMAServiceOptionList_item_impl },
+static const ber_sequence_t CDMAServiceOptionList_sequence_of[1] = {
+  { &hf_ansi_map_CDMAServiceOptionList_item, BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
 };
 
 static int
 dissect_ansi_map_CDMAServiceOptionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CDMAServiceOptionList_sequence_of, hf_index, ett_ansi_map_CDMAServiceOptionList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CDMAServiceOptionList_sequence_of, hf_index, ett_ansi_map_CDMAServiceOptionList);
 
   return offset;
-}
-static int dissect_cdmaServiceOptionList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAServiceOptionList(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaServiceOptionList);
 }
 
 
@@ -6583,9 +6169,6 @@ dissect_ansi_map_CDMAServingOneWayDelay(gboolean implicit_tag _U_, tvbuff_t *tvb
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaServingOneWayDelay_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAServingOneWayDelay(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaServingOneWayDelay);
 }
 
 
@@ -6605,9 +6188,6 @@ dissect_ansi_map_CDMAStationClassMark(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_cdmaStationClassMark_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAStationClassMark(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaStationClassMark);
-}
 
 
 
@@ -6617,9 +6197,6 @@ dissect_ansi_map_CDMAStationClassMark2(gboolean implicit_tag _U_, tvbuff_t *tvb 
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaStationClassMark2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAStationClassMark2(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaStationClassMark2);
 }
 
 
@@ -6631,9 +6208,6 @@ dissect_ansi_map_CDMAPilotStrength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_cdmaPilotStrength_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAPilotStrength(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaPilotStrength);
-}
 
 
 
@@ -6644,43 +6218,34 @@ dissect_ansi_map_CDMATargetOneWayDelay(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_cdmaTargetOneWayDelay_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMATargetOneWayDelay(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaTargetOneWayDelay);
-}
 
 
-static const ber_old_sequence_t CDMATargetMAHOInformation_sequence[] = {
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 65, BER_FLAGS_IMPLTAG, dissect_cdmaPilotStrength_impl },
-  { BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_cdmaTargetOneWayDelay_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMATargetMAHOInformation_sequence[] = {
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_cdmaPilotStrength, BER_CLASS_CON, 65, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPilotStrength },
+  { &hf_ansi_map_cdmaTargetOneWayDelay, BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetOneWayDelay },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMATargetMAHOInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMATargetMAHOInformation_sequence, hf_index, ett_ansi_map_CDMATargetMAHOInformation);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMATargetMAHOInformation_sequence, hf_index, ett_ansi_map_CDMATargetMAHOInformation);
 
   return offset;
 }
-static int dissect_CDMATargetMAHOList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMATargetMAHOInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_CDMATargetMAHOList_item);
-}
 
 
-static const ber_old_sequence_t CDMATargetMAHOList_sequence_of[1] = {
-  { BER_CLASS_CON, 135, BER_FLAGS_IMPLTAG, dissect_CDMATargetMAHOList_item_impl },
+static const ber_sequence_t CDMATargetMAHOList_sequence_of[1] = {
+  { &hf_ansi_map_CDMATargetMAHOList_item, BER_CLASS_CON, 135, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOInformation },
 };
 
 static int
 dissect_ansi_map_CDMATargetMAHOList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CDMATargetMAHOList_sequence_of, hf_index, ett_ansi_map_CDMATargetMAHOList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CDMATargetMAHOList_sequence_of, hf_index, ett_ansi_map_CDMATargetMAHOList);
 
   return offset;
-}
-static int dissect_cdmaTargetMAHOList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMATargetMAHOList(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaTargetMAHOList);
 }
 
 
@@ -6692,43 +6257,34 @@ dissect_ansi_map_CDMASignalQuality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_cdmaSignalQuality_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMASignalQuality(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaSignalQuality);
-}
 
 
-static const ber_old_sequence_t CDMATargetMeasurementInformation_sequence[] = {
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 64, BER_FLAGS_IMPLTAG, dissect_cdmaSignalQuality_impl },
-  { BER_CLASS_CON, 61, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetOneWayDelay_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMATargetMeasurementInformation_sequence[] = {
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_cdmaSignalQuality, BER_CLASS_CON, 64, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASignalQuality },
+  { &hf_ansi_map_cdmaTargetOneWayDelay, BER_CLASS_CON, 61, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetOneWayDelay },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMATargetMeasurementInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMATargetMeasurementInformation_sequence, hf_index, ett_ansi_map_CDMATargetMeasurementInformation);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMATargetMeasurementInformation_sequence, hf_index, ett_ansi_map_CDMATargetMeasurementInformation);
 
   return offset;
 }
-static int dissect_CDMATargetMeasurementList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMATargetMeasurementInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_CDMATargetMeasurementList_item);
-}
 
 
-static const ber_old_sequence_t CDMATargetMeasurementList_sequence_of[1] = {
-  { BER_CLASS_CON, 133, BER_FLAGS_IMPLTAG, dissect_CDMATargetMeasurementList_item_impl },
+static const ber_sequence_t CDMATargetMeasurementList_sequence_of[1] = {
+  { &hf_ansi_map_CDMATargetMeasurementList_item, BER_CLASS_CON, 133, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementInformation },
 };
 
 static int
 dissect_ansi_map_CDMATargetMeasurementList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CDMATargetMeasurementList_sequence_of, hf_index, ett_ansi_map_CDMATargetMeasurementList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CDMATargetMeasurementList_sequence_of, hf_index, ett_ansi_map_CDMATargetMeasurementList);
 
   return offset;
-}
-static int dissect_cdmaTargetMeasurementList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMATargetMeasurementList(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaTargetMeasurementList);
 }
 
 
@@ -6739,9 +6295,6 @@ dissect_ansi_map_ISLPInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
                                        NULL);
 
   return offset;
-}
-static int dissect_ilspInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ISLPInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_ilspInformation);
 }
 
 
@@ -6761,9 +6314,6 @@ dissect_ansi_map_MSLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_msLocation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSLocation(TRUE, tvb, offset, actx, tree, hf_ansi_map_msLocation);
-}
 
 
 
@@ -6781,9 +6331,6 @@ dissect_ansi_map_NAMPSCallMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
   return offset;
-}
-static int dissect_nampsCallMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NAMPSCallMode(TRUE, tvb, offset, actx, tree, hf_ansi_map_nampsCallMode);
 }
 
 
@@ -6803,9 +6350,6 @@ dissect_ansi_map_NAMPSChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_nampsChannelData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NAMPSChannelData(TRUE, tvb, offset, actx, tree, hf_ansi_map_nampsChannelData);
-}
 
 
 
@@ -6815,9 +6359,6 @@ dissect_ansi_map_NonPublicData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
                                        NULL);
 
   return offset;
-}
-static int dissect_nonPublicData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NonPublicData(TRUE, tvb, offset, actx, tree, hf_ansi_map_nonPublicData);
 }
 
 
@@ -6829,9 +6370,6 @@ dissect_ansi_map_PDSNAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_pdsnAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PDSNAddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_pdsnAddress);
-}
 
 
 
@@ -6841,9 +6379,6 @@ dissect_ansi_map_PDSNProtocolType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                        NULL);
 
   return offset;
-}
-static int dissect_pdsnProtocolType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PDSNProtocolType(TRUE, tvb, offset, actx, tree, hf_ansi_map_pdsnProtocolType);
 }
 
 
@@ -6855,9 +6390,6 @@ dissect_ansi_map_QoSPriority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_qosPriority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_QoSPriority(TRUE, tvb, offset, actx, tree, hf_ansi_map_qosPriority);
-}
 
 
 
@@ -6867,9 +6399,6 @@ dissect_ansi_map_SystemOperatorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                        NULL);
 
   return offset;
-}
-static int dissect_systemOperatorCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SystemOperatorCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_systemOperatorCode);
 }
 
 
@@ -6881,9 +6410,6 @@ dissect_ansi_map_TDMABandwidth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_tdmaBandwidth_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMABandwidth(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaBandwidth);
-}
 
 
 
@@ -6893,9 +6419,6 @@ dissect_ansi_map_TDMAServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
                                        NULL);
 
   return offset;
-}
-static int dissect_tdmaServiceCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMAServiceCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaServiceCode);
 }
 
 
@@ -6907,12 +6430,6 @@ dissect_ansi_map_TDMATerminalCapability(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_tdmaTerminalCapability(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMATerminalCapability(FALSE, tvb, offset, actx, tree, hf_ansi_map_tdmaTerminalCapability);
-}
-static int dissect_tdmaTerminalCapability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMATerminalCapability(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaTerminalCapability);
-}
 
 
 
@@ -6922,9 +6439,6 @@ dissect_ansi_map_TDMAVoiceCoder(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                        NULL);
 
   return offset;
-}
-static int dissect_tdmaVoiceCoder_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMAVoiceCoder(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaVoiceCoder);
 }
 
 
@@ -6936,75 +6450,69 @@ dissect_ansi_map_UserZoneData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_userZoneData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UserZoneData(TRUE, tvb, offset, actx, tree, hf_ansi_map_userZoneData);
-}
 
 
-static const ber_old_sequence_t FacilitiesDirective2_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 197, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_baseStationManufacturerCode_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 356, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdma2000HandoffInvokeIOSData_impl },
-  { BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCallMode_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 351, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMSMeasuredChannelIdentity_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServingOneWayDelay_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
-  { BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMAHOList_impl },
-  { BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffState_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msLocation_impl },
-  { BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsCallMode_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nonPublicData_impl },
-  { BER_CLASS_CON, 349, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdsnAddress_impl },
-  { BER_CLASS_CON, 350, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdsnProtocolType_impl },
-  { BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qosPriority_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 206, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemOperatorCode_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_tdmaTerminalCapability },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userZoneData_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitiesDirective2_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_baseStationManufacturerCode, BER_CLASS_CON, 197, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BaseStationManufacturerCode },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_cdma2000HandoffInvokeIOSData, BER_CLASS_CON, 356, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000HandoffInvokeIOSData },
+  { &hf_ansi_map_cdmaCallMode, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACallMode },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
+  { &hf_ansi_map_cdmaMSMeasuredChannelIdentity, BER_CLASS_CON, 351, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMSMeasuredChannelIdentity },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_dataPrivacyParameters, BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataPrivacyParameters },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_msLocation , BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSLocation },
+  { &hf_ansi_map_nampsCallMode, BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSCallMode },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_pdsnAddress, BER_CLASS_CON, 349, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PDSNAddress },
+  { &hf_ansi_map_pdsnProtocolType, BER_CLASS_CON, 350, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PDSNProtocolType },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_systemOperatorCode, BER_CLASS_CON, 206, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemOperatorCode },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_tdmaBandwidth, BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABandwidth },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_tdmaTerminalCapability, BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_ansi_map_TDMATerminalCapability },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitiesDirective2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitiesDirective2_set, hf_index, ett_ansi_map_FacilitiesDirective2);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitiesDirective2_set, hf_index, ett_ansi_map_FacilitiesDirective2);
 
   return offset;
-}
-static int dissect_facilitiesDirective2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitiesDirective2(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitiesDirective2);
 }
 
 
@@ -7015,9 +6523,6 @@ dissect_ansi_map_BSMCStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                        NULL);
 
   return offset;
-}
-static int dissect_bsmcstatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BSMCStatus(TRUE, tvb, offset, actx, tree, hf_ansi_map_bsmcstatus);
 }
 
 
@@ -7042,9 +6547,6 @@ dissect_ansi_map_CDMA2000HandoffResponseIOSData(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_cdma2000HandoffResponseIOSData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMA2000HandoffResponseIOSData(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdma2000HandoffResponseIOSData);
-}
 
 
 
@@ -7054,9 +6556,6 @@ dissect_ansi_map_CDMACodeChannel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaCodeChannel_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMACodeChannel(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaCodeChannel);
 }
 
 
@@ -7068,9 +6567,6 @@ dissect_ansi_map_CDMAPilotPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_cdmaPilotPN_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAPilotPN(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaPilotPN);
-}
 
 
 
@@ -7081,44 +6577,35 @@ dissect_ansi_map_CDMAPowerCombinedIndicator(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_cdmaPowerCombinedIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMAPowerCombinedIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaPowerCombinedIndicator);
-}
 
 
-static const ber_old_sequence_t CDMACodeChannelInformation_sequence[] = {
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 68, BER_FLAGS_IMPLTAG, dissect_cdmaCodeChannel_impl },
-  { BER_CLASS_CON, 173, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPilotPN_impl },
-  { BER_CLASS_CON, 228, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPowerCombinedIndicator_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CDMACodeChannelInformation_sequence[] = {
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_cdmaCodeChannel, BER_CLASS_CON, 68, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannel },
+  { &hf_ansi_map_cdmaPilotPN, BER_CLASS_CON, 173, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPilotPN },
+  { &hf_ansi_map_cdmaPowerCombinedIndicator, BER_CLASS_CON, 228, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPowerCombinedIndicator },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CDMACodeChannelInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CDMACodeChannelInformation_sequence, hf_index, ett_ansi_map_CDMACodeChannelInformation);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CDMACodeChannelInformation_sequence, hf_index, ett_ansi_map_CDMACodeChannelInformation);
 
   return offset;
 }
-static int dissect_CDMACodeChannelList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMACodeChannelInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_CDMACodeChannelList_item);
-}
 
 
-static const ber_old_sequence_t CDMACodeChannelList_sequence_of[1] = {
-  { BER_CLASS_CON, 131, BER_FLAGS_IMPLTAG, dissect_CDMACodeChannelList_item_impl },
+static const ber_sequence_t CDMACodeChannelList_sequence_of[1] = {
+  { &hf_ansi_map_CDMACodeChannelList_item, BER_CLASS_CON, 131, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannelInformation },
 };
 
 static int
 dissect_ansi_map_CDMACodeChannelList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CDMACodeChannelList_sequence_of, hf_index, ett_ansi_map_CDMACodeChannelList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CDMACodeChannelList_sequence_of, hf_index, ett_ansi_map_CDMACodeChannelList);
 
   return offset;
-}
-static int dissect_cdmaCodeChannelList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMACodeChannelList(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaCodeChannelList);
 }
 
 
@@ -7130,9 +6617,6 @@ dissect_ansi_map_CDMASearchParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_cdmaSearchParameters_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMASearchParameters(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaSearchParameters);
-}
 
 
 
@@ -7142,9 +6626,6 @@ dissect_ansi_map_CDMASearchWindow(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaSearchWindow_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMASearchWindow(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaSearchWindow);
 }
 
 
@@ -7156,41 +6637,35 @@ dissect_ansi_map_SOCStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_sOCStatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SOCStatus(TRUE, tvb, offset, actx, tree, hf_ansi_map_sOCStatus);
-}
 
 
-static const ber_old_sequence_t FacilitiesDirective2Res_set[] = {
-  { BER_CLASS_CON, 198, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bsmcstatus_impl },
-  { BER_CLASS_CON, 357, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdma2000HandoffResponseIOSData_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 132, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCodeChannelList_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 230, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSearchParameters_impl },
-  { BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSearchWindow_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sOCStatus_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitiesDirective2Res_set[] = {
+  { &hf_ansi_map_bsmcstatus , BER_CLASS_CON, 198, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BSMCStatus },
+  { &hf_ansi_map_cdma2000HandoffResponseIOSData, BER_CLASS_CON, 357, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000HandoffResponseIOSData },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaCodeChannelList, BER_CLASS_CON, 132, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannelList },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaSearchParameters, BER_CLASS_CON, 230, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASearchParameters },
+  { &hf_ansi_map_cdmaSearchWindow, BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASearchWindow },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_sOCStatus  , BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SOCStatus },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitiesDirective2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitiesDirective2Res_set, hf_index, ett_ansi_map_FacilitiesDirective2Res);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitiesDirective2Res_set, hf_index, ett_ansi_map_FacilitiesDirective2Res);
 
   return offset;
-}
-static int dissect_facilitiesDirective2Res(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitiesDirective2Res(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitiesDirective2Res);
 }
 
 
@@ -7221,45 +6696,36 @@ dissect_ansi_map_ReleaseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_releaseReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReleaseReason(TRUE, tvb, offset, actx, tree, hf_ansi_map_releaseReason);
-}
 
 
-static const ber_old_sequence_t FacilitiesRelease_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_releaseReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitiesRelease_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_releaseReason, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_ansi_map_ReleaseReason },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitiesRelease(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitiesRelease_set, hf_index, ett_ansi_map_FacilitiesRelease);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitiesRelease_set, hf_index, ett_ansi_map_FacilitiesRelease);
 
   return offset;
 }
-static int dissect_facilitiesRelease(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitiesRelease(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitiesRelease);
-}
 
 
-static const ber_old_sequence_t FacilitiesReleaseRes_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitiesReleaseRes_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitiesReleaseRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitiesReleaseRes_set, hf_index, ett_ansi_map_FacilitiesReleaseRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitiesReleaseRes_set, hf_index, ett_ansi_map_FacilitiesReleaseRes);
 
   return offset;
-}
-static int dissect_facilitiesReleaseRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitiesReleaseRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitiesReleaseRes);
 }
 
 
@@ -7270,9 +6736,6 @@ dissect_ansi_map_ACGEncountered(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                        NULL);
 
   return offset;
-}
-static int dissect_acgencountered_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ACGEncountered(TRUE, tvb, offset, actx, tree, hf_ansi_map_acgencountered);
 }
 
 
@@ -7292,9 +6755,6 @@ dissect_ansi_map_CallingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_callingPartyName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartyName(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartyName);
-}
 
 
 
@@ -7304,9 +6764,6 @@ dissect_ansi_map_CallingPartyNumberDigits1(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_callingPartyNumberDigits1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartyNumberDigits1(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartyNumberDigits1);
-}
 
 
 
@@ -7315,9 +6772,6 @@ dissect_ansi_map_CallingPartyNumberDigits2(gboolean implicit_tag _U_, tvbuff_t *
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_callingPartyNumberDigits2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartyNumberDigits2(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartyNumberDigits2);
 }
 
 
@@ -7346,9 +6800,6 @@ dissect_ansi_map_CallingPartySubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_callingPartySubaddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartySubaddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartySubaddress);
-}
 
 
 
@@ -7359,9 +6810,6 @@ dissect_ansi_map_ConferenceCallingIndicator(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_conferenceCallingIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ConferenceCallingIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_conferenceCallingIndicator);
-}
 
 
 
@@ -7371,9 +6819,6 @@ dissect_ansi_map_MobileDirectoryNumber(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_mobileDirectoryNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MobileDirectoryNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_mobileDirectoryNumber);
-}
 
 
 
@@ -7382,9 +6827,6 @@ dissect_ansi_map_MSCIdentificationNumber(gboolean implicit_tag _U_, tvbuff_t *tv
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_mSCIdentificationNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSCIdentificationNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_mSCIdentificationNumber);
 }
 
 
@@ -7404,66 +6846,60 @@ dissect_ansi_map_OneTimeFeatureIndicator(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_oneTimeFeatureIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OneTimeFeatureIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_oneTimeFeatureIndicator);
-}
 
 
-static const ber_old_sequence_t FeatureRequest_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCallMode_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServingOneWayDelay_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMAHOList_impl },
-  { BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conferenceCallingIndicator_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffState_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msLocation_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsCallMode_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FeatureRequest_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaCallMode, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACallMode },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_conferenceCallingIndicator, BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConferenceCallingIndicator },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_msLocation , BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSLocation },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_nampsCallMode, BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSCallMode },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FeatureRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FeatureRequest_set, hf_index, ett_ansi_map_FeatureRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FeatureRequest_set, hf_index, ett_ansi_map_FeatureRequest);
 
   return offset;
-}
-static int dissect_featureRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FeatureRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_featureRequest);
 }
 
 
@@ -7481,9 +6917,6 @@ dissect_ansi_map_FeatureResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
                                   NULL);
 
   return offset;
-}
-static int dissect_featureResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FeatureResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_featureResult);
 }
 
 
@@ -7510,9 +6943,6 @@ dissect_ansi_map_AccessDeniedReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_accessDeniedReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AccessDeniedReason(TRUE, tvb, offset, actx, tree, hf_ansi_map_accessDeniedReason);
-}
 
 
 
@@ -7522,12 +6952,6 @@ dissect_ansi_map_ActionCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                        NULL);
 
   return offset;
-}
-static int dissect_actionCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ActionCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_actionCode);
-}
-static int dissect_ctionCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ActionCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_ctionCode);
 }
 
 
@@ -7547,29 +6971,20 @@ dissect_ansi_map_AnnouncementCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_announcementCode1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnnouncementCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_announcementCode1);
-}
-static int dissect_announcementCode2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnnouncementCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_announcementCode2);
-}
 
 
-static const ber_old_sequence_t AnnouncementList_sequence[] = {
-  { BER_CLASS_CON, 76, BER_FLAGS_IMPLTAG, dissect_announcementCode1_impl },
-  { BER_CLASS_CON, 76, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementCode2_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AnnouncementList_sequence[] = {
+  { &hf_ansi_map_announcementCode1, BER_CLASS_CON, 76, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementCode },
+  { &hf_ansi_map_announcementCode2, BER_CLASS_CON, 76, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AnnouncementList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AnnouncementList_sequence, hf_index, ett_ansi_map_AnnouncementList);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AnnouncementList_sequence, hf_index, ett_ansi_map_AnnouncementList);
 
   return offset;
-}
-static int dissect_announcementList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnnouncementList(TRUE, tvb, offset, actx, tree, hf_ansi_map_announcementList);
 }
 
 
@@ -7580,9 +6995,6 @@ dissect_ansi_map_CallingPartyNumberString1(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_callingPartyNumberString1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartyNumberString1(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartyNumberString1);
-}
 
 
 
@@ -7591,9 +7003,6 @@ dissect_ansi_map_CallingPartyNumberString2(gboolean implicit_tag _U_, tvbuff_t *
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_callingPartyNumberString2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartyNumberString2(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartyNumberString2);
 }
 
 
@@ -7605,9 +7014,6 @@ dissect_ansi_map_DisplayText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_displayText_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DisplayText(TRUE, tvb, offset, actx, tree, hf_ansi_map_displayText);
-}
 
 
 
@@ -7618,9 +7024,6 @@ dissect_ansi_map_DisplayText2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_displayText2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DisplayText2(TRUE, tvb, offset, actx, tree, hf_ansi_map_displayText2);
-}
 
 
 
@@ -7629,9 +7032,6 @@ dissect_ansi_map_DMH_AccountCodeDigits(gboolean implicit_tag _U_, tvbuff_t *tvb 
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dmh_AccountCodeDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_AccountCodeDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmh_AccountCodeDigits);
 }
 
 
@@ -7642,9 +7042,6 @@ dissect_ansi_map_DMH_AlternateBillingDigits(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_dmh_AlternateBillingDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_AlternateBillingDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmh_AlternateBillingDigits);
-}
 
 
 
@@ -7653,9 +7050,6 @@ dissect_ansi_map_DMH_BillingDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dmh_BillingDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_BillingDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmh_BillingDigits);
 }
 
 
@@ -7696,9 +7090,6 @@ dissect_ansi_map_DMH_RedirectionIndicator(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_dmh_RedirectionIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_RedirectionIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmh_RedirectionIndicator);
-}
 
 
 
@@ -7709,12 +7100,6 @@ dissect_ansi_map_GroupInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_groupInformation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_GroupInformation(FALSE, tvb, offset, actx, tree, hf_ansi_map_groupInformation);
-}
-static int dissect_groupInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_GroupInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_groupInformation);
-}
 
 
 
@@ -7724,9 +7109,6 @@ dissect_ansi_map_NoAnswerTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                        NULL);
 
   return offset;
-}
-static int dissect_noAnswerTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NoAnswerTime(TRUE, tvb, offset, actx, tree, hf_ansi_map_noAnswerTime);
 }
 
 
@@ -7746,9 +7128,6 @@ dissect_ansi_map_PACAIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_pACAIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PACAIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_pACAIndicator);
-}
 
 
 
@@ -7757,9 +7136,6 @@ dissect_ansi_map_PilotNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_pilotNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PilotNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_pilotNumber);
 }
 
 
@@ -7771,9 +7147,6 @@ dissect_ansi_map_PreferredLanguageIndicator(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_preferredLanguageIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PreferredLanguageIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_preferredLanguageIndicator);
-}
 
 
 
@@ -7782,9 +7155,6 @@ dissect_ansi_map_RedirectingNumberDigits(gboolean implicit_tag _U_, tvbuff_t *tv
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_redirectingNumberDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectingNumberDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_redirectingNumberDigits);
 }
 
 
@@ -7795,9 +7165,6 @@ dissect_ansi_map_RedirectingNumberString(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_redirectingNumberString_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectingNumberString(TRUE, tvb, offset, actx, tree, hf_ansi_map_redirectingNumberString);
-}
 
 
 
@@ -7806,12 +7173,6 @@ dissect_ansi_map_RedirectingSubaddress(gboolean implicit_tag _U_, tvbuff_t *tvb 
   offset = dissect_ansi_map_Subaddress(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_redirectingSubaddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectingSubaddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_redirectingSubaddress);
-}
-static int dissect_edirectingSubaddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectingSubaddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_edirectingSubaddress);
 }
 
 
@@ -7845,9 +7206,6 @@ dissect_ansi_map_ResumePIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_resumePIC_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ResumePIC(TRUE, tvb, offset, actx, tree, hf_ansi_map_resumePIC);
-}
 
 
 
@@ -7857,9 +7215,6 @@ dissect_ansi_map_LegInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                        NULL);
 
   return offset;
-}
-static int dissect_legInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_LegInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_legInformation);
 }
 
 
@@ -7879,37 +7234,31 @@ dissect_ansi_map_TerminationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_terminationTriggers_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminationTriggers(TRUE, tvb, offset, actx, tree, hf_ansi_map_terminationTriggers);
-}
 
 
-static const ber_old_sequence_t IntersystemTermination_sequence[] = {
-  { BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IntersystemTermination_sequence[] = {
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_IntersystemTermination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       IntersystemTermination_sequence, hf_index, ett_ansi_map_IntersystemTermination);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IntersystemTermination_sequence, hf_index, ett_ansi_map_IntersystemTermination);
 
   return offset;
-}
-static int dissect_intersystemTermination_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_IntersystemTermination(TRUE, tvb, offset, actx, tree, hf_ansi_map_intersystemTermination);
 }
 
 
@@ -7921,9 +7270,6 @@ dissect_ansi_map_TerminationTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_terminationTreatment_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminationTreatment(TRUE, tvb, offset, actx, tree, hf_ansi_map_terminationTreatment);
-}
 
 
 
@@ -7932,9 +7278,6 @@ dissect_ansi_map_VoiceMailboxPIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_voiceMailboxPIN_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_VoiceMailboxPIN(TRUE, tvb, offset, actx, tree, hf_ansi_map_voiceMailboxPIN);
 }
 
 
@@ -7945,62 +7288,53 @@ dissect_ansi_map_VoiceMailboxNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_voiceMailboxNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_VoiceMailboxNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_voiceMailboxNumber);
-}
 
 
-static const ber_old_sequence_t LocalTermination_sequence[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 121, BER_FLAGS_IMPLTAG, dissect_terminationTreatment_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 159, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voiceMailboxPIN_impl },
-  { BER_CLASS_CON, 160, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voiceMailboxNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t LocalTermination_sequence[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_terminationTreatment, BER_CLASS_CON, 121, BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTreatment },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_voiceMailboxPIN, BER_CLASS_CON, 159, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoiceMailboxPIN },
+  { &hf_ansi_map_voiceMailboxNumber, BER_CLASS_CON, 160, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoiceMailboxNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_LocalTermination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       LocalTermination_sequence, hf_index, ett_ansi_map_LocalTermination);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   LocalTermination_sequence, hf_index, ett_ansi_map_LocalTermination);
 
   return offset;
 }
-static int dissect_localTermination_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_LocalTermination(TRUE, tvb, offset, actx, tree, hf_ansi_map_localTermination);
-}
 
 
-static const ber_old_sequence_t PSTNTermination_sequence[] = {
-  { BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PSTNTermination_sequence[] = {
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_PSTNTermination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PSTNTermination_sequence, hf_index, ett_ansi_map_PSTNTermination);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PSTNTermination_sequence, hf_index, ett_ansi_map_PSTNTermination);
 
   return offset;
-}
-static int dissect_pstnTermination_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PSTNTermination(TRUE, tvb, offset, actx, tree, hf_ansi_map_pstnTermination);
 }
 
 
@@ -8011,39 +7345,33 @@ static const value_string ansi_map_TerminationList_item_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t TerminationList_item_choice[] = {
-  {  89, BER_CLASS_CON, 89, BER_FLAGS_IMPLTAG, dissect_intersystemTermination_impl },
-  {  91, BER_CLASS_CON, 91, BER_FLAGS_IMPLTAG, dissect_localTermination_impl },
-  {  71, BER_CLASS_CON, 71, BER_FLAGS_IMPLTAG, dissect_pstnTermination_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t TerminationList_item_choice[] = {
+  {  89, &hf_ansi_map_intersystemTermination, BER_CLASS_CON, 89, BER_FLAGS_IMPLTAG, dissect_ansi_map_IntersystemTermination },
+  {  91, &hf_ansi_map_localTermination, BER_CLASS_CON, 91, BER_FLAGS_IMPLTAG, dissect_ansi_map_LocalTermination },
+  {  71, &hf_ansi_map_pstnTermination, BER_CLASS_CON, 71, BER_FLAGS_IMPLTAG, dissect_ansi_map_PSTNTermination },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TerminationList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     TerminationList_item_choice, hf_index, ett_ansi_map_TerminationList_item,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 TerminationList_item_choice, hf_index, ett_ansi_map_TerminationList_item,
+                                 NULL);
 
   return offset;
 }
-static int dissect_TerminationList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminationList_item(FALSE, tvb, offset, actx, tree, hf_ansi_map_TerminationList_item);
-}
 
 
-static const ber_old_sequence_t TerminationList_set_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_TerminationList_item },
+static const ber_sequence_t TerminationList_set_of[1] = {
+  { &hf_ansi_map_TerminationList_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_TerminationList_item },
 };
 
 static int
 dissect_ansi_map_TerminationList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     TerminationList_set_of, hf_index, ett_ansi_map_TerminationList);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 TerminationList_set_of, hf_index, ett_ansi_map_TerminationList);
 
   return offset;
-}
-static int dissect_terminationList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminationList(TRUE, tvb, offset, actx, tree, hf_ansi_map_terminationList);
 }
 
 
@@ -8055,9 +7383,6 @@ dissect_ansi_map_GlobalTitle(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_globalTitle_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_GlobalTitle(TRUE, tvb, offset, actx, tree, hf_ansi_map_globalTitle);
-}
 
 
 static const value_string ansi_map_DestinationAddress_vals[] = {
@@ -8066,22 +7391,19 @@ static const value_string ansi_map_DestinationAddress_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DestinationAddress_choice[] = {
-  { 389, BER_CLASS_CON, 389, BER_FLAGS_IMPLTAG, dissect_globalTitle_impl },
-  {  32, BER_CLASS_CON, 32, BER_FLAGS_IMPLTAG, dissect_pC_SSN_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DestinationAddress_choice[] = {
+  { 389, &hf_ansi_map_globalTitle, BER_CLASS_CON, 389, BER_FLAGS_IMPLTAG, dissect_ansi_map_GlobalTitle },
+  {  32, &hf_ansi_map_pC_SSN     , BER_CLASS_CON, 32, BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_DestinationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DestinationAddress_choice, hf_index, ett_ansi_map_DestinationAddress,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DestinationAddress_choice, hf_index, ett_ansi_map_DestinationAddress,
+                                 NULL);
 
   return offset;
-}
-static int dissect_destinationAddress(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DestinationAddress(FALSE, tvb, offset, actx, tree, hf_ansi_map_destinationAddress);
 }
 
 
@@ -8151,9 +7473,6 @@ dissect_ansi_map_TriggerType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_triggerType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TriggerType(TRUE, tvb, offset, actx, tree, hf_ansi_map_triggerType);
-}
 
 
 static const value_string ansi_map_DetectionPointType_vals[] = {
@@ -8172,352 +7491,307 @@ dissect_ansi_map_DetectionPointType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_detectionPointType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DetectionPointType(FALSE, tvb, offset, actx, tree, hf_ansi_map_detectionPointType);
-}
 
 
-static const ber_old_sequence_t WIN_Trigger_sequence[] = {
-  { BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_detectionPointType },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t WIN_Trigger_sequence[] = {
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_detectionPointType, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DetectionPointType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_WIN_Trigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       WIN_Trigger_sequence, hf_index, ett_ansi_map_WIN_Trigger);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   WIN_Trigger_sequence, hf_index, ett_ansi_map_WIN_Trigger);
 
   return offset;
 }
-static int dissect_WIN_TriggerList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_WIN_Trigger(FALSE, tvb, offset, actx, tree, hf_ansi_map_WIN_TriggerList_item);
-}
 
 
-static const ber_old_sequence_t WIN_TriggerList_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_WIN_TriggerList_item },
+static const ber_sequence_t WIN_TriggerList_set_of[1] = {
+  { &hf_ansi_map_WIN_TriggerList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ansi_map_WIN_Trigger },
 };
 
 static int
 dissect_ansi_map_WIN_TriggerList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     WIN_TriggerList_set_of, hf_index, ett_ansi_map_WIN_TriggerList);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 WIN_TriggerList_set_of, hf_index, ett_ansi_map_WIN_TriggerList);
 
   return offset;
 }
-static int dissect_wIN_TriggerList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_WIN_TriggerList(TRUE, tvb, offset, actx, tree, hf_ansi_map_wIN_TriggerList);
-}
 
 
-static const ber_old_sequence_t TriggerList_set[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_destinationAddress },
-  { BER_CLASS_CON, 283, BER_FLAGS_IMPLTAG, dissect_wIN_TriggerList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TriggerList_set[] = {
+  { &hf_ansi_map_destinationAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_DestinationAddress },
+  { &hf_ansi_map_wIN_TriggerList, BER_CLASS_CON, 283, BER_FLAGS_IMPLTAG, dissect_ansi_map_WIN_TriggerList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TriggerList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TriggerList_set, hf_index, ett_ansi_map_TriggerList);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TriggerList_set, hf_index, ett_ansi_map_TriggerList);
 
   return offset;
 }
-static int dissect_triggerList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TriggerList(TRUE, tvb, offset, actx, tree, hf_ansi_map_triggerList);
-}
-static int dissect_triggerListOpt_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TriggerList(TRUE, tvb, offset, actx, tree, hf_ansi_map_triggerListOpt);
-}
 
 
-static const ber_old_sequence_t TriggerAddressList_item_set[] = {
-  { BER_CLASS_CON, 278, BER_FLAGS_IMPLTAG, dissect_triggerList_impl },
-  { BER_CLASS_CON, 278, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerListOpt_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TriggerAddressList_item_set[] = {
+  { &hf_ansi_map_triggerList, BER_CLASS_CON, 278, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerList },
+  { &hf_ansi_map_triggerListOpt, BER_CLASS_CON, 278, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TriggerAddressList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TriggerAddressList_item_set, hf_index, ett_ansi_map_TriggerAddressList_item);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TriggerAddressList_item_set, hf_index, ett_ansi_map_TriggerAddressList_item);
 
   return offset;
 }
-static int dissect_TriggerAddressList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TriggerAddressList_item(FALSE, tvb, offset, actx, tree, hf_ansi_map_TriggerAddressList_item);
-}
 
 
-static const ber_old_sequence_t TriggerAddressList_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_TriggerAddressList_item },
+static const ber_sequence_t TriggerAddressList_set_of[1] = {
+  { &hf_ansi_map_TriggerAddressList_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TriggerAddressList_item },
 };
 
 static int
 dissect_ansi_map_TriggerAddressList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     TriggerAddressList_set_of, hf_index, ett_ansi_map_TriggerAddressList);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 TriggerAddressList_set_of, hf_index, ett_ansi_map_TriggerAddressList);
 
   return offset;
 }
-static int dissect_triggerAddressList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TriggerAddressList(TRUE, tvb, offset, actx, tree, hf_ansi_map_triggerAddressList);
-}
 
 
-static const ber_old_sequence_t FeatureRequestRes_set[] = {
-  { BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_featureResult_impl },
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conferenceCallingIndicator_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pACAIndicator_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FeatureRequestRes_set[] = {
+  { &hf_ansi_map_featureResult, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureResult },
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_conferenceCallingIndicator, BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConferenceCallingIndicator },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_digits_Destination, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FeatureRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FeatureRequestRes_set, hf_index, ett_ansi_map_FeatureRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FeatureRequestRes_set, hf_index, ett_ansi_map_FeatureRequestRes);
 
   return offset;
 }
-static int dissect_featureRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FeatureRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_featureRequestRes);
-}
 
 
-static const ber_old_sequence_t FlashRequest_set[] = {
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FlashRequest_set[] = {
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FlashRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FlashRequest_set, hf_index, ett_ansi_map_FlashRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FlashRequest_set, hf_index, ett_ansi_map_FlashRequest);
 
   return offset;
 }
-static int dissect_flashRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FlashRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_flashRequest);
-}
 
 
-static const ber_old_sequence_t HandoffBack_set[] = {
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffState_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffBack_set[] = {
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffBack(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffBack_set, hf_index, ett_ansi_map_HandoffBack);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffBack_set, hf_index, ett_ansi_map_HandoffBack);
 
   return offset;
 }
-static int dissect_handoffBack(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffBack(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffBack);
-}
 
 
-static const ber_old_sequence_t HandoffBackRes_set[] = {
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffBackRes_set[] = {
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffBackRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffBackRes_set, hf_index, ett_ansi_map_HandoffBackRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffBackRes_set, hf_index, ett_ansi_map_HandoffBackRes);
 
   return offset;
 }
-static int dissect_handoffBackRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffBackRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffBackRes);
-}
 
 
-static const ber_old_sequence_t HandoffBack2_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 197, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_baseStationManufacturerCode_impl },
-  { BER_CLASS_CON, 356, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdma2000HandoffInvokeIOSData_impl },
-  { BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCallMode_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 351, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMSMeasuredChannelIdentity_impl },
-  { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServingOneWayDelay_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
-  { BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMAHOList_impl },
-  { BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffState_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msLocation_impl },
-  { BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsCallMode_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 349, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdsnAddress_impl },
-  { BER_CLASS_CON, 350, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdsnProtocolType_impl },
-  { BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qosPriority_impl },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 206, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemOperatorCode_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_tdmaTerminalCapability },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffBack2_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_baseStationManufacturerCode, BER_CLASS_CON, 197, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BaseStationManufacturerCode },
+  { &hf_ansi_map_cdma2000HandoffInvokeIOSData, BER_CLASS_CON, 356, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000HandoffInvokeIOSData },
+  { &hf_ansi_map_cdmaCallMode, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACallMode },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaMSMeasuredChannelIdentity, BER_CLASS_CON, 351, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMSMeasuredChannelIdentity },
+  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_dataPrivacyParameters, BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataPrivacyParameters },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_msLocation , BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSLocation },
+  { &hf_ansi_map_nampsCallMode, BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSCallMode },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_pdsnAddress, BER_CLASS_CON, 349, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PDSNAddress },
+  { &hf_ansi_map_pdsnProtocolType, BER_CLASS_CON, 350, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PDSNProtocolType },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_systemOperatorCode, BER_CLASS_CON, 206, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemOperatorCode },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_tdmaBandwidth, BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABandwidth },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_tdmaTerminalCapability, BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_ansi_map_TDMATerminalCapability },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffBack2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffBack2_set, hf_index, ett_ansi_map_HandoffBack2);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffBack2_set, hf_index, ett_ansi_map_HandoffBack2);
 
   return offset;
 }
-static int dissect_handoffBack2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffBack2(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffBack2);
-}
 
 
-static const ber_old_sequence_t HandoffBack2Res_set[] = {
-  { BER_CLASS_CON, 198, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bsmcstatus_impl },
-  { BER_CLASS_CON, 357, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdma2000HandoffResponseIOSData_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 132, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCodeChannelList_impl },
-  { BER_CLASS_CON, 230, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSearchParameters_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSearchWindow_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sOCStatus_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffBack2Res_set[] = {
+  { &hf_ansi_map_bsmcstatus , BER_CLASS_CON, 198, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BSMCStatus },
+  { &hf_ansi_map_cdma2000HandoffResponseIOSData, BER_CLASS_CON, 357, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000HandoffResponseIOSData },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaCodeChannelList, BER_CLASS_CON, 132, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannelList },
+  { &hf_ansi_map_cdmaSearchParameters, BER_CLASS_CON, 230, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASearchParameters },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaSearchWindow, BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASearchWindow },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_sOCStatus  , BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SOCStatus },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffBack2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffBack2Res_set, hf_index, ett_ansi_map_HandoffBack2Res);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffBack2Res_set, hf_index, ett_ansi_map_HandoffBack2Res);
 
   return offset;
 }
-static int dissect_handoffBack2Res(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffBack2Res(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffBack2Res);
-}
 
 
-static const ber_old_sequence_t TargetCellIDList_sequence[] = {
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID1_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TargetCellIDList_sequence[] = {
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_targetCellID1, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TargetCellIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TargetCellIDList_sequence, hf_index, ett_ansi_map_TargetCellIDList);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TargetCellIDList_sequence, hf_index, ett_ansi_map_TargetCellIDList);
 
   return offset;
 }
-static int dissect_targetCellIDList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TargetCellIDList(TRUE, tvb, offset, actx, tree, hf_ansi_map_targetCellIDList);
-}
 
 
-static const ber_old_sequence_t HandoffMeasurementRequest_set[] = {
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 207, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellIDList_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaTerminalCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffMeasurementRequest_set[] = {
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_targetCellIDList, BER_CLASS_CON, 207, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellIDList },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaTerminalCapability, BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMATerminalCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffMeasurementRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffMeasurementRequest_set, hf_index, ett_ansi_map_HandoffMeasurementRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffMeasurementRequest_set, hf_index, ett_ansi_map_HandoffMeasurementRequest);
 
   return offset;
-}
-static int dissect_handoffMeasurementRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffMeasurementRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffMeasurementRequest);
 }
 
 
@@ -8554,292 +7828,259 @@ dissect_ansi_map_SignalQuality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_signalQuality_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SignalQuality(TRUE, tvb, offset, actx, tree, hf_ansi_map_signalQuality);
-}
 
 
-static const ber_old_sequence_t HandoffMeasurementRequestRes_set[] = {
-  { BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_signalQuality_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffMeasurementRequestRes_set[] = {
+  { &hf_ansi_map_signalQuality, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalQuality },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffMeasurementRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffMeasurementRequestRes_set, hf_index, ett_ansi_map_HandoffMeasurementRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffMeasurementRequestRes_set, hf_index, ett_ansi_map_HandoffMeasurementRequestRes);
 
   return offset;
 }
-static int dissect_handoffMeasurementRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffMeasurementRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffMeasurementRequestRes);
-}
 
 
-static const ber_old_sequence_t HandoffMeasurementRequest2_set[] = {
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCallMode_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServingOneWayDelay_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msLocation_impl },
-  { BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsCallMode_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 207, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellIDList_impl },
-  { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaTerminalCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffMeasurementRequest2_set[] = {
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_cdmaCallMode, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACallMode },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_msLocation , BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSLocation },
+  { &hf_ansi_map_nampsCallMode, BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSCallMode },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_targetCellIDList, BER_CLASS_CON, 207, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellIDList },
+  { &hf_ansi_map_tdmaBandwidth, BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABandwidth },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_tdmaTerminalCapability, BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMATerminalCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffMeasurementRequest2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffMeasurementRequest2_set, hf_index, ett_ansi_map_HandoffMeasurementRequest2);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffMeasurementRequest2_set, hf_index, ett_ansi_map_HandoffMeasurementRequest2);
 
   return offset;
 }
-static int dissect_handoffMeasurementRequest2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffMeasurementRequest2(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffMeasurementRequest2);
-}
 
 
-static const ber_old_sequence_t TargetMeasurementInformation_sequence[] = {
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_signalQuality_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TargetMeasurementInformation_sequence[] = {
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_signalQuality, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalQuality },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TargetMeasurementInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TargetMeasurementInformation_sequence, hf_index, ett_ansi_map_TargetMeasurementInformation);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TargetMeasurementInformation_sequence, hf_index, ett_ansi_map_TargetMeasurementInformation);
 
   return offset;
 }
-static int dissect_TargetMeasurementList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TargetMeasurementInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_TargetMeasurementList_item);
-}
 
 
-static const ber_old_sequence_t TargetMeasurementList_sequence_of[1] = {
-  { BER_CLASS_CON, 157, BER_FLAGS_IMPLTAG, dissect_TargetMeasurementList_item_impl },
+static const ber_sequence_t TargetMeasurementList_sequence_of[1] = {
+  { &hf_ansi_map_TargetMeasurementList_item, BER_CLASS_CON, 157, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetMeasurementInformation },
 };
 
 static int
 dissect_ansi_map_TargetMeasurementList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          TargetMeasurementList_sequence_of, hf_index, ett_ansi_map_TargetMeasurementList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      TargetMeasurementList_sequence_of, hf_index, ett_ansi_map_TargetMeasurementList);
 
   return offset;
 }
-static int dissect_targetMeasurementList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TargetMeasurementList(TRUE, tvb, offset, actx, tree, hf_ansi_map_targetMeasurementList);
-}
 
 
-static const ber_old_sequence_t HandoffMeasurementRequest2Res_set[] = {
-  { BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
-  { BER_CLASS_CON, 157, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetMeasurementList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffMeasurementRequest2Res_set[] = {
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_targetMeasurementList, BER_CLASS_CON, 157, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetMeasurementList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffMeasurementRequest2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffMeasurementRequest2Res_set, hf_index, ett_ansi_map_HandoffMeasurementRequest2Res);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffMeasurementRequest2Res_set, hf_index, ett_ansi_map_HandoffMeasurementRequest2Res);
 
   return offset;
 }
-static int dissect_handoffMeasurementRequest2Res(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffMeasurementRequest2Res(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffMeasurementRequest2Res);
-}
 
 
-static const ber_old_sequence_t HandoffToThird_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 197, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_baseStationManufacturerCode_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffState_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaTerminalCapability_impl },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffToThird_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_baseStationManufacturerCode, BER_CLASS_CON, 197, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BaseStationManufacturerCode },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_handoffState, BER_CLASS_CON, 164, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffState },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_tdmaTerminalCapability, BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMATerminalCapability },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffToThird(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffToThird_set, hf_index, ett_ansi_map_HandoffToThird);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffToThird_set, hf_index, ett_ansi_map_HandoffToThird);
 
   return offset;
 }
-static int dissect_handoffToThird(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffToThird(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffToThird);
-}
 
 
-static const ber_old_sequence_t HandoffToThirdRes_set[] = {
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffToThirdRes_set[] = {
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffToThirdRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffToThirdRes_set, hf_index, ett_ansi_map_HandoffToThirdRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffToThirdRes_set, hf_index, ett_ansi_map_HandoffToThirdRes);
 
   return offset;
 }
-static int dissect_handoffToThirdRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffToThirdRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffToThirdRes);
-}
 
 
-static const ber_old_sequence_t HandoffToThird2_set[] = {
-  { BER_CLASS_CON, 198, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bsmcstatus_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 356, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdma2000HandoffInvokeIOSData_impl },
-  { BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCallMode_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 351, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMSMeasuredChannelIdentity_impl },
-  { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServingOneWayDelay_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
-  { BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMAHOList_impl },
-  { BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_handoffReason_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msLocation_impl },
-  { BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsCallMode_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 349, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdsnAddress_impl },
-  { BER_CLASS_CON, 350, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pdsnProtocolType_impl },
-  { BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qosPriority_impl },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sOCStatus_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
-  { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_tdmaTerminalCapability },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userZoneData_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffToThird2_set[] = {
+  { &hf_ansi_map_bsmcstatus , BER_CLASS_CON, 198, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BSMCStatus },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_interSwitchCount, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterSwitchCount },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_cdma2000HandoffInvokeIOSData, BER_CLASS_CON, 356, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000HandoffInvokeIOSData },
+  { &hf_ansi_map_cdmaCallMode, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACallMode },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaMSMeasuredChannelIdentity, BER_CLASS_CON, 351, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMSMeasuredChannelIdentity },
+  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_cdmaServingOneWayDelay, BER_CLASS_CON, 60, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_dataPrivacyParameters, BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataPrivacyParameters },
+  { &hf_ansi_map_handoffReason, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_HandoffReason },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_msLocation , BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSLocation },
+  { &hf_ansi_map_nampsCallMode, BER_CLASS_CON, 165, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSCallMode },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_pdsnAddress, BER_CLASS_CON, 349, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PDSNAddress },
+  { &hf_ansi_map_pdsnProtocolType, BER_CLASS_CON, 350, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PDSNProtocolType },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_sOCStatus  , BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SOCStatus },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_stationClassMark, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_StationClassMark },
+  { &hf_ansi_map_tdmaBandwidth, BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABandwidth },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaCallMode, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMACallMode },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_tdmaTerminalCapability, BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_ansi_map_TDMATerminalCapability },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffToThird2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffToThird2_set, hf_index, ett_ansi_map_HandoffToThird2);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffToThird2_set, hf_index, ett_ansi_map_HandoffToThird2);
 
   return offset;
 }
-static int dissect_handoffToThird2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffToThird2(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffToThird2);
-}
 
 
-static const ber_old_sequence_t HandoffToThird2Res_set[] = {
-  { BER_CLASS_CON, 357, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdma2000HandoffResponseIOSData_impl },
-  { BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaChannelData_impl },
-  { BER_CLASS_CON, 132, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaCodeChannelList_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 230, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSearchParameters_impl },
-  { BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSearchWindow_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
-  { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
-  { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
-  { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t HandoffToThird2Res_set[] = {
+  { &hf_ansi_map_cdma2000HandoffResponseIOSData, BER_CLASS_CON, 357, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMA2000HandoffResponseIOSData },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaCodeChannelList, BER_CLASS_CON, 132, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannelList },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaSearchParameters, BER_CLASS_CON, 230, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASearchParameters },
+  { &hf_ansi_map_cdmaSearchWindow, BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASearchWindow },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_targetCellID, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetCellID },
+  { &hf_ansi_map_tdmaBurstIndicator, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABurstIndicator },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_tdmaVoiceCoder, BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceCoder },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_HandoffToThird2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  HandoffToThird2Res_set, hf_index, ett_ansi_map_HandoffToThird2Res);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              HandoffToThird2Res_set, hf_index, ett_ansi_map_HandoffToThird2Res);
 
   return offset;
 }
-static int dissect_handoffToThird2Res(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_HandoffToThird2Res(FALSE, tvb, offset, actx, tree, hf_ansi_map_handoffToThird2Res);
-}
 
 
-static const ber_old_sequence_t InformationDirective_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InformationDirective_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InformationDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InformationDirective_set, hf_index, ett_ansi_map_InformationDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InformationDirective_set, hf_index, ett_ansi_map_InformationDirective);
 
   return offset;
-}
-static int dissect_informationDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InformationDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_informationDirective);
 }
 
 
@@ -8851,20 +8092,17 @@ dissect_ansi_map_AlertResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_alertResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AlertResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_alertResult);
-}
 
 
-static const ber_old_sequence_t InformationDirectiveRes_set[] = {
-  { BER_CLASS_CON, 129, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertResult_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InformationDirectiveRes_set[] = {
+  { &hf_ansi_map_alertResult, BER_CLASS_CON, 129, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertResult },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InformationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InformationDirectiveRes_set, hf_index, ett_ansi_map_InformationDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InformationDirectiveRes_set, hf_index, ett_ansi_map_InformationDirectiveRes);
 
   return offset;
 }
@@ -8886,9 +8124,6 @@ dissect_ansi_map_MessageWaitingNotificationCount(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_messageWaitingNotificationCount_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MessageWaitingNotificationCount(TRUE, tvb, offset, actx, tree, hf_ansi_map_messageWaitingNotificationCount);
-}
 
 
 
@@ -8908,74 +8143,62 @@ dissect_ansi_map_MessageWaitingNotificationType(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_messageWaitingNotificationType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MessageWaitingNotificationType(TRUE, tvb, offset, actx, tree, hf_ansi_map_messageWaitingNotificationType);
-}
 
 
-static const ber_old_sequence_t InformationForward_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationCount_impl },
-  { BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationType_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InformationForward_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InformationForward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InformationForward_set, hf_index, ett_ansi_map_InformationForward);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InformationForward_set, hf_index, ett_ansi_map_InformationForward);
 
   return offset;
 }
-static int dissect_informationForward(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InformationForward(FALSE, tvb, offset, actx, tree, hf_ansi_map_informationForward);
-}
 
 
-static const ber_old_sequence_t InformationForwardRes_set[] = {
-  { BER_CLASS_CON, 129, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertResult_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InformationForwardRes_set[] = {
+  { &hf_ansi_map_alertResult, BER_CLASS_CON, 129, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertResult },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InformationForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InformationForwardRes_set, hf_index, ett_ansi_map_InformationForwardRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InformationForwardRes_set, hf_index, ett_ansi_map_InformationForwardRes);
 
   return offset;
 }
-static int dissect_informationForwardRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InformationForwardRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_informationForwardRes);
-}
 
 
-static const ber_old_sequence_t InterSystemAnswer_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemAnswer_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemAnswer_set, hf_index, ett_ansi_map_InterSystemAnswer);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemAnswer_set, hf_index, ett_ansi_map_InterSystemAnswer);
 
   return offset;
-}
-static int dissect_interSystemAnswer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemAnswer(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemAnswer);
 }
 
 
@@ -8986,9 +8209,6 @@ dissect_ansi_map_CDMASlotCycleIndex(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                        NULL);
 
   return offset;
-}
-static int dissect_cdmaSlotCycleIndex_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CDMASlotCycleIndex(TRUE, tvb, offset, actx, tree, hf_ansi_map_cdmaSlotCycleIndex);
 }
 
 
@@ -9008,9 +8228,6 @@ dissect_ansi_map_ExtendedMSCID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_extendedMSCID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ExtendedMSCID(TRUE, tvb, offset, actx, tree, hf_ansi_map_extendedMSCID);
-}
 
 
 
@@ -9028,9 +8245,6 @@ dissect_ansi_map_ExtendedSystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_extendedSystemMyTypeCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ExtendedSystemMyTypeCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_extendedSystemMyTypeCode);
-}
 
 
 
@@ -9041,9 +8255,6 @@ dissect_ansi_map_MSIDUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_mSIDUsage_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSIDUsage(TRUE, tvb, offset, actx, tree, hf_ansi_map_mSIDUsage);
-}
 
 
 
@@ -9052,9 +8263,6 @@ dissect_ansi_map_NetworkTMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_networkTMSI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NetworkTMSI(TRUE, tvb, offset, actx, tree, hf_ansi_map_networkTMSI);
 }
 
 
@@ -9066,9 +8274,6 @@ dissect_ansi_map_PageCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_pageCount_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PageCount(TRUE, tvb, offset, actx, tree, hf_ansi_map_pageCount);
-}
 
 
 
@@ -9079,9 +8284,6 @@ dissect_ansi_map_PageIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_pageIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PageIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_pageIndicator);
-}
 
 
 
@@ -9091,9 +8293,6 @@ dissect_ansi_map_PageResponseTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                        NULL);
 
   return offset;
-}
-static int dissect_pageResponseTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PageResponseTime(TRUE, tvb, offset, actx, tree, hf_ansi_map_pageResponseTime);
 }
 
 
@@ -9114,9 +8313,6 @@ dissect_ansi_map_PilotBillingID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_pilotBillingID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PilotBillingID(TRUE, tvb, offset, actx, tree, hf_ansi_map_pilotBillingID);
-}
 
 
 
@@ -9126,9 +8322,6 @@ dissect_ansi_map_RedirectingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb _
                                        NULL);
 
   return offset;
-}
-static int dissect_redirectingPartyName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectingPartyName(TRUE, tvb, offset, actx, tree, hf_ansi_map_redirectingPartyName);
 }
 
 
@@ -9179,9 +8372,6 @@ dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_systemMyTypeCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SystemMyTypeCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_systemMyTypeCode);
-}
 
 
 
@@ -9192,77 +8382,71 @@ dissect_ansi_map_TDMADataFeaturesIndicator(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_tdmaDataFeaturesIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMADataFeaturesIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaDataFeaturesIndicator);
-}
 
 
-static const ber_old_sequence_t InterSystemPage_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 170, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaBandClass_impl },
-  { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSlotCycleIndex_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedSystemMyTypeCode_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 327, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSIDUsage_impl },
-  { BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_networkTMSI_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 300, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pageCount_impl },
-  { BER_CLASS_CON, 71, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pageIndicator_impl },
-  { BER_CLASS_CON, 301, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pageResponseTime_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaDataFeaturesIndicator_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 121, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTreatment_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemPage_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaBandClass, BER_CLASS_CON, 170, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMABandClass },
+  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_cdmaSlotCycleIndex, BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASlotCycleIndex },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_extendedSystemMyTypeCode, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedSystemMyTypeCode },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_mSIDUsage  , BER_CLASS_CON, 327, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSIDUsage },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pageCount  , BER_CLASS_CON, 300, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageCount },
+  { &hf_ansi_map_pageIndicator, BER_CLASS_CON, 71, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageIndicator },
+  { &hf_ansi_map_pageResponseTime, BER_CLASS_CON, 301, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageResponseTime },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_tdmaDataFeaturesIndicator, BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataFeaturesIndicator },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_terminationTreatment, BER_CLASS_CON, 121, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTreatment },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemPage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemPage_set, hf_index, ett_ansi_map_InterSystemPage);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPage_set, hf_index, ett_ansi_map_InterSystemPage);
 
   return offset;
-}
-static int dissect_interSystemPage(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemPage(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemPage);
 }
 
 
@@ -9280,34 +8464,28 @@ dissect_ansi_map_ConditionallyDeniedReason(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_conditionallyDeniedReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ConditionallyDeniedReason(TRUE, tvb, offset, actx, tree, hf_ansi_map_conditionallyDeniedReason);
-}
 
 
-static const ber_old_sequence_t InterSystemPageRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conditionallyDeniedReason_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedSystemMyTypeCode_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemPageRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_conditionallyDeniedReason, BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConditionallyDeniedReason },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_extendedSystemMyTypeCode, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedSystemMyTypeCode },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemPageRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemPageRes_set, hf_index, ett_ansi_map_InterSystemPageRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPageRes_set, hf_index, ett_ansi_map_InterSystemPageRes);
 
   return offset;
-}
-static int dissect_interSystemPageRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemPageRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemPageRes);
 }
 
 
@@ -9319,9 +8497,6 @@ dissect_ansi_map_PagingFrameClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_pagingFrameClass_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PagingFrameClass(TRUE, tvb, offset, actx, tree, hf_ansi_map_pagingFrameClass);
-}
 
 
 
@@ -9332,79 +8507,67 @@ dissect_ansi_map_PSID_RSIDInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_pSID_RSIDInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PSID_RSIDInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_pSID_RSIDInformation);
-}
-static int dissect_pSID_RSIDInformation1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PSID_RSIDInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_pSID_RSIDInformation1);
-}
 
 
-static const ber_old_sequence_t PSID_RSIDList_sequence[] = {
-  { BER_CLASS_CON, 202, BER_FLAGS_IMPLTAG, dissect_pSID_RSIDInformation_impl },
-  { BER_CLASS_CON, 202, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pSID_RSIDInformation1_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PSID_RSIDList_sequence[] = {
+  { &hf_ansi_map_pSID_RSIDInformation, BER_CLASS_CON, 202, BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDInformation },
+  { &hf_ansi_map_pSID_RSIDInformation1, BER_CLASS_CON, 202, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDInformation },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_PSID_RSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PSID_RSIDList_sequence, hf_index, ett_ansi_map_PSID_RSIDList);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PSID_RSIDList_sequence, hf_index, ett_ansi_map_PSID_RSIDList);
 
   return offset;
 }
-static int dissect_pSID_RSIDList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PSID_RSIDList(TRUE, tvb, offset, actx, tree, hf_ansi_map_pSID_RSIDList);
-}
 
 
-static const ber_old_sequence_t InterSystemPage2_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 170, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaBandClass_impl },
-  { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSlotCycleIndex_impl },
-  { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
-  { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 327, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSIDUsage_impl },
-  { BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_networkTMSI_impl },
-  { BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nonPublicData_impl },
-  { BER_CLASS_CON, 300, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pageCount_impl },
-  { BER_CLASS_CON, 71, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pageIndicator_impl },
-  { BER_CLASS_CON, 210, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pagingFrameClass_impl },
-  { BER_CLASS_CON, 301, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pageResponseTime_impl },
-  { BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pSID_RSIDList_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaDataFeaturesIndicator_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userZoneData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemPage2_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaBandClass, BER_CLASS_CON, 170, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMABandClass },
+  { &hf_ansi_map_cdmaMobileProtocolRevision, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileProtocolRevision },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_cdmaSlotCycleIndex, BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMASlotCycleIndex },
+  { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
+  { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mSIDUsage  , BER_CLASS_CON, 327, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSIDUsage },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_pageCount  , BER_CLASS_CON, 300, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageCount },
+  { &hf_ansi_map_pageIndicator, BER_CLASS_CON, 71, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageIndicator },
+  { &hf_ansi_map_pagingFrameClass, BER_CLASS_CON, 210, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PagingFrameClass },
+  { &hf_ansi_map_pageResponseTime, BER_CLASS_CON, 301, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PageResponseTime },
+  { &hf_ansi_map_pSID_RSIDList, BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDList },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_tdmaDataFeaturesIndicator, BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataFeaturesIndicator },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemPage2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemPage2_set, hf_index, ett_ansi_map_InterSystemPage2);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPage2_set, hf_index, ett_ansi_map_InterSystemPage2);
 
   return offset;
-}
-static int dissect_interSystemPage2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemPage2(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemPage2);
 }
 
 
@@ -9416,9 +8579,6 @@ dissect_ansi_map_RANDC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_randc_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RANDC(TRUE, tvb, offset, actx, tree, hf_ansi_map_randc);
-}
 
 
 
@@ -9429,35 +8589,29 @@ dissect_ansi_map_TDMADataMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_tdmaDataMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMADataMode(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaDataMode);
-}
 
 
-static const ber_old_sequence_t InterSystemPage2Res_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_authenticationResponseBaseStation_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randc_impl },
-  { BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_randomVariableBaseStation_impl },
-  { BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
-  { BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { BER_CLASS_CON, 222, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaDataMode_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemPage2Res_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_authenticationResponseBaseStation, BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseBaseStation },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_randc      , BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RANDC },
+  { &hf_ansi_map_randomVariableBaseStation, BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableBaseStation },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { &hf_ansi_map_tdmaDataMode, BER_CLASS_CON, 222, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataMode },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemPage2Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemPage2Res_set, hf_index, ett_ansi_map_InterSystemPage2Res);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPage2Res_set, hf_index, ett_ansi_map_InterSystemPage2Res);
 
   return offset;
-}
-static int dissect_interSystemPage2Res(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemPage2Res(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemPage2Res);
 }
 
 
@@ -9469,45 +8623,39 @@ dissect_ansi_map_ChangeServiceAttributes(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_changeServiceAttributes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ChangeServiceAttributes(TRUE, tvb, offset, actx, tree, hf_ansi_map_changeServiceAttributes);
-}
 
 
-static const ber_old_sequence_t InterSystemSetup_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_changeServiceAttributes_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_edirectingSubaddress_impl },
-  { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemSetup_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_changeServiceAttributes, BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChangeServiceAttributes },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_edirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_signalingMessageEncryptionKey, BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionKey },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemSetup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemSetup_set, hf_index, ett_ansi_map_InterSystemSetup);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemSetup_set, hf_index, ett_ansi_map_InterSystemSetup);
 
   return offset;
-}
-static int dissect_interSystemSetup(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemSetup(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemSetup);
 }
 
 
@@ -9519,28 +8667,22 @@ dissect_ansi_map_SetupResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_setupResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SetupResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_setupResult);
-}
 
 
-static const ber_old_sequence_t InterSystemSetupRes_set[] = {
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 151, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_setupResult_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InterSystemSetupRes_set[] = {
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_setupResult, BER_CLASS_CON, 151, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SetupResult },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InterSystemSetupRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  InterSystemSetupRes_set, hf_index, ett_ansi_map_InterSystemSetupRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemSetupRes_set, hf_index, ett_ansi_map_InterSystemSetupRes);
 
   return offset;
-}
-static int dissect_interSystemSetupRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterSystemSetupRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_interSystemSetupRes);
 }
 
 
@@ -9551,9 +8693,6 @@ dissect_ansi_map_TerminationAccessType(gboolean implicit_tag _U_, tvbuff_t *tvb 
                                        NULL);
 
   return offset;
-}
-static int dissect_terminationAccessType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminationAccessType(TRUE, tvb, offset, actx, tree, hf_ansi_map_terminationAccessType);
 }
 
 
@@ -9573,9 +8712,6 @@ dissect_ansi_map_TriggerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_triggerCapability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TriggerCapability(TRUE, tvb, offset, actx, tree, hf_ansi_map_triggerCapability);
-}
 
 
 
@@ -9594,26 +8730,20 @@ dissect_ansi_map_WINOperationsCapability(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_wINOperationsCapability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_WINOperationsCapability(TRUE, tvb, offset, actx, tree, hf_ansi_map_wINOperationsCapability);
-}
 
 
-static const ber_old_sequence_t WINCapability_set[] = {
-  { BER_CLASS_CON, 277, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerCapability_impl },
-  { BER_CLASS_CON, 281, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_wINOperationsCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t WINCapability_set[] = {
+  { &hf_ansi_map_triggerCapability, BER_CLASS_CON, 277, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerCapability },
+  { &hf_ansi_map_wINOperationsCapability, BER_CLASS_CON, 281, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINOperationsCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_WINCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  WINCapability_set, hf_index, ett_ansi_map_WINCapability);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              WINCapability_set, hf_index, ett_ansi_map_WINCapability);
 
   return offset;
-}
-static int dissect_winCapability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_WINCapability(TRUE, tvb, offset, actx, tree, hf_ansi_map_winCapability);
 }
 
 
@@ -9625,45 +8755,39 @@ dissect_ansi_map_CallingPartyCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_callingPartyCategory_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingPartyCategory(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingPartyCategory);
-}
 
 
-static const ber_old_sequence_t LocationRequest_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyCategory_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t LocationRequest_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_LocationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  LocationRequest_set, hf_index, ett_ansi_map_LocationRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              LocationRequest_set, hf_index, ett_ansi_map_LocationRequest);
 
   return offset;
-}
-static int dissect_locationRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_LocationRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_locationRequest);
 }
 
 
@@ -9683,9 +8807,6 @@ dissect_ansi_map_ControlNetworkID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_controlNetworkID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ControlNetworkID(TRUE, tvb, offset, actx, tree, hf_ansi_map_controlNetworkID);
-}
 
 
 
@@ -9696,56 +8817,50 @@ dissect_ansi_map_DMH_ServiceID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_dmh_ServiceID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_ServiceID(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmh_ServiceID);
-}
 
 
-static const ber_old_sequence_t LocationRequestRes_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlNetworkID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_carrier_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_dest_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t LocationRequestRes_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_digits_carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_digits_dest, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_LocationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  LocationRequestRes_set, hf_index, ett_ansi_map_LocationRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              LocationRequestRes_set, hf_index, ett_ansi_map_LocationRequestRes);
 
   return offset;
-}
-static int dissect_locationRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_LocationRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_locationRequestRes);
 }
 
 
@@ -9765,9 +8880,6 @@ dissect_ansi_map_DeregistrationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_deregistrationType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DeregistrationType(TRUE, tvb, offset, actx, tree, hf_ansi_map_deregistrationType);
-}
 
 
 
@@ -9778,9 +8890,6 @@ dissect_ansi_map_ServicesResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_servicesResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServicesResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_servicesResult);
-}
 
 
 
@@ -9790,33 +8899,27 @@ dissect_ansi_map_SMS_MessageWaitingIndicator(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_sms_MessageWaitingIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_MessageWaitingIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_MessageWaitingIndicator);
-}
 
 
-static const ber_old_sequence_t MSInactive_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_lectronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 73, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deregistrationType_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 204, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servicesResult_impl },
-  { BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_MessageWaitingIndicator_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MSInactive_set[] = {
+  { &hf_ansi_map_lectronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_deregistrationType, BER_CLASS_CON, 73, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DeregistrationType },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_servicesResult, BER_CLASS_CON, 204, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServicesResult },
+  { &hf_ansi_map_sms_MessageWaitingIndicator, BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageWaitingIndicator },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_MSInactive(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  MSInactive_set, hf_index, ett_ansi_map_MSInactive);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MSInactive_set, hf_index, ett_ansi_map_MSInactive);
 
   return offset;
-}
-static int dissect_mSInactive(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSInactive(FALSE, tvb, offset, actx, tree, hf_ansi_map_mSInactive);
 }
 
 
@@ -9836,9 +8939,6 @@ dissect_ansi_map_OriginationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_originationTriggers_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OriginationTriggers(TRUE, tvb, offset, actx, tree, hf_ansi_map_originationTriggers);
-}
 
 
 static const value_string ansi_map_FeatureIndicator_vals[] = {
@@ -9855,51 +8955,45 @@ dissect_ansi_map_FeatureIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_featureIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FeatureIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_featureIndicator);
-}
 
 
-static const ber_old_sequence_t OriginationRequest_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 98, BER_FLAGS_IMPLTAG, dissect_originationTriggers_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureIndicator_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyCategory_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OriginationRequest_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OriginationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OriginationRequest_set, hf_index, ett_ansi_map_OriginationRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OriginationRequest_set, hf_index, ett_ansi_map_OriginationRequest);
 
   return offset;
-}
-static int dissect_originationRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OriginationRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_originationRequest);
 }
 
 
@@ -9911,54 +9005,48 @@ dissect_ansi_map_DMH_ChargeInformation(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_dmh_ChargeInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_ChargeInformation(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmh_ChargeInformation);
-}
 
 
-static const ber_old_sequence_t OriginationRequestRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OriginationRequestRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OriginationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OriginationRequestRes_set, hf_index, ett_ansi_map_OriginationRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OriginationRequestRes_set, hf_index, ett_ansi_map_OriginationRequestRes);
 
   return offset;
-}
-static int dissect_originationRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OriginationRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_originationRequestRes);
 }
 
 
@@ -9978,9 +9066,6 @@ dissect_ansi_map_QualificationInformationCode(gboolean implicit_tag _U_, tvbuff_
                                   NULL);
 
   return offset;
-}
-static int dissect_qualificationInformationCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_QualificationInformationCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_qualificationInformationCode);
 }
 
 
@@ -10008,9 +9093,6 @@ dissect_ansi_map_AuthorizationDenied(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_authorizationDenied_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthorizationDenied(TRUE, tvb, offset, actx, tree, hf_ansi_map_authorizationDenied);
-}
 
 
 
@@ -10030,9 +9112,6 @@ dissect_ansi_map_AuthorizationPeriod(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_authorizationPeriod_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthorizationPeriod(TRUE, tvb, offset, actx, tree, hf_ansi_map_authorizationPeriod);
-}
 
 
 
@@ -10051,118 +9130,103 @@ dissect_ansi_map_DeniedAuthorizationPeriod(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_deniedAuthorizationPeriod_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DeniedAuthorizationPeriod(TRUE, tvb, offset, actx, tree, hf_ansi_map_deniedAuthorizationPeriod);
-}
 
 
-static const ber_old_sequence_t QualificationDirective_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_qualificationInformationCode_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 225, BER_FLAGS_IMPLTAG, dissect_analogRedirectRecord_impl },
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationDenied_impl },
-  { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationPeriod_impl },
-  { BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaRedirectRecord_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deniedAuthorizationPeriod_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_carrier_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_dest_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceRedirectionInfo_impl },
-  { BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_roamingIndication_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t QualificationDirective_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_qualificationInformationCode, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_QualificationInformationCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
+  { &hf_ansi_map_authorizationPeriod, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationPeriod },
+  { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_deniedAuthorizationPeriod, BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DeniedAuthorizationPeriod },
+  { &hf_ansi_map_digits_carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_digits_dest, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
+  { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_QualificationDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  QualificationDirective_set, hf_index, ett_ansi_map_QualificationDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              QualificationDirective_set, hf_index, ett_ansi_map_QualificationDirective);
 
   return offset;
 }
-static int dissect_qualificationDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_QualificationDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_qualificationDirective);
-}
 
 
-static const ber_old_sequence_t QualificationRequest_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_qualificationInformationCode_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaNetworkIdentification_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nonPublicData_impl },
-  { BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userZoneData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t QualificationRequest_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_qualificationInformationCode, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_QualificationInformationCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_cdmaNetworkIdentification, BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMANetworkIdentification },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_QualificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  QualificationRequest_set, hf_index, ett_ansi_map_QualificationRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              QualificationRequest_set, hf_index, ett_ansi_map_QualificationRequest);
 
   return offset;
 }
-static int dissect_qualificationRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_QualificationRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequest);
-}
 
 
-static const ber_old_sequence_t QualificationRequestRes_set[] = {
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 225, BER_FLAGS_IMPLTAG, dissect_analogRedirectRecord_impl },
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationDenied_impl },
-  { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationPeriod_impl },
-  { BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaRedirectRecord_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deniedAuthorizationPeriod_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_carrier_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_dest_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceRedirectionInfo_impl },
-  { BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_roamingIndication_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t QualificationRequestRes_set[] = {
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
+  { &hf_ansi_map_authorizationPeriod, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationPeriod },
+  { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_deniedAuthorizationPeriod, BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DeniedAuthorizationPeriod },
+  { &hf_ansi_map_digits_carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_digits_dest, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
+  { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_QualificationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  QualificationRequestRes_set, hf_index, ett_ansi_map_QualificationRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              QualificationRequestRes_set, hf_index, ett_ansi_map_QualificationRequestRes);
 
   return offset;
 }
-static int dissect_qualificationRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_QualificationRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_qualificationRequestRes);
-}
 
 
-static const ber_old_sequence_t RandomVariableRequest_set[] = {
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 67, BER_FLAGS_IMPLTAG, dissect_randc_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RandomVariableRequest_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_randc      , BER_CLASS_CON, 67, BER_FLAGS_IMPLTAG, dissect_ansi_map_RANDC },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RandomVariableRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RandomVariableRequest_set, hf_index, ett_ansi_map_RandomVariableRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RandomVariableRequest_set, hf_index, ett_ansi_map_RandomVariableRequest);
 
   return offset;
-}
-static int dissect_randomVariableRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariableRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_randomVariableRequest);
 }
 
 
@@ -10174,55 +9238,46 @@ dissect_ansi_map_RANDValidTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_randValidTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RANDValidTime(TRUE, tvb, offset, actx, tree, hf_ansi_map_randValidTime);
-}
 
 
-static const ber_old_sequence_t RandomVariableRequestRes_set[] = {
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 148, BER_FLAGS_IMPLTAG, dissect_randValidTime_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RandomVariableRequestRes_set[] = {
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_randValidTime, BER_CLASS_CON, 148, BER_FLAGS_IMPLTAG, dissect_ansi_map_RANDValidTime },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RandomVariableRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RandomVariableRequestRes_set, hf_index, ett_ansi_map_RandomVariableRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RandomVariableRequestRes_set, hf_index, ett_ansi_map_RandomVariableRequestRes);
 
   return offset;
 }
-static int dissect_randomVariableRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RandomVariableRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_randomVariableRequestRes);
-}
 
 
-static const ber_old_sequence_t RedirectionDirective_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_dest_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_carrier_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RedirectionDirective_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_digits_dest, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_digits_carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RedirectionDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RedirectionDirective_set, hf_index, ett_ansi_map_RedirectionDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RedirectionDirective_set, hf_index, ett_ansi_map_RedirectionDirective);
 
   return offset;
-}
-static int dissect_redirectionDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectionDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_redirectionDirective);
 }
 
 
@@ -10250,32 +9305,26 @@ dissect_ansi_map_RedirectionReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_redirectionReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectionReason(TRUE, tvb, offset, actx, tree, hf_ansi_map_redirectionReason);
-}
 
 
-static const ber_old_sequence_t RedirectionRequest_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_redirectionReason_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RedirectionRequest_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RedirectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RedirectionRequest_set, hf_index, ett_ansi_map_RedirectionRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RedirectionRequest_set, hf_index, ett_ansi_map_RedirectionRequest);
 
   return offset;
-}
-static int dissect_redirectionRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RedirectionRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_redirectionRequest);
 }
 
 
@@ -10286,9 +9335,6 @@ dissect_ansi_map_CancellationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                        NULL);
 
   return offset;
-}
-static int dissect_cancellationType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CancellationType(TRUE, tvb, offset, actx, tree, hf_ansi_map_cancellationType);
 }
 
 
@@ -10308,9 +9354,6 @@ dissect_ansi_map_ControlChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_controlChannelData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ControlChannelData(TRUE, tvb, offset, actx, tree, hf_ansi_map_controlChannelData);
-}
 
 
 
@@ -10320,9 +9363,6 @@ dissect_ansi_map_ReceivedSignalQuality(gboolean implicit_tag _U_, tvbuff_t *tvb 
                                   NULL);
 
   return offset;
-}
-static int dissect_receivedSignalQuality_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReceivedSignalQuality(TRUE, tvb, offset, actx, tree, hf_ansi_map_receivedSignalQuality);
 }
 
 
@@ -10334,31 +9374,25 @@ dissect_ansi_map_SystemAccessData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_systemAccessData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SystemAccessData(TRUE, tvb, offset, actx, tree, hf_ansi_map_systemAccessData);
-}
 
 
-static const ber_old_sequence_t RegistrationCancellation_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 85, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cancellationType_impl },
-  { BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelData_impl },
-  { BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_receivedSignalQuality_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RegistrationCancellation_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_cancellationType, BER_CLASS_CON, 85, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CancellationType },
+  { &hf_ansi_map_controlChannelData, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelData },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_systemAccessData, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RegistrationCancellation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RegistrationCancellation_set, hf_index, ett_ansi_map_RegistrationCancellation);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RegistrationCancellation_set, hf_index, ett_ansi_map_RegistrationCancellation);
 
   return offset;
-}
-static int dissect_registrationCancellation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RegistrationCancellation(FALSE, tvb, offset, actx, tree, hf_ansi_map_registrationCancellation);
 }
 
 
@@ -10377,30 +9411,24 @@ dissect_ansi_map_CancellationDenied(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_cancellationDenied_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CancellationDenied(TRUE, tvb, offset, actx, tree, hf_ansi_map_cancellationDenied);
-}
 
 
-static const ber_old_sequence_t RegistrationCancellationRes_set[] = {
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 57, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cancellationDenied_impl },
-  { BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelData_impl },
-  { BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_receivedSignalQuality_impl },
-  { BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_MessageWaitingIndicator_impl },
-  { BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RegistrationCancellationRes_set[] = {
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_cancellationDenied, BER_CLASS_CON, 57, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CancellationDenied },
+  { &hf_ansi_map_controlChannelData, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelData },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_sms_MessageWaitingIndicator, BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageWaitingIndicator },
+  { &hf_ansi_map_systemAccessData, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RegistrationCancellationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RegistrationCancellationRes_set, hf_index, ett_ansi_map_RegistrationCancellationRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RegistrationCancellationRes_set, hf_index, ett_ansi_map_RegistrationCancellationRes);
 
   return offset;
-}
-static int dissect_registrationCancellationRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RegistrationCancellationRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_registrationCancellationRes);
 }
 
 
@@ -10411,9 +9439,6 @@ dissect_ansi_map_AvailabilityType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                        NULL);
 
   return offset;
-}
-static int dissect_availabilityType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AvailabilityType(TRUE, tvb, offset, actx, tree, hf_ansi_map_availabilityType);
 }
 
 
@@ -10431,9 +9456,6 @@ dissect_ansi_map_BorderCellAccess(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_borderCellAccess_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BorderCellAccess(TRUE, tvb, offset, actx, tree, hf_ansi_map_borderCellAccess);
-}
 
 
 
@@ -10442,9 +9464,6 @@ dissect_ansi_map_MSC_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_msc_Address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSC_Address(TRUE, tvb, offset, actx, tree, hf_ansi_map_msc_Address);
 }
 
 
@@ -10455,50 +9474,44 @@ dissect_ansi_map_SMS_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_sms_Address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_Address(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_Address);
-}
 
 
-static const ber_old_sequence_t RegistrationNotification_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_qualificationInformationCode_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 90, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_availabilityType_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_borderCellAccess_impl },
-  { BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaNetworkIdentification_impl },
-  { BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelData_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 284, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_msc_Address_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_receivedSignalQuality_impl },
-  { BER_CLASS_CON, 44, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reportType_impl },
-  { BER_CLASS_CON, 237, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceRedirectionCause_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_Address_impl },
-  { BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_MessageWaitingIndicator_impl },
-  { BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessData_impl },
-  { BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
-  { BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RegistrationNotification_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_qualificationInformationCode, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ansi_map_QualificationInformationCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_availabilityType, BER_CLASS_CON, 90, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AvailabilityType },
+  { &hf_ansi_map_borderCellAccess, BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BorderCellAccess },
+  { &hf_ansi_map_cdmaNetworkIdentification, BER_CLASS_CON, 232, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMANetworkIdentification },
+  { &hf_ansi_map_controlChannelData, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelData },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_msc_Address, BER_CLASS_CON, 284, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSC_Address },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_reportType , BER_CLASS_CON, 44, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReportType },
+  { &hf_ansi_map_serviceRedirectionCause, BER_CLASS_CON, 237, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionCause },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_sms_Address, BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_Address },
+  { &hf_ansi_map_sms_MessageWaitingIndicator, BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageWaitingIndicator },
+  { &hf_ansi_map_systemAccessData, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessData },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RegistrationNotification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RegistrationNotification_set, hf_index, ett_ansi_map_RegistrationNotification);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RegistrationNotification_set, hf_index, ett_ansi_map_RegistrationNotification);
 
   return offset;
-}
-static int dissect_registrationNotification(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RegistrationNotification(FALSE, tvb, offset, actx, tree, hf_ansi_map_registrationNotification);
 }
 
 
@@ -10509,9 +9522,6 @@ dissect_ansi_map_AuthenticationCapability(gboolean implicit_tag _U_, tvbuff_t *t
                                        NULL);
 
   return offset;
-}
-static int dissect_authenticationCapability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AuthenticationCapability(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationCapability);
 }
 
 
@@ -10530,9 +9540,6 @@ dissect_ansi_map_CallingFeaturesIndicator(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_callingFeaturesIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallingFeaturesIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_callingFeaturesIndicator);
-}
 
 
 
@@ -10542,9 +9549,6 @@ dissect_ansi_map_GeographicAuthorization(gboolean implicit_tag _U_, tvbuff_t *tv
                                        NULL);
 
   return offset;
-}
-static int dissect_geographicAuthorization_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_GeographicAuthorization(TRUE, tvb, offset, actx, tree, hf_ansi_map_geographicAuthorization);
 }
 
 
@@ -10569,9 +9573,6 @@ dissect_ansi_map_OriginationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_originationIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OriginationIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_originationIndicator);
-}
 
 
 
@@ -10580,9 +9581,6 @@ dissect_ansi_map_RestrictionDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_restrictionDigits_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RestrictionDigits(TRUE, tvb, offset, actx, tree, hf_ansi_map_restrictionDigits);
 }
 
 
@@ -10602,9 +9600,6 @@ dissect_ansi_map_SMS_OriginationRestrictions(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_sms_OriginationRestrictions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_OriginationRestrictions(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_OriginationRestrictions);
-}
 
 
 
@@ -10615,9 +9610,6 @@ dissect_ansi_map_SMS_TerminationRestrictions(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_sms_TerminationRestrictions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_TerminationRestrictions(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_TerminationRestrictions);
-}
 
 
 
@@ -10626,9 +9618,6 @@ dissect_ansi_map_SPINIPIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_spinipin_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SPINIPIN(TRUE, tvb, offset, actx, tree, hf_ansi_map_spinipin);
 }
 
 
@@ -10639,9 +9628,6 @@ dissect_ansi_map_SPINITriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
                                        NULL);
 
   return offset;
-}
-static int dissect_spiniTriggers_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SPINITriggers(TRUE, tvb, offset, actx, tree, hf_ansi_map_spiniTriggers);
 }
 
 
@@ -10661,66 +9647,60 @@ dissect_ansi_map_TerminationRestrictionCode(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_terminationRestrictionCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TerminationRestrictionCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_terminationRestrictionCode);
-}
 
 
-static const ber_old_sequence_t RegistrationNotificationRes_set[] = {
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_analogRedirectRecord_impl },
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationDenied_impl },
-  { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationPeriod_impl },
-  { BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaRedirectRecord_impl },
-  { BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelData_impl },
-  { BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deniedAuthorizationPeriod_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Carrier_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationCapability_impl },
-  { BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFeaturesIndicator_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlNetworkID_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_geographicAuthorization_impl },
-  { BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationCount_impl },
-  { BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationType_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationIndicator_impl },
-  { BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationTriggers_impl },
-  { BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pACAIndicator_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_restrictionDigits_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginationRestrictions_impl },
-  { BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_TerminationRestrictions_impl },
-  { BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_spinipin_impl },
-  { BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_spiniTriggers_impl },
-  { BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationRestrictionCode_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyCategory_impl },
-  { BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_receivedSignalQuality_impl },
-  { BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceRedirectionInfo_impl },
-  { BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_roamingIndication_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_MessageWaitingIndicator_impl },
-  { BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessData_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RegistrationNotificationRes_set[] = {
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_analogRedirectRecord, BER_CLASS_CON, 225, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnalogRedirectRecord },
+  { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
+  { &hf_ansi_map_authorizationPeriod, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationPeriod },
+  { &hf_ansi_map_cdmaRedirectRecord, BER_CLASS_CON, 229, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMARedirectRecord },
+  { &hf_ansi_map_controlChannelData, BER_CLASS_CON, 55, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelData },
+  { &hf_ansi_map_deniedAuthorizationPeriod, BER_CLASS_CON, 167, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DeniedAuthorizationPeriod },
+  { &hf_ansi_map_digits_Carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_digits_Destination, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_authenticationCapability, BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationCapability },
+  { &hf_ansi_map_callingFeaturesIndicator, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingFeaturesIndicator },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
+  { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
+  { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_restrictionDigits, BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RestrictionDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_sms_OriginationRestrictions, BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginationRestrictions },
+  { &hf_ansi_map_sms_TerminationRestrictions, BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TerminationRestrictions },
+  { &hf_ansi_map_spinipin   , BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINIPIN },
+  { &hf_ansi_map_spiniTriggers, BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINITriggers },
+  { &hf_ansi_map_terminationRestrictionCode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationRestrictionCode },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_serviceRedirectionInfo, BER_CLASS_CON, 238, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceRedirectionInfo },
+  { &hf_ansi_map_roamingIndication, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoamingIndication },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_sms_MessageWaitingIndicator, BER_CLASS_CON, 118, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageWaitingIndicator },
+  { &hf_ansi_map_systemAccessData, BER_CLASS_CON, 56, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RegistrationNotificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RegistrationNotificationRes_set, hf_index, ett_ansi_map_RegistrationNotificationRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RegistrationNotificationRes_set, hf_index, ett_ansi_map_RegistrationNotificationRes);
 
   return offset;
-}
-static int dissect_registrationNotificationRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RegistrationNotificationRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_registrationNotificationRes);
 }
 
 
@@ -10732,60 +9712,48 @@ dissect_ansi_map_DigitCollectionControl(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_digitCollectionControl_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DigitCollectionControl(TRUE, tvb, offset, actx, tree, hf_ansi_map_digitCollectionControl);
-}
 
 
-static const ber_old_sequence_t RemoteUserInteractionDirective_set[] = {
-  { BER_CLASS_CON, 130, BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 139, BER_FLAGS_IMPLTAG, dissect_digitCollectionControl_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RemoteUserInteractionDirective_set[] = {
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_digitCollectionControl, BER_CLASS_CON, 139, BER_FLAGS_IMPLTAG, dissect_ansi_map_DigitCollectionControl },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RemoteUserInteractionDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RemoteUserInteractionDirective_set, hf_index, ett_ansi_map_RemoteUserInteractionDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RemoteUserInteractionDirective_set, hf_index, ett_ansi_map_RemoteUserInteractionDirective);
 
   return offset;
 }
-static int dissect_remoteUserInteractionDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RemoteUserInteractionDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_remoteUserInteractionDirective);
-}
 
 
-static const ber_old_sequence_t RemoteUserInteractionDirectiveRes_set[] = {
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RemoteUserInteractionDirectiveRes_set[] = {
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RemoteUserInteractionDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RemoteUserInteractionDirectiveRes_set, hf_index, ett_ansi_map_RemoteUserInteractionDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RemoteUserInteractionDirectiveRes_set, hf_index, ett_ansi_map_RemoteUserInteractionDirectiveRes);
 
   return offset;
 }
-static int dissect_remoteUserInteractionDirectiveRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RemoteUserInteractionDirectiveRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_remoteUserInteractionDirectiveRes);
-}
 
 
-static const ber_old_sequence_t ResetCircuit_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ResetCircuit_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ResetCircuit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ResetCircuit_set, hf_index, ett_ansi_map_ResetCircuit);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ResetCircuit_set, hf_index, ett_ansi_map_ResetCircuit);
 
   return offset;
-}
-static int dissect_resetCircuit(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ResetCircuit(FALSE, tvb, offset, actx, tree, hf_ansi_map_resetCircuit);
 }
 
 
@@ -10803,25 +9771,19 @@ dissect_ansi_map_TrunkStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_trunkStatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TrunkStatus(TRUE, tvb, offset, actx, tree, hf_ansi_map_trunkStatus);
-}
 
 
-static const ber_old_sequence_t ResetCircuitRes_set[] = {
-  { BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_trunkStatus_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ResetCircuitRes_set[] = {
+  { &hf_ansi_map_trunkStatus, BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_ansi_map_TrunkStatus },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ResetCircuitRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ResetCircuitRes_set, hf_index, ett_ansi_map_ResetCircuitRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ResetCircuitRes_set, hf_index, ett_ansi_map_ResetCircuitRes);
 
   return offset;
-}
-static int dissect_resetCircuitRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ResetCircuitRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_resetCircuitRes);
 }
 
 
@@ -10833,91 +9795,82 @@ dissect_ansi_map_UserGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_userGroup_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UserGroup(TRUE, tvb, offset, actx, tree, hf_ansi_map_userGroup);
-}
 
 
-static const ber_old_sequence_t RoutingRequest_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 121, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTreatment_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userGroup_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 160, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voiceMailboxNumber_impl },
-  { BER_CLASS_CON, 159, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voiceMailboxPIN_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RoutingRequest_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_controlChannelMode, BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlChannelMode },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_terminationTreatment, BER_CLASS_CON, 121, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTreatment },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_userGroup  , BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserGroup },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_voiceMailboxNumber, BER_CLASS_CON, 160, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoiceMailboxNumber },
+  { &hf_ansi_map_voiceMailboxPIN, BER_CLASS_CON, 159, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoiceMailboxPIN },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RoutingRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RoutingRequest_set, hf_index, ett_ansi_map_RoutingRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RoutingRequest_set, hf_index, ett_ansi_map_RoutingRequest);
 
   return offset;
 }
-static int dissect_routingRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoutingRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_routingRequest);
-}
 
 
-static const ber_old_sequence_t RoutingRequestRes_set[] = {
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conditionallyDeniedReason_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RoutingRequestRes_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_conditionallyDeniedReason, BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConditionallyDeniedReason },
+  { &hf_ansi_map_digits_Destination, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RoutingRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RoutingRequestRes_set, hf_index, ett_ansi_map_RoutingRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RoutingRequestRes_set, hf_index, ett_ansi_map_RoutingRequestRes);
 
   return offset;
-}
-static int dissect_routingRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoutingRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_routingRequestRes);
 }
 
 
@@ -10962,9 +9915,6 @@ dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_sms_BearerData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_BearerData(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_BearerData);
-}
 
 
 
@@ -11001,9 +9951,6 @@ dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_sms_TeleserviceIdentifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_TeleserviceIdentifier(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_TeleserviceIdentifier);
-}
 
 
 
@@ -11014,9 +9961,6 @@ dissect_ansi_map_SMS_ChargeIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_sms_ChargeIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_ChargeIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_ChargeIndicator);
-}
 
 
 
@@ -11025,9 +9969,6 @@ dissect_ansi_map_SMS_DestinationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb
   offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_sms_DestinationAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_DestinationAddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_DestinationAddress);
 }
 
 
@@ -11038,9 +9979,6 @@ dissect_ansi_map_SMS_OriginalDestinationAddress(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_sms_OriginalDestinationAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_OriginalDestinationAddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_OriginalDestinationAddress);
-}
 
 
 
@@ -11049,9 +9987,6 @@ dissect_ansi_map_SMS_OriginalDestinationSubaddress(gboolean implicit_tag _U_, tv
   offset = dissect_ansi_map_Subaddress(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_sms_OriginalDestinationSubaddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_OriginalDestinationSubaddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_OriginalDestinationSubaddress);
 }
 
 
@@ -11062,9 +9997,6 @@ dissect_ansi_map_SMS_OriginalOriginatingAddress(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_sms_OriginalOriginatingAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_OriginalOriginatingAddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_OriginalOriginatingAddress);
-}
 
 
 
@@ -11073,9 +10005,6 @@ dissect_ansi_map_SMS_OriginalOriginatingSubaddress(gboolean implicit_tag _U_, tv
   offset = dissect_ansi_map_Subaddress(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_sms_OriginalOriginatingSubaddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_OriginalOriginatingSubaddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_OriginalOriginatingSubaddress);
 }
 
 
@@ -11086,36 +10015,30 @@ dissect_ansi_map_SMS_OriginatingAddress(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_sms_OriginatingAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_OriginatingAddress(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_OriginatingAddress);
-}
 
 
-static const ber_old_sequence_t SMSDeliveryBackward_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
-  { BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_sms_TeleserviceIdentifier_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_ChargeIndicator_impl },
-  { BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_DestinationAddress_impl },
-  { BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalDestinationAddress_impl },
-  { BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalDestinationSubaddress_impl },
-  { BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalOriginatingAddress_impl },
-  { BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalOriginatingSubaddress_impl },
-  { BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginatingAddress_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSDeliveryBackward_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_sms_ChargeIndicator, BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_ChargeIndicator },
+  { &hf_ansi_map_sms_DestinationAddress, BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_DestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationAddress, BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationSubaddress, BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationSubaddress },
+  { &hf_ansi_map_sms_OriginalOriginatingAddress, BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingAddress },
+  { &hf_ansi_map_sms_OriginalOriginatingSubaddress, BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingSubaddress },
+  { &hf_ansi_map_sms_OriginatingAddress, BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginatingAddress },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSDeliveryBackward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSDeliveryBackward_set, hf_index, ett_ansi_map_SMSDeliveryBackward);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryBackward_set, hf_index, ett_ansi_map_SMSDeliveryBackward);
 
   return offset;
-}
-static int dissect_sMSDeliveryBackward(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSDeliveryBackward(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSDeliveryBackward);
 }
 
 
@@ -11127,72 +10050,60 @@ dissect_ansi_map_SMS_CauseCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_sms_CauseCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_CauseCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_CauseCode);
-}
 
 
-static const ber_old_sequence_t SMSDeliveryBackwardRes_set[] = {
-  { BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
-  { BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_CauseCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSDeliveryBackwardRes_set[] = {
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSDeliveryBackwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSDeliveryBackwardRes_set, hf_index, ett_ansi_map_SMSDeliveryBackwardRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryBackwardRes_set, hf_index, ett_ansi_map_SMSDeliveryBackwardRes);
 
   return offset;
 }
-static int dissect_sMSDeliveryBackwardRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSDeliveryBackwardRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSDeliveryBackwardRes);
-}
 
 
-static const ber_old_sequence_t SMSDeliveryForward_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
-  { BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_sms_TeleserviceIdentifier_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_ChargeIndicator_impl },
-  { BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_DestinationAddress_impl },
-  { BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalDestinationAddress_impl },
-  { BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalDestinationSubaddress_impl },
-  { BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalOriginatingAddress_impl },
-  { BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalOriginatingSubaddress_impl },
-  { BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginatingAddress_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSDeliveryForward_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_sms_ChargeIndicator, BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_ChargeIndicator },
+  { &hf_ansi_map_sms_DestinationAddress, BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_DestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationAddress, BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationSubaddress, BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationSubaddress },
+  { &hf_ansi_map_sms_OriginalOriginatingAddress, BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingAddress },
+  { &hf_ansi_map_sms_OriginalOriginatingSubaddress, BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingSubaddress },
+  { &hf_ansi_map_sms_OriginatingAddress, BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginatingAddress },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSDeliveryForward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSDeliveryForward_set, hf_index, ett_ansi_map_SMSDeliveryForward);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryForward_set, hf_index, ett_ansi_map_SMSDeliveryForward);
 
   return offset;
 }
-static int dissect_sMSDeliveryForward(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSDeliveryForward(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSDeliveryForward);
-}
 
 
-static const ber_old_sequence_t SMSDeliveryForwardRes_set[] = {
-  { BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
-  { BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_CauseCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSDeliveryForwardRes_set[] = {
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSDeliveryForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSDeliveryForwardRes_set, hf_index, ett_ansi_map_SMSDeliveryForwardRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryForwardRes_set, hf_index, ett_ansi_map_SMSDeliveryForwardRes);
 
   return offset;
-}
-static int dissect_sMSDeliveryForwardRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSDeliveryForwardRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSDeliveryForwardRes);
 }
 
 
@@ -11204,9 +10115,6 @@ dissect_ansi_map_InterMessageTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_interMessageTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InterMessageTime(TRUE, tvb, offset, actx, tree, hf_ansi_map_interMessageTime);
-}
 
 
 
@@ -11215,9 +10123,6 @@ dissect_ansi_map_NewlyAssignedMIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   offset = dissect_ansi_map_MINType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_newlyAssignedMIN_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NewlyAssignedMIN(TRUE, tvb, offset, actx, tree, hf_ansi_map_newlyAssignedMIN);
 }
 
 
@@ -11238,9 +10143,6 @@ dissect_ansi_map_NewlyAssignedIMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_newlyAssignedIMSI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NewlyAssignedIMSI(TRUE, tvb, offset, actx, tree, hf_ansi_map_newlyAssignedIMSI);
-}
 
 
 
@@ -11249,9 +10151,6 @@ dissect_ansi_map_NewMINExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
   offset = dissect_ansi_map_MINType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_newMINExtension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NewMINExtension(TRUE, tvb, offset, actx, tree, hf_ansi_map_newMINExtension);
 }
 
 
@@ -11263,9 +10162,6 @@ dissect_ansi_map_SMS_MessageCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_sms_MessageCount_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_MessageCount(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_MessageCount);
-}
 
 
 
@@ -11275,9 +10171,6 @@ dissect_ansi_map_SMS_NotificationIndicator(gboolean implicit_tag _U_, tvbuff_t *
                                        NULL);
 
   return offset;
-}
-static int dissect_sms_NotificationIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_NotificationIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_NotificationIndicator);
 }
 
 
@@ -11289,45 +10182,39 @@ dissect_ansi_map_TemporaryReferenceNumber(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_temporaryReferenceNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TemporaryReferenceNumber(TRUE, tvb, offset, actx, tree, hf_ansi_map_temporaryReferenceNumber);
-}
 
 
-static const ber_old_sequence_t SMSDeliveryPointToPoint_set[] = {
-  { BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
-  { BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_sms_TeleserviceIdentifier_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 325, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_interMessageTime_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 187, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_newlyAssignedMIN_impl },
-  { BER_CLASS_CON, 287, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_newlyAssignedIMSI_impl },
-  { BER_CLASS_CON, 328, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_newMINExtension_impl },
-  { BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceIndicator_impl },
-  { BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_ChargeIndicator_impl },
-  { BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_DestinationAddress_impl },
-  { BER_CLASS_CON, 108, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_MessageCount_impl },
-  { BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_NotificationIndicator_impl },
-  { BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalDestinationAddress_impl },
-  { BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalDestinationSubaddress_impl },
-  { BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalOriginatingAddress_impl },
-  { BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginalOriginatingSubaddress_impl },
-  { BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginatingAddress_impl },
-  { BER_CLASS_CON, 195, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_temporaryReferenceNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSDeliveryPointToPoint_set[] = {
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMessageTime, BER_CLASS_CON, 325, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMessageTime },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_newlyAssignedMIN, BER_CLASS_CON, 187, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedMIN },
+  { &hf_ansi_map_newlyAssignedIMSI, BER_CLASS_CON, 287, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedIMSI },
+  { &hf_ansi_map_newMINExtension, BER_CLASS_CON, 328, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewMINExtension },
+  { &hf_ansi_map_serviceIndicator, BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceIndicator },
+  { &hf_ansi_map_sms_ChargeIndicator, BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_ChargeIndicator },
+  { &hf_ansi_map_sms_DestinationAddress, BER_CLASS_CON, 107, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_DestinationAddress },
+  { &hf_ansi_map_sms_MessageCount, BER_CLASS_CON, 108, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageCount },
+  { &hf_ansi_map_sms_NotificationIndicator, BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_NotificationIndicator },
+  { &hf_ansi_map_sms_OriginalDestinationAddress, BER_CLASS_CON, 110, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationAddress },
+  { &hf_ansi_map_sms_OriginalDestinationSubaddress, BER_CLASS_CON, 111, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalDestinationSubaddress },
+  { &hf_ansi_map_sms_OriginalOriginatingAddress, BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingAddress },
+  { &hf_ansi_map_sms_OriginalOriginatingSubaddress, BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingSubaddress },
+  { &hf_ansi_map_sms_OriginatingAddress, BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginatingAddress },
+  { &hf_ansi_map_temporaryReferenceNumber, BER_CLASS_CON, 195, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TemporaryReferenceNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSDeliveryPointToPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSDeliveryPointToPoint_set, hf_index, ett_ansi_map_SMSDeliveryPointToPoint);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryPointToPoint_set, hf_index, ett_ansi_map_SMSDeliveryPointToPoint);
 
   return offset;
-}
-static int dissect_sMSDeliveryPointToPoint(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSDeliveryPointToPoint(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSDeliveryPointToPoint);
 }
 
 
@@ -11338,9 +10225,6 @@ dissect_ansi_map_MobileStationIMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_mobileStationIMSI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MobileStationIMSI(TRUE, tvb, offset, actx, tree, hf_ansi_map_mobileStationIMSI);
-}
 
 
 static const value_string ansi_map_MobileStationMSID_vals[] = {
@@ -11349,47 +10233,41 @@ static const value_string ansi_map_MobileStationMSID_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t MobileStationMSID_choice[] = {
-  { 184, BER_CLASS_CON, 184, BER_FLAGS_IMPLTAG, dissect_mobileStationMIN_impl },
-  { 286, BER_CLASS_CON, 286, BER_FLAGS_IMPLTAG, dissect_mobileStationIMSI_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t MobileStationMSID_choice[] = {
+  { 184, &hf_ansi_map_mobileStationMIN, BER_CLASS_CON, 184, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileStationMIN },
+  { 286, &hf_ansi_map_mobileStationIMSI, BER_CLASS_CON, 286, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileStationIMSI },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_MobileStationMSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     MobileStationMSID_choice, hf_index, ett_ansi_map_MobileStationMSID,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 MobileStationMSID_choice, hf_index, ett_ansi_map_MobileStationMSID,
+                                 NULL);
 
   return offset;
 }
-static int dissect_mobileStationMSID(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MobileStationMSID(FALSE, tvb, offset, actx, tree, hf_ansi_map_mobileStationMSID);
-}
 
 
-static const ber_old_sequence_t SMSDeliveryPointToPointRes_set[] = {
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizationDenied_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mobileStationMSID },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
-  { BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_CauseCode_impl },
-  { BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSDeliveryPointToPointRes_set[] = {
+  { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileStationMSID, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MobileStationMSID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
+  { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSDeliveryPointToPointRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSDeliveryPointToPointRes_set, hf_index, ett_ansi_map_SMSDeliveryPointToPointRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSDeliveryPointToPointRes_set, hf_index, ett_ansi_map_SMSDeliveryPointToPointRes);
 
   return offset;
-}
-static int dissect_sMSDeliveryPointToPointRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSDeliveryPointToPointRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSDeliveryPointToPointRes);
 }
 
 
@@ -11401,169 +10279,148 @@ dissect_ansi_map_SMS_AccessDeniedReason(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_sms_AccessDeniedReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMS_AccessDeniedReason(TRUE, tvb, offset, actx, tree, hf_ansi_map_sms_AccessDeniedReason);
-}
 
 
-static const ber_old_sequence_t SMSNotification_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 152, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_AccessDeniedReason_impl },
-  { BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_Address_impl },
-  { BER_CLASS_CON, 116, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_TeleserviceIdentifier_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSNotification_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_sms_AccessDeniedReason, BER_CLASS_CON, 152, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_AccessDeniedReason },
+  { &hf_ansi_map_sms_Address, BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_Address },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSNotification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSNotification_set, hf_index, ett_ansi_map_SMSNotification);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSNotification_set, hf_index, ett_ansi_map_SMSNotification);
 
   return offset;
 }
-static int dissect_sMSNotification(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSNotification(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSNotification);
-}
 
 
-static const ber_old_sequence_t SMSNotificationRes_set[] = {
-  { BER_CLASS_CON, 108, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_MessageCount_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSNotificationRes_set[] = {
+  { &hf_ansi_map_sms_MessageCount, BER_CLASS_CON, 108, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_MessageCount },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSNotificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSNotificationRes_set, hf_index, ett_ansi_map_SMSNotificationRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSNotificationRes_set, hf_index, ett_ansi_map_SMSNotificationRes);
 
   return offset;
 }
-static int dissect_sMSNotificationRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSNotificationRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSNotificationRes);
-}
 
 
-static const ber_old_sequence_t SMSRequest_set[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceIndicator_impl },
-  { BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_NotificationIndicator_impl },
-  { BER_CLASS_CON, 116, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_TeleserviceIdentifier_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSRequest_set[] = {
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_serviceIndicator, BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceIndicator },
+  { &hf_ansi_map_sms_NotificationIndicator, BER_CLASS_CON, 109, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_NotificationIndicator },
+  { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSRequest_set, hf_index, ett_ansi_map_SMSRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSRequest_set, hf_index, ett_ansi_map_SMSRequest);
 
   return offset;
 }
-static int dissect_sMSRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSRequest);
-}
 
 
-static const ber_old_sequence_t SMSRequestRes_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 152, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_AccessDeniedReason_impl },
-  { BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_Address_impl },
-  { BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_CauseCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SMSRequestRes_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_sms_AccessDeniedReason, BER_CLASS_CON, 152, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_AccessDeniedReason },
+  { &hf_ansi_map_sms_Address, BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_Address },
+  { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SMSRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SMSRequestRes_set, hf_index, ett_ansi_map_SMSRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SMSRequestRes_set, hf_index, ett_ansi_map_SMSRequestRes);
 
   return offset;
 }
-static int dissect_sMSRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SMSRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_sMSRequestRes);
-}
 
 
-static const ber_old_sequence_t TransferToNumberRequest_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_redirectionReason_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TransferToNumberRequest_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TransferToNumberRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TransferToNumberRequest_set, hf_index, ett_ansi_map_TransferToNumberRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TransferToNumberRequest_set, hf_index, ett_ansi_map_TransferToNumberRequest);
 
   return offset;
 }
-static int dissect_transferToNumberRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TransferToNumberRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_transferToNumberRequest);
-}
 
 
-static const ber_old_sequence_t TransferToNumberRequestRes_set[] = {
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Carrier_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TransferToNumberRequestRes_set[] = {
+  { &hf_ansi_map_digits_Destination, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_digits_Carrier, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TransferToNumberRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TransferToNumberRequestRes_set, hf_index, ett_ansi_map_TransferToNumberRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TransferToNumberRequestRes_set, hf_index, ett_ansi_map_TransferToNumberRequestRes);
 
   return offset;
-}
-static int dissect_transferToNumberRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TransferToNumberRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_transferToNumberRequestRes);
 }
 
 
@@ -11581,151 +10438,130 @@ dissect_ansi_map_SeizureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_seizureType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SeizureType(TRUE, tvb, offset, actx, tree, hf_ansi_map_seizureType);
-}
 
 
-static const ber_old_sequence_t TrunkTest_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_seizureType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TrunkTest_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_seizureType, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_ansi_map_SeizureType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TrunkTest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TrunkTest_set, hf_index, ett_ansi_map_TrunkTest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TrunkTest_set, hf_index, ett_ansi_map_TrunkTest);
 
   return offset;
 }
-static int dissect_trunkTest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TrunkTest(FALSE, tvb, offset, actx, tree, hf_ansi_map_trunkTest);
-}
 
 
-static const ber_old_sequence_t TrunkTestDisconnect_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TrunkTestDisconnect_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TrunkTestDisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TrunkTestDisconnect_set, hf_index, ett_ansi_map_TrunkTestDisconnect);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TrunkTestDisconnect_set, hf_index, ett_ansi_map_TrunkTestDisconnect);
 
   return offset;
 }
-static int dissect_trunkTestDisconnect(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TrunkTestDisconnect(FALSE, tvb, offset, actx, tree, hf_ansi_map_trunkTestDisconnect);
-}
 
 
-static const ber_old_sequence_t Unblocking_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Unblocking_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_Unblocking(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  Unblocking_set, hf_index, ett_ansi_map_Unblocking);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Unblocking_set, hf_index, ett_ansi_map_Unblocking);
 
   return offset;
 }
-static int dissect_unblocking(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Unblocking(FALSE, tvb, offset, actx, tree, hf_ansi_map_unblocking);
-}
 
 
-static const ber_old_sequence_t UnreliableRoamerDataDirective_set[] = {
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UnreliableRoamerDataDirective_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_UnreliableRoamerDataDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  UnreliableRoamerDataDirective_set, hf_index, ett_ansi_map_UnreliableRoamerDataDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              UnreliableRoamerDataDirective_set, hf_index, ett_ansi_map_UnreliableRoamerDataDirective);
 
   return offset;
 }
-static int dissect_unreliableRoamerDataDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UnreliableRoamerDataDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_unreliableRoamerDataDirective);
-}
 
 
-static const ber_old_sequence_t UnsolicitedResponse_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedSystemMyTypeCode_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UnsolicitedResponse_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_digits_Destination, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_extendedSystemMyTypeCode, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedSystemMyTypeCode },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_systemAccessType, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemAccessType },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_UnsolicitedResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  UnsolicitedResponse_set, hf_index, ett_ansi_map_UnsolicitedResponse);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              UnsolicitedResponse_set, hf_index, ett_ansi_map_UnsolicitedResponse);
 
   return offset;
 }
-static int dissect_unsolicitedResponse(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UnsolicitedResponse(FALSE, tvb, offset, actx, tree, hf_ansi_map_unsolicitedResponse);
-}
 
 
-static const ber_old_sequence_t UnsolicitedResponseRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedSystemMyTypeCode_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 121, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTreatment_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UnsolicitedResponseRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_extendedSystemMyTypeCode, BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedSystemMyTypeCode },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_terminationTreatment, BER_CLASS_CON, 121, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTreatment },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_UnsolicitedResponseRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  UnsolicitedResponseRes_set, hf_index, ett_ansi_map_UnsolicitedResponseRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              UnsolicitedResponseRes_set, hf_index, ett_ansi_map_UnsolicitedResponseRes);
 
   return offset;
-}
-static int dissect_unsolicitedResponseRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UnsolicitedResponseRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_unsolicitedResponseRes);
 }
 
 
@@ -11737,32 +10573,26 @@ dissect_ansi_map_RequiredParametersMask(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_requiredParametersMask_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RequiredParametersMask(TRUE, tvb, offset, actx, tree, hf_ansi_map_requiredParametersMask);
-}
 
 
-static const ber_old_sequence_t ParameterRequest_set[] = {
-  { BER_CLASS_CON, 236, BER_FLAGS_IMPLTAG, dissect_requiredParametersMask_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_networkTMSI_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ParameterRequest_set[] = {
+  { &hf_ansi_map_requiredParametersMask, BER_CLASS_CON, 236, BER_FLAGS_IMPLTAG, dissect_ansi_map_RequiredParametersMask },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ParameterRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ParameterRequest_set, hf_index, ett_ansi_map_ParameterRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ParameterRequest_set, hf_index, ett_ansi_map_ParameterRequest);
 
   return offset;
-}
-static int dissect_parameterRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ParameterRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_parameterRequest);
 }
 
 
@@ -11785,30 +10615,24 @@ dissect_ansi_map_ReasonList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_reasonList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReasonList(TRUE, tvb, offset, actx, tree, hf_ansi_map_reasonList);
-}
 
 
-static const ber_old_sequence_t ParameterRequestRes_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_networkTMSI_impl },
-  { BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ParameterRequestRes_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_reasonList , BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReasonList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ParameterRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ParameterRequestRes_set, hf_index, ett_ansi_map_ParameterRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ParameterRequestRes_set, hf_index, ett_ansi_map_ParameterRequestRes);
 
   return offset;
-}
-static int dissect_parameterRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ParameterRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_parameterRequestRes);
 }
 
 
@@ -11820,9 +10644,6 @@ dissect_ansi_map_NetworkTMSIExpirationTime(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_networkTMSIExpirationTime_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NetworkTMSIExpirationTime(TRUE, tvb, offset, actx, tree, hf_ansi_map_networkTMSIExpirationTime);
-}
 
 
 
@@ -11832,66 +10653,57 @@ dissect_ansi_map_NewNetworkTMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_newNetworkTMSI_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NewNetworkTMSI(TRUE, tvb, offset, actx, tree, hf_ansi_map_newNetworkTMSI);
-}
 
 
-static const ber_old_sequence_t TMSIDirective_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 234, BER_FLAGS_IMPLTAG, dissect_networkTMSIExpirationTime_impl },
-  { BER_CLASS_CON, 235, BER_FLAGS_IMPLTAG, dissect_newNetworkTMSI_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_networkTMSI_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TMSIDirective_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_networkTMSIExpirationTime, BER_CLASS_CON, 234, BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSIExpirationTime },
+  { &hf_ansi_map_newNetworkTMSI, BER_CLASS_CON, 235, BER_FLAGS_IMPLTAG, dissect_ansi_map_NewNetworkTMSI },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TMSIDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TMSIDirective_set, hf_index, ett_ansi_map_TMSIDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TMSIDirective_set, hf_index, ett_ansi_map_TMSIDirective);
 
   return offset;
 }
-static int dissect_tMSIDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TMSIDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirective);
-}
 
 
-static const ber_old_sequence_t TMSIDirectiveRes_set[] = {
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TMSIDirectiveRes_set[] = {
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_reasonList , BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReasonList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TMSIDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TMSIDirectiveRes_set, hf_index, ett_ansi_map_TMSIDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TMSIDirectiveRes_set, hf_index, ett_ansi_map_TMSIDirectiveRes);
 
   return offset;
 }
-static int dissect_tMSIDirectiveRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TMSIDirectiveRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirectiveRes);
-}
 
 
-static const ber_old_sequence_t NumberPortabilityRequest_set[] = {
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t NumberPortabilityRequest_set[] = {
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_NumberPortabilityRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  NumberPortabilityRequest_set, hf_index, ett_ansi_map_NumberPortabilityRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              NumberPortabilityRequest_set, hf_index, ett_ansi_map_NumberPortabilityRequest);
 
   return offset;
 }
@@ -11905,9 +10717,6 @@ dissect_ansi_map_ServiceID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_serviceID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceID(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceID);
-}
 
 
 
@@ -11917,9 +10726,6 @@ dissect_ansi_map_DataID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                        NULL);
 
   return offset;
-}
-static int dissect_dataID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataID(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataID);
 }
 
 
@@ -11939,9 +10745,6 @@ dissect_ansi_map_Change(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_change_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Change(TRUE, tvb, offset, actx, tree, hf_ansi_map_change);
-}
 
 
 
@@ -11952,64 +10755,49 @@ dissect_ansi_map_DataValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_dataValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataValue(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataValue);
-}
 
 
-static const ber_old_sequence_t DataAccessElement_sequence[] = {
-  { BER_CLASS_CON, 251, BER_FLAGS_IMPLTAG, dissect_dataID_impl },
-  { BER_CLASS_CON, 248, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_change_impl },
-  { BER_CLASS_CON, 256, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataValue_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DataAccessElement_sequence[] = {
+  { &hf_ansi_map_dataID     , BER_CLASS_CON, 251, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataID },
+  { &hf_ansi_map_change     , BER_CLASS_CON, 248, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Change },
+  { &hf_ansi_map_dataValue  , BER_CLASS_CON, 256, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataValue },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_DataAccessElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DataAccessElement_sequence, hf_index, ett_ansi_map_DataAccessElement);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DataAccessElement_sequence, hf_index, ett_ansi_map_DataAccessElement);
 
   return offset;
 }
-static int dissect_dataAccessElement1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataAccessElement(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataAccessElement1);
-}
-static int dissect_dataAccessElement2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataAccessElement(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataAccessElement2);
-}
 
 
-static const ber_old_sequence_t DataAccessElementList_item_sequence[] = {
-  { BER_CLASS_CON, 249, BER_FLAGS_IMPLTAG, dissect_dataAccessElement1_impl },
-  { BER_CLASS_CON, 249, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataAccessElement2_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DataAccessElementList_item_sequence[] = {
+  { &hf_ansi_map_dataAccessElement1, BER_CLASS_CON, 249, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataAccessElement },
+  { &hf_ansi_map_dataAccessElement2, BER_CLASS_CON, 249, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataAccessElement },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_DataAccessElementList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DataAccessElementList_item_sequence, hf_index, ett_ansi_map_DataAccessElementList_item);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DataAccessElementList_item_sequence, hf_index, ett_ansi_map_DataAccessElementList_item);
 
   return offset;
 }
-static int dissect_DataAccessElementList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataAccessElementList_item(FALSE, tvb, offset, actx, tree, hf_ansi_map_DataAccessElementList_item);
-}
 
 
-static const ber_old_sequence_t DataAccessElementList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DataAccessElementList_item },
+static const ber_sequence_t DataAccessElementList_sequence_of[1] = {
+  { &hf_ansi_map_DataAccessElementList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DataAccessElementList_item },
 };
 
 static int
 dissect_ansi_map_DataAccessElementList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          DataAccessElementList_sequence_of, hf_index, ett_ansi_map_DataAccessElementList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      DataAccessElementList_sequence_of, hf_index, ett_ansi_map_DataAccessElementList);
 
   return offset;
-}
-static int dissect_dataAccessElementList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataAccessElementList(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataAccessElementList);
 }
 
 
@@ -12021,9 +10809,6 @@ dissect_ansi_map_TimeDateOffset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_timeDateOffset_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TimeDateOffset(TRUE, tvb, offset, actx, tree, hf_ansi_map_timeDateOffset);
-}
 
 
 
@@ -12034,112 +10819,103 @@ dissect_ansi_map_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_timeOfDay_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TimeOfDay(TRUE, tvb, offset, actx, tree, hf_ansi_map_timeOfDay);
-}
 
 
-static const ber_old_sequence_t ServiceRequest_set[] = {
-  { BER_CLASS_CON, 245, BER_FLAGS_IMPLTAG, dissect_serviceID_impl },
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 90, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_availabilityType_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conditionallyDeniedReason_impl },
-  { BER_CLASS_CON, 250, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataAccessElementList_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureIndicator_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionReason_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ServiceRequest_set[] = {
+  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 245, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_availabilityType, BER_CLASS_CON, 90, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AvailabilityType },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_conditionallyDeniedReason, BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConditionallyDeniedReason },
+  { &hf_ansi_map_dataAccessElementList, BER_CLASS_CON, 250, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataAccessElementList },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ServiceRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ServiceRequest_set, hf_index, ett_ansi_map_ServiceRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ServiceRequest_set, hf_index, ett_ansi_map_ServiceRequest);
 
   return offset;
 }
-static int dissect_serviceRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_serviceRequest);
-}
 
 
-static const ber_old_sequence_t ServiceRequestRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText2_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberString_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ServiceRequestRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_displayText2, BER_CLASS_CON, 299, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText2 },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ServiceRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ServiceRequestRes_set, hf_index, ett_ansi_map_ServiceRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ServiceRequestRes_set, hf_index, ett_ansi_map_ServiceRequestRes);
 
   return offset;
-}
-static int dissect_serviceRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_serviceRequestRes);
 }
 
 
@@ -12156,95 +10932,86 @@ dissect_ansi_map_DMH_BillingIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_dmd_BillingIndicator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DMH_BillingIndicator(TRUE, tvb, offset, actx, tree, hf_ansi_map_dmd_BillingIndicator);
-}
 
 
-static const ber_old_sequence_t AnalyzedInformation_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conferenceCallingIndicator_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 312, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmd_BillingIndicator_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureIndicator_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AnalyzedInformation_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_conferenceCallingIndicator, BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConferenceCallingIndicator },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_dmd_BillingIndicator, BER_CLASS_CON, 312, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingIndicator },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AnalyzedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AnalyzedInformation_set, hf_index, ett_ansi_map_AnalyzedInformation);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AnalyzedInformation_set, hf_index, ett_ansi_map_AnalyzedInformation);
 
   return offset;
 }
-static int dissect_analyzedInformation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnalyzedInformation(FALSE, tvb, offset, actx, tree, hf_ansi_map_analyzedInformation);
-}
 
 
-static const ber_old_sequence_t AnalyzedInformationRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conferenceCallingIndicator_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AnalyzedInformationRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_conferenceCallingIndicator, BER_CLASS_CON, 137, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConferenceCallingIndicator },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AnalyzedInformationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AnalyzedInformationRes_set, hf_index, ett_ansi_map_AnalyzedInformationRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AnalyzedInformationRes_set, hf_index, ett_ansi_map_AnalyzedInformationRes);
 
   return offset;
-}
-static int dissect_analyzedInformationRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AnalyzedInformationRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_analyzedInformationRes);
 }
 
 
@@ -12264,9 +11031,6 @@ dissect_ansi_map_FailureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_failureType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FailureType(TRUE, tvb, offset, actx, tree, hf_ansi_map_failureType);
-}
 
 
 
@@ -12277,119 +11041,104 @@ dissect_ansi_map_FailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_failureCause_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FailureCause(TRUE, tvb, offset, actx, tree, hf_ansi_map_failureCause);
-}
 
 
-static const ber_old_sequence_t ConnectionFailureReport_set[] = {
-  { BER_CLASS_CON, 260, BER_FLAGS_IMPLTAG, dissect_failureType_impl },
-  { BER_CLASS_CON, 387, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_failureCause_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ConnectionFailureReport_set[] = {
+  { &hf_ansi_map_failureType, BER_CLASS_CON, 260, BER_FLAGS_IMPLTAG, dissect_ansi_map_FailureType },
+  { &hf_ansi_map_failureCause, BER_CLASS_CON, 387, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FailureCause },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ConnectionFailureReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ConnectionFailureReport_set, hf_index, ett_ansi_map_ConnectionFailureReport);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ConnectionFailureReport_set, hf_index, ett_ansi_map_ConnectionFailureReport);
 
   return offset;
 }
-static int dissect_connectionFailureReport(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ConnectionFailureReport(FALSE, tvb, offset, actx, tree, hf_ansi_map_connectionFailureReport);
-}
 
 
-static const ber_old_sequence_t ConnectResource_set[] = {
-  { BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_outingDigits_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ConnectResource_set[] = {
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_outingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ConnectResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ConnectResource_set, hf_index, ett_ansi_map_ConnectResource);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ConnectResource_set, hf_index, ett_ansi_map_ConnectResource);
 
   return offset;
 }
-static int dissect_connectResource(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ConnectResource(FALSE, tvb, offset, actx, tree, hf_ansi_map_connectResource);
-}
 
 
-static const ber_old_sequence_t FacilitySelectedAndAvailable_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitySelectedAndAvailable_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitySelectedAndAvailable(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitySelectedAndAvailable_set, hf_index, ett_ansi_map_FacilitySelectedAndAvailable);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitySelectedAndAvailable_set, hf_index, ett_ansi_map_FacilitySelectedAndAvailable);
 
   return offset;
 }
-static int dissect_facilitySelectedAndAvailable(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitySelectedAndAvailable(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitySelectedAndAvailable);
-}
 
 
-static const ber_old_sequence_t FacilitySelectedAndAvailableRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertCode_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FacilitySelectedAndAvailableRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_alertCode  , BER_CLASS_CON, 75, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AlertCode },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_FacilitySelectedAndAvailableRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  FacilitySelectedAndAvailableRes_set, hf_index, ett_ansi_map_FacilitySelectedAndAvailableRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              FacilitySelectedAndAvailableRes_set, hf_index, ett_ansi_map_FacilitySelectedAndAvailableRes);
 
   return offset;
-}
-static int dissect_facilitySelectedAndAvailableRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_FacilitySelectedAndAvailableRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_facilitySelectedAndAvailableRes);
 }
 
 
@@ -12401,42 +11150,33 @@ dissect_ansi_map_DatabaseKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_databaseKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DatabaseKey(TRUE, tvb, offset, actx, tree, hf_ansi_map_databaseKey);
-}
 
 
-static const ber_old_sequence_t ServiceDataAccessElement_sequence[] = {
-  { BER_CLASS_CON, 250, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataAccessElementList_impl },
-  { BER_CLASS_CON, 246, BER_FLAGS_IMPLTAG, dissect_serviceID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ServiceDataAccessElement_sequence[] = {
+  { &hf_ansi_map_dataAccessElementList, BER_CLASS_CON, 250, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataAccessElementList },
+  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 246, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ServiceDataAccessElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ServiceDataAccessElement_sequence, hf_index, ett_ansi_map_ServiceDataAccessElement);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ServiceDataAccessElement_sequence, hf_index, ett_ansi_map_ServiceDataAccessElement);
 
   return offset;
 }
-static int dissect_ServiceDataAccessElementList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceDataAccessElement(TRUE, tvb, offset, actx, tree, hf_ansi_map_ServiceDataAccessElementList_item);
-}
 
 
-static const ber_old_sequence_t ServiceDataAccessElementList_sequence_of[1] = {
-  { BER_CLASS_CON, 398, BER_FLAGS_IMPLTAG, dissect_ServiceDataAccessElementList_item_impl },
+static const ber_sequence_t ServiceDataAccessElementList_sequence_of[1] = {
+  { &hf_ansi_map_ServiceDataAccessElementList_item, BER_CLASS_CON, 398, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElement },
 };
 
 static int
 dissect_ansi_map_ServiceDataAccessElementList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ServiceDataAccessElementList_sequence_of, hf_index, ett_ansi_map_ServiceDataAccessElementList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ServiceDataAccessElementList_sequence_of, hf_index, ett_ansi_map_ServiceDataAccessElementList);
 
   return offset;
-}
-static int dissect_serviceDataAccessElementList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceDataAccessElementList(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceDataAccessElementList);
 }
 
 
@@ -12455,60 +11195,48 @@ dissect_ansi_map_AllOrNone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_allOrNone_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AllOrNone(TRUE, tvb, offset, actx, tree, hf_ansi_map_allOrNone);
-}
 
 
-static const ber_old_sequence_t ModificationRequest_sequence[] = {
-  { BER_CLASS_CON, 399, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceDataAccessElementList_impl },
-  { BER_CLASS_CON, 247, BER_FLAGS_IMPLTAG, dissect_allOrNone_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ModificationRequest_sequence[] = {
+  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 399, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
+  { &hf_ansi_map_allOrNone  , BER_CLASS_CON, 247, BER_FLAGS_IMPLTAG, dissect_ansi_map_AllOrNone },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ModificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ModificationRequest_sequence, hf_index, ett_ansi_map_ModificationRequest);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ModificationRequest_sequence, hf_index, ett_ansi_map_ModificationRequest);
 
   return offset;
 }
-static int dissect_ModificationRequestList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ModificationRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_ModificationRequestList_item);
-}
 
 
-static const ber_old_sequence_t ModificationRequestList_sequence_of[1] = {
-  { BER_CLASS_CON, 390, BER_FLAGS_IMPLTAG, dissect_ModificationRequestList_item_impl },
+static const ber_sequence_t ModificationRequestList_sequence_of[1] = {
+  { &hf_ansi_map_ModificationRequestList_item, BER_CLASS_CON, 390, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationRequest },
 };
 
 static int
 dissect_ansi_map_ModificationRequestList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ModificationRequestList_sequence_of, hf_index, ett_ansi_map_ModificationRequestList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ModificationRequestList_sequence_of, hf_index, ett_ansi_map_ModificationRequestList);
 
   return offset;
 }
-static int dissect_modificationRequestList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ModificationRequestList(TRUE, tvb, offset, actx, tree, hf_ansi_map_modificationRequestList);
-}
 
 
-static const ber_old_sequence_t Modify_set[] = {
-  { BER_CLASS_CON, 252, BER_FLAGS_IMPLTAG, dissect_databaseKey_impl },
-  { BER_CLASS_CON, 391, BER_FLAGS_IMPLTAG, dissect_modificationRequestList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Modify_set[] = {
+  { &hf_ansi_map_databaseKey, BER_CLASS_CON, 252, BER_FLAGS_IMPLTAG, dissect_ansi_map_DatabaseKey },
+  { &hf_ansi_map_modificationRequestList, BER_CLASS_CON, 391, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationRequestList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_Modify(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  Modify_set, hf_index, ett_ansi_map_Modify);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Modify_set, hf_index, ett_ansi_map_Modify);
 
   return offset;
-}
-static int dissect_modify(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Modify(FALSE, tvb, offset, actx, tree, hf_ansi_map_modify);
 }
 
 
@@ -12529,76 +11257,61 @@ dissect_ansi_map_DataResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_dataResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataResult);
-}
 
 
-static const ber_old_sequence_t DataUpdateResult_sequence[] = {
-  { BER_CLASS_CON, 251, BER_FLAGS_IMPLTAG, dissect_dataID_impl },
-  { BER_CLASS_CON, 253, BER_FLAGS_IMPLTAG, dissect_dataResult_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DataUpdateResult_sequence[] = {
+  { &hf_ansi_map_dataID     , BER_CLASS_CON, 251, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataID },
+  { &hf_ansi_map_dataResult , BER_CLASS_CON, 253, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataResult },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_DataUpdateResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DataUpdateResult_sequence, hf_index, ett_ansi_map_DataUpdateResult);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DataUpdateResult_sequence, hf_index, ett_ansi_map_DataUpdateResult);
 
   return offset;
 }
-static int dissect_DataUpdateResultList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataUpdateResult(FALSE, tvb, offset, actx, tree, hf_ansi_map_DataUpdateResultList_item);
-}
 
 
-static const ber_old_sequence_t DataUpdateResultList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DataUpdateResultList_item },
+static const ber_sequence_t DataUpdateResultList_sequence_of[1] = {
+  { &hf_ansi_map_DataUpdateResultList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DataUpdateResult },
 };
 
 static int
 dissect_ansi_map_DataUpdateResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          DataUpdateResultList_sequence_of, hf_index, ett_ansi_map_DataUpdateResultList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      DataUpdateResultList_sequence_of, hf_index, ett_ansi_map_DataUpdateResultList);
 
   return offset;
 }
-static int dissect_dataUpdateResultList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DataUpdateResultList(TRUE, tvb, offset, actx, tree, hf_ansi_map_dataUpdateResultList);
-}
 
 
-static const ber_old_sequence_t ServiceDataResult_sequence[] = {
-  { BER_CLASS_CON, 255, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataUpdateResultList_impl },
-  { BER_CLASS_CON, 246, BER_FLAGS_IMPLTAG, dissect_serviceID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ServiceDataResult_sequence[] = {
+  { &hf_ansi_map_dataUpdateResultList, BER_CLASS_CON, 255, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataUpdateResultList },
+  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 246, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ServiceDataResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ServiceDataResult_sequence, hf_index, ett_ansi_map_ServiceDataResult);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ServiceDataResult_sequence, hf_index, ett_ansi_map_ServiceDataResult);
 
   return offset;
 }
-static int dissect_ServiceDataResultList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceDataResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_ServiceDataResultList_item);
-}
 
 
-static const ber_old_sequence_t ServiceDataResultList_sequence_of[1] = {
-  { BER_CLASS_CON, 272, BER_FLAGS_IMPLTAG, dissect_ServiceDataResultList_item_impl },
+static const ber_sequence_t ServiceDataResultList_sequence_of[1] = {
+  { &hf_ansi_map_ServiceDataResultList_item, BER_CLASS_CON, 272, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataResult },
 };
 
 static int
 dissect_ansi_map_ServiceDataResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ServiceDataResultList_sequence_of, hf_index, ett_ansi_map_ServiceDataResultList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ServiceDataResultList_sequence_of, hf_index, ett_ansi_map_ServiceDataResultList);
 
   return offset;
-}
-static int dissect_serviceDataResultList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceDataResultList(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceDataResultList);
 }
 
 
@@ -12608,90 +11321,75 @@ static const value_string ansi_map_ModificationResult_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ModificationResult_choice[] = {
-  { 253, BER_CLASS_CON, 253, BER_FLAGS_IMPLTAG, dissect_dataResult_impl },
-  { 273, BER_CLASS_CON, 273, BER_FLAGS_IMPLTAG, dissect_serviceDataResultList_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ModificationResult_choice[] = {
+  { 253, &hf_ansi_map_dataResult , BER_CLASS_CON, 253, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataResult },
+  { 273, &hf_ansi_map_serviceDataResultList, BER_CLASS_CON, 273, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataResultList },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ModificationResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ModificationResult_choice, hf_index, ett_ansi_map_ModificationResult,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ModificationResult_choice, hf_index, ett_ansi_map_ModificationResult,
+                                 NULL);
 
   return offset;
 }
-static int dissect_ModificationResultList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ModificationResult(FALSE, tvb, offset, actx, tree, hf_ansi_map_ModificationResultList_item);
-}
 
 
-static const ber_old_sequence_t ModificationResultList_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ModificationResultList_item },
+static const ber_sequence_t ModificationResultList_sequence_of[1] = {
+  { &hf_ansi_map_ModificationResultList_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_ModificationResult },
 };
 
 static int
 dissect_ansi_map_ModificationResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ModificationResultList_sequence_of, hf_index, ett_ansi_map_ModificationResultList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ModificationResultList_sequence_of, hf_index, ett_ansi_map_ModificationResultList);
 
   return offset;
 }
-static int dissect_modificationResultList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ModificationResultList(TRUE, tvb, offset, actx, tree, hf_ansi_map_modificationResultList);
-}
 
 
-static const ber_old_sequence_t ModifyRes_set[] = {
-  { BER_CLASS_CON, 392, BER_FLAGS_IMPLTAG, dissect_modificationResultList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ModifyRes_set[] = {
+  { &hf_ansi_map_modificationResultList, BER_CLASS_CON, 392, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationResultList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ModifyRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ModifyRes_set, hf_index, ett_ansi_map_ModifyRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ModifyRes_set, hf_index, ett_ansi_map_ModifyRes);
 
   return offset;
 }
-static int dissect_modifyRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ModifyRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_modifyRes);
-}
 
 
-static const ber_old_sequence_t Search_set[] = {
-  { BER_CLASS_CON, 252, BER_FLAGS_IMPLTAG, dissect_databaseKey_impl },
-  { BER_CLASS_CON, 399, BER_FLAGS_IMPLTAG, dissect_serviceDataAccessElementList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Search_set[] = {
+  { &hf_ansi_map_databaseKey, BER_CLASS_CON, 252, BER_FLAGS_IMPLTAG, dissect_ansi_map_DatabaseKey },
+  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 399, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_Search(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  Search_set, hf_index, ett_ansi_map_Search);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Search_set, hf_index, ett_ansi_map_Search);
 
   return offset;
 }
-static int dissect_search(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Search(FALSE, tvb, offset, actx, tree, hf_ansi_map_search);
-}
 
 
-static const ber_old_sequence_t SearchRes_set[] = {
-  { BER_CLASS_CON, 399, BER_FLAGS_IMPLTAG, dissect_serviceDataAccessElementList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SearchRes_set[] = {
+  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 399, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SearchRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SearchRes_set, hf_index, ett_ansi_map_SearchRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SearchRes_set, hf_index, ett_ansi_map_SearchRes);
 
   return offset;
-}
-static int dissect_searchRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SearchRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_searchRes);
 }
 
 
@@ -12703,9 +11401,6 @@ dissect_ansi_map_PrivateSpecializedResource(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_privateSpecializedResource_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PrivateSpecializedResource(TRUE, tvb, offset, actx, tree, hf_ansi_map_privateSpecializedResource);
-}
 
 
 
@@ -12716,44 +11411,35 @@ dissect_ansi_map_SpecializedResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_specializedResource_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SpecializedResource(TRUE, tvb, offset, actx, tree, hf_ansi_map_specializedResource);
-}
 
 
-static const ber_old_sequence_t SeizeResource_set[] = {
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 383, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateSpecializedResource_impl },
-  { BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_specializedResource_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SeizeResource_set[] = {
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_privateSpecializedResource, BER_CLASS_CON, 383, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateSpecializedResource },
+  { &hf_ansi_map_specializedResource, BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SpecializedResource },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SeizeResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SeizeResource_set, hf_index, ett_ansi_map_SeizeResource);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SeizeResource_set, hf_index, ett_ansi_map_SeizeResource);
 
   return offset;
 }
-static int dissect_seizeResource(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SeizeResource(FALSE, tvb, offset, actx, tree, hf_ansi_map_seizeResource);
-}
 
 
-static const ber_old_sequence_t SeizeResourceRes_set[] = {
-  { BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SeizeResourceRes_set[] = {
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SeizeResourceRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SeizeResourceRes_set, hf_index, ett_ansi_map_SeizeResourceRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SeizeResourceRes_set, hf_index, ett_ansi_map_SeizeResourceRes);
 
   return offset;
-}
-static int dissect_seizeResourceRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SeizeResourceRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_seizeResourceRes);
 }
 
 
@@ -12765,9 +11451,6 @@ dissect_ansi_map_ScriptName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_scriptName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ScriptName(TRUE, tvb, offset, actx, tree, hf_ansi_map_scriptName);
-}
 
 
 
@@ -12778,46 +11461,37 @@ dissect_ansi_map_ScriptArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_scriptArgument_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ScriptArgument(TRUE, tvb, offset, actx, tree, hf_ansi_map_scriptArgument);
-}
 
 
-static const ber_old_sequence_t ExecuteScript_sequence[] = {
-  { BER_CLASS_CON, 396, BER_FLAGS_IMPLTAG, dissect_scriptName_impl },
-  { BER_CLASS_CON, 395, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_scriptArgument_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ExecuteScript_sequence[] = {
+  { &hf_ansi_map_scriptName , BER_CLASS_CON, 396, BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptName },
+  { &hf_ansi_map_scriptArgument, BER_CLASS_CON, 395, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptArgument },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ExecuteScript(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ExecuteScript_sequence, hf_index, ett_ansi_map_ExecuteScript);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ExecuteScript_sequence, hf_index, ett_ansi_map_ExecuteScript);
 
   return offset;
 }
-static int dissect_executeScript_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ExecuteScript(TRUE, tvb, offset, actx, tree, hf_ansi_map_executeScript);
-}
 
 
-static const ber_old_sequence_t SRFDirective_set[] = {
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 139, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digitCollectionControl_impl },
-  { BER_CLASS_CON, 386, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_executeScript_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SRFDirective_set[] = {
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_digitCollectionControl, BER_CLASS_CON, 139, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DigitCollectionControl },
+  { &hf_ansi_map_executeScript, BER_CLASS_CON, 386, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExecuteScript },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SRFDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SRFDirective_set, hf_index, ett_ansi_map_SRFDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SRFDirective_set, hf_index, ett_ansi_map_SRFDirective);
 
   return offset;
-}
-static int dissect_sRFDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SRFDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_sRFDirective);
 }
 
 
@@ -12829,230 +11503,206 @@ dissect_ansi_map_ScriptResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_scriptResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ScriptResult(TRUE, tvb, offset, actx, tree, hf_ansi_map_scriptResult);
-}
 
 
-static const ber_old_sequence_t SRFDirectiveRes_set[] = {
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 397, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_scriptResult_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SRFDirectiveRes_set[] = {
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_scriptResult, BER_CLASS_CON, 397, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptResult },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SRFDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SRFDirectiveRes_set, hf_index, ett_ansi_map_SRFDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SRFDirectiveRes_set, hf_index, ett_ansi_map_SRFDirectiveRes);
 
   return offset;
 }
-static int dissect_sRFDirectiveRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SRFDirectiveRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_sRFDirectiveRes);
-}
 
 
-static const ber_old_sequence_t TBusy_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionReason_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TBusy_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TBusy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TBusy_set, hf_index, ett_ansi_map_TBusy);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TBusy_set, hf_index, ett_ansi_map_TBusy);
 
   return offset;
 }
-static int dissect_tBusy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TBusy(FALSE, tvb, offset, actx, tree, hf_ansi_map_tBusy);
-}
 
 
-static const ber_old_sequence_t TBusyRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TBusyRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TBusyRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TBusyRes_set, hf_index, ett_ansi_map_TBusyRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TBusyRes_set, hf_index, ett_ansi_map_TBusyRes);
 
   return offset;
 }
-static int dissect_tBusyRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TBusyRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_tBusyRes);
-}
 
 
-static const ber_old_sequence_t TNoAnswer_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acgencountered_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotBillingID_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingSubaddress_impl },
-  { BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectionReason_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TNoAnswer_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_acgencountered, BER_CLASS_CON, 340, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ACGEncountered },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_legInformation, BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LegInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pilotBillingID, BER_CLASS_CON, 169, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotBillingID },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
+  { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TNoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TNoAnswer_set, hf_index, ett_ansi_map_TNoAnswer);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TNoAnswer_set, hf_index, ett_ansi_map_TNoAnswer);
 
   return offset;
 }
-static int dissect_tNoAnswer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TNoAnswer(FALSE, tvb, offset, actx, tree, hf_ansi_map_tNoAnswer);
-}
 
 
-static const ber_old_sequence_t TNoAnswerRes_set[] = {
-  { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
-  { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_resumePIC_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TNoAnswerRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_callingPartyNumberString1, BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString1 },
+  { &hf_ansi_map_callingPartyNumberString2, BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberString2 },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_groupInformation, BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GroupInformation },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TNoAnswerRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TNoAnswerRes_set, hf_index, ett_ansi_map_TNoAnswerRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TNoAnswerRes_set, hf_index, ett_ansi_map_TNoAnswerRes);
 
   return offset;
 }
-static int dissect_tNoAnswerRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TNoAnswerRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_tNoAnswerRes);
-}
 
 
-static const ber_old_sequence_t ChangeFacilities_set[] = {
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ChangeFacilities_set[] = {
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_dataPrivacyParameters, BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataPrivacyParameters },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_tdmaBandwidth, BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABandwidth },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ChangeFacilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ChangeFacilities_set, hf_index, ett_ansi_map_ChangeFacilities);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ChangeFacilities_set, hf_index, ett_ansi_map_ChangeFacilities);
 
   return offset;
 }
-static int dissect_changeFacilities(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ChangeFacilities(FALSE, tvb, offset, actx, tree, hf_ansi_map_changeFacilities);
-}
 
 
-static const ber_old_sequence_t ChangeFacilitiesRes_set[] = {
-  { BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ChangeFacilitiesRes_set[] = {
+  { &hf_ansi_map_reasonList , BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReasonList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ChangeFacilitiesRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ChangeFacilitiesRes_set, hf_index, ett_ansi_map_ChangeFacilitiesRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ChangeFacilitiesRes_set, hf_index, ett_ansi_map_ChangeFacilitiesRes);
 
   return offset;
-}
-static int dissect_changeFacilitiesRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ChangeFacilitiesRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_changeFacilitiesRes);
 }
 
 
@@ -13064,132 +11714,114 @@ dissect_ansi_map_TDMAVoiceMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_tdmaVoiceMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDMAVoiceMode(TRUE, tvb, offset, actx, tree, hf_ansi_map_tdmaVoiceMode);
-}
 
 
-static const ber_old_sequence_t ChangeService_set[] = {
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_changeServiceAttributes_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
-  { BER_CLASS_CON, 222, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaDataMode_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 223, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceMode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ChangeService_set[] = {
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_changeServiceAttributes, BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChangeServiceAttributes },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_ilspInformation, BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ISLPInformation },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_tdmaBandwidth, BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMABandwidth },
+  { &hf_ansi_map_tdmaDataMode, BER_CLASS_CON, 222, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataMode },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_tdmaVoiceMode, BER_CLASS_CON, 223, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceMode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ChangeService(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ChangeService_set, hf_index, ett_ansi_map_ChangeService);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ChangeService_set, hf_index, ett_ansi_map_ChangeService);
 
   return offset;
 }
-static int dissect_changeService(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ChangeService(FALSE, tvb, offset, actx, tree, hf_ansi_map_changeService);
-}
 
 
-static const ber_old_sequence_t ChangeServiceRes_set[] = {
-  { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceConfigurationRecord_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_changeServiceAttributes_impl },
-  { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
-  { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonList_impl },
-  { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ChangeServiceRes_set[] = {
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServiceConfigurationRecord, BER_CLASS_CON, 174, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceConfigurationRecord },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_changeServiceAttributes, BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChangeServiceAttributes },
+  { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
+  { &hf_ansi_map_dataPrivacyParameters, BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataPrivacyParameters },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_reasonList , BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReasonList },
+  { &hf_ansi_map_tdmaServiceCode, BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAServiceCode },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ChangeServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ChangeServiceRes_set, hf_index, ett_ansi_map_ChangeServiceRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ChangeServiceRes_set, hf_index, ett_ansi_map_ChangeServiceRes);
 
   return offset;
 }
-static int dissect_changeServiceRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ChangeServiceRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_changeServiceRes);
-}
 
 
-static const ber_old_sequence_t MessageDirective_set[] = {
-  { BER_CLASS_CON, 92, BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationCount_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MessageDirective_set[] = {
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_MessageDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  MessageDirective_set, hf_index, ett_ansi_map_MessageDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MessageDirective_set, hf_index, ett_ansi_map_MessageDirective);
 
   return offset;
 }
-static int dissect_messageDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MessageDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_messageDirective);
-}
 
 
-static const ber_old_sequence_t BulkDisconnection_set[] = {
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t BulkDisconnection_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_BulkDisconnection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  BulkDisconnection_set, hf_index, ett_ansi_map_BulkDisconnection);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              BulkDisconnection_set, hf_index, ett_ansi_map_BulkDisconnection);
 
   return offset;
 }
-static int dissect_bulkDisconnection(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BulkDisconnection(FALSE, tvb, offset, actx, tree, hf_ansi_map_bulkDisconnection);
-}
 
 
-static const ber_old_sequence_t CallControlDirective_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CallControlDirective_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_displayText, BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DisplayText },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CallControlDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CallControlDirective_set, hf_index, ett_ansi_map_CallControlDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CallControlDirective_set, hf_index, ett_ansi_map_CallControlDirective);
 
   return offset;
-}
-static int dissect_callControlDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallControlDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_callControlDirective);
 }
 
 
@@ -13209,54 +11841,45 @@ dissect_ansi_map_CallStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_callStatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallStatus(TRUE, tvb, offset, actx, tree, hf_ansi_map_callStatus);
-}
 
 
-static const ber_old_sequence_t CallControlDirectiveRes_set[] = {
-  { BER_CLASS_CON, 310, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callStatus_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CallControlDirectiveRes_set[] = {
+  { &hf_ansi_map_callStatus , BER_CLASS_CON, 310, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallStatus },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CallControlDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CallControlDirectiveRes_set, hf_index, ett_ansi_map_CallControlDirectiveRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CallControlDirectiveRes_set, hf_index, ett_ansi_map_CallControlDirectiveRes);
 
   return offset;
 }
-static int dissect_callControlDirectiveRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallControlDirectiveRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_callControlDirectiveRes);
-}
 
 
-static const ber_old_sequence_t OAnswer_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 275, BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureIndicator_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OAnswer_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OAnswer_set, hf_index, ett_ansi_map_OAnswer);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OAnswer_set, hf_index, ett_ansi_map_OAnswer);
 
   return offset;
-}
-static int dissect_oAnswer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OAnswer(FALSE, tvb, offset, actx, tree, hf_ansi_map_oAnswer);
 }
 
 
@@ -13276,348 +11899,306 @@ dissect_ansi_map_ReleaseCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_releaseCause_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ReleaseCause(TRUE, tvb, offset, actx, tree, hf_ansi_map_releaseCause);
-}
 
 
-static const ber_old_sequence_t ODisconnect_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 308, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
-  { BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ODisconnect_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_releaseCause, BER_CLASS_CON, 308, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReleaseCause },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ODisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ODisconnect_set, hf_index, ett_ansi_map_ODisconnect);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ODisconnect_set, hf_index, ett_ansi_map_ODisconnect);
 
   return offset;
 }
-static int dissect_oDisconnect(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ODisconnect(FALSE, tvb, offset, actx, tree, hf_ansi_map_oDisconnect);
-}
 
 
-static const ber_old_sequence_t ODisconnectRes_set[] = {
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ODisconnectRes_set[] = {
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ODisconnectRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ODisconnectRes_set, hf_index, ett_ansi_map_ODisconnectRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ODisconnectRes_set, hf_index, ett_ansi_map_ODisconnectRes);
 
   return offset;
 }
-static int dissect_oDisconnectRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ODisconnectRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_oDisconnectRes);
-}
 
 
-static const ber_old_sequence_t CallRecoveryID_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 275, BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CallRecoveryID_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CallRecoveryID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CallRecoveryID_set, hf_index, ett_ansi_map_CallRecoveryID);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CallRecoveryID_set, hf_index, ett_ansi_map_CallRecoveryID);
 
   return offset;
 }
-static int dissect_CallRecoveryIDList_item_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallRecoveryID(TRUE, tvb, offset, actx, tree, hf_ansi_map_CallRecoveryIDList_item);
-}
 
 
-static const ber_old_sequence_t CallRecoveryIDList_set_of[1] = {
-  { BER_CLASS_CON, 303, BER_FLAGS_IMPLTAG, dissect_CallRecoveryIDList_item_impl },
+static const ber_sequence_t CallRecoveryIDList_set_of[1] = {
+  { &hf_ansi_map_CallRecoveryIDList_item, BER_CLASS_CON, 303, BER_FLAGS_IMPLTAG, dissect_ansi_map_CallRecoveryID },
 };
 
 static int
 dissect_ansi_map_CallRecoveryIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     CallRecoveryIDList_set_of, hf_index, ett_ansi_map_CallRecoveryIDList);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 CallRecoveryIDList_set_of, hf_index, ett_ansi_map_CallRecoveryIDList);
 
   return offset;
 }
-static int dissect_callRecoveryIDList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallRecoveryIDList(TRUE, tvb, offset, actx, tree, hf_ansi_map_callRecoveryIDList);
-}
 
 
-static const ber_old_sequence_t CallRecoveryReport_set[] = {
-  { BER_CLASS_CON, 304, BER_FLAGS_IMPLTAG, dissect_callRecoveryIDList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CallRecoveryReport_set[] = {
+  { &hf_ansi_map_callRecoveryIDList, BER_CLASS_CON, 304, BER_FLAGS_IMPLTAG, dissect_ansi_map_CallRecoveryIDList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_CallRecoveryReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CallRecoveryReport_set, hf_index, ett_ansi_map_CallRecoveryReport);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CallRecoveryReport_set, hf_index, ett_ansi_map_CallRecoveryReport);
 
   return offset;
 }
-static int dissect_callRecoveryReport(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_CallRecoveryReport(FALSE, tvb, offset, actx, tree, hf_ansi_map_callRecoveryReport);
-}
 
 
-static const ber_old_sequence_t TAnswer_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureIndicator_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationAccessType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TAnswer_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TAnswer_set, hf_index, ett_ansi_map_TAnswer);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TAnswer_set, hf_index, ett_ansi_map_TAnswer);
 
   return offset;
 }
-static int dissect_tAnswer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TAnswer(FALSE, tvb, offset, actx, tree, hf_ansi_map_tAnswer);
-}
 
 
-static const ber_old_sequence_t TDisconnect_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timeDateOffset_impl },
-  { BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_timeOfDay_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 308, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_systemMyTypeCode_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TDisconnect_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
+  { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_releaseCause, BER_CLASS_CON, 308, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReleaseCause },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TDisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TDisconnect_set, hf_index, ett_ansi_map_TDisconnect);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TDisconnect_set, hf_index, ett_ansi_map_TDisconnect);
 
   return offset;
 }
-static int dissect_tDisconnect(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDisconnect(FALSE, tvb, offset, actx, tree, hf_ansi_map_tDisconnect);
-}
 
 
-static const ber_old_sequence_t TDisconnectRes_set[] = {
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TDisconnectRes_set[] = {
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_TDisconnectRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TDisconnectRes_set, hf_index, ett_ansi_map_TDisconnectRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TDisconnectRes_set, hf_index, ett_ansi_map_TDisconnectRes);
 
   return offset;
 }
-static int dissect_tDisconnectRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_TDisconnectRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_tDisconnectRes);
-}
 
 
-static const ber_old_sequence_t UnreliableCallData_set[] = {
-  { BER_CLASS_CON, 307, BER_FLAGS_IMPLTAG, dissect_controlNetworkID_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UnreliableCallData_set[] = {
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_UnreliableCallData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  UnreliableCallData_set, hf_index, ett_ansi_map_UnreliableCallData);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              UnreliableCallData_set, hf_index, ett_ansi_map_UnreliableCallData);
 
   return offset;
 }
-static int dissect_unreliableCallData(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_UnreliableCallData(FALSE, tvb, offset, actx, tree, hf_ansi_map_unreliableCallData);
-}
 
 
-static const ber_old_sequence_t OCalledPartyBusy_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 387, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_failureCause_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OCalledPartyBusy_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_failureCause, BER_CLASS_CON, 387, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FailureCause },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OCalledPartyBusy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OCalledPartyBusy_set, hf_index, ett_ansi_map_OCalledPartyBusy);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OCalledPartyBusy_set, hf_index, ett_ansi_map_OCalledPartyBusy);
 
   return offset;
 }
-static int dissect_oCalledPartyBusy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OCalledPartyBusy(FALSE, tvb, offset, actx, tree, hf_ansi_map_oCalledPartyBusy);
-}
 
 
-static const ber_old_sequence_t OCalledPartyBusyRes_set[] = {
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OCalledPartyBusyRes_set[] = {
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OCalledPartyBusyRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OCalledPartyBusyRes_set, hf_index, ett_ansi_map_OCalledPartyBusyRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OCalledPartyBusyRes_set, hf_index, ett_ansi_map_OCalledPartyBusyRes);
 
   return offset;
 }
-static int dissect_oCalledPartyBusyRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OCalledPartyBusyRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_oCalledPartyBusyRes);
-}
 
 
-static const ber_old_sequence_t ONoAnswer_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_triggerType_impl },
-  { BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_winCapability_impl },
-  { BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyName_impl },
-  { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
-  { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
-  { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingPartyName_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ONoAnswer_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_callingPartyName, BER_CLASS_CON, 243, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyName },
+  { &hf_ansi_map_callingPartyNumberDigits1, BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits1 },
+  { &hf_ansi_map_callingPartyNumberDigits2, BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyNumberDigits2 },
+  { &hf_ansi_map_callingPartySubaddress, BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartySubaddress },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ONoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ONoAnswer_set, hf_index, ett_ansi_map_ONoAnswer);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ONoAnswer_set, hf_index, ett_ansi_map_ONoAnswer);
 
   return offset;
 }
-static int dissect_oNoAnswer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ONoAnswer(FALSE, tvb, offset, actx, tree, hf_ansi_map_oNoAnswer);
-}
 
 
-static const ber_old_sequence_t ONoAnswerRes_set[] = {
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_actionCode_impl },
-  { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
-  { BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
-  { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationList_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ONoAnswerRes_set[] = {
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_announcementList, BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AnnouncementList },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_dmh_ChargeInformation, BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ChargeInformation },
+  { &hf_ansi_map_dmh_RedirectionIndicator, BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_RedirectionIndicator },
+  { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
+  { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
+  { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ONoAnswerRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ONoAnswerRes_set, hf_index, ett_ansi_map_ONoAnswerRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ONoAnswerRes_set, hf_index, ett_ansi_map_ONoAnswerRes);
 
   return offset;
-}
-static int dissect_oNoAnswerRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ONoAnswerRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_oNoAnswerRes);
 }
 
 
@@ -13629,30 +12210,24 @@ dissect_ansi_map_PositionInformationCode(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_positionInformationCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PositionInformationCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionInformationCode);
-}
 
 
-static const ber_old_sequence_t PositionRequest_set[] = {
-  { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 315, BER_FLAGS_IMPLTAG, dissect_positionInformationCode_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_senderIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PositionRequest_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_positionInformationCode, BER_CLASS_CON, 315, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionInformationCode },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_PositionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  PositionRequest_set, hf_index, ett_ansi_map_PositionRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              PositionRequest_set, hf_index, ett_ansi_map_PositionRequest);
 
   return offset;
-}
-static int dissect_positionRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PositionRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_positionRequest);
 }
 
 
@@ -13664,75 +12239,63 @@ dissect_ansi_map_MSStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_mSStatus_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MSStatus(TRUE, tvb, offset, actx, tree, hf_ansi_map_mSStatus);
-}
 
 
-static const ber_old_sequence_t PositionRequestRes_set[] = {
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
-  { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 313, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSStatus_impl },
-  { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
-  { BER_CLASS_CON, 202, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pSID_RSIDInformation_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PositionRequestRes_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_extendedMSCID, BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ExtendedMSCID },
+  { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mSStatus   , BER_CLASS_CON, 313, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSStatus },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_pSID_RSIDInformation, BER_CLASS_CON, 202, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDInformation },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_PositionRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  PositionRequestRes_set, hf_index, ett_ansi_map_PositionRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              PositionRequestRes_set, hf_index, ett_ansi_map_PositionRequestRes);
 
   return offset;
 }
-static int dissect_positionRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PositionRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_positionRequestRes);
-}
 
 
-static const ber_old_sequence_t PositionRequestForward_set[] = {
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 315, BER_FLAGS_IMPLTAG, dissect_positionInformationCode_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PositionRequestForward_set[] = {
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_positionInformationCode, BER_CLASS_CON, 315, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionInformationCode },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_PositionRequestForward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  PositionRequestForward_set, hf_index, ett_ansi_map_PositionRequestForward);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              PositionRequestForward_set, hf_index, ett_ansi_map_PositionRequestForward);
 
   return offset;
 }
-static int dissect_positionRequestForward(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PositionRequestForward(FALSE, tvb, offset, actx, tree, hf_ansi_map_positionRequestForward);
-}
 
 
-static const ber_old_sequence_t PositionRequestForwardRes_set[] = {
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_CON, 313, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSStatus_impl },
-  { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PositionRequestForwardRes_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_mSStatus   , BER_CLASS_CON, 313, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSStatus },
+  { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_PositionRequestForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  PositionRequestForwardRes_set, hf_index, ett_ansi_map_PositionRequestForwardRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              PositionRequestForwardRes_set, hf_index, ett_ansi_map_PositionRequestForwardRes);
 
   return offset;
-}
-static int dissect_positionRequestForwardRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PositionRequestForwardRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_positionRequestForwardRes);
 }
 
 
@@ -13743,9 +12306,6 @@ dissect_ansi_map_ControlType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
                                        NULL);
 
   return offset;
-}
-static int dissect_controlType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ControlType(TRUE, tvb, offset, actx, tree, hf_ansi_map_controlType);
 }
 
 
@@ -13762,9 +12322,6 @@ dissect_ansi_map_GapDuration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_gapDuration_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_GapDuration(TRUE, tvb, offset, actx, tree, hf_ansi_map_gapDuration);
-}
 
 
 static const value_string ansi_map_SCFOverloadGapInterval_vals[] = {
@@ -13779,9 +12336,6 @@ dissect_ansi_map_SCFOverloadGapInterval(gboolean implicit_tag _U_, tvbuff_t *tvb
                                   NULL);
 
   return offset;
-}
-static int dissect_sCFOverloadGapInterval_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_SCFOverloadGapInterval(TRUE, tvb, offset, actx, tree, hf_ansi_map_sCFOverloadGapInterval);
 }
 
 
@@ -13798,9 +12352,6 @@ dissect_ansi_map_ServiceManagementSystemGapInterval(gboolean implicit_tag _U_, t
 
   return offset;
 }
-static int dissect_serviceManagementSystemGapInterval_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ServiceManagementSystemGapInterval(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceManagementSystemGapInterval);
-}
 
 
 static const value_string ansi_map_GapInterval_vals[] = {
@@ -13809,42 +12360,36 @@ static const value_string ansi_map_GapInterval_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t GapInterval_choice[] = {
-  { 343, BER_CLASS_CON, 343, BER_FLAGS_IMPLTAG, dissect_sCFOverloadGapInterval_impl },
-  { 344, BER_CLASS_CON, 344, BER_FLAGS_IMPLTAG, dissect_serviceManagementSystemGapInterval_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t GapInterval_choice[] = {
+  { 343, &hf_ansi_map_sCFOverloadGapInterval, BER_CLASS_CON, 343, BER_FLAGS_IMPLTAG, dissect_ansi_map_SCFOverloadGapInterval },
+  { 344, &hf_ansi_map_serviceManagementSystemGapInterval, BER_CLASS_CON, 344, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceManagementSystemGapInterval },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_GapInterval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     GapInterval_choice, hf_index, ett_ansi_map_GapInterval,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 GapInterval_choice, hf_index, ett_ansi_map_GapInterval,
+                                 NULL);
 
   return offset;
 }
-static int dissect_gapInterval(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_GapInterval(FALSE, tvb, offset, actx, tree, hf_ansi_map_gapInterval);
-}
 
 
-static const ber_old_sequence_t ACGDirective_set[] = {
-  { BER_CLASS_CON, 341, BER_FLAGS_IMPLTAG, dissect_controlType_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_destinationAddress },
-  { BER_CLASS_CON, 342, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gapDuration_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_gapInterval },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ACGDirective_set[] = {
+  { &hf_ansi_map_controlType, BER_CLASS_CON, 341, BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlType },
+  { &hf_ansi_map_destinationAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_DestinationAddress },
+  { &hf_ansi_map_gapDuration, BER_CLASS_CON, 342, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GapDuration },
+  { &hf_ansi_map_gapInterval, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_GapInterval },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ACGDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ACGDirective_set, hf_index, ett_ansi_map_ACGDirective);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ACGDirective_set, hf_index, ett_ansi_map_ACGDirective);
 
   return offset;
-}
-static int dissect_aCGDirective(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ACGDirective(FALSE, tvb, offset, actx, tree, hf_ansi_map_aCGDirective);
 }
 
 
@@ -13856,9 +12401,6 @@ dissect_ansi_map_InvokingNEType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_invokingNEType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_InvokingNEType(TRUE, tvb, offset, actx, tree, hf_ansi_map_invokingNEType);
-}
 
 
 
@@ -13869,127 +12411,106 @@ dissect_ansi_map_Range(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_range_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_Range(TRUE, tvb, offset, actx, tree, hf_ansi_map_range);
-}
 
 
-static const ber_old_sequence_t RoamerDatabaseVerificationRequest_set[] = {
-  { BER_CLASS_CON, 353, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_invokingNEType_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_CON, 352, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_range_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RoamerDatabaseVerificationRequest_set[] = {
+  { &hf_ansi_map_invokingNEType, BER_CLASS_CON, 353, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InvokingNEType },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_range      , BER_CLASS_CON, 352, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Range },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RoamerDatabaseVerificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RoamerDatabaseVerificationRequest_set, hf_index, ett_ansi_map_RoamerDatabaseVerificationRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RoamerDatabaseVerificationRequest_set, hf_index, ett_ansi_map_RoamerDatabaseVerificationRequest);
 
   return offset;
 }
-static int dissect_roamerDatabaseVerificationRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoamerDatabaseVerificationRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_roamerDatabaseVerificationRequest);
-}
 
 
-static const ber_old_sequence_t RoamerDatabaseVerificationRequestRes_set[] = {
-  { BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_transactionCapability_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RoamerDatabaseVerificationRequestRes_set[] = {
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_RoamerDatabaseVerificationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RoamerDatabaseVerificationRequestRes_set, hf_index, ett_ansi_map_RoamerDatabaseVerificationRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RoamerDatabaseVerificationRequestRes_set, hf_index, ett_ansi_map_RoamerDatabaseVerificationRequestRes);
 
   return offset;
 }
-static int dissect_roamerDatabaseVerificationRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_RoamerDatabaseVerificationRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_roamerDatabaseVerificationRequestRes);
-}
 
 
-static const ber_old_sequence_t AddService_set[] = {
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AddService_set[] = {
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AddService(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AddService_set, hf_index, ett_ansi_map_AddService);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AddService_set, hf_index, ett_ansi_map_AddService);
 
   return offset;
 }
-static int dissect_addService(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AddService(FALSE, tvb, offset, actx, tree, hf_ansi_map_addService);
-}
 
 
-static const ber_old_sequence_t AddServiceRes_set[] = {
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qosPriority_impl },
-  { BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonList_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AddServiceRes_set[] = {
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_reasonList , BER_CLASS_CON, 218, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReasonList },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_AddServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AddServiceRes_set, hf_index, ett_ansi_map_AddServiceRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AddServiceRes_set, hf_index, ett_ansi_map_AddServiceRes);
 
   return offset;
 }
-static int dissect_addServiceRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AddServiceRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_addServiceRes);
-}
 
 
-static const ber_old_sequence_t DropService_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
-  { BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseReason_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DropService_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_releaseReason, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReleaseReason },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_DropService(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  DropService_set, hf_index, ett_ansi_map_DropService);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              DropService_set, hf_index, ett_ansi_map_DropService);
 
   return offset;
 }
-static int dissect_dropService(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DropService(FALSE, tvb, offset, actx, tree, hf_ansi_map_dropService);
-}
 
 
-static const ber_old_sequence_t DropServiceRes_set[] = {
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DropServiceRes_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_DropServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  DropServiceRes_set, hf_index, ett_ansi_map_DropServiceRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              DropServiceRes_set, hf_index, ett_ansi_map_DropServiceRes);
 
   return offset;
-}
-static int dissect_dropServiceRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_DropServiceRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_dropServiceRes);
 }
 
 
@@ -14001,9 +12522,6 @@ dissect_ansi_map_AKeyProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_aKeyProtocolVersion_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_AKeyProtocolVersion(TRUE, tvb, offset, actx, tree, hf_ansi_map_aKeyProtocolVersion);
-}
 
 
 
@@ -14014,9 +12532,6 @@ dissect_ansi_map_MobileStationPartialKey(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_mobileStationPartialKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_MobileStationPartialKey(TRUE, tvb, offset, actx, tree, hf_ansi_map_mobileStationPartialKey);
-}
 
 
 static const value_string ansi_map_NewlyAssignedMSID_vals[] = {
@@ -14025,54 +12540,48 @@ static const value_string ansi_map_NewlyAssignedMSID_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t NewlyAssignedMSID_choice[] = {
-  { 187, BER_CLASS_CON, 187, BER_FLAGS_IMPLTAG, dissect_newlyAssignedMIN_impl },
-  { 287, BER_CLASS_CON, 287, BER_FLAGS_IMPLTAG, dissect_newlyAssignedIMSI_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t NewlyAssignedMSID_choice[] = {
+  { 187, &hf_ansi_map_newlyAssignedMIN, BER_CLASS_CON, 187, BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedMIN },
+  { 287, &hf_ansi_map_newlyAssignedIMSI, BER_CLASS_CON, 287, BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedIMSI },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_NewlyAssignedMSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     NewlyAssignedMSID_choice, hf_index, ett_ansi_map_NewlyAssignedMSID,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 NewlyAssignedMSID_choice, hf_index, ett_ansi_map_NewlyAssignedMSID,
+                                 NULL);
 
   return offset;
 }
-static int dissect_newlyAssignedMSID(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_NewlyAssignedMSID(FALSE, tvb, offset, actx, tree, hf_ansi_map_newlyAssignedMSID);
-}
 
 
-static const ber_old_sequence_t OTASPRequest_set[] = {
-  { BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ctionCode_impl },
-  { BER_CLASS_CON, 181, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aKeyProtocolVersion_impl },
-  { BER_CLASS_CON, 161, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationData_impl },
-  { BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponse_impl },
-  { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_msid },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mobileStationMSID },
-  { BER_CLASS_CON, 185, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileStationPartialKey_impl },
-  { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_newlyAssignedMSID },
-  { BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randomVariable_impl },
-  { BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_randomVariableBaseStation_impl },
-  { BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceIndicator_impl },
-  { BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },
-  { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OTASPRequest_set[] = {
+  { &hf_ansi_map_ctionCode  , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_aKeyProtocolVersion, BER_CLASS_CON, 181, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AKeyProtocolVersion },
+  { &hf_ansi_map_authenticationData, BER_CLASS_CON, 161, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationData },
+  { &hf_ansi_map_authenticationResponse, BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponse },
+  { &hf_ansi_map_callHistoryCount, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallHistoryCount },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_mobileStationMSID, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MobileStationMSID },
+  { &hf_ansi_map_mobileStationPartialKey, BER_CLASS_CON, 185, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileStationPartialKey },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_newlyAssignedMSID, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_NewlyAssignedMSID },
+  { &hf_ansi_map_randomVariable, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariable },
+  { &hf_ansi_map_randomVariableBaseStation, BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableBaseStation },
+  { &hf_ansi_map_serviceIndicator, BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceIndicator },
+  { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
+  { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OTASPRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OTASPRequest_set, hf_index, ett_ansi_map_OTASPRequest);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OTASPRequest_set, hf_index, ett_ansi_map_OTASPRequest);
 
   return offset;
-}
-static int dissect_oTASPRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OTASPRequest(FALSE, tvb, offset, actx, tree, hf_ansi_map_oTASPRequest);
 }
 
 
@@ -14084,9 +12593,6 @@ dissect_ansi_map_BaseStationPartialKey(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_baseStationPartialKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_BaseStationPartialKey(TRUE, tvb, offset, actx, tree, hf_ansi_map_baseStationPartialKey);
-}
 
 
 
@@ -14096,9 +12602,6 @@ dissect_ansi_map_ModulusValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                        NULL);
 
   return offset;
-}
-static int dissect_modulusValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_ModulusValue(TRUE, tvb, offset, actx, tree, hf_ansi_map_modulusValue);
 }
 
 
@@ -14110,9 +12613,6 @@ dissect_ansi_map_OTASP_ResultCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_otasp_ResultCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OTASP_ResultCode(TRUE, tvb, offset, actx, tree, hf_ansi_map_otasp_ResultCode);
-}
 
 
 
@@ -14123,35 +12623,29 @@ dissect_ansi_map_PrimitiveValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_primitiveValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_PrimitiveValue(TRUE, tvb, offset, actx, tree, hf_ansi_map_primitiveValue);
-}
 
 
-static const ber_old_sequence_t OTASPRequestRes_set[] = {
-  { BER_CLASS_CON, 181, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aKeyProtocolVersion_impl },
-  { BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationResponseBaseStation_impl },
-  { BER_CLASS_CON, 183, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_baseStationPartialKey_impl },
-  { BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_denyAccess_impl },
-  { BER_CLASS_CON, 186, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_modulusValue_impl },
-  { BER_CLASS_CON, 189, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_otasp_ResultCode_impl },
-  { BER_CLASS_CON, 190, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_primitiveValue_impl },
-  { BER_CLASS_CON, 194, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionReport_impl },
-  { BER_CLASS_CON, 156, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ssdUpdateReport_impl },
-  { BER_CLASS_CON, 124, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_uniqueChallengeReport_impl },
-  { BER_CLASS_CON, 196, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyReport_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OTASPRequestRes_set[] = {
+  { &hf_ansi_map_aKeyProtocolVersion, BER_CLASS_CON, 181, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AKeyProtocolVersion },
+  { &hf_ansi_map_authenticationResponseBaseStation, BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponseBaseStation },
+  { &hf_ansi_map_baseStationPartialKey, BER_CLASS_CON, 183, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BaseStationPartialKey },
+  { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
+  { &hf_ansi_map_modulusValue, BER_CLASS_CON, 186, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ModulusValue },
+  { &hf_ansi_map_otasp_ResultCode, BER_CLASS_CON, 189, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OTASP_ResultCode },
+  { &hf_ansi_map_primitiveValue, BER_CLASS_CON, 190, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrimitiveValue },
+  { &hf_ansi_map_signalingMessageEncryptionReport, BER_CLASS_CON, 194, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SignalingMessageEncryptionReport },
+  { &hf_ansi_map_ssdUpdateReport, BER_CLASS_CON, 156, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SSDUpdateReport },
+  { &hf_ansi_map_uniqueChallengeReport, BER_CLASS_CON, 124, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UniqueChallengeReport },
+  { &hf_ansi_map_voicePrivacyReport, BER_CLASS_CON, 196, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyReport },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_OTASPRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OTASPRequestRes_set, hf_index, ett_ansi_map_OTASPRequestRes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OTASPRequestRes_set, hf_index, ett_ansi_map_OTASPRequestRes);
 
   return offset;
-}
-static int dissect_oTASPRequestRes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ansi_map_OTASPRequestRes(FALSE, tvb, offset, actx, tree, hf_ansi_map_oTASPRequestRes);
 }
 
 
@@ -14165,46 +12659,46 @@ dissect_ansi_map_FaultyParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_old_sequence_t Profile_set[] = {
-  { BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticationCapability_impl },
-  { BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingFeaturesIndicator_impl },
-  { BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_carrierDigits_impl },
-  { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
-  { BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlNetworkID_impl },
-  { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
-  { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
-  { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_geographicAuthorization_impl },
-  { BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationCount_impl },
-  { BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_messageWaitingNotificationType_impl },
-  { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
-  { BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationIndicator_impl },
-  { BER_CLASS_CON, 98, BER_FLAGS_IMPLTAG, dissect_originationTriggers_impl },
-  { BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pACAIndicator_impl },
-  { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
-  { BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qosPriority_impl },
-  { BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_restrictionDigits_impl },
-  { BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_routingDigits_impl },
-  { BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pSID_RSIDList_impl },
-  { BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_OriginationRestrictions_impl },
-  { BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_TerminationRestrictions_impl },
-  { BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_spinipin_impl },
-  { BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_spiniTriggers_impl },
-  { BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaDataFeaturesIndicator_impl },
-  { BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationRestrictionCode_impl },
-  { BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminationTriggers_impl },
-  { BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_triggerAddressList_impl },
-  { BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userGroup_impl },
-  { BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nonPublicData_impl },
-  { BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_userZoneData_impl },
-  { BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyCategory_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Profile_set[] = {
+  { &hf_ansi_map_authenticationCapability, BER_CLASS_CON, 78, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationCapability },
+  { &hf_ansi_map_callingFeaturesIndicator, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingFeaturesIndicator },
+  { &hf_ansi_map_carrierDigits, BER_CLASS_CON, 86, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CarrierDigits },
+  { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
+  { &hf_ansi_map_controlNetworkID, BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ControlNetworkID },
+  { &hf_ansi_map_dmh_AccountCodeDigits, BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AccountCodeDigits },
+  { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
+  { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
+  { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
+  { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
+  { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
+  { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
+  { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
+  { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
+  { &hf_ansi_map_qosPriority, BER_CLASS_CON, 348, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_QoSPriority },
+  { &hf_ansi_map_restrictionDigits, BER_CLASS_CON, 227, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RestrictionDigits },
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { &hf_ansi_map_pSID_RSIDList, BER_CLASS_CON, 203, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PSID_RSIDList },
+  { &hf_ansi_map_sms_OriginationRestrictions, BER_CLASS_CON, 115, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginationRestrictions },
+  { &hf_ansi_map_sms_TerminationRestrictions, BER_CLASS_CON, 117, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TerminationRestrictions },
+  { &hf_ansi_map_spinipin   , BER_CLASS_CON, 154, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINIPIN },
+  { &hf_ansi_map_spiniTriggers, BER_CLASS_CON, 155, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SPINITriggers },
+  { &hf_ansi_map_tdmaDataFeaturesIndicator, BER_CLASS_CON, 221, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMADataFeaturesIndicator },
+  { &hf_ansi_map_terminationRestrictionCode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationRestrictionCode },
+  { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
+  { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
+  { &hf_ansi_map_userGroup  , BER_CLASS_CON, 208, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserGroup },
+  { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
+  { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
+  { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_Profile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  Profile_set, hf_index, ett_ansi_map_Profile);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Profile_set, hf_index, ett_ansi_map_Profile);
 
   return offset;
 }
@@ -14230,185 +12724,185 @@ dissect_ansi_map_CDMABandClassList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const ber_old_sequence_t SRFCapability_set[] = {
-  { BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_specializedResource_impl },
-  { BER_CLASS_CON, 383, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateSpecializedResource_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SRFCapability_set[] = {
+  { &hf_ansi_map_specializedResource, BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SpecializedResource },
+  { &hf_ansi_map_privateSpecializedResource, BER_CLASS_CON, 383, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateSpecializedResource },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_SRFCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SRFCapability_set, hf_index, ett_ansi_map_SRFCapability);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SRFCapability_set, hf_index, ett_ansi_map_SRFCapability);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t InvokeData_sequence[] = {
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBack },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesRelease },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_qualificationRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_qualificationDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_blocking },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unblocking },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_resetCircuit },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_trunkTest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_trunkTestDisconnect },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationNotification },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationCancellation },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_locationRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_routingRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_featureRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unreliableRoamerDataDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_mSInactive },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_transferToNumberRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_redirectionRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThird },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_flashRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_baseStationChallenge },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationFailureReport },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_countRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPage },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unsolicitedResponse },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_bulkDeregistration },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequest2 },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirective2 },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBack2 },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThird2 },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirectiveForward },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationStatusReport },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_informationDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_informationForward },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemAnswer },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPage2 },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemSetup },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_originationRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_randomVariableRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_redirectionDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_remoteUserInteractionDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryBackward },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryForward },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryPointToPoint },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSNotification },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oTASPRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeFacilities },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeService },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_parameterRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tMSIDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_serviceRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_analyzedInformation },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_connectionFailureReport },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_connectResource },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitySelectedAndAvailable },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_modify },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_search },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_seizeResource },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sRFDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tBusy },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tNoAnswer },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_messageDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_bulkDisconnection },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_callControlDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oAnswer },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oDisconnect },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_callRecoveryReport },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tAnswer },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tDisconnect },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unreliableCallData },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oCalledPartyBusy },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oNoAnswer },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequestForward },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_aCGDirective },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_roamerDatabaseVerificationRequest },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_addService },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_dropService },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InvokeData_sequence[] = {
+  { &hf_ansi_map_handoffMeasurementRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffMeasurementRequest },
+  { &hf_ansi_map_facilitiesDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesDirective },
+  { &hf_ansi_map_handoffBack, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffBack },
+  { &hf_ansi_map_facilitiesRelease, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesRelease },
+  { &hf_ansi_map_qualificationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationRequest },
+  { &hf_ansi_map_qualificationDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationDirective },
+  { &hf_ansi_map_blocking   , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_Blocking },
+  { &hf_ansi_map_unblocking , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_Unblocking },
+  { &hf_ansi_map_resetCircuit, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ResetCircuit },
+  { &hf_ansi_map_trunkTest  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TrunkTest },
+  { &hf_ansi_map_trunkTestDisconnect, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TrunkTestDisconnect },
+  { &hf_ansi_map_registrationNotification, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RegistrationNotification },
+  { &hf_ansi_map_registrationCancellation, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RegistrationCancellation },
+  { &hf_ansi_map_locationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_LocationRequest },
+  { &hf_ansi_map_routingRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoutingRequest },
+  { &hf_ansi_map_featureRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FeatureRequest },
+  { &hf_ansi_map_unreliableRoamerDataDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_UnreliableRoamerDataDirective },
+  { &hf_ansi_map_mSInactive , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_MSInactive },
+  { &hf_ansi_map_transferToNumberRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TransferToNumberRequest },
+  { &hf_ansi_map_redirectionRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RedirectionRequest },
+  { &hf_ansi_map_handoffToThird, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffToThird },
+  { &hf_ansi_map_flashRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FlashRequest },
+  { &hf_ansi_map_authenticationDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationDirective },
+  { &hf_ansi_map_authenticationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationRequest },
+  { &hf_ansi_map_baseStationChallenge, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_BaseStationChallenge },
+  { &hf_ansi_map_authenticationFailureReport, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationFailureReport },
+  { &hf_ansi_map_countRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CountRequest },
+  { &hf_ansi_map_interSystemPage, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPage },
+  { &hf_ansi_map_unsolicitedResponse, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_UnsolicitedResponse },
+  { &hf_ansi_map_bulkDeregistration, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_BulkDeregistration },
+  { &hf_ansi_map_handoffMeasurementRequest2, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffMeasurementRequest2 },
+  { &hf_ansi_map_facilitiesDirective2, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesDirective2 },
+  { &hf_ansi_map_handoffBack2, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffBack2 },
+  { &hf_ansi_map_handoffToThird2, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffToThird2 },
+  { &hf_ansi_map_authenticationDirectiveForward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationDirectiveForward },
+  { &hf_ansi_map_authenticationStatusReport, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationStatusReport },
+  { &hf_ansi_map_informationDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InformationDirective },
+  { &hf_ansi_map_informationForward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InformationForward },
+  { &hf_ansi_map_interSystemAnswer, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemAnswer },
+  { &hf_ansi_map_interSystemPage2, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPage2 },
+  { &hf_ansi_map_interSystemSetup, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemSetup },
+  { &hf_ansi_map_originationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OriginationRequest },
+  { &hf_ansi_map_randomVariableRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RandomVariableRequest },
+  { &hf_ansi_map_redirectionDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RedirectionDirective },
+  { &hf_ansi_map_remoteUserInteractionDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RemoteUserInteractionDirective },
+  { &hf_ansi_map_sMSDeliveryBackward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryBackward },
+  { &hf_ansi_map_sMSDeliveryForward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryForward },
+  { &hf_ansi_map_sMSDeliveryPointToPoint, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryPointToPoint },
+  { &hf_ansi_map_sMSNotification, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSNotification },
+  { &hf_ansi_map_sMSRequest , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSRequest },
+  { &hf_ansi_map_oTASPRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OTASPRequest },
+  { &hf_ansi_map_changeFacilities, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ChangeFacilities },
+  { &hf_ansi_map_changeService, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ChangeService },
+  { &hf_ansi_map_parameterRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ParameterRequest },
+  { &hf_ansi_map_tMSIDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TMSIDirective },
+  { &hf_ansi_map_serviceRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ServiceRequest },
+  { &hf_ansi_map_analyzedInformation, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AnalyzedInformation },
+  { &hf_ansi_map_connectionFailureReport, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ConnectionFailureReport },
+  { &hf_ansi_map_connectResource, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ConnectResource },
+  { &hf_ansi_map_facilitySelectedAndAvailable, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitySelectedAndAvailable },
+  { &hf_ansi_map_modify     , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_Modify },
+  { &hf_ansi_map_search     , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_Search },
+  { &hf_ansi_map_seizeResource, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SeizeResource },
+  { &hf_ansi_map_sRFDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SRFDirective },
+  { &hf_ansi_map_tBusy      , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TBusy },
+  { &hf_ansi_map_tNoAnswer  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TNoAnswer },
+  { &hf_ansi_map_messageDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_MessageDirective },
+  { &hf_ansi_map_bulkDisconnection, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_BulkDisconnection },
+  { &hf_ansi_map_callControlDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CallControlDirective },
+  { &hf_ansi_map_oAnswer    , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OAnswer },
+  { &hf_ansi_map_oDisconnect, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ODisconnect },
+  { &hf_ansi_map_callRecoveryReport, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CallRecoveryReport },
+  { &hf_ansi_map_tAnswer    , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TAnswer },
+  { &hf_ansi_map_tDisconnect, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TDisconnect },
+  { &hf_ansi_map_unreliableCallData, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_UnreliableCallData },
+  { &hf_ansi_map_oCalledPartyBusy, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OCalledPartyBusy },
+  { &hf_ansi_map_oNoAnswer  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ONoAnswer },
+  { &hf_ansi_map_positionRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionRequest },
+  { &hf_ansi_map_positionRequestForward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionRequestForward },
+  { &hf_ansi_map_aCGDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ACGDirective },
+  { &hf_ansi_map_roamerDatabaseVerificationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoamerDatabaseVerificationRequest },
+  { &hf_ansi_map_addService , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AddService },
+  { &hf_ansi_map_dropService, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DropService },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_InvokeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       InvokeData_sequence, hf_index, ett_ansi_map_InvokeData);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   InvokeData_sequence, hf_index, ett_ansi_map_InvokeData);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t ReturnData_sequence[] = {
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirectiveRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBackRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesReleaseRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_qualificationRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_resetCircuitRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationNotificationRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationCancellationRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_locationRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_routingRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_featureRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_transferToNumberRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThirdRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirectiveRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationFailureReportRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_countRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPageRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unsolicitedResponseRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequest2Res },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirective2Res },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBack2Res },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThird2Res },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirectiveForwardRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationStatusReportRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_informationForwardRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPage2Res },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemSetupRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_originationRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_randomVariableRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_remoteUserInteractionDirectiveRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryBackwardRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryForwardRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryPointToPointRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSNotificationRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oTASPRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeFacilitiesRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeServiceRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_parameterRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tMSIDirectiveRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_serviceRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_analyzedInformationRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitySelectedAndAvailableRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_modifyRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_searchRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_seizeResourceRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sRFDirectiveRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tBusyRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tNoAnswerRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_callControlDirectiveRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oDisconnectRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tDisconnectRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oCalledPartyBusyRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oNoAnswerRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequestForwardRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_roamerDatabaseVerificationRequestRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_addServiceRes },
-  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_dropServiceRes },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnData_sequence[] = {
+  { &hf_ansi_map_handoffMeasurementRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffMeasurementRequestRes },
+  { &hf_ansi_map_facilitiesDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesDirectiveRes },
+  { &hf_ansi_map_handoffBackRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffBackRes },
+  { &hf_ansi_map_facilitiesReleaseRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesReleaseRes },
+  { &hf_ansi_map_qualificationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_QualificationRequestRes },
+  { &hf_ansi_map_resetCircuitRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ResetCircuitRes },
+  { &hf_ansi_map_registrationNotificationRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RegistrationNotificationRes },
+  { &hf_ansi_map_registrationCancellationRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RegistrationCancellationRes },
+  { &hf_ansi_map_locationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_LocationRequestRes },
+  { &hf_ansi_map_routingRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoutingRequestRes },
+  { &hf_ansi_map_featureRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FeatureRequestRes },
+  { &hf_ansi_map_transferToNumberRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TransferToNumberRequestRes },
+  { &hf_ansi_map_handoffToThirdRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffToThirdRes },
+  { &hf_ansi_map_authenticationDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationDirectiveRes },
+  { &hf_ansi_map_authenticationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationRequestRes },
+  { &hf_ansi_map_authenticationFailureReportRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationFailureReportRes },
+  { &hf_ansi_map_countRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CountRequestRes },
+  { &hf_ansi_map_interSystemPageRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPageRes },
+  { &hf_ansi_map_unsolicitedResponseRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_UnsolicitedResponseRes },
+  { &hf_ansi_map_handoffMeasurementRequest2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffMeasurementRequest2Res },
+  { &hf_ansi_map_facilitiesDirective2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesDirective2Res },
+  { &hf_ansi_map_handoffBack2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffBack2Res },
+  { &hf_ansi_map_handoffToThird2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffToThird2Res },
+  { &hf_ansi_map_authenticationDirectiveForwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationDirectiveForwardRes },
+  { &hf_ansi_map_authenticationStatusReportRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationStatusReportRes },
+  { &hf_ansi_map_informationForwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InformationForwardRes },
+  { &hf_ansi_map_interSystemPage2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPage2Res },
+  { &hf_ansi_map_interSystemSetupRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemSetupRes },
+  { &hf_ansi_map_originationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OriginationRequestRes },
+  { &hf_ansi_map_randomVariableRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RandomVariableRequestRes },
+  { &hf_ansi_map_remoteUserInteractionDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RemoteUserInteractionDirectiveRes },
+  { &hf_ansi_map_sMSDeliveryBackwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryBackwardRes },
+  { &hf_ansi_map_sMSDeliveryForwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryForwardRes },
+  { &hf_ansi_map_sMSDeliveryPointToPointRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSDeliveryPointToPointRes },
+  { &hf_ansi_map_sMSNotificationRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSNotificationRes },
+  { &hf_ansi_map_sMSRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SMSRequestRes },
+  { &hf_ansi_map_oTASPRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OTASPRequestRes },
+  { &hf_ansi_map_changeFacilitiesRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ChangeFacilitiesRes },
+  { &hf_ansi_map_changeServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ChangeServiceRes },
+  { &hf_ansi_map_parameterRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ParameterRequestRes },
+  { &hf_ansi_map_tMSIDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TMSIDirectiveRes },
+  { &hf_ansi_map_serviceRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ServiceRequestRes },
+  { &hf_ansi_map_analyzedInformationRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AnalyzedInformationRes },
+  { &hf_ansi_map_facilitySelectedAndAvailableRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitySelectedAndAvailableRes },
+  { &hf_ansi_map_modifyRes  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ModifyRes },
+  { &hf_ansi_map_searchRes  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SearchRes },
+  { &hf_ansi_map_seizeResourceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SeizeResourceRes },
+  { &hf_ansi_map_sRFDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_SRFDirectiveRes },
+  { &hf_ansi_map_tBusyRes   , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TBusyRes },
+  { &hf_ansi_map_tNoAnswerRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TNoAnswerRes },
+  { &hf_ansi_map_callControlDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CallControlDirectiveRes },
+  { &hf_ansi_map_oDisconnectRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ODisconnectRes },
+  { &hf_ansi_map_tDisconnectRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TDisconnectRes },
+  { &hf_ansi_map_oCalledPartyBusyRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_OCalledPartyBusyRes },
+  { &hf_ansi_map_oNoAnswerRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ONoAnswerRes },
+  { &hf_ansi_map_positionRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionRequestRes },
+  { &hf_ansi_map_positionRequestForwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionRequestForwardRes },
+  { &hf_ansi_map_roamerDatabaseVerificationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoamerDatabaseVerificationRequestRes },
+  { &hf_ansi_map_addServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AddServiceRes },
+  { &hf_ansi_map_dropServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DropServiceRes },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnData_sequence, hf_index, ett_ansi_map_ReturnData);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnData_sequence, hf_index, ett_ansi_map_ReturnData);
 
   return offset;
 }
