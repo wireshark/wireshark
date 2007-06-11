@@ -35,6 +35,9 @@ dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 
 EXTRA_OBJECTS = \
+	getopt.obj	\
+	inet_ntop.obj	\
+	inet_pton.obj	\
 	mkstemp.obj	\
 	strptime.obj
 
@@ -182,10 +185,10 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DIR)\zlib1.dll wiretap
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
 !ELSE
-wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
@@ -195,20 +198,20 @@ wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epa
 !IFNDEF GTK2_DIR
 wireshark-gtk2.exe	: 
 !ELSE
-wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
+wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "wireshark-gtk2.exe.manifest" -outputresource:wireshark-gtk2.exe;1
 !ENDIF
 !ENDIF
 
-tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj inet_ntop.obj image\tshark.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
@@ -268,10 +271,10 @@ randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
+dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj mkstemp.obj image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj image\dumpcap.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1
@@ -360,7 +363,7 @@ clean_gtk2.tmp:
 clean: clean_gtk2.tmp clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.exe.manifest \
-		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
+		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
 		AUTHORS-SHORT-FORMAT \

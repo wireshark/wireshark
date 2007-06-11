@@ -274,6 +274,7 @@ wireshark_LDADD = \
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
+	@INET_PTON_LO@			\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -294,6 +295,7 @@ tshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
+	@INET_PTON_LO@			\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -350,6 +352,7 @@ dftest_LDADD = \
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	wiretap/libwiretap.la		\
+	@INET_NTOP_LO@			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ \
 	@LIBGCRYPT_LIBS@

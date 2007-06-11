@@ -31,8 +31,20 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>         /* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>           /* needed to define AF_ values on Windows */
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
 #endif
 
 #include <glib.h>
@@ -430,6 +442,7 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
 }
 
 /* Return an ASCII-formatted list of interfaces. */
+#define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
 int
 capture_opts_list_interfaces(gboolean verbose)
 {
@@ -441,9 +454,7 @@ capture_opts_list_interfaces(gboolean verbose)
     int         i;
     GSList      *ip_addr;
     if_addr_t   *if_addr;
-    char        addr_str[NI_MAXHOST];
-    struct sockaddr_in sa4;
-    struct sockaddr_in6 sa6;
+    char        addr_str[ADDRSTRLEN];
 
     if_list = get_interface_list(&err, &err_str);
     if (if_list == NULL) {
@@ -490,20 +501,16 @@ capture_opts_list_interfaces(gboolean verbose)
                 if_addr = ip_addr->data;
                 switch(if_addr->type) {
                 case AT_IPv4:
-                    sa4.sin_family = AF_INET;
-                    sa4.sin_addr.s_addr = if_addr->ip_addr.ip4_addr;
-                    if (getnameinfo((struct sockaddr *) &sa4, sizeof(sa4),
-                            addr_str, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) == 0) {
+                    if (inet_ntop(AF_INET, &if_addr->ip_addr.ip4_addr, addr_str,
+                                ADDRSTRLEN)) {
                         printf(addr_str);
                     } else {
                         printf("<unknown IPv4>");
                     }
                     break;
                 case AT_IPv6:
-                    sa6.sin6_family = AF_INET6;
-                    memcpy(&sa6.sin6_addr.s6_addr, &if_addr->ip_addr.ip6_addr, 16);
-                    if (getnameinfo((struct sockaddr *) &sa6, sizeof(sa6),
-                            addr_str, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) == 0) {
+                    if (inet_ntop(AF_INET6, &if_addr->ip_addr.ip6_addr,
+                                addr_str, ADDRSTRLEN)) {
                         printf(addr_str);
                     } else {
                         printf("<unknown IPv6>");

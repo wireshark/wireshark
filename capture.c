@@ -48,8 +48,20 @@
 #include <sys/socket.h>
 #endif
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>         /* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>           /* needed to define AF_ values on Windows */
+#endif
+
+#ifdef NEED_INET_V6DEFS_H
+# include "inet_v6defs.h"
 #endif
 
 #include <signal.h>
@@ -594,9 +606,6 @@ capture_interface_list(int *err, char **err_str)
     gchar     *name;
     if_info_t *if_info;
     if_addr_t *if_addr;
-    struct addrinfo *ai;
-    struct sockaddr_in *sa4;
-    struct sockaddr_in6 *sa6;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
 
@@ -642,27 +651,18 @@ capture_interface_list(int *err, char **err_str)
             if_info->description = g_strdup(if_parts[1]);
         addr_parts = g_strsplit(if_parts[2], ",", 0);
         for (j = 0; addr_parts[j] != NULL; j++) {
-            /* XXX - We're failing to convert IPv6 addresses (on Ubuntu, at least) */
-            if (getaddrinfo(addr_parts[j], NULL, NULL, &ai) == 0) {
+            if_addr = g_malloc0(sizeof(if_addr_t));
+            if (inet_pton(AF_INET, addr_parts[j], &if_addr->ip_addr.ip4_addr)) {
+                if_addr->type = AT_IPv4;
+            } else if (inet_pton(AF_INET6, addr_parts[j],
+                    &if_addr->ip_addr.ip6_addr)) {
+                if_addr->type = AT_IPv6;
+            } else {
+                g_free(if_addr);
                 if_addr = NULL;
-                switch (ai->ai_family) {
-                    case AF_INET:
-                        if_addr = g_malloc0(sizeof(if_addr_t));
-                        if_addr->type = AT_IPv4;
-                        sa4 = (struct sockaddr_in *) ai->ai_addr;
-                        if_addr->ip_addr.ip4_addr = sa4->sin_addr.s_addr;
-                        break;
-                    case AF_INET6:
-                        if_addr = g_malloc0(sizeof(if_addr_t));
-                        if_addr->type = AT_IPv6;
-                        sa6 = (struct sockaddr_in6 *) ai->ai_addr;
-                        memcpy(&if_addr->ip_addr.ip6_addr, sa6->sin6_addr.s6_addr, 16);
-                        break;
-                }
-                if (if_addr) {
-                    if_info->ip_addr = g_slist_append(if_info->ip_addr, if_addr);
-                }
-                freeaddrinfo(ai);
+            }
+            if (if_addr) {
+                if_info->ip_addr = g_slist_append(if_info->ip_addr, if_addr);
             }
         }
         if (strcmp(if_parts[3], "loopback") == 0)
