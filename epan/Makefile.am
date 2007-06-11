@@ -69,10 +69,7 @@ EXTRA_libwireshark_la_SOURCES =	\
 	g_ascii_strtoull.c	\
 	g_ascii_strtoull.h	\
 	inet_aton.c		\
-	inet_pton.c		\
-	inet_ntop.c		\
-	inet_aton.h		\
-	inet_v6defs.h
+	inet_aton.h
 
 EXTRA_DIST = \
 	dtd_grammar.lemon 	\
