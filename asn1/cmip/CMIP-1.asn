@@ -1,0 +1,706 @@
+-- Module CMIP-1 (X.711:10/1997)
+CMIP-1 {joint-iso-itu-t ms(9) cmip(1) modules(0) protocol(3)} DEFINITIONS ::=
+BEGIN
+
+IMPORTS
+  ERROR, OPERATION
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)}
+  ROS{}, InvokeId, noInvokeId
+    FROM Remote-Operations-Generic-ROS-PDUs {joint-iso-itu-t
+      remote-operations(4) generic-ROS-PDUs(6) version1(0)};
+
+CMIP-Operations OPERATION ::=
+  {m-Action | m-Action-Confirmed | m-CancelGet | m-Create | m-Delete |
+   m-EventReport | m-EventReport-Confirmed | m-Get | m-Linked-Reply | m-Set |
+   m-Set-Confirmed}
+
+CMIP-Confirmed-Operations OPERATION ::=
+  {m-Action-Confirmed | m-CancelGet | m-Create | m-Delete |
+   m-EventReport-Confirmed | m-Get | m-Set-Confirmed}
+
+-- CMISE error definitions
+accessDenied ERROR ::= {PRIORITY  {0}
+                        CODE      local:2
+}
+
+classInstanceConflict ERROR ::= {
+  PARAMETER  BaseManagedObjectId
+  PRIORITY   {1}
+  CODE       local:19
+}
+
+complexityLimitation ERROR ::= {
+  PARAMETER  ComplexityLimitation
+  OPTIONAL   TRUE
+  PRIORITY   {1}
+  CODE       local:20
+}
+
+duplicateManagedObjectInstance ERROR ::= {
+  PARAMETER  ObjectInstance
+  PRIORITY   {1}
+  CODE       local:11
+}
+
+getListError ERROR ::= {
+  PARAMETER  GetListError
+  PRIORITY   {1}
+  CODE       local:7
+}
+
+invalidArgumentValue ERROR ::= {
+  PARAMETER  InvalidArgumentValue
+  PRIORITY   {1}
+  CODE       local:15
+}
+
+invalidAttributeValue ERROR ::= {
+  PARAMETER  Attribute
+  PRIORITY   {1}
+  CODE       local:6
+}
+
+invalidFilter ERROR ::= {
+  PARAMETER  CMISFilter
+  PRIORITY   {1}
+  CODE       local:4
+}
+
+invalidObjectInstance ERROR ::= {
+  PARAMETER  ObjectInstance
+  PRIORITY   {1}
+  CODE       local:17
+}
+
+invalidScope ERROR ::= {PARAMETER  Scope
+                        PRIORITY   {1}
+                        CODE       local:16
+}
+
+missingAttributeValue ERROR ::= {
+  PARAMETER  SET OF AttributeId
+  PRIORITY   {1}
+  CODE       local:18
+}
+
+mistypedOperation ERROR ::= {PRIORITY  {1}
+                             CODE      local:21
+}
+
+noSuchAction ERROR ::= {
+  PARAMETER  NoSuchAction
+  PRIORITY   {1}
+  CODE       local:9
+}
+
+noSuchArgument ERROR ::= {
+  PARAMETER  NoSuchArgument
+  PRIORITY   {1}
+  CODE       local:14
+}
+
+noSuchAttribute ERROR ::= {
+  PARAMETER  AttributeId
+  PRIORITY   {1}
+  CODE       local:5
+}
+
+noSuchEventType ERROR ::= {
+  PARAMETER  NoSuchEventType
+  PRIORITY   {1}
+  CODE       local:13
+}
+
+noSuchInvokeId ERROR ::= {
+  PARAMETER  InvokeIDType
+  PRIORITY   {1}
+  CODE       local:22
+}
+
+noSuchObjectClass ERROR ::= {
+  PARAMETER  ObjectClass
+  PRIORITY   {1}
+  CODE       local:0
+}
+
+noSuchObjectInstance ERROR ::= {
+  PARAMETER  ObjectInstance
+  PRIORITY   {1}
+  CODE       local:1
+}
+
+noSuchReferenceObject ERROR ::= {
+  PARAMETER  ObjectInstance
+  PRIORITY   {1}
+  CODE       local:12
+}
+
+operationCancelled ERROR ::= {PRIORITY  {1}
+                              CODE      local:23
+}
+
+processingFailure ERROR ::= {
+  PARAMETER  ProcessingFailure
+  OPTIONAL   TRUE
+  PRIORITY   {1}
+  CODE       local:10
+}
+
+setListError ERROR ::= {
+  PARAMETER  SetListError
+  PRIORITY   {1}
+  CODE       local:8
+}
+
+syncNotSupported ERROR ::= {
+  PARAMETER  CMISSync
+  PRIORITY   {1}
+  CODE       local:3
+}
+
+-- CMISE operations
+-- Action operation (M-ACTION)
+m-Action OPERATION ::= {
+  ARGUMENT         ActionArgument
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:6
+}
+
+m-Action-Confirmed OPERATION ::= {
+  ARGUMENT  ActionArgument
+  RESULT    ActionResult
+  OPTIONAL  TRUE -- this result is conditional;
+  -- for conditions see 8.3.3.2.9 of ITU-T Rec. X.710
+  ERRORS
+    {accessDenied | classInstanceConflict | complexityLimitation | invalidScope
+      | invalidArgumentValue | invalidFilter | noSuchAction | noSuchArgument |
+      noSuchObjectClass | noSuchObjectInstance | processingFailure |
+      syncNotSupported}
+  LINKED    {m-Linked-Reply}
+  CODE      local:7
+}
+
+-- Cancel get operation (M-CANCEL-GET)
+m-CancelGet OPERATION ::= {
+  ARGUMENT       InvokeIDType
+  RETURN RESULT  TRUE
+  ERRORS         {mistypedOperation | noSuchInvokeId | processingFailure}
+  CODE           local:10
+}
+
+-- Create operation (M-CREATE)
+m-Create OPERATION ::= {
+  ARGUMENT  CreateArgument
+  RESULT    CreateResult
+  OPTIONAL  TRUE -- this result is conditional;
+  -- for conditions see 8.3.4.1.3 of ITU-T Rec. X.710
+  ERRORS
+    {accessDenied | classInstanceConflict | duplicateManagedObjectInstance |
+      invalidAttributeValue | invalidObjectInstance | missingAttributeValue |
+      noSuchAttribute | noSuchObjectClass | noSuchObjectInstance |
+      noSuchReferenceObject | processingFailure}
+  CODE      local:8
+}
+
+-- Delete operation (M-DELETE)
+m-Delete OPERATION ::= {
+  ARGUMENT  DeleteArgument
+  RESULT    DeleteResult
+  OPTIONAL  TRUE -- this result is conditional;
+  -- for conditions see 8.3.5.2.8 of ITU-T Rec. X.710
+  ERRORS
+    {accessDenied | classInstanceConflict | complexityLimitation |
+      invalidFilter | invalidScope | noSuchObjectClass | noSuchObjectInstance |
+      processingFailure | syncNotSupported}
+  LINKED    {m-Linked-Reply}
+  CODE      local:9
+}
+
+-- Event Reporting operations (M-EVENT-REPORT)
+m-EventReport OPERATION ::= {
+  ARGUMENT         EventReportArgument
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:0
+}
+
+m-EventReport-Confirmed OPERATION ::= {
+  ARGUMENT  EventReportArgument
+  RESULT    EventReportResult
+  OPTIONAL  TRUE
+  ERRORS
+    {invalidArgumentValue | noSuchArgument | noSuchEventType |
+      noSuchObjectClass | noSuchObjectInstance | processingFailure}
+  CODE      local:1
+}
+
+-- Get operation (M-GET)
+m-Get OPERATION ::= {
+  ARGUMENT  GetArgument
+  RESULT    GetResult
+  OPTIONAL  TRUE -- this result is conditional;
+  -- for conditions see 8.3.1.2.8 of ITU-T Rec. X.710
+  ERRORS
+    {accessDenied | classInstanceConflict | complexityLimitation | getListError
+      | invalidFilter | invalidScope | noSuchObjectClass | noSuchObjectInstance
+      | operationCancelled | processingFailure | syncNotSupported}
+  LINKED    {m-Linked-Reply}
+  CODE      local:3
+}
+
+-- Linked operation to M-GET, M-SET (Confirmed), M-ACTION (Confirmed), and M-DELETE
+m-Linked-Reply OPERATION ::= {ARGUMENT  LinkedReplyArgument
+                              CODE      local:2
+}
+
+-- Set operations (M-SET)
+m-Set OPERATION ::= {
+  ARGUMENT         SetArgument
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:4
+}
+
+m-Set-Confirmed OPERATION ::= {
+  ARGUMENT  SetArgument
+  RESULT    SetResult
+  OPTIONAL  TRUE -- this result is conditional;
+  -- for conditions see 8.3.2.2.9 of ITU-T Rec. X.710
+  ERRORS
+    {accessDenied | classInstanceConflict | complexityLimitation |
+      invalidFilter | invalidScope | noSuchObjectClass | noSuchObjectInstance |
+      processingFailure | setListError | syncNotSupported}
+  LINKED    {m-Linked-Reply}
+  CODE      local:5
+}
+
+-- INFORMATION OBJECT definitions
+-- While it is possible to use the Information object class definitions defined below to specify 
+-- Action types, Attribute types,  Event Report types, and their associated ASN.1 type definitions, 
+-- the alternative approach using GDMO templates, as defined in ITU-T Rec. 722 | ISO/IEC 10165-5, 
+-- continues to be available for use with this Recommendation | International Standard.
+CMIP-ACTION ::= CLASS {&id     ActionTypeId UNIQUE,
+                       &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+
+CMIP-ATTRIBUTE ::= CLASS {&id     AttributeId UNIQUE,
+                          &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+
+CMIP-AVA ::= CLASS {&id     OBJECT IDENTIFIER UNIQUE,
+                    &Value  
+}
+
+CMIP-EVENT ::= CLASS {&id     EventTypeId UNIQUE,
+                      &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+
+CMIP-SPECIFICERROR ::= CLASS {&id     OBJECT IDENTIFIER UNIQUE,
+                              &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+
+-- Supporting type definitions
+AccessControl ::= EXTERNAL
+
+ActionArgument ::= SEQUENCE {
+  COMPONENTS OF BaseManagedObjectId,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync DEFAULT bestEffort,
+  scope            [7]  Scope DEFAULT namedNumbers:baseObject,
+  filter           CMISFilter DEFAULT and:{},
+  actionInfo       [12] IMPLICIT ActionInfo,
+  ...
+}
+
+ActionError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  actionErrorInfo        [6]  ActionErrorInfo,
+  ...
+}
+
+ActionErrorInfo ::= SEQUENCE {
+  errorStatus
+    ENUMERATED {accessDenied(2), noSuchAction(9), noSuchArgument(14),
+                invalidArgumentValue(15), ...
+                },
+  errorInfo
+    CHOICE {actionType      CMIP-ACTION.&id({ActionSet}),
+            actionArgument  [0]  NoSuchArgument,
+            argumentValue   [1]  InvalidArgumentValue},
+  ...
+}
+
+ActionInfo ::= SEQUENCE {
+  actionType     CMIP-ACTION.&id({ActionSet}),
+  actionInfoArg  [4]  CMIP-ACTION.&Value({ActionSet}{@.actionType}) OPTIONAL
+}
+
+ActionReply ::= SEQUENCE {
+  actionType       CMIP-ACTION.&id({ActionSet}),
+  actionReplyInfo  [4]  CMIP-ACTION.&Value({ActionSet}{@.actionType})
+}
+
+ActionResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  actionReply            [6] IMPLICIT ActionReply OPTIONAL,
+  ...
+}
+
+ActionSet CMIP-ACTION ::=
+  {...}
+
+ActionTypeId ::= CHOICE {
+  globalForm  [2] IMPLICIT OBJECT IDENTIFIER,
+  localForm   [3] IMPLICIT INTEGER
+}
+
+-- This Recommendation | International Standard does not allocate any values for localForm.
+-- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
+-- as part of the application context in which they are used
+Attribute ::= SEQUENCE {
+  id     CMIP-ATTRIBUTE.&id({AttributeSet}),
+  value  CMIP-ATTRIBUTE.&Value({AttributeSet}{@.id})
+}
+
+AttributeError ::= SEQUENCE {
+  errorStatus
+    ENUMERATED {accessDenied(2), noSuchAttribute(5), invalidAttributeValue(6),
+                invalidOperation(24), invalidOperator(25), ...
+                },
+  modifyOperator  [2] IMPLICIT ModifyOperator OPTIONAL, -- present for invalidOperator
+  
+  -- and invalidOperation
+  attributeId     CMIP-ATTRIBUTE.&id({AttributeSet}),
+  attributeValue  CMIP-ATTRIBUTE.&Value({AttributeSet}{@.attributeId}) OPTIONAL
+  -- value is absent for setToDefault
+}
+
+AttributeId ::= CHOICE {
+  globalForm  [0] IMPLICIT OBJECT IDENTIFIER,
+  localForm   [1] IMPLICIT INTEGER
+}
+
+-- This Recommendation | International Standard does not allocate any values for localForm.
+-- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
+-- as part of the application context in which they are used
+AttributeIdError ::= SEQUENCE {
+  errorStatus  ENUMERATED {accessDenied(2), noSuchAttribute(5), ...
+                           },
+  attributeId  AttributeId,
+  ...
+}
+
+AttributeSet CMIP-ATTRIBUTE ::=
+  {...}
+
+AttributeValueAssertion ::= SEQUENCE {
+  id     CMIP-AVA.&id({AvaSet}),
+  value  CMIP-AVA.&Value({AvaSet}{@.id})
+}
+
+AvaSet CMIP-AVA ::=
+  {...}
+
+BaseManagedObjectId ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance
+}
+
+CMISFilter ::= CHOICE {
+  item  [8]  FilterItem,
+  and   [9] IMPLICIT SET OF CMISFilter,
+  or    [10] IMPLICIT SET OF CMISFilter,
+  not   [11]  CMISFilter
+}
+
+CMISSync ::= ENUMERATED {bestEffort(0), atomic(1)}
+
+ComplexityLimitation ::= SET {
+  scope   [0]  Scope OPTIONAL,
+  filter  [1]  CMISFilter OPTIONAL,
+  sync    [2]  CMISSync OPTIONAL,
+  ...
+}
+
+CreateArgument ::= SEQUENCE {
+  managedObjectClass               ObjectClass,
+  managedOrSuperiorObjectInstance
+    CHOICE {managedObjectInstance   ObjectInstance,
+            superiorObjectInstance  [8]  ObjectInstance} OPTIONAL,
+  accessControl                    [5]  AccessControl OPTIONAL,
+  referenceObjectInstance          [6]  ObjectInstance OPTIONAL,
+  attributeList                    [7] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+CreateResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL, -- shall be returned if omitted from CreateArgument
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+DeleteArgument ::= SEQUENCE {
+  COMPONENTS OF BaseManagedObjectId,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync DEFAULT bestEffort,
+  scope            [7]  Scope DEFAULT namedNumbers:baseObject,
+  filter           CMISFilter DEFAULT and:{},
+  ...
+}
+
+DeleteError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  deleteErrorInfo        [6]  ENUMERATED {accessDenied(2), ...
+                                          },
+  ...
+}
+
+DeleteResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  ...
+}
+
+DistinguishedName ::= RDNSequence
+
+EventReply ::= SEQUENCE {
+  eventType       CMIP-EVENT.&id({EventSet}),
+  eventReplyInfo  [8]  CMIP-EVENT.&Value({EventSet}{@.eventType}) OPTIONAL
+}
+
+EventReportArgument ::= SEQUENCE {
+  managedObjectClass     ObjectClass,
+  managedObjectInstance  ObjectInstance,
+  eventTime              [5] IMPLICIT GeneralizedTime OPTIONAL,
+  eventType              CMIP-EVENT.&id({EventSet}),
+  eventInfo
+    [8]  CMIP-EVENT.&Value({EventSet}{@.eventType}) OPTIONAL,
+  ...
+}
+
+EventReportResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  eventReply             EventReply OPTIONAL,
+  ...
+}
+
+EventSet CMIP-EVENT ::=
+  {...}
+
+EventTypeId ::= CHOICE {
+  globalForm  [6] IMPLICIT OBJECT IDENTIFIER,
+  localForm   [7] IMPLICIT INTEGER
+}
+
+-- This Recommendation | International Standard does not allocate any values for localForm.
+-- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
+-- as part of the application context in which they are used
+FilterItem ::= CHOICE {
+  equality                [0] IMPLICIT Attribute,
+  substrings
+    [1] IMPLICIT SEQUENCE OF
+                   CHOICE {initialString  [0] IMPLICIT Attribute,
+                           anyString      [1] IMPLICIT Attribute,
+                           finalString    [2] IMPLICIT Attribute},
+  greaterOrEqual          [2] IMPLICIT Attribute, -- asserted value ? attribute value
+  lessOrEqual             [3] IMPLICIT Attribute, -- asserted value <= attribute value
+  present                 [4]  AttributeId,
+  subsetOf                [5] IMPLICIT Attribute, -- asserted value is a subset of attribute value
+  supersetOf              [6] IMPLICIT Attribute, -- asserted value is a superset of attribute value
+  nonNullSetIntersection  [7] IMPLICIT Attribute
+}
+
+GetArgument ::= SEQUENCE {
+  COMPONENTS OF BaseManagedObjectId,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync DEFAULT bestEffort,
+  scope            [7]  Scope DEFAULT namedNumbers:baseObject,
+  filter           CMISFilter DEFAULT and:{},
+  attributeIdList  [12] IMPLICIT SET OF AttributeId OPTIONAL,
+  ...
+}
+
+GetInfoStatus ::= CHOICE {
+  attributeIdError  [0] IMPLICIT AttributeIdError,
+  attribute         [1] IMPLICIT Attribute
+}
+
+GetListError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  getInfoList            [6] IMPLICIT SET OF GetInfoStatus,
+  ...
+}
+
+GetResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+InvalidArgumentValue ::= CHOICE {
+  actionValue  [0] IMPLICIT ActionInfo,
+  eventValue
+    [1] IMPLICIT SEQUENCE {eventType  CMIP-EVENT.&id({EventSet}),
+                           eventInfo
+                             [8]  CMIP-EVENT.&Value({EventSet}{@.eventType})
+                               OPTIONAL}
+}
+
+InvokeIDType ::= InvokeId--(ALL EXCEPT absent:NULL)
+
+LinkedReplyArgument ::= CHOICE {
+  getResult          [0] IMPLICIT GetResult,
+  getListError       [1] IMPLICIT GetListError,
+  setResult          [2] IMPLICIT SetResult,
+  setListError       [3] IMPLICIT SetListError,
+  actionResult       [4] IMPLICIT ActionResult,
+  processingFailure  [5] IMPLICIT ProcessingFailure,
+  deleteResult       [6] IMPLICIT DeleteResult,
+  actionError        [7] IMPLICIT ActionError,
+  deleteError        [8] IMPLICIT DeleteError
+}
+
+ModifyOperator ::= INTEGER {
+  replace(0), addValues(1), removeValues(2), setToDefault(3)}
+
+NoSuchAction ::= SEQUENCE {
+  managedObjectClass  ObjectClass,
+  actionType          CMIP-ACTION.&id({ActionSet}),
+  ...
+}
+
+NoSuchArgument ::= CHOICE {
+  actionId
+    [0] IMPLICIT SEQUENCE {managedObjectClass  ObjectClass OPTIONAL,
+                           actionType          CMIP-ACTION.&id({ActionSet})
+  },
+  eventId
+    [1] IMPLICIT SEQUENCE {managedObjectClass  ObjectClass OPTIONAL,
+                           eventType           CMIP-EVENT.&id({EventSet})
+  }
+}
+
+NoSuchEventType ::= SEQUENCE {
+  managedObjectClass  ObjectClass,
+  eventType           CMIP-EVENT.&id({EventSet}),
+  ...
+}
+
+ObjectClass ::= CHOICE {
+  globalForm  [0] IMPLICIT OBJECT IDENTIFIER,
+  localForm   [1] IMPLICIT INTEGER
+}
+
+-- This Recommendation | International Standard does not allocate any values for localForm.
+-- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
+-- as part of the application context in which they are used
+ObjectInstance ::= CHOICE {
+  distinguishedName       [2] IMPLICIT DistinguishedName,
+  nonSpecificForm         [3] IMPLICIT OCTET STRING,
+  localDistinguishedName  [4] IMPLICIT RDNSequence
+}
+
+-- localDistinguishedName is that portion of the distinguished name that is necessary to unambiguously identify the 
+-- managed object within the context of communication between the open systems
+ProcessingFailure ::= SEQUENCE {
+  managedObjectClass     ObjectClass,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  specificErrorInfo      [5]  SpecificErrorInfo,
+  ...
+}
+
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET OF AttributeValueAssertion
+
+Scope ::= CHOICE {
+  namedNumbers      INTEGER {baseObject(0), firstLevelOnly(1), wholeSubtree(2)},
+  individualLevels  [1] IMPLICIT INTEGER, -- POSITIVE integer indicates the level to be selected
+  baseToNthLevel    [2] IMPLICIT INTEGER
+} -- POSITIVE integer N indicates that the range of levels
+
+-- (0 - N) is to be selected
+-- with individualLevels and baseToNthLevel, a value of 0 has the same semantics as baseObject
+-- with individualLevels, a value of 1 has the same semantics as firstLevelOnly
+SetArgument ::= SEQUENCE {
+  COMPONENTS OF BaseManagedObjectId,
+  accessControl     [5]  AccessControl OPTIONAL,
+  synchronization   [6] IMPLICIT CMISSync DEFAULT bestEffort,
+  scope             [7]  Scope DEFAULT namedNumbers:baseObject,
+  filter            CMISFilter DEFAULT and:{},
+  modificationList
+    [12] IMPLICIT SET OF
+                    SEQUENCE {modifyOperator
+                                [2] IMPLICIT ModifyOperator DEFAULT replace,
+                              attributeId
+                                CMIP-ATTRIBUTE.&id({AttributeSet}),
+                              attributeValue
+                                CMIP-ATTRIBUTE.&Value
+                                  ({AttributeSet}{@.attributeId}) OPTIONAL
+                    },
+  -- value is absent for setToDefault
+  ...
+}
+
+SetInfoStatus ::= CHOICE {
+  attributeError  [0] IMPLICIT AttributeError,
+  attribute       [1] IMPLICIT Attribute
+}
+
+SetListError ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  setInfoList            [6] IMPLICIT SET OF SetInfoStatus,
+  ...
+}
+
+SetResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  attributeList          [6] IMPLICIT SET OF Attribute OPTIONAL,
+  ...
+}
+
+SpecificErrorInfo ::= SEQUENCE {
+  errorId    CMIP-SPECIFICERROR.&id({SpecificErrorSet}),
+  errorInfo  CMIP-SPECIFICERROR.&Value({SpecificErrorSet}{@.errorId})
+}
+
+SpecificErrorSet CMIP-SPECIFICERROR ::=
+  {...}
+
+-- the following type specifies the constraints to be applied when using ROSE to support CMIP
+ROSEapdus ::=
+  ROS{{InvokeIDType}, {CMIP-Operations}, {CMIP-Confirmed-Operations}}
+
+END -- End of CMIP syntax definitions
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+
