@@ -397,7 +397,7 @@ combo_channel_new(void)
 gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
   const if_info_t *first = first_arg, *second = second_arg;
 
-  if (first != NULL && first->description != NULL && 
+  if (first != NULL && first->description != NULL &&
       second != NULL && second->description != NULL) {
     return g_strcasecmp(first->description, second->description);
   } else {
@@ -458,7 +458,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   /* LOAD THE INTERFACES */
-  if_list = get_interface_list(&err, &err_str);
+  if_list = capture_interface_list(&err, &err_str);
   if_list = g_list_sort (if_list, if_list_comparator_alph);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);

@@ -236,7 +236,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     /*
      * Try to get the list of known interfaces.
      */
-    if_list = get_interface_list(&err, NULL);
+    if_list = capture_interface_list(&err, NULL);
     if (if_list != NULL) {
       /*
        * We have the list - check it.
@@ -627,7 +627,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
-  if_list = get_interface_list(&err, &err_str);
+  if_list = capture_interface_list(&err, &err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);

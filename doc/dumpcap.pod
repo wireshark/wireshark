@@ -14,6 +14,7 @@ S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
+S<[ B<-I> E<lt>l|sE<gt> ]>
 S<[ B<-L> ]>
 S<[ B<-p> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
@@ -154,6 +155,14 @@ standard libpcap format.
 
 Note: the Win32 version of B<Dumpcap> doesn't support capturing from
 pipes or stdin!
+
+=item -I
+
+If run with the B<l> argument, print a verbose, machine-readable interface
+list, similar to the B<-D> flag.
+
+If run with the B<s> argument, print statistics for each interface every
+second until the program terminates.
 
 =item -L
 

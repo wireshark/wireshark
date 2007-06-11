@@ -24,10 +24,10 @@
 
 
 /** @file
- *  
+ *
  *  Sync mode capture (internal interface).
  *
- *  Will start a new Wireshark child instance which will do the actual capture 
+ *  Will start a new Wireshark child instance which will do the actual capture
  *  work.
  */
 
@@ -35,10 +35,10 @@
 #define __CAPTURE_SYNC_H__
 
 
-/** 
+/**
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
- *  The various capture_input_... functions will be called, if something had 
+ *  The various capture_input_... functions will be called, if something had
  *  happened.
  *
  *  Most of the parameters are passed through the global capture_opts.
@@ -46,7 +46,7 @@
  *  @param capture_opts the options
  *  @return             TRUE if a capture could be started, FALSE if not
  */
-extern gboolean 
+extern gboolean
 sync_pipe_start(capture_options *capture_opts);
 
 /** User wants to stop capturing, gracefully close the capture child */
@@ -55,12 +55,17 @@ sync_pipe_stop(capture_options *capture_opts);
 
 /** User wants to stop the program, just kill the child as soon as possible */
 extern void
-sync_pipe_kill(capture_options *capture_opts);
+sync_pipe_kill(int fork_child);
 
-/** does the parent signalled the child to stop */
+/** Has the parent signalled the child to stop? */
 #ifdef _WIN32
 extern gboolean
 signal_pipe_check_running(void);
 #endif
+
+/** Get an interface list using dumpcap */
+extern int
+sync_interface_list_open(gchar **msg);
+
 
 #endif /* capture_sync.h */

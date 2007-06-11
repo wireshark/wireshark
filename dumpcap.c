@@ -115,6 +115,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");
   fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
+  fprintf(output, "  -I [l|s]                 print a detailed interface list (l) or interface statistics (s).\n");
   fprintf(output, "\n");
   fprintf(output, "Stop conditions:\n");
   fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
@@ -161,7 +162,10 @@ cmdarg_err(const char *fmt, ...)
   va_list ap;
 
   if(capture_child) {
-    /* XXX - convert to g_log */
+    /* Print a bare error */
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
   } else {
     va_start(ap, fmt);
     fprintf(stderr, "dumpcap: ");
@@ -245,7 +249,7 @@ main(int argc, char *argv[])
   gboolean             list_link_layer_types = FALSE;
   int                  status;
 
-#define OPTSTRING_INIT "a:b:c:Df:hi:Lps:vw:y:Z"
+#define OPTSTRING_INIT "a:b:c:Df:hI:i:Lps:vw:y:Z"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -275,7 +279,7 @@ main(int argc, char *argv[])
   /* the default_log_handler will use stdout, which makes trouble in */
   /* capture child mode, as it uses stdout for it's sync_pipe */
   /* so do the filtering in the console_log_handler and not here */
-  log_flags = 
+  log_flags =
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
@@ -297,7 +301,7 @@ main(int argc, char *argv[])
 		    log_flags,
             console_log_handler, NULL /* user_data */);
 
-  /* Set the initial values in the capture_opts. This might be overwritten 
+  /* Set the initial values in the capture_opts. This might be overwritten
      by the command line parameters. */
   capture_opts_init(capture_opts, NULL);
 
@@ -326,7 +330,7 @@ main(int argc, char *argv[])
 
         /* Assemble the run-time version information string */
         runtime_info_str = g_string_new("Running ");
-        get_runtime_version_info(runtime_info_str, NULL);		
+        get_runtime_version_info(runtime_info_str, NULL);
         show_version(comp_info_str, runtime_info_str);
         g_string_free(comp_info_str, TRUE);
         g_string_free(runtime_info_str, TRUE);
@@ -362,9 +366,15 @@ main(int argc, char *argv[])
 
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
-        status = capture_opts_list_interfaces();
+        status = capture_opts_list_interfaces(FALSE);
         exit_main(status);
         break;
+      /* XXX - We might want to use 'D' for this.  Do we use GNU
+       * getopt on every platform (which supports optional arguments)? */
+      /* XXX - Implement interface stats */
+      case 'I':
+        status = capture_opts_list_interfaces(TRUE);
+        exit_main(status);
       case 'L':        /* Print list of link-layer types and exit */
         list_link_layer_types = TRUE;
         break;
@@ -473,7 +483,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
   /* create a "timestamp" */
   time(&curr);
-  today = localtime(&curr);    
+  today = localtime(&curr);
 
   switch(log_level & G_LOG_LEVEL_MASK) {
   case G_LOG_LEVEL_ERROR:
@@ -558,7 +568,7 @@ report_cfilter_error(const char *cfilter, const char *errmsg)
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
         pipe_write_block(1, SP_BAD_FILTER, errmsg);
     } else {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Invalid capture filter: \"%s\"!\n"
           "\n"
           "That string isn't a valid capture filter (%s).\n"
@@ -571,9 +581,9 @@ void
 report_capture_error(const char *error_msg, const char *secondary_error_msg)
 {
     if(capture_child) {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Primary Error: %s", error_msg);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Secondary Error: %s", secondary_error_msg);
     	sync_pipe_errmsg_to_parent(error_msg, secondary_error_msg);
     } else {

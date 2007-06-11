@@ -40,6 +40,18 @@
 #include <fcntl.h>
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
 #include <signal.h>
 #include <errno.h>
 
@@ -47,6 +59,7 @@
 
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
+#include <epan/ws_strsplit.h>
 #include "file.h"
 #include "capture.h"
 #include "capture_sync.h"
@@ -69,7 +82,7 @@
 
 
 
-/** 
+/**
  * Start a capture.
  *
  * @return TRUE if the capture starts successfully, FALSE otherwise.
@@ -142,7 +155,7 @@ capture_kill_child(capture_options *capture_opts)
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "Capture Kill");
 
   /* kill the capture child */
-  sync_pipe_kill(capture_opts);
+  sync_pipe_kill(capture_opts->fork_child);
 }
 
 
@@ -209,7 +222,7 @@ guint32 drops)
     break;
 
   case CF_READ_ABORTED:
-    /* User wants to quit program. Exit by leaving the main loop, 
+    /* User wants to quit program. Exit by leaving the main loop,
        so that any quit functions we registered get called. */
     main_window_nested_quit();
     return FALSE;
@@ -217,7 +230,7 @@ guint32 drops)
 
   /* if we didn't captured even a single packet, close the file again */
   if(cf_get_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
-    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
 "%sNo packets captured!%s\n"
 "\n"
 "As no data was captured, closing the %scapture file!\n"
@@ -283,7 +296,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     case CF_OK:
       break;
     case CF_ERROR:
-      /* Don't unlink (delete) the save file - leave it around, 
+      /* Don't unlink (delete) the save file - leave it around,
          for debugging purposes. */
       g_free(capture_opts->save_file);
       capture_opts->save_file = NULL;
@@ -307,7 +320,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   return TRUE;
 }
 
-    
+
 /* capture child tells us we have new packets to read */
 void
 capture_input_new_packets(capture_options *capture_opts, int to_read)
@@ -339,7 +352,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
     }
   } else {
     /* increase capture file packet counter by the number or incoming packets */
-    cf_set_packet_count(capture_opts->cf, 
+    cf_set_packet_count(capture_opts->cf,
         cf_get_packet_count(capture_opts->cf) + to_read);
 
     cf_callback_invoke(cf_cb_live_capture_fixed_continue, capture_opts->cf);
@@ -479,7 +492,7 @@ capture_input_closed(capture_options *capture_opts)
         /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
 	packet_count_save = cf_get_packet_count(capture_opts->cf);
         /* Tell the GUI, we are not doing a capture any more.
-		   Must be done after the cf_finish_tail(), so file lengths are displayed 
+		   Must be done after the cf_finish_tail(), so file lengths are displayed
 		   correct. */
         cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
 
@@ -488,7 +501,7 @@ capture_input_closed(capture_options *capture_opts)
 
         case CF_READ_OK:
             if ((packet_count_save == 0) && !capture_opts->restart) {
-                simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+                simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
 "%sNo packets captured!%s\n"
 "\n"
 "As no data was captured, closing the %scapture file!\n"
@@ -526,7 +539,7 @@ capture_input_closed(capture_options *capture_opts)
 
         /* this is a normal mode capture and if no error happened, read in the capture file data */
         if(capture_opts->save_file != NULL) {
-            capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 
+            capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf),
                 cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
         }
     }
@@ -561,6 +574,108 @@ capture_input_closed(capture_options *capture_opts)
         g_free(capture_opts->save_file);
         capture_opts->save_file = NULL;
     }
+}
+
+/**
+ * Fetch the interface list from a child process (dumpcap).
+ *
+ * @return A GList containing if_info_t structs if successful, NULL otherwise.
+ */
+
+/* XXX - We parse simple text output to get our interface list.  Should
+ * we use "real" data serialization instead, e.g. via XML? */
+GList *
+capture_interface_list(int *err, char **err_str)
+{
+    GList     *if_list = NULL;
+    int        i, j;
+    gchar     *msg;
+    gchar    **raw_list, **if_parts, **addr_parts;
+    gchar     *name;
+    if_info_t *if_info;
+    if_addr_t *if_addr;
+    struct addrinfo *ai;
+    struct sockaddr_in *sa4;
+    struct sockaddr_in6 *sa6;
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
+
+    /* Try to get our interface list */
+    *err = sync_interface_list_open(&msg);
+    if(*err != 0) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
+        if (*err_str)
+            *err_str = msg;
+        else
+            g_free(msg);
+        return NULL;
+    }
+
+    /* Split our lines */
+    raw_list = g_strsplit(msg, "\n", 0);
+    g_free(msg);
+
+    for (i = 0; raw_list[i] != NULL; i++) {
+        if_parts = g_strsplit(raw_list[i], "\t", 4);
+        if (if_parts[0] == NULL || if_parts[1] == NULL || if_parts[2] == NULL ||
+                if_parts[3] == NULL) {
+            g_strfreev(if_parts);
+            continue;
+        }
+
+        /* Number followed by the name, e.g "1. eth0" */
+        name = strchr(if_parts[0], ' ');
+        if (name) {
+            name++;
+        } else {
+            g_strfreev(if_parts);
+            continue;
+        }
+
+        if_info = g_malloc0(sizeof(if_info_t));
+        if_info->name = g_strdup(name);
+        if (strlen(if_parts[1]) > 0)
+            if_info->description = g_strdup(if_parts[1]);
+        addr_parts = g_strsplit(if_parts[2], ",", 0);
+        for (j = 0; addr_parts[j] != NULL; j++) {
+            /* XXX - We're failing to convert IPv6 addresses (on Ubuntu, at least) */
+            if (getaddrinfo(addr_parts[j], NULL, NULL, &ai) == 0) {
+                if_addr = NULL;
+                switch (ai->ai_family) {
+                    case AF_INET:
+                        if_addr = g_malloc0(sizeof(if_addr_t));
+                        if_addr->type = AT_IPv4;
+                        sa4 = (struct sockaddr_in *) ai->ai_addr;
+                        if_addr->ip_addr.ip4_addr = sa4->sin_addr.s_addr;
+                        break;
+                    case AF_INET6:
+                        if_addr = g_malloc0(sizeof(if_addr_t));
+                        if_addr->type = AT_IPv6;
+                        sa6 = (struct sockaddr_in6 *) ai->ai_addr;
+                        memcpy(&if_addr->ip_addr.ip6_addr, sa6->sin6_addr.s6_addr, 16);
+                        break;
+                }
+                if (if_addr) {
+                    if_info->ip_addr = g_slist_append(if_info->ip_addr, if_addr);
+                }
+                freeaddrinfo(ai);
+            }
+        }
+        if (strcmp(if_parts[3], "loopback") == 0)
+            if_info->loopback = TRUE;
+        g_strfreev(if_parts);
+        g_strfreev(addr_parts);
+        if_list = g_list_append(if_list, if_info);
+    }
+    g_strfreev(raw_list);
+
+    /* Check to see if we built a list */
+    if (if_list == NULL) {
+        if (*err_str)
+            *err_str = g_strdup("No interfaces found");
+        *err = NO_INTERFACES_FOUND;
+    }
+    return if_list;
 }
 
 

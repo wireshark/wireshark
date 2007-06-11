@@ -31,6 +31,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -51,7 +55,7 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 void
 capture_opts_init(capture_options *capture_opts, void *cfile)
 {
-  capture_opts->cf                      = cfile;            
+  capture_opts->cf                      = cfile;
   capture_opts->cfilter                 = g_strdup("");     /* No capture filter string specified */
   capture_opts->iface                   = NULL;             /* Default is "pick the first interface" */
 #ifdef _WIN32
@@ -77,7 +81,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 
   capture_opts->has_autostop_files      = FALSE;
   capture_opts->autostop_files          = 1;
-  capture_opts->has_autostop_packets    = FALSE;            
+  capture_opts->has_autostop_packets    = FALSE;
   capture_opts->autostop_packets        = 0;
   capture_opts->has_autostop_filesize   = FALSE;
   capture_opts->autostop_filesize       = 1024;             /* 1 MB */
@@ -425,8 +429,9 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
     return 0;
 }
 
-
-int capture_opts_list_interfaces()
+/* Return an ASCII-formatted list of interfaces. */
+int
+capture_opts_list_interfaces(gboolean verbose)
 {
     GList       *if_list;
     GList       *if_entry;
@@ -434,12 +439,11 @@ int capture_opts_list_interfaces()
     int         err;
     gchar       *err_str;
     int         i;
-#if 0
     GSList      *ip_addr;
     if_addr_t   *if_addr;
-    guint8      ipv4[4];
-#endif
-
+    char        addr_str[NI_MAXHOST];
+    struct sockaddr_in sa4;
+    struct sockaddr_in6 sa6;
 
     if_list = get_interface_list(&err, &err_str);
     if (if_list == NULL) {
@@ -453,7 +457,7 @@ int capture_opts_list_interfaces()
             cmdarg_err("There are no interfaces on which a capture can be done");
         break;
         }
-        return 2;
+        return err;
     }
 
     i = 1;  /* Interface id number */
@@ -461,28 +465,62 @@ int capture_opts_list_interfaces()
     if_entry = g_list_next(if_entry)) {
         if_info = if_entry->data;
         printf("%d. %s", i++, if_info->name);
-        if (if_info->description != NULL)
-            printf(" (%s)", if_info->description);
-#if 0
-        for(ip_addr = g_slist_nth(if_info->ip_addr, 0); ip_addr != NULL;
-        ip_addr = g_slist_next(ip_addr)) {
-            if_addr = ip_addr->data;
-            switch(if_addr->type) {
-            case AT_IPv4:
-                memcpy(ipv4, (void *) &if_addr->ip_addr.ip4_addr, 4);
-                printf(" %u.%u.%u.%u", ipv4[0], ipv4[1], ipv4[2], ipv4[3]);
-                break;
-            case AT_IPv6:
-                /* XXX - display the IPv6 address without using stuff from epan */
-                printf(" XXX-IPv6");
-                break;
-            default:
-                printf(" unknown address type %u", if_addr->type);
-            }
-        }
-#endif
 
-        printf("\n");
+        if (!verbose) {
+            /* Add the description if it exists */
+            if (if_info->description != NULL)
+                printf(" (%s)", if_info->description);
+        } else {
+            /*
+             * Add the contents of the if_entry struct in a parseable format.
+             * Each if_entry element is tab-separated.  Addresses are comma-
+             * separated.
+             */
+            /* XXX - Make sure our description doesn't contain a tab */
+            if (if_info->description != NULL)
+                printf("\t%s\t", if_info->description);
+            else
+                printf("\t\t");
+
+            for(ip_addr = g_slist_nth(if_info->ip_addr, 0); ip_addr != NULL;
+                        ip_addr = g_slist_next(ip_addr)) {
+                if (ip_addr != g_slist_nth(if_info->ip_addr, 0))
+                    printf(",");
+
+                if_addr = ip_addr->data;
+                switch(if_addr->type) {
+                case AT_IPv4:
+                    sa4.sin_family = AF_INET;
+                    sa4.sin_addr.s_addr = if_addr->ip_addr.ip4_addr;
+                    if (getnameinfo((struct sockaddr *) &sa4, sizeof(sa4),
+                            addr_str, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) == 0) {
+                        printf(addr_str);
+                    } else {
+                        printf("<unknown IPv4>");
+                    }
+                    break;
+                case AT_IPv6:
+                    sa6.sin6_family = AF_INET6;
+                    memcpy(&sa6.sin6_addr.s6_addr, &if_addr->ip_addr.ip6_addr, 16);
+                    if (getnameinfo((struct sockaddr *) &sa6, sizeof(sa6),
+                            addr_str, NI_MAXHOST, NULL, 0, NI_NUMERICHOST) == 0) {
+                        printf(addr_str);
+                    } else {
+                        printf("<unknown IPv6>");
+                    }
+                    break;
+                default:
+                    printf("<type unknown %u>", if_addr->type);
+                }
+            }
+
+            if (if_info->loopback)
+                printf("\tloopback");
+            else
+                printf("\tnetwork");
+
+        }
+	printf("\n");
     }
     free_interface_list(if_list);
 

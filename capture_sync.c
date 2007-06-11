@@ -508,6 +508,242 @@ sync_pipe_start(capture_options *capture_opts) {
     return TRUE;
 }
 
+/*
+ * Get an interface list using dumpcap.  On success, msg points to
+ * a buffer containing the dumpcap output and returns 0.  On failure, msg
+ * points to the error message returned by dumpcap, and returns dumpcap's
+ * exit value.  In either case, msg must be freed with g_free().
+ */
+/* XXX - This duplicates a lot of code in sync_pipe_start() and sync_interface_list_open() */
+#define PIPE_BUF_SIZE 5120
+int
+sync_interface_list_open(gchar **msg) {
+#ifdef _WIN32
+    HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
+    HANDLE sync_pipe_write;                 /* pipe used to send messages from parent to child */
+    GString *args = g_string_sized_new(200);
+    gchar *quoted_arg;
+    SECURITY_ATTRIBUTES sa;
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    int i;
+#else
+    int sync_pipe[2];                       /* pipe used to send messages from child to parent */
+    enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
+#endif
+    int fork_child = -1, fork_child_status;
+    int sync_pipe_read_fd = -1;
+    const char *progfile_dir;
+    char *exename;
+    int argc;
+    const char **argv;
+    GString *msg_buf = NULL;
+    gchar buf[PIPE_BUF_SIZE+1];
+    int count;
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
+
+    if (!msg) {
+        /* We can't return anything */
+#ifdef _WIN32
+        g_string_free(args, TRUE);
+#endif
+        return -1;
+    }
+
+    progfile_dir = get_progfile_dir();
+    if (progfile_dir == NULL) {
+        /* We don't know where to find dumpcap. */
+        *msg = g_strdup("We don't know where to find dumpcap.");
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* Allocate the string pointer array with enough space for the
+       terminating NULL pointer. */
+    argc = 0;
+    argv = g_malloc(sizeof (char *));
+    *argv = NULL;
+
+    /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
+    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
+
+    /* Make that the first argument in the argument list (argv[0]). */
+    argv = sync_pipe_add_arg(argv, &argc, exename);
+
+    /* Ask for the interface list */
+    argv = sync_pipe_add_arg(argv, &argc, "-I");
+    argv = sync_pipe_add_arg(argv, &argc, "l");
+
+
+    /* dumpcap should be running in capture child mode (hidden feature) */
+#ifndef DEBUG_CHILD
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#endif
+
+
+#ifdef _WIN32
+    /* init SECURITY_ATTRIBUTES */
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+
+    /* Create a pipe for the child process */
+    /* (inrease this value if you have trouble while fast capture file switches) */
+    if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
+        /* Couldn't create the pipe between parent and child. */
+        *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        g_free( (gpointer) argv);
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* init STARTUPINFO */
+    memset(&si, 0, sizeof(si));
+    si.cb           = sizeof(si);
+#ifdef DEBUG_CHILD
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow  = SW_SHOW;
+#else
+    si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
+    si.wShowWindow  = SW_HIDE;  /* this hides the console window */
+    si.hStdInput = NULL;
+    si.hStdOutput = sync_pipe_write;
+    si.hStdError = sync_pipe_write;
+    /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
+#endif
+
+    /* convert args array into a single string */
+    /* XXX - could change sync_pipe_add_arg() instead */
+    /* there is a drawback here: the length is internally limited to 1024 bytes */
+    for(i=0; argv[i] != 0; i++) {
+        if(i != 0) g_string_append_c(args, ' ');    /* don't prepend a space before the path!!! */
+        quoted_arg = protect_arg(argv[i]);
+        g_string_append(args, quoted_arg);
+        g_free(quoted_arg);
+    }
+
+    /* call dumpcap */
+    if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
+                      CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
+        *msg = g_strdup_printf("Couldn't run %s in child process: error %u",
+                        args->str, GetLastError());
+        CloseHandle(sync_pipe_read);
+        CloseHandle(sync_pipe_write);
+        g_free( (gpointer) argv);
+        return CANT_RUN_DUMPCAP;
+    }
+    fork_child = (int) pi.hProcess;
+    g_string_free(args, TRUE);
+
+    /* associate the operating system filehandle to a C run-time file handle */
+    /* (good file handle infos at: http://www.flounder.com/handles.htm) */
+    sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
+
+#else /* _WIN32 */
+    if (pipe(sync_pipe) < 0) {
+        /* Couldn't create the pipe between parent and child. */
+        *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        g_free(argv);
+        return CANT_RUN_DUMPCAP;
+    }
+
+    if ((fork_child = fork()) == 0) {
+        /*
+         * Child process - run dumpcap with the right arguments to make
+         * it just capture with the specified capture parameters
+         */
+        eth_close(1);
+        dup(sync_pipe[PIPE_WRITE]);
+        eth_close(sync_pipe[PIPE_READ]);
+        execv(exename, (gpointer)argv);
+        *msg = g_strdup_printf("Couldn't run %s in child process: %s",
+                exename, strerror(errno));
+        return CANT_RUN_DUMPCAP;
+    }
+
+    sync_pipe_read_fd = sync_pipe[PIPE_READ];
+#endif
+
+    g_free(exename);
+
+    /* Parent process - read messages from the child process over the
+       sync pipe. */
+    g_free( (gpointer) argv);	/* free up arg array */
+
+    /* Close the write side of the pipe, so that only the child has it
+       open, and thus it completely closes, and thus returns to us
+       an EOF indication, if the child closes it (either deliberately
+       or by exiting abnormally). */
+#ifdef _WIN32
+    CloseHandle(sync_pipe_write);
+#else
+    eth_close(sync_pipe[PIPE_WRITE]);
+#endif
+
+    if (fork_child == -1) {
+        /* We couldn't even create the child process. */
+        *msg = g_strdup_printf("Couldn't create child process: %s", strerror(errno));
+        eth_close(sync_pipe_read_fd);
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* we might wait for a moment till child is ready, so update screen now */
+    main_window_update();
+
+    /* We were able to set up to read dumpcap's output.  Do so and
+       return its exit value. */
+    msg_buf = g_string_new("");
+    while ((count = eth_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
+        buf[count] = '\0';
+        g_string_append(msg_buf, buf);
+    }
+
+    eth_close(sync_pipe_read_fd);
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open: wait till child closed");
+
+#ifdef _WIN32
+    if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
+        g_string_free(msg_buf, TRUE);
+        *msg = g_strdup_printf("Child capture process stopped unexpectedly "
+            "(errno:%u)", errno);
+        return CANT_RUN_DUMPCAP;
+    }
+#else
+    if (wait(&fork_child_status) != -1) {
+        if (WIFEXITED(fork_child_status)) {
+            /* The child exited. */
+            fork_child_status = WEXITSTATUS(fork_child_status);
+        } else {
+            g_string_free(msg_buf, TRUE);
+            if (WIFSTOPPED(fork_child_status)) {
+                /* It stopped, rather than exiting.  "Should not happen." */
+                *msg = g_strdup_printf("Child capture process stopped: %s",
+                    sync_pipe_signame(WSTOPSIG(fork_child_status)));
+            } else if (WIFSIGNALED(fork_child_status)) {
+                /* It died with a signal. */
+                *msg = g_strdup_printf("Child capture process died: %s%s",
+		    sync_pipe_signame(WTERMSIG(fork_child_status)),
+		    WCOREDUMP(fork_child_status) ? " - core dumped" : "");
+            } else {
+                /* What?  It had to either have exited, or stopped, or died with
+                   a signal; what happened here? */
+                *msg = g_strdup_printf("Child capture process died: wait status %#o",
+                    fork_child_status);
+            }
+            return CANT_RUN_DUMPCAP;
+        }
+    } else {
+      g_string_free(msg_buf, TRUE);
+      *msg = g_strdup_printf("Child capture process stopped unexpectedly "
+        "(errno:%u)", errno);
+      return CANT_RUN_DUMPCAP;
+    }
+#endif
+
+    *msg = msg_buf->str;
+    g_string_free(msg_buf, FALSE);
+    return fork_child_status;
+}
 
 
 /* read a number of bytes from a pipe */
@@ -542,7 +778,7 @@ pipe_read_bytes(int pipe, char *bytes, int required) {
 
 /* convert header values (indicator and 4-byte length) */
 static void
-pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {    
+pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {
 
     g_assert(header_len == 4);
 
@@ -636,10 +872,10 @@ sync_pipe_input_cb(gint source, gpointer user_data)
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0.
 
-       We don't have to worry about killing the child, if the sync pipe 
-       returned an error. Usually this error is caused as the child killed itself 
-       while going down. Even in the rare cases that this isn't the case, 
-       the child will get an error when writing to the broken pipe the next time, 
+       We don't have to worry about killing the child, if the sync pipe
+       returned an error. Usually this error is caused as the child killed itself
+       while going down. Even in the rare cases that this isn't the case,
+       the child will get an error when writing to the broken pipe the next time,
        cleaning itself up then. */
     sync_pipe_wait_for_child(capture_opts);
 
@@ -896,11 +1132,11 @@ sync_pipe_stop(capture_options *capture_opts)
 
 /* Wireshark has to exit, force the capture child to close */
 void
-sync_pipe_kill(capture_options *capture_opts)
+sync_pipe_kill(int fork_child)
 {
-  if (capture_opts->fork_child != -1) {
+  if (fork_child != -1) {
 #ifndef _WIN32
-      kill(capture_opts->fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+      kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
 #else
       /* Remark: This is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
@@ -920,7 +1156,7 @@ sync_pipe_kill(capture_options *capture_opts)
        * us, as we might not be running in a console.
        * And this also will require to have the process id.
        */
-      TerminateProcess((HANDLE) (capture_opts->fork_child), 0);
+      TerminateProcess((HANDLE) (fork_child), 0);
 #endif
   }
 }

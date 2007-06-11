@@ -33,7 +33,7 @@
 
 #include "capture_opts.h"
 
-/** 
+/**
  * Start a capture session.
  *
  * @param capture_opts the numerous capture options
@@ -80,6 +80,11 @@ extern void capture_input_cfilter_error_message(capture_options *capture_opts, c
  * Capture child closed its side of the pipe, do the required cleanup.
  */
 extern void capture_input_closed(capture_options *capture_opts);
+
+/**
+ * Fetch the interface list from a child process.
+ */
+extern GList *capture_interface_list(int *err, char **err_str);
 
 
 #endif /* capture.h */

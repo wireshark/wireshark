@@ -2568,7 +2568,7 @@ main(int argc, char *argv[])
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-        capture_opts_list_interfaces();
+        capture_opts_list_interfaces(FALSE);
         exit(0);
 #else
         capture_option_specified = TRUE;

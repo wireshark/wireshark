@@ -43,6 +43,7 @@
 #include "capture_ui_utils.h"
 #include "main.h"
 #include "compat_macros.h"
+#include "capture.h"
 
 #define DEVICE_KEY				"device"
 #define PROM_MODE_KEY			"prom_mode"
@@ -108,7 +109,7 @@ capture_prefs_show(void)
 	/*
 	 * XXX - what if we can't get the list?
 	 */
-	if_list = get_interface_list(&err, NULL);
+	if_list = capture_interface_list(&err, NULL);
 	combo_list = build_capture_combo_list(if_list, FALSE);
 	free_interface_list(if_list);
 	if (combo_list != NULL) {
@@ -119,7 +120,7 @@ capture_prefs_show(void)
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		    prefs.capture_device);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, row, row+1);
-	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, 
+	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
 	    "The default interface to be captured from.", NULL);
 	gtk_widget_show(if_cb);
 	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
@@ -132,7 +133,7 @@ capture_prefs_show(void)
 	gtk_widget_show(ifopts_lb);
 
 	ifopts_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
-	gtk_tooltips_set_tip(tooltips, ifopts_bt, 
+	gtk_tooltips_set_tip(tooltips, ifopts_bt,
 	    "Open a dialog box to set various interface options.", NULL);
 	SIGNAL_CONNECT(ifopts_bt, "clicked", ifopts_edit_cb, NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
@@ -142,7 +143,7 @@ capture_prefs_show(void)
 	promisc_cb = create_preference_check_button(main_tb, row++,
 	    "Capture packets in promiscuous mode:", NULL,
 	    prefs.capture_prom_mode);
-	gtk_tooltips_set_tip(tooltips, promisc_cb, 
+	gtk_tooltips_set_tip(tooltips, promisc_cb,
 	    "Usually a network card will only capture the traffic sent to its own network address. "
 	    "If you want to capture all traffic that the network card can \"see\", mark this option. "
 	    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
@@ -251,7 +252,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	int row = 0;
 
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
-	
+
 	/* Has an edit dialog box already been opened for that top-level
 	   widget? */
 	ifopts_edit_dlg = OBJECT_GET_DATA(caller, IFOPTS_DIALOG_PTR_KEY);
@@ -260,7 +261,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 		reactivate_window(ifopts_edit_dlg);
 		return;
 	}
-	
+
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_window_new("Wireshark: Preferences: Interface Options");
     gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 300);
@@ -269,18 +270,18 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
 	gtk_widget_show(main_vb);
-	
+
 	/* create current options frame */
 	cur_opts_fr = gtk_frame_new("Interfaces");
 	gtk_container_add(GTK_CONTAINER(main_vb), cur_opts_fr);
 	gtk_widget_show(cur_opts_fr);
-	
+
 	/* create a scrolled window to pack the current options CList widget into */
 	cur_scr_win = scrolled_window_new(NULL, NULL);
 	gtk_container_border_width(GTK_CONTAINER(cur_scr_win), 3);
 	gtk_container_add(GTK_CONTAINER(cur_opts_fr), cur_scr_win);
 	gtk_widget_show(cur_scr_win);
-	
+
 	/*
 	 * Create current options CList.
 	 */
@@ -292,24 +293,24 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_container_add(GTK_CONTAINER(cur_scr_win), cur_clist);
 	SIGNAL_CONNECT(cur_clist, "select_row", ifopts_edit_ifsel_cb, NULL);
 	gtk_widget_show(cur_clist);
-	
+
 	/* add interface names to cell */
 	ifopts_if_clist_add();
     gtk_clist_columns_autosize(GTK_CLIST(cur_clist));
-	
+
 	/* initialize variable that saves currently selected row in "if_clist" */
 	ifrow = IFOPTS_IF_NOSEL;
-	
+
 	/* create edit options frame */
 	ed_opts_fr = gtk_frame_new("Properties");
 	gtk_box_pack_start(GTK_BOX(main_vb), ed_opts_fr, FALSE, FALSE, 0);
 	gtk_widget_show(ed_opts_fr);
-	
+
 	main_hb = gtk_hbox_new(TRUE, 5);
 	gtk_container_border_width(GTK_CONTAINER(main_hb), 3);
 	gtk_container_add(GTK_CONTAINER(ed_opts_fr), main_hb);
 	gtk_widget_show(main_hb);
-		
+
 	/* table to hold description text entry and hide button */
 	main_tb = gtk_table_new(IFOPTS_TABLE_ROWS, 4, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_hb), main_tb, TRUE, FALSE, 10);
@@ -321,51 +322,51 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 1.0, 0.5);
 	gtk_widget_show(if_dev_lb);
-    
+
 	if_dev_lb = gtk_label_new("");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 1, 2, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 0.0, 0.5);
 	gtk_widget_show(if_dev_lb);
     row++;
-    
+
 	if_name_lb = gtk_label_new("Description:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0, 0.5);
 	gtk_widget_show(if_name_lb);
-    
+
 	if_name_lb = gtk_label_new("");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 1, 2, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0, 0.5);
 	gtk_widget_show(if_name_lb);
     row++;
-    
+
 	/* create interface description label and text entry */
 	if_descr_lb = gtk_label_new("Comment:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_descr_lb), 1.0, 0.5);
 	gtk_widget_show(if_descr_lb);
-	
+
 	if_descr_te = gtk_entry_new();
-	SIGNAL_CONNECT(if_descr_te, "changed", ifopts_edit_descr_changed_cb, 
+	SIGNAL_CONNECT(if_descr_te, "changed", ifopts_edit_descr_changed_cb,
 			cur_clist);
 	gtk_entry_set_max_length(GTK_ENTRY(if_descr_te), IFOPTS_MAX_DESCR_LEN);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_te, 1, 2, row, row+1);
 	gtk_widget_show(if_descr_te);
     row++;
-	
+
 	/* create hide interface label and button */
 	if_hide_lb = gtk_label_new("Hide interface?:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_lb, 0, 1, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_hide_lb), 1.0, 0.5);
 	gtk_widget_show(if_hide_lb);
-	
+
 	if_hide_cb = gtk_check_button_new();
-	SIGNAL_CONNECT(if_hide_cb, "toggled", ifopts_edit_hide_changed_cb, 
+	SIGNAL_CONNECT(if_hide_cb, "toggled", ifopts_edit_hide_changed_cb,
 			cur_clist);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, row, row+1);
 	gtk_widget_show(if_hide_cb);
     row++;
-	
+
 	/* button row: OK and Cancel buttons */
 	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -392,7 +393,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
     /* select the first row in if list, all option fields must exist for this */
 	gtk_clist_select_row(GTK_CLIST(cur_clist), 0, -1);
-    
+
 	gtk_widget_show(ifopts_edit_dlg);
     window_present(ifopts_edit_dlg);
 }
@@ -406,11 +407,11 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 	if (ifrow != IFOPTS_IF_NOSEL) {
 		/* create/write new interfaces description string */
 		ifopts_write_new_descr();
-		
+
 		/* create/write new "hidden" interfaces string */
 		ifopts_write_new_hide();
 	}
-	
+
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(parent_w));
 	window_destroy(GTK_WIDGET(parent_w));
@@ -443,31 +444,31 @@ ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
 					 gpointer		data _U_)
 {
 	gchar *text;
-	
+
 	/* save currently selected row */
 	ifrow = row;
-	
+
 	/* get/display the interface device from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 0, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
     text = strdup(text);
 	gtk_label_set_text(GTK_LABEL(if_dev_lb), text);
     g_free(text);
-	
+
 	/* get/display the interface name from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 1, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
     text = strdup(text);
 	gtk_label_set_text(GTK_LABEL(if_name_lb), text);
     g_free(text);
-	
+
 	/* get/display the interface description from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 2, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
     text = strdup(text);
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), text);
     g_free(text);
-	
+
 	/* get/display the "hidden" button state from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 3, &text);
 	if (strcmp("Yes", text) == 0)
@@ -483,10 +484,10 @@ static void
 ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata)
 {
 	gchar *text;
-	
+
 	if (ifrow == IFOPTS_IF_NOSEL)
 		return;
-	
+
 	/* get current description text and set value in current CList */
 	text = gtk_editable_get_chars(GTK_EDITABLE(ed), 0, -1);
 	/* replace any reserved formatting characters "()," with spaces */
@@ -503,7 +504,7 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
 {
 	if (ifrow == IFOPTS_IF_NOSEL)
 		return;
-	
+
 	/* get "hidden" button state and set text in current CList */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt)) == TRUE)
 		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 3, "Yes");
@@ -515,9 +516,9 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
  * Add any saved options that apply to cells in current CList.
  *
  * NOTE:
- *		Interfaces that have been removed from the machine or disabled and 
- *		no longer apply are ignored. Therefore, if the user subsequently 
- *		selects "OK", the options for these interfaces are lost (they're 
+ *		Interfaces that have been removed from the machine or disabled and
+ *		no longer apply are ignored. Therefore, if the user subsequently
+ *		selects "OK", the options for these interfaces are lost (they're
  *		lost permanently if "Save" is selected).
  */
 static void
@@ -529,12 +530,12 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 	gchar	*desc;
 	gchar	*pr_descr;
 	gchar	*text[] = { NULL, NULL, NULL, NULL };
-	
+
 	/* add interface descriptions and "hidden" flag */
 	if (prefs.capture_devices_descr != NULL) {
 		/* create working copy of device descriptions */
 		pr_descr = g_strdup(prefs.capture_devices_descr);
-		
+
 		/* if we find a description for this interface */
 		if ((ifnm = strstr(pr_descr, if_info->name)) != NULL) {
 			p = ifnm;
@@ -580,7 +581,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 							text[2] = g_strdup(desc);
 							/* add row to CList */
 							row = gtk_clist_append(GTK_CLIST(clist), text);
-							gtk_clist_set_selectable(GTK_CLIST(clist), row, 
+							gtk_clist_set_selectable(GTK_CLIST(clist), row,
 									FALSE);
 							ifopts_options_free(text);
 							break;
@@ -614,13 +615,13 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			}
 			else
 				text[3] = g_strdup("No");
-			
+
 			/* add row to CList */
 			row = gtk_clist_append(GTK_CLIST(clist), text);
 			gtk_clist_set_selectable(GTK_CLIST(clist), row, FALSE);
 			ifopts_options_free(text);
 		}
-		
+
 		g_free(pr_descr);
 	}
 	/*
@@ -641,7 +642,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			text[3] = g_strdup("Yes");
 		else
 			text[3] = g_strdup("No");
-		
+
 		/* add row to CList */
 		row = gtk_clist_append(GTK_CLIST(clist), text);
 		gtk_clist_set_selectable(GTK_CLIST(clist), row, FALSE);
@@ -662,7 +663,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		text[2] = g_strdup("");
 		/* interface is not "hidden" */
 		text[3] = g_strdup("No");
-		
+
 		/* add row to CList */
 		row = gtk_clist_append(GTK_CLIST(clist), text);
 		gtk_clist_set_selectable(GTK_CLIST(clist), row, FALSE);
@@ -674,7 +675,7 @@ static void
 ifopts_options_free(gchar *text[])
 {
 	gint i;
-	
+
 	for (i=0; i < IFOPTS_CLIST_COLS; i++) {
 		if (text[i] != NULL) {
 			g_free(text[i]);
@@ -695,18 +696,18 @@ ifopts_if_clist_add(void)
 	if_info_t	*if_info;
 	guint		i;
 	guint		nitems;
-	
-	if_list = get_interface_list(&err, &err_str);
+
+	if_list = capture_interface_list(&err, &err_str);
 	if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
 		g_free(err_str);
 		return;
 	}
-	
+
 	/* Seems we need to be at list head for g_list_length()? */
 	if_list = g_list_first(if_list);
 	nitems = g_list_length(if_list);
-	
+
 	/* add OS description + interface name text to CList */
 	for (i=0; i < nitems; i++) {
 		if_info = g_list_nth_data(if_list, i);
@@ -717,7 +718,7 @@ ifopts_if_clist_add(void)
 		/* fill current options CList with current preference values */
 		ifopts_options_add(GTK_CLIST(cur_clist), if_info);
 	}
-	
+
 	free_interface_list(if_list);
 }
 
@@ -734,10 +735,10 @@ ifopts_write_new_descr(void)
 	gchar	*desc;
 	gchar	*tmp_descr;
 	gchar	*new_descr;
-	
+
 	/* new preferences interfaces description string */
 	new_descr = g_malloc0(MAX_VAL_LEN);
-	
+
 	/* get description for each row (interface) */
 	for (i = 0; ;i++) {
 		/* get description */
@@ -746,7 +747,7 @@ ifopts_write_new_descr(void)
 		/* if no description, skip this interface */
 		if (strlen(desc) == 0)
 			continue;
-		
+
 		/* get interface name */
 		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
 
@@ -763,7 +764,7 @@ ifopts_write_new_descr(void)
 		/* set first-in-list flag to false */
 		first_if = FALSE;
 	}
-	
+
 	/* write new description string to preferences */
 	if (strlen(new_descr) > 0) {
 		g_free(prefs.capture_devices_descr);
@@ -790,10 +791,10 @@ ifopts_write_new_hide(void)
 	gchar	*hide;
 	gchar	*tmp_hide;
 	gchar	*new_hide;
-	
+
 	/* new preferences "hidden" interfaces string */
 	new_hide = g_malloc0(MAX_VAL_LEN);
-	
+
 	/* get "hidden" flag text for each row (interface) */
 	for (i = 0; ;i++) {
 		/* get flag */
@@ -805,7 +806,7 @@ ifopts_write_new_hide(void)
 
         /* get interface name */
 		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
-		
+
 		/*
 		 * create/cat interface to new string
 		 */
@@ -819,7 +820,7 @@ ifopts_write_new_hide(void)
 		/* set first-in-list flag to false */
 		first_if = FALSE;
 	}
-	
+
 	/* write new "hidden" string to preferences */
 	if (strlen(new_hide) > 0) {
 		g_free(prefs.capture_devices_hide);

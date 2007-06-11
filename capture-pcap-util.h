@@ -69,9 +69,10 @@ typedef struct {
 
 GList *get_interface_list(int *err, char **err_str);
 
-/* Error values from "get_interface_list()". */
-#define	CANT_GET_INTERFACE_LIST	0	/* error getting list */
-#define	NO_INTERFACES_FOUND	1	/* list is empty */
+/* Error values from "get_interface_list()/capture_interface_list()". */
+#define	CANT_GET_INTERFACE_LIST	1	/* error getting list */
+#define	NO_INTERFACES_FOUND	2	/* list is empty */
+#define	CANT_RUN_DUMPCAP	3	/* problem running 'dumpcap -I l' */
 
 void free_interface_list(GList *if_list);
 

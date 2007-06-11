@@ -740,7 +740,7 @@ main(int argc, char *argv[])
    */
   opterr = 0;
   optind_initial = optind;
-  
+
   while ((opt = getopt(argc, argv, optstring)) != -1) {
 	  switch (opt) {
 		  case 'X':
@@ -750,7 +750,7 @@ main(int argc, char *argv[])
 			  break;
 	  }
   }
-  
+
   optind = optind_initial;
   opterr = 1;
 
@@ -948,7 +948,7 @@ main(int argc, char *argv[])
         break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-        status = capture_opts_list_interfaces();
+        status = capture_opts_list_interfaces(FALSE);
         exit(status);
 #else
         capture_option_specified = TRUE;
@@ -1146,7 +1146,7 @@ main(int argc, char *argv[])
                     "specified with \"-e\".");
 
         exit(1);
-  }   
+  }
 
   /* If no capture filter or read filter has been specified, and there are
      still command-line arguments, treat them as the tokens of a capture
@@ -1269,7 +1269,7 @@ main(int argc, char *argv[])
           "a capture isn't being done.");
         exit(1);
       }
-      
+
       /* Note: TShark now allows the restriction of a _read_ file by packet count
        * and byte count as well as a write file. Other autostop options remain valid
        * only for a write file.
@@ -1486,7 +1486,7 @@ main(int argc, char *argv[])
 
     /* Process the packets in the file */
 #ifdef HAVE_LIBPCAP
-    err = load_cap_file(&cfile, capture_opts.save_file, out_file_type, 
+    err = load_cap_file(&cfile, capture_opts.save_file, out_file_type,
         capture_opts.has_autostop_packets ? capture_opts.autostop_packets : 0,
         capture_opts.has_autostop_filesize ? capture_opts.autostop_filesize : 0);
 #else
@@ -2114,7 +2114,7 @@ report_counts_siginfo(int signum _U_)
 #endif /* HAVE_LIBPCAP */
 
 static int
-load_cap_file(capture_file *cf, char *save_file, int out_file_type, 
+load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     int max_packet_count, gint64 max_byte_count)
 {
   gint         linktype;
@@ -2401,7 +2401,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   }
 
   if (passed) {
-    /* Keep the time of the current packet if the packet passed 
+    /* Keep the time of the current packet if the packet passed
        the read filter so that the delta time since last displayed
        packet can be calculated */
     prev_dis_ts = fdata.abs_ts;
@@ -2809,7 +2809,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     case WRITE_FIELDS:
       proto_tree_write_fields(output_fields, edt, stdout);
       printf("\n");
-      return !ferror(stdout);            
+      return !ferror(stdout);
     }
   } else {
     /* Just fill in the columns. */

@@ -24,7 +24,7 @@
 
 
 /** @file
- *  
+ *
  *  Capture options (all parameters needed to do the actual capture)
  *
  */
@@ -118,14 +118,14 @@ capture_opts_list_link_layer_types(capture_options *capture_opts);
 
 /* list interfaces */
 extern int
-capture_opts_list_interfaces(void);
+capture_opts_list_interfaces(gboolean verbose);
 
 /* trim the snaplen entry */
-extern void 
+extern void
 capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min);
 
 /* trim the ring_num_files entry */
-extern void 
+extern void
 capture_opts_trim_ring_num_files(capture_options *capture_opts);
 
 /* trim the interface entry */
