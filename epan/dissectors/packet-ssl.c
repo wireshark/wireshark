@@ -109,7 +109,6 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include <epan/inet_v6defs.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
@@ -117,6 +116,7 @@
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/expert.h>
+#include "inet_v6defs.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 

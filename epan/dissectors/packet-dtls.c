@@ -61,11 +61,11 @@
 
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/inet_v6defs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include "inet_v6defs.h"
 #include "packet-ssl-utils.h"
 
 extern const gchar *ssl_version_short_names[];
