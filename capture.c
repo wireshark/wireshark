@@ -602,12 +602,16 @@ capture_interface_list(int *err, char **err_str)
 
     /* Try to get our interface list */
     *err = sync_interface_list_open(&msg);
-    if(*err != 0) {
+    if (*err != 0) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
-        if (*err_str)
-            *err_str = msg;
-        else
+        if (err_str) {
+            if (*err_str)
+                *err_str = msg;
+            else
+                g_free(msg);
+        } else {
             g_free(msg);
+        }
         return NULL;
     }
 
