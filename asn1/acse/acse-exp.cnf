@@ -12,6 +12,7 @@ EXTERNALt                BER_CLASS_UNI 8
 AP-title                 BER_CLASS_ANY/*choice*/ -1/*choice*/
 AE-qualifier             BER_CLASS_ANY/*choice*/ -1/*choice*/
 ASO-qualifier            BER_CLASS_ANY/*choice*/ -1/*choice*/
+AE-title                 BER_CLASS_ANY/*choice*/ -1/*choice*/
 AE-invocation-identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
 AP-invocation-identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
 #.END
@@ -21,6 +22,7 @@ EXTERNALt                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 AP-title                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_AP_title_vals)  BITMASK = 0
 AE-qualifier             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_ASO_qualifier_vals)  BITMASK = 0
 ASO-qualifier            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_ASO_qualifier_vals)  BITMASK = 0
+AE-title                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_AE_title_vals)  BITMASK = 0
 AE-invocation-identifier TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 AP-invocation-identifier TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 #.END
