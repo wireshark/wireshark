@@ -1,0 +1,533 @@
+-- Module Attribute-ASN1Module (X.721:02/1992)
+Attribute-ASN1Module {joint-iso-itu-t ms(9) smi(3) part2(2) asn1Module(2) 1}
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+--EXPORTS everything
+IMPORTS
+  CMIP-ATTRIBUTE, AttributeSet, DistinguishedName, CMISFilter, Attribute,
+    BaseManagedObjectId, AttributeId, ObjectInstance, ObjectClass, EventTypeId
+    FROM CMIP-1 {joint-iso-itu-t ms(9) cmip(1) modules(0) protocol(3)}
+  AE-title
+    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0)
+      version1(1)};
+
+-- Note that the syntax of AE-title to be used is from CCITT Rec. X.227 | ISO 8650 corrigendum and 
+-- not "ANY".
+smi2AttributeID OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t ms(9) smi(3) part2(2) attribute(7)}
+
+smi2AttributeGroup OBJECT IDENTIFIER ::=
+  {joint-iso-itu-t ms(9) smi(3) part2(2) attributeGroup(8)}
+
+DMI-TYPE-IDENTIFIER ::= CLASS {&id     OBJECT IDENTIFIER UNIQUE,
+                               &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+-- as2wrs fault fix:
+DMI-EXTENSION::= CLASS {&id     OBJECT IDENTIFIER UNIQUE,
+                               &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+-- as2wrs fault fix:
+DMI-SERVICEUSER ::= CLASS {&id     OBJECT IDENTIFIER UNIQUE,
+                               &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+
+-- as2wrs fault fix:
+DMI-SUPPORTEDFEATURES ::= CLASS {&id     OBJECT IDENTIFIER UNIQUE,
+                               &Value  
+}WITH SYNTAX {TYPE &Value
+              ID &id
+}
+
+-- The value assignments for the probable cause used in CCITT Rec. X.733 | ISO/IEC 10164-4 are specified 
+-- below.
+-- These are specified in accordance with the corrigendum to ASN.1 ISO/IEC JTC1/SC21 N5901
+arfProbableCause OBJECT IDENTIFIER ::=
+  {joint-iso-ccitt ms(9) smi(3) part2(2) standardSpecificExtension(0) arf(0)}
+
+adapterError ProbableCause ::= globalValue:{arfProbableCause 1}
+
+applicationSubsystemFailure ProbableCause ::= globalValue:{arfProbableCause 2}
+
+bandwidthReduced ProbableCause ::= globalValue:{arfProbableCause 3}
+
+callEstablishmentError ProbableCause ::= globalValue:{arfProbableCause 4}
+
+communicationsProtocolError ProbableCause ::= globalValue:{arfProbableCause 5}
+
+communicationsSubsystemFailure ProbableCause ::=
+  globalValue:{arfProbableCause 6}
+
+configurationOrCustomizationError ProbableCause ::=
+  globalValue:{arfProbableCause 7}
+
+congestion ProbableCause ::= globalValue:{arfProbableCause 8}
+
+corruptData ProbableCause ::= globalValue:{arfProbableCause 9}
+
+cpuCyclesLimitExceeded ProbableCause ::= globalValue:{arfProbableCause 10}
+
+dataSetOrModemError ProbableCause ::= globalValue:{arfProbableCause 11}
+
+degradedSignal ProbableCause ::= globalValue:{arfProbableCause 12}
+
+dTE-DCEInterfaceError ProbableCause ::= globalValue:{arfProbableCause 13}
+
+enclosureDoorOpen ProbableCause ::= globalValue:{arfProbableCause 14}
+
+equipmentMalfunction ProbableCause ::= globalValue:{arfProbableCause 15}
+
+excessiveVibration ProbableCause ::= globalValue:{arfProbableCause 16}
+
+fileError ProbableCause ::= globalValue:{arfProbableCause 17}
+
+fireDetected ProbableCause ::= globalValue:{arfProbableCause 18}
+
+floodDetected ProbableCause ::= globalValue:{arfProbableCause 19}
+
+framingError ProbableCause ::= globalValue:{arfProbableCause 20}
+
+heatingOrVentilationOrCoolingSystemProblem ProbableCause ::=
+  globalValue:{arfProbableCause 21}
+
+humidityUnacceptable ProbableCause ::= globalValue:{arfProbableCause 22}
+
+inputOutputDeviceError ProbableCause ::= globalValue:{arfProbableCause 23}
+
+inputDeviceError ProbableCause ::= globalValue:{arfProbableCause 24}
+
+lANError ProbableCause ::= globalValue:{arfProbableCause 25}
+
+leakDetected ProbableCause ::= globalValue:{arfProbableCause 26}
+
+localNodeTransmissionError ProbableCause ::= globalValue:{arfProbableCause 27}
+
+lossOfFrame ProbableCause ::= globalValue:{arfProbableCause 28}
+
+lossOfSignal ProbableCause ::= globalValue:{arfProbableCause 29}
+
+materialSupplyExhausted ProbableCause ::= globalValue:{arfProbableCause 30}
+
+multiplexerProblem ProbableCause ::= globalValue:{arfProbableCause 31}
+
+outOfMemory ProbableCause ::= globalValue:{arfProbableCause 32}
+
+ouputDeviceError ProbableCause ::= globalValue:{arfProbableCause 33}
+
+performanceDegraded ProbableCause ::= globalValue:{arfProbableCause 34}
+
+powerProblem ProbableCause ::= globalValue:{arfProbableCause 35}
+
+pressureUnacceptable ProbableCause ::= globalValue:{arfProbableCause 36}
+
+processorProblem ProbableCause ::= globalValue:{arfProbableCause 37}
+
+pumpFailure ProbableCause ::= globalValue:{arfProbableCause 38}
+
+queueSizeExceeded ProbableCause ::= globalValue:{arfProbableCause 39}
+
+receiveFailure ProbableCause ::= globalValue:{arfProbableCause 40}
+
+receiverFailure ProbableCause ::= globalValue:{arfProbableCause 41}
+
+remoteNodeTransmissionError ProbableCause ::= globalValue:{arfProbableCause 42}
+
+resourceAtOrNearingCapacity ProbableCause ::= globalValue:{arfProbableCause 43}
+
+responseTimeExcessive ProbableCause ::= globalValue:{arfProbableCause 44}
+
+retransmissionRateExcessive ProbableCause ::= globalValue:{arfProbableCause 45}
+
+softwareError ProbableCause ::= globalValue:{arfProbableCause 46}
+
+softwareProgramAbnormallyTerminated ProbableCause ::=
+  globalValue:{arfProbableCause 47}
+
+softwareProgramError ProbableCause ::= globalValue:{arfProbableCause 48}
+
+storageCapacityProblem ProbableCause ::= globalValue:{arfProbableCause 49}
+
+temperatureUnacceptable ProbableCause ::= globalValue:{arfProbableCause 50}
+
+thresholdCrossed ProbableCause ::= globalValue:{arfProbableCause 51}
+
+timingProblem ProbableCause ::= globalValue:{arfProbableCause 52}
+
+toxicLeakDetected ProbableCause ::= globalValue:{arfProbableCause 53}
+
+transmitFailure ProbableCause ::= globalValue:{arfProbableCause 54}
+
+transmitterFailure ProbableCause ::= globalValue:{arfProbableCause 55}
+
+underlyingResourceUnavailable ProbableCause ::=
+  globalValue:{arfProbableCause 56}
+
+versionMismatch ProbableCause ::= globalValue:{arfProbableCause 57}
+
+-- The following applies to CCITT applications only.
+-- The use of the following values is subject to 8.1.2.12 of The Alarm Management Function
+-- (CCITT Recommendation X.733 | 10164-4).
+arfProposedRepairAction OBJECT IDENTIFIER ::=
+  {joint-iso-ccitt ms(9) smi(3) part2(2) standardSpecificExtension(0) arfpra(2)}
+
+noActionRequired OBJECT IDENTIFIER ::= {arfProposedRepairAction 1}
+
+repairActionRequired OBJECT IDENTIFIER ::= {arfProposedRepairAction 2}
+
+-- The value assignments for the security alarm cause used in CCITT Rec. X.736 | ISO/IEC 10164-7 are 
+-- specified below.
+securityAlarmCause OBJECT IDENTIFIER ::=
+  {joint-iso-ccitt ms(9) smi(3) part2(2) standardSpecificExtension(0) sarf(1)}
+
+authenticationFailure SecurityAlarmCause ::= {securityAlarmCause  1}
+
+breachOfConfidentiality SecurityAlarmCause ::= {securityAlarmCause  2}
+
+cableTamper SecurityAlarmCause ::= {securityAlarmCause  3}
+
+delayedInformation SecurityAlarmCause ::= {securityAlarmCause  4}
+
+denialOfService SecurityAlarmCause ::= {securityAlarmCause  5}
+
+duplicateInformation SecurityAlarmCause ::= {securityAlarmCause  6}
+
+informationMissing SecurityAlarmCause ::= {securityAlarmCause  7}
+
+informationModificationDetected SecurityAlarmCause ::= {securityAlarmCause  8}
+
+informationOutOfSequence SecurityAlarmCause ::= {securityAlarmCause  9}
+
+intrusionDetection SecurityAlarmCause ::= {securityAlarmCause  10}
+
+keyExpired SecurityAlarmCause ::= {securityAlarmCause  11}
+
+nonRepudiationFailure SecurityAlarmCause ::= {securityAlarmCause  12}
+
+outOfHoursActivity SecurityAlarmCause ::= {securityAlarmCause  13}
+
+outOfService SecurityAlarmCause ::= {securityAlarmCause  14}
+
+proceduralError SecurityAlarmCause ::= {securityAlarmCause  15}
+
+unauthorizedAccessAttempt SecurityAlarmCause ::= {securityAlarmCause  16}
+
+unexpectedInformation SecurityAlarmCause ::= {securityAlarmCause  17}
+
+unspecifiedReason SecurityAlarmCause ::= {securityAlarmCause  18}
+
+-- default value definitions
+-- asn2wrs Problem omit this assignment
+--defaultIntervalsOfDay IntervalsOfDay ::= {
+--  {intervalStart  {hour 0, minute 0},
+--   intervalEnd    {hour 23, minute 59}}
+--}
+
+--defaultStopTime StopTime ::= continual:NULL
+
+--defaultWeekMask WeekMask ::= {
+--  {daysOfWeek      '1111111'B,
+--   intervalsOfDay  defaultIntervalsOfDay}
+--}
+
+defaultDiscriminatorConstruct DiscriminatorConstruct ::= and:{}
+
+-- supporting productions
+ActiveDestination ::=
+  Destination(WITH COMPONENTS {
+                single    PRESENT,
+                multiple  ABSENT
+              })
+
+AdditionalText ::= GraphicString
+
+AdditionalInformation ::= SET OF ManagementExtension
+
+Allomorphs ::= SET OF ObjectClass
+
+AdministrativeState ::= ENUMERATED {locked(0), unlocked(1), shuttingDown(2)}
+
+AttributeIdentifierList ::= SET OF AttributeId
+
+AttributeList ::= SET OF Attribute
+
+AttributeValueChangeDefinition ::=
+  SET OF
+    SEQUENCE {attributeId        CMIP-ATTRIBUTE.&id({AttributeSet}),
+              oldAttributeValue
+                [1]  CMIP-ATTRIBUTE.&Value({AttributeSet}{@.attributeId})
+                  OPTIONAL,
+              newAttributeValue
+                [2]  CMIP-ATTRIBUTE.&Value({AttributeSet}{@.attributeId})
+    }
+
+AlarmStatus ::=
+  SET OF
+    INTEGER {underRepair(0), critical(1), major(2), minor(3),
+             alarmOutstanding(4)}
+
+AvailabilityStatus ::=
+  SET OF
+    INTEGER {inTest(0), failed(1), powerOff(2), offLine(3), offDuty(4),
+             dependency(5), degraded(6), notInstalled(7), logFull(8)}
+
+-- logFull is defined in CCITT Rec X.735 | ISO/IEC 10164-6.
+BackedUpStatus ::= BOOLEAN
+
+-- True implies backed up
+-- False implies not backed up
+BackUpDestinationList ::= SEQUENCE OF AE-title
+
+BackUpRelationshipObject ::= CHOICE {
+  objectName  ObjectInstance,
+  noObject    NULL
+}
+
+CapacityAlarmThreshold ::= SET OF INTEGER(0..100)
+
+ConfirmedMode ::= BOOLEAN
+
+-- True implies the mode for event report is confirmed
+ControlStatus ::=
+  SET OF
+    INTEGER {subjectToTest(0), partOfServicesLocked(1), reservedForTest(2),
+             suspended(3)}
+
+-- Count ::= INTEGER
+
+CounterThreshold ::=
+  SET OF
+    SEQUENCE {comparisonLevel    INTEGER,
+              offsetValue        INTEGER,
+              notificationOnOff  BOOLEAN}
+
+CorrelatedNotifications ::=
+  SET OF
+    SEQUENCE {correlatedNotifications  SET OF NotificationIdentifier,
+              sourceObjectInst         ObjectInstance OPTIONAL}
+
+CurrentLogSize ::= INTEGER
+
+Destination ::= CHOICE {single    AE-title,
+                        multiple  SET OF AE-title
+}
+
+-- Note that the syntax of AE-title to be used is from CCITT X.227 | ISO 8650 Technical
+-- corrigendum 1 and not "ANY".
+DiscriminatorConstruct ::=
+  CMISFilter
+
+EventTime ::= GeneralizedTime
+
+GaugeThreshold ::=
+  SET OF SEQUENCE {notifyLow   NotifyThreshold,
+                   notifyHigh  NotifyThreshold}
+
+GaugeThresholdValue ::= ObservedValue
+
+-- same choice must be chosen within a sequence
+-- for both GenericOldState and GenericNewState.
+GroupObjects ::= SET OF ObjectInstance
+
+IntervalsOfDay ::=
+  SET OF
+    SEQUENCE {intervalStart  Time24, -- start at the beginning of this minute
+              intervalEnd    Time24} -- stop at the end of this minute
+
+LifecycleState ::= ENUMERATED {planned(0), installed(1), pendingRemoval(2)}
+
+LogAvailability ::= AvailabilityStatus(WITH COMPONENT (logFull | offDuty))
+
+LogFullAction ::= ENUMERATED {wrap(0), halt(1)}
+
+LoggingTime ::= GeneralizedTime
+
+LogRecordId ::=
+  SimpleNameType(WITH COMPONENTS {
+                   number  PRESENT,
+                   string  ABSENT
+                 })
+
+MaxLogSize ::= INTEGER {unlimited(0)} -- size in octets
+
+-- as2wrs fault fix:
+--DMI-EXTENSION ::= DMI-TYPE-IDENTIFIER
+
+ManagementExtension ::= SEQUENCE {
+  identifier    DMI-EXTENSION.&id({ManagementExtensionSet}),
+  significance  [1]  BOOLEAN DEFAULT FALSE,
+  information
+    [2]  DMI-EXTENSION.&Value({ManagementExtensionSet}{@.identifier})
+}
+
+ManagementExtensionSet DMI-EXTENSION ::=
+  {...}
+
+MonitoredAttributes ::= SET OF Attribute
+
+NameBinding ::= OBJECT IDENTIFIER
+
+NotificationIdentifier ::= INTEGER -- reuse only when no requirement exists
+
+-- for correlating prior notification.
+NotifyThreshold ::= SEQUENCE {threshold    ObservedValue,
+                              notifyOnOff  BOOLEAN
+}
+
+NumberOfRecords ::= INTEGER
+
+ObservedValue ::= CHOICE {integer  INTEGER,
+                          real     REAL
+}
+
+OperationalState ::= ENUMERATED {disabled(0), enabled(1)}
+
+Packages ::= SET OF OBJECT IDENTIFIER
+
+PerceivedSeverity ::= ENUMERATED {
+  indeterminate(0),
+  -- used when it is not possible to assign the following values
+  critical(1), major(2), minor(3), warning(4), cleared(5)}
+
+PrioritisedObject ::=
+  SET OF
+    SEQUENCE {object    ObjectInstance,
+              priority  INTEGER {highest(0), lowest(127)}}
+
+ProbableCause ::= CHOICE {globalValue  OBJECT IDENTIFIER,
+                          localValue   INTEGER
+}
+
+-- The values for the probable cause defined in CCITT Rec X.733 | ISO/IEC 10164-4 are specified 
+-- above.
+ProceduralStatus ::=
+  SET OF
+    INTEGER {initializationRequired(0), notInitialized(1), initializing(2),
+             reporting(3), terminating(4)}
+
+ProposedRepairActions ::= SET OF SpecificIdentifier
+
+SchedulingAvailability ::= AvailabilityStatus(WITH COMPONENT (offDuty))
+
+SecurityAlarmCause ::= OBJECT IDENTIFIER
+
+SecurityAlarmSeverity ::=
+  PerceivedSeverity(indeterminate | critical | major | minor | warning)
+
+SecurityAlarmDetector ::= CHOICE {
+  mechanism    [0]  OBJECT IDENTIFIER,
+  object       [1]  ObjectInstance,
+  application  [2]  AE-title
+}
+
+ServiceProvider ::= ServiceUser
+
+-- DMI-SERVICEUSER ::= DMI-TYPE-IDENTIFIER
+
+ServiceUser ::= SEQUENCE {
+  identifier  DMI-SERVICEUSER.&id({ServiceUserSet}),
+  details     DMI-SERVICEUSER.&Value({ServiceUserSet}{@.identifier})
+}
+
+ServiceUserSet DMI-SERVICEUSER ::=
+  {...}
+
+SimpleNameType ::= CHOICE {number  INTEGER,
+                           string  GraphicString
+}
+
+SpecificIdentifier ::= CHOICE {oi   OBJECT IDENTIFIER,
+                               int  INTEGER
+}
+
+SourceIndicator ::= ENUMERATED {
+  resourceOperation(0), managementOperation(1), unknown(2)}
+
+SpecificProblems ::= SET OF SpecificIdentifier
+
+StandbyStatus ::= INTEGER {hotStandby(0), coldStandby(1), providingService(2)}
+
+StartTime ::= GeneralizedTime
+
+StopTime ::= CHOICE {specific   GeneralizedTime,
+                     continual  NULL
+}
+
+-- DMI-SUPPORTEDFEATURES ::= DMI-TYPE-IDENTIFIER
+
+SupportedFeatures ::=
+  SET OF
+    SEQUENCE {featureIdentifier
+                DMI-SUPPORTEDFEATURES.&id({SupportedFeaturesSet}),
+              featureInfo
+                DMI-SUPPORTEDFEATURES.&Value
+                  ({SupportedFeaturesSet}{@.featureIdentifier})}
+
+SupportedFeaturesSet DMI-SUPPORTEDFEATURES ::=
+  {...}
+
+SystemId ::= CHOICE {name     GraphicString,
+                     number   INTEGER,
+                     nothing  NULL
+}
+
+SystemTitle ::= CHOICE {
+  distinguishedName  DistinguishedName,
+  oid                OBJECT IDENTIFIER,
+  nothing            NULL
+}
+
+TideMarkInfo ::= SEQUENCE {
+  currentTideMark   TideMark,
+  previousTideMark  TideMark,
+  resetTime         GeneralizedTime
+}
+
+TideMark ::= CHOICE {
+  maxTideMar   [0]  ObservedValue,
+  minTideMark  [1]  ObservedValue
+}
+
+Time24 ::= SEQUENCE {hour    INTEGER(0..23),
+                     minute  INTEGER(0..59)
+}
+
+ThresholdInfo ::= SEQUENCE {
+  triggeredThreshold  AttributeId,
+  observedValue       ObservedValue,
+  thresholdLevel      [1]  ThresholdLevelInd OPTIONAL,
+  -- Indication needed for multilevel thresholds
+  armTime             [2]  GeneralizedTime OPTIONAL
+}
+
+ThresholdLevelInd ::= CHOICE {
+  up    [1]  SEQUENCE {high  ObservedValue,
+                       low   ObservedValue OPTIONAL}, -- up is the only permitted choice for counter 
+  down  [2]  SEQUENCE {high  ObservedValue,
+                       low   ObservedValue}
+}
+
+TrendIndication ::= ENUMERATED {lessSevere(0), noChange(1), moreSevere(2)}
+
+UnknownStatus ::= BOOLEAN -- TRUE implies unknown status
+
+UnscheduledLogAvailability ::= AvailabilityStatus(WITH COMPONENT (logFull))
+
+UsageState ::= ENUMERATED {idle(0), active(1), busy(2)}
+
+WeekMask ::=
+  SET OF
+    SEQUENCE {daysOfWeek
+                BIT STRING {sunday(0), monday(1), tuesday(2), wednesday(3),
+                            thursday(4), friday(5), saturday(6)}(SIZE (7)),
+              intervalsOfDay  IntervalsOfDay}
+
+END -- end of supporting productions
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+
