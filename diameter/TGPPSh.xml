@@ -18,13 +18,13 @@
                                 <gavp name="MSISDN"/>
                         </grouped>
 		</avp>
-		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="User-Data" code="702" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="User-Data" code="702" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Data-Reference" code="703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Data-Reference" code="703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
                         <enum name="RepositoryData" code="0"/>
                         <enum name="IMSPublicIdentity" code="10"/>
@@ -37,25 +37,25 @@
                         <enum name="MSISDN" code="17"/>
                         <enum name="PSIActivation" code="18"/>
 		</avp>
-		<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Subs-Req-Type" code="705" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Subs-Req-Type" code="705" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
                         <enum name="Subscribe" code="0"/>
                         <enum name="Unsubscribe" code="1"/>
 		</avp>
-		<avp name="Requested-Domain" code="706" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Requested-Domain" code="706" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
                         <enum name="CS-Domain" code="0"/>
                         <enum name="PS-Domain" code="1"/>
 		</avp>
-		<avp name="Current-Location" code="707" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Current-Location" code="707" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
                         <enum name="DoNotNeedInitiateActiveLocationRetrieval" code="0"/>
                         <enum name="InitiateActiveLocationRetrieval" code="1"/>
 		</avp>
-		<avp name="Identity-Set" code="708" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Identity-Set" code="708" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
                         <enum name="ALL_IDENTITIES" code="0"/>
                         <enum name="REGISTERED_IDENTITIES" code="1"/>

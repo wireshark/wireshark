@@ -8,6 +8,7 @@
 	<!ENTITY imscxdx SYSTEM "imscxdx.xml">
 	<!ENTITY TGPPSh SYSTEM "TGPPSh.xml">
 	<!ENTITY sip SYSTEM "sip.xml">
+	<!ENTITY gqpolicy SYSTEM "gqpolicy.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -445,7 +446,7 @@
          32 bit signed value, in network byte order. The AVP Length
          field MUST be set to 12 (16 if the 'V' bit is enabled).
 	-->
-		<typedefn type-name="VendorId" type-parent="Integer32"/>
+		<typedefn type-name="VendorId" type-parent="Unsigned32"/>
 		<typedefn type-name="AppId" type-parent="Integer32"/>
 		<typedefn type-name="Integer64"/>
 		<!--
@@ -1051,7 +1052,7 @@
 			<type type-name="DiameterIdentity"/>
 		</avp>
 		<avp name="Destination-Realm" code="283" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
+			<type type-name="DiameterIdentity"/>
 		</avp>
 		<avp name="Proxy-Info" code="284" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="OctetString"/>

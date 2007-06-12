@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+    <application id="16777222" name="3GPP Gq" uri="http://www.3GPP.org/ftp/Specs/html-info/29209.htm">
+
+        <!-- IMS Cx Dx Application -->
+        <command name="AA"                        code="265" vendor-id="TGPP"/>
+        <command name="Re-Auth"                   code="258" vendor-id="TGPP"/>
+        <command name="Session-Termination"       code="275" vendor-id="TGPP"/>
+        <command name="Abort-Session"             code="274" vendor-id="TGPP"/>
+
+        <!-- TODO: return codes -->
+        
+        <!-- ************************** Gq AVPS ********************* -->
+        <avp name="Abort-Cause" code="500" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+                <enum name="BEARER_RELEASED" code="0"/>
+                <enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
+                <enum name="NSUFFICIENT_BEARER_RESOURCES" code="2"/>
+        </avp>
+
+        <avp name="Access-Network-Charging-Address" code="501" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="OctetString"/>
+        </avp>
+
+        <avp name="Access-Network-Charging-Identifier" code="502" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <grouped>
+                    <gavp name="Access-Network-Charging-Identifier-Value"/>
+                    <gavp name="Flows"/>
+            </grouped>
+        </avp>
+
+        <avp name="Access-Network-Charging-Identifier-Value" code="503" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="OctetString"/>
+        </avp>
+
+        <avp name="AF-Application-Identifier" code="504" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="OctetString"/>
+        </avp>
+
+        <avp name="AF-Charging-Identifier" code="505" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="OctetString"/>
+        </avp>
+
+        <avp name="Authorization-Token" code="506" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="OctetString"/>
+        </avp>
+
+        <!-- type IPFilterRule -->
+        <avp name="Flow-Description" code="507" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="OctetString"/>
+        </avp>
+
+        <avp name="Flow-Grouping" code="508" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <grouped>
+                    <gavp name="Flows"/>
+            </grouped>
+        </avp>
+
+        <avp name="Flow-Number" code="509" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+        </avp>
+
+        <avp name="Flows" code="510" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <grouped>
+                    <gavp name="Media-Component-Number"/>
+                    <gavp name="Flow-Number"/>
+            </grouped>
+        </avp>
+
+        <avp name="Flow-Status" code="511" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+                <enum name="ENABLED-UPLINK" code="0"/>
+                <enum name="ENABLED-DOWNLINK" code="1"/>
+                <enum name="ENABLED" code="2"/>
+                <enum name="DISABLED" code="3"/>
+                <enum name="REMOVED" code="4"/>
+        </avp>
+
+        <avp name="Flow-Usage" code="512" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+            <type type-name="Unsigned32"/>
+                <enum name="NO_INFORMATION" code="0"/>
+                <enum name="RTCP" code="1"/>
+        </avp>
+
+        <avp name="Specific-Action" code="513" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+            <type type-name="Unsigned32"/>
+                <enum name="SERVICE_INFORMATION_REQUEST" code="0"/>
+                <enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
+                <enum name="INDICATION_OF_LOSS_OF_BEARER" code="2"/>
+                <enum name="INDICATION_OF_RECOVERY_OF_BEARER" code="3"/>
+                <enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
+                <enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER" code="5"/>
+        </avp>
+
+        <avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+        </avp>
+
+        <avp name="Max-Requested-Bandwidth-UL" code="516" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+        </avp>
+
+        <avp name="Media-Component-Description" code="517" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <grouped>
+                    <gavp name="Media-Component-Number"/>
+                    <gavp name="Media-Sub-Component"/>
+                    <gavp name="AF-Application-Identifier"/>
+                    <gavp name="Media-Type"/>
+                    <gavp name="Max-Requested-Bandwidth-UL"/>
+                    <gavp name="Max-Requested-Bandwidth-DL"/>
+                    <gavp name="Flow-Status"/>
+                    <gavp name="RS-Bandwidth"/>
+                    <gavp name="RR-Bandwidth"/>
+            </grouped>
+        </avp>
+
+        <avp name="Media-Component-Number" code="518" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+        </avp>
+
+        <avp name="Media-Sub-Component" code="519" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <grouped>
+                    <gavp name="Flow-Number"/>
+                    <gavp name="Flow-Description"/>
+                    <gavp name="Flow-Status"/>
+                    <gavp name="Flow-Usage"/>
+                    <gavp name="Max-Requested-Bandwidth-UL"/>
+                    <gavp name="Max-Requested-Bandwidth-DL"/>
+            </grouped>
+        </avp>
+
+        <avp name="Media-Type" code="520" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+                <enum name="AUDIO" code="0"/>
+                <enum name="VIDEO" code="1"/>
+                <enum name="DATA" code="2"/>
+                <enum name="APPLICATION" code="3"/>
+                <enum name="CONTROL" code="4"/>
+                <enum name="TEXT" code="5"/>
+                <enum name="MESSAGE" code="6"/>
+                <enum name="OTHER" code="4294967295"/>
+        </avp>
+
+
+        <avp name="RR-Bandwidth" code="521" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+        </avp>
+
+        <avp name="RS-Bandwidth" code="522" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+        </avp>
+        
+        <avp name="SIP-Forking-Indication" code="523" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+            <type type-name="Unsigned32"/>
+                <enum name="SINGLE_DIALOGUE" code="0"/>
+                <enum name="SEVERAL_DIALOGUES" code="1"/>
+        </avp>
+
+
+        <!-- ************************ END Gq AVPS ******************* -->
+
+    </application>

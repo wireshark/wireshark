@@ -904,7 +904,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 262, "Redirect-Max-Cache-Time",     DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 263, "Session-Id",                  DIAMETER_SESSION_ID,  (value_string *)NULL},
     { 264, "Origin-Host",                 DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 265, "Supported-Vendor-Id",         DIAMETER_ENUMERATED,  sminmpec_values},
     { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
     { 267, "Firmware-Revision",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 268, "Result-Code",                 DIAMETER_UNSIGNED32,  diameter_result_code_vals},

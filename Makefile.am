@@ -111,6 +111,7 @@ diameter_DATA = \
 	diameter/chargecontrol.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \
+	diameter/gqpolicy.xml \
 	diameter/imscxdx.xml \
 	diameter/mobileipv4.xml \
 	diameter/nasreq.xml \
