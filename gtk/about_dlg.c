@@ -61,12 +61,13 @@ static GtkWidget *about_wireshark_w;
 
 
 static void
-about_wireshark(GtkWidget *parent, GtkWidget *main_vb, const char *title)
+about_wireshark(GtkWidget *parent, GtkWidget *main_vb)
 {
   GtkWidget   *msg_label, *icon;
 #if GTK_MAJOR_VERSION >= 2
   gchar       *message;
 #endif
+  const char  *title = "Network Protocol Analyzer";
 
   icon = xpm_to_widget_from_parent(parent, wssplash_xpm);
   gtk_container_add(GTK_CONTAINER(main_vb), icon);
@@ -118,7 +119,7 @@ splash_new(const char *message)
     gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
-    about_wireshark(win, main_vb, "Network Protocol Analyzer");
+    about_wireshark(win, main_vb);
 
     main_lb = gtk_label_new(message);
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
@@ -281,12 +282,11 @@ about_wireshark_page_new(void)
 {
   GtkWidget   *main_vb, *msg_label /*, *icon*/;
   gchar       *message;
-  const char   title[] = "Network Protocol Analyzer";
 
   main_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 
-  about_wireshark(top_level, main_vb, title);
+  about_wireshark(top_level, main_vb);
 
   /* Construct the message string */
   message = g_strdup_printf(
