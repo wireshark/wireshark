@@ -182,7 +182,7 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	dissector_handle_t sub_handle = NULL;
 	dissector_handle_t* handles;
 	guint i;
-
+	
 	k12_item = proto_tree_add_protocol_format(tree, proto_k12, tvb, 0, 0, "Packet from: '%s' (0x%.8x)",
 											  pinfo->pseudo_header->k12.input_name,
 											  pinfo->pseudo_header->k12.input);
@@ -256,6 +256,9 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 		item = proto_tree_add_text(stack_tree,tvb,0,0,
 								   "Info: You can edit the 'K12 Protocols' table from Preferences->Protocols->k12xx");
 		PROTO_ITEM_SET_GENERATED(item);
+		
+		call_dissector(data_handle, tvb, pinfo, tree);
+		return;
 	}
 
 	/* Setup subdissector information */
@@ -304,7 +307,7 @@ static void k12_update_cb(void* r, const char** err) {
 
 	if (h->handles) g_free(h->handles);
 
-	h->handles = g_malloc(sizeof(dissector_handle_t)*num_protos);
+	h->handles = g_malloc0(sizeof(dissector_handle_t)*(num_protos < 2 ? 2 : num_protos));
 
 	for (i = 0; i < num_protos; i++) {
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
