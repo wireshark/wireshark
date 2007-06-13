@@ -572,6 +572,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-pop.c		\
 	packet-portmap.c	\
 	packet-pgsql.c		\
+	packet-ppi.c		\
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\

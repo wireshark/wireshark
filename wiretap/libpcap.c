@@ -310,7 +310,7 @@ static const struct {
 
 	/*
 	 * Linux "cooked mode" captures, used by the current CVS version
-	 * of libpcap 
+	 * of libpcap
          * OR
          * it could be a packet in Cisco's ERSPAN encapsulation which uses
          * this number as well (why can't people stick to protocols when it
@@ -427,6 +427,8 @@ static const struct {
 	{ 188,		WTAP_ENCAP_IEEE802_16_MAC_CPS },
 	/* USB packets with Linux-specified header */
 	{ 189, 		WTAP_ENCAP_USB_LINUX },
+        /* Per-Packet Information header */
+        { 192,          WTAP_ENCAP_PPI },
 
 	/*
 	 * To repeat:

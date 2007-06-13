@@ -79,7 +79,7 @@ static const value_string p2p_dirs[] = {
 	{ 0, NULL }
 };
 
-static dissector_table_t wtap_encap_dissector_table;
+dissector_table_t wtap_encap_dissector_table;
 
 static GSList *frame_end_routines = NULL;
 

@@ -191,6 +191,7 @@ extern "C" {
 #define WTAP_ENCAP_NETTL_RAW_TELNET		94
 #define WTAP_ENCAP_USB_LINUX                    95
 #define WTAP_ENCAP_MPEG                         96
+#define WTAP_ENCAP_PPI                          97
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
 
@@ -516,7 +517,7 @@ typedef union {
 		guint16 vc;
 		guint16 cid;
 	} atm;
-	
+
 	guint32 ds0mask;
 } k12_input_info_t;
 
@@ -571,7 +572,7 @@ struct catapult_dct2000_phdr
 #define URB_TRANSFER_IN   0x80		/* to host */
 
 /*
- * USB setup header as defined in USB specification 
+ * USB setup header as defined in USB specification
  */
 struct usb_request_hdr {
     gint8 bmRequestType;
@@ -604,7 +605,7 @@ struct linux_usb_phdr {
     guint32 urb_len;        /* whole len of urb this event refers to */
     guint32 data_len;       /* amount of urb data really present in this event*/
 };
-    
+
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -646,26 +647,26 @@ struct file_type_info {
     /* the file type name */
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
 	const char *name;
-	
+
     /* the file type short name, used as a shortcut for the command line tools */
     /* should be NULL for all "pseudo" types that are are only internally used and not read/writeable */
 	const char *short_name;
-    
+
     /* the common file extensions for this type (seperated by semicolon) */
     /* should be *.* if no common extension is applicable */
     const char *file_extensions;
-    
+
     /* the default file extension, used to save this type */
     /* should be NULL if no default extension is known */
     const char *file_extension_default;
-    
+
     /* can this type be compressed with gzip? */
 	gboolean	can_compress;
-    
+
     /* can this type write this encapsulation format? */
     /* should be NULL is this file type don't have write support */
 	int	(*can_write_encap)(int);
-    
+
     /* the function to open the capture file for writing */
     /* should be NULL is this file type don't have write support */
 	int	(*dump_open)(wtap_dumper *, gboolean, int *);

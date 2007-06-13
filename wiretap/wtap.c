@@ -350,7 +350,7 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_JUNIPER_CHDLC */
 	{ "Juniper C-HDLC", "juniper-chdlc" },
-    
+
 	/* WTAP_ENCAP_JUNIPER_GGSN */
 	{ "Juniper GGSN", "juniper-ggsn" },
 
@@ -377,6 +377,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_MPEG */
 	{ "MPEG", "mpeg" },
+
+	/* WTAP_ENCAP_PPI */
+	{ "Per-Packet Information header", "ppi" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
@@ -384,13 +387,13 @@ static GArray* encap_table_arr = NULL;
 static const struct encap_type_info* encap_table = NULL;
 
 static void wtap_init_encap_types(void) {
-	
+
 	if (encap_table_arr) return;
-	
+
 	encap_table_arr = g_array_new(FALSE,TRUE,sizeof(struct encap_type_info));
-	
+
 	g_array_append_vals(encap_table_arr,encap_table_base,wtap_num_encap_types);
-	
+
 	encap_table = (void*)encap_table_arr->data;
 }
 
@@ -403,10 +406,10 @@ int wtap_get_num_encap_types(void) {
 int wtap_register_encap_type(char* name, char* short_name) {
 	struct encap_type_info* e = g_malloc(sizeof(struct encap_type_info));
 	wtap_init_encap_types();
-	
+
 	e->name = g_strdup(name);
 	e->short_name = g_strdup(short_name);
-	
+
 	g_array_append_val(encap_table_arr,e);
 
 	encap_table = (void*)encap_table_arr->data;

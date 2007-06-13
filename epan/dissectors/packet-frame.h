@@ -36,7 +36,7 @@ void show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* 
+/*
  * Routine used to register frame end routine.  The routine should only
  * be registred when the dissector is used in the frame, not in the
  * proto_register_XXX function.
@@ -50,8 +50,13 @@ register_frame_end_routine(void (*func)(void));
  */
 extern int proto_malformed;
 
-/* following variables are exported from libwireshark.dll. 
- * Thus we need a special declaration. 
+/*
+ * The frame dissector and the PPI dissector both use this
+ */
+extern dissector_table_t wtap_encap_dissector_table;
+
+/* following variables are exported from libwireshark.dll.
+ * Thus we need a special declaration.
  */
 WS_VAR_IMPORT int proto_frame;
 WS_VAR_IMPORT int hf_frame_arrival_time;
