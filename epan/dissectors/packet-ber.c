@@ -1228,7 +1228,7 @@ dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 /* 8.5	Encoding of a real value */
 /* NOT FULLY IMPLEMENTED !!!!!*/
 int
-dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, double *value)
+dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id _U_, double *value)
 {
 	gint8 class;
 	gboolean pc;
@@ -1248,7 +1248,7 @@ dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
 	/* 8.5.2	If the real value is the value zero, 
 	 *			there shall be no contents octets in the encoding.
 	 */
-	if (len=0){
+	if (len==0){
 		if (value)
 			*value = 0;
 		return offset;
