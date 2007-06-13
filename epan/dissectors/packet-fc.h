@@ -39,6 +39,7 @@
 #define FC_TYPE_CMNSVC         0x0  /* Used in PRLI Svc Param Page */
 
 /* TYPE definitions for Basic or Extended Link_Data */
+#define FC_TYPE_BLS            0x0
 #define FC_TYPE_ELS            0x1
 
 /* TYPE definitions for FC-4 */

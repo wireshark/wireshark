@@ -192,6 +192,7 @@ fc_exchange_init_protocol(void)
 
 
 const value_string fc_fc4_val[] = {
+    {FC_TYPE_BLS,        "Basic Link Svc"},
     {FC_TYPE_ELS,        "Ext Link Svc"},
     {FC_TYPE_LLCSNAP,    "LLC_SNAP"},
     {FC_TYPE_IP,         "IP/FC"},
@@ -969,11 +970,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
          */
         is_lastframe_inseq = TRUE;
     } else {
-	/* XXX is this right?   offset 20, shouldnt it be offset 9? */
-        is_exchg_resp = ((tvb_get_guint8 (tvb, offset+20) & 0x80) == 0x80);
+        is_exchg_resp = (f_ctl & FC_FCTL_EXCHANGE_RESPONDER) != 0;
     }
 
-    if (tvb_reported_length (tvb) <= FC_HEADER_SIZE)
+    if (tvb_reported_length (tvb) < FC_HEADER_SIZE)
         THROW(ReportedBoundsError);
 
     frag_size = tvb_reported_length (tvb)-FC_HEADER_SIZE;
@@ -1124,9 +1124,15 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             dissect_fc_ba_acc (next_tvb, pinfo, tree);
         } else if ((fchdr.r_ctl & 0x0F) == FC_BLS_BARJT) {
             dissect_fc_ba_rjt (next_tvb, pinfo, tree);
+        } else if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
+            if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
+            }
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_set_str(pinfo->cinfo, COL_INFO, "ABTS");
+            }
         }
     }
-
     tap_queue_packet(fc_tap, pinfo, &fchdr);
 }
 
