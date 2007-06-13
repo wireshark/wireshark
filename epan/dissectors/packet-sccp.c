@@ -1037,15 +1037,10 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 						   : ett_sccp_calling_gt);
 
   /* Decode Transation Type (if present) */
-  switch (gti) {
-  case AI_GTI_TT:
-
-    /* Protocol doesn't tell us, so we ASSUME even... */
-    even = TRUE;
-    /* Fall through */
-  case ITU_AI_GTI_TT_NP_ES:
-  case ITU_AI_GTI_TT_NP_ES_NAI:
-  case ANSI_AI_GTI_TT_NP_ES:
+  if ((gti == AI_GTI_TT) ||
+      (decode_mtp3_standard != ANSI_STANDARD &&
+	  (gti == ITU_AI_GTI_TT_NP_ES || gti == ITU_AI_GTI_TT_NP_ES_NAI)) ||
+      (decode_mtp3_standard == ANSI_STANDARD && gti == ANSI_AI_GTI_TT_NP_ES)) {
 
     tt = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(gt_tree, called ? hf_sccp_called_gt_tt
@@ -1054,11 +1049,15 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
     offset += GT_TT_LENGTH;
   }
 
+  if (gti == AI_GTI_TT) {
+    /* Protocol doesn't tell us, so we ASSUME even... */
+    even = TRUE;
+  }
+
   /* Decode Numbering Plan and Encoding Scheme (if present) */
-  switch (gti) {
-  case ITU_AI_GTI_TT_NP_ES:
-  case ITU_AI_GTI_TT_NP_ES_NAI:
-  case ANSI_AI_GTI_TT_NP_ES:
+  if ((decode_mtp3_standard != ANSI_STANDARD &&
+       (gti == ITU_AI_GTI_TT_NP_ES || gti == ITU_AI_GTI_TT_NP_ES_NAI)) ||
+      (decode_mtp3_standard == ANSI_STANDARD && gti == ANSI_AI_GTI_TT_NP_ES)) {
 
     np = tvb_get_guint8(tvb, offset) & GT_NP_MASK;
     proto_tree_add_uint(gt_tree, called ? hf_sccp_called_gt_np
@@ -1075,21 +1074,19 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
     offset += GT_NP_ES_LENGTH;
   }
 
-  /* Decode Odd/Even Indicator (if present) */
-  if (gti == ITU_AI_GTI_NAI) {
-    odd_even = tvb_get_guint8(tvb, offset) & GT_OE_MASK;
-    proto_tree_add_uint(gt_tree, called ? hf_sccp_called_gt_oe
-					: hf_sccp_calling_gt_oe,
-			tvb, offset, GT_NAI_LENGTH, odd_even);
-    even = (odd_even == GT_OE_EVEN) ? TRUE : FALSE;
-
-    /* offset doesn't change */
-  }
-
   /* Decode Nature of Address Indicator (if present) */
-  switch (gti) {
-  case ITU_AI_GTI_NAI:
-  case ITU_AI_GTI_TT_NP_ES_NAI:
+  if (decode_mtp3_standard != ANSI_STANDARD &&
+      (gti == ITU_AI_GTI_NAI || gti == ITU_AI_GTI_TT_NP_ES_NAI)) {
+
+    /* Decode Odd/Even Indicator (if present) */
+    if (gti == ITU_AI_GTI_NAI) {
+      odd_even = tvb_get_guint8(tvb, offset) & GT_OE_MASK;
+      proto_tree_add_uint(gt_tree, called ? hf_sccp_called_gt_oe
+					  : hf_sccp_calling_gt_oe,
+			  tvb, offset, GT_NAI_LENGTH, odd_even);
+      even = (odd_even == GT_OE_EVEN) ? TRUE : FALSE;
+    }
+
     nai = tvb_get_guint8(tvb, offset) & GT_NAI_MASK;
     proto_tree_add_uint(gt_tree, called ? hf_sccp_called_gt_nai
 					: hf_sccp_calling_gt_nai,
