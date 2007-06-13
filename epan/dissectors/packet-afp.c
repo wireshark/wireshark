@@ -55,6 +55,8 @@
 
 http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
 
+http://developer.apple.com/documentation/Networking/Reference/AFP_Reference/index.html
+
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
 */
