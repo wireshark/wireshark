@@ -1328,7 +1328,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
       break;
   }
   if (num_items)
-    proto_item_append_text(object_item, ", %d points", num_items);
+    proto_item_append_text(object_item, ", %d point%s", num_items, plurality(num_items, "", "s"));
   proto_item_append_text(range_item, "%d", num_items);
 
   offset += rangebytes;
@@ -1878,13 +1878,17 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           case AL_OBJ_CLASS2:
           case AL_OBJ_CLASS3:
 
-            /* Process Index */
+            /* No data here */
             offset = data_pos;
             break;
 
           case AL_OBJ_IIN:     /* IIN Data Object */
 
-            /* Process Index */
+            /* Single byte of data here */
+            proto_tree_add_text(object_tree, tvb, data_pos, 1, "Value: %d", tvb_get_guint8(tvb, data_pos));
+            data_pos += 1;
+            proto_item_set_len(point_item, data_pos - offset);
+
             offset = data_pos;
             break;
 
@@ -1898,7 +1902,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
         /* Increment the bit index for next time */
         bitindex++;
 
-        /* And increment the poit address, may be overwritten bu an index value */
+        /* And increment the point address, may be overwritten by an index value */
         al_ptaddr++;
       }
     }
@@ -1912,7 +1916,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
 /* Application Layer Dissector */
 /*****************************************************************/
 static int
-dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8        al_ctl, al_seq, al_func;
   guint16       bytes;
@@ -1932,6 +1936,9 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   al_con = al_ctl & DNP3_AL_CON;
   al_func = tvb_get_guint8(tvb, (offset+1));
   func_code_str = val_to_str(al_func, dnp3_al_func_vals, "Unknown function (0x%02x)");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", func_code_str);
 
   if (tree) {
     /* format up the text representation */
@@ -2350,11 +2357,13 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
           pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
+        conv_data_ptr = NULL;
+
         /* if conversation found get the data pointer that you stored */
         if (conversation && (!tr_fir || (conversation->setup_frame == pinfo->fd->num)))
           conv_data_ptr = (dnp3_conv_t*)conversation_get_proto_data(conversation, proto_dnp3);
 
-        else {
+        if (conv_data_ptr == NULL) {
           /* new conversation create local data structure */
           conv_data_ptr = g_mem_chunk_alloc(dnp3_conv_vals);
 
