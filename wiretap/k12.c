@@ -381,37 +381,28 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 
     wth->pseudo_header.k12.input = src_id;
     
-    K12_DBG(5,("k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i",wth->pseudo_header.k12.input,wth->phdr.len));
-        
-    if (src_desc) {
-        
-        K12_DBG(5,("k12_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
-        wth->pseudo_header.k12.input_name = src_desc->input_name;
-        wth->pseudo_header.k12.stack_file = src_desc->stack_file;
-        wth->pseudo_header.k12.input_type = src_desc->input_type;
-        
-        switch(src_desc->input_type) {
-            case K12_PORT_ATMPVC:
-            if ((long)(K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID) < len) {
-                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
-                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
-                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
-                break;
-            }
-            /* Fall through */
-            default:
-            memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
-            break;
-            
-        }
-    } else {
-        K12_DBG(5,("k12_read: NO RECORD FOUND"));
+    K12_DBG(5,("k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i input_name='%s' stack_file='%s' type=%x",
+			   wth->pseudo_header.k12.input,wth->phdr.len,src_desc->input_name,src_desc->stack_file,src_desc->input_type));\
+	
+	wth->pseudo_header.k12.input_name = src_desc->input_name;
+	wth->pseudo_header.k12.stack_file = src_desc->stack_file;
+	wth->pseudo_header.k12.input_type = src_desc->input_type;
+	
+	switch(src_desc->input_type) {
+		case K12_PORT_ATMPVC:
+		if ((long)(K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID) < len) {
+			wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
+			wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
+			wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
+			break;
+		}
+		/* Fall through */
+		default:
+		memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+		break;
+		
+	}
 
-        memset(&(wth->pseudo_header),0,sizeof(wth->pseudo_header));
-        wth->pseudo_header.k12.input_name = "unknown port";
-        wth->pseudo_header.k12.stack_file = "unknown stack file";
-    }
-    
     wth->pseudo_header.k12.stuff = wth->capture.k12;
     
     return TRUE;
