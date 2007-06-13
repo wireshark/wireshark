@@ -49,7 +49,6 @@ wtap_get_num_file_types
 wtap_open_offline
 wtap_pcap_encap_to_wtap_encap
 wtap_phdr
-wtap_pkthdr
 wtap_process_pcap_packet
 wtap_pseudoheader
 wtap_read
