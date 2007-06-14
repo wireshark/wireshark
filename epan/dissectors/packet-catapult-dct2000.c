@@ -241,62 +241,56 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
     int offset = *data_offset;
 
     /* Get the sctpprim command code. */
-    guint8 first_tag = tvb_get_guint8(tvb, offset++);
-    guint8 tag;
+    guint16 first_tag = tvb_get_ntohs(tvb, offset);
+    guint16 tag;
+
+    offset += 2;
 
     /* Only accept interested in data requests or indications */
     switch (first_tag)
     {
-        case 0x04:  /* data request */
-        case 0x62:  /* data indication */
+        case 0x0400:  /* data request */
+        case 0x6200:  /* data indication */
             break;
         default:
             return FALSE;
     }
 
-    if (first_tag == 0x04)
-    {
-        /* Overall length field. msb set indicates 2 bytes */
-        if (tvb_get_guint8(tvb, offset) & 0x80)
-        {
-            offset += 2;
-        }
-        else
-        {
-            offset++;
-        }
-    }
-    else
-    {
-        offset += 3;
-    }
+    /* Skip first tag length field */
+    length = tvb_get_guint8(tvb, offset++);
+
+    /* Skip its contents */
+    offset += length;
 
     /* Skip any other fields before reach payload */
     while (tvb_length_remaining(tvb, offset) > 2)
     {
         /* Look at next tag */
-        tag = tvb_get_guint8(tvb, offset++);
+        tag = tvb_get_ntohs(tvb, offset);
+        offset += 2;
 
         /* Is this the data payload we're expecting? */
-        if (tag == 0x19)
+        if (tag == 0x1900)
         {
+            /* Skip length field (always 2?) */
+            offset += 2;
             *data_offset = offset;
             return TRUE;
         }
         else
         {
-            if (first_tag == 0x62)
+            if (first_tag == 0x6200)
             {
                 switch (tag)
                 {
-                    case 0x0a: /* dest port */
-                    case 0x1e: /* strseqnum */
-                    case 0x0d:
+                    case 0x0a00: /* dest port */
+                    case 0x1e00: /* strseqnum */
+                    case 0x0d00:
                         offset += 2;
                         continue;
-                    case 0x1d:
-                    case 0x09:
-                    case 0x0c:
+                    case 0x1d00:
+                    case 0x0900:
+                    case 0x0c00:
                         offset += 4;
                         continue;
                 }
@@ -617,6 +611,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
 
     /* DCH CRC present... */
     p_fp_info->dch_crc_present = outhdr_values[i++];
+
     /* ... but don't trust for edch */
     if (p_fp_info->channel == CHANNEL_EDCH)
     {
