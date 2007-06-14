@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-ftbp.h                                                            */
-/* ../../tools/asn2wrs.py -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
+/* ../../tools/asn2wrs.py -b -X -T -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
 
 /* Input file: packet-ftbp-template.h */
 

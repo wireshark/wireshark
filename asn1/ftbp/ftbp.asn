@@ -46,7 +46,7 @@ IMPORTS
 FileTransferParameters ::= SEQUENCE {
   related-stored-file  [0]  RelatedStoredFile OPTIONAL,
   contents-type
-    [1]  ContentsTypeParameter
+    [1]  ContentsTypeParameter OPTIONAL
 --      DEFAULT
 --        document-type:
 --          {document-type-name
@@ -65,7 +65,7 @@ RelatedStoredFile ::=
   SET OF
     SEQUENCE {file-identifier  FileIdentifier,
               relationship
-                Relationship -- DEFAULT explicit-relationship:unspecified
+                Relationship OPTIONAL -- DEFAULT explicit-relationship:unspecified
     }
 
 FileIdentifier ::= CHOICE {
