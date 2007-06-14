@@ -240,57 +240,64 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
     guint8 length;
     int offset = *data_offset;
 
-    /* Get the sctpprim command code. */
-    guint16 first_tag = tvb_get_ntohs(tvb, offset);
-    guint16 tag;
-
-    offset += 2;
+   /* Get the sctpprim command code. */
+    guint8 first_tag = tvb_get_guint8(tvb, offset++);
+    guint8 tag;
 
     /* Only accept interested in data requests or indications */
     switch (first_tag)
     {
-        case 0x0400:  /* data request */
-        case 0x6200:  /* data indication */
+        case 0x04:  /* data request */
+        case 0x62:  /* data indication */
             break;
         default:
             return FALSE;
     }
 
-    /* Skip first tag length field */
-    length = tvb_get_guint8(tvb, offset++);
-
-    /* Skip its contents */
-    offset += length;
+    if (first_tag == 0x04)
+    {
+        /* Overall length field. msb set indicates 2 bytes */
+        if (tvb_get_guint8(tvb, offset) & 0x80)
+        {
+            offset += 2;
+        }
+        else
+        {
+            offset++;
+        }
+    }
+    else
+    {
+        offset += 3;
+    }
 
     /* Skip any other fields before reach payload */
     while (tvb_length_remaining(tvb, offset) > 2)
     {
         /* Look at next tag */
-        tag = tvb_get_ntohs(tvb, offset);
-        offset += 2;
+        tag = tvb_get_guint8(tvb, offset++);
+
 
         /* Is this the data payload we're expecting? */
-        if (tag == 0x1900)
+        if (tag == 0x19)
         {
-            /* Skip length field (always 2?) */
-            offset += 2;
             *data_offset = offset;
             return TRUE;
         }
         else
         {
-            if (first_tag == 0x6200)
+            if (first_tag == 0x62)
             {
                 switch (tag)
                 {
-                    case 0x0a00: /* dest port */
-                    case 0x1e00: /* strseqnum */
-                    case 0x0d00:
+                    case 0x0a: /* dest port */
+                    case 0x1e: /* strseqnum */
+                    case 0x0d:
                         offset += 2;
                         continue;
-                    case 0x1d00:
-                    case 0x0900:
-                    case 0x0c00:
+                    case 0x1d:
+                    case 0x09:
+                    case 0x0c:
                         offset += 4;
                         continue;
                 }
@@ -316,7 +323,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     int offset = *data_offset;
 
     /* Get the sctpprim (2 byte) command code. */
-    guint16 top_tag = (tvb_get_guint8(tvb, offset) << 8) | tvb_get_guint8(tvb, offset+1);
+    guint16 top_tag = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
     /* Only interested in data requests or indications */
@@ -343,16 +350,13 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     while (tvb_length_remaining(tvb, offset) > 4)
     {
         /* Get the next tag */
-        guint16 tag = (tvb_get_guint8(tvb, offset) << 8) | tvb_get_guint8(tvb, offset+1);
+        guint16 tag = tvb_get_ntohs(tvb, offset);
         offset += 2;
 
         /* Is this the data (i) payload we're expecting? */
         if (tag == 0x1900)
         {
             /* 2-byte length field */
-            offset += 2;
-
-            /* Skip 2-byte length field */
             offset += 2;
 
             /* Data is here!!! */
@@ -377,7 +381,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
                 case 0x0900: /* IPv4 address */
                 case 0x0b00: /* Options */
                 case 0x0c00: /* Payload type */
-                    length = (tvb_get_guint8(tvb, offset) << 8) | tvb_get_guint8(tvb, offset+1);
+                    length = tvb_get_ntohs(tvb, offset);
                     if (top_tag == 0x0400)
                     {
                         /* Weird... */
