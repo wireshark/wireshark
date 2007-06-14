@@ -99,6 +99,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Wireshark could loop excessively while reading a malformed MMS
+            packet.
+            <!-- Fixed in r21392 -->
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1382">1382</ulink>)
+          </para>
+          <para>Versions affected: ?</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -111,7 +124,8 @@ Wireshark Info
 
         <listitem><para>
           WEP decryption would only work for the first key specified.
-          disappear or become unusable.
+          disappear or become unusable.  WEP and WPA decryption didn't work
+          for QoS frames.
         </para></listitem>
 
         <listitem><para>
@@ -152,6 +166,7 @@ Wireshark Info
       - Delta times
       - Code cleanup
       - Display filter macros
+      - Upper and lower filters
       -->
 
     </para>

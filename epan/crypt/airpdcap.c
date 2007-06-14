@@ -151,21 +151,21 @@ static INT AirPDcapRsnaPwd2Psk(
 
 static INT AirPDcapRsnaMng(
     UCHAR *decrypt_data,
-    size_t *decrypt_len,
+    guint mac_header_len,
+    guint *decrypt_len,
     PAIRPDCAP_KEY_ITEM key,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    INT offset,
-    UINT8 fcsPresent)
+    INT offset)
     ;
 
 static INT AirPDcapWepMng(
     PAIRPDCAP_CONTEXT ctx,
     UCHAR *decrypt_data,
-    size_t *decrypt_len,
+    guint mac_header_len,
+    guint *decrypt_len,
     PAIRPDCAP_KEY_ITEM key,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    INT offset,
-    UINT8 fcsPresent)
+    INT offset)
     ;
 
 static INT AirPDcapRsna4WHandshake(
@@ -245,24 +245,22 @@ extern "C" {
 
 INT AirPDcapPacketProcess(
     PAIRPDCAP_CONTEXT ctx,
-    const UCHAR *data,
-    const size_t len,
+    const guint8 *data,
+    const guint mac_header_len,
+    const guint tot_len,
     UCHAR *decrypt_data,
-    size_t *decrypt_len,
+    guint *decrypt_len,
     PAIRPDCAP_KEY_ITEM key,
-    UINT8 fcsPresent,
-    UINT8 radioTapPresent,
-    UINT8 mngHandshake,
-    UINT8 mngDecrypt)
+    gboolean mngHandshake,
+    gboolean mngDecrypt)
 {
-    size_t mac_header_len;
     const UCHAR *address;
     AIRPDCAP_SEC_ASSOCIATION_ID id;
-    INT index;
+    int index;
     PAIRPDCAP_SEC_ASSOCIATION sa;
-    INT offset;
-    UINT16 bodyLength;
-    const UCHAR dot1x_header[] = {
+    int offset = 0;
+    guint bodyLength;
+    const guint8 dot1x_header[] = {
         0xAA,             /* DSAP=SNAP */
         0xAA,             /* SSAP=SNAP */
         0x03,             /* Control field=Unnumbered frame */
@@ -281,33 +279,26 @@ INT AirPDcapPacketProcess(
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapPacketProcess");
         return AIRPDCAP_RET_UNSUCCESS;
     }
-    if (data==NULL || len==0) {
+    if (data==NULL || tot_len==0) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "NULL data or length=0", AIRPDCAP_DEBUG_LEVEL_5);
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapPacketProcess");
         return AIRPDCAP_RET_UNSUCCESS;
     }
 
-    if (radioTapPresent)
-        offset=AIRPDCAP_RADIOTAP_HEADER_LEN;
-    else
-        offset=0;
-
     /* check if the packet is of data type	*/
-    /*	TODO consider packets send on an ad-hoc net (QoS)	*/
-    if (AIRPDCAP_TYPE(data[offset])!=AIRPDCAP_TYPE_DATA) {
+    if (AIRPDCAP_TYPE(data[0])!=AIRPDCAP_TYPE_DATA) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "not data packet", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_NO_DATA;
     }
 
     /* check correct packet size, to avoid wrong elaboration of encryption algorithms	*/
-    mac_header_len=AIRPDCAP_HEADER_LEN(data[offset+1]);
-    if (len < (UINT)(mac_header_len+AIRPDCAP_CRYPTED_DATA_MINLEN)) {
+    if (tot_len < (UINT)(mac_header_len+AIRPDCAP_CRYPTED_DATA_MINLEN)) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "minimum length violated", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_WRONG_DATA_SIZE;
     }
 
     /* get BSSID */
-    if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data+offset))) != NULL) {
+    if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
         sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
@@ -319,7 +310,7 @@ INT AirPDcapPacketProcess(
     }
 
     /* get STA address	*/
-    if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data+offset))) != NULL) {
+    if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
         sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
@@ -342,7 +333,7 @@ INT AirPDcapPacketProcess(
     sa=&ctx->sa[index];
 
     /* cache offset in the packet data (to scan encryption data)	*/
-    offset+=AIRPDCAP_HEADER_LEN(data[offset+1]);
+    offset = mac_header_len;
 
     /*	check if data is encrypted (use the WEP bit in the Frame Control field)	*/
     if (AIRPDCAP_WEP(data[1])==0)
@@ -373,7 +364,7 @@ INT AirPDcapPacketProcess(
 
                 /* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
                 bodyLength=pntohs(data+offset+2);
-                if (((len-offset-4)!=bodyLength && !fcsPresent) || ((len-offset-8)!=bodyLength && fcsPresent)) {
+                if ((tot_len-offset-4) != bodyLength) {
                     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
@@ -408,15 +399,11 @@ INT AirPDcapPacketProcess(
                 return AIRPDCAP_RET_UNSUCCESS;
 
             /*	create new header and data to modify	*/
-            *decrypt_len=len;
+            *decrypt_len = tot_len;
             memcpy(decrypt_data, data, *decrypt_len);
 
             /* encrypted data	*/
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Encrypted data", AIRPDCAP_DEBUG_LEVEL_3);
-
-            if (fcsPresent)
-                /*	remove from next computation FCS	*/
-                *decrypt_len-=4;
 
             /* check the Extension IV to distinguish between WEP encryption and WPA encryption	*/
             /* refer to IEEE 802.11i-2004, 8.2.1.2, pag.35 for WEP,	*/
@@ -424,10 +411,10 @@ INT AirPDcapPacketProcess(
             /*		IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP			*/
             if (AIRPDCAP_EXTIV(data[offset+3])==0) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "WEP encryption", AIRPDCAP_DEBUG_LEVEL_3);
-                return AirPDcapWepMng(ctx, decrypt_data, decrypt_len, key, sa, offset, fcsPresent);
+                return AirPDcapWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa, offset);
             } else {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "TKIP or CCMP encryption", AIRPDCAP_DEBUG_LEVEL_3);
-                return AirPDcapRsnaMng(decrypt_data, decrypt_len, key, sa, offset, fcsPresent);
+                return AirPDcapRsnaMng(decrypt_data, mac_header_len, decrypt_len, key, sa, offset);
             }
         }
     }
@@ -620,14 +607,13 @@ extern "C" {
 static INT
 AirPDcapRsnaMng(
     UCHAR *decrypt_data,
-    size_t *decrypt_len,
+    guint mac_header_len,
+    guint *decrypt_len,
     PAIRPDCAP_KEY_ITEM key,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    INT offset,
-    UINT8 fcsPresent)
+    INT offset)
 {
     INT ret_value;
-    ULONG crc;
 
     if (sa->key==NULL) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "No key associated", AIRPDCAP_DEBUG_LEVEL_3);
@@ -652,7 +638,7 @@ AirPDcapRsnaMng(
         /*	AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm	*/
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP", AIRPDCAP_DEBUG_LEVEL_3);
 
-        ret_value=AirPDcapCcmpDecrypt(decrypt_data, (INT)*decrypt_len, AIRPDCAP_GET_TK(sa->wpa.ptk));
+        ret_value=AirPDcapCcmpDecrypt(decrypt_data, mac_header_len, (INT)*decrypt_len, AIRPDCAP_GET_TK(sa->wpa.ptk));
         if (ret_value)
             return ret_value;
 
@@ -665,18 +651,9 @@ AirPDcapRsnaMng(
     decrypt_data[1]&=0xBF;
 
     /* remove TKIP/CCMP header	*/
-    offset=AIRPDCAP_HEADER_LEN(decrypt_data[1]);
+    offset = mac_header_len;
     *decrypt_len-=8;
     memcpy(decrypt_data+offset, decrypt_data+offset+8, *decrypt_len-offset);
-
-    if (fcsPresent) {
-        /* calculate FCS	*/
-        crc = crc32_ccitt(decrypt_data, *decrypt_len);
-        memcpy(decrypt_data+*decrypt_len, &crc, sizeof crc);
-
-        /* add FCS in packet	*/
-        *decrypt_len+=4;
-    }
 
     if (key!=NULL) {
         memcpy(key, sa->key, sizeof(AIRPDCAP_KEY_ITEM));
@@ -694,16 +671,15 @@ static INT
 AirPDcapWepMng(
     PAIRPDCAP_CONTEXT ctx,
     UCHAR *decrypt_data,
-    size_t *decrypt_len,
+    guint mac_header_len,
+    guint *decrypt_len,
     PAIRPDCAP_KEY_ITEM key,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    INT offset,
-    UINT8 fcsPresent)
+    INT offset)
 {
     UCHAR wep_key[AIRPDCAP_WEP_KEY_MAXLEN+AIRPDCAP_WEP_IVLEN];
     size_t keylen;
     INT ret_value=1;
-    ULONG crc;
     INT key_index;
     AIRPDCAP_KEY_ITEM *tmp_key;
     UINT8 useCache=FALSE;
@@ -735,14 +711,14 @@ AirPDcapWepMng(
             memcpy(try_data, decrypt_data, *decrypt_len);
 
             /* Costruct the WEP seed: copy the IV in first 3 bytes and then the WEP key (refer to 802-11i-2004, 8.2.1.4.3, pag. 36)	*/
-            memcpy(wep_key, try_data+AIRPDCAP_HEADER_LEN(try_data[1]), AIRPDCAP_WEP_IVLEN);
+            memcpy(wep_key, try_data+mac_header_len, AIRPDCAP_WEP_IVLEN);
             keylen=tmp_key->KeyData.Wep.WepKeyLen;
             memcpy(wep_key+AIRPDCAP_WEP_IVLEN, tmp_key->KeyData.Wep.WepKey, keylen);
 
             ret_value=AirPDcapWepDecrypt(wep_key,
                 keylen+AIRPDCAP_WEP_IVLEN,
-                try_data + (AIRPDCAP_HEADER_LEN(try_data[1])+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN),
-                *decrypt_len-(AIRPDCAP_HEADER_LEN(try_data[1])+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN+AIRPDCAP_CRC_LEN));
+                try_data + (mac_header_len+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN),
+                *decrypt_len-(mac_header_len+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN+AIRPDCAP_CRC_LEN));
 
             if (ret_value == AIRPDCAP_RET_SUCCESS)
                 memcpy(decrypt_data, try_data, *decrypt_len);
@@ -781,18 +757,9 @@ AirPDcapWepMng(
     decrypt_data[1]&=0xBF;
 
     /* remove IC header	*/
-    offset=AIRPDCAP_HEADER_LEN(decrypt_data[1]);
+    offset = mac_header_len;
     *decrypt_len-=4;
     memcpy(decrypt_data+offset, decrypt_data+offset+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN, *decrypt_len-offset);
-
-    if (fcsPresent) {
-        /* calculate FCS and append it at the end of the decrypted packet	*/
-        crc = crc32_ccitt(decrypt_data, *decrypt_len);
-        memcpy(decrypt_data+*decrypt_len, &crc, sizeof crc);
-
-        /* add FCS in packet	*/
-        *decrypt_len += 4;
-    }
 
     return AIRPDCAP_RET_SUCCESS;
 }

@@ -208,6 +208,7 @@ static void ccmp_init_blocks(
 
 INT AirPDcapCcmpDecrypt(
 	UINT8 *m,
+        gint mac_header_len,
 	INT len,
 	UCHAR TK1[16])
 {
@@ -219,7 +220,7 @@ INT AirPDcapCcmpDecrypt(
 	UINT i;
 	UINT8 *pos;
 	UINT space;
-	INT z=AIRPDCAP_HEADER_LEN(m[1]);
+	INT z = mac_header_len;
 	rijndael_ctx key;
 	UINT64 PN;
 	UINT8 *ivp=m+z;

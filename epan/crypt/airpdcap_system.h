@@ -164,44 +164,37 @@ extern "C" {
 #endif
 
 /**
- * It processes a packet and if necessary it tries to decrypt
- * encrypted data.
- * The packet received in input should be an 802.11 frame (composed by the
- * MAC header, the frame body and the FCS -if specified-). If the data will
- * be decrypted the FCS will be recomputed. The packet received could start
- * with a RadioTap header.
- * @param ctx [IN] pointer to the current context
- * @param data [IN] pointer to a buffer with packet data
- * @param len [IN] packet data length; this should be the capture packet
- * length (to avoid errors in processing)
- * @param decrypt_data [OUT] pointer to a buffer that will contain
- * decrypted data
- * @param decrypt_len [OUT] length of decrypted data
- * @param key [OUT] pointer to a preallocated key structure containing
- * the key used during the decryption process (if done). If this parameter
- * is set to NULL, the key will be not returned.
- * @param fcsPresent [IN] flag that specifies if the FCS is present in
- * the packet or not (0 when the FCS is not present, 1 when it is).
- * @param radioTapPresent [IN] flag that specifies if a RadioTap header
- * is present or not (0 when the header is no present, 1 when it is).
- * @param mngHandshake [IN] if TRUE this function will manage the 4-way
- * handshake for WPA/WPA2
- * @param mngDecrypt [IN] if TRUE this function will manage the WEP or
+ * Given an 802.11 packet, either extract its key data (in the case of
+ * WPA handshaking) or try to decrypt it.
+ * @param ctx [IN] Pointer to the current context
+ * @param data [IN] Pointer to a buffer with an 802.11 frame, including MAC
+ *   header and payload
+ * @param data_off [IN] Payload offset (aka the MAC header length)
+ * @param data_len [IN] Total length of the MAC header and the payload
+ * @param decrypt_data [OUT] Pointer to a buffer that will contain
+ *   decrypted data
+ * @param decrypt_len [OUT] Length of decrypted data
+ * @param key [OUT] Pointer to a preallocated key structure containing
+ *   the key used during the decryption process (if done). If this parameter
+ *   is set to NULL, the key will be not returned.
+ * @param mngHandshake [IN] If TRUE this function will manage the 4-way
+ *   handshake for WPA/WPA2
+ * @param mngDecrypt [IN] If TRUE this function will manage the WEP or
  * WPA/WPA2 decryption
  * @return
- * - AIRPDCAP_RET_SUCCESS: decryption has been done (decrypt_data and
+ * - AIRPDCAP_RET_SUCCESS: Decryption has been done (decrypt_data and
  *   decrypt_length will contain the packet data decrypted and the lenght of
  *   the new packet)
- * - AIRPDCAP_RET_SUCCESS_HANDSHAKE: a step of the 4-way handshake for
+ * - AIRPDCAP_RET_SUCCESS_HANDSHAKE: A step of the 4-way handshake for
  *   WPA key has been successfully done
- * - AIRPDCAP_RET_NO_DATA: the packet is not a data packet
- * - AIRPDCAP_RET_WRONG_DATA_SIZE: the size of the packet is below the
+ * - AIRPDCAP_RET_NO_DATA: The packet is not a data packet
+ * - AIRPDCAP_RET_WRONG_DATA_SIZE: The size of the packet is below the
  *   accepted minimum
- * - AIRPDCAP_RET_REQ_DATA: required data is not available and the
+ * - AIRPDCAP_RET_REQ_DATA: Required data is not available and the
  *   processing must be interrupted
- * - AIRPDCAP_RET_NO_VALID_HANDSHAKE: the authentication is not for WPA or RSNA
- * - AIRPDCAP_RET_NO_DATA_ENCRYPTED: no encrypted data
- * - AIRPDCAP_RET_UNSUCCESS: no decryption has been done (decrypt_data
+ * - AIRPDCAP_RET_NO_VALID_HANDSHAKE: The authentication is not for WPA or RSNA
+ * - AIRPDCAP_RET_NO_DATA_ENCRYPTED: No encrypted data
+ * - AIRPDCAP_RET_UNSUCCESS: No decryption has been done (decrypt_data
  *   and decrypt_length will be not modified).
  * Some other errors could be:
  *   data not correct
@@ -225,15 +218,14 @@ extern "C" {
  */
 extern INT AirPDcapPacketProcess(
 	PAIRPDCAP_CONTEXT ctx,
-	const UCHAR *data,
-	const size_t len,
+	const guint8 *data,
+	const guint data_off,
+	const guint data_len,
 	UCHAR *decrypt_data,
-	size_t *decrypt_len,
+	guint32 *decrypt_len,
 	PAIRPDCAP_KEY_ITEM key,
-	UINT8 fcsPresent,
-	UINT8 radioTapPresent,
-	UINT8 mngHandshake,
-	UINT8 mngDecrypt)
+	gboolean mngHandshake,
+	gboolean mngDecrypt)
 	;
 
 /**
@@ -357,6 +349,7 @@ extern INT AirPDcapWepDecrypt(
 	;
 extern INT AirPDcapCcmpDecrypt(
 	UINT8 *m,
+        gint mac_header_len,
 	INT len,
 	UCHAR TK1[16])
 	;

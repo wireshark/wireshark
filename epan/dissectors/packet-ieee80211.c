@@ -6230,7 +6230,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       /* and WPA2 decryption                                  */
       if (enable_decryption && !pinfo->fd->flags.visited) {
         const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
-        AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len+reported_len, NULL, 0, NULL, FALSE, FALSE, TRUE, FALSE);
+        AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE, FALSE);
       }
       /* Davide Schiera --------------------------------------------------------  */
 #endif
@@ -10143,11 +10143,11 @@ proto_reg_handoff_ieee80211(void)
 /* algorithm used for decryption (WEP, TKIP, CCMP) and the header and    */
 /* trailer lengths.                                      */
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer) {
+try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer) {
   const guint8 *enc_data;
   guint8 *tmp = NULL;
   tvbuff_t *decr_tvb = NULL;
-  size_t dec_caplen;
+  guint32 dec_caplen;
   guchar dec_data[AIRPDCAP_MAX_CAPLEN];
   AIRPDCAP_KEY_ITEM used_key;
 
@@ -10158,7 +10158,7 @@ try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint
   enc_data = tvb_get_ptr(tvb, 0, len+offset);
 
   /*  process packet with AirPDcap                              */
-  if (AirPDcapPacketProcess(&airpdcap_ctx, enc_data, len+offset, dec_data, &dec_caplen, &used_key, FALSE, FALSE, FALSE, TRUE)==AIRPDCAP_RET_SUCCESS)
+  if (AirPDcapPacketProcess(&airpdcap_ctx, enc_data, offset, offset+len, dec_data, &dec_caplen, &used_key, FALSE, TRUE)==AIRPDCAP_RET_SUCCESS)
   {
     *algorithm=used_key.KeyType;
     switch (*algorithm) {
@@ -10509,7 +10509,8 @@ static void init_wepkeys(void) {
 #if 0
         printf("res: %d  bytes->len: %d\n", res, bytes->len);
 #endif
-        g_warning("Could not parse WEP key %d: %s", i + 1, tmp);
+        if (tmp[0] != 'w') /* Assume it begins with "wep:" or "wpa-*:" */
+          g_warning("Could not parse WEP key %d: %s", i + 1, tmp);
       }
     }
   }

@@ -60,13 +60,6 @@
 /* Macro definitions								*/
 
 /**
- * Macro to get MAC header length (if ToDS and FromDS are set, address 4
- * is present).
- */
-#define	AIRPDCAP_HEADER_LEN(FrameControl_1) \
-	(UINT8)((FrameControl_1 & 0x3)==3 ? 30 : 24)
-
-/**
  * Macros to get various bits of a 802.11 control frame
  */
 #define	AIRPDCAP_TYPE(FrameControl_0)		(UINT8)((FrameControl_0 >> 2) & 0x3)
