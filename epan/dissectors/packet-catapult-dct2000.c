@@ -365,7 +365,7 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         }
         else
         {
-            guint8 length;
+            guint16 length;
 
             /* Deal with non-data tags */
             switch (tag)
