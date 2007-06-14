@@ -46,7 +46,7 @@ typedef struct _asn1_ctx_t {
   struct {
     tvbuff_t *data_value_descriptor;
     int hf_index;
-    tvbuff_t *direct_reference;
+    const char *direct_reference;
     gint32 indirect_reference;
     guint32 encoding;
     tvbuff_t *single_asn1_type;

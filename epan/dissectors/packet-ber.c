@@ -3707,7 +3707,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 static int
 dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                  &actx->external.indirect_reference);
 
   return offset;
 }
@@ -3715,14 +3715,13 @@ dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_ber_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &actx->external.octet_aligned);
 
   return offset;
 }
 static int
 dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
   return offset;
 }
 
@@ -3730,14 +3729,19 @@ static int
 dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_ObjectDescriptor,
                                             actx, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &actx->external.data_value_descriptor);
 
   return offset;
 }
 
 static int
 dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-/* FIX ME */
+
+	if(!actx->external.ber.ber_callback){
+		offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+	}else{
+		/* FIX ME */
+	}
 	return offset;
 }
 
@@ -3745,7 +3749,7 @@ static int
 dissect_ber_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
-                                    NULL);
+                                    &actx->external.arbitrary);
 
   return offset;
 }
@@ -3769,7 +3773,7 @@ static int
 dissect_ber_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_encoding_choice, hf_index, ett_ber_T_encoding,
-                                 NULL);
+                                 &actx->external.encoding);
 
   return offset;
 }
