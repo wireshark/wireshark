@@ -7429,7 +7429,7 @@ proto_register_ieee80211 (void)
 
     {&hf_fc_frame_type_subtype,
      {"Type/Subtype", "wlan.fc.type_subtype", FT_UINT8, BASE_HEX, VALS(frame_type_subtype_vals), 0,
-      "Type and subtype combined", HFILL }},
+      "Type and subtype combined (first byte: type, second byte: subtype)", HFILL }},
 
     {&hf_fc_flags,
      {"Protocol Flags", "wlan.flags", FT_UINT8, BASE_HEX, NULL, 0,
