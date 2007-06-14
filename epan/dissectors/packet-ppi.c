@@ -53,6 +53,9 @@
 
 /* Needed for wtap_pcap_encap_to_wtap_encap().  Should we move it somewhere
  * else? */
+#ifdef HAVE_LIBPCAP
+#include <pcap.h>
+#endif
 #include <wiretap/wtap-capture.h>
 
 #include "packet-frame.h"
@@ -357,7 +360,7 @@ static void
 dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 void
-capture_ppi(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_ppi(const guchar *pd _U_, int offset, int len, packet_counts *ld)
 {
     if(!BYTES_ARE_IN_FRAME(offset, len, PPI_V0_HEADER_LEN)) {
         ld->other ++;
@@ -369,7 +372,7 @@ capture_ppi(const guchar *pd, int offset, int len, packet_counts *ld)
 
 static void ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_val) {
     proto_item *ti;
-    guint64 val;
+    guint64 val = invalid_val;
 
     switch (len) {
         case 8:
@@ -490,7 +493,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 }
 
 static void
-dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len, gboolean add_subtree, guint32 *n_mac_flags, guint32 *ampdu_id)
+dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len, gboolean add_subtree, guint32 *n_mac_flags, guint32 *ampdu_id)
 {
     proto_tree *ftree = tree;
     proto_item *ti = NULL;
@@ -628,7 +631,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *ppi_tree = NULL, *ppi_flags_tree = NULL, *seg_tree = NULL, *ampdu_tree = NULL;
     proto_tree *agg_tree = NULL;
     proto_item *ti = NULL;
-    tvbuff_t *next_tvb, *gen_tvb = NULL;
+    tvbuff_t *next_tvb;
     int offset = 0;
     guint version, flags;
     gint tot_len, data_len;
@@ -859,12 +862,6 @@ ampdu_reassemble_init(void)
 void
 proto_register_ppi(void)
 {
-    static const range_string channel_freq_rs[] = {
-        { 0, 0, "Invalid" },
-        { 1, 65535, "" },
-        { 0, 0, NULL }
-    };
-
     static hf_register_info hf[] = {
     { &hf_ppi_head_version,
       { "Version", "ppi.version",
