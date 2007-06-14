@@ -23,7 +23,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /* This protocol implements PANA as of the internet draft
- * draft-ietf-pana-pana-11  which is a workitem of the ietf workgroup
+ * draft-ietf-pana-pana-15  which is a workitem of the ietf workgroup
  * internet area/pana
  */
 
@@ -42,7 +42,6 @@
 #include <epan/value_string.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
-#include <epan/expert.h>
 
 #define PANA_UDP_PORT 3001
 #define PANA_VERSION 1
@@ -54,7 +53,6 @@
 #define PANA_FLAG_C 0x2000
 #define PANA_FLAG_A 0x1000
 #define PANA_FLAG_P 0x0800
-#define PANA_FLAG_E 0x0400
 #define PANA_FLAG_RES6 0x0200
 #define PANA_FLAG_RES7 0x0100
 #define PANA_FLAG_RES8 0x0080
@@ -107,7 +105,6 @@ static int hf_pana_flag_s = -1;
 static int hf_pana_flag_c = -1;
 static int hf_pana_flag_a = -1;
 static int hf_pana_flag_p = -1;
-static int hf_pana_flag_e = -1;
 static int hf_pana_avp_code = -1;
 static int hf_pana_avp_length = -1;
 static int hf_pana_avp_flags = -1;
@@ -139,36 +136,21 @@ static const value_string msg_subtype_names[] = {
 };
 
 static const value_string avp_code_names[] = {
+       { 1, "Algorithm AVP" },
+       { 2, "AUTH AVP" },
        { 3, "EAP-Payload AVP" },
-       { 4, "Failed-AVP AVP" },
-       { 5, "Failed-Message-Header AVP" },
-       { 6, "Key-Id AVP" },
-       { 7, "Nonce AVP" },
-       { 8, "Result-Code" },
-       { 9, "Session-Lifetime" },
-       { 10, "Termination-Cause" },
+       { 4, "Key-Id AVP" },
+       { 5, "Nonce AVP" },
+       { 6, "Result-Code" },
+       { 7, "Session-Lifetime" },
+       { 8, "Termination-Cause" },
        { 0, NULL }
 };
 
-static const value_string avp_resultcode_names[] _U_ = {
+static const value_string avp_resultcode_names[] = {
        { 0, "PANA_SUCCESS" },
        { 1, "PANA_AUTHENTICATION_REJECTED" },
        { 2, "PANA_AUTHORIZATION_REJECTED" },
-       { 1001, "PANA_MESSAGE_UNSUPPORTED" },
-       { 1002, "PANA_UNABLE_TO_DELIVER" },
-       { 1003, "PANA_INVALID_HDR_BITS" },
-       { 1004, "PANA_INVALID_AVP_FLAGS" },
-       { 1005, "PANA_AVP_UNSUPPORTED" },
-       { 1006, "PANA_INVALID_AVP_DATA" },
-       { 1007, "PANA_MISSING_AVP" },
-       { 1008, "PANA_RESOURCES_EXCEEDED" },
-       { 1009, "PANA_CONTRADICTING_AVPS" },
-       { 1010, "PANA_AVP_NOT_ALLOWED" },
-       { 1011, "PANA_AVP_OCCURS_TOO_MANY_TIMES" },
-       { 1012, "PANA_UNSUPPORTED_VERSION" },
-       { 1013, "PANA_UNABLE_TO_COMPLY" },
-       { 1014, "PANA_INVALID_AVP_LENGTH" },
-       { 1015, "PANA_INVALID_MESSAGE_LENGTH" },
        { 0, NULL }
 };
 
@@ -256,9 +238,6 @@ dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
        proto_tree_add_boolean(flags_tree, hf_pana_flag_p, tvb, offset, 2, flags);
        if (flags & PANA_FLAG_P)
                proto_item_append_text(flags_item, ", P flag set");
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_e, tvb, offset, 2, flags);
-       if (flags & PANA_FLAG_E)
-               proto_item_append_text(flags_item, ", E flag set");
 }
 
 /*
@@ -394,8 +373,6 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                single_avp_tree = proto_item_add_subtree(single_avp_item, ett_pana_avp_info);
 
                if (single_avp_tree != NULL) {
-		       proto_item *pi;
-
                        /* AVP Code */
                        proto_tree_add_uint_format_value(single_avp_tree, hf_pana_avp_code, tvb,
                                                        offset, 2, avp_code, "%s (%u)",
@@ -405,17 +382,12 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                        /* AVP Flags */
                        dissect_pana_avp_flags(single_avp_tree, tvb, offset, avp_flags);
                        offset += 2;
-
                        /* AVP Length */
-                       pi = proto_tree_add_item(single_avp_tree, hf_pana_avp_length, tvb, offset, 2, FALSE);
-		       if (avp_length == 0)
-			   expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "AVP with length 0");
+                       proto_tree_add_item(single_avp_tree, hf_pana_avp_length, tvb, offset, 2, FALSE);
                        offset += 2;
-
                        /* Reserved */
                        proto_tree_add_item(single_avp_tree, hf_pana_avp_reserved, tvb, offset, 2, FALSE);
                        offset += 2;
-
                        /* Vendor ID */
                        if (avp_flags & PANA_AVP_FLAG_V) {
                                proto_tree_add_item(single_avp_tree, hf_pana_avp_vendorid, tvb, offset, 4, FALSE);
@@ -495,10 +467,8 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        break;
                                }
                        }
-
                        /* Just check that offset will advance */
-                       if ((avp_length+padding)!=0)
-			   return;
+                       g_assert((avp_length+padding)!=0);
 
                        offset += avp_data_length + padding;
                }
@@ -767,7 +737,7 @@ proto_register_pana(void)
                { &hf_pana_version_type,
                        { "PANA Version", "pana.version",
                        FT_UINT8, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_response_in,
                        { "Response In", "pana.response_in",
@@ -787,140 +757,135 @@ proto_register_pana(void)
                { &hf_pana_reserved_type,
                        { "PANA Reserved", "pana.reserved",
                        FT_UINT8, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_length_type,
                        { "PANA Message Length", "pana.length",
                        FT_UINT16, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
 
 
                { &hf_pana_flags,
                        { "Flags", "pana.flags",
                        FT_UINT8, BASE_HEX, NULL, 0x0,
-                   "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_flag_r,
                        { "Request", "pana.flags.r",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_R,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_flag_s,
                        { "Start", "pana.flags.s",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_S,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_flag_c,
                        { "Complete","pana.flags.c",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_C,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_flag_a,
                        { "Auth","pana.flags.a",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_A,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_flag_p,
                        { "Ping","pana.flags.p",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_P,
-                       "", HFILL }
-               },
-               { &hf_pana_flag_e,
-                       { "Error","pana.flags.e",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_E,
-                       "", HFILL }
+                       NULL, HFILL }
                },
 
                { &hf_pana_msg_type,
                        { "PANA Message Type", "pana.type",
                        FT_UINT16, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_session_id,
                        { "PANA Session ID", "pana.sid",
                        FT_UINT32, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_seqnumber,
                        { "PANA Sequence Number", "pana.seq",
                        FT_UINT32, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
 
 
                { &hf_pana_avp_code,
                        { "AVP Code", "pana.avp.code",
                        FT_UINT16, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_length,
                        { "AVP Length", "pana.avp.length",
                        FT_UINT16, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_flags,
                        { "AVP Flags", "pana.avp.flags",
                        FT_UINT16, BASE_HEX, NULL, 0x0,
-                   "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_flag_v,
                        { "Vendor", "pana.avp.flags.v",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_V,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_flag_m,
                        { "Mandatory", "pana.avp.flags.m",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_M,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_reserved,
                        { "AVP Reserved", "pana.avp.reserved",
                        FT_UINT16, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_vendorid,
                        { "AVP Vendor ID", "pana.avp.vendorid",
                        FT_UINT32, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
 
 
                { &hf_pana_avp_data_uint64,
                        { "Value", "pana.avp.data.uint64",
                        FT_UINT64, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_data_int64,
                        { "Value", "pana.avp.data.int64",
                        FT_INT64, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_data_uint32,
                        { "Value", "pana.avp.data.uint32",
                        FT_UINT32, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_data_int32,
                        { "Value", "pana.avp.data.int32",
                        FT_INT32, BASE_HEX, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_data_bytes,
                        { "Value", "pana.avp.data.bytes",
                        FT_BYTES, BASE_NONE, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_data_string,
                        { "Value", "pana.avp.data.string",
                        FT_STRING, BASE_NONE, NULL, 0x0,
-                       "", HFILL }
+                       NULL, HFILL }
                },
                { &hf_pana_avp_data_enumerated,
                        { "Value", "pana.avp.data.enum",
                        FT_INT32, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
-               },
+                       NULL, HFILL }
+               }
 
        };
 
@@ -930,7 +895,7 @@ proto_register_pana(void)
                &ett_pana_flags,
                &ett_pana_avp,
                &ett_pana_avp_info,
-               &ett_pana_avp_flags,
+               &ett_pana_avp_flags
        };
 
        /* Register the protocol name and description */
