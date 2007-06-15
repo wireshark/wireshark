@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/proto.h>
+#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
@@ -884,6 +885,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16      conn_id_offset = 0;
                 int          offset_before_ipprim_header = offset;
 
+                /* Will give up if couldn't match protocol anyway... */
                 heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
                     find_ipprim_data_offset(tvb, &offset, direction,
@@ -896,20 +898,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item *ti;
                     protocol_handle = heur_protocol_handle;
 
-                    if (source_addr_offset && check_col(pinfo->cinfo, COL_DEF_SRC))
-                    {
-                        col_append_fstr(pinfo->cinfo, COL_DEF_SRC,
-                                        "(%s:%u)",
-                                        (char*)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)),
-                                        tvb_get_ntohs(tvb, source_port_offset));
-                    }
-                    if (dest_addr_offset && check_col(pinfo->cinfo, COL_DEF_DST))
-                    {
-                        col_append_fstr(pinfo->cinfo, COL_DEF_DST,
-                                        "(%s:%u)",
-                                        (char*)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)),
-                                        tvb_get_ntohs(tvb, dest_port_offset));
-                    }
 
                     /* Add address parameters to tree */
                     /* Unfortunately can't automatically create a conversation filter for this...
@@ -938,9 +926,28 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* Add these IPPRIM fields inside an IPPRIM subtree */
                     ipprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_ipprim);
 
+                    /* Try to add right stuff to pinfo so conversation stuff works... */
+                    pinfo->ptype = type_of_port;
+                    switch (type_of_port) {
+                        case PT_UDP:
+                            pinfo->ipproto = IP_PROTO_UDP;
+                            break;
+                        case PT_TCP:
+                            pinfo->ipproto = IP_PROTO_TCP;
+                            break;
+                        default:
+                            pinfo->ipproto = IP_PROTO_NONE;
+                    }
+
+                    /* Add addresses & ports into ipprim tree.
+                       Also set address info in pinfo for conversations... */
                     if (source_addr_offset != 0)
                     {
                         proto_item *addr_ti;
+
+                        SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, (tvb_get_ptr(tvb, source_addr_offset, 4)));
+                        SET_ADDRESS(&pinfo->src, AT_IPv4, 4, (tvb_get_ptr(tvb, source_addr_offset, 4)));
+
                         proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_src_addr,
                                             tvb, source_addr_offset, 4, FALSE);
                         addr_ti = proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
@@ -950,6 +957,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (source_port_offset != 0)
                     {
                         proto_item *port_ti;
+
+                        pinfo->srcport = tvb_get_ntohs(tvb, source_port_offset);
+
                         proto_tree_add_item(ipprim_tree,
                                             (type_of_port == PT_UDP) ?
                                                hf_catapult_dct2000_ipprim_udp_src_port :
@@ -965,6 +975,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (dest_addr_offset != 0)
                     {
                         proto_item *addr_ti;
+
+                        SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, (tvb_get_ptr(tvb, dest_addr_offset, 4)));
+                        SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, (tvb_get_ptr(tvb, dest_addr_offset, 4)));
                         proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_dst_addr,
                                             tvb, dest_addr_offset, 4, FALSE);
                         addr_ti = proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
@@ -974,6 +987,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (dest_port_offset != 0)
                     {
                         proto_item *port_ti;
+
+                        pinfo->destport = tvb_get_ntohs(tvb, dest_port_offset);
+
                         proto_tree_add_item(ipprim_tree,
                                             (type_of_port == PT_UDP) ?
                                                hf_catapult_dct2000_ipprim_udp_dst_port :
@@ -991,6 +1007,24 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_item(ipprim_tree,
                                             hf_catapult_dct2000_ipprim_conn_id,
                                             tvb, conn_id_offset, 2, FALSE);
+                    }
+
+
+                    /* Set source and dest columns now (will be overwriiten if
+                       src and dst IP addresses set) */
+                    if (source_addr_offset && check_col(pinfo->cinfo, COL_DEF_SRC))
+                    {
+                        col_append_fstr(pinfo->cinfo, COL_DEF_SRC,
+                                        "(%s:%u)",
+                                        (char*)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)),
+                                        tvb_get_ntohs(tvb, source_port_offset));
+                    }
+                    if (dest_addr_offset && check_col(pinfo->cinfo, COL_DEF_DST))
+                    {
+                        col_append_fstr(pinfo->cinfo, COL_DEF_DST,
+                                        "(%s:%u)",
+                                        (char*)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)),
+                                        tvb_get_ntohs(tvb, dest_port_offset));
                     }
 
                     /* Set length for IPPrim tree */
