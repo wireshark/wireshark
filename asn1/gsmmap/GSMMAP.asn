@@ -533,7 +533,7 @@ ErrorCode ::= CHOICE {
 
 --PLMN_Data
 -- Alcatel Specific extension container
-PlmnContainer ::= [0] SEQUENCE {
+PlmnContainer ::= [PRIVATE 2] SEQUENCE {
 	msisdn			[0] ISDN-AddressString OPTIONAL, 
 	category		[1] Category OPTIONAL,
 	basicService		BasicServiceCode OPTIONAL,
