@@ -8,6 +8,7 @@
 #line 1 "packet-gsm_map-template.c"
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
+ * including GSM SS.
  * Copyright 2004 - 2007 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
@@ -32,9 +33,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * References: ETSI TS 129 002
+ * References GSM MAP: 
+ * ETSI TS 129 002
  * Updated to ETSI TS 129 002 V7.5.0 (3GPP TS 29.002 V7.5.0 (2006-09) Release 7)
  * Updated to ETSI TS 129 002 V8.1.0 (3GPP TS 29.002 V8.1.0 (2007-06) Release 8)
+ * References GSM SS
+ * References: ETSI TS 129 002
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1349,7 +1353,7 @@ static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 134 "packet-gsm_map-template.c"
+#line 138 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1925,7 +1929,7 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 154 "packet-gsm_map-template.c"
+#line 158 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -15111,7 +15115,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 563 "packet-gsm_map-template.c"
+#line 567 "packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V3_opr_code_strings[] = {
@@ -21618,7 +21622,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2391 "packet-gsm_map-template.c"
+#line 2395 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -22196,7 +22200,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2413 "packet-gsm_map-template.c"
+#line 2417 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -22268,7 +22272,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2431 "packet-gsm_map-template.c"
+#line 2435 "packet-gsm_map-template.c"
   add_oid_str_name("1.2.826.0.1249.58.1.0","iso(1) member-body(2) bsi(826) disc(0) ericsson(1249) gsmNetworkApplicationsDefinition(58) gsm-Map(1) gsm-Map-Ext(0)" );
   add_oid_str_name("1.3.12.2.1107.3.66.1.2","accessTypeNotAllowed-id" );
   /*add_oid_str_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );

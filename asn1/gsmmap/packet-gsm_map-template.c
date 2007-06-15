@@ -1,5 +1,6 @@
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
+ * including GSM SS.
  * Copyright 2004 - 2007 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
@@ -24,9 +25,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * References: ETSI TS 129 002
+ * References GSM MAP: 
+ * ETSI TS 129 002
  * Updated to ETSI TS 129 002 V7.5.0 (3GPP TS 29.002 V7.5.0 (2006-09) Release 7)
  * Updated to ETSI TS 129 002 V8.1.0 (3GPP TS 29.002 V8.1.0 (2007-06) Release 8)
+ * References GSM SS
+ * References: ETSI TS 129 002
  */
 
 #ifdef HAVE_CONFIG_H
