@@ -1878,8 +1878,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* unless we're permitted to scan for embedded records
 			 * and this is a connection-oriented transport, give up */
 			if ((! rpc_find_fragment_start) || (pinfo->ptype != PT_TCP)) {
-			return FALSE;
-		}
+				return FALSE;
+			}
 
 			/* in parse-partials, so define a dummy conversation for this reply */
 			rpc_call = se_alloc(sizeof(rpc_call_info_value));
