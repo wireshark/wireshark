@@ -38,7 +38,7 @@
  * Updated to ETSI TS 129 002 V7.5.0 (3GPP TS 29.002 V7.5.0 (2006-09) Release 7)
  * Updated to ETSI TS 129 002 V8.1.0 (3GPP TS 29.002 V8.1.0 (2007-06) Release 8)
  * References GSM SS
- * References: ETSI TS 129 002
+ * References: 3GPP TS 24.080
  */
 
 #ifdef HAVE_CONFIG_H
@@ -15591,7 +15591,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 56: /*sendAuthenticationInfo*/ 
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
-			      FALSE, dissect_gsm_old_SendAuthenticationInfoArgOld, -1,
+			      FALSE, dissect_gsm_map_ms_SendAuthenticationInfoArg, -1,
 			      TRUE,  NULL, -1);
     break;
   case 57: /*restoreData*/
