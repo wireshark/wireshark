@@ -234,13 +234,13 @@ rpm -ivh libpcap-0.4-19.i386.rpm
       </para>
     </note>
     <para> 
-      Under Debian you can install Wireshark using apt-get.  apt-get will
+      Under Debian you can install Wireshark using aptitude.  aptitude will
       handle any dependency issues for you. <xref linkend="Ch02Ex5"/> shows 
 	how to do this.
 	<example id="Ch02Ex5">
 	  <title>Installing debs under Debian</title>
 	  <programlisting>
-apt-get install wireshark-dev
+aptitude install wireshark-dev
 	  </programlisting>
 	</example>
     </para>
@@ -363,9 +363,9 @@ rpm -ivh wireshark-&WiresharkCurrentVersion;.i386.rpm
     <para> 
       Use the following command to install Wireshark under Debian:
       <programlisting>
-apt-get install wireshark
+aptitude install wireshark
       </programlisting>
-      apt-get should take care of all of the dependency issues for you.
+      aptitude should take care of all of the dependency issues for you.
     </para>
   </section>
 
@@ -711,7 +711,7 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	linkend="ChIntroMailingLists"/> for details how to subscribe to this list.
     </para>
     <para>
-	New versions of Wireshark usually become available every 8-12 weeks.
+	New versions of Wireshark usually become available every 4 to 8 months.
 	Updating Wireshark is done the same way as installing it, you simply 
 	download and start the installer exe. A reboot is usually not required and
 	all your personal settings remain unchanged.
