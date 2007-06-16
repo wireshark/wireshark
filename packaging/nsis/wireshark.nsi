@@ -697,7 +697,7 @@ File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules\im-*.dll"
 SectionEnd
 
 !ifdef GTK_WIMP_DIR
-Section "GTK-Wimp" SecGTKWimp
+Section "GTK MS Windows Engine" SecGTKWimp
 ;-------------------------------------------
 SectionIn 1
 SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}
@@ -1057,7 +1057,7 @@ SectionEnd
 !ifdef GTK2_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
 !ifdef GTK_WIMP_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK-Wimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK MS Windows Engine - native Win32 look and feel, for Win2000 and up."
 !endif
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
@@ -1201,7 +1201,7 @@ lbl_winversion_supported:
 	StrCmp $R0 '2000' lbl_select_wimp
 	StrCmp $R0 'XP' lbl_select_wimp
 	StrCmp $R0 '2003' lbl_select_wimp
-	DetailPrint "Windows $R0 doesn't support GTK-Wimp!"
+	DetailPrint "Windows $R0 doesn't support the GTK MS Windows Engine!"
 
 	Goto lbl_ignore_wimp
 lbl_select_wimp:

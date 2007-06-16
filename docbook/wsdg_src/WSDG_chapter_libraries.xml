@@ -510,8 +510,9 @@ utilities."
 	<ulink url="http://gtk-wimp.sourceforge.net/"/>.
 	</para>
 	<para>
-	Since GTK version 2.8 the GTK Wimp is included in the GTK releases, 
-	so no need to download/install it seperately if these versions used.
+	Since GTK version 2.8 the GTK Wimp is included in the GTK releases where 
+	it's called "GTK MS Windows Engine" now, so no need to download/install 
+	it seperately if these versions used.
 	</para>
 
   </section>

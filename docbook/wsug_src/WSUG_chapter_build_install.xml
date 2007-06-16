@@ -485,7 +485,7 @@ pkg_add -r wireshark
 	analyzer (using the modern GTK2 GUI toolkit, recommended).
 	</para></listitem>
 	<listitem><para>
-	<command>GTK-Wimp</command> - GTKWimp is the GTK2 windows impersonator 
+	<command>GTK MS Windows Engine</command> - GTK MS Windows Engine
 	(native Win32 look and feel, recommended).
 	</para></listitem>
 	</itemizedlist>
