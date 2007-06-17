@@ -1435,6 +1435,7 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	filter_te = OBJECT_GET_DATA(main_w, E_FILT_FILTER_TE_KEY);
 	dfilter_w = dfilter_expr_dlg_new(filter_te);
 
+#if GTK_MAJOR_VERSION >= 2
 	/* If we're opening a series of modal dialogs (such as when going
 	 * through file->open, make the latest dialog modal also so that it
 	 * takes over "control" from the other modal dialogs.  Also set
@@ -1445,6 +1446,7 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 		gtk_window_set_transient_for(GTK_WINDOW(dfilter_w),
 					     GTK_WINDOW(main_w));
 	}
+#endif
 }
 
 static void
