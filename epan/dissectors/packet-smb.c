@@ -5347,14 +5347,19 @@ static const true_false_string tfs_lock_type_shared = {
 static int
 dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	guint8	wc, cmd=0xff, lt=0;
-	guint16 andxoffset=0, un=0, ln=0, bc, fid;
+	guint8	wc, cmd=0xff, lt=0, ol=0;
+	guint16 andxoffset=0, un=0, ln=0, bc, fid, num_lock=0, num_unlock=0;
 	guint32 to;
 	proto_item *litem = NULL;
 	proto_tree *ltree = NULL;
 	proto_item *it = NULL;
 	proto_tree *tr = NULL;
 	int old_offset = offset;
+	smb_info_t *si = pinfo->private_data;
+	smb_locking_saved_info_t *ld=NULL;
+
+
+	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
 
@@ -5401,6 +5406,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 1;
 
 	/* oplock level */
+	ol = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_locking_ol, tvb, offset, 1, TRUE);
 	offset += 1;
 
@@ -5411,15 +5417,30 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* number of unlocks */
 	un = tvb_get_letohs(tvb, offset);
+	num_unlock=un;
 	proto_tree_add_uint(tree, hf_smb_number_of_unlocks, tvb, offset, 2, un);
 	offset += 2;
 
 	/* number of locks */
 	ln = tvb_get_letohs(tvb, offset);
+	num_lock=ln;
 	proto_tree_add_uint(tree, hf_smb_number_of_locks, tvb, offset, 2, ln);
 	offset += 2;
 
 	BYTE_COUNT;
+
+	/* store the locking data for the response */
+	if((!pinfo->fd->flags.visited) && si->sip){
+		ld=se_alloc(sizeof(smb_locking_saved_info_t));
+		ld->type=lt;
+		ld->oplock_level= ol;
+		ld->num_lock=num_lock;
+		ld->num_unlock=num_unlock;
+		ld->locks=NULL;
+		ld->unlocks=NULL;
+		si->sip->extra_info_type=SMB_EI_LOCKDATA;
+		si->sip->extra_info=ld;
+	}
 
 	/* unlocks */
 	if(un){
@@ -5433,6 +5454,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
 				guint64 val;
+				guint16 lock_pid;
+				guint64 lock_offset;
+				guint64 lock_length;
 
 				/* large lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 20,
@@ -5441,6 +5465,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
+				lock_pid=tvb_get_letohs(tvb, offset);
 				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
@@ -5453,6 +5478,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				CHECK_BYTE_COUNT(8);
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
+				lock_offset=val;
 				proto_tree_add_uint64(ltree, hf_smb_lock_long_offset, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
@@ -5460,8 +5486,20 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				CHECK_BYTE_COUNT(8);
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
+				lock_length=val;
 				proto_tree_add_uint64(ltree, hf_smb_lock_long_length, tvb, offset, 8, val);
 				COUNT_BYTES(8);
+
+				/* remember the unlock for the reply */
+				if(ld){
+					smb_lock_info_t *li;
+					li=se_alloc(sizeof(smb_lock_info_t));
+					li->next=ld->unlocks;
+					ld->unlocks=li;
+					li->pid=lock_pid;
+					li->offset=lock_offset;
+					li->length=lock_length;
+				}
 			} else {
 				/* normal lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 10,
@@ -5500,6 +5538,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
 				guint64 val;
+				guint16 lock_pid;
+				guint64 lock_offset;
+				guint64 lock_length;
 
 				/* large lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 20,
@@ -5508,6 +5549,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
+				lock_pid=tvb_get_letohs(tvb, offset);
 				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
@@ -5520,6 +5562,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				CHECK_BYTE_COUNT(8);
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
+				lock_offset=val;
 				proto_tree_add_uint64(ltree, hf_smb_lock_long_offset, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
@@ -5527,8 +5570,20 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				CHECK_BYTE_COUNT(8);
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
+				lock_length=val;
 				proto_tree_add_uint64(ltree, hf_smb_lock_long_length, tvb, offset, 8, val);
 				COUNT_BYTES(8);
+
+				/* remember the lock for the reply */
+				if(ld){
+					smb_lock_info_t *li;
+					li=se_alloc(sizeof(smb_lock_info_t));
+					li->next=ld->locks;
+					ld->locks=li;
+					li->pid=lock_pid;
+					li->offset=lock_offset;
+					li->length=lock_length;
+				}
 			} else {
 				/* normal lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 10,
@@ -5581,6 +5636,58 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0;
 	guint16 bc;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+	DISSECTOR_ASSERT(si);
+
+	/* print the lock info from the request */
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_LOCKDATA) {
+		smb_locking_saved_info_t *ld;
+		proto_item *litem = NULL;
+		proto_tree *ltree = NULL;
+
+		ld = si->sip->extra_info;
+		if (ld != NULL) {
+			proto_item *lit = NULL;
+			proto_tree *ltr = NULL;
+			smb_lock_info_t *li;
+			if(tree){
+				litem = proto_tree_add_text(tree, tvb, 0, 0,
+					"Lock Type: 0x%02x", ld->type);
+				PROTO_ITEM_SET_GENERATED(litem);
+				ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
+			}
+
+			proto_tree_add_boolean(ltree, hf_smb_lock_type_large, tvb, 0, 0, ld->type);
+			proto_tree_add_boolean(ltree, hf_smb_lock_type_cancel, tvb, 0, 0, ld->type);
+			proto_tree_add_boolean(ltree, hf_smb_lock_type_change, tvb, 0, 0, ld->type);
+			proto_tree_add_boolean(ltree, hf_smb_lock_type_oplock, tvb, 0, 0, ld->type);
+			proto_tree_add_boolean(ltree, hf_smb_lock_type_shared, tvb, 0, 0, ld->type);
+			proto_tree_add_uint(ltree, hf_smb_locking_ol, tvb, 0, 0, ld->oplock_level);
+			proto_tree_add_uint(ltree, hf_smb_number_of_unlocks, tvb, 0, 0, ld->num_unlock);
+			proto_tree_add_uint(ltree, hf_smb_number_of_locks, tvb, 0, 0, ld->num_lock);
+				
+			lit = proto_tree_add_text(ltree, tvb, 0, 0, "Locks");
+			ltr = proto_item_add_subtree(lit, ett_smb_lock);
+			li=ld->locks;
+			while(li){
+				proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
+				proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
+				proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
+				li=li->next;
+			}
+			lit = proto_tree_add_text(ltree, tvb, 0, 0, "Unlocks");
+			ltr = proto_item_add_subtree(lit, ett_smb_unlock);
+			li=ld->unlocks;
+			while(li){
+				proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
+				proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
+				proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
+				li=li->next;
+			}
+		}
+	}
 
 	WORD_COUNT;
 
