@@ -207,8 +207,6 @@ radius_DATA = \
 
 PLATFORM_SRC = capture-pcap-util-unix.c
 
-include Makefile.common
-
 if HAVE_PLUGINS
 
 plugin_ldadd = \
@@ -238,12 +236,21 @@ plugin_ldadd = \
 	-dlopen plugins/stats_tree/stats_tree.la \
 	-dlopen plugins/v5ua/v5ua.la \
 	-dlopen plugins/wimax/wimax.la
+	
+WTAP_PLUGIN_SOURCES = \
+       epan/plugins.c \
+       epan/report_err.c \
+       epan/privileges.c \
+       epan/filesystem.c
 
 else		# HAVE_PLUGINS
 
 plugin_ldadd =
+WTAP_PLUGIN_SOURCES = 
 
 endif		# HAVE_PLUGINS
+
+include Makefile.common
 
 # Optional objects that I know how to build. These will be
 # linked into the wireshark executable.
