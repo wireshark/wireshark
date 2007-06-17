@@ -210,7 +210,8 @@ typedef enum {
 	SMB_EI_FILENAME,	/* filename tracking */
 	SMB_EI_UID,		/* smb_uid_t */
 	SMB_EI_RWINFO,		/* read/write offset/count info */ 
-	SMB_EI_LOCKDATA		/* locking and x data */
+	SMB_EI_LOCKDATA,	/* locking and x data */
+	SMB_EI_RENAMEDATA	/* renaame data */
 } smb_extra_info_t;
 typedef struct _smb_fid_into_t smb_fid_info_t;
 typedef struct {
@@ -300,6 +301,12 @@ extern int dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 #define SMB_FID_TYPE_FILE	1
 #define SMB_FID_TYPE_DIR	2
 #define SMB_FID_TYPE_PIPE	3
+
+/* used for tracking filenames from rename request to response */
+typedef struct _smb_rename_saved_info_t {
+	char *old_name;
+	char *new_name;
+} smb_rename_saved_info_t;
 
 /* used for tracking lock data between lock request/response */
 typedef struct _smb_lock_info_t {

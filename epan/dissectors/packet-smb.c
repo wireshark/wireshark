@@ -2494,6 +2494,35 @@ dissect_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offse
 }
 
 static int
+dissect_rename_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
+{
+	guint8 wc;
+	guint16 bc;
+	smb_info_t *si = pinfo->private_data;
+	proto_item *item=NULL;
+
+	DISSECTOR_ASSERT(si);
+
+	if(si->sip && si->sip->extra_info_type==SMB_EI_RENAMEDATA){
+		smb_rename_saved_info_t *rni=si->sip->extra_info;
+
+		item=proto_tree_add_string(tree, hf_smb_old_file_name, tvb, 0, 0, rni->old_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, rni->new_name);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+		
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
 dissect_echo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
 	guint16 ec, bc;
@@ -3697,9 +3726,10 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	smb_info_t *si = pinfo->private_data;
 	int fn_len;
-	const char *fn;
+	const char *fn, *old_name=NULL, *new_name=NULL;
 	guint8 wc;
 	guint16 bc;
+	smb_rename_saved_info_t *rni=NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -3720,6 +3750,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		FALSE, FALSE, &bc);
 	if (fn == NULL)
 		goto endofcommand;
+	old_name=fn;
 	proto_tree_add_string(tree, hf_smb_old_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES(fn_len);
@@ -3739,6 +3770,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		FALSE, FALSE, &bc);
 	if (fn == NULL)
 		goto endofcommand;
+	new_name=fn;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES(fn_len);
@@ -3749,6 +3781,16 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	END_OF_SMB
+
+	/* save the offset/len for this transaction */
+	if(si->sip && !pinfo->fd->flags.visited){
+		rni=se_alloc(sizeof(smb_rename_saved_info_t));
+		rni->old_name=se_strdup(old_name);
+		rni->new_name=se_strdup(new_name);
+
+		si->sip->extra_info_type=SMB_EI_RENAMEDATA;
+		si->sip->extra_info=rni;
+	}
 
 	return offset;
 }
@@ -15031,7 +15073,7 @@ static smb_function smb_dissector[256] = {
   /* 0x04 Close File*/  {dissect_close_file_request, dissect_empty},
   /* 0x05 Flush File*/  {dissect_flush_file_request, dissect_empty},
   /* 0x06 Delete File*/  {dissect_delete_file_request, dissect_empty},
-  /* 0x07 Rename File*/  {dissect_rename_file_request, dissect_empty},
+  /* 0x07 Rename File*/  {dissect_rename_file_request, dissect_rename_file_response},
   /* 0x08 Query Info*/  {dissect_query_information_request, dissect_query_information_response},
   /* 0x09 Set Info*/  {dissect_set_information_request, dissect_empty},
   /* 0x0a Read File*/  {dissect_read_file_request, dissect_read_file_response},
