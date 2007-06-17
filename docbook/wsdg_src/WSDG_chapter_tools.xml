@@ -1343,9 +1343,12 @@ Copyright (C) 2000-2006 CollabNet.
       least the major/minor versions (e.g. 1.4).</para>
     </warning>
     <section id="ChToolsUnixSVNGUI">
-      <title>UNIX or Win32 Cygwin: -</title>
-      <para>XXX - could someone recommend a good UNIX GUI client
-      for subversion?</para>
+      <title>UNIX or Win32 Cygwin: rapidSVN, subcommander</title>
+      <para>RapidSVN is a cross platform subversion frontend based on wxWidgets.
+      It can be found at: <ulink url="http://rapidsvn.tigris.org/" />. 
+      Subcommander is another cross platform subversion frontend. It can
+      be found at: <ulink url="http://subcommander.tigris.org/" />.
+      </para>
       <para>Cygwin don't provide any GUI client for
       subversion.</para>
     </section>
@@ -1513,7 +1516,7 @@ written by Larry Wall and Paul Eggert]]>
     files needed to be installed, including all required DLL's and
     such.</para>
     <para>To install it, simply download the latest released
-    version (currently: 2.22) from 
+    version (currently: 2.28) from 
     <ulink url="http://nsis.sourceforge.net" />and start the
     downloaded installer. You will need NSIS version 2 final or
     higher.</para>

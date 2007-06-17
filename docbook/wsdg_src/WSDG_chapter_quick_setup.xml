@@ -7,7 +7,7 @@
     developer machine.</para>
     <para>If a tool is not already installed on your system, you
     will typically use the installation package from your
-    distribution (by your favourite package manager: apt, yum,
+    distribution (by your favourite package manager: aptitude, yum,
     synaptics, ...).</para>
     <para>If an install package is not available, or you have a
     reason not to use it (maybe because it's simply too old), you

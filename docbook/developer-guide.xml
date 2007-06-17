@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.5">
+  <!ENTITY WiresharkCurrentVersion "0.99.6">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
   <!ENTITY WiresharkAuthorsPage "http://anonsvn.wireshark.org/wireshark/trunk/AUTHORS">
