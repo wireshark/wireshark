@@ -47,9 +47,9 @@ static void   column_list_unselect_cb(GtkCList *clist, gint row, gint column,
                                       GdkEvent *event, gpointer user_data);
 #else
 static void   column_list_select_cb(GtkTreeSelection *, gpointer);
+static void   column_entry_changed_cb(GtkEditable *, gpointer);
 #endif
 static void   column_list_new_cb(GtkWidget *, gpointer);
-static void   column_entry_changed_cb(GtkEditable *, gpointer);
 static void   column_menu_changed_cb(GtkWidget *, gpointer);
 static void   column_list_delete_cb(GtkWidget *, gpointer);
 static void   column_arrow_cb(GtkWidget *, gpointer);
@@ -494,25 +494,13 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
     cfile.cinfo.columns_changed = TRUE;
 }
 
+#if GTK_MAJOR_VERSION >= 2
 /* The user changed the column title entry box. */
 static void
 column_entry_changed_cb(GtkEditable *te, gpointer data) {
     fmt_data         *cfmt;
     GList            *clp;
     gchar            *title;
-#if GTK_MAJOR_VERSION < 2
-    GtkCList         *cl = data;
-
-    if (cur_row >= 0) {
-        title = gtk_editable_get_chars(te, 0, -1);
-        clp   = gtk_clist_get_row_data(cl, cur_row);
-        cfmt  = (fmt_data *) clp->data;
-
-        gtk_clist_set_text(cl, cur_row, 0, title);
-        g_free(cfmt->title);
-        cfmt->title = title;
-    }
-#else
     GtkTreeView      *tree = (GtkTreeView *)data;
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
@@ -529,9 +517,9 @@ column_entry_changed_cb(GtkEditable *te, gpointer data) {
         g_free(cfmt->title);
         cfmt->title = title;
     }
-#endif
     cfile.cinfo.columns_changed = TRUE;
 }
+#endif
 
 /* The user changed the format menu. */
 static void
