@@ -318,8 +318,8 @@ typedef struct _smb_lock_info_t {
 typedef struct _smb_locking_saved_info_t {
 	guint8 type;
 	guint8 oplock_level;
-	guint8 num_lock;
-	guint8 num_unlock;
+	guint16 num_lock;
+	guint16 num_unlock;
 	smb_lock_info_t *locks;
 	smb_lock_info_t *unlocks;
 } smb_locking_saved_info_t;
