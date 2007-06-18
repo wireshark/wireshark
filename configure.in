@@ -1416,27 +1416,16 @@ AC_ARG_WITH(plugins,
   AC_HELP_STRING( [--with-plugins@<:@=DIR@:>@],
                   [support plugins (installed in DIR, if supplied).   @<:@default=yes, if possible@:>@]),
 [
-  case "$withval" in
-  "" | y | ye | yes )
-    if test x$have_plugins = xno
-    then
-      AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
-    fi
-    ;;
-  n | no)
+  if test "x$withval" = "xno"; then
     have_plugins=no
-    ;;
-  *)
-    if test x$have_plugins = xno
-    then
+  elif test "x$have_plugins" = "xno"; then
       AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
-    fi
-    plugindir="$withval"
-    ;;
-  esac
+      if test "x$withval" != "xyes"; then 
+	plugindir="$withval"
+      fi
+  fi
 ])
-
-AM_CONDITIONAL(HAVE_PLUGINS, test x$have_plugins = xyes)
+AM_CONDITIONAL(HAVE_PLUGINS, test "x$have_plugins" = "xyes")
 if test x$have_plugins = xyes
 then
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
