@@ -1687,15 +1687,17 @@ static int mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset
 	}
 	offset+= fle;
 
-	offset= mysql_dissect_server_status(tvb, offset, tree);
+	if ((strlen= tvb_length_remaining(tvb, offset))) {
+	        offset= mysql_dissect_server_status(tvb, offset, tree);
 
-	/* 4.1+ protocol only: 2 bytes number of warnings */
-	if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
-		if (tree) {
-			proto_tree_add_item(tree, hf_mysql_num_warn, tvb,
-					    offset, 2, FALSE);
-		}
+	        /* 4.1+ protocol only: 2 bytes number of warnings */
+		if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
+		        if (tree) {
+			        proto_tree_add_item(tree, hf_mysql_num_warn, tvb,
+				         	    offset, 2, FALSE);
+		        }
 		offset+= 2;
+		}
 	}
 
 	/* optional: message string */
