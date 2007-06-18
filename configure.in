@@ -76,7 +76,13 @@ AC_CHECK_PROG(HAVE_DOXYGEN, doxygen, "yes", "no")
 AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 
 # gnu tls
-AM_PATH_LIBGNUTLS(1.0.0,
+tls_message="no"
+AC_ARG_WITH([gnutls],
+  AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
+		  [use gnutls library @<:@default=yes@:>@]),
+  with_gnutls="$withval", with_gnutls="yes")
+if test "x$with_gnutls" = "xyes"; then
+  AM_PATH_LIBGNUTLS(1.0.0,
         [
                 echo "gnuTLS found, enabling ssl decryption"
                 AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use gnutls library])
@@ -90,10 +96,17 @@ AM_PATH_LIBGNUTLS(1.0.0,
                         tls_message="no"
                 fi
         ]
-)
+  )
+fi
 
 # libgrypt
-AM_PATH_LIBGCRYPT(1.1.42,
+gcrypt_message="no"
+AC_ARG_WITH([gcrypt],
+  AC_HELP_STRING( [--with-gcrypt=@<:@yes/no@:>@],
+		  [use gcrypt library @<:@default=yes@:>@]),
+  with_gcrypt="$withval", with_gcrypt="no")
+if test "x$with_gcrypt" = "xyes"; then
+  AM_PATH_LIBGCRYPT(1.1.42,
         [
                 echo "libgcrypt found, enabling ipsec decryption"
                 AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
@@ -107,7 +120,8 @@ AM_PATH_LIBGCRYPT(1.1.42,
                         gcrypt_message="no"
                 fi
         ]
-)
+  )
+fi
 
 # Check for xsltproc
 AC_PATH_PROG(XSLTPROC, xsltproc)
