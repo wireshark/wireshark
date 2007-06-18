@@ -327,6 +327,7 @@ static int proto_mysql = -1;
 
 /* dissector configuration */
 static gboolean mysql_desegment = TRUE;
+static gboolean mysql_showquery = FALSE;
 
 /* expand-the-tree flags */
 static gint ett_mysql = -1;
@@ -901,6 +902,10 @@ void proto_register_mysql(void)
 				       "Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &mysql_desegment);
+        prefs_register_bool_preference(mysql_module, "show_sql_query",
+                                       "Show SQL Query string in INFO column",
+                                       "Whether the MySQL dissector should display the SQL query string in the INFO column.",
+                                       &mysql_showquery);
 			       
 	register_dissector("mysql", dissect_mysql_pdu, proto_mysql);				       
 }
@@ -1314,6 +1319,10 @@ static int mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		if (req_tree) {
 			proto_tree_add_item(req_tree, hf_mysql_query, tvb,
 					    offset, strlen, FALSE);
+		}
+		if (mysql_showquery) {
+		        if (check_col(pinfo->cinfo, COL_INFO))
+		                col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",tvb_get_string(tvb, offset, strlen));
 		}
 		offset+= strlen;
 		conn_data->state= RESPONSE_TABULAR;
