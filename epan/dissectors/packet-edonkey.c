@@ -78,6 +78,9 @@ static int hf_emule_multipacket_entry = -1;
 static int hf_emule_multipacket_opcode = -1;
 static int hf_emule_source_count = -1;
 static int hf_emule_zlib = -1;
+static int hf_emule_public_key = -1;
+static int hf_emule_signature = -1;
+static int hf_emule_sourceOBFU = -1;
 static int hf_overnet_peer = -1;
 
 static gint ett_edonkey = -1;
@@ -91,6 +94,7 @@ static gint ett_emule_aichhash = -1;
 static gint ett_emule_multipacket = -1;
 static gint ett_emule_zlib = -1;
 static gint ett_overnet_peer = -1;
+static gint ett_emule_sourceOBFU = -1;
 
 /* desegmentation of eDonkey over TCP */
 static gboolean edonkey_desegment = TRUE;
@@ -110,6 +114,7 @@ static const value_string edonkey_tcp_msgs[] = {
 	{ EDONKEY_MSG_SEARCH_FILES,          "Search Files"             },
 	{ EDONKEY_MSG_DISCONNECT,            "Disconnect"               },
 	{ EDONKEY_MSG_GET_SOURCES,           "Get Sources"              },
+        { EDONKEY_MSG_GET_SOURCES_OBFU,      "Get Sources Obfuscation"  },
 	{ EDONKEY_MSG_SEARCH_USER,           "Search User"              },
 	{ EDONKEY_MSG_CLIENT_CB_REQ,         "Client Callback Request"  },
 	{ EDONKEY_MSG_MORE_RESULTS,          "More Results"             },
@@ -122,6 +127,7 @@ static const value_string edonkey_tcp_msgs[] = {
 	{ EDONKEY_MSG_ID_CHANGE,             "ID Change"                },
 	{ EDONKEY_MSG_SERVER_INFO_DATA,      "Server Info Data"         },
 	{ EDONKEY_MSG_FOUND_SOURCES,         "Found Sources"            },
+        { EDONKEY_MSG_FOUND_SOURCES_OBFU,    "Found Sources Obfuscation"},
 	{ EDONKEY_MSG_SEARCH_USER_RESULTS,   "Search User Results"      },
 	{ EDONKEY_MSG_SENDING_PART,          "Sending Part"             },
 	{ EDONKEY_MSG_REQUEST_PARTS,         "Request Parts"            },
@@ -151,23 +157,26 @@ static const value_string edonkey_tcp_msgs[] = {
 };
 
 static const value_string emule_tcp_msgs[] = {
-	{ EMULE_MSG_HELLO,	                 "Hello"                    },
-	{ EMULE_MSG_HELLO_ANSWER,            "Hello Answer"             },
-	{ EMULE_MSG_DATA_COMPRESSED,         "Data Compressed"          },
-	{ EMULE_MSG_QUEUE_RANKING,           "Queue Ranking"            },
-	{ EMULE_MSG_SOURCES_REQUEST,         "Sources Request"          },
-	{ EMULE_MSG_SOURCES_ANSWER,          "Sources Answer"           },
-	{ EMULE_MSG_MULTIPACKET,             "MultiPacket"              },
-	{ EMULE_MSG_MULTIPACKET_EXT,         "MultiPacketExt"           },
-	{ EMULE_MSG_MULTIPACKET_ANSWER,      "MultiPacket Answer"       },
-	{ EMULE_MSG_AICH_REQUEST,            "AICH Hashset Request"     },
-	{ EMULE_MSG_AICH_ANSWER,             "AICH Hashset Answer"      },
-	{ EMULE_MSG_AICHFILEHASH_ANSWER,     "AICH Master Hash Request" },
-	{ EMULE_MSG_AICHFILEHASH_REQUEST,    "AICH Master Hash Answer"  },
-	{ EMULE_MSG_DATA_COMPRESSED_64,      "Data Compressed (64bit)"  },
-	{ EMULE_MSG_SENDING_PART_64,         "Sending Part (64bit)"     },
-	{ EMULE_MSG_REQUEST_PARTS_64,        "Request Parts (64bit)"    },
-    { 0,                                 NULL                       }
+	{ EMULE_MSG_HELLO,	             "Hello"                       },
+	{ EMULE_MSG_HELLO_ANSWER,            "Hello Answer"                },
+	{ EMULE_MSG_DATA_COMPRESSED,         "Data Compressed"             },
+	{ EMULE_MSG_QUEUE_RANKING,           "Queue Ranking"               },
+	{ EMULE_MSG_SOURCES_REQUEST,         "Sources Request"             },
+	{ EMULE_MSG_SOURCES_ANSWER,          "Sources Answer"              },
+	{ EMULE_MSG_SIGNATURE,               "Signature"                   },
+	{ EMULE_MSG_PUBLIC_KEY,              "Public Key"                  },
+	{ EMULE_MSG_SEC_IDENT_STATE,         "Second Identification State" },
+	{ EMULE_MSG_MULTIPACKET,             "MultiPacket"                 },
+	{ EMULE_MSG_MULTIPACKET_EXT,         "MultiPacketExt"              },
+	{ EMULE_MSG_MULTIPACKET_ANSWER,      "MultiPacket Answer"          },
+	{ EMULE_MSG_AICH_REQUEST,            "AICH Hashset Request"        },
+	{ EMULE_MSG_AICH_ANSWER,             "AICH Hashset Answer"         },
+	{ EMULE_MSG_AICHFILEHASH_ANSWER,     "AICH Master Hash Request"    },
+	{ EMULE_MSG_AICHFILEHASH_REQUEST,    "AICH Master Hash Answer"     },
+	{ EMULE_MSG_DATA_COMPRESSED_64,      "Data Compressed (64bit)"     },
+	{ EMULE_MSG_SENDING_PART_64,         "Sending Part (64bit)"        },
+	{ EMULE_MSG_REQUEST_PARTS_64,        "Request Parts (64bit)"       },
+	{ 0,                                 NULL                          }
 };
 
 static const value_string edonkey_udp_msgs[] = {
@@ -594,6 +603,28 @@ static int dissect_edonkey_file_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset+16;
 }
 
+/* Dissects the eMule public key */
+static int dissect_edonkey_public_key(tvbuff_t *tvb, packet_info *pinfo _U_, 
+                                     int offset, proto_tree *tree)
+{
+    guint8 length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1, "Public key length: %u", length);
+    offset++;
+    proto_tree_add_item(tree, hf_emule_public_key, tvb, offset, length, FALSE);
+    return offset + length;
+}
+
+/* Dissects the eMule signature */
+static int dissect_edonkey_signature(tvbuff_t *tvb, packet_info *pinfo _U_, 
+                                     int offset, proto_tree *tree)
+{
+    guint8 length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1, "Signature length: %u", length);
+    offset++;
+    proto_tree_add_item(tree, hf_emule_signature, tvb, offset, length, FALSE);
+    return offset + length;
+}
+
 /* Dissects the eDonkey hash list */
 static int dissect_edonkey_hash_list(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         int offset,  proto_tree *tree)
@@ -684,6 +715,37 @@ static int dissect_edonkey_client_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_edonkey_client_hash, tvb, offset, 16, FALSE);
     return offset+16;
 }
+
+/* Dissects the eMule sourceOBFU */
+static int dissect_emule_sourceOBFU(tvbuff_t *tvb, packet_info *pinfo _U_, 
+                                   int offset, proto_tree *tree)
+{
+
+    proto_item *ti;
+    proto_tree *sourceOBFU_tree;
+    guint8 settings = tvb_get_guint8(tvb, offset+6);
+    /* Add subtree for client info */
+    ti = proto_tree_add_item(tree, hf_emule_sourceOBFU, tvb, offset, 7 + ((settings & 0x08) ? 16 : 0), FALSE);
+    sourceOBFU_tree = proto_item_add_subtree(ti, ett_emule_sourceOBFU);        
+
+    proto_tree_add_item(sourceOBFU_tree, hf_edonkey_ip, tvb, offset, 4, FALSE);
+    proto_tree_add_item(sourceOBFU_tree, hf_edonkey_port, tvb, offset+4, 2, TRUE);
+    proto_tree_add_text(sourceOBFU_tree, tvb, offset+6, 1, "Obfuscation Settings: %u", settings);
+    offset += 7;
+    if (settings & 0x08)
+	offset = dissect_edonkey_client_hash(tvb, pinfo, offset, sourceOBFU_tree);    
+    return offset;
+}
+
+
+/* Dissects the eMule sourceOBFU list */
+static int dissect_emule_sourceOBFU_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
+                                        int offset,  proto_tree *tree)
+{
+    
+    return dissect_edonkey_list(tvb, pinfo, offset, tree, 1, "Sources Obfuscation", dissect_emule_sourceOBFU);
+}
+
 
 /* Dissects the eDonkey client ID */
 static int dissect_edonkey_client_id(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -1136,7 +1198,7 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
                                         int offset, int length, proto_tree *tree)
 {
     int msg_start, msg_end, bytes_remaining;
-    guint8  hello, more;
+    guint8  helloClient, more;
     guint32 nusers, nfiles;
 
     if (tree == NULL) return;
@@ -1151,11 +1213,20 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
     switch (msg_type) {
         case EDONKEY_MSG_HELLO:
             /* Client to Server: <Client Info> */
-            /* Client to Client: 0x10 <Client Info> */
-            hello = tvb_get_guint8(tvb, offset);
-            if (hello == 0x10) /* Hello Client */
+            /* Client to Client: 0x10 <Client Info> <Server address> */
+            /* If Hello is sent to server 0x10 before UserHash is skipped, 
+               but UserHash might starts with 0x10. To decrease posibility
+               of mistake, we check also 6th and 15h byte of UserHash -
+               they have constant value. The best way would be to process 
+               whole packet to check it. */
+            helloClient = (tvb_get_guint8(tvb, offset) == 0x10 && tvb_get_guint8(tvb, offset + 6) == 0x0E && tvb_get_guint8(tvb, offset + 15) == 0x6F);
+            if (helloClient) {
+                proto_tree_add_text(tree, tvb, offset, 1, "User hash length: 16");
                 offset += 1;
+            }
             offset = dissect_edonkey_client_info(tvb, pinfo, offset, tree);
+            if (helloClient)  /* User's server ip is sent only to clients. */
+                offset = dissect_edonkey_address(tvb, pinfo, offset, tree);
             break;
 
         case EDONKEY_MSG_HELLO_ANSWER: /* Hello Answer: <Client Info> <Server address> */
@@ -1183,9 +1254,7 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
         case EDONKEY_MSG_SEARCH_FILE_RESULTS: /* Search File Results: <File Info list> <More> */
             offset = dissect_edonkey_file_info_list(tvb, pinfo, offset, tree);
             more = tvb_get_guint8(tvb, offset);
-            if (more)
-                proto_tree_add_text(tree, tvb, offset, 1, "More: TRUE (0x%02x)", more);
-            else proto_tree_add_text(tree, tvb, offset, 1, "More: FALSE (0x%02x)", more);
+            proto_tree_add_text(tree, tvb, offset, 1, "More: %s (0x%02x)", (more) ? "TRUE" : "FALSE", more);
             break;
 
         case EDONKEY_MSG_SEARCH_FILES: /* Search File: <Search query> */
@@ -1193,7 +1262,21 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
             offset = dissect_edonkey_search_query(tvb, pinfo, offset, tree);
             break;
 
-        case EDONKEY_MSG_GET_SOURCES:         /* Get Sources: <File Hash> */
+        case EDONKEY_MSG_GET_SOURCES:         /* Get Sources: <File Hash> <Size> <Size 64> */
+        case EDONKEY_MSG_GET_SOURCES_OBFU: {  /* Get Sources: <File Hash> <Size> <Size 64> */
+            guint32 fileSize;
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+            fileSize = tvb_get_letohl(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 4, "File size: %u %s", fileSize, (fileSize == 0) ? "(64bit file size used)" : "");
+            offset += 4;
+            /* if fileSize = 0 then 64bit file size comes next */
+            if (fileSize == 0) {
+                guint64 fileSize64 = tvb_get_letoh64(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, 8, "Large file size : %" G_GINT64_MODIFIER "u", fileSize64);
+            }
+            }
+            break;
+
         case EDONKEY_MSG_NO_SUCH_FILE:        /* No Such File: <File Hash> */
         case EDONKEY_MSG_END_OF_DOWNLOAD:     /* End of Download: <File Hash> */
         case EDONKEY_MSG_FILE_STATUS_REQUEST: /* File Status Request: <File Hash> */
@@ -1203,7 +1286,12 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
             offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
             break;
 
-        case EDONKEY_MSG_FOUND_SOURCES: /* Found Sources: <File Hash> <Address List> */
+	case EDONKEY_MSG_FOUND_SOURCES_OBFU:   /* Found Sources: <File Hash> <SourceOBFU List> */
+            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+	    offset = dissect_emule_sourceOBFU_list(tvb, pinfo, offset, tree);
+	    break;
+
+        case EDONKEY_MSG_FOUND_SOURCES:      /* Found Sources: <File Hash> <Address List> */
             offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
             offset = dissect_edonkey_address_list(tvb, pinfo, offset, tree);
             break;
@@ -1327,6 +1415,30 @@ static void dissect_emule_tcp_message(guint8 msg_type,
         case EMULE_MSG_SOURCES_ANSWER: /* Sources Answer: <File Hash> <Address List> */
             offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
             offset = dissect_emule_address_list(tvb, pinfo, offset, tree);
+            break;
+
+        case EMULE_MSG_SEC_IDENT_STATE: {
+            guint32 rndchallenge;
+            guint8 state = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 1, "State: %u (%s needed)", state, (state == 0) ? "nothing is" : (state == 1) ? "public key is" : "public key and signature are");
+            offset++;
+            rndchallenge = tvb_get_letohl(tvb, offset); 
+            proto_tree_add_text(tree, tvb, offset, 4, "Rndchallenge: %u", rndchallenge);
+            offset += 4;
+            break;
+            }
+
+        case EMULE_MSG_PUBLIC_KEY:
+            offset = dissect_edonkey_public_key(tvb, pinfo, offset, tree);
+            break;
+
+        case EMULE_MSG_SIGNATURE:
+            offset = dissect_edonkey_signature(tvb, pinfo, offset, tree);
+            if (msg_end != offset) {
+                guint8 sigIPused = tvb_get_guint8(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, 1, "Sig IP Used: %u", sigIPused);
+                offset++;
+            }
             break;
 
         case EMULE_MSG_DATA_COMPRESSED: /* Data Compressed: <File Hash> <Start Offset> <Length (guint32)> <DATA> */
@@ -1897,6 +2009,12 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_clientinfo,
           { "eDonkey Client Info", "edonkey.clientinfo",
             FT_NONE, BASE_NONE, NULL, 0, "eDonkey Client Info", HFILL } },
+	{ &hf_emule_public_key,
+	  { "Public Key", "emule.public_key",
+	    FT_BYTES, BASE_HEX, NULL, 0, "eMule Public Key", HFILL } },   
+	{ &hf_emule_signature,
+	  { "Signature", "emule.signature",
+	    FT_BYTES, BASE_HEX, NULL, 0, "eMule Signature", HFILL } },
 	{ &hf_emule_aich_partnum,
 	  { "Part Number", "emule.aich_partnum",
 	    FT_UINT16, BASE_DEC, NULL, 0, "eMule AICH Part Number", HFILL } },
@@ -1918,6 +2036,9 @@ void proto_register_edonkey(void) {
 	{ &hf_emule_multipacket_opcode,
 	  { "MultiPacket Opcode", "emule.multipacket_opcode",
 	    FT_UINT8, BASE_HEX, NULL, 0, "eMule MultiPacket Opcode", HFILL } },
+	{ &hf_emule_sourceOBFU,
+	  {"Source", "edonkey.source",
+	    FT_NONE, BASE_NONE, NULL, 0, "eDonkey File Source", HFILL } },
 	{ &hf_emule_source_count,
 	  { "Compeleted Sources Count", "emule.source_count",
 	    FT_UINT16, BASE_DEC, NULL, 0, "eMule Completed Sources Count", HFILL } },
@@ -1940,7 +2061,8 @@ void proto_register_edonkey(void) {
 		&ett_emule_aichhash,
 		&ett_emule_multipacket,
 		&ett_emule_zlib,
-		&ett_overnet_peer
+		&ett_overnet_peer,
+		&ett_emule_sourceOBFU
 	};
 	module_t *edonkey_module;
 

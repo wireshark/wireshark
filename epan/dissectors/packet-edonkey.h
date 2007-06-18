@@ -52,6 +52,7 @@ void proto_register_edonkey(void);
 #define EDONKEY_MSG_CLIENT_CB_REQ        0x1c
 /* define EDONKEY_MSG_UNKNOWN            0x20 */
 #define EDONKEY_MSG_MORE_RESULTS         0x21
+#define EDONKEY_MSG_GET_SOURCES_OBFU	 0x23
 #define EDONKEY_MSG_SERVER_LIST          0x32
 #define EDONKEY_MSG_SEARCH_FILE_RESULTS  0x33
 #define EDONKEY_MSG_SERVER_STATUS        0x34
@@ -62,6 +63,7 @@ void proto_register_edonkey(void);
 #define EDONKEY_MSG_SERVER_INFO_DATA     0x41
 #define EDONKEY_MSG_FOUND_SOURCES        0x42
 #define EDONKEY_MSG_SEARCH_USER_RESULTS  0x43
+#define EDONKEY_MSG_FOUND_SOURCES_OBFU	 0x44
 
 /* Client <-> Client */
 #define EDONKEY_MSG_HELLO_CLIENT         0x10 /* 0x01 0x10 */
@@ -103,6 +105,9 @@ void proto_register_edonkey(void);
 #define EMULE_MSG_QUEUE_RANKING          0x60
 #define EMULE_MSG_SOURCES_REQUEST        0x81
 #define EMULE_MSG_SOURCES_ANSWER         0x82
+#define EMULE_MSG_PUBLIC_KEY             0x85
+#define EMULE_MSG_SIGNATURE              0x86
+#define EMULE_MSG_SEC_IDENT_STATE	 0x87
 #define EMULE_MSG_MULTIPACKET            0x92
 #define EMULE_MSG_MULTIPACKET_ANSWER     0x93
 #define EMULE_MSG_AICH_REQUEST           0x9b
