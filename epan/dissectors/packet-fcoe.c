@@ -1,3 +1,4 @@
+
 /*
  * packet-fcoe.c
  * Routines for FCoE dissection - Fibre Channel over Ethernet
@@ -106,11 +107,8 @@ static int hf_fcoe_crc_good    = -1;
 static int ett_fcoe            = -1;
 static int ett_fcoe_crc        = -1;
 
-static guint fcoe_ethertype    = ETHERTYPE_FCOE;
-
 static dissector_handle_t data_handle;
 static dissector_handle_t fc_handle;
-static void fcoe_apply_prefs(void);
 
 static void
 dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -285,7 +283,6 @@ proto_register_fcoe(void)
         &ett_fcoe,
         &ett_fcoe_crc
     };
-    module_t *fcoe_module;
 
     /* Register the protocol name and description */
     proto_fcoe = proto_register_protocol("Fibre Channel over Ethernet",
@@ -295,44 +292,19 @@ proto_register_fcoe(void)
      * subtrees used */
     proto_register_field_array(proto_fcoe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    fcoe_module = prefs_register_protocol(proto_fcoe, fcoe_apply_prefs);
-    prefs_register_uint_preference(fcoe_module,
-                                   "ethertype",
-                                   "Ether Type",
-                                   "ethernet type number used for FCOE",
-                                   16,
-                                   &fcoe_ethertype);
-}
-
-static void
-fcoe_apply_prefs(void)
-{
-    static guint active_ethertype = 0;
-    static dissector_handle_t fcoe_handle;
-    
-    if (fcoe_handle == 0) {
-        fcoe_handle = create_dissector_handle(dissect_fcoe, proto_fcoe);
-    }
-    if (active_ethertype != fcoe_ethertype) {
-        if (active_ethertype != 0) {
-            dissector_delete("ethertype", active_ethertype, fcoe_handle);
-        }
-        if (fcoe_handle != 0) {
-            dissector_add("ethertype", fcoe_ethertype, fcoe_handle);
-            active_ethertype = fcoe_ethertype;
-        }
-    }
-    data_handle = find_dissector("data");
-    fc_handle = find_dissector("fc");
 }
 
 /*
- * This format is required because a script is used to find these
+ * This function name is required because a script is used to find these
  * routines and create the code that calls these routines.
  */
 void
 proto_reg_handoff_fcoe(void)
 {
-    fcoe_apply_prefs();
+    dissector_handle_t fcoe_handle;
+    
+    fcoe_handle = create_dissector_handle(dissect_fcoe, proto_fcoe);
+    dissector_add("ethertype", ETHERTYPE_FCOE, fcoe_handle);
+    data_handle = find_dissector("data");
+    fc_handle = find_dissector("fc");
 }
