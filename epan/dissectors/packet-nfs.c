@@ -345,7 +345,7 @@ static int hf_nfs_r_netid = -1;
 static int hf_nfs_r_addr = -1;
 
 /* Hidden field for v2, v3, and v4 status */
-static int hf_nfs_nfsstat = -1;
+       int hf_nfs_nfsstat = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
