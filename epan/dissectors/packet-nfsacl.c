@@ -39,8 +39,6 @@ static int hf_nfsacl_procedure_v3 = -1;
 static int hf_nfsacl_entry = -1;
 static int hf_nfsacl_aclcnt = -1;
 static int hf_nfsacl_dfaclcnt = -1;
-static int hf_nfsacl2_status = -1;
-static int hf_nfsacl3_status = -1;
 static int hf_nfsacl_aclent = -1;
 static int hf_nfsacl_aclent_type = -1;
 static int hf_nfsacl_aclent_uid = -1;
@@ -266,7 +264,7 @@ dissect_nfsacl2_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
@@ -297,7 +295,7 @@ dissect_nfsacl2_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
@@ -343,7 +341,7 @@ dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
@@ -374,7 +372,7 @@ dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, int offset,
 
 	status = tvb_get_ntohl(tvb, offset + 0);
 
-	proto_tree_add_uint(tree, hf_nfsacl2_status, tvb, offset + 0, 4, status);
+	proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4, status);
 
 	offset += 4;
 
@@ -433,7 +431,7 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	status = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_uint(tree, hf_nfsacl3_status, tvb, offset + 0, 4,
+		proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4,
 				status);
 
 	offset += 4;
@@ -490,7 +488,7 @@ dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 status = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_uint(tree, hf_nfsacl3_status, tvb, offset + 0, 4,
+		proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4,
 				status);
 
 	offset += 4;
@@ -520,7 +518,7 @@ dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset,
 	status = tvb_get_ntohl(tvb, offset + 0);
 
 	if (tree)
-		proto_tree_add_uint(tree, hf_nfsacl3_status, tvb, offset + 0, 4,
+		proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb, offset + 0, 4,
 				status);
 
 	offset += 4;
@@ -550,16 +548,6 @@ static const value_string nfsacl3_proc_vals[] = {
 	{ NFSACLPROC3_GETACL,	"GETACL" },
 	{ NFSACLPROC3_SETACL,	"SETACL" },
 	{ 0,	NULL }
-};
-
-static const value_string names_nfsacl2_status[] = {
-	{ ACL2_OK, "ACL2_OK" },
-	{ 0, NULL }
-};
-
-static const value_string names_nfsacl3_status[] = {
-	{ ACL3_OK,	"ACL3_OK" },
-	{ 0, NULL }
 };
 
 static struct true_false_string yesno = { "Yes", "No" };
@@ -600,13 +588,6 @@ proto_register_nfsacl(void)
 			"Permissions", "nfsacl.aclent.perm", FT_UINT32, BASE_DEC,
 			NULL, 0, "Permissions", HFILL }},
 			/* V2 */
-		{ &hf_nfsacl2_status, {
-			"Status", "nfsacl.status2", FT_UINT32, BASE_DEC,
-			VALS(names_nfsacl2_status), 0, "Status", HFILL }},
-			/* V3 */
-		{ &hf_nfsacl3_status, {
-			"Status", "nfsacl.status3", FT_UINT32, BASE_DEC,
-			VALS(names_nfsacl3_status), 0, "Status", HFILL }},
 		{ &hf_nfsacl_create, {
 			"create", "nfsacl.create", FT_BOOLEAN, BASE_NONE,
 			&yesno, 0, "Create?", HFILL }},
