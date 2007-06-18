@@ -87,6 +87,7 @@
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/inet_aton.h>
+#include <ctype.h>
 #include <isprint.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
