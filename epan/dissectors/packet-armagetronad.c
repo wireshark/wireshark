@@ -142,7 +142,7 @@ static gboolean is_armagetronad_packet(tvbuff_t * tvb)
 }
 
 static void
-add_message_data(tvbuff_t * tvb, gint offset, guint16 data_len,
+add_message_data(tvbuff_t * tvb, gint offset, gint data_len,
 		 proto_tree * tree)
 {
 	guchar *data = NULL;
