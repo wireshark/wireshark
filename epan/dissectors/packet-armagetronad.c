@@ -55,9 +55,8 @@ static gint ett_message = -1;
 #define ACK 1
 
 /*
- * CVS as of 05/05/2005
- * The list in src/network/Makefile.in does not seem up to date,
- * so the numbers and names were retrieved at runtime using the
+ * armagetronad-0.2.8.2.1
+ * The numbers and names were retrieved at runtime using the
  * 'nDescriptor* descriptors[MAXDESCRIPTORS]' array
  */
 static value_string descriptors[] = {
@@ -87,14 +86,19 @@ static value_string descriptors[] = {
 	{51, "big_server"},
 	{52, "small_request"},
 	{53, "big_request"},
+	{54, "big_server_master"},
+	{55, "big_request_master"},
 	{60, "transfer config"},
 	{200, "Chat"},
 	{201, "ePlayerNetID"},
 	{202, "player_removed_from_game"},
+	{203, "Chat Client"},
 	{210, "eTimer"},
 	{220, "eTeam"},
 	{230, "vote cast"},
-	{231, "Chat"},
+	{231, "Kick vote"},
+	{232, "Server controlled vote"},
+	{233, "Server controlled vote expired"},
 	{300, "gNetPlayerWall"},
 	{310, "game"},
 	{311, "client_gamestate"},
@@ -102,7 +106,7 @@ static value_string descriptors[] = {
 	{321, "destinaton"},
 	{330, "gAIPlayer"},
 	{331, "gAITeam"},
-	{340, "winzone"},
+	{340, "zone"},
 	{0, NULL}
 };
 
@@ -112,7 +116,7 @@ static gboolean is_armagetronad_packet(tvbuff_t * tvb)
 
 	/* For each message in the frame */
 	while (tvb_length_remaining(tvb, offset) > 2) {
-		guint16 data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
+		gint data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
 
 #if 0
 		/*
@@ -141,15 +145,16 @@ static void
 add_message_data(tvbuff_t * tvb, gint offset, guint16 data_len,
 		 proto_tree * tree)
 {
-	guint16 *data = NULL;
+	guchar *data = NULL;
 
 	if (tree) {
-		data = (guint16*)tvb_memcpy(tvb, ep_alloc(data_len), offset, data_len);
+		data = tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
+		data[data_len] = '\0';
 	}
 
 	if (data) {
-		guint16 *ptr, *end = &data[data_len / 2];
-		for (ptr = data; ptr != end; ptr++) {
+		guint16 *ptr, *end = (guint16*) &data[data_len];
+		for (ptr = (guint16*) data; ptr != end; ptr++) {
 			/*
 			 * There must be a better way to tell
 			 * Wireshark not to stop on null bytes
@@ -168,8 +173,6 @@ add_message_data(tvbuff_t * tvb, gint offset, guint16 data_len,
 
 		proto_tree_add_string(tree, hf_armagetronad_data, tvb, offset,
 				      data_len, (gchar *) data);
-
-		data = NULL;
 	} else
 		proto_tree_add_item(tree, hf_armagetronad_data, tvb, offset,
 				    data_len, FALSE);
@@ -178,7 +181,8 @@ add_message_data(tvbuff_t * tvb, gint offset, guint16 data_len,
 static gint add_message(tvbuff_t * tvb, gint offset, proto_tree * tree,
 			GString * info)
 {
-	guint16 descriptor_id, message_id, data_len;
+	guint16 descriptor_id, message_id;
+	gint data_len;
 	proto_item *msg;
 	proto_tree *msg_tree;
 	const gchar *descriptor;
