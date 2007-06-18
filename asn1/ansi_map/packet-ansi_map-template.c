@@ -551,6 +551,8 @@ const value_string ansi_map_opr_code_strings[] = {
     { 98,	"Roamer Database Verification Request" },
     { 99,	"Add Service" },
     { 100,	"Drop Service" },
+	{ 102,	"LCSParameterRequest" },
+	{ 106,	"PositionEventNotification" },
     { 0, NULL },
 };
 
@@ -865,6 +867,9 @@ static const value_string ansi_map_ActionCode_vals[]  = {
     {   18, "Allocate Resources (e.g., Multiple message traffic channel delivery)."},
     {   19, "Generate Authentication Signature"},
     {   20, "Release leg and redirect subscriber"},
+	{	21, "Do Not Wait For MS User Level Response"},
+	{	22, "Prepare for CDMA Handset-Based Position Determination"},
+	{	23, "CDMA Handset-Based Position Determination Complete"},
 	{	0, NULL }
 };
 /* 6.5.2.3 AlertCode */
@@ -2350,6 +2355,13 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   4, "Invalid Teleservice ID"},
     {   5, "Other network problem"},
     {   6, "Unsupported network interface"},
+    {   8, "CDMA handset-based position determination failure"},
+    {   9, "CDMA handset-based position determination resources released - voice service request"},
+    {   10, "CDMA handset-based position determination resources released - voice service request – message acknowledged"},
+    {   11, "Reserved"},
+    {   12, "Reserved"},
+    {   13, "Reserved"},
+    {   14, "Emergency Services Call Precedence"},
     {   32, "No page response"},
     {   33, "Destination busy"},
     {   34, "No acknowledgment"},
@@ -2375,6 +2387,8 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   106, "User Data size error"},
     {   107, "Other general problems"},
     {   108, "Session not active"},
+    {   109, "Reserved"},
+    {   110, "MS Disconnect"},
 	{	0, NULL }
 };
 
@@ -3437,8 +3451,84 @@ reserved for national use values.
 
 /* 6.5.2.gr CDMAServiceOptionConnectionIdentifier N.S0029-0 v1.0*/
 
+/* 6.5.2.fk GeographicPosition */
+/* Calling Geodetic Location (CGL)
+ * a. See T1.628 for encoding.
+ * b. Ignore extra octets, if received. Send only defined (or significant) octets.
+ */
+/* 6.5.2.fs PositionRequestType (See J-STD-036, page 8-47) X.S0002-0 v2.0
+ */
 
+/* Position Request Type (octet 1, bits A-H) */
+/*
+static const value_string ansi_map_Position_Request_Type_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Initial Position"},
+    {   2, "Return the updated position"},
+    {   3, "Return the updated or last known position"},
+    {   4, "Reserved for LSP interface"},
+    {   5, "Initial Position Only"},
+    {   6, "Return the last known position"},
+    {   7, "Return the updated position based on the serving cell identity"},
+*/
+/*
+values through 95 Reserved. Treat the same as value 1, Initial position.
+96 through 255 Reserved for TIA/EIA-41 protocol extension. If unknown, treat the
+same as value 1, Initial position.
+*
+	{	0, NULL }
+};
 
+*/
+
+/* LCS Client Type (CTYP) (octet 2, bit A) *
+0 Emergency services LCS Client.
+1 Non-emergency services LCS Client.
+Call-Related Indicator (CALL) (octet 2, bit B)
+Decimal Value Meaning
+0 Call-related LCS Client request.
+1 Non call-related LCS Client request.
+
+Current Serving Cell Information for Coarse Position Determination (CELL) (octet 2, bit C)
+Decimal Value Meaning
+0 No specific request.
+1 Current serving cell information. Current serving cell information for
+Target MS requested. Radio contact with Target MS is required.
+*/
+/* 6.5.2.ft PositionResult *
+static const value_string ansi_map_PositionResult_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Initial position returned"},
+    {   2, "Updated position returned"},
+    {   3, "Last known position returned"},
+    {   4, "Requested position is not available"},
+    {   5, "Target MS disconnect"},
+    {   6, "Target MS has handed-off"},
+    {   7, "Identified MS is inactive or has roamed to another system"},
+    {   8, "Unresponsive"},
+    {   9, "Identified MS is responsive, but refused position request"},
+    {   10, "System Failure"},
+    {   11, "MSID is not known"},
+    {   12, "Callback number is not known"},
+    {   13, "Improper request"},
+    {   14, "Mobile information returned"},
+    {   15, "Signal not detected"},
+    {   16, "PDE Timeout"},
+    {   17, "Position pending"},
+    {   18, "TDMA MAHO Information Returned"},
+    {   19, "TDMA MAHO Information is not available"},
+    {   20, "Access Denied"},
+    {   21, "Requested PQOS not met"},
+    {   22, "Resource required for CDMA handset-based position determination is currently unavailable"},
+    {   23, "CDMA handset-based position determination failure"},
+    {   24, "CDMA handset-based position determination failure detected by the PDE"},
+    {   25, "CDMA handset-based position determination incomplete traffic channel requested for voice services"},
+    {   26, "Emergency services call notification"},
+    {   27, "Emergency services call precedence"},
+    {   28, "Request acknowledged"},
+	{	0, NULL }
+};
+*/
 /* 6.5.2.bp-1 ServiceRedirectionCause value */
 static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   0, "Not used"},
@@ -3497,6 +3587,9 @@ static const value_string ansi_map_ServiceIndicator_vals[]  = {
     {   1, "CDMA OTASP Service"},
     {   2, "TDMA OTASP Service"},
     {   3, "CDMA OTAPA Service"},
+    {   4, "CDMA Position Determination Service (Emergency Services)"},
+    {   5, "AMPS Position Determination Service (Emergency Services)"},
+    {   6, "CDMA Position Determination Service (Value Added Services)"},
 	{	0, NULL }
 };
 
@@ -3842,14 +3935,31 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  98: /*Roamer Database Verification Request*/
 	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_roamerDatabaseVerificationRequest);
 	  break;
-	  /* N.S0029 */
+	  /* N.S0029 X.S0001-A v1.0*/
   case  99: /*Add Service*/
 	  offset = dissect_ansi_map_AddService(TRUE, tvb, offset, actx, tree, hf_ansi_map_addService);
 	  break;
   case  100: /*Drop Service*/
 	  offset = dissect_ansi_map_DropService(TRUE, tvb, offset, actx, tree, hf_ansi_map_dropService);
 	  break;
-	  /*End N.S0029 */
+	  /*End N.S0029 X.S0001-A v1.0*/
+	  /* X.S0002-0 v1.0 */
+	  /* LCSParameterRequest */
+  case 102:
+	  offset = dissect_ansi_map_LCSParameterRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_lcsParameterRequest);
+	  break;
+	  /* CheckMEID X.S0008-0 v1.0*/
+  case 104:
+	  offset = dissect_ansi_map_CheckMEID(TRUE, tvb, offset, actx, tree, hf_ansi_map_checkMEID);
+	  break;	
+	  /* PositionEventNotification */
+  case 106:
+  	  offset = dissect_ansi_map_PositionEventNotification(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionEventNotification);
+	  break;
+  case 107:
+	 /* StatusRequest X.S0008-0 v1.0*/
+ 	  offset = dissect_ansi_map_StatusRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequest);
+	 break;
   default:
 	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
 	  break;
@@ -4046,6 +4156,24 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	  offset = dissect_ansi_map_DropServiceRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_dropServiceRes);
 	  break;
 	  /*End N.S0029 */
+	  /* X.S0002-0 v1.0 */
+	  /* LCSParameterRequest */
+  case 102:
+	  offset = dissect_ansi_map_LCSParameterRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_lcsParameterRequestRes);
+	  break;
+	  /* CheckMEID X.S0008-0 v1.0*/
+  case 104:
+	  offset = dissect_ansi_map_CheckMEIDRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_checkMEIDRes);
+	  break;	
+	  /* PositionEventNotification *
+  case 106:
+  	  offset = dissect_ansi_map_PositionEventNotification(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionEventNotificationRes);
+	  break;
+	  */
+  case 107:
+	 /* StatusRequest X.S0008-0 v1.0*/
+ 	  offset = dissect_ansi_map_StatusRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequestRes);
+	 break;
 
  default:
 	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");

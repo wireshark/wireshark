@@ -367,6 +367,7 @@ static int hf_ansi_map_denyAccess = -1;           /* DenyAccess */
 static int hf_ansi_map_destinationDigits = -1;    /* DestinationDigits */
 static int hf_ansi_map_locationAreaID = -1;       /* LocationAreaID */
 static int hf_ansi_map_randomVariableReauthentication = -1;  /* RandomVariableReauthentication */
+static int hf_ansi_map_meid = -1;                 /* MEID */
 static int hf_ansi_map_mobileStationMIN = -1;     /* MobileStationMIN */
 static int hf_ansi_map_mscid = -1;                /* MSCID */
 static int hf_ansi_map_randomVariableSSD = -1;    /* RandomVariableSSD */
@@ -493,6 +494,7 @@ static int hf_ansi_map_resumePIC = -1;            /* ResumePIC */
 static int hf_ansi_map_terminationList = -1;      /* TerminationList */
 static int hf_ansi_map_terminationTriggers = -1;  /* TerminationTriggers */
 static int hf_ansi_map_triggerAddressList = -1;   /* TriggerAddressList */
+static int hf_ansi_map_emergencyServicesRoutingDigits = -1;  /* EmergencyServicesRoutingDigits */
 static int hf_ansi_map_targetCellIDList = -1;     /* TargetCellIDList */
 static int hf_ansi_map_signalQuality = -1;        /* SignalQuality */
 static int hf_ansi_map_targetMeasurementList = -1;  /* TargetMeasurementList */
@@ -554,10 +556,13 @@ static int hf_ansi_map_availabilityType = -1;     /* AvailabilityType */
 static int hf_ansi_map_borderCellAccess = -1;     /* BorderCellAccess */
 static int hf_ansi_map_msc_Address = -1;          /* MSC_Address */
 static int hf_ansi_map_sms_Address = -1;          /* SMS_Address */
+static int hf_ansi_map_mpcAddress = -1;           /* MPCAddress */
+static int hf_ansi_map_mpcAddressList = -1;       /* MPCAddressList */
 static int hf_ansi_map_digits_Carrier = -1;       /* Digits */
 static int hf_ansi_map_authenticationCapability = -1;  /* AuthenticationCapability */
 static int hf_ansi_map_callingFeaturesIndicator = -1;  /* CallingFeaturesIndicator */
 static int hf_ansi_map_geographicAuthorization = -1;  /* GeographicAuthorization */
+static int hf_ansi_map_meidValidated = -1;        /* MEIDValidated */
 static int hf_ansi_map_originationIndicator = -1;  /* OriginationIndicator */
 static int hf_ansi_map_restrictionDigits = -1;    /* RestrictionDigits */
 static int hf_ansi_map_sms_OriginationRestrictions = -1;  /* SMS_OriginationRestrictions */
@@ -580,12 +585,14 @@ static int hf_ansi_map_sms_OriginalOriginatingAddress = -1;  /* SMS_OriginalOrig
 static int hf_ansi_map_sms_OriginalOriginatingSubaddress = -1;  /* SMS_OriginalOriginatingSubaddress */
 static int hf_ansi_map_sms_OriginatingAddress = -1;  /* SMS_OriginatingAddress */
 static int hf_ansi_map_sms_CauseCode = -1;        /* SMS_CauseCode */
+static int hf_ansi_map_cdmaServingOneWayDelay2 = -1;  /* CDMAServingOneWayDelay2 */
 static int hf_ansi_map_interMessageTime = -1;     /* InterMessageTime */
-static int hf_ansi_map_newlyAssignedMIN = -1;     /* NewlyAssignedMIN */
 static int hf_ansi_map_newlyAssignedIMSI = -1;    /* NewlyAssignedIMSI */
+static int hf_ansi_map_newlyAssignedMIN = -1;     /* NewlyAssignedMIN */
 static int hf_ansi_map_newMINExtension = -1;      /* NewMINExtension */
 static int hf_ansi_map_sms_MessageCount = -1;     /* SMS_MessageCount */
 static int hf_ansi_map_sms_NotificationIndicator = -1;  /* SMS_NotificationIndicator */
+static int hf_ansi_map_teleservice_Priority = -1;  /* Teleservice_Priority */
 static int hf_ansi_map_temporaryReferenceNumber = -1;  /* TemporaryReferenceNumber */
 static int hf_ansi_map_mobileStationMSID = -1;    /* MobileStationMSID */
 static int hf_ansi_map_sms_AccessDeniedReason = -1;  /* SMS_AccessDeniedReason */
@@ -617,13 +624,36 @@ static int hf_ansi_map_callRecoveryIDList = -1;   /* CallRecoveryIDList */
 static int hf_ansi_map_positionInformationCode = -1;  /* PositionInformationCode */
 static int hf_ansi_map_mSStatus = -1;             /* MSStatus */
 static int hf_ansi_map_pSID_RSIDInformation = -1;  /* PSID_RSIDInformation */
+static int hf_ansi_map_positionRequestType = -1;  /* PositionRequestType */
+static int hf_ansi_map_lcsBillingID = -1;         /* LCSBillingID */
+static int hf_ansi_map_lcs_Client_ID = -1;        /* LCS_Client_ID */
+static int hf_ansi_map_mobilePositionCapability = -1;  /* MobilePositionCapability */
+static int hf_ansi_map_dtxIndication = -1;        /* DTXIndication */
+static int hf_ansi_map_cdmaCodeChannel = -1;      /* CDMACodeChannel */
+static int hf_ansi_map_cdmaMobileCapabilities = -1;  /* CDMAMobileCapabilities */
+static int hf_ansi_map_cdmaPSMMList = -1;         /* CDMAPSMMList */
+static int hf_ansi_map_tdma_MAHO_CELLID = -1;     /* TDMA_MAHO_CELLID */
+static int hf_ansi_map_tdma_MAHO_CHANNEL = -1;    /* TDMA_MAHO_CHANNEL */
+static int hf_ansi_map_tdma_TimeAlignment = -1;   /* TDMA_TimeAlignment */
+static int hf_ansi_map_pqos_HorizontalPosition = -1;  /* PQOS_HorizontalPosition */
+static int hf_ansi_map_pqos_HorizontalVelocity = -1;  /* PQOS_HorizontalVelocity */
+static int hf_ansi_map_pqos_MaximumPositionAge = -1;  /* PQOS_MaximumPositionAge */
+static int hf_ansi_map_pqos_PositionPriority = -1;  /* PQOS_PositionPriority */
+static int hf_ansi_map_pqos_ResponseTime = -1;    /* PQOS_ResponseTime */
+static int hf_ansi_map_pqos_VerticalPosition = -1;  /* PQOS_VerticalPosition */
+static int hf_ansi_map_pqos_VerticalVelocity = -1;  /* PQOS_VerticalVelocity */
+static int hf_ansi_map_cdmaPSMMCount = -1;        /* CDMAPSMMCount */
+static int hf_ansi_map_lirAuthorization = -1;     /* LIRAuthorization */
+static int hf_ansi_map_mpcid = -1;                /* MPCID */
+static int hf_ansi_map_positionResult = -1;       /* PositionResult */
+static int hf_ansi_map_positionInformation = -1;  /* PositionInformation */
 static int hf_ansi_map_controlType = -1;          /* ControlType */
 static int hf_ansi_map_destinationAddress = -1;   /* DestinationAddress */
 static int hf_ansi_map_gapDuration = -1;          /* GapDuration */
 static int hf_ansi_map_gapInterval = -1;          /* GapInterval */
 static int hf_ansi_map_invokingNEType = -1;       /* InvokingNEType */
 static int hf_ansi_map_range = -1;                /* Range */
-static int hf_ansi_map_ctionCode = -1;            /* ActionCode */
+static int hf_ansi_map_meidStatus = -1;           /* MEIDStatus */
 static int hf_ansi_map_aKeyProtocolVersion = -1;  /* AKeyProtocolVersion */
 static int hf_ansi_map_mobileStationPartialKey = -1;  /* MobileStationPartialKey */
 static int hf_ansi_map_newlyAssignedMSID = -1;    /* NewlyAssignedMSID */
@@ -631,9 +661,10 @@ static int hf_ansi_map_baseStationPartialKey = -1;  /* BaseStationPartialKey */
 static int hf_ansi_map_modulusValue = -1;         /* ModulusValue */
 static int hf_ansi_map_otasp_ResultCode = -1;     /* OTASP_ResultCode */
 static int hf_ansi_map_primitiveValue = -1;       /* PrimitiveValue */
+static int hf_ansi_map_record_Type = -1;          /* Record_Type */
+static int hf_ansi_map_information_Record = -1;   /* Information_Record */
 static int hf_ansi_map_announcementCode1 = -1;    /* AnnouncementCode */
 static int hf_ansi_map_announcementCode2 = -1;    /* AnnouncementCode */
-static int hf_ansi_map_cdmaCodeChannel = -1;      /* CDMACodeChannel */
 static int hf_ansi_map_cdmaPilotPN = -1;          /* CDMAPilotPN */
 static int hf_ansi_map_cdmaPowerCombinedIndicator = -1;  /* CDMAPowerCombinedIndicator */
 static int hf_ansi_map_CDMACodeChannelList_item = -1;  /* CDMACodeChannelInformation */
@@ -642,6 +673,7 @@ static int hf_ansi_map_cdmaTargetOneWayDelay = -1;  /* CDMATargetOneWayDelay */
 static int hf_ansi_map_CDMATargetMAHOList_item = -1;  /* CDMATargetMAHOInformation */
 static int hf_ansi_map_cdmaSignalQuality = -1;    /* CDMASignalQuality */
 static int hf_ansi_map_CDMATargetMeasurementList_item = -1;  /* CDMATargetMeasurementInformation */
+static int hf_ansi_map_lirMode = -1;              /* LIRMode */
 static int hf_ansi_map_TargetMeasurementList_item = -1;  /* TargetMeasurementInformation */
 static int hf_ansi_map_TerminationList_item = -1;  /* TerminationList_item */
 static int hf_ansi_map_intersystemTermination = -1;  /* IntersystemTermination */
@@ -689,8 +721,16 @@ static int hf_ansi_map_wINOperationsCapability = -1;  /* WINOperationsCapability
 static int hf_ansi_map_detectionPointType = -1;   /* DetectionPointType */
 static int hf_ansi_map_WIN_TriggerList_item = -1;  /* WIN_Trigger */
 static int hf_ansi_map_CallRecoveryIDList_item = -1;  /* CallRecoveryID */
+static int hf_ansi_map_generalizedTime = -1;      /* GeneralizedTime */
+static int hf_ansi_map_geographicPosition = -1;   /* GeographicPosition */
+static int hf_ansi_map_positionSource = -1;       /* PositionSource */
+static int hf_ansi_map_horizontal_Velocity = -1;  /* Horizontal_Velocity */
+static int hf_ansi_map_vertical_Velocity = -1;    /* Vertical_Velocity */
 static int hf_ansi_map_sCFOverloadGapInterval = -1;  /* SCFOverloadGapInterval */
 static int hf_ansi_map_serviceManagementSystemGapInterval = -1;  /* ServiceManagementSystemGapInterval */
+static int hf_ansi_map_CDMAPSMMList_item = -1;    /* CDMAPSMMList_item */
+static int hf_ansi_map_cdmaTargetMAHOList2 = -1;  /* CDMATargetMAHOList */
+static int hf_ansi_map_mpcAddress2 = -1;          /* MPCAddress */
 static int hf_ansi_map_mobileStationIMSI = -1;    /* MobileStationIMSI */
 static int hf_ansi_map_handoffMeasurementRequest = -1;  /* HandoffMeasurementRequest */
 static int hf_ansi_map_facilitiesDirective = -1;  /* FacilitiesDirective */
@@ -775,6 +815,10 @@ static int hf_ansi_map_aCGDirective = -1;         /* ACGDirective */
 static int hf_ansi_map_roamerDatabaseVerificationRequest = -1;  /* RoamerDatabaseVerificationRequest */
 static int hf_ansi_map_addService = -1;           /* AddService */
 static int hf_ansi_map_dropService = -1;          /* DropService */
+static int hf_ansi_map_lcsParameterRequest = -1;  /* LCSParameterRequest */
+static int hf_ansi_map_checkMEID = -1;            /* CheckMEID */
+static int hf_ansi_map_positionEventNotification = -1;  /* PositionEventNotification */
+static int hf_ansi_map_statusRequest = -1;        /* StatusRequest */
 static int hf_ansi_map_handoffMeasurementRequestRes = -1;  /* HandoffMeasurementRequestRes */
 static int hf_ansi_map_facilitiesDirectiveRes = -1;  /* FacilitiesDirectiveRes */
 static int hf_ansi_map_handoffBackRes = -1;       /* HandoffBackRes */
@@ -835,6 +879,9 @@ static int hf_ansi_map_positionRequestForwardRes = -1;  /* PositionRequestForwar
 static int hf_ansi_map_roamerDatabaseVerificationRequestRes = -1;  /* RoamerDatabaseVerificationRequestRes */
 static int hf_ansi_map_addServiceRes = -1;        /* AddServiceRes */
 static int hf_ansi_map_dropServiceRes = -1;       /* DropServiceRes */
+static int hf_ansi_map_lcsParameterRequestRes = -1;  /* LCSParameterRequestRes */
+static int hf_ansi_map_checkMEIDRes = -1;         /* CheckMEIDRes */
+static int hf_ansi_map_statusRequestRes = -1;     /* StatusRequestRes */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
 #line 325 "packet-ansi_map-template.c"
@@ -1015,15 +1062,27 @@ static gint ett_ansi_map_PositionRequest = -1;
 static gint ett_ansi_map_PositionRequestRes = -1;
 static gint ett_ansi_map_PositionRequestForward = -1;
 static gint ett_ansi_map_PositionRequestForwardRes = -1;
+static gint ett_ansi_map_GeoPositionRequest = -1;
+static gint ett_ansi_map_InterSystemPositionRequest = -1;
+static gint ett_ansi_map_InterSystemPositionRequestRes = -1;
+static gint ett_ansi_map_InterSystemPositionRequestForward = -1;
+static gint ett_ansi_map_InterSystemPositionRequestForwardRes = -1;
 static gint ett_ansi_map_ACGDirective = -1;
 static gint ett_ansi_map_RoamerDatabaseVerificationRequest = -1;
 static gint ett_ansi_map_RoamerDatabaseVerificationRequestRes = -1;
+static gint ett_ansi_map_LCSParameterRequest = -1;
+static gint ett_ansi_map_LCSParameterRequestRes = -1;
+static gint ett_ansi_map_CheckMEID = -1;
+static gint ett_ansi_map_CheckMEIDRes = -1;
 static gint ett_ansi_map_AddService = -1;
 static gint ett_ansi_map_AddServiceRes = -1;
 static gint ett_ansi_map_DropService = -1;
 static gint ett_ansi_map_DropServiceRes = -1;
+static gint ett_ansi_map_PositionEventNotification = -1;
 static gint ett_ansi_map_OTASPRequest = -1;
 static gint ett_ansi_map_OTASPRequestRes = -1;
+static gint ett_ansi_map_StatusRequest = -1;
+static gint ett_ansi_map_StatusRequestRes = -1;
 static gint ett_ansi_map_AnnouncementList = -1;
 static gint ett_ansi_map_CDMACodeChannelInformation = -1;
 static gint ett_ansi_map_CDMACodeChannelList = -1;
@@ -1074,7 +1133,11 @@ static gint ett_ansi_map_WIN_Trigger = -1;
 static gint ett_ansi_map_WIN_TriggerList = -1;
 static gint ett_ansi_map_CallRecoveryID = -1;
 static gint ett_ansi_map_CallRecoveryIDList = -1;
+static gint ett_ansi_map_PositionInformation = -1;
 static gint ett_ansi_map_GapInterval = -1;
+static gint ett_ansi_map_CDMAPSMMList = -1;
+static gint ett_ansi_map_CDMAPSMMList_item = -1;
+static gint ett_ansi_map_MPCAddressList = -1;
 static gint ett_ansi_map_MobileStationMSID = -1;
 static gint ett_ansi_map_NewlyAssignedMSID = -1;
 static gint ett_ansi_map_InvokeData = -1;
@@ -1280,6 +1343,8 @@ const value_string ansi_map_opr_code_strings[] = {
     { 98,	"Roamer Database Verification Request" },
     { 99,	"Add Service" },
     { 100,	"Drop Service" },
+	{ 102,	"LCSParameterRequest" },
+	{ 106,	"PositionEventNotification" },
     { 0, NULL },
 };
 
@@ -1594,6 +1659,9 @@ static const value_string ansi_map_ActionCode_vals[]  = {
     {   18, "Allocate Resources (e.g., Multiple message traffic channel delivery)."},
     {   19, "Generate Authentication Signature"},
     {   20, "Release leg and redirect subscriber"},
+	{	21, "Do Not Wait For MS User Level Response"},
+	{	22, "Prepare for CDMA Handset-Based Position Determination"},
+	{	23, "CDMA Handset-Based Position Determination Complete"},
 	{	0, NULL }
 };
 /* 6.5.2.3 AlertCode */
@@ -3079,6 +3147,13 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   4, "Invalid Teleservice ID"},
     {   5, "Other network problem"},
     {   6, "Unsupported network interface"},
+    {   8, "CDMA handset-based position determination failure"},
+    {   9, "CDMA handset-based position determination resources released - voice service request"},
+    {   10, "CDMA handset-based position determination resources released - voice service request – message acknowledged"},
+    {   11, "Reserved"},
+    {   12, "Reserved"},
+    {   13, "Reserved"},
+    {   14, "Emergency Services Call Precedence"},
     {   32, "No page response"},
     {   33, "Destination busy"},
     {   34, "No acknowledgment"},
@@ -3104,6 +3179,8 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   106, "User Data size error"},
     {   107, "Other general problems"},
     {   108, "Session not active"},
+    {   109, "Reserved"},
+    {   110, "MS Disconnect"},
 	{	0, NULL }
 };
 
@@ -4166,8 +4243,84 @@ reserved for national use values.
 
 /* 6.5.2.gr CDMAServiceOptionConnectionIdentifier N.S0029-0 v1.0*/
 
+/* 6.5.2.fk GeographicPosition */
+/* Calling Geodetic Location (CGL)
+ * a. See T1.628 for encoding.
+ * b. Ignore extra octets, if received. Send only defined (or significant) octets.
+ */
+/* 6.5.2.fs PositionRequestType (See J-STD-036, page 8-47) X.S0002-0 v2.0
+ */
 
+/* Position Request Type (octet 1, bits A-H) */
+/*
+static const value_string ansi_map_Position_Request_Type_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Initial Position"},
+    {   2, "Return the updated position"},
+    {   3, "Return the updated or last known position"},
+    {   4, "Reserved for LSP interface"},
+    {   5, "Initial Position Only"},
+    {   6, "Return the last known position"},
+    {   7, "Return the updated position based on the serving cell identity"},
+*/
+/*
+values through 95 Reserved. Treat the same as value 1, Initial position.
+96 through 255 Reserved for TIA/EIA-41 protocol extension. If unknown, treat the
+same as value 1, Initial position.
+*
+	{	0, NULL }
+};
 
+*/
+
+/* LCS Client Type (CTYP) (octet 2, bit A) *
+0 Emergency services LCS Client.
+1 Non-emergency services LCS Client.
+Call-Related Indicator (CALL) (octet 2, bit B)
+Decimal Value Meaning
+0 Call-related LCS Client request.
+1 Non call-related LCS Client request.
+
+Current Serving Cell Information for Coarse Position Determination (CELL) (octet 2, bit C)
+Decimal Value Meaning
+0 No specific request.
+1 Current serving cell information. Current serving cell information for
+Target MS requested. Radio contact with Target MS is required.
+*/
+/* 6.5.2.ft PositionResult *
+static const value_string ansi_map_PositionResult_vals[]  = {
+    {   0, "Not used"},
+    {   1, "Initial position returned"},
+    {   2, "Updated position returned"},
+    {   3, "Last known position returned"},
+    {   4, "Requested position is not available"},
+    {   5, "Target MS disconnect"},
+    {   6, "Target MS has handed-off"},
+    {   7, "Identified MS is inactive or has roamed to another system"},
+    {   8, "Unresponsive"},
+    {   9, "Identified MS is responsive, but refused position request"},
+    {   10, "System Failure"},
+    {   11, "MSID is not known"},
+    {   12, "Callback number is not known"},
+    {   13, "Improper request"},
+    {   14, "Mobile information returned"},
+    {   15, "Signal not detected"},
+    {   16, "PDE Timeout"},
+    {   17, "Position pending"},
+    {   18, "TDMA MAHO Information Returned"},
+    {   19, "TDMA MAHO Information is not available"},
+    {   20, "Access Denied"},
+    {   21, "Requested PQOS not met"},
+    {   22, "Resource required for CDMA handset-based position determination is currently unavailable"},
+    {   23, "CDMA handset-based position determination failure"},
+    {   24, "CDMA handset-based position determination failure detected by the PDE"},
+    {   25, "CDMA handset-based position determination incomplete traffic channel requested for voice services"},
+    {   26, "Emergency services call notification"},
+    {   27, "Emergency services call precedence"},
+    {   28, "Request acknowledged"},
+	{	0, NULL }
+};
+*/
 /* 6.5.2.bp-1 ServiceRedirectionCause value */
 static const value_string ansi_map_ServiceRedirectionCause_vals[]  = {
     {   0, "Not used"},
@@ -4226,6 +4379,9 @@ static const value_string ansi_map_ServiceIndicator_vals[]  = {
     {   1, "CDMA OTASP Service"},
     {   2, "TDMA OTASP Service"},
     {   3, "CDMA OTAPA Service"},
+    {   4, "CDMA Position Determination Service (Emergency Services)"},
+    {   5, "AMPS Position Determination Service (Emergency Services)"},
+    {   6, "CDMA Position Determination Service (Value Added Services)"},
 	{	0, NULL }
 };
 
@@ -4769,6 +4925,16 @@ dissect_ansi_map_RandomVariableReauthentication(gboolean implicit_tag _U_, tvbuf
 
 
 static int
+dissect_ansi_map_MEID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_ansi_map_MobileStationMIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ansi_map_MINType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -4897,6 +5063,7 @@ static const ber_sequence_t AuthenticationDirective_set[] = {
   { &hf_ansi_map_destinationDigits, BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DestinationDigits },
   { &hf_ansi_map_locationAreaID, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LocationAreaID },
   { &hf_ansi_map_randomVariableReauthentication, BER_CLASS_CON, 191, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableReauthentication },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
   { &hf_ansi_map_mobileStationMIN, BER_CLASS_CON, 184, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileStationMIN },
   { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
   { &hf_ansi_map_randomVariableSSD, BER_CLASS_CON, 42, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RandomVariableSSD },
@@ -5583,6 +5750,7 @@ static const ber_sequence_t AuthenticationStatusReport_set[] = {
   { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
   { &hf_ansi_map_systemCapabilities, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemCapabilities },
   { &hf_ansi_map_countUpdateReport, BER_CLASS_CON, 138, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CountUpdateReport },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
   { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
   { &hf_ansi_map_reauthenticationReport, BER_CLASS_CON, 192, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReauthenticationReport },
   { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
@@ -6932,6 +7100,7 @@ static const value_string ansi_map_AccessDeniedReason_vals[] = {
   {   8, "services-Rejected-by-the-System" },
   {   9, "service-Type-Mismatch" },
   {  10, "service-Denied" },
+  {  12, "position-Determination-Not-Supported" },
   { 0, NULL }
 };
 
@@ -7386,13 +7555,13 @@ dissect_ansi_map_GlobalTitle(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static const value_string ansi_map_DestinationAddress_vals[] = {
-  { 389, "globalTitle" },
+  { 261, "globalTitle" },
   {  32, "pC-SSN" },
   { 0, NULL }
 };
 
 static const ber_choice_t DestinationAddress_choice[] = {
-  { 389, &hf_ansi_map_globalTitle, BER_CLASS_CON, 389, BER_FLAGS_IMPLTAG, dissect_ansi_map_GlobalTitle },
+  { 261, &hf_ansi_map_globalTitle, BER_CLASS_CON, 261, BER_FLAGS_IMPLTAG, dissect_ansi_map_GlobalTitle },
   {  32, &hf_ansi_map_pC_SSN     , BER_CLASS_CON, 32, BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -7592,7 +7761,7 @@ static const ber_sequence_t FeatureRequestRes_set[] = {
   { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
   { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
@@ -7609,12 +7778,22 @@ dissect_ansi_map_FeatureRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+
+static int
+dissect_ansi_map_EmergencyServicesRoutingDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
 static const ber_sequence_t FlashRequest_set[] = {
   { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
   { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
   { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
   { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_emergencyServicesRoutingDigits, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_EmergencyServicesRoutingDigits },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -8260,7 +8439,8 @@ dissect_ansi_map_MSIDUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_ansi_map_NetworkTMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
@@ -9033,7 +9213,7 @@ static const ber_sequence_t OriginationRequestRes_set[] = {
   { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
   { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
@@ -9476,6 +9656,30 @@ dissect_ansi_map_SMS_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
+
+static int
+dissect_ansi_map_MPCAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t MPCAddressList_set[] = {
+  { &hf_ansi_map_mpcAddress , BER_CLASS_CON, 370, BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddress },
+  { &hf_ansi_map_mpcAddress2, BER_CLASS_CON, 370, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddress },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_MPCAddressList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MPCAddressList_set, hf_index, ett_ansi_map_MPCAddressList);
+
+  return offset;
+}
+
+
 static const ber_sequence_t RegistrationNotification_set[] = {
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
   { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
@@ -9503,6 +9707,8 @@ static const ber_sequence_t RegistrationNotification_set[] = {
   { &hf_ansi_map_terminalType, BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminalType },
   { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
   { &hf_ansi_map_winCapability, BER_CLASS_CON, 280, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_WINCapability },
+  { &hf_ansi_map_mpcAddress , BER_CLASS_CON, 370, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddress },
+  { &hf_ansi_map_mpcAddressList, BER_CLASS_CON, 381, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddressList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -9547,6 +9753,15 @@ static int
 dissect_ansi_map_GeographicAuthorization(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MEIDValidated(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -9669,6 +9884,7 @@ static const ber_sequence_t RegistrationNotificationRes_set[] = {
   { &hf_ansi_map_dmh_AlternateBillingDigits, BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_AlternateBillingDigits },
   { &hf_ansi_map_dmh_BillingDigits, BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_BillingDigits },
   { &hf_ansi_map_geographicAuthorization, BER_CLASS_CON, 143, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicAuthorization },
+  { &hf_ansi_map_meidValidated, BER_CLASS_CON, 401, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDValidated },
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
   { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 289, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
@@ -10109,7 +10325,7 @@ dissect_ansi_map_SMSDeliveryForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static int
-dissect_ansi_map_InterMessageTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ansi_map_CDMAServingOneWayDelay2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -10119,8 +10335,9 @@ dissect_ansi_map_InterMessageTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
-dissect_ansi_map_NewlyAssignedMIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ansi_map_MINType(implicit_tag, tvb, offset, actx, tree, hf_index);
+dissect_ansi_map_InterMessageTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
@@ -10140,6 +10357,15 @@ dissect_ansi_map_IMSIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_ansi_map_NewlyAssignedIMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ansi_map_IMSIType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_NewlyAssignedMIN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_MINType(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -10176,6 +10402,16 @@ dissect_ansi_map_SMS_NotificationIndicator(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
+dissect_ansi_map_Teleservice_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_ansi_map_TemporaryReferenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -10188,12 +10424,15 @@ static const ber_sequence_t SMSDeliveryPointToPoint_set[] = {
   { &hf_ansi_map_sms_BearerData, BER_CLASS_CON, 105, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_BearerData },
   { &hf_ansi_map_sms_TeleserviceIdentifier, BER_CLASS_CON, 116, BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_TeleserviceIdentifier },
   { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_cdmaServingOneWayDelay2, BER_CLASS_CON, 347, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay2 },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
   { &hf_ansi_map_interMessageTime, BER_CLASS_CON, 325, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMessageTime },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
   { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
   { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
-  { &hf_ansi_map_newlyAssignedMIN, BER_CLASS_CON, 187, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedMIN },
   { &hf_ansi_map_newlyAssignedIMSI, BER_CLASS_CON, 287, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedIMSI },
+  { &hf_ansi_map_newlyAssignedMIN, BER_CLASS_CON, 187, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewlyAssignedMIN },
   { &hf_ansi_map_newMINExtension, BER_CLASS_CON, 328, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NewMINExtension },
   { &hf_ansi_map_serviceIndicator, BER_CLASS_CON, 193, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceIndicator },
   { &hf_ansi_map_sms_ChargeIndicator, BER_CLASS_CON, 106, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_ChargeIndicator },
@@ -10205,6 +10444,7 @@ static const ber_sequence_t SMSDeliveryPointToPoint_set[] = {
   { &hf_ansi_map_sms_OriginalOriginatingAddress, BER_CLASS_CON, 112, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingAddress },
   { &hf_ansi_map_sms_OriginalOriginatingSubaddress, BER_CLASS_CON, 113, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginalOriginatingSubaddress },
   { &hf_ansi_map_sms_OriginatingAddress, BER_CLASS_CON, 114, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_OriginatingAddress },
+  { &hf_ansi_map_teleservice_Priority, BER_CLASS_CON, 290, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Teleservice_Priority },
   { &hf_ansi_map_temporaryReferenceNumber, BER_CLASS_CON, 195, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TemporaryReferenceNumber },
   { NULL, 0, 0, 0, NULL }
 };
@@ -10250,9 +10490,11 @@ dissect_ansi_map_MobileStationMSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static const ber_sequence_t SMSDeliveryPointToPointRes_set[] = {
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
   { &hf_ansi_map_authorizationDenied, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthorizationDenied },
   { &hf_ansi_map_denyAccess , BER_CLASS_CON, 50, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DenyAccess },
   { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
   { &hf_ansi_map_mobileStationMSID, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MobileStationMSID },
   { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
@@ -10903,7 +11145,7 @@ static const ber_sequence_t ServiceRequestRes_set[] = {
   { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
   { &hf_ansi_map_redirectingNumberString, BER_CLASS_CON, 101, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberString },
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
   { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
@@ -10998,7 +11240,7 @@ static const ber_sequence_t AnalyzedInformationRes_set[] = {
   { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
   { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
   { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
@@ -11127,7 +11369,7 @@ static const ber_sequence_t FacilitySelectedAndAvailableRes_set[] = {
   { &hf_ansi_map_dmh_ServiceID, BER_CLASS_CON, 305, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DMH_ServiceID },
   { &hf_ansi_map_noAnswerTime, BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NoAnswerTime },
   { &hf_ansi_map_oneTimeFeatureIndicator, BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OneTimeFeatureIndicator },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
   { &hf_ansi_map_triggerAddressList, BER_CLASS_CON, 276, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerAddressList },
   { NULL, 0, 0, 0, NULL }
@@ -11168,7 +11410,7 @@ dissect_ansi_map_ServiceDataAccessElement(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static const ber_sequence_t ServiceDataAccessElementList_sequence_of[1] = {
-  { &hf_ansi_map_ServiceDataAccessElementList_item, BER_CLASS_CON, 398, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElement },
+  { &hf_ansi_map_ServiceDataAccessElementList_item, BER_CLASS_CON, 270, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElement },
 };
 
 static int
@@ -11198,7 +11440,7 @@ dissect_ansi_map_AllOrNone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static const ber_sequence_t ModificationRequest_sequence[] = {
-  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 399, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
+  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 271, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
   { &hf_ansi_map_allOrNone  , BER_CLASS_CON, 247, BER_FLAGS_IMPLTAG, dissect_ansi_map_AllOrNone },
   { NULL, 0, 0, 0, NULL }
 };
@@ -11213,7 +11455,7 @@ dissect_ansi_map_ModificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t ModificationRequestList_sequence_of[1] = {
-  { &hf_ansi_map_ModificationRequestList_item, BER_CLASS_CON, 390, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationRequest },
+  { &hf_ansi_map_ModificationRequestList_item, BER_CLASS_CON, 262, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationRequest },
 };
 
 static int
@@ -11227,7 +11469,7 @@ dissect_ansi_map_ModificationRequestList(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static const ber_sequence_t Modify_set[] = {
   { &hf_ansi_map_databaseKey, BER_CLASS_CON, 252, BER_FLAGS_IMPLTAG, dissect_ansi_map_DatabaseKey },
-  { &hf_ansi_map_modificationRequestList, BER_CLASS_CON, 391, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationRequestList },
+  { &hf_ansi_map_modificationRequestList, BER_CLASS_CON, 263, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationRequestList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11351,7 +11593,7 @@ dissect_ansi_map_ModificationResultList(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t ModifyRes_set[] = {
-  { &hf_ansi_map_modificationResultList, BER_CLASS_CON, 392, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationResultList },
+  { &hf_ansi_map_modificationResultList, BER_CLASS_CON, 264, BER_FLAGS_IMPLTAG, dissect_ansi_map_ModificationResultList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11366,7 +11608,7 @@ dissect_ansi_map_ModifyRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static const ber_sequence_t Search_set[] = {
   { &hf_ansi_map_databaseKey, BER_CLASS_CON, 252, BER_FLAGS_IMPLTAG, dissect_ansi_map_DatabaseKey },
-  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 399, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
+  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 271, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11380,7 +11622,7 @@ dissect_ansi_map_Search(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static const ber_sequence_t SearchRes_set[] = {
-  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 399, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
+  { &hf_ansi_map_serviceDataAccessElementList, BER_CLASS_CON, 271, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceDataAccessElementList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11415,7 +11657,7 @@ dissect_ansi_map_SpecializedResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static const ber_sequence_t SeizeResource_set[] = {
   { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
-  { &hf_ansi_map_privateSpecializedResource, BER_CLASS_CON, 383, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateSpecializedResource },
+  { &hf_ansi_map_privateSpecializedResource, BER_CLASS_CON, 265, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateSpecializedResource },
   { &hf_ansi_map_specializedResource, BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SpecializedResource },
   { NULL, 0, 0, 0, NULL }
 };
@@ -11464,8 +11706,8 @@ dissect_ansi_map_ScriptArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static const ber_sequence_t ExecuteScript_sequence[] = {
-  { &hf_ansi_map_scriptName , BER_CLASS_CON, 396, BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptName },
-  { &hf_ansi_map_scriptArgument, BER_CLASS_CON, 395, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptArgument },
+  { &hf_ansi_map_scriptName , BER_CLASS_CON, 268, BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptName },
+  { &hf_ansi_map_scriptArgument, BER_CLASS_CON, 267, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptArgument },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11507,7 +11749,7 @@ dissect_ansi_map_ScriptResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static const ber_sequence_t SRFDirectiveRes_set[] = {
   { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
-  { &hf_ansi_map_scriptResult, BER_CLASS_CON, 397, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptResult },
+  { &hf_ansi_map_scriptResult, BER_CLASS_CON, 269, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ScriptResult },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -11576,7 +11818,7 @@ static const ber_sequence_t TBusyRes_set[] = {
   { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
   { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
   { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
@@ -11650,7 +11892,7 @@ static const ber_sequence_t TNoAnswerRes_set[] = {
   { &hf_ansi_map_pilotNumber, BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PilotNumber },
   { &hf_ansi_map_preferredLanguageIndicator, BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PreferredLanguageIndicator },
   { &hf_ansi_map_redirectingNumberDigits, BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingNumberDigits },
-  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 394, BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
+  { &hf_ansi_map_resumePIC  , BER_CLASS_CON, 266, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ResumePIC },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_terminationList, BER_CLASS_CON, 120, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationList },
   { &hf_ansi_map_terminationTriggers, BER_CLASS_CON, 122, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationTriggers },
@@ -12301,6 +12543,512 @@ dissect_ansi_map_PositionRequestForwardRes(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
+dissect_ansi_map_PositionRequestType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_LCSBillingID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_LCS_Client_ID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MobilePositionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_DTXIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_CDMAMobileCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CDMAPSMMList_item_set[] = {
+  { &hf_ansi_map_cdmaServingOneWayDelay2, BER_CLASS_CON, 347, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay2 },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaTargetMAHOList2, BER_CLASS_CON, 136, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_CDMAPSMMList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CDMAPSMMList_item_set, hf_index, ett_ansi_map_CDMAPSMMList_item);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CDMAPSMMList_set_of[1] = {
+  { &hf_ansi_map_CDMAPSMMList_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CDMAPSMMList_item },
+};
+
+static int
+dissect_ansi_map_CDMAPSMMList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 CDMAPSMMList_set_of, hf_index, ett_ansi_map_CDMAPSMMList);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_TDMA_MAHO_CELLID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_TDMA_MAHO_CHANNEL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_TDMA_TimeAlignment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PQOS_HorizontalPosition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PQOS_HorizontalVelocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PQOS_MaximumPositionAge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PQOS_PositionPriority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_PQOS_ResponseTime_vals[] = {
+  {   0, "not-used" },
+  {   1, "no-Delay" },
+  {   2, "low-Delay" },
+  {   3, "delay-Tolerant" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_PQOS_ResponseTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PQOS_VerticalPosition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PQOS_VerticalVelocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t GeoPositionRequest_set[] = {
+  { &hf_ansi_map_positionRequestType, BER_CLASS_CON, 337, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionRequestType },
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_lcsBillingID, BER_CLASS_CON, 367, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCSBillingID },
+  { &hf_ansi_map_lcs_Client_ID, BER_CLASS_CON, 358, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCS_Client_ID },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_dtxIndication, BER_CLASS_CON, 329, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DTXIndication },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaCodeChannel, BER_CLASS_CON, 68, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannel },
+  { &hf_ansi_map_cdmaMobileCapabilities, BER_CLASS_CON, 330, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileCapabilities },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServingOneWayDelay2, BER_CLASS_CON, 347, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay2 },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaPSMMList, BER_CLASS_CON, 346, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPSMMList },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 76, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_targetMeasurementList, BER_CLASS_CON, 157, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetMeasurementList },
+  { &hf_ansi_map_tdma_MAHO_CELLID, BER_CLASS_CON, 359, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHO_CELLID },
+  { &hf_ansi_map_tdma_MAHO_CHANNEL, BER_CLASS_CON, 360, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHO_CHANNEL },
+  { &hf_ansi_map_tdma_TimeAlignment, BER_CLASS_CON, 362, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_TimeAlignment },
+  { &hf_ansi_map_tdmaVoiceMode, BER_CLASS_CON, 223, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceMode },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_pqos_HorizontalPosition, BER_CLASS_CON, 372, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_HorizontalPosition },
+  { &hf_ansi_map_pqos_HorizontalVelocity, BER_CLASS_CON, 373, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_HorizontalVelocity },
+  { &hf_ansi_map_pqos_MaximumPositionAge, BER_CLASS_CON, 374, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_MaximumPositionAge },
+  { &hf_ansi_map_pqos_PositionPriority, BER_CLASS_CON, 375, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_PositionPriority },
+  { &hf_ansi_map_pqos_ResponseTime, BER_CLASS_CON, 376, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_ResponseTime },
+  { &hf_ansi_map_pqos_VerticalPosition, BER_CLASS_CON, 377, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalPosition },
+  { &hf_ansi_map_pqos_VerticalVelocity, BER_CLASS_CON, 378, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalVelocity },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { &hf_ansi_map_teleservice_Priority, BER_CLASS_CON, 290, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Teleservice_Priority },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_GeoPositionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              GeoPositionRequest_set, hf_index, ett_ansi_map_GeoPositionRequest);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_CDMAPSMMCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_LIRAuthorization_vals[] = {
+  {   0, "not-used" },
+  {   1, "user-Authorized" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_LIRAuthorization(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MPCID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ansi_map_DigitsType(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t InterSystemPositionRequest_set[] = {
+  { &hf_ansi_map_positionRequestType, BER_CLASS_CON, 337, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionRequestType },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_cdmaPSMMCount, BER_CLASS_CON, 344, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPSMMCount },
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_emergencyServicesRoutingDigits, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_EmergencyServicesRoutingDigits },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_lcsBillingID, BER_CLASS_CON, 367, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCSBillingID },
+  { &hf_ansi_map_lirAuthorization, BER_CLASS_CON, 368, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LIRAuthorization },
+  { &hf_ansi_map_lcs_Client_ID, BER_CLASS_CON, 358, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCS_Client_ID },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_dtxIndication, BER_CLASS_CON, 329, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DTXIndication },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaCodeChannel, BER_CLASS_CON, 68, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannel },
+  { &hf_ansi_map_cdmaMobileCapabilities, BER_CLASS_CON, 330, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileCapabilities },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServingOneWayDelay2, BER_CLASS_CON, 347, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay2 },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaPSMMList, BER_CLASS_CON, 346, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPSMMList },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 76, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_targetMeasurementList, BER_CLASS_CON, 157, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetMeasurementList },
+  { &hf_ansi_map_tdma_MAHO_CELLID, BER_CLASS_CON, 359, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHO_CELLID },
+  { &hf_ansi_map_tdma_MAHO_CHANNEL, BER_CLASS_CON, 360, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHO_CHANNEL },
+  { &hf_ansi_map_tdma_TimeAlignment, BER_CLASS_CON, 362, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_TimeAlignment },
+  { &hf_ansi_map_tdmaVoiceMode, BER_CLASS_CON, 223, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceMode },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
+  { &hf_ansi_map_mpcAddress , BER_CLASS_CON, 370, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddress },
+  { &hf_ansi_map_mpcAddressList, BER_CLASS_CON, 381, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddressList },
+  { &hf_ansi_map_mpcid      , BER_CLASS_CON, 371, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCID },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { &hf_ansi_map_pqos_HorizontalPosition, BER_CLASS_CON, 372, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_HorizontalPosition },
+  { &hf_ansi_map_pqos_HorizontalVelocity, BER_CLASS_CON, 373, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_HorizontalVelocity },
+  { &hf_ansi_map_pqos_MaximumPositionAge, BER_CLASS_CON, 374, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_MaximumPositionAge },
+  { &hf_ansi_map_pqos_PositionPriority, BER_CLASS_CON, 375, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_PositionPriority },
+  { &hf_ansi_map_pqos_ResponseTime, BER_CLASS_CON, 376, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_ResponseTime },
+  { &hf_ansi_map_pqos_VerticalPosition, BER_CLASS_CON, 377, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalPosition },
+  { &hf_ansi_map_pqos_VerticalVelocity, BER_CLASS_CON, 378, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalVelocity },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemPositionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPositionRequest_set, hf_index, ett_ansi_map_InterSystemPositionRequest);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PositionResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_GeographicPosition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_PositionSource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_Horizontal_Velocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_Vertical_Velocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PositionInformation_set[] = {
+  { &hf_ansi_map_generalizedTime, BER_CLASS_CON, 331, BER_FLAGS_IMPLTAG, dissect_ansi_map_GeneralizedTime },
+  { &hf_ansi_map_geographicPosition, BER_CLASS_CON, 333, BER_FLAGS_IMPLTAG, dissect_ansi_map_GeographicPosition },
+  { &hf_ansi_map_positionSource, BER_CLASS_CON, 339, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionSource },
+  { &hf_ansi_map_horizontal_Velocity, BER_CLASS_CON, 379, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Horizontal_Velocity },
+  { &hf_ansi_map_vertical_Velocity, BER_CLASS_CON, 380, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Vertical_Velocity },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_PositionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              PositionInformation_set, hf_index, ett_ansi_map_PositionInformation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t InterSystemPositionRequestRes_set[] = {
+  { &hf_ansi_map_positionResult, BER_CLASS_CON, 338, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionResult },
+  { &hf_ansi_map_lcsBillingID, BER_CLASS_CON, 367, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCSBillingID },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
+  { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
+  { &hf_ansi_map_dtxIndication, BER_CLASS_CON, 329, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DTXIndication },
+  { &hf_ansi_map_receivedSignalQuality, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReceivedSignalQuality },
+  { &hf_ansi_map_cdmaChannelData, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAChannelData },
+  { &hf_ansi_map_cdmaCodeChannel, BER_CLASS_CON, 68, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMACodeChannel },
+  { &hf_ansi_map_cdmaMobileCapabilities, BER_CLASS_CON, 330, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAMobileCapabilities },
+  { &hf_ansi_map_cdmaPrivateLongCodeMask, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPrivateLongCodeMask },
+  { &hf_ansi_map_cdmaServingOneWayDelay2, BER_CLASS_CON, 347, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay2 },
+  { &hf_ansi_map_cdmaServiceOption, BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOption },
+  { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaPSMMList, BER_CLASS_CON, 346, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAPSMMList },
+  { &hf_ansi_map_nampsChannelData, BER_CLASS_CON, 76, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NAMPSChannelData },
+  { &hf_ansi_map_tdmaChannelData, BER_CLASS_CON, 28, BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAChannelData },
+  { &hf_ansi_map_targetMeasurementList, BER_CLASS_CON, 157, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TargetMeasurementList },
+  { &hf_ansi_map_tdma_MAHO_CELLID, BER_CLASS_CON, 359, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHO_CELLID },
+  { &hf_ansi_map_tdma_MAHO_CHANNEL, BER_CLASS_CON, 360, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHO_CHANNEL },
+  { &hf_ansi_map_tdma_TimeAlignment, BER_CLASS_CON, 362, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_TimeAlignment },
+  { &hf_ansi_map_tdmaVoiceMode, BER_CLASS_CON, 223, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMAVoiceMode },
+  { &hf_ansi_map_voicePrivacyMask, BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_VoicePrivacyMask },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_positionInformation, BER_CLASS_CON, 336, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionInformation },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemPositionRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPositionRequestRes_set, hf_index, ett_ansi_map_InterSystemPositionRequestRes);
+
+  return offset;
+}
+
+
+static const ber_sequence_t InterSystemPositionRequestForward_set[] = {
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_positionRequestType, BER_CLASS_CON, 337, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionRequestType },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_lcsBillingID, BER_CLASS_CON, 367, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCSBillingID },
+  { &hf_ansi_map_lcs_Client_ID, BER_CLASS_CON, 358, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCS_Client_ID },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
+  { &hf_ansi_map_mpcid      , BER_CLASS_CON, 371, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCID },
+  { &hf_ansi_map_pqos_HorizontalPosition, BER_CLASS_CON, 372, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_HorizontalPosition },
+  { &hf_ansi_map_pqos_HorizontalVelocity, BER_CLASS_CON, 373, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_HorizontalVelocity },
+  { &hf_ansi_map_pqos_MaximumPositionAge, BER_CLASS_CON, 374, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_MaximumPositionAge },
+  { &hf_ansi_map_pqos_PositionPriority, BER_CLASS_CON, 375, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_PositionPriority },
+  { &hf_ansi_map_pqos_ResponseTime, BER_CLASS_CON, 376, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_ResponseTime },
+  { &hf_ansi_map_pqos_VerticalPosition, BER_CLASS_CON, 377, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalPosition },
+  { &hf_ansi_map_pqos_VerticalVelocity, BER_CLASS_CON, 378, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalVelocity },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemPositionRequestForward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPositionRequestForward_set, hf_index, ett_ansi_map_InterSystemPositionRequestForward);
+
+  return offset;
+}
+
+
+static const ber_sequence_t InterSystemPositionRequestForwardRes_set[] = {
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_positionResult, BER_CLASS_CON, 338, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionResult },
+  { &hf_ansi_map_lcsBillingID, BER_CLASS_CON, 367, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCSBillingID },
+  { &hf_ansi_map_positionInformation, BER_CLASS_CON, 336, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionInformation },
+  { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InterSystemPositionRequestForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              InterSystemPositionRequestForwardRes_set, hf_index, ett_ansi_map_InterSystemPositionRequestForwardRes);
+
+  return offset;
+}
+
+
+
+static int
 dissect_ansi_map_ControlType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -12445,6 +13193,89 @@ dissect_ansi_map_RoamerDatabaseVerificationRequestRes(gboolean implicit_tag _U_,
 }
 
 
+static const ber_sequence_t LCSParameterRequest_set[] = {
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mpcid      , BER_CLASS_CON, 371, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_LCSParameterRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              LCSParameterRequest_set, hf_index, ett_ansi_map_LCSParameterRequest);
+
+  return offset;
+}
+
+
+static const ber_sequence_t LCSParameterRequestRes_set[] = {
+  { &hf_ansi_map_accessDeniedReason, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AccessDeniedReason },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_meid       , BER_CLASS_CON, 390, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEID },
+  { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
+  { &hf_ansi_map_mpcAddress , BER_CLASS_CON, 370, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddress },
+  { &hf_ansi_map_mpcAddressList, BER_CLASS_CON, 381, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MPCAddressList },
+  { &hf_ansi_map_mscid      , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCID },
+  { &hf_ansi_map_pc_ssn     , BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PC_SSN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_LCSParameterRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              LCSParameterRequestRes_set, hf_index, ett_ansi_map_LCSParameterRequestRes);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CheckMEID_set[] = {
+  { &hf_ansi_map_digits     , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Digits },
+  { &hf_ansi_map_interMSCCircuitID, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_ansi_map_InterMSCCircuitID },
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
+  { &hf_ansi_map_electronicSerialNumber, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ElectronicSerialNumber },
+  { &hf_ansi_map_emergencyServicesRoutingDigits, BER_CLASS_CON, 239, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_EmergencyServicesRoutingDigits },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_CheckMEID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CheckMEID_set, hf_index, ett_ansi_map_CheckMEID);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MEIDStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CheckMEIDRes_set[] = {
+  { &hf_ansi_map_meidStatus , BER_CLASS_CON, 391, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MEIDStatus },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_CheckMEIDRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CheckMEIDRes_set, hf_index, ett_ansi_map_CheckMEIDRes);
+
+  return offset;
+}
+
+
 static const ber_sequence_t AddService_set[] = {
   { &hf_ansi_map_cdmaConnectionReferenceList, BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAConnectionReferenceList },
   { &hf_ansi_map_cdmaServiceOptionList, BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServiceOptionList },
@@ -12514,6 +13345,23 @@ dissect_ansi_map_DropServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
+static const ber_sequence_t PositionEventNotification_set[] = {
+  { &hf_ansi_map_positionResult, BER_CLASS_CON, 338, BER_FLAGS_IMPLTAG, dissect_ansi_map_PositionResult },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_lcsBillingID, BER_CLASS_CON, 367, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LCSBillingID },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_PositionEventNotification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              PositionEventNotification_set, hf_index, ett_ansi_map_PositionEventNotification);
+
+  return offset;
+}
+
+
 
 static int
 dissect_ansi_map_AKeyProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -12557,7 +13405,7 @@ dissect_ansi_map_NewlyAssignedMSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static const ber_sequence_t OTASPRequest_set[] = {
-  { &hf_ansi_map_ctionCode  , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
+  { &hf_ansi_map_actionCode , BER_CLASS_CON, 128, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ActionCode },
   { &hf_ansi_map_aKeyProtocolVersion, BER_CLASS_CON, 181, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AKeyProtocolVersion },
   { &hf_ansi_map_authenticationData, BER_CLASS_CON, 161, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationData },
   { &hf_ansi_map_authenticationResponse, BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_AuthenticationResponse },
@@ -12651,9 +13499,77 @@ dissect_ansi_map_OTASPRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
+dissect_ansi_map_Record_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t StatusRequest_set[] = {
+  { &hf_ansi_map_msid       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_MSID },
+  { &hf_ansi_map_record_Type, BER_CLASS_CON, 392, BER_FLAGS_IMPLTAG, dissect_ansi_map_Record_Type },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_StatusRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              StatusRequest_set, hf_index, ett_ansi_map_StatusRequest);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_Information_Record(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t StatusRequestRes_set[] = {
+  { &hf_ansi_map_information_Record, BER_CLASS_CON, 389, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_Information_Record },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_StatusRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              StatusRequestRes_set, hf_index, ett_ansi_map_StatusRequestRes);
+
+  return offset;
+}
+
+
+
+static int
 dissect_ansi_map_FaultyParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_LIRMode_vals[] = {
+  {   0, "not-used" },
+  {   1, "unconditionally-Restricted" },
+  {   2, "pre-Authorized-LCS-Clients-Only" },
+  {   3, "pre-Authorized-LCS-Clients-and-User-Authorized-LCS-Clients" },
+  {   4, "unrestricted" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_LIRMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12692,6 +13608,7 @@ static const ber_sequence_t Profile_set[] = {
   { &hf_ansi_map_nonPublicData, BER_CLASS_CON, 200, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NonPublicData },
   { &hf_ansi_map_userZoneData, BER_CLASS_CON, 209, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_UserZoneData },
   { &hf_ansi_map_callingPartyCategory, BER_CLASS_CON, 355, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CallingPartyCategory },
+  { &hf_ansi_map_lirMode    , BER_CLASS_CON, 369, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_LIRMode },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12726,7 +13643,7 @@ dissect_ansi_map_CDMABandClassList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static const ber_sequence_t SRFCapability_set[] = {
   { &hf_ansi_map_specializedResource, BER_CLASS_CON, 274, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SpecializedResource },
-  { &hf_ansi_map_privateSpecializedResource, BER_CLASS_CON, 383, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateSpecializedResource },
+  { &hf_ansi_map_privateSpecializedResource, BER_CLASS_CON, 265, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PrivateSpecializedResource },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12734,6 +13651,26 @@ static int
 dissect_ansi_map_SRFCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               SRFCapability_set, hf_index, ett_ansi_map_SRFCapability);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_MobileCallStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_TDMA_MAHORequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
@@ -12823,6 +13760,10 @@ static const ber_sequence_t InvokeData_sequence[] = {
   { &hf_ansi_map_roamerDatabaseVerificationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoamerDatabaseVerificationRequest },
   { &hf_ansi_map_addService , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AddService },
   { &hf_ansi_map_dropService, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DropService },
+  { &hf_ansi_map_lcsParameterRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_LCSParameterRequest },
+  { &hf_ansi_map_checkMEID  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CheckMEID },
+  { &hf_ansi_map_positionEventNotification, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionEventNotification },
+  { &hf_ansi_map_statusRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_StatusRequest },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12896,6 +13837,9 @@ static const ber_sequence_t ReturnData_sequence[] = {
   { &hf_ansi_map_roamerDatabaseVerificationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoamerDatabaseVerificationRequestRes },
   { &hf_ansi_map_addServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AddServiceRes },
   { &hf_ansi_map_dropServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DropServiceRes },
+  { &hf_ansi_map_lcsParameterRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_LCSParameterRequestRes },
+  { &hf_ansi_map_checkMEIDRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CheckMEIDRes },
+  { &hf_ansi_map_statusRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_StatusRequestRes },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12932,7 +13876,7 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3529 "packet-ansi_map-template.c"
+#line 3622 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
 
@@ -13249,14 +14193,31 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  98: /*Roamer Database Verification Request*/
 	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_roamerDatabaseVerificationRequest);
 	  break;
-	  /* N.S0029 */
+	  /* N.S0029 X.S0001-A v1.0*/
   case  99: /*Add Service*/
 	  offset = dissect_ansi_map_AddService(TRUE, tvb, offset, actx, tree, hf_ansi_map_addService);
 	  break;
   case  100: /*Drop Service*/
 	  offset = dissect_ansi_map_DropService(TRUE, tvb, offset, actx, tree, hf_ansi_map_dropService);
 	  break;
-	  /*End N.S0029 */
+	  /*End N.S0029 X.S0001-A v1.0*/
+	  /* X.S0002-0 v1.0 */
+	  /* LCSParameterRequest */
+  case 102:
+	  offset = dissect_ansi_map_LCSParameterRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_lcsParameterRequest);
+	  break;
+	  /* CheckMEID X.S0008-0 v1.0*/
+  case 104:
+	  offset = dissect_ansi_map_CheckMEID(TRUE, tvb, offset, actx, tree, hf_ansi_map_checkMEID);
+	  break;	
+	  /* PositionEventNotification */
+  case 106:
+  	  offset = dissect_ansi_map_PositionEventNotification(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionEventNotification);
+	  break;
+  case 107:
+	 /* StatusRequest X.S0008-0 v1.0*/
+ 	  offset = dissect_ansi_map_StatusRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequest);
+	 break;
   default:
 	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
 	  break;
@@ -13453,6 +14414,24 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	  offset = dissect_ansi_map_DropServiceRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_dropServiceRes);
 	  break;
 	  /*End N.S0029 */
+	  /* X.S0002-0 v1.0 */
+	  /* LCSParameterRequest */
+  case 102:
+	  offset = dissect_ansi_map_LCSParameterRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_lcsParameterRequestRes);
+	  break;
+	  /* CheckMEID X.S0008-0 v1.0*/
+  case 104:
+	  offset = dissect_ansi_map_CheckMEIDRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_checkMEIDRes);
+	  break;	
+	  /* PositionEventNotification *
+  case 106:
+  	  offset = dissect_ansi_map_PositionEventNotification(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionEventNotificationRes);
+	  break;
+	  */
+  case 107:
+	 /* StatusRequest X.S0008-0 v1.0*/
+ 	  offset = dissect_ansi_map_StatusRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_statusRequestRes);
+	 break;
 
  default:
 	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
@@ -14480,6 +15459,10 @@ void proto_register_ansi_map(void) {
       { "randomVariableReauthentication", "ansi_map.randomVariableReauthentication",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.RandomVariableReauthentication", HFILL }},
+    { &hf_ansi_map_meid,
+      { "meid", "ansi_map.meid",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.MEID", HFILL }},
     { &hf_ansi_map_mobileStationMIN,
       { "mobileStationMIN", "ansi_map.mobileStationMIN",
         FT_NONE, BASE_DEC, NULL, 0,
@@ -14984,6 +15967,10 @@ void proto_register_ansi_map(void) {
       { "triggerAddressList", "ansi_map.triggerAddressList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ansi_map.TriggerAddressList", HFILL }},
+    { &hf_ansi_map_emergencyServicesRoutingDigits,
+      { "emergencyServicesRoutingDigits", "ansi_map.emergencyServicesRoutingDigits",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.EmergencyServicesRoutingDigits", HFILL }},
     { &hf_ansi_map_targetCellIDList,
       { "targetCellIDList", "ansi_map.targetCellIDList",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -15228,6 +16215,14 @@ void proto_register_ansi_map(void) {
       { "sms-Address", "ansi_map.sms_Address",
         FT_NONE, BASE_DEC, NULL, 0,
         "ansi_map.SMS_Address", HFILL }},
+    { &hf_ansi_map_mpcAddress,
+      { "mpcAddress", "ansi_map.mpcAddress",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.MPCAddress", HFILL }},
+    { &hf_ansi_map_mpcAddressList,
+      { "mpcAddressList", "ansi_map.mpcAddressList",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.MPCAddressList", HFILL }},
     { &hf_ansi_map_digits_Carrier,
       { "digits-Carrier", "ansi_map.digits_Carrier",
         FT_NONE, BASE_DEC, NULL, 0,
@@ -15244,6 +16239,10 @@ void proto_register_ansi_map(void) {
       { "geographicAuthorization", "ansi_map.geographicAuthorization",
         FT_UINT8, BASE_DEC, VALS(ansi_map_GeographicAuthorization_vals), 0,
         "ansi_map.GeographicAuthorization", HFILL }},
+    { &hf_ansi_map_meidValidated,
+      { "meidValidated", "ansi_map.meidValidated",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.MEIDValidated", HFILL }},
     { &hf_ansi_map_originationIndicator,
       { "originationIndicator", "ansi_map.originationIndicator",
         FT_UINT32, BASE_DEC, VALS(ansi_map_OriginationIndicator_vals), 0,
@@ -15332,18 +16331,22 @@ void proto_register_ansi_map(void) {
       { "sms-CauseCode", "ansi_map.sms_CauseCode",
         FT_UINT8, BASE_DEC, VALS(ansi_map_SMS_CauseCode_vals), 0,
         "ansi_map.SMS_CauseCode", HFILL }},
+    { &hf_ansi_map_cdmaServingOneWayDelay2,
+      { "cdmaServingOneWayDelay2", "ansi_map.cdmaServingOneWayDelay2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CDMAServingOneWayDelay2", HFILL }},
     { &hf_ansi_map_interMessageTime,
       { "interMessageTime", "ansi_map.interMessageTime",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.InterMessageTime", HFILL }},
-    { &hf_ansi_map_newlyAssignedMIN,
-      { "newlyAssignedMIN", "ansi_map.newlyAssignedMIN",
-        FT_NONE, BASE_DEC, NULL, 0,
-        "ansi_map.NewlyAssignedMIN", HFILL }},
     { &hf_ansi_map_newlyAssignedIMSI,
       { "newlyAssignedIMSI", "ansi_map.newlyAssignedIMSI",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.NewlyAssignedIMSI", HFILL }},
+    { &hf_ansi_map_newlyAssignedMIN,
+      { "newlyAssignedMIN", "ansi_map.newlyAssignedMIN",
+        FT_NONE, BASE_DEC, NULL, 0,
+        "ansi_map.NewlyAssignedMIN", HFILL }},
     { &hf_ansi_map_newMINExtension,
       { "newMINExtension", "ansi_map.newMINExtension",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -15356,6 +16359,10 @@ void proto_register_ansi_map(void) {
       { "sms-NotificationIndicator", "ansi_map.sms_NotificationIndicator",
         FT_UINT8, BASE_DEC, VALS(ansi_map_SMS_NotificationIndicator_vals), 0,
         "ansi_map.SMS_NotificationIndicator", HFILL }},
+    { &hf_ansi_map_teleservice_Priority,
+      { "teleservice-Priority", "ansi_map.teleservice_Priority",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.Teleservice_Priority", HFILL }},
     { &hf_ansi_map_temporaryReferenceNumber,
       { "temporaryReferenceNumber", "ansi_map.temporaryReferenceNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -15480,6 +16487,98 @@ void proto_register_ansi_map(void) {
       { "pSID-RSIDInformation", "ansi_map.pSID_RSIDInformation",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.PSID_RSIDInformation", HFILL }},
+    { &hf_ansi_map_positionRequestType,
+      { "positionRequestType", "ansi_map.positionRequestType",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PositionRequestType", HFILL }},
+    { &hf_ansi_map_lcsBillingID,
+      { "lcsBillingID", "ansi_map.lcsBillingID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.LCSBillingID", HFILL }},
+    { &hf_ansi_map_lcs_Client_ID,
+      { "lcs-Client-ID", "ansi_map.lcs_Client_ID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.LCS_Client_ID", HFILL }},
+    { &hf_ansi_map_mobilePositionCapability,
+      { "mobilePositionCapability", "ansi_map.mobilePositionCapability",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.MobilePositionCapability", HFILL }},
+    { &hf_ansi_map_dtxIndication,
+      { "dtxIndication", "ansi_map.dtxIndication",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.DTXIndication", HFILL }},
+    { &hf_ansi_map_cdmaCodeChannel,
+      { "cdmaCodeChannel", "ansi_map.cdmaCodeChannel",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CDMACodeChannel", HFILL }},
+    { &hf_ansi_map_cdmaMobileCapabilities,
+      { "cdmaMobileCapabilities", "ansi_map.cdmaMobileCapabilities",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CDMAMobileCapabilities", HFILL }},
+    { &hf_ansi_map_cdmaPSMMList,
+      { "cdmaPSMMList", "ansi_map.cdmaPSMMList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ansi_map.CDMAPSMMList", HFILL }},
+    { &hf_ansi_map_tdma_MAHO_CELLID,
+      { "tdma-MAHO-CELLID", "ansi_map.tdma_MAHO_CELLID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.TDMA_MAHO_CELLID", HFILL }},
+    { &hf_ansi_map_tdma_MAHO_CHANNEL,
+      { "tdma-MAHO-CHANNEL", "ansi_map.tdma_MAHO_CHANNEL",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.TDMA_MAHO_CHANNEL", HFILL }},
+    { &hf_ansi_map_tdma_TimeAlignment,
+      { "tdma-TimeAlignment", "ansi_map.tdma_TimeAlignment",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.TDMA_TimeAlignment", HFILL }},
+    { &hf_ansi_map_pqos_HorizontalPosition,
+      { "pqos-HorizontalPosition", "ansi_map.pqos_HorizontalPosition",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PQOS_HorizontalPosition", HFILL }},
+    { &hf_ansi_map_pqos_HorizontalVelocity,
+      { "pqos-HorizontalVelocity", "ansi_map.pqos_HorizontalVelocity",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PQOS_HorizontalVelocity", HFILL }},
+    { &hf_ansi_map_pqos_MaximumPositionAge,
+      { "pqos-MaximumPositionAge", "ansi_map.pqos_MaximumPositionAge",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PQOS_MaximumPositionAge", HFILL }},
+    { &hf_ansi_map_pqos_PositionPriority,
+      { "pqos-PositionPriority", "ansi_map.pqos_PositionPriority",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PQOS_PositionPriority", HFILL }},
+    { &hf_ansi_map_pqos_ResponseTime,
+      { "pqos-ResponseTime", "ansi_map.pqos_ResponseTime",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_PQOS_ResponseTime_vals), 0,
+        "ansi_map.PQOS_ResponseTime", HFILL }},
+    { &hf_ansi_map_pqos_VerticalPosition,
+      { "pqos-VerticalPosition", "ansi_map.pqos_VerticalPosition",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PQOS_VerticalPosition", HFILL }},
+    { &hf_ansi_map_pqos_VerticalVelocity,
+      { "pqos-VerticalVelocity", "ansi_map.pqos_VerticalVelocity",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PQOS_VerticalVelocity", HFILL }},
+    { &hf_ansi_map_cdmaPSMMCount,
+      { "cdmaPSMMCount", "ansi_map.cdmaPSMMCount",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.CDMAPSMMCount", HFILL }},
+    { &hf_ansi_map_lirAuthorization,
+      { "lirAuthorization", "ansi_map.lirAuthorization",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_LIRAuthorization_vals), 0,
+        "ansi_map.LIRAuthorization", HFILL }},
+    { &hf_ansi_map_mpcid,
+      { "mpcid", "ansi_map.mpcid",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.MPCID", HFILL }},
+    { &hf_ansi_map_positionResult,
+      { "positionResult", "ansi_map.positionResult",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PositionResult", HFILL }},
+    { &hf_ansi_map_positionInformation,
+      { "positionInformation", "ansi_map.positionInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.PositionInformation", HFILL }},
     { &hf_ansi_map_controlType,
       { "controlType", "ansi_map.controlType",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -15504,10 +16603,10 @@ void proto_register_ansi_map(void) {
       { "range", "ansi_map.range",
         FT_INT32, BASE_DEC, NULL, 0,
         "ansi_map.Range", HFILL }},
-    { &hf_ansi_map_ctionCode,
-      { "ctionCode", "ansi_map.ctionCode",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_ActionCode_vals), 0,
-        "ansi_map.ActionCode", HFILL }},
+    { &hf_ansi_map_meidStatus,
+      { "meidStatus", "ansi_map.meidStatus",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.MEIDStatus", HFILL }},
     { &hf_ansi_map_aKeyProtocolVersion,
       { "aKeyProtocolVersion", "ansi_map.aKeyProtocolVersion",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -15536,6 +16635,14 @@ void proto_register_ansi_map(void) {
       { "primitiveValue", "ansi_map.primitiveValue",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.PrimitiveValue", HFILL }},
+    { &hf_ansi_map_record_Type,
+      { "record-Type", "ansi_map.record_Type",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.Record_Type", HFILL }},
+    { &hf_ansi_map_information_Record,
+      { "information-Record", "ansi_map.information_Record",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.Information_Record", HFILL }},
     { &hf_ansi_map_announcementCode1,
       { "announcementCode1", "ansi_map.announcementCode1",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -15544,10 +16651,6 @@ void proto_register_ansi_map(void) {
       { "announcementCode2", "ansi_map.announcementCode2",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.AnnouncementCode", HFILL }},
-    { &hf_ansi_map_cdmaCodeChannel,
-      { "cdmaCodeChannel", "ansi_map.cdmaCodeChannel",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.CDMACodeChannel", HFILL }},
     { &hf_ansi_map_cdmaPilotPN,
       { "cdmaPilotPN", "ansi_map.cdmaPilotPN",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -15580,6 +16683,10 @@ void proto_register_ansi_map(void) {
       { "Item", "ansi_map.CDMATargetMeasurementList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.CDMATargetMeasurementInformation", HFILL }},
+    { &hf_ansi_map_lirMode,
+      { "lirMode", "ansi_map.lirMode",
+        FT_UINT32, BASE_DEC, VALS(ansi_map_LIRMode_vals), 0,
+        "ansi_map.LIRMode", HFILL }},
     { &hf_ansi_map_TargetMeasurementList_item,
       { "Item", "ansi_map.TargetMeasurementList_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -15768,6 +16875,26 @@ void proto_register_ansi_map(void) {
       { "Item", "ansi_map.CallRecoveryIDList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.CallRecoveryID", HFILL }},
+    { &hf_ansi_map_generalizedTime,
+      { "generalizedTime", "ansi_map.generalizedTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ansi_map.GeneralizedTime", HFILL }},
+    { &hf_ansi_map_geographicPosition,
+      { "geographicPosition", "ansi_map.geographicPosition",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.GeographicPosition", HFILL }},
+    { &hf_ansi_map_positionSource,
+      { "positionSource", "ansi_map.positionSource",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.PositionSource", HFILL }},
+    { &hf_ansi_map_horizontal_Velocity,
+      { "horizontal-Velocity", "ansi_map.horizontal_Velocity",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.Horizontal_Velocity", HFILL }},
+    { &hf_ansi_map_vertical_Velocity,
+      { "vertical-Velocity", "ansi_map.vertical_Velocity",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.Vertical_Velocity", HFILL }},
     { &hf_ansi_map_sCFOverloadGapInterval,
       { "sCFOverloadGapInterval", "ansi_map.sCFOverloadGapInterval",
         FT_UINT32, BASE_DEC, VALS(ansi_map_SCFOverloadGapInterval_vals), 0,
@@ -15776,6 +16903,18 @@ void proto_register_ansi_map(void) {
       { "serviceManagementSystemGapInterval", "ansi_map.serviceManagementSystemGapInterval",
         FT_UINT32, BASE_DEC, VALS(ansi_map_ServiceManagementSystemGapInterval_vals), 0,
         "ansi_map.ServiceManagementSystemGapInterval", HFILL }},
+    { &hf_ansi_map_CDMAPSMMList_item,
+      { "Item", "ansi_map.CDMAPSMMList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CDMAPSMMList_item", HFILL }},
+    { &hf_ansi_map_cdmaTargetMAHOList2,
+      { "cdmaTargetMAHOList2", "ansi_map.cdmaTargetMAHOList2",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ansi_map.CDMATargetMAHOList", HFILL }},
+    { &hf_ansi_map_mpcAddress2,
+      { "mpcAddress2", "ansi_map.mpcAddress2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ansi_map.MPCAddress", HFILL }},
     { &hf_ansi_map_mobileStationIMSI,
       { "mobileStationIMSI", "ansi_map.mobileStationIMSI",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -16112,6 +17251,22 @@ void proto_register_ansi_map(void) {
       { "dropService", "ansi_map.dropService",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.DropService", HFILL }},
+    { &hf_ansi_map_lcsParameterRequest,
+      { "lcsParameterRequest", "ansi_map.lcsParameterRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.LCSParameterRequest", HFILL }},
+    { &hf_ansi_map_checkMEID,
+      { "checkMEID", "ansi_map.checkMEID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CheckMEID", HFILL }},
+    { &hf_ansi_map_positionEventNotification,
+      { "positionEventNotification", "ansi_map.positionEventNotification",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.PositionEventNotification", HFILL }},
+    { &hf_ansi_map_statusRequest,
+      { "statusRequest", "ansi_map.statusRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.StatusRequest", HFILL }},
     { &hf_ansi_map_handoffMeasurementRequestRes,
       { "handoffMeasurementRequestRes", "ansi_map.handoffMeasurementRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -16352,9 +17507,21 @@ void proto_register_ansi_map(void) {
       { "dropServiceRes", "ansi_map.dropServiceRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.DropServiceRes", HFILL }},
+    { &hf_ansi_map_lcsParameterRequestRes,
+      { "lcsParameterRequestRes", "ansi_map.lcsParameterRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.LCSParameterRequestRes", HFILL }},
+    { &hf_ansi_map_checkMEIDRes,
+      { "checkMEIDRes", "ansi_map.checkMEIDRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CheckMEIDRes", HFILL }},
+    { &hf_ansi_map_statusRequestRes,
+      { "statusRequestRes", "ansi_map.statusRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4934 "packet-ansi_map-template.c"
+#line 5062 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -16533,15 +17700,27 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_PositionRequestRes,
     &ett_ansi_map_PositionRequestForward,
     &ett_ansi_map_PositionRequestForwardRes,
+    &ett_ansi_map_GeoPositionRequest,
+    &ett_ansi_map_InterSystemPositionRequest,
+    &ett_ansi_map_InterSystemPositionRequestRes,
+    &ett_ansi_map_InterSystemPositionRequestForward,
+    &ett_ansi_map_InterSystemPositionRequestForwardRes,
     &ett_ansi_map_ACGDirective,
     &ett_ansi_map_RoamerDatabaseVerificationRequest,
     &ett_ansi_map_RoamerDatabaseVerificationRequestRes,
+    &ett_ansi_map_LCSParameterRequest,
+    &ett_ansi_map_LCSParameterRequestRes,
+    &ett_ansi_map_CheckMEID,
+    &ett_ansi_map_CheckMEIDRes,
     &ett_ansi_map_AddService,
     &ett_ansi_map_AddServiceRes,
     &ett_ansi_map_DropService,
     &ett_ansi_map_DropServiceRes,
+    &ett_ansi_map_PositionEventNotification,
     &ett_ansi_map_OTASPRequest,
     &ett_ansi_map_OTASPRequestRes,
+    &ett_ansi_map_StatusRequest,
+    &ett_ansi_map_StatusRequestRes,
     &ett_ansi_map_AnnouncementList,
     &ett_ansi_map_CDMACodeChannelInformation,
     &ett_ansi_map_CDMACodeChannelList,
@@ -16592,14 +17771,18 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_WIN_TriggerList,
     &ett_ansi_map_CallRecoveryID,
     &ett_ansi_map_CallRecoveryIDList,
+    &ett_ansi_map_PositionInformation,
     &ett_ansi_map_GapInterval,
+    &ett_ansi_map_CDMAPSMMList,
+    &ett_ansi_map_CDMAPSMMList_item,
+    &ett_ansi_map_MPCAddressList,
     &ett_ansi_map_MobileStationMSID,
     &ett_ansi_map_NewlyAssignedMSID,
     &ett_ansi_map_InvokeData,
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4966 "packet-ansi_map-template.c"
+#line 5094 "packet-ansi_map-template.c"
   };
 
 

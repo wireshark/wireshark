@@ -75,8 +75,7 @@ ErrorCode ::= CHOICE
 			}
 -- END TCAP
 --6.4.2.1 
-AuthenticationDirective  ::= [PRIVATE 18] SET {
-
+AuthenticationDirective ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber, 
 	--M 6.5.2.63
 --	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
@@ -103,6 +102,8 @@ AuthenticationDirective  ::= [PRIVATE 18] SET {
 	--	O 6.5.2.77 e
 	randomVariableReauthentication			[191] IMPLICIT RandomVariableReauthentication OPTIONAL,
 	-- O 6.5.2.uT j
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O
 	mobileStationMIN						[184] IMPLICIT MobileStationMIN OPTIONAL,
 	-- O 6.5.2.oC j
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
@@ -317,6 +318,8 @@ AuthenticationStatusReport ::= [PRIVATE 18] SET {
 	-- (Serving) M 6.5.2.146
 	countUpdateReport						[138] IMPLICIT CountUpdateReport OPTIONAL,
 	-- O 6.5.2.52 a
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	--
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- (Serving) O 6.5.2.82 e
 	reauthenticationReport					[192] IMPLICIT ReauthenticationReport OPTIONAL,
@@ -778,7 +781,7 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.108 d
 	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 d
-	resumePIC								[394] IMPLICIT ResumePIC OPTIONAL,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu m
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 d
@@ -800,8 +803,10 @@ FlashRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
 	-- (Actual) O 6.5.2.50 b
-	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63
+	emergencyServicesRoutingDigits			[239] IMPLICIT EmergencyServicesRoutingDigits OPTIONAL
+	-- O 6.5.bs
 	}
 -- FlashRequest RETURN RESULT Parameters
 -- zero octets
@@ -1907,7 +1912,7 @@ OriginationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.108 d
 	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 d, e
-	resumePIC								[394] IMPLICIT ResumePIC,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu p
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 g
@@ -2196,7 +2201,11 @@ RegistrationNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.160 j
 	winCapability							[280] IMPLICIT WINCapability OPTIONAL,
 	-- O 6.5.2.di l
-	... 
+	...,
+	mpcAddress								[370] IMPLICIT MPCAddress OPTIONAL,
+	-- O 6.5.2.ha z, ab
+	mpcAddressList							[381] IMPLICIT MPCAddressList OPTIONAL
+	-- O 6.5.2.hm aa, ab	 
 	}
 -- RegistrationNotification RETURN RESULT Parameters
 RegistrationNotificationRes ::= [PRIVATE 18] SET {
@@ -2239,6 +2248,8 @@ RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 d
 	geographicAuthorization					[143] IMPLICIT GeographicAuthorization OPTIONAL,
 	-- O 6.5.2.68 e
+	meidValidated							[401] IMPLICIT MEIDValidated OPTIONAL,
+	-- O 3.2.2.98
 	messageWaitingNotificationCount			[92] IMPLICIT MessageWaitingNotificationCount OPTIONAL,
 	-- O 6.5.2.78 f
 	messageWaitingNotificationType			[289] IMPLICIT MessageWaitingNotificationType OPTIONAL,
@@ -2506,21 +2517,27 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	-- M 6.5.2.137
 	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
 	-- O 6.5.2.2
+	cdmaServingOneWayDelay2					[347] IMPLICIT	CDMAServingOneWayDelay2 OPTIONAL,
+	-- O 6.5.2.gd n, r
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 a
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	--  O 6.5.2.hv
 	interMessageTime						[325] IMPLICIT InterMessageTime OPTIONAL,
 	-- O 6.5.2.fd
 --	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	-- O 6.5.2.81 a
 	-- Exchanged by MSID
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- O 6.5.2.82 f
 --	msid									MSID OPTIONAL,
 	imsi									[242] IMPLICIT IMSI OPTIONAL,
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	--6.5.2.bv
-	newlyAssignedMIN						[187] IMPLICIT NewlyAssignedMIN OPTIONAL,
-	-- O 6.5.2.rB j
 	newlyAssignedIMSI						[287] IMPLICIT NewlyAssignedIMSI OPTIONAL,
 	-- O 6.5.2.dqB j
+	newlyAssignedMIN						[187] IMPLICIT NewlyAssignedMIN OPTIONAL,
+	-- O 6.5.2.rB j
 	newMINExtension							[328] IMPLICIT NewMINExtension OPTIONAL,
 	-- O 6.5.2.ff n
 	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL,
@@ -2543,18 +2560,24 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	--  O 6.5.2.134 b
 	sms-OriginatingAddress					[114] IMPLICIT SMS-OriginatingAddress OPTIONAL,
 	-- O 6.5.2.135 g
+	teleservice-Priority					[290] IMPLICIT Teleservice-Priority OPTIONAL,
+	-- O 6.5.2.dt
 	temporaryReferenceNumber				[195] IMPLICIT TemporaryReferenceNumber OPTIONAL
 	-- O 6.5.2.yC
 	}
 
 -- SMSDeliveryPointToPoint RETURN RESULT Parameters
 SMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 k
 	authorizationDenied						[13] IMPLICIT AuthorizationDenied OPTIONAL,
 	-- O 6.5.2.13 h
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
 	-- O 6.5.2.54 c
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 d
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O 6.5.2.hv
 	mobileStationMSID						MobileStationMSID OPTIONAL,
 	-- O 6.5.2.oC e
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
@@ -3084,7 +3107,7 @@ ServiceRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.108 a
 	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 a
-	resumePIC								[394] IMPLICIT ResumePIC,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu g
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 a
@@ -3202,7 +3225,7 @@ AnalyzedInformationRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.88 j
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 d
-	resumePIC								[394] IMPLICIT ResumePIC OPTIONAL,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu k
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 d
@@ -3323,7 +3346,7 @@ FacilitySelectedAndAvailableRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.87 g
 	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
 	-- O 6.5.2.88 h
-	resumePIC								[394] IMPLICIT ResumePIC,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu i
 	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
 	-- O 6.5.2.159 d
@@ -3343,12 +3366,12 @@ FacilitySelectedAndAvailableRes ::= [PRIVATE 18] SET {
 Modify ::= [PRIVATE 18] SET {
 	databaseKey								[252] IMPLICIT DatabaseKey,
 	-- M 6.5.2.cf a
-	modificationRequestList					[391] IMPLICIT ModificationRequestList
+	modificationRequestList					[263] IMPLICIT ModificationRequestList
 	-- M 6.5.2.cq
 	}
 -- Modify RETURN RESULT Parameters
 ModifyRes ::= [PRIVATE 18] SET {
-	modificationResultList					[392] IMPLICIT ModificationResultList
+	modificationResultList					[264] IMPLICIT ModificationResultList
 	-- M 6.5.2.cs a
 	}
 
@@ -3359,13 +3382,13 @@ ModifyRes ::= [PRIVATE 18] SET {
 Search ::= [PRIVATE 18] SET {
 	databaseKey								[252] IMPLICIT DatabaseKey,
 	-- M 6.5.2.cf a
-	serviceDataAccessElementList			[399] IMPLICIT ServiceDataAccessElementList
+	serviceDataAccessElementList			[271] IMPLICIT ServiceDataAccessElementList
 	--M 6.5.2.cz b
 	}
 
 -- Search RETURN RESULT Parameters
 SearchRes ::= [PRIVATE 18] SET {
-	serviceDataAccessElementList			[399] IMPLICIT ServiceDataAccessElementList
+	serviceDataAccessElementList			[271] IMPLICIT ServiceDataAccessElementList
 	-- M 6.5.2.cz a
 	}
 
@@ -3373,7 +3396,7 @@ SearchRes ::= [PRIVATE 18] SET {
 SeizeResource ::= [PRIVATE 18] SET {
 	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
 	-- O 6.5.2.96
-	privateSpecializedResource				[383] IMPLICIT PrivateSpecializedResource OPTIONAL,
+	privateSpecializedResource				[265] IMPLICIT PrivateSpecializedResource OPTIONAL,
 	--O 6.5.2.u a
 	specializedResource						[274] IMPLICIT SpecializedResource OPTIONAL
 	--O 6.5.2.dc a
@@ -3400,7 +3423,7 @@ SRFDirective ::= [PRIVATE 18] SET {
 SRFDirectiveRes ::= [PRIVATE 18] SET {
 	digits		 							[4] IMPLICIT Digits OPTIONAL,
 	-- (Dialed) O 6.5.2.58 a, b
-	scriptResult							[397] IMPLICIT ScriptResult OPTIONAL
+	scriptResult							[269] IMPLICIT ScriptResult OPTIONAL
 	-- O 6.5.2.cx c
 	}
 
@@ -3498,7 +3521,7 @@ TBusyRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.96 l, o
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 i
-	resumePIC								[394] IMPLICIT ResumePIC,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu j
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 l
@@ -3603,7 +3626,7 @@ TNoAnswerRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.96 l, o
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 i
-	resumePIC								[394] IMPLICIT ResumePIC,
+	resumePIC								[266] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu j
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 l
@@ -4159,7 +4182,7 @@ PositionRequestRes ::= [PRIVATE 18] SET {
 
 -- 6.4.2.aj PositionRequestForward
 PositionRequestForward ::= [PRIVATE 18] SET {
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	positionInformationCode					[315] IMPLICIT PositionInformationCode,
 	-- M 6.5.2.er a
@@ -4182,6 +4205,345 @@ PositionRequestForwardRes ::= [PRIVATE 18] SET {
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
 	-- O 6.5.2.117 c, e
 	}
+
+-- 6.4.2.am GeoPositionRequest (See J-STD-036, page 8-7) X.S0002-0 v2.0
+GeoPositionRequest ::= [PRIVATE 18] SET {
+	positionRequestType						[337] IMPLICIT PositionRequestType,
+	--  M 6.5.2.fs
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
+	-- O 6.5.2.16 h
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 b
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu b
+	lcsBillingID							[367] IMPLICIT LCSBillingID OPTIONAL,
+	-- O 6.5.2.gx i
+	lcs-Client-ID							[358] IMPLICIT LCS-Client-ID OPTIONAL,
+	-- O 6.5.2.go b
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O 6.5.2.hv b
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 b
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm a
+-- Mobinfo_AMPS **Macro** O 6.5.2.fn f expanded
+ 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+ 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+-- Mobinfo_CDMA **Macro** O 6.5.2.fo g expanded:
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.30 c
+	cdmaCodeChannel							[68] IMPLICIT CDMACodeChannel OPTIONAL,
+	-- O 6.5.2.31 a
+	cdmaMobileCapabilities					[330] IMPLICIT CDMAMobileCapabilities OPTIONAL,
+	-- O 6.5.2.xx a
+	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 a
+ 	cdmaServingOneWayDelay2					[347] IMPLICIT	CDMAServingOneWayDelay2 OPTIONAL,
+	-- O 6.5.2.gd a
+	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
+	-- O 6.5.2.f m
+	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
+	-- O 6.5.2.43 g
+	cdmaPSMMList							[346] IMPLICIT CDMAPSMMList OPTIONAL,
+	-- O 6.5.2.gc a
+
+-- Mobinfo_NAMPS **Macro** O 6.5.2.fp e expanded:
+-- 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+	 nampsChannelData							[76] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.86
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+-- 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+-- Mobinfo_TDMA **Macro** O 6.5.2.fq d expanded:
+	tdmaChannelData							[28] IMPLICIT TDMAChannelData,
+	-- M 6.5.2.153
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+--	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+	targetMeasurementList					[157] IMPLICIT TargetMeasurementList OPTIONAL,
+	-- O 6.5.2.150 a
+	tdma-MAHO-CELLID						[359] IMPLICIT TDMA-MAHO-CELLID OPTIONAL,
+	-- O 2.3.2.26 b
+	tdma-MAHO-CHANNEL						[360] IMPLICIT TDMA-MAHO-CHANNEL OPTIONAL,
+	-- O 2.3.2.27 c
+	tdma-TimeAlignment						[362] IMPLICIT TDMA-TimeAlignment OPTIONAL,
+	-- O 2.3.2.29 d
+	tdmaVoiceMode							[223] IMPLICIT TDMAVoiceMode OPTIONAL,
+	-- O ANSI-41-E a
+	voicePrivacyMask							[48] IMPLICIT VoicePrivacyMask OPTIONAL,
+	-- O 6.5.2.166 a
+
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 b
+	networkTMSI								[233] IMPLICIT NetworkTMSI OPTIONAL,
+	-- O 6.5.2.bl b
+-- PositionQualityOfService O 6.5.2.hc j MACRO expanded:
+	pqos-HorizontalPosition					[372] IMPLICIT PQOS-HorizontalPosition OPTIONAL,
+	-- O 6.5.2.hd a, b
+	pqos-HorizontalVelocity					[373] IMPLICIT PQOS-HorizontalVelocity OPTIONAL,
+	-- O 6.5.2.he c
+	pqos-MaximumPositionAge					[374] IMPLICIT PQOS-MaximumPositionAge OPTIONAL,
+	-- O 6.5.2.hf d
+	pqos-PositionPriority					[375] IMPLICIT	PQOS-PositionPriority OPTIONAL,
+	-- O 6.5.2.hg e
+	pqos-ResponseTime						[376] IMPLICIT PQOS-ResponseTime OPTIONAL,
+	-- O 6.5.2.hh f
+	pqos-VerticalPosition					[377] IMPLICIT	PQOS-VerticalPosition OPTIONAL,
+	-- O 6.5.2.hi g
+	pqos-VerticalVelocity					[378] IMPLICIT PQOS-VerticalVelocity OPTIONAL,
+	-- O 6.5.2.hj h
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 b
+	teleservice-Priority					[290] IMPLICIT Teleservice-Priority OPTIONAL
+	-- O 6.5.2.dt c
+}
+
+-- 6.4.2.an InterSystemPositionRequest
+InterSystemPositionRequest ::= [PRIVATE 18] SET {
+	positionRequestType						[337] IMPLICIT PositionRequestType,
+	--  M 6.5.2.fs
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	-- O 6.5.2.2 o
+	cdmaPSMMCount							[344] IMPLICIT CDMAPSMMCount OPTIONAL,
+	-- O 6.5.2.gbh
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) O 6.5.2.58 j
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 d
+	emergencyServicesRoutingDigits			[239] IMPLICIT EmergencyServicesRoutingDigits OPTIONAL,
+	-- O 6.5.2.bs d, f
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu d
+	lcsBillingID							[367] IMPLICIT LCSBillingID OPTIONAL,
+	-- O 6.5.2.gx k
+	lirAuthorization						[368] IMPLICIT LIRAuthorization OPTIONAL,
+	-- O 6.5.2.gy l
+	lcs-Client-ID							[358] IMPLICIT LCS-Client-ID OPTIONAL,
+	-- O 6.5.2.go d
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O 6.5.2.hv d
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 d
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 d
+-- MobInfo_AMPS **Macro** O 6.5.2.fn b, p f expanded:
+ 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+ 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+
+-- Mobinfo_CDMA **Macro** O 6.5.2.fo a, p f
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.30 c
+	cdmaCodeChannel							[68] IMPLICIT CDMACodeChannel OPTIONAL,
+	-- O 6.5.2.31 a
+	cdmaMobileCapabilities					[330] IMPLICIT CDMAMobileCapabilities OPTIONAL,
+	-- O 6.5.2.xx a
+	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 a
+ 	cdmaServingOneWayDelay2					[347] IMPLICIT	CDMAServingOneWayDelay2 OPTIONAL,
+	-- O 6.5.2.gd a
+	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
+	-- O 6.5.2.f m
+	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
+	-- O 6.5.2.43 g
+	cdmaPSMMList							[346] IMPLICIT CDMAPSMMList OPTIONAL,
+	-- O 6.5.2.gc a
+
+-- Mobinfo_NAMPS **Macro** O 6.5.2.fp c, p f expanded:
+-- 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+	nampsChannelData							[76] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.86
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+-- 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+-- Mobinfo_TDMA **Macro** O 6.5.2.fq g, p f expanded:
+	tdmaChannelData							[28] IMPLICIT TDMAChannelData,
+	-- M 6.5.2.153
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+--	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+	targetMeasurementList					[157] IMPLICIT TargetMeasurementList OPTIONAL,
+	-- O 6.5.2.150 a
+	tdma-MAHO-CELLID						[359] IMPLICIT TDMA-MAHO-CELLID OPTIONAL,
+	-- O 2.3.2.26 b
+	tdma-MAHO-CHANNEL						[360] IMPLICIT TDMA-MAHO-CHANNEL OPTIONAL,
+	-- O 2.3.2.27 c
+	tdma-TimeAlignment						[362] IMPLICIT TDMA-TimeAlignment OPTIONAL,
+	-- O 2.3.2.29 d
+	tdmaVoiceMode							[223] IMPLICIT TDMAVoiceMode OPTIONAL,
+	-- O ANSI-41-E a
+	voicePrivacyMask							[48] IMPLICIT VoicePrivacyMask OPTIONAL,
+	-- O 6.5.2.166 a
+
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm e, f
+	mpcAddress								[370] IMPLICIT MPCAddress OPTIONAL,
+	-- O 6.5.2.ha s, u
+	mpcAddressList							[381] IMPLICIT MPCAddressList OPTIONAL,
+	-- O 6.5.2.hm t, u
+	mpcid									[371] IMPLICIT MPCID OPTIONAL,
+	-- O 6.5.2.hb m
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 q f
+	networkTMSI								[233] IMPLICIT NetworkTMSI OPTIONAL,
+	-- O 6.5.2.bl d
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL,
+	-- (Serving MSC) O 6.5.2.93 r
+--	PositionQualityOfService O 6.5.2.hc n MACRO expanded:
+	pqos-HorizontalPosition					[372] IMPLICIT PQOS-HorizontalPosition OPTIONAL,
+	-- O 6.5.2.hd a, b
+	pqos-HorizontalVelocity					[373] IMPLICIT PQOS-HorizontalVelocity OPTIONAL,
+	-- O 6.5.2.he c
+	pqos-MaximumPositionAge					[374] IMPLICIT PQOS-MaximumPositionAge OPTIONAL,
+	-- O 6.5.2.hf d
+	pqos-PositionPriority					[375] IMPLICIT	PQOS-PositionPriority OPTIONAL,
+	-- O 6.5.2.hg e
+	pqos-ResponseTime						[376] IMPLICIT PQOS-ResponseTime OPTIONAL,
+	-- O 6.5.2.hh f
+	pqos-VerticalPosition					[377] IMPLICIT	PQOS-VerticalPosition OPTIONAL,
+	-- O 6.5.2.hi g
+	pqos-VerticalVelocity					[378] IMPLICIT PQOS-VerticalVelocity OPTIONAL,
+	-- O 6.5.2.hj h
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117 p f
+-- TDMA_MAHORequest O 6.5.2.gu
+}
+
+-- InterSystemPositionRequest RETURN RESULT Parameters
+InterSystemPositionRequestRes ::= [PRIVATE 18] SET {
+	positionResult							[338] IMPLICIT PositionResult,
+	-- M 6.5.2.ft
+	lcsBillingID							[367] IMPLICIT LCSBillingID OPTIONAL,
+	-- O 6.5.2.gx i
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm e
+-- MobInfo_AMPS **Macro** O 6.5.2.fn c, e expanded:
+ 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+ 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+-- MobInfo_CDMA **Macro** O 6.5.2.fo b, e expanded:
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.30 c
+	cdmaCodeChannel							[68] IMPLICIT CDMACodeChannel OPTIONAL,
+	-- O 6.5.2.31 a
+	cdmaMobileCapabilities					[330] IMPLICIT CDMAMobileCapabilities OPTIONAL,
+	-- O 6.5.2.xx a
+	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 a
+ 	cdmaServingOneWayDelay2					[347] IMPLICIT	CDMAServingOneWayDelay2 OPTIONAL,
+	-- O 6.5.2.gd a
+	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
+	-- O 6.5.2.f m
+	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
+	-- O 6.5.2.43 g
+	cdmaPSMMList							[346] IMPLICIT CDMAPSMMList OPTIONAL,
+	-- O 6.5.2.gc a
+
+-- MobInfo_NAMPS **Macro** O 6.5.2.fp g, e expended:
+-- 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+	nampsChannelData						[76] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.86
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+--	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+
+-- MobInfo_TDMA **Macro** O 6.5.2.fq a, e
+	tdmaChannelData							[28] IMPLICIT TDMAChannelData,
+	-- M 6.5.2.153
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+--	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+	targetMeasurementList					[157] IMPLICIT TargetMeasurementList OPTIONAL,
+	-- O 6.5.2.150 a
+	tdma-MAHO-CELLID						[359] IMPLICIT TDMA-MAHO-CELLID OPTIONAL,
+	-- O 2.3.2.26 b
+	tdma-MAHO-CHANNEL						[360] IMPLICIT TDMA-MAHO-CHANNEL OPTIONAL,
+	-- O 2.3.2.27 c
+	tdma-TimeAlignment						[362] IMPLICIT TDMA-TimeAlignment OPTIONAL,
+	-- O 2.3.2.29 d
+	tdmaVoiceMode							[223] IMPLICIT TDMAVoiceMode OPTIONAL,
+	-- O ANSI-41-E a
+	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL,
+	-- O 6.5.2.166 a
+
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 f
+	positionInformation						[336] IMPLICIT PositionInformation OPTIONAL,
+	-- O 6.5.2.fr h
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117 d
+}
+-- 6.4.2.ao InterSystemPositionRequestForward
+InterSystemPositionRequestForward ::= [PRIVATE 18] SET {
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- M 6.5.2.63
+	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	-- M 6.5.2.72
+	positionRequestType						[337] IMPLICIT PositionRequestType,
+	--  M 6.5.2.fs
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu a
+	lcsBillingID							[367] IMPLICIT LCSBillingID OPTIONAL,
+	-- O 6.5.2.gx d
+	lcs-Client-ID							[358] IMPLICIT LCS-Client-ID OPTIONAL,
+	-- O 6.5.2.go a
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O 6.5.2.hv a
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 a
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm b
+	mpcid									[371] IMPLICIT MPCID OPTIONAL,
+	-- O 6.5.2.hb d
+--	PositionQualityOfService O 6.5.2.hc d MACRO expanded:
+	pqos-HorizontalPosition					[372] IMPLICIT PQOS-HorizontalPosition OPTIONAL,
+	-- O 6.5.2.hd a, b
+	pqos-HorizontalVelocity					[373] IMPLICIT PQOS-HorizontalVelocity OPTIONAL,
+	-- O 6.5.2.he c
+	pqos-MaximumPositionAge					[374] IMPLICIT PQOS-MaximumPositionAge OPTIONAL,
+	-- O 6.5.2.hf d
+	pqos-PositionPriority					[375] IMPLICIT	PQOS-PositionPriority OPTIONAL,
+	-- O 6.5.2.hg e
+	pqos-ResponseTime						[376] IMPLICIT PQOS-ResponseTime OPTIONAL,
+	-- O 6.5.2.hh f
+	pqos-VerticalPosition					[377] IMPLICIT	PQOS-VerticalPosition OPTIONAL,
+	-- O 6.5.2.hi g
+	pqos-VerticalVelocity					[378] IMPLICIT PQOS-VerticalVelocity OPTIONAL
+	-- O 6.5.2.hj h
+-- TDMA_MAHORequest O 6.5.2.gu c
+}
+--InterSystemPositionRequestForward RETURN RESULT Parameters
+InterSystemPositionRequestForwardRes ::= [PRIVATE 18] SET {
+	mscid									[21] IMPLICIT MSCID,
+	-- (Serving) M 6.5.2.82
+	positionResult							[338] IMPLICIT PositionResult,
+	-- M 6.5.2.ft
+	lcsBillingID							[367] IMPLICIT LCSBillingID OPTIONAL,
+	-- O 6.5.2.gx b
+	positionInformation						[336] IMPLICIT PositionInformation OPTIONAL,
+	-- O 6.5.2.fr a
+	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL
+	-- O 6.5.2.117
+}
 
 -- 6.4.2.ap ACGDirective
 ACGDirective  ::= [PRIVATE 18] SET {
@@ -4217,6 +4579,63 @@ RoamerDatabaseVerificationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.160
 	}
 
+-- 6.4.2.au LCSParameterRequest 
+LCSParameterRequest ::=  [PRIVATE 18] SET {
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 a
+	mpcid									[371] IMPLICIT MPCID OPTIONAL,
+	-- O 6.5.2.hbb
+	msid									MSID OPTIONAL
+	-- O 6.5.2.bv a
+}
+-- LCSParameterRequest RETURN RESULT Parameters
+LCSParameterRequestRes ::= [PRIVATE 18] SET {
+	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
+	-- O 6.5.2.1 a
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63 b
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu b, c
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O 6.5.2.hv j
+	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
+	-- O 6.5.2.80 b, c
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 b, c
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm d
+	mpcAddress								[370] IMPLICIT MPCAddress OPTIONAL,
+	-- O 6.5.2.ha e, g
+	mpcAddressList							[381] IMPLICIT MPCAddressList OPTIONAL,
+	-- O 6.5.2.hm f, g
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
+	-- (Serving) O 6.5.2.82 h
+	pc-ssn									[32] IMPLICIT PC-SSN OPTIONAL
+	-- (Serving MSC) O 6.5.2.93
+}
+
+-- 3.2.2.1 CheckMEID (new) X.S0002-0 v1.0
+
+CheckMEID ::= [PRIVATE 18] SET {
+	digits		 							[4] IMPLICIT Digits OPTIONAL,
+	-- (Dialed) M 6.5.2.58 a
+	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	-- M 6.5.2.72
+	msid									MSID OPTIONAL,
+	-- M 6.5.2.bv b
+	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
+	-- O 6.5.2.50 c
+	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
+	-- O 6.5.2.63
+	emergencyServicesRoutingDigits			[239] IMPLICIT EmergencyServicesRoutingDigits OPTIONAL
+	-- O 6.5.bs d
+}
+
+-- CheckMEID RETURN RESULTParameters
+CheckMEIDRes ::= [PRIVATE 18] SET {
+	meidStatus								[391] IMPLICIT MEIDStatus OPTIONAL
+	-- M 3.3.2.97 a
+}
 -- 6.4.2.ar AddService N.S0029-0 v1.0
 
 AddService ::= [PRIVATE 18] SET {
@@ -4236,7 +4655,6 @@ AddService ::= [PRIVATE 18] SET {
 -- Table ar3 AddService RETURN RESULT Parameters
 
 AddServiceRes ::= [PRIVATE 18] SET {
-
 	cdmaConnectionReferenceList				[212] IMPLICIT CDMAConnectionReferenceList OPTIONAL,
 	-- O 6.5.2.aq IS-737 a
 	cdmaServiceOptionList					[176] IMPLICIT CDMAServiceOptionList OPTIONAL,
@@ -4269,9 +4687,23 @@ DropServiceRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.16 a
 	}
 
+-- 6.4.2.ay PositionEventNotification 
+PositionEventNotification ::= [PRIVATE 18] SET {
+	positionResult							[338] IMPLICIT PositionResult,
+	-- M 6.5.2.ft a
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bj c, d
+	lcsBillingID							[367] IMPLICIT LCSBillingID OPTIONAL,
+	-- O 6.5.2.gx b
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL
+	-- O 6.5.2.81 c, d
+}
+-- PositionEventNotification RETURN RESULT Parameters
+-- zero octets
+
 -- 6.4.2.CC OTASPRequest
 OTASPRequest ::= [PRIVATE 18] SET {
-	ctionCode								[128] IMPLICIT ActionCode OPTIONAL,
+	actionCode								[128] IMPLICIT ActionCode OPTIONAL,
 	-- O 6.5.2.2 a
 	aKeyProtocolVersion						[181] IMPLICIT AKeyProtocolVersion OPTIONAL,
 	-- O 6.5.2.lB b
@@ -4330,7 +4762,19 @@ OTASPRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.zB e
 	}
 	
-		
+-- 3.2.2.2 StatusRequest (new) X.S0008-0 v1.0
+StatusRequest ::= [PRIVATE 18] SET {
+	msid									MSID,
+	-- M 2.153 a
+	record-Type								[392] IMPLICIT Record-Type
+	-- M 3.3.2.2 b
+}
+
+-- StatusRequest RETURN RESULT Parameters
+StatusRequestRes ::= [PRIVATE 18] SET {
+	information-Record						[389] IMPLICIT Information-Record OPTIONAL
+	-- O 3.3.2.2
+}
 -- Parameters
 -- 6.5.2.1
 -- 1 0 0 1 0 1 0 0 (0x94)
@@ -4345,7 +4789,8 @@ AccessDeniedReason ::= ENUMERATED {
 	service-Rejected-by-MS			( 7 ), 
 	services-Rejected-by-the-System	( 8 ), 
 	service-Type-Mismatch			( 9 ), 
-	service-Denied					( 10 ) 
+	service-Denied					( 10 ),
+	position-Determination-Not-Supported (12)
 	}
 -- 6.5.2.2
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -4952,7 +5397,7 @@ NAMPSCallMode ::= OCTET STRING
 
 -- 6.5.2.86
 -- 1 0 0 1 1 1 1 1 (0x9f)
--- 0 1 0 0 1 0 1 0 (0x4a)
+-- 0 1 0 0 1 0 1 0 (0x4a)(76)
 NAMPSChannelData ::= OCTET STRING
 
 -- 6.5.2.87
@@ -5084,7 +5529,9 @@ Profile ::= SET {
 	-- O 6 .5.2.am v , w
 	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
 	-- O 6.5.2.gl z
-	...
+	...,
+	lirMode									[369] IMPLICIT LIRMode OPTIONAL
+	-- O 6.5.2.gz z
 	}
 -- END MACRO
 
@@ -6032,7 +6479,8 @@ CDMANetworkIdentification ::= OCTET STRING
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 0 1 0 0 1 (0x69)(233)
 -- XXX Is this correct? see (N.S0005-0 v 1.0 Chapter 5, page 219)
-NetworkTMSI ::= DigitsType
+-- Changed from DigitsType to Octetstring  J-STD-036-AD-1
+NetworkTMSI ::= OCTET STRING
 
 -- 6.5.2.bm N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -6070,6 +6518,11 @@ ServiceRedirectionInfo ::= OCTET STRING
 -- 0 1 1 0 1 1 1 1 (0x6f)(239)
 RoamingIndication ::= OCTET STRING
 
+-- 6.5.2.bs
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 0 1 (0x81)
+-- 0 1 1 1 0 0 0 0 (0x6f)(239)
+EmergencyServicesRoutingDigits ::= DigitsType
 
 -- 6.5.2.bu
 -- N.S0010-0 v 1.0
@@ -6218,7 +6671,7 @@ DataValue ::= OCTET STRING
 
 -- 6.5.2.ck DestinationAddress N.S0013-0 v 1.0
 DestinationAddress ::= CHOICE {
-	globalTitle	[389] IMPLICIT GlobalTitle, 
+	globalTitle	[261] IMPLICIT GlobalTitle, 
 	pC-SSN		[32] IMPLICIT PC-SSN
 	}
 
@@ -6234,9 +6687,9 @@ DetectionPointType ::= ENUMERATED {
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 0 0 1 0 (0x02)(386)
 ExecuteScript ::= SEQUENCE {
-	scriptName		[396] IMPLICIT ScriptName,
+	scriptName		[268] IMPLICIT ScriptName,
 --	M 6.5.2.cw a
-	scriptArgument	[395] IMPLICIT ScriptArgument OPTIONAL
+	scriptArgument	[267] IMPLICIT ScriptArgument OPTIONAL
 --	O 6.5.2.cv b
 }
 
@@ -6260,10 +6713,11 @@ FailureType ::= ENUMERATED {
 	sSFTExpiration (4)
 }
 
+
 -- 6.5.2.co N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 0 1 0 1 (0x05)(389)
+-- 0 0 0 0 0 1 0 1 (0x05)(261)
 GlobalTitle ::= OCTET STRING
 --parameter carries the SCCP Global Title as defined in
 --Section 3 of ANSI T1.112.
@@ -6272,18 +6726,18 @@ GlobalTitle ::= OCTET STRING
 -- ModificationRequest 
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 0 1 1 0 (0x06)(390)
+-- 0 0 0 0 0 1 1 0 (0x06)(262)
 
 ModificationRequest ::= SEQUENCE {
-	serviceDataAccessElementList	[399] IMPLICIT ServiceDataAccessElementList OPTIONAL,
+	serviceDataAccessElementList	[271] IMPLICIT ServiceDataAccessElementList OPTIONAL,
 	allOrNone	[247] IMPLICIT AllOrNone
 	}
 
 -- 6.5.2.cq N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 0 1 1 1 (0x07)(391)
-ModificationRequestList ::= SEQUENCE OF [390]IMPLICIT ModificationRequest
+-- 0 0 0 0 0 1 1 1 (0x07)(263)
+ModificationRequestList ::= SEQUENCE OF [262] IMPLICIT ModificationRequest
 
 -- 6.5.2.cr ModificationResult N.S0013-0 v 1.0 
 -- The ModificationResult CHOICE is not explicitly encoded with a parameter identifier and length
@@ -6295,14 +6749,14 @@ ModificationResult ::= CHOICE
 -- 6.5.2.cs N.S0013-0 v 1.0
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 0 0 0 (0x08)(392)
+-- 0 0 0 0 1 0 0 0 (0x08)(264)
 ModificationResultList ::= SEQUENCE OF ModificationResult
 
 
 -- 6.5.2.ct N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 0 0 1 (0x09)(383)
+-- 0 0 0 0 1 0 0 1 (0x09)(265)
 PrivateSpecializedResource ::= OCTET STRING
 --values are allocated by network operators for use
 --within their networks 
@@ -6310,7 +6764,7 @@ PrivateSpecializedResource ::= OCTET STRING
 -- 6.5.2.cu N.S0013-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 0 1 0 (0x0a)(394)
+-- 0 0 0 0 1 0 1 0 (0x0a)(266)
 ResumePIC ::= ENUMERATED {
 	continue-Call-Processing (1),
 	collect-Information-PIC (2),
@@ -6335,25 +6789,25 @@ ResumePIC ::= ENUMERATED {
 -- 6.5.2.cv
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 0 1 1 (0x0b)(395)
+-- 0 0 0 0 1 0 1 1 (0x0b)(267)
 ScriptArgument ::= OCTET STRING
 
 -- 6.5.2.cw
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 1 0 0 (0x0c)(396)
+-- 0 0 0 0 1 1 0 0 (0x0c)(268)
 ScriptName ::= OCTET STRING
 
 -- 6.5.2.cx
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 1 0 1 (0x0d)(397)
+-- 0 0 0 0 1 1 0 1 (0x0d)(269)
 ScriptResult ::= OCTET STRING
  
 -- 6.5.2.cy
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 1 1 0 (0x0e) (398)
+-- 0 0 0 0 1 1 1 0 (0x0e) (270)
 ServiceDataAccessElement ::= SEQUENCE {
 	dataAccessElementList	[250] IMPLICIT DataAccessElementList OPTIONAL,
 	serviceID				[246] IMPLICIT ServiceID
@@ -6362,8 +6816,8 @@ ServiceDataAccessElement ::= SEQUENCE {
 -- 6.5.2.cz
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 0 0 1 1 1 1 (0x0f)(399)
-ServiceDataAccessElementList ::= SEQUENCE OF [398] IMPLICIT ServiceDataAccessElement
+-- 0 0 0 0 1 1 1 1 (0x0f)(271)
+ServiceDataAccessElementList ::= SEQUENCE OF [270] IMPLICIT ServiceDataAccessElement
 
 -- 6.5.2.da
 -- 1 0 1 1 1 1 1 1 (0x9f)
@@ -6388,7 +6842,7 @@ SpecializedResource ::= OCTET STRING
 
 SRFCapability ::= SET {
 	specializedResource			[274] IMPLICIT SpecializedResource OPTIONAL,
-	privateSpecializedResource	[383] IMPLICIT PrivateSpecializedResource OPTIONAL
+	privateSpecializedResource	[265] IMPLICIT PrivateSpecializedResource OPTIONAL
 	}
 --at least one must be present
 
@@ -6531,6 +6985,15 @@ SuspiciousAccess ::= ENUMERATED {
 	unspecified (2),
 	...
 	}
+-- 6.5.2.dp 1e 286
+-- 6.5.2.dq 1f 287
+-- 6.5.2.dr 20 288
+-- 6.5.2.ds 21 289
+-- (ANSI-41 6.5.2.dt) 2.2.2.25 J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 0 1 0 0 0 1 0 (0x22)(290)
+Teleservice-Priority ::= OCTET STRING
 
 -- 6.5.2.eb
 -- 1 0 0 1 1 1 1 1
@@ -6703,6 +7166,160 @@ MSIDUsage ::= OCTET STRING
 -- (3xx)
 NewMINExtension ::= MINType
 
+-- (ANSI-41 6.5.2.fg) 2.2.2.7 J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 0 0 1 (0x49)(329)
+DTXIndication ::= OCTET STRING
+
+-- (ANSI-4a1 6.5.2.fh) 2.2.2.5 J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 0 1 0 (0x4a)(330)
+CDMAMobileCapabilities ::= OCTET STRING
+-- H G F E D C B A		octet Notes
+-- Reserved      MIPLI	1		a ( Bit A)
+-- 
+-- 0 No MS-initiated position determination.
+-- 1 MS-initiated position determination.
+
+-- (ANSI-41 6.5.2.fi) 2.2.2.8  J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 0 1 1 (0x4b)(331)
+-- GeneralizedTime
+-- Generalized Time is included by reference to Chapter 7. The definition from
+-- X.680 that is referenced from Chapter 7 should be used, and not the definition
+-- from TIA/EIA-41-D.
+
+-- (ANSI-41 6.5.2.fj) 2.2.2.9 J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 1 0 0 (0x4c)(332)
+-- GenericDigits
+
+-- (ANSI-41 6.5.2.fk) 2.2.2.10 J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 1 0 1 (0x4d)(333)
+GeographicPosition ::= OCTET STRING
+
+-- 2.2.2.11 (ANSI-41 6.5.2.fl) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 1 1 0 (0x4e)(334)
+MobileCallStatus ::= OCTET STRING
+
+-- 2.2.2.12 (ANSI-41 6.5.2.fm) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 0 1 1 1 1 (0x4f)(335)
+MobilePositionCapability ::= OCTET STRING
+
+-- 2.3.2.14 MobInfo_AMPS
+-- The MobInfo_AMPS (AMPS Analog Mobile Information) is a collection of information
+-- needed to determine the position of an MS that is currently operating in the AMPS analog mode.
+-- The MobInfo_AMPS macro has been defined solely for editorial convenience, and does not
+-- affect the encoding in any way.
+
+-- 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+-- 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+
+-- 2.3.2.15 MobInfo_CDMA
+-- 6.5.2.fo MobInfo_CDMA
+-- MobInfo_CDMA Macro
+--	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.30 c
+--	cdmaCodeChannel							[68] IMPLICIT CDMACodeChannel OPTIONAL,
+	-- O 6.5.2.31 a
+--	cdmaMobileCapabilities					[330] IMPLICIT CDMAMobileCapabilities OPTIONAL,
+	-- O 6.5.2.xx a
+--	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 a
+-- 	cdmaServingOneWayDelay2					[347] IMPLICIT	CDMAServingOneWayDelay2 OPTIONAL,
+	-- O 6.5.2.gd a
+--	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
+	-- O 6.5.2.f m
+--	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
+	-- O 6.5.2.43 g
+--	cdmaPSMMList							[346] IMPLICIT CDMAPSMMList OPTIONAL,
+	-- O 6.5.2.gc a
+
+-- 2.3.2.16 MobInfo_NAMPS TIA/EIA/J-STD-036-A
+-- 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.47
+-- nampsChannelData							[76] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Serving) M 6.5.2.86
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+-- 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+
+-- 2.3.2.17 MobInfo_TDMA
+-- (new for ANSI-41-D Chapter 5, page 5-306)
+-- The MobInfo_TDMA (TDMA Mobile Information) is a collection of information needed to
+-- determine the position of an MS that is currently operating in the TDMA mode. The
+-- MobInfo_TDMA macro has been defined solely for editorial convenience, and does not affect
+-- the encoding in any way.
+-- 	tdmaChannelData							[28] IMPLICIT TDMAChannelData,
+	-- M 6.5.2.153
+--	dtxIndication							[329] IMPLICIT DTXIndication OPTIONAL,
+	-- O 6.5.2.fg a
+-- receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
+	-- O 6.5.2.106 a
+-- 	targetMeasurementList					[157] IMPLICIT TargetMeasurementList OPTIONAL,
+	-- O 6.5.2.150 a
+--	tdma-MAHO-CELLID						[359] IMPLICIT TDMA-MAHO-CELLID OPTIONAL,
+	-- O 2.3.2.26 b
+-- tdma-MAHO-CHANNEL						[360] IMPLICIT TDMA-MAHO-CHANNEL OPTIONAL,
+	-- O 2.3.2.27 c
+-- tdma-TimeAlignment						[362] IMPLICIT TDMA-TimeAlignment OPTIONAL,
+	-- O 2.3.2.29 d
+-- tdmaVoiceMode							[223] IMPLICIT TDMAVoiceMode OPTIONAL,
+	-- O ANSI-41-E a
+-- voicePrivacyMask							[48] IMPLICIT VoicePrivacyMask OPTIONAL,
+	-- O 6.5.2.166 a
+
+-- 2.2.2.18 (ANSI-41 6.5.2.fr)  J-STD-036-AD-1
+-- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 0 0 0 (0x50)(336)
+PositionInformation ::= SET {
+	generalizedTime			[331] IMPLICIT GeneralizedTime,
+	-- M 6.5.2.fi
+	geographicPosition		[333] IMPLICIT GeographicPosition,
+	-- M 6.5.2.fk
+	positionSource			[339] IMPLICIT PositionSource OPTIONAL,
+	-- O 6.5.2.fu
+	horizontal-Velocity		[379] IMPLICIT Horizontal-Velocity OPTIONAL,
+	-- O 6.5.2.hk
+	vertical-Velocity		[380] IMPLICIT Vertical-Velocity OPTIONAL,
+	-- O 6.5.2.hl
+	...
+}
+
+-- 2.2.2.19 (ANSI-41 6.5.2.fs) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 0 0 1 (0x51)(337)
+PositionRequestType ::= OCTET STRING
+
+-- 2.2.2.20 (ANSI-41 6.5.2.ft) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 0 1 0 (0x52)(338)
+PositionResult ::= OCTET STRING
+
+-- 2.2.2.21 (ANSI-41 6.5.2.fu) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 0 0 1 1 (0x53)(339)
+PositionSource ::= OCTET STRING
+
 -- 6.5.2.fv ACGEncountered N.S0023-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
@@ -6751,11 +7368,35 @@ ServiceManagementSystemGapInterval ::= ENUMERATED{
 	not-used (0)
 	}
 
+-- 2.2.2.3 (ANSI-41 6.5.2.gb) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 1 0 1 1 0 0 1(0x58)(344)
+CDMAPSMMCount ::= OCTET STRING
+
+-- 2.2.2.4 (ANSI-41 6.5.2.gc) J-STD-036-AD-1
+-- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 1 0 1 0 (0x5b)(346)
+ CDMAPSMMList ::= SET OF SET{
+	cdmaServingOneWayDelay2		[347] IMPLICIT CDMAServingOneWayDelay2,
+	-- M 6.5.2.gd
+	cdmaTargetMAHOList			[136] IMPLICIT CDMATargetMAHOList,
+	-- M 6.5.2.43
+	cdmaTargetMAHOList2			[136] IMPLICIT CDMATargetMAHOList
+	-- O 6.5.2.43 a
+}
+
+-- 2.2.2.5 (ANSI-41 6.5.2.gd) J-STD-036-AD-1
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 0 1 1 0 1 1 (0x5b)(347)
+CDMAServingOneWayDelay2 ::= OCTET STRING
+
 -- 6.5.2.ge (Misc. 10.9) 
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 0 1 1 1 0 0 (0x5c)(348)
-
 QoSPriority ::= OCTET STRING
 
 -- 6.5.2.gf 
@@ -6815,14 +7456,35 @@ CDMA2000HandoffInvokeIOSData ::= OCTET STRING
 -- 0 1 1 0 0 1 0 1 (0x65)(357)
 CDMA2000HandoffResponseIOSData ::= OCTET STRING
 
+-- 6.5.2.go X.S0002-0 v2.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 1 0 0 1 1 0 (0x66)(358)
+LCS-Client-ID ::= DigitsType
 
+-- 2.3.2.26 TIA/EIA/J-STD-036-A
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 1 1 0 0 1 1 1 (0x67)(359)
+TDMA-MAHO-CELLID ::= OCTET STRING
 
+-- 2.3.2.27
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 0 1 0 0 0 (0x68)(360)
+TDMA-MAHO-CHANNEL ::= OCTET STRING
+
+-- 2.3.2.29
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 0 1 0 1 0 (0x6a)(362)
+TDMA-TimeAlignment ::= OCTET STRING
+
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 0 1 1 0 0 (0x6c)(364)
+-- 2.3.2.28
+TDMA-MAHORequest ::= OCTET STRING
 
 -- 6.5.2.gr
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -6830,6 +7492,179 @@ CDMA2000HandoffResponseIOSData ::= OCTET STRING
 -- 0 1 1 0 1 0 0 1 (0x69)(361)
 CDMAServiceOptionConnectionIdentifier ::= OCTET STRING
 
+-- (0x6a)(362)
+-- (0x6b)(363)
+-- (0x6c)(364)
+-- (0x6d)(365)
+-- (0x6e)(366)
+
+-- 6.5.2.gx X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 0 1 1 1 1 (0x6f)(367)
+LCSBillingID ::= OCTET STRING
+
+-- 6.5.2.gy X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 1 0 0 0 0 (0x70)(368)
+LIRAuthorization ::= ENUMERATED {
+	not-used			(0),
+	user-Authorized		(1)
+	}
+
+-- 6.5.2.gz X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 1 0 0 0 1 (0x71)(369)
+LIRMode ::= ENUMERATED {
+	not-used			(0),
+	unconditionally-Restricted		(1),
+	pre-Authorized-LCS-Clients-Only (2),
+	pre-Authorized-LCS-Clients-and-User-Authorized-LCS-Clients (3),
+	unrestricted (4)
+	}
+
+-- 6.5.2.ha X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 0 0 1 0 (0x72)(370)
+MPCAddress ::= DigitsType
+
+-- 6.5.2.hb X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 0 0 1 1 (0x73)(371)
+MPCID ::= DigitsType
+
+--6.5.2.hc PositionQualityOfService
+--(New for MAP, Section 6.5.2)
+--The PositionQualityOfService (PQOS) is a collection of the required levels for the
+--independent positioning attributes that should be satisfied by the position estimate. The
+--PositionQualityOfService macro has been defined solely for editorial convenience and
+--does not affect the encoding in any way.
+--	pqos-HorizontalPosition					[372] IMPLICIT PQOS-HorizontalPosition OPTIONAL,
+	-- O 6.5.2.hd a, b
+--	pqos-HorizontalVelocity					[373] IMPLICIT PQOS-HorizontalVelocity OPTIONAL,
+	-- O 6.5.2.he c
+--	pqos-MaximumPositionAge					[374] IMPLICIT PQOS-MaximumPositionAge OPTIONAL,
+	-- O 6.5.2.hf d
+--	pqos-PositionPriority					[375] IMPLICIT	PQOS-PositionPriority OPTIONAL,
+	-- O 6.5.2.hg e
+--	pqos-ResponseTime						[376] IMPLICIT PQOS-ResponseTime OPTIONAL,
+	-- O 6.5.2.hh f
+--	pqos-VerticalPosition					[377] IMPLICIT	PQOS-VerticalPosition OPTIONAL,
+	-- O 6.5.2.hi g
+--	pqos-VerticalVelocity					[378] IMPLICIT PQOS-VerticalVelocity OPTIONAL,
+	-- O 6.5.2.hj h
+
+-- 6.5.2.hd X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 0 1 0 0 (0x74)(372)
+PQOS-HorizontalPosition ::= OCTET STRING
+
+-- 6.5.2.he X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 0 1 0 1 (0x75)(373)
+PQOS-HorizontalVelocity ::= OCTET STRING
+
+--  6.5.2.hf X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 0 1 1 0 (0x76)(374)
+PQOS-MaximumPositionAge ::= OCTET STRING
+
+--  6.5.2.hg X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 0 1 1 1 (0x77)(375)
+PQOS-PositionPriority ::= OCTET STRING
+
+-- 6.5.2.hh X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 1 0 0 0 (0x78)(376)
+PQOS-ResponseTime  ::= ENUMERATED {
+	not-used			(0),
+	no-Delay			(1),
+	low-Delay			(2),
+	delay-Tolerant		(3)
+	}
+
+-- 6.5.2.hi X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 1 0 0 1 (0x79)(377)
+PQOS-VerticalPosition ::= OCTET STRING
+
+-- 6.5.2.hj X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 1 0 1 0 (0x7a)(378)
+PQOS-VerticalVelocity ::= OCTET STRING
+
+-- 6.5.2.hk X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 1 0 1 1 (0x7b)(379)
+Horizontal-Velocity ::= OCTET STRING
+
+-- 6.5.2.hl X.S0002-0 v2.0
+-- 1 0 0 1 1 1 1 1 
+-- 1 0 0 0 0 0 1 0
+-- 0 1 1 1 1 1 0 0 (0x7c)(380)
+Vertical-Velocity ::= OCTET STRING
+
+-- 6.5.2.hm X.S0002-0 v2.0
+-- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 0 (0x82)
+-- 0 1 1 1 1 1 0 1 (0x7d)(381)
+MPCAddressList ::= SET{
+	mpcAddress		[370] IMPLICIT MPCAddress,
+	-- M 6.5.2.ha
+	mpcAddress2		[370] IMPLICIT MPCAddress OPTIONAL,
+	-- O 6.5.2.ha a
+	...
+} 
+-- (0x7e)(382)
+-- (0x7f)(383)
+-- (0x00)(384)
+-- (0x01)(385)
+-- (0x02)(386)
+-- (0x03)(387)
+-- (0x04)(388)
+
+-- 3.3.2.2 X.S0008-0 v1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 1 (0x83)
+-- 0 0 0 0 0 1 0 1 (0x05)(389)
+Information-Record ::= OCTET STRING
+
+-- 3.3.2.3  X.S0008-0 v1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 1 (0x83)
+-- 0 0 0 0 0 1 1 0 (0x06)(390)
+MEID ::= OCTET STRING
+
+-- 3.3.2.97  X.S0008-0 v1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 1 (0x83)
+-- 0 0 0 0 0 1 1 1 (0x07)(391)
+MEIDStatus ::= OCTET STRING
+
+-- 3.3.2.98  X.S0008-0 v1.0
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 1 (0x83)
+-- 0 0 0 0 1 0 0 0 (0x08)(392)
+Record-Type ::= OCTET STRING
+
+-- 3.3.2.98  X.S0008-0 v1.0, X.S0004-550
+-- 1 0 0 1 1 1 1 1 (0x9f)
+-- 1 0 0 0 0 0 1 1 (0x83)
+-- 0 0 0 1 0 0 0 1 (0x11)(401)
+MEIDValidated ::= NULL
 
 -- 6.5.2.lB N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
@@ -6880,37 +7715,37 @@ NewlyAssignedMIN ::= MINType
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 1 1 0 1 (0x3d)(189)
-OTASP-ResultCode::= OCTET STRING
+OTASP-ResultCode ::= OCTET STRING
 
 -- 6.5.2.tB N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 1 1 1 0 (0x3e)(190)
-PrimitiveValue::= OCTET STRING
+PrimitiveValue ::= OCTET STRING
 
 -- 6.5.2.uT N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 1 1 1 1 (0x3f)(191)
-RandomVariableReauthentication::= OCTET STRING
+RandomVariableReauthentication ::= OCTET STRING
 
 -- 6.5.2.vT N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 0 0 0 0 0 (0x40)(192)
-ReauthenticationReport::= OCTET STRING
+ReauthenticationReport ::= OCTET STRING
 
 -- 6.5.2.wB N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 0 0 0 0 1 (0x41)(193)
-ServiceIndicator::= OCTET STRING
+ServiceIndicator ::= OCTET STRING
 
 -- 6.5.2.xB N.S0011-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 0 0 0 1 0 (0x42)(194)
-SignalingMessageEncryptionReport::= OCTET STRING
+SignalingMessageEncryptionReport ::= OCTET STRING
 
 
 -- 6.5.2.yC N.S0011-0 v 1.0
@@ -6988,6 +7823,8 @@ MINType ::= OCTET STRING
 -- 6.5.3.u2 IMSIType
 
 IMSIType ::= OCTET STRING
+
+
 
 -- Definition to support ASN2WRS generating hf_indices
 
@@ -7074,7 +7911,12 @@ InvokeData ::= SEQUENCE {
 	aCGDirective ACGDirective,
 	roamerDatabaseVerificationRequest RoamerDatabaseVerificationRequest,
 	addService AddService,
-	dropService DropService
+	dropService DropService,
+	lcsParameterRequest LCSParameterRequest,
+	checkMEID	CheckMEID,
+	positionEventNotification PositionEventNotification,
+	statusRequest StatusRequest
+
 }
 
 ReturnData ::= SEQUENCE {
@@ -7137,7 +7979,10 @@ ReturnData ::= SEQUENCE {
 	positionRequestForwardRes PositionRequestForwardRes,
 	roamerDatabaseVerificationRequestRes RoamerDatabaseVerificationRequestRes,
 	addServiceRes AddServiceRes,
-	dropServiceRes DropServiceRes
+	dropServiceRes DropServiceRes,
+	lcsParameterRequestRes LCSParameterRequestRes,
+	checkMEIDRes	CheckMEIDRes,
+	statusRequestRes StatusRequestRes
 }
 
 END
