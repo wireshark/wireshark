@@ -311,10 +311,6 @@ Bss-APDU ::=  SEQUENCE {
             extensionContainer   ExtensionContainer OPTIONAL, 
             ... } 
 
-CancelLocationArgV2 ::= CHOICE {
-	imsi			IMSI,
-	imsi-WithLMSI	IMSI-WithLMSI}
-
 --provideSIWFSNumber OPERATION
 --   ARGUMENT
 

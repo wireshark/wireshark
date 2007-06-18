@@ -134,6 +134,7 @@ static int hf_gsm_map_ranap_service_Handover = -1;
 static int hf_gsm_mapIntegrityProtectionInformation = -1;
 static int hf_gsm_mapEncryptionInformation = -1;
 static int hf_gsm_map_PlmnContainer_PDU = -1;
+static int hf_gsm_ss_SS_UserData = -1;
 #include "packet-gsm_map-hf.c"
 
 /* Initialize the subtree pointers */
@@ -780,11 +781,11 @@ const gchar* gsm_map_opr_code(guint32 val) {
   case 44: /*mt-forwardSM*/
   case 46: /*mo-forwardSM*/
     if (application_context_version == 3) {
-      return val_to_str(val, gsm_map_V3_opr_code_strings, "Unknown GSM-MAP (%%u)");
+      return val_to_str(val, gsm_map_V3_opr_code_strings, "Unknown GSM-MAP (%u)");
     }
     /* Else use the default map operation translation */
   default:
-    return val_to_str(val, gsm_map_opr_code_strings, "Unknown GSM-MAP (%%u)");
+    return val_to_str(val, gsm_old_GSMMAPOperationLocalvalue_vals, "Unknown GSM-MAP opcode (%u)");
     break;
   }
 }
@@ -875,8 +876,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  3: /*cancelLocation*/
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
-			      FALSE, dissect_gsm_old_CancelLocationArgV2, -1,/*undefined*/
-			      TRUE , dissect_gsm_map_ms_CancelLocationArg_U, -1);
+			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
+			      TRUE , dissect_gsm_map_ms_CancelLocationArg_U, -1);/*undefined*/
     break;
   case  4: /*provideRoamingNumber*/
     offset=dissect_gsm_map_ch_ProvideRoamingNumberArg(FALSE, tvb, offset, actx, tree, -1);
@@ -923,7 +924,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_old_GetPasswordArg(FALSE, tvb, offset, actx, tree, hf_gsm_map_getPassword);
     break;
   case 19: /* SS-Protocol processUnstructuredSS-Data (19) */
-    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_ss_SS_UserData);
     break;
   case 20: /*releaseResources*/
     offset=dissect_gsm_map_ch_ReleaseResourcesArg(FALSE, tvb, offset, actx, tree, -1);
@@ -1176,6 +1177,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 120: /*SS-protocol forwardCUG-Info*/
+	application_context_version = 3;
     offset=dissect_gsm_ss_ForwardCUG_InfoArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 121: /*SS-protocol splitMPTY no Argument*/
@@ -1260,7 +1262,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_old_CurrentPassword(FALSE, tvb, offset, actx, tree, hf_gsm_map_currentPassword);
     break;
   case 19: /* SS-Protocol processUnstructuredSS-Data (19) */
-    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_ss_SS_UserData);
     break;
   case 20: /*releaseResources*/
     offset=dissect_gsm_map_ch_ReleaseResourcesRes(FALSE, tvb, offset, actx, tree, -1);
@@ -1339,7 +1341,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 56: /*sendAuthenticationInfo*/ 
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, NULL, -1,
-			      FALSE, dissect_gsm_old_SendAuthenticationInfoResOld_item, -1,
+			      FALSE, dissect_gsm_old_SendAuthenticationInfoResOld, -1,
 			      TRUE , dissect_gsm_map_ms_SendAuthenticationInfoRes, -1);
     break;
   case 57: /*restoreData*/
@@ -1463,7 +1465,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_ss_RegisterCC_EntryRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 120: /*SS-protocol forwardCUG-Info*/
-    offset=dissect_gsm_ss_ForwardCUG_InfoArg(FALSE, tvb, offset, actx, tree, -1);
+	  /* No RETURN RESULT*/
     break;
   case 121: /*SS-protocol splitMPTY no RESULT*/
     break;
@@ -2390,6 +2392,11 @@ void proto_register_gsm_map(void) {
       { "PlmnContainer", "gsm_map.PlmnContainer",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.PlmnContainer", HFILL }},
+    { &hf_gsm_ss_SS_UserData,
+      { "SS-UserData", "gsm_ss.SS_UserData",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "gsm_ss.SS_UserData", HFILL }},
+
 
 #include "packet-gsm_map-hfarr.c"
   };

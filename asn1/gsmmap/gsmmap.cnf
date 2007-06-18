@@ -141,6 +141,7 @@ Component
 #.FN_BODY  GSMMAPOperationLocalvalue
 
 %(DEFAULT_BODY)s 
+g_warning("opcode %%x %%u", opcode,opcode);
   if (check_col(actx->pinfo->cinfo, COL_INFO)){
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
   }
