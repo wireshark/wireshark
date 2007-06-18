@@ -364,8 +364,8 @@ INT AirPDcapPacketProcess(
 
                 /* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
                 bodyLength=pntohs(data+offset+2);
-                if ((tot_len-offset-4) != bodyLength) {
-                    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
+                if ((tot_len-offset-4) < bodyLength) {
+                    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body too short", AIRPDCAP_DEBUG_LEVEL_5);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
 
