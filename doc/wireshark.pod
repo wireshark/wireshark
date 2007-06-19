@@ -677,6 +677,14 @@ on those calls that match that filter.
 Example: use B<-z "sip,stat,ip.addr==1.2.3.4"> to only collect stats for
 SIP packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> voip,calls
+
+This option will show a window that shows VoIP calls found in the capture file.
+This is the same window shown as when you go to the Statistics Menu and choose
+VoIP Calls.
+
+Example: use B<-z voip,calls>
+
 =back
 
 =head1 INTERFACE
