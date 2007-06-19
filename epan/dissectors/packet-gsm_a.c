@@ -7609,7 +7609,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		TODO Call gsm map here
 		*/
 	    SS_tvb = tvb_new_subset(tvb, offset, component_len, component_len);
-		call_dissector(gsm_map_handle, SS_tvb, g_pinfo, g_tree);
+		call_dissector(gsm_map_handle, SS_tvb, g_pinfo, tree);
 		offset = offset + component_len;
 	} 
 	g_pinfo->private_data = save_private_data;
