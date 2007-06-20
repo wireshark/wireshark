@@ -106,7 +106,8 @@ struct time_adjustment {
   int is_negative;
 };
 
-static struct select_item selectfrm[100];
+#define MAX_SELECTIONS 512
+static struct select_item selectfrm[MAX_SELECTIONS];
 static int max_selected = -1;
 static int keep_em = 0;
 static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
@@ -120,14 +121,17 @@ static gboolean check_startstop = FALSE;
 static gboolean dup_detect = FALSE;
 
 /* Add a selection item, a simple parser for now */
-
-static void add_selection(char *sel)
+static gboolean
+add_selection(char *sel)
 {
   char *locn;
   char *next;
 
-  if (max_selected == (sizeof(selectfrm)/sizeof(struct select_item)) - 1)
-    return;
+  if (++max_selected >= MAX_SELECTIONS) {
+    /* Let the user know we stopped selecting */
+    printf("Out of room for packet selections!\n");
+    return(FALSE);
+  }
 
   printf("Add_Selected: %s\n", sel);
 
@@ -135,7 +139,6 @@ static void add_selection(char *sel)
 
     printf("Not inclusive ...");
 
-    max_selected++;
     selectfrm[max_selected].inclusive = 0;
     selectfrm[max_selected].first = atoi(sel);
 
@@ -147,7 +150,6 @@ static void add_selection(char *sel)
     printf("Inclusive ...");
 
     next = locn + 1;
-    max_selected++;
     selectfrm[max_selected].inclusive = 1;
     selectfrm[max_selected].first = atoi(sel);
     selectfrm[max_selected].second = atoi(next);
@@ -156,12 +158,13 @@ static void add_selection(char *sel)
 
   }
 
-
+  return(TRUE);
 }
 
 /* Was the packet selected? */
 
-static int selected(int recno)
+static int
+selected(int recno)
 {
   int i = 0;
 
@@ -393,7 +396,7 @@ int main(int argc, char *argv[])
 		register_all_wiretap_modules();
     }
 #endif
-    
+
   /* Process the options */
   while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {
 
@@ -621,7 +624,8 @@ int main(int argc, char *argv[])
     }
 
     for (i = optind + 2; i < argc; i++)
-      add_selection(argv[i]);
+      if (add_selection(argv[i]) == FALSE)
+	break;
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
 
