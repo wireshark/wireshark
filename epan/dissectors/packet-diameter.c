@@ -1143,31 +1143,45 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId, gboolean *AVPFound)
   *AVPFound = TRUE;    /* will set to FALSE only if fail to match */
 
   if (vendorId)
-	vendorName = diameter_vendor_to_str(vendorId, FALSE);
+    vendorName = diameter_vendor_to_str(vendorId, FALSE);
 
   for (probe=avpListHead; probe; probe=probe->next) {
-	if (avpCode == probe->code) {
-	  if (vendorId) {
-/* 		g_warning("AvpName: Comparing \"%s\" to \"%s\"", */
-/* 				  vendorName?vendorName:"(null)", */
-/* 				  probe->vendorName?probe->vendorName:"(null)"); */
-		/* Now check the vendor name */
-		if (probe->vendorName && (!strcmp(vendorName, probe->vendorName)))
-		  /* We found it! */
-		  return probe->name;
-	  } else {
-		/* No Vendor ID -- vendorName should be null */
-		if (!probe->vendorName)
-		  /* We found it! */
-		  return probe->name;
-	  }
-	}
+    if (avpCode == probe->code) {
+      if (vendorId) {
+        /* Now check the vendor name */
+        if (probe->vendorName && (!strcmp(vendorName, probe->vendorName)))
+          /* We found it! */
+          return probe->name;
+        else {
+          /* Print explanation */
+          if (!suppress_console_output) {
+            g_warning("AVP %u: Found vendor name (%s) didn't match definition (%s)",
+                      avpCode,
+                      vendorName ? vendorName : "(null)",
+                      probe->vendorName ? probe->vendorName : "(null)");
+          }
+        }
+      }
+      else {
+        /* No Vendor ID -- vendorName should be null */
+        if (!probe->vendorName)
+          /* We found it! */
+          return probe->name;
+        else {
+          /* Print explanation */
+          if (!suppress_console_output) {
+            g_warning("AVP %u: No vendorId found in AVP, but definition has one (%s)",
+                      avpCode, probe->vendorName ? probe->vendorName : "(null)");
+          }
+        }
+      }
+    }
   }
   if ( suppress_console_output == FALSE )
-	  g_warning("Diameter: Unable to find name for AVP 0x%08x, Vendor %u!",
-			avpCode, vendorId);
+      g_warning("Diameter: Unable to find name for AVP 0x%08x (%u), Vendor %u!",
+                avpCode, avpCode, vendorId);
 
-  /* If we don't find it, build a name string */
+  /* If we don't find it, build & return an error name string */
   buffer=ep_alloc(64);
   g_snprintf(buffer, 64, "Unknown AVP:0x%08x (%d)", avpCode, avpCode);
   *AVPFound = FALSE;

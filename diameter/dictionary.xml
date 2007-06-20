@@ -1740,4 +1740,5 @@ Note: The AVP codes from 1263 to 1299 are reserved for TS 32.299
 	&imscxdx;
 	&TGPPSh;
 	&sip;
+	&gqpolicy;
 </dictionary>
