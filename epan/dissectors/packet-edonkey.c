@@ -1759,9 +1759,6 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
-
     if (tree) {
         ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, FALSE);
         edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
@@ -1808,7 +1805,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s TCP", protocol_name);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s TCP", protocol_name);
     }
 
     msg_type = tvb_get_guint8(tvb, offset);
@@ -1868,6 +1865,9 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static void dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    if (check_col(pinfo->cinfo, COL_INFO))
+    	col_clear(pinfo->cinfo, COL_INFO);
+
     tcp_dissect_pdus(tvb, pinfo, tree, edonkey_desegment,
                      EDONKEY_TCP_HEADER_LENGTH, get_edonkey_tcp_pdu_len,
                      dissect_edonkey_tcp_pdu);
