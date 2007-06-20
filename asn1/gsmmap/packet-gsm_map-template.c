@@ -567,9 +567,10 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 #include "packet-gsm_map-fn.c"
 
 /* Specific translation for MAP V3 */
-const value_string gsm_map_V3_opr_code_strings[] = {
-  {  44, "mt-forwardSM" },
-  {  46, "mo-forwardSM" },
+const value_string gsm_map_V1V2_opr_code_strings[] = {
+  {  44, "forwardSM" },
+  {  45, "sendRoutingInfoForSM" },
+  {  46, "forwardSM" },
   { 0, NULL }
 };
 /* Generic translation for MAP operation */
@@ -780,8 +781,8 @@ const gchar* gsm_map_opr_code(guint32 val) {
   switch (val) { 
   case 44: /*mt-forwardSM*/
   case 46: /*mo-forwardSM*/
-    if (application_context_version == 3) {
-      return val_to_str(val, gsm_map_V3_opr_code_strings, "Unknown GSM-MAP (%u)");
+    if (application_context_version < 3) {
+      return val_to_str(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP (%u)");
     }
     /* Else use the default map operation translation */
   default:

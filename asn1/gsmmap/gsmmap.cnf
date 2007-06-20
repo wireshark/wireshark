@@ -252,13 +252,31 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 actx->pinfo->p2p_dir = P2P_DIR_RECV;
  %(DEFAULT_BODY)s
 
- #.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
+#.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
 
  %(DEFAULT_BODY)s
 	actx->value_ptr = parameter_tvb;
 
 #.FN_BODY ForwardSM-Arg
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MO-ForwardSM-Arg
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MT-ForwardSM-Arg
 
 	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
 %(DEFAULT_BODY)s

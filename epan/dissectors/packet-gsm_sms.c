@@ -59,7 +59,6 @@
 
 #include "packet-gsm_sms.h"
 
-
 /* PROTOTYPES/FORWARDS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -117,6 +116,9 @@ static gint ett_udh = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_gsm_sms = -1;
+
+static gint hf_gsm_sms_coding_group_bits2 = -1;
+static gint hf_gsm_sms_coding_group_bits4 = -1;
 
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
@@ -510,6 +512,34 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 	break;
     }
 }
+/* 3GPP TS 23.038 version 7.0.0 Release 7
+ * The TP-Data-Coding-Scheme field, defined in 3GPP TS 23.040 [4],
+ * indicates the data coding scheme of the TP-UD field, and may indicate a message class.
+ * Any reserved codings shall be assumed to be the GSM 7 bit default alphabet
+ * (the same as codepoint 00000000) by a receiving entity.
+ * The octet is used according to a coding group which is indicated in bits 7..4.
+ */
+
+/* Coding Group Bits */
+static const value_string gsm_sms_coding_group_bits_vals[] = {
+	{ 0,	"General Data Coding indication" }, /* 00xx */
+	{ 1,	"General Data Coding indication" }, /* 00xx */
+	{ 2,	"General Data Coding indication" }, /* 00xx */
+	{ 3,	"General Data Coding indication" }, /* 00xx */
+	{ 4,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 5,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 6,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 7,	"Message Marked for Automatic Deletion Group" }, /* 01xx */
+	{ 8,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 9,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 10,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 11,	"Reserved coding groups" },			/* 1000..1011  */
+	{ 12,	"Message Waiting Indication Group: Discard Message" },/* 1100  */
+	{ 13,	"Message Waiting Indication Group: Store Message" },  /* 1101  */
+	{ 14,	"Message Waiting Indication Group: Store Message" },  /* 1110  */
+	{ 15,	"Data coding/message class" },  /* 1111  */
+    { 0, NULL },
+};
 
 /* 9.2.3.10 */
 static void
@@ -537,6 +567,11 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	    oct);
 
     subtree = proto_item_add_subtree(item, ett_dcs);
+	if(oct&0x80){
+		proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits4, tvb, offset, 1, FALSE);
+	}else{
+		proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits2, tvb, offset, 1, FALSE);
+	}
 
     if (oct == 0x00)
     {
@@ -2625,12 +2660,21 @@ proto_register_gsm_sms(void)
     guint		i;
     guint		last_offset;
 
-#if 0
+
     /* Setup list of header fields */
     static hf_register_info hf[] =
     {
+	    { &hf_gsm_sms_coding_group_bits2,
+	      { "Coding Group Bits", "gsm_sms.coding_group_bits2",
+	        FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xc0,
+	        "Coding Group Bits", HFILL }
+		},
+	    { &hf_gsm_sms_coding_group_bits4,
+	      { "Coding Group Bits", "gsm_sms.coding_group_bits4",
+	        FT_UINT8, BASE_DEC, VALS(gsm_sms_coding_group_bits_vals), 0xf0,
+	        "Coding Group Bits", HFILL }
+		},
     };
-#endif
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARMS	12
@@ -2668,9 +2712,8 @@ proto_register_gsm_sms(void)
     proto_gsm_sms =
 	proto_register_protocol(gsm_sms_proto_name, gsm_sms_proto_name_short, "gsm_sms");
 
-#if 0
+
     proto_register_field_array(proto_gsm_sms, hf, array_length(hf));
-#endif
 
     proto_register_subtree_array(ett, array_length(ett));
 }
