@@ -197,7 +197,7 @@ fi
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors], 
-		  [Treat warnings as errors (only for gcc). @<:@default=yes@:>@]),
+		  [Treat warnings as errors (only for gcc). @<:@default=no@:>@]),
 [
   if test "x$GCC" = "xyes" -a "x$enableval" == "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
     with_warnings_as_errors="yes"
@@ -207,13 +207,8 @@ AC_ARG_ENABLE(warnings-as-errors,
     AC_MSG_RESULT(no)
   fi
 ],
-  if test "x$GCC" = "xyes" -a "x$wireshark_extra_gcc_flags" = "x"; then
-    with_warnings_as_errors="yes"
-    AC_MSG_RESULT(yes)
-  else
-    with_warnings_as_errors="no"
-    AC_MSG_RESULT(no)
-  fi
+  with_warnings_as_errors="no"
+  AC_MSG_RESULT(no)
 )
 AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
 
