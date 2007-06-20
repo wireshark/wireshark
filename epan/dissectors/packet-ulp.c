@@ -1852,6 +1852,7 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   }
 
 
+
   return offset;
 }
 
@@ -2535,11 +2536,11 @@ void proto_register_ulp(void) {
         "ulp.SLPAddress", HFILL }},
     { &hf_ulp_ipv4Address,
       { "ipv4Address", "ulp.ipv4Address",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         "ulp.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_ulp_ipv6Address,
       { "ipv6Address", "ulp.ipv6Address",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         "ulp.OCTET_STRING_SIZE_16", HFILL }},
     { &hf_ulp_fQDN,
       { "fQDN", "ulp.fQDN",

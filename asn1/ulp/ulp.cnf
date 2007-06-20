@@ -54,4 +54,8 @@ guint32 UlpMessage;
   if (rrlp_tvb && rrlp_handle) {
 	call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
   }
+
+#.TYPE_ATTR
+IPAddress/ipv4Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL  
+IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL  
 #.END
