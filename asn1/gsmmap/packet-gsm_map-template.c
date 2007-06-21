@@ -71,11 +71,8 @@
 int proto_gsm_map = -1;
 int proto_gsm_map_dialogue = -1;
 
-static int hf_gsm_map_SendAuthenticationInfoArg = -1;
-static int hf_gsm_map_SendAuthenticationInfoRes = -1;
-static int hf_gsm_mapSendEndSignal = -1;
+static int hf_gsm_old_Component_PDU = -1;
 static int hf_gsm_map_getPassword = -1;
-static int hf_gsm_map_CheckIMEIArg = -1;
 static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
@@ -878,7 +875,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
 			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
-			      TRUE , dissect_gsm_map_ms_CancelLocationArg_U, -1);/*undefined*/
+			      TRUE , dissect_gsm_map_ms_CancelLocationArg, -1);/*undefined*/
     break;
   case  4: /*provideRoamingNumber*/
     offset=dissect_gsm_map_ch_ProvideRoamingNumberArg(FALSE, tvb, offset, actx, tree, -1);
@@ -967,7 +964,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_Bss_APDU, -1,
-			      TRUE , dissect_gsm_map_ms_ProcessAccessSignalling_Arg_U, -1);
+			      TRUE , dissect_gsm_map_ms_ProcessAccessSignalling_Arg, -1);
     break;
   case 34: /*forwardAccessSignalling*/
     offset=dissect_mc_message(tvb, offset, actx, tree,    
@@ -1084,7 +1081,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_PrepareHO_ArgOld, -1,
-			      TRUE, dissect_gsm_map_ms_PrepareHO_Arg_U, -1);
+			      TRUE, dissect_gsm_map_ms_PrepareHO_Arg, -1);
     break;
   case 69: /*prepareSubsequentHandover*/
     offset=dissect_mc_message(tvb, offset, actx, tree,    
@@ -1440,8 +1437,10 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_ms_NoteMM_EventRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 109: /*SS-protocol lcs-PeriodicLocationCancellation*/
+	  /* No parameter */
     break;
   case 110: /*SS-protocol lcs-LocationUpdate*/
+	  offset=dissect_gsm_ss_LCS_LocationUpdateRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 111: /*SS-protocol lcs-PeriodicLocationRequest*/
     offset=dissect_gsm_ss_LCS_PeriodicLocationRequestRes(FALSE, tvb, offset, actx, tree, -1);
@@ -2129,27 +2128,14 @@ void proto_register_gsm_map(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-
-	{ &hf_gsm_map_SendAuthenticationInfoArg,
-      { "SendAuthenticationInfoArg", "gsm_map.SendAuthenticationInfoArg",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "SendAuthenticationInfoArg", HFILL }},
-	{ &hf_gsm_map_SendAuthenticationInfoRes,
-      { "SendAuthenticationInfoRes", "gsm_map.SendAuthenticationInfoRes",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "SendAuthenticationInfoRes", HFILL }},
+    { &hf_gsm_old_Component_PDU,
+      { "Component", "gsm_old.Component",
+        FT_UINT32, BASE_DEC, VALS(gsm_old_Component_vals), 0,
+        "gsm_old.Component", HFILL }},
     { &hf_gsm_map_currentPassword,
       { "currentPassword", "gsm_map.currentPassword",
         FT_STRING, BASE_NONE, NULL, 0,
         "", HFILL }},
-	{ &hf_gsm_mapSendEndSignal,
-      { "mapSendEndSignalArg", "gsm_map.mapsendendsignalarg",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "mapSendEndSignalArg", HFILL }},
-	{ &hf_gsm_map_CheckIMEIArg,
-      { "gsm_CheckIMEIArg", "gsm_map.CheckIMEIArg",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "gsm_CheckIMEIArg", HFILL }},
     { &hf_gsm_map_extension,
       { "Extension", "gsm_map.extension",
         FT_BOOLEAN, 8, TFS(&gsm_map_extension_value), 0x80,

@@ -358,8 +358,6 @@ PrepareHO-ResOld ::= SEQUENCE {
          bss-APDU         Bss-APDU OPTIONAL, 
          ... }
 
-SendAuthenticationInfoArgOld ::= IMSI
-
 SendAuthenticationInfoResOld ::= SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
          SEQUENCE {
             rand       RAND, 
@@ -444,10 +442,6 @@ CurrentPassword ::= NumericString (SIZE( 4 ) )
 
 --registerCC-Entry OPERATION
 --   ARGUMENT
-
-
-ServiceCentreAddress ::= OCTET STRING ( SIZE( 1 .. 20 ) )
-
 
 SecureTransportArg ::= SEQUENCE {
 	securityHeader		SecurityHeader,

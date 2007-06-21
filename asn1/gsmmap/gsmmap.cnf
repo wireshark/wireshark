@@ -110,8 +110,6 @@ VelocityEstimate
 MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 # Conformance for ROS stuff
-#.PDU 
-Component 
 
 #.FN_BODY InvokeParameter
 	offset = dissect_invokeData(tree, tvb, offset, actx);
