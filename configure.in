@@ -104,7 +104,7 @@ gcrypt_message="no"
 AC_ARG_WITH([gcrypt],
   AC_HELP_STRING( [--with-gcrypt=@<:@yes/no@:>@],
 		  [use gcrypt library @<:@default=yes@:>@]),
-  with_gcrypt="$withval", with_gcrypt="no")
+  with_gcrypt="$withval", with_gcrypt="yes")
 if test "x$with_gcrypt" = "xyes"; then
   AM_PATH_LIBGCRYPT(1.1.42,
         [
