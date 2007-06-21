@@ -433,17 +433,17 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 	char		two_digits[3];
 	char		one_digit[2];
 
-	g_byte_array_set_size(bytes, 0);
-	if (! hex_str) {
+	if (! hex_str || ! bytes) {
 		return FALSE;
 	}
+	g_byte_array_set_size(bytes, 0);
 	p = (const guchar *)hex_str;
 	while (*p) {
 		q = p+1;
 		r = p+2;
 		s = p+3;
 
-		if (*q && *r && *s 
+		if (*q && *r && *s
 		    && isxdigit(*p) && isxdigit(*q) &&
 		    isxdigit(*r) && isxdigit(*s)) {
 			four_digits_first_half[0] = *p;
@@ -460,7 +460,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 			g_byte_array_append(bytes, &val, 1);
 			val = (guint8) strtoul(four_digits_second_half, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
-			
+
 			punct = s + 1;
 			if (*punct) {
 				/*

@@ -1325,16 +1325,13 @@ parse_key_string(gchar* input_string)
     gchar *ssid;
 
     GString    *key_string = NULL;
-    GByteArray *ssid_ba = NULL;
+    GByteArray *ssid_ba = NULL, *key_ba;
+    gboolean    res;
 
     gchar **tokens;
     guint n = 0;
-#if GLIB_MAJOR_VERSION < 2
-    gint i;
-#else
-    gsize i;
-#endif
     decryption_key_t *dk;
+    gchar *first_nibble = input_string;
 
     if(input_string == NULL)
         return NULL;
@@ -1346,276 +1343,168 @@ parse_key_string(gchar* input_string)
      * of hexadecimal characters (if WEP key is wrong, null will be
      * returned...).
      */
+
+    /* First, check for a WEP string */
+    /* XXX - This duplicates code in packet-ieee80211.c */
+    if (g_strncasecmp(input_string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+        first_nibble += 4;
+    }
+
+    key_ba = g_byte_array_new();
+    res = hex_str_to_bytes(first_nibble, key_ba, FALSE);
+
+    if (res) {
+        /* Key is correct! It was probably an 'old style' WEP key */
+        /* Create the decryption_key_t structure, fill it and return it*/
+        dk = g_malloc(sizeof(decryption_key_t));
+
+        dk->type = AIRPDCAP_KEY_TYPE_WEP;
+        dk->key  = g_string_new(input_string);
+        dk->bits = key_ba->len * 8;
+        dk->ssid = NULL;
+
+        g_byte_array_free(key_ba, TRUE);
+        return dk;
+    }
+    g_byte_array_free(key_ba, TRUE);
+
+
     tokens = g_strsplit(input_string,":",0);
 
     /* Tokens is a null termiated array of strings ... */
     while(tokens[n] != NULL)
-    n++;
+        n++;
 
-    if(n == 0)
+    if(n < 2)
     {
-    /* Free the array of strings */
-    g_strfreev(tokens);
-    return NULL;
-    }
-
-    /*
-     * 'n' contains the number of tokens. If the key string is correct,
-     * we should have 2 or 3 tokens... If we have 1 token, it can be an
-     * 'old style' WEP key.  Check for it.
-     */
-    if(n == 1)
-    {
-    /* Maybe it is an 'old style' WEP key */
-    key = g_strdup(tokens[0]);
-
-    /* Create a new string */
-    key_string = g_string_new(key);
-
-    /* Check if it is a correct WEP key */
-    if( ((key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
-    {
-        g_string_free(key_string, TRUE);
-        g_free(key);
         /* Free the array of strings */
         g_strfreev(tokens);
         return NULL;
     }
 
-    if((key_string->len % 2) != 0)
-    {
-        g_string_free(key_string, TRUE);
-        g_free(key);
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-    }
-
-    for(i = 0; i < key_string->len; i++)
-    {
-        if(!g_ascii_isxdigit(key_string->str[i]))
-        {
-        g_string_free(key_string, TRUE);
-        g_free(key);
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-        }
-    }
-
-    /* Key is correct! It was probably an 'old style' WEP key */
-    /* Create the decryption_key_t structure, fill it and return it*/
-    dk = g_malloc(sizeof(decryption_key_t));
-
-    dk->type = AIRPDCAP_KEY_TYPE_WEP;
-    dk->key  = g_string_new(key);
-    dk->bits = dk->key->len * 4;
-    dk->ssid = NULL;
-
-    g_string_free(key_string, TRUE);
-    g_free(key);
-
-    /* Free the array of strings */
-    g_strfreev(tokens);
-
-    return dk;
-    }
-
-    /* There were at least 2 tokens... copy the type value */
     type = g_strdup(tokens[0]);
 
     /*
      * The second token is the key (right now it doesn't matter
-     * if it is a passphrase or an hexadecimal one)
+     * if it is a passphrase[+ssid] or an hexadecimal one)
      */
     key = g_strdup(tokens[1]);
 
-    /* Lower case the type */
-    g_strdown(type);
-
+    ssid = NULL;
     /* Maybe there is a third token (an ssid, if everything else is ok) */
     if(n >= 3)
     {
-    ssid = g_strdup(tokens[2]);
-    }
-    else
-    {
-    ssid = NULL;
+        ssid = g_strdup(tokens[2]);
     }
 
-    /*
-     * Now the initial key string has been divided in two/three tokens.
-     * Let's see which kind of key it is, and if it is the correct form
-     */
-    if(g_strcasecmp(type,STRING_KEY_TYPE_WEP) == 0) /* WEP key */
+    if (g_strcasecmp(type,STRING_KEY_TYPE_WPA_PSK) == 0) /* WPA key */
     {
-    /* Create a new string */
-    key_string = g_string_new(key);
+        /* Create a new string */
+        key_string = g_string_new(key);
 
-    /* Check if it is a correct WEP key */
-    if( ((key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
-    {
-        g_string_free(key_string, TRUE);
-        g_free(key);
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-    }
+        key_ba = g_byte_array_new();
+        res = hex_str_to_bytes(key, key_ba, FALSE);
 
-    if((key_string->len % 2) != 0)
-    {
-        g_string_free(key_string, TRUE);
-        g_free(key);
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-    }
-
-    for(i = 0; i < key_string->len; i++)
-    {
-        if(!g_ascii_isxdigit(key_string->str[i]))
+        /* Two tokens means that the user should have entered a WPA-BIN key ... */
+        if( ((key_ba->len) != WPA_PSK_KEY_CHAR_SIZE))
         {
-        g_string_free(key_string, TRUE);
-        g_free(key);
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
+            g_string_free(key_string, TRUE);
+            g_byte_array_free(key_ba, TRUE);
+
+            g_free(type);
+            g_free(key);
+            /* No ssid has been created ... */
+            /* Free the array of strings */
+            g_strfreev(tokens);
+            return NULL;
         }
-    }
 
-    dk =  (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+        /* Key was correct!!! Create the new decryption_key_t ... */
+        dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
 
-    dk->type = AIRPDCAP_KEY_TYPE_WEP;
-    dk->key  = g_string_new(key);
-    dk->bits = dk->key->len * 4;
-    dk->ssid = NULL;
+        dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
+        dk->key  = g_string_new(key);
+        dk->bits = key_ba->len * 4;
+        dk->ssid = NULL;
 
-    g_string_free(key_string, TRUE);
-    g_free(key);
-
-    /* Free the array of strings */
-    g_strfreev(tokens);
-    return dk;
-    }
-    else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PSK) == 0) /* WPA key */
-    {
-    /* Create a new string */
-    key_string = g_string_new(key);
-
-    /* Two tokens means that the user should have entered a WPA-BIN key ... */
-    if( ((key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
-    {
         g_string_free(key_string, TRUE);
-
-        g_free(type);
+        g_byte_array_free(key_ba, TRUE);
         g_free(key);
-        /* No ssid has been created ... */
+        g_free(type);
+
         /* Free the array of strings */
         g_strfreev(tokens);
-        return NULL;
-    }
-
-    for(i = 0; i < key_string->len; i++)
-    {
-        if(!g_ascii_isxdigit(key_string->str[i]))
-        {
-        g_string_free(key_string, TRUE);
-        /* No ssid_string has been created ... */
-
-        g_free(type);
-        g_free(key);
-        /* No ssid has been created ... */
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-        }
-    }
-
-    /* Key was correct!!! Create the new decryption_key_t ... */
-    dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-
-    dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
-    dk->key  = g_string_new(key);
-    dk->bits = dk->key->len * 4;
-    dk->ssid = NULL;
-
-    g_string_free(key_string, TRUE);
-    g_free(key);
-    g_free(type);
-
-    /* Free the array of strings */
-    g_strfreev(tokens);
-    return dk;
+        return dk;
     }
     else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the number of tokens is more than three, we accept the string... if the first three tokens are correct... */
     {
-    /* Create a new string */
-    key_string = g_string_new(key);
-    ssid_ba = NULL;
+        /* Create a new string */
+        key_string = g_string_new(key);
+        ssid_ba = NULL;
 
-
-    /* Three (or more) tokens mean that the user entered a WPA-PWD key ... */
-    if( ((key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
-    {
-        g_string_free(key_string, TRUE);
-
-        g_free(type);
-        g_free(key);
-        g_free(ssid);
-
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-    }
-
-    if(ssid != NULL) /* more than three tokens found, means that the user specified the ssid */
-    {
-        ssid_ba = g_byte_array_new();
-        if (! uri_str_to_bytes(ssid, ssid_ba)) {
-        g_string_free(key_string, TRUE);
-        g_byte_array_free(ssid_ba, TRUE);
-        g_free(type);
-        g_free(key);
-        g_free(ssid);
-        /* Free the array of strings */
-        g_strfreev(tokens);
-        return NULL;
-        }
-
-        if(ssid_ba->len > WPA_SSID_MAX_CHAR_SIZE)
+        /* Three (or more) tokens mean that the user entered a WPA-PWD key ... */
+        if( ((key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
         {
+            g_string_free(key_string, TRUE);
+
+            g_free(type);
+            g_free(key);
+            g_free(ssid);
+
+            /* Free the array of strings */
+            g_strfreev(tokens);
+            return NULL;
+        }
+
+        if(ssid != NULL) /* more than three tokens found, means that the user specified the ssid */
+        {
+            ssid_ba = g_byte_array_new();
+            if (! uri_str_to_bytes(ssid, ssid_ba)) {
+                g_string_free(key_string, TRUE);
+                g_byte_array_free(ssid_ba, TRUE);
+                g_free(type);
+                g_free(key);
+                g_free(ssid);
+                /* Free the array of strings */
+                g_strfreev(tokens);
+                return NULL;
+            }
+
+            if(ssid_ba->len > WPA_SSID_MAX_CHAR_SIZE)
+            {
+                g_string_free(key_string, TRUE);
+                g_byte_array_free(ssid_ba, TRUE);
+
+                g_free(type);
+                g_free(key);
+                g_free(ssid);
+
+                /* Free the array of strings */
+                g_strfreev(tokens);
+                return NULL;
+            }
+        }
+
+        /* Key was correct!!! Create the new decryption_key_t ... */
+        dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+        dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+        dk->key  = g_string_new(key);
+        dk->bits = 256; /* This is the length of the array pf bytes that will be generated using key+ssid ...*/
+        dk->ssid = byte_array_dup(ssid_ba); /* NULL if ssid_ba is NULL */
+
         g_string_free(key_string, TRUE);
-        g_byte_array_free(ssid_ba, TRUE);
+        if (ssid_ba != NULL)
+            g_byte_array_free(ssid_ba, TRUE);
 
         g_free(type);
         g_free(key);
-        g_free(ssid);
+        if(ssid != NULL)
+            g_free(ssid);
 
         /* Free the array of strings */
         g_strfreev(tokens);
-        return NULL;
-        }
-    }
-
-    /* Key was correct!!! Create the new decryption_key_t ... */
-    dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-
-    dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
-    dk->key  = g_string_new(key);
-    dk->bits = 256; /* This is the length of the array pf bytes that will be generated using key+ssid ...*/
-    dk->ssid = byte_array_dup(ssid_ba); /* NULL if ssid_ba is NULL */
-
-    g_string_free(key_string, TRUE);
-    if (ssid_ba != NULL)
-        g_byte_array_free(ssid_ba, TRUE);
-
-    g_free(type);
-    g_free(key);
-    if(ssid != NULL) g_free(ssid);
-
-    /* Free the array of strings */
-    g_strfreev(tokens);
-    return dk;
+        return dk;
     }
 
     /* Something was wrong ... free everything */
@@ -1623,9 +1512,9 @@ parse_key_string(gchar* input_string)
     g_free(type);
     g_free(key);
     if(ssid != NULL)
-    g_free(ssid); /* It is not always present */
+        g_free(ssid); /* It is not always present */
     if (ssid_ba != NULL)
-    g_byte_array_free(ssid_ba, TRUE);
+        g_byte_array_free(ssid_ba, TRUE);
 
     /* Free the array of strings */
     g_strfreev(tokens);
@@ -1642,38 +1531,27 @@ get_key_string(decryption_key_t* dk)
 {
     gchar* output_string = NULL;
 
-    if(dk == NULL)
+    if(dk == NULL || dk->key == NULL)
         return NULL;
 
-    if(dk->type == AIRPDCAP_KEY_TYPE_WEP)
-    {
-        if(dk->key == NULL) /* Should NOT happen at all... */
+    switch(dk->type) {
+        case AIRPDCAP_KEY_TYPE_WEP:
+            output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WEP,dk->key->str);
+            break;
+        case AIRPDCAP_KEY_TYPE_WPA_PWD:
+            if(dk->ssid == NULL)
+                output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PWD,dk->key->str);
+            else
+                output_string = g_strdup_printf("%s:%s:%s",
+                    STRING_KEY_TYPE_WPA_PWD, dk->key->str,
+                    format_uri(dk->ssid, ":"));
+            break;
+        case AIRPDCAP_KEY_TYPE_WPA_PMK:
+            output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PSK,dk->key->str);
+            break;
+        default:
             return NULL;
-
-        output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WEP,dk->key->str);
-    }
-    else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
-    {
-        if(dk->key == NULL) /* Should NOT happen at all... */
-            return NULL;
-
-        if(dk->ssid == NULL)
-            output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PWD,dk->key->str);
-        else
-            output_string = g_strdup_printf("%s:%s:%s",
-                STRING_KEY_TYPE_WPA_PWD,dk->key->str,
-                format_text((guchar *)dk->ssid->data, dk->ssid->len));
-    }
-    else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
-    {
-        if(dk->key == NULL) /* Should NOT happen at all... */
-            return NULL;
-
-        output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PSK,dk->key->str);
-    }
-    else
-    {
-        return NULL;
+            break;
     }
 
     return output_string;
