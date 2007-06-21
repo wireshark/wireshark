@@ -111,19 +111,20 @@ static GHashTable *wlan_fragment_table = NULL;
 static GHashTable *wlan_reassembled_table = NULL;
 
 /* Stuff for the WEP decoder */
-
-static gint num_wepkeys = 0;
 static gboolean enable_decryption = FALSE;
+static void init_wepkeys(void);
+
+#ifndef HAVE_AIRPDCAP
+static gint num_wepkeys = 0;
 static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
-static void init_wepkeys(void);
-#ifndef HAVE_AIRPDCAP
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
 static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
 #else
 /* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2  */
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
 #endif
+
 static int weak_iv(guchar *iv);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
 
@@ -6085,13 +6086,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
           fcs_item = proto_tree_add_boolean(fcs_tree,
               hf_fcs_good, tvb,
-              hdr_len + len, 2,
+              hdr_len + len, 4,
               fcs_good);
           PROTO_ITEM_SET_GENERATED(fcs_item);
 
           fcs_item = proto_tree_add_boolean(fcs_tree,
               hf_fcs_bad, tvb,
-              hdr_len + len, 2,
+              hdr_len + len, 4,
               fcs_bad);
           PROTO_ITEM_SET_GENERATED(fcs_item);
         }
@@ -10099,9 +10100,9 @@ proto_register_ieee80211 (void)
 #else
     g_string_sprintf(key_name, "wep_key%d", i + 1);
     g_string_sprintf(key_title, "WEP key #%d", i + 1);
-    g_string_sprintf(key_desc, "WEP key #%d bytes in hexadecimal (A:B:C:D:E) "
-        "[40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key "
-        "length you're using", i + 1);
+    g_string_sprintf(key_desc, "WEP key #%d can be:"
+      "   <wep hexadecimal key>;"
+      "   wep:<wep hexadecimal key>", i + 1);
 #endif
 
     prefs_register_string_preference(wlan_module, key_name->str,
@@ -10239,6 +10240,23 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 }
 #endif
 
+/*
+ * Convert a raw WEP key or one prefixed with "wep:" to a byte array.
+ * Separators are allowed.
+ */
+/* XXX This is duplicated in epan/airpdcap.c:parse_key_string() */
+static gboolean
+wep_str_to_bytes(const char *hex_str, GByteArray *bytes) {
+  char *first_nibble = (char *) hex_str;
+
+  if (g_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+    first_nibble += 4;
+  }
+
+  return hex_str_to_bytes(first_nibble, bytes, FALSE);
+}
+
+/* Collect our WEP and WPA keys */
 #ifdef HAVE_AIRPDCAP
 static
 void set_airpdcap_keys(void)
@@ -10267,7 +10285,7 @@ void set_airpdcap_keys(void)
         key.KeyType = AIRPDCAP_KEY_TYPE_WEP;
 
         bytes = g_byte_array_new();
-        res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
+        res = wep_str_to_bytes(dk->key->str, bytes);
 
         if (dk->key->str && res && bytes->len > 0 && bytes->len <= AIRPDCAP_WEP_KEY_MAXLEN)
         {
@@ -10305,7 +10323,7 @@ void set_airpdcap_keys(void)
         key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
 
         bytes = g_byte_array_new();
-        res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
+        res = wep_str_to_bytes(dk->key->str, bytes);
 
         /* XXX - Pass the correct array of bytes... */
         if (bytes-> len <= AIRPDCAP_WPA_PMK_LEN) {
@@ -10414,6 +10432,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
 #endif
 
 static void init_wepkeys(void) {
+#ifndef  HAVE_AIRPDCAP
   const char *tmp;
   int i, keyidx;
   GByteArray *bytes;
@@ -10446,23 +10465,12 @@ static void init_wepkeys(void) {
   bytes = g_byte_array_new();
   num_wepkeys = 0;
   for ( i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
-    res = hex_str_to_bytes(wep_keystr[i], bytes, FALSE);
+    g_strstrip(wep_keystr[i]);
+    res = wep_str_to_bytes(wep_keystr[i], bytes);
     if (wep_keystr[i] && res && bytes-> len > 0) {
       num_wepkeys++;
     }
   }
-
-#ifdef  HAVE_AIRPDCAP
-  /*
-  * XXX - AirPDcap - That God sends it to us beautiful (che dio ce la mandi bona)
-  * The next lines will add a key to the AirPDcap context. The keystring will be added
-  * to the old WEP array too, but we don't care, because the packets will come here
-  * already decrypted... One of these days we will fix this too
-  */
-  set_airpdcap_keys();
-
-  /* END AirPDcap */
-#endif
 
   wep_keys = g_malloc0(num_wepkeys * sizeof(guint8*));
   wep_keylens = g_malloc(num_wepkeys * sizeof(int));
@@ -10492,7 +10500,7 @@ static void init_wepkeys(void) {
         g_free(wep_keys[keyidx]);
       }
 
-      res = hex_str_to_bytes(tmp, bytes, FALSE);
+      res = wep_str_to_bytes(tmp, bytes);
       if (tmp && res && bytes->len > 0) {
         if (bytes->len > 32) {
           bytes->len = 32;
@@ -10515,6 +10523,17 @@ static void init_wepkeys(void) {
     }
   }
   g_byte_array_free(bytes, TRUE);
+
+#else /* HAVE_AIRPDCAP defined */
+
+  /*
+   * XXX - AirPDcap - That God sends it to us beautiful (che dio ce la mandi bona)
+   * The next lines will add a key to the AirPDcap context. The keystring will be added
+   * to the old WEP array too, but we don't care, because the packets will come here
+   * already decrypted... One of these days we will fix this too
+   */
+  set_airpdcap_keys();
+#endif /* HAVE_AIRPDCAP */
 }
 /*
  * This code had been taken from AirSnort crack.c function classify()

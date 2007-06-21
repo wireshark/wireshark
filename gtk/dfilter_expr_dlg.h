@@ -34,7 +34,8 @@
 /** User requested the "Add Expression" dialog box by menu or toolbar.
  *
  * @param widget corresponding text entry widget
+ * @return the newly created dialog widget
  */
-void dfilter_expr_dlg_new(GtkWidget *widget);
+GtkWidget *dfilter_expr_dlg_new(GtkWidget *widget);
 
 #endif /* dfilter_expr_dlg.h */

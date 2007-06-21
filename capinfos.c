@@ -272,18 +272,20 @@ int main(int argc, char *argv[])
   extern int optind;
   int opt;
   int status = 0;
+#ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
 	
   /* Register wiretap plugins */
 
     if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
-	g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
-	g_free(init_progfile_dir_error);
+		g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
     } else {
-	init_report_err(failure_message,NULL,NULL);
-	init_plugins();
-	register_all_wiretap_modules();
+		init_report_err(failure_message,NULL,NULL);
+		init_plugins();
+		register_all_wiretap_modules();
     }
+#endif
     
   /* Process the options */
 

@@ -380,17 +380,19 @@ int main(int argc, char *argv[])
   int split_packet_count = 0;
   int written_count = 0;
   char *filename;
+#ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
-  
+
   /* Register wiretap plugins */
-    if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
-	g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
-	g_free(init_progfile_dir_error);
+  if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
+	  g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+	  g_free(init_progfile_dir_error);
     } else {
-	init_report_err(failure_message,NULL,NULL);
-	init_plugins();
-	register_all_wiretap_modules();
+		init_report_err(failure_message,NULL,NULL);
+		init_plugins();
+		register_all_wiretap_modules();
     }
+#endif
     
   /* Process the options */
   while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {

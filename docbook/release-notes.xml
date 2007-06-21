@@ -125,7 +125,9 @@ Wireshark Info
         <listitem><para>
           WEP decryption would only work for the first key specified.
           disappear or become unusable.  WEP and WPA decryption didn't work
-          for QoS frames.
+          for QoS frames.  WPA decryption failed if EAPOL handshake packets
+          contained extra data.  Wireshark failed to parse colon-separated
+          WEP keys.
         </para></listitem>
 
         <listitem><para>

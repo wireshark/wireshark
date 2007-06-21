@@ -1052,7 +1052,7 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
  */
 #define TAG_STRING_LEN	256
 
-void
+GtkWidget *
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
     GtkWidget *window, *main_vb, *main_hb;
@@ -1505,4 +1505,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     gtk_widget_show_all(window);
     window_present(window);
+
+    return window;
 }

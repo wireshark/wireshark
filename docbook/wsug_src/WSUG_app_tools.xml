@@ -83,7 +83,7 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 0.99.0
+Dumpcap 0.99.6
 Capture network packets and dump them into a libpcap file.
 See http://www.wireshark.org for more information.
 
@@ -135,6 +135,10 @@ Use Ctrl-C to stop capturing at any time.
       <title>Help information available from capinfos</title>
       <programlisting>
 $ capinfos -h
+Capinfos 0.99.6
+Prints information about capture files.
+See http://www.wireshark.org for more information.
+
 Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
                 [-i] [-z] [-h] &lt;capfile&gt;
   where -t display the capture type of &lt;capfile&gt;
@@ -171,8 +175,8 @@ Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
     <example id="AppToolseditcapEx">
       <title>Help information available from editcap</title>
       <programlisting>
-$ editcap.exe -h
-Editcap 0.99.3
+$ editcap -h
+Editcap 0.99.6
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -207,9 +211,9 @@ Miscellaneous:
   -h                     display this help and exit
   -v                     verbose output
 
-$ editcap.exe -F
-editcap.exe: option requires an argument -- F
-editcap.exe: The available capture file types for "F":
+$ editcap -F
+editcap: option requires an argument -- F
+editcap: The available capture file types for "F":
     libpcap - Wireshark/tcpdump/... - libpcap
     nseclibpcap - Wireshark - nanosecond libpcap
     modlibpcap - Modified tcpdump - libpcap
@@ -230,9 +234,9 @@ editcap.exe: The available capture file types for "F":
     rf5 - Tektronix K12xx 32-bit .rf5 format
     visual - Visual Networks traffic capture
 
-$ editcap.exe -F
-editcap.exe: option requires an argument -- T
-editcap.exe: The available encapsulation types for "T":
+$ editcap -T
+editcap: option requires an argument -- T
+editcap: The available encapsulation types for "T":
     ether - Ethernet
     tr - Token Ring
     slip - SLIP
@@ -483,8 +487,11 @@ editcap.exe: The available encapsulation types for "T":
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-$ mergecap.exe -h
-mergecap version 0.10.5
+$ mergecap -h
+Mergecap version 0.99.6
+Merge two or more capture files into one.
+See http://www.wireshark.org for more information.
+
 Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
           [-F &lt;capture type&gt;] -w &lt;outfile&gt; &lt;infile&gt; [...]
 
@@ -711,9 +718,12 @@ Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
     <example id="AppToolstext2pcapEx">
       <title>Help information available for text2pcap</title>
       <programlisting>
-$ text2pcap.exe -h
+$ text2pcap -h
+Text2pcap 0.99.6
+Generate a capture file from an ASCII hexdump of packets.
+See http://www.wireshark.org for more information.
 
-Usage: text2pcap.exe [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto]
+Usage: text2pcap [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto]
           [-m max-packet] [-u srcp,destp] [-T srcp,destp] [-s srcp,destp,tag]
           [-S srcp,destp,tag] [-t timefmt] &lt;input-filename&gt; &lt;output-filename&gt;
 
@@ -1052,7 +1062,7 @@ edit Makefile.nmake
 	    If it complains about being unable to find some modules
 	    (eg tempfile.py),
 	    you may want to check if PYTHONPATH is set correctly.
-	    On my Linux box, it is  PYTHONPATH=/usr/lib/python1.5/
+	    On my Linux box, it is  PYTHONPATH=/usr/lib/python2.4/
 	  </para>
 	</listitem>
       </orderedlist>

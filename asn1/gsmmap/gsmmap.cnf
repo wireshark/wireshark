@@ -1,9 +1,45 @@
-# gsm_map.cnf
-# gsm_map conformation file
 
-# $Id$
+#.OPT
+-b 
+-T
+-X
+#-d satcom
+-d om
+-s packet-gsm_map-tmp
+-k
+-o gsm_map
+#.END
 
-#.MODULE_IMPORT
+#.MODULE
+MAP-BS-Code             gsm_map        
+MAP-TS-Code             gsm_map        
+MAP-SS-Code             gsm_map        
+MAP-ExtensionDataTypes  gsm_map        
+MAP-CommonDataTypes     gsm_map
+
+MAP-SS-DataTypes        gsm_map.ss
+MAP-OM-DataTypes        gsm_map.om
+MAP-ER-DataTypes        gsm_map.er
+MAP-SM-DataTypes        gsm_map.sm
+MAP-MS-DataTypes        gsm_map.ms
+MAP-LCS-DataTypes       gsm_map.lcs
+MAP-GR-DataTypes        gsm_map.gr
+MAP-CH-DataTypes        gsm_map.ch
+
+MAP-Errors              gsm_map
+MAP-LocationServiceOperations   gsm_map
+MAP-Group-Call-Operations       gsm_map
+MAP-ShortMessageServiceOperations  gsm_map
+MAP-SupplementaryServiceOperations  gsm_map
+MAP-CallHandlingOperations      gsm_map
+MAP-OperationAndMaintenanceOperations  gsm_map
+MAP-MobileServiceOperations     gsm_map
+MAP-Protocol                    gsm_map
+MAP-DialogueInformation         gsm_map.dialogue
+MAP-ApplicationContexts         gsm_map
+SS-DataTypes					gsm_ss
+SS-Operations					gsm_ss
+DummyMAP						gsm_old
 
 #.EXPORTS
 AddressString
@@ -65,63 +101,15 @@ SS-Info
 SS-ForBS-Code
 USSD-DataCodingScheme
 USSD-String
-Ussd-Arg
-Ussd-Res
+USSD-Arg
+USSD-Res
 UU-Data
+VelocityEstimate
+#.END
+#.REGISTER
+MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
-#.PDU
-
-#.NO_EMIT
-
-
-#.TYPE_RENAME
-
-#.FIELD_RENAME
-Ext-SS-Info/ss-Data ext-ss-Data
-RequestedInfo/subscriberState subscriberState-flg
-RequestedSubscriptionInfo/supportedVLR-CAMEL-Phases supportedVLR-CAMEL-Phases_flg
-RequestedSubscriptionInfo/supportedSGSN-CAMEL-Phases supportedSGSN-CAMEL-Phases_flg
-PrepareGroupCallArg/teleservice ext-teleservice
-BasicServiceCode/teleservice teleservice-code
-PDP-ContextInfo/qos-Subscribed ext-qos-Subscribed
-AccessNetworkSignalInfo/signalInfo longsignalInfo 
-Ext-SS-Info/callBarringInfo ext-callBarringInfo
-RequestedInfo/locationInformation locationInformation_flg
-RequestedInfo/imei imei_flg
-Ext-ForwFeature/forwardingOptions ext-forwardingOptions
-Ext-SS-Info/forwardingInfo ext-forwardingInfo
-RegisterSS-Arg/forwardedToNumber forwardedToNumber_addr 
-ModificationRequestFor-CF-Info/forwardedToNumber forwardedToNumber_addr
-Ext-ForwFeature/basicService ext-basicService
-Ext-CallBarringFeature/basicService ext-basicService
-CUG-Feature/basicService ext-basicService
-SendRoutingInfoRes/basicService ext-basicService
-ModificationRequestFor-CF-Info/basicService ext-basicService
-ModificationRequestFor-CB-Info/basicService ext-basicService
-SendRoutingInfoArg/basicServiceGroup ext-basicServiceGroup
-ResumeCallHandlingArg/basicServiceGroup ext-basicServiceGroup
-Ext-ForwFeature/ss-Status ext-ss-Status
-Ext-CallBarringFeature/ss-Status ext-ss-Status
-Ext-SS-Data/ss-Status ext-ss-Status
-LCS-PrivacyClass/ss-Status ext-ss-Status
-MOLR-Class/ss-Status ext-ss-Status
-MC-SS-Info/ss-Status ext-ss-Status
-ModificationRequestFor-CF-Info/ss-Status ext-ss-Status
-ModificationRequestFor-CB-Info/ss-Status ext-ss-Status
-SS-Data/basicServiceGroupList ext-basicServiceGroupList
-InterrogateSS-Res/basicServiceGroupList ext-basicServiceGroupList
-Ext-CallBarInfo/callBarringFeatureList ext-callBarringFeatureList 
-CallBarringData/callBarringFeatureList ext-callBarringFeatureList
-Ext-CallBarringInfoFor-CSE/callBarringFeatureList ext-callBarringFeatureList
-Ext-ForwInfo/forwardingFeatureList ext-forwardingFeatureList
-CallForwardingData/forwardingFeatureList ext-forwardingFeatureList
-Ext-ForwardingInfoFor-CSE/forwardingFeatureList ext-forwardingFeatureList
-Ext-ForwFeature/noReplyConditionTime ext-noReplyConditionTime
-ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
-ReturnError/errorCode returnErrorCode
-ERROR/localValue localErrorcode
-OPERATION/localValue operationLocalvalue
-#----------------------------------------------------------------------------------------
+# Conformance for ROS stuff
 #.PDU 
 Component 
 
@@ -148,85 +136,27 @@ Component
 #.FN_PARS  GSMMAPLocalErrorcode
 
   VAL_PTR = &errorCode
-
-#.FN_PARS  Sm-RP-UI
-
-  VAL_PTR = &tpdu_tvb
-
-#.FN_BODY Sm-RP-UI
-
-  tvbuff_t	*tpdu_tvb;
-  	
-  %(DEFAULT_BODY)s
-
-    /*
-     * dissect the embedded TPDU message
-     */
- if (!tpdu_tvb)
-	return offset;
-
-    dissector_try_port(sms_dissector_table, 0, tpdu_tvb, actx->pinfo, top_tree);
-#.END
+# End ROS
 #----------------------------------------------------------------------------------------
-#.FN_PARS  IMSI
 
-  VAL_PTR = &parameter_tvb
- 
-#.FN_BODY IMSI
+#.FN_PARS PrivateExtension/extId  FN_VARIANT = _str  VAL_PTR = &obj_id
 
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
+#.FN_BODY PrivateExtension/extType	
+  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
+  if (obj_id){
+	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
+  }else{
+	 call_dissector(data_handle, tvb, actx->pinfo, tree);
+	 offset = tvb_length_remaining(tvb,offset);
+  }	
 
- %(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
-
- digit_str = unpack_digits(parameter_tvb, 0);
-
- proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 0, -1, digit_str);
- 
-
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_PARS ServiceCentreAddress
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY ServiceCentreAddress
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
-
- %(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
-
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
-
- digit_str = unpack_digits(parameter_tvb, 1);
-
- proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
- actx->pinfo->p2p_dir = P2P_DIR_SENT;
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_PARS ISDN-AddressString
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY ISDN-AddressString
+#.FN_BODY AddressString VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
  guint8		octet;
  guint8		na;
  guint8		np;
- proto_item *item;
  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
@@ -234,49 +164,7 @@ Component
  if (!parameter_tvb)
 	return offset;
 
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_gsm_map_isdn_address_string);
-
- proto_tree_add_item(subtree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(subtree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(subtree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
-
- digit_str = unpack_digits(parameter_tvb, 1);
-
- proto_tree_add_string(subtree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
-
- octet = tvb_get_guint8(parameter_tvb,0);
- na = (octet & 0x70)>>4;
- np = octet & 0x0f;
- if ((na == 1) && (np==1))/*International Number & E164*/
-	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
-
- actx->pinfo->p2p_dir = P2P_DIR_RECV;
-
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_PARS AddressString
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY AddressString
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
- guint8		octet;
- guint8		na;
- guint8		np;
- proto_item *item;
- proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
-
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_gsm_map_isdn_address_string);
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_isdn_address_string);
 
  proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
@@ -292,127 +180,31 @@ Component
  if ((na == 1) && (np==1))/*International Number & E164*/
 	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
 
-#----------------------------------------------------------------------------------------
-#.FN_PARS SS-Status
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY SS-Status
-
+#.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- guint8		octet;
+ char		*digit_str;
 
-%(DEFAULT_BODY)s
+ %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
 
- octet = tvb_get_guint8(parameter_tvb,0);
-
- proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
- if ((octet & 0x01)== 1)	
-	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
-										
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
-
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_PARS Ext-SS-Status
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY Ext-SS-Status
- /* Note Ext-SS-Status can have more than one byte */
-
- tvbuff_t	*parameter_tvb;
- guint8		octet;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
-
- octet = tvb_get_guint8(parameter_tvb,0);
-
- proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
- if ((octet & 0x01)== 1)	
-	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
-										
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
- proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
-
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_PARS  ProtocolId
-
-  VAL_PTR = &protocolId
+ digit_str = unpack_digits(parameter_tvb, 0);
+ proto_tree_add_string(tree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, digit_str);
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS AccessNetworkProtocolId
-
-  VAL_PTR = &AccessNetworkProtocolId
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS  SignalInfo
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY SignalInfo
+#.FN_BODY LongSignalInfo VAL_PTR = &parameter_tvb
+#
+#7.6.9.1 AN-apdu
+#This parameter includes one or two concatenated complete 3GPP TS 25.413 or 3GPP TS 48.006 [48] messages, as
+#described in 3GPP TS 23.009 and 3GPP TS 29.010. The access network protocol ID indicates that the message or
+#messages are according to either 3GPP TS 48.006 [48] or 3GPP TS 25.413. For the coding of the messages see 3GPP
+#TS 25.413, 3GPP TS 48.006 [48] and 3GPP TS 48.008 [49].
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
-
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
- switch (protocolId){
-	/* gsm-0408 */
-	case 1:
-		break;
- 	/* gsm-0806 */
-	case 2:
-		break;
-	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
-	case 3:
-		octet = tvb_get_guint8(parameter_tvb,0);
-		length = tvb_get_guint8(parameter_tvb,1);
-		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset(parameter_tvb, 2, -1, -1);
-			dissect_bssmap(next_tvb, actx->pinfo, tree);
-		}
-		break;
-	/* ets-300102-1 (~Q.931 ) */
-	case 4:
-		octet = tvb_get_guint8(parameter_tvb,0);
-		length = tvb_get_guint8(parameter_tvb,1);
-		if ( octet == 4 )
-			dissect_q931_bearer_capability_ie(parameter_tvb, 2, length, tree);
-		break;
-	default:
-		break;
-}
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS  LongSignalInfo
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY LongSignalInfo
-
- tvbuff_t	*parameter_tvb;
- guint8		octet;
- guint8		length;
- tvbuff_t	*next_tvb;
- proto_item *item;
  proto_tree *subtree;
 
 
@@ -421,8 +213,7 @@ Component
  if (!parameter_tvb)
 	return offset;
 
- item = get_ber_last_created_item(); 
- subtree = proto_item_add_subtree(item, ett_gsm_map_LongSignalInfo); 
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LongSignalInfo); 
 
  switch (AccessNetworkProtocolId){
 	/* ts3G-48006 */
@@ -443,8 +234,100 @@ Component
 		break;
 
  }
- 
-#----------------------------------------------------------------------------------------
+# Set SENT/RECEIVED depending if ISDN-AddressString or AddressString is used.
+# as it's a CHOICE only one is present.
+#.FN_BODY SM-RP-OAold/serviceCentreAddressOA
+	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-OA/serviceCentreAddressOA
+	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-OAold/msisdn
+actx->pinfo->p2p_dir = P2P_DIR_RECV;
+ %(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-OA/msisdn
+actx->pinfo->p2p_dir = P2P_DIR_RECV;
+ %(DEFAULT_BODY)s
+
+#.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+
+ %(DEFAULT_BODY)s
+	actx->value_ptr = parameter_tvb;
+
+#.FN_BODY ForwardSM-Arg
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MO-ForwardSM-Arg
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MT-ForwardSM-Arg
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY SS-Status VAL_PTR = &parameter_tvb
+
+ tvbuff_t	*parameter_tvb;
+ guint8		octet;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+
+ proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
+ if ((octet & 0x01)== 1)	
+	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
+										
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+#.FN_BODY Ext-SS-Status VAL_PTR = &parameter_tvb
+ /* Note Ext-SS-Status can have more than one byte */
+
+ tvbuff_t	*parameter_tvb;
+ guint8		octet;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ octet = tvb_get_guint8(parameter_tvb,0);
+
+ proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
+ if ((octet & 0x01)== 1)	
+	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
+										
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
+
+#.END
+
 #.FN_BODY USSD-DataCodingScheme VAL_PTR = &parameter_tvb
 #-- The structure of the USSD-DataCodingScheme is defined by
 #-- the Cell Broadcast Data Coding Scheme as described in
@@ -461,16 +344,7 @@ Component
   if (!parameter_tvb)
      return offset;
   smpp_handle_dcs(tree, parameter_tvb, &CodingScheme_offset);
-#--
-#--  octet = tvb_get_guint8(tvb,0);
-#--  length = tvb_get_guint8(tvb,1);
-#--  if ( octet == 4) {
-#--    next_tvb = tvb_new_subset(tvb, 2, -1, -1);
-#--    smpp_handle_dcs(tree, next_tvb, &offset);
-#--	}
 
-#.END
-#----------------------------------------------------------------------------------------
 #.FN_BODY USSD-String VAL_PTR = &parameter_tvb
 
   tvbuff_t	*parameter_tvb;
@@ -496,39 +370,6 @@ Component
   bigbuf[1023] = '\0';
   proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", bigbuf);
 
-#--  guint8		octet;
-#--  guint8		length;
-#--  guint8		out_len;
-#--  /* XXX - The maximum item label length is 240.  Does this really need to be 1024? */
-#--  static char bigbuf[1024];
-
-#--  octet = tvb_get_guint8(tvb,0);
-#--  length = tvb_get_guint8(tvb,1);
-
-#--  out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
-#--              tvb_get_ptr(tvb, offset+2, length), bigbuf);
-#--  bigbuf[out_len] = '\0';
-#--  gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-#--  bigbuf[1023] = '\0';
-#--  
-#--  proto_tree_add_text(tree, tvb, offset+2, length, "USSD String: %%s", bigbuf);
-
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_BODY PrivateExtension/extType
-
-	
-  proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
-  if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
-  }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, tree);
-	 offset = tvb_length_remaining(tvb,offset);
-  }	
- 		
-
-#.END
 #.FN_FTR ForwardingOptions
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
@@ -542,11 +383,8 @@ Component
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
 
-#.FN_PARS  PDP-Type
 
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY PDP-Type
+#.FN_BODY PDP-Type VAL_PTR = &parameter_tvb
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -568,11 +406,8 @@ Component
 		break;
 	}
 
-#.FN_PARS QoS-Subscribed
-		
-  VAL_PTR = &parameter_tvb
+#.FN_BODY QoS-Subscribed VAL_PTR = &parameter_tvb
 
-#.FN_BODY QoS-Subscribed
 
 	tvbuff_t	*parameter_tvb;
 
@@ -582,11 +417,7 @@ Component
 		return offset;
 	de_sm_qos(parameter_tvb, tree, 0, 3, NULL,0);
 
-#.FN_PARS Ext-QoS-Subscribed
-		
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY Ext-QoS-Subscribed
+#.FN_BODY Ext-QoS-Subscribed VAL_PTR = &parameter_tvb
 
 	tvbuff_t	*parameter_tvb;
 
@@ -596,11 +427,7 @@ Component
 		return offset;
 	dissect_gsm_map_ext_qos_subscribed(tvb, actx->pinfo, tree);
 
-#.FN_PARS GSN-Address
-		
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY GSN-Address
+#.FN_BODY GSN-Address VAL_PTR = &parameter_tvb
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -626,11 +453,7 @@ Component
 		break;
 	}
 
-#.FN_PARS RAIdentity
-		
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY RAIdentity
+#.FN_BODY RAIdentity VAL_PTR = &parameter_tvb
 
 	tvbuff_t	*parameter_tvb;
 	proto_item *item;
@@ -644,11 +467,7 @@ Component
 	subtree = proto_item_add_subtree(item, ett_gsm_map_RAIdentity);
 	de_gmm_rai(parameter_tvb, subtree, 0, 3, NULL,0);
 
-#.FN_PARS LAIFixedLength 
-                
-  VAL_PTR = &parameter_tvb 
-
-#.FN_BODY LAIFixedLength 
+#.FN_BODY LAIFixedLength VAL_PTR = &parameter_tvb
 
         tvbuff_t        *parameter_tvb; 
         proto_item *item; 
@@ -661,9 +480,6 @@ Component
         item = get_ber_last_created_item(); 
         subtree = proto_item_add_subtree(item, ett_gsm_map_LAIFixedLength); 
         dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
-
-#.FN_PARS PrivateExtension/extId
-  FN_VARIANT = _str  VAL_PTR = &obj_id
 
 #.FN_BODY RadioResourceInformation VAL_PTR = &parameter_tvb 
     tvbuff_t        *parameter_tvb; 
@@ -726,5 +542,3 @@ Ext-TeleserviceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleserv
 Ext-BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 ChargingCharacteristics  TYPE = FT_UINT16  DISPLAY = BASE_DEC  BITMASK = 0x0f00 STRINGS = VALS(chargingcharacteristics_values)
 #.END
-
-

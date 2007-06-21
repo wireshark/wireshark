@@ -193,15 +193,31 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
 /******************************************************************************/
 /*	Function prototype declarations															*/
 
-/*
+/**
  * Returns the decryption_key_t struct given a string describing the key.
- * Returns NULL if the key_string cannot be parsed.
+ * @param key_string [IN] Key string in one of the following formats:
+ * - 0102030405 (40/64-bit WEP)
+ * - 01:02:03:04:05 (40/64-bit WEP)
+ * - 0102030405060708090a0b0c0d (104/128-bit WEP)
+ * - 01:02:03:04:05:06:07:08:09:0a:0b:0c:0d (104/128-bit WEP)
+ * - wep:01020304... (WEP)
+ * - wep:01:02:03:04... (WEP)
+ * - wpa-pwd:MyPassword (WPA + plaintext password + "wildcard" SSID)
+ * - wpa-pwd:MyPassword:MySSID (WPA + plaintext password + specific SSID)
+ * - wpa-psk:01020304... (WPA + 256-bit raw key)
+ * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on
+ *   success, or NULL on failure.
+ * @see get_key_string()
  */
 decryption_key_t*
 parse_key_string(gchar* key_string);
 
-/*
- * Returns a newly allocated string representing the given decryption_key_t struct
+/**
+ * Returns a newly allocated string representing the given decryption_key_t
+ * struct.
+ * @param dk [IN] Pointer to the key to be converted
+ * @return A g_malloc()ed string representation of the key
+ * @see parse_key_string()
  */
 gchar*
 get_key_string(decryption_key_t* dk);

@@ -151,7 +151,7 @@
 	WIRESHARK_LIBS library path (all the subdirs, e.g. 
 	<filename>c:\wireshark-win32-libs\gtk+</filename>), 
 	except for the zip files located at the toplevel, which are the files 
-	downloaded the last time(s). You could do this, be entering at the command line:
+	downloaded the last time(s). You could do this, by entering at the command line:
 	</para>
 	<para>
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake clean_setup</userinput>

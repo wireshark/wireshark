@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-gsm_map.c                                                         */
-/* ../../tools/asn2wrs.py -b -X -T -k -e -c gsm_map.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn */
+/* ../../tools/asn2wrs.py -b -X -T -k -e -c gsmmap.cnf -s packet-gsm_map-template ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn */
 
 /* Input file: packet-gsm_map-template.c */
 
@@ -142,6 +142,7 @@ static int hf_gsm_map_ranap_service_Handover = -1;
 static int hf_gsm_mapIntegrityProtectionInformation = -1;
 static int hf_gsm_mapEncryptionInformation = -1;
 static int hf_gsm_map_PlmnContainer_PDU = -1;
+static int hf_gsm_ss_SS_UserData = -1;
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
 #line 1 "packet-gsm_map-hf.c"
@@ -1229,8 +1230,6 @@ static int hf_gsm_old_localValue_01 = -1;         /* LocalErrorcode */
 static int hf_gsm_old_protocolId = -1;            /* ProtocolId */
 static int hf_gsm_old_signalInfo = -1;            /* SignalInfo */
 static int hf_gsm_old_extensionContainer = -1;    /* ExtensionContainer */
-static int hf_gsm_old_imsi = -1;                  /* IMSI */
-static int hf_gsm_old_imsi_WithLMSI = -1;         /* IMSI_WithLMSI */
 static int hf_gsm_old_gsm_BearerCapability = -1;  /* ExternalSignalInfo */
 static int hf_gsm_old_isdn_BearerCapability = -1;  /* ExternalSignalInfo */
 static int hf_gsm_old_call_Direction = -1;        /* CallDirection */
@@ -1239,6 +1238,7 @@ static int hf_gsm_old_chosenChannel = -1;         /* ExternalSignalInfo */
 static int hf_gsm_old_lowerLayerCompatibility = -1;  /* ExternalSignalInfo */
 static int hf_gsm_old_highLayerCompatibility = -1;  /* ExternalSignalInfo */
 static int hf_gsm_old_sIWFSNumber = -1;           /* ISDN_AddressString */
+static int hf_gsm_old_imsi = -1;                  /* IMSI */
 static int hf_gsm_old_vlr_Number = -1;            /* ISDN_AddressString */
 static int hf_gsm_old_targetCellId = -1;          /* GlobalCellId */
 static int hf_gsm_old_ho_NumberNotRequired = -1;  /* NULL */
@@ -1353,7 +1353,7 @@ static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 138 "packet-gsm_map-template.c"
+#line 139 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1871,7 +1871,6 @@ static gint ett_gsm_old_T_problem = -1;
 static gint ett_gsm_old_MAP_OPERATION = -1;
 static gint ett_gsm_old_MAP_ERROR = -1;
 static gint ett_gsm_old_Bss_APDU = -1;
-static gint ett_gsm_old_CancelLocationArgV2 = -1;
 static gint ett_gsm_old_ProvideSIWFSNumberArg = -1;
 static gint ett_gsm_old_ProvideSIWFSNumberRes = -1;
 static gint ett_gsm_old_PurgeMSArgV2 = -1;
@@ -1929,7 +1928,7 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 158 "packet-gsm_map-template.c"
+#line 159 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -2495,7 +2494,7 @@ dissect_gsm_map_T_extId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 145 "gsm_map.cnf"
+#line 145 "gsmmap.cnf"
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
   if (obj_id){
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
@@ -2610,7 +2609,7 @@ dissect_gsm_map_SLR_ArgExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_TBCD_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "gsm_map.cnf"
+#line 184 "gsmmap.cnf"
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
@@ -2633,7 +2632,7 @@ dissect_gsm_map_TBCD_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 int
 dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 154 "gsm_map.cnf"
+#line 154 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -2720,7 +2719,7 @@ dissect_gsm_map_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "gsm_map.cnf"
+#line 256 "gsmmap.cnf"
  tvbuff_t	*parameter_tvb;
 
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2800,7 +2799,7 @@ dissect_gsm_map_AccessNetworkProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 203 "gsm_map.cnf"
+#line 203 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -3252,7 +3251,7 @@ dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(gboolean implicit_tag _U_
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 453 "gsm_map.cnf"
+#line 471 "gsmmap.cnf"
 
         tvbuff_t        *parameter_tvb; 
         proto_item *item; 
@@ -3380,7 +3379,7 @@ dissect_gsm_map_EMLPP_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_gsm_map_Ext_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 291 "gsm_map.cnf"
+#line 309 "gsmmap.cnf"
  /* Note Ext-SS-Status can have more than one byte */
 
  tvbuff_t	*parameter_tvb;
@@ -3503,7 +3502,7 @@ dissect_gsm_map_ss_RegisterSS_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_gsm_map_ss_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 271 "gsm_map.cnf"
+#line 289 "gsmmap.cnf"
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -3537,7 +3536,7 @@ dissect_gsm_map_ss_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
-#line 356 "gsm_map.cnf"
+#line 374 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -3856,7 +3855,7 @@ dissect_gsm_map_ss_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 int
 dissect_gsm_map_ss_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 318 "gsm_map.cnf"
+#line 336 "gsmmap.cnf"
  /*The structure of the USSD-DataCodingScheme is defined by
   * the Cell Broadcast Data Coding Scheme as described in
   * TS 3GPP TS 23.038
@@ -3880,7 +3879,7 @@ dissect_gsm_map_ss_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tv
 
 int
 dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 331 "gsm_map.cnf"
+#line 349 "gsmmap.cnf"
 
   tvbuff_t	*parameter_tvb;
   int			length;
@@ -5219,7 +5218,7 @@ dissect_gsm_map_sm_SM_RP_DA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_gsm_map_sm_T_msisdn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 252 "gsm_map.cnf"
+#line 252 "gsmmap.cnf"
 actx->pinfo->p2p_dir = P2P_DIR_RECV;
    offset = dissect_gsm_map_ISDN_AddressString(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -5233,7 +5232,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 static int
 dissect_gsm_map_sm_T_serviceCentreAddressOA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 244 "gsm_map.cnf"
+#line 244 "gsmmap.cnf"
 	actx->pinfo->p2p_dir = P2P_DIR_SENT;
   offset = dissect_gsm_map_AddressString(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -5279,8 +5278,18 @@ static const ber_sequence_t MO_ForwardSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_sm_MO_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 271 "gsmmap.cnf"
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MO_ForwardSM_Arg_sequence, hf_index, ett_gsm_map_sm_MO_ForwardSM_Arg);
+
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+
 
   return offset;
 }
@@ -5312,8 +5321,18 @@ static const ber_sequence_t MT_ForwardSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_map_sm_MT_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 280 "gsmmap.cnf"
+
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MT_ForwardSM_Arg_sequence, hf_index, ett_gsm_map_sm_MT_ForwardSM_Arg);
+
+
+	if (!actx->value_ptr)
+		return offset;
+	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+
 
   return offset;
 }
@@ -6128,7 +6147,7 @@ dissect_gsm_map_ms_VLR_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_gsm_map_ms_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 413 "gsm_map.cnf"
+#line 431 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -6765,7 +6784,7 @@ dissect_gsm_map_ms_UpdateGprsLocationRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 493 "gsm_map.cnf"
+#line 511 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -6788,7 +6807,7 @@ dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_gsm_map_ms_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 505 "gsm_map.cnf"
+#line 523 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -6873,7 +6892,7 @@ dissect_gsm_map_ms_AllowedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_ms_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 467 "gsm_map.cnf"
+#line 485 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb; 
 	proto_item *item;
 	proto_tree *subtree;
@@ -6946,7 +6965,7 @@ dissect_gsm_map_ms_BSSMAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_ms_RANAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 481 "gsm_map.cnf"
+#line 499 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -7680,7 +7699,7 @@ static int
 dissect_gsm_map_ms_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_gsm_map_ms_Ext_ForwOptions(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-#line 362 "gsm_map.cnf"
+#line 380 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -8875,7 +8894,7 @@ dissect_gsm_map_ms_ContextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gsm_map_ms_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 370 "gsm_map.cnf"
+#line 388 "gsmmap.cnf"
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -8918,7 +8937,7 @@ dissect_gsm_map_ms_PDP_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 int
 dissect_gsm_map_ms_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 392 "gsm_map.cnf"
+#line 410 "gsmmap.cnf"
 
 
 	tvbuff_t	*parameter_tvb;
@@ -8950,7 +8969,7 @@ dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 int
 dissect_gsm_map_ms_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 403 "gsm_map.cnf"
+#line 421 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -10105,7 +10124,7 @@ dissect_gsm_map_ms_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 int
 dissect_gsm_map_ms_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 439 "gsm_map.cnf"
+#line 457 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	proto_item *item;
@@ -13292,7 +13311,7 @@ static const value_string gsm_old_GSMMAPOperationLocalvalue_vals[] = {
 
 static int
 dissect_gsm_old_GSMMAPOperationLocalvalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "gsm_map.cnf"
+#line 130 "gsmmap.cnf"
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &opcode);
@@ -13350,7 +13369,7 @@ dissect_gsm_old_MAP_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_gsm_old_InvokeParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "gsm_map.cnf"
+#line 117 "gsmmap.cnf"
 	offset = dissect_invokeData(tree, tvb, offset, actx);
 
 
@@ -13379,7 +13398,7 @@ dissect_gsm_old_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gsm_old_ReturnResultParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "gsm_map.cnf"
+#line 120 "gsmmap.cnf"
 	offset = dissect_returnResultData(tree, tvb, offset, actx);
 
 
@@ -13522,7 +13541,7 @@ dissect_gsm_old_MAP_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_gsm_old_ReturnErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "gsm_map.cnf"
+#line 123 "gsmmap.cnf"
 	offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
 
@@ -13733,28 +13752,6 @@ static int
 dissect_gsm_old_Bss_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Bss_APDU_sequence, hf_index, ett_gsm_old_Bss_APDU);
-
-  return offset;
-}
-
-
-static const value_string gsm_old_CancelLocationArgV2_vals[] = {
-  {   0, "imsi" },
-  {   1, "imsi-WithLMSI" },
-  { 0, NULL }
-};
-
-static const ber_choice_t CancelLocationArgV2_choice[] = {
-  {   0, &hf_gsm_old_imsi        , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_IMSI },
-  {   1, &hf_gsm_old_imsi_WithLMSI, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_gsm_map_IMSI_WithLMSI },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_old_CancelLocationArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CancelLocationArgV2_choice, hf_index, ett_gsm_old_CancelLocationArgV2,
-                                 NULL);
 
   return offset;
 }
@@ -14302,7 +14299,7 @@ dissect_gsm_old_SM_RP_DAold(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_gsm_old_T_msisdn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 248 "gsm_map.cnf"
+#line 248 "gsmmap.cnf"
 actx->pinfo->p2p_dir = P2P_DIR_RECV;
    offset = dissect_gsm_map_ISDN_AddressString(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -14316,7 +14313,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 static int
 dissect_gsm_old_T_serviceCentreAddressOA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 240 "gsm_map.cnf"
+#line 240 "gsmmap.cnf"
 	actx->pinfo->p2p_dir = P2P_DIR_SENT;
   offset = dissect_gsm_map_AddressString(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -14361,7 +14358,7 @@ static const ber_sequence_t ForwardSM_Arg_sequence[] = {
 
 static int
 dissect_gsm_old_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 262 "gsm_map.cnf"
+#line 262 "gsmmap.cnf"
 
 	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -15115,12 +15112,13 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 567 "packet-gsm_map-template.c"
+#line 568 "packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
-const value_string gsm_map_V3_opr_code_strings[] = {
-  {  44, "mt-forwardSM" },
-  {  46, "mo-forwardSM" },
+const value_string gsm_map_V1V2_opr_code_strings[] = {
+  {  44, "forwardSM" },
+  {  45, "sendRoutingInfoForSM" },
+  {  46, "forwardSM" },
   { 0, NULL }
 };
 /* Generic translation for MAP operation */
@@ -15331,12 +15329,12 @@ const gchar* gsm_map_opr_code(guint32 val) {
   switch (val) { 
   case 44: /*mt-forwardSM*/
   case 46: /*mo-forwardSM*/
-    if (application_context_version == 3) {
-      return val_to_str(val, gsm_map_V3_opr_code_strings, "Unknown GSM-MAP (%%u)");
+    if (application_context_version < 3) {
+      return val_to_str(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP (%u)");
     }
     /* Else use the default map operation translation */
   default:
-    return val_to_str(val, gsm_map_opr_code_strings, "Unknown GSM-MAP (%%u)");
+    return val_to_str(val, gsm_old_GSMMAPOperationLocalvalue_vals, "Unknown GSM-MAP opcode (%u)");
     break;
   }
 }
@@ -15427,8 +15425,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  3: /*cancelLocation*/
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
-			      FALSE, dissect_gsm_old_CancelLocationArgV2, -1,/*undefined*/
-			      TRUE , dissect_gsm_map_ms_CancelLocationArg_U, -1);
+			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
+			      TRUE , dissect_gsm_map_ms_CancelLocationArg_U, -1);/*undefined*/
     break;
   case  4: /*provideRoamingNumber*/
     offset=dissect_gsm_map_ch_ProvideRoamingNumberArg(FALSE, tvb, offset, actx, tree, -1);
@@ -15475,7 +15473,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_old_GetPasswordArg(FALSE, tvb, offset, actx, tree, hf_gsm_map_getPassword);
     break;
   case 19: /* SS-Protocol processUnstructuredSS-Data (19) */
-    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_ss_SS_UserData);
     break;
   case 20: /*releaseResources*/
     offset=dissect_gsm_map_ch_ReleaseResourcesArg(FALSE, tvb, offset, actx, tree, -1);
@@ -15728,6 +15726,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_ss_AccessRegisterCCEntryArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 120: /*SS-protocol forwardCUG-Info*/
+	application_context_version = 3;
     offset=dissect_gsm_ss_ForwardCUG_InfoArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 121: /*SS-protocol splitMPTY no Argument*/
@@ -15812,7 +15811,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_old_CurrentPassword(FALSE, tvb, offset, actx, tree, hf_gsm_map_currentPassword);
     break;
   case 19: /* SS-Protocol processUnstructuredSS-Data (19) */
-    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_ss_SS_UserData);
     break;
   case 20: /*releaseResources*/
     offset=dissect_gsm_map_ch_ReleaseResourcesRes(FALSE, tvb, offset, actx, tree, -1);
@@ -15891,7 +15890,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 56: /*sendAuthenticationInfo*/ 
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, NULL, -1,
-			      FALSE, dissect_gsm_old_SendAuthenticationInfoResOld_item, -1,
+			      FALSE, dissect_gsm_old_SendAuthenticationInfoResOld, -1,
 			      TRUE , dissect_gsm_map_ms_SendAuthenticationInfoRes, -1);
     break;
   case 57: /*restoreData*/
@@ -16015,7 +16014,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_ss_RegisterCC_EntryRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 120: /*SS-protocol forwardCUG-Info*/
-    offset=dissect_gsm_ss_ForwardCUG_InfoArg(FALSE, tvb, offset, actx, tree, -1);
+	  /* No RETURN RESULT*/
     break;
   case 121: /*SS-protocol splitMPTY no RESULT*/
     break;
@@ -16942,6 +16941,11 @@ void proto_register_gsm_map(void) {
       { "PlmnContainer", "gsm_map.PlmnContainer",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.PlmnContainer", HFILL }},
+    { &hf_gsm_ss_SS_UserData,
+      { "SS-UserData", "gsm_ss.SS_UserData",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "gsm_ss.SS_UserData", HFILL }},
+
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -21141,14 +21145,6 @@ void proto_register_gsm_map(void) {
       { "extensionContainer", "gsm_old.extensionContainer",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.ExtensionContainer", HFILL }},
-    { &hf_gsm_old_imsi,
-      { "imsi", "gsm_old.imsi",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "gsm_map.IMSI", HFILL }},
-    { &hf_gsm_old_imsi_WithLMSI,
-      { "imsi-WithLMSI", "gsm_old.imsi_WithLMSI",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "gsm_map.IMSI_WithLMSI", HFILL }},
     { &hf_gsm_old_gsm_BearerCapability,
       { "gsm-BearerCapability", "gsm_old.gsm_BearerCapability",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -21181,6 +21177,10 @@ void proto_register_gsm_map(void) {
       { "sIWFSNumber", "gsm_old.sIWFSNumber",
         FT_BYTES, BASE_HEX, NULL, 0,
         "gsm_map.ISDN_AddressString", HFILL }},
+    { &hf_gsm_old_imsi,
+      { "imsi", "gsm_old.imsi",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "gsm_map.IMSI", HFILL }},
     { &hf_gsm_old_vlr_Number,
       { "vlr-Number", "gsm_old.vlr_Number",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -21622,7 +21622,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2395 "packet-gsm_map-template.c"
+#line 2403 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -22142,7 +22142,6 @@ void proto_register_gsm_map(void) {
     &ett_gsm_old_MAP_OPERATION,
     &ett_gsm_old_MAP_ERROR,
     &ett_gsm_old_Bss_APDU,
-    &ett_gsm_old_CancelLocationArgV2,
     &ett_gsm_old_ProvideSIWFSNumberArg,
     &ett_gsm_old_ProvideSIWFSNumberRes,
     &ett_gsm_old_PurgeMSArgV2,
@@ -22200,7 +22199,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2417 "packet-gsm_map-template.c"
+#line 2425 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -22272,7 +22271,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2435 "packet-gsm_map-template.c"
+#line 2443 "packet-gsm_map-template.c"
   add_oid_str_name("1.2.826.0.1249.58.1.0","iso(1) member-body(2) bsi(826) disc(0) ericsson(1249) gsmNetworkApplicationsDefinition(58) gsm-Map(1) gsm-Map-Ext(0)" );
   add_oid_str_name("1.3.12.2.1107.3.66.1.2","accessTypeNotAllowed-id" );
   /*add_oid_str_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );

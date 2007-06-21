@@ -57,14 +57,12 @@
 	   	With a little care, the plugin can be made to run as a built in
 	   	easily too - so we haven't lost anything.
 	   </para>
-	   <example><title>Basic Plugin setup.</title>
-	   <programlisting>
-	   <![CDATA[
-#ifdef HAVE_CONFIG_H
+	   <example><title>Dissector Initialisation.</title>
+   <programlisting>
+<![CDATA[#ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -73,82 +71,14 @@ void proto_register_foo();
 void proto_reg_handoff_foo();
 void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* Define version if we are not building Wireshark statically */
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = "0.0";
-#endif
-
 static int proto_foo = -1;
 static int global_foo_port = 1234;
 static dissector_handle_t foo_handle;
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT void
-plugin_register(void)
-{
-	/* register the new protocol, protocol fields, and subtrees */
-	if (proto_foo == -1) { /* execute protocol initialization only once */
-		proto_register_foo();
-	}
-}
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-	proto_reg_handoff_foo();
-}
-#endif]]>
-	   </programlisting>
-	   </example>
-	<para>
-	Lets go through this a bit at a time. First we have some boiler plate
-	include files. These will be pretty constant to start with. Here we also
-	pre-declare some functions that we'll be writing shortly.
-	</para>
-	<para>
-	Next we have a section surrounded by #ifdef ENABLE_STATIC. This is what
-	makes this a plugin rather than a built in dissector.
-	</para>
-	<para>
-	The version is a simple string that is used to report on the version of this
-	dissector. You should increase this number each time you make changes that you
-	need to keep track of.
-	</para>	
-	<para>
-	Next we have an int that is initialised to -1 that records our protocol.
-	This will get updated when we register this plugin with the main program.
-	We can use this as a handy way to detect if we've been initialised yet.
-	Its good practice to make all variables and functions that aren't exported
-	static to keep name space pollution. Normally this isn't a problem unless your
-	dissector gets so big it has to span multiple files.
-	</para>
-	<para>
-	Then a global variable which contains the UDP port that we'll assume we are dissecting traffic for.
-	</para>
-	<para>
-	Next a dissector reference that we'll initialise later.
-	</para>
-	<para>
-	Next, the first plugin entry point. The function plugin_register() is called
-	when the plugin is loaded and allows you to do some initialisation stuff,
-	which will include communicating with the main program what you're plugins
-	capabilities are.
-	</para>
-	<para>
-	The plugin_reg_handoff routine is used when dissecting sub protocols. As our
-	hypothetical protocol will be hypothetically carried over UDP then we will
-	need to do this.
-	</para>
-	<para>
-	Now we have the basics in place to interact with the main program, we had
-	better fill in those missing functions. Lets start with register function.
-	</para>
-	   <example><title>Plugin Initialisation.</title>
-   <programlisting>
-<![CDATA[void
+	 
+	 
+void
 proto_register_foo(void)
 {
-	module_t *foo_module;
-
 	if (proto_foo == -1) {
 		proto_foo = proto_register_protocol (
 			"FOO Protocol",	/* name */
@@ -156,29 +86,49 @@ proto_register_foo(void)
 			"foo"		/* abbrev */
 			);
 	}
-	foo_module = prefs_register_protocol(proto_foo, proto_reg_handoff_foo);
-}]]>	
+}]]>
    </programlisting></example>
 	<para>
-	First a call to proto_register_protocol that
-	registers the protocol. We can give it three names that
-	will be used in various places to display it.
-	- XXX explain where, this can be confusing
+	Lets go through this a bit at a time. First we have some boiler plate
+	include files. These will be pretty constant to start with. Here we also
+	pre-declare some functions that we'll be writing shortly.
 	</para>
 	<para>
-	Then we call the preference register function. At the moment we have
-	no specific protocol preferences so this will be all that we need.
-	This takes a function parameter which is our handoff function.
-	I guess we'd better write that next.
+	Next we have an int that is initialised to -1 that records our protocol.
+	This will get updated when we register this dissector with the main program.
+	We can use this as a handy way to detect if we've been initialised yet.
+	Its good practice to make all variables and functions that aren't exported
+	static to keep name space pollution down. Normally this isn't a problem unless your
+	dissector gets so big it has to span multiple files.
 	</para>
-	   <example><title>Plugin Handoff.</title>
+	<para>
+	Then a module variable which contains the UDP port that we'll assume we are dissecting traffic for.
+	</para>
+	<para>
+	Next a dissector reference that we'll initialise later.
+	</para>
+	<para>
+	Now we have the basics in place to interact with the main program, we had
+	better fill in those missing functions. Lets start with register function.
+	</para>
+	<para>
+	First a call to proto_register_protocol that registers the protocol. 
+	We can give it three names that	will be used in various places to display it.
+	The full and short name are used in the eg. the "Preferences" and "Enabled protocols" 
+	dialogs as well as the generated field name list in the documentation.
+	The abbreviation is used as display filter name. 
+	</para>
+	<para>
+	Next we need a handoff routine.
+	</para>
+	   <example><title>Dissector Handoff.</title>
    <programlisting>
 <![CDATA[void
 proto_reg_handoff_foo(void)
 {
-	static int Initialized=FALSE;
+	static int initialized=FALSE;
 
-	if (!Initialized) {
+	if (!initialized) {
 		foo_handle = create_dissector_handle(dissect_foo, proto_foo);
 		dissector_add("udp.port", global_foo_port, foo_handle);
 	}
@@ -196,7 +146,7 @@ proto_reg_handoff_foo(void)
 	Now at last we finally get to write some dissecting code. For the moment we'll
 	leave it as a basic placeholder.
 	</para>
-	   <example><title>Plugin Dissection.</title>
+	   <example><title>Dissection.</title>
    <programlisting>
 <![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -230,68 +180,39 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	<para>
 	At this point we should have a basic dissector ready to compile and install.
 	It doesn't do much at present, than identify the protocol and label it.
-	Compile the dissector to a dll or shared library, and copy it into the plugin
-	directory of the installation. To finish this off a Makefile of some sort will be 
-	required. A Makefile.nmake for Windows platforms and a Makefile.am for unix/linux
-	types.
 	</para>
-
-	   <example><title>Makefile.nmake for Windows.</title>
-   <programlisting>
-<![CDATA[
-include ..\..\config.nmake
-
-############### no need to modify below this line #########
-
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
-
-LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
-
-!IFDEF ENABLE_LIBWIRESHARK
-LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
-CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
-
-OBJECTS=foo.obj 
-
-foo.dll foo.exp foo.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
-	link -dll /out:foo.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
-	$(GLIB_LIBS)
-
-!ENDIF
-
-clean:
-	rm -f $(OBJECTS) foo.dll foo.exp foo.lib *.pdb
-
-distclean: clean
-
-maintainer-clean: distclean]]>	
-   </programlisting></example>
-   <example><title>Makefile.am for unix/linux.</title>
-   <programlisting>
-<![CDATA[
-INCLUDES = -I$(top_srcdir)
-
-plugindir = @plugindir@
-
-plugin_LTLIBRARIES = foo.la
-foo_la_SOURCES = foo.c moduleinfo.h
-foo_la_LDFLAGS = -module -avoid-version
-foo_la_LIBADD = @PLUGIN_LIBS@
-
-# Libs must be cleared, or else libtool won't create a shared module.
-# If your module needs to be linked against any particular libraries,
-# add them here.
-LIBS =
-
-CLEANFILES = \
-	foo \
-	*~
-
-EXTRA_DIST = \
-	Makefile.nmake
-]]>	
-   </programlisting></example>
+	<para>
+	In order to compile this dissector and create a plugin a couple of support files 
+	are required, besides the dissector source in packet-foo.c:
+	<itemizedlist>
+	<listitem><para>
+	Makefile.am - This is the UNIX/Linux makefile template
+	</para></listitem>
+	<listitem><para>
+	Makefile.common - This contains the file names of this plugin
+	</para></listitem>
+	<listitem><para>
+	Makefile.nmake - This contains the Wireshark plugin makefile for Windows
+	</para></listitem>
+	<listitem><para>
+	moduleinfo.h - This contains plugin version info
+	</para></listitem>
+	<listitem><para>
+	moduleinfo.nmake - This contains DLL version info for Windows
+	</para></listitem>
+	<listitem><para>
+	packet-foo.c - This is your dissector source
+	</para></listitem>
+	<listitem><para>
+	plugin.rc.in - This contains the DLL resource template for Windows
+	</para></listitem>
+	</itemizedlist>
+	You can find a good example for these files in the h223 plugin directory. Makefile.common
+	and Makefile.am have to be modified to reflect the relevant files and dissector name.
+	moduldeinfo.h and moduleinfo.nmake have to be filled in with the version information.
+	Compile the dissector to a DLL or shared library and copy it into the plugin
+	directory of the installation.
+	</para>
    </section>
 
 	<section id="ChDissectDetails">
@@ -313,8 +234,7 @@ EXTRA_DIST = \
 	   </para>
 	   <example><title>Plugin Packet Dissection.</title>
    <programlisting>
-<![CDATA[
-static void
+<![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -355,7 +275,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	This needs some changes to proto_register_foo. First a couple of statically
 	declare arrays.
 	</para>
-	   <example><title>Plugin Registering data structures.</title>
+	   <example><title>Registering data structures.</title>
    <programlisting>
 <![CDATA[static hf_register_info hf[] = {
 	{ &hf_foo_pdu_type,
@@ -374,7 +294,7 @@ static gint *ett[] = {
    	<para>
    	Then, after the registration code, we register these arrays.
    	</para>
-	   <example><title>Plugin Registering data structures.</title>
+	   <example><title>Registering data structures.</title>
    <programlisting>
 <![CDATA[proto_register_field_array(proto_foo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));]]>	
@@ -383,7 +303,7 @@ static gint *ett[] = {
    	The variables hf_foo_pdu_type and ett_foo also need to be declared
    	somewhere near the top of the file.
    	</para>
-	   <example><title>Plugin data structure globals.</title>
+	   <example><title>Dissector data structure globals.</title>
    <programlisting>
    <![CDATA[
 static int hf_foo_pdu_type = -1;
@@ -394,18 +314,16 @@ static gint ett_foo = -1;
 	<para>
 	Now we can enhance the protocol display with some detail.
 	</para>
-	   <example><title>Plugin starting to dissect the packets.</title>
+	   <example><title>Dissector starting to dissect the packets.</title>
    <programlisting>
-   <![CDATA[
-	if (tree) { /* we are being asked for details */
+<![CDATA[if (tree) { /* we are being asked for details */
 		proto_item *ti = NULL;
 		proto_tree *foo_tree = NULL;
 
 		ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
 		foo_tree = proto_item_add_subtree(ti, ett_foo);
 		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, 0, 1, FALSE);
-	}
-]]>	
+	}]]>	
    </programlisting></example>
 	<para>
 	Now the dissection is starting to look more interesting. We have picked apart
@@ -459,10 +377,9 @@ static gint ett_foo = -1;
 	Now lets finish off dissecting the simple protocol. We need to add a few
 	more variables to the hf array, and a couple more procedure calls.
 	</para>
-	   <example><title>Plugin wrapping up the packet dissection.</title>
+	   <example><title>Wrapping up the packet dissection.</title>
    <programlisting>
-   <![CDATA[
-static int hf_foo_flags = -1;
+<![CDATA[static int hf_foo_flags = -1;
 static int hf_foo_sequenceno = -1;
 static int hf_foo_initialip = -1;
 ...
@@ -492,8 +409,7 @@ static int hf_foo_initialip = -1;
 	proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
 	proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE); offset += 1;
 	proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;
-]]>	
+	proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;]]>	
    </programlisting></example>
    <para>
    This dissects all the bits of this simple hypothetical protocol. We've introduced a new 
@@ -510,14 +426,12 @@ static int hf_foo_initialip = -1;
    </para>
 	   <example><title>Naming the packet types.</title>
    <programlisting>
-   <![CDATA[
-static const value_string packettypenames[] = {
+<![CDATA[static const value_string packettypenames[] = {
 	{ 1, "Initialise" },
 	{ 2, "Terminate" },
 	{ 3, "Data" },
 	{ 0, NULL }
-};
-]]>	
+};]]>	
    </programlisting></example>
    <para>
    This is a handy data structure that can be used to look up value to names.
@@ -527,14 +441,12 @@ static const value_string packettypenames[] = {
    </para>
 	   <example><title>Adding Names to the protocol.</title>
    <programlisting>
-   <![CDATA[
-	{ &hf_foo_pdu_type,
+<![CDATA[{ &hf_foo_pdu_type,
 		{ "FOO PDU Type", "foo.type",
 		FT_UINT8, BASE_DEC,
 		VALS(packettypenames), 0x0,
 		NULL, HFILL }
-	}
-]]>	
+	}]]>	
    </programlisting></example>
     <para>
     This helps in deciphering the packets, and we can do a similar thing for the
@@ -542,8 +454,7 @@ static const value_string packettypenames[] = {
     </para>
 	   <example><title>Adding Flags to the protocol.</title>
    <programlisting>
-   <![CDATA[
-#define FOO_START_FLAG	0x01
+<![CDATA[#define FOO_START_FLAG	0x01
 #define FOO_END_FLAG		0x02
 #define FOO_PRIORITY_FLAG	0x04
 
@@ -573,8 +484,7 @@ static int hf_foo_priorityflag = -1;
 	proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE);
 	proto_tree_add_item(foo_tree, hf_foo_startflag, tvb, offset, 1, FALSE);
 	proto_tree_add_item(foo_tree, hf_foo_endflag, tvb, offset, 1, FALSE);
-	proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, FALSE); offset += 1;
-]]>	
+	proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, FALSE); offset += 1;]]>	
    </programlisting></example>
    <para>
    Some things to note here. For the flags, as each bit is a different flag, we use
@@ -624,9 +534,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
 		foo_tree = proto_item_add_subtree(ti, ett_foo);
 		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); 
-		offset += 1;
-...
-]]>
+		offset += 1;]]>
    </programlisting></example>
    <para>
    So here, after grabbing the value of the first 8 bits, we use it with one of the
@@ -752,8 +660,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		followed by an ID of the sequence and a packet sequence number.
 		</para>
                 <programlisting>
-<![CDATA[
-msg_pkt ::= SEQUENCE {
+<![CDATA[msg_pkt ::= SEQUENCE {
 	.....
 	flags ::= SEQUENCE {
 		fragment	BOOLEAN,
@@ -763,13 +670,11 @@ msg_pkt ::= SEQUENCE {
 	msg_id	INTEGER(0..65535),
 	frag_id	INTEGER(0..65535),
 	.....
-}
-]]>
+}]]>
                 </programlisting>
 	   <example><title>Reassembling fragments - Part 1</title>
    <programlisting>
-   <![CDATA[
-#include <epan/reassemble.h>
+<![CDATA[#include <epan/reassemble.h>
    ...
 save_fragmented = pinfo->fragmented;
 flags = tvb_get_guint8(tvb, offset); offset++;
@@ -786,8 +691,7 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 		msg_reassembled_table, /* list of reassembled messages */
 		msg_num, /* fragment sequence number */
 		tvb_length_remaining(tvb, offset), /* fragment length - to the end */
-		flags & FL_FRAG_LAST); /* More fragments? */
-]]>
+		flags & FL_FRAG_LAST); /* More fragments? */]]>
    </programlisting></example>
 	<para>
 	We start by saving the fragmented state of this packet, so we can restore it later.
@@ -876,8 +780,7 @@ pinfo->fragmented = save_fragmented;
 	   </para>
 	   <example><title>Reassembling fragments - Initialisation</title>
 	   <programlisting>
-	   <![CDATA[
-static GHashTable *msg_fragment_table = NULL;
+<![CDATA[static GHashTable *msg_fragment_table = NULL;
 static GHashTable *msg_reassembled_table = NULL;
 
 
@@ -886,8 +789,7 @@ msg_init_protocol(void)
 {
 	fragment_table_init (&msg_fragment_table);
 	reassembled_table_init(&msg_reassembled_table);
-}
-]]>
+}]]>
    </programlisting></example>
    	<para>
    	First a couple of hash tables are declared, and these are initialised
@@ -901,8 +803,7 @@ msg_init_protocol(void)
    	</para>
 	   <example><title>Reassembling fragments - Data</title>
 	   <programlisting>
-	   <![CDATA[
-...
+<![CDATA[...
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
 static int hf_msg_fragment_overlap = -1;
@@ -968,8 +869,7 @@ static gint *ett[] =
 ...
 &ett_msg_fragment,
 &ett_msg_fragments
-...
-]]>
+...]]>
    </programlisting></example>
    <para>
    These hf variables are used internally within the reassembly routines
@@ -1007,12 +907,10 @@ static gint *ett[] =
 		<example>
 			<title>Reassembling TCP fragments</title>
 			<programlisting>
-<![CDATA[
-#ifdef HAVE_CONFIG_H
+<![CDATA[#ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -1042,8 +940,7 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
     return (guint)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */
 }
 
-...
-]]>
+...]]>
 		 	</programlisting>
 		</example>
 		<para>
@@ -1084,8 +981,7 @@ static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	</para>
 	   <example><title>Initialising a tap</title>
 	   <programlisting>
-	   <![CDATA[
-#include <epan/tap.h>
+<![CDATA[#include <epan/tap.h>
 
 static int foo_tap = -1;
 
@@ -1095,8 +991,7 @@ struct FooTap {
 	...
 };
 ...
-	foo_tap = register_tap("foo");
-]]>
+	foo_tap = register_tap("foo");]]>
    </programlisting></example>
 	<para>
 	Whilst you can program a tap without protocol specific data, it
@@ -1117,7 +1012,7 @@ struct FooTap {
 	</para>
 	   <example><title>Calling a protocol tap</title>
 	   <programlisting>
-	   <![CDATA[
+<![CDATA[
 	static struct FooTap pinfo;
 	
 	pinfo.packet_type = tvb_get_guint8(tvb, 0);
@@ -1149,8 +1044,7 @@ struct FooTap {
 	</para>
 	   <example><title>Initialising a stats interface</title>
 	   <programlisting>
-	   <![CDATA[
-/* register all http trees */
+<![CDATA[/* register all http trees */
 static void register_foo_stat_trees(void) {
 	stats_tree_register("foo","foo","Foo/Packet Types", 
 		foo_stats_tree_packet, foo_stats_tree_init, NULL );
@@ -1163,8 +1057,7 @@ G_MODULE_EXPORT void plugin_register_tap_listener(void)
 	register_foo_stat_trees();
 }
 
-#endif
-]]>
+#endif]]>
    </programlisting></example>
    	<para>
    	Working from the bottom up, first the plugin interface entry point is defined,
@@ -1200,8 +1093,7 @@ G_MODULE_EXPORT void plugin_register_tap_listener(void)
 	</para>
 	   <example><title>Initialising a stats session</title>
 	   <programlisting>
-	   <![CDATA[
-static const guint8* st_str_packets = "Total Packets";
+<![CDATA[static const guint8* st_str_packets = "Total Packets";
 static const guint8* st_str_packet_types = "FOO Packet Types";
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
@@ -1209,8 +1101,7 @@ static int st_node_packet_types = -1;
 static void foo_stats_tree_init(stats_tree* st) {
 	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);	
 	st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
-}
-]]>
+}]]>
    </programlisting></example>
    	<para>
    	In this case we create a new tree node, to handle the total packets,
@@ -1219,16 +1110,14 @@ static void foo_stats_tree_init(stats_tree* st) {
    	</para>
 	   <example><title>Generating the stats</title>
 	   <programlisting>
-	   <![CDATA[
-static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo,
+<![CDATA[static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo,
 epan_dissect_t* edt, const void* p) {
 	struct FooTap *pi = (struct FooTap *)p;
 	tick_stat_node(st, st_str_packets, 0, FALSE);
 	stats_tree_tick_pivot(st, st_node_packet_types, 
 			val_to_str(pi->packet_type, msgtypevalues, "Unknown packet type (%d)"));
 	return 1;
-}	
-]]>
+}]]>
    </programlisting></example>
    	<para>
    	In this case the processing of the stats is quite simple.
@@ -1243,7 +1132,7 @@ epan_dissect_t* edt, const void* p) {
 	<title>How to use conversations</title>
 	<para>
 	Some info about how to use conversations in a dissector can be 
-	found in the file doc/README.developer.
+	found in the file doc/README.developer chapter 2.2.
 	</para>
   </section>
 

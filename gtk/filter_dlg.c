@@ -407,6 +407,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *filter_fr,
                *edit_fr,
                *props_fr;
+    GdkWindow  *parent;
     GtkTooltips *tooltips;
     static filter_list_type_t cfilter_list_type = CFILTER_EDITED_LIST;
     static filter_list_type_t dfilter_list_type = DFILTER_EDITED_LIST;
@@ -452,12 +453,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     main_w = dlg_window_new(construct_args->title);
 	gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
     OBJECT_SET_DATA(main_w, E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
-
-    if(construct_args->modal_and_transient) {
-        GdkWindow*  parent = gtk_widget_get_parent_window(parent_filter_te);
-        gtk_window_set_transient_for(GTK_WINDOW(main_w), GTK_WINDOW(parent));
-        gtk_window_set_modal(GTK_WINDOW(main_w), TRUE);
-    }
 
     main_vb = gtk_vbox_new(FALSE, 0);
     gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -698,6 +693,12 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
 
     gtk_widget_show(main_w);
+
+    if(construct_args->modal_and_transient) {
+        parent = gtk_widget_get_parent_window(parent_filter_te);
+        gdk_window_set_transient_for(main_w->window, parent);
+        gtk_window_set_modal(GTK_WINDOW(main_w), TRUE);
+    }
 
     /* hide the Ok button, if we don't have to apply it and our caller wants a Save button */
     if (parent_filter_te == NULL && prefs.gui_use_pref_save) {
@@ -1429,10 +1430,23 @@ void
 filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
-	GtkWidget  *filter_te;
+	GtkWidget  *filter_te, *dfilter_w;
 
 	filter_te = OBJECT_GET_DATA(main_w, E_FILT_FILTER_TE_KEY);
-	dfilter_expr_dlg_new(filter_te);
+	dfilter_w = dfilter_expr_dlg_new(filter_te);
+
+#if GTK_MAJOR_VERSION >= 2
+	/* If we're opening a series of modal dialogs (such as when going
+	 * through file->open, make the latest dialog modal also so that it
+	 * takes over "control" from the other modal dialogs.  Also set
+	 * the transient property of the new dialog so the user doesn't try
+	 * to interact with the previous window when they can't. */
+	if(gtk_window_get_modal(GTK_WINDOW(main_w))) {
+		gtk_window_set_modal(GTK_WINDOW(dfilter_w), TRUE);
+		gtk_window_set_transient_for(GTK_WINDOW(dfilter_w),
+					     GTK_WINDOW(main_w));
+	}
+#endif
 }
 
 static void

@@ -813,7 +813,8 @@
 	</sidebar>
   <section><title>Wireshark checksum validation</title>
 	<para>
-	Wireshark will validate the checksums of several protocols, e.g.: IP, TCP, ...
+	Wireshark will validate the checksums of several protocols,
+	e.g.: IP, TCP, UDP, ...
 	</para>
 	<para>
 	It will do the same calculation as a "normal receiver" would do,
