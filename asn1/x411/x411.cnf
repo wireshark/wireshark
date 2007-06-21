@@ -472,6 +472,19 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
 	}
 
+#.FN_PARS OrganizationalUnitName
+	VAL_PTR=&string
+
+#.FN_BODY OrganizationalUnitName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/OU=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
 #.FN_PARS CommonName
 	VAL_PTR=&string
 

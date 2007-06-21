@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x411.c                                                            */
+/* ./packet-x411.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
 #include <epan/asn1.h>
@@ -61,6 +62,11 @@
 #define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "X411"
 #define PFNAME "x411"
+
+static guint global_x411_tcp_port = 102;
+static guint tcp_port = 0;
+static dissector_handle_t tpkt_handle = NULL;
+void prefs_register_x411(void); /* forwad declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_x411 = -1;
@@ -557,7 +563,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-x411-hf.c ---*/
-#line 77 "packet-x411-template.c"
+#line 83 "packet-x411-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
@@ -742,7 +748,7 @@ static gint ett_x411_SecurityCategories = -1;
 static gint ett_x411_SecurityCategory = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 84 "packet-x411-template.c"
+#line 90 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-fn.c ---*/
@@ -934,7 +940,7 @@ static int dissect_token_type_identifier_impl(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_x411_TokenTypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 723 "x411.cnf"
+#line 736 "x411.cnf"
 	
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
@@ -1080,7 +1086,7 @@ static const ber_old_choice_t Credentials_choice[] = {
 
 static int
 dissect_x411_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 731 "x411.cnf"
+#line 744 "x411.cnf"
   guint32 credentials;
 
     offset = dissect_ber_old_choice(actx, tree, tvb, offset,
@@ -1375,7 +1381,7 @@ static const value_string x411_MTABindError_vals[] = {
 
 static int
 dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 714 "x411.cnf"
+#line 727 "x411.cnf"
   int error = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &error);
@@ -1392,7 +1398,7 @@ dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_x411_AddrNumericString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 492 "x411.cnf"
+#line 505 "x411.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1606,7 +1612,7 @@ static const ber_old_sequence_t GlobalDomainIdentifier_sequence[] = {
 
 static int
 dissect_x411_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 594 "x411.cnf"
+#line 607 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = tree;
@@ -1642,7 +1648,7 @@ static int dissect_attempted_domain(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x411_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 613 "x411.cnf"
+#line 626 "x411.cnf"
 	tvbuff_t 	*id = NULL;
 	
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
@@ -1675,7 +1681,7 @@ static const ber_old_sequence_t MTSIdentifier_sequence[] = {
 
 static int
 dissect_x411_MTSIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 626 "x411.cnf"
+#line 639 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -1845,7 +1851,7 @@ static int dissect_numeric_user_identifier_impl(proto_tree *tree _U_, tvbuff_t *
 
 static int
 dissect_x411_T_printable_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 512 "x411.cnf"
+#line 525 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1869,7 +1875,7 @@ static int dissect_printable_surname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_x411_T_printable_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 521 "x411.cnf"
+#line 534 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1893,7 +1899,7 @@ static int dissect_printable_given_name_impl(proto_tree *tree _U_, tvbuff_t *tvb
 
 static int
 dissect_x411_T_printable_initials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 530 "x411.cnf"
+#line 543 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1917,7 +1923,7 @@ static int dissect_printable_initials_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 
 static int
 dissect_x411_T_printable_generation_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 539 "x411.cnf"
+#line 552 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1962,9 +1968,20 @@ static int dissect_personal_name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x411_OrganizationalUnitName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+#line 479 "x411.cnf"
+	tvbuff_t	*string = NULL;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                             actx, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &string);
+
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/OU=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+
 
   return offset;
 }
@@ -2004,7 +2021,7 @@ static const ber_old_sequence_t BuiltInStandardAttributes_sequence[] = {
 
 static int
 dissect_x411_BuiltInStandardAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 650 "x411.cnf"
+#line 663 "x411.cnf"
 
 	address_item = tree;	
 
@@ -2024,7 +2041,7 @@ static int dissect_built_in_standard_attributes(proto_tree *tree _U_, tvbuff_t *
 
 static int
 dissect_x411_T_printable_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 549 "x411.cnf"
+#line 562 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2048,7 +2065,7 @@ static int dissect_printable_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x411_T_printable_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 558 "x411.cnf"
+#line 571 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2189,7 +2206,7 @@ static const ber_old_sequence_t ORName_sequence[] = {
 
 int
 dissect_x411_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 581 "x411.cnf"
+#line 594 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = NULL;
@@ -2626,7 +2643,7 @@ static int dissect_per_message_indicators(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_x411_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 693 "x411.cnf"
+#line 706 "x411.cnf"
 	tvbuff_t *arrival = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
@@ -2713,7 +2730,7 @@ static int dissect_bilateral_domain(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x411_T_bilateral_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 745 "x411.cnf"
+#line 758 "x411.cnf"
 	proto_item *item = NULL;
 	int 	    loffset = 0;
 	guint32	    len = 0;
@@ -2793,7 +2810,7 @@ static const value_string x411_RoutingAction_vals[] = {
 
 static int
 dissect_x411_RoutingAction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 704 "x411.cnf"
+#line 717 "x411.cnf"
 	int action = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2869,7 +2886,7 @@ static const ber_old_sequence_t DomainSuppliedInformation_set[] = {
 
 static int
 dissect_x411_DomainSuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 672 "x411.cnf"
+#line 685 "x411.cnf"
 
 	doing_address = FALSE;
 
@@ -2897,7 +2914,7 @@ static const ber_old_sequence_t TraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_TraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 656 "x411.cnf"
+#line 669 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -3602,7 +3619,7 @@ static const ber_old_choice_t ReportType_choice[] = {
 
 static int
 dissect_x411_ReportType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 775 "x411.cnf"
+#line 788 "x411.cnf"
 	int report = -1;
 
   	  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
@@ -3873,7 +3890,7 @@ static const ber_old_choice_t MTS_APDU_choice[] = {
 
 static int
 dissect_x411_MTS_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 763 "x411.cnf"
+#line 776 "x411.cnf"
 	int apdu = -1;
 
   	  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
@@ -3937,7 +3954,7 @@ static const ber_old_sequence_t MTASuppliedInformation_set[] = {
 
 static int
 dissect_x411_MTASuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 681 "x411.cnf"
+#line 694 "x411.cnf"
 
 	doing_address = FALSE;
 
@@ -3966,7 +3983,7 @@ static const ber_old_sequence_t InternalTraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_InternalTraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 664 "x411.cnf"
+#line 677 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -5889,7 +5906,7 @@ static const ber_old_sequence_t ORAddress_sequence[] = {
 
 int
 dissect_x411_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 568 "x411.cnf"
+#line 581 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	doing_address = TRUE;
@@ -6455,7 +6472,7 @@ dissect_x411_CertificateSelectors(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x411_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 479 "x411.cnf"
+#line 492 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -6603,7 +6620,7 @@ dissect_x411_UniversalOrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_x411_AddrTeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 503 "x411.cnf"
+#line 516 "x411.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -7178,7 +7195,7 @@ static const ber_old_sequence_t MTANameAndOptionalGDI_sequence[] = {
 
 static int
 dissect_x411_MTANameAndOptionalGDI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 641 "x411.cnf"
+#line 654 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -7226,7 +7243,7 @@ static int dissect_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_x411_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 741 "x411.cnf"
+#line 754 "x411.cnf"
 
 	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, actx->pinfo, tree);
 
@@ -7726,7 +7743,7 @@ static void dissect_BindTokenEncryptedData_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 86 "packet-x411-template.c"
+#line 92 "packet-x411-template.c"
 
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -9742,7 +9759,7 @@ void proto_register_x411(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 217 "packet-x411-template.c"
+#line 223 "packet-x411-template.c"
   };
 
   /* List of subtrees */
@@ -9929,8 +9946,10 @@ void proto_register_x411(void) {
     &ett_x411_SecurityCategory,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 226 "packet-x411-template.c"
+#line 232 "packet-x411-template.c"
   };
+
+  module_t *x411_module;
 
   /* Register protocol */
   proto_x411 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -9938,6 +9957,19 @@ void proto_register_x411(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x411, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register our configuration options for X411, particularly our port */
+
+#ifdef PREFERENCE_GROUPING
+  x411_module = prefs_register_protocol_subtree("OSI/X.400", proto_x411, prefs_register_x411);
+#else
+  x411_module = prefs_register_protocol(proto_x411, prefs_register_x411);
+#endif 
+
+  prefs_register_uint_preference(x411_module, "tcp.port", "X.411 TCP Port",
+				 "Set the port for P1 operations (if other"
+				 " than the default of 102)",
+				 10, &global_x411_tcp_port);
 
 }
 
@@ -10024,7 +10056,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 243 "packet-x411-template.c"
+#line 264 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -10041,5 +10073,22 @@ void proto_reg_handoff_x411(void) {
     register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
   }
 
+  /* remember the tpkt handler for change in preferences */
+  tpkt_handle = find_dissector("tpkt");
+
+}
+
+void prefs_register_x411(void) {
+
+  /* de-register the old port */
+  /* port 102 is registered by TPKT - don't undo this! */
+  if((tcp_port != 102) && tpkt_handle)
+    dissector_delete("tcp.port", tcp_port, tpkt_handle);
+
+  /* Set our port number for future use */
+  tcp_port = global_x411_tcp_port;
+
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
+    dissector_add("tcp.port", tcp_port, tpkt_handle);
 
 }
