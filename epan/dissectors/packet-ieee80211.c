@@ -10092,17 +10092,17 @@ proto_register_ieee80211 (void)
   g_string_sprintf(key_title, "Key #%d", i + 1);
   /* Davide Schiera (2006-11-26): modified keys input tooltip          */
   g_string_sprintf(key_desc,
-      "Key #%d string can be:\n"
-      "   <wep hexadecimal key>;\n"
-      "   wep:<wep hexadecimal key>;\n"
-      "   wpa-pwd:<passphrase>[:<ssid>];\n"
+      "Key #%d string can be:"
+      "   <wep hexadecimal key>;"
+      "   wep:<wep hexadecimal key>;"
+      "   wpa-pwd:<passphrase>[:<ssid>];"
       "   wpa-psk:<wpa hexadecimal key>", i + 1);
 #else
     g_string_sprintf(key_name, "wep_key%d", i + 1);
     g_string_sprintf(key_title, "WEP key #%d", i + 1);
-    g_string_sprintf(key_desc, "WEP key #%d can be:\n"
-      "   <wep hexadecimal key>;\n"
-      "   wep:<wep hexadecimal key>\n", i + 1);
+    g_string_sprintf(key_desc, "WEP key #%d can be:"
+      "   <wep hexadecimal key>;"
+      "   wep:<wep hexadecimal key>", i + 1);
 #endif
 
     prefs_register_string_preference(wlan_module, key_name->str,

@@ -1353,13 +1353,16 @@ parse_key_string(gchar* input_string)
     key_ba = g_byte_array_new();
     res = hex_str_to_bytes(first_nibble, key_ba, FALSE);
 
-    if (res) {
+    if (res && key_ba->len > 0) {
         /* Key is correct! It was probably an 'old style' WEP key */
         /* Create the decryption_key_t structure, fill it and return it*/
         dk = g_malloc(sizeof(decryption_key_t));
 
         dk->type = AIRPDCAP_KEY_TYPE_WEP;
-        dk->key  = g_string_new(input_string);
+        /* XXX - The current key handling code in the GUI requires
+         * no separators and lower case */
+        dk->key  = g_string_new(bytes_to_str(key_ba->data, key_ba->len));
+        g_string_down(dk->key);
         dk->bits = key_ba->len * 8;
         dk->ssid = NULL;
 
