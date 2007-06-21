@@ -178,16 +178,6 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     errno = 0;
 
 
-    /*********************************************************************/
-    /* Need entry in file_externals table                                */
-
-    /* Create file externals table if it doesn't yet exist */
-    if (file_externals_table == NULL)
-    {
-        file_externals_table = g_hash_table_new(wth_hash_func, wth_equal);
-    }
-
-
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
@@ -204,6 +194,15 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
         return 0;
     }
 
+
+    /*********************************************************************/
+    /* Need entry in file_externals table                                */
+
+    /* Create file externals table if it doesn't yet exist */
+    if (file_externals_table == NULL)
+    {
+        file_externals_table = g_hash_table_new(wth_hash_func, wth_equal);
+    }
 
     /* Allocate a new file_externals structure */
     file_externals = g_malloc(sizeof(dct2000_file_externals_t));
@@ -313,7 +312,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             break;
         }
 
-        /* Try to parse the line as a message */
+        /* Try to parse the line as a frame record */
         if (parse_line(line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
@@ -785,7 +784,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Read context name until find '.' */
     for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
     {
-	if (!isalnum((int)linebuff[n]) && (linebuff[n] != '_'))
+        if (!isalnum((int)linebuff[n]) && (linebuff[n] != '_'))
         {
             return FALSE;
         }
@@ -811,7 +810,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
          n++, port_digits++)
     {
-	if (!isdigit((int)linebuff[n]))
+        if (!isdigit((int)linebuff[n]))
         {
             return FALSE;
         }
@@ -838,7 +837,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
          n++, protocol_chars++)
     {
-	if (!isalnum((int)linebuff[n]) && linebuff[n] != '_')
+        if (!isalnum((int)linebuff[n]) && linebuff[n] != '_')
         {
             return FALSE;
         }
@@ -865,7 +864,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (isdigit((int)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
          n++, variant_digits++)
     {
-	if (!isdigit((int)linebuff[n]))
+        if (!isdigit((int)linebuff[n]))
         {
             return FALSE;
         }
@@ -898,7 +897,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
              (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
              n++, outhdr_chars++)
         {
-	    if (!isdigit((int)linebuff[n]) && (linebuff[n] != ','))
+            if (!isdigit((int)linebuff[n]) && (linebuff[n] != ','))
             {
                 return FALSE;
             }
