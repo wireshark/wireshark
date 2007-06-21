@@ -153,6 +153,15 @@ Wireshark Info
 	  Windows.
         </para></listitem>
 
+        <listitem><para>
+          The <code>frame.time_delta</code> display filter now works as
+          expected, matching the delta time between the current and previous
+          <strong>captured</strong> packet.  A new filter,
+          <code>frame.time_delta_displayed</code>,
+          matches the delta time between the current and previous
+          <strong>displayed</strong> frame.
+        </para></listitem>
+
       </itemizedlist>
     </para>
 
@@ -163,15 +172,36 @@ Wireshark Info
       The following features are new (or have been significantly updated)
       since the last release:
 
-      <!--
-      - HTTP object export
-      - Delta times
-      - Code cleanup
-      - Display filter macros
-      - Upper and lower filters
-      - Columns
-      -->
+      <itemizedlist>
 
+        <listitem><para>
+          You no longer have to restart Wireshark after changing column
+          preferences.
+        </para></listitem>
+
+        <listitem><para>
+          You can now export HTTP objects via File&rarr;Export&rarr;Objects&rarr;HTML.
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark now supports display filter macros
+        </para></listitem>
+
+        <listitem><para>
+          <ulink url="http://www.wireshark.org/docs/wsug_html_chunked/ChDisplayFilterMacrosSection.html">Display
+          filter macros</ulink> are now supported.
+        </para></listitem>
+
+        <listitem><para>
+          You can now match upper- and lower-case text with the <code>contains</code> operator, e.g. <code>upper(http.request.method) contains "GET"</code>.
+        </para></listitem>
+
+        <listitem><para>
+          A great deal of code has been cleaned up, including fixing many
+          compiler errors.
+        </para></listitem>
+
+      </itemizedlist>
     </para>
     </section>
 
