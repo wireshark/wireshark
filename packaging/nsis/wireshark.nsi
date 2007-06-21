@@ -480,6 +480,7 @@ File "..\..\dtds\rlmi.dtd"
 File "..\..\dtds\rss.dtd"
 File "..\..\dtds\smil.dtd"
 File "..\..\dtds\xcap-caps.dtd"
+File "..\..\dtds\xcap-error.dtd"
 File "..\..\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 
