@@ -154,12 +154,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          The <code>frame.time_delta</code> display filter now works as
+          The <screen>frame.time_delta</screen> display filter now works as
           expected, matching the delta time between the current and previous
-          <strong>captured</strong> packet.  A new filter,
-          <code>frame.time_delta_displayed</code>,
+          <emphasis>captured</emphasis> packet.  A new filter,
+          <screen>frame.time_delta_displayed</screen>,
           matches the delta time between the current and previous
-          <strong>displayed</strong> frame.
+          <emphasis>displayed</emphasis> frame.
         </para></listitem>
 
       </itemizedlist>
@@ -193,7 +193,7 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          You can now match upper- and lower-case text with the <code>contains</code> operator, e.g. <code>upper(http.request.method) contains "GET"</code>.
+          You can now match upper- and lower-case text with the <screen>contains</screen> operator, e.g. <programlisting>upper(http.request.method) contains "GET"</programlisting>.
         </para></listitem>
 
         <listitem><para>
