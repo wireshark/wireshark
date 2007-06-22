@@ -55,6 +55,7 @@
 #include "dlg_utils.h"
 #include "filter_dlg.h"
 #include "help_dlg.h"
+#include "pixmap_save.h"
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -1143,6 +1144,9 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
 	int i;
 	io_stat_t *io;
+#if GTK_CHECK_VERSION(2,4,0)
+	GtkWidget *save_bt;
+#endif
 
 	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
 	if(!io){
@@ -1161,6 +1165,12 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	io->pixmap_width=widget->allocation.width;
 	io->pixmap_height=widget->allocation.height;
 
+#if GTK_CHECK_VERSION(2,4,0)
+	save_bt = OBJECT_GET_DATA(io->window, "save_bt");
+	SIGNAL_CONNECT(save_bt, "clicked", pixmap_save_cb, io->pixmap);
+	gtk_widget_set_sensitive(save_bt, TRUE);
+#endif
+    
 	gdk_draw_rectangle(io->pixmap,
 			widget->style->white_gc,
 			TRUE,
@@ -1871,7 +1881,10 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *vbox;
 	GtkWidget *hbox;
 	GtkWidget *bbox;
-    GtkWidget *close_bt, *help_bt;
+	GtkWidget *close_bt, *help_bt;
+#if GTK_CHECK_VERSION(2,4,0)
+	GtkWidget *save_bt;
+#endif
 
 	/* create the main window */
 	io->window=window_new(GTK_WINDOW_TOPLEVEL, "I/O Graphs");
@@ -1894,15 +1907,30 @@ init_io_stat_window(io_stat_t *io)
 	io_stat_set_title(io);
 
     if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
+#if GTK_CHECK_VERSION(2,4,0)
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
+				  GTK_STOCK_HELP, NULL);
+#else
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+#endif
     } else {
+#if GTK_CHECK_VERSION(2,4,0)
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
+#else
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+#endif
     }
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
+
+#if GTK_CHECK_VERSION(2,4,0)
+    save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+    gtk_widget_set_sensitive(save_bt, FALSE);
+    OBJECT_SET_DATA(io->window, "save_bt", save_bt);
+#endif
 
     if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);

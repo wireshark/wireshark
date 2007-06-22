@@ -91,6 +91,7 @@ noinst_HEADERS = \
 	packet_history.h	\
 	packet_list.h	\
 	packet_win.h	\
+	pixmap_save.h	\
 	plugins_dlg.h	\
 	prefs_dlg.h	\
 	print_prefs.h	\
