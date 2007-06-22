@@ -2508,133 +2508,134 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
 
     dns_tree = proto_item_add_subtree(ti, ett_dns);
+  }
 
-    /*
-     * Do we have a conversation for this connection?
-     */
-    conversation = find_conversation(pinfo->fd->num, 
+  /*
+   * Do we have a conversation for this connection?
+   */
+  conversation = find_conversation(pinfo->fd->num, 
 			&pinfo->src, &pinfo->dst,
 			pinfo->ptype, 
 			pinfo->srcport, pinfo->destport, 0);
-    if (conversation == NULL) {
-      /* We don't yet have a conversation, so create one. */
-      conversation = conversation_new(pinfo->fd->num, 
+  if (conversation == NULL) {
+    /* We don't yet have a conversation, so create one. */
+    conversation = conversation_new(pinfo->fd->num, 
 			&pinfo->src, &pinfo->dst,
 			pinfo->ptype,
 			pinfo->srcport, pinfo->destport, 0);
-    }
-    /*
-     * Do we already have a state structure for this conv
+  }
+  /*
+   * Do we already have a state structure for this conv
+   */
+  dns_info = conversation_get_proto_data(conversation, proto_dns);
+  if (!dns_info) {
+    /* No.  Attach that information to the conversation, and add
+     * it to the list of information structures.
      */
-    dns_info = conversation_get_proto_data(conversation, proto_dns);
-    if (!dns_info) {
-      /* No.  Attach that information to the conversation, and add
-       * it to the list of information structures.
-       */
-      dns_info = se_alloc(sizeof(dns_conv_info_t));
-      dns_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "dns_pdus");
-      conversation_add_proto_data(conversation, proto_dns, dns_info);
-    }
-    if(!pinfo->fd->flags.visited){
-      if(!(flags&F_RESPONSE)){
-        /* This is a request */
-        dns_trans=se_alloc(sizeof(dns_transaction_t));
-        dns_trans->req_frame=pinfo->fd->num;
-        dns_trans->rep_frame=0;
-        dns_trans->req_time=pinfo->fd->abs_ts;
-        se_tree_insert32(dns_info->pdus, id, (void *)dns_trans);
-      } else {
-        dns_trans=se_tree_lookup32(dns_info->pdus, id);
-        if(dns_trans){
-          dns_trans->rep_frame=pinfo->fd->num;
-        }
-      }
-    } else {
-      dns_trans=se_tree_lookup32(dns_info->pdus, id);
-    }
-    if(!dns_trans){
-      /* create a "fake" pana_trans structure */
-      dns_trans=ep_alloc(sizeof(dns_transaction_t));
-      dns_trans->req_frame=0;
-      dns_trans->rep_frame=0;
-      dns_trans->req_time=pinfo->fd->abs_ts;
-    }
-
-    /* print state tracking in the tree */
+    dns_info = se_alloc(sizeof(dns_conv_info_t));
+    dns_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "dns_pdus");
+    conversation_add_proto_data(conversation, proto_dns, dns_info);
+  }
+  if(!pinfo->fd->flags.visited){
     if(!(flags&F_RESPONSE)){
       /* This is a request */
-      if(dns_trans->rep_frame){
-        proto_item *it;
-
-        it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
-        PROTO_ITEM_SET_GENERATED(it);
-      }
+      dns_trans=se_alloc(sizeof(dns_transaction_t));
+      dns_trans->req_frame=pinfo->fd->num;
+      dns_trans->rep_frame=0;
+      dns_trans->req_time=pinfo->fd->abs_ts;
+      se_tree_insert32(dns_info->pdus, id, (void *)dns_trans);
     } else {
-      /* This is a reply */
-      if(dns_trans->req_frame){
-        proto_item *it;
-        nstime_t ns;
-
-        it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
-        PROTO_ITEM_SET_GENERATED(it);
-
-        nstime_delta(&ns, &pinfo->fd->abs_ts, &dns_trans->req_time);
-        it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED(it);
+      dns_trans=se_tree_lookup32(dns_info->pdus, id);
+      if(dns_trans){
+        dns_trans->rep_frame=pinfo->fd->num;
       }
-    }              
-
-    if (is_tcp) {
-      /* Put the length indication into the tree. */
-      proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, FALSE);
     }
-
-    proto_tree_add_uint(dns_tree, hf_dns_transaction_id, tvb,
-			offset + DNS_ID, 2, id);
-
-    bufpos=0;
-    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s",
-			val_to_str(opcode, opcode_vals, "Unknown operation")));
-    if (flags & F_RESPONSE) {
-	    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-			g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, " response, %s",
-				val_to_str(flags & F_RCODE, rcode_vals, "Unknown error")));
-    }
-    tf = proto_tree_add_uint_format(dns_tree, hf_dns_flags, tvb,
-				    offset + DNS_FLAGS, 2,
-				    flags,
-				    "Flags: 0x%04x (%s)",
-				    flags, buf);
-    field_tree = proto_item_add_subtree(tf, ett_dns_flags);
-    proto_tree_add_item(field_tree, hf_dns_flags_response,
-			tvb, offset + DNS_FLAGS, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_dns_flags_opcode,
-			tvb, offset + DNS_FLAGS, 2, FALSE);
-    if (flags & F_RESPONSE) {
-      proto_tree_add_item(field_tree, hf_dns_flags_authoritative,
-			  tvb, offset + DNS_FLAGS, 2, FALSE);
-    }
-    proto_tree_add_item(field_tree, hf_dns_flags_truncated,
-			tvb, offset + DNS_FLAGS, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_dns_flags_recdesired,
-			tvb, offset + DNS_FLAGS, 2, FALSE);
-    if (flags & F_RESPONSE) {
-      proto_tree_add_item(field_tree, hf_dns_flags_recavail,
-			  tvb, offset + DNS_FLAGS, 2, FALSE);
-      proto_tree_add_item(field_tree, hf_dns_flags_z,
-			 tvb, offset + DNS_FLAGS, 2, FALSE);
-      proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
-			  tvb, offset + DNS_FLAGS, 2, FALSE);
-      proto_tree_add_item(field_tree, hf_dns_flags_rcode,
-			  tvb, offset + DNS_FLAGS, 2, FALSE);
-    } else {
-      proto_tree_add_item(field_tree, hf_dns_flags_z,
-                           tvb, offset + DNS_FLAGS, 2, FALSE);
-      proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
-			  tvb, offset + DNS_FLAGS, 2, FALSE);
-    }
+  } else {
+    dns_trans=se_tree_lookup32(dns_info->pdus, id);
   }
+  if(!dns_trans){
+    /* create a "fake" pana_trans structure */
+    dns_trans=ep_alloc(sizeof(dns_transaction_t));
+    dns_trans->req_frame=0;
+    dns_trans->rep_frame=0;
+    dns_trans->req_time=pinfo->fd->abs_ts;
+  }
+
+  /* print state tracking in the tree */
+  if(!(flags&F_RESPONSE)){
+    /* This is a request */
+    if(dns_trans->rep_frame){
+      proto_item *it;
+
+      it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+  } else {
+    /* This is a reply */
+    if(dns_trans->req_frame){
+      proto_item *it;
+      nstime_t ns;
+
+      it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+
+      nstime_delta(&ns, &pinfo->fd->abs_ts, &dns_trans->req_time);
+      it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+  }              
+
+  if (is_tcp) {
+    /* Put the length indication into the tree. */
+    proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, FALSE);
+  }
+
+  proto_tree_add_uint(dns_tree, hf_dns_transaction_id, tvb,
+	offset + DNS_ID, 2, id);
+
+  bufpos=0;
+  bufpos+=MIN(MAX_BUF_SIZE-bufpos,
+		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s",
+		val_to_str(opcode, opcode_vals, "Unknown operation")));
+  if (flags & F_RESPONSE) {
+    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
+		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, " response, %s",
+		val_to_str(flags & F_RCODE, rcode_vals, "Unknown error")));
+  }
+  tf = proto_tree_add_uint_format(dns_tree, hf_dns_flags, tvb,
+		offset + DNS_FLAGS, 2,
+		flags,
+		"Flags: 0x%04x (%s)",
+		flags, buf);
+  field_tree = proto_item_add_subtree(tf, ett_dns_flags);
+  proto_tree_add_item(field_tree, hf_dns_flags_response,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  proto_tree_add_item(field_tree, hf_dns_flags_opcode,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  if (flags & F_RESPONSE) {
+    proto_tree_add_item(field_tree, hf_dns_flags_authoritative,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  }
+  proto_tree_add_item(field_tree, hf_dns_flags_truncated,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  proto_tree_add_item(field_tree, hf_dns_flags_recdesired,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  if (flags & F_RESPONSE) {
+    proto_tree_add_item(field_tree, hf_dns_flags_recavail,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_dns_flags_z,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_dns_flags_rcode,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  } else {
+    proto_tree_add_item(field_tree, hf_dns_flags_z,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
+		tvb, offset + DNS_FLAGS, 2, FALSE);
+  }
+
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
   if (tree) {
     if (isupdate) {
