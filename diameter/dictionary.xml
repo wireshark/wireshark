@@ -497,7 +497,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAS-IP-Address" code="4" mandatory="may">
-			<type type-name="IPAddress"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAS-Port" code="5" mandatory="may">
 			<type type-name="Integer32"/>

@@ -791,7 +791,7 @@ static struct old_avp_info old_diameter_avps[] = {
 	{  1, "User-Name",                DIAMETER_UTF8STRING,   (value_string *)NULL},
 	{  2, "User-Password",            DIAMETER_OCTET_STRING, (value_string *)NULL},
 	{  3, "CHAP-Password",            DIAMETER_OCTET_STRING, (value_string *)NULL},
-	{  4, "NAS-IP-Address",           DIAMETER_IP_ADDRESS,   (value_string *)NULL},
+	{  4, "NAS-IP-Address",           DIAMETER_OCTET_STRING,   (value_string *)NULL},
 	{  5, "NAS-Port",                 DIAMETER_INTEGER32,    (value_string *)NULL},
 	{  6, "Service-Type",             DIAMETER_ENUMERATED,   diameter_service_type_vals},
 	{  7, "Framed-Protocol",          DIAMETER_ENUMERATED,   diameter_framed_protocol_vals},
