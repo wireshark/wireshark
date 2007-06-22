@@ -22,12 +22,10 @@ ber: \
 	ftbp	\
 	gnm	\
 	gsmmap	\
-	gsm_ss	\
 	h248	\
 	inap	\
 	ldap \
 	logotype-cert-extn	\
-	MAP_Dialogue	\
 	mms	\
 	ns-cert-exts	\
 	ocsp	\
@@ -119,9 +117,6 @@ clean:
 	cd gnm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd gsm_ss
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd gsmmap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -147,9 +142,6 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd logotype-cert-extn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd MAP_Dialogue
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd mms
@@ -345,11 +337,6 @@ gnm::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
-gsm_ss::
-	cd gsm_ss
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
 gsmmap::
 	cd gsmmap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
@@ -392,11 +379,6 @@ ldap::
 
 logotype-cert-extn::
 	cd logotype-cert-extn
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-MAP_Dialogue::
-	cd MAP_Dialogue
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
