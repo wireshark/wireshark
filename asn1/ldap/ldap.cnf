@@ -165,26 +165,41 @@ char *mechanism = NULL;
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
+gint8 class;
+gboolean pc;
+gint32 tag;
 
 %(DEFAULT_BODY)s
+
 	if (!parameter_tvb)
 		return offset;
 
 	ldap_info = actx->pinfo->private_data;
-	if (ldap_info->auth_mech != NULL && strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
-	/*
-         * This is a GSS-API token ancapsulated within GSS-SPNEGO.
-	 */
-	if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
-	  call_dissector(spnego_handle, parameter_tvb, actx->pinfo, tree);
-	} else if (ldap_info->auth_mech != NULL && strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
-        /*
-         * This is a raw GSS-API token.
-         */
-	if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
-	  call_dissector(gssapi_handle, parameter_tvb, actx->pinfo, tree);
+	get_ber_identifier(parameter_tvb, 0, &class, &pc, &tag);
+
+	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (class==BER_CLASS_CON)) {*/
+	if ((ldap_info->auth_mech != NULL) && (class==BER_CLASS_CON)) {
+	  /*
+	   * This is a GSS-API token ancapsulated within GSS-SPNEGO.
+	   * We need to check the first byte to check whether the blob
+	   * contains SPNEGO or GSSAPI.
+	   * All SPNEGO PDUs are of class CONSTRUCTED while
+	   * GSS PDUs are class APPLICATION
+	   */
+	  if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
+	    call_dissector(spnego_handle, parameter_tvb, actx->pinfo, tree);
+	}
+	/*if ((ldap_info->auth_mech != NULL) && ((strcmp(ldap_info->auth_mech, "GSSAPI") == 0) || (class==BER_CLASS_APP))) {*/
+	if ((ldap_info->auth_mech != NULL) && (class==BER_CLASS_APP)) {
+	  /*
+	   * This is a raw GSS-API token.
+	   */
+	  if (parameter_tvb && (tvb_length(parameter_tvb) > 0)) {
+	    call_dissector(gssapi_handle, parameter_tvb, actx->pinfo, tree);
+	  }
 	}
 	actx->pinfo->private_data = ldap_info;
+
 
 #.FN_BODY ServerSaslCreds VAL_PTR = &parameter_tvb
 
