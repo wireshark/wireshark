@@ -132,12 +132,6 @@ EXTRA_DIST = \
 	gsmmap/Makefile.nmake	\
 	gsmmap/packet-gsm_map-template.c	\
 	gsmmap/packet-gsm_map-template.h	\
-	gsm_ss/gsm_ss.cnf	\
-	gsm_ss/Makefile	\
-	gsm_ss/Makefile.nmake	\
-	gsm_ss/packet-gsm_ss-template.c	\
-	gsm_ss/packet-gsm_ss-template.h	\
-	gsm_ss/SS-Operations.asn	\
 	h225/h225.cnf	\
 	h225/h225-exp.cnf	\
 	h225/H323-MESSAGES.asn	\
@@ -191,12 +185,6 @@ EXTRA_DIST = \
 	logotype-cert-extn/Makefile.nmake	\
 	logotype-cert-extn/packet-logotype-cert-extn-template.c	\
 	logotype-cert-extn/packet-logotype-cert-extn-template.h	\
-	MAP_Dialogue/Makefile	\
-	MAP_Dialogue/Makefile.nmake	\
-	MAP_Dialogue/MAP-DialogueInformation.asn	\
-	MAP_Dialogue/MAP_DialoguePDU.cnf	\
-	MAP_Dialogue/packet-MAP-DialoguePDU-template.c	\
-	MAP_Dialogue/packet-MAP-DialoguePDU-template.h	\
 	mms/Makefile	\
 	mms/Makefile.nmake	\
 	mms/mms.asn	\
