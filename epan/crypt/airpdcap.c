@@ -1409,7 +1409,7 @@ parse_key_string(gchar* input_string)
         res = hex_str_to_bytes(key, key_ba, FALSE);
 
         /* Two tokens means that the user should have entered a WPA-BIN key ... */
-        if( ((key_ba->len) != WPA_PSK_KEY_CHAR_SIZE))
+        if(!res || ((key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
         {
             g_string_free(key_string, TRUE);
             g_byte_array_free(key_ba, TRUE);
@@ -1427,7 +1427,7 @@ parse_key_string(gchar* input_string)
 
         dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
         dk->key  = g_string_new(key);
-        dk->bits = key_ba->len * 4;
+        dk->bits = dk->key->len * 4;
         dk->ssid = NULL;
 
         g_string_free(key_string, TRUE);
