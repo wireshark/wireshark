@@ -787,6 +787,7 @@ static int hf_ansi_map_changeFacilities = -1;     /* ChangeFacilities */
 static int hf_ansi_map_changeService = -1;        /* ChangeService */
 static int hf_ansi_map_parameterRequest = -1;     /* ParameterRequest */
 static int hf_ansi_map_tMSIDirective = -1;        /* TMSIDirective */
+static int hf_ansi_map_numberPortabilityRequest = -1;  /* NumberPortabilityRequest */
 static int hf_ansi_map_serviceRequest = -1;       /* ServiceRequest */
 static int hf_ansi_map_analyzedInformation = -1;  /* AnalyzedInformation */
 static int hf_ansi_map_connectionFailureReport = -1;  /* ConnectionFailureReport */
@@ -811,6 +812,10 @@ static int hf_ansi_map_oCalledPartyBusy = -1;     /* OCalledPartyBusy */
 static int hf_ansi_map_oNoAnswer = -1;            /* ONoAnswer */
 static int hf_ansi_map_positionRequest = -1;      /* PositionRequest */
 static int hf_ansi_map_positionRequestForward = -1;  /* PositionRequestForward */
+static int hf_ansi_map_callTerminationReport = -1;  /* CallTerminationReport */
+static int hf_ansi_map_geoPositionRequest = -1;   /* GeoPositionRequest */
+static int hf_ansi_map_interSystemPositionRequest = -1;  /* InterSystemPositionRequest */
+static int hf_ansi_map_interSystemPositionRequestForward = -1;  /* InterSystemPositionRequestForward */
 static int hf_ansi_map_aCGDirective = -1;         /* ACGDirective */
 static int hf_ansi_map_roamerDatabaseVerificationRequest = -1;  /* RoamerDatabaseVerificationRequest */
 static int hf_ansi_map_addService = -1;           /* AddService */
@@ -834,6 +839,7 @@ static int hf_ansi_map_transferToNumberRequestRes = -1;  /* TransferToNumberRequ
 static int hf_ansi_map_handoffToThirdRes = -1;    /* HandoffToThirdRes */
 static int hf_ansi_map_authenticationDirectiveRes = -1;  /* AuthenticationDirectiveRes */
 static int hf_ansi_map_authenticationRequestRes = -1;  /* AuthenticationRequestRes */
+static int hf_ansi_map_baseStationChallengeRes = -1;  /* BaseStationChallengeRes */
 static int hf_ansi_map_authenticationFailureReportRes = -1;  /* AuthenticationFailureReportRes */
 static int hf_ansi_map_countRequestRes = -1;      /* CountRequestRes */
 static int hf_ansi_map_interSystemPageRes = -1;   /* InterSystemPageRes */
@@ -844,6 +850,7 @@ static int hf_ansi_map_handoffBack2Res = -1;      /* HandoffBack2Res */
 static int hf_ansi_map_handoffToThird2Res = -1;   /* HandoffToThird2Res */
 static int hf_ansi_map_authenticationDirectiveForwardRes = -1;  /* AuthenticationDirectiveForwardRes */
 static int hf_ansi_map_authenticationStatusReportRes = -1;  /* AuthenticationStatusReportRes */
+static int hf_ansi_map_informationDirectiveRes = -1;  /* InformationDirectiveRes */
 static int hf_ansi_map_informationForwardRes = -1;  /* InformationForwardRes */
 static int hf_ansi_map_interSystemPage2Res = -1;  /* InterSystemPage2Res */
 static int hf_ansi_map_interSystemSetupRes = -1;  /* InterSystemSetupRes */
@@ -1062,6 +1069,7 @@ static gint ett_ansi_map_PositionRequest = -1;
 static gint ett_ansi_map_PositionRequestRes = -1;
 static gint ett_ansi_map_PositionRequestForward = -1;
 static gint ett_ansi_map_PositionRequestForwardRes = -1;
+static gint ett_ansi_map_CallTerminationReport = -1;
 static gint ett_ansi_map_GeoPositionRequest = -1;
 static gint ett_ansi_map_InterSystemPositionRequest = -1;
 static gint ett_ansi_map_InterSystemPositionRequestRes = -1;
@@ -1304,7 +1312,7 @@ const value_string ansi_map_opr_code_strings[] = {
     { 59,	"Change Service" },
     { 60,	"Parameter Request" },
     { 61,	"TMSI Directive" },
-    { 62,	"Reserved 62" },
+    { 62,	"NumberPortabilityRequest" },
     { 63,	"Service Request" },
     { 64,	"Analyzed Information Request" },
     { 65,	"Connection Failure Report" },
@@ -12541,6 +12549,23 @@ dissect_ansi_map_PositionRequestForwardRes(gboolean implicit_tag _U_, tvbuff_t *
 }
 
 
+static const ber_sequence_t CallTerminationReport_set[] = {
+  { &hf_ansi_map_billingID  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_BillingID },
+  { &hf_ansi_map_imsi       , BER_CLASS_CON, 242, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_ansi_map_mobileIdentificationNumber, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileIdentificationNumber },
+  { &hf_ansi_map_networkTMSI, BER_CLASS_CON, 233, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_NetworkTMSI },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_CallTerminationReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CallTerminationReport_set, hf_index, ett_ansi_map_CallTerminationReport);
+
+  return offset;
+}
+
+
 
 static int
 dissect_ansi_map_PositionRequestType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -13732,6 +13757,7 @@ static const ber_sequence_t InvokeData_sequence[] = {
   { &hf_ansi_map_changeService, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ChangeService },
   { &hf_ansi_map_parameterRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ParameterRequest },
   { &hf_ansi_map_tMSIDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TMSIDirective },
+  { &hf_ansi_map_numberPortabilityRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_NumberPortabilityRequest },
   { &hf_ansi_map_serviceRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ServiceRequest },
   { &hf_ansi_map_analyzedInformation, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AnalyzedInformation },
   { &hf_ansi_map_connectionFailureReport, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ConnectionFailureReport },
@@ -13756,6 +13782,10 @@ static const ber_sequence_t InvokeData_sequence[] = {
   { &hf_ansi_map_oNoAnswer  , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ONoAnswer },
   { &hf_ansi_map_positionRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionRequest },
   { &hf_ansi_map_positionRequestForward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_PositionRequestForward },
+  { &hf_ansi_map_callTerminationReport, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CallTerminationReport },
+  { &hf_ansi_map_geoPositionRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_GeoPositionRequest },
+  { &hf_ansi_map_interSystemPositionRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPositionRequest },
+  { &hf_ansi_map_interSystemPositionRequestForward, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPositionRequestForward },
   { &hf_ansi_map_aCGDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ACGDirective },
   { &hf_ansi_map_roamerDatabaseVerificationRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_RoamerDatabaseVerificationRequest },
   { &hf_ansi_map_addService , BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AddService },
@@ -13792,6 +13822,7 @@ static const ber_sequence_t ReturnData_sequence[] = {
   { &hf_ansi_map_handoffToThirdRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffToThirdRes },
   { &hf_ansi_map_authenticationDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationDirectiveRes },
   { &hf_ansi_map_authenticationRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationRequestRes },
+  { &hf_ansi_map_baseStationChallengeRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_BaseStationChallengeRes },
   { &hf_ansi_map_authenticationFailureReportRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationFailureReportRes },
   { &hf_ansi_map_countRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_CountRequestRes },
   { &hf_ansi_map_interSystemPageRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPageRes },
@@ -13802,6 +13833,7 @@ static const ber_sequence_t ReturnData_sequence[] = {
   { &hf_ansi_map_handoffToThird2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffToThird2Res },
   { &hf_ansi_map_authenticationDirectiveForwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationDirectiveForwardRes },
   { &hf_ansi_map_authenticationStatusReportRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AuthenticationStatusReportRes },
+  { &hf_ansi_map_informationDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InformationDirectiveRes },
   { &hf_ansi_map_informationForwardRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InformationForwardRes },
   { &hf_ansi_map_interSystemPage2Res, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemPage2Res },
   { &hf_ansi_map_interSystemSetupRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_InterSystemSetupRes },
@@ -14072,8 +14104,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	  offset = dissect_ansi_map_TMSIDirective(TRUE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirective);
 	  break;
 	  /*End  N.S0010-0 v 1.0 */
-  case  62: /*Reserved 62*/
-	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(Reserved 62)");
+  case  62: /*NumberPortabilityRequest 62*/
+	  offset = dissect_ansi_map_NumberPortabilityRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_numberPortabilityRequest);
 	  break;
   case  63: /*Service Request N.S0012-0 v 1.0*/
 	  offset = dissect_ansi_map_ServiceRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceRequest);
@@ -14171,19 +14203,19 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	  break;
 	   /*END N.S0004 */
   case  92: /*Call Termination Report*/
-	  offset = offset;
+	  offset = dissect_ansi_map_CallTerminationReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_callTerminationReport);
 	  break;
   case  93: /*Geo Position Directive*/
 	  offset = offset;
 	  break;
   case  94: /*Geo Position Request*/
-	  offset = offset;
+	  offset = dissect_ansi_map_GeoPositionRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequest);
 	  break;
   case  95: /*Inter System Position Request*/
-	  offset = offset;
+	  offset = dissect_ansi_map_InterSystemPositionRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequest);
 	  break;
   case  96: /*Inter System Position Request Forward*/
-	  offset = offset;
+	  offset = dissect_ansi_map_InterSystemPositionRequestForward(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequestForward);
 	  break;
 	  /* 3GPP2 N.S0023-0 */
   case  97: /*ACG Directive*/
@@ -14275,6 +14307,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
    case  28: /*Authentication Request*/
 	   offset = dissect_ansi_map_AuthenticationRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationRequestRes);
 	   break;
+   case  29: /*Base Station Challenge*/
+	   offset = dissect_ansi_map_BaseStationChallengeRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_baseStationChallengeRes);
+	   break;
    case  30: /*Authentication Failure Report*/
 	   offset = dissect_ansi_map_AuthenticationFailureReportRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationFailureReportRes);
 	   break;
@@ -14306,6 +14341,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	   offset = dissect_ansi_map_AuthenticationStatusReportRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationStatusReportRes);
 	   break;
 			 /*Reserved 41*/
+   case  42: /*Information Directive*/
+	   offset = dissect_ansi_map_InformationDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_informationDirectiveRes);
+	   break;
    case  43: /*Information Forward*/
 	   offset = dissect_ansi_map_InformationForwardRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_informationForwardRes);
 	   break;
@@ -17139,6 +17177,10 @@ void proto_register_ansi_map(void) {
       { "tMSIDirective", "ansi_map.tMSIDirective",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.TMSIDirective", HFILL }},
+    { &hf_ansi_map_numberPortabilityRequest,
+      { "numberPortabilityRequest", "ansi_map.numberPortabilityRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.NumberPortabilityRequest", HFILL }},
     { &hf_ansi_map_serviceRequest,
       { "serviceRequest", "ansi_map.serviceRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17235,6 +17277,22 @@ void proto_register_ansi_map(void) {
       { "positionRequestForward", "ansi_map.positionRequestForward",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.PositionRequestForward", HFILL }},
+    { &hf_ansi_map_callTerminationReport,
+      { "callTerminationReport", "ansi_map.callTerminationReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CallTerminationReport", HFILL }},
+    { &hf_ansi_map_geoPositionRequest,
+      { "geoPositionRequest", "ansi_map.geoPositionRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.GeoPositionRequest", HFILL }},
+    { &hf_ansi_map_interSystemPositionRequest,
+      { "interSystemPositionRequest", "ansi_map.interSystemPositionRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemPositionRequest", HFILL }},
+    { &hf_ansi_map_interSystemPositionRequestForward,
+      { "interSystemPositionRequestForward", "ansi_map.interSystemPositionRequestForward",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemPositionRequestForward", HFILL }},
     { &hf_ansi_map_aCGDirective,
       { "aCGDirective", "ansi_map.aCGDirective",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17327,6 +17385,10 @@ void proto_register_ansi_map(void) {
       { "authenticationRequestRes", "ansi_map.authenticationRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.AuthenticationRequestRes", HFILL }},
+    { &hf_ansi_map_baseStationChallengeRes,
+      { "baseStationChallengeRes", "ansi_map.baseStationChallengeRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.BaseStationChallengeRes", HFILL }},
     { &hf_ansi_map_authenticationFailureReportRes,
       { "authenticationFailureReportRes", "ansi_map.authenticationFailureReportRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17367,6 +17429,10 @@ void proto_register_ansi_map(void) {
       { "authenticationStatusReportRes", "ansi_map.authenticationStatusReportRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.AuthenticationStatusReportRes", HFILL }},
+    { &hf_ansi_map_informationDirectiveRes,
+      { "informationDirectiveRes", "ansi_map.informationDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InformationDirectiveRes", HFILL }},
     { &hf_ansi_map_informationForwardRes,
       { "informationForwardRes", "ansi_map.informationForwardRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17521,7 +17587,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5062 "packet-ansi_map-template.c"
+#line 5068 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -17700,6 +17766,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_PositionRequestRes,
     &ett_ansi_map_PositionRequestForward,
     &ett_ansi_map_PositionRequestForwardRes,
+    &ett_ansi_map_CallTerminationReport,
     &ett_ansi_map_GeoPositionRequest,
     &ett_ansi_map_InterSystemPositionRequest,
     &ett_ansi_map_InterSystemPositionRequestRes,
@@ -17782,7 +17849,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5094 "packet-ansi_map-template.c"
+#line 5100 "packet-ansi_map-template.c"
   };
 
 

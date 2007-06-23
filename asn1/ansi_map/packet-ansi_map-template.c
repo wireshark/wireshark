@@ -512,7 +512,7 @@ const value_string ansi_map_opr_code_strings[] = {
     { 59,	"Change Service" },
     { 60,	"Parameter Request" },
     { 61,	"TMSI Directive" },
-    { 62,	"Reserved 62" },
+    { 62,	"NumberPortabilityRequest" },
     { 63,	"Service Request" },
     { 64,	"Analyzed Information Request" },
     { 65,	"Connection Failure Report" },
@@ -3814,8 +3814,8 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	  offset = dissect_ansi_map_TMSIDirective(TRUE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirective);
 	  break;
 	  /*End  N.S0010-0 v 1.0 */
-  case  62: /*Reserved 62*/
-	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(Reserved 62)");
+  case  62: /*NumberPortabilityRequest 62*/
+	  offset = dissect_ansi_map_NumberPortabilityRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_numberPortabilityRequest);
 	  break;
   case  63: /*Service Request N.S0012-0 v 1.0*/
 	  offset = dissect_ansi_map_ServiceRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceRequest);
@@ -3913,19 +3913,19 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	  break;
 	   /*END N.S0004 */
   case  92: /*Call Termination Report*/
-	  offset = offset;
+	  offset = dissect_ansi_map_CallTerminationReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_callTerminationReport);
 	  break;
   case  93: /*Geo Position Directive*/
 	  offset = offset;
 	  break;
   case  94: /*Geo Position Request*/
-	  offset = offset;
+	  offset = dissect_ansi_map_GeoPositionRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequest);
 	  break;
   case  95: /*Inter System Position Request*/
-	  offset = offset;
+	  offset = dissect_ansi_map_InterSystemPositionRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequest);
 	  break;
   case  96: /*Inter System Position Request Forward*/
-	  offset = offset;
+	  offset = dissect_ansi_map_InterSystemPositionRequestForward(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequestForward);
 	  break;
 	  /* 3GPP2 N.S0023-0 */
   case  97: /*ACG Directive*/
@@ -4017,6 +4017,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
    case  28: /*Authentication Request*/
 	   offset = dissect_ansi_map_AuthenticationRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationRequestRes);
 	   break;
+   case  29: /*Base Station Challenge*/
+	   offset = dissect_ansi_map_BaseStationChallengeRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_baseStationChallengeRes);
+	   break;
    case  30: /*Authentication Failure Report*/
 	   offset = dissect_ansi_map_AuthenticationFailureReportRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationFailureReportRes);
 	   break;
@@ -4048,6 +4051,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	   offset = dissect_ansi_map_AuthenticationStatusReportRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationStatusReportRes);
 	   break;
 			 /*Reserved 41*/
+   case  42: /*Information Directive*/
+	   offset = dissect_ansi_map_InformationDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_informationDirectiveRes);
+	   break;
    case  43: /*Information Forward*/
 	   offset = dissect_ansi_map_InformationForwardRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_informationForwardRes);
 	   break;

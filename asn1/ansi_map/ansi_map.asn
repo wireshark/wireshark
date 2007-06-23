@@ -4206,6 +4206,18 @@ PositionRequestForwardRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.117 c, e
 	}
 
+-- J-STD-036-AD-2
+CallTerminationReport ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
+	-- O 6.5.2.16 a
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	-- O 6.5.2.bu
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
+	-- O 6.5.2.81 b, c
+	networkTMSI								[233] IMPLICIT NetworkTMSI OPTIONAL
+	-- O 6.5.2.117 c
+}
+
 -- 6.4.2.am GeoPositionRequest (See J-STD-036, page 8-7) X.S0002-0 v2.0
 GeoPositionRequest ::= [PRIVATE 18] SET {
 	positionRequestType						[337] IMPLICIT PositionRequestType,
@@ -7829,7 +7841,7 @@ IMSIType ::= OCTET STRING
 -- Definition to support ASN2WRS generating hf_indices
 
 InvokeData ::= SEQUENCE {
-        handoffMeasurementRequest HandoffMeasurementRequest,
+    handoffMeasurementRequest HandoffMeasurementRequest,
 	facilitiesDirective FacilitiesDirective,
 	handoffBack HandoffBack,
 	facilitiesRelease FacilitiesRelease,
@@ -7884,6 +7896,7 @@ InvokeData ::= SEQUENCE {
 	changeService ChangeService,
 	parameterRequest ParameterRequest,
 	tMSIDirective TMSIDirective,
+	numberPortabilityRequest NumberPortabilityRequest,
 	serviceRequest ServiceRequest,
 	analyzedInformation AnalyzedInformation,
 	connectionFailureReport ConnectionFailureReport,
@@ -7908,6 +7921,10 @@ InvokeData ::= SEQUENCE {
 	oNoAnswer ONoAnswer,
 	positionRequest PositionRequest,
 	positionRequestForward PositionRequestForward,
+	callTerminationReport CallTerminationReport,
+	geoPositionRequest GeoPositionRequest,
+	interSystemPositionRequest InterSystemPositionRequest,
+	interSystemPositionRequestForward InterSystemPositionRequestForward,
 	aCGDirective ACGDirective,
 	roamerDatabaseVerificationRequest RoamerDatabaseVerificationRequest,
 	addService AddService,
@@ -7935,6 +7952,7 @@ ReturnData ::= SEQUENCE {
 	handoffToThirdRes HandoffToThirdRes,
 	authenticationDirectiveRes AuthenticationDirectiveRes,
 	authenticationRequestRes AuthenticationRequestRes,
+	baseStationChallengeRes BaseStationChallengeRes,
 	authenticationFailureReportRes AuthenticationFailureReportRes,
 	countRequestRes CountRequestRes,
 	interSystemPageRes InterSystemPageRes,
@@ -7945,6 +7963,7 @@ ReturnData ::= SEQUENCE {
 	handoffToThird2Res HandoffToThird2Res,
 	authenticationDirectiveForwardRes AuthenticationDirectiveForwardRes,
 	authenticationStatusReportRes AuthenticationStatusReportRes,
+	informationDirectiveRes InformationDirectiveRes,
 	informationForwardRes InformationForwardRes,
 	interSystemPage2Res InterSystemPage2Res,
 	interSystemSetupRes InterSystemSetupRes,
