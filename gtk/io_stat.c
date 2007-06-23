@@ -1144,7 +1144,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
 	int i;
 	io_stat_t *io;
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
 #endif
 
@@ -1165,7 +1165,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	io->pixmap_width=widget->allocation.width;
 	io->pixmap_height=widget->allocation.height;
 
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,6,0)
 	save_bt = OBJECT_GET_DATA(io->window, "save_bt");
 	SIGNAL_CONNECT(save_bt, "clicked", pixmap_save_cb, io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
@@ -1882,7 +1882,7 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *hbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt, *help_bt;
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
 #endif
 
@@ -1907,14 +1907,14 @@ init_io_stat_window(io_stat_t *io)
 	io_stat_set_title(io);
 
     if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,6,0)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
 				  GTK_STOCK_HELP, NULL);
 #else
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 #endif
     } else {
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,6,0)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
 #else
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -1926,7 +1926,7 @@ init_io_stat_window(io_stat_t *io)
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
 
-#if GTK_CHECK_VERSION(2,4,0)
+#if GTK_CHECK_VERSION(2,6,0)
     save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
     gtk_widget_set_sensitive(save_bt, FALSE);
     OBJECT_SET_DATA(io->window, "save_bt", save_bt);

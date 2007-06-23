@@ -32,8 +32,8 @@
 #include <gtk/gtk.h>
 
 /* This feature is not available in GTK1 and includes some functions that
- * are only available in GTK2.4+ */
-#if GTK_CHECK_VERSION(2,4,0)
+ * are only available in GTK 2.6+ */
+#if GTK_CHECK_VERSION(2,6,0)
 
 #include "pixmap_save.h"
 #include "simple_dialog.h"
@@ -71,13 +71,16 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 		   directory, and leave the selection box displayed. */
 		set_last_open_dir(filename);
 		g_free(filename);
+		g_free(file_type);
 		file_selection_set_current_folder(save_as_w,
 						  get_last_open_dir());
 		return;
 	}
 
 	ret = gdk_pixbuf_save(pixbuf, filename, file_type, &error, NULL);
-	
+	g_free(filename);
+	g_free(file_type);
+
 	if(!ret) {
 		simple_w = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 					 "%s%s%s",
@@ -167,4 +170,4 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr)
 	window_destroy(save_as_w);
 }
 
-#endif /* GTK_CHECK_VERSION(2,4,0) */
+#endif /* GTK_CHECK_VERSION(2,6,0) */

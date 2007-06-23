@@ -430,7 +430,7 @@
 	</itemizedlist>
 	The save button will save the currently displayed portion of
 	the graph as one of various file formats.  The save feature is
-	only available when using GTK version 2.4 or higher (the
+	only available when using GTK version 2.6 or higher (the
 	latest Windows versions comply with this requirement) and
 	Wireshark version 0.99.7 or higher.
 	
