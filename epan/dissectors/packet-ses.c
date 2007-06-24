@@ -41,7 +41,7 @@
 #include "packet-frame.h"
 
 #include <epan/prefs.h>
-
+#include <epan/emem.h>
 #include <epan/strutil.h>
 
 /* ses header fields             */
@@ -268,6 +268,9 @@ static const value_string reason_vals[] =
 /* desegmentation of OSI over ses  */
 /*static gboolean ses_desegment = TRUE;*/
 
+/* RTSE reassembly data */
+static guint ses_pres_ctx_id = 0;
+static gboolean ses_rtse_reassemble = FALSE;
 
 /* find the dissector for data */
 static dissector_handle_t data_handle;
@@ -971,6 +974,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	guint16 parameters_len;
 	tvbuff_t *next_tvb;
 	void *save_private_data;
+	guint32 *pres_ctx_id = NULL;
 	struct SESSION_DATA_STRUCTURE session;
 
 	/*
@@ -980,6 +984,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	session.spdu_type = type;
 	session.abort_type = SESSION_NO_ABORT;
 	session.ros_op = 0;
+	session.rtse_reassemble = FALSE;
 
 	if (tokens) {
 	  	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1014,6 +1019,21 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		case SES_TYPED_DATA:
 			has_user_information = TRUE;
 			break;
+		case SES_MAJOR_SYNC_POINT:
+			pres_ctx_id = p_get_proto_data (pinfo->fd, proto_ses);
+			if (ses_rtse_reassemble != 0 && !pres_ctx_id) {
+				/* First time visited - save pres_ctx_id */
+				pres_ctx_id = se_alloc (sizeof (guint32));
+				*pres_ctx_id = ses_pres_ctx_id;
+				p_add_proto_data (pinfo->fd, proto_ses, pres_ctx_id);
+			}
+			if (pres_ctx_id) {
+				session.pres_ctx_id = *pres_ctx_id;
+				session.rtse_reassemble = TRUE;
+				has_user_information = TRUE;
+			}
+			ses_rtse_reassemble = FALSE;
+			break;
 		}
 	}
 	offset++;
@@ -1035,7 +1055,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect user information, if present */
 	if (has_user_information) {
-		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+		if (tvb_reported_length_remaining(tvb, offset) > 0 || type == SES_MAJOR_SYNC_POINT) {
 			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 			/* do we have OSI presentation packet dissector ? */
@@ -1059,6 +1079,10 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			 * end of the tvbuff.
 			 */
 			offset = tvb_length(tvb);
+			if (session.rtse_reassemble && type == SES_DATA_TRANSFER) {
+				ses_pres_ctx_id = session.pres_ctx_id;
+				ses_rtse_reassemble = TRUE;
+			}
 		}
 	}
 	return offset;

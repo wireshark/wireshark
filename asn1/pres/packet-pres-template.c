@@ -232,9 +232,12 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /* first, try to check length   */
 /* do we have at least 4 bytes  */
 	if (!tvb_bytes_exist(tvb, 0, 4)){
-		proto_tree_add_text(parent_tree, tvb, offset, 
-			tvb_reported_length_remaining(tvb,offset),"User data");
-		return;  /* no, it isn't a presentation PDU */
+		session = ((struct SESSION_DATA_STRUCTURE*)(pinfo->private_data));
+		if (session && session->spdu_type != SES_MAJOR_SYNC_POINT) {
+			proto_tree_add_text(parent_tree, tvb, offset, 
+					    tvb_reported_length_remaining(tvb,offset),"User data");
+			return;  /* no, it isn't a presentation PDU */
+		}
 	}
 
 	/*  we can't make any additional checking here   */
@@ -248,6 +251,18 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	global_tree = parent_tree;
 	global_pinfo = pinfo;
 
+	if (session && session->spdu_type == SES_MAJOR_SYNC_POINT) {
+		/* This is a reassembly initiated in packet-ses */
+		char *oid = find_oid_by_pres_ctx_id (pinfo, session->pres_ctx_id);
+		if (oid) {
+			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree);
+		} else {
+			proto_tree_add_text(parent_tree, tvb, offset, 
+					    tvb_reported_length_remaining(tvb,offset),"User data");
+		}
+		return;
+         }
+            
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset = offset;
 		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree);

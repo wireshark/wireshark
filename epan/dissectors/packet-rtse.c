@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-rtse.c                                                            */
+/* ./packet-rtse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -38,6 +38,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
+#include <epan/reassemble.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -69,6 +71,9 @@ static proto_tree *top_tree=NULL;
 
 static  dissector_handle_t rtse_handle = NULL;
 static  dissector_handle_t ros_handle = NULL;
+
+/* Preferences */
+static gboolean rtse_reassemble = TRUE;
 
 
 /*--- Included file: packet-rtse-hf.c ---*/
@@ -106,7 +111,7 @@ static int hf_rtse_octet_aligned = -1;            /* OCTET_STRING */
 static int hf_rtse_arbitrary = -1;                /* BIT_STRING */
 
 /*--- End of included file: packet-rtse-hf.c ---*/
-#line 66 "packet-rtse-template.c"
+#line 71 "packet-rtse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rtse = -1;
@@ -125,12 +130,45 @@ static gint ett_rtse_EXTERNALt = -1;
 static gint ett_rtse_T_encoding = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
-#line 70 "packet-rtse-template.c"
+#line 75 "packet-rtse-template.c"
 
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
+
+static GHashTable *rtse_segment_table = NULL;
+static GHashTable *rtse_reassembled_table = NULL;
+ 
+static int hf_rtse_fragments = -1;
+static int hf_rtse_fragment = -1;
+static int hf_rtse_fragment_overlap = -1;
+static int hf_rtse_fragment_overlap_conflicts = -1;
+static int hf_rtse_fragment_multiple_tails = -1;
+static int hf_rtse_fragment_too_long_fragment = -1;
+static int hf_rtse_fragment_error = -1;
+static int hf_rtse_reassembled_in = -1;
+
+static gint ett_rtse_fragment = -1;
+static gint ett_rtse_fragments = -1;
+
+static const fragment_items rtse_frag_items = {
+	/* Fragment subtrees */
+	&ett_rtse_fragment,
+	&ett_rtse_fragments,
+	/* Fragment fields */
+	&hf_rtse_fragments,
+	&hf_rtse_fragment,
+	&hf_rtse_fragment_overlap,
+	&hf_rtse_fragment_overlap_conflicts,
+	&hf_rtse_fragment_multiple_tails,
+	&hf_rtse_fragment_too_long_fragment,
+	&hf_rtse_fragment_error,
+	/* Reassembled in field */
+	&hf_rtse_reassembled_in,
+	/* Tag */
+	"RTSE fragments"
+};
 
 void
 register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_ros)
@@ -862,7 +900,7 @@ dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 126 "packet-rtse-template.c"
+#line 164 "packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -874,6 +912,12 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	tvbuff_t *next_tvb = NULL;
+	tvbuff_t *data_tvb = NULL;
+	fragment_data *frag_msg = NULL;
+	guint32 fragment_length;
+	guint32 rtse_id = 0;
+	conversation_t *conversation = NULL;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -892,28 +936,83 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	}
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_rtse, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_rtse);
-	}
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSE");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 
-	while (tvb_reported_length_remaining(tvb, offset) > 0){
-		old_offset=offset;
-		offset=dissect_rtse_RTSE_apdus(FALSE, tvb, offset, &asn1_ctx , tree, -1);
-		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte RTSE PDU");
-			offset = tvb_length(tvb);
-			break;
+	if (rtse_reassemble && 
+	    ((session->spdu_type == SES_DATA_TRANSFER) ||
+	     (session->spdu_type == SES_MAJOR_SYNC_POINT))) {
+		/* Use conversation index as fragment id */
+		conversation  = find_conversation (pinfo->fd->num, 
+						   &pinfo->src, &pinfo->dst, pinfo->ptype, 
+						   pinfo->srcport, pinfo->destport, 0);
+		if (conversation != NULL) { 
+			rtse_id = conversation->index;
+		} 
+		session->rtse_reassemble = TRUE;
+	}
+	if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
+		frag_msg = fragment_end_seq_next (pinfo, rtse_id, rtse_segment_table,
+						  rtse_reassembled_table);
+		next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled RTSE", 
+						     frag_msg, &rtse_frag_items, NULL, parent_tree);
+	}
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_rtse, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_rtse);
+	}
+	if (rtse_reassemble && session->spdu_type == SES_DATA_TRANSFER) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE Fragment]");
+
+		/* strip off the OCTET STRING encoding - including any CONSTRUCTED OCTET STRING */
+		offset = dissect_ber_octet_string(FALSE, &asn1_ctx, NULL, tvb, offset, 0, &data_tvb);
+
+
+		fragment_length = tvb_length_remaining (data_tvb, 0);
+		proto_tree_add_text(tree, data_tvb, 0, (fragment_length) ? -1 : 0,
+				    "RTSE segment data (%u byte%s)", fragment_length,
+                                    plurality(fragment_length, "", "s"));
+		frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo, 
+						  rtse_id, rtse_segment_table,
+						  rtse_reassembled_table, fragment_length, TRUE);
+		if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
+			/* Add a "Reassembled in" link if not reassembled in this frame */
+			proto_tree_add_uint (tree, *(rtse_frag_items.hf_reassembled_in),
+					     data_tvb, 0, 0, frag_msg->reassembled_in);
+		}
+		pinfo->fragmented = TRUE;
+	} else if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
+		if (next_tvb) {
+			/* ROS won't do this for us */
+			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
+			offset=dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, &asn1_ctx, tree, -1);
+		} else {
+			offset = tvb_length (tvb);
+		}
+		pinfo->fragmented = FALSE;
+	} else {
+		while (tvb_reported_length_remaining(tvb, offset) > 0){
+			old_offset=offset;
+			offset=dissect_rtse_RTSE_apdus(TRUE, tvb, offset, &asn1_ctx, tree, -1);
+			if(offset == old_offset){
+				proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte RTSE PDU");
+				offset = tvb_length(tvb);
+				break;
+			}
 		}
 	}
 
 	top_tree = NULL;
 }
 
+static void rtse_reassemble_init (void)
+{
+	fragment_table_init (&rtse_segment_table);
+	reassembled_table_init (&rtse_reassembled_table);
+}
 
 /*--- proto_register_rtse -------------------------------------------*/
 void proto_register_rtse(void) {
@@ -921,6 +1020,35 @@ void proto_register_rtse(void) {
   /* List of fields */
   static hf_register_info hf[] =
   {
+    /* Fragment entries */
+    { &hf_rtse_fragments,
+      { "RTSE fragments", "rtse.fragments", FT_NONE, BASE_NONE,
+	NULL, 0x00, "Message fragments", HFILL } },
+    { &hf_rtse_fragment,
+      { "RTSE fragment", "rtse.fragment", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x00, "Message fragment", HFILL } },
+    { &hf_rtse_fragment_overlap,
+      { "RTSE fragment overlap", "rtse.fragment.overlap", FT_BOOLEAN,
+	BASE_NONE, NULL, 0x00, "Message fragment overlap", HFILL } },
+    { &hf_rtse_fragment_overlap_conflicts,
+      { "RTSE fragment overlapping with conflicting data",
+	"rtse.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
+	0x00, "Message fragment overlapping with conflicting data", HFILL } },
+    { &hf_rtse_fragment_multiple_tails,
+      { "RTSE has multiple tail fragments",
+	"rtse.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x00, "Message has multiple tail fragments", HFILL } },
+    { &hf_rtse_fragment_too_long_fragment,
+      { "RTSE fragment too long", "rtse.fragment.too_long_fragment",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Message fragment too long",
+	HFILL } },
+    { &hf_rtse_fragment_error,
+      { "RTSE defragmentation error", "rtse.fragment.error", FT_FRAMENUM,
+	BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
+    { &hf_rtse_reassembled_in,
+      { "Reassembled RTSE in frame", "rtse.reassembled.in", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x00, "This RTSE packet is reassembled in this frame", HFILL } },
+
 
 /*--- Included file: packet-rtse-hfarr.c ---*/
 #line 1 "packet-rtse-hfarr.c"
@@ -1050,13 +1178,15 @@ void proto_register_rtse(void) {
         "rtse.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 185 "packet-rtse-template.c"
+#line 313 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_rtse,
     &ett_rtse_unknown,
+    &ett_rtse_fragment,
+    &ett_rtse_fragments,
 
 /*--- Included file: packet-rtse-ettarr.c ---*/
 #line 1 "packet-rtse-ettarr.c"
@@ -1072,8 +1202,10 @@ void proto_register_rtse(void) {
     &ett_rtse_T_encoding,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 192 "packet-rtse-template.c"
+#line 322 "packet-rtse-template.c"
   };
+
+  module_t *rtse_module;
 
   /* Register protocol */
   proto_rtse = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -1081,6 +1213,15 @@ void proto_register_rtse(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_rtse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine (&rtse_reassemble_init);
+  rtse_module = prefs_register_protocol_subtree("OSI", proto_rtse, NULL);
+
+  prefs_register_bool_preference(rtse_module, "reassemble",
+				 "Reassemble segmented RTSE datagrams",
+				 "Whether segmented RTSE datagrams should be reassembled."
+				 " To use this option, you must also enable"
+				 " \"Allow subdissectors to reassemble TCP streams\""
+				 " in the TCP protocol settings.", &rtse_reassemble);
 
   rtse_oid_dissector_table = register_dissector_table("rtse.oid", "RTSE OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);

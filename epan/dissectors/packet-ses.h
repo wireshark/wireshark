@@ -197,6 +197,7 @@ struct SESSION_DATA_STRUCTURE
 	guint8  abort_type;
 	guint8  pres_ctx_id;
 	guint32 ros_op;
+	gboolean rtse_reassemble;
 };
 #define		implementation_restriction		0x10
 
