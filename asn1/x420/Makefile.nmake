@@ -9,13 +9,15 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 PROTOCOL_NAME=x420
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
 
+ASN_FILE_LIST=x420.asn ftbp.asn
+
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(PROTOCOL_NAME).asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(PROTOCOL_NAME).asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(ASN_FILE_LIST)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

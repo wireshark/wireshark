@@ -42,6 +42,7 @@
 
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
+#include "packet-ftam.h"
 #include "packet-x411.h"
 
 #include "packet-x420.h"

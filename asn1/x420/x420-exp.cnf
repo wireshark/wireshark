@@ -1,10 +1,11 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# .\x420-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn
+# ./x420-exp.cnf
+# ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn ftbp.asn
 
 #.MODULE
-IPMSInformationObjects  x420
+IPMSInformationObjects        x420
+IPMSFileTransferBodyPartType  x420
 #.END
 
 #.IMPORT_TAG

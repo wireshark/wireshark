@@ -94,7 +94,6 @@ ASN_DISSECTOR_SRC = \
 	packet-dsp.c \
 	packet-ess.c \
 	packet-ftam.c \
-	packet-ftbp.c \
 	packet-gnm.c \
 	packet-gsm_map.c \
 	packet-h225.c \
@@ -856,7 +855,6 @@ DISSECTOR_INCLUDES =	\
 	packet-fr.h	\
 	packet-frame.h	\
 	packet-ftam.h	\
-	packet-ftbp.h	\
 	packet-giop.h	\
 	packet-gnm.h	\
 	packet-gnutella.h	\

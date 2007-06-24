@@ -4,10 +4,16 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.MODULE_IMPORT
 MTSAbstractService	x411
 
+#.INCLUDE ../ftam/ftam-exp.cnf
 #.INCLUDE ../x411/x411-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
 #.INCLUDE ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../acse/acse-exp.cnf
+
+
+#.MODULE
+x420		x420
+ftbp		ftbp
 
 #.EXPORTS
 ORDescriptor
@@ -43,11 +49,18 @@ G3FacsimileParameters/non-basic-parameters	g3facsimile_non_basic_parameters
 BodyPart/encrypted		encrypted_bp
 CirculationSignatureData/algorithm-identifier	circulation-signature-algorithm-identifier
 
+Account-Attribute/actual-values		account-actual-values
+User-Identity-Attribute/actual-values	identity-actual-values
+
+MessageReference/user-relative-identifier user-relative-identifier-ref
+
 #.PDU
 OriginatingUA
 AbsenceAdvice
 ChangeOfAddressAdvice
 IPMAssemblyInstructions
+FileTransferData
+FileTransferParameters
 
 #.REGISTER
 OriginatingUA 			B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
@@ -89,7 +102,8 @@ BilaterallyDefinedBodyPart 	B "2.6.1.4.9" 	"id-et-bilaterally-defined"
 
 GeneralTextParameters		B "2.6.1.11.11"	"id-ep-general-text"
 GeneralTextData				B "2.6.1.4.11"	"id-et-general-text"
-# FileTransferBodyPart {id-et 12} in a separate dissector (ftbp)
+FileTransferParameters	B	"2.6.1.11.12"	"id-ep-file-transfer"
+FileTransferData	B	"2.6.1.4.12"	"id-et-file-transfer"
 # {id-et 13} is no longer defined
 # ForwardedReportBodyPart {id-et 14} defined in x411.cnf
 MessageParameters 			B "2.6.1.11.15" "id-ep-notification"
@@ -166,6 +180,11 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 #.FN_BODY NationallyDefinedBodyPart
 /* XXX Not implemented yet */
 
+#.FN_BODY Contents-Type-Attribute/document-type/parameter
+/* XXX: Not implemented yet */
+
+#.FN_BODY CompressionParameter/compression-algorithm-param
+/* XXX: Not implemented yet */
 
 #.END
 
