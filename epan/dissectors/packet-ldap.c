@@ -2777,7 +2777,7 @@ static void dissect_ReplControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
 		     proto_tree *tree, ldap_conv_info_t *ldap_info,
-		     gboolean rest_is_pad, gboolean is_mscldap)
+		     gboolean is_mscldap)
 {
   int offset = 0;
   guint length_remaining;
@@ -2790,9 +2790,12 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   gboolean pc, ind = 0;
   gint32 ber_tag;
 
+
+one_more_pdu:
+
     length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
-    if (rest_is_pad && length_remaining < 6) return;
+    if (length_remaining < 6) return;
 
     /*
      * OK, try to read the "Sequence Of" header; this gets the total
@@ -2801,7 +2804,10 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
 	messageOffset = get_ber_identifier(tvb, offset, &class, &pc, &ber_tag);
 	messageOffset = get_ber_length(tree, tvb, messageOffset, &msg_len, &ind);
 
-    if (ber_tag == BER_UNI_TAG_SEQUENCE) {
+    /* sanity check */
+    if((msg_len<4) || (msg_len>10000000)) return;
+
+    if ( (class==BER_CLASS_UNI) && (ber_tag==BER_UNI_TAG_SEQUENCE) ) {
       	/*
       	 * Add the length of the "Sequence Of" header to the message
       	 * length.
@@ -2849,13 +2855,21 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * Now dissect the LDAP message.
      */
-
-	ldap_info->is_mscldap = is_mscldap;
-	pinfo->private_data = ldap_info;
-	dissect_LDAPMessage_PDU(msg_tvb, pinfo, tree);
-
+    ldap_info->is_mscldap = is_mscldap;
+    pinfo->private_data = ldap_info;
+    dissect_LDAPMessage_PDU(msg_tvb, pinfo, tree);
 
     offset += msg_len;
+
+    /* If this was a sasl blob there might be another PDU following in the
+     * same blob
+     */
+    if(tvb_length_remaining(tvb, offset)>=6){
+        tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), -1);
+	offset = 0;
+
+        goto one_more_pdu;
+    }
 
 }
 
@@ -3095,7 +3109,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
                                 plurality(sasl_len - ver_len, "", "s"));
 	      enc_tree = proto_item_add_subtree(enc_item, ett_ldap_payload);
             }
-	    dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, TRUE, is_mscldap);
+	    dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
           } else if (plain_tvb) {
 	    proto_item *plain_item = NULL;
 	    proto_tree *plain_tree = NULL;
@@ -3116,7 +3130,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	      plain_tree = proto_item_add_subtree(plain_item, ett_ldap_payload);
             }
 
-           dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, TRUE, is_mscldap);
+           dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
 	  } else {
             /*
              * The LDAP message was encrypted in the packet, and was
@@ -3138,7 +3152,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
       offset += sasl_msg_len;
     } else {
 	/* plain LDAP, so dissect the payload */
-	dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, FALSE, is_mscldap);
+	dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, is_mscldap);
     }
 }
 
@@ -3296,7 +3310,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   return offset;
 }
 
-static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   int old_offset, offset=0;
   char str[256];
@@ -3409,7 +3423,7 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	char *oid;
 	const char *oidname;
@@ -3515,7 +3529,7 @@ dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	char *tmpstr;
 
@@ -4295,7 +4309,7 @@ void proto_register_ldap(void) {
         "ldap.INTEGER", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1609 "packet-ldap-template.c"
+#line 1623 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4353,7 +4367,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ReplControlValue,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1620 "packet-ldap-template.c"
+#line 1634 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4466,7 +4480,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1723 "packet-ldap-template.c"
+#line 1737 "packet-ldap-template.c"
 	
 
 }
