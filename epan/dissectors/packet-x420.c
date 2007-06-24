@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x420.c                                                            */
+/* ./packet-x420.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
 
 /* Input file: packet-x420-template.c */
@@ -1656,7 +1656,7 @@ int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 127 "x420.cnf"
 
- if((hf_index == hf_x420_ipm) && check_col(actx->pinfo->cinfo, COL_INFO))
+ if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Message");
 
     offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -1982,7 +1982,7 @@ int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 135 "x420.cnf"
 
- if((hf_index == hf_x420_ipn) && check_col(actx->pinfo->cinfo, COL_INFO))
+ if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Notification");
 
     offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
