@@ -217,6 +217,9 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	     GHashTable *fragment_table, GHashTable *reassembled_table,
 	     guint32 frag_data_len, gboolean more_frags);
 
+extern fragment_data *
+fragment_end_seq_next(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+		      GHashTable *reassembled_table);
 /* to specify how much to reassemble, for fragmentation where last fragment can not be
  * identified by flags or such.
  * note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.

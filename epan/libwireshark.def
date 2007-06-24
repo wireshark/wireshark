@@ -340,6 +340,7 @@ fragment_add_multiple_ok
 fragment_add_seq
 fragment_add_seq_check
 fragment_add_seq_next
+fragment_end_seq_next
 fragment_delete
 fragment_get
 fragment_get_reassembled_id
