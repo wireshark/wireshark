@@ -1080,6 +1080,68 @@ fragment_add_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 }
 
+static void
+fragment_defragment_and_free (fragment_data *fd_head, fragment_data *fd,
+			      packet_info *pinfo)
+{
+	fragment_data *fd_i = NULL;
+	fragment_data *last_fd = NULL;
+	guint32  dfpos = 0, size = 0;
+	void *old_data = NULL;
+	
+	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+		if(!last_fd || last_fd->offset!=fd_i->offset){
+			size+=fd_i->len;
+		}
+		last_fd=fd_i;
+	}
+
+	/* store old data in case the fd_i->data pointers refer to it */
+	old_data=fd_head->data;
+	fd_head->data = g_malloc(size);
+	fd_head->len = size;		/* record size for caller	*/
+
+	/* add all data fragments */
+	last_fd=NULL;
+	for (fd_i=fd_head->next;fd_i && fd_i->len + dfpos <= size;fd_i=fd_i->next) {
+		if (fd_i->len) {
+			if(!last_fd || last_fd->offset!=fd_i->offset){
+				memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
+				dfpos += fd_i->len;
+			} else {
+				/* duplicate/retransmission/overlap */
+				fd_i->flags    |= FD_OVERLAP;
+				fd_head->flags |= FD_OVERLAP;
+				if( (last_fd->len!=fd_i->len)
+				    || memcmp(last_fd->data, fd_i->data, last_fd->len) ) {
+					if (fd) {
+						fd->flags |= FD_OVERLAPCONFLICT;
+					}
+					fd_head->flags |= FD_OVERLAPCONFLICT;
+				}
+			}
+		}
+		last_fd=fd_i;
+	}
+	
+	/* we have defragmented the pdu, now free all fragments*/
+	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+		if( fd_i->flags & FD_NOT_MALLOCED )
+			fd_i->flags &= ~FD_NOT_MALLOCED;
+		else
+			g_free(fd_i->data);
+		fd_i->data=NULL;
+	}
+	
+	if( old_data )
+		g_free(old_data);
+	
+	/* mark this packet as defragmented.
+           allows us to skip any trailing fragments */
+	fd_head->flags |= FD_DEFRAGMENTED;
+	fd_head->reassembled_in=pinfo->fd->num;
+}
+
 /*
  * This function adds a new fragment to the entry for a reassembly
  * operation.
@@ -1101,8 +1163,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	fragment_data *fd;
 	fragment_data *fd_i;
 	fragment_data *last_fd;
-	guint32 max, dfpos, size;
-	void *old_data;
+	guint32 max, dfpos;
 
 	/* if the partial reassembly flag has been set, and we are extending
 	 * the pdu, un-reassemble the pdu. This means pointing old fds to malloc'ed data.
@@ -1306,57 +1367,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	/* we have received an entire packet, defragment it and
          * free all fragments
          */
-	size=0;
-	last_fd=NULL;
-	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-	  if(!last_fd || last_fd->offset!=fd_i->offset){
-	    size+=fd_i->len;
-	  }
-	  last_fd=fd_i;
-	}
-	/* store old data in case the fd_i->data pointers refer to it */
-	old_data=fd_head->data;
-	fd_head->data = g_malloc(size);
-	fd_head->len = size;		/* record size for caller	*/
-
-	/* add all data fragments */
-	dfpos = 0;
-	last_fd=NULL;
-	for (fd_i=fd_head->next;fd_i && fd_i->len + dfpos <= size;fd_i=fd_i->next) {
-	  if (fd_i->len) {
-	    if(!last_fd || last_fd->offset!=fd_i->offset){
-	      memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
-	      dfpos += fd_i->len;
-	    } else {
-	      /* duplicate/retransmission/overlap */
-	      fd_i->flags    |= FD_OVERLAP;
-	      fd_head->flags |= FD_OVERLAP;
-	      if( (last_fd->len!=fd_i->len)
-		  || memcmp(last_fd->data, fd_i->data, last_fd->len) ){
-			fd->flags      |= FD_OVERLAPCONFLICT;
-			fd_head->flags |= FD_OVERLAPCONFLICT;
-	      }
-	    }
-	  }
-	  last_fd=fd_i;
-	}
-
-	/* we have defragmented the pdu, now free all fragments*/
-	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
-		if( fd_i->flags & FD_NOT_MALLOCED )
-			fd_i->flags &= ~FD_NOT_MALLOCED;
-		else
-			g_free(fd_i->data);
-		fd_i->data=NULL;
-	}
-
-	if( old_data )
-		g_free(old_data);
-
-	/* mark this packet as defragmented.
-           allows us to skip any trailing fragments */
-	fd_head->flags |= FD_DEFRAGMENTED;
-	fd_head->reassembled_in=pinfo->fd->num;
+	fragment_defragment_and_free(fd_head, fd, pinfo);
 
 	return TRUE;
 }
@@ -1680,6 +1691,79 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    more_frags, REASSEMBLE_FLAGS_NO_FRAG_NUMBER);
 }
 
+fragment_data *
+fragment_end_seq_next(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+		      GHashTable *reassembled_table)
+{
+	reassembled_key reass_key;
+	reassembled_key *new_key;
+	fragment_key key;
+	fragment_data *fd_head;
+
+	/*
+	 * Have we already seen this frame?
+	 * If so, look for it in the table of reassembled packets.
+	 */
+	if (pinfo->fd->flags.visited) {
+		reass_key.frame = pinfo->fd->num;
+		reass_key.id = id;
+		return g_hash_table_lookup(reassembled_table, &reass_key);
+	}
+
+	/* create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	fd_head = g_hash_table_lookup (fragment_table, &key);
+
+	if (fd_head) {
+		gpointer orig_key;
+		
+		if (fd_head->flags & FD_DATA_NOT_PRESENT) {
+			/* No data added */
+			return NULL;
+		}
+
+		fd_head->datalen = fd_head->offset;
+		fd_head->flags |= FD_DATALEN_SET;
+		
+		fragment_defragment_and_free (fd_head, NULL, pinfo);
+
+		/*
+		 * Remove this from the table of in-progress
+		 * reassemblies, add it to the table of
+		 * reassembled packets, and return it.
+		 */
+		if (g_hash_table_lookup_extended(fragment_table, &key,
+						 &orig_key, NULL)) {
+			/*
+			 * Remove this from the table of in-progress reassemblies,
+			 * and free up any memory used for it in that table.
+			 */
+			fragment_unhash(fragment_table, (fragment_key *)orig_key);
+		}
+
+		/*
+		 * Add this item to the table of reassembled packets.
+		 */
+		fragment_reassembled(fd_head, pinfo, reassembled_table, id);
+		if (fd_head->next != NULL) {
+			new_key = se_alloc(sizeof(reassembled_key));
+			new_key->frame = pinfo->fd->num;
+			new_key->id = id;
+			g_hash_table_insert(reassembled_table, new_key, fd_head);
+		}
+
+		return fd_head;	
+	} else {
+		/*
+		 * Fragment data not found.
+		 */
+		return NULL;
+	}
+}
+		      
 /*
  * Process reassembled data; if we're on the frame in which the data
  * was reassembled, put the fragment information into the protocol
