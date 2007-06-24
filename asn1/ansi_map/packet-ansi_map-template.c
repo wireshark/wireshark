@@ -4152,6 +4152,12 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case  91: /*Position Request Forward*/
 	  offset = dissect_ansi_map_PositionRequestForwardRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionRequestForwardRes);
 	  break;
+  case  95: /*Inter System Position Request*/
+	  offset = dissect_ansi_map_InterSystemPositionRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequestRes);
+	  break;
+  case  96: /*Inter System Position Request Forward*/
+	  offset = dissect_ansi_map_InterSystemPositionRequestForwardRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequestRes);
+	  break;
   case  98: /*Roamer Database Verification Request*/
 	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_roamerDatabaseVerificationRequestRes);
 	  break;
