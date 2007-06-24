@@ -369,6 +369,8 @@ static GHashTable *clnp_reassembled_table = NULL;
 static GHashTable *cotp_segment_table = NULL;
 static GHashTable *cotp_reassembled_table = NULL;
 static guint16    cotp_dst_ref = 0;
+static gboolean   cotp_frame_reset = FALSE;
+static gboolean   cotp_last_fragment = FALSE;
 
 #define TSAP_DISPLAY_AUTO	0
 #define TSAP_DISPLAY_STRING	1
@@ -396,7 +398,13 @@ const enum_val_t tsap_display_options[] = {
 
 static void cotp_frame_end(void)
 {
-  cotp_dst_ref = 0;
+  if (!cotp_last_fragment) {
+    /* Last COTP in frame is not fragmentet.  
+     * No need for incrementing the dst_ref, so we decrement it here.
+     */
+    cotp_dst_ref--;
+  }
+  cotp_frame_reset = TRUE;
 }
 
 static gboolean is_all_printable(const guchar *stringtocheck, int length)
@@ -878,11 +886,11 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   gboolean is_extended;
   gboolean is_class_234;
   guint16  dst_ref;
+  guint16 *prev_dst_ref;
   guint    tpdu_nr;
   gboolean fragment = FALSE;
   guint32  fragment_length = 0;
   tvbuff_t *next_tvb;
-  tvbuff_t *reassembled_tvb = NULL;
   fragment_data *fd_head;
 
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
@@ -930,7 +938,22 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 	fragment = TRUE;
       is_extended = FALSE;
       is_class_234 = FALSE;
+      prev_dst_ref = p_get_proto_data (pinfo->fd, proto_clnp);
+      if (!prev_dst_ref) {
+        /* First COTP in frame - save previous dst_ref as offset */
+        prev_dst_ref = se_alloc (sizeof (guint32));
+        *prev_dst_ref = cotp_dst_ref;
+        p_add_proto_data (pinfo->fd, proto_clnp, prev_dst_ref);
+      } else if (cotp_frame_reset) {
+        cotp_dst_ref = *prev_dst_ref;
+      } 
+      cotp_frame_reset = FALSE;
+      cotp_last_fragment = fragment;
       dst_ref = cotp_dst_ref;
+      if (!fragment) {
+        cotp_dst_ref++;
+        register_frame_end_routine(cotp_frame_end);
+      }
       break;
 
     default : /* bad TPDU */
@@ -973,6 +996,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
     offset += 2;
     li -= 2;
+  } else if (tree) {
+    ti = proto_tree_add_uint (cotp_tree, hf_cotp_destref, tvb, offset, 0, dst_ref);
+    PROTO_ITEM_SET_GENERATED (ti);
   }
 
   if (is_extended) {
@@ -1021,33 +1047,23 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				     cotp_segment_table,
 				     cotp_reassembled_table,
 				     fragment_length, fragment);
-    if (fd_head) {
-      if (fd_head->next && !fragment) {
-	/* This is the last packet */
-	reassembled_tvb = tvb_new_real_data(fd_head->data,
-					    fd_head->len,
-					    fd_head->len);
-	tvb_set_child_real_data_tvbuff(next_tvb, reassembled_tvb);
-	add_new_data_source(pinfo, reassembled_tvb, "Reassembled COTP");
-
-	show_fragment_seq_tree(fd_head,
-			       &cotp_frag_items,
-			       tree,
-			       pinfo, reassembled_tvb, &ti);
-	pinfo->fragmented = fragment;
-	next_tvb = reassembled_tvb;
-
-	cotp_dst_ref++;
-	register_frame_end_routine(cotp_frame_end);
-      }
-    }
-    if (fragment && reassembled_tvb == NULL) {
-    	/* don't use -1 if fragment length is zero (throws Exception) */
-		proto_tree_add_text(cotp_tree, tvb, offset, (fragment_length) ? -1 : 0,
-			  "User data (%u byte%s)", fragment_length,
+    if (fd_head && fd_head->next) {
+      /* don't use -1 if fragment length is zero (throws Exception) */
+      proto_tree_add_text(cotp_tree, tvb, offset, (fragment_length) ? -1 : 0,
+			  "COTP segment data (%u byte%s)", fragment_length,
 			  plurality(fragment_length, "", "s"));
-    }
 
+      if (!fragment) {
+	/* This is the last packet */
+        next_tvb = process_reassembled_data (next_tvb, offset, pinfo,
+		       	"Reassembled COTP", fd_head, &cotp_frag_items, NULL, tree);
+      } else if (pinfo->fd->num != fd_head->reassembled_in) {
+        /* Add a "Reassembled in" link if not reassembled in this frame */
+        proto_tree_add_uint (cotp_tree, *(cotp_frag_items.hf_reassembled_in),
+		       	next_tvb, 0, 0, fd_head->reassembled_in);
+      }
+      pinfo->fragmented = fragment;
+    }
   }
 
   if (uses_inactive_subset) {
