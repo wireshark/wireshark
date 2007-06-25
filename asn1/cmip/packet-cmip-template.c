@@ -59,7 +59,6 @@ static int hf_DiscriminatorConstruct = -1;
 static int hf_Destination = -1;
 static int hf_NameBinding = -1;
 static int hf_ObjectClass = -1;
-static int hf_OperationalState = -1;
 #include "packet-cmip-hf.c"
 
 /* Initialize the subtree pointers */
@@ -67,6 +66,21 @@ static gint ett_cmip = -1;
 #include "packet-cmip-ett.c"
 
 static guint32 opcode;
+
+static const value_string cmip_Opcode_vals[] = {
+  {   0, "m-EventReport" },
+  {   1, "m-EventReport-Confirmed" },
+  {   2, "m-Linked-Reply" },
+  {   3, "m-Get" },
+  {   4, "m-Set" },
+  {   5, "m-Set-Confirmed" },
+  {   6, "m-Action" },
+  {   7, "m-Action-Confirmed" },
+  {   8, "m-Create" },
+  {   9, "m-Delete" },
+  {  10, "m-CancelGet" },
+  { 0, NULL }
+};
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -88,6 +102,7 @@ static int objectclassform;
 #define OBJECTCLASS_GLOBAL_FORM 1
 static const char *objectclass_identifier_id;
 
+#include "packet-cmip-val.h"
 #include "packet-cmip-fn.c"
 
 
@@ -187,10 +202,6 @@ void proto_register_cmip(void) {
       { "ObjectClass", "cmip.ObjectClass",
         FT_UINT32, BASE_DEC, VALS(cmip_ObjectClass_vals), 0,
         "", HFILL }},
-    { &hf_OperationalState,
-      { "OperationalState", "cmip.OperationalState",
-        FT_UINT32, BASE_DEC, VALS(cmip_OperationalState_vals), 0,
-        "", HFILL }},
 
 #include "packet-cmip-hfarr.c"
   };
@@ -207,6 +218,8 @@ void proto_register_cmip(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+#include "packet-cmip-dis-tab.c"
+    add_oid_str_name("2.9.3.2.7.1","discriminatorId(1) ");
 
 }
 
@@ -216,9 +229,23 @@ void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
 	register_ber_oid_dissector("2.9.1.1.4", dissect_cmip, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
-	add_oid_str_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
+	add_oid_str_name("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");  
+	add_oid_str_name("2.9.3.2.3.2","managedObjectClass(3) attributeValueChangeRecord(2)");
+	add_oid_str_name("2.9.3.2.3.3","managedObjectClass(3) discriminator(3)");
+	add_oid_str_name("2.9.3.2.3.4","managedObjectClass(3) eventForwardingDiscriminator(4)");
+	add_oid_str_name("2.9.3.2.3.5","managedObjectClass(3) eventLogRecord(5)");
+	add_oid_str_name("2.9.3.2.3.6","managedObjectClass(3) log(6)");
+	add_oid_str_name("2.9.3.2.3.7","managedObjectClass(3) logRecord(7)");
+	add_oid_str_name("2.9.3.2.3.8","managedObjectClass(3) objectCreationRecord(8)");
+	add_oid_str_name("2.9.3.2.3.9","managedObjectClass(3) objectDeletionRecord(9)");
+	add_oid_str_name("2.9.3.2.3.10","managedObjectClass(3) relationshipChangeRecord(10)");
+	add_oid_str_name("2.9.3.2.3.11","managedObjectClass(3) securityAlarmReportRecord(11)");
+	add_oid_str_name("2.9.3.2.3.12","managedObjectClass(3) stateChangeRecord(12)");
+	add_oid_str_name("2.9.3.2.3.13","managedObjectClass(3) system(13)");
+	add_oid_str_name("2.9.3.2.3.14","managedObjectClass(3) top(14)");
+	add_oid_str_name("2.9.3.2.4.14","administrativeStatePackage(14)");
 	add_oid_str_name("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
-#include "packet-cmip-dis-tab.c"
+/*#include "packet-cmip-dis-tab.c" */
 }
 

@@ -8,14 +8,16 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=cmip
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+ROS_ASN= ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn 
+ASN1_FILES=CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn  ../x721/Attribute-ASN1Module.asn $(ROS_ASN)
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py CMIP.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf 
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(ASN1_FILES) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf 
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template CMIP.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -X -T -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(ASN1_FILES)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

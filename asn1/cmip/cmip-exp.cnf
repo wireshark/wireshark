@@ -1,31 +1,36 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # .\cmip-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn
+# ../../tools/asn2wrs.py -b -X -T -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn
 
 #.MODULE
-CMIP-A-ASSOCIATE-Information  cmip
+CMIP-1                                 cmip
+CMIP-A-ABORT-Information               cmip
+CMIP-A-ASSOCIATE-Information           cmip
+Attribute-ASN1Module                   cmip
+Remote-Operations-Information-Objects  cmip
+Remote-Operations-Generic-ROS-PDUs     cmip
 #.END
 
 #.IMPORT_TAG
-RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-ObjectClass              BER_CLASS_ANY/*choice*/ -1/*choice*/
-ObjectInstance           BER_CLASS_ANY/*choice*/ -1/*choice*/
 Attribute                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 InvokeIDType             BER_CLASS_ANY/*choice*/ -1/*choice*/
-ROS                      BER_CLASS_ANY/*choice*/ -1/*choice*/
+ObjectClass              BER_CLASS_ANY/*choice*/ -1/*choice*/
+ObjectInstance           BER_CLASS_ANY/*choice*/ -1/*choice*/
+RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CMIPAbortInfo            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CMIPUserInfo             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+ROS                      BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END
 
 #.TYPE_ATTR
-RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-ObjectClass              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ObjectClass_vals)  BITMASK = 0
-ObjectInstance           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ObjectInstance_vals)  BITMASK = 0
 Attribute                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 InvokeIDType             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_InvokeId_vals)  BITMASK = 0
-ROS                      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ROS_vals)  BITMASK = 0
+ObjectClass              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ObjectClass_vals)  BITMASK = 0
+ObjectInstance           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ObjectInstance_vals)  BITMASK = 0
+RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 CMIPAbortInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CMIPUserInfo             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ROS                      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ROS_vals)  BITMASK = 0
 #.END
 
