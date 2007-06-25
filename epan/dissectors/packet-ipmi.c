@@ -571,8 +571,6 @@ static const true_false_string ipmi_payload_enc_val  = {
 
 static const value_string ipmi_ccode_vals[] = {
 	{ 0x00, "Command completed normally" },
-	/* added by lane */
-	{ 0x81, "cannot execute command, SEL erase in progress" },
 	/***************/
 	{ 0xc0, "Node busy" },
 	{ 0xc1, "Unrecognized or unsupported command" },
@@ -1629,6 +1627,15 @@ typedef struct _ipmi_cmd_dissect{
   void   (*dissectfunc)(proto_tree *, proto_tree *, packet_info *, tvbuff_t *, gint *, guint8, guint8, guint8);  
 } ipmi_cmd_dissect;
 
+
+/* ipmi completion command dissector struct */
+
+typedef struct _ipmi_complcmd_dissect{
+  guint8  netfn;
+  guint8  cmd;
+  guint8  cmpl;
+  const gchar   *strptr;
+} ipmi_complcmd_dissect;
 
 
 /* Sensor/Event  NetFN (0x04) */
@@ -3940,6 +3947,129 @@ static const ipmi_cmd_dissect ipmi_cmd_array[] = {
 
 /***************************************************/
 
+static const ipmi_complcmd_dissect ipmi_complcmd_array[] = {
+
+	/* netfn, cmd, completion, str */
+	/* Chassis netfn (0x00) */
+	{ 0x01,	0x08,	0x80,	"Parameter not supported" },
+	{ 0x01,	0x08,	0x81,	"Attempt to set in progress value" },
+	{ 0x01,	0x08,	0x82,	"Attempt to write read-only value" },
+	{ 0x01,	0x09,	0x80,	"Parameter not supported" },
+	/* Bridge netfn (0x02) */
+/* incomplete completion codes
+	{ 0x03,	0x00,	0x0,	NULL},
+	{ 0x03,	0x01,	0x0,	NULL},
+	{ 0x03,	0x02,	0x0,	NULL},
+	{ 0x03,	0x03,	0x0,	NULL},
+	{ 0x03,	0x04,	0x0,	NULL},
+	{ 0x03,	0x05,	0x0,	NULL},
+	{ 0x03,	0x06,	0x0,	NULL},
+	{ 0x03,	0x07,	0x0,	NULL},
+	{ 0x03,	0x08,	0x0,	NULL},
+	{ 0x03,	0x09,	0x0,	NULL},
+	{ 0x03,	0x0a,	0x0,	NULL},
+	{ 0x03,	0x0b,	0x0,	NULL},
+	{ 0x03,	0x0c,	0x0,	NULL},
+	{ 0x03,	0x10,	0x0,	NULL},
+	{ 0x03,	0x11,	0x0,	NULL},
+	{ 0x03,	0x12,	0x0,	NULL},
+	{ 0x03,	0x13,	0x0,	NULL},
+	{ 0x03,	0x14,	0x0,	NULL},
+	{ 0x03,	0x20,	0x0,	NULL},
+	{ 0x03,	0x21,	0x0,	NULL},
+	{ 0x03,	0x30,	0x0,	NULL},
+	{ 0x03,	0x31,	0x0,	NULL},
+	{ 0x03,	0x32,	0x0,	NULL},
+	{ 0x03,	0x33,	0x0,	NULL},
+	{ 0x03,	0x34,	0x0,	NULL},
+	{ 0x03,	0x35,	0x0,	NULL},
+	{ 0x03,	0xff,	0x0,	NULL},
+*/
+	/* Sensor/Event netfn (0x04) */
+	{ 0x05,	0x12,	0x80,	"Parameter not supported" },
+	{ 0x05,	0x12,	0x81,	"Attempt to set in progress value" },
+	{ 0x05,	0x12,	0x82,	"Attempt to write read-only parameter" },
+	{ 0x05,	0x13,	0x80,	"Parameter not supported" },
+	{ 0x05,	0x14,	0x81,	"Cannot execute command, SEL in progress" },
+	{ 0x05,	0x15,	0x81,	"Cannot execute command, SEL in progress" },
+	{ 0x05,	0x16,	0x81,	"Alert Immediate rejected due to alert already in progress"},
+	{ 0x05,	0x16,	0x82,	"Alert Immediate rejected due to IPMI messaging session active on this channel"},
+	{ 0x05,	0x21,	0x80,	"Record changed" },
+	/* App netfn (0x06) */
+	{ 0x07,	0x22,	0x80,	"Attempt to start un-initialized watchdog" },
+	{ 0x07,	0x33,	0x80,	"Data not available (queue/buffer) empty" },
+	{ 0x07,	0x34,	0x80,	"Invalid Session Handle" },
+	{ 0x07,	0x34,	0x81,	"Lost Arbitration" },
+	{ 0x07,	0x34,	0x82,	"Bus Error" },
+	{ 0x07,	0x34,	0x83,	"NAK on write" },
+	{ 0x07,	0x35,	0x80,	"Data not available (queue/buffer) empty" },
+	{ 0x07,	0x39,	0x81,	"Invalid user name" },
+	{ 0x07,	0x39,	0x82,	"null user name (User 1) not enabled" },
+	{ 0x07,	0x3a,	0x81,	"No session slot available" },
+	{ 0x07,	0x3a,	0x82,	"No slot available for given user" },
+	{ 0x07,	0x3a,	0x83,	"No slot available to support user due to maximum priv capability" },
+	{ 0x07,	0x3a,	0x84,	"Session sequence number out-of-range" },
+	{ 0x07,	0x3a,	0x85,	"Invalid Session ID in request" },
+	{ 0x07,	0x3a,	0x86,	"Requested maximum privilege level exceeds user and/or channel priv limit" },
+	{ 0x07,	0x3b,	0x80,	"Requested level not available for this user" },
+	{ 0x07,	0x3b,	0x81,	"Requested level exceeds Channel and/or User Privilege limit" },
+	{ 0x07,	0x3b,	0x82,	"Cannot disable User Level authentication" },
+	{ 0x07,	0x3c,	0x81,	"Invalid Session ID in request" },
+	{ 0x07,	0x40,	0x82,	"Set not supported on selected channel" },
+	{ 0x07,	0x40,	0x83,	"Access mode not supported" },
+	{ 0x07,	0x41,	0x82,	"Command not supported for selected channel" },
+	{ 0x07,	0x47,	0x80,	"Password test failed - password mismatch" },
+	{ 0x07,	0x47,	0x81,	"Password test failed - password size error" },
+	{ 0x07,	0x52,	0x81,	"Lost Arbitration" },
+	{ 0x07,	0x52,	0x82,	"Bus Error" },
+	{ 0x07,	0x52,	0x83,	"NAK on write" },
+	{ 0x07,	0x52,	0x84,	"Truncated Read" },
+	/*Storage netfn (0x0a)  */
+	{ 0x0b,	0x11,	0x81,	"FRU device busy" },
+	{ 0x0b,	0x12,	0x80,	"Write-protected offset" },
+	{ 0x0b,	0x12,	0x81,	"FRU device busy" },
+	{ 0x0b,	0x40,	0x81,	"Cannot execute command, SEL erase in progress" },
+	{ 0x0b,	0x42,	0x81,	"Cannot execute command, SEL erase in progress" },
+	{ 0x0b,	0x43,	0x81,	"Cannot execute command, SEL erase in progress" },
+	{ 0x0b,	0x44,	0x80,	"Operation not supported for this Record Type" },
+	{ 0x0b,	0x44,	0x81,	"Cannot execute command, SEL erase in progress" },
+	{ 0x0b,	0x45,	0x80,	"Record rejected due to mismatch between record lenght in header data and number of bytes written" },
+	{ 0x0b,	0x45,	0x81,	"Cannot execute command, SEL erase in progress" },
+	{ 0x0b,	0x46,	0x81,	"Operation not supported for this Record Type" },
+	{ 0x0b,	0x46,	0x81,	"Cannot execute command, SEL erase in progress" },
+	/* PICMG netfn (0x2c) */
+/* Incomplete completion codes
+	{ 0x2d,	0x00,	0x0,	NULL},
+	{ 0x2d,	0x01,	0x0,	NULL},
+	{ 0x2d,	0x02,	0x0,	NULL},
+	{ 0x2d,	0x03,	0x0,	NULL},
+	{ 0x2d,	0x04,	0x0,	NULL},
+	{ 0x2d,	0x05,	0x0,	NULL},
+	{ 0x2d,	0x06,	0x0,	NULL},
+	{ 0x2d,	0x07,	0x0,	NULL},
+	{ 0x2d,	0x08,	0x0,	NULL},
+	{ 0x2d,	0x09,	0x0,	NULL},
+	{ 0x2d,	0x0a,	0x0,	NULL},
+	{ 0x2d,	0x0b,	0x0,	NULL},
+	{ 0x2d,	0x0c,	0x0,	NULL},
+	{ 0x2d,	0x0d,	0x0,	NULL},
+	{ 0x2d,	0x0e,	0x0,	NULL},
+	{ 0x2d,	0x0f,	0x0,	NULL},
+	{ 0x2d,	0x10,	0x0,	NULL},
+	{ 0x2d,	0x11,	0x0,	NULL},
+	{ 0x2d,	0x12,	0x0,	NULL},
+	{ 0x2d,	0x13,	0x0,	NULL},
+	{ 0x2d,	0x14,	0x0,	NULL},
+	{ 0x2d,	0x15,	0x0,	NULL},
+	{ 0x2d,	0x16,	0x0,	NULL},
+	{ 0x2d,	0x17,	0x0,	NULL},
+	{ 0x2d,	0x18,	0x0,	NULL},
+*/
+};
+
+#define NUM_OF_COMPLCMD_ARRAY (sizeof(ipmi_complcmd_array)/sizeof(ipmi_complcmd_dissect))
+
+
 static const char *
 get_netfn_cmd_text(guint8 netfn, guint8 cmd)
 {
@@ -3968,6 +4098,27 @@ get_netfn_cmd_text(guint8 netfn, guint8 cmd)
 	default:
 		return (netfn & 1) ? "Unknown Response" : "Unknown Request";
 	}
+}
+
+/* translate completion codes */
+static const char *
+get_ccode_cmd_text(guint8 netfn, guint8 cmd, guint8 ccode)
+{
+	guint i;
+	/* generic completion codes */
+	if (ccode < 0x80 || ccode > 0xBE)
+		return val_to_str(ccode, ipmi_ccode_vals, "Unknown (0x%02x)");
+
+	/* command-specific codes */
+	for (i = 0; i < NUM_OF_COMPLCMD_ARRAY; i++)	{
+		if((netfn==ipmi_complcmd_array[i].netfn) && (cmd==ipmi_complcmd_array[i].cmd))	{
+			if(ipmi_complcmd_array[i].strptr) {
+				return ipmi_complcmd_array[i].strptr;
+			}
+		}
+	}
+
+	return val_to_str(ccode, ipmi_ccode_vals, "Unknown (0x%02x)");
 }
 
 static void
@@ -4052,7 +4203,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s: %s",
 				     get_netfn_cmd_text(netfn, cmd),
 				     val_to_str(netfn, ipmi_netfn_vals,	"Unknown (0x%02x)"),
-				     val_to_str(ccode, ipmi_ccode_vals,	"Unknown (0x%02x)"));
+				     get_ccode_cmd_text(netfn, cmd, ccode));
 			else
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
 				     get_netfn_cmd_text(netfn, cmd),
@@ -4250,8 +4401,9 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* completion code */
 	if (tree && response) {
-		proto_tree_add_item(ipmi_tree, hf_ipmi_msg_ccode,
-				    tvb, offset++, 1, TRUE);
+		proto_tree_add_text(ipmi_tree, tvb, offset++, 1,
+				    "Completion Code: %s (0x%02x)",
+				    get_ccode_cmd_text(netfn, cmd, ccode), ccode);
 	}
 	
 
