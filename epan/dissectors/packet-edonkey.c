@@ -1420,7 +1420,7 @@ static void dissect_emule_tcp_message(guint8 msg_type,
         case EMULE_MSG_SEC_IDENT_STATE: {
             guint32 rndchallenge;
             guint8 state = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1, "State: %u (%s needed)", state, (state == 0) ? "nothing is" : (state == 1) ? "public key is" : "public key and signature are");
+            proto_tree_add_text(tree, tvb, offset, 1, "State: %u (%s needed)", state, (state == 0) ? "nothing is" : (state == 1) ? "signature is" : "public key and signature are");
             offset++;
             rndchallenge = tvb_get_letohl(tvb, offset); 
             proto_tree_add_text(tree, tvb, offset, 4, "Rndchallenge: %u", rndchallenge);
