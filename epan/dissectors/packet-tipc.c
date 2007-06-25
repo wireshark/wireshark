@@ -6,7 +6,7 @@
  * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  * 
  * TIPCv2 protocol updates
- * Copyright 2006, Martin Peylo <martin.peylo@siemens.com>
+ * Copyright 2006-2007, Martin Peylo <martin.peylo@nsn.com>
  * 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -163,13 +163,19 @@ static gint ett_tipc = -1;
 static gint ett_tipc_data = -1;
 
 static gboolean tipc_defragment = TRUE;
-static gboolean dissect_tipc_data = FALSE;
+static gboolean dissect_tipc_data = TRUE;
 
 static gboolean extra_ethertype = FALSE;
 
 #define ETHERTYPE_TIPC2  0x0807
 
 static dissector_handle_t ip_handle;
+
+/* this is used to find encapsulated protocols */
+static dissector_table_t tipc_user_dissector;
+static dissector_table_t tipc_type_dissector;
+
+static dissector_handle_t data_handle;
 
 static proto_tree *top_tree;
 
@@ -707,13 +713,16 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user,guint8 msg_type){
 
   */
 static void
-dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size, guint8 orig_hdr_size)
+dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 orig_hdr_size)
 {
 
 	guint32 dword;
 	gchar *addr_str_ptr;
 	tvbuff_t *data_tvb;
 	guint8 message_type;
+	guint16 message_count;
+	guint msg_no = 0;
+	guint32 msg_in_bundle_size;
 
 	dword = tvb_get_ntohl(tipc_tvb,offset+8);
 	addr_str_ptr = tipc_addr_to_str(dword);
@@ -756,7 +765,36 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offs
 			/* W9 */
 			/* Message Count: 16 bits. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_msg_count, tipc_tvb, offset, 4, FALSE);
+			message_count = tvb_get_ntohs(tipc_tvb,offset);
+			/* According to the spec this should not be set here,
+			 * while there is data != 0 in this field when capturing
+			 *
+			proto_tree_add_item(tipc_tree, hf_tipcv2_link_tolerance, tipc_tvb, offset, 4, FALSE);
+			 */
 			offset = offset + 4;
+			/* This should give equal results like
+			 * while (message_count-- > 0) {*/
+			while ((guint32)offset < msg_size ){
+				msg_no++;
+
+				dword = tvb_get_ntohl(tipc_tvb, offset);
+				msg_in_bundle_size= dword & 0x1ffff;
+
+				proto_tree_add_text(tipc_tree, tipc_tvb, offset, msg_in_bundle_size,"Message %u of %u in Bundle", msg_no, message_count);
+				data_tvb = tvb_new_subset(tipc_tvb, offset, msg_in_bundle_size, msg_in_bundle_size);
+
+				/* the info column shall not be deleted by the
+				 * encapsulated messages */
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_str(pinfo->cinfo, COL_INFO, " | ");
+					col_set_fence(pinfo->cinfo, COL_INFO);
+				}
+
+				dissect_tipc(data_tvb, pinfo, tipc_tree);
+
+				/* the modulo is used to align the messages to 4 Bytes */
+				offset = offset + msg_in_bundle_size + (4-(msg_in_bundle_size%4));
+			}
 			break;
 		case TIPCv2_LINK_PROTOCOL:
 			/* W1 */
@@ -785,7 +823,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offs
 			proto_tree_add_item(tipc_tree, hf_tipcv2_session_no, tipc_tvb, offset, 4, FALSE);
 			/* Reserved: 3 bits Must be set to zero. */
 			/* the following two fields appear in this user according to */
-			/* Jon Malloy on the tipc-discussion mailing list */
+			/* Jon Maloy on the tipc-discussion mailing list */
 			/* Redundant Link: 1 bit */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_redundant_link, tipc_tvb, offset, 4, FALSE);
 			/* Bearer Identity: 3 bits */
@@ -938,7 +976,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offs
 			offset = offset + 4;
 			/* W5 */
 			/* the following two fields appear in this user according to */
-			/* Jon Malloy on the tipc-discussion mailing list */
+			/* Jon Maloy on the tipc-discussion mailing list */
 			/* Redundant Link: 1 bit */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_redundant_link, tipc_tvb, offset, 4, FALSE);
 			/* Bearer Identity: 3 bits */
@@ -1134,14 +1172,18 @@ wA:|                    multicast upper bound                      |
   */
 
 static void
-dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 user, guint32 msg_size, guint8 hdr_size, gboolean datatype_hdr)
+dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 hdr_size, gboolean datatype_hdr)
 {
 	guint32 dword;
 	gchar *addr_str_ptr;
 	guint8 opt_p;
-	proto_item	*item;
+	proto_item *item;
 	/* The unit used is 32 bit words */
 	guint8 orig_hdr_size;
+
+	guint32 type=0;
+	tvbuff_t *data_tvb;
+	gint len, reported_len;
 
 	orig_hdr_size = hdr_size;
 
@@ -1170,7 +1212,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 us
 	offset = offset + 4;
 	
 	if (!datatype_hdr){
-		dissect_tipc_v2_internal_msg(tipc_tvb, tipc_tree, offset, user, msg_size, orig_hdr_size);
+		dissect_tipc_v2_internal_msg(tipc_tvb, tipc_tree, pinfo, offset, user, msg_size, orig_hdr_size);
 		return;
 	}
 
@@ -1231,6 +1273,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 us
 			/* Transport Level Sequence Number: 32 bits */
 			/* Port Name Type: 32 bits */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_type, tipc_tvb, offset, 4, FALSE);
+			type = tvb_get_ntohl(tipc_tvb, offset);
 			offset = offset + 4;
 			
 			if (hdr_size > 9 ){
@@ -1254,9 +1297,21 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 us
 		offset = offset + (opt_p << 2);
 	}
 	/* TIPCv2 data */
-        if ( msg_size > (guint8) (orig_hdr_size<<2))
-		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"TIPCv2 data: %u bytes", (msg_size - (orig_hdr_size<<2)));
-
+	len = (msg_size - (orig_hdr_size<<2));
+	reported_len = tvb_reported_length_remaining(tipc_tvb, offset);
+	data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
+	if( dissect_tipc_data) {
+		/* This e.g. triggers if a dissectors if the 
+		 * tipc.user is just set to TIPC data */
+		if( dissector_try_port(tipc_user_dissector, user, data_tvb, pinfo, top_tree))
+			return;
+		/* XXX To make this work, it actually should be determined by
+		 * some kind of momory function which port name type a message
+		 * is going to if it is not specified explicitly in a message */
+		if( dissector_try_port(tipc_type_dissector, type, data_tvb, pinfo, top_tree))
+			return;
+	}
+	call_dissector(data_handle, data_tvb, pinfo, top_tree);
 }
 
 /*  From message.h (http://cvs.sourceforge.net/viewcvs.py/tipc/source/stable_ericsson/TIPC_SCC/src/Message.h?rev=1.2&view=markup)
@@ -1640,7 +1695,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_tipc, tipc_tvb, offset, -1, FALSE);
 	tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 	if ( version == TIPCv2){
-		dissect_tipc_v2(tipc_tvb, tipc_tree, offset, user, msg_size, hdr_size, datatype_hdr);
+		dissect_tipc_v2(tipc_tvb, tipc_tree, pinfo, offset, user, msg_size, hdr_size, datatype_hdr);
 		return;
 	}
 	/* Word 0-2 common for all messages
@@ -2329,6 +2384,18 @@ proto_register_tipc(void)
 	proto_register_field_array(proto_tipc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+/* allow other protocols to be called according to specific values in order to
+ * dissect the protocols sent by TIPC */
+
+ 	/* this allows e.g. to dissect everything which is TIPC Data */
+	tipc_user_dissector = register_dissector_table("tipc.usr",
+	    "TIPC user", FT_UINT8, BASE_DEC);
+ 	/* this allows to dissect everything which is TIPC Data and uses a specific
+	 * port name type it actually does not really work because the type is not
+	 * necessarily set in every data message */
+	tipc_type_dissector = register_dissector_table("tipcv2.port_name_type",
+	    "TIPC port name type", FT_UINT32, BASE_DEC);
+
 	register_init_routine(tipc_defragment_init);
 
 	/* Register configuration options */
@@ -2356,4 +2423,5 @@ proto_reg_handoff_tipc(void)
 		dissector_add("ethertype", ETHERTYPE_TIPC2, tipc_handle);
 	
 	ip_handle = find_dissector("ip");
+	data_handle = find_dissector("data");
 }
