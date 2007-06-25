@@ -19,7 +19,6 @@ ber: \
 	dsp	\
 	ess	\
 	ftam	\
-	ftbp	\
 	gnm	\
 	gsmmap	\
 	h248	\
@@ -109,9 +108,6 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ftam
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd ftbp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd gnm
@@ -324,11 +320,6 @@ ess::
 
 ftam::
 	cd ftam
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-ftbp::
-	cd ftbp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

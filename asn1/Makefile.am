@@ -111,12 +111,6 @@ EXTRA_DIST = \
 	ftam/Makefile.nmake	\
 	ftam/packet-ftam-template.c	\
 	ftam/packet-ftam-template.h	\
-	ftbp/ftbp.asn	\
-	ftbp/ftbp.cnf	\
-	ftbp/Makefile	\
-	ftbp/Makefile.nmake	\
-	ftbp/packet-ftbp-template.c	\
-	ftbp/packet-ftbp-template.h	\
 	gnm/GNM.asn	\
 	gnm/gnm.cnf	\
 	gnm/Makefile	\
