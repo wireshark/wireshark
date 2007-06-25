@@ -757,7 +757,7 @@ void proto_register_rose(void) {
         "q932_ros.T_linkedId", HFILL }},
     { &hf_q932_ros_linkedIdPresent,
       { "present", "q932.ros.present",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "q932_ros.T_linkedIdPresent", HFILL }},
     { &hf_q932_ros_absent,
       { "absent", "q932.ros.absent",

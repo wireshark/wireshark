@@ -646,6 +646,11 @@ class EthCtx:
       if (self.type[t]['import']):
         attr.update(self.type[t]['attr'])
         attr.update(self.eth_get_type_attr_from_all(t, self.type[t]['import']))
+      elif (self.type[t]['val'].type == 'SelectionType'):
+        val = self.type[t]['val']
+        (ftype, display) = val.eth_ftype(self)
+        attr.update({ 'TYPE' : ftype, 'DISPLAY' : display,
+                      'STRINGS' : val.eth_strings(), 'BITMASK' : '0' });
       else:
         attr.update(self.type[t]['attr'])
         attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
@@ -821,7 +826,7 @@ class EthCtx:
     self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
     self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
     self.type[ident]['ethname'] = ''
-    if val.type == 'Type_Ref':
+    if (val.type == 'Type_Ref') or (val.type == 'SelectionType') :
       self.type[ident]['attr'] = {}
     else:
       (ftype, display) = val.eth_ftype(self)
@@ -991,7 +996,7 @@ class EthCtx:
       self.type[t]['val'].eth_reg_sub(t, self, components_available=True)
 
     #--- required selection types ---------------------------
-    #print "self.sel_req_ord = ", self.sel_req_ord
+    print "self.sel_req_ord = ", self.sel_req_ord
     for t in self.sel_req_ord:
       tt = self.sel_req[t]['typ']
       if not self.type.has_key(tt):
@@ -2821,6 +2826,7 @@ class Type (Node):
     
   def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, selflag=False, idx='', parent=None):
     #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
+    if (selflag): print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
     if (ectx.Tag() and (len(self.tags) > tstrip)):
       tagged_type = TaggedType(val=self, tstrip=tstrip)
       tagged_type.AddTag(self.tags[tstrip])
@@ -2845,7 +2851,7 @@ class Type (Node):
         ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(ectx), pdu=ectx.conform.use_item('PDU', nm))
     virtual_tr = Type_Ref(val=ectx.conform.use_item('SET_TYPE', nm))
     if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
-      if ident and (ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm)):
+      if ident and (ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm) or selflag):
         if ectx.conform.check_item('SET_TYPE', nm):
           ectx.eth_reg_type(nm, virtual_tr)  # dummy Type Reference
         else:
@@ -3358,6 +3364,12 @@ class SelectionType (Type):
       return
     self.seltype = ectx.eth_sel_req(self.typ.val, self.sel)
     ectx.eth_dep_add(ident, self.seltype)
+
+  def eth_ftype(self, ectx):
+    (ftype, display) = ('FT_NONE', 'BASE_NONE')
+    if self.sel_of_typeref() and not ectx.type[self.seltype]['import']:
+      (ftype, display) = ectx.type[self.typ.val]['val'].eth_ftype_sel(self.sel, ectx)
+    return (ftype, display)
 
   def GetTTag(self, ectx):
     #print "GetTTag(%s)\n" % self.seltype;
@@ -3912,13 +3924,20 @@ class ChoiceType (Type):
     return ee
 
   def sel_req(self, ident, sel, ectx):
-    #print "sel_req(ident='%s', sel=%s)" % (ident, sel)
+    print "sel_req(ident='%s', sel=%s)\n%s" % (ident, sel, str(self))
     ee = self.sel_item(ident, sel, ectx)
     if ee:
       ee.eth_reg(ident, ectx, tstrip=0, selflag=True)
 
   def eth_ftype(self, ectx):
     return ('FT_UINT32', 'BASE_DEC')
+
+  def eth_ftype_sel(self, sel, ectx):
+    ee = self.sel_item('', sel, ectx)
+    if ee:
+      return ee.eth_ftype(ectx)
+    else:
+      return ('FT_NONE', 'BASE_NONE')
 
   def eth_strings(self):
     return '$$'
@@ -6367,7 +6386,7 @@ def p_ValueSetOptionalitySpec_1 (t):
   'ValueSetOptionalitySpec ::= OPTIONAL'
   pass
 
-def p_TypeOptionalitySpec_2 (t):
+def p_ValueSetOptionalitySpec_2 (t):
   'ValueSetOptionalitySpec ::= DEFAULT ValueSet'
   pass
 
