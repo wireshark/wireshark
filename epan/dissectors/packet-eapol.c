@@ -103,7 +103,7 @@ static const value_string eapol_keydes_type_vals[] = {
 
 #define KEY_INFO_KEYDES_VER_MASK	0x0007
 #define KEY_INFO_KEY_TYPE_MASK		0x0008
-#define KEY_INFO_KEY_INDEX_MASK		0x0030
+#define KEY_INFO_KEY_INDEX_MASK	0x0030
 #define KEY_INFO_INSTALL_MASK		0x0040
 #define KEY_INFO_KEY_ACK_MASK		0x0080
 #define KEY_INFO_KEY_MIC_MASK		0x0100
@@ -231,11 +231,13 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (eapol_data_len != 0) {
           ti = proto_tree_add_item(eapol_tree, hf_eapol_wpa_keydes_data,
           	tvb, offset, eapol_data_len, FALSE);
-	  if ((keyinfo & KEY_INFO_ENCR_KEY_DATA_MASK) &&
+	  if ((keyinfo & KEY_INFO_ENCR_KEY_DATA_MASK) ||
 	      !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
 	    /* RSN: EAPOL-Key Key Data is encrypted.
 	     * WPA: Group Keys use encrypted Key Data.
-	     * Cannot parse this without knowing the key. */
+	     * Cannot parse this without knowing the key.
+	     * IEEE 802.11i-2004 8.5.2.
+	     */
 	  } else {
 	    keydes_tree = proto_item_add_subtree(ti, ett_eapol_keydes_data);
 	    ieee_80211_add_tagged_parameters(tvb, offset, pinfo, keydes_tree,
