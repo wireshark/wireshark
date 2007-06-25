@@ -996,7 +996,7 @@ class EthCtx:
       self.type[t]['val'].eth_reg_sub(t, self, components_available=True)
 
     #--- required selection types ---------------------------
-    print "self.sel_req_ord = ", self.sel_req_ord
+    #print "self.sel_req_ord = ", self.sel_req_ord
     for t in self.sel_req_ord:
       tt = self.sel_req[t]['typ']
       if not self.type.has_key(tt):
@@ -2826,7 +2826,6 @@ class Type (Node):
     
   def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, selflag=False, idx='', parent=None):
     #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
-    if (selflag): print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
     if (ectx.Tag() and (len(self.tags) > tstrip)):
       tagged_type = TaggedType(val=self, tstrip=tstrip)
       tagged_type.AddTag(self.tags[tstrip])
@@ -3924,7 +3923,7 @@ class ChoiceType (Type):
     return ee
 
   def sel_req(self, ident, sel, ectx):
-    print "sel_req(ident='%s', sel=%s)\n%s" % (ident, sel, str(self))
+    #print "sel_req(ident='%s', sel=%s)\n%s" % (ident, sel, str(self))
     ee = self.sel_item(ident, sel, ectx)
     if ee:
       ee.eth_reg(ident, ectx, tstrip=0, selflag=True)
