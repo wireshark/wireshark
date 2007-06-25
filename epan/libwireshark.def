@@ -479,7 +479,9 @@ list_stat_cmd_args
 llc_add_oui
 LocationRejectReason_vals       DATA
 make_printable_string
+match_strrval
 match_strval
+match_strrval_idx
 match_strval_idx
 md5_append
 md5_finish
@@ -704,6 +706,7 @@ rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
 running_in_build_directory
+rval_to_str
 sccp_message_type_acro_values		DATA
 scsi_mmc_vals					DATA
 scsi_smc_vals					DATA
