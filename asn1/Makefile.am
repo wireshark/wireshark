@@ -418,6 +418,7 @@ EXTRA_DIST = \
 	x420/packet-x420-template.c	\
 	x420/packet-x420-template.h	\
 	x420/x420.asn	\
+	x420/ftbp.asn	\
 	x420/x420.cnf	\
 	x420/x420-exp.cnf	\
 	x509af/AuthenticationFramework.asn	\
