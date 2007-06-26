@@ -153,6 +153,25 @@ LifecycleState					B "2.9.3.2.7.115"	"lifecycleState(115)"
 
 
 #.NO_EMIT
+# Removed as they are giving defined but not used warnings currently.
+ComplexityLimitation
+NoSuchAction
+NoSuchEventType
+ROSEapdus
+BackUpRelationshipObject
+CapacityAlarmThreshold
+CounterThreshold
+GaugeThreshold
+GaugeThresholdValue
+GroupObjects
+LogAvailability
+PrioritisedObject
+SchedulingAvailability
+SecurityAlarmCause
+TideMarkInfo
+UnscheduledLogAvailability
+Priority
+RejectProblem
 
 #.PDU
 
