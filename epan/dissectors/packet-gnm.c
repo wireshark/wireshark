@@ -61,9 +61,6 @@ static int hf_gnm_AdministrativeState = -1;
 
 /*--- Included file: packet-gnm-hf.c ---*/
 #line 1 "packet-gnm-hf.c"
-static int hf_gnm_AdministrativeState_PDU = -1;   /* AdministrativeState */
-static int hf_gnm_ControlStatus_PDU = -1;         /* ControlStatus */
-static int hf_gnm_Packages_PDU = -1;              /* Packages */
 static int hf_gnm_SupportedTOClasses_PDU = -1;    /* SupportedTOClasses */
 static int hf_gnm_AcceptableCircuitPackTypeList_PDU = -1;  /* AcceptableCircuitPackTypeList */
 static int hf_gnm_AlarmSeverityAssignmentList_PDU = -1;  /* AlarmSeverityAssignmentList */
@@ -3242,21 +3239,6 @@ dissect_gnm_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 /*--- PDUs ---*/
 
-static void dissect_AdministrativeState_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_gnm_AdministrativeState(FALSE, tvb, 0, &asn1_ctx, tree, hf_gnm_AdministrativeState_PDU);
-}
-static void dissect_ControlStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_gnm_ControlStatus(FALSE, tvb, 0, &asn1_ctx, tree, hf_gnm_ControlStatus_PDU);
-}
-static void dissect_Packages_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_gnm_Packages(FALSE, tvb, 0, &asn1_ctx, tree, hf_gnm_Packages_PDU);
-}
 static void dissect_SupportedTOClasses_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -3499,18 +3481,6 @@ void proto_register_gnm(void) {
 
 /*--- Included file: packet-gnm-hfarr.c ---*/
 #line 1 "packet-gnm-hfarr.c"
-    { &hf_gnm_AdministrativeState_PDU,
-      { "AdministrativeState", "gnm.AdministrativeState",
-        FT_UINT32, BASE_DEC, VALS(gnm_AdministrativeState_vals), 0,
-        "gnm.AdministrativeState", HFILL }},
-    { &hf_gnm_ControlStatus_PDU,
-      { "ControlStatus", "gnm.ControlStatus",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "gnm.ControlStatus", HFILL }},
-    { &hf_gnm_Packages_PDU,
-      { "Packages", "gnm.Packages",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "gnm.Packages", HFILL }},
     { &hf_gnm_SupportedTOClasses_PDU,
       { "SupportedTOClasses", "gnm.SupportedTOClasses",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4584,9 +4554,6 @@ void proto_reg_handoff_gnm(void) {
   register_ber_oid_dissector("0.0.13.3100.0.7.67", dissect_TransmissionCharacteristics_PDU, proto_gnm, "transmissionCharacteristics(67)");
   register_ber_oid_dissector("0.0.13.3100.0.7.68", dissect_NameType_PDU, proto_gnm, "managedElementComplexId(68)");
   register_ber_oid_dissector("0.0.13.3100.0.7.69", dissect_SerialNumber_PDU, proto_gnm, "serialNumber(69)");
-  register_ber_oid_dissector("2.9.3.2.7.31", dissect_AdministrativeState_PDU, proto_gnm, "administrativeState(31)");
-  register_ber_oid_dissector("2.9.3.2.7.34", dissect_ControlStatus_PDU, proto_gnm, "controlStatus(34)");
-  register_ber_oid_dissector("2.9.3.2.7.66", dissect_Packages_PDU, proto_gnm, "packages(66)");
   register_ber_oid_dissector("2.9.2.12.7.7", dissect_SupportedTOClasses_PDU, proto_gnm, "supportedTOClasses(7)");
 
 

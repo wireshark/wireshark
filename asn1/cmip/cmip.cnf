@@ -44,24 +44,112 @@ Attribute
 RDNSequence
 
 #.REGISTER
+BaseManagedObjectId				B "2.9.2.21.7.13"	"BaseManagedObjectId(13)"
 # X.721
-LogRecordId				B "2.9.3.2.7.3"  "logRecordId(3)"
-SystemId				B "2.9.3.2.7.4"  "systemId(4)"
-SystemTitle				B "2.9.3.2.7.5"  "systemTitle(5)"
-AdditionalText			B "2.9.3.2.7.7"  "additionalText(7)"
-BackedUpStatus			B "2.9.3.2.7.11"  "backedUpStatus(11)"
-# Currently in the GNM dissector
-#AdministrativeState	B "2.9.3.2.7.31" "administrativeState(31)"
-#ControlStatus			B "2.9.3.2.7.34" "controlStatus(34)"
-UsageState				B "2.9.3.2.7.39" "usageState(39)"
-OperationalState		B "2.9.3.2.7.35" "operationalState(35)"
-Allomorphs				B "2.9.3.2.7.50" "allomorphs(50)"
-Destination				B "2.9.3.2.7.55" "destination(55)"
-DiscriminatorConstruct	B "2.9.3.2.7.56" "discriminatorConstruct(56)"
-NameBinding				B "2.9.3.2.7.63" "nameBinding(63)"
-ObjectClass				B "2.9.3.2.7.65" "objectClass(65)"
-# Currently in the GNM dissector
-#Packages				B "2.9.3.2.7.66""packages(66)"
+# discriminatorId(1)
+# logId(2)
+LogRecordId						B "2.9.3.2.7.3"		"logRecordId(3)"
+SystemId						B "2.9.3.2.7.4"		"systemId(4)"
+SystemTitle						B "2.9.3.2.7.5"		"systemTitle(5)"
+AdditionalInformation			B "2.9.3.2.7.6"		"additionalInformation(6)"
+AdditionalText					B "2.9.3.2.7.7"		"additionalText(7)"
+AttributeIdentifierList			B "2.9.3.2.7.8"		"attributeIdentifierList(8)"
+AttributeList					B "2.9.3.2.7.9"		"attributeList(9)"
+AttributeValueChangeDefinition	B "2.9.3.2.7.10"	"attributeValueChangeDefinition(10)"
+BackedUpStatus					B "2.9.3.2.7.11"	"backedUpStatus(11)"
+CorrelatedNotifications			B "2.9.3.2.7.12"	"correlatedNotifications(12)"
+EventTime						B "2.9.3.2.7.13"	"eventTime(13)"
+# eventType(14)
+MonitoredAttributes				B "2.9.3.2.7.15"	"monitoredAttributes(15)"
+# notificationIdentifier(16)    -- notificationIdentifier attribute type  
+# perceivedSeverity(17)
+ProbableCause					B "2.9.3.2.7.18"	"probableCause(18)"
+ProposedRepairActions			B "2.9.3.2.7.19"	"proposedRepairActions(19)"
+# relationshipChangeDefinition(20)
+# securityAlarmCause(21)
+SecurityAlarmDetector			B "2.9.3.2.7.22"	"securityAlarmDetector(22)"
+SecurityAlarmSeverity			B "2.9.3.2.7.23"	"securityAlarmSeverity(23)"
+ServiceProvider					B "2.9.3.2.7.24"	"serviceProvider(24)"
+# serviceUser(25)
+SourceIndicator					B "2.9.3.2.7.26"	"sourceIndicator(26)"
+SpecificProblems				B "2.9.3.2.7.27"	"specificProblems(27)"
+# stateChangeDefinition(28)
+ThresholdInfo					B "2.9.3.2.7.29"	"thresholdInfo(29)"
+TrendIndication					B "2.9.3.2.7.30"	"trendIndication(30)"
+AdministrativeState				B "2.9.3.2.7.31"	"administrativeState(31)"
+AlarmStatus						B "2.9.3.2.7.32"	"alarmStatus(32)"
+# availabilityStatus(33)
+ControlStatus					B "2.9.3.2.7.34"	"controlStatus(34)"
+OperationalState				B "2.9.3.2.7.35"	"operationalState(35)"
+ProceduralStatus				B "2.9.3.2.7.36"	"proceduralStatus(36)"
+StandbyStatus					B "2.9.3.2.7.37"	"standbyStatus(37)"
+UnknownStatus					B "2.9.3.2.7.38"	"unknownStatus(38)"
+UsageState						B "2.9.3.2.7.39"	"usageState(39)"
+# backUpObject(40)    -- backUpObject attribute type  
+# backedUpObject(41)    -- backedUpObject attribute type  
+# member(42)    -- member attribute type  
+# owner(43)    -- owner attribute type  
+# peer(44)    -- peer attribute type  
+# primary(45)    -- primary attribute type  
+# providerObject(46)    -- providerObject attribute type  
+# secondary(47)    -- secondary attribute type  
+# userObject(48)    -- userObject attribute type  
+ActiveDestination				B "2.9.3.2.7.49"	"activeDestination(49)"
+Allomorphs						B "2.9.3.2.7.50"	"allomorphs(50)"
+BackUpDestinationList			B "2.9.3.2.7.51"	"backUpDestinationList(51)"
+# capacityAlarmTreshold(52)
+ConfirmedMode					B "2.9.3.2.7.53"	"confirmedMode(53)"
+CurrentLogSize					B "2.9.3.2.7.54"	"currentLogSize(54)"
+Destination						B "2.9.3.2.7.55"	"destination(55)"
+DiscriminatorConstruct			B "2.9.3.2.7.56"	"discriminatorConstruct(56)"
+# intervalsOfDay(57)
+LogFullAction					B "2.9.3.2.7.58"	"logFullAction(58)"
+LoggingTime						B "2.9.3.2.7.59"	"loggingTime(59)"
+# managedObjectClass(60)
+# managedObjectInstance(61)
+MaxLogSize						B "2.9.3.2.7.62"	"maxLogSize(62)"
+NameBinding						B "2.9.3.2.7.63"	"nameBinding(63)"
+NumberOfRecords					B "2.9.3.2.7.64"	"numberOfRecords(64)"
+ObjectClass						B "2.9.3.2.7.65"	"objectClass(65)"
+Packages						B "2.9.3.2.7.66"	"packages(66)"
+# schedulerName(67)
+StartTime						B "2.9.3.2.7.68"	"startTime(68)"
+StopTime						B "2.9.3.2.7.69"	"stopTime(69)"
+SupportedFeatures				B "2.9.3.2.7.70"	"supportedFeatures(70)"
+WeekMask						B "2.9.3.2.7.71"	"weekMask(71)"
+# corruptedPDUsReceivedCounter(72)    -- corruptedPDUsReceivedCounter attribute type  
+# incomingConnectionRejectErrorCounter(73)    -- incomingConnectionRejectErrorCounte...  
+# incomingConnectionRequestsCounter(74)    -- incomingConnectionRequestsCounter attr...  
+# incomingDisconnectCounter(75)    -- incomingDisconnectCounter attribute type  
+# ncomingDisconnectErrorCounter(76)    -- ncomingDisconnectErrorCounter attribute ty...  
+# incomingProtocolErrorCounter(77)    -- incomingProtocolErrorCounter attribute type  
+# octetsReceivedCounter(78)    -- octetsReceivedCounter attribute type  
+# octetsRetransmittedErrorCounter(79)    -- octetsRetransmittedErrorCounter attribut...  
+# octetsSentCounter(80)    -- octetsSentCounter attribute type  
+# outgoingConnectionRejectErrorCounter(81)    -- outgoingConnectionRejectErrorCounte...  
+# outgoingConnectionRequestsCounter(82)    -- outgoingConnectionRequestsCounter attr...  
+# outgoingDisconnectCounter(83)    -- outgoingDisconnectCounter attribute type  
+# outgoingDisconnectErrorCounter(84)    -- outgoingDisconnectErrorCounter attribute ...  
+# outgoingProtocolErrorCounter(85)    -- outgoingProtocolErrorCounter attribute type  
+# pdusReceivedCounter(86)    -- pdusReceivedCounter attribute type (PDU: Protocol Da...  
+# pdusRetransmittedErrorCounter(87)    -- pdusRetransmittedErrorCounter attribute ty...  
+# pdusSentCounter(88)    -- pdusSentCounter attribute type (PDU: Protocol Data Unit)  
+# corruptedPDUsReceivedThreshold(89)    -- corruptedPDUsReceivedThreshold attribute ...  
+# incomingConnectionRejectErrorThreshold(90)    -- incomingConnectionRejectErrorThre...  
+# incomingConnectionRequestsThreshold(91)    -- incomingConnectionRequestsThreshold ...  
+# incomingDisconnectErrorThreshold(92)    -- incomingDisconnectErrorThreshold attrib...  
+# incomingProtocolErrorThreshold(93)    -- incomingProtocolErrorThreshold attribute ...  
+# octetsReceivedThreshold(94)    -- octetsReceivedThreshold attribute type  
+# octetsRetransmittedThreshold(95)    -- octetsRetransmittedThreshold attribute type  
+# octetsSentThreshold(96)    -- octetsSentThreshold attribute type  
+# outgoingConnectionRejectErrorThreshold(97)    -- outgoingConnectionRejectErrorThre...  
+# outgoingConnectionRequestsThreshold(98)    -- outgoingConnectionRequestsThreshold ...  
+# outgoingDisconnectErrorThreshold(99)    -- outgoingDisconnectErrorThreshold attrib...  
+# outgoingProtocolErrorThreshold(100)    -- outgoingProtocolErrorThreshold attribute...  
+# pdusReceivedThreshold(101)    -- pdusReceivedThreshold attribute type (PDU: Protoc...  
+# pdusRetransmittedErrorThreshold(102)    -- pdusRetransmittedErrorThreshold attribu...  
+# pdusSentThreshold(103)    -- pdusSentThreshold attribute type (PDU: Protocol Data ...  
+LifecycleState					B "2.9.3.2.7.115"	"lifecycleState(115)"
 
 
 #.NO_EMIT

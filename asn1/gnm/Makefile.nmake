@@ -8,7 +8,7 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=gnm
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
-
+ASN_FILES= ../x721/Attribute-ASN1Module.asn
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
