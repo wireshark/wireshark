@@ -150,6 +150,7 @@ static const value_string auth_vals[] = {
 
 #define OSPF_LSA_HEADER_LENGTH	20
 
+#define OSPF_DNA_LSA            0x8000
 /* Known opaque LSAs */
 #define OSPF_LSA_MPLS_TE        1
 
@@ -193,13 +194,13 @@ static const value_string v3_ls_type_vals[] = {
 static const value_string lls_tlv_type_vals[] = {
 	{1,                                   "Extended options TLV"         },
 	{2,                                   "Crypo Authentication TLV"     },
-	{0,                                   NULL                           },
+	{0,                                   NULL                           }
 };
 
 static const value_string mpls_link_stlv_ltype_str[] = {
     {1, "Point-to-point"},
     {2, "Multi-access"},
-    {0, NULL},
+    {0, NULL}
 };
 
 /* FF: from www.iana.org/assignments/bandwidth-constraints-model-ids */
@@ -720,7 +721,7 @@ static hf_register_info ospff_info[] = {
        TFS(&tfs_v3_prefix_options_mc), OSPF_V3_PREFIX_OPTION_MC, "", HFILL }},
     {&ospf_filter[OSPFF_V3_PREFIX_OPTION_P],
      { "P", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
-       TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, "", HFILL }},
+       TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, "", HFILL }}
 };
 
 static guint8 ospf_msg_type_to_filter (guint8 msg_type)
@@ -2113,7 +2114,9 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "LS Age: %u seconds",
-			tvb_get_ntohs(tvb, offset));
+			tvb_get_ntohs(tvb, offset) & ~OSPF_DNA_LSA);
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "Do Not Age: %s",
+			(tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
     dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb,
 			offset + 3, 1, FALSE);
@@ -2408,7 +2411,9 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "LS Age: %u seconds",
-			tvb_get_ntohs(tvb, offset));
+			tvb_get_ntohs(tvb, offset) & ~OSPF_DNA_LSA);
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "Do Not Age: %s",
+			(tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "LSA Type: 0x%04x (%s)",
 			ls_type, val_to_str(ls_type, v3_ls_type_vals,"Unkown"));
