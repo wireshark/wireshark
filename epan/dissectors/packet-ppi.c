@@ -59,6 +59,8 @@
 #include <wiretap/wtap-capture.h>
 
 #include "packet-frame.h"
+#include "packet-eth.h"
+#include "packet-ieee80211.h"
 
 /*
  * Per-Packet Information (PPI) header.
@@ -360,14 +362,51 @@ static void
 dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 void
-capture_ppi(const guchar *pd _U_, int offset, int len, packet_counts *ld)
+capture_ppi(const guchar *pd, int len, packet_counts *ld)
 {
-    if(!BYTES_ARE_IN_FRAME(offset, len, PPI_V0_HEADER_LEN)) {
-        ld->other ++;
+    guint32 dlt;
+    guint ppi_len, data_type, data_len;
+    guint offset = PPI_V0_HEADER_LEN;
+    gboolean is_htc = FALSE;
+
+    ppi_len = pletohs(pd+2);
+    if(ppi_len < PPI_V0_HEADER_LEN || !BYTES_ARE_IN_FRAME(0, len, ppi_len)) {
+        ld->other++;
         return;
     }
 
-    /* call appropriate capture_* routine */
+    dlt = pletohl(pd+4);
+
+    /* Figure out if we're +HTC */
+    while (offset < ppi_len) {
+        data_type = pletohs(pd+offset);
+        data_len = pletohs(pd+offset+2) + 4;
+        offset += data_len;
+
+        if (data_type == PPI_80211N_MAC || data_type == PPI_80211N_MAC_PHY) {
+            is_htc = TRUE;
+            break;
+        }
+    }
+
+    /* XXX - We should probably combine this with capture_info.c:capture_info_packet() */
+    switch(dlt) {
+        case 1: /* DLT_EN10MB */
+            capture_eth(pd, ppi_len, len, ld);
+            return;
+            break;
+        case 105: /* DLT_DLT_IEEE802_11 */
+            if (is_htc)
+                capture_ieee80211_ht(pd, ppi_len, len, ld);
+            else
+                capture_ieee80211(pd, ppi_len, len, ld);
+            return;
+            break;
+        default:
+            break;
+    }
+
+    ld->other++;
 }
 
 static void ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_val) {
