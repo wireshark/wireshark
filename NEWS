@@ -71,7 +71,7 @@ What's New
        matching the delta time between the current and previous
        captured packet. A new filter, frame.time_delta_displayed,
        matches the delta time between the current and previous
-       displayed frame.
+       displayed packet.
 
   New and Updated Features
 
@@ -79,26 +79,61 @@ What's New
    updated) since the last release:
 
      o You no longer have to restart Wireshark after changing column
-       preferences.
+       preferences. Woohoo!
 
      o You can now export HTTP objects via
        File->Export->Objects->HTTP.
 
-     o Wireshark now supports display filter macros
-
      o [8]Display filter macros are now supported.
+
+     o Right-clicking on a packet lets you copy many more things,
+       such as the packet summary and the packet bytes.
 
      o You can now match upper- and lower-case text with the contains
        operator, e.g. upper(http.request.method) contains "GET".
 
      o A great deal of code has been cleaned up, including fixing
-       many compiler errors.
+       many compiler errors. Many thanks to those who worked on this.
 
   New Protocol Support
 
+   AMQP (Advanced Message Queueing Protocol), BCTP Q.1990, Borland
+   StarTeam, Cisco ERSPAN, CTDB (Cluster TDB), DRDA (Distributed
+   Relational Database Architecture), DTPT (DeskTop PassThrough),
+   EPMD (Erlang Port Mapper Daemon), FCoE (Fibre Channel over
+   Ethernet), Firebird/Interbase (replaces the old Interbase
+   dissector), FMP (File Mapping Protocol), H.248.10, H.248.7,
+   IPsec/ISAKMP over TCP, Kingfisher, MIKEY (Multimedia Internet
+   KEYing), MPEG, NSRP (Juniper Netscreen Redundant Protocol), OpcUa
+   Binary Protocol, PPI (Per-Packet Information header), Q.932, QSIG,
+   TAPA (Trapeze Access Point Access Protocol), WiMAX, WiMAX M2M
+
   Updated Protocol Support
 
+   ACSE, AFP, AMR, ANSI IS-801, ANSI MAP, ARP, ASAP, ASN.1 BER, ASN.1
+   PER, AVS WLANCAP, BSSAP, BSSGP, BVLC, Camel, CDT, CIP, CMS, COPS,
+   CPFI, DCCP, DCERPC (DCERPC, ATSVC, DFS, EFS, EVENTLOG,
+   INITSHUTDOWN, NDR, NETLOGON, NSPI, NT, PNIO, SAMR, SPOOLSS,
+   SRVSVC, WINREG, WKSSVC, WZCSVC), DCOM (DCOM, CBA, CBA-ACCO), DCP
+   ETSI, DCP, DCT2000, DHCP, DIAMETER, DMP, DNP, DTLS, EDP, ENRP,
+   EPL, ERF, FCELS, Fibre Channel, FTAM, FTBP, FW-1, GIOP, GSM MAP,
+   GTP, H.223, H.225, H.235, H.245, H.248, H.263, HTTP, IAX2, IEEE
+   802.11, IGRP, INAP, IP, IPsec, IPv6, iSCSI, ISUP, IUA, IuUP,
+   Juniper, JXTA, K12, Kerberos, L2TP, LDAP, LLDP, LWAPP, M3UA,
+   MEGACO, MIP, MMS, MP2T, MTP3, NBAP, NDMP, Netflow, NFS, NT SONMP,
+   OICQ, OSPF, PANA, PN-PTCP, PPP, P_Mul, Radiotap, RADIUS
+   (Packetcable), RANAP, Redback, RNSAP, RRLP, RSVP, RTCP, RTP, RX,
+   SCCP, SCSI (SCSI, MMC, OSD, SBC, SMC, SSC), SCTP, SDP, SIGCOMP,
+   SIP, Skinny, SliMP3, SLL, SMB PIPE, SMB, SMB2, SMPP, SNMP, SPNEGO,
+   SSCOP, SSL, STUN, SUA, Symantec, Syslog, TACACS, TCAP, TCP, TFTP,
+   UDLD, UDP, ULP, UMA, UMTS (UMTS, FP, RRC), USB, VNC, WCP, WLCCP,
+   X.25, X.411, X.509, YMSG
+
   New and Updated Capture File Support
+
+   DCT2000, Endace ERF, iSeries, K12, MPEG Audio (yes, this means you
+   can open .mp3 files in Wireshark), NetMon, pppdump, snoop (Shomiti
+   wireless packets), Visual Networks, Windows Sniffer (NetXRay)
 
 Getting Wireshark
 
