@@ -3,7 +3,7 @@
  * Copyright 2007, Stephen Fisher <stephentfisher@yahoo.com>
  *
  * $Id$
- * 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -110,13 +110,13 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	while(slist) {
 		entry = slist->data;
-		
+
 		g_free(entry->hostname);
 		g_free(entry->content_type);
 		g_free(entry->filename);
 		g_free(entry->payload_data);
-		
-		slist = slist->next; 
+
+		slist = slist->next;
        		g_free(entry);
 	}
 
@@ -124,33 +124,37 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
    	g_free(object_list);
 }
 
-static void
-eo_save_entry(gchar *save_as_filename, export_object_entry_t *entry)
+static gboolean
+eo_save_entry(gchar *save_as_filename, export_object_entry_t *entry, gboolean show_err)
 {
 	int to_fd;
 
 	to_fd = eth_open(save_as_filename, O_WRONLY | O_CREAT | O_EXCL |
 			 O_BINARY, 0644);
 	if(to_fd == -1) { /* An error occurred */
-		open_failure_alert_box(save_as_filename, errno, TRUE);
+		if (show_err)
+			open_failure_alert_box(save_as_filename, errno, TRUE);
 		g_free(save_as_filename);
-		return;
+		return FALSE;
 	}
 
 	if(eth_write(to_fd, entry->payload_data, entry->payload_len) < 0) {
-		write_failure_alert_box(save_as_filename, errno);
+		if (show_err)
+			write_failure_alert_box(save_as_filename, errno);
 		eth_close(to_fd);
 		g_free(save_as_filename);
-		return;
+		return FALSE;
 	}
 
 	if (eth_close(to_fd) < 0) {
-		write_failure_alert_box(save_as_filename, errno);
+		if (show_err)
+			write_failure_alert_box(save_as_filename, errno);
 		g_free(save_as_filename);
-		return;
+		return FALSE;
 	}
 
 	g_free(save_as_filename);
+	return TRUE;
 }
 
 
@@ -179,7 +183,7 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 					  entry->filename);
 
 	if(gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT)
-		eo_save_entry(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w)), entry);
+		eo_save_entry(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w)), entry, TRUE);
 
 	window_destroy(save_as_w);
 }
@@ -192,6 +196,7 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	export_object_entry_t *entry;
 	GtkWidget *save_in_w;
 	GSList *slist = object_list->entries;
+	gboolean all_saved = TRUE;
 
 	save_in_w = file_selection_new("Wireshark: Save All Objects In ...",
 				       FILE_SELECTION_CREATE_FOLDER);
@@ -204,12 +209,17 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 			entry = slist->data;
 
 			save_as_fullpath = g_build_filename(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_in_w)), entry->filename, NULL);
-			
-			eo_save_entry(save_as_fullpath, entry);
+
+			if (!eo_save_entry(save_as_fullpath, entry, FALSE))
+				all_saved = FALSE;
 
 			slist = slist->next;
 		}
 	}
+
+	if (!all_saved)
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "Some files could not be saved.");
 
 	window_destroy(save_in_w);
 }
@@ -236,7 +246,7 @@ eo_draw(void *tapdata)
 
 	while(slist) {
 		eo_entry = slist->data;
-		
+
 		gtk_tree_store_append(object_list->store, &new_iter,
 				      object_list->iter);
 
