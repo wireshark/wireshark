@@ -6588,13 +6588,29 @@ def set_type_to_class(cls, fld, pars):
   typename = 'OpenType'
   if (len(pars) > 0):
     typename = pars[0]
+  else:
+    pars.append(typename)
   typeref = None
   if (len(pars) > 1):
+    if (isinstance(pars[1], Class_Ref)):
+      pars[1] = pars[1].val
     typeref = pars[1]
 
-  if object_class_types.has_key(key): return False
-  if object_class_typerefs.has_key(key): return False
-  if object_class_classrefs.has_key(key): return False
+  msg = None
+  if object_class_types.has_key(key): 
+    msg = object_class_types[key]().type
+  if object_class_typerefs.has_key(key):
+    msg = "TypeReference " + object_class_typerefs[key]
+  if object_class_classrefs.has_key(key):
+    msg = "ClassReference " + object_class_classrefs[key]
+
+  if msg == ' '.join(pars): 
+    msg = None
+
+  if msg:
+    msg0 = "Can not define CLASS field %s as '%s'\n" % (key, ' '.join(pars))
+    msg1 = "Already defined as '%s'" % (msg)
+    raise msg0 + msg1
 
   if (typename == 'ClassReference'):
     if not typeref: return False
