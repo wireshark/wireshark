@@ -122,7 +122,8 @@ extern "C" {
  * AIRPDCAP_SHA_DIGEST_LEN characters that will contain a part of the key
  */
 static INT AirPDcapRsnaPwd2PskStep(
-    CHAR *password,
+    const guint8 *ppbytes,
+    const guint passLength,
     const CHAR *ssid,
     const size_t ssidLength,
     const INT iterations,
@@ -143,7 +144,7 @@ static INT AirPDcapRsnaPwd2PskStep(
  * Described in 802.11i-2004, page 165
  */
 static INT AirPDcapRsnaPwd2Psk(
-    CHAR *password,
+    const CHAR *passphrase,
     const CHAR *ssid,
     const size_t ssidLength,
     UCHAR *output)
@@ -1258,7 +1259,8 @@ AirPDcapRsnaPrfX(
 
 static INT
 AirPDcapRsnaPwd2PskStep(
-    CHAR *password,
+    const guint8 *ppBytes,
+    const guint ppLength,
     const CHAR *ssid,
     const size_t ssidLength,
     const INT iterations,
@@ -1274,13 +1276,13 @@ AirPDcapRsnaPwd2PskStep(
     digest[ssidLength+1] = (UCHAR)((count>>16) & 0xff);
     digest[ssidLength+2] = (UCHAR)((count>>8) & 0xff);
     digest[ssidLength+3] = (UCHAR)(count & 0xff);
-    sha1_hmac((UCHAR *)password, strlen(password), digest, ssidLength+4, digest1);
+    sha1_hmac(ppBytes, ppLength, digest, ssidLength+4, digest1);
 
     /* output = U1 */
     memcpy(output, digest1, AIRPDCAP_SHA_DIGEST_LEN);
     for (i = 1; i < iterations; i++) {
         /* Un = PRF(P, Un-1) */
-        sha1_hmac((UCHAR *)password, strlen(password), digest1, AIRPDCAP_SHA_DIGEST_LEN, digest);
+        sha1_hmac(ppBytes, ppLength, digest1, AIRPDCAP_SHA_DIGEST_LEN, digest);
 
         memcpy(digest1, digest, AIRPDCAP_SHA_DIGEST_LEN);
         /* output = output xor Un */
@@ -1294,21 +1296,26 @@ AirPDcapRsnaPwd2PskStep(
 
 static INT
 AirPDcapRsnaPwd2Psk(
-    CHAR *password,
+    const CHAR *passphrase,
     const CHAR *ssid,
     const size_t ssidLength,
     UCHAR *output)
 {
     UCHAR m_output[AIRPDCAP_WPA_PSK_LEN];
+    GByteArray *pp_ba = g_byte_array_new();
 
     memset(m_output, 0, AIRPDCAP_WPA_PSK_LEN);
 
-    memset(m_output, 0, 40);
+    if (!uri_str_to_bytes(passphrase, pp_ba)) {
+        g_byte_array_free(pp_ba, TRUE);
+        return 0;
+    }
 
-    AirPDcapRsnaPwd2PskStep(password, ssid, ssidLength, 4096, 1, m_output);
-    AirPDcapRsnaPwd2PskStep(password, ssid, ssidLength, 4096, 2, &m_output[AIRPDCAP_SHA_DIGEST_LEN]);
+    AirPDcapRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 1, m_output);
+    AirPDcapRsnaPwd2PskStep(pp_ba->data, pp_ba->len, ssid, ssidLength, 4096, 2, &m_output[AIRPDCAP_SHA_DIGEST_LEN]);
 
     memcpy(output, m_output, AIRPDCAP_WPA_PSK_LEN);
+    g_byte_array_free(pp_ba, TRUE);
 
     return 0;
 }
