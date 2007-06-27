@@ -891,7 +891,7 @@ dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
    }
 
    offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
-                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
+	                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
 
 
 
@@ -917,6 +917,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	fragment_data *frag_msg = NULL;
 	guint32 fragment_length;
 	guint32 rtse_id = 0;
+	gboolean data_handled = FALSE;
 	conversation_t *conversation = NULL;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -960,7 +961,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						     frag_msg, &rtse_frag_items, NULL, parent_tree);
 	}
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_rtse, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_rtse, next_tvb ? next_tvb : tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_rtse);
 	}
 	if (rtse_reassemble && session->spdu_type == SES_DATA_TRANSFER) {
@@ -968,22 +969,24 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE Fragment]");
 
 		/* strip off the OCTET STRING encoding - including any CONSTRUCTED OCTET STRING */
-		offset = dissect_ber_octet_string(FALSE, &asn1_ctx, NULL, tvb, offset, 0, &data_tvb);
+		dissect_ber_octet_string(FALSE, &asn1_ctx, NULL, tvb, offset, 0, &data_tvb);
 
-
-		fragment_length = tvb_length_remaining (data_tvb, 0);
-		proto_tree_add_text(tree, data_tvb, 0, (fragment_length) ? -1 : 0,
-				    "RTSE segment data (%u byte%s)", fragment_length,
-                                    plurality(fragment_length, "", "s"));
-		frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo, 
-						  rtse_id, rtse_segment_table,
-						  rtse_reassembled_table, fragment_length, TRUE);
-		if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
-			/* Add a "Reassembled in" link if not reassembled in this frame */
-			proto_tree_add_uint (tree, *(rtse_frag_items.hf_reassembled_in),
-					     data_tvb, 0, 0, frag_msg->reassembled_in);
+		if (data_tvb) {
+			fragment_length = tvb_length_remaining (data_tvb, 0);
+			proto_tree_add_text(tree, data_tvb, 0, (fragment_length) ? -1 : 0,
+					    "RTSE segment data (%u byte%s)", fragment_length,
+      	                              plurality(fragment_length, "", "s"));
+			frag_msg = fragment_add_seq_next (data_tvb, 0, pinfo, 
+							  rtse_id, rtse_segment_table,
+							  rtse_reassembled_table, fragment_length, TRUE);
+			if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
+				/* Add a "Reassembled in" link if not reassembled in this frame */
+				proto_tree_add_uint (tree, *(rtse_frag_items.hf_reassembled_in),
+						     data_tvb, 0, 0, frag_msg->reassembled_in);
+			}
+			pinfo->fragmented = TRUE;
+			data_handled = TRUE;
 		}
-		pinfo->fragmented = TRUE;
 	} else if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
 		if (next_tvb) {
 			/* ROS won't do this for us */
@@ -993,7 +996,10 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			offset = tvb_length (tvb);
 		}
 		pinfo->fragmented = FALSE;
-	} else {
+		data_handled = TRUE;
+	} 
+
+	if (!data_handled) {
 		while (tvb_reported_length_remaining(tvb, offset) > 0){
 			old_offset=offset;
 			offset=dissect_rtse_RTSE_apdus(TRUE, tvb, offset, &asn1_ctx, tree, -1);
@@ -1178,7 +1184,7 @@ void proto_register_rtse(void) {
         "rtse.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 313 "packet-rtse-template.c"
+#line 319 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1202,7 +1208,7 @@ void proto_register_rtse(void) {
     &ett_rtse_T_encoding,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 322 "packet-rtse-template.c"
+#line 328 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;
