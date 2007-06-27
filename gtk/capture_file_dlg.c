@@ -1213,6 +1213,11 @@ set_file_type_list(GtkWidget *option_menu)
 
   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), ft_menu);
   gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), item_to_select);
+  /* Manually call the signal handler to activate the first menu item
+   * since gtk_option_menu_set_history() doesn't do it for us. The first two
+   * entries in the wiretap file types are placeholders so we start at #2, which
+   * is the normal libpcap format. */
+  select_file_type_cb(NULL, GINT_TO_POINTER(2));
 }
 
 static void
@@ -1224,7 +1229,8 @@ select_file_type_cb(GtkWidget *w _U_, gpointer data)
   if (filetype != new_filetype) {
     filetype = new_filetype;
     compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
-    gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
+    if(compressed_cb)
+	    gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
   }
 }
 
