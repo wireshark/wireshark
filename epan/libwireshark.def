@@ -527,6 +527,7 @@ prefs_register_modules
 prefs_register_obsolete_preference
 prefs_register_protocol
 prefs_register_range_preference
+prefs_register_static_text_preference
 prefs_register_string_preference
 prefs_register_uint_preference
 prefs_set_pref
