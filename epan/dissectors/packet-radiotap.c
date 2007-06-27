@@ -70,6 +70,26 @@ struct ieee80211_radiotap_header {
 #define RADIOTAP_LENGTH_OFFSET	2	/* offset of length field */
 #define RADIOTAP_PRESENT_OFFSET	4	/* offset of "present" field */
 
+/*
+ * AAAAAAAAAAAAAAAAAAAAAAAAAARGH.
+ *
+ * The current FreeBSD ieee80211_radiotap.h has IEEE80211_RADIOTAP_XCHANNEL
+ * as 14.
+ *
+ * The current NetBSD ieee80211_radiotap.h has IEEE80211_RADIOTAP_RX_FLAGS
+ * as 14.
+ *
+ * The current OpenBSD ieee80211_radiotap.h has IEEE80211_RADIOTAP_FCS as
+ * 14.
+ *
+ * NetBSD and OpenBSD also differ on what comes *after* 14.
+ *
+ * They all use the same DLT_ value for "802.11+radiotap".
+ *
+ * This is all wonderfully appreciated by those of us who write code to
+ * read files containing packets with radiotap headers.  I will see if
+ * I can apply a little cluebat-fu here.
+ */
 enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_TSFT = 0,
     IEEE80211_RADIOTAP_FLAGS = 1,
