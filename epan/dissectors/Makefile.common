@@ -940,6 +940,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pkinit.h	\
 	packet-pktc.h	\
 	packet-portmap.h	\
+	packet-ppi.h		\
 	packet-ppp.h	\
 	packet-pres.h	\
 	packet-prism.h	\
