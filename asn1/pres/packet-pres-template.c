@@ -64,9 +64,9 @@ static guint32 presentation_context_identifier;
 
 /* to keep track of presentation context identifiers and protocol-oids */
 typedef struct _pres_ctx_oid_t {
-	/* XXX here we should keep track of conversation as well */
 	guint32 ctx_id;
 	char *oid;
+	guint32 index;
 } pres_ctx_oid_t;
 static GHashTable *pres_ctx_oid_table = NULL;
 
@@ -90,13 +90,13 @@ pres_ctx_oid_hash(gconstpointer k)
 	pres_ctx_oid_t *pco=(pres_ctx_oid_t *)k;
 	return pco->ctx_id;
 }
-/* XXX this one should be made ADDRESS/PORT aware */
+
 static gint
 pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 {
 	pres_ctx_oid_t *pco1=(pres_ctx_oid_t *)k1;
 	pres_ctx_oid_t *pco2=(pres_ctx_oid_t *)k2;
-	return pco1->ctx_id==pco2->ctx_id;
+	return (pco1->ctx_id==pco2->ctx_id && pco1->index==pco2->index);
 }
 
 static void
@@ -115,16 +115,23 @@ static void
 register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 {
 	pres_ctx_oid_t *pco, *tmppco;
-	pco=se_alloc(sizeof(pres_ctx_oid_t));
-	pco->ctx_id=idx;
+	conversation_t *conversation;
 
 	if(!oid){
 		/* we did not get any oid name, malformed packet? */
-		pco->oid=NULL;
 		return;
 	}
 
+	pco=se_alloc(sizeof(pres_ctx_oid_t));
+	pco->ctx_id=idx;
 	pco->oid=se_strdup(oid);
+	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation) {
+		pco->index = conversation->index;
+	} else {
+		pco->index = 0;
+	}
 
 	/* if this ctx already exists, remove the old one first */
 	tmppco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, pco);
@@ -138,7 +145,17 @@ char *
 find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 {
 	pres_ctx_oid_t pco, *tmppco;
+	conversation_t *conversation;
+
 	pco.ctx_id=idx;
+	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	if (conversation) {
+		pco.index = conversation->index;
+	} else {
+		pco.index = 0;
+	}
+
 	tmppco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, &pco);
 	if(tmppco){
 		return tmppco->oid;
