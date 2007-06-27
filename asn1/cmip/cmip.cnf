@@ -42,12 +42,18 @@ ObjectInstance
 ObjectClass
 Attribute
 RDNSequence
+# X.721
+ProbableCause
+AdministrativeState
+AvailabilityStatus
+AttributeList
+AdditionalInformation
 
 #.REGISTER
 BaseManagedObjectId				B "2.9.2.21.7.13"	"BaseManagedObjectId(13)"
 # X.721
-# discriminatorId(1)
-# logId(2)
+SimpleNameType					B "2.9.3.2.7.1"		"discriminatorId(1)"
+SimpleNameType					B "2.9.3.2.7.2"		"logId(2)"
 LogRecordId						B "2.9.3.2.7.3"		"logRecordId(3)"
 SystemId						B "2.9.3.2.7.4"		"systemId(4)"
 SystemTitle						B "2.9.3.2.7.5"		"systemTitle(5)"
@@ -59,60 +65,60 @@ AttributeValueChangeDefinition	B "2.9.3.2.7.10"	"attributeValueChangeDefinition(
 BackedUpStatus					B "2.9.3.2.7.11"	"backedUpStatus(11)"
 CorrelatedNotifications			B "2.9.3.2.7.12"	"correlatedNotifications(12)"
 EventTime						B "2.9.3.2.7.13"	"eventTime(13)"
-# eventType(14)
+EventTypeId						B "2.9.3.2.7.14"	"eventType(14)"
 MonitoredAttributes				B "2.9.3.2.7.15"	"monitoredAttributes(15)"
-# notificationIdentifier(16)    -- notificationIdentifier attribute type  
-# perceivedSeverity(17)
+NotificationIdentifier			B "2.9.3.2.7.16"	"notificationIdentifier(16)"      
+PerceivedSeverity				B "2.9.3.2.7.17"	"perceivedSeverity(17)"
 ProbableCause					B "2.9.3.2.7.18"	"probableCause(18)"
 ProposedRepairActions			B "2.9.3.2.7.19"	"proposedRepairActions(19)"
-# relationshipChangeDefinition(20)
-# securityAlarmCause(21)
+AttributeValueChangeDefinition	B "2.9.3.2.7.20"	"relationshipChangeDefinition(20)"
+SecurityAlarmCause				B "2.9.3.2.7.21"	"securityAlarmCause(21)"
 SecurityAlarmDetector			B "2.9.3.2.7.22"	"securityAlarmDetector(22)"
 SecurityAlarmSeverity			B "2.9.3.2.7.23"	"securityAlarmSeverity(23)"
 ServiceProvider					B "2.9.3.2.7.24"	"serviceProvider(24)"
-# serviceUser(25)
+ServiceUser						B "2.9.3.2.7.25"	"serviceUser(25)"
 SourceIndicator					B "2.9.3.2.7.26"	"sourceIndicator(26)"
 SpecificProblems				B "2.9.3.2.7.27"	"specificProblems(27)"
-# stateChangeDefinition(28)
+AttributeValueChangeDefinition	B "2.9.3.2.7.28"	"stateChangeDefinition(28)"
 ThresholdInfo					B "2.9.3.2.7.29"	"thresholdInfo(29)"
 TrendIndication					B "2.9.3.2.7.30"	"trendIndication(30)"
 AdministrativeState				B "2.9.3.2.7.31"	"administrativeState(31)"
 AlarmStatus						B "2.9.3.2.7.32"	"alarmStatus(32)"
-# availabilityStatus(33)
+AvailabilityStatus				B "2.9.3.2.7.33"	"availabilityStatus(33)"
 ControlStatus					B "2.9.3.2.7.34"	"controlStatus(34)"
 OperationalState				B "2.9.3.2.7.35"	"operationalState(35)"
 ProceduralStatus				B "2.9.3.2.7.36"	"proceduralStatus(36)"
 StandbyStatus					B "2.9.3.2.7.37"	"standbyStatus(37)"
 UnknownStatus					B "2.9.3.2.7.38"	"unknownStatus(38)"
 UsageState						B "2.9.3.2.7.39"	"usageState(39)"
-# backUpObject(40)    -- backUpObject attribute type  
-# backedUpObject(41)    -- backedUpObject attribute type  
-# member(42)    -- member attribute type  
-# owner(43)    -- owner attribute type  
-# peer(44)    -- peer attribute type  
-# primary(45)    -- primary attribute type  
-# providerObject(46)    -- providerObject attribute type  
-# secondary(47)    -- secondary attribute type  
-# userObject(48)    -- userObject attribute type  
+BackUpRelationshipObject		B "2.9.3.2.7.40"	"backUpObject(40)"    
+BackUpRelationshipObject		B "2.9.3.2.7.41"	"backedUpObject(41)"      
+GroupObjects					B "2.9.3.2.7.42"	"member(42)"      
+GroupObjects					B "2.9.3.2.7.43"	"owner(43)"      
+BackUpRelationshipObject		B "2.9.3.2.7.44"	"peer(44)"      
+PrioritisedObject				B "2.9.3.2.7.45"	"primary(45)"      
+PrioritisedObject				B "2.9.3.2.7.46"	"providerObject(46)"      
+PrioritisedObject				B "2.9.3.2.7.47"	"secondary(47)"      
+PrioritisedObject				B "2.9.3.2.7.48"	"userObject(48)"      
 ActiveDestination				B "2.9.3.2.7.49"	"activeDestination(49)"
 Allomorphs						B "2.9.3.2.7.50"	"allomorphs(50)"
 BackUpDestinationList			B "2.9.3.2.7.51"	"backUpDestinationList(51)"
-# capacityAlarmTreshold(52)
+CapacityAlarmThreshold			B "2.9.3.2.7.52"	"capacityAlarmTreshold(52)"
 ConfirmedMode					B "2.9.3.2.7.53"	"confirmedMode(53)"
 CurrentLogSize					B "2.9.3.2.7.54"	"currentLogSize(54)"
 Destination						B "2.9.3.2.7.55"	"destination(55)"
 DiscriminatorConstruct			B "2.9.3.2.7.56"	"discriminatorConstruct(56)"
-# intervalsOfDay(57)
+IntervalsOfDay					B "2.9.3.2.7.57"	"intervalsOfDay(57)"
 LogFullAction					B "2.9.3.2.7.58"	"logFullAction(58)"
 LoggingTime						B "2.9.3.2.7.59"	"loggingTime(59)"
-# managedObjectClass(60)
-# managedObjectInstance(61)
+#ObjectClass					B "2.9.3.2.7.60"	"managedObjectClass(60)"
+#ObjectInstance					B "2.9.3.2.7.61"	"managedObjectInstance(61)"
 MaxLogSize						B "2.9.3.2.7.62"	"maxLogSize(62)"
 NameBinding						B "2.9.3.2.7.63"	"nameBinding(63)"
 NumberOfRecords					B "2.9.3.2.7.64"	"numberOfRecords(64)"
 ObjectClass						B "2.9.3.2.7.65"	"objectClass(65)"
 Packages						B "2.9.3.2.7.66"	"packages(66)"
-# schedulerName(67)
+#ObjectInstance					B "2.9.3.2.7.66"	"schedulerName(67)"
 StartTime						B "2.9.3.2.7.68"	"startTime(68)"
 StopTime						B "2.9.3.2.7.69"	"stopTime(69)"
 SupportedFeatures				B "2.9.3.2.7.70"	"supportedFeatures(70)"
@@ -152,26 +158,19 @@ WeekMask						B "2.9.3.2.7.71"	"weekMask(71)"
 LifecycleState					B "2.9.3.2.7.115"	"lifecycleState(115)"
 
 
-#.NO_EMIT
-# Removed as they are giving defined but not used warnings currently.
-ComplexityLimitation
-NoSuchAction
-NoSuchEventType
+#.OMIT_ASSIGNMENT
+# Removed as they are giving 'defined but not used' warnings currently.
 ROSEapdus
-BackUpRelationshipObject
-CapacityAlarmThreshold
 CounterThreshold
 GaugeThreshold
 GaugeThresholdValue
-GroupObjects
 LogAvailability
-PrioritisedObject
 SchedulingAvailability
-SecurityAlarmCause
 TideMarkInfo
 UnscheduledLogAvailability
 Priority
 RejectProblem
+
 
 #.PDU
 
@@ -203,8 +202,14 @@ SetArgument/modificationList/_item/attributeValue attributevalue
 
 #.FN_BODY Code/local  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
-  if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%%d"));
+  if(opcode_type== OPCODE_RETURN_ERROR){
+	if(check_col(actx->pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%%d"));
+	}
+  }else{
+	if(check_col(actx->pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(opcode, cmip_error_code_vals, " Unknown Opcode:%%d"));
+	}
   }
 #.END
 
@@ -328,7 +333,73 @@ SetArgument/modificationList/_item/attributeValue attributevalue
   /*XXX add more types here */
  
 #.FN_BODY ReturnError/parameter
-/* TODO: add code here */
+
+    switch(opcode){
+	case 19: /* classInstanceConflict */
+		dissect_cmip_BaseManagedObjectId(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 20:  /* complexityLimitation */
+		dissect_cmip_ComplexityLimitation(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 11: /* duplicateManagedObjectInstance */
+		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 7: /*  getListError */
+		dissect_cmip_GetListError(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 15: /* invalidArgumentValue */
+		dissect_cmip_InvalidArgumentValue(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 6: /* invalidAttributeValue */ 
+		dissect_cmip_Attribute(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 4: /* invalidFilter */ 
+		dissect_cmip_CMISFilter(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 17: /* invalidObjectInstance */
+		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 16: /* invalidScope */ 
+		dissect_cmip_Scope(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 18: /* missingAttributeValue */
+		/* Hmmm  SET OF AttributeId */
+		dissect_cmip_AttributeId(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 9: /* noSuchAction */ 
+		dissect_cmip_NoSuchAction(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 14: /* noSuchArgument */
+		dissect_cmip_NoSuchArgument(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 5: /* noSuchAttribute */
+		dissect_cmip_AttributeId(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 13: /* noSuchEventType */
+		dissect_cmip_NoSuchEventType(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 22: /* noSuchInvokeId */
+		dissect_cmip_InvokeIDType(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 0: /* noSuchObjectClass */
+		dissect_cmip_ObjectClass(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 1:/* noSuchObjectInstance */
+		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 12: /* noSuchReferenceObject */
+		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 10: /* processingFailure OPTIONAL   TRUE*/
+		dissect_cmip_ProcessingFailure(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 8: /* setListError */
+		dissect_cmip_SetListError(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	case 3:/* syncNotSupported */
+		dissect_cmip_CMISSync(FALSE, tvb,  offset, actx, tree, -1);
+		break;
+	}
 
 #.FN_HDR ObjectClass/globalForm
   objectclassform = OBJECTCLASS_GLOBAL_FORM;

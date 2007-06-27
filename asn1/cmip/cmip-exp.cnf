@@ -20,6 +20,11 @@ ObjectInstance           BER_CLASS_ANY/*choice*/ -1/*choice*/
 RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CMIPAbortInfo            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CMIPUserInfo             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+AdditionalInformation    BER_CLASS_UNI BER_UNI_TAG_SET
+AdministrativeState      BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
+AttributeList            BER_CLASS_UNI BER_UNI_TAG_SET
+AvailabilityStatus       BER_CLASS_UNI BER_UNI_TAG_SET
+ProbableCause            BER_CLASS_ANY/*choice*/ -1/*choice*/
 ROS                      BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END
 
@@ -31,6 +36,11 @@ ObjectInstance           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(c
 RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 CMIPAbortInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CMIPUserInfo             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+AdditionalInformation    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+AdministrativeState      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_AdministrativeState_vals)  BITMASK = 0
+AttributeList            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+AvailabilityStatus       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+ProbableCause            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ProbableCause_vals)  BITMASK = 0
 ROS                      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ROS_vals)  BITMASK = 0
 #.END
 

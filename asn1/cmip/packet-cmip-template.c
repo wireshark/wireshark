@@ -82,6 +82,34 @@ static const value_string cmip_Opcode_vals[] = {
   { 0, NULL }
 };
 
+static const value_string cmip_error_code_vals[] = {
+  {   0, "noSuchObjectClass" },
+  {   1, "noSuchObjectInstance" },
+  {   2, "accessDenied" },
+  {   3, "syncNotSupported" },
+  {   4, "invalidFilter" },
+  {   5, "noSuchAttribute" },
+  {   6, "invalidAttributeValue" },
+  {   7, "getListError" },
+  {   8, "setListError" },
+  {   9, "noSuchAction" },
+  {  10, "processingFailure" },
+  {  11, "duplicateManagedObjectInstance" },
+  {  12, "noSuchReferenceObject" },
+  {  13, "noSuchEventType" },
+  {  14, "noSuchArgument" },
+  {  15, "invalidArgumentValue" },
+  {  16, "invalidScope" },
+  {  17, "invalidObjectInstance" },
+  {  18, "missingAttributeValue" },
+  {  19, "classInstanceConflict" },
+  {  20, "complexityLimitation" },
+  {  21, "mistypedOperation" },
+  {  22, "noSuchInvokeId" },
+  {  23, "operationCancelled" },
+  { 0, NULL }
+};
+
 static int opcode_type;
 #define OPCODE_INVOKE        1
 #define OPCODE_RETURN_RESULT 2
