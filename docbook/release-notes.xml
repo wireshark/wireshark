@@ -184,10 +184,6 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          Wireshark now supports display filter macros.
-        </para></listitem>
-
-        <listitem><para>
           <ulink url="http://www.wireshark.org/docs/wsug_html_chunked/ChDisplayFilterMacrosSection.html">Display
           filter macros</ulink> are now supported.
         </para></listitem>

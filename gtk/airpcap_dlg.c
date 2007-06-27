@@ -605,8 +605,13 @@ on_airpcap_advanced_destroy(GtkWidget *w _U_, gpointer data _U_)
 /*
  * Callback for the 'Apply' button.
  */
+/*
+ * XXX - Pressing 'Apply' has the same effect as pressing 'OK' -- you
+ * can't revert back to the old set of keys by pressing 'Cancel'.  We
+ * either need to fix reversion or get rid of the 'Apply' button.
+ */
 void
-on_key_management_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     /* advenced window */
     GtkWidget	*key_management_w;
@@ -614,17 +619,16 @@ on_key_management_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
     /* widgets in the toolbar */
     GtkWidget	*toolbar;
     GtkWidget *toolbar_cm;
-
     GtkWidget   *key_ls;
-
     GtkWidget   *decryption_en;
 
     char* decryption_mode_string = NULL;
+    module_t *wlan_module = prefs_find_module("wlan");
 
     /* retrieve main window */
     key_management_w      = GTK_WIDGET(data);
     decryption_en         = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY));
-    key_ls	              = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY));
+    key_ls                = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY));
     toolbar               = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_TOOLBAR_KEY));
     toolbar_cm            = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
@@ -656,7 +660,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
     update_decryption_mode_cm(toolbar_cm);
 
     /* Redissect all the packets, and re-evaluate the display filter. */
-/** cf_redissect_packets(&cfile); **/
+    prefs_apply(wlan_module);
 }
 /*
  * Callback for the Wireless Advanced Settings 'Apply' button.
@@ -2908,53 +2912,16 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
  * Callback for the OK button 'clicked' in the Decryption Key Management window.
  */
 void
-on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
+on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 {
     /* advenced window */
     GtkWidget	*key_management_w;
 
-    /* widgets in the toolbar */
-    GtkWidget	*toolbar;
-    GtkWidget   *toolbar_cm;
-
-    GtkWidget   *key_ls;
-
-    GtkWidget   *decryption_en;
-
-    char* decryption_mode_string = NULL;
-
     /* retrieve main window */
     key_management_w      = GTK_WIDGET(data);
-    decryption_en         = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_WEP_DECRYPTION_KEY));
-    key_ls	              = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_ADVANCED_KEYLIST_KEY));
-    toolbar               = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_TOOLBAR_KEY));
-    toolbar_cm            = GTK_WIDGET(OBJECT_GET_DATA(key_management_w,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
-    /* Set the Decryption Mode */
-    if (g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
-    {
-        set_wireshark_decryption(TRUE);
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
-    }
-    else if (g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
-    {
-        set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(TRUE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
-    }
-    else if (g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
-    {
-        set_wireshark_decryption(FALSE);
-        if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
-    }
-
-    /* Save the configuration */
-    airpcap_read_and_save_decryption_keys_from_clist(key_ls,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
-
-    /* The update will make redissect al the packets... no need to do it here again */
-    update_decryption_mode_cm(toolbar_cm);
-
-    /* Redissect all the packets, and re-evaluate the display filter. */
-/** cf_redissect_packets(&cfile); **/
+    /* Apply the current decryption preferences */
+    on_key_management_apply_bt_clicked(button, data);
 
     /* Save the preferences to preferences file!!! */
     write_prefs_to_file();

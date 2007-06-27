@@ -46,6 +46,7 @@
 #include <epan/dissectors/packet-fddi.h>
 #include <epan/dissectors/packet-fr.h>
 #include <epan/dissectors/packet-null.h>
+#include <epan/dissectors/packet-ppi.h>
 #include <epan/dissectors/packet-ppp.h>
 #include <epan/dissectors/packet-raw.h>
 #include <epan/dissectors/packet-sll.h>
@@ -327,6 +328,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
       break;
     case WTAP_ENCAP_ENC:
       capture_enc(pd, caplen, counts);
+      break;
+    case WTAP_ENCAP_PPI:
+      capture_ppi(pd, caplen, counts);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;

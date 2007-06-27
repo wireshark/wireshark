@@ -2060,7 +2060,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 				/* Assume that we have a malformed packet. */
 				THROW(ReportedBoundsError);
 			}
-			imp_tag = TRUE;
+			imp_tag = FALSE;
 			if ((cset->flags & BER_FLAGS_IMPLTAG))
 				imp_tag = TRUE;
 			count=cset->func(imp_tag, next_tvb, 0, actx, tree, *cset->p_id);
