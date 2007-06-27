@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-s4406.c                                                           */
+/* ./packet-s4406.c                                                           */
 /* ../../tools/asn2wrs.py -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
@@ -88,6 +88,7 @@ static int hf_s4406_SecurityInformationLabels_PDU = -1;  /* SecurityInformationL
 static int hf_s4406_PriorityLevelQualifier_PDU = -1;  /* PriorityLevelQualifier */
 static int hf_s4406_mm = -1;                      /* IPM */
 static int hf_s4406_mn = -1;                      /* IPN */
+static int hf_s4406_ExemptedAddressSeq_item = -1;  /* ExemptedAddress */
 static int hf_s4406_sics = -1;                    /* SEQUENCE_OF_Sic */
 static int hf_s4406_sics_item = -1;               /* Sic */
 static int hf_s4406_dist_Extensions = -1;         /* SEQUENCE_OF_DistributionExtensionField */
@@ -133,6 +134,7 @@ static gint ett_s4406 = -1;
 /*--- Included file: packet-s4406-ett.c ---*/
 #line 1 "packet-s4406-ett.c"
 static gint ett_s4406_InformationObject = -1;
+static gint ett_s4406_ExemptedAddressSeq = -1;
 static gint ett_s4406_DistributionCodes = -1;
 static gint ett_s4406_SEQUENCE_OF_Sic = -1;
 static gint ett_s4406_SEQUENCE_OF_DistributionExtensionField = -1;
@@ -234,12 +236,19 @@ dissect_s4406_ExemptedAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
+static int dissect_ExemptedAddressSeq_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_s4406_ExemptedAddress(FALSE, tvb, offset, actx, tree, hf_s4406_ExemptedAddressSeq_item);
+}
 
 
+static const ber_old_sequence_t ExemptedAddressSeq_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ExemptedAddressSeq_item },
+};
 
 static int
 dissect_s4406_ExemptedAddressSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_s4406_ExemptedAddress(implicit_tag, tvb, offset, actx, tree, hf_index);
+  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                          ExemptedAddressSeq_sequence_of, hf_index, ett_s4406_ExemptedAddressSeq);
 
   return offset;
 }
@@ -1049,7 +1058,7 @@ void proto_register_s4406(void) {
         "s4406.MMMessageParameters", HFILL }},
     { &hf_s4406_ExemptedAddressSeq_PDU,
       { "ExemptedAddressSeq", "s4406.ExemptedAddressSeq",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "s4406.ExemptedAddressSeq", HFILL }},
     { &hf_s4406_ExemptedAddress_PDU,
       { "ExemptedAddress", "s4406.ExemptedAddress",
@@ -1143,6 +1152,10 @@ void proto_register_s4406(void) {
       { "mn", "s4406.mn",
         FT_NONE, BASE_NONE, NULL, 0,
         "x420.IPN", HFILL }},
+    { &hf_s4406_ExemptedAddressSeq_item,
+      { "Item", "s4406.ExemptedAddressSeq_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s4406.ExemptedAddress", HFILL }},
     { &hf_s4406_sics,
       { "sics", "s4406.sics",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1291,6 +1304,7 @@ void proto_register_s4406(void) {
 /*--- Included file: packet-s4406-ettarr.c ---*/
 #line 1 "packet-s4406-ettarr.c"
     &ett_s4406_InformationObject,
+    &ett_s4406_ExemptedAddressSeq,
     &ett_s4406_DistributionCodes,
     &ett_s4406_SEQUENCE_OF_Sic,
     &ett_s4406_SEQUENCE_OF_DistributionExtensionField,

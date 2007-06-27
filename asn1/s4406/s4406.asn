@@ -57,7 +57,7 @@ MMMessageParameters ::= MessageParameters
 --	VALUE SEQUENCE OF ExemptedAddress
 --	::= id-nato-mmhs-mm-exempted-address
 
-ExemptedAddressSeq ::= ExemptedAddress
+ExemptedAddressSeq ::= SEQUENCE OF ExemptedAddress
 
 ExemptedAddress ::= ORDescriptor
 
