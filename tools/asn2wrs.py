@@ -251,7 +251,7 @@ reserved_words = {
 #  'IMPLIED'     : 'IMPLIED',
   'IMPORTS'     : 'IMPORTS',
   'INCLUDES'    : 'INCLUDES',
-#  'INSTANCE'    : 'INSTANCE',
+  'INSTANCE'    : 'INSTANCE',
   'INTEGER'     : 'INTEGER',
   'INTERSECTION' : 'INTERSECTION',
   'MAX'         : 'MAX',
@@ -4358,6 +4358,35 @@ class OpenType (Type):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- InstanceOfType -----------------------------------------------------------
+class InstanceOfType (Type):
+  def eth_tname(self):
+    return 'INSTANCE_OF'
+
+  def eth_ftype(self, ectx):
+    return ('FT_NONE', 'BASE_NONE')
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_EXTERNAL')
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    if ectx.default_external_type_cb:
+      pars['TYPE_REF_FN'] = ectx.default_external_type_cb
+    else:
+      pars['TYPE_REF_FN'] = 'NULL'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):  
+      body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+    elif (ectx.Per()):
+      body = '#error Can not decode %s' % (tname)
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
 #--- AnyType -----------------------------------------------------------
 class AnyType (Type):
   def to_python (self, ctx):
@@ -5304,6 +5333,7 @@ def p_BuiltinType (t):
                  | EmbeddedPDVType
                  | EnumeratedType
                  | ExternalType
+                 | InstanceOfType
                  | IntegerType
                  | NullType
                  | ObjectClassFieldType
@@ -5333,7 +5363,8 @@ def p_NamedType (t):
 # 16.7
 def p_Value (t):
   '''Value : BuiltinValue
-           | ReferencedValue'''
+           | ReferencedValue
+           | ObjectClassFieldValue'''
   t[0] = t[1]
 
 # 16.9
@@ -5629,7 +5660,8 @@ def p_DefaultValue_1 (t):
                   | RealValue
                   | hex_string
                   | binary_string
-                  | char_string'''
+                  | char_string
+                  | ObjectClassFieldValue'''
   t[0] = t[1]
 
 def p_DefaultValue_2 (t):
@@ -5668,16 +5700,15 @@ def p_SequenceOfType (t):
 
 # 26.1
 def p_SetType_1 (t):
-    'SetType : SET LBRACE RBRACE'
-    if t[3].has_key('ext_list'):
-        t[0] = SetType (elt_list = [])
+  'SetType : SET LBRACE RBRACE'
+  t[0] = SetType (elt_list = [])
 
 def p_SetType_2 (t):
-    'SetType : SET LBRACE ComponentTypeLists RBRACE'
-    if t[3].has_key('ext_list'):
-        t[0] = SetType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
-    else:
-        t[0] = SetType (elt_list = t[3]['elt_list'])
+  'SetType : SET LBRACE ComponentTypeLists RBRACE'
+  if t[3].has_key('ext_list'):
+    t[0] = SetType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
+  else:
+    t[0] = SetType (elt_list = t[3]['elt_list'])
 
 
 # 27 Notation for set-of types ------------------------------------------------
@@ -6391,8 +6422,8 @@ def p_ValueSetOptionalitySpec_2 (t):
 
 # 9.11
 def p_ObjectFieldSpec (t):
-  '''ObjectFieldSpec : lcasefieldreference CLASS_IDENT
-                     | lcasefieldreference CLASS_IDENT ObjectOptionalitySpec '''
+  '''ObjectFieldSpec : lcasefieldreference DefinedObjectClass
+                     | lcasefieldreference DefinedObjectClass ObjectOptionalitySpec '''
   t[0] = ObjectFieldSpec(cls=t[2])
   t[0].SetName(t[1])
 
@@ -6406,8 +6437,8 @@ def p_ObjectOptionalitySpec_2 (t):
 
 # 9.12
 def p_ObjectSetFieldSpec (t):
-  '''ObjectSetFieldSpec : ucasefieldreference CLASS_IDENT
-                        | ucasefieldreference CLASS_IDENT ObjectSetOptionalitySpec '''
+  '''ObjectSetFieldSpec : ucasefieldreference DefinedObjectClass
+                        | ucasefieldreference DefinedObjectClass ObjectSetOptionalitySpec '''
   t[0] = ObjectSetFieldSpec(cls=t[2])
   t[0].SetName(t[1])
 
@@ -6473,13 +6504,35 @@ def p_ObjectClassFieldType (t):
   'ObjectClassFieldType : DefinedObjectClass DOT FieldName'
   t[0] = get_type_from_class(t[1], t[3])
 
-# 15 Information from objects
+# 14.6
+def p_ObjectClassFieldValue (t):
+  '''ObjectClassFieldValue : OpenTypeFieldVal'''
+  t[0] = t[1]
+
+def p_OpenTypeFieldVal (t):
+  '''OpenTypeFieldVal : Type COLON Value
+                      | NullType COLON NullValue'''
+  t[0] = t[3]
+
+
+# 15 Information from objects -------------------------------------------------
 
 # 15.1
 
 def p_ValueFromObject (t):
   'ValueFromObject : LCASE_IDENT DOT FieldName'
   t[0] = t[1] + '.' + t[3]
+
+
+# Annex C - The instance-of type ----------------------------------------------
+
+# C.2
+def p_InstanceOfType (t):
+  'InstanceOfType : INSTANCE OF DefinedObjectClass'
+  t[0] = InstanceOfType()
+
+
+# ---  tables ---
 
 useful_object_class_types = {
   # Annex A
