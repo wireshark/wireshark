@@ -172,7 +172,6 @@ EXTRA_DIST = \
 	ldap/Makefile.nmake	\
 	ldap/packet-ldap-template.c	\
 	ldap/packet-ldap-template.h	\
-	ldap/README	\
 	logotype-cert-extn/LogotypeCertExtn.asn	\
 	logotype-cert-extn/logotype-cert-extn.cnf	\
 	logotype-cert-extn/Makefile	\
