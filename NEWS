@@ -33,17 +33,17 @@ What's New
      o Wireshark could loop excessively while reading a malformed SSL
        packet. (Bug [5]1582)
 
-       Versions affected: ?
+       Versions affected: 0.8.20 to 0.99.5
 
      o The DHCP/BOOTP dissector was susceptible to an off-by-one
        error. (Bug [6]1416)
 
-       Versions affected: ?
+       Versions affected: 0.10.17 to 0.99.5
 
      o Wireshark could loop excessively while reading a malformed MMS
-       packet. (Bug [7]1382)
+       packet. (Bug [7]1342)
 
-       Versions affected: ?
+       Versions affected: 0.10.12 to 0.99.5
 
    The following bugs have been fixed:
 
@@ -182,7 +182,7 @@ References
    4. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1264
    5. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1582
    6. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1416
-   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1382
+   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1342
    8. http://www.wireshark.org/docs/wsug_html_chunked/ChDisplayFilterMacrosSection.html
    9. http://www.wireshark.org/download.html
   10. http://www.wireshark.org/download.html#otherplat

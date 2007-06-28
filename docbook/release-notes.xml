@@ -78,10 +78,10 @@ Wireshark Info
           <para>
             Wireshark could loop excessively while reading a malformed SSL
             packet.
-            <!-- Fixed in r? -->
+            <!-- Fixed in r21665 -->
             (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1582">1582</ulink>)
           </para>
-          <para>Versions affected: ?</para>
+          <para>Versions affected: 0.8.20 to 0.99.5</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
@@ -93,7 +93,7 @@ Wireshark Info
             <!-- Fixed in r21947 -->
             (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1416">1416</ulink>)
           </para>
-          <para>Versions affected: ?</para>
+          <para>Versions affected: 0.10.17 to 0.99.5</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
@@ -104,9 +104,9 @@ Wireshark Info
             Wireshark could loop excessively while reading a malformed MMS
             packet.
             <!-- Fixed in r21392 -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1382">1382</ulink>)
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1342">1342</ulink>)
           </para>
-          <para>Versions affected: ?</para>
+          <para>Versions affected: 0.10.12 to 0.99.5</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
