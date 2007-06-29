@@ -288,8 +288,8 @@ reserved_words = {
 }
 
 for k in static_tokens.keys():
-    if static_tokens [k] == None:
-        static_tokens [k] = k
+  if static_tokens [k] == None:
+    static_tokens [k] = k
 
 StringTypes = ['Numeric', 'Printable', 'IA5', 'BMP', 'Universal', 'UTF8',
                'Teletex', 'T61', 'Videotex', 'Graphic', 'ISO646', 'Visible',
@@ -674,6 +674,32 @@ class EthCtx:
       val = self.all_vals[module][nm]
     return val
 
+
+  def get_obj_repr(self, ident, restr):
+    obj = { '_name' : ident, '_ident' : asn2c(ident)}
+    obj['_class'] = self.oassign[ident].cls
+    val = self.oassign[ident].val
+    fld = None
+    fld_neg = False
+    if len(restr) > 0:
+      fld = restr[0]
+      if fld[0] == '!':
+        fld_neg = True
+        fld = fld[1:]
+    if fld:
+      if fld_neg:
+        if val.has_key(fld):
+          return None
+      else:
+        if not val.has_key(fld):
+          return None
+    for f in val.keys():
+      if isinstance(val[f], Node):
+        obj[f] = val[f].fld_obj_repr(self)
+      else:
+        obj[f] = str(val[f])
+    return obj
+
   #--- eth_reg_module -----------------------------------------------------------
   def eth_reg_module(self, module):
     #print "eth_reg_module(module='%s')" % (module)
@@ -722,6 +748,16 @@ class EthCtx:
     self.vassign_ord.append(ident)
     if  (self.exports_all):
       self.vexports.append(ident)
+
+  #--- eth_reg_oassign --------------------------------------------------------
+  def eth_reg_oassign(self, oassign):
+    ident = oassign.ident
+    #print "eth_reg_oassign(ident='%s')" % (ident)
+    if self.oassign.has_key(ident):
+      raise "Duplicate information object assignment for " + ident
+    self.oassign[ident] = oassign
+    self.oassign_ord.append(ident)
+    self.oassign_cls.setdefault(oassign.cls, []).append(ident)
 
   #--- eth_import_type --------------------------------------------------------
   def eth_import_type(self, ident, mod, proto):
@@ -924,6 +960,9 @@ class EthCtx:
     self.objectclass = {}
     self.objectclass_ord = []
     self.objectclass_imp = []
+    self.oassign = {}
+    self.oassign_ord = []
+    self.oassign_cls = {}
     #--- Modules ------------
     self.modules = []
     self.exports_all = False
@@ -1731,6 +1770,38 @@ class EthCtx:
     fx.write('\n')
     self.output.file_close(fx, discard=fempty)
 
+  #--- eth_output_table -----------------------------------------------------
+  def eth_output_table(self):
+    for num in self.conform.report.keys():
+      fx = self.output.file_open('table' + num)
+      for rep in self.conform.report[num]:
+        if rep['type'] == 'HDR':
+          fx.write('\n')
+        if rep['var']:
+          var = rep['var']
+          var_list = var.split('.')
+          cls = var_list[0]
+          del var_list[0]
+          if (self.oassign_cls.has_key(cls)):
+            for ident in self.oassign_cls[cls]:
+             obj = self.get_obj_repr(ident, var_list)
+             if not obj:
+               continue
+             obj['_LOOP'] = var
+             obj['_DICT'] = str(obj)
+             try:
+               text = rep['text'] % obj
+             except (KeyError):
+               raise sys.exc_type, "%s:%s invalid key %s for information object %s of %s" % (rep['fn'], rep['lineno'], sys.exc_value, ident, var)
+             fx.write(text)
+          else:
+            fx.write("/* Unknown or empty loop list %s */\n" % (var))
+        else:
+          fx.write(rep['text'])
+        if rep['type'] == 'FTR':
+          fx.write('\n')
+      self.output.file_close(fx)
+
   #--- dupl_report -----------------------------------------------------
   def dupl_report(self):
     # types
@@ -1765,6 +1836,9 @@ class EthCtx:
       print "\n# Value assignments"
       for a in self.vassign_ord:
         print ' ', a
+      print "\n# Information object assignments"
+      for a in self.oassign_ord:
+        print " %-12s (%s)" % (a, self.oassign[a].cls)
     if self.dbg('t'):
       print "\n# Imported Types"
       print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
@@ -1860,6 +1934,7 @@ class EthCtx:
     self.eth_output_dis_hnd()
     self.eth_output_dis_reg()
     self.eth_output_dis_tab()
+    self.eth_output_table()
 
   def dbg_modules(self):
     def print_mod(m):
@@ -1898,6 +1973,7 @@ class EthCnf:
     self.table = {}
     self.order = {}
     self.fn = {}
+    self.report = {}
     self.suppress_line = False
     self.include_path = []
     #                                   Value name             Default value       Duplicity check   Usage check
@@ -2092,7 +2168,8 @@ class EthCnf:
       return par
 
     f = open(fn, "r")
-    directive = re.compile(r'^\s*#\.(?P<name>[A-Z_]+)\s+')
+    directive = re.compile(r'^\s*#\.(?P<name>[A-Z_][A-Z_0-9]*)\s+')
+    report = re.compile(r'^TABLE(?P<num>\d*)_(?P<type>HDR|BODY|FTR)$')
     comment = re.compile(r'^\s*#[^.]')
     empty = re.compile(r'^\s*$')
     lineno = 0
@@ -2118,6 +2195,7 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
+        rep_result = report.search(result.group('name'))
         if result.group('name') == 'END_OF_CNF':
           f.close()
         elif result.group('name') == 'OPT':
@@ -2220,6 +2298,20 @@ class EthCnf:
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
           self.update_item('ASSIGNED_ID', 'OBJECT_IDENTIFIER', ids={par[0] : par[0]}, fn=fn, lineno=lineno)
+        elif rep_result:  # Reports
+          num = rep_result.group('num')
+          type = rep_result.group('type')
+          if type == 'BODY':
+            par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
+            if not par: continue
+          else:
+            par = get_par(line[result.end():], 0, 0, fn=fn, lineno=lineno)
+          rep = { 'type' : type, 'var' : None, 'text' : '', 'fn' : fn, 'lineno' : lineno }
+          if len(par) > 0:
+            rep['var'] = par[0]
+          self.report.setdefault(num, []).append(rep)
+          ctx = 'TABLE'
+          name = num
         elif result.group('name') == 'INCLUDE':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: 
@@ -2403,6 +2495,8 @@ class EthCnf:
         if not set_type_to_class(name, par[0], par[1:]):
           warnings.warn_explicit("Could not set type of class member %s.&%s to %s" % (name, par[0], par[1]),
                                   UserWarning, fn, lineno)
+      elif ctx == 'TABLE':
+        self.report[name][-1]['text'] += line
 
   def set_opt(self, opt, par, fn, lineno):
     #print "set_opt: %s, %s" % (opt, par)
@@ -2703,7 +2797,7 @@ class Node:
         l.append ("".join (map (lambda (k,v): self.str_child (k, v, depth + 1),
                                 self.__dict__.items ())))
         return "\n".join (l)
-    def __str__(self):
+    def __repr__(self):
         return "\n" + self.str_depth (0)
     def to_python (self, ctx):
         return self.str_depth (ctx.indent_lev)
@@ -2711,8 +2805,11 @@ class Node:
     def eth_reg(self, ident, ectx):
         pass
 
-#--- value_assign -------------------------------------------------------------
-class value_assign (Node):
+    def fld_obj_repr(self, ectx):
+        return "/* TO DO %s */" % (str(self))
+
+#--- ValueAssignment -------------------------------------------------------------
+class ValueAssignment (Node):
   def __init__(self,*args, **kw) :
     Node.__init__ (self,*args, **kw)
 
@@ -2720,6 +2817,15 @@ class value_assign (Node):
     if ectx.conform.omit_assignment('V', self.ident, ectx.Module()): return # Assignment to omit
     ectx.eth_reg_vassign(self)
     ectx.eth_reg_value(self.ident, self.typ, self.val)
+
+#--- ObjectAssignment -------------------------------------------------------------
+class ObjectAssignment (Node):
+  def __init__(self,*args, **kw) :
+    Node.__init__ (self,*args, **kw)
+
+  def eth_reg(self, ident, ectx):
+    if ectx.conform.omit_assignment('V', self.ident, ectx.Module()): return # Assignment to omit
+    ectx.eth_reg_oassign(self)
 
 
 #--- Type ---------------------------------------------------------------------
@@ -2988,6 +3094,9 @@ class Value (Node):
 
   def get_dep(self):
     return None
+
+  def fld_obj_repr(self, ectx):
+    return self.to_str(ectx)
 
 #--- ObjectClass ---------------------------------------------------------------------
 class ObjectClass (Node):
@@ -5290,7 +5399,7 @@ def p_TypeAssignment (t):
 # 15.2
 def p_ValueAssignment (t):
   'ValueAssignment : valuereference ValueType ASSIGNMENT Value'
-  t[0] = value_assign (ident = t[1], typ = t[2], val = t[4])
+  t[0] = ValueAssignment(ident = t[1], typ = t[2], val = t[4])
 
 # only "simple" types are supported to simplify grammer
 def p_ValueType (t):
@@ -6318,6 +6427,8 @@ def p_DefinedObjectClass (t):
   '''DefinedObjectClass : objectclassreference
                         | UsefulObjectClassReference'''
   t[0] = t[1]
+  global obj_class
+  obj_class = t[0].val
 
 def p_DefinedObject (t):
   '''DefinedObject : objectreference'''
@@ -6327,7 +6438,7 @@ def p_DefinedObject (t):
 def p_UsefulObjectClassReference (t):
   '''UsefulObjectClassReference : TYPE_IDENTIFIER 
                                 | ABSTRACT_SYNTAX'''
-  t[0] = t[1]
+  t[0] = Class_Ref(val=t[1])
 
 # 9 Information object class definition and assignment
 
@@ -6426,6 +6537,8 @@ def p_ObjectFieldSpec (t):
                      | lcasefieldreference DefinedObjectClass ObjectOptionalitySpec '''
   t[0] = ObjectFieldSpec(cls=t[2])
   t[0].SetName(t[1])
+  global obj_class
+  obj_class = None
 
 def p_ObjectOptionalitySpec_1 (t):
   'ObjectOptionalitySpec ::= OPTIONAL'
@@ -6469,9 +6582,10 @@ def p_FieldName_2 (t):
 
 # 11.1
 def p_ObjectAssignment (t):
-  '''ObjectAssignment : objectreference CLASS_IDENT ASSIGNMENT Object
-                      | objectreference UsefulObjectClassReference ASSIGNMENT Object'''
-  t[0] = Node('ObjectAssignment', name=t[1], cls=t[2], val=t[4])
+  'ObjectAssignment : objectreference DefinedObjectClass ASSIGNMENT Object'
+  t[0] = ObjectAssignment (ident = t[1], cls=t[2].val, val=t[4])
+  global obj_class
+  obj_class = None
 
 # 11.3
 def p_Object (t):
@@ -6482,8 +6596,75 @@ def p_Object (t):
 
 # 11.4
 def p_ObjectDefn (t):
-  'ObjectDefn : lbraceignore rbraceignore'
-  t[0] = None
+  'ObjectDefn : lbraceobject bodyobject rbraceobject'
+  t[0] = t[2]
+
+#  {...} block of object definition
+def p_lbraceobject(t):
+  'lbraceobject : braceobjectbegin LBRACE'
+  t[0] = t[1]
+
+def p_braceobjectbegin(t):
+  'braceobjectbegin : '
+  global lexer
+  if set_x880_syntax(obj_class):
+    state = 'INITIAL'
+  else:
+    lexer.level = 1
+    state = 'braceignore'
+  lexer.push_state(state)
+
+def p_rbraceobject(t):
+  'rbraceobject : braceobjectend RBRACE'
+  t[0] = t[2]
+
+def p_braceobjectend(t):
+  'braceobjectend : '
+  global lexer
+  lexer.pop_state()
+  set_x880_syntax(None)
+
+def p_bodyobject_1 (t):
+  'bodyobject : '
+  t[0] = { }
+
+def p_bodyobject_2 (t):
+  'bodyobject : x880_syntax_list'
+  t[0] = t[1]
+
+def p_x880_syntax_list_1 (t):
+  'x880_syntax_list : x880_syntax_list x880_syntax'
+  t[0] = t[1]
+  t[0].update(t[2])
+
+def p_x880_syntax_list_2 (t):
+  'x880_syntax_list : x880_syntax'
+  t[0] = t[1]
+
+def p_x880_syntax_1 (t):
+  '''x880_syntax : ERRORS ObjectSet
+                 | LINKED ObjectSet
+                 | RETURN RESULT BooleanValue 
+                 | SYNCHRONOUS BooleanValue
+                 | INVOKE PRIORITY Value 
+                 | RESULT_PRIORITY Value 
+                 | PRIORITY Value 
+                 | ALWAYS RESPONDS BooleanValue
+                 | IDEMPOTENT BooleanValue '''
+  t[0] = { get_x880_fieled(' '.join(t[1:-1])) : t[-1:][0] }
+
+def p_x880_syntax_2 (t):
+  '''x880_syntax : ARGUMENT Type
+                 | RESULT Type
+                 | PARAMETER Type
+                 | CODE Value '''
+  t[0] = { get_x880_fieled(t[1]) : t[2] }
+
+def p_x880_syntax_3 (t):
+  '''x880_syntax : ARGUMENT Type OPTIONAL BooleanValue
+                 | RESULT Type OPTIONAL BooleanValue
+                 | PARAMETER Type OPTIONAL BooleanValue '''
+  t[0] = { get_x880_fieled(t[1]) : t[2], get_x880_fieled(' '.join((t[1], t[3]))) : t[4] }
 
 # 12 Information object set definition and assignment
 
@@ -6740,7 +6921,9 @@ def p_ParameterizedTypeAssignment (t):
 
 def p_ParameterizedObjectAssignment (t):
   'ParameterizedObjectAssignment : objectreference ParameterList CLASS_IDENT ASSIGNMENT Object'
-  t[0] = Node('ObjectAssignment', name=t[1], cls=t[3], val=t[5])
+  t[0] = ObjectAssignment (ident = t[1], cls=t[3], val=t[5])
+  global obj_class
+  obj_class = None
 
 def p_ParameterizedObjectSetAssignment (t):
   'ParameterizedObjectSetAssignment : UCASE_IDENT ParameterList CLASS_IDENT ASSIGNMENT ObjectSet'
@@ -6849,34 +7032,43 @@ x880_classes = {
 
 x880_syntaxes = {
   'OPERATION' : {
-    'ARGUMENT'       : 'ARGUMENT',
-    'RESULT'         : 'RESULT',         
-    'RETURN'         : 'RETURN',         
-    'ERRORS'         : 'ERRORS',         
-    'LINKED'         : 'LINKED',         
-    'SYNCHRONOUS'    : 'SYNCHRONOUS',    
-    'IDEMPOTENT'     : 'IDEMPOTENT',     
+    'ARGUMENT'       : '&ArgumentType',
+    'ARGUMENT OPTIONAL' : '&argumentTypeOptional',
+    'RESULT'         : '&ResultType',         
+    'RESULT OPTIONAL' : '&resultTypeOptional',         
+    'RETURN'         : 'RETURN',
+    'RETURN RESULT'  : '&returnResult',
+    'ERRORS'         : '&Errors',         
+    'LINKED'         : '&Linked',         
+    'SYNCHRONOUS'    : '&synchronous',    
+    'IDEMPOTENT'     : '&idempotent',     
     'ALWAYS'         : 'ALWAYS',         
-    'RESPONDS'       : 'RESPONDS',       
+    'RESPONDS'       : 'RESPONDS',
+    'ALWAYS RESPONDS' : '&alwaysReturns',       
     'INVOKE'         : 'INVOKE',         
-    'PRIORITY'       : 'PRIORITY',       
-    'RESULT-PRIORITY': 'RESULT-PRIORITY',
-    'CODE'           : 'CODE',           
+    'PRIORITY'       : 'PRIORITY',
+    'INVOKE PRIORITY' : '&InvokePriority',
+    'RESULT-PRIORITY': '&ResultPriority',
+    'CODE'           : '&operationCode',           
   },
   'ERROR' : {
+    'PARAMETER'      : '&ParameterType',       
+    'PARAMETER OPTIONAL' : '&parameterTypeOptional',       
+    'PRIORITY'       : '&ErrorPriority',       
+    'CODE'           : '&errorCode',           
   },
-  'OPERATION-PACKAGE' : {
-  },
-  'CONNECTION-PACKAGE' : {
-  },
-  'CONTRACT' : {
-  },
-  'ROS-OBJECT-CLASS' : {
-  },
+#  'OPERATION-PACKAGE' : {
+#  },
+#  'CONNECTION-PACKAGE' : {
+#  },
+#  'CONTRACT' : {
+#  },
+#  'ROS-OBJECT-CLASS' : {
+#  },
 }
 
 x880_syntaxes_enabled = { }
-x880_current_syntaxes = None
+x880_current_syntax = None
 
 def x880_import(name):
   if x880_syntaxes.has_key(name):
@@ -6886,8 +7078,41 @@ def x880_import(name):
     for f in (x880_classes[name].keys()):
       set_type_to_class(name, f, x880_classes[name][f])
 
+def set_x880_syntax(syntax):
+  global x880_syntaxes_enabled
+  global x880_current_syntax
+  #print "set_x880_syntax", syntax, x880_current_syntax
+  if x880_syntaxes_enabled.get(syntax, False):
+    x880_current_syntax = syntax
+    return True
+  else:
+    x880_current_syntax = None
+    return False
+
 def is_x880_syntax(name):
-  return False
+  global x880_syntaxes
+  global x880_current_syntax
+  #print "is_x880_syntax", name, x880_current_syntax
+  if not x880_current_syntax:
+    return False
+  return x880_syntaxes[x880_current_syntax].has_key(name)
+
+def get_x880_fieled(name):
+  if not x880_current_syntax:
+    return None
+  return x880_syntaxes[x880_current_syntax][name]
+
+def get_x880_tokens():
+  global x880_syntaxes
+  tokens = { }
+  for s in (x880_syntaxes):
+    for k in (x880_syntaxes[s].keys()):
+      if k.find(' ') < 0:
+        tokens[k] = k
+        tokens[k] = tokens[k].replace('-', '_')
+  return tokens.values()
+
+tokens = tokens + get_x880_tokens()
 
 #  {...} OID value
 #def p_lbrace_oid(t):
@@ -6917,7 +7142,7 @@ def p_braceignorebegin(t):
   'braceignorebegin : '
   global lexer
   lexer.level = 1
-  lexer.begin('braceignore')
+  lexer.push_state('braceignore')
 
 def p_rbraceignore(t):
   'rbraceignore : braceignoreend RBRACE'
@@ -6926,7 +7151,7 @@ def p_rbraceignore(t):
 def p_braceignoreend(t):
   'braceignoreend : '
   global lexer
-  lexer.begin('INITIAL')
+  lexer.pop_state()
 
 def p_error(t):
   global input_file
