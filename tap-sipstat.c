@@ -104,6 +104,7 @@ static const value_string vals_status_code[] = {
     { 416, "Unsupported URI Scheme"},
     { 420, "Bad Extension"},
     { 421, "Extension Required"},
+    { 422, "Session Timer Too Small"},
     { 423, "Interval Too Brief"},
     { 429, "Provide Referrer Identity"},
     { 480, "Temporarily Unavailable"},
