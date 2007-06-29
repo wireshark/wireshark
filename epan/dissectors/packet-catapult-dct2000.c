@@ -92,7 +92,7 @@ static const value_string encap_vals[] = {
     { WTAP_ENCAP_FRELAY,                 "Frame Relay" },
     { WTAP_ENCAP_MTP2,                   "MTP2" },
     { DCT2000_ENCAP_NBAP,                "NBAP" },
-    { DCT2000_ENCAP_UNHANDLED,           "Unhandled Protocol" },
+    { DCT2000_ENCAP_UNHANDLED,           "No Direct Encapsulation" },
     { 0,                                 NULL },
 };
 
@@ -874,7 +874,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                pass that offset to dissector
             */
             protocol_handle = 0;
-
 
             /* Try IP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_ipprim_heuristic)
