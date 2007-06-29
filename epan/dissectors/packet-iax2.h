@@ -1,16 +1,27 @@
-/*
- * Asterisk -- A telephony toolkit for Linux.
+/* packet-iax2.h
  *
- * Implementation of Inter-Asterisk eXchange
- * 
  * Copyright (C) 2003, Digium
- *
- * Mark Spencer <markster@linux-support.net>
+ * Mark Spencer <markster@digium.com>
  *
  * $Id$
  *
- * This program is free software, distributed under the terms of
- * the GNU General Public License
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
 #ifndef _PACKET_IAX2_H
@@ -31,7 +42,7 @@
 
 #define IAX_WINDOW		64
 
-#define AST_FRAME_DTMF      1       /* A DTMF digit, subclass is the digit */
+#define AST_FRAME_DTMF_END  1       /* A DTMF end event, subclass is the digit */
 #define AST_FRAME_VOICE     2       /* Voice data, subclass is AST_FORMAT_* */
 #define AST_FRAME_VIDEO     3       /* Video frame, maybe?? :) */
 #define AST_FRAME_CONTROL   4       /* A control frame, subclass is AST_CONTROL_* */
@@ -40,6 +51,11 @@
 #define AST_FRAME_TEXT      7       /* Text messages */
 #define AST_FRAME_IMAGE     8       /* Image Frames */
 #define AST_FRAME_HTML      9       /* HTML Frames */
+#define AST_FRAME_CNG      10       /* Confort Noise Generation */
+#define AST_FRAME_MODEM    11       /* Modem-over-IP datastream */
+#define AST_FRAME_DTMF_BEGIN 12     /* A DTMF begin event, subclass is the digit */
+
+
 
 /* Subclass for AST_FRAME_IAX */
 #define IAX_COMMAND_NEW		1

@@ -14,17 +14,19 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version. This program is distributed in the hope
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the
- * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- * PURPOSE.  See the GNU General Public License for more details. You
- * should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc., 
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -87,6 +89,7 @@ static int hf_iax2_voice_codec = -1;
 static int hf_iax2_video_csub = -1;
 static int hf_iax2_video_codec = -1;
 static int hf_iax2_marker = -1;
+static int hf_iax2_modem_csub = -1;
 
 static int hf_iax2_cap_g723_1 = -1;
 static int hf_iax2_cap_gsm = -1;
@@ -167,14 +170,18 @@ static dissector_table_t iax2_codec_dissector_table;
 /* IAX2 Full-frame types */
 static const value_string iax_frame_types[] = {
   {0, "(0?)"},
-  {1, "DTMF"},
-  {2, "Voice"},
-  {3, "Video"},
-  {4, "Control"},
-  {5, "NULL"},
-  {6, "IAX"},
-  {7, "Text"},
-  {8, "Image"},
+  {AST_FRAME_DTMF_END, "DTMF End"},
+  {AST_FRAME_VOICE, "Voice"},
+  {AST_FRAME_VIDEO, "Video"},
+  {AST_FRAME_CONTROL, "Control"},
+  {AST_FRAME_NULL, "NULL"},
+  {AST_FRAME_IAX, "IAX"},
+  {AST_FRAME_TEXT, "Text"},
+  {AST_FRAME_IMAGE, "Image"},
+  {AST_FRAME_HTML, "HTML"},
+  {AST_FRAME_CNG, "Comfort Noise"},
+  {AST_FRAME_MODEM, "Modem"}, 
+  {AST_FRAME_DTMF_BEGIN, "DTMF Begin"},
   {0,NULL}
 };
 
@@ -232,6 +239,14 @@ static const value_string iax_cmd_subclasses[] = {
   {6, "TKOFFHK"},
   {7, "OFFHOOK"},
   {0xFF, "stop sounds"}, /* sent by app_dial, and not much else */
+  {0,NULL}
+};
+
+/* Subclassess for Modem packets */
+static const value_string iax_modem_subclasses[] = {
+  {0, "(0?)"},
+  {1, "T.38"},
+  {2, "V.150"},
   {0,NULL}
 };
 
@@ -1476,7 +1491,8 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     offset=dissect_iax2_command(tvb,offset+9,pinfo,packet_type_tree,iax_packet);
     break;
     
-  case AST_FRAME_DTMF:
+  case AST_FRAME_DTMF_BEGIN:
+  case AST_FRAME_DTMF_END:
     proto_tree_add_item (packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, FALSE);
     offset += 10;
 
@@ -1549,7 +1565,17 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
     break;
 
+  case AST_FRAME_MODEM:
+    proto_tree_add_item (packet_type_tree, hf_iax2_modem_csub, tvb, offset+9, 1, FALSE);
+    offset += 10;
 
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
+		    val_to_str (csub, iax_modem_subclasses, "unknown (0x%02x)"));
+    break;
+
+  case AST_FRAME_HTML:
+  case AST_FRAME_CNG:
   default:
     proto_tree_add_uint (packet_type_tree, hf_iax2_csub, tvb, offset+9,
 			 1, csub);
@@ -2108,6 +2134,12 @@ proto_register_iax2 (void)
     {&hf_iax2_video_codec,
      {"CODEC", "iax2.video.codec", FT_UINT32, BASE_HEX, VALS (codec_types), 0, 
       "The codec used to encode video data", HFILL}},
+
+    {&hf_iax2_modem_csub,
+     {"Modem subclass", "iax2.modem.subclass", FT_UINT8, BASE_DEC,
+      VALS (iax_modem_subclasses),
+      0x0, 
+      "Modem subclass gives the type of modem", HFILL}},
     
     /*
      * Decoding for the ies
