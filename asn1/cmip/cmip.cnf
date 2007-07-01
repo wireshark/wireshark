@@ -42,12 +42,41 @@ ObjectInstance
 ObjectClass
 Attribute
 RDNSequence
-# X.721
 ProbableCause
 AdministrativeState
 AvailabilityStatus
 AttributeList
 AdditionalInformation
+
+#.TABLE_HDR
+/* CMIP OPERATIONS */
+static const value_string cmip_Opcode_vals[] = {
+#.TABLE_BODY OPERATION
+	{ %(&operationCode)s, "%(_ident)s" },
+#.TABLE_FTR
+  { 0, NULL }
+};
+#.END
+
+#.TABLE_HDR
+/* CMIP ERRORS */
+static const value_string cmip_error_code_vals[] = {
+#.TABLE_BODY ERROR
+	{ %(&errorCode)s, "%(_ident)s" },  
+#.TABLE_FTR
+  { 0, NULL }
+};
+#.END
+
+#.TABLE2_BODY OPERATION
+%(&operationCode)3s  %(_ident)-20s,
+#.END
+
+#.TABLE1_BODY ERROR
+%(&errorCode)3s %(_ident)-20s,
+#.END
+
+# X.721
 
 #.REGISTER
 BaseManagedObjectId				B "2.9.2.21.7.13"	"BaseManagedObjectId(13)"
@@ -165,8 +194,10 @@ CounterThreshold
 GaugeThreshold
 GaugeThresholdValue
 LogAvailability
+NotifyThreshold
 SchedulingAvailability
 TideMarkInfo
+TideMark
 UnscheduledLogAvailability
 Priority
 RejectProblem

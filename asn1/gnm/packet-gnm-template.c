@@ -49,7 +49,6 @@
 /* Initialize the protocol and registered fields */
 int proto_gnm = -1;
 
-static int hf_gnm_AdministrativeState = -1;
 #include "packet-gnm-hf.c"
 
 /* Initialize the subtree pointers */
@@ -71,7 +70,7 @@ dissect_gnm_attribute_ObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 void
-dissect_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+dissect_gnm(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_)
 {
   /* Dymmy function */
 }
@@ -81,10 +80,6 @@ void proto_register_gnm(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_gnm_AdministrativeState,
-      { "AdministrativeState", "gnm.AdministrativeState",
-        FT_UINT32, BASE_DEC, VALS(gnm_AdministrativeState_vals), 0,
-        "", HFILL }},
 
 #include "packet-gnm-hfarr.c"
   };
@@ -107,6 +102,7 @@ void proto_register_gnm(void) {
 /*--- proto_reg_handoff_gnm ---------------------------------------*/
 void proto_reg_handoff_gnm(void) {
 #include "packet-gnm-dis-tab.c"
+	/* Wrapper to call CMIP */
 	register_ber_oid_dissector("0.0.13.3100.0.7.9", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientConnection(9)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.10", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientTrail(10)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.31", dissect_gnm_attribute_ObjectInstance, proto_gnm, "networkLevelPointer(31)");

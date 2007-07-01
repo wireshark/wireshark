@@ -15,42 +15,11 @@ IMPORTS
 --  MappingList, SignalRate
 --    FROM M3100ASN1TypeModule2 {itu-t recommendation m gnm(3100)
 --     informationModel(0) asn1Modules(2) asn1Module2(1)}
---  ProbableCause, AdministrativeState, AvailabilityStatus, AttributeList,
---  AdditionalInformation
---   FROM Attribute-ASN1Module {joint-iso-itu-t ms(9) smi(3) part2(2)
---      asn1Module(2) 1};
-;
+  ProbableCause, AdministrativeState, AvailabilityStatus, AttributeList,
+  AdditionalInformation
+   FROM Attribute-ASN1Module {joint-iso-itu-t ms(9) smi(3) part2(2)
+      asn1Module(2) 1};
 -- Local imports
--- Module Attribute-ASN1Module (X.721:02/1992)
--- Attribute-ASN1Module {joint-iso-itu-t ms(9) smi(3) part2(2) asn1Module(2) 1}
-
-ProbableCause ::= CHOICE {globalValue  OBJECT IDENTIFIER,
-                          localValue   INTEGER
-}
-
-AdministrativeState ::= ENUMERATED {locked(0), unlocked(1), shuttingDown(2)}
-
-AvailabilityStatus ::=
-  SET OF
-    INTEGER {inTest(0), failed(1), powerOff(2), offLine(3), offDuty(4),
-             dependency(5), degraded(6), notInstalled(7), logFull(8)}
-
--- logFull is defined in CCITT Rec X.735 | ISO/IEC 10164-6.
-
-AttributeList ::= SET OF Attribute
-
-AdditionalInformation ::= SET OF ManagementExtension
-
-ControlStatus ::=
-  SET OF
-    INTEGER {subjectToTest(0), partOfServicesLocked(1), reservedForTest(2),
-             suspended(3)}
-
-ManagementExtension ::= SEQUENCE {
-  identifier OBJECT IDENTIFIER,
-  significance  [1]  BOOLEAN DEFAULT FALSE,
-  information   [2] ANY
-}
 --  MappingList, SignalRate
 --    FROM M3100ASN1TypeModule2 {itu-t recommendation m gnm(3100)
 --     informationModel(0) asn1Modules(2) asn1Module2(1)}
@@ -58,8 +27,6 @@ ManagementExtension ::= SEQUENCE {
 MappingList ::= SEQUENCE OF PayloadLevel
 
 PayloadLevel ::= CharacteristicInformation
-
-Packages ::= SET OF OBJECT IDENTIFIER
 
 SignalRate ::= CHOICE {
   objectClass                [0]  OBJECT IDENTIFIER,

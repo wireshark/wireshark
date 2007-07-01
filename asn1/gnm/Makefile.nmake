@@ -8,14 +8,14 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=gnm
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
-ASN_FILES= ../x721/Attribute-ASN1Module.asn
+ASN_FILES= GNM.asn
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py GNM.asn packet-gnm-template.c packet-gnm-template.h gnm.cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c gnm.cnf -s packet-gnm-template GNM.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -b -X -T -e -p $(PROTOCOL_NAME) -c gnm.cnf -s packet-gnm-template GNM.asn
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

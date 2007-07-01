@@ -67,48 +67,7 @@ static gint ett_cmip = -1;
 
 static guint32 opcode;
 
-static const value_string cmip_Opcode_vals[] = {
-  {   0, "m-EventReport" },
-  {   1, "m-EventReport-Confirmed" },
-  {   2, "m-Linked-Reply" },
-  {   3, "m-Get" },
-  {   4, "m-Set" },
-  {   5, "m-Set-Confirmed" },
-  {   6, "m-Action" },
-  {   7, "m-Action-Confirmed" },
-  {   8, "m-Create" },
-  {   9, "m-Delete" },
-  {  10, "m-CancelGet" },
-  { 0, NULL }
-};
-
-static const value_string cmip_error_code_vals[] = {
-  {   0, "noSuchObjectClass" },
-  {   1, "noSuchObjectInstance" },
-  {   2, "accessDenied" },
-  {   3, "syncNotSupported" },
-  {   4, "invalidFilter" },
-  {   5, "noSuchAttribute" },
-  {   6, "invalidAttributeValue" },
-  {   7, "getListError" },
-  {   8, "setListError" },
-  {   9, "noSuchAction" },
-  {  10, "processingFailure" },
-  {  11, "duplicateManagedObjectInstance" },
-  {  12, "noSuchReferenceObject" },
-  {  13, "noSuchEventType" },
-  {  14, "noSuchArgument" },
-  {  15, "invalidArgumentValue" },
-  {  16, "invalidScope" },
-  {  17, "invalidObjectInstance" },
-  {  18, "missingAttributeValue" },
-  {  19, "classInstanceConflict" },
-  {  20, "complexityLimitation" },
-  {  21, "mistypedOperation" },
-  {  22, "noSuchInvokeId" },
-  {  23, "operationCancelled" },
-  { 0, NULL }
-};
+#include "packet-cmip-table.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
