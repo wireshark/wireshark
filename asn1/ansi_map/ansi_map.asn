@@ -29,7 +29,7 @@ InvokePDU ::= SEQUENCE {
 				}
 InvokeParameters ::=   ANY
 ReturnParameters ::=   ANY
-ErrorParameters ::=   ANY
+-- ErrorParameters ::=   ANY
 RejectParameters ::= ANY
 
 ReturnResultPDU  ::= SEQUENCE {
@@ -494,6 +494,8 @@ FacilitiesDirective2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.3 s
 	cdma2000HandoffInvokeIOSData			[356] IMPLICIT CDMA2000HandoffInvokeIOSData OPTIONAL,
 	--O 6.5.2.gm xx
+	cdmaBandClassList						[172] IMPLICIT CDMABandClassList OPTIONAL,
+	-- O 6.5.2.c r
 	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
 	-- O 6.5.2.29 c, d, e
 	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
@@ -872,6 +874,8 @@ HandoffBack2 ::= [PRIVATE 18] SET {
 	-- O 6 .5.2.a a u
 	cdma2000HandoffInvokeIOSData			[356] IMPLICIT CDMA2000HandoffInvokeIOSData OPTIONAL,
 	-- O 6.5.2.gm xx
+	cdmaBandClassList						[172] IMPLICIT CDMABandClassList OPTIONAL,
+	-- O 6.5.2.c r
 	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
 	-- O 6.5.2.29 c, d, e
 	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
@@ -1035,6 +1039,8 @@ HandoffMeasurementRequest2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.38 b
 	cdmaStationClassMark					[59] IMPLICIT CDMAStationClassMark OPTIONAL,
 	-- O 6.5.2.41 b
+	cdmaStationClassMark2					[177] IMPLICIT CDMAStationClassMark2 OPTIONAL,
+	-- O 6.5.2.h i
 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.47 c
 	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
@@ -1069,6 +1075,8 @@ HandoffMeasurementRequest2Res ::= [PRIVATE 18] SET {
 
 -- 6.4.2.19 HandoffToThird
 HandoffToThird ::= [PRIVATE 18] SET {
+	billingID								[1] IMPLICIT BillingID,
+	-- M 6.5.2.16 N.S0006
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
 	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
@@ -1087,8 +1095,30 @@ HandoffToThird ::= [PRIVATE 18] SET {
 	-- M 6.5.2.143
 	targetCellID							[3] IMPLICIT TargetCellID,
 	-- M 6.5.2.148
-	billingID								[1] IMPLICIT BillingID OPTIONAL,
-	-- O 6.5.2.16 a
+	cdmaBandClassList						[172] IMPLICIT CDMABandClassList OPTIONAL,
+	-- O 6.5.2.c q
+	cdmaCallMode							[62] IMPLICIT CDMACallMode OPTIONAL,
+	-- O 6.5.2.29 c, d, e
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.30 c
+	cdmaMobileProtocolRevision				[66] IMPLICIT CDMAMobileProtocolRevision OPTIONAL,
+	-- O 6.5.2.34 c, r
+	cdmaPrivateLongCodeMask					[67] IMPLICIT CDMAPrivateLongCodeMask OPTIONAL,
+	-- O 6.5.2.36 f
+	cdmaServiceConfigurationRecord			[174] IMPLICIT CDMAServiceConfigurationRecord OPTIONAL,
+	-- O 6.5.2.e c, s
+	cdmaServiceOptionList					[176] IMPLICIT CDMAServiceOptionList OPTIONAL,
+	-- O 6.5.2.g c, t
+	cdmaServingOneWayDelay					[60] IMPLICIT CDMAServingOneWayDelay OPTIONAL,
+	-- O 6.5.2.38 a, c
+	cdmaStationClassMark					[59] IMPLICIT CDMAStationClassMark OPTIONAL,
+	-- O 6.5.2.41 c, r, u
+	cdmaStationClassMark2					[177] IMPLICIT CDMAStationClassMark2 OPTIONAL,
+	-- O 6.5.2.h r
+	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
+	-- O 6.5.2.43 g
+	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList OPTIONAL,
+	-- O 6.5.2.45 h
 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.47 b
 	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
@@ -1097,6 +1127,12 @@ HandoffToThird ::= [PRIVATE 18] SET {
 	-- O 6.5.2.70 d
 	handoffState							[164] IMPLICIT HandoffState OPTIONAL,
 	-- O 6 .5.2.71 t
+	msLocation								[70] IMPLICIT MSLocation OPTIONAL,
+	-- O 6.5.2.84 c
+	nampsCallMode							[165] IMPLICIT NAMPSCallMode OPTIONAL,
+	-- O 6.5.2.85 e, l
+	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.86 m
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
 	-- O 6.5.2.120 c
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
@@ -1119,14 +1155,28 @@ HandoffToThird ::= [PRIVATE 18] SET {
 
 -- HandoffToThird RETURN RESULT Parameters
 HandoffToThirdRes ::= [PRIVATE 18] SET {
+	cdmaChannelData							[63] IMPLICIT CDMAChannelData OPTIONAL,
+	-- (Target) O 6.5.2.30 a
+	cdmaCodeChannelList						[132] IMPLICIT CDMACodeChannelList OPTIONAL,
+	-- O 6.5.2.33 a
+	cdmaSearchWindow						[69] IMPLICIT CDMASearchWindow OPTIONAL,
+	-- O 6.5.2.37 a
+	cdmaServiceConfigurationRecord			[174] IMPLICIT CDMAServiceConfigurationRecord OPTIONAL,
+	--
 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
 	-- (Target) O 6.5.2.47 a
 	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
 	-- (Actual) O 6.5.2.50 b
+	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
+	-- (Target) O 6.5.2.86 d
+	targetCellID							[3] IMPLICIT TargetCellID,
+	-- O 6.5.2.148 e
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
 	-- (Target) O 6.5.2.151 c
-	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL
+	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Target) O 6.5.2.153 d
+	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL
+	-- (Target) O 6.5.2.k j
 	}
 
 -- 6.4.2.20 HandoffToThird2
@@ -2284,6 +2334,8 @@ RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.de t
 	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
 	-- O 6.5.2.gl z
+	lirMode									[369] IMPLICIT LIRMode OPTIONAL,
+	-- O 6.5.2.gz z
 -- END MACRO
 	receivedSignalQuality					[72] IMPLICIT ReceivedSignalQuality OPTIONAL,
 	-- O 6.5.2.106 c
