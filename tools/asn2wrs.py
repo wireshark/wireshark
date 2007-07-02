@@ -5145,6 +5145,12 @@ class BStringValue (Value):
       vv += bstring_tab[v[i:i+4]]
     return vv
 
+#--- HStringValue ------------------------------------------------------------
+class HStringValue (Value):
+  def to_str(self, ectx):
+    vv = '0x'
+    vv += self.val[1:-2]
+    return vv
 
 #--- FieldSpec ----------------------------------------------------------------
 class FieldSpec (Node):
@@ -6399,12 +6405,12 @@ def p_ExceptionIdentification (t):
 
 
 def p_binary_string (t):
-    'binary_string : BSTRING'
-    t[0] = BStringValue(val = t[1])
+  'binary_string : BSTRING'
+  t[0] = BStringValue(val = t[1])
 
 def p_hex_string (t):
-    'hex_string : HSTRING'
-    t[0] = t[1]
+  'hex_string : HSTRING'
+  t[0] = HStringValue(val = t[1])
 
 def p_char_string (t):
     'char_string : QSTRING'
@@ -6878,7 +6884,7 @@ def p_UserDefinedConstraintParameterList_3 (t):
 
 # 9.3
 def p_UserDefinedConstraintParameter (t):
-  'UserDefinedConstraintParameter : type_ref'
+  'UserDefinedConstraintParameter : Type'
   t[0] = t[1]
 
 # 10 Table constraints, including component relation constraints --------------
