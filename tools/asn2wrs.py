@@ -674,8 +674,15 @@ class EthCtx:
       val = self.all_vals[module][nm]
     return val
 
-
   def get_obj_repr(self, ident, restr):
+    def set_type_fn(field, fnfield):
+      obj[fnfield] = 'NULL'
+      if val.has_key(field) and isinstance(val[field], Type_Ref):
+        p = val[field].eth_type_default_pars(self, '')
+        obj[fnfield] = p['TYPE_REF_FN']
+        obj[fnfield] = obj[fnfield] % p
+      return
+    # end of get_type_fn()
     obj = { '_name' : ident, '_ident' : asn2c(ident)}
     obj['_class'] = self.oassign[ident].cls
     val = self.oassign[ident].val
@@ -698,6 +705,11 @@ class EthCtx:
         obj[f] = val[f].fld_obj_repr(self)
       else:
         obj[f] = str(val[f])
+    if (obj['_class'] == 'OPERATION'):
+      set_type_fn('&ArgumentType', '_argument_fn')
+      set_type_fn('&ResultType', '_result_fn')
+    if (obj['_class'] == 'ERROR'):
+      set_type_fn('&ParameterType', '_parameter_fn')
     return obj
 
   #--- eth_reg_module -----------------------------------------------------------
@@ -870,6 +882,9 @@ class EthCtx:
                                    'STRINGS' : val.eth_strings(), 'BITMASK' : '0' }
     self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
     self.type_ord.append(ident)
+    # PDU
+    if (self.conform.check_item('PDU', ident)):
+      self.eth_reg_field(ident, ident, impl=val.HasImplicitTag(self), pdu=self.conform.use_item('PDU', ident))
 
   #--- eth_reg_objectclass ----------------------------------------------------------
   def eth_reg_objectclass(self, ident, val):
@@ -2824,8 +2839,25 @@ class ObjectAssignment (Node):
     Node.__init__ (self,*args, **kw)
 
   def eth_reg(self, ident, ectx):
+    def make_virtual_type(field, prefix):
+      if isinstance(self.val, str): return
+      if self.val.has_key(field) and not isinstance(self.val[field], Type_Ref):
+        vnm = prefix + '-' + self.ident
+        virtual_tr = Type_Ref(val = vnm)
+        t = self.val[field]
+        self.val[field] = virtual_tr
+        ectx.eth_reg_assign(vnm, t, virt=True)
+        ectx.eth_reg_type(vnm, t)
+        t.eth_reg_sub(vnm, ectx)
+      return
+    # end of make_virtual_type()
     if ectx.conform.omit_assignment('V', self.ident, ectx.Module()): return # Assignment to omit
     ectx.eth_reg_oassign(self)
+    if (self.cls == 'OPERATION'):
+      make_virtual_type('&ArgumentType', 'ARG')
+      make_virtual_type('&ResultType', 'RES')
+    if (self.cls == 'ERROR'):
+      make_virtual_type('&ParameterType', 'PAR')
 
 
 #--- Type ---------------------------------------------------------------------
@@ -2952,8 +2984,6 @@ class Type (Node):
       ectx.eth_reg_assign(nm, self)
       if self.type == 'Type_Ref':
         ectx.eth_reg_type(nm, self)
-      if (ectx.conform.check_item('PDU', nm)):
-        ectx.eth_reg_field(nm, nm, impl=self.HasImplicitTag(ectx), pdu=ectx.conform.use_item('PDU', nm))
     virtual_tr = Type_Ref(val=ectx.conform.use_item('SET_TYPE', nm))
     if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
       if ident and (ectx.conform.check_item('TYPE_RENAME', nm) or ectx.conform.get_fn_presence(nm) or selflag):
@@ -3411,6 +3441,9 @@ class Type_Ref (Type):
   def eth_tname(self):
     return asn2c(self.val)
 
+  def fld_obj_repr(self, ectx):
+    return self.val
+
   def get_components(self, ectx):
     if not ectx.type.has_key(self.val) or ectx.type[self.val]['import']:
       msg = "Can not get COMPONENTS OF %s which is imported type" % (self.val)
@@ -3440,7 +3473,10 @@ class Type_Ref (Type):
       return ectx.type[self.val]['val'].IndetermTag(ectx)
 
   def eth_type_default_pars(self, ectx, tname):
-    pars = Type.eth_type_default_pars(self, ectx, tname)
+    if tname:
+      pars = Type.eth_type_default_pars(self, ectx, tname)
+    else:
+      pars = {}
     t = ectx.type[self.val]['ethname']
     pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
     pars['TYPE_REF_TNAME'] = t
