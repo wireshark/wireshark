@@ -20,18 +20,40 @@ Code/local
 
 #.TYPE_RENAME
 
-Invoke/argument             InvokeArgument
-ReturnResult/result/result  ResultArgument
+Invoke/argument					InvokeArgument
+ReturnResult/result/result		ResultArgument
+Attribute/value					Attributevalue
+EventReportArgument/eventInfo	EventReportArgumenteventInfo
 
 #.FIELD_RENAME
 
-Invoke/linkedId/present     linkedIdPresent
+Invoke/linkedId/present			linkedIdPresent
 
-Reject/problem/invoke       invokeProblem
-Reject/problem/returnError  returnErrorProblem
-Reject/problem/returnResult returnResultProblem
+Reject/problem/invoke			invokeProblem
+Reject/problem/returnError		returnErrorProblem
+Reject/problem/returnResult		returnResultProblem
 
-ReturnResult/result/result  resultArgument
+ReturnResult/result/result		resultArgument
+
+ActionTypeId/globalForm			actionTypeId_globalForm
+AttributeId/globalForm			attributeId_globalForm
+EventTypeId/globalForm			eventTypeId_globalForm
+ObjectClass/globalForm			objectClass_globalForm
+ManagementExtension/identifier	managementExtensionidentifier
+ServiceUser/identifier			serviceUseridentifier
+AttributeValueAssertion/value	attributeValueAssertionvalue
+FilterItem/present				filterItempresent
+ObjectClass/localForm			objectClasslocalForm
+AttributeId/localForm			attributeIdlocalForm
+ActionErrorInfo/errorStatus		actionErrorInfo-errorStatus
+AttributeError/errorStatus		attributeError-errorStatus
+AttributeIdError/errorStatus	attributeIdError-errorStatus
+ActionErrorInfo/errorInfo		actionErrorInfo
+# SpecificErrorInfo/errorInfo	specificErrorInfo
+Attribute/id					attributeid
+CMIPUserInfo/accessControl		cmipUserInfoaccessControl
+ActionError/actionErrorInfo		actionErroractionErrorInfo
+EventReportArgument/eventInfo	eventReportArgumenteventInfo
 
 #.EXPORTS
 CMIPAbortInfo
@@ -66,14 +88,6 @@ static const value_string cmip_error_code_vals[] = {
 #.TABLE_FTR
   { 0, NULL }
 };
-#.END
-
-#.TABLE2_BODY OPERATION
-%(&operationCode)3s  %(_ident)-20s,
-#.END
-
-#.TABLE1_BODY ERROR
-%(&errorCode)3s %(_ident)-20s,
 #.END
 
 # X.721
