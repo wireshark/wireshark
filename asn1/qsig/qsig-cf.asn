@@ -65,26 +65,6 @@ activateDiversionQ OPERATION ::= {
       notAuthorized | unspecified}
   CODE      local:15}
 
-ActivateDivArg ::=
-    SEQUENCE {procedure          Procedure,
-              basicService       BasicService,
-              divertedToAddress  Address,
-              servedUserNr       PartyNumber,
-              activatingUserNr   PartyNumber,
-              extension
-                CHOICE {single
-                          [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [2] IMPLICIT SEQUENCE OF
-                                         Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
-
-ActivateDivRes ::=
-    CHOICE {null      NULL,
-            single    [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-            multiple
-              [2] IMPLICIT SEQUENCE OF Extension --{{DiversionExtensionSet}}--}
-
 
 deactivateDiversionQ OPERATION ::= {
  -- Sent from the Deactivating PINX to the Served User PINX 
@@ -110,25 +90,6 @@ deactivateDiversionQ OPERATION ::= {
       temporarilyUnavailable | notAuthorized | unspecified}
   CODE      local:16}
 
-DeactivateDivArg ::=
-    SEQUENCE {procedure           Procedure,
-              basicService        BasicService,
-              servedUserNr        PartyNumber,
-              deactivatingUserNr  PartyNumber,
-              extension
-                CHOICE {single
-                          [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [2] IMPLICIT SEQUENCE OF
-                                         Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
-
-DeactivateDivRes ::=
-    CHOICE {null      NULL,
-            single    [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-            multiple
-              [2] IMPLICIT SEQUENCE OF Extension --{{DiversionExtensionSet}}--}
-
 
 interrogateDiversionQ OPERATION ::= { 
  -- Sent from the Interrogating PINX to the Served User PINX 
@@ -150,18 +111,6 @@ interrogateDiversionQ OPERATION ::= {
       temporarilyUnavailable | notAuthorized | unspecified}
   CODE      local:17}
 
-InterrDivArg ::=
-    SEQUENCE {procedure            Procedure,
-              basicService         BasicService DEFAULT allServices,
-              servedUserNr         PartyNumber,
-              interrogatingUserNr  PartyNumber,
-              extension
-                CHOICE {single
-                          [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [2] IMPLICIT SEQUENCE OF
-                                         Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
 
 checkRestriction OPERATION ::= {
  -- Sent from the Served User PINX to the Diverted-to PINX 
@@ -185,24 +134,6 @@ checkRestriction OPERATION ::= {
     {notAvailable | invalidServedUserNr | invalidDivertedToNr |
       specialServiceNr | unspecified}
   CODE      local:18}
-
-ChkResArg ::=
-    SEQUENCE {servedUserNr  PartyNumber,
-              basicService  BasicService,
-              divertedToNr  PartyNumber,
-              extension
-                CHOICE {single
-                          [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [2] IMPLICIT SEQUENCE OF
-                                         Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
-
-ChkResRes ::=
-    CHOICE {null      NULL,
-            single    [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-            multiple
-              [2] IMPLICIT SEQUENCE OF Extension --{{DiversionExtensionSet}}--}
 
 
 callRerouteing OPERATION ::= {
@@ -244,37 +175,6 @@ callRerouteing OPERATION ::= {
  -- The error value numberOfDiversionsExceeded applies only in case of partial rerouteing. 
   CODE      local:19}
 
-CallRrArg ::=
-    SEQUENCE {rerouteingReason          DiversionReason,
-              originalRerouteingReason  [0] IMPLICIT DiversionReason OPTIONAL,
-              calledAddress             Address,
-              diversionCounter          INTEGER(1..15),
-              pSS1InfoElement           PSS1InformationElement,
-              -- The basic call information elements Bearer capability, High layer compatibility, Low 
-              -- layer compatibity and Progress indicator can be embedded in the 
-              -- pSS1InfoElement in accordance with 6.5.3.1.5. 
-              lastRerouteingNr          [1]  PresentedNumberUnscreened,
-              subscriptionOption        [2] IMPLICIT SubscriptionOption,
-              callingPartySubaddress    [3]  PartySubaddress OPTIONAL,
-              callingNumber             [4]  PresentedNumberScreened,
-              callingName               [5]  Name OPTIONAL,
-              originalCalledNr          [6]  PresentedNumberUnscreened OPTIONAL,
-              redirectingName           [7]  Name OPTIONAL,
-              originalCalledName        [8]  Name OPTIONAL,
-              extension
-                CHOICE {single
-                          [9] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [10] IMPLICIT SEQUENCE OF
-                                          Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
-
-CallRrRes ::=
-    CHOICE {null      NULL,
-            single    [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-            multiple
-              [2] IMPLICIT SEQUENCE OF Extension --{{DiversionExtensionSet}}--}
-
 
 divertingLegInformation1 OPERATION ::= {
  -- Sent from the Rerouteing PINX to the Originating PINX 
@@ -292,18 +192,6 @@ divertingLegInformation1 OPERATION ::= {
   RETURN RESULT    FALSE
   ALWAYS RESPONDS  FALSE
   CODE             local:20}
-
-DivLegInf1Arg ::=
-    SEQUENCE {diversionReason     DiversionReason,
-              subscriptionOption  SubscriptionOption,
-              nominatedNr         PartyNumber,
-              extension
-                CHOICE {single
-                          [9] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [10] IMPLICIT SEQUENCE OF
-                                          Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
 
 
 divertingLegInformation2 OPERATION ::= {
@@ -328,21 +216,6 @@ divertingLegInformation2 OPERATION ::= {
   ALWAYS RESPONDS  FALSE
   CODE             local:21}
 
-DivLegInf2Arg ::=
-    SEQUENCE {diversionCounter         INTEGER(1..15),
-              diversionReason          DiversionReason,
-              originalDiversionReason  [0] IMPLICIT DiversionReason OPTIONAL,
-              divertingNr              [1]  PresentedNumberUnscreened OPTIONAL,
-              originalCalledNr         [2]  PresentedNumberUnscreened OPTIONAL,
-              redirectingName          [3]  Name OPTIONAL,
-              originalCalledName       [4]  Name OPTIONAL,
-              extension
-                CHOICE {single
-                          [5] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [6] IMPLICIT SEQUENCE OF
-                                         Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
 
 divertingLegInformation3 OPERATION ::= {
  -- Sent from the Diverted-to PINX to the Originating PINX 
@@ -360,16 +233,6 @@ divertingLegInformation3 OPERATION ::= {
   ALWAYS RESPONDS  FALSE
   CODE             local:22}
 
-DivLegInf3Arg ::=
-    SEQUENCE {presentationAllowedIndicator  PresentationAllowedIndicator,
-              redirectionName               [0]  Name OPTIONAL,
-              extension
-                CHOICE {single
-                          [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-                        multiple
-                          [2] IMPLICIT SEQUENCE OF
-                                         Extension --{{DiversionExtensionSet}}--}
-                  OPTIONAL}
 
 cfnrDivertedLegFailed OPERATION ::= {
   -- Sent from the Rerouteing PINX to the Served User PINX
@@ -382,12 +245,6 @@ cfnrDivertedLegFailed OPERATION ::= {
   RETURN RESULT    FALSE
   ALWAYS RESPONDS  FALSE
   CODE             local:23}
-
-DivLegFailArg ::=
-    CHOICE {null      NULL,
-            single    [1] IMPLICIT Extension --{{DiversionExtensionSet}}--,
-            multiple
-              [2] IMPLICIT SEQUENCE OF Extension --{{DiversionExtensionSet}}--}
 
 
 -- Definitions of general used data types: 

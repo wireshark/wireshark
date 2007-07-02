@@ -19,45 +19,45 @@ Name
 NameArg
 
 #--- ECMA-174 QSIG-CF --------------------------------
-ActivateDivArg
-ActivateDivRes
-DeactivateDivArg
-DeactivateDivRes
-InterrDivArg
-ChkResArg
-ChkResRes
-CallRrArg
-CallRrRes
-DivLegInf1Arg
-DivLegInf2Arg
-DivLegInf3Arg
-DivLegFailArg
+ARG-activateDiversionQ
+RES-activateDiversionQ
+ARG-deactivateDiversionQ
+RES-deactivateDiversionQ
+ARG-interrogateDiversionQ
+ARG-checkRestriction
+RES-checkRestriction
+ARG-callRerouteing
+RES-callRerouteing
+ARG-divertingLegInformation1
+ARG-divertingLegInformation2
+ARG-divertingLegInformation3
+ARG-cfnrDivertedLegFailed
 IntResultList
 
 #.END
 
 #.TYPE_RENAME
-ActivateDivArg/extension    ADExtension
-DeactivateDivArg/extension  DDExtension
-InterrDivArg/extension      IDExtension
-ChkResArg/extension         CHRExtension
-CallRrArg/extension         CRRExtension
-DivLegInf1Arg/extension DLI1Extension
-DivLegInf2Arg/extension DLI2Extension
-DivLegInf3Arg/extension DLI3Extension
+ARG-activateDiversionQ/extension    ADExtension
+ARG-deactivateDiversionQ/extension  DDExtension
+ARG-interrogateDiversionQ/extension      IDExtension
+ARG-checkRestriction/extension         CHRExtension
+ARG-callRerouteing/extension         CRRExtension
+ARG-divertingLegInformation1/extension DLI1Extension
+ARG-divertingLegInformation2/extension DLI2Extension
+ARG-divertingLegInformation3/extension DLI3Extension
 IntResult/extension     IRExtension
 #.END
 
 #.FIELD_RENAME
 NameArg/nameSequence/extension extensionNA
-ActivateDivArg/extension       extensionAD
-DeactivateDivArg/extension     extensionDD
-InterrDivArg/extension         extensionID
-ChkResArg/extension            extensionCHR
-CallRrArg/extension            extensionCRR
-DivLegInf1Arg/extension        extensionDLI1
-DivLegInf2Arg/extension        extensionDLI2
-DivLegInf3Arg/extension        extensionDLI3
+ARG-activateDiversionQ/extension       extensionAD
+ARG-deactivateDiversionQ/extension     extensionDD
+ARG-interrogateDiversionQ/extension         extensionID
+ARG-checkRestriction/extension            extensionCHR
+ARG-callRerouteing/extension            extensionCRR
+ARG-divertingLegInformation1/extension        extensionDLI1
+ARG-divertingLegInformation2/extension        extensionDLI2
+ARG-divertingLegInformation3/extension        extensionDLI3
 IntResult/extension            extensionIR
 #.END
 

@@ -465,19 +465,19 @@ static int hf_qsig_pc = -1;
 /*--- Included file: packet-qsig-hf.c ---*/
 #line 1 "packet-qsig-hf.c"
 static int hf_qsig_NameArg_PDU = -1;              /* NameArg */
-static int hf_qsig_ActivateDivArg_PDU = -1;       /* ActivateDivArg */
-static int hf_qsig_ActivateDivRes_PDU = -1;       /* ActivateDivRes */
-static int hf_qsig_DeactivateDivArg_PDU = -1;     /* DeactivateDivArg */
-static int hf_qsig_DeactivateDivRes_PDU = -1;     /* DeactivateDivRes */
-static int hf_qsig_InterrDivArg_PDU = -1;         /* InterrDivArg */
-static int hf_qsig_ChkResArg_PDU = -1;            /* ChkResArg */
-static int hf_qsig_ChkResRes_PDU = -1;            /* ChkResRes */
-static int hf_qsig_CallRrArg_PDU = -1;            /* CallRrArg */
-static int hf_qsig_CallRrRes_PDU = -1;            /* CallRrRes */
-static int hf_qsig_DivLegInf1Arg_PDU = -1;        /* DivLegInf1Arg */
-static int hf_qsig_DivLegInf2Arg_PDU = -1;        /* DivLegInf2Arg */
-static int hf_qsig_DivLegInf3Arg_PDU = -1;        /* DivLegInf3Arg */
-static int hf_qsig_DivLegFailArg_PDU = -1;        /* DivLegFailArg */
+static int hf_qsig_ARG_activateDiversionQ_PDU = -1;  /* ARG_activateDiversionQ */
+static int hf_qsig_RES_activateDiversionQ_PDU = -1;  /* RES_activateDiversionQ */
+static int hf_qsig_ARG_deactivateDiversionQ_PDU = -1;  /* ARG_deactivateDiversionQ */
+static int hf_qsig_RES_deactivateDiversionQ_PDU = -1;  /* RES_deactivateDiversionQ */
+static int hf_qsig_ARG_interrogateDiversionQ_PDU = -1;  /* ARG_interrogateDiversionQ */
+static int hf_qsig_ARG_checkRestriction_PDU = -1;  /* ARG_checkRestriction */
+static int hf_qsig_RES_checkRestriction_PDU = -1;  /* RES_checkRestriction */
+static int hf_qsig_ARG_callRerouteing_PDU = -1;   /* ARG_callRerouteing */
+static int hf_qsig_RES_callRerouteing_PDU = -1;   /* RES_callRerouteing */
+static int hf_qsig_ARG_divertingLegInformation1_PDU = -1;  /* ARG_divertingLegInformation1 */
+static int hf_qsig_ARG_divertingLegInformation2_PDU = -1;  /* ARG_divertingLegInformation2 */
+static int hf_qsig_ARG_divertingLegInformation3_PDU = -1;  /* ARG_divertingLegInformation3 */
+static int hf_qsig_ARG_cfnrDivertedLegFailed_PDU = -1;  /* ARG_cfnrDivertedLegFailed */
 static int hf_qsig_IntResultList_PDU = -1;        /* IntResultList */
 static int hf_qsig_extensionId = -1;              /* OBJECT_IDENTIFIER */
 static int hf_qsig_extensionArgument = -1;        /* T_extensionArgument */
@@ -605,27 +605,27 @@ static gint ett_qsig_Name = -1;
 static gint ett_qsig_NamePresentationAllowed = -1;
 static gint ett_qsig_NamePresentationRestricted = -1;
 static gint ett_qsig_NameSet = -1;
-static gint ett_qsig_ActivateDivArg = -1;
+static gint ett_qsig_ARG_activateDiversionQ = -1;
 static gint ett_qsig_ADExtension = -1;
-static gint ett_qsig_ActivateDivRes = -1;
-static gint ett_qsig_DeactivateDivArg = -1;
+static gint ett_qsig_RES_activateDiversionQ = -1;
+static gint ett_qsig_ARG_deactivateDiversionQ = -1;
 static gint ett_qsig_DDExtension = -1;
-static gint ett_qsig_DeactivateDivRes = -1;
-static gint ett_qsig_InterrDivArg = -1;
+static gint ett_qsig_RES_deactivateDiversionQ = -1;
+static gint ett_qsig_ARG_interrogateDiversionQ = -1;
 static gint ett_qsig_IDExtension = -1;
-static gint ett_qsig_ChkResArg = -1;
+static gint ett_qsig_ARG_checkRestriction = -1;
 static gint ett_qsig_CHRExtension = -1;
-static gint ett_qsig_ChkResRes = -1;
-static gint ett_qsig_CallRrArg = -1;
+static gint ett_qsig_RES_checkRestriction = -1;
+static gint ett_qsig_ARG_callRerouteing = -1;
 static gint ett_qsig_CRRExtension = -1;
-static gint ett_qsig_CallRrRes = -1;
-static gint ett_qsig_DivLegInf1Arg = -1;
+static gint ett_qsig_RES_callRerouteing = -1;
+static gint ett_qsig_ARG_divertingLegInformation1 = -1;
 static gint ett_qsig_DLI1Extension = -1;
-static gint ett_qsig_DivLegInf2Arg = -1;
+static gint ett_qsig_ARG_divertingLegInformation2 = -1;
 static gint ett_qsig_DLI2Extension = -1;
-static gint ett_qsig_DivLegInf3Arg = -1;
+static gint ett_qsig_ARG_divertingLegInformation3 = -1;
 static gint ett_qsig_DLI3Extension = -1;
-static gint ett_qsig_DivLegFailArg = -1;
+static gint ett_qsig_ARG_cfnrDivertedLegFailed = -1;
 static gint ett_qsig_IntResultList = -1;
 static gint ett_qsig_IntResult = -1;
 static gint ett_qsig_IRExtension = -1;
@@ -1318,7 +1318,7 @@ dissect_qsig_ADExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t ActivateDivArg_sequence[] = {
+static const ber_sequence_t ARG_activateDiversionQ_sequence[] = {
   { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
   { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
   { &hf_qsig_divertedToAddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Address },
@@ -1329,22 +1329,22 @@ static const ber_sequence_t ActivateDivArg_sequence[] = {
 };
 
 static int
-dissect_qsig_ActivateDivArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_activateDiversionQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ActivateDivArg_sequence, hf_index, ett_qsig_ActivateDivArg);
+                                   ARG_activateDiversionQ_sequence, hf_index, ett_qsig_ARG_activateDiversionQ);
 
   return offset;
 }
 
 
-static const value_string qsig_ActivateDivRes_vals[] = {
+static const value_string qsig_RES_activateDiversionQ_vals[] = {
   {   0, "null" },
   {   1, "single" },
   {   2, "multiple" },
   { 0, NULL }
 };
 
-static const ber_choice_t ActivateDivRes_choice[] = {
+static const ber_choice_t RES_activateDiversionQ_choice[] = {
   {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
   {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
   {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
@@ -1352,9 +1352,9 @@ static const ber_choice_t ActivateDivRes_choice[] = {
 };
 
 static int
-dissect_qsig_ActivateDivRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_RES_activateDiversionQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ActivateDivRes_choice, hf_index, ett_qsig_ActivateDivRes,
+                                 RES_activateDiversionQ_choice, hf_index, ett_qsig_RES_activateDiversionQ,
                                  NULL);
 
   return offset;
@@ -1383,7 +1383,7 @@ dissect_qsig_DDExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t DeactivateDivArg_sequence[] = {
+static const ber_sequence_t ARG_deactivateDiversionQ_sequence[] = {
   { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
   { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
   { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
@@ -1393,22 +1393,22 @@ static const ber_sequence_t DeactivateDivArg_sequence[] = {
 };
 
 static int
-dissect_qsig_DeactivateDivArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_deactivateDiversionQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DeactivateDivArg_sequence, hf_index, ett_qsig_DeactivateDivArg);
+                                   ARG_deactivateDiversionQ_sequence, hf_index, ett_qsig_ARG_deactivateDiversionQ);
 
   return offset;
 }
 
 
-static const value_string qsig_DeactivateDivRes_vals[] = {
+static const value_string qsig_RES_deactivateDiversionQ_vals[] = {
   {   0, "null" },
   {   1, "single" },
   {   2, "multiple" },
   { 0, NULL }
 };
 
-static const ber_choice_t DeactivateDivRes_choice[] = {
+static const ber_choice_t RES_deactivateDiversionQ_choice[] = {
   {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
   {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
   {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
@@ -1416,9 +1416,9 @@ static const ber_choice_t DeactivateDivRes_choice[] = {
 };
 
 static int
-dissect_qsig_DeactivateDivRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_RES_deactivateDiversionQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 DeactivateDivRes_choice, hf_index, ett_qsig_DeactivateDivRes,
+                                 RES_deactivateDiversionQ_choice, hf_index, ett_qsig_RES_deactivateDiversionQ,
                                  NULL);
 
   return offset;
@@ -1447,7 +1447,7 @@ dissect_qsig_IDExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t InterrDivArg_sequence[] = {
+static const ber_sequence_t ARG_interrogateDiversionQ_sequence[] = {
   { &hf_qsig_procedure      , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_Procedure },
   { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
   { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
@@ -1457,9 +1457,9 @@ static const ber_sequence_t InterrDivArg_sequence[] = {
 };
 
 static int
-dissect_qsig_InterrDivArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_interrogateDiversionQ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   InterrDivArg_sequence, hf_index, ett_qsig_InterrDivArg);
+                                   ARG_interrogateDiversionQ_sequence, hf_index, ett_qsig_ARG_interrogateDiversionQ);
 
   return offset;
 }
@@ -1487,7 +1487,7 @@ dissect_qsig_CHRExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t ChkResArg_sequence[] = {
+static const ber_sequence_t ARG_checkRestriction_sequence[] = {
   { &hf_qsig_servedUserNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
   { &hf_qsig_basicService   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_BasicService },
   { &hf_qsig_divertedToNr   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
@@ -1496,22 +1496,22 @@ static const ber_sequence_t ChkResArg_sequence[] = {
 };
 
 static int
-dissect_qsig_ChkResArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_checkRestriction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChkResArg_sequence, hf_index, ett_qsig_ChkResArg);
+                                   ARG_checkRestriction_sequence, hf_index, ett_qsig_ARG_checkRestriction);
 
   return offset;
 }
 
 
-static const value_string qsig_ChkResRes_vals[] = {
+static const value_string qsig_RES_checkRestriction_vals[] = {
   {   0, "null" },
   {   1, "single" },
   {   2, "multiple" },
   { 0, NULL }
 };
 
-static const ber_choice_t ChkResRes_choice[] = {
+static const ber_choice_t RES_checkRestriction_choice[] = {
   {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
   {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
   {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
@@ -1519,9 +1519,9 @@ static const ber_choice_t ChkResRes_choice[] = {
 };
 
 static int
-dissect_qsig_ChkResRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_RES_checkRestriction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ChkResRes_choice, hf_index, ett_qsig_ChkResRes,
+                                 RES_checkRestriction_choice, hf_index, ett_qsig_RES_checkRestriction,
                                  NULL);
 
   return offset;
@@ -1595,7 +1595,7 @@ dissect_qsig_CRRExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const ber_sequence_t CallRrArg_sequence[] = {
+static const ber_sequence_t ARG_callRerouteing_sequence[] = {
   { &hf_qsig_rerouteingReason, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_DiversionReason },
   { &hf_qsig_originalRerouteingReason, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qsig_DiversionReason },
   { &hf_qsig_calledAddress  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Address },
@@ -1614,22 +1614,22 @@ static const ber_sequence_t CallRrArg_sequence[] = {
 };
 
 static int
-dissect_qsig_CallRrArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_callRerouteing(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   CallRrArg_sequence, hf_index, ett_qsig_CallRrArg);
+                                   ARG_callRerouteing_sequence, hf_index, ett_qsig_ARG_callRerouteing);
 
   return offset;
 }
 
 
-static const value_string qsig_CallRrRes_vals[] = {
+static const value_string qsig_RES_callRerouteing_vals[] = {
   {   0, "null" },
   {   1, "single" },
   {   2, "multiple" },
   { 0, NULL }
 };
 
-static const ber_choice_t CallRrRes_choice[] = {
+static const ber_choice_t RES_callRerouteing_choice[] = {
   {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
   {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
   {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
@@ -1637,9 +1637,9 @@ static const ber_choice_t CallRrRes_choice[] = {
 };
 
 static int
-dissect_qsig_CallRrRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_RES_callRerouteing(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 CallRrRes_choice, hf_index, ett_qsig_CallRrRes,
+                                 RES_callRerouteing_choice, hf_index, ett_qsig_RES_callRerouteing,
                                  NULL);
 
   return offset;
@@ -1668,7 +1668,7 @@ dissect_qsig_DLI1Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t DivLegInf1Arg_sequence[] = {
+static const ber_sequence_t ARG_divertingLegInformation1_sequence[] = {
   { &hf_qsig_diversionReason, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_DiversionReason },
   { &hf_qsig_subscriptionOption, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_SubscriptionOption },
   { &hf_qsig_nominatedNr    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_PartyNumber },
@@ -1677,9 +1677,9 @@ static const ber_sequence_t DivLegInf1Arg_sequence[] = {
 };
 
 static int
-dissect_qsig_DivLegInf1Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_divertingLegInformation1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DivLegInf1Arg_sequence, hf_index, ett_qsig_DivLegInf1Arg);
+                                   ARG_divertingLegInformation1_sequence, hf_index, ett_qsig_ARG_divertingLegInformation1);
 
   return offset;
 }
@@ -1707,7 +1707,7 @@ dissect_qsig_DLI2Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t DivLegInf2Arg_sequence[] = {
+static const ber_sequence_t ARG_divertingLegInformation2_sequence[] = {
   { &hf_qsig_diversionCounter, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_INTEGER_1_15 },
   { &hf_qsig_diversionReason, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_qsig_DiversionReason },
   { &hf_qsig_originalDiversionReason, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_qsig_DiversionReason },
@@ -1720,9 +1720,9 @@ static const ber_sequence_t DivLegInf2Arg_sequence[] = {
 };
 
 static int
-dissect_qsig_DivLegInf2Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_divertingLegInformation2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DivLegInf2Arg_sequence, hf_index, ett_qsig_DivLegInf2Arg);
+                                   ARG_divertingLegInformation2_sequence, hf_index, ett_qsig_ARG_divertingLegInformation2);
 
   return offset;
 }
@@ -1750,7 +1750,7 @@ dissect_qsig_DLI3Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_sequence_t DivLegInf3Arg_sequence[] = {
+static const ber_sequence_t ARG_divertingLegInformation3_sequence[] = {
   { &hf_qsig_presentationAllowedIndicator, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_qsig_PresentationAllowedIndicator },
   { &hf_qsig_redirectionName, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_qsig_Name },
   { &hf_qsig_extensionDLI3  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_DLI3Extension },
@@ -1758,22 +1758,22 @@ static const ber_sequence_t DivLegInf3Arg_sequence[] = {
 };
 
 static int
-dissect_qsig_DivLegInf3Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_divertingLegInformation3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DivLegInf3Arg_sequence, hf_index, ett_qsig_DivLegInf3Arg);
+                                   ARG_divertingLegInformation3_sequence, hf_index, ett_qsig_ARG_divertingLegInformation3);
 
   return offset;
 }
 
 
-static const value_string qsig_DivLegFailArg_vals[] = {
+static const value_string qsig_ARG_cfnrDivertedLegFailed_vals[] = {
   {   0, "null" },
   {   1, "single" },
   {   2, "multiple" },
   { 0, NULL }
 };
 
-static const ber_choice_t DivLegFailArg_choice[] = {
+static const ber_choice_t ARG_cfnrDivertedLegFailed_choice[] = {
   {   0, &hf_qsig_null           , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_qsig_NULL },
   {   1, &hf_qsig_single         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
   {   2, &hf_qsig_multiple       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_SEQUENCE_OF_Extension },
@@ -1781,9 +1781,9 @@ static const ber_choice_t DivLegFailArg_choice[] = {
 };
 
 static int
-dissect_qsig_DivLegFailArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_qsig_ARG_cfnrDivertedLegFailed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 DivLegFailArg_choice, hf_index, ett_qsig_DivLegFailArg,
+                                 ARG_cfnrDivertedLegFailed_choice, hf_index, ett_qsig_ARG_cfnrDivertedLegFailed,
                                  NULL);
 
   return offset;
@@ -1850,70 +1850,70 @@ static void dissect_NameArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_qsig_NameArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_NameArg_PDU);
 }
-static void dissect_ActivateDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_activateDiversionQ_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_ActivateDivArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ActivateDivArg_PDU);
+  dissect_qsig_ARG_activateDiversionQ(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_activateDiversionQ_PDU);
 }
-static void dissect_ActivateDivRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_RES_activateDiversionQ_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_ActivateDivRes(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ActivateDivRes_PDU);
+  dissect_qsig_RES_activateDiversionQ(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_RES_activateDiversionQ_PDU);
 }
-static void dissect_DeactivateDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_deactivateDiversionQ_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_DeactivateDivArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_DeactivateDivArg_PDU);
+  dissect_qsig_ARG_deactivateDiversionQ(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_deactivateDiversionQ_PDU);
 }
-static void dissect_DeactivateDivRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_RES_deactivateDiversionQ_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_DeactivateDivRes(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_DeactivateDivRes_PDU);
+  dissect_qsig_RES_deactivateDiversionQ(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_RES_deactivateDiversionQ_PDU);
 }
-static void dissect_InterrDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_interrogateDiversionQ_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_InterrDivArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_InterrDivArg_PDU);
+  dissect_qsig_ARG_interrogateDiversionQ(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_interrogateDiversionQ_PDU);
 }
-static void dissect_ChkResArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_checkRestriction_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_ChkResArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ChkResArg_PDU);
+  dissect_qsig_ARG_checkRestriction(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_checkRestriction_PDU);
 }
-static void dissect_ChkResRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_RES_checkRestriction_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_ChkResRes(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ChkResRes_PDU);
+  dissect_qsig_RES_checkRestriction(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_RES_checkRestriction_PDU);
 }
-static void dissect_CallRrArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_callRerouteing_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_CallRrArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_CallRrArg_PDU);
+  dissect_qsig_ARG_callRerouteing(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_callRerouteing_PDU);
 }
-static void dissect_CallRrRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_RES_callRerouteing_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_CallRrRes(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_CallRrRes_PDU);
+  dissect_qsig_RES_callRerouteing(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_RES_callRerouteing_PDU);
 }
-static void dissect_DivLegInf1Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_divertingLegInformation1_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_DivLegInf1Arg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_DivLegInf1Arg_PDU);
+  dissect_qsig_ARG_divertingLegInformation1(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_divertingLegInformation1_PDU);
 }
-static void dissect_DivLegInf2Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_divertingLegInformation2_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_DivLegInf2Arg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_DivLegInf2Arg_PDU);
+  dissect_qsig_ARG_divertingLegInformation2(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_divertingLegInformation2_PDU);
 }
-static void dissect_DivLegInf3Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_divertingLegInformation3_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_DivLegInf3Arg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_DivLegInf3Arg_PDU);
+  dissect_qsig_ARG_divertingLegInformation3(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_divertingLegInformation3_PDU);
 }
-static void dissect_DivLegFailArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_ARG_cfnrDivertedLegFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_qsig_DivLegFailArg(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_DivLegFailArg_PDU);
+  dissect_qsig_ARG_cfnrDivertedLegFailed(FALSE, tvb, 0, &asn1_ctx, tree, hf_qsig_ARG_cfnrDivertedLegFailed_PDU);
 }
 static void dissect_IntResultList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1942,15 +1942,15 @@ static qsig_op qsig_tab[] = {
   /*  12 */ { 13869, FNA( 12), FNR( 12), NULL, NULL },
   /*  13 */ { 13869, FNA( 13), FNR( 13), NULL, NULL },
   /*  14 */ { 13869, FNA( 14), FNR( 14), NULL, NULL },
-  /*  15 */ { 13873, FNA( 15), FNR( 15), dissect_ActivateDivArg_PDU, dissect_ActivateDivRes_PDU },
-  /*  16 */ { 13873, FNA( 16), FNR( 16), dissect_DeactivateDivArg_PDU, dissect_DeactivateDivRes_PDU },
-  /*  17 */ { 13873, FNA( 17), FNR( 17), dissect_InterrDivArg_PDU, dissect_IntResultList_PDU },
-  /*  18 */ { 13873, FNA( 18), FNR( 18), dissect_ChkResArg_PDU, dissect_ChkResRes_PDU },
-  /*  19 */ { 13873, FNA( 19), FNR( 19), dissect_CallRrArg_PDU, dissect_CallRrArg_PDU },
-  /*  20 */ { 13873, FNA( 20), FNR( 20), dissect_DivLegInf1Arg_PDU, NULL },
-  /*  21 */ { 13873, FNA( 21), FNR( 21), dissect_DivLegInf2Arg_PDU, NULL },
-  /*  22 */ { 13873, FNA( 22), FNR( 22), dissect_DivLegInf3Arg_PDU, NULL },
-  /*  23 */ { 13873, FNA( 23), FNR( 23), dissect_DivLegFailArg_PDU, NULL },
+  /*  15 */ { 13873, FNA( 15), FNR( 15), dissect_ARG_activateDiversionQ_PDU, dissect_RES_activateDiversionQ_PDU },
+  /*  16 */ { 13873, FNA( 16), FNR( 16), dissect_ARG_deactivateDiversionQ_PDU, dissect_RES_deactivateDiversionQ_PDU },
+  /*  17 */ { 13873, FNA( 17), FNR( 17), dissect_ARG_interrogateDiversionQ_PDU, dissect_IntResultList_PDU },
+  /*  18 */ { 13873, FNA( 18), FNR( 18), dissect_ARG_checkRestriction_PDU, dissect_RES_checkRestriction_PDU },
+  /*  19 */ { 13873, FNA( 19), FNR( 19), dissect_ARG_callRerouteing_PDU, dissect_RES_callRerouteing_PDU },
+  /*  20 */ { 13873, FNA( 20), FNR( 20), dissect_ARG_divertingLegInformation1_PDU, NULL },
+  /*  21 */ { 13873, FNA( 21), FNR( 21), dissect_ARG_divertingLegInformation2_PDU, NULL },
+  /*  22 */ { 13873, FNA( 22), FNR( 22), dissect_ARG_divertingLegInformation3_PDU, NULL },
+  /*  23 */ { 13873, FNA( 23), FNR( 23), dissect_ARG_cfnrDivertedLegFailed_PDU, NULL },
   /*  24 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
   /*  25 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
   /*  26 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
@@ -2214,58 +2214,58 @@ void proto_register_qsig(void) {
       { "NameArg", "qsig.NameArg",
         FT_UINT32, BASE_DEC, VALS(qsig_NameArg_vals), 0,
         "qsig.NameArg", HFILL }},
-    { &hf_qsig_ActivateDivArg_PDU,
-      { "ActivateDivArg", "qsig.ActivateDivArg",
+    { &hf_qsig_ARG_activateDiversionQ_PDU,
+      { "ARG-activateDiversionQ", "qsig.ARG_activateDiversionQ",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.ActivateDivArg", HFILL }},
-    { &hf_qsig_ActivateDivRes_PDU,
-      { "ActivateDivRes", "qsig.ActivateDivRes",
-        FT_UINT32, BASE_DEC, VALS(qsig_ActivateDivRes_vals), 0,
-        "qsig.ActivateDivRes", HFILL }},
-    { &hf_qsig_DeactivateDivArg_PDU,
-      { "DeactivateDivArg", "qsig.DeactivateDivArg",
+        "qsig.ARG_activateDiversionQ", HFILL }},
+    { &hf_qsig_RES_activateDiversionQ_PDU,
+      { "RES-activateDiversionQ", "qsig.RES_activateDiversionQ",
+        FT_UINT32, BASE_DEC, VALS(qsig_RES_activateDiversionQ_vals), 0,
+        "qsig.RES_activateDiversionQ", HFILL }},
+    { &hf_qsig_ARG_deactivateDiversionQ_PDU,
+      { "ARG-deactivateDiversionQ", "qsig.ARG_deactivateDiversionQ",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.DeactivateDivArg", HFILL }},
-    { &hf_qsig_DeactivateDivRes_PDU,
-      { "DeactivateDivRes", "qsig.DeactivateDivRes",
-        FT_UINT32, BASE_DEC, VALS(qsig_DeactivateDivRes_vals), 0,
-        "qsig.DeactivateDivRes", HFILL }},
-    { &hf_qsig_InterrDivArg_PDU,
-      { "InterrDivArg", "qsig.InterrDivArg",
+        "qsig.ARG_deactivateDiversionQ", HFILL }},
+    { &hf_qsig_RES_deactivateDiversionQ_PDU,
+      { "RES-deactivateDiversionQ", "qsig.RES_deactivateDiversionQ",
+        FT_UINT32, BASE_DEC, VALS(qsig_RES_deactivateDiversionQ_vals), 0,
+        "qsig.RES_deactivateDiversionQ", HFILL }},
+    { &hf_qsig_ARG_interrogateDiversionQ_PDU,
+      { "ARG-interrogateDiversionQ", "qsig.ARG_interrogateDiversionQ",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.InterrDivArg", HFILL }},
-    { &hf_qsig_ChkResArg_PDU,
-      { "ChkResArg", "qsig.ChkResArg",
+        "qsig.ARG_interrogateDiversionQ", HFILL }},
+    { &hf_qsig_ARG_checkRestriction_PDU,
+      { "ARG-checkRestriction", "qsig.ARG_checkRestriction",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.ChkResArg", HFILL }},
-    { &hf_qsig_ChkResRes_PDU,
-      { "ChkResRes", "qsig.ChkResRes",
-        FT_UINT32, BASE_DEC, VALS(qsig_ChkResRes_vals), 0,
-        "qsig.ChkResRes", HFILL }},
-    { &hf_qsig_CallRrArg_PDU,
-      { "CallRrArg", "qsig.CallRrArg",
+        "qsig.ARG_checkRestriction", HFILL }},
+    { &hf_qsig_RES_checkRestriction_PDU,
+      { "RES-checkRestriction", "qsig.RES_checkRestriction",
+        FT_UINT32, BASE_DEC, VALS(qsig_RES_checkRestriction_vals), 0,
+        "qsig.RES_checkRestriction", HFILL }},
+    { &hf_qsig_ARG_callRerouteing_PDU,
+      { "ARG-callRerouteing", "qsig.ARG_callRerouteing",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.CallRrArg", HFILL }},
-    { &hf_qsig_CallRrRes_PDU,
-      { "CallRrRes", "qsig.CallRrRes",
-        FT_UINT32, BASE_DEC, VALS(qsig_CallRrRes_vals), 0,
-        "qsig.CallRrRes", HFILL }},
-    { &hf_qsig_DivLegInf1Arg_PDU,
-      { "DivLegInf1Arg", "qsig.DivLegInf1Arg",
+        "qsig.ARG_callRerouteing", HFILL }},
+    { &hf_qsig_RES_callRerouteing_PDU,
+      { "RES-callRerouteing", "qsig.RES_callRerouteing",
+        FT_UINT32, BASE_DEC, VALS(qsig_RES_callRerouteing_vals), 0,
+        "qsig.RES_callRerouteing", HFILL }},
+    { &hf_qsig_ARG_divertingLegInformation1_PDU,
+      { "ARG-divertingLegInformation1", "qsig.ARG_divertingLegInformation1",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.DivLegInf1Arg", HFILL }},
-    { &hf_qsig_DivLegInf2Arg_PDU,
-      { "DivLegInf2Arg", "qsig.DivLegInf2Arg",
+        "qsig.ARG_divertingLegInformation1", HFILL }},
+    { &hf_qsig_ARG_divertingLegInformation2_PDU,
+      { "ARG-divertingLegInformation2", "qsig.ARG_divertingLegInformation2",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.DivLegInf2Arg", HFILL }},
-    { &hf_qsig_DivLegInf3Arg_PDU,
-      { "DivLegInf3Arg", "qsig.DivLegInf3Arg",
+        "qsig.ARG_divertingLegInformation2", HFILL }},
+    { &hf_qsig_ARG_divertingLegInformation3_PDU,
+      { "ARG-divertingLegInformation3", "qsig.ARG_divertingLegInformation3",
         FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.DivLegInf3Arg", HFILL }},
-    { &hf_qsig_DivLegFailArg_PDU,
-      { "DivLegFailArg", "qsig.DivLegFailArg",
-        FT_UINT32, BASE_DEC, VALS(qsig_DivLegFailArg_vals), 0,
-        "qsig.DivLegFailArg", HFILL }},
+        "qsig.ARG_divertingLegInformation3", HFILL }},
+    { &hf_qsig_ARG_cfnrDivertedLegFailed_PDU,
+      { "ARG-cfnrDivertedLegFailed", "qsig.ARG_cfnrDivertedLegFailed",
+        FT_UINT32, BASE_DEC, VALS(qsig_ARG_cfnrDivertedLegFailed_vals), 0,
+        "qsig.ARG_cfnrDivertedLegFailed", HFILL }},
     { &hf_qsig_IntResultList_PDU,
       { "IntResultList", "qsig.IntResultList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2639,27 +2639,27 @@ void proto_register_qsig(void) {
     &ett_qsig_NamePresentationAllowed,
     &ett_qsig_NamePresentationRestricted,
     &ett_qsig_NameSet,
-    &ett_qsig_ActivateDivArg,
+    &ett_qsig_ARG_activateDiversionQ,
     &ett_qsig_ADExtension,
-    &ett_qsig_ActivateDivRes,
-    &ett_qsig_DeactivateDivArg,
+    &ett_qsig_RES_activateDiversionQ,
+    &ett_qsig_ARG_deactivateDiversionQ,
     &ett_qsig_DDExtension,
-    &ett_qsig_DeactivateDivRes,
-    &ett_qsig_InterrDivArg,
+    &ett_qsig_RES_deactivateDiversionQ,
+    &ett_qsig_ARG_interrogateDiversionQ,
     &ett_qsig_IDExtension,
-    &ett_qsig_ChkResArg,
+    &ett_qsig_ARG_checkRestriction,
     &ett_qsig_CHRExtension,
-    &ett_qsig_ChkResRes,
-    &ett_qsig_CallRrArg,
+    &ett_qsig_RES_checkRestriction,
+    &ett_qsig_ARG_callRerouteing,
     &ett_qsig_CRRExtension,
-    &ett_qsig_CallRrRes,
-    &ett_qsig_DivLegInf1Arg,
+    &ett_qsig_RES_callRerouteing,
+    &ett_qsig_ARG_divertingLegInformation1,
     &ett_qsig_DLI1Extension,
-    &ett_qsig_DivLegInf2Arg,
+    &ett_qsig_ARG_divertingLegInformation2,
     &ett_qsig_DLI2Extension,
-    &ett_qsig_DivLegInf3Arg,
+    &ett_qsig_ARG_divertingLegInformation3,
     &ett_qsig_DLI3Extension,
-    &ett_qsig_DivLegFailArg,
+    &ett_qsig_ARG_cfnrDivertedLegFailed,
     &ett_qsig_IntResultList,
     &ett_qsig_IntResult,
     &ett_qsig_IRExtension,
