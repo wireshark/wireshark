@@ -50,6 +50,7 @@
 #include "packet-per.h"
 #include <epan/emem.h>
 #include "packet-tcp.h"
+#include "packet-gsm_map.h"
 
 #define PNAME  "OMA UserPlane Location Protocol"
 #define PSNAME "ULP"
@@ -159,10 +160,10 @@ static int hf_ulp_setSessionID = -1;              /* SetSessionID */
 static int hf_ulp_slpSessionID = -1;              /* SlpSessionID */
 static int hf_ulp_sessionId = -1;                 /* INTEGER_0_65535 */
 static int hf_ulp_setId = -1;                     /* SETId */
-static int hf_ulp_msisdn = -1;                    /* OCTET_STRING_SIZE_8 */
+static int hf_ulp_msisdn = -1;                    /* T_msisdn */
 static int hf_ulp_mdn = -1;                       /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
-static int hf_ulp_imsi = -1;                      /* OCTET_STRING_SIZE_8 */
+static int hf_ulp_imsi = -1;                      /* T_imsi */
 static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
 static int hf_ulp_sessionSlpID = -1;              /* OCTET_STRING_SIZE_4 */
@@ -251,7 +252,7 @@ static int hf_ulp_horuncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 static int hf_ulp_veruncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 68 "packet-ulp-template.c"
+#line 69 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -318,7 +319,7 @@ static gint ett_ulp_Horveluncert = -1;
 static gint ett_ulp_Horandveruncert = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 72 "packet-ulp-template.c"
+#line 73 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -331,7 +332,7 @@ static gint ett_ulp_Horandveruncert = -1;
 #define maxTS                          14
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 75 "packet-ulp-template.c"
+#line 76 "packet-ulp-template.c"
 
 
 
@@ -376,6 +377,31 @@ dissect_ulp_Version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
+dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 59 "ulp.cnf"
+ tvbuff_t *parameter_tvb;
+ asn1_ctx_t		asn1_ctx;
+
+ /* "Hide" the first dissection to avoid double tree entries */
+ hf_index = -1;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, &parameter_tvb);
+
+
+if(!parameter_tvb)
+	return offset;
+/* msisdn is ISDN-addressstring */
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
+	dissect_gsm_map_ISDN_AddressString(TRUE, parameter_tvb, 0, &asn1_ctx, tree, hf_ulp_msisdn);
+
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, NULL);
@@ -389,6 +415,30 @@ static int
 dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      34, 34, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 73 "ulp.cnf"
+ tvbuff_t *parameter_tvb;
+ asn1_ctx_t		asn1_ctx;
+
+ /* "Hide" the first dissection to avoid double tree entries */
+ hf_index = -1;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, &parameter_tvb);
+
+
+if(!parameter_tvb)
+	return offset;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
+	dissect_gsm_map_IMSI(TRUE, parameter_tvb, 0, &asn1_ctx, tree, hf_ulp_imsi);
+
+
 
   return offset;
 }
@@ -457,10 +507,10 @@ static const value_string ulp_SETId_vals[] = {
 };
 
 static const per_choice_t SETId_choice[] = {
-  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_T_msisdn },
   {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
   {   2, &hf_ulp_minsi           , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
-  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_T_imsi },
   {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
   { 0, NULL, 0, NULL }
@@ -2138,7 +2188,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 78 "packet-ulp-template.c"
+#line 79 "packet-ulp-template.c"
 
 
 static guint
@@ -2505,7 +2555,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_msisdn,
       { "msisdn", "ulp.msisdn",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_8", HFILL }},
+        "ulp.T_msisdn", HFILL }},
     { &hf_ulp_mdn,
       { "mdn", "ulp.mdn",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -2517,7 +2567,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_imsi,
       { "imsi", "ulp.imsi",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_8", HFILL }},
+        "ulp.T_imsi", HFILL }},
     { &hf_ulp_nai,
       { "nai", "ulp.nai",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2536,7 +2586,7 @@ void proto_register_ulp(void) {
         "ulp.SLPAddress", HFILL }},
     { &hf_ulp_ipv4Address,
       { "ipv4Address", "ulp.ipv4Address",
-        FT_IPv6, BASE_NONE, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         "ulp.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_ulp_ipv6Address,
       { "ipv6Address", "ulp.ipv6Address",
@@ -2864,7 +2914,7 @@ void proto_register_ulp(void) {
         "ulp.BIT_STRING_SIZE_8", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 103 "packet-ulp-template.c"
+#line 104 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -2933,7 +2983,7 @@ void proto_register_ulp(void) {
     &ett_ulp_Horandveruncert,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 109 "packet-ulp-template.c"
+#line 110 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;

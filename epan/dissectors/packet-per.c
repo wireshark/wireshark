@@ -1762,7 +1762,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			gboolean bit;
 
 			val_start = offset>>3;
+			val_length = min_len;
 			buff = ep_alloc(min_len);
+
+			if (display_internal_per_fields)
+				proto_tree_add_text(tree, tvb, val_start, min_len, "min=max=%u",min_len);
 			while (j < (guint32)min_len){
 				for(i=0;i<8;i++){
 					offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
@@ -1771,8 +1775,13 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				j = j+1;
 			}
 			pbytes = buff;
-			val_length = min_len;
-			/* XXX should we return a new tvb with the octetstring? */
+			out_tvb = tvb_new_real_data(buff,min_len,min_len);
+			/* Arrange that the allocated packet data copy be freed when the
+			 * tvbuff is freed. 
+			 */
+			tvb_set_free_cb(out_tvb, g_free );
+			tvb_set_child_real_data_tvbuff(tvb,out_tvb);
+			add_new_data_source(actx->pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
 		}
 
 	} else {  /* 16.8 */
@@ -1835,7 +1844,13 @@ DEBUG_ENTRY("dissect_per_octet_string");
 					actx->created_item = proto_tree_add_string(tree, hf_index, tvb, val_start, val_length, (char*)pbytes);
 				} else if (hfi->type==FT_BYTES) {
 					actx->created_item = proto_tree_add_bytes(tree, hf_index, tvb, val_start, val_length, pbytes);
+				} else if (hfi->type==FT_IPv4) {
+					actx->created_item = proto_tree_add_ipv4(tree, hf_index, tvb, val_start, val_length, (guint32)pbytes);
+				} else if (hfi->type==FT_IPv6) {
+					actx->created_item = proto_tree_add_ipv6(tree, hf_index, tvb, val_start, val_length, pbytes);
 				} else {
+					if (display_internal_per_fields)
+						proto_tree_add_text(tree, tvb, val_start, min_len, "hf field is not FT_STRING, FT_BYTES or FT_IPv4/6 %s",hfi->name);
 					THROW(ReportedBoundsError);
 				}
 			} else {

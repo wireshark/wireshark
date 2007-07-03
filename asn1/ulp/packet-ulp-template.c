@@ -42,6 +42,7 @@
 #include "packet-per.h"
 #include <epan/emem.h>
 #include "packet-tcp.h"
+#include "packet-gsm_map.h"
 
 #define PNAME  "OMA UserPlane Location Protocol"
 #define PSNAME "ULP"

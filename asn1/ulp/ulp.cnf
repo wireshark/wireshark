@@ -1,6 +1,6 @@
 # upl.cnf
 # upl conformation file
-# Copyright 2006 Anders Broman 
+# Copyright 2006-2007 Anders Broman 
 # $Id$
 
 #.OPT
@@ -55,7 +55,34 @@ guint32 UlpMessage;
 	call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
   }
 
+#.FN_BODY SETId/msisdn VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ asn1_ctx_t		asn1_ctx;
+
+ /* "Hide" the first dissection to avoid double tree entries */
+ hf_index = -1;
+%(DEFAULT_BODY)s
+
+if(!parameter_tvb)
+	return offset;
+/* msisdn is ISDN-addressstring */
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
+	dissect_gsm_map_ISDN_AddressString(TRUE, parameter_tvb, 0, &asn1_ctx, tree, hf_ulp_msisdn);
+
+#.FN_BODY SETId/imsi VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ asn1_ctx_t		asn1_ctx;
+
+ /* "Hide" the first dissection to avoid double tree entries */
+ hf_index = -1;
+%(DEFAULT_BODY)s
+
+if(!parameter_tvb)
+	return offset;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
+	dissect_gsm_map_IMSI(TRUE, parameter_tvb, 0, &asn1_ctx, tree, hf_ulp_imsi);
+
 #.TYPE_ATTR
-IPAddress/ipv4Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL  
+IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL  
 IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL  
 #.END
