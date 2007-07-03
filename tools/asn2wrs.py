@@ -609,10 +609,12 @@ class EthCtx:
       pass
     return "MIN((%s),(%s))" % (a, b) 
 
-  def value_get_eth(self, nm):
-    ethname = nm
-    if self.value.has_key(nm):
-      ethname = self.value[nm]['ethname']
+  def value_get_eth(self, val):
+    if isinstance(val, Value):
+      return val.to_str(self)
+    ethname = val
+    if self.value.has_key(val):
+      ethname = self.value[val]['ethname']
     return ethname
 
   def value_get_val(self, nm):
@@ -3102,7 +3104,11 @@ class Type (Node):
       pars.update(ectx.conform.use_item('FN_PARS', ectx.eth_type[tname]['ref'][0]))
     pars['DEFAULT_BODY'] = body
     for i in range(4):
-      for k in pars.keys(): pars[k] = pars[k] % pars
+      for k in pars.keys(): 
+        try:
+          pars[k] = pars[k] % pars
+        except (TypeError):
+          raise sys.exc_type, "%s\n%s" % (str(pars), sys.exc_value)
     out = '\n'
     out += self.eth_type_default_table(ectx, tname) % pars
     out += ectx.eth_type_fn_hdr(tname)
@@ -3127,6 +3133,11 @@ class Value (Node):
 
   def fld_obj_repr(self, ectx):
     return self.to_str(ectx)
+
+#--- Value_Ref -----------------------------------------------------------------
+class Value_Ref (Value):
+  def to_str(self, ectx):
+    return asn2c(self.val)
 
 #--- ObjectClass ---------------------------------------------------------------------
 class ObjectClass (Node):
@@ -3304,7 +3315,7 @@ class Constraint (Node):
 
   def IsNegativ(self):
     def is_neg(sval):
-      return sval[0] == '-'
+      return isinstance(sval, str) and (sval[0] == '-')
     if self.type == 'SingleValue':
       return is_neg(self.subtype)
     elif self.type == 'ValueRange':
@@ -3314,6 +3325,8 @@ class Constraint (Node):
 
   def eth_constrname(self):
     def int2str(val):
+      if isinstance(val, Value_Ref):
+        return asn2c(val.val)
       try:
         if (int(val) < 0):
           return 'M' + str(-int(val))
@@ -3376,10 +3389,13 @@ class Module_Body (Node):
       for s in i.symbol_list:
         if isinstance(s, Type_Ref):
           ectx.eth_import_type(s.val, mod, proto)
+        elif isinstance(s, Value_Ref):
+          ectx.eth_import_value(s.val, mod, proto)
         elif isinstance(s, Class_Ref):
           ectx.eth_import_class(s.val, mod, proto)
         else:
-          ectx.eth_import_value(s, mod, proto)
+          msg = 'Unknown kind of imported symbol %s from %s' % (str(s), mod)
+          warnings.warn_explicit(msg, UserWarning, '', '')
     # AssignmentList
     for a in self.assign_list:
       a.eth_reg('', ectx)
@@ -5221,7 +5237,7 @@ def p_identifier (t):
 # 11.4 Value references
 def p_valuereference (t):
   'valuereference : LCASE_IDENT'
-  t[0] = t[1]
+  t[0] = Value_Ref(val=t[1])
 
 # 11.5 Module references
 def p_modulereference (t):
@@ -5337,7 +5353,7 @@ def p_SymbolsFromModule (t):
   'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
   t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
   for s in (t[0].symbol_list): 
-    if (isinstance(s, str) and s[0].islower()): lcase_ident_assigned[s] = t[3]
+    if (isinstance(s, Value_Ref)): lcase_ident_assigned[s.val] = t[3]
   if t[0].module.val == 'Remote-Operations-Information-Objects':
     for i in range(len(t[0].symbol_list)):
       s = t[0].symbol_list[i]
@@ -5375,12 +5391,15 @@ def p_Symbol (t):
             | ParameterizedReference'''
   t[0] = t[1]
 
-def p_Reference (t):
+def p_Reference_1 (t):
   '''Reference : type_ref
                | valuereference
-               | objectclassreference
-               | LCASE_IDENT_ASSIGNED'''
+               | objectclassreference '''
   t[0] = t[1]
+
+def p_Reference_2 (t):
+  '''Reference : LCASE_IDENT_ASSIGNED'''
+  t[0] = Value_Ref (val=t[1])
 
 def p_AssignmentList_1 (t):
   'AssignmentList : AssignmentList Assignment'
@@ -5417,7 +5436,7 @@ def p_DefinedType (t):
 
 def p_DefinedValue(t):
   '''DefinedValue : ExternalValueReference
-                  | identifier'''
+                  | valuereference'''
   t[0] = t[1]
 
 # 13.6
@@ -5440,7 +5459,7 @@ def p_TypeAssignment (t):
 
 # 15.2
 def p_ValueAssignment (t):
-  'ValueAssignment : valuereference ValueType ASSIGNMENT Value'
+  'ValueAssignment : LCASE_IDENT ValueType ASSIGNMENT Value'
   t[0] = ValueAssignment(ident = t[1], typ = t[2], val = t[4])
 
 # only "simple" types are supported to simplify grammer
@@ -6649,6 +6668,7 @@ def p_lbraceobject(t):
 def p_braceobjectbegin(t):
   'braceobjectbegin : '
   global lexer
+  global obj_class
   if set_x880_syntax(obj_class):
     state = 'INITIAL'
   else:
@@ -6962,14 +6982,14 @@ def p_ParameterizedTypeAssignment (t):
   t[0].SetName(t[1])  # t[0].SetName(t[1] + 'xxx')
 
 def p_ParameterizedObjectAssignment (t):
-  'ParameterizedObjectAssignment : objectreference ParameterList CLASS_IDENT ASSIGNMENT Object'
-  t[0] = ObjectAssignment (ident = t[1], cls=t[3], val=t[5])
+  'ParameterizedObjectAssignment : objectreference ParameterList DefinedObjectClass ASSIGNMENT Object'
+  t[0] = ObjectAssignment (ident = t[1], cls=t[3].val, val=t[5])
   global obj_class
   obj_class = None
 
 def p_ParameterizedObjectSetAssignment (t):
-  'ParameterizedObjectSetAssignment : UCASE_IDENT ParameterList CLASS_IDENT ASSIGNMENT ObjectSet'
-  t[0] = Node('ObjectSetAssignment', name=t[1], cls=t[3], val=t[5])
+  'ParameterizedObjectSetAssignment : UCASE_IDENT ParameterList DefinedObjectClass ASSIGNMENT ObjectSet'
+  t[0] = Node('ObjectSetAssignment', name=t[1], cls=t[3].val, val=t[5])
 
 # 8.3
 def p_ParameterList (t):
