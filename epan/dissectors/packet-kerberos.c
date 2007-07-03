@@ -1319,6 +1319,7 @@ static const value_string krb5_checksum_types[] = {
 #define KRB5_AD_SESAME				65
 #define KRB5_AD_OSF_DCE_PKI_CERTID		66
 #define KRB5_AD_WIN2K_PAC				128
+#define KRB5_AD_SIGNTICKET			0xffffffef
 static const value_string krb5_ad_types[] = {
     { KRB5_AD_IF_RELEVANT	  		, "AD-IF-RELEVANT" },
     { KRB5_AD_INTENDED_FOR_SERVER		, "AD-Intended-For-Server" },
@@ -1332,6 +1333,7 @@ static const value_string krb5_ad_types[] = {
     { KRB5_AD_SESAME				, "AD-SESAME" },
     { KRB5_AD_OSF_DCE_PKI_CERTID		, "AD-OSF-DCE-PKI-CertID" },
     { KRB5_AD_WIN2K_PAC				, "AD-Win2k-PAC" },
+    { KRB5_AD_SIGNTICKET			, "AD-SignTicket" },
     { 0	, NULL },
 };
 
@@ -2695,6 +2697,26 @@ dissect_krb5_AD_WIN2K_PAC(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_
 	return offset;
 }
 
+
+int dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+
+static ber_old_sequence_t AD_SIGNTICKET_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_etype },
+	{ BER_CLASS_CON, 1, 0,
+		dissect_krb5_Checksum },
+	{ 0, 0, 0, NULL }
+};
+
+/* first seen in traces from vista */
+static int
+dissect_krb5_AD_SIGNTICKET(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
+{
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, AD_SIGNTICKET_sequence, -1, -1);
+
+	return offset;
+}
+
 static guint32 IF_RELEVANT_type;
 static int
 dissect_krb5_IF_RELEVANT_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
@@ -2713,6 +2735,9 @@ dissect_krb5_IF_RELEVANT_value(proto_tree *tree, tvbuff_t *tvb, int offset, asn1
 	switch(IF_RELEVANT_type){
 	case KRB5_AD_WIN2K_PAC:
 		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_AD_WIN2K_PAC);
+		break;
+	case KRB5_AD_SIGNTICKET:
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_krb_advalue, dissect_krb5_AD_SIGNTICKET);
 		break;
 	default:
 		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_krb_IF_RELEVANT_value, NULL);
