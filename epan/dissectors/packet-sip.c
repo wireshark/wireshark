@@ -79,6 +79,7 @@ static dissector_handle_t sip_tcp_handle = NULL;
 /* Initialize the protocol and registered fields */
 static gint proto_sip				= -1;
 static gint proto_raw_sip			= -1;
+static gint hf_raw_sip_line			= -1;
 static gint hf_msg_hdr				= -1;
 static gint hf_Method				= -1;
 static gint hf_Request_Line			= -1;
@@ -2634,26 +2635,28 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 static void
 tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
-        proto_tree *raw_tree = NULL;
-        proto_item *ti = NULL;
-        int next_offset, linelen, end_offset;
+    proto_tree *raw_tree = NULL;
+    proto_item *ti = NULL;
+    int next_offset, linelen, end_offset;
 
-	if(tree) {
-		ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, FALSE);
-		raw_tree = proto_item_add_subtree(ti, ett_raw_text);
-	}
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, FALSE);
+        raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+    }
 
-        end_offset = offset + length;
+    end_offset = offset + length;
 
-        while (offset < end_offset) {
-                tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-                linelen = next_offset - offset;
-                if(raw_tree) {
-			proto_tree_add_text(raw_tree, tvb, offset, linelen,
-			    "%s", tvb_format_text(tvb, offset, linelen));
-		}
-                offset = next_offset;
+    while (offset < end_offset) {
+        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        linelen = next_offset - offset;
+        if (raw_tree) {
+            proto_tree_add_string_format(raw_tree, hf_raw_sip_line, tvb, offset, linelen,
+                                         tvb_format_text(tvb, offset, linelen),
+                                         "%s",
+                                         tvb_format_text(tvb, offset, linelen));
         }
+        offset = next_offset;
+    }
 }
 
 /* Check to see if this packet is a resent request.  Return value is number
@@ -2821,6 +2824,11 @@ void proto_register_sip(void)
         /* Setup list of header fields */
         static hf_register_info hf[] = {
 
+		{ &hf_raw_sip_line,
+				{ "Raw SIP Line",                "raw_sip.line",
+					FT_STRING, BASE_NONE,NULL,0x0,
+                       "Raw SIP Line", HFILL }
+                },
 		{ &hf_msg_hdr,
 				{ "Message Header",           "sip.msg_hdr",
                         FT_NONE, 0, NULL, 0,
