@@ -1,3 +1,135 @@
+wireshark (0.99.6pre1-1) unstable; urgency=high
+
+  * New upstream pre-release, with security fixes:
+    * could crash when dissecting an HTTP chunked response
+    * could crash while reading iSeries capture files
+    * could exhaust system memory while reading a malformed DCP ETSI packet
+    * could loop excessively while reading a malformed SSL packet
+    * DHCP/BOOTP dissector was susceptible to an off-by-one error
+    * could loop excessively while reading a malformed MMS packet
+  * debian/control: added libkrb5-dev to build-deps so Kerberos support is
+    built.
+  * debian/control: replaced {Source-Version} with appropriate {binary:Version}
+  * debian/wireshark-dev.header-files: use wildcards to get all headers
+    (closes: #423000)
+  * debian/patches/14_disable-cmip.dpatch: disable CMIP dissector which
+    doesn't build at the moment.
+  * debian/rules: don't ignore all errors on make distclean
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 25 Jun 2007 13:33:43 +0200
+
+wireshark (0.99.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/09_idl2wrs.dpatch: updated to patch idl2wrs.sh.in.
+
+ -- Frederic Peters <fpeters@debian.org>  Sun, 01 Apr 2007 08:58:40 +0000
+
+wireshark (0.99.4-5) unstable; urgency=high
+
+  * debian/patches/00list: really include backported security fixes, stupid me.
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 26 Feb 2007 09:30:29 +0000
+
+wireshark (0.99.4-4) unstable; urgency=high
+
+  * Backported security fixes from 0.99.5pre1
+    * The TCP dissector could hang or crash while reassembling HTTP packets.
+    * The HTTP dissector could crash.
+    * On some systems, the IEEE 802.11 dissector could crash.
+    * On some systems, the LLT dissector could crash.
+
+ -- Frederic Peters <fpeters@debian.org>  Fri, 19 Jan 2007 21:49:04 +0100
+
+wireshark (0.99.4-3) unstable; urgency=low
+
+  * debian/control: added build dependency on libportaudio-dev so sniffed voip
+    G.711 calls are listenable. (closes: #398673)
+  * debian/patches/08_wireshark-desktop-menu.dpatch: removed extraneous .rej
+    file from patch.
+
+ -- Frederic Peters <fpeters@debian.org>  Sun, 19 Nov 2006 16:39:26 +0000
+
+wireshark (0.99.4-2) unstable; urgency=low
+
+  * debian/wireshark-dev.files: added more headers, so that dissectors for 
+    DCE/RPC interfaces can be build externally. (closes: #397292)
+
+ -- Frederic Peters <fpeters@debian.org>  Mon,  6 Nov 2006 12:48:20 +0100
+
+wireshark (0.99.4-1) unstable; urgency=high
+
+  * Backported security patches from yet unreleased 0.99.4 (closes: #396258)
+    * http://www.wireshark.org/security/wnpa-sec-2006-03.html has details
+    * HTTP dissector could crash (CVE-2006-5468)
+    * LDAP dissector (and others) could crash (CVE-2006-5740)
+    * XOT dissector could attempt to allocate a large amount of memory and
+      crash (CVE-2006-4805)
+    * WBXML dissector could crash (CVE-2006-5469)
+    * MIME Multipart dissectar was susceptible to an off-by-one error
+      (CVE-2006-4574)
+    * Parsing a WEP key could cause a crash
+  * debian/control: disabled libcap-dev for kfreebsd and hurd
+    (closes: #375022)
+
+ -- Frederic Peters <fpeters@debian.org>  Wed,  1 Nov 2006 10:05:05 +0100
+
+wireshark (0.99.3a-2) unstable; urgency=low
+
+  * debian/ethereal-common.NEWS: added a note about ethereal -> wireshark name
+    change.
+
+ -- Frederic Peters <fpeters@debian.org>  Thu, 12 Oct 2006 15:42:48 +0200
+
+wireshark (0.99.3a-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/11_iscsi_dissector.dpatch, 12_ipsec_dissector.dpatch,
+    13_q2931_security_fix.dpatch: security patches that were backported.
+  * debian/patches/11_typo_packet-dap: fixed a typo s/diwsect/dissect/
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 18 Sep 2006 18:56:12 +0200
+
+wireshark (0.99.2-6) unstable; urgency=low
+
+  * Acknowledge NMU, thank Steinar.
+  * debian/wireshark-dev.postinst: removed rests of old Python module
+    compilation, it is not needed by new policy.  (closes: #385357)
+
+ -- Frederic Peters <fpeters@debian.org>  Wed,  6 Sep 2006 23:34:36 +0200
+
+wireshark (0.99.2-5.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Backport security fixes from 0.99.3a (via Subversion); fixes
+    CVE-2006-4331, CVE-2006-4333 (CVE-2006-4330 was fixed in last upload,
+    and CVE-2006-4332 is not relevant for Debian). (Closes: #384529)
+
+ -- Steinar H. Gunderson <sesse@debian.org>  Tue,  5 Sep 2006 02:15:53 +0200
+
+wireshark (0.99.2-5) unstable; urgency=low
+
+  * debian/patches/11_iscsi_dissector.dpatch: new patch, fixing bug reported
+    against iSCSI dissector, taken from upstream (r18832) (closes: #381860)
+
+ -- Frederic Peters <fpeters@debian.org>  Mon,  7 Aug 2006 16:59:50 +0200
+
+wireshark (0.99.2-4) unstable; urgency=low
+
+  * debian/control: set ethereal-dev section to devel, it was lost in copy
+    pasting.
+  * debian/control, debian/rules, debian/pyversions: updated to new Python
+    policy. (closes: #380986)
+
+ -- Frederic Peters <fpeters@debian.org>  Tue,  1 Aug 2006 13:05:21 +0200
+
+wireshark (0.99.2-3) unstable; urgency=low
+
+  * debian/control: added dummy transitional packages to provide an upgrade
+    path from ethereal.  (closes: #380647)
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 31 Jul 2006 18:21:27 +0200
+
 wireshark (0.99.2-2) unstable; urgency=low
 
   * debian/rules: set --datadir so that DATAFILE_DIR is correct (it was

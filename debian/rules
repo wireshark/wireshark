@@ -62,7 +62,7 @@ clean: unpatch-stamp
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	-$(MAKE) distclean
+	[ ! -f Makefile ] || $(MAKE) distclean 
 	rm -f rdps wireshark.1 tshark.1 idl2deb.1 wireshark-filter.4 asn2deb.1
 	rm -f conftest conftest.c
 	rm -f config.guess config.sub config.log
@@ -110,6 +110,8 @@ binary-arch: build
 	dh_installman
 
 	dh_movefiles
+	dh_pysupport
+	dh_python
 	dh_installdocs
 	-rm debian/menu   # from upstream debian/ package
 	dh_installmenu
