@@ -47,6 +47,7 @@ Add-GeographicalInformation
 AgeOfLocationInformation
 AlertingPattern
 AreaEventInfo
+CallReferenceNumber
 CCBS-Feature
 CellGlobalIdOrServiceAreaIdFixedLength
 CUG-Index
@@ -64,6 +65,7 @@ ExtensionContainer
 GeographicalInformation
 GetPasswordArg
 GPRSChargingID
+GPRSMSClass
 GSMMAPLocalErrorcode
 GSN-Address
 IMEI
@@ -95,6 +97,7 @@ SubscriberState
 SecurityHeader
 SupportedCamelPhases
 SupportedGADShapes
+SuppressionOfAnnouncement
 SS-Code
 SS-Status
 SS-Info
@@ -108,6 +111,30 @@ VelocityEstimate
 #.END
 #.REGISTER
 MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
+
+#.TABLE_HDR
+/* jdlajla */
+#.TABLE_BODY OPERATION
+/* %(_name)s */ %(_ident)s  %(&operationCode)s,
+#.TABLE_FTR
+/* jdlajla */
+#.END
+
+#.TABLE_HDR
+/* jdlajla */
+#.TABLE_BODY ERROR
+/* %(_name)s */ %(_ident)s  %(&errorCode)s,
+#.TABLE_FTR
+/* jdlajla */
+#.END
+
+#.TABLE2_BODY OPERATION
+/* %(_name)-20s */ %(_ident)-20s  %(&operationCode)3s,
+#.END
+
+#.TABLE1_BODY ERROR
+/* %(_name)-20s */ %(_ident)-20s  %(&errorCode)3s,
+#.END
 
 # Conformance for ROS stuff
 

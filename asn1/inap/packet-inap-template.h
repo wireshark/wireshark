@@ -27,6 +27,6 @@
 #ifndef PACKET_INAP_H
 #define PACKET_INAP_H
 
-/* #include "packet-inap-exp.h"*/
+#include "packet-inap-exp.h"
 
 #endif  /* PACKET_INAP_H */

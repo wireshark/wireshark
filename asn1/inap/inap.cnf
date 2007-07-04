@@ -3,6 +3,17 @@
 # $Id$
 
 #.EXPORTS
+BothwayThroughConnectionInd
+CallingPartysCategory
+CriticalityType
+Duration
+HighLayerCompatibility
+Integer4
+Interval
+LegID
+MiscCallInfo
+RedirectionInformation
+ServiceKey
 
 #.NO_EMIT
 
@@ -105,10 +116,7 @@ ReceivedInformationArg
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
   }
 
-#.FN_PARS CalledPartyNumber
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY CalledPartyNumber
+#.FN_BODY CalledPartyNumber VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
@@ -118,11 +126,7 @@ VAL_PTR = &parameter_tvb
 
 dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
-#.FN_PARS CallingPartyNumber
-
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY CallingPartyNumber
+#.FN_BODY CallingPartyNumber VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
@@ -133,11 +137,7 @@ VAL_PTR = &parameter_tvb
 	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
 
 
-#.FN_PARS  BearerCapability/bearerCap
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY BearerCapability/bearerCap
+#.FN_BODY BearerCapability/bearerCap VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
 
@@ -148,11 +148,7 @@ VAL_PTR = &parameter_tvb
 
  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
 
-#.FN_PARS  RedirectionInformation
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY RedirectionInformation
+#.FN_BODY RedirectionInformation VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
 
@@ -163,11 +159,7 @@ VAL_PTR = &parameter_tvb
 
  dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
 
-#.FN_PARS  OriginalCalledPartyID
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY OriginalCalledPartyID
+#.FN_BODY OriginalCalledPartyID VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
 
@@ -177,11 +169,7 @@ VAL_PTR = &parameter_tvb
 	return offset;
  dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
 
-#.FN_PARS  RedirectingPartyID 
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY RedirectingPartyID 
+#.FN_BODY RedirectingPartyID VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
 

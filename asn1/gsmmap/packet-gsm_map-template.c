@@ -151,6 +151,8 @@ static gint ett_gsm_map_isdn_address_string = -1;
 static gint ett_gsm_map_geo_desc = -1;
 static gint ett_gsm_map_LongSignalInfo = -1;
 static gint ett_gsm_map_RadioResourceInformation =-1;
+static gint ett_gsm_map_MSNetworkCapability =-1;
+static gint ett_gsm_map_MSRadioAccessCapability = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -2406,6 +2408,8 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_geo_desc,
 	&ett_gsm_map_LongSignalInfo,
 	&ett_gsm_map_RadioResourceInformation,
+	&ett_gsm_map_MSNetworkCapability,
+	&ett_gsm_map_MSRadioAccessCapability,
 
 #include "packet-gsm_map-ettarr.c"
   };
