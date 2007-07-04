@@ -616,8 +616,8 @@ IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not inst
 ;DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_4_0.exe"
-ExecWait '"$INSTDIR\WinPcap_4_0.exe"' $0
+File "WinPcap_4_0_1.exe"
+ExecWait '"$INSTDIR\WinPcap_4_0_1.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
@@ -1213,7 +1213,7 @@ lbl_ignore_wimp:
 
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0.1"
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
@@ -1245,7 +1245,7 @@ lbl_winpcap_installed:
 	; force the user to upgrade by hand
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0, please uninstall $WINPCAP_VERSION manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0.1, please uninstall $WINPCAP_VERSION manually first."
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 

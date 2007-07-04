@@ -46,7 +46,7 @@
 #define SHELL_OPEN_COMMAND   "\\Shell\\open\\command"
 #define DEFAULT_ICON         "\\DefaultIcon"
 
-#define WINPCAP_PACKAGE      "\\WinPcap_4_0.exe"
+#define WINPCAP_PACKAGE      "\\WinPcap_4_0_1.exe"
 #define WINPCAP_KEY          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinPcapInst"
 #define WINPCAP_UNINSTALL    "UninstallString"
 #define WINPCAP_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed WinPcap */
@@ -324,9 +324,9 @@ void app_start(int argc, char *argv[])
 
   buffer[0] = '\0';
   strncat(buffer, argv[0], strlen(argv[0]) + 1);
-  
+
   /* truncate at last \\ */
-  if(end = strrchr(buffer, '\\')) 
+  if(end = strrchr(buffer, '\\'))
     *end = '\0';
 
   strncat(buffer, ENV_FILENAME, strlen(ENV_FILENAME) + 1);
@@ -344,7 +344,7 @@ void app_start(int argc, char *argv[])
       while(end = strchr(envvar, '\n')) {
 	/* we have a line */
 	*end++ = '\0';
-	
+
 	_putenv(envvar);
 
 	/* point the next envar to the end */
@@ -355,7 +355,7 @@ void app_start(int argc, char *argv[])
     /* close the file */
     CloseHandle(file);
 
-  } 
+  }
 
   /* exec wireshark */
   if((u3hostexecpath = getenv("U3_HOST_EXEC_PATH")) != NULL) {
@@ -363,7 +363,7 @@ void app_start(int argc, char *argv[])
     buffer[0] = '\0';
     strncat(buffer, u3hostexecpath, strlen(u3hostexecpath) + 1);
     strncat(buffer, WIRESHARK_EXE, strlen(WIRESHARK_EXE) + 1);
- 
+
     /* copy the remaining arguments across */
     for(i = 2; i < argc; i++) {
       strncat(buffer, " ", 2);
@@ -469,7 +469,7 @@ BOOL save_environment()
 
       if(envval = getenv(*envptr)) {
 	/* write it out */
-	
+
 	buffer[0] = '\0';
 	strncat(buffer, *envptr, strlen(*envptr) + 1);
 	strncat(buffer, "=", 2);
@@ -480,15 +480,15 @@ BOOL save_environment()
 
 	WriteFile(file, buffer, buflen, &numWritten, NULL);
       }
-      
+
     }
 
     /* close the file */
     CloseHandle(file);
-    
+
     retval = TRUE;
 
-  } 
+  }
 
   return retval;
 
