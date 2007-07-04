@@ -101,6 +101,7 @@ ASN_DISSECTOR_SRC = \
 	packet-h245.c \
 	packet-h248.c \
 	packet-h450.c \
+	packet-imf.c \
 	packet-inap.c \
 	packet-ldap.c \
 	packet-logotypecertextn.c \
