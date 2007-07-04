@@ -40,6 +40,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
+#include <epan/reassemble.h>
 
 #define TCP_PORT_SMTP 25
 
@@ -52,11 +53,51 @@ static int hf_smtp_req_parameter = -1;
 static int hf_smtp_rsp_code = -1;
 static int hf_smtp_rsp_parameter = -1;
 
+static int hf_smtp_data_fragments = -1;
+static int hf_smtp_data_fragment = -1;
+static int hf_smtp_data_fragment_overlap = -1;
+static int hf_smtp_data_fragment_overlap_conflicts = -1;
+static int hf_smtp_data_fragment_multiple_tails = -1;
+static int hf_smtp_data_fragment_too_long_fragment = -1;
+static int hf_smtp_data_fragment_error = -1;
+static int hf_smtp_data_reassembled_in = -1;
+
 static int ett_smtp = -1;
 static int ett_smtp_cmdresp = -1;
 
+static gint ett_smtp_data_fragment = -1;
+static gint ett_smtp_data_fragments = -1;
+
 /* desegmentation of SMTP command and response lines */
 static gboolean smtp_desegment = TRUE;
+static gboolean smtp_data_desegment = TRUE;
+
+static GHashTable *smtp_data_segment_table = NULL;
+static GHashTable *smtp_data_reassembled_table = NULL;
+
+static const fragment_items smtp_data_frag_items = {
+	/* Fragment subtrees */
+	&ett_smtp_data_fragment,
+	&ett_smtp_data_fragments,
+	/* Fragment fields */
+	&hf_smtp_data_fragments,
+	&hf_smtp_data_fragment,
+	&hf_smtp_data_fragment_overlap,
+	&hf_smtp_data_fragment_overlap_conflicts,
+	&hf_smtp_data_fragment_multiple_tails,
+	&hf_smtp_data_fragment_too_long_fragment,
+	&hf_smtp_data_fragment_error,
+	/* Reassembled in field */
+	&hf_smtp_data_reassembled_in,
+	/* Tag */
+	"DATA fragments"
+};
+
+/* Define media_type/Content type table */
+static dissector_table_t media_type_dissector_table;
+
+
+static  dissector_handle_t imf_handle = NULL;
 
 /*
  * A CMD is an SMTP command, MESSAGE is the message portion, and EOM is the
@@ -69,6 +110,7 @@ static gboolean smtp_desegment = TRUE;
 
 struct smtp_proto_data {
   guint16 pdu_type;
+  guint16 conversation_id;
 };
 
 /*
@@ -77,7 +119,36 @@ struct smtp_proto_data {
 struct smtp_request_val {
   gboolean reading_data; /* Reading message data, not commands */
   guint16 crlf_seen;     /* Have we seen a CRLF on the end of a packet */
+  guint16 data_seen;     /* Have we seen a DATA command yet */
 };
+
+
+static void dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
+{
+  gint next_offset;
+
+  while (tvb_offset_exists(tvb, offset)) {
+
+    /*
+     * Find the end of the line.
+     */
+    tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+
+    /*
+     * Put this line.
+     */
+    proto_tree_add_text(smtp_tree, tvb, offset, next_offset - offset,
+			"Message: %s",
+			tvb_format_text(tvb, offset, next_offset - offset));
+
+    /*
+     * Step to the next line.
+     */
+    offset = next_offset;
+	      
+  }
+
+}
 
 static void
 dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -98,6 +169,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                    next_offset;
     gboolean                is_continuation_line;
     int                     cmdlen;
+    fragment_data           *frag_msg = NULL;
+    tvbuff_t                *next_tvb;
 
     /* As there is no guarantee that we will only see frames in the
      * the SMTP conversation once, and that we will see them in
@@ -177,6 +250,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	request_val = se_alloc(sizeof(struct smtp_request_val));
 	request_val->reading_data = FALSE;
 	request_val->crlf_seen = 0;
+	request_val->data_seen = 0;
 
 	conversation_add_proto_data(conversation, proto_smtp, request_val);
 
@@ -227,6 +301,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	frame_data = se_alloc(sizeof(struct smtp_proto_data));
 
+	frame_data->conversation_id = conversation->index;
+
 	if (request_val->reading_data) {
 	  /*
 	   * This is message data.
@@ -271,6 +347,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	       */
 	      frame_data->pdu_type = SMTP_PDU_CMD;
 	      request_val->reading_data = TRUE;
+	      request_val->data_seen = TRUE;
 
 	    } else {
 
@@ -290,7 +367,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * Assume it's message data.
 	     */
 
-	    frame_data->pdu_type = SMTP_PDU_MESSAGE;
+		  
+	    frame_data->pdu_type = request_val->data_seen ? SMTP_PDU_MESSAGE : SMTP_PDU_CMD;
 
 	  }
 
@@ -323,7 +401,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_data->pdu_type) {
 	case SMTP_PDU_MESSAGE:
 
-	  col_set_str(pinfo->cinfo, COL_INFO, "Message Body");
+	  col_set_str(pinfo->cinfo, COL_INFO, smtp_data_desegment ? "DATA fragment" : "Message Body");
 	  break;
 
 	case SMTP_PDU_EOM:
@@ -372,29 +450,29 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case SMTP_PDU_MESSAGE:
 
-	  /*
-	   * Message body.
-	   * Put its lines into the protocol tree, a line at a time.
-	   */
-	  while (tvb_offset_exists(tvb, offset)) {
+	  if(smtp_data_desegment) {
+
+	    frag_msg = fragment_add_seq_next (tvb, 0, pinfo, 
+					      frame_data->conversation_id, smtp_data_segment_table,
+					      smtp_data_reassembled_table, tvb_length_remaining(tvb,0), TRUE);
+
+
+	    if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
+	      /* Add a "Reassembled in" link if not reassembled in this frame */
+	      proto_tree_add_uint (smtp_tree, *(smtp_data_frag_items.hf_reassembled_in),
+					     tvb, 0, 0, frag_msg->reassembled_in);
+	    }
+
+	    pinfo->fragmented = TRUE;
+	  } else {
 
 	    /*
-	     * Find the end of the line.
+	     * Message body.
+	     * Put its lines into the protocol tree, a line at a time.
 	     */
-	    tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-	    /*
-	     * Put this line.
-	     */
-	    proto_tree_add_text(smtp_tree, tvb, offset, next_offset - offset,
-	        "Message: %s",
-		tvb_format_text(tvb, offset, next_offset - offset));
-
-	    /*
-	     * Step to the next line.
-	     */
-	    offset = next_offset;
-
+	    dissect_smtp_data(tvb, offset, smtp_tree);
+	    
 	  }
 
 	  break;
@@ -411,6 +489,32 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   */
 	  proto_tree_add_text(smtp_tree, tvb, offset, linelen,
 	      "EOM: %s", format_text(line, linelen));
+
+	  if(smtp_data_desegment) {
+
+	    /* terminate the desegmentation */
+	    frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
+					      smtp_data_reassembled_table);
+
+	    next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled DATA", 
+						 frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
+
+	    /* XXX: this is presumptious - we may have negotiated something else */
+	    if(imf_handle)
+	      call_dissector(imf_handle, next_tvb, pinfo, tree);
+	    else {
+
+	      /*
+	       * Message body.
+	       * Put its lines into the protocol tree, a line at a time.
+	       */
+
+	      dissect_smtp_data(tvb, offset, smtp_tree);
+
+	    }
+
+	    pinfo->fragmented = FALSE;
+	  }
 
 	  break;
 
@@ -515,6 +619,13 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static void smtp_data_reassemble_init (void)
+{
+	fragment_table_init (&smtp_data_segment_table);
+	reassembled_table_init (&smtp_data_reassembled_table);
+}
+
+
 /* Register all the bits needed by the filtering engine */
 
 void
@@ -541,11 +652,43 @@ proto_register_smtp(void)
 
     { &hf_smtp_rsp_parameter,
       { "Response parameter", "smtp.rsp.parameter", FT_STRING, BASE_NONE, NULL, 0x0,
-      	"", HFILL }}
+      	"", HFILL }},
+
+    /* Fragment entries */
+    { &hf_smtp_data_fragments,
+      { "DATA fragments", "smtp.data.fragments", FT_NONE, BASE_NONE,
+	NULL, 0x00, "Message fragments", HFILL } },
+    { &hf_smtp_data_fragment,
+      { "DATA fragment", "smtp.data.fragment", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x00, "Message fragment", HFILL } },
+    { &hf_smtp_data_fragment_overlap,
+      { "DATA fragment overlap", "smtp.data.fragment.overlap", FT_BOOLEAN,
+	BASE_NONE, NULL, 0x00, "Message fragment overlap", HFILL } },
+    { &hf_smtp_data_fragment_overlap_conflicts,
+      { "DATA fragment overlapping with conflicting data",
+	"smtp.data.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
+	0x00, "Message fragment overlapping with conflicting data", HFILL } },
+    { &hf_smtp_data_fragment_multiple_tails,
+      { "DATA has multiple tail fragments",
+	"smtp.data.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x00, "Message has multiple tail fragments", HFILL } },
+    { &hf_smtp_data_fragment_too_long_fragment,
+      { "DATA fragment too long", "smtp.data.fragment.too_long_fragment",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Message fragment too long",
+	HFILL } },
+    { &hf_smtp_data_fragment_error,
+      { "DATA defragmentation error", "smtp.data.fragment.error", FT_FRAMENUM,
+	BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
+    { &hf_smtp_data_reassembled_in,
+      { "Reassembled DATA in frame", "smtp.data.reassembled.in", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x00, "This DATA fragment is reassembled in this frame", HFILL } },
   };
   static gint *ett[] = {
     &ett_smtp,
     &ett_smtp_cmdresp,
+    &ett_smtp_data_fragment,
+    &ett_smtp_data_fragments,
+
   };
   module_t *smtp_module;
 
@@ -555,6 +698,7 @@ proto_register_smtp(void)
 
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine (&smtp_data_reassemble_init);
 
   /* Allow dissector to find be found by name. */
   register_dissector("smtp", dissect_smtp, proto_smtp);
@@ -566,6 +710,13 @@ proto_register_smtp(void)
     "Whether the SMTP dissector should reassemble command and response lines spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &smtp_desegment);
+
+  prefs_register_bool_preference(smtp_module, "desegment_data",
+    "Reassemble SMTP DATA commands spanning multiple TCP segments",
+    "Whether the SMTP dissector should reassemble DATA command and lines spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &smtp_data_desegment);
+
 }
 
 /* The registration hand-off routine */
@@ -576,4 +727,13 @@ proto_reg_handoff_smtp(void)
 
   smtp_handle = create_dissector_handle(dissect_smtp, proto_smtp);
   dissector_add("tcp.port", TCP_PORT_SMTP, smtp_handle);
+
+  /*
+   * Get the content type and Internet media type table
+   */
+  media_type_dissector_table = find_dissector_table("media_type");
+
+  /* find the IMF dissector */
+  imf_handle = find_dissector("imf");
+
 }
