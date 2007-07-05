@@ -329,6 +329,10 @@ get_multipart_info(packet_info *pinfo)
 	 */
 	p = parameters;
 	while (*p) {
+
+		while ((*p) && isspace((guchar)*p))
+			p++; /* Skip white space */
+		
 		if (strncasecmp(p, "boundary=", 9) == 0)
 			break;
 		/* Skip to next parameter */
@@ -339,8 +343,7 @@ get_multipart_info(packet_info *pinfo)
 			return NULL;
 		}
 		p++; /* Skip semicolon */
-		while ((*p) && isspace((guchar)*p))
-			p++; /* Skip white space */
+
 	}
 	start = p + 9;
 	if (start[0] == 0) {
