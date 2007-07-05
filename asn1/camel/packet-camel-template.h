@@ -42,7 +42,7 @@ void proto_register_camel(void);
 
 
 WS_VAR_IMPORT const value_string camel_opr_code_strings[];
-const value_string camel_err_code_string_vals[];
+WS_VAR_IMPORT const value_string camel_err_code_string_vals[];
 /* #include "packet-camel-exp.h"*/
 
 #endif  /* PACKET_camel_H */

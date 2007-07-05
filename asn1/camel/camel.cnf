@@ -16,8 +16,15 @@ Bind
 Unbind
 #.END
 
+#.OMIT_ASSIGNMENT
+# Removed as they are giving 'defined but not used' warnings currently.
+RejectProblem
+TariffSwitchInterval
+Priority
+
 #.REGISTER
 CAP-GPRS-ReferenceNumber	B "0.4.0.0.1.1.5.2" "id-CAP-GPRS-ReferenceNumber"
+CAP-U-ABORT-REASON			B "0.4.0.0.1.1.2.2" "id-CAP-U-ABORT-Reason"
 
 #.NO_EMIT
 
@@ -195,10 +202,6 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
     offset=call_ber_oid_callback(camel_obj_id, tvb, offset, actx->pinfo, tree);
   }
   is_ExtensionField = FALSE;
-
-#.FN_PARS  CAMELLocalErrorcode
-
-  VAL_PTR = &errorCode
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY CallingPartyNumber
@@ -497,7 +500,49 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 	return offset;
  item = get_ber_last_created_item();
  subtree = proto_item_add_subtree(item, ett_camel_CAMEL_AChBillingChargingCharacteristics);
- dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, -1);
+ dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_AChBillingChargingCharacteristics);
+
+#.FN_BODY FCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_FCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
+#.FN_BODY FCIGPRSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
+#.FN_BODY FCISMSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
+#.FN_BODY SCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_SCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
+#.FN_BODY SCIGPRSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
+#.FN_BODY CallResult VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_CallResult(FALSE, parameter_tvb, 0, actx, tree, -1);
 
 
 #.TYPE_ATTR

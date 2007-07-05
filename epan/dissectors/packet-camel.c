@@ -112,6 +112,7 @@ int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 /*--- Included file: packet-camel-hf.c ---*/
 #line 1 "packet-camel-hf.c"
 static int hf_camel_CAP_GPRS_ReferenceNumber_PDU = -1;  /* CAP_GPRS_ReferenceNumber */
+static int hf_camel_CAP_U_ABORT_REASON_PDU = -1;  /* CAP_U_ABORT_REASON */
 static int hf_camel_legID = -1;                   /* LegID */
 static int hf_camel_srfConnection = -1;           /* CallSegmentID */
 static int hf_camel_aOCInitial = -1;              /* CAI_GSM0224 */
@@ -535,6 +536,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_c
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
 static int dissect_camel_CAMEL_AChBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_camel_CAMEL_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 gboolean gcamel_HandleSRT=FALSE;
 extern gboolean gcamel_PersistentSRT;
@@ -737,7 +739,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 125 "packet-camel-template.c"
+#line 126 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -1040,7 +1042,7 @@ static const value_string camel_RP_Cause_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 243 "packet-camel-template.c"
+#line 244 "packet-camel-template.c"
 
 
 static char camel_number_to_char(int number)
@@ -1164,8 +1166,7 @@ dissect_camel_AChBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 	return offset;
  item = get_ber_last_created_item();
  subtree = proto_item_add_subtree(item, ett_camel_CAMEL_AChBillingChargingCharacteristics);
- dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, -1);
-
+ dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_AChBillingChargingCharacteristics);
 
 
   return offset;
@@ -1896,8 +1897,15 @@ dissect_camel_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_camel_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_CallResult(FALSE, parameter_tvb, 0, actx, tree, -1);
+
+
 
   return offset;
 }
@@ -3707,8 +3715,14 @@ dissect_camel_EventTypeSMS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_camel_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_FCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
 
   return offset;
 }
@@ -3717,8 +3731,14 @@ dissect_camel_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
 
   return offset;
 }
@@ -3727,8 +3747,14 @@ dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, t
 
 static int
 dissect_camel_FCISMSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
 
   return offset;
 }
@@ -4585,8 +4611,14 @@ dissect_camel_RPCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_camel_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_SCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
 
   return offset;
 }
@@ -4595,8 +4627,14 @@ dissect_camel_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_camel_SCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+
 
   return offset;
 }
@@ -4652,16 +4690,6 @@ static int
 dissect_camel_SMSEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMSEvent_sequence, hf_index, ett_camel_SMSEvent);
-
-  return offset;
-}
-
-
-
-static int
-dissect_camel_TariffSwitchInterval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
 
   return offset;
 }
@@ -5845,16 +5873,6 @@ dissect_camel_CAP_U_ABORT_REASON(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
-dissect_camel_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_camel_InvokeId_present(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
@@ -6138,39 +6156,6 @@ dissect_camel_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
   return offset;
 }
 
-
-static const value_string camel_RejectProblem_vals[] = {
-  {   0, "general-unrecognizedPDU" },
-  {   1, "general-mistypedPDU" },
-  {   2, "general-badlyStructuredPDU" },
-  {  10, "invoke-duplicateInvocation" },
-  {  11, "invoke-unrecognizedOperation" },
-  {  12, "invoke-mistypedArgument" },
-  {  13, "invoke-resourceLimitation" },
-  {  14, "invoke-releaseInProgress" },
-  {  15, "invoke-unrecognizedLinkedId" },
-  {  16, "invoke-linkedResponseUnexpected" },
-  {  17, "invoke-unexpectedLinkedOperation" },
-  {  20, "returnResult-unrecognizedInvocation" },
-  {  21, "returnResult-resultResponseUnexpected" },
-  {  22, "returnResult-mistypedResult" },
-  {  30, "returnError-unrecognizedInvocation" },
-  {  31, "returnError-errorResponseUnexpected" },
-  {  32, "returnError-unrecognizedError" },
-  {  33, "returnError-unexpectedError" },
-  {  34, "returnError-mistypedParameter" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_camel_RejectProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static void dissect_CAP_GPRS_ReferenceNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -6178,10 +6163,15 @@ static void dissect_CAP_GPRS_ReferenceNumber_PDU(tvbuff_t *tvb _U_, packet_info 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_camel_CAP_GPRS_ReferenceNumber(FALSE, tvb, 0, &asn1_ctx, tree, hf_camel_CAP_GPRS_ReferenceNumber_PDU);
 }
+static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_camel_CAP_U_ABORT_REASON(FALSE, tvb, 0, &asn1_ctx, tree, hf_camel_CAP_U_ABORT_REASON_PDU);
+}
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 289 "packet-camel-template.c"
+#line 290 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -6472,7 +6462,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 291 "packet-camel-template.c"
+#line 292 "packet-camel-template.c"
 
 
 
@@ -6587,10 +6577,11 @@ void proto_reg_handoff_camel(void) {
 /*--- Included file: packet-camel-dis-tab.c ---*/
 #line 1 "packet-camel-dis-tab.c"
   register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_CAP_GPRS_ReferenceNumber_PDU, proto_camel, "id-CAP-GPRS-ReferenceNumber");
+  register_ber_oid_dissector("0.4.0.0.1.1.2.2", dissect_CAP_U_ABORT_REASON_PDU, proto_camel, "id-CAP-U-ABORT-Reason");
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 402 "packet-camel-template.c"
+#line 403 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
   }
@@ -6739,6 +6730,10 @@ void proto_register_camel(void) {
       { "CAP-GPRS-ReferenceNumber", "camel.CAP_GPRS_ReferenceNumber",
         FT_NONE, BASE_NONE, NULL, 0,
         "camel.CAP_GPRS_ReferenceNumber", HFILL }},
+    { &hf_camel_CAP_U_ABORT_REASON_PDU,
+      { "CAP-U-ABORT-REASON", "camel.CAP_U_ABORT_REASON",
+        FT_UINT32, BASE_DEC, VALS(camel_CAP_U_ABORT_REASON_vals), 0,
+        "camel.CAP_U_ABORT_REASON", HFILL }},
     { &hf_camel_legID,
       { "legID", "camel.legID",
         FT_UINT32, BASE_DEC, VALS(inap_LegID_vals), 0,
@@ -8389,7 +8384,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 544 "packet-camel-template.c"
+#line 545 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -8590,7 +8585,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 555 "packet-camel-template.c"
+#line 556 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
