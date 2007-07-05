@@ -1,0 +1,120 @@
+IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_samr_sec_info, NULL);
+HF_FIELD hf_samr_sec_info "SecInfo" "samr.sec_info" FT_UINT32 BASE_HEX NULL 0 "" "" ""
+
+
+TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
+
+
+TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
+HF_FIELD hf_samr_sec_desc_buf_len "Sec Desc Buf Len" "samr.sec_desc_buf_len" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+
+TYPE dom_sid2 "offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
+
+TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
+
+TYPE lsa_Strings "offset=cnf_dissect_lsa_Strings(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
+
+CODE START
+static int
+cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+{
+	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
+		hfindex, 0);
+
+	return offset;
+}
+
+static int
+cnf_dissect_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+{
+	offset = dissect_ndr_counted_ascii_string(tvb, offset, pinfo, tree, drep,
+		hfindex, 0);
+
+	return offset;
+}
+
+static int
+cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+{
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, hfindex, NULL);
+
+	return offset;
+}
+
+
+
+
+static int
+cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_samr_sec_desc_buf_len, &len);
+
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
+		NULL);
+
+	offset += len;
+
+	return offset;
+}
+
+static int
+cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 len;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+		hf_samr_sec_desc_buf_len, &len);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+                       cnf_dissect_sec_desc_buf_, NDR_POINTER_UNIQUE,
+                       "SAM SECURITY DESCRIPTOR data:", -1);
+
+	return offset;
+}
+
+
+
+static int
+cnf_dissect_dom_sid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+static int
+cnf_dissect_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	offset = dissect_ndr_nt_PSID_ARRAY(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+static int
+cnf_dissect_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	/*XXX*/
+
+	return offset;
+}
+
+CODE END

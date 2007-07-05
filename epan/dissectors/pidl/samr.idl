@@ -1,0 +1,1252 @@
+#include "idl_types.h"
+
+/*
+  samr interface definition
+*/
+/* import "misc.idl", "lsa.idl", "security.idl";*/
+
+/*
+  Thanks to Todd Sabin for some information from his samr.idl in acltools
+*/
+
+[ uuid("12345778-1234-abcd-ef00-0123456789ac"),
+  version(1.0),
+  endpoint("ncacn_np:[\\pipe\\samr]","ncacn_ip_tcp:", "ncalrpc:"),
+  pointer_default(unique),
+  pointer_default_top(unique)
+] interface samr
+{
+	declare bitmap security_secinfo;
+
+	/* account control (acct_flags) bits */
+	typedef [public,bitmap32bit] bitmap {
+		ACB_DISABLED			= 0x00000001,  /* 1 = User account disabled */
+		ACB_HOMDIRREQ			= 0x00000002,  /* 1 = Home directory required */
+		ACB_PWNOTREQ			= 0x00000004,  /* 1 = User password not required */
+		ACB_TEMPDUP			= 0x00000008,  /* 1 = Temporary duplicate account */
+		ACB_NORMAL			= 0x00000010,  /* 1 = Normal user account */
+		ACB_MNS				= 0x00000020,  /* 1 = MNS logon user account */
+		ACB_DOMTRUST			= 0x00000040,  /* 1 = Interdomain trust account */
+		ACB_WSTRUST			= 0x00000080,  /* 1 = Workstation trust account */
+		ACB_SVRTRUST			= 0x00000100,  /* 1 = Server trust account */
+		ACB_PWNOEXP			= 0x00000200,  /* 1 = User password does not expire */
+		ACB_AUTOLOCK			= 0x00000400,  /* 1 = Account auto locked */
+		ACB_ENC_TXT_PWD_ALLOWED		= 0x00000800,  /* 1 = Encryped text password is allowed */
+		ACB_SMARTCARD_REQUIRED		= 0x00001000,  /* 1 = Smart Card required */
+		ACB_TRUSTED_FOR_DELEGATION	= 0x00002000,  /* 1 = Trusted for Delegation */
+		ACB_NOT_DELEGATED		= 0x00004000,  /* 1 = Not delegated */
+		ACB_USE_DES_KEY_ONLY		= 0x00008000,  /* 1 = Use DES key only */
+		ACB_DONT_REQUIRE_PREAUTH	= 0x00010000,  /* 1 = Preauth not required */
+		ACB_PW_EXPIRED                  = 0x00020000,  /* 1 = Password Expired */
+		ACB_NO_AUTH_DATA_REQD		= 0x00080000   /* 1 = No authorization data required */
+	} samr_AcctFlags;
+
+	/******************/
+	/* Function: 0x00 */
+	NTSTATUS samr_Connect (
+		/* notice the lack of [string] */
+		[in]       uint16 *system_name,
+		[in]       uint32 access_mask,
+		[out,ref]  policy_handle *connect_handle
+		);
+
+
+	/******************/
+	/* Function: 0x01 */
+	[public] NTSTATUS samr_Close (
+		[in,out,ref]  policy_handle *handle
+		);
+
+	/******************/
+	/* Function: 0x02 */
+
+	NTSTATUS samr_SetSecurity (
+		[in,ref]          policy_handle *handle,
+		[in]              security_secinfo sec_info,
+		[in,ref]          sec_desc_buf *sdbuf
+		);
+
+	/******************/
+	/* Function: 0x03 */
+
+	NTSTATUS samr_QuerySecurity (
+		[in,ref]          policy_handle *handle,
+		[in]              security_secinfo sec_info,
+		[out]             sec_desc_buf *sdbuf
+		);
+
+	/******************/
+	/* Function: 0x04 */
+
+	/*
+	  shutdown the SAM - once you call this the SAM will be dead
+	*/
+	NTSTATUS samr_Shutdown (
+		[in,ref]   policy_handle *connect_handle
+		);
+
+	/******************/
+	/* Function: 0x05 */
+	NTSTATUS samr_LookupDomain (
+		[in,ref]  policy_handle *connect_handle,		
+		[in,ref]  lsa_String *domain_name,
+		[out]     dom_sid2 *sid
+		);
+
+
+	/******************/
+	/* Function: 0x06 */
+
+	typedef struct {
+		uint32 idx;
+		lsa_String name;
+	} samr_SamEntry;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] samr_SamEntry *entries;
+	} samr_SamArray;
+
+	NTSTATUS samr_EnumDomains (
+		[in,ref]      policy_handle *connect_handle,
+		[in,out,ref]  uint32 *resume_handle,
+		[in]          uint32 buf_size,
+		[out]         samr_SamArray *sam,
+		[out]         uint32 num_entries
+		);
+
+
+	/************************/
+	/* Function    0x07     */
+	[public] NTSTATUS samr_OpenDomain(
+		[in,ref]      policy_handle *connect_handle,
+		[in]          uint32 access_mask,
+		[in,ref]      dom_sid2 *sid,
+		[out,ref]     policy_handle *domain_handle
+		);
+
+	/************************/
+	/* Function    0x08     */
+	/* server roles */
+	typedef [v1_enum] enum {
+		SAMR_ROLE_STANDALONE    = 0,
+		SAMR_ROLE_DOMAIN_MEMBER = 1,
+		SAMR_ROLE_DOMAIN_BDC    = 2,
+		SAMR_ROLE_DOMAIN_PDC    = 3
+	} samr_Role;
+
+	/* password properties flags */
+	typedef [public,bitmap32bit] bitmap {
+		DOMAIN_PASSWORD_COMPLEX		= 0x00000001,
+		DOMAIN_PASSWORD_NO_ANON_CHANGE  = 0x00000002,
+		DOMAIN_PASSWORD_NO_CLEAR_CHANGE = 0x00000004,
+		DOMAIN_PASSWORD_LOCKOUT_ADMINS  = 0x00000008,
+		DOMAIN_PASSWORD_STORE_CLEARTEXT = 0x00000010,
+		DOMAIN_REFUSE_PASSWORD_CHANGE   = 0x00000020
+	} samr_PasswordProperties;
+
+	typedef struct {
+		uint16 min_password_length;
+		uint16 password_history_length;
+		samr_PasswordProperties password_properties;
+		/* yes, these are signed. They are in negative 100ns */
+		dlong  max_password_age;
+		dlong  min_password_age;
+	} samr_DomInfo1;
+
+	typedef struct {
+		NTTIME force_logoff_time;
+		lsa_String comment;
+		lsa_String domain_name;
+		lsa_String primary; /* PDC name if this is a BDC */
+		udlong sequence_num;
+		uint32 unknown2;
+		samr_Role role;
+		uint32 unknown3;
+		uint32 num_users;
+		uint32 num_groups;
+		uint32 num_aliases;
+	} samr_DomInfo2;
+
+	typedef struct {
+		NTTIME force_logoff_time;
+	} samr_DomInfo3;
+
+	typedef struct {
+		lsa_String comment;
+	} samr_DomInfo4;
+
+	typedef struct {
+		lsa_String domain_name;
+	} samr_DomInfo5;
+
+	typedef struct {
+		lsa_String primary;
+	} samr_DomInfo6;
+
+	typedef struct {
+		samr_Role role;
+	} samr_DomInfo7;
+
+	typedef struct {
+		hyper sequence_num;
+		NTTIME domain_create_time;
+	} samr_DomInfo8;
+
+	typedef struct {
+		uint32 unknown; /* w2k3 returns 1 */
+	} samr_DomInfo9;
+
+	typedef struct {
+		samr_DomInfo2 info2;
+		hyper lockout_duration;
+		hyper lockout_window;
+		uint16 lockout_threshold;
+	} samr_DomInfo11;
+
+	typedef struct {
+		hyper lockout_duration;
+		hyper lockout_window;
+		uint16 lockout_threshold;
+	} samr_DomInfo12;
+
+	typedef struct {
+		hyper sequence_num;
+		NTTIME domain_create_time;
+		uint32 unknown1;
+		uint32 unknown2;
+	} samr_DomInfo13;
+
+	typedef [switch_type(uint16)] union {
+		[case(1)] samr_DomInfo1 info1;
+		[case(2)] samr_DomInfo2 info2;
+		[case(3)] samr_DomInfo3 info3;
+		[case(4)] samr_DomInfo4 info4;
+		[case(5)] samr_DomInfo5 info5;
+		[case(6)] samr_DomInfo6 info6;
+		[case(7)] samr_DomInfo7 info7;
+		[case(8)] samr_DomInfo8 info8;
+		[case(9)] samr_DomInfo9 info9;
+		[case(11)] samr_DomInfo11 info11;
+		[case(12)] samr_DomInfo12 info12;
+		[case(13)] samr_DomInfo13 info13;
+	} samr_DomainInfo;
+
+	NTSTATUS samr_QueryDomainInfo(
+		[in,ref]      policy_handle *domain_handle,
+		[in]          uint16 level,
+		[out,switch_is(level)] samr_DomainInfo *info
+		);
+
+	/************************/
+	/* Function    0x09     */
+	/*
+	  only levels 1, 3, 4, 6, 7, 9, 12 are valid for this 
+	  call in w2k3
+	*/
+	NTSTATUS samr_SetDomainInfo(
+		[in,ref]      policy_handle *domain_handle,
+		[in]          uint16 level,
+		[in,switch_is(level),ref] samr_DomainInfo *info
+		);
+
+
+	/************************/
+	/* Function    0x0a     */
+	NTSTATUS samr_CreateDomainGroup(
+		[in,ref]      policy_handle *domain_handle,
+		[in,ref]      lsa_String *name,
+		[in]          uint32 access_mask,
+		[out,ref]     policy_handle *group_handle,
+		[out,ref]     uint32 *rid
+		);
+		
+
+	/************************/
+	/* Function    0x0b     */
+	NTSTATUS samr_EnumDomainGroups(
+		[in,ref]      policy_handle *domain_handle,
+		[in,out,ref]  uint32 *resume_handle,
+		[in]          uint32 max_size,
+		[out]         samr_SamArray *sam,
+		[out]         uint32 num_entries
+		);
+
+	/************************/
+	/* Function    0x0c     */
+	NTSTATUS samr_CreateUser(
+		[in,ref]      policy_handle *domain_handle,
+		[in,ref]      lsa_String *account_name,
+		[in]          uint32 access_mask,
+		[out,ref]     policy_handle *user_handle,
+		[out,ref]     uint32 *rid
+		);
+
+	/************************/
+	/* Function    0x0d     */
+
+
+	/* w2k3 treats max_size as max_users*54 and sets the
+	   resume_handle as the rid of the last user sent
+	*/
+	const int SAMR_ENUM_USERS_MULTIPLIER = 54;
+
+	NTSTATUS samr_EnumDomainUsers(
+		[in,ref]      policy_handle *domain_handle,
+		[in,out,ref]  uint32 *resume_handle,
+		[in]          samr_AcctFlags acct_flags,
+		[in]          uint32 max_size,
+		[out]         samr_SamArray *sam,
+		[out]         uint32 num_entries
+		);
+
+	/************************/
+	/* Function    0x0e     */
+	NTSTATUS samr_CreateDomAlias(
+		[in,ref]      policy_handle  *domain_handle,
+		[in,ref]      lsa_String     *alias_name,
+		[in]          uint32 access_mask,
+		[out,ref]     policy_handle  *alias_handle,
+		[out,ref]     uint32         *rid
+		);
+
+	/************************/
+	/* Function    0x0f     */
+	NTSTATUS samr_EnumDomainAliases(
+		[in,ref]      policy_handle *domain_handle,
+		[in,out,ref]  uint32 *resume_handle,
+		[in]          samr_AcctFlags acct_flags,
+		[out]         samr_SamArray *sam,
+		[out]         uint32 num_entries
+		);
+
+	/************************/
+	/* Function    0x10     */
+
+	typedef struct {
+		[range(0,1024)]  uint32 count;
+		[size_is(count)] uint32 *ids;
+	} samr_Ids;
+
+	NTSTATUS samr_GetAliasMembership(
+		[in,ref]      policy_handle *domain_handle,
+		[in,ref]      lsa_SidArray  *sids,
+		[out,ref]     samr_Ids *rids
+		);
+
+	/************************/
+	/* Function    0x11     */
+
+	[public] NTSTATUS samr_LookupNames(
+		[in,ref]      policy_handle *domain_handle,
+		[in,range(0,1000)] uint32 num_names,
+		[in,size_is(1000),length_is(num_names), ref] lsa_String *names,
+		[out]         samr_Ids rids,
+		[out]         samr_Ids types
+		);
+
+
+	/************************/
+	/* Function    0x12     */
+	NTSTATUS samr_LookupRids(
+		[in,ref]      policy_handle *domain_handle,
+		[in,range(0,1000)] uint32 num_rids,
+		[in,size_is(1000),length_is(num_rids),ref] uint32 *rids,
+		[out]         lsa_Strings names,
+		[out]         samr_Ids types
+		);
+
+	/************************/
+	/* Function    0x13     */
+	NTSTATUS samr_OpenGroup(
+		[in,ref]      policy_handle *domain_handle,
+		[in]          uint32 access_mask,
+		[in]          uint32 rid,
+		[out,ref]     policy_handle *group_handle
+		);
+
+	/* Group attributes */
+	typedef [public,bitmap32bit] bitmap {
+		SE_GROUP_MANDATORY		= 0x00000001,
+		SE_GROUP_ENABLED_BY_DEFAULT 	= 0x00000002,
+		SE_GROUP_ENABLED 		= 0x00000004,
+		SE_GROUP_OWNER 			= 0x00000008,
+		SE_GROUP_USE_FOR_DENY_ONLY 	= 0x00000010,
+		SE_GROUP_RESOURCE 		= 0x20000000,
+		SE_GROUP_LOGON_ID 		= 0xC0000000
+	} samr_GroupAttrs;
+
+	/************************/
+	/* Function    0x14     */
+
+	typedef struct {
+		lsa_String name;
+		samr_GroupAttrs attributes;
+		uint32 num_members;
+		lsa_String description;
+	} samr_GroupInfoAll;
+
+	typedef struct {
+		samr_GroupAttrs attributes;
+	} samr_GroupInfoAttributes;
+
+	typedef struct {
+		lsa_String description;
+	} samr_GroupInfoDescription;
+
+	typedef enum {
+		GROUPINFOALL          = 1,
+		GROUPINFONAME         = 2,
+		GROUPINFOATTRIBUTES   = 3,
+		GROUPINFODESCRIPTION  = 4,
+		GROUPINFOALL2         = 5
+	} samr_GroupInfoEnum;
+
+	typedef [switch_type(samr_GroupInfoEnum)] union {
+		[case(GROUPINFOALL)]         samr_GroupInfoAll        all;
+		[case(GROUPINFONAME)]        lsa_String               name;
+		[case(GROUPINFOATTRIBUTES)]  samr_GroupInfoAttributes attributes;
+		[case(GROUPINFODESCRIPTION)] lsa_String               description;
+		[case(GROUPINFOALL2)]        samr_GroupInfoAll        all2;
+	} samr_GroupInfo;
+
+	NTSTATUS samr_QueryGroupInfo(
+		[in,ref]                  policy_handle *group_handle,
+		[in]                      samr_GroupInfoEnum level,
+		[out,switch_is(level)]    samr_GroupInfo *info
+		);
+
+	/************************/
+	/* Function    0x15     */
+	NTSTATUS samr_SetGroupInfo(
+		[in,ref]                  policy_handle *group_handle,
+		[in]                      samr_GroupInfoEnum level,
+		[in,switch_is(level),ref] samr_GroupInfo *info
+		);
+
+	/************************/
+	/* Function    0x16     */
+	NTSTATUS samr_AddGroupMember(
+		[in,ref]                  policy_handle *group_handle,
+		[in]                      uint32 rid,
+		[in]                      uint32 flags
+		);
+
+	/************************/
+	/* Function    0x17     */
+	NTSTATUS samr_DeleteDomainGroup(
+		[in,out,ref]   policy_handle *group_handle
+		);
+
+	/************************/
+	/* Function    0x18     */
+	NTSTATUS samr_DeleteGroupMember(
+		[in,ref]                  policy_handle *group_handle,
+		[in]                      uint32 rid
+		);
+
+
+	/************************/
+	/* Function    0x19     */
+	typedef struct {
+		uint32 count;
+		[size_is(count)] uint32 *rids;
+		[size_is(count)] uint32 *types;
+	} samr_RidTypeArray;
+
+	NTSTATUS samr_QueryGroupMember(
+		[in,ref]  policy_handle *group_handle,
+		[out]     samr_RidTypeArray *rids
+		);
+
+
+	/************************/
+	/* Function    0x1a     */
+
+	/*
+	  win2003 seems to accept any data at all for the two integers
+	  below, and doesn't seem to do anything with them that I can
+	  see. Weird. I really expected the first integer to be a rid
+	  and the second to be the attributes for that rid member.
+	*/
+	NTSTATUS samr_SetMemberAttributesOfGroup(
+		[in,ref]  policy_handle *group_handle,
+		[in]      uint32 unknown1,
+		[in]      uint32 unknown2
+		);
+
+
+	/************************/
+	/* Function    0x1b     */
+	NTSTATUS samr_OpenAlias (
+		[in,ref]      policy_handle *domain_handle,
+		[in]          uint32 access_mask,
+		[in]          uint32 rid,
+		[out,ref]     policy_handle *alias_handle
+		);
+
+
+	/************************/
+	/* Function    0x1c     */
+
+	typedef struct {
+		lsa_String name;
+		uint32 num_members;
+		lsa_String description;
+	} samr_AliasInfoAll;
+
+	typedef enum {
+		ALIASINFOALL          = 1,
+		ALIASINFONAME         = 2,
+		ALIASINFODESCRIPTION  = 3
+	} samr_AliasInfoEnum;
+
+	typedef [switch_type(samr_AliasInfoEnum)] union {
+		[case(ALIASINFOALL)] samr_AliasInfoAll all;
+		[case(ALIASINFONAME)] lsa_String name;
+		[case(ALIASINFODESCRIPTION)] lsa_String description;
+	} samr_AliasInfo;
+
+	NTSTATUS samr_QueryAliasInfo(
+		[in,ref]                  policy_handle  *alias_handle,
+		[in]                      samr_AliasInfoEnum      level,
+		[out,switch_is(level)]    samr_AliasInfo *info
+		);
+
+	/************************/
+	/* Function    0x1d     */
+	NTSTATUS samr_SetAliasInfo(
+		[in,ref]                  policy_handle  *alias_handle,
+		[in]                      samr_AliasInfoEnum      level,
+		[in,switch_is(level)] samr_AliasInfo info
+		);
+
+	/************************/
+	/* Function    0x1e     */
+	NTSTATUS samr_DeleteDomAlias(
+		[in,out,ref]  policy_handle *alias_handle
+		);
+
+	/************************/
+	/* Function    0x1f     */
+	NTSTATUS samr_AddAliasMember(
+		[in,ref]  policy_handle *alias_handle,
+		[in,ref]  dom_sid2      *sid
+		);
+
+	/************************/
+	/* Function    0x20     */
+	NTSTATUS samr_DeleteAliasMember(
+		[in,ref] policy_handle *alias_handle,
+		[in,ref] dom_sid2      *sid
+		);
+
+	/************************/
+	/* Function    0x21     */
+	NTSTATUS samr_GetMembersInAlias(
+		[in,ref]   policy_handle *alias_handle,
+		[out,ref]  lsa_SidArray    *sids
+		);
+
+	/************************/
+	/* Function    0x22     */
+	[public] NTSTATUS samr_OpenUser(
+		[in,ref]      policy_handle *domain_handle,
+		[in]          uint32 access_mask,
+		[in]          uint32 rid,
+		[out,ref]     policy_handle *user_handle
+		);
+
+	/************************/
+	/* Function    0x23     */
+	NTSTATUS samr_DeleteUser(
+		[in,out,ref]   policy_handle *user_handle
+		);
+
+	/************************/
+	/* Function    0x24     */
+	typedef struct {
+		lsa_String account_name;
+		lsa_String full_name;
+		uint32 primary_gid;
+		lsa_String description;
+		lsa_String comment;
+	} samr_UserInfo1;
+
+	typedef struct {
+		lsa_String comment;
+		lsa_String unknown; /* settable, but doesn't stick. probably obsolete */
+		uint16 country_code;
+		uint16 code_page;
+	} samr_UserInfo2;
+
+	/* this is also used in samr and netlogon */
+	typedef [public, flag(NDR_PAHEX)] struct {
+		uint16 units_per_week;
+		[size_is(1260), length_is(units_per_week/8)] uint8 *bits;
+	} samr_LogonHours;
+
+	typedef struct {
+		lsa_String account_name;
+		lsa_String full_name;
+		uint32 rid;
+		uint32 primary_gid;
+		lsa_String home_directory;
+		lsa_String home_drive;
+		lsa_String logon_script;
+		lsa_String profile_path;
+		lsa_String workstations;
+		NTTIME last_logon;
+		NTTIME last_logoff;
+		NTTIME last_password_change;
+		NTTIME allow_password_change;
+		NTTIME force_password_change;
+		samr_LogonHours logon_hours;
+		uint16 bad_password_count;
+		uint16 logon_count;
+		samr_AcctFlags acct_flags;
+	} samr_UserInfo3;
+
+	typedef struct {
+		samr_LogonHours logon_hours;
+	} samr_UserInfo4;
+
+	typedef struct {
+		lsa_String account_name;
+		lsa_String full_name;
+		uint32 rid;
+		uint32 primary_gid;
+		lsa_String home_directory;
+		lsa_String home_drive;
+		lsa_String logon_script;
+		lsa_String profile_path;
+		lsa_String description;
+		lsa_String workstations;
+		NTTIME last_logon;
+		NTTIME last_logoff;
+		samr_LogonHours logon_hours;
+		uint16 bad_password_count;
+		uint16 logon_count;
+		NTTIME last_password_change;
+		NTTIME acct_expiry;
+		samr_AcctFlags acct_flags;
+	} samr_UserInfo5;
+
+	typedef struct {
+		lsa_String account_name;
+		lsa_String full_name;
+	} samr_UserInfo6;
+
+	typedef struct {
+		lsa_String account_name;
+	} samr_UserInfo7;
+
+	typedef struct {
+		lsa_String full_name;
+	} samr_UserInfo8;
+
+	typedef struct {
+		uint32 primary_gid;
+	} samr_UserInfo9;
+
+	typedef struct {
+		lsa_String home_directory;
+		lsa_String home_drive;
+	} samr_UserInfo10;
+
+	typedef struct {
+		lsa_String logon_script;
+	} samr_UserInfo11;
+
+	typedef struct {
+		lsa_String profile_path;
+	} samr_UserInfo12;
+
+	typedef struct {
+		lsa_String description;
+	} samr_UserInfo13;
+
+	typedef struct {
+		lsa_String workstations;
+	} samr_UserInfo14;
+
+	typedef struct {
+		samr_AcctFlags acct_flags;
+	} samr_UserInfo16;
+	
+	typedef struct {
+		NTTIME acct_expiry;
+	} samr_UserInfo17;
+
+	typedef struct {
+		lsa_String parameters;
+	} samr_UserInfo20;
+
+	/* this defines the bits used for fields_present in info21 */
+	typedef [bitmap32bit] bitmap {
+		SAMR_FIELD_ACCOUNT_NAME   = 0x00000001,
+		SAMR_FIELD_FULL_NAME      = 0x00000002,
+		SAMR_FIELD_PRIMARY_GID    = 0x00000008,
+		SAMR_FIELD_DESCRIPTION    = 0x00000010,
+		SAMR_FIELD_COMMENT        = 0x00000020,
+		SAMR_FIELD_HOME_DIRECTORY = 0x00000040,
+		SAMR_FIELD_HOME_DRIVE     = 0x00000080,
+		SAMR_FIELD_LOGON_SCRIPT   = 0x00000100,
+		SAMR_FIELD_PROFILE_PATH   = 0x00000200,
+		SAMR_FIELD_WORKSTATIONS   = 0x00000400,
+		SAMR_FIELD_LOGON_HOURS    = 0x00002000,
+		SAMR_FIELD_ACCT_FLAGS     = 0x00100000,
+		SAMR_FIELD_PARAMETERS     = 0x00200000,
+		SAMR_FIELD_COUNTRY_CODE   = 0x00400000,
+		SAMR_FIELD_CODE_PAGE      = 0x00800000,
+		SAMR_FIELD_PASSWORD       = 0x01000000, /* either of these */
+		SAMR_FIELD_PASSWORD2      = 0x02000000  /* two bits seems to work */
+	} samr_FieldsPresent;
+
+	typedef struct {
+		NTTIME last_logon;
+		NTTIME last_logoff;
+		NTTIME last_password_change;
+		NTTIME acct_expiry;
+		NTTIME allow_password_change;
+		NTTIME force_password_change;
+		lsa_String account_name;
+		lsa_String full_name;
+		lsa_String home_directory;
+		lsa_String home_drive;
+		lsa_String logon_script;
+		lsa_String profile_path;
+		lsa_String description;
+		lsa_String workstations;
+		lsa_String comment;
+		lsa_String parameters;
+		lsa_String unknown1;
+		lsa_String unknown2;
+		lsa_String unknown3;
+		uint32 buf_count;
+		[size_is(buf_count)] uint8 *buffer;
+		uint32 rid;
+		uint32 primary_gid;
+		samr_AcctFlags acct_flags;
+		samr_FieldsPresent fields_present;
+		samr_LogonHours logon_hours;
+		uint16 bad_password_count;
+		uint16 logon_count;
+		uint16 country_code;
+		uint16 code_page;
+		uint8  nt_password_set;
+		uint8  lm_password_set;
+		uint8  password_expired;
+		uint8  unknown4;
+	} samr_UserInfo21;
+
+	typedef [public, flag(NDR_PAHEX)] struct {
+		uint8 data[516];
+	} samr_CryptPassword;
+
+	typedef struct {
+		samr_UserInfo21 info;
+		samr_CryptPassword password;
+	} samr_UserInfo23;
+
+	typedef struct {
+		samr_CryptPassword password;
+		uint8 pw_len;
+	} samr_UserInfo24;
+
+	typedef [flag(NDR_PAHEX)] struct {
+		uint8 data[532];
+	} samr_CryptPasswordEx;
+
+	typedef struct {
+		samr_UserInfo21 info;
+		samr_CryptPasswordEx password;
+	} samr_UserInfo25;
+
+	typedef struct {
+		samr_CryptPasswordEx password;
+		uint8 pw_len;
+	} samr_UserInfo26;
+
+	typedef [switch_type(uint16)] union {
+		[case(1)] samr_UserInfo1 info1;
+		[case(2)] samr_UserInfo2 info2;
+		[case(3)] samr_UserInfo3 info3;
+		[case(4)] samr_UserInfo4 info4;
+		[case(5)] samr_UserInfo5 info5;
+		[case(6)] samr_UserInfo6 info6;
+		[case(7)] samr_UserInfo7 info7;
+		[case(8)] samr_UserInfo8 info8;
+		[case(9)] samr_UserInfo9 info9;
+		[case(10)] samr_UserInfo10 info10;
+		[case(11)] samr_UserInfo11 info11;
+		[case(12)] samr_UserInfo12 info12;
+		[case(13)] samr_UserInfo13 info13;
+		[case(14)] samr_UserInfo14 info14;
+		[case(16)] samr_UserInfo16 info16;
+		[case(17)] samr_UserInfo17 info17;
+		[case(20)] samr_UserInfo20 info20;
+		[case(21)] samr_UserInfo21 info21;
+		[case(23)] samr_UserInfo23 info23;
+		[case(24)] samr_UserInfo24 info24;
+		[case(25)] samr_UserInfo25 info25;
+		[case(26)] samr_UserInfo26 info26;
+	} samr_UserInfo;
+
+	[public] NTSTATUS samr_QueryUserInfo(
+		[in,ref]                  policy_handle *user_handle,
+		[in]                      uint16 level,
+		[out,switch_is(level)]    samr_UserInfo *info
+		);
+
+
+	/************************/
+	/* Function    0x25     */
+	[public] NTSTATUS samr_SetUserInfo(
+		[in,ref]                   policy_handle *user_handle,
+		[in]                       uint16 level,
+		[in,ref,switch_is(level)]  samr_UserInfo *info
+		);
+
+	/************************/
+	/* Function    0x26     */
+	typedef [public, flag(NDR_PAHEX)] struct {
+		uint8 hash[16];
+	} samr_Password;
+
+	/*
+	  this is a password change interface that doesn't give
+	  the server the plaintext password. Depricated.
+	*/
+	NTSTATUS samr_ChangePasswordUser(
+		[in,ref]    policy_handle *user_handle,
+		[in]        boolean8 lm_present,
+		[in]        samr_Password *old_lm_crypted,
+		[in]        samr_Password *new_lm_crypted,
+		[in]        boolean8 nt_present,
+		[in]        samr_Password *old_nt_crypted,
+		[in]        samr_Password *new_nt_crypted,
+		[in]        boolean8 cross1_present,
+		[in]        samr_Password *nt_cross,
+		[in]        boolean8 cross2_present,
+		[in]        samr_Password *lm_cross
+		);
+
+	/************************/
+	/* Function    0x27     */
+
+	typedef [public] struct {
+		uint32 rid;
+		samr_GroupAttrs attributes;
+	} samr_RidWithAttribute;
+
+	typedef [public] struct {
+		uint32     count;
+		[size_is(count)] samr_RidWithAttribute *rids;
+	} samr_RidWithAttributeArray;
+
+	NTSTATUS samr_GetGroupsForUser(
+		[in,ref]   policy_handle *user_handle,
+		[out]      samr_RidWithAttributeArray  *rids
+		);
+
+	/************************/
+	/* Function    0x28     */
+
+	typedef struct {
+		uint32    idx;
+		uint32    rid;
+		samr_AcctFlags acct_flags;
+		lsa_String account_name;
+		lsa_String full_name;
+		lsa_String description;
+	} samr_DispEntryGeneral;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] samr_DispEntryGeneral *entries;
+	} samr_DispInfoGeneral;
+
+	typedef struct {
+		uint32    idx;
+		uint32    rid;
+		samr_AcctFlags acct_flags;
+		lsa_String account_name;
+		lsa_String description;
+	} samr_DispEntryFull;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] samr_DispEntryFull *entries;
+	} samr_DispInfoFull;
+
+	typedef struct {
+		uint32    idx;
+		uint32    rid;
+		samr_GroupAttrs acct_flags;
+		lsa_String account_name;
+		lsa_String description;
+	} samr_DispEntryFullGroup;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] samr_DispEntryFullGroup *entries;
+	} samr_DispInfoFullGroups;
+
+	typedef struct {
+		uint32    idx;
+		lsa_AsciiString account_name;
+	} samr_DispEntryAscii;
+
+	typedef struct {
+		uint32 count;
+		[size_is(count)] samr_DispEntryAscii *entries;
+	} samr_DispInfoAscii;
+
+	typedef [switch_type(uint16)] union {
+		[case(1)] samr_DispInfoGeneral info1;/* users */
+		[case(2)] samr_DispInfoFull info2; /* trust accounts? */
+		[case(3)] samr_DispInfoFullGroups info3; /* groups */
+		[case(4)] samr_DispInfoAscii info4; /* users */
+		[case(5)] samr_DispInfoAscii info5; /* groups */
+	} samr_DispInfo;
+
+	NTSTATUS samr_QueryDisplayInfo(
+		[in,ref]    policy_handle *domain_handle,
+		[in]        uint16 level,
+		[in]        uint32 start_idx,
+		[in]        uint32 max_entries,
+		[in]        uint32 buf_size,
+		[out]       uint32 total_size,
+		[out]       uint32 returned_size,
+		[out,switch_is(level)] samr_DispInfo info
+		);
+
+
+	/************************/
+	/* Function    0x29     */
+
+	/*
+	  this seems to be an alphabetic search function. The returned index
+	  is the index for samr_QueryDisplayInfo needed to get names occurring
+	  after the specified name. The supplied name does not need to exist
+	  in the database (for example you can supply just a first letter for 
+	  searching starting at that letter)
+
+	  The level corresponds to the samr_QueryDisplayInfo level
+	*/
+	NTSTATUS samr_GetDisplayEnumerationIndex(
+		[in,ref]    policy_handle *domain_handle,
+		[in]        uint16 level,
+		[in]        lsa_String name,
+		[out]       uint32 idx
+		);
+
+
+
+	/************************/
+	/* Function    0x2a     */
+
+	/*
+	  w2k3 returns NT_STATUS_NOT_IMPLEMENTED for this
+	*/
+	NTSTATUS samr_TestPrivateFunctionsDomain(
+		[in,ref]    policy_handle *domain_handle
+		);
+
+
+	/************************/
+	/* Function    0x2b     */
+
+	/*
+	  w2k3 returns NT_STATUS_NOT_IMPLEMENTED for this
+	*/
+	NTSTATUS samr_TestPrivateFunctionsUser(
+		[in,ref]    policy_handle *user_handle
+		);
+
+
+	/************************/
+	/* Function    0x2c     */
+
+	typedef struct {
+		uint16 min_password_length;
+		samr_PasswordProperties password_properties;
+	} samr_PwInfo;
+
+	[public] NTSTATUS samr_GetUserPwInfo(
+		[in,ref]    policy_handle *user_handle,
+		[out]       samr_PwInfo info
+		);
+
+	/************************/
+	/* Function    0x2d     */
+	NTSTATUS samr_RemoveMemberFromForeignDomain(
+		[in,ref]    policy_handle *domain_handle,
+		[in,ref]    dom_sid2 *sid
+		);
+
+	/************************/
+	/* Function    0x2e     */
+
+	/*
+	  how is this different from QueryDomainInfo ??
+	*/
+	NTSTATUS samr_QueryDomainInfo2(
+		[in,ref]      policy_handle *domain_handle,
+		[in]          uint16 level,
+		[out,switch_is(level)] samr_DomainInfo *info
+		);
+
+	/************************/
+	/* Function    0x2f     */
+
+	/*
+	  how is this different from QueryUserInfo ??
+	*/
+	NTSTATUS samr_QueryUserInfo2(
+		[in,ref]                  policy_handle *user_handle,
+		[in]                      uint16 level,
+		[out,switch_is(level)]    samr_UserInfo *info
+		);
+
+	/************************/
+	/* Function    0x30     */
+
+	/*
+	  how is this different from QueryDisplayInfo??
+	*/
+	NTSTATUS samr_QueryDisplayInfo2(
+		[in,ref]    policy_handle *domain_handle,
+		[in]        uint16 level,
+		[in]        uint32 start_idx,
+		[in]        uint32 max_entries,
+		[in]        uint32 buf_size,
+		[out]       uint32 total_size,
+		[out]       uint32 returned_size,
+		[out,switch_is(level)] samr_DispInfo info
+		);
+
+	/************************/
+	/* Function    0x31     */
+
+	/*
+	  how is this different from GetDisplayEnumerationIndex ??
+	*/
+	NTSTATUS samr_GetDisplayEnumerationIndex2(
+		[in,ref]    policy_handle *domain_handle,
+		[in]        uint16 level,
+		[in]        lsa_String name,
+		[out]       uint32 idx
+		);
+
+
+	/************************/
+	/* Function    0x32     */
+	NTSTATUS samr_CreateUser2(
+		[in,ref]      policy_handle *domain_handle,
+		[in,ref]      lsa_String *account_name,
+		[in]          samr_AcctFlags acct_flags,
+		[in]          uint32 access_mask,
+		[out,ref]     policy_handle *user_handle,
+		[out,ref]     uint32 *access_granted,
+		[out,ref]     uint32 *rid
+		);
+
+
+	/************************/
+	/* Function    0x33     */
+
+	/*
+	  another duplicate. There must be a reason ....
+	*/
+	NTSTATUS samr_QueryDisplayInfo3(
+		[in,ref]    policy_handle *domain_handle,
+		[in]        uint16 level,
+		[in]        uint32 start_idx,
+		[in]        uint32 max_entries,
+		[in]        uint32 buf_size,
+		[out]       uint32 total_size,
+		[out]       uint32 returned_size,
+		[out,switch_is(level)] samr_DispInfo info
+		);
+
+	/************************/
+	/* Function    0x34     */
+	NTSTATUS samr_AddMultipleMembersToAlias(
+		[in,ref]    policy_handle *alias_handle,
+		[in,ref]    lsa_SidArray *sids
+		);
+
+	/************************/
+	/* Function    0x35     */
+	NTSTATUS samr_RemoveMultipleMembersFromAlias(
+		[in,ref]    policy_handle *alias_handle,
+		[in,ref]    lsa_SidArray *sids
+		);
+
+	/************************/
+	/* Function    0x36     */
+
+	NTSTATUS samr_OemChangePasswordUser2(
+		[in]              lsa_AsciiString *server,
+		[in,ref]          lsa_AsciiString *account,
+		[in]              samr_CryptPassword *password,
+		[in]              samr_Password *hash
+		);
+
+	/************************/
+	/* Function    0x37     */
+	NTSTATUS samr_ChangePasswordUser2(
+		[in]              lsa_String *server,
+		[in,ref]          lsa_String *account,
+		[in]              samr_CryptPassword *nt_password,
+		[in]              samr_Password *nt_verifier,
+		[in]              boolean8 lm_change,
+		[in]              samr_CryptPassword *lm_password,
+		[in]              samr_Password *lm_verifier
+		);
+
+	/************************/
+	/* Function    0x38     */
+	NTSTATUS samr_GetDomPwInfo(
+		[in]        lsa_String *domain_name,
+		[out]       samr_PwInfo info
+		);
+
+	/************************/
+	/* Function    0x39     */
+	NTSTATUS samr_Connect2(
+		[in,string,charset(UTF16)] uint16 *system_name,
+		[in] uint32 access_mask,
+		[out,ref]  policy_handle *connect_handle
+		);
+
+	/************************/
+	/* Function    0x3a     */
+	/*
+	  seems to be an exact alias for samr_SetUserInfo() 
+	*/
+	[public] NTSTATUS samr_SetUserInfo2(
+		[in,ref]                   policy_handle *user_handle,
+		[in]                       uint16 level,
+		[in,ref,switch_is(level)]  samr_UserInfo *info
+		);
+
+	/************************/
+	/* Function    0x3b     */
+	/*
+	  this one is mysterious. I have a few guesses, but nothing working yet
+	*/
+	NTSTATUS samr_SetBootKeyInformation(
+		[in,ref]   policy_handle *connect_handle,
+		[in]       uint32 unknown1,
+		[in]       uint32 unknown2,
+		[in]       uint32 unknown3
+		);
+
+	/************************/
+	/* Function    0x3c     */
+	NTSTATUS samr_GetBootKeyInformation(
+		[in,ref]   policy_handle *domain_handle,
+		[out]      uint32 unknown
+		);
+
+	/************************/
+	/* Function    0x3d     */
+	NTSTATUS samr_Connect3(
+		[in,string,charset(UTF16)] uint16 *system_name,
+		/* this unknown value seems to be completely ignored by w2k3 */
+		[in] uint32 unknown,
+		[in] uint32 access_mask,
+		[out,ref]  policy_handle *connect_handle
+		);
+
+	/************************/
+	/* Function    0x3e     */
+	NTSTATUS samr_Connect4(
+		[in,string,charset(UTF16)] uint16 *system_name,
+		[in] uint32 unknown,
+		[in] uint32 access_mask,
+		[out,ref]  policy_handle *connect_handle
+		);
+
+	/************************/
+	/* Function    0x3f     */
+
+	typedef enum {
+		DUMMY_ENTRY_KEEP_PIDL_HAPPY = 999
+	} samr_RejectReason;
+
+	typedef struct {
+		samr_RejectReason reason;
+		uint32 unknown1;
+		uint32 unknown2;
+	} samr_ChangeReject;
+
+	NTSTATUS samr_ChangePasswordUser3(
+		[in]              lsa_String *server,
+		[in,ref]          lsa_String *account,
+		[in]              samr_CryptPassword *nt_password,
+		[in]              samr_Password *nt_verifier,
+		[in]              boolean8 lm_change,
+		[in]              samr_CryptPassword *lm_password,
+		[in]              samr_Password *lm_verifier,
+		[in]              samr_CryptPassword *password3,
+		[out]             samr_DomInfo1 *dominfo,
+		[out]             samr_ChangeReject *reject
+		);
+
+	/************************/
+	/* Function    0x40      */
+
+	typedef struct {
+		uint32         unknown1; /* w2k3 gives 3 */
+		uint32         unknown2; /* w2k3 gives 0 */
+	} samr_ConnectInfo1;
+
+	typedef union {
+		[case(1)]  samr_ConnectInfo1 info1;
+	} samr_ConnectInfo;
+
+	[public] NTSTATUS samr_Connect5(
+		[in,string,charset(UTF16)] uint16 *system_name,
+		[in]       uint32             access_mask,
+		[in,out]   uint32             level,
+		[in,out,switch_is(level),ref] samr_ConnectInfo *info,
+		[out,ref]  policy_handle      *connect_handle
+		);
+
+	/************************/
+	/* Function    0x41     */
+	NTSTATUS samr_RidToSid(
+		[in,ref]    policy_handle *domain_handle,
+		[in]        uint32        rid,
+		[out]       dom_sid2      *sid
+		);
+
+
+	/************************/
+	/* Function    0x42     */
+
+	/*
+	  this should set the DSRM password for the server, which is used
+	  when booting into Directory Services Recovery Mode on a DC. Win2003
+	  gives me NT_STATUS_NOT_SUPPORTED
+	*/
+
+	NTSTATUS samr_SetDsrmPassword(
+		[in]       lsa_String *name,
+		[in]       uint32 unknown,
+		[in]       samr_Password *hash
+		);
+
+
+	/************************/
+	/* Function    0x43     */
+	/*
+	  I haven't been able to work out the format of this one yet.
+	  Seems to start with a switch level for a union?
+	*/
+	NTSTATUS samr_ValidatePassword();
+}
