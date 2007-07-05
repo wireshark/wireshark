@@ -15,15 +15,12 @@ Bind
 Unbind
 #.END
 
-#.MAKE_ENUM
-Code/local
-
 #.TYPE_RENAME
 
 Invoke/argument					InvokeArgument
 ReturnResult/result/result		ResultArgument
-Attribute/value					Attributevalue
-EventReportArgument/eventInfo	EventReportArgumenteventInfo
+Attribute/value					AttributeValue
+EventReportArgument/eventInfo	EventReportArgumentEventInfo
 
 #.FIELD_RENAME
 
@@ -35,6 +32,7 @@ Reject/problem/returnResult		returnResultProblem
 
 ReturnResult/result/result		resultArgument
 
+SetArgument/modificationList/_item/attributeValue attributevalue
 ActionTypeId/globalForm			actionTypeId_globalForm
 AttributeId/globalForm			attributeId_globalForm
 EventTypeId/globalForm			eventTypeId_globalForm
@@ -219,10 +217,6 @@ RejectProblem
 
 #.PDU
 
-#.TYPE_RENAME
-
-#.FIELD_RENAME
-SetArgument/modificationList/_item/attributeValue attributevalue
 
 #.FN_HDR CMIPAbortInfo
   if(check_col(actx->pinfo->cinfo, COL_INFO)){

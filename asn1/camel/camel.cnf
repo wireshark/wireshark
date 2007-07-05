@@ -1,56 +1,201 @@
 # camel.cnf
 # camel conformation file
-
 # $Id$
 
-#.MODULE_IMPORT
-MAP-CommonDataTypes gsm_map
-MAP-MS-DataTypes gsm_map
-MAP-CH-DataTypes gsm_map
-
 #.INCLUDE ../gsmmap/gsm_map-exp.cnf
+#.INCLUDE ../inap/inap-exp.cnf
 
+#.MODULE
+CS1-DataTypes  inap
+CS2-datatypes  inap
 
 #.PDU
 
+#.OMIT_ASSIGNMENT Remote-Operations-Information-Objects
+Bind
+Unbind
+#.END
+
+#.REGISTER
+CAP-GPRS-ReferenceNumber	B "0.4.0.0.1.1.5.2" "id-CAP-GPRS-ReferenceNumber"
 
 #.NO_EMIT
 
 #.TYPE_RENAME
+ReturnResult/result/result		ResultArgument
 
 #.FIELD_RENAME
-#----------------------------------------------------------------------------------------
-#.PDU 
-Component 
-#----------------------------------------------------------------------------------------
-#.FN_BODY InvokeParameter
+Invoke/linkedId/present			linkedIdPresent
+Reject/problem/invoke			invokeProblem
+Reject/problem/returnError		returnErrorProblem
+ReturnResult/result/result		resultArgument
+Reject/problem/returnResult		problemReturnResult
+
+PAR-cancelFailed/problem		par-cancelFailedProblem
+CAMEL-FCIBillingChargingCharacteristics/fCIBCCCAMELsequence1		fci-fCIBCCCAMELsequence1
+CAMEL-FCIGPRSBillingChargingCharacteristics/fCIBCCCAMELsequence1	fciGPRS-fCIBCCCAMELsequence1
+CAMEL-FCISMSBillingChargingCharacteristics/fCIBCCCAMELsequence1		fciSMS-fCIBCCCAMELsequence1
+EventSpecificInformationBCSM/oMidCallSpecificInfo/midCallEvents		omidCallEvents
+EventSpecificInformationBCSM/tMidCallSpecificInfo/midCallEvents		tmidCallEvents
+AudibleIndicator/tone		audibleIndicatorTone
+GapIndicators/duration		gapIndicatorsDuration
+InbandInfo/duration			inbandInfoDuration
+Tone/duration				toneDuration
+Burst/toneDuration			burstToneDuration
+
+EventSpecificInformationSMS/o-smsFailureSpecificInfo/failureCause smsfailureCause
+EventSpecificInformationBCSM/routeSelectFailureSpecificInfo/failureCause routeSelectfailureCause
+EventSpecificInformationSMS/t-smsFailureSpecificInfo/failureCause t-smsfailureCause
+
+CAMEL-FCIBillingChargingCharacteristics/fCIBCCCAMELsequence1/partyToCharge fCIBCCCAMELsequence1partyToCharge
+CAMEL-CallResult/timeDurationChargingResult/partyToCharge timeDurationChargingResultpartyToCharge
+
+AOCSubsequent/tariffSwitchInterval aocSubsequent-tariffSwitchInterval
+CAMEL-AChBillingChargingCharacteristics/timeDurationCharging/tariffSwitchInterval timeDurationCharging-tariffSwitchInterval
+ApplyChargingGPRSArg/tariffSwitchInterval applyChargingGPRS-tariffSwitchInterval
+TimeIfTariffSwitch/tariffSwitchInterval timeIfTariffSwitch-tariffSwitchInterval
+
+
+#.TABLE_HDR
+/* CAMEL OPERATIONS */
+const value_string camel_opr_code_strings[] = {
+#.TABLE_BODY OPERATION
+	{ %(&operationCode)s, "%(_ident)s" },
+#.TABLE_FTR
+  { 0, NULL }
+};
+#.END
+
+#.TABLE_HDR
+/* CAMEL ERRORS */
+const value_string camel_err_code_string_vals[] = {
+#.TABLE_BODY ERROR
+	{ %(&errorCode)s, "%(_ident)s" },  
+#.TABLE_FTR
+  { 0, NULL }
+};
+#.END
+
+#.TABLE_HDR
+static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+  proto_item *cause;
+
+  switch(opcode){
+#.TABLE_BODY OPERATION.&ArgumentType
+    case %(&operationCode)s:  /* %(_ident)s */
+      offset= %(_argument_fn)s(FALSE, tvb, offset, actx, tree, -1);
+      break;
+#.TABLE_FTR
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+    /* todo call the asn.1 dissector */
+  }
+  return offset;
+}
+#.END
+#.TABLE_HDR
+static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+  proto_item *cause;
+
+  switch(opcode){
+#.TABLE_BODY OPERATION.&ResultType
+    case %(&operationCode)s:  /* %(_ident)s */
+	  offset= %(_result_fn)s(FALSE, tvb, offset, actx, tree, -1);
+      break;
+#.TABLE_FTR
+  default:
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnResultData %d",opcode);
+  }
+  return offset;
+}
+#.END
+#.TABLE_HDR
+static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+  proto_item *cause;
+
+  switch(errorCode) {
+#.TABLE_BODY ERROR.&ParameterType
+    case %(&errorCode)s:  /* %(_ident)s */
+      %(_parameter_fn)s(FALSE, tvb, offset, actx, tree, -1);
+      break;
+#.TABLE_FTR
+  default:
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnErrorData %d",errorCode);
+  }
+  return offset;
+}
+#.END
+# ROS stuff here XXX change when TCAP is redone.
+
+#.FN_BODY Code/local  VAL_PTR = &opcode
+
+  if (is_ExtensionField){
+	hf_index = hf_camel_extension_code_local;
+  }else if (camel_opcode_type == CAMEL_OPCODE_RETURN_ERROR){
+	hf_index = hf_camel_error_code_local;  
+  }		
+  %(DEFAULT_BODY)s
+  if (is_ExtensionField == FALSE){
+	if (camel_opcode_type == CAMEL_OPCODE_RETURN_ERROR){
+	  errorCode = opcode;	
+	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+	    col_append_fstr(actx->pinfo->cinfo, COL_INFO, 
+	       val_to_str(errorCode, camel_err_code_string_vals, "Unknown CAMEL error (%%u)"));
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+	  }
+	}else{
+	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+	    col_append_fstr(actx->pinfo->cinfo, COL_INFO, 
+	       val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%%u)"));
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+	  }
+	}
+	gp_camelsrt_info->opcode=opcode;
+  }
+#.FN_HDR Invoke
+  camel_opcode_type=CAMEL_OPCODE_INVOKE;
+
+#.FN_HDR ReturnResult
+  camel_opcode_type=CAMEL_OPCODE_RETURN_RESULT;
+
+#.FN_HDR ReturnError
+  camel_opcode_type=CAMEL_OPCODE_RETURN_ERROR;
+
+#.FN_HDR Reject
+  camel_opcode_type=CAMEL_OPCODE_REJECT;
+
+
+#.FN_BODY Invoke/argument
 	offset = dissect_invokeData(tree, tvb, offset, actx);
 
-#----------------------------------------------------------------------------------------
-#.FN_BODY ReturnResultParameter
+#.FN_BODY ReturnResult/result/result
 	offset = dissect_returnResultData(tree, tvb, offset, actx);
 
-#----------------------------------------------------------------------------------------
-#.FN_BODY ReturnErrorParameter
+#.FN_BODY ReturnError/parameter
 	offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
-#----------------------------------------------------------------------------------------
-#.FN_PARS  CAMELOperationLocalvalue
+# END ROS
 
-  VAL_PTR = &opcode
+#.FN_HDR ExtensionField
+	camel_obj_id = NULL;
+	is_ExtensionField =TRUE;
 
-#.FN_BODY  CAMELOperationLocalvalue
+#.FN_PARS Code/global  FN_VARIANT = _str  VAL_PTR = &camel_obj_id
 
-%(DEFAULT_BODY)s 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, 
-       val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%%u)"));
-    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+#.FN_BODY ExtensionField/value
+  /*XXX handle local form here */
+  if(camel_obj_id){
+    offset=call_ber_oid_callback(camel_obj_id, tvb, offset, actx->pinfo, tree);
   }
-  gp_camelsrt_info->opcode=opcode;
+  is_ExtensionField = FALSE;
 
-#----------------------------------------------------------------------------------------
 #.FN_PARS  CAMELLocalErrorcode
 
   VAL_PTR = &errorCode
@@ -85,53 +230,8 @@ Component
  offset += len;
  
 #.END
-
 #----------------------------------------------------------------------------------------
-#.FN_PARS ISDN-AddressString
-	VAL_PTR = &parameter_tvb
-
-#.FN_BODY ISDN-AddressString
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
- proto_item *item;
- proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_isdn_address_string);
-  
- proto_tree_add_item(subtree, hf_camel_addr_extension, parameter_tvb, 0,1,FALSE);
- 
- proto_tree_add_item(subtree, hf_camel_addr_natureOfAddressIndicator, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(subtree, hf_camel_addr_numberingPlanInd, parameter_tvb, 0,1,FALSE);
- digit_str = unpack_digits(parameter_tvb, 1);
-
- proto_tree_add_string(subtree, hf_camel_addr_digits, parameter_tvb, 1, -1, digit_str);
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS CallresultoctetPDU
-	VAL_PTR = &parameter_tvb
-
-#.FN_BODY CallresultoctetPDU
-tvbuff_t	*parameter_tvb;
-
-%(DEFAULT_BODY)s
- if (!parameter_tvb)
-	return offset;
- dissect_camel_CAMEL_CallResult(implicit_tag, parameter_tvb, 0, actx, tree, -1);
- 
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS Cause
-	VAL_PTR = &camel_tvb
-
-#.FN_BODY Cause
+#.FN_BODY Cause VAL_PTR = &camel_tvb
 
        tvbuff_t *camel_tvb;
        guint8 Cause_value;
@@ -144,30 +244,8 @@ tvbuff_t	*parameter_tvb;
 
        return offset;
 #.END
-
 #----------------------------------------------------------------------------------------
-#.FN_PARS Q850Cause
-	VAL_PTR = &camel_tvb
-
-#.FN_BODY Q850Cause
-
-       tvbuff_t *camel_tvb;
-       guint8 Cause_value;
-
-%(DEFAULT_BODY)s
-
-       if (camel_tvb)
-           dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
-
-
-       return offset;
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS RPCause
-	VAL_PTR = &camel_tvb
-
-#.FN_BODY RPCause
+#.FN_BODY RPCause VAL_PTR = &camel_tvb
 
        tvbuff_t *camel_tvb;
        guint8 Cause_value;
@@ -278,12 +356,7 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS  BearerCap
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY BearerCap
-
+#.FN_BODY BearerCapability/bearerCap VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
 
 %(DEFAULT_BODY)s
@@ -295,28 +368,7 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS  RedirectionInformation
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY RedirectionInformation
-
- tvbuff_t	*parameter_tvb;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
-
- dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS  OriginalCalledPartyID
-
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY OriginalCalledPartyID
+#.FN_BODY OriginalCalledPartyID VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
 
@@ -343,50 +395,9 @@ tvbuff_t	*parameter_tvb;
  dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
 #.END
 
-#----------------------------------------------------------------------------------------
-#.FN_PARS MSNetworkCapability
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY MSNetworkCapability 
-
- tvbuff_t	*parameter_tvb;
- proto_item *item;
- proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_MSNetworkCapability);
- de_gmm_ms_net_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
-#.END
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS MSRadioAccessCapability
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY MSRadioAccessCapability 
-
- tvbuff_t	*parameter_tvb;
- proto_item *item;
- proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_MSRadioAccessCapability);
- de_gmm_ms_radio_acc_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
-#.END
-
-
-#----------------------------------------------------------------------------------------
-#.FN_PARS PDPTypeOrganization
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY PDPTypeOrganization 
+#.FN_BODY EndUserAddress/pDPTypeOrganization VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
 
@@ -398,10 +409,7 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS PDPTypeNumber
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY PDPTypeNumber 
+#.FN_BODY EndUserAddress/pDPTypeNumber VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
  proto_item *item;
@@ -426,11 +434,8 @@ tvbuff_t	*parameter_tvb;
  }
 #.END
 
-#----------------------------------------------------------------------------------------
-#.FN_PARS PDPAddress
-  VAL_PTR = &parameter_tvb
 
-#.FN_BODY PDPAddress 
+#.FN_BODY EndUserAddress/pDPAddress VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
  proto_item *item;
@@ -463,7 +468,7 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY CellGlobalIdOrServiceAreaIdOrLAI 
+#.FN_BODY LocationInformationGPRS/cellGlobalIdOrServiceAreaIdOrLAI 
 	proto_item *item;
 	proto_tree *subtree;
 	int start_offset;
@@ -482,10 +487,22 @@ tvbuff_t	*parameter_tvb;
 #.END
 
 #----------------------------------------------------------------------------------------
+#.FN_BODY AChBillingChargingCharacteristics VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_AChBillingChargingCharacteristics);
+ dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, -1);
+
 
 #.TYPE_ATTR
-CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = NONE
 AccessPointName	TYPE = FT_STRING DISPLAY = NONE
+Code/local TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = VALS(camel_opr_code_strings)
 #.END

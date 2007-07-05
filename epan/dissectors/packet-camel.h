@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-camel.h                                                           */
-/* ../../tools/asn2wrs.py -b -X -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
+/* ../../tools/asn2wrs.py -b -X -T -L -e -k -p camel -c camel.cnf -s packet-camel-template TCAPMessages.asn CAP-object-identifiers.asn CAP-classes.asn CAP-datatypes.asn CAP-errorcodes.asn CAP-errortypes.asn CAP-operationcodes.asn CAP-GPRS-ReferenceNumber.asn CAP-gsmSCF-gsmSRF-ops-args.asn CAP-gsmSSF-gsmSCF-ops-args.asn CAP-gprsSSF-gsmSCF-ops-args.asn CAP-SMS-ops-args.asn CAP-U-ABORT-Data.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
 /* Input file: packet-camel-template.h */
 
@@ -50,6 +50,7 @@ void proto_register_camel(void);
 
 
 WS_VAR_IMPORT const value_string camel_opr_code_strings[];
+const value_string camel_err_code_string_vals[];
 /* #include "packet-camel-exp.h"*/
 
 #endif  /* PACKET_camel_H */
