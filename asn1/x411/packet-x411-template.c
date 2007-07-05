@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
 #include <epan/asn1.h>
@@ -53,6 +54,11 @@
 #define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "X411"
 #define PFNAME "x411"
+
+static guint global_x411_tcp_port = 102;
+static guint tcp_port = 0;
+static dissector_handle_t tpkt_handle = NULL;
+void prefs_register_x411(void); /* forwad declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_x411 = -1;
@@ -225,12 +231,27 @@ void proto_register_x411(void) {
 #include "packet-x411-ettarr.c"
   };
 
+  module_t *x411_module;
+
   /* Register protocol */
   proto_x411 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("x411", dissect_x411, proto_x411);
   /* Register fields and subtrees */
   proto_register_field_array(proto_x411, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register our configuration options for X411, particularly our port */
+
+#ifdef PREFERENCE_GROUPING
+  x411_module = prefs_register_protocol_subtree("OSI/X.400", proto_x411, prefs_register_x411);
+#else
+  x411_module = prefs_register_protocol(proto_x411, prefs_register_x411);
+#endif 
+
+  prefs_register_uint_preference(x411_module, "tcp.port", "X.411 TCP Port",
+				 "Set the port for P1 operations (if other"
+				 " than the default of 102)",
+				 10, &global_x411_tcp_port);
 
 }
 
@@ -256,5 +277,22 @@ void proto_reg_handoff_x411(void) {
     register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
   }
 
+  /* remember the tpkt handler for change in preferences */
+  tpkt_handle = find_dissector("tpkt");
+
+}
+
+void prefs_register_x411(void) {
+
+  /* de-register the old port */
+  /* port 102 is registered by TPKT - don't undo this! */
+  if((tcp_port != 102) && tpkt_handle)
+    dissector_delete("tcp.port", tcp_port, tpkt_handle);
+
+  /* Set our port number for future use */
+  tcp_port = global_x411_tcp_port;
+
+  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
+    dissector_add("tcp.port", tcp_port, tpkt_handle);
 
 }

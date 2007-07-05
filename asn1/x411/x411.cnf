@@ -40,6 +40,15 @@ ExtensionField/value		ExtensionValue
 SecurityCategory/value		CategoryValue
 
 #.FIELD_RENAME
+CountryName/iso-3166-alpha2-code	printable-country-name
+CountryName/x121-dcc-code		numeric-country-name
+AdministrationDomainName/printable	printable-administration-domain-name
+AdministrationDomainName/numeric	numeric-administration-domain-name
+PrivateDomainName/printable		printable-private-domain-name
+PrivateDomainName/numeric		numeric-private-domain-name
+PrivateDomainIdentifier/printable	printable-private-domain-identifier
+PrivateDomainIdentifier/numeric		numeric-private-domain-identifier
+
 TeletexPersonalName/surname	teletex-surname
 PersonalName/surname		printable-surname
 UniversalPersonalName/surname	universal-surname
@@ -260,6 +269,9 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
+#.FN_PARS ExtensionAttribute/extension-attribute-type
+	VAL_PTR = &extension_id
+
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
 	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, actx->pinfo, tree);
@@ -472,6 +484,19 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
 	}
 
+#.FN_PARS OrganizationalUnitName
+	VAL_PTR=&string
+
+#.FN_BODY OrganizationalUnitName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/OU=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
 #.FN_PARS CommonName
 	VAL_PTR=&string
 
@@ -486,7 +511,18 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	}
 
 #.VIRTUAL_ASSGN
-AddrNumericString  	UserAddress/x121/x121-address CountryName/x121-dcc-code PhysicalDeliveryCountryName/x121-dcc-code PostalCode/numeric-code
+AddrPrintableString	CountryName/iso-3166-alpha2-code AdministrationDomainName/printable PrivateDomainName/printable PrivateDomainIdentifier/printable
+
+#.FN_BODY AddrPrintableString  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.VIRTUAL_ASSGN
+AddrNumericString  	UserAddress/x121/x121-address CountryName/x121-dcc-code AdministrationDomainName/numeric PrivateDomainName/numeric PrivateDomainIdentifier/numeric PhysicalDeliveryCountryName/x121-dcc-code PostalCode/numeric-code
 
 #.FN_BODY AddrNumericString  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;

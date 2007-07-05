@@ -2578,7 +2578,7 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		case 159: /* member-of */
 		case 165: /* zone-members */
-			fDeviceObjectReference (tvb, tree, offset);
+			offset = fDeviceObjectReference (tvb, tree, offset);
 			break;
 		default:
 			if (tag_info)

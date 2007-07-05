@@ -5,19 +5,10 @@
 ## DP: No description.
 
 @DPATCH@
-diff -urNad wireshark-0.99.2~/wireshark.desktop wireshark-0.99.2/wireshark.desktop
---- wireshark-0.99.2~/wireshark.desktop	2006-07-17 22:00:04.000000000 +0200
-+++ wireshark-0.99.2/wireshark.desktop	2006-07-18 22:05:40.000000000 +0200
-@@ -6,7 +6,7 @@
- Type=Application
- Version=1.0
- Encoding=UTF-8
--Name=Ethereal
-+Name=Wireshark
- Name[ko]=이더리얼
- Name[ta]=®¾Ã¢Âø
- Name[uk]=Ефемерність
-@@ -72,13 +72,13 @@
+diff -urNad wireshark-0.99.4/wireshark.desktop /tmp/dpep.1jXNTW/wireshark-0.99.4/wireshark.desktop
+--- wireshark-0.99.4/wireshark.desktop	2006-11-01 10:31:40.011860048 +0100
++++ /tmp/dpep.1jXNTW/wireshark-0.99.4/wireshark.desktop	2006-11-01 10:32:13.727816940 +0100
+@@ -68,11 +68,11 @@
  Comment[fi]=Verkkoliikenne analysaattori
  Comment[fr]=Analyseur de trafic réseau
  Comment[sv]=Nätverkstrafikanalysator
@@ -30,6 +21,4 @@ diff -urNad wireshark-0.99.2~/wireshark.desktop wireshark-0.99.2/wireshark.deskt
  MimeType=
 -Categories=Application;GTK;Network;X-Red-Hat-Extra;
 +Categories=GNOME;Application;Network;
- # Found in Suse 9.1:
  X-KDE-SubstituteUID=true
- # Deprecated:
