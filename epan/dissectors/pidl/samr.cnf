@@ -2,6 +2,35 @@ IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, d
 HF_FIELD hf_samr_sec_info "SecInfo" "samr.sec_info" FT_UINT32 BASE_HEX NULL 0 "" "" ""
 
 
+#
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions
+PARAM_VALUE samr_dissect_element_Connect_connect_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_OpenDomain_domain_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_CreateDomainGroup_group_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_CreateUser_user_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_CreateDomAlias_alias_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_OpenGroup_group_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_OpenAlias_alias_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_OpenUser_user_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_CreateUser2_user_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_Connect2_connect_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_Connect3_connect_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_Connect4_connect_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE samr_dissect_element_Connect5_connect_handle_ PIDL_POLHND_OPEN
+# Policyhandles are closed in these functions
+PARAM_VALUE samr_dissect_element_Close_handle_ PIDL_POLHND_CLOSE
+PARAM_VALUE samr_dissect_element_Shutdown_connect_handle_ PIDL_POLHND_CLOSE
+PARAM_VALUE samr_dissect_element_DeleteDomainGroup_group_handle_ PIDL_POLHND_CLOSE
+PARAM_VALUE samr_dissect_element_DeleteDomAlias_alias_handle_ PIDL_POLHND_CLOSE
+PARAM_VALUE samr_dissect_element_DeleteUser_user_handle_ PIDL_POLHND_CLOSE
+
+
+
 TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
