@@ -735,8 +735,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Timestamp in file */
     timestamp_start = offset;
     timestamp_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
-                        offset, timestamp_length, FALSE);
+    proto_tree_add_double_format_value(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
+                                       offset, timestamp_length,
+                                       atof(tvb_format_text(tvb, offset, timestamp_length)),
+                                       "%s", tvb_format_text(tvb, offset, timestamp_length-1));
     offset += timestamp_length;
 
 
@@ -1129,7 +1131,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_timestamp,
             { "Timestamp",
-              "dct2000.timestamp", FT_STRING, BASE_NONE, NULL, 0x0,
+              "dct2000.timestamp", FT_DOUBLE, BASE_DEC, NULL, 0x0,
               "File timestamp", HFILL
             }
         },
