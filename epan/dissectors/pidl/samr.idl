@@ -18,6 +18,12 @@
 {
 	declare bitmap security_secinfo;
 
+	typedef [public,noejs] struct {
+		[value(strlen_m_term(name)*2)] uint16 name_len;
+		[value(strlen_m_term(name)*2)] uint16 name_size;
+		[string,charset(UTF16)] uint16 *name;
+	} lsa_String;
+
 	/* account control (acct_flags) bits */
 	typedef [public,bitmap32bit] bitmap {
 		ACB_DISABLED			= 0x00000001,  /* 1 = User account disabled */

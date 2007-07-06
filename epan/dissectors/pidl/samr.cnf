@@ -29,7 +29,12 @@ PARAM_VALUE samr_dissect_element_DeleteDomainGroup_group_handle_ PIDL_POLHND_CLO
 PARAM_VALUE samr_dissect_element_DeleteDomAlias_alias_handle_ PIDL_POLHND_CLOSE
 PARAM_VALUE samr_dissect_element_DeleteUser_user_handle_ PIDL_POLHND_CLOSE
 
-
+#
+# Prettification the summary line and the dissection tree
+#
+PARAM_VALUE samr_dissect_element_SamArray_entries__ 3|PIDL_SET_COL_INFO
+PARAM_VALUE samr_dissect_element_LookupDomain_domain_name_ 3|PIDL_SET_COL_INFO
+PARAM_VALUE samr_dissect_element_GetDomPwInfo_domain_name_ 3|PIDL_SET_COL_INFO
 
 TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
@@ -46,14 +51,40 @@ TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, dre
 TYPE lsa_Strings "offset=cnf_dissect_lsa_Strings(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
 CODE START
+
 static int
-cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
 {
-	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hfindex, 0);
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+	header_field_info *hf_info;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+	hf_info=proto_registrar_get_nth(hfindex);
+
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
+		tree = proto_item_add_subtree(item, ett_samr_lsa_String);
+	}
+	
+	offset = samr_dissect_element_lsa_String_name_len(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_lsa_String_name_size(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		hf_info->name, hfindex, cb_wstr_postprocess,
+		GINT_TO_POINTER(param));
+
+	proto_item_set_len(item, offset-old_offset);
 
 	return offset;
 }
+
+
 
 static int
 cnf_dissect_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
