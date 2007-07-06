@@ -47,12 +47,21 @@
 		ACB_NO_AUTH_DATA_REQD		= 0x00080000   /* 1 = No authorization data required */
 	} samr_AcctFlags;
 
+	typedef [public,bitmap32bit] bitmap {
+		SAMR_ACCESS_CONNECT_TO_SERVER   = 0x00000001,
+		SAMR_ACCESS_SHUTDOWN_SERVER     = 0x00000002,
+		SAMR_ACCESS_INITIALIZE_SERVER   = 0x00000004,
+		SAMR_ACCESS_CREATE_DOMAIN       = 0x00000008,
+		SAMR_ACCESS_ENUM_DOMAINS        = 0x00000010,
+		SAMR_ACCESS_OPEN_DOMAIN         = 0x00000020
+	} samr_ConnectAccessMask;
+
 	/******************/
 	/* Function: 0x00 */
 	NTSTATUS samr_Connect (
 		/* notice the lack of [string] */
 		[in]       uint16 *system_name,
-		[in]       uint32 access_mask,
+		[in]       samr_ConnectAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
@@ -1124,7 +1133,7 @@
 	/* Function    0x39     */
 	NTSTATUS samr_Connect2(
 		[in,string,charset(UTF16)] uint16 *system_name,
-		[in] uint32 access_mask,
+		[in] samr_ConnectAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
@@ -1164,7 +1173,7 @@
 		[in,string,charset(UTF16)] uint16 *system_name,
 		/* this unknown value seems to be completely ignored by w2k3 */
 		[in] uint32 unknown,
-		[in] uint32 access_mask,
+		[in] samr_ConnectAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
@@ -1173,7 +1182,7 @@
 	NTSTATUS samr_Connect4(
 		[in,string,charset(UTF16)] uint16 *system_name,
 		[in] uint32 unknown,
-		[in] uint32 access_mask,
+		[in] samr_ConnectAccessMask access_mask,
 		[out,ref]  policy_handle *connect_handle
 		);
 
@@ -1217,7 +1226,7 @@
 
 	[public] NTSTATUS samr_Connect5(
 		[in,string,charset(UTF16)] uint16 *system_name,
-		[in]       uint32             access_mask,
+		[in]       samr_ConnectAccessMask  access_mask,
 		[in,out]   uint32             level,
 		[in,out,switch_is(level),ref] samr_ConnectInfo *info,
 		[out,ref]  policy_handle      *connect_handle

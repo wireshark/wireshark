@@ -52,7 +52,50 @@ TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, dre
 
 TYPE lsa_Strings "offset=cnf_dissect_lsa_Strings(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
+
+#
+# ConnectX access masks
+#
+MANUAL samr_dissect_bitmap_ConnectAccessMask
+HF_FIELD hf_samr_connect_access_mask "Access Mask" "samr.connect.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
+HF_RENAME hf_samr_samr_Connect_access_mask hf_samr_connect_access_mask
+HF_RENAME hf_samr_samr_Connect2_access_mask hf_samr_connect_access_mask
+HF_RENAME hf_samr_samr_Connect3_access_mask hf_samr_connect_access_mask
+HF_RENAME hf_samr_samr_Connect4_access_mask hf_samr_connect_access_mask
+HF_RENAME hf_samr_samr_Connect5_access_mask hf_samr_connect_access_mask
+
+
 CODE START
+
+static void
+samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
+{
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_OPEN_DOMAIN, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_ENUM_DOMAINS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CREATE_DOMAIN, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER, tvb, offset, 4, access);
+}
+
+struct access_mask_info samr_connect_access_mask_info = {
+	"SAMR Connect",			/* Name of specific rights */
+	samr_connect_specific_rights,	/* Dissection function */
+	NULL,				/* Generic mapping table */
+	NULL				/* Standard mapping table */
+};
+
+int
+samr_dissect_bitmap_ConnectAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
+{
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, drep, hf_samr_connect_access_mask,
+		&samr_connect_access_mask_info, NULL);
+	return offset;
+}
+
+
+
 
 static int
 cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
