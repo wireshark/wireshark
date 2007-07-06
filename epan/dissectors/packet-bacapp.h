@@ -1802,10 +1802,11 @@ fSpecialEvent (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @param tvb
  * @param tree
  * @param offset
+ * @param label
  * @return modified offset
  */
 static guint
-fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * BACnetTimeValue ::= SEQUENCE {

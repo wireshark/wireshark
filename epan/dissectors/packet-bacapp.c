@@ -1930,8 +1930,8 @@ fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
-static guint
-fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset)
+static guint fTimeStamp (tvbuff_t *tvb, proto_tree *tree,
+	guint offset, const gchar *label)
 {
 	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
@@ -1939,14 +1939,15 @@ fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	if (tvb_length_remaining(tvb, offset) > 0) {	/* don't loop, it's a CHOICE */
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* time */
-			offset = fTime (tvb, tree, offset, "timestamp: ");
+			offset = fTime (tvb, tree, offset, label?label:"timestamp: ");
 			break;
 		case 1:	/* sequenceNumber */
-			offset = fUnsignedTag (tvb, tree, offset, "sequence Number: ");
+			offset = fUnsignedTag (tvb, tree, offset,
+				label?label:"sequence Number: ");
 			break;
 		case 2:	/* dateTime */
 			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fDateTime (tvb, tree, offset, "timestamp: ");
+			offset = fDateTime (tvb, tree, offset, label?label:"timestamp: ");
 			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		default:
@@ -1954,6 +1955,7 @@ fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		}
 	}
+	
 	return offset;
 }
 
@@ -2001,7 +2003,7 @@ fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		offset = fProcessId (tvb,tree,offset);
 		offset = fApplicationTypes (tvb,tree,offset,
 			"issue confirmed notifications: ");
-		offset = fApplicationTypesEnumerated (tvb,tree,offset,
+		offset = fBitStringTagVS (tvb,tree,offset,
 			"transitions: ", BACnetEventTransitionBits);
 	}
 	return offset;
@@ -2333,14 +2335,27 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *lab
 {
 	guint8 tag_no, tag_info, tmp;
 	gint j, unused, skip;
+	guint start = offset;
 	guint offs;
 	guint32 lvt, i, numberOfBytes;
 	guint8 bf_arr[256];
+	proto_tree* subtree = tree;
+	proto_item* ti = 0;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 	numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
 	offset+=offs;
 	unused = tvb_get_guint8(tvb, offset); /* get the unused Bits */
+	ti = proto_tree_add_text(tree, tvb, start, offs+lvt,
+				"%s(Bit String)",
+				label);
+	if (ti) {
+		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+	}
+	fTagHeaderTree(tvb, subtree, start, &tag_no, &tag_info, &lvt);
+	proto_tree_add_text(subtree, tvb, offset, 1,
+				"Unused bits: %u",
+				unused);
 	skip = 0;
 	for (i = 0; i < numberOfBytes; i++) {
 		tmp = tvb_get_guint8(tvb, (offset)+i+1);
@@ -2348,22 +2363,19 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *lab
 		for (j = 0; j < 8-skip; j++) {
 			if (src != NULL) {
 				if (tmp & (1 << (7 - j)))
-					proto_tree_add_text(tree, tvb,
+					proto_tree_add_text(subtree, tvb,
 						offset+i+1, 1,
-						"%s%s = TRUE",
-						label,
+						"%s = TRUE",
 						val_to_str((guint) (i*8 +j),
 							src,
 							ASHRAE_Reserved_Fmt));
 				else
-					proto_tree_add_text(tree, tvb,
+					proto_tree_add_text(subtree, tvb,
 						offset+i+1, 1,
-						"%s%s = FALSE",
-						label,
+						"%s = FALSE",
 						val_to_str((guint) (i*8 +j),
 							src,
 							ASHRAE_Reserved_Fmt));
-
 			} else {
 				bf_arr[min(255,(i*8)+j)] = tmp & (1 << (7 - j)) ? '1' : '0';
 			}
@@ -2373,7 +2385,7 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *lab
 	if (src == NULL)
 	{
 		bf_arr[min(255,numberOfBytes*8-unused)] = 0;
-		proto_tree_add_text(tree, tvb, offset, lvt, "%sB'%s'", label, bf_arr);
+		proto_tree_add_text(subtree, tvb, offset, lvt, "B'%s'", bf_arr);
 	}
 
 	offset+=lvt;
@@ -3030,7 +3042,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	tt = proto_tree_add_text(subtree, tvb, offset, 0, "notification parameters");
 	subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-	/* Opeing tag for parameter choice */
+	/* Opening tag for parameter choice */
 	offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 
 	switch (tag_no) {
@@ -3492,7 +3504,7 @@ fConfirmedEventNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offse
 			break;
 		case 3:	/* time stamp */
 			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fTimeStamp (tvb, tree, offset);
+			offset = fTimeStamp (tvb, tree, offset, NULL);
 			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		case 4:	/* notificationClass */
@@ -3620,7 +3632,7 @@ fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		case 3:	/* timeStamp */
 			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fTimeStamp(tvb, tree, offset);
+			offset = fTimeStamp(tvb, tree, offset, NULL);
 			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		case 4:	/* acknowledgementSource */
@@ -3628,7 +3640,7 @@ fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		case 5:	/* timeOfAcknowledgement */
 			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fTimeStamp(tvb, tree, offset);
+			offset = fTimeStamp(tvb, tree, offset, "acknowledgement timestamp: ");
 			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		default:
@@ -3735,43 +3747,57 @@ flistOfEventSummaries (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint lastoffset = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
-
+	proto_tree* subtree = tree;
+	proto_item* ti = 0;
+	
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		switch (fTagNo(tvb, offset)) {
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		/* we are finished here if we spot a closing tag */
+		if (tag_is_closing(tag_info)) {
+			break;
+		}
+		switch (tag_no) {
 		case 0:	/* ObjectId */
 			offset = fObjectIdentifier (tvb, tree, offset);
 			break;
 		case 1: /* eventState */
 			offset = fEnumeratedTag (tvb, tree, offset,
-				"event State: ", BACnetEventStateFilter);
+				"event State: ", BACnetEventState);
 			break;
 		case 2: /* acknowledgedTransitions */
-			offset = fEnumeratedTag (tvb, tree, offset,
+			offset = fBitStringTagVS (tvb, tree, offset,
 				"acknowledged Transitions: ", BACnetEventTransitionBits);
 			break;
 		case 3: /* eventTimeStamps */
-			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fTimeStamp (tvb, tree, offset);
-			offset = fTimeStamp (tvb, tree, offset);
-			offset = fTimeStamp (tvb, tree, offset);
-			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
+			ti = proto_tree_add_text(tree, tvb, offset, lvt, "eventTimeStamps");
+			if (ti) {
+				subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+			}
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+			offset = fTimeStamp (tvb, subtree, offset,"TO-OFFNORMAL timestamp: ");
+			offset = fTimeStamp (tvb, subtree, offset,"TO-FAULT timestamp: ");
+			offset = fTimeStamp (tvb, subtree, offset,"TO-NORMAL timestamp: ");
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		case 4: /* notifyType */
 			offset = fEnumeratedTag (tvb, tree, offset,
 				"Notify Type: ", BACnetNotifyType);
 			break;
 		case 5: /* eventEnable */
-			offset = fEnumeratedTag (tvb, tree, offset,
+			offset = fBitStringTagVS (tvb, tree, offset,
 				"event Enable: ", BACnetEventTransitionBits);
 			break;
 		case 6: /* eventPriorities */
-			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fUnsignedTag (tvb, tree, offset, "event Priority: ");
-			offset = fUnsignedTag (tvb, tree, offset, "event Priority: ");
-			offset = fUnsignedTag (tvb, tree, offset, "event Priority: ");
-			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			lastoffset = offset;
+			ti = proto_tree_add_text(tree, tvb, offset, lvt, "eventPriorities");
+			if (ti) {
+				subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+			}
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+			offset = fUnsignedTag (tvb, subtree, offset, "TO-OFFNORMAL Priority: ");
+			offset = fUnsignedTag (tvb, subtree, offset, "TO-FAULT Priority: ");
+			offset = fUnsignedTag (tvb, subtree, offset, "TO-NORMAL Priority: ");
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 			break;
 		default:
 			return offset;
