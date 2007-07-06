@@ -293,7 +293,7 @@ good_magic:
 	wth->subtype_close = mpeg_close;
 	wth->snapshot_length = 0;
 
-	wth->capture.mpeg = g_malloc(sizeof(libpcap_t));
+	wth->capture.mpeg = g_malloc(sizeof(mpeg_t));
 	wth->capture.mpeg->now.secs = time(NULL);
 	wth->capture.mpeg->now.nsecs = 0;
 	wth->capture.mpeg->t0 = (double) wth->capture.mpeg->now.secs;
