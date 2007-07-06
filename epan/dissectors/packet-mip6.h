@@ -36,143 +36,157 @@
 
 /* Mobility Header types */
 typedef enum {
-    BRR  = 0,
-    HOTI = 1,
-    COTI = 2,
-    HOT  = 3,
-    COT  = 4,
-    BU   = 5,
-    BA   = 6,
-    BE    = 7,
-    FBU   = 8,
-    FBACK = 9,
-    FNA   = 10
+	BRR  = 0,
+	HOTI = 1,
+	COTI = 2,
+	HOT  = 3,
+	COT  = 4,
+	BU   = 5,
+	BA   = 6,
+	BE    = 7,
+	FBU   = 8,
+	FBACK = 9,
+	FNA   = 10
 } mhTypes;
 
 static const value_string mip6_mh_types[] = {
-    {BRR,  "Binding Refresh Request"},
-    {HOTI, "Home Test Init"},
-    {COTI, "Care-of Test Init"},
-    {HOT,  "Home Test"},
-    {COT,  "Care-of Test"},
-    {BU,   "Binding Update"},
-    {BA,   "Binding Acknowledgement"},
-    {BE,   "Binding Error"},
-    {FBU,   "Fast Binding Update"},
-    {FBACK, "Fast Binding Acknowledgment"},
-    {FNA,   "Fast Neighbor Advertisement"},
-    {0,    NULL}
+	{BRR,   "Binding Refresh Request"},
+	{HOTI,  "Home Test Init"},
+	{COTI,  "Care-of Test Init"},
+	{HOT,   "Home Test"},
+	{COT,   "Care-of Test"},
+	{BU,    "Binding Update"},
+	{BA,    "Binding Acknowledgement"},
+	{BE,    "Binding Error"},
+	{FBU,   "Fast Binding Update"},
+	{FBACK, "Fast Binding Acknowledgment"},
+	{FNA,   "Fast Neighbor Advertisement"},
+	{0,     NULL}
 };
 
 /* Mobility Option types */
 typedef enum {
-    PAD1 = 0,
-    PADN = 1,
-    BRA  = 2,
-    ACOA = 3,
-    NI   = 4,
-    BAD  = 5,
-    MNP  = 6,
-    LLA  = 7
+	PAD1 = 0,
+	PADN = 1,
+	BRA  = 2,
+	ACOA = 3,
+	NI   = 4,
+	BAD  = 5,
+	MNP  = 6,
+	LLA  = 7,
+	MNID = 8,
+	HNP  = 9,   /* temporary value, not yet defined by IANA */
+	TS   = 10   /* temporary value, not yet defined by IANA */
 } optTypes;
 
 /* Binding Update flag description */
 static const true_false_string mip6_bu_a_flag_value = {
-    "Binding Acknowledgement requested",
-    "Binding Acknowledgement not requested"
+	"Binding Acknowledgement requested",
+	"Binding Acknowledgement not requested"
 };
 
 static const true_false_string mip6_bu_h_flag_value = {
-    "Home Registration",
-    "No Home Registration"
+	"Home Registration",
+	"No Home Registration"
 };
 
 static const true_false_string mip6_bu_l_flag_value = {
-    "Link-Local Address Compatibility",
-    "No Link-Local Address Compatibility"
+	"Link-Local Address Compatibility",
+	"No Link-Local Address Compatibility"
 };
 
 static const true_false_string mip6_bu_k_flag_value = {
-    "Key Management Mobility Compatibility",
-    "No Key Management Mobility Compatibility"
+	"Key Management Mobility Compatibility",
+	"No Key Management Mobility Compatibility"
 };
 
 static const true_false_string mip6_bu_m_flag_value = {
-    "MAP Registration Compatibility",
-    "No MAP Registration Compatibility",
+	"MAP Registration Compatibility",
+	"No MAP Registration Compatibility",
 };
 
 static const true_false_string nemo_bu_r_flag_value = {
-    "Mobile Router Compatibility",
-    "No Mobile Router Compatibility"
+	"Mobile Router Compatibility",
+	"No Mobile Router Compatibility"
+};
+
+static const true_false_string proxy_bu_p_flag_value = {
+	"Proxy Registration",
+	"No Proxy Registration"
 };
 
 /* Binding Acknowledgement status values */
 static const value_string mip6_ba_status_value[] = {
-    {   0, "Binding Update accepted" },
-    {   1, "Accepted but prefix discovery necessary" },
-    { 128, "Reason unspecified" },
-    { 129, "Administratively prohibited" },
-    { 130, "Insufficient resources" },
-    { 131, "Home registration not supported" },
-    { 132, "Not home subnet" },
-    { 133, "Not home agent for this mobile node" },
-    { 134, "Duplicate Address Detection failed" },
-    { 135, "Sequence number out of window" },
-    { 136, "Expired home nonce index" },
-    { 137, "Expired care-of nonce index" },
-    { 138, "Expired nonces" },
-    { 139, "Registration type change disallowed" },
-    { 140, "Mobile Router Operation not permitted" },
-    { 141, "Invalid Prefix" },
-    { 142, "Not Authorized for Prefix" },
-    { 143, "Forwarding Setup failed" },
-    {   0, NULL }
+	{   0, "Binding Update accepted" },
+	{   1, "Accepted but prefix discovery necessary" },
+	{ 128, "Reason unspecified" },
+	{ 129, "Administratively prohibited" },
+	{ 130, "Insufficient resources" },
+	{ 131, "Home registration not supported" },
+	{ 132, "Not home subnet" },
+	{ 133, "Not home agent for this mobile node" },
+	{ 134, "Duplicate Address Detection failed" },
+	{ 135, "Sequence number out of window" },
+	{ 136, "Expired home nonce index" },
+	{ 137, "Expired care-of nonce index" },
+	{ 138, "Expired nonces" },
+	{ 139, "Registration type change disallowed" },
+	{ 140, "Mobile Router Operation not permitted" },
+	{ 141, "Invalid Prefix" },
+	{ 142, "Not Authorized for Prefix" },
+	{ 143, "Forwarding Setup failed" },
+	{   0, NULL }
 };
 
 /* Binding Error status values */
 static const value_string mip6_be_status_value[] = {
-    { 1, "Unknown binding for Home Address destination option" },
-    { 2, "Unrecognized MH type value" },
-    { 0, NULL }
+	{ 1, "Unknown binding for Home Address destination option" },
+	{ 2, "Unrecognized MH type value" },
+	{ 0, NULL }
 };
 
 /* Fast Binding Update flag description */
 static const true_false_string fmip6_fbu_a_flag_value = {
-    "Fast Binding Acknowledgement requested",
-    "Fast Binding Acknowledgement not requested"
+	"Fast Binding Acknowledgement requested",
+	"Fast Binding Acknowledgement not requested"
 };
 
 static const true_false_string fmip6_fbu_h_flag_value = {
-    "Home Registration",
-    "No Home Registration"
+	"Home Registration",
+	"No Home Registration"
 };
 
 static const true_false_string fmip6_fbu_l_flag_value = {
-    "Link-Local Address Compatibility",
-    "No Link-Local Address Compatibility"
+	"Link-Local Address Compatibility",
+	"No Link-Local Address Compatibility"
 };
 
 static const true_false_string fmip6_fbu_k_flag_value = {
-    "Key Management Mobility Compatibility",
-    "No Key Management Mobility Compatibility"
+	"Key Management Mobility Compatibility",
+	"No Key Management Mobility Compatibility"
 };
 
 /* Fast Binding Acknowledgement status values */
 static const value_string fmip6_fback_status_value[] = {
-    {   0, "Fast Binding Update accepted" },
-    {   1, "Accepted but use supplied NCoA" },
-    { 128, "Reason unspecified" },
-    { 129, "Administratively prohibited" },
-    { 130, "Insufficient resources" },
-    { 131, "Incorrect interface identifier length" },
-    {   0, NULL }
+	{   0, "Fast Binding Update accepted" },
+	{   1, "Accepted but use supplied NCoA" },
+	{ 128, "Reason unspecified" },
+	{ 129, "Administratively prohibited" },
+	{ 130, "Insufficient resources" },
+	{ 131, "Incorrect interface identifier length" },
+	{   0, NULL }
 };
 
 /* MH LLA Option code */
 static const value_string fmip6_lla_optcode_value[] = {
-    {   2, "Link Layer Address of the MN" },
-    {   0, NULL }
+	{   2, "Link Layer Address of the MN" },
+	{   0, NULL }
+};
+
+/* Mobile Node Identifier Option code */
+static const value_string mip6_mnid_subtype_value[] = {
+	{   1, "Network Access Identifier (NAI)" },
+	{   0, NULL }
 };
 
 /* Message lengths */
@@ -314,5 +328,12 @@ static const value_string fmip6_lla_optcode_value[] = {
 #define FMIP6_LLA_OPTCODE_OFF 2
 #define FMIP6_LLA_LLA_OFF     3
 #define FMIP6_LLA_OPTCODE_LEN 1
+
+#define MIP6_MNID_MINLEN      2
+#define MIP6_MNID_SUBTYPE_OFF 2
+#define MIP6_MNID_SUBTYPE_LEN 1
+#define MIP6_MNID_MNID_OFF    3
+
+#define PMIP6_TS_LEN          8
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */
