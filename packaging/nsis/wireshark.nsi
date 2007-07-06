@@ -1234,6 +1234,11 @@ lbl_winpcap_installed:
 	StrCpy $1 "$WINPCAP_VERSION" 16
 	StrCmp $1 "WinPcap 4.0 alph" lbl_winpcap_do_install
 	StrCmp $1 "WinPcap 4.0 beta" lbl_winpcap_do_install
+	; Look further at version string
+	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
+	; WinPcap 4.0: the version string start with "4.0.0"
+	StrCpy $1 "$WINPCAP_VERSION" 5
+	StrCmp $1 "4.0.0" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
 	; seems to be the current version, so don't install
