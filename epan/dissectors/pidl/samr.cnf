@@ -35,6 +35,8 @@ PARAM_VALUE samr_dissect_element_DeleteUser_user_handle_ PIDL_POLHND_CLOSE
 PARAM_VALUE samr_dissect_element_SamArray_entries__ 3|PIDL_SET_COL_INFO
 PARAM_VALUE samr_dissect_element_LookupDomain_domain_name_ 3|PIDL_SET_COL_INFO
 PARAM_VALUE samr_dissect_element_GetDomPwInfo_domain_name_ 3|PIDL_SET_COL_INFO
+PARAM_VALUE samr_dissect_element_CreateUser_account_name_ 3|PIDL_SET_COL_INFO|PIDL_STR_SAVE
+PARAM_VALUE samr_dissect_element_CreateUser2_account_name_ 3|PIDL_SET_COL_INFO|PIDL_STR_SAVE
 
 TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
