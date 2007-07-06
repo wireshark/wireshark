@@ -52,7 +52,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_XNS_IDP,				"XNS Internet Datagram Protocol" },
     {ETHERTYPE_X25L3,				"X.25 Layer 3"			},
     {ETHERTYPE_ARP,					"ARP"				},
-    {ETHERTYPE_EPL_V1,					"EPL_V1"				},
+    {ETHERTYPE_EPL_V1,				"EPL_V1"				},
     {ETHERTYPE_REVARP,				"RARP"				},
     {ETHERTYPE_DEC_LB,				"DEC LanBridge"			},
     {ETHERTYPE_ATALK,				"Appletalk"			},
@@ -64,8 +64,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_TRAIN,				"Netmon Train"			},
     {ETHERTYPE_LOOP,				"Loopback"			}, /* Ethernet Loopback */
     {ETHERTYPE_FOUNDRY,				"Foundry proprietary"		},
-    {ETHERTYPE_WCP,				"Wellfleet Compression Protocol" },
-    {ETHERTYPE_STP,				"Spanning Tree Protocol"	},
+    {ETHERTYPE_WCP,					"Wellfleet Compression Protocol" },
+    {ETHERTYPE_STP,					"Spanning Tree Protocol"	},
     {ETHERTYPE_ISMP,				"Cabletron Interswitch Message Protocol" },
     {ETHERTYPE_ISMP_TBFLOOD,		"Cabletron SFVLAN 1.8 Tag-Based Flood" },
     				/* for ISMP, see RFC 2641, RFC 2642, RFC 2643 */
@@ -98,7 +98,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_CDMA2000_A10_UBS,	"CDMA2000 A10 Unstructured byte stream" },
     {ETHERTYPE_PROFINET,			"PROFINET"			},
     {ETHERTYPE_AOE,					"ATA over Ethernet"             },
-    {ETHERTYPE_TELKONET,					"Telkonet powerline"    },
+    {ETHERTYPE_TELKONET,			"Telkonet powerline"    },
     {ETHERTYPE_EPL_V2,				"ETHERNET Powerlink v2"			},
     {ETHERTYPE_CSM_ENCAPS,			"CSM_ENCAPS Protocol"             },
     {ETHERTYPE_IEEE802_OUI_EXTENDED, "IEEE 802a OUI Extended Ethertype" },
@@ -107,10 +107,10 @@ const value_string etype_vals[] = {
     {ETHERTYPE_IEC61850_SV,			"IEC 61850/SV (Sampled Value Transmission" },
     {ETHERTYPE_TIPC,				"Transparent Inter Process Communication" },
     {ETHERTYPE_LLDP,				"802.1 Link Layer Discovery Protocol (LLDP)" },
-    {ETHERTYPE_3GPP2,                           "CDMA2000 A10 3GPP2 Packet" },
-    {ETHERTYPE_LLTD,			"Link Layer Topology Discovery (LLTD)" },
-    {ETHERTYPE_COBRANET,		"Cirrus Cobranet Packet" },
-    {ETHERTYPE_NSRP,			"Juniper Netscreen Redundant Protocol" },
+    {ETHERTYPE_3GPP2,				"CDMA2000 A10 3GPP2 Packet" },
+    {ETHERTYPE_LLTD,				"Link Layer Topology Discovery (LLTD)" },
+    {ETHERTYPE_COBRANET,			"Cirrus Cobranet Packet" },
+    {ETHERTYPE_NSRP,				"Juniper Netscreen Redundant Protocol" },
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level
      * protocols into PPP frames to hand to the PPP driver, and translates
@@ -131,7 +131,8 @@ const value_string etype_vals[] = {
     {PPP_PAP,			"PPP Password Authentication Protocol" },
     {PPP_CCP,			"PPP Compression Control Protocol" },
     {ETHERTYPE_LLT,		"Veritas Low Latency Transport (not officially registered)"},
-    {ETHERTYPE_FCOE,		"Fibre Channel over Ethernet" },
+    {ETHERTYPE_FCOE,	"Fibre Channel over Ethernet" },
+	{ETHERTYPE_PTP,		"PTPv2 over Ethernet (IEEE1588)"},
     {0,				NULL				} };
 
 static void add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,

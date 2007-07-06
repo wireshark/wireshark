@@ -333,12 +333,18 @@
 										/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
 #ifndef ETHERTYPE_LLTD
-#define ETHERTYPE_LLTD		0x88d9  /* Link Layer Topology Discovery (LLTD) */
+#define ETHERTYPE_LLTD			0x88d9  /* Link Layer Topology Discovery (LLTD) */
 #endif
 
 #ifndef ETHERTYPE_MRP
 #define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
+
+#ifndef ETHERTYPE_PTP
+#define ETHERTYPE_PTP		0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
+#endif								/* in particular for the information exchange between IED's in a power */
+									/* transmission or distribution substation. */
+									/*  There are three types of application services */
 
 #ifndef ETHERTYPE_FCOE
 #define ETHERTYPE_FCOE		0x8906	/* Fibre Channel over Ethernet */
