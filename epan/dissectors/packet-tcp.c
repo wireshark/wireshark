@@ -485,14 +485,16 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	 */
 	if(tcpd->fwd->base_seq==0){
 		tcpd->fwd->base_seq=seq;
+		/* Only store reverse sequence if this isn't a handshake.
+ 	 	 * There's no guarantee that the ACK field of a SYN
+ 	 	 * contains zeros; get the ISN from the SYNACK instead.
+ 	 	 */
+		if(tcpd->rev->base_seq==0){
+			if (!flags & TH_SYN){
+				tcpd->rev->base_seq=ack;
+			}
+		}
 	}
-	/* if we have spotted a new base_Seq in the reverse direction
-	 * store it.
-	 */
-	if(tcpd->rev->base_seq==0){
-		tcpd->rev->base_seq=ack;
-	}
-
 
 
 	/* ZERO WINDOW PROBE
@@ -2595,6 +2597,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack, "Acknowledgement number: %u    (relative ack number)", tcph->th_ack);
       } else {
         proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
+      }
+    } else {
+      /* Verify that the ACK field is zero */
+      if(tvb_get_ntohl(tvb, offset+8) != 0){
+	proto_tree_add_text(tcp_tree, tvb, offset+8, 4,"Acknowledgment number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
       }
     }
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
