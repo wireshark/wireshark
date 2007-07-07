@@ -75,7 +75,7 @@ const value_string camel_opr_code_strings[] = {
 
 #.TABLE_HDR
 /* CAMEL ERRORS */
-const value_string camel_err_code_string_vals[] = {
+static const value_string camel_err_code_string_vals[] = {
 #.TABLE_BODY ERROR
 	{ %(&errorCode)s, "%(_ident)s" },  
 #.TABLE_FTR
@@ -83,16 +83,16 @@ const value_string camel_err_code_string_vals[] = {
 };
 #.END
 
-#.TABLE_HDR
+#.TABLE2_HDR
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
 
   switch(opcode){
-#.TABLE_BODY OPERATION.&ArgumentType
+#.TABLE2_BODY OPERATION.&ArgumentType
     case %(&operationCode)s:  /* %(_ident)s */
-      offset= %(_argument_fn)s(FALSE, tvb, offset, actx, tree, -1);
+      offset= %(_argument_fn)s(FALSE, tvb, offset, actx, tree, hf_camel_%(_ident)s);
       break;
-#.TABLE_FTR
+#.TABLE2_FTR
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
     expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
@@ -101,16 +101,16 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   return offset;
 }
 #.END
-#.TABLE_HDR
+#.TABLE2_HDR
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   proto_item *cause;
 
   switch(opcode){
-#.TABLE_BODY OPERATION.&ResultType
+#.TABLE2_BODY OPERATION.&ResultType
     case %(&operationCode)s:  /* %(_ident)s */
-	  offset= %(_result_fn)s(FALSE, tvb, offset, actx, tree, -1);
+	  offset= %(_result_fn)s(FALSE, tvb, offset, actx, tree, hf_camel_%(_ident)s);
       break;
-#.TABLE_FTR
+#.TABLE2_FTR
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
@@ -119,16 +119,16 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   return offset;
 }
 #.END
-#.TABLE_HDR
+#.TABLE2_HDR
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   proto_item *cause;
 
   switch(errorCode) {
-#.TABLE_BODY ERROR.&ParameterType
+#.TABLE2_BODY ERROR.&ParameterType
     case %(&errorCode)s:  /* %(_ident)s */
-      %(_parameter_fn)s(FALSE, tvb, offset, actx, tree, -1);
+      %(_parameter_fn)s(FALSE, tvb, offset, actx, tree, hf_camel_%(_ident)s);
       break;
-#.TABLE_FTR
+#.TABLE2_FTR
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
@@ -137,6 +137,45 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   return offset;
 }
 #.END
+
+#.TABLE3_HDR
+/* CAMEL OPERATIONS hf filelds */
+#.TABLE3_BODY OPERATION
+    { &hf_camel_%(_ident)s,
+      { "%(_ident)s", "camel.%(_ident)s",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.%(_ident)s", HFILL }},
+
+#.TABLE3_FTR
+/* END CAMEL OPERATIONS hf filelds */
+#.END
+#.TABLE3_HDR
+/* CAMEL ERRORS  hf filelds */
+#.TABLE3_BODY ERROR.&ParameterType
+    { &hf_camel_%(_ident)s,
+      { "%(_ident)s", "camel.%(_ident)s",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.%(_ident)s", HFILL }},
+#.TABLE3_FTR
+/* END CAMEL ERRORS hf filelds */
+#.END
+
+#.TABLE4_HDR
+/* CAMEL OPERATIONS hf filelds */
+#.TABLE4_BODY OPERATION
+int hf_camel_%(_ident)s = -1;
+#.TABLE4_FTR
+/* END CAMEL OPERATIONS hf filelds */
+#.END
+
+#.TABLE4_HDR
+/* CAMEL ERRORS hf filelds */
+#.TABLE4_BODY ERROR.&ParameterType
+int hf_camel_%(_ident)s = -1;
+#.TABLE4_FTR
+/* END CAMEL ERRORS hf filelds */
+#.END
+
 # ROS stuff here XXX change when TCAP is redone.
 
 #.FN_BODY Code/local  VAL_PTR = &opcode

@@ -100,6 +100,8 @@ int hf_camelsrt_DeltaTime35=-1;
 int hf_camelsrt_DeltaTime80=-1;
 int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 
+#include "packet-camel-table4.c"
+
 #include "packet-camel-hf.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
@@ -240,8 +242,10 @@ static const value_string camel_RP_Cause_values[] = {
   { 22,"Memory capacity exceeded" },
   { 0, NULL }
 };
+
 #include "packet-camel-val.h"
 
+#include "packet-camel-table.c"
 
 static char camel_number_to_char(int number)
 {
@@ -288,7 +292,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 
 #include "packet-camel-fn.c"
 
-#include "packet-camel-table.c"
+#include "packet-camel-table2.c"
 
 
 
@@ -536,11 +540,12 @@ void proto_register_camel(void) {
     },
     { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
       { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CAMEL-AChBillingChargingCharacteristics", HFILL }},
 
 #ifdef REMOVED
 #endif
+#include "packet-camel-table3.c"
 #include "packet-camel-hfarr.c"
   };
 

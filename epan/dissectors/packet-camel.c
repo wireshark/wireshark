@@ -109,6 +109,79 @@ int hf_camelsrt_DeltaTime80=-1;
 int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 
 
+/*--- Included file: packet-camel-table4.c ---*/
+#line 1 "packet-camel-table4.c"
+
+/* CAMEL OPERATIONS hf filelds */
+int hf_camel_playAnnouncement = -1;
+int hf_camel_promptAndCollectUserInformation = -1;
+int hf_camel_specializedResourceReport = -1;
+int hf_camel_activityTest = -1;
+int hf_camel_applyCharging = -1;
+int hf_camel_applyChargingReport = -1;
+int hf_camel_assistRequestInstructions = -1;
+int hf_camel_callGap = -1;
+int hf_camel_callInformationReport = -1;
+int hf_camel_callInformationRequest = -1;
+int hf_camel_cancel = -1;
+int hf_camel_collectInformation = -1;
+int hf_camel_connect = -1;
+int hf_camel_connectToResource = -1;
+int hf_camel_continue = -1;
+int hf_camel_continueWithArgument = -1;
+int hf_camel_disconnectForwardConnection = -1;
+int hf_camel_disconnectForwardConnectionWithArgument = -1;
+int hf_camel_disconnectLeg = -1;
+int hf_camel_entityReleased = -1;
+int hf_camel_establishTemporaryConnection = -1;
+int hf_camel_eventReportBCSM = -1;
+int hf_camel_furnishChargingInformation = -1;
+int hf_camel_initialDP = -1;
+int hf_camel_initiateCallAttempt = -1;
+int hf_camel_moveLeg = -1;
+int hf_camel_playTone = -1;
+int hf_camel_releaseCall = -1;
+int hf_camel_requestReportBCSMEvent = -1;
+int hf_camel_resetTimer = -1;
+int hf_camel_sendChargingInformation = -1;
+int hf_camel_splitLeg = -1;
+int hf_camel_activityTestGPRS = -1;
+int hf_camel_applyChargingGPRS = -1;
+int hf_camel_applyChargingReportGPRS = -1;
+int hf_camel_cancelGPRS = -1;
+int hf_camel_connectGPRS = -1;
+int hf_camel_continueGPRS = -1;
+int hf_camel_entityReleasedGPRS = -1;
+int hf_camel_eventReportGPRS = -1;
+int hf_camel_furnishChargingInformationGPRS = -1;
+int hf_camel_initialDPGPRS = -1;
+int hf_camel_releaseGPRS = -1;
+int hf_camel_requestReportGPRSEvent = -1;
+int hf_camel_resetTimerGPRS = -1;
+int hf_camel_sendChargingInformationGPRS = -1;
+int hf_camel_connectSMS = -1;
+int hf_camel_continueSMS = -1;
+int hf_camel_eventReportSMS = -1;
+int hf_camel_furnishChargingInformationSMS = -1;
+int hf_camel_initialDPSMS = -1;
+int hf_camel_releaseSMS = -1;
+int hf_camel_requestReportSMSEvent = -1;
+int hf_camel_resetTimerSMS = -1;
+/* END CAMEL OPERATIONS hf filelds */
+
+
+/* CAMEL ERRORS hf filelds */
+int hf_camel_cancelFailed = -1;
+int hf_camel_requestedInfoError = -1;
+int hf_camel_systemFailure = -1;
+int hf_camel_taskRefused = -1;
+/* END CAMEL ERRORS hf filelds */
+
+
+/*--- End of included file: packet-camel-table4.c ---*/
+#line 104 "packet-camel-template.c"
+
+
 /*--- Included file: packet-camel-hf.c ---*/
 #line 1 "packet-camel-hf.c"
 static int hf_camel_CAP_GPRS_ReferenceNumber_PDU = -1;  /* CAP_GPRS_ReferenceNumber */
@@ -527,7 +600,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 104 "packet-camel-template.c"
+#line 106 "packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -739,7 +812,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 126 "packet-camel-template.c"
+#line 128 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -857,6 +930,7 @@ static const value_string camel_RP_Cause_values[] = {
   { 22,"Memory capacity exceeded" },
   { 0, NULL }
 };
+
 
 /*--- Included file: packet-camel-val.h ---*/
 #line 1 "packet-camel-val.h"
@@ -1042,8 +1116,97 @@ static const value_string camel_RP_Cause_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 244 "packet-camel-template.c"
+#line 247 "packet-camel-template.c"
 
+
+/*--- Included file: packet-camel-table.c ---*/
+#line 1 "packet-camel-table.c"
+
+/* CAMEL OPERATIONS */
+const value_string camel_opr_code_strings[] = {
+	{ opcode_playAnnouncement, "playAnnouncement" },
+	{ opcode_promptAndCollectUserInformation, "promptAndCollectUserInformation" },
+	{ opcode_specializedResourceReport, "specializedResourceReport" },
+	{ opcode_activityTest, "activityTest" },
+	{ opcode_applyCharging, "applyCharging" },
+	{ opcode_applyChargingReport, "applyChargingReport" },
+	{ opcode_assistRequestInstructions, "assistRequestInstructions" },
+	{ opcode_callGap, "callGap" },
+	{ opcode_callInformationReport, "callInformationReport" },
+	{ opcode_callInformationRequest, "callInformationRequest" },
+	{ opcode_cancel, "cancel" },
+	{ opcode_collectInformation, "collectInformation" },
+	{ opcode_connect, "connect" },
+	{ opcode_connectToResource, "connectToResource" },
+	{ opcode_continue, "continue" },
+	{ opcode_continueWithArgument, "continueWithArgument" },
+	{ opcode_disconnectForwardConnection, "disconnectForwardConnection" },
+	{ opcode_dFCWithArgument, "disconnectForwardConnectionWithArgument" },
+	{ opcode_disconnectLeg, "disconnectLeg" },
+	{ opcode_entityReleased, "entityReleased" },
+	{ opcode_establishTemporaryConnection, "establishTemporaryConnection" },
+	{ opcode_eventReportBCSM, "eventReportBCSM" },
+	{ opcode_furnishChargingInformation, "furnishChargingInformation" },
+	{ opcode_initialDP, "initialDP" },
+	{ opcode_initiateCallAttempt, "initiateCallAttempt" },
+	{ opcode_moveLeg, "moveLeg" },
+	{ opcode_playTone, "playTone" },
+	{ opcode_releaseCall, "releaseCall" },
+	{ opcode_requestReportBCSMEvent, "requestReportBCSMEvent" },
+	{ opcode_resetTimer, "resetTimer" },
+	{ opcode_sendChargingInformation, "sendChargingInformation" },
+	{ opcode_splitLeg, "splitLeg" },
+	{ opcode_activityTestGPRS, "activityTestGPRS" },
+	{ opcode_applyChargingGPRS, "applyChargingGPRS" },
+	{ opcode_applyChargingReportGPRS, "applyChargingReportGPRS" },
+	{ opcode_cancelGPRS, "cancelGPRS" },
+	{ opcode_connectGPRS, "connectGPRS" },
+	{ opcode_continueGPRS, "continueGPRS" },
+	{ opcode_entityReleasedGPRS, "entityReleasedGPRS" },
+	{ opcode_eventReportGPRS, "eventReportGPRS" },
+	{ opcode_furnishChargingInformationGPRS, "furnishChargingInformationGPRS" },
+	{ opcode_initialDPGPRS, "initialDPGPRS" },
+	{ opcode_releaseGPRS, "releaseGPRS" },
+	{ opcode_requestReportGPRSEvent, "requestReportGPRSEvent" },
+	{ opcode_resetTimerGPRS, "resetTimerGPRS" },
+	{ opcode_sendChargingInformationGPRS, "sendChargingInformationGPRS" },
+	{ opcode_connectSMS, "connectSMS" },
+	{ opcode_continueSMS, "continueSMS" },
+	{ opcode_eventReportSMS, "eventReportSMS" },
+	{ opcode_furnishChargingInformationSMS, "furnishChargingInformationSMS" },
+	{ opcode_initialDPSMS, "initialDPSMS" },
+	{ opcode_releaseSMS, "releaseSMS" },
+	{ opcode_requestReportSMSEvent, "requestReportSMSEvent" },
+	{ opcode_resetTimerSMS, "resetTimerSMS" },
+  { 0, NULL }
+};
+
+
+/* CAMEL ERRORS */
+static const value_string camel_err_code_string_vals[] = {
+	{ errcode_canceled, "canceled" },  
+	{ errcode_cancelFailed, "cancelFailed" },  
+	{ errcode_eTCFailed, "eTCFailed" },  
+	{ errcode_improperCallerResponse, "improperCallerResponse" },  
+	{ errcode_missingCustomerRecord, "missingCustomerRecord" },  
+	{ errcode_missingParameter, "missingParameter" },  
+	{ errcode_parameterOutOfRange, "parameterOutOfRange" },  
+	{ errcode_requestedInfoError, "requestedInfoError" },  
+	{ errcode_systemFailure, "systemFailure" },  
+	{ errcode_taskRefused, "taskRefused" },  
+	{ errcode_unavailableResource, "unavailableResource" },  
+	{ errcode_unexpectedComponentSequence, "unexpectedComponentSequence" },  
+	{ errcode_unexpectedDataValue, "unexpectedDataValue" },  
+	{ errcode_unexpectedParameter, "unexpectedParameter" },  
+	{ errcode_unknownLegID, "unknownLegID" },  
+	{ errcode_unknownCSID, "unknownCSID" },  
+	{ errcode_unknownPDPID, "unknownPDPID" },  
+  { 0, NULL }
+};
+
+
+/*--- End of included file: packet-camel-table.c ---*/
+#line 249 "packet-camel-template.c"
 
 static char camel_number_to_char(int number)
 {
@@ -6171,242 +6334,159 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 290 "packet-camel-template.c"
+#line 294 "packet-camel-template.c"
 
 
-/*--- Included file: packet-camel-table.c ---*/
-#line 1 "packet-camel-table.c"
-
-/* CAMEL OPERATIONS */
-const value_string camel_opr_code_strings[] = {
-	{ opcode_playAnnouncement, "playAnnouncement" },
-	{ opcode_promptAndCollectUserInformation, "promptAndCollectUserInformation" },
-	{ opcode_specializedResourceReport, "specializedResourceReport" },
-	{ opcode_activityTest, "activityTest" },
-	{ opcode_applyCharging, "applyCharging" },
-	{ opcode_applyChargingReport, "applyChargingReport" },
-	{ opcode_assistRequestInstructions, "assistRequestInstructions" },
-	{ opcode_callGap, "callGap" },
-	{ opcode_callInformationReport, "callInformationReport" },
-	{ opcode_callInformationRequest, "callInformationRequest" },
-	{ opcode_cancel, "cancel" },
-	{ opcode_collectInformation, "collectInformation" },
-	{ opcode_connect, "connect" },
-	{ opcode_connectToResource, "connectToResource" },
-	{ opcode_continue, "continue" },
-	{ opcode_continueWithArgument, "continueWithArgument" },
-	{ opcode_disconnectForwardConnection, "disconnectForwardConnection" },
-	{ opcode_dFCWithArgument, "disconnectForwardConnectionWithArgument" },
-	{ opcode_disconnectLeg, "disconnectLeg" },
-	{ opcode_entityReleased, "entityReleased" },
-	{ opcode_establishTemporaryConnection, "establishTemporaryConnection" },
-	{ opcode_eventReportBCSM, "eventReportBCSM" },
-	{ opcode_furnishChargingInformation, "furnishChargingInformation" },
-	{ opcode_initialDP, "initialDP" },
-	{ opcode_initiateCallAttempt, "initiateCallAttempt" },
-	{ opcode_moveLeg, "moveLeg" },
-	{ opcode_playTone, "playTone" },
-	{ opcode_releaseCall, "releaseCall" },
-	{ opcode_requestReportBCSMEvent, "requestReportBCSMEvent" },
-	{ opcode_resetTimer, "resetTimer" },
-	{ opcode_sendChargingInformation, "sendChargingInformation" },
-	{ opcode_splitLeg, "splitLeg" },
-	{ opcode_activityTestGPRS, "activityTestGPRS" },
-	{ opcode_applyChargingGPRS, "applyChargingGPRS" },
-	{ opcode_applyChargingReportGPRS, "applyChargingReportGPRS" },
-	{ opcode_cancelGPRS, "cancelGPRS" },
-	{ opcode_connectGPRS, "connectGPRS" },
-	{ opcode_continueGPRS, "continueGPRS" },
-	{ opcode_entityReleasedGPRS, "entityReleasedGPRS" },
-	{ opcode_eventReportGPRS, "eventReportGPRS" },
-	{ opcode_furnishChargingInformationGPRS, "furnishChargingInformationGPRS" },
-	{ opcode_initialDPGPRS, "initialDPGPRS" },
-	{ opcode_releaseGPRS, "releaseGPRS" },
-	{ opcode_requestReportGPRSEvent, "requestReportGPRSEvent" },
-	{ opcode_resetTimerGPRS, "resetTimerGPRS" },
-	{ opcode_sendChargingInformationGPRS, "sendChargingInformationGPRS" },
-	{ opcode_connectSMS, "connectSMS" },
-	{ opcode_continueSMS, "continueSMS" },
-	{ opcode_eventReportSMS, "eventReportSMS" },
-	{ opcode_furnishChargingInformationSMS, "furnishChargingInformationSMS" },
-	{ opcode_initialDPSMS, "initialDPSMS" },
-	{ opcode_releaseSMS, "releaseSMS" },
-	{ opcode_requestReportSMSEvent, "requestReportSMSEvent" },
-	{ opcode_resetTimerSMS, "resetTimerSMS" },
-  { 0, NULL }
-};
-
-
-/* CAMEL ERRORS */
-const value_string camel_err_code_string_vals[] = {
-	{ errcode_canceled, "canceled" },  
-	{ errcode_cancelFailed, "cancelFailed" },  
-	{ errcode_eTCFailed, "eTCFailed" },  
-	{ errcode_improperCallerResponse, "improperCallerResponse" },  
-	{ errcode_missingCustomerRecord, "missingCustomerRecord" },  
-	{ errcode_missingParameter, "missingParameter" },  
-	{ errcode_parameterOutOfRange, "parameterOutOfRange" },  
-	{ errcode_requestedInfoError, "requestedInfoError" },  
-	{ errcode_systemFailure, "systemFailure" },  
-	{ errcode_taskRefused, "taskRefused" },  
-	{ errcode_unavailableResource, "unavailableResource" },  
-	{ errcode_unexpectedComponentSequence, "unexpectedComponentSequence" },  
-	{ errcode_unexpectedDataValue, "unexpectedDataValue" },  
-	{ errcode_unexpectedParameter, "unexpectedParameter" },  
-	{ errcode_unknownLegID, "unknownLegID" },  
-	{ errcode_unknownCSID, "unknownCSID" },  
-	{ errcode_unknownPDPID, "unknownPDPID" },  
-  { 0, NULL }
-};
-
+/*--- Included file: packet-camel-table2.c ---*/
+#line 1 "packet-camel-table2.c"
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
 
   switch(opcode){
     case opcode_playAnnouncement:  /* playAnnouncement */
-      offset= dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, actx, tree, hf_camel_playAnnouncement);
       break;
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-      offset= dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_promptAndCollectUserInformation);
       break;
     case opcode_specializedResourceReport:  /* specializedResourceReport */
-      offset= dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, actx, tree, hf_camel_specializedResourceReport);
       break;
     case opcode_applyCharging:  /* applyCharging */
-      offset= dissect_camel_ApplyChargingArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ApplyChargingArg(FALSE, tvb, offset, actx, tree, hf_camel_applyCharging);
       break;
     case opcode_applyChargingReport:  /* applyChargingReport */
-      offset= dissect_camel_ApplyChargingReportArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ApplyChargingReportArg(FALSE, tvb, offset, actx, tree, hf_camel_applyChargingReport);
       break;
     case opcode_assistRequestInstructions:  /* assistRequestInstructions */
-      offset= dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, actx, tree, hf_camel_assistRequestInstructions);
       break;
     case opcode_callGap:  /* callGap */
-      offset= dissect_camel_CallGapArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_CallGapArg(FALSE, tvb, offset, actx, tree, hf_camel_callGap);
       break;
     case opcode_callInformationReport:  /* callInformationReport */
-      offset= dissect_camel_CallInformationReportArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_CallInformationReportArg(FALSE, tvb, offset, actx, tree, hf_camel_callInformationReport);
       break;
     case opcode_callInformationRequest:  /* callInformationRequest */
-      offset= dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, actx, tree, hf_camel_callInformationRequest);
       break;
     case opcode_cancel:  /* cancel */
-      offset= dissect_camel_CancelArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_CancelArg(FALSE, tvb, offset, actx, tree, hf_camel_cancel);
       break;
     case opcode_connect:  /* connect */
-      offset= dissect_camel_ConnectArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ConnectArg(FALSE, tvb, offset, actx, tree, hf_camel_connect);
       break;
     case opcode_connectToResource:  /* connectToResource */
-      offset= dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, actx, tree, hf_camel_connectToResource);
       break;
     case opcode_continueWithArgument:  /* continueWithArgument */
-      offset= dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, actx, tree, hf_camel_continueWithArgument);
       break;
     case opcode_dFCWithArgument:  /* disconnectForwardConnectionWithArgument */
-      offset= dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, actx, tree, hf_camel_disconnectForwardConnectionWithArgument);
       break;
     case opcode_disconnectLeg:  /* disconnectLeg */
-      offset= dissect_camel_DisconnectLegArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_DisconnectLegArg(FALSE, tvb, offset, actx, tree, hf_camel_disconnectLeg);
       break;
     case opcode_entityReleased:  /* entityReleased */
-      offset= dissect_camel_EntityReleasedArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_EntityReleasedArg(FALSE, tvb, offset, actx, tree, hf_camel_entityReleased);
       break;
     case opcode_establishTemporaryConnection:  /* establishTemporaryConnection */
-      offset= dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, actx, tree, hf_camel_establishTemporaryConnection);
       break;
     case opcode_eventReportBCSM:  /* eventReportBCSM */
-      offset= dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, actx, tree, hf_camel_eventReportBCSM);
       break;
     case opcode_furnishChargingInformation:  /* furnishChargingInformation */
-      offset= dissect_camel_FurnishChargingInformationArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_FurnishChargingInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_furnishChargingInformation);
       break;
     case opcode_initialDP:  /* initialDP */
-      offset= dissect_camel_InitialDPArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_InitialDPArg(FALSE, tvb, offset, actx, tree, hf_camel_initialDP);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-      offset= dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, actx, tree, hf_camel_initiateCallAttempt);
       break;
     case opcode_moveLeg:  /* moveLeg */
-      offset= dissect_camel_MoveLegArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_MoveLegArg(FALSE, tvb, offset, actx, tree, hf_camel_moveLeg);
       break;
     case opcode_playTone:  /* playTone */
-      offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, actx, tree, hf_camel_playTone);
       break;
     case opcode_releaseCall:  /* releaseCall */
-      offset= dissect_camel_ReleaseCallArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ReleaseCallArg(FALSE, tvb, offset, actx, tree, hf_camel_releaseCall);
       break;
     case opcode_requestReportBCSMEvent:  /* requestReportBCSMEvent */
-      offset= dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, actx, tree, hf_camel_requestReportBCSMEvent);
       break;
     case opcode_resetTimer:  /* resetTimer */
-      offset= dissect_camel_ResetTimerArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ResetTimerArg(FALSE, tvb, offset, actx, tree, hf_camel_resetTimer);
       break;
     case opcode_sendChargingInformation:  /* sendChargingInformation */
-      offset= dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_sendChargingInformation);
       break;
     case opcode_splitLeg:  /* splitLeg */
-      offset= dissect_camel_SplitLegArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_SplitLegArg(FALSE, tvb, offset, actx, tree, hf_camel_splitLeg);
       break;
     case opcode_applyChargingGPRS:  /* applyChargingGPRS */
-      offset= dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_applyChargingGPRS);
       break;
     case opcode_applyChargingReportGPRS:  /* applyChargingReportGPRS */
-      offset= dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_applyChargingReportGPRS);
       break;
     case opcode_cancelGPRS:  /* cancelGPRS */
-      offset= dissect_camel_CancelGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_CancelGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_cancelGPRS);
       break;
     case opcode_connectGPRS:  /* connectGPRS */
-      offset= dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_connectGPRS);
       break;
     case opcode_continueGPRS:  /* continueGPRS */
-      offset= dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_continueGPRS);
       break;
     case opcode_entityReleasedGPRS:  /* entityReleasedGPRS */
-      offset= dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_entityReleasedGPRS);
       break;
     case opcode_eventReportGPRS:  /* eventReportGPRS */
-      offset= dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_eventReportGPRS);
       break;
     case opcode_furnishChargingInformationGPRS:  /* furnishChargingInformationGPRS */
-      offset= dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_furnishChargingInformationGPRS);
       break;
     case opcode_initialDPGPRS:  /* initialDPGPRS */
-      offset= dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_initialDPGPRS);
       break;
     case opcode_releaseGPRS:  /* releaseGPRS */
-      offset= dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_releaseGPRS);
       break;
     case opcode_requestReportGPRSEvent:  /* requestReportGPRSEvent */
-      offset= dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, actx, tree, hf_camel_requestReportGPRSEvent);
       break;
     case opcode_resetTimerGPRS:  /* resetTimerGPRS */
-      offset= dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_resetTimerGPRS);
       break;
     case opcode_sendChargingInformationGPRS:  /* sendChargingInformationGPRS */
-      offset= dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_sendChargingInformationGPRS);
       break;
     case opcode_connectSMS:  /* connectSMS */
-      offset= dissect_camel_ConnectSMSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ConnectSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_connectSMS);
       break;
     case opcode_eventReportSMS:  /* eventReportSMS */
-      offset= dissect_camel_EventReportSMSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_EventReportSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_eventReportSMS);
       break;
     case opcode_furnishChargingInformationSMS:  /* furnishChargingInformationSMS */
-      offset= dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_furnishChargingInformationSMS);
       break;
     case opcode_initialDPSMS:  /* initialDPSMS */
-      offset= dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_initialDPSMS);
       break;
     case opcode_releaseSMS:  /* releaseSMS */
-      offset= dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_releaseSMS);
       break;
     case opcode_requestReportSMSEvent:  /* requestReportSMSEvent */
-      offset= dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, actx, tree, hf_camel_requestReportSMSEvent);
       break;
     case opcode_resetTimerSMS:  /* resetTimerSMS */
-      offset= dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, actx, tree, -1);
+      offset= dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_resetTimerSMS);
       break;
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
@@ -6422,10 +6502,10 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   switch(opcode){
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-	  offset= dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, -1);
+	  offset= dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_promptAndCollectUserInformation);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-	  offset= dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, actx, tree, -1);
+	  offset= dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, actx, tree, hf_camel_initiateCallAttempt);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -6441,16 +6521,16 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
-      dissect_camel_PAR_cancelFailed(FALSE, tvb, offset, actx, tree, -1);
+      dissect_camel_PAR_cancelFailed(FALSE, tvb, offset, actx, tree, hf_camel_cancelFailed);
       break;
     case errcode_requestedInfoError:  /* requestedInfoError */
-      dissect_camel_PAR_requestedInfoError(FALSE, tvb, offset, actx, tree, -1);
+      dissect_camel_PAR_requestedInfoError(FALSE, tvb, offset, actx, tree, hf_camel_requestedInfoError);
       break;
     case errcode_systemFailure:  /* systemFailure */
-      dissect_camel_UnavailableNetworkResource(FALSE, tvb, offset, actx, tree, -1);
+      dissect_camel_UnavailableNetworkResource(FALSE, tvb, offset, actx, tree, hf_camel_systemFailure);
       break;
     case errcode_taskRefused:  /* taskRefused */
-      dissect_camel_PAR_taskRefused(FALSE, tvb, offset, actx, tree, -1);
+      dissect_camel_PAR_taskRefused(FALSE, tvb, offset, actx, tree, hf_camel_taskRefused);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
@@ -6461,8 +6541,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 }
 
 
-/*--- End of included file: packet-camel-table.c ---*/
-#line 292 "packet-camel-template.c"
+/*--- End of included file: packet-camel-table2.c ---*/
+#line 296 "packet-camel-template.c"
 
 
 
@@ -6581,7 +6661,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 403 "packet-camel-template.c"
+#line 407 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
   }
@@ -6718,11 +6798,311 @@ void proto_register_camel(void) {
     },
     { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
       { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CAMEL-AChBillingChargingCharacteristics", HFILL }},
 
 #ifdef REMOVED
 #endif
+
+/*--- Included file: packet-camel-table3.c ---*/
+#line 1 "packet-camel-table3.c"
+
+/* CAMEL OPERATIONS hf filelds */
+    { &hf_camel_playAnnouncement,
+      { "playAnnouncement", "camel.playAnnouncement",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.playAnnouncement", HFILL }},
+
+    { &hf_camel_promptAndCollectUserInformation,
+      { "promptAndCollectUserInformation", "camel.promptAndCollectUserInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.promptAndCollectUserInformation", HFILL }},
+
+    { &hf_camel_specializedResourceReport,
+      { "specializedResourceReport", "camel.specializedResourceReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.specializedResourceReport", HFILL }},
+
+    { &hf_camel_activityTest,
+      { "activityTest", "camel.activityTest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.activityTest", HFILL }},
+
+    { &hf_camel_applyCharging,
+      { "applyCharging", "camel.applyCharging",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.applyCharging", HFILL }},
+
+    { &hf_camel_applyChargingReport,
+      { "applyChargingReport", "camel.applyChargingReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.applyChargingReport", HFILL }},
+
+    { &hf_camel_assistRequestInstructions,
+      { "assistRequestInstructions", "camel.assistRequestInstructions",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.assistRequestInstructions", HFILL }},
+
+    { &hf_camel_callGap,
+      { "callGap", "camel.callGap",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.callGap", HFILL }},
+
+    { &hf_camel_callInformationReport,
+      { "callInformationReport", "camel.callInformationReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.callInformationReport", HFILL }},
+
+    { &hf_camel_callInformationRequest,
+      { "callInformationRequest", "camel.callInformationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.callInformationRequest", HFILL }},
+
+    { &hf_camel_cancel,
+      { "cancel", "camel.cancel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.cancel", HFILL }},
+
+    { &hf_camel_collectInformation,
+      { "collectInformation", "camel.collectInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.collectInformation", HFILL }},
+
+    { &hf_camel_connect,
+      { "connect", "camel.connect",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.connect", HFILL }},
+
+    { &hf_camel_connectToResource,
+      { "connectToResource", "camel.connectToResource",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.connectToResource", HFILL }},
+
+    { &hf_camel_continue,
+      { "continue", "camel.continue",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.continue", HFILL }},
+
+    { &hf_camel_continueWithArgument,
+      { "continueWithArgument", "camel.continueWithArgument",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.continueWithArgument", HFILL }},
+
+    { &hf_camel_disconnectForwardConnection,
+      { "disconnectForwardConnection", "camel.disconnectForwardConnection",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.disconnectForwardConnection", HFILL }},
+
+    { &hf_camel_disconnectForwardConnectionWithArgument,
+      { "disconnectForwardConnectionWithArgument", "camel.disconnectForwardConnectionWithArgument",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.disconnectForwardConnectionWithArgument", HFILL }},
+
+    { &hf_camel_disconnectLeg,
+      { "disconnectLeg", "camel.disconnectLeg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.disconnectLeg", HFILL }},
+
+    { &hf_camel_entityReleased,
+      { "entityReleased", "camel.entityReleased",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.entityReleased", HFILL }},
+
+    { &hf_camel_establishTemporaryConnection,
+      { "establishTemporaryConnection", "camel.establishTemporaryConnection",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.establishTemporaryConnection", HFILL }},
+
+    { &hf_camel_eventReportBCSM,
+      { "eventReportBCSM", "camel.eventReportBCSM",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.eventReportBCSM", HFILL }},
+
+    { &hf_camel_furnishChargingInformation,
+      { "furnishChargingInformation", "camel.furnishChargingInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.furnishChargingInformation", HFILL }},
+
+    { &hf_camel_initialDP,
+      { "initialDP", "camel.initialDP",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.initialDP", HFILL }},
+
+    { &hf_camel_initiateCallAttempt,
+      { "initiateCallAttempt", "camel.initiateCallAttempt",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.initiateCallAttempt", HFILL }},
+
+    { &hf_camel_moveLeg,
+      { "moveLeg", "camel.moveLeg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.moveLeg", HFILL }},
+
+    { &hf_camel_playTone,
+      { "playTone", "camel.playTone",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.playTone", HFILL }},
+
+    { &hf_camel_releaseCall,
+      { "releaseCall", "camel.releaseCall",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.releaseCall", HFILL }},
+
+    { &hf_camel_requestReportBCSMEvent,
+      { "requestReportBCSMEvent", "camel.requestReportBCSMEvent",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.requestReportBCSMEvent", HFILL }},
+
+    { &hf_camel_resetTimer,
+      { "resetTimer", "camel.resetTimer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.resetTimer", HFILL }},
+
+    { &hf_camel_sendChargingInformation,
+      { "sendChargingInformation", "camel.sendChargingInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.sendChargingInformation", HFILL }},
+
+    { &hf_camel_splitLeg,
+      { "splitLeg", "camel.splitLeg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.splitLeg", HFILL }},
+
+    { &hf_camel_activityTestGPRS,
+      { "activityTestGPRS", "camel.activityTestGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.activityTestGPRS", HFILL }},
+
+    { &hf_camel_applyChargingGPRS,
+      { "applyChargingGPRS", "camel.applyChargingGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.applyChargingGPRS", HFILL }},
+
+    { &hf_camel_applyChargingReportGPRS,
+      { "applyChargingReportGPRS", "camel.applyChargingReportGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.applyChargingReportGPRS", HFILL }},
+
+    { &hf_camel_cancelGPRS,
+      { "cancelGPRS", "camel.cancelGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.cancelGPRS", HFILL }},
+
+    { &hf_camel_connectGPRS,
+      { "connectGPRS", "camel.connectGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.connectGPRS", HFILL }},
+
+    { &hf_camel_continueGPRS,
+      { "continueGPRS", "camel.continueGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.continueGPRS", HFILL }},
+
+    { &hf_camel_entityReleasedGPRS,
+      { "entityReleasedGPRS", "camel.entityReleasedGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.entityReleasedGPRS", HFILL }},
+
+    { &hf_camel_eventReportGPRS,
+      { "eventReportGPRS", "camel.eventReportGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.eventReportGPRS", HFILL }},
+
+    { &hf_camel_furnishChargingInformationGPRS,
+      { "furnishChargingInformationGPRS", "camel.furnishChargingInformationGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.furnishChargingInformationGPRS", HFILL }},
+
+    { &hf_camel_initialDPGPRS,
+      { "initialDPGPRS", "camel.initialDPGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.initialDPGPRS", HFILL }},
+
+    { &hf_camel_releaseGPRS,
+      { "releaseGPRS", "camel.releaseGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.releaseGPRS", HFILL }},
+
+    { &hf_camel_requestReportGPRSEvent,
+      { "requestReportGPRSEvent", "camel.requestReportGPRSEvent",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.requestReportGPRSEvent", HFILL }},
+
+    { &hf_camel_resetTimerGPRS,
+      { "resetTimerGPRS", "camel.resetTimerGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.resetTimerGPRS", HFILL }},
+
+    { &hf_camel_sendChargingInformationGPRS,
+      { "sendChargingInformationGPRS", "camel.sendChargingInformationGPRS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.sendChargingInformationGPRS", HFILL }},
+
+    { &hf_camel_connectSMS,
+      { "connectSMS", "camel.connectSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.connectSMS", HFILL }},
+
+    { &hf_camel_continueSMS,
+      { "continueSMS", "camel.continueSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.continueSMS", HFILL }},
+
+    { &hf_camel_eventReportSMS,
+      { "eventReportSMS", "camel.eventReportSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.eventReportSMS", HFILL }},
+
+    { &hf_camel_furnishChargingInformationSMS,
+      { "furnishChargingInformationSMS", "camel.furnishChargingInformationSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.furnishChargingInformationSMS", HFILL }},
+
+    { &hf_camel_initialDPSMS,
+      { "initialDPSMS", "camel.initialDPSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.initialDPSMS", HFILL }},
+
+    { &hf_camel_releaseSMS,
+      { "releaseSMS", "camel.releaseSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.releaseSMS", HFILL }},
+
+    { &hf_camel_requestReportSMSEvent,
+      { "requestReportSMSEvent", "camel.requestReportSMSEvent",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.requestReportSMSEvent", HFILL }},
+
+    { &hf_camel_resetTimerSMS,
+      { "resetTimerSMS", "camel.resetTimerSMS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.resetTimerSMS", HFILL }},
+
+/* END CAMEL OPERATIONS hf filelds */
+
+
+/* CAMEL ERRORS  hf filelds */
+    { &hf_camel_cancelFailed,
+      { "cancelFailed", "camel.cancelFailed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.cancelFailed", HFILL }},
+    { &hf_camel_requestedInfoError,
+      { "requestedInfoError", "camel.requestedInfoError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.requestedInfoError", HFILL }},
+    { &hf_camel_systemFailure,
+      { "systemFailure", "camel.systemFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.systemFailure", HFILL }},
+    { &hf_camel_taskRefused,
+      { "taskRefused", "camel.taskRefused",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.taskRefused", HFILL }},
+/* END CAMEL ERRORS hf filelds */
+
+
+/*--- End of included file: packet-camel-table3.c ---*/
+#line 549 "packet-camel-template.c"
 
 /*--- Included file: packet-camel-hfarr.c ---*/
 #line 1 "packet-camel-hfarr.c"
@@ -8384,7 +8764,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 545 "packet-camel-template.c"
+#line 550 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -8585,7 +8965,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 556 "packet-camel-template.c"
+#line 561 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

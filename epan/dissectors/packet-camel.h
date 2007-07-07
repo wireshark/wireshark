@@ -39,8 +39,8 @@
  */
 
 
-#ifndef PACKET_camel_H
-#define PACKET_camel_H
+#ifndef PACKET_CAMEL_H
+#define PACKET_CAMEL_H
 
 void proto_reg_handoff_camel(void);
 void proto_register_camel(void);
@@ -50,7 +50,6 @@ void proto_register_camel(void);
 
 
 WS_VAR_IMPORT const value_string camel_opr_code_strings[];
-WS_VAR_IMPORT const value_string camel_err_code_string_vals[];
 /* #include "packet-camel-exp.h"*/
 
 #endif  /* PACKET_camel_H */
