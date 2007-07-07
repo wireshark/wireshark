@@ -134,7 +134,7 @@ samr_alias_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32
 }
 
 struct access_mask_info samr_alias_access_mask_info = {
-	"SAMR Connect",			/* Name of specific rights */
+	"SAMR Alias",			/* Name of specific rights */
 	samr_alias_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
@@ -161,7 +161,7 @@ samr_group_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32
 }
 
 struct access_mask_info samr_group_access_mask_info = {
-	"SAMR Connect",			/* Name of specific rights */
+	"SAMR Group",			/* Name of specific rights */
 	samr_group_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
