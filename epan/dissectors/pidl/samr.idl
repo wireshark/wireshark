@@ -47,7 +47,7 @@
 		ACB_NO_AUTH_DATA_REQD		= 0x00080000   /* 1 = No authorization data required */
 	} samr_AcctFlags;
 
-	typedef [public,bitmap32bit] bitmap {
+	typedef [bitmap32bit] bitmap {
 		SAMR_ACCESS_CONNECT_TO_SERVER   = 0x00000001,
 		SAMR_ACCESS_SHUTDOWN_SERVER     = 0x00000002,
 		SAMR_ACCESS_INITIALIZE_SERVER   = 0x00000004,
@@ -55,6 +55,50 @@
 		SAMR_ACCESS_ENUM_DOMAINS        = 0x00000010,
 		SAMR_ACCESS_OPEN_DOMAIN         = 0x00000020
 	} samr_ConnectAccessMask;
+
+	typedef [bitmap32bit] bitmap {
+		USER_ACCESS_GET_NAME_ETC             = 0x00000001,
+		USER_ACCESS_GET_LOCALE               = 0x00000002,
+		USER_ACCESS_SET_LOC_COM              = 0x00000004,
+		USER_ACCESS_GET_LOGONINFO            = 0x00000008,
+		USER_ACCESS_GET_ATTRIBUTES           = 0x00000010,
+		USER_ACCESS_SET_ATTRIBUTES           = 0x00000020,
+		USER_ACCESS_CHANGE_PASSWORD          = 0x00000040,
+		USER_ACCESS_SET_PASSWORD             = 0x00000080,
+		USER_ACCESS_GET_GROUPS               = 0x00000100,
+		USER_ACCESS_GET_GROUP_MEMBERSHIP     = 0x00000200,
+		USER_ACCESS_CHANGE_GROUP_MEMBERSHIP  = 0x00000400
+	} samr_UserAccessMask;
+
+	typedef [bitmap32bit] bitmap {
+		DOMAIN_ACCESS_LOOKUP_INFO_1  = 0x00000001,
+		DOMAIN_ACCESS_SET_INFO_1     = 0x00000002,
+		DOMAIN_ACCESS_LOOKUP_INFO_2  = 0x00000004,
+		DOMAIN_ACCESS_SET_INFO_2     = 0x00000008,
+		DOMAIN_ACCESS_CREATE_USER    = 0x00000010,
+		DOMAIN_ACCESS_CREATE_GROUP   = 0x00000020,
+		DOMAIN_ACCESS_CREATE_ALIAS   = 0x00000040,
+		DOMAIN_ACCESS_LOOKUP_ALIAS   = 0x00000080,
+		DOMAIN_ACCESS_ENUM_ACCOUNTS  = 0x00000100,
+		DOMAIN_ACCESS_OPEN_ACCOUNT   = 0x00000200,
+		DOMAIN_ACCESS_SET_INFO_3     = 0x00000400
+	} samr_DomainAccessMask;
+
+	typedef [bitmap32bit] bitmap {
+		GROUP_ACCESS_LOOKUP_INFO     = 0x00000001,
+		GROUP_ACCESS_SET_INFO        = 0x00000002,
+		GROUP_ACCESS_ADD_MEMBER      = 0x00000004,
+		GROUP_ACCESS_REMOVE_MEMBER   = 0x00000008,
+		GROUP_ACCESS_GET_MEMBERS     = 0x00000010
+	} samr_GroupAccessMask;
+
+	typedef [bitmap32bit] bitmap {
+		ALIAS_ACCESS_ADD_MEMBER      = 0x00000001,
+		ALIAS_ACCESS_REMOVE_MEMBER   = 0x00000002,
+		ALIAS_ACCESS_GET_MEMBERS     = 0x00000004,
+		ALIAS_ACCESS_LOOKUP_INFO     = 0x00000008,
+		ALIAS_ACCESS_SET_INFO        = 0x00000010
+	} samr_AliasAccessMask;
 
 	/******************/
 	/* Function: 0x00 */
@@ -135,7 +179,7 @@
 	/* Function    0x07     */
 	[public] NTSTATUS samr_OpenDomain(
 		[in,ref]      policy_handle *connect_handle,
-		[in]          uint32 access_mask,
+		[in]          samr_DomainAccessMask access_mask,
 		[in,ref]      dom_sid2 *sid,
 		[out,ref]     policy_handle *domain_handle
 		);
@@ -271,7 +315,7 @@
 	NTSTATUS samr_CreateDomainGroup(
 		[in,ref]      policy_handle *domain_handle,
 		[in,ref]      lsa_String *name,
-		[in]          uint32 access_mask,
+		[in]          samr_GroupAccessMask access_mask,
 		[out,ref]     policy_handle *group_handle,
 		[out,ref]     uint32 *rid
 		);
@@ -292,7 +336,7 @@
 	NTSTATUS samr_CreateUser(
 		[in,ref]      policy_handle *domain_handle,
 		[in,ref]      lsa_String *account_name,
-		[in]          uint32 access_mask,
+		[in]          samr_UserAccessMask access_mask,
 		[out,ref]     policy_handle *user_handle,
 		[out,ref]     uint32 *rid
 		);
@@ -320,7 +364,7 @@
 	NTSTATUS samr_CreateDomAlias(
 		[in,ref]      policy_handle  *domain_handle,
 		[in,ref]      lsa_String     *alias_name,
-		[in]          uint32 access_mask,
+		[in]          samr_AliasAccessMask access_mask,
 		[out,ref]     policy_handle  *alias_handle,
 		[out,ref]     uint32         *rid
 		);
@@ -375,7 +419,7 @@
 	/* Function    0x13     */
 	NTSTATUS samr_OpenGroup(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          uint32 access_mask,
+		[in]          samr_GroupAccessMask access_mask,
 		[in]          uint32 rid,
 		[out,ref]     policy_handle *group_handle
 		);
@@ -495,7 +539,7 @@
 	/* Function    0x1b     */
 	NTSTATUS samr_OpenAlias (
 		[in,ref]      policy_handle *domain_handle,
-		[in]          uint32 access_mask,
+		[in]          samr_AliasAccessMask access_mask,
 		[in]          uint32 rid,
 		[out,ref]     policy_handle *alias_handle
 		);
@@ -567,7 +611,7 @@
 	/* Function    0x22     */
 	[public] NTSTATUS samr_OpenUser(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          uint32 access_mask,
+		[in]          samr_UserAccessMask access_mask,
 		[in]          uint32 rid,
 		[out,ref]     policy_handle *user_handle
 		);
@@ -1062,7 +1106,7 @@
 		[in,ref]      policy_handle *domain_handle,
 		[in,ref]      lsa_String *account_name,
 		[in]          samr_AcctFlags acct_flags,
-		[in]          uint32 access_mask,
+		[in]          samr_UserAccessMask access_mask,
 		[out,ref]     policy_handle *user_handle,
 		[out,ref]     uint32 *access_granted,
 		[out,ref]     uint32 *rid
