@@ -614,12 +614,6 @@ sub Union($$$$)
 	$self->pidl_code("$switch_type level;");
 	$self->pidl_code("");
 
-	if ($e->{ALIGN} > 1) {
-		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
-	}
-
-	$self->pidl_code("");
-
 	$self->pidl_code("old_offset = offset;");
 	$self->pidl_code("if (parent_tree) {");
 	$self->indent;
@@ -631,6 +625,12 @@ sub Union($$$$)
 	$self->pidl_code("");
 
 	$self->pidl_code("offset = $switch_dissect(tvb, offset, pinfo, tree, drep, hf_index, &level);");
+
+	if ($e->{ALIGN} > 1) {
+		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
+		$self->pidl_code("");
+	}
+
 
 	$self->pidl_code("switch(level) {$res\t}");
 	$self->pidl_code("proto_item_set_len(item, offset-old_offset);\n");

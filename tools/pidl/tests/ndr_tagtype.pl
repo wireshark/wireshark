@@ -22,7 +22,7 @@ test_samba4_ndr('struct-notypedef', '[public] struct bla { uint8 x; }; ',
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
 
@@ -41,7 +41,7 @@ test_samba4_ndr('struct-notypedef-used', '[public] struct bla { uint8 x; };
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
 
@@ -61,6 +61,6 @@ test_samba4_ndr('struct-notypedef-embedded', 'struct bla { uint8 x; };
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');

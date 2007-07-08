@@ -29,7 +29,7 @@ test_samba4_ndr('align-uint8-uint16',
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
 
@@ -54,7 +54,7 @@ test_samba4_ndr('align-uint8-uint32',
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
 
@@ -81,7 +81,7 @@ test_samba4_ndr('align-uint8-hyper',
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
 
@@ -108,7 +108,7 @@ test_samba4_ndr('noalignflag-uint8-uint16',
 
 	result_blob = ndr_push_blob(ndr);
 	
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
 
@@ -138,6 +138,6 @@ test_samba4_ndr('align-blob-align2',
 
 	result_blob = ndr_push_blob(ndr);
 
-	if (!data_blob_equal(&result_blob, &expected_blob)) 
+	if (data_blob_cmp(&result_blob, &expected_blob) != 0) 
 		return 2;
 ');
