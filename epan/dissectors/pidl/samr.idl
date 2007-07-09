@@ -24,6 +24,12 @@
 		[string,charset(UTF16)] uint16 *name;
 	} lsa_String;
 
+	typedef [public] struct {
+		uint32 count;
+		[size_is(count)] lsa_String *names;
+	} lsa_Strings;
+
+
 	typedef [v1_enum] enum {
 		SID_NAME_USE_NONE = 0,/* NOTUSED */
 		SID_NAME_USER     = 1, /* user */

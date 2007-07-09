@@ -167,8 +167,6 @@ TYPE dom_sid2 "offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, drep);" FT_
 
 TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
 
-TYPE lsa_Strings "offset=cnf_dissect_lsa_Strings(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
-
 
 #
 # ConnectX access masks
@@ -474,14 +472,6 @@ static int
 cnf_dissect_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_nt_PSID_ARRAY(tvb, offset, pinfo, tree, drep);
-
-	return offset;
-}
-
-static int
-cnf_dissect_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	/*XXX*/
 
 	return offset;
 }

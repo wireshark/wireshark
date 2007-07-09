@@ -32,6 +32,7 @@
 /* Ett declarations */
 static gint ett_dcerpc_samr = -1;
 static gint ett_samr_lsa_String = -1;
+static gint ett_samr_lsa_Strings = -1;
 static gint ett_samr_samr_AcctFlags = -1;
 static gint ett_samr_samr_ConnectAccessMask = -1;
 static gint ett_samr_samr_UserAccessMask = -1;
@@ -218,6 +219,7 @@ static gint hf_samr_samr_UserInfo2_unknown = -1;
 static gint hf_samr_samr_DomainInfo_info9 = -1;
 static gint hf_samr_samr_SamEntry_name = -1;
 static gint hf_samr_samr_UserInfo3_acct_flags = -1;
+static gint hf_samr_lsa_Strings_count = -1;
 static gint hf_samr_samr_UserInfo5_logon_script = -1;
 static gint hf_samr_samr_RidWithAttributeArray_count = -1;
 static gint hf_samr_samr_UserInfo3_allow_password_change = -1;
@@ -336,6 +338,7 @@ static gint hf_samr_samr_UserInfo3_profile_path = -1;
 static gint hf_samr_samr_AcctFlags_ACB_WSTRUST = -1;
 static gint hf_samr_samr_DomInfo13_domain_create_time = -1;
 static gint hf_samr_samr_SetGroupInfo_info = -1;
+static gint hf_samr_lsa_Strings_names = -1;
 static gint hf_samr_samr_DomInfo2_role = -1;
 static gint hf_samr_samr_EnumDomainAliases_resume_handle = -1;
 static gint hf_samr_samr_DispEntryAscii_idx = -1;
@@ -493,8 +496,8 @@ static gint hf_samr_connect_handle = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION = -1;
 static gint hf_samr_samr_GetAliasMembership_rids = -1;
 static gint hf_samr_samr_DomInfo2_num_users = -1;
-static gint hf_samr_samr_UserInfo6_account_name = -1;
 static gint hf_samr_samr_UserInfo21_unknown2 = -1;
+static gint hf_samr_samr_UserInfo6_account_name = -1;
 static gint hf_samr_samr_UserInfo_info3 = -1;
 static gint hf_samr_connect_access_mask = -1;
 static gint hf_samr_samr_UserInfo23_password = -1;
@@ -621,6 +624,10 @@ static int samr_dissect_element_lsa_String_name_len(tvbuff_t *tvb _U_, int offse
 static int samr_dissect_element_lsa_String_name_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_lsa_String_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_lsa_String_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string samr_lsa_SidType_vals[] = {
 	{ SID_NAME_USE_NONE, "SID_NAME_USE_NONE" },
 	{ SID_NAME_USER, "SID_NAME_USER" },
@@ -1888,12 +1895,6 @@ cnf_dissect_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	offset = dissect_ndr_nt_PSID_ARRAY(tvb, offset, pinfo, tree, drep);
 	return offset;
 }
-static int
-cnf_dissect_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	/*XXX*/
-	return offset;
-}
 
 
 /* IDL: struct { */
@@ -1958,6 +1959,70 @@ samr_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	offset = samr_dissect_element_lsa_String_name_size(tvb, offset, pinfo, tree, drep);
 
 	offset = samr_dissect_element_lsa_String_name(tvb, offset, pinfo, tree, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+
+/* IDL: struct { */
+/* IDL: 	uint32 count; */
+/* IDL: 	[unique(1)] [size_is(count)] lsa_String *names; */
+/* IDL: } */
+
+static int
+samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_lsa_Strings_count, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_lsa_Strings_names_, NDR_POINTER_UNIQUE, "Pointer to Names (lsa_String)",hf_samr_lsa_Strings_names);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_lsa_Strings_names__);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_lsa_Strings_names);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_samr_lsa_Strings);
+	}
+	
+	offset = samr_dissect_element_lsa_Strings_count(tvb, offset, pinfo, tree, drep);
+
+	offset = samr_dissect_element_lsa_Strings_names(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -9099,7 +9164,7 @@ samr_dissect_element_LookupRids_rids__(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_lsa_Strings(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_struct_lsa_Strings(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupRids_names,0);
 
 	return offset;
 }
@@ -13433,6 +13498,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Name", "samr.samr_SamEntry.name", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo3_acct_flags, 
 	  { "Acct Flags", "samr.samr_UserInfo3.acct_flags", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_samr_lsa_Strings_count, 
+	  { "Count", "samr.lsa_Strings.count", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo5_logon_script, 
 	  { "Logon Script", "samr.samr_UserInfo5.logon_script", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_RidWithAttributeArray_count, 
@@ -13669,6 +13736,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Domain Create Time", "samr.samr_DomInfo13.domain_create_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_SetGroupInfo_info, 
 	  { "Info", "samr.samr_SetGroupInfo.info", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_samr_lsa_Strings_names, 
+	  { "Names", "samr.lsa_Strings.names", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_DomInfo2_role, 
 	  { "Role", "samr.samr_DomInfo2.role", FT_UINT32, BASE_DEC, VALS(samr_samr_Role_vals), 0, "", HFILL }},
 	{ &hf_samr_samr_EnumDomainAliases_resume_handle, 
@@ -13983,10 +14052,10 @@ void proto_register_dcerpc_samr(void)
 	  { "Rids", "samr.samr_GetAliasMembership.rids", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_DomInfo2_num_users, 
 	  { "Num Users", "samr.samr_DomInfo2.num_users", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
-	{ &hf_samr_samr_UserInfo6_account_name, 
-	  { "Account Name", "samr.samr_UserInfo6.account_name", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo21_unknown2, 
 	  { "Unknown2", "samr.samr_UserInfo21.unknown2", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_samr_samr_UserInfo6_account_name, 
+	  { "Account Name", "samr.samr_UserInfo6.account_name", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_UserInfo_info3, 
 	  { "Info3", "samr.samr_UserInfo.info3", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_connect_access_mask, 
@@ -14215,6 +14284,7 @@ void proto_register_dcerpc_samr(void)
 	static gint *ett[] = {
 		&ett_dcerpc_samr,
 		&ett_samr_lsa_String,
+		&ett_samr_lsa_Strings,
 		&ett_samr_samr_AcctFlags,
 		&ett_samr_samr_ConnectAccessMask,
 		&ett_samr_samr_UserAccessMask,
