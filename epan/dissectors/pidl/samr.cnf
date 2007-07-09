@@ -119,6 +119,34 @@ HF_RENAME hf_samr_samr_RemoveMultipleMembersFromAlias_alias_handle hf_samr_alias
 
 
 #
+# make all rids use the same hf field
+#
+HF_FIELD hf_samr_rid "RID" "samr.rid" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+HF_RENAME hf_samr_samr_CreateDomainGroup_rid hf_samr_rid
+HF_RENAME hf_samr_samr_CreateUser_rid hf_samr_rid
+HF_RENAME hf_samr_samr_CreateDomAlias_rid hf_samr_rid
+HF_RENAME hf_samr_samr_Ids_ids hf_samr_rid
+HF_RENAME hf_samr_samr_LookupRids_rids hf_samr_rid
+HF_RENAME hf_samr_samr_OpenGroup_rid hf_samr_rid
+HF_RENAME hf_samr_samr_AddGroupMember_rid hf_samr_rid
+HF_RENAME hf_samr_samr_DeleteGroupMember_rid hf_samr_rid
+HF_RENAME hf_samr_samr_RidTypeArray_rids hf_samr_rid
+HF_RENAME hf_samr_samr_OpenAlias_rid hf_samr_rid
+HF_RENAME hf_samr_samr_OpenUser_rid hf_samr_rid
+HF_RENAME hf_samr_samr_UserInfo3_rid hf_samr_rid
+HF_RENAME hf_samr_samr_UserInfo5_rid hf_samr_rid
+HF_RENAME hf_samr_samr_UserInfo21_rid hf_samr_rid
+HF_RENAME hf_samr_samr_RidWithAttribute_rid hf_samr_rid
+HF_RENAME hf_samr_samr_RidWithAttributeArray_rids hf_samr_rid
+HF_RENAME hf_samr_samr_DispEntryGeneral_rid hf_samr_rid
+HF_RENAME hf_samr_samr_DispEntryFull_rid hf_samr_rid
+HF_RENAME hf_samr_samr_DispEntryFullGroup_rid hf_samr_rid
+HF_RENAME hf_samr_samr_CreateUser2_rid hf_samr_rid
+HF_RENAME hf_samr_samr_RidToSid_rid hf_samr_rid
+
+
+
+#
 # Prettification the summary line and the dissection tree
 #
 PARAM_VALUE samr_dissect_element_SamArray_entries__ 3|PIDL_SET_COL_INFO
