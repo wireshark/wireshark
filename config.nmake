@@ -14,7 +14,7 @@ VERSION_MINOR=99
 VERSION_MICRO=6
 # It's recommended to change VERSION_EXTRA for your own custom builds
 # e.g. "-SVN-12345"
-VERSION_EXTRA=
+VERSION_EXTRA=a
 
 # The version of the wiretap library (recommended: leave unchanged)
 WTAP_VERSION_MAJOR=0
