@@ -1054,8 +1054,8 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
   }
 
   if ( suppress_console_output == FALSE )
-	  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%u\"!",
-			commandCode, vendorId);
+	  g_warning("Diameter: Unable to find name for command code 0x%08x (%u), Vendor \"%u\"!",
+			commandCode, commandCode, vendorId);
   buffer=ep_alloc(64);
   g_snprintf(buffer, 64,
 		   "Cmd-0x%08x", commandCode);
@@ -1070,8 +1070,8 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
       }
   
     if ( suppress_console_output == FALSE )
-          g_warning("Diameter: Unable to find name for command code 0x%08x!",
-                        commandCode);
+          g_warning("Diameter: Unable to find name for command code 0x%08x (%u)!",
+                    commandCode, commandCode);
     buffer=ep_alloc(64);
     g_snprintf(buffer, 64,
                    "Cmd-0x%08x", commandCode);

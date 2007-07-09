@@ -1310,6 +1310,15 @@
 		<avp name="Service-ID" code="855" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
 		</avp>
+
+		<avp name="PoC-Controlling-Address" code="858" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="PoC-Group-Name" code="859" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+
 		<avp name="Cause" code="860" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<grouped>
 				<gavp name="Cause-Code"/>
@@ -1417,6 +1426,9 @@
 		<avp name="Time-Quota-Threshold" code="868" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="Volume-Quota-Threshold" code="869" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="Trigger-Type" code="870" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="Enumerated"/>
 			<enum name="CHANGE_IN_SGSN_IP_ADDRESS" code="1"/>
@@ -1444,7 +1456,7 @@
 			<enum name="CHANGEINLOCATION_CellId" code="34"/>
 			<enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
 		</avp>
-		<avp name="Quota-Holding-Time" code="871" mandatory="must">
+		<avp name="Quota-Holding-Time" code="871" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="PS-Append-Free-Format-Data" code="872" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
@@ -1574,8 +1586,16 @@
 			<enum name="ad-hoc PoC group session" code="3"/>
 		</avp>
 
-		<avp name="Number-Of-Participants" code="885" mandatory="must">
+		<avp name="Number-Of-Participants" code="885" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Integer32"/>
+		</avp>
+
+		<avp name="Participants-Involved" code="887" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+
+		<avp name="Expires" code="888" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
 		</avp>
 
 		<avp name="Message-Body" code="889" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
@@ -1667,7 +1687,7 @@ Note: The AVP codes from 915 to 999 are reserved for TS 29.061
 		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-<--
+<!--
 1005 Charging-Rule-Name OctetString
 1006 Event-Trigger Enumerated
 1007 Metering-Method Enumerated
@@ -1745,7 +1765,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 1227 PDP-Address Address
 1228 SGSN-Address Address
 -->
-		<avp name="PoC-Session-Id" code="1229" mandatory="must">
+		<avp name="PoC-Session-Id" code="1229" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Deferred-Location-Even-Type" code="1230" mandatory="must">
