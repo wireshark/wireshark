@@ -76,6 +76,7 @@
 #define eth_clist_get_row_data			gtk_clist_get_row_data
 #define eth_clist_get_text			gtk_clist_get_text
 #define eth_clist_get_selection_info		gtk_clist_get_selection_info
+#define eth_clist_get_vadjustment		gtk_clist_get_vadjustment
 #define eth_clist_moveto			gtk_clist_moveto
 #define eth_clist_new				gtk_clist_new
 #define eth_clist_row_is_visible		gtk_clist_row_is_visible
@@ -583,7 +584,7 @@ packet_list_recreate(void)
     packet_list_set_sel_browse(prefs.gui_plist_sel_browse, TRUE);
 
     main_widgets_rearrange();
-    
+
     if(cfile.state != FILE_CLOSED)
         cf_reload(&cfile);
 }
@@ -772,6 +773,19 @@ packet_list_moveto_end(void)
 {
     eth_clist_moveto(ETH_CLIST(packet_list),
                      ETH_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
+}
+
+gboolean
+packet_list_at_end(void)
+{
+    g_return_val_if_fail (packet_list != NULL, FALSE);
+    g_return_val_if_fail (ETH_CLIST(packet_list) != NULL, FALSE);
+
+    if (gtk_clist_row_is_visible(ETH_CLIST(packet_list), ETH_CLIST(packet_list)->rows - 1) == GTK_VISIBILITY_NONE){
+        return FALSE;
+    } else {
+        return TRUE;
+    }
 }
 
 gint

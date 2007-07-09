@@ -627,6 +627,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gchar *err_info;
   volatile int newly_displayed_packets = 0;
   dfilter_t   *dfcode;
+  gboolean at_end;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in 
@@ -639,6 +640,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   *err = 0;
 
+  at_end = packet_list_at_end();
   packet_list_freeze();
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
@@ -700,7 +702,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
      packet_list_thaw() is done, see bugzilla 1188 */
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
-  if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
+  if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL && at_end)
     packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -727,6 +729,7 @@ cf_finish_tail(capture_file *cf, int *err)
   gchar *err_info;
   gint64 data_offset;
   dfilter_t   *dfcode;
+  gboolean at_end;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in 
@@ -742,6 +745,7 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ERROR;
   }
 
+  at_end = packet_list_at_end();
   packet_list_freeze();
 
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
@@ -771,7 +775,7 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ABORTED;
   }
 
-  if (auto_scroll_live && cf->plist_end != NULL)
+  if (auto_scroll_live && cf->plist_end != NULL && at_end)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
     packet_list_moveto_end();

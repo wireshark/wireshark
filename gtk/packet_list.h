@@ -111,6 +111,12 @@ extern void packet_list_next(void);
  */
 extern void packet_list_prev(void);
 
+/** Get if the packet list is at its end.
+ *
+ * @return TRUE if packet list is scrolled to greater than 90% of its total length.
+ */
+extern gboolean packet_list_at_end(void);
+
 /* Different modes of copying summary data */
 typedef enum {
     CS_TEXT, /* Packet summary data (tab separated) */
