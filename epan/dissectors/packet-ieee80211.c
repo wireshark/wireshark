@@ -7529,7 +7529,7 @@ proto_register_ieee80211 (void)
       "Ack Policy", HFILL }},
 
     {&hf_qos_amsdu_present,
-     {"Payload Type", "wlan.qos.ampdupresent", FT_BOOLEAN, BASE_NONE,
+     {"Payload Type", "wlan.qos.amsdupresent", FT_BOOLEAN, BASE_NONE,
       TFS (&hf_qos_amsdu_present_flag), 0, "Payload Type", HFILL }},
 
     {&hf_qos_field_content,
