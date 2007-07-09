@@ -1234,16 +1234,19 @@ AC_COMPILE_IFELSE(
   ],
   [
     AC_MSG_RESULT(no)
-    AC_WIRESHARK_CHECK_64BIT_FORMAT(ll,
+    AC_WIRESHARK_CHECK_64BIT_FORMAT(l,
       [
-	AC_WIRESHARK_CHECK_64BIT_FORMAT(L,
-	  [
-	    AC_WIRESHARK_CHECK_64BIT_FORMAT(q,
-	      [
-		AC_MSG_ERROR([neither %llx nor %Lx nor %qx worked on a 64-bit integer])
-	      ])
-	  ])
-      ])
+      AC_WIRESHARK_CHECK_64BIT_FORMAT(ll,
+	[
+	  AC_WIRESHARK_CHECK_64BIT_FORMAT(L,
+	    [
+	      AC_WIRESHARK_CHECK_64BIT_FORMAT(q,
+		[
+		  AC_MSG_ERROR([neither %lx nor %llx nor %Lx nor %qx worked on a 64-bit integer])
+		])
+	    ])
+	])
+    ])
   ])
 
 GETOPT_C=""
