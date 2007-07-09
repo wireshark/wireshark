@@ -1982,11 +1982,11 @@ samr_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 int
 samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
-	guint16 parameter=0;
+	guint32 parameter=0;
 	if(param){
-		parameter=(guint16)*param;
+		parameter=(guint32)*param;
 	}
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
 	if(param){
 		*param=(guint32)parameter;
 	}
@@ -13512,7 +13512,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_UserInfo11_logon_script, 
 	  { "Logon Script", "samr.samr_UserInfo11.logon_script", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_Types_types, 
-	  { "Types", "samr.samr_Types.types", FT_UINT16, BASE_DEC, VALS(samr_lsa_SidType_vals), 0, "", HFILL }},
+	  { "Types", "samr.samr_Types.types", FT_UINT32, BASE_DEC, VALS(samr_lsa_SidType_vals), 0, "", HFILL }},
 	{ &hf_samr_samr_DomInfo2_comment, 
 	  { "Comment", "samr.samr_DomInfo2.comment", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser2_nt_password, 
@@ -13572,7 +13572,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_DomInfo2_unknown2, 
 	  { "Unknown2", "samr.samr_DomInfo2.unknown2", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_RidTypeArray_types, 
-	  { "Types", "samr.samr_RidTypeArray.types", FT_UINT16, BASE_DEC, VALS(samr_lsa_SidType_vals), 0, "", HFILL }},
+	  { "Types", "samr.samr_RidTypeArray.types", FT_UINT32, BASE_DEC, VALS(samr_lsa_SidType_vals), 0, "", HFILL }},
 	{ &hf_samr_opnum, 
 	  { "Operation", "samr.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser3_server, 
