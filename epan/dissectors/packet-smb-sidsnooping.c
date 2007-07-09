@@ -51,7 +51,6 @@ static int hf_samr_acct_name = -1;
 static int hf_samr_level = -1;
 
 
-
 GHashTable *sid_name_table = NULL;
 
 
@@ -348,9 +347,18 @@ sid_snooping_init(void)
 	}
 
 
+/* this code needs to be rewritten from scratch
+   disabling it now so that it wont cause wireshark to abort due to
+   unknown hf fields
+ */
+sid_name_snooping=0;
+
 	if(!sid_name_snooping){
 		return;
 	}
+
+
+
 
 
 	sid_name_table=g_hash_table_new(sid_name_hash, sid_name_equal);
@@ -381,7 +389,7 @@ sid_snooping_init(void)
 		hf_lsa_info_level=hfi->id;
 	}
 
-	hfi=proto_registrar_get_byname("samr.hnd");
+	hfi=proto_registrar_get_byname("samr.handle");
 	if(hfi){
 		hf_samr_hnd=hfi->id;
 	}
@@ -399,7 +407,6 @@ sid_snooping_init(void)
 	}
 
 
-
 	error_string=register_tap_listener("dcerpc", &lsa_policy_information_tap_installed, "lsa.policy_information and ( lsa.info.level or lsa.domain or nt.domain_sid )", NULL, lsa_policy_information, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
@@ -411,7 +418,7 @@ sid_snooping_init(void)
 	}
 	lsa_policy_information_tap_installed=TRUE;
 
-	error_string=register_tap_listener("dcerpc", &samr_query_dispinfo_tap_installed, "samr and samr.opnum==40 and ( samr.hnd or samr.rid or samr.acct_name or samr.level )", NULL, samr_query_dispinfo, NULL);
+	error_string=register_tap_listener("dcerpc", &samr_query_dispinfo_tap_installed, "samr and samr.opnum==40 and ( samr.handle or samr.rid or samr.acct_name or samr.level )", NULL, samr_query_dispinfo, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
@@ -426,10 +433,11 @@ sid_snooping_init(void)
 void
 proto_register_smb_sidsnooping(void)
 {
-	register_init_routine(sid_snooping_init);
+  	register_init_routine(sid_snooping_init);
 }
 
 void
 proto_reg_handoff_smb_sidsnooping(void)
 {
 }
+
