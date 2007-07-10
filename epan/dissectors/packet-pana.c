@@ -709,7 +709,7 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        }
 
        /* verify that none of the reserved bits are set */
-       if(flags&0x0fff){
+       if(flags&0x07ff){
                return FALSE;
        }
 
