@@ -7658,7 +7658,7 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0xf000, "Number of Traffic Identifiers (TIDs) Present", HFILL }},
 
     {&hf_block_ack_multi_tid_info,
-     {"Traffic Identifier (TID) Info", "",
+     {"Traffic Identifier (TID) Info", "wlan.ba.mtid.tid",
       FT_UINT8, BASE_DEC, 0, 0, "Traffic Identifier (TID) Info", HFILL }},
 
     {&hf_block_ack_multi_tid_reserved,
