@@ -386,6 +386,7 @@ SetOutPath $INSTDIR\diameter
 File "..\..\diameter\chargecontrol.xml"
 File "..\..\diameter\dictionary.dtd"
 File "..\..\diameter\dictionary.xml"
+File "..\..\diameter\etsie2e4.xml"
 File "..\..\diameter\gqpolicy.xml"
 File "..\..\diameter\imscxdx.xml"
 File "..\..\diameter\mobileipv4.xml"

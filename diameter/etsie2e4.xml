@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+
+	<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
+
+		<!-- User-Data (306) already defined by Sh -->
+
+		<!-- ************************* e4 AVPs ************************ -->
+
+		<avp name="Globally-Unique-Address" code="300" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="Frame-IP-Address"/>
+				<gavp name="Frame-IPv6-Prefix"/>
+				<gavp name="Address-Realm"/>
+			</grouped>
+		</avp>
+		<avp name="Address-Realm" code="301" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Logical-Access-Id" code="302" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Initial-Gate-Setting" code="303" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="NAS-Filter-Rule"/>
+				<gavp name="Maximum-Allowed-Bandwidth-UL"/>
+				<gavp name="Maximum-Allowed-Bandwidth-DL"/>
+			</grouped>
+		</avp>
+		<avp name="QoS-Profile" code="304" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="Application-Class-ID"/>
+				<gavp name="Media-Type"/>
+				<gavp name="Reservation-Priority"/>
+				<gavp name="Maximum-Allowed-Bandwidth-UL"/>
+				<gavp name="Maximum-Allowed-Bandwidth-DL"/>
+				<gavp name="Transport-Class"/>
+			</grouped>
+		</avp>
+		<avp name="IP-Connectivity-Status" code="305" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+				<enum name="IP-CONNECTIVITY-ON" code="0"/>
+				<enum name="IP-CONNECTIVITY-LOST" code="1"/>
+		</avp>
+		<avp name="Access-Network-Type" code="306" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="NAS-Port-Type"/>
+				<gavp name="Aggregation-Network-Type"/>
+			</grouped>
+		</avp>
+		<avp name="Aggregation-Network-Type" code="307" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+				<enum name="UNKNOWN" code="0"/>
+				<enum name="ATM" code="1"/>
+				<enum name="ETHERNET" code="2"/>
+		</avp>
+		<avp name="Maximum-Allowed-Bandwidth-UL" code="308" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Allowed-Bandwidth-DL" code="309" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-PriorityL" code="310" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Transport-Class" code="311" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Application-Class-ID" code="312" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Physical-Access-ID" code="313" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="UTF8String"/>
+		</avp>
+
+
+		<!-- ************************* e2 AVPs ************************ -->
+
+		<avp name="Location-Information" code="350" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="RACS-Contact-Point" code="351" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Terminal-Type" code="352" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Requested-Information" code="353" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+				<enum name="SUBSCRIBER-ID" code="0"/>
+				<enum name="LOCATION-INFORMATION" code="1"/>
+				<enum name="RACS-CONTACT-POINT" code="2"/>
+				<enum name="ACCESS-NETWORK-TYPE" code="3"/>
+				<enum name="TERMINAL-TYPE" code="4"/>
+				<enum name="LOGICAL-ACCESS-ID" code="5"/>
+				<enum name="PHYSICAL-ACCESS-ID" code="6"/>
+				<enum name="ACCESS-NETWORK-TYPE" code="7"/>
+				<enum name="INITIAL-GATE-SETTING" code="8"/>
+				<enum name="QOS-PROFILE" code="9"/>
+				<enum name="IP-CONNECTIVITY-STATUS" code="10"/>
+		</avp>
+
+	</application>

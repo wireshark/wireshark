@@ -9,6 +9,7 @@
 	<!ENTITY TGPPSh SYSTEM "TGPPSh.xml">
 	<!ENTITY sip SYSTEM "sip.xml">
 	<!ENTITY gqpolicy SYSTEM "gqpolicy.xml">
+	<!ENTITY etsie2e4 SYSTEM "etsie2e4.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -59,6 +60,7 @@
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
+		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
 		<!-- *********************** End Vendors ************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
@@ -1881,4 +1883,5 @@ Note: The AVP codes from 1263 to 1299 are reserved for TS 32.299
 	&TGPPSh;
 	&sip;
 	&gqpolicy;
+	&etsie2e4;
 </dictionary>
