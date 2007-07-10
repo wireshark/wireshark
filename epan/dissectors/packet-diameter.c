@@ -200,6 +200,7 @@ static int hf_diameter_flags_reserved5 = -1;
 static int hf_diameter_flags_reserved6 = -1;
 static int hf_diameter_flags_reserved7 = -1;
 
+static int hf_diameter_avp = -1;
 static int hf_diameter_avp_code = -1;
 static int hf_diameter_avp_length = -1;
 static int hf_diameter_avp_flags = -1;
@@ -1799,11 +1800,13 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		                         "Unknown-Type: 0x%08x");
 		avpNameString=diameter_avp_get_name(avph.avp_code, vendorId, &AVP_code_found);
 
-		avptf = proto_tree_add_text(avp_tree, tvb,
+		avptf = proto_tree_add_bytes_format(avp_tree, hf_diameter_avp, tvb,
 		                            offset, avpLength + fixAmt,
+		                            tvb_get_ptr(tvb, offset, avpLength + fixAmt),
 		                            "%s (%s) l:0x%x (%d bytes) (%d padded bytes)",
 		                            avpNameString, avpTypeString, avpLength,
 		                            avpLength, avpLength+fixAmt);
+
 		avpi_tree = proto_item_add_subtree(avptf, ett_diameter_avpinfo);
 
 		if (avpi_tree !=NULL)
@@ -2291,6 +2294,10 @@ proto_register_diameter(void)
 		{ &hf_diameter_endtoendid,
 		  { "End-to-End Identifier", "diameter.endtoendid", FT_UINT32,
 		    BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_diameter_avp,
+		  { "AVP","diameter.avp", FT_BYTES, BASE_HEX,
+		    NULL, 0x0, "", HFILL }},
 
 		{ &hf_diameter_avp_code,
 		  { "AVP Code","diameter.avp.code", FT_UINT32, BASE_DEC,
