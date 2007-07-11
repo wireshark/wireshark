@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.6">
+  <!ENTITY WiresharkCurrentVersion "0.99.7">
 
 ]>
 
@@ -37,76 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark could crash when dissecting an HTTP chunked
-            response.
-            <!-- Fixed in r21034 -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394">1394</ulink>)
+            Wireshark could crash when reading an MP3 file.
+            <!-- Fixed in r22261 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
           </para>
-          <para>Versions affected: 0.99.5</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            On some systems, Wireshark could crash while reading
-            iSeries capture files.
-            <!-- Fixed in r20990 -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1415">1415</ulink>)
-          </para>
-          <para>Versions affected: 0.10.14 to 0.99.5</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could exhaust system memory while reading a malformed
-            DCP ETSI packet.
-            <!-- Fixed in r21007 -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1264">1264</ulink>)
-          </para>
-          <para>Versions affected: 0.99.5</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could loop excessively while reading a malformed SSL
-            packet.
-            <!-- Fixed in r? -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1582">1582</ulink>)
-          </para>
-          <para>Versions affected: ?</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The DHCP/BOOTP dissector was susceptible to an off-by-one error.
-            <!-- Fixed in r21947 -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1416">1416</ulink>)
-          </para>
-          <para>Versions affected: ?</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark could loop excessively while reading a malformed MMS
-            packet.
-            <!-- Fixed in r21392 -->
-            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1382">1382</ulink>)
-          </para>
-          <para>Versions affected: ?</para>
+          <para>Versions affected: 0.99.6</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
@@ -122,45 +57,7 @@ Wireshark Info
 
       <itemizedlist>
 
-        <listitem><para>
-          WEP decryption would only work for the first key specified.
-          disappear or become unusable.  WEP and WPA decryption didn't work
-          for QoS frames.  WPA decryption failed if EAPOL handshake packets
-          contained extra data.  Wireshark failed to parse colon-separated
-          WEP keys.
-        </para></listitem>
 
-        <listitem><para>
-          Merging files in Wireshark now appends files properly.
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark could hang while saving an RTP stream with bad timestamp
-          data.
-        </para></listitem>
-
-        <listitem><para>
-          You must now explicitly pass "--disable-wireshark" to the build
-          environment if you only want to build TShark; the configure
-          script will fail, rather than automatically building only
-          TShark, if it's run on a system that doesn't have GTK+ headers
-          and libraries installed.
-        </para></listitem>
-
-        <listitem><para>
-	  Capture from named pipes (via "-i
-	  \\&lt;server&gt;\pipe\&lt;pipename&gt;") now works under
-	  Windows.
-        </para></listitem>
-
-        <listitem><para>
-          The <screen>frame.time_delta</screen> display filter now works as
-          expected, matching the delta time between the current and previous
-          <emphasis>captured</emphasis> packet.  A new filter,
-          <screen>frame.time_delta_displayed</screen>,
-          matches the delta time between the current and previous
-          <emphasis>displayed</emphasis> frame.
-        </para></listitem>
 
       </itemizedlist>
     </para>
@@ -174,32 +71,6 @@ Wireshark Info
 
       <itemizedlist>
 
-        <listitem><para>
-          You no longer have to restart Wireshark after changing column
-          preferences.
-        </para></listitem>
-
-        <listitem><para>
-          You can now export HTTP objects via File&rarr;Export&rarr;Objects&rarr;HTTP.
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark now supports display filter macros
-        </para></listitem>
-
-        <listitem><para>
-          <ulink url="http://www.wireshark.org/docs/wsug_html_chunked/ChDisplayFilterMacrosSection.html">Display
-          filter macros</ulink> are now supported.
-        </para></listitem>
-
-        <listitem><para>
-          You can now match upper- and lower-case text with the <screen>contains</screen> operator, e.g. <programlisting>upper(http.request.method) contains "GET"</programlisting>.
-        </para></listitem>
-
-        <listitem><para>
-          A great deal of code has been cleaned up, including fixing many
-          compiler errors.
-        </para></listitem>
 
       </itemizedlist>
     </para>
