@@ -114,6 +114,21 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
 
 
+/* Return the number of bytes used to encode the length field
+   (we're not interested in the length value itself) */
+static int skipASNLength(guint8 value)
+{
+    if ((value & 0x80) == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return ((value & 0x03) == 1) ? 2 : 3;
+    }
+}
+
+
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
 static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 direction,
@@ -238,12 +253,12 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
    Only set *data_offset if data field found. */
 static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset)
 {
-    guint8 length;
     int offset = *data_offset;
 
    /* Get the sctpprim command code. */
     guint8 first_tag = tvb_get_guint8(tvb, offset++);
     guint8 tag;
+    guint8 first_length_byte;
 
     /* Only accept interested in data requests or indications */
     switch (first_tag)
@@ -255,29 +270,14 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
             return FALSE;
     }
 
-    if (first_tag == 0x04)
-    {
-        /* Overall length field. msb set indicates 2 bytes */
-        if (tvb_get_guint8(tvb, offset) & 0x80)
-        {
-            offset += 2;
-        }
-        else
-        {
-            offset++;
-        }
-    }
-    else
-    {
-        offset += 3;
-    }
+    first_length_byte = tvb_get_guint8(tvb, offset);
+    offset += skipASNLength(first_length_byte);
 
     /* Skip any other fields before reach payload */
     while (tvb_length_remaining(tvb, offset) > 2)
     {
         /* Look at next tag */
         tag = tvb_get_guint8(tvb, offset++);
-
 
         /* Is this the data payload we're expecting? */
         if (tag == 0x19)
@@ -287,28 +287,25 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
         }
         else
         {
-            if (first_tag == 0x62)
+            /* Skip length field */
+            offset++;
+            switch (tag)
             {
-                switch (tag)
-                {
-                    case 0x0a: /* dest port */
-                    case 0x1e: /* strseqnum */
-                    case 0x0d:
-                        offset += 2;
-                        continue;
-                    case 0x1d:
-                    case 0x09:
-                    case 0x0c:
-                        offset += 4;
-                        continue;
-                }
-            }
-            else
-            {
-                /* Read length in next byte */
-                length = tvb_get_guint8(tvb, offset++);
-                /* Skip the following value */
-                offset += length;
+                case 0x01: /* sctpInstanceNum */
+                case 0x0a: /* destPort */
+                case 0x1e: /* strseqnum */
+                case 0x0d: /* streamnum */
+                    offset += 2;
+                    continue;
+                case 0x1d:
+                case 0x09: /* ipv4Address */
+                case 0x0c: /* payloadType */
+                    offset += 4;
+                    continue;
+
+                default:
+                    /* Fail if not a known header field */
+                    return FALSE;
             }
         }
     }
