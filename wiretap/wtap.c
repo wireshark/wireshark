@@ -375,11 +375,14 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_NETTL_RAW_TELNET */
 	{ "Raw telnet with nettl headers", "raw-telnet-nettl" },
 
+	/* WTAP_ENCAP_USB_LINUX */
+	{ "USB packets with Linux header", "usb-linux" },
+
 	/* WTAP_ENCAP_MPEG */
 	{ "MPEG", "mpeg" },
 
 	/* WTAP_ENCAP_PPI */
-	{ "Per-Packet Information header", "ppi" },
+	{ "Per-Packet Information header", "ppi" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
