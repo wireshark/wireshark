@@ -707,7 +707,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-    tap_queue_packet(ssl_tap, pinfo, NULL);
+    tap_queue_packet(ssl_tap, pinfo, GINT_TO_POINTER(proto_ssl));
 }
 
 static gint
