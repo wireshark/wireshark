@@ -611,11 +611,11 @@ note to wireshark-dev for guidance.
 
 1.1.6 Compiler warnings
 
-You should write code that is free of compiler warnings. Such warnings will 
-often indicate questionable code and sometimes even real bugs, so it's best 
-to avoid warnings at all. 
+You should write code that is free of compiler warnings. Such warnings will
+often indicate questionable code and sometimes even real bugs, so it's best
+to avoid warnings at all.
 
-The compiler flags in the Makefiles are set to "treat warnings as errors", 
+The compiler flags in the Makefiles are set to "treat warnings as errors",
 so your code won't even compile when warnings occur.
 
 1.2 Skeleton code.
@@ -2210,8 +2210,9 @@ For proto_tree_add_ether(), the 'value_ptr' argument is a pointer to a
 For proto_tree_add_string(), the 'value_ptr' argument is a pointer to a
 text string.
 
-For proto_tree_add_boolean(), the 'value' argument is a 32-bit integer;
-zero means "false", and non-zero means "true".
+For proto_tree_add_boolean(), the 'value' argument is a 32-bit integer.
+It is masked and shifted as defined by the field info after which zero
+means "false", and non-zero means "true".
 
 For proto_tree_add_float(), the 'value' argument is a 'float' in the
 host's floating-point format.
@@ -3241,8 +3242,8 @@ This will create preferences "beep.tcp.port" and
 "beep.strict_header_terminator", the first of which is an unsigned
 integer and the second of which is a Boolean.
 
-Note that a warning will pop up if you've saved such preference to the 
-preference file and you subsequently take the code out. The way to make 
+Note that a warning will pop up if you've saved such preference to the
+preference file and you subsequently take the code out. The way to make
 a preference obsolete is to register it as such:
 
 /* Register a preference that used to be supported but no longer is. */
@@ -3468,26 +3469,26 @@ ptvcursor_free(ptvcursor_t*)
 after your dissection with the ptvcursor API is completed.
 
 
-proto_tree* 
+proto_tree*
 ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
     Pushes the current subtree in the tree stack of the cursor, creates a new
     one and sets this one as the working tree.
 
-void 
+void
 ptvcursor_pop_subtree(ptvcursor_t *ptvc);
-    Pops a subtree in the tree stack of the cursor 
+    Pops a subtree in the tree stack of the cursor
 
-proto_tree* 
-ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,  
+proto_tree*
+ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
 			    gboolean little_endian, gint ett_subtree);
-    Adds an item to the tree and creates a subtree. 
+    Adds an item to the tree and creates a subtree.
     If the length is unknown, length may be defined as
     SUBTREE_UNDEFINED_LENGTH.  In this case, at the next pop, the item length
     will be equal to the advancement of the cursor since the creation of the
     subtree.
 
-proto_tree * 
-ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length, 
+proto_tree *
+ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
 				gint ett_subtree, const char *format, ...);
     Add a text node to the tree and create a subtree
     If the length is unknown, length may be defined as

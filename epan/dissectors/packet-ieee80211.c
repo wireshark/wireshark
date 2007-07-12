@@ -275,7 +275,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define QOS_AMSDU_PRESENT(x)  (((x) & 0x0080) >> 6)
 #define QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
 
-#define QOS_FLAG_EOSP    0x08
+#define QOS_FLAG_EOSP    0x10
 
 /*
  * Extract subfields from the result of QOS_FIELD_CONTENT().
@@ -6147,7 +6147,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         qos_ack_policy = QOS_ACK_POLICY(qos_control);
         qos_amsdu_present = QOS_AMSDU_PRESENT(qos_control);
         qos_eosp = QOS_EOSP(qos_control);
-        qos_field_content = QOS_FIELD_CONTENT( qos_control);
+        qos_field_content = QOS_FIELD_CONTENT(qos_control);
 
         proto_tree_add_uint_format (qos_tree, hf_qos_priority, tvb,
             qosoff, 1, qos_priority,
@@ -6156,7 +6156,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
         if (flags & FLAG_FROM_DS) {
           proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb,
-              qosoff, 1, qos_eosp);
+              qosoff, 1, qos_control);
         }
 
         proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, qosoff, 1,
