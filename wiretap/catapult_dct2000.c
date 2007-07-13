@@ -1022,19 +1022,17 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
         /* Read consecutive hex chars into atm header buffer */
         for (;
-             (isalnum((int)linebuff[n]) &&
+             ((linebuff[n] >= '0') && (linebuff[n] <= '?') &&
               (n < line_length) &&
               (header_chars_seen < AAL_HEADER_CHARS));
              n++, header_chars_seen++)
         {
             aal_header_chars[header_chars_seen] = linebuff[n];
-        }
-
-        /* Sometimes see strange encoding of cid in last (non-digit) character */
-        if (header_chars_seen == (AAL_HEADER_CHARS-1))
-        {
-            aal_header_chars[AAL_HEADER_CHARS-1] = linebuff[n];
-            header_chars_seen++;
+            /* Next 6 characters after '9' are mapped to a->f */
+            if (!(int)isdigit(linebuff[n]))
+            {
+                aal_header_chars[header_chars_seen] = 'a' + (linebuff[n] - '9') -1;
+            }
         }
 
         if (header_chars_seen != AAL_HEADER_CHARS || n >= line_length)
