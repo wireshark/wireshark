@@ -1029,7 +1029,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         {
             aal_header_chars[header_chars_seen] = linebuff[n];
             /* Next 6 characters after '9' are mapped to a->f */
-            if (!(int)isdigit(linebuff[n]))
+            if (!isdigit((guchar)linebuff[n]))
             {
                 aal_header_chars[header_chars_seen] = 'a' + (linebuff[n] - '9') -1;
             }
