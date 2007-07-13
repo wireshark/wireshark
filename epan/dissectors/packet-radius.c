@@ -142,34 +142,55 @@ static const value_string* radius_vendors = NULL;
 
 static radius_info_t rad_info;
 
+/* http://www.iana.org/assignments/radius-types */
 static const value_string radius_vals[] =
 {
-	{RADIUS_ACCESS_REQUEST,		"Access-Request"},
-	{RADIUS_ACCESS_ACCEPT,		"Access-Accept"},
-	{RADIUS_ACCESS_REJECT,		"Access-Reject"},
-	{RADIUS_ACCOUNTING_REQUEST,		"Accounting-Request"},
-	{RADIUS_ACCOUNTING_RESPONSE,		"Accounting-Response"},
-	{RADIUS_ACCOUNTING_STATUS,		"Accounting-Status"},
-	{RADIUS_ACCESS_PASSWORD_REQUEST,	"Access-Password-Request"},
-	{RADIUS_ACCESS_PASSWORD_ACK,		"Access-Password-Ack"},
-	{RADIUS_ACCESS_PASSWORD_REJECT,	"Access-Password-Reject"},
-	{RADIUS_ACCOUNTING_MESSAGE,		"Accounting-Message"},
-	{RADIUS_ACCESS_CHALLENGE,		"Access-challenge"},
-	{RADIUS_STATUS_SERVER,		"StatusServer"},
-	{RADIUS_STATUS_CLIENT,		"StatusClient"},
-	{RADIUS_VENDOR_SPECIFIC_CODE,		"Vendor-Specific"},
-	{RADIUS_ASCEND_ACCESS_NEXT_CODE,	"Ascend-Access-Next-Code"},
-	{RADIUS_ASCEND_ACCESS_NEW_PIN,	"Ascend-Access-New-Pin"},
-	{RADIUS_ASCEND_PASSWORD_EXPIRED,	"Ascend-Password-Expired"},
-	{RADIUS_ASCEND_ACCESS_EVENT_REQUEST,	"Ascend-Access-Event-Request"},
-	{RADIUS_ASCEND_ACCESS_EVENT_RESPONSE,	"Ascend-Access-Event-Response"},
-	{RADIUS_DISCONNECT_REQUEST,		"Disconnect-Request"},
-	{RADIUS_DISCONNECT_REQUEST_ACK,	"Disconnect-Request ACK"},
-	{RADIUS_DISCONNECT_REQUEST_NAK,	"Disconnect-Request NAK"},
-	{RADIUS_CHANGE_FILTER_REQUEST,	"Change-Filter-Request"},
-	{RADIUS_CHANGE_FILTER_REQUEST_ACK,	"Change-Filter-Request-ACK"},
-	{RADIUS_CHANGE_FILTER_REQUEST_NAK,	"Change-Filter-Request-NAK"},
-	{RADIUS_RESERVED,			"Reserved"},
+	{RADIUS_ACCESS_REQUEST,					"Access-Request"},					/*  1 RFC2865 */
+	{RADIUS_ACCESS_ACCEPT,					"Access-Accept"},					/*  2 RFC2865 */
+	{RADIUS_ACCESS_REJECT,					"Access-Reject"},					/*  3 RFC2865 */
+	{RADIUS_ACCOUNTING_REQUEST,				"Accounting-Request"},				/*  4 RFC2865 */
+	{RADIUS_ACCOUNTING_RESPONSE,			"Accounting-Response"},				/*  5 RFC2865 */
+	{RADIUS_ACCOUNTING_STATUS,				"Accounting-Status"},				/*  6 RFC2865 */
+	{RADIUS_ACCESS_PASSWORD_REQUEST,		"Password-Request"},				/*  7 RFC3575 */
+	{RADIUS_ACCESS_PASSWORD_ACK,			"Password-Ack"},					/*  8 RFC3575 */
+	{RADIUS_ACCESS_PASSWORD_REJECT,			"Password-Reject"},					/*  9 RFC3575 */
+	{RADIUS_ACCOUNTING_MESSAGE,				"Accounting-Message"},				/* 10 RFC3575 */
+	{RADIUS_ACCESS_CHALLENGE,				"Access-challenge"},				/* 11 RFC2865 */
+	{RADIUS_STATUS_SERVER,					"Status-Server"},					/* 12 RFC2865 */
+	{RADIUS_STATUS_CLIENT,					"Status-Client"},					/* 13 RFC2865 */
+/*
+21       Resource-Free-Request        [RFC3575]
+22       Resource-Free-Response       [RFC3575]
+23       Resource-Query-Request       [RFC3575]
+24       Resource-Query-Response      [RFC3575]
+25       Alternate-Resource-
+         Reclaim-Request              [RFC3575]
+26       NAS-Reboot-Request           [RFC3575]
+*/
+	{RADIUS_VENDOR_SPECIFIC_CODE,			"Vendor-Specific"},					/* 26 */
+/*
+27       NAS-Reboot-Response          [RFC3575]
+28       Reserved
+*/
+	{RADIUS_ASCEND_ACCESS_NEXT_CODE,		"Next-Passcode"},					/* 29 RFC3575 */
+	{RADIUS_ASCEND_ACCESS_NEW_PIN,			"New-Pin"},							/* 30 RFC3575 */
+	{31,									"Terminate-Session"},				/* 31 RFC3575 */
+	{RADIUS_ASCEND_PASSWORD_EXPIRED,		"Password-Expired"},				/* 32 RFC3575 */
+	{RADIUS_ASCEND_ACCESS_EVENT_REQUEST,	"Event-Request"},					/* 33 RFC3575 */
+	{RADIUS_ASCEND_ACCESS_EVENT_RESPONSE,	"Event-Response"},					/* 34 RFC3575 */
+	{RADIUS_DISCONNECT_REQUEST,				"Disconnect-Request"},				/* 40 RFC3575 */
+	{RADIUS_DISCONNECT_REQUEST_ACK,			"Disconnect-ACK"},					/* 41 RFC3575 */
+	{RADIUS_DISCONNECT_REQUEST_NAK,			"Disconnect-NAK"}		,			/* 42 RFC3575 */
+	{RADIUS_CHANGE_FILTER_REQUEST,			"CoA-Request"},						/* 43 */
+	{RADIUS_CHANGE_FILTER_REQUEST_ACK,		"CoA-ACK"},							/* 44 */ 
+	{RADIUS_CHANGE_FILTER_REQUEST_NAK,		"CoA-NAK"},							/* 45 */ 
+/*
+50       IP-Address-Allocate          [RFC3575]
+51       IP-Address-Release           [RFC3575]
+250-253  Experimental Use             [RFC3575]
+254      Reserved                     [RFC3575]
+*/
+	{RADIUS_RESERVED,						"Reserved"},
 	{0, NULL}
 };
 
