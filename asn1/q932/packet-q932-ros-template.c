@@ -55,7 +55,7 @@ int proto_rose = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
-static rose_context *rose_ctx;
+static rose_ctx_t *rose_ctx;
 
 static gint32 code_choice;
 static guint32 code_local;
@@ -68,7 +68,7 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 #include "packet-q932-ros-fn.c" 
 
 /*--- dissect_rose_apdu -----------------------------------------------------*/
-int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_context *rctx) {
+int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_ctx_t *rctx) {
   if (rctx)
     rose_ctx = rctx;
   return dissect_ROS_PDU(tvb, pinfo, tree);

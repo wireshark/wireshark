@@ -126,7 +126,7 @@ static gint ett_q932_NetworkFacilityExtension_U = -1;
 /* Preferences */
 
 /* ROSE context */
-static rose_context q932_rose_ctx;
+static rose_ctx_t q932_rose_ctx;
 
 /* Subdissectors */
 static dissector_handle_t data_handle = NULL; 

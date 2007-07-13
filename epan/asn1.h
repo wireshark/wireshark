@@ -33,6 +33,13 @@ typedef enum {
   ASN1_ENC_XER   /* X.693 - XER */
 } asn1_enc_e;
 
+typedef enum {
+  CB_ASN1_ENC,
+  CB_DISSECTOR,
+  CB_NEW_DISSECTOR,
+  CB_DISSECTOR_HANDLE
+} asn1_cb_variant;
+
 #define ASN1_CTX_SIGNATURE 0x41435458  /* "ACTX" */
 
 typedef struct _asn1_ctx_t {
@@ -48,26 +55,71 @@ typedef struct _asn1_ctx_t {
     int hf_index;
     const char *direct_reference;
     gint32 indirect_reference;
-    guint32 encoding;
+    guint32 encoding;  
+      /* 
+         0 : single-ASN1-type, 
+         1 : octet-aligned, 
+         2 : arbitrary 
+      */
     tvbuff_t *single_asn1_type;
     tvbuff_t *octet_aligned;
     tvbuff_t *arbitrary;
     union {
       struct {
 		int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
-        tvbuff_t *direct_reference;
-        gint32 indirect_reference;
-        guint32 encoding;
-        tvbuff_t *single_asn1_type;
-        tvbuff_t *octet_aligned;
-        tvbuff_t *arbitrary;
       } ber;
       struct {
         int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
       } per;
-    };
+    } u;
   } external;
+  struct {
+    tvbuff_t *data_value_descriptor;
+    int hf_index;
+    guint32 identification;
+      /* 
+         0 : syntaxes, 
+         1 : syntax, 
+         2 : presentation-context-id,
+         3 : context-negotiation,
+         4 : transfer-syntax,
+         5 : fixed
+      */
+    gint32 presentation_context_id;
+    const char *abstract_syntax;
+    const char *transfer_syntax;
+    tvbuff_t *data_value;
+    union {
+      struct {
+		int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
+      } ber;
+      struct {
+        int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
+      } per;
+    } u;
+  } embedded_pdv;
+  struct _rose_ctx_t *rose_ctx;
 } asn1_ctx_t;
+
+#define ROSE_CTX_SIGNATURE 0x524F5345  /* "ROSE" */
+
+typedef struct _rose_ctx_t {
+  guint32 signature;
+  dissector_table_t arg_global_dissector_table;
+  dissector_table_t arg_local_dissector_table; 
+  dissector_table_t res_global_dissector_table;
+  dissector_table_t res_local_dissector_table; 
+  int apdu_depth;
+  guint32 code;  
+    /* 
+       0 : local, 
+       1 : global 
+    */
+  gint32 local;
+  const char *global;
+  proto_item *code_item;
+  void *private_data;
+} rose_ctx_t;
 
 extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
 extern gboolean asn1_ctx_check_signature(asn1_ctx_t *actx);

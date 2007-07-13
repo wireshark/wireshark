@@ -3845,7 +3845,7 @@ dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	if(!actx->external.ber.ber_callback){
+	if(!actx->external.u.ber.ber_callback){
 		offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 	}else{
 		/* FIX ME */
@@ -3905,7 +3905,7 @@ dissect_ber_external_U(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ct
 int
 dissect_ber_external_type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, gint hf_id, ber_callback func){
 
-	actx->external.ber.ber_callback =  func;
+	actx->external.u.ber.ber_callback =  func;
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_id, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, TRUE, dissect_ber_external_U);

@@ -79,13 +79,6 @@ static gint ett_per_sequence_of_item = -1;
 static gint ett_per_External = -1;
 static gint ett_per_External_encoding = -1;
 
-typedef enum {
-  CB_ASN1_ENC,
-  CB_DISSECTOR,
-  CB_NEW_DISSECTOR,
-  CB_DISSECTOR_HANDLE
-} type_cb_variant;
-
 /*
 #define DEBUG_ENTRY(x) \
 printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->fd->num,x,(int)tvb);
@@ -151,7 +144,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32
 
 /* 10.2 Open type fields --------------------------------------------------- */
 static guint32 
-dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, type_cb_variant variant)
+dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
 	guint32 type_length, end_offset;
 	tvbuff_t *val_tvb = NULL;
@@ -1942,7 +1935,7 @@ dissect_per_T_data_value_descriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, actx->external.hf_index, actx->external.per.type_cb);
+  offset = dissect_per_open_type(tvb, offset, actx, tree, actx->external.hf_index, actx->external.u.per.type_cb);
 
   return offset;
 }
@@ -1954,8 +1947,8 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, &actx->external.octet_aligned);
 
-  if (actx->external.per.type_cb) {
-    actx->external.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
+  if (actx->external.u.per.type_cb) {
+    actx->external.u.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
     } else {
         actx->created_item = proto_tree_add_text(tree, actx->external.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
     }
@@ -1969,8 +1962,8 @@ dissect_per_T_arbitrary(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary);
 
-  if (actx->external.per.type_cb) {
-    actx->external.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
+  if (actx->external.u.per.type_cb) {
+    actx->external.u.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
     } else {
         actx->created_item = proto_tree_add_text(tree, actx->external.arbitrary, 0, -1, "Unknown EXTERNAL Type");
     }
@@ -2022,7 +2015,7 @@ guint32
 dissect_per_external_type(tvbuff_t *tvb _U_, guint32 offset, asn1_ctx_t *actx, proto_tree *tree _U_, int hf_index _U_, per_type_fn type_cb)
 {
   asn1_ctx_clean_external(actx);
-  actx->external.per.type_cb = type_cb;
+  actx->external.u.per.type_cb = type_cb;
   offset = dissect_per_External(tvb, offset, actx, tree, hf_index);
 
   asn1_ctx_clean_external(actx);

@@ -34,17 +34,9 @@
 #ifndef PACKET_ROSE_H
 #define PACKET_ROSE_H
 
-#include "epan/packet.h"
+#include "epan/asn1.h"
 
-typedef struct _rose_context {
-  int apdu_depth;
-  dissector_table_t arg_global_dissector_table;
-  dissector_table_t arg_local_dissector_table; 
-  dissector_table_t res_global_dissector_table;
-  dissector_table_t res_local_dissector_table; 
-} rose_context;
-
-int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_context *rctx);
+int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_ctx_t *rctx);
 
 #endif  /* PACKET_ROSE_H */
 
