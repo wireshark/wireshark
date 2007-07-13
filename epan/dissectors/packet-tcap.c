@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-tcap.c                                                            */
+/* ./packet-tcap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -369,7 +369,6 @@ dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 
-
   return offset;
 }
 static int dissect_application_context_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -688,7 +687,11 @@ offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 
 static int
 dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+#line 123 "tcap.cnf"
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &tcapext_oid);
+
+
+
 
   return offset;
 }
