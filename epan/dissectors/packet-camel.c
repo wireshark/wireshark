@@ -2021,16 +2021,16 @@ dissect_camel_CalledPartyBCDNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
 
 
- tvbuff_t *isup_tvb;
- guint32 len;
+ if (!parameter_tvb)
+	return offset;
 
- len=tvb_length_remaining(tvb,offset);
- isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
- dissect_isup_called_party_number_parameter(isup_tvb, tree, NULL);
- offset += len;
- 
+dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
   return offset;
 }
@@ -2039,19 +2039,16 @@ dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_camel_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
 
 
- proto_item* parameter_item;
- proto_item* parameter_tree;
- tvbuff_t *isup_tvb;
- guint32 len;
+ if (!parameter_tvb)
+	return offset;
 
- len=tvb_length_remaining(tvb,offset);
- parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
- parameter_tree = proto_item_add_subtree(parameter_item, ett_camelisup_parameter);
- isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
- dissect_isup_calling_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
- offset += len;
+dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
 
   return offset;
 }
