@@ -784,7 +784,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Read context name until find '.' */
     for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
     {
-        if (!isalnum((int)linebuff[n]) && (linebuff[n] != '_'))
+        if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_'))
         {
             return FALSE;
         }
@@ -810,7 +810,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
          n++, port_digits++)
     {
-        if (!isdigit((int)linebuff[n]))
+        if (!isdigit((guchar)linebuff[n]))
         {
             return FALSE;
         }
@@ -837,7 +837,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
          n++, protocol_chars++)
     {
-        if (!isalnum((int)linebuff[n]) && linebuff[n] != '_')
+        if (!isalnum((guchar)linebuff[n]) && linebuff[n] != '_')
         {
             return FALSE;
         }
@@ -861,10 +861,10 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
     /* Following the / is the variant number.  No digits indicate 1 */
     for (variant_digits = 0;
-         (isdigit((int)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
+         (isdigit((guchar)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
          n++, variant_digits++)
     {
-        if (!isdigit((int)linebuff[n]))
+        if (!isdigit((guchar)linebuff[n]))
         {
             return FALSE;
         }
@@ -893,11 +893,11 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         n++;
 
         for (outhdr_chars = 0;
-             (isdigit((int)linebuff[n]) || linebuff[n] == ',') &&
+             (isdigit((guchar)linebuff[n]) || linebuff[n] == ',') &&
              (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
              n++, outhdr_chars++)
         {
-            if (!isdigit((int)linebuff[n]) && (linebuff[n] != ','))
+            if (!isdigit((guchar)linebuff[n]) && (linebuff[n] != ','))
             {
                 return FALSE;
             }
@@ -1071,7 +1071,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Find and read the timestamp                                       */
 
     /* Now scan to the next digit, which should be the start of the timestamp */
-    for (; !isdigit((int)linebuff[n]) && (n < line_length); n++);
+    for (; !isdigit((guchar)linebuff[n]) && (n < line_length); n++);
     if (n >= line_length)
     {
         return FALSE;
@@ -1086,7 +1086,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (n < line_length);
          n++, seconds_chars++)
     {
-        if (!isdigit((int)linebuff[n]))
+        if (!isdigit((guchar)linebuff[n]))
         {
             /* Found a non-digit before decimal point. Fail */
             return FALSE;
@@ -1118,7 +1118,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (n < line_length);
          n++, subsecond_decimals_chars++)
     {
-        if (!isdigit((int)linebuff[n]))
+        if (!isdigit((guchar)linebuff[n]))
         {
             return FALSE;
         }
