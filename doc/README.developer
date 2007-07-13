@@ -101,6 +101,15 @@ functions declared in header files; if it doesn't work, don't declare
 the function in a header file, even if this requires that you not make
 it inline on any platform.
 
+Don't use anonymous unions; not all compilers support it. Example:
+typedef struct foo {
+  guint32 foo;
+  union {
+    guint32 foo_l;
+    guint16 foo_s;
+  } u;  /* have a name here */
+} foo_t;
+
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", "u_long" or "boolean"; they aren't defined on all platforms.
 If you want an 8-bit unsigned quantity, use "guint8"; if you want an
@@ -467,7 +476,8 @@ Do *NOT* use "g_assert()" or "g_assert_not_reached()" in dissectors.
 that it's a problem with the dissector if found; if it cannot do
 anything else with a particular value from a packet's data, the
 dissector should put into the protocol tree an indication that the
-value is invalid, and should return.
+value is invalid, and should return. You can use the DISSECTOR_ASSERT
+macro for that purpose.
 
 If you are allocating a chunk of memory to contain data from a packet,
 or to contain information derived from data in a packet, and the size of
