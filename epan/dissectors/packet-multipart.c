@@ -597,7 +597,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 {
 	proto_tree *subtree = NULL;
 	proto_item *ti = NULL;
-	gint offset = start, next_offset;
+	gint offset = start, next_offset = 0;
 	char *parameters = NULL;
 	gint body_start, boundary_start, boundary_line_len;
 
