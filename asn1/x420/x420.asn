@@ -294,7 +294,7 @@ BodyPart ::= CHOICE {
 
 -- Extended body part
 ExtendedBodyPart --{EXTENDED-BODY-PART-TYPE:IPMBodyPartTable}-- ::= SEQUENCE {
-  parameters  [0]  EXTERNALt, --INSTANCE OF TYPE-IDENTIFIER OPTIONAL,
+  parameters  [0]  EXTERNALt --INSTANCE OF TYPE-IDENTIFIER-- OPTIONAL,
   data        EXTERNALt -- INSTANCE OF TYPE-IDENTIFIER
 }
 --(CONSTRAINED BY { - - must correspond to the &parameters field and &data field of a member of --

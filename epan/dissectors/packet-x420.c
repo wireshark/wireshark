@@ -1742,7 +1742,7 @@ static int dissect_nationally_defined_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 
 
 static const ber_old_sequence_t ExtendedBodyPart_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_extended_parameters_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extended_parameters_impl },
   { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_extended_data },
   { 0, 0, 0, NULL }
 };
