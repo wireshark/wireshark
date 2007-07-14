@@ -66,9 +66,12 @@
 #include <epan/prefs.h>
 #include <glib.h>
 #include <ctype.h>
+#include <epan/base64.h>
 #include <epan/emem.h>
 
 #include <epan/packet.h>
+
+#include "packet-imf.h"
 
 /* Dissector table for media requiring special attention in multipart
  * encapsulation. */
@@ -137,6 +140,7 @@ static dissector_handle_t media_handle;
  * TODO improve to check for different content types ?
  */
 static gboolean display_unknown_body_as_text = FALSE;
+static gboolean remove_base64_encoding = FALSE;
 
 
 typedef struct {
@@ -166,6 +170,29 @@ static gint
 index_of_char(const char *str, const char c);
 char *
 unfold_and_compact_mime_header(const char *lines, gint *first_colon_offset);
+
+
+/* Return a tvb that contains the binary representation of a base64
+   string */
+
+static tvbuff_t *
+base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
+{
+	tvbuff_t *tvb;
+	char *data;
+	size_t len;
+
+	data = g_strdup(tvb_get_ephemeral_string(b64_tvb, 0, tvb_length_remaining(b64_tvb, 0)));
+
+	len = epan_base64_decode(data);
+	tvb = tvb_new_real_data((const guint8 *)data, len, len);
+
+	tvb_set_free_cb(tvb, g_free);
+
+	add_new_data_source(pinfo, tvb, name);
+
+	return tvb;
+}
 
 /*
  * Unfold and clean up a MIME-like header, and process LWS as follows:
@@ -294,6 +321,73 @@ index_of_char(const char *str, const char c)
 	return -1;
 }
 
+static char *find_parameter(char *parameters, const char *key, int *retlen)
+{
+	char *start, *p;
+	int   keylen = 0;
+	int   len = 0;
+
+	if(!parameters || !*parameters || !key || !(keylen = strlen(key)))
+		/* we won't be able to find anything */
+		return NULL;
+
+	p = parameters;
+
+	while (*p) {
+
+		while ((*p) && isspace((guchar)*p))
+			p++; /* Skip white space */
+		
+		if (strncasecmp(p, key, keylen) == 0)
+			break;
+		/* Skip to next parameter */
+		p = strchr(p, ';');
+		if (p == NULL)
+		{
+			return NULL;
+		}
+		p++; /* Skip semicolon */
+
+	}
+	start = p + keylen;
+	if (start[0] == 0) {
+		return NULL;
+	}
+
+	/*
+	 * Process the parameter value
+	 */
+	if (start[0] == '"') {
+		/*
+		 * Parameter value is a quoted-string
+		 */
+		start++; /* Skip the quote */
+		len = index_of_char(start, '"');
+		if (len < 0) {
+			/*
+			 * No closing quote
+			 */
+			return NULL;
+		}
+	} else {
+		/*
+		 * Look for end of boundary
+		 */
+		p = start;
+		while (*p) {
+			if (*p == ';' || isspace((guchar)*p))
+				break;
+			p++;
+			len++;
+		}
+	}
+
+	if(retlen)
+		(*retlen) = len;
+
+	return start;
+}
+
 /* Retrieve the media information from pinfo->private_data,
  * and compute the boundary string and its length.
  * Return a pointer to a filled-in multipart_info_t, or NULL on failure.
@@ -305,7 +399,7 @@ index_of_char(const char *str, const char c)
 static multipart_info_t *
 get_multipart_info(packet_info *pinfo)
 {
-	const char *start, *p;
+	const char *start;
 	int len = 0;
 	multipart_info_t *m_info = NULL;
 	const char *type = pinfo->match_string;
@@ -323,62 +417,13 @@ get_multipart_info(packet_info *pinfo)
 	/* Clean up the parameters */
 	parameters = unfold_and_compact_mime_header(pinfo->private_data, &dummy);
 
-	/*
-	 * Process the private data
-	 * The parameters must contain the boundary string
-	 */
-	p = parameters;
-	while (*p) {
+	start = find_parameter(parameters, "boundary=", &len);
 
-		while ((*p) && isspace((guchar)*p))
-			p++; /* Skip white space */
-		
-		if (strncasecmp(p, "boundary=", 9) == 0)
-			break;
-		/* Skip to next parameter */
-		p = strchr(p, ';');
-		if (p == NULL)
-		{
-			g_free(parameters);
-			return NULL;
-		}
-		p++; /* Skip semicolon */
-
-	}
-	start = p + 9;
-	if (start[0] == 0) {
+	if(!start) {
 		g_free(parameters);
 		return NULL;
 	}
-
-	/*
-	 * Process the parameter value
-	 */
-	if (start[0] == '"') {
-		/*
-		 * Boundary string is a quoted-string
-		 */
-		start++; /* Skip the quote */
-		len = index_of_char(start, '"');
-		if (len < 0) {
-			/*
-			 * No closing quote
-			 */
-			g_free(parameters);
-			return NULL;
-		}
-	} else {
-		/*
-		 * Look for end of boundary
-		 */
-		p = start;
-		while (*p) {
-			if (*p == ';' || isspace((guchar)*p))
-				break;
-			p++;
-			len++;
-		}
-	}
+	
 	/*
 	 * There is a value for the boundary string
 	 */
@@ -553,11 +598,15 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	proto_tree *subtree = NULL;
 	proto_item *ti = NULL;
 	gint offset = start, next_offset;
-	gint line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	char *parameters = NULL;
 	gint body_start, boundary_start, boundary_line_len;
 
 	char *content_type_str = NULL;
+	char *content_encoding_str = NULL;
+	char *filename = NULL;
+	char *typename = NULL;
+	int  len = 0;
+	gboolean last_field = FALSE;
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, FALSE);
@@ -567,11 +616,15 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	 * Process the MIME-part-headers
 	 */
 
-	while (line_len > 0)
+	while (!last_field)
 	{
 		gint colon_offset;
-		char *hdr_str = tvb_get_ephemeral_string(tvb, offset, next_offset - offset);
+		char *hdr_str;
 		char *header_str;
+
+		next_offset = imf_find_field_end(tvb, offset, tvb_length_remaining(tvb, offset), &last_field);
+
+		hdr_str = tvb_get_ephemeral_string(tvb, offset, next_offset - offset);
 
 		header_str = unfold_and_compact_mime_header(hdr_str, &colon_offset);
 		if (colon_offset <= 0) {
@@ -626,9 +679,39 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 #endif
 							/* Show content-type in root 'part' label */
 							proto_item_append_text(ti, " (%s)", content_type_str);
+							
+							/* find the "name" parameter in case we don't find a content disposition "filename" */
+							if(typename = find_parameter(parameters, "name=", &len)) {
+							  typename = g_strndup(typename, len);
+							}
+						}
+
+
+						break;
+				        case POS_CONTENT_TRANSFER_ENCODING:
+						{
+							/* The Content-Transfeing starts at colon_offset + 1 */
+							gint cr_offset = index_of_char(value_str, '\r');
+
+							if (cr_offset > 0) {
+								value_str[cr_offset] = '\0';
+							}
+#if GLIB_MAJOR_VERSION < 2
+							content_encoding_str = g_strdup(value_str);
+							g_strdown(content_encoding_str);
+#else
+							content_encoding_str = g_ascii_strdown(value_str, -1);
+#endif
 						}
 						break;
-
+				        case POS_CONTENT_DISPOSITION:
+					        {
+							/* find the "filename" parameter */
+							if(filename = find_parameter(value_str, "filename=", &len)) {
+								filename = g_strndup(filename, len);
+							}
+						}
+						break;
 					default:
 						break;
 				}
@@ -636,14 +719,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 		}
 		g_free(header_str);
 		offset = next_offset;
-		line_len = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	}
-	if (line_len < 0) {
-		/* ERROR */
-		return -1;
-	}
-	proto_tree_add_text(subtree, tvb, offset, next_offset - offset,
-			"%s", tvb_format_text(tvb, offset, next_offset - offset));
 
 	body_start = next_offset;
 
@@ -659,11 +735,25 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 				body_len, body_len);
 
 		if (content_type_str) {
+
 			/*
 			 * subdissection
 			 */
 			void *save_private_data = pinfo->private_data;
 			gboolean dissected;
+
+			/* 
+			 * Try and remove any content transfer encoding so that each sub-dissector
+			 * doesn't have to do it itself 
+			 *
+			 */
+
+			if(content_encoding_str && remove_base64_encoding) {
+
+				if(!strncasecmp(content_encoding_str, "base64", 6))
+					tmp_tvb = base64_decode(pinfo, tmp_tvb, filename ? filename : (typename ? typename : content_type_str));
+
+			}
 
 			pinfo->private_data = parameters;
 			/*
@@ -707,6 +797,12 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 							boundary_line_len));
 			}
 		}
+
+		if(filename)
+			g_free(filename);
+		if(typename)
+			g_free(typename);
+
 		return boundary_start + boundary_line_len;
 	}
 
@@ -943,6 +1039,13 @@ proto_register_multipart(void)
 			"Display multipart bodies with no media type dissector"
 			" as raw text (may cause problems with binary data).",
 			&display_unknown_body_as_text);
+
+	prefs_register_bool_preference(multipart_module,
+				       "remove_base64_encoding",
+				       "Remove base64 encoding from bodies",
+				       "Remove any base64 content-transfer encoding from bodies. "
+				       "This supports export of the body and its further dissection.",
+				       &remove_base64_encoding);
 
 	/*
 	 * Dissectors requiring different behavior in cases where the media
