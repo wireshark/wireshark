@@ -111,7 +111,7 @@ fileset_filename_match_pattern(const char *fname)
     while(minlen--) {
         baselen--;
 
-        if(!isdigit( (int) filename[baselen])) {
+        if(!isdigit( (guchar) filename[baselen])) {
             g_free(filename);
             return FALSE;
         }

@@ -186,7 +186,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
 			for(i=0;i<fld_len;i++) {
 				char c = fld_ptr[i];
 				
-				if (c == '"' || c == '\\' || ! isprint((int)c) ) {
+				if (c == '"' || c == '\\' || ! isprint((guchar)c) ) {
 					fprintf(fp,"\\x%.2x",c);
 				} else {
 					putc(c,fp);
@@ -513,7 +513,7 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p) {
 						char c1 = *(s+1);
 						char c0 = *(s+2);
 						
-						if (isxdigit((int)c1) && isxdigit((int)c0)) {
+						if (isxdigit((guchar)c1) && isxdigit((guchar)c0)) {
 							*(p++) = (xton(c1) * 0x10) + xton(c0);
 							s += 2;
 						} else {

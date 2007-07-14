@@ -553,15 +553,15 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 gboolean
 uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
 	guint8		val;
-	const char	*p;
-	char		hex_digit[HEX_DIGIT_BUF_LEN];
+	const guchar	*p;
+	guchar		hex_digit[HEX_DIGIT_BUF_LEN];
 
 	g_byte_array_set_size(bytes, 0);
 	if (! uri_str) {
 		return FALSE;
 	}
 
-	p = uri_str;
+	p = (const guchar *)uri_str;
 
 	while (*p) {
 		if (! isascii(*p) || ! isprint(*p))
@@ -574,9 +574,9 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
 			if (*p == '\0') return FALSE;
 			hex_digit[1] = *p;
 			hex_digit[2] = '\0';
-			if (! isxdigit((int)hex_digit[0]) || ! isxdigit((int)hex_digit[1]))
+			if (! isxdigit(hex_digit[0]) || ! isxdigit(hex_digit[1]))
 				return FALSE;
-			val = (guint8) strtoul(hex_digit, NULL, 16);
+			val = (guint8) strtoul((char *)hex_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
 		} else {
 			g_byte_array_append(bytes, (guint8 *) p, 1);
@@ -691,7 +691,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
   p = oid_str;
   dot = NULL;
   while (*p) {
-    if (!isdigit((int)*p) && (*p != '.')) return FALSE;
+    if (!isdigit((guchar)*p) && (*p != '.')) return FALSE;
     if (*p == '.') {
       if (p == oid_str) return FALSE;
       if (!*(p+1)) return FALSE;
@@ -707,7 +707,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
   subid0 = 0;	/* squelch GCC complaints */
   while (*p) {
     subid = 0;
-    while (isdigit((int)*p)) {
+    while (isdigit((guchar)*p)) {
       subid *= 10;
       subid += *p - '0';
       p++;
