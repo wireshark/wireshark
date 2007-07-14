@@ -880,6 +880,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ieee802a.h	\
 	packet-igap.h	\
 	packet-igmp.h	\
+	packet-imf.h    \
 	packet-inap.h	\
 	packet-ip.h	\
 	packet-ipdc.h	\
