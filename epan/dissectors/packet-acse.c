@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-acse.c                                                            */
+/* ./packet-acse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -78,7 +78,7 @@ static int hf_acse_indirect_reference = -1;       /* T_indirect_reference */
 static int hf_acse_data_value_descriptor = -1;    /* ObjectDescriptor */
 static int hf_acse_encoding = -1;                 /* T_encoding */
 static int hf_acse_single_ASN1_type = -1;         /* T_single_ASN1_type */
-static int hf_acse_octet_aligned = -1;            /* OCTET_STRING */
+static int hf_acse_octet_aligned = -1;            /* T_octet_aligned */
 static int hf_acse_arbitrary = -1;                /* BIT_STRING */
 static int hf_acse_aarq = -1;                     /* AARQ_apdu */
 static int hf_acse_aare = -1;                     /* AARE_apdu */
@@ -167,6 +167,7 @@ static int hf_acse_fully_encoded_data = -1;       /* PDV_list */
 static int hf_acse_presentation_context_identifier = -1;  /* Presentation_context_identifier */
 static int hf_acse_presentation_data_values = -1;  /* T_presentation_data_values */
 static int hf_acse_simple_ASN1_type = -1;         /* T_simple_ASN1_type */
+static int hf_acse_octet_aligned_01 = -1;         /* OCTET_STRING */
 static int hf_acse_other_mechanism_name = -1;     /* T_other_mechanism_name */
 static int hf_acse_other_mechanism_value = -1;    /* T_other_mechanism_value */
 static int hf_acse_charstring = -1;               /* GraphicString */
@@ -378,14 +379,16 @@ static int dissect_single_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_acse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+dissect_acse_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 104 "acse.cnf"
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+
+
 
   return offset;
 }
 static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_acse_octet_aligned);
+  return dissect_acse_T_octet_aligned(TRUE, tvb, offset, actx, tree, hf_acse_octet_aligned);
 }
 
 
@@ -1423,7 +1426,7 @@ static const value_string acse_Release_request_reason_vals[] = {
 
 static int
 dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "acse.cnf"
+#line 110 "acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1473,7 +1476,7 @@ static const value_string acse_Release_response_reason_vals[] = {
 
 static int
 dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 119 "acse.cnf"
+#line 122 "acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1619,6 +1622,19 @@ static int dissect_simple_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 }
 
 
+
+static int
+dissect_acse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_octet_aligned_01_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_acse_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_acse_octet_aligned_01);
+}
+
+
 static const value_string acse_T_presentation_data_values_vals[] = {
   {   0, "simple-ASN1-type" },
   {   1, "octet-aligned" },
@@ -1628,7 +1644,7 @@ static const value_string acse_T_presentation_data_values_vals[] = {
 
 static const ber_old_choice_t T_presentation_data_values_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_simple_ASN1_type },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_01_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_arbitrary_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -2008,7 +2024,7 @@ void proto_register_acse(void) {
     { &hf_acse_octet_aligned,
       { "octet-aligned", "acse.octet_aligned",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "acse.OCTET_STRING", HFILL }},
+        "acse.T_octet_aligned", HFILL }},
     { &hf_acse_arbitrary,
       { "arbitrary", "acse.arbitrary",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -2361,6 +2377,10 @@ void proto_register_acse(void) {
       { "simple-ASN1-type", "acse.simple_ASN1_type",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.T_simple_ASN1_type", HFILL }},
+    { &hf_acse_octet_aligned_01,
+      { "octet-aligned", "acse.octet_aligned",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "acse.OCTET_STRING", HFILL }},
     { &hf_acse_other_mechanism_name,
       { "other-mechanism-name", "acse.other_mechanism_name",
         FT_OID, BASE_NONE, NULL, 0,

@@ -100,6 +100,9 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 #.FN_BODY EXTERNALt/encoding/single-ASN1-type
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 
+#.FN_BODY EXTERNALt/encoding/octet-aligned
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+
 #.FN_PARS Release-request-reason
   VAL_PTR=&reason
 
