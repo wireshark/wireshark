@@ -681,7 +681,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 							proto_item_append_text(ti, " (%s)", content_type_str);
 							
 							/* find the "name" parameter in case we don't find a content disposition "filename" */
-							if(typename = find_parameter(parameters, "name=", &len)) {
+							if((typename = find_parameter(parameters, "name=", &len)) != NULL) {
 							  typename = g_strndup(typename, len);
 							}
 						}
@@ -707,7 +707,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 				        case POS_CONTENT_DISPOSITION:
 					        {
 							/* find the "filename" parameter */
-							if(filename = find_parameter(value_str, "filename=", &len)) {
+							if((filename = find_parameter(value_str, "filename=", &len)) != NULL) {
 								filename = g_strndup(filename, len);
 							}
 						}
