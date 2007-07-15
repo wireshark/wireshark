@@ -106,7 +106,6 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\dtds\watcherinfo.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\dumpcap.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\editcap.html $(DEVICE) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\example_snmp_users_file $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\toc $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\overview.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\getting_started.txt $(DEVICE)\help $(COPY_FLAGS)
@@ -224,7 +223,9 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\epan\wslua\dtd_gen.lua $(DEVICE) $(COPY_FLAGS)
 !ENDIF
 	$(COPY) $(TOPDIR)\packaging\nsis\WinPcap_4_0_1.exe $(DEVICE) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\dfilter_macros $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\cfilters $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\colorfilters $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dfilters $(DEVICE) $(COPY_FLAGS)
 # host
 #
 # these files are copied onto the U3 host and are required to make Wireshark stable
