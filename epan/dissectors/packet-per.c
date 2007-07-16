@@ -1838,7 +1838,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				} else if (hfi->type==FT_BYTES) {
 					actx->created_item = proto_tree_add_bytes(tree, hf_index, tvb, val_start, val_length, pbytes);
 				} else if (hfi->type==FT_IPv4) {
-					actx->created_item = proto_tree_add_ipv4(tree, hf_index, tvb, val_start, val_length, (guint32)pbytes);
+					guint32 ipa;
+
+					/*  Not sure if pbytes is aligned enough to reference it as a guint32 */
+					memcpy(&ipa, pbytes, 4);
+					actx->created_item = proto_tree_add_ipv4(tree, hf_index, tvb, val_start, val_length, ipa);
 				} else if (hfi->type==FT_IPv6) {
 					actx->created_item = proto_tree_add_ipv6(tree, hf_index, tvb, val_start, val_length, pbytes);
 				} else {
