@@ -35,7 +35,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+	
+#include <glib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -191,7 +192,7 @@ description_attr description=\042
 
 <LOADING>{start_entity} BEGIN ENTITY;
 <ENTITY>{entityname} {
-	entity_t* e = malloc(sizeof(entity_t));
+	entity_t* e = g_malloc(sizeof(entity_t));
 	e->name = strdup(yytext);
 	e->next = ents.next;
 	ents.next = e;
@@ -308,7 +309,7 @@ description_attr description=\042
 
 <OUTSIDE>{dictionary_start} {
 	D(("dictionary_start\n"));
-	dict = malloc(sizeof(ddict_t));
+	dict = g_malloc(sizeof(ddict_t));
 	dict->applications = NULL;
 	dict->cmds = NULL;
 	dict->vendors = NULL;
@@ -326,7 +327,7 @@ description_attr description=\042
 <IN_DICT>{applictation_start} {
 	D(("applictation_start\n"));
 	
-	appl = malloc(sizeof(ddict_application_t));
+	appl = g_malloc(sizeof(ddict_application_t));
 	appl->name = NULL;
 	appl->code = 0;
 	appl->next = NULL;
@@ -348,7 +349,7 @@ description_attr description=\042
 <IN_APPL>{command_start}		{ 
 	D(("command_start\n"));
 	
-	cmd = malloc(sizeof(ddict_cmd_t));
+	cmd = g_malloc(sizeof(ddict_cmd_t));
 	cmd->name = NULL;
 	cmd->vendor = NULL;
 	cmd->code = 0;
@@ -369,7 +370,7 @@ description_attr description=\042
 <IN_APPL>{vendor_start} {
 	D(("vendor_start\n"));
 	
-	vnd = malloc(sizeof(ddict_vendor_t));
+	vnd = g_malloc(sizeof(ddict_vendor_t));
 	vnd->name = NULL;
 	vnd->code = 0;
 	vnd->next = NULL;
@@ -389,7 +390,7 @@ description_attr description=\042
 <IN_APPL>{typedefn_start} {
 	D(("typedefn_start\n"));
 	
-	typedefn = malloc(sizeof(ddict_typedefn_t));
+	typedefn = g_malloc(sizeof(ddict_typedefn_t));
 	typedefn->name = NULL;
 	typedefn->parent = NULL;
 	typedefn->next = NULL;
@@ -409,7 +410,7 @@ description_attr description=\042
 <IN_APPL>{avp_start}	{
 	D(("avp_start\n"));
 	
-	avp = malloc(sizeof(ddict_avp_t));
+	avp = g_malloc(sizeof(ddict_avp_t));
 	avp->name = NULL;
 	avp->vendor = NULL;
 	avp->code = 0;
@@ -441,7 +442,7 @@ description_attr description=\042
 <IN_AVP>{gavp_start} { 
 	D(("gavp_start\n"));
 	
-	gavp = malloc(sizeof(ddict_gavp_t));
+	gavp = g_malloc(sizeof(ddict_gavp_t));
 	gavp->name = NULL;
 	gavp->code = 0;
 	gavp->next = NULL;
@@ -459,7 +460,7 @@ description_attr description=\042
 <IN_AVP>{enum_start} { 
 	D(("enum_start\n"));
 	
-	enumitem = malloc(sizeof(ddict_enum_t));
+	enumitem = g_malloc(sizeof(ddict_enum_t));
 	enumitem->name = NULL;
 	enumitem->code = 0;
 	enumitem->next = NULL;
@@ -514,11 +515,11 @@ void ddict_unused(void) {
 static void append_to_buffer(char* txt, int len) {
 
 	if (strbuf == NULL) {
-		read_ptr = write_ptr = strbuf = malloc(size_strbuf);
+		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);
 	}
 	
 	if ( (len_strbuf + len) >= size_strbuf ) {
-		read_ptr = strbuf = realloc(strbuf,size_strbuf *= 2);
+		read_ptr = strbuf = g_realloc(strbuf,size_strbuf *= 2);
 	}
 	
 	write_ptr = strbuf + len_strbuf;	
@@ -561,8 +562,8 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 	
 	if (system_directory) {
 		int len =  strlen(system_directory) + strlen(filename) + strlen(DDICT_DIRSEP) + 1;
-		fname = malloc(len);
-		snprintf(fname, len, "%s%s%s",system_directory,DDICT_DIRSEP,filename);
+		fname = g_malloc(len);
+		g_snprintf(fname, len, "%s%s%s",system_directory,DDICT_DIRSEP,filename);
 	} else {
 		fname = strdup(filename);
 	}
@@ -571,7 +572,7 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 
 	D(("fname: %s fh: %p\n",fname,fh));
 
-	free(fname);
+	g_free(fname);
 
 
 	return fh;
@@ -615,7 +616,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename) {
 	BEGIN OUTSIDE;
 	yylex();
 
-	free(strbuf);
+	g_free(strbuf);
 	strbuf = NULL;
 	size_strbuf = 8192;
 	
@@ -629,7 +630,7 @@ void ddict_free(ddict_t* d) {
 	ddict_typedefn_t *t, *tn;
 	ddict_avp_t *a, *an;
 
-#define FREE_NAMEANDOBJ(n) do { if(n->name) free(n->name); free(n); } while(0)
+#define FREE_NAMEANDOBJ(n) do { if(n->name) g_free(n->name); g_free(n); } while(0)
 	
 	for (p = d->applications; p; p = pn ) {
 		pn = p->next;
@@ -638,7 +639,7 @@ void ddict_free(ddict_t* d) {
 	
 	for (v = d->vendors; v; v = vn) {
 		vn = v->next; 
-		if (!v->desc)  free(v->desc);
+		if (!v->desc)  g_free(v->desc);
 		FREE_NAMEANDOBJ(v);
 	}
 	
@@ -649,7 +650,7 @@ void ddict_free(ddict_t* d) {
 	
 	for (t = d->typedefns; t; t = tn) {
 		tn = t->next; 
-		if (!t->parent)  free(t->parent);
+		if (!t->parent)  g_free(t->parent);
 		FREE_NAMEANDOBJ(t);
 	}
 	
@@ -668,13 +669,13 @@ void ddict_free(ddict_t* d) {
 			FREE_NAMEANDOBJ(e);
 		}
 		
-		if (!a->vendor)  free(a->vendor);
-		if (!a->type)  free(a->type);
-		if (!a->description)  free(a->description);
+		if (!a->vendor)  g_free(a->vendor);
+		if (!a->type)  g_free(a->type);
+		if (!a->description)  g_free(a->description);
 		FREE_NAMEANDOBJ(a);
 	}
 	
-	free(d);
+	g_free(d);
 }
 
 void ddict_print(FILE* fh, ddict_t* d) {
