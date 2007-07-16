@@ -290,7 +290,7 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		offset += 4;
 	}
 	
-	if ( len == (vendor_flag ? 12 : 8) ) return len;
+	if ( len == (guint32)(vendor_flag ? 12 : 8) ) return len;
 	
 	subtvb = tvb_new_subset(tvb,offset,len-(8+(vendor_flag?4:0)),len-(8+(vendor_flag?4:0)));
 	
