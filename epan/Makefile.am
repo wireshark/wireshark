@@ -129,6 +129,9 @@ radius_dict.c: radius_dict.l
 
 uat_load.c: uat_load.l
 	$(LEX) -ouat_load.c $(srcdir)/uat_load.l
+
+diam_dict.c: diam_dict.l
+	$(LEX) -odiam_dict.c $(srcdir)/diam_dict.l
 	
 dtd_parse.c : dtd_parse.l
 	$(LEX) -odtd_parse.c $(srcdir)/dtd_parse.l
