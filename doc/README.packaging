@@ -23,10 +23,14 @@ distributing a software package containing Wireshark:
     contains significant changes we recommend that you use this to
     differentiate it from official Wireshark releases.
 
-6.  Wireshark icons, logos, and other artwork can be found in the
+6.  The SVN version corresponding to each release is in svnversion.h.
+    It's defined as a string.  If you need a numeric definition, let
+    us know.
+
+7.  Wireshark icons, logos, and other artwork can be found in the
     "image" directory of the Wireshark sources.
 
-7.  Wireshark is spelled with a capital "W", and with everything else
+8.  Wireshark is spelled with a capital "W", and with everything else
     lower case.  E.g., "WireShark" is incorrect.
 
 If you have a question not addressed here, send it to
