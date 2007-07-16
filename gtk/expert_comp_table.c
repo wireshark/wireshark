@@ -793,7 +793,7 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
 #if (GTK_MAJOR_VERSION < 2)
    	if (errp->count==0){
 		row=gtk_clist_append(err->table, err->procedures[index].entries);
-		gtk_clist_set_row_data(err->table, row, (gpointer) index);
+		gtk_clist_set_row_data(err->table, row, GINT_TO_POINTER(index));
 	}
     errp->count++;
     err->procedures[index].entries[3] = (char *)g_strdup_printf("%d", errp->count);
@@ -824,7 +824,7 @@ draw_error_table_data(error_equiv_table *err)
 			continue;
 		}
 
-		j=gtk_clist_find_row_from_data(err->table, (gpointer)i);
+		j=gtk_clist_find_row_from_data(err->table, GINT_TO_POINTER(i));
 		strp=g_strdup_printf("%d", err->procedures[i].count);
 		gtk_clist_set_text(err->table, j, 3, strp);
 		err->procedures[i].entries[3]=(char *)strp;

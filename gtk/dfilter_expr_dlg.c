@@ -1329,7 +1329,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                                               FALSE, FALSE);
         gtk_ctree_node_set_row_data(GTK_CTREE(field_tree), protocol_node,
                                     hfinfo);
-        g_hash_table_insert(proto_array, (gpointer)i, protocol_node);
+        g_hash_table_insert(proto_array, GINT_TO_POINTER(i), protocol_node);
     }
 
     len = proto_registrar_n();

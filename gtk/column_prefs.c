@@ -546,7 +546,7 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
 #else
 
     if (cur_row >= 0) {
-        cur_fmt = (gint) data;
+        cur_fmt = (gint)(long) data;
         clp     = gtk_clist_get_row_data(GTK_CLIST(column_l), cur_row);
         cfmt    = (fmt_data *) clp->data;
 
