@@ -49,6 +49,7 @@
 #include <epan/req_resp_hdrs.h>
 #include "packet-http.h"
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -137,7 +138,6 @@ static gboolean http_decompress_body = TRUE;
 static gboolean http_decompress_body = FALSE;
 #endif
 
-
 #define TCP_PORT_HTTP			80
 #define TCP_PORT_PROXY_HTTP		3128
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
@@ -153,10 +153,18 @@ static gboolean http_decompress_body = FALSE;
 #define UDP_PORT_SSDP			1900
 
 /*
- * tcp alternate port
+ * tcp and ssl ports
  */
-static guint http_alternate_tcp_port = 0;
-static guint alternate_tcp_port = 0;
+
+#define TCP_DEFAULT_RANGE "80,3128,3132,8080,8088,11371,3689,1900"
+#define SSL_DEFAULT_RANGE "443"
+
+static range_t *global_http_tcp_range = NULL;
+static range_t *global_http_ssl_range = NULL;
+
+static range_t *http_tcp_range = NULL;
+static range_t *http_ssl_range = NULL;
+
 
 /*
  * Protocols implemented atop HTTP.
@@ -1502,17 +1510,10 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
 			   us, so call the data dissector instead for proxy connections to http ports. */
 			dissect_as = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
 
-			if(dissect_as == TCP_PORT_HTTP             || dissect_as == TCP_PORT_PROXY_HTTP ||
-			   dissect_as == TCP_PORT_PROXY_ADMIN_HTTP || dissect_as == TCP_ALT_PORT_HTTP   ||
-			   dissect_as == TCP_RADAN_HTTP            || dissect_as == TCP_PORT_HKP        ||
-			   dissect_as == TCP_PORT_DAAP             || dissect_as == http_alternate_tcp_port) {
+			if (value_is_in_range(http_tcp_range, dissect_as)) {
 				call_dissector(data_handle, next_tvb, pinfo, tree);
 			} else {
-
-			   if (pinfo->destport == TCP_PORT_HTTP             || pinfo->destport == TCP_PORT_PROXY_HTTP ||
-			       pinfo->destport == TCP_PORT_PROXY_ADMIN_HTTP || pinfo->destport == TCP_ALT_PORT_HTTP   ||
-			       pinfo->destport == TCP_RADAN_HTTP            || pinfo->destport == TCP_PORT_HKP        ||
-			       pinfo->destport == TCP_PORT_DAAP             || pinfo->destport == http_alternate_tcp_port)
+			   if (value_is_in_range(http_tcp_range, pinfo->destport))
                                    dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
                                        tcpinfo->nxtseq, pinfo->srcport, dissect_as, tree, tree, tcpd);
 			   else
@@ -2048,17 +2049,32 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_http_message(tvb, 0, pinfo, tree);
 }
 
+static void range_delete_http_tcp_callback(guint32 port) {
+  dissector_delete("tcp.port", port, http_handle);
+}
+
+static void range_add_http_tcp_callback(guint32 port) {
+  dissector_add("tcp.port", port, http_handle);
+}
+
+static void range_delete_http_ssl_callback(guint32 port) {
+  ssl_dissector_delete(port, "http", TRUE);
+}
+
+static void range_add_http_ssl_callback(guint32 port) {
+  ssl_dissector_add(port, "http", TRUE);
+}
+
 static void reinit_http(void) {
-	if ( http_alternate_tcp_port != alternate_tcp_port ) {
+	range_foreach(http_tcp_range, range_delete_http_tcp_callback);
+	g_free(http_tcp_range);
+	http_tcp_range = range_copy(global_http_tcp_range);
+	range_foreach(http_tcp_range, range_add_http_tcp_callback);
 
-		if (alternate_tcp_port)
-			dissector_delete("tcp.port", alternate_tcp_port, http_handle );
-
-		if (http_alternate_tcp_port)
-			dissector_add("tcp.port", http_alternate_tcp_port, http_handle);
-
-		alternate_tcp_port = http_alternate_tcp_port;
-	}
+	range_foreach(http_ssl_range, range_delete_http_ssl_callback);
+	g_free(http_ssl_range);
+	http_ssl_range = range_copy(global_http_ssl_range);
+	range_foreach(http_ssl_range, range_add_http_ssl_callback);
 }
 
 void
@@ -2241,10 +2257,19 @@ proto_register_http(void)
 	    "using \"Content-Encoding: \"",
 	    &http_decompress_body);
 #endif
-	prefs_register_uint_preference(http_module, "tcp_alternate_port",
-								   "Alternate TCP port",
-								   "Decode packets on this TCP port as HTTP",
-								   10,&http_alternate_tcp_port);
+	prefs_register_obsolete_preference(http_module, "tcp_alternate_port");
+
+	range_convert_str(&global_http_tcp_range, TCP_DEFAULT_RANGE, 65535);
+	http_tcp_range = range_empty();
+	prefs_register_range_preference(http_module, "tcp.port", "TCP Ports",
+									"TCP Ports range",
+									&global_http_tcp_range, 65535);
+
+	range_convert_str(&global_http_ssl_range, SSL_DEFAULT_RANGE, 65535);
+	http_ssl_range = range_empty();
+	prefs_register_range_preference(http_module, "ssl.port", "SSL/TLS Ports",
+									"SSL/TLS Ports range",
+									&global_http_ssl_range, 65535);
 
 	http_handle = create_dissector_handle(dissect_http, proto_http);
 
@@ -2309,18 +2334,10 @@ proto_reg_handoff_http(void)
 	data_handle = find_dissector("data");
 	media_handle = find_dissector("media");
 
-	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
-	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, http_handle);
-	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
-	dissector_add("tcp.port", TCP_RADAN_HTTP, http_handle);
-	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, http_handle);
-	dissector_add("tcp.port", TCP_PORT_HKP, http_handle);
-
 	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
-	dissector_add("tcp.port", TCP_PORT_SSDP, http_handle);
 	http_udp_handle = create_dissector_handle(dissect_http_udp, proto_http);
 	dissector_add("udp.port", UDP_PORT_SSDP, http_udp_handle);
 

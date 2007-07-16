@@ -4353,7 +4353,6 @@ proto_reg_handoff_ssl(void)
     ssl_parse();
 
     /* add ssl dissection to defaults ports */
-    ssl_dissector_add(443, "http", TRUE);
     ssl_dissector_add(636, "ldap", TRUE);
     ssl_dissector_add(993, "imap", TRUE);
     ssl_dissector_add(995, "pop", TRUE);
