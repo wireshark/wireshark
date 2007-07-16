@@ -259,6 +259,9 @@ inet_pton.c: ..\inet_pton.c
 radius_dict.c : radius_dict.l
 	$(LEX) radius_dict.l
 
+diam_dict.c : diam_dict.l
+	$(LEX) diam_dict.l
+
 sminmpec.c: enterprise-numbers make-sminmpec.pl
 	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
 
