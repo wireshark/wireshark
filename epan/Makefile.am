@@ -72,6 +72,7 @@ EXTRA_libwireshark_la_SOURCES =	\
 	inet_aton.h
 
 EXTRA_DIST = \
+	diam_dict.l		\
 	dtd_grammar.lemon 	\
 	dtd_parse.l 		\
 	dtd_parse.h 		\
