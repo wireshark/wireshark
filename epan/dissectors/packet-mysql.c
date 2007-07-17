@@ -320,7 +320,8 @@ static const value_string mysql_option_vals[] = {
 	{0, NULL}
 };
 
-
+/* starting state for each capture frame (per-conversation) */
+static GArray *conv_frame_states = NULL;
 
 /* protocol id */
 static int proto_mysql = -1;
@@ -467,6 +468,7 @@ typedef struct my_stmt_data
 /* function prototypes */
 void proto_reg_handoff_mysql(void);
 void proto_register_mysql(void);
+static void mysql_dissect_init(void);
 static void dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_mysql_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -497,6 +499,23 @@ void proto_reg_handoff_mysql(void)
 	dissector_add("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 
+/* dissector init / memory mgmt */
+static void mysql_dissect_init(void)
+{
+	if(conv_frame_states)
+	{
+		guint i;
+		/* free the frame-state array for each conversation */
+		for(i = 0; i < conv_frame_states->len; ++i)
+		{
+			g_byte_array_free(g_array_index(conv_frame_states,
+							GByteArray *, i), TRUE);
+		}
+		g_array_free(conv_frame_states, TRUE);
+	}
+
+	conv_frame_states = g_array_new(FALSE, TRUE, sizeof(GByteArray *));
+}
 
 /* protocol registration */
 void proto_register_mysql(void)
@@ -892,6 +911,7 @@ void proto_register_mysql(void)
 
 	module_t *mysql_module;
 
+	register_init_routine(&mysql_dissect_init);
 	proto_mysql= proto_register_protocol("MySQL Protocol", "MySQL", "mysql");
 	proto_register_field_array(proto_mysql, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -906,8 +926,6 @@ void proto_register_mysql(void)
                                        "Show SQL Query string in INFO column",
                                        "Whether the MySQL dissector should display the SQL query string in the INFO column.",
                                        &mysql_showquery);
-			       
-	register_dissector("mysql", dissect_mysql_pdu, proto_mysql);				       
 }
 
 
@@ -937,6 +955,7 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	guint           packet_number;
 	gboolean        is_response;
 	my_conn_data_t  *conn_data;
+	GByteArray      *frame_states;
 #ifdef CTDEBUG
 	my_proto_state_t state_in, state_out;
 	guint64         generation;
@@ -953,6 +972,14 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					       pinfo->destport, 0);
 	}
 
+	if (conv_frame_states->len <= conversation->index) {
+		frame_states = g_byte_array_new();
+		g_array_append_val(conv_frame_states, frame_states);
+	} else {
+		frame_states = g_array_index(conv_frame_states, GByteArray *,
+					     conversation->index);
+	}
+
 	/* get associated state information, create if neccessary */
 	conn_data= conversation_get_proto_data(conversation, proto_mysql);
 	if (!conn_data) {
@@ -966,6 +993,13 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		conn_data->generation= 0;
 #endif
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
+	}
+
+	if (frame_states->len <= pinfo->fd->num) {
+		g_byte_array_set_size(frame_states, pinfo->fd->num + 1);
+		frame_states->data[pinfo->fd->num] = conn_data->state;
+	} else {
+		conn_data->state = frame_states->data[pinfo->fd->num];
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -1005,7 +1039,7 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	}
 #endif
 
-	if (is_response ) {
+	if (is_response) {
 		if (packet_number == 0) {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_str(pinfo->cinfo, COL_INFO, "Server Greeting" );
