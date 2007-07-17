@@ -350,6 +350,9 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 			      offset + offsetof(struct ip6_rthdr0, ip6r0_addr)
 				     + n * sizeof(struct e_in6_addr),
 			      sizeof(struct e_in6_addr), FALSE);
+	      SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, 
+			      offset + offsetof(struct ip6_rthdr0, ip6r0_addr)
+				     + n * sizeof(struct e_in6_addr), 16));
 	    }
 	}
 	if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
