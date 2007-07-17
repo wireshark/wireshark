@@ -346,7 +346,7 @@ dnet_ntoa(const guint8 *data)
 {
     if (data[0] == 0xAA && data[1] == 0x00 && data[2] == 0x04 && data[3] == 0x00) {
         guint16 dnet_addr = data[4] | (data[5] << 8);
-        return g_strdup_printf("%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
+        return ep_strdup_printf("%d.%d", dnet_addr >> 10, dnet_addr & 0x03FF);
     }
     return NULL;
 }
@@ -484,7 +484,6 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         addr = dnet_ntoa(ep_tvb_memdup(tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
-            g_free(addr);
         }
 
         /* Skip 6 bytes for the MAC and
@@ -496,7 +495,6 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         addr = dnet_ntoa(ep_tvb_memdup(tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
-            g_free(addr);
         }
 
         /* Proceed to the NL2 byte */
@@ -775,7 +773,6 @@ do_hello_msg(
     addr = dnet_ntoa(ep_tvb_memdup(tvb, my_offset, 6));
     if (addr != NULL) {
         proto_item_append_text(ti, " (%s)", addr);
-        g_free(addr);
     }
     my_offset += 6;
     iinfo = tvb_get_guint8(tvb, my_offset);
@@ -829,7 +826,6 @@ do_hello_msg(
         addr = dnet_ntoa(ep_tvb_memdup(tvb, my_offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
-            g_free(addr);
         }
         my_offset += 6;
     }
@@ -882,7 +878,6 @@ do_hello_msg(
                 addr = dnet_ntoa(ep_tvb_memdup(tvb, my_offset, 6));
                 if (addr != NULL) {
                     proto_item_append_text(ti, " (%s)", addr);
-                    g_free(addr);
                 }
                 my_offset += 6;
                 pstate_tree = proto_item_add_subtree(ti, ett_dec_rt_state);
