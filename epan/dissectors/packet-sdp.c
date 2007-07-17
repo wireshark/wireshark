@@ -65,6 +65,7 @@
 #include <epan/rtp_pt.h>
 
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #include "packet-rtcp.h"
 #include "packet-t38.h"
@@ -335,7 +336,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_guint8(tvb,offset);
     delim = tvb_get_guint8(tvb,offset + 1);
     if (delim != '=') {
-      proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, FALSE);
+      proto_item *ti = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, FALSE);
+      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_NOTE,
+                             "Invalid SDP line (no '=' delimiter)");
       offset = next_offset;
       continue;
     }
