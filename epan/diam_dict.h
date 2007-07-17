@@ -75,7 +75,7 @@ typedef struct _ddict_t {
 } ddict_t;
 
 extern void ddict_print(FILE* fh, ddict_t* d);
-extern ddict_t* ddict_scan(const char* directory, const char* filename);
+extern ddict_t* ddict_scan(const char* directory, const char* filename, int dbg);
 extern void ddict_free(ddict_t* d);
 
 #endif

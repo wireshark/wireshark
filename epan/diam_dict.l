@@ -41,6 +41,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "diam_dict.h"
 
 typedef struct entity_t {
@@ -53,11 +54,7 @@ typedef struct entity_t {
 #define ATTR_STR(cont) do { D(("attr_str " #cont "\t" )); attr_str = &(cont); yy_push_state(GET_ATTR); } while(0)
 #define IGNORE() do { D(("ignore: %s\t",yytext)); yy_push_state(IGNORE_ATTR); } while(0)
 
-#ifdef DEBUG_DIAM_DICT
-#define D(args) do { printf args ; fflush(stdout); } while(0)
-#else
-#define D(args)
-#endif
+#define D(args) ddict_debug args
 
 #ifdef _WIN32
 #define DDICT_DIRSEP "\\"
@@ -95,6 +92,7 @@ static ddict_vendor_t* last_vnd;
 static char** attr_str;
 static unsigned* attr_uint;
 
+static void ddict_debug(const char* fmt, ...);
 static void append_to_buffer(char* txt, int len);
 static FILE* ddict_open(const char*, const char*);
 
@@ -500,6 +498,19 @@ description_attr description=\042
 
 %%
 
+int debugging  = 0;
+
+static void ddict_debug(const char* fmt, ...) {
+	va_list ap;
+	
+	va_start(ap, fmt);
+	if (debugging) vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	
+	fflush(stderr);
+}
+
+
 static char* strbuf = NULL;
 static char* write_ptr = NULL;
 static char* read_ptr = NULL;
@@ -559,7 +570,6 @@ static size_t string_input(char* buf, size_t max) {
 static FILE* ddict_open(const char* system_directory, const char* filename) {
 	FILE* fh;
 	char* fname;
-	
 	if (system_directory) {
 		int len =  strlen(system_directory) + strlen(filename) + strlen(DDICT_DIRSEP) + 1;
 		fname = g_malloc(len);
@@ -578,8 +588,10 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 	return fh;
 }
 
-ddict_t* ddict_scan(const char* system_directory, const char* filename) {
-
+ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg) {
+	
+	debugging = dbg;
+		
 	sys_dir = system_directory;
 
 	yyin = ddict_open(sys_dir,filename);
@@ -756,7 +768,7 @@ int main(int argc, char** argv) {
 			return 1;
 	}
 	
-	d = ddict_scan(dname,fname);
+	d = ddict_scan(dname,fname,1);
 	
 	ddict_print(stdout, d);
 
