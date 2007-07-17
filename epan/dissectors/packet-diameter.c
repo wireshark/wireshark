@@ -115,7 +115,7 @@ struct _diam_avp_t {
 	guint32 vendor;
 	diam_avp_dissector_t dissector_v16;
 	diam_avp_dissector_t dissector_rfc;
-	
+
 	gint ett;
 	int hf_value;
 	void* type_data;
@@ -244,24 +244,24 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	value_string* vendor_avp_vs;
 	const char* code_str;
 	const char* avp_str;
-	
+
 	len &= 0x00ffffff;
 
 	if (!a) a = &unknown_avp;
 	if (! vendor) vendor = &unknown_vendor;
-	
+
 	vendor_avp_vs = VND_AVP_VS(vendor);
-	
+
 	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,FALSE);
 	avp_tree = proto_item_add_subtree(avp_item,a->ett);
-	
+
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,FALSE);
 	code_str = val_to_str(code, vendor_avp_vs, "Unknown");
 	proto_item_append_text(pi," %s", code_str);
 	offset += 4;
-	
+
 	proto_item_set_text(avp_item,"AVP: %s(%u) l=%u f=%s", code_str, code, len, avpflags_str[flags_bits_idx]);
-	
+
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_flags,tvb,offset,1,FALSE);
 	{
 		proto_tree* flags_tree = proto_item_add_subtree(pi,ett_diameter_avp_flags);
@@ -280,20 +280,20 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		if(flags_bits & 0x01) proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 	}
 	offset += 1;
-	
+
 	proto_tree_add_item(avp_tree,hf_diameter_avp_len,tvb,offset,3,FALSE);
 	offset += 3;
-	
+
 	if (vendor_flag) {
 		proto_item_append_text(avp_item," vnd=%s", val_to_str(vendorid, vnd_short_vs, "%d"));
 		proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,FALSE);
 		offset += 4;
 	}
-	
+
 	if ( len == (guint32)(vendor_flag ? 12 : 8) ) return len;
-	
+
 	subtvb = tvb_new_subset(tvb,offset,len-(8+(vendor_flag?4:0)),len-(8+(vendor_flag?4:0)));
-	
+
 	save_tree = c->tree;
 	c->tree = avp_tree;
 	if (c->version_rfc) {
@@ -302,7 +302,7 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		avp_str = a->dissector_v16(c,a,subtvb);
 	}
 	c->tree = save_tree;
-	
+
 	if (avp_str) proto_item_append_text(avp_item," val=%s", avp_str);
 
 	return len;
@@ -322,23 +322,23 @@ static const char* grouped_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	int len = tvb_length_remaining(tvb,0);
 	proto_item* pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, FALSE);
 	proto_tree* pt = c->tree;
-	
+
 	c->tree = proto_item_add_subtree(pi,a->ett);
-	
+
 	while (offset < len) {
 		offset += dissect_diameter_avp(c, tvb, offset);
 		offset +=  (offset % 4) ? 4 - (offset % 4) : 0 ;
 	}
-	
+
 	c->tree = pt;
-	
+
 	return NULL;
 }
 
 static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	guint32 first_word  = tvb_get_ntohl(tvb,0);
-	guint32 version = (first_word & 0xff000000) >> 24; 
-	guint32 flags_bits = (tvb_get_ntohl(tvb,4) & 0xff000000) >> 24; 
+	guint32 version = (first_word & 0xff000000) >> 24;
+	guint32 flags_bits = (tvb_get_ntohl(tvb,4) & 0xff000000) >> 24;
 	int packet_len = first_word & 0x00ffffff;
 	proto_item *pi;
 	proto_item *cmd_item, *version_item;
@@ -348,18 +348,18 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 	const char* cmd_str;
 	guint32 cmd = tvb_get_ntoh24(tvb,5);
 	guint32 fourth = tvb_get_ntohl(tvb,8);
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
-	
+
 	pi = proto_tree_add_item(tree,proto_diameter,tvb,0,-1,FALSE);
 	tree = proto_item_add_subtree(pi,ett_diameter);
-	
+
 	c->tree = tree;
-	
+
 	version_item = proto_tree_add_item(tree,hf_diameter_version,tvb,0,1,FALSE);
 	proto_tree_add_item(tree,hf_diameter_length,tvb,1,3,FALSE);
-	
+
 	pi = proto_tree_add_item(tree,hf_diameter_flags,tvb,4,1,FALSE);
 	{
 		proto_tree* pt = proto_item_add_subtree(pi,ett_diameter_flags);
@@ -376,21 +376,21 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 		pi = proto_tree_add_item(pt,hf_diameter_flags_reserved7,tvb,4,1,FALSE);
 		if(flags_bits & 0x01) proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 	}
-	
+
 	cmd_item = proto_tree_add_item(tree,hf_diameter_code,tvb,5,3,FALSE);
-	
+
 	switch (version) {
 		case DIAMETER_V16: {
 			guint32 vendorid = tvb_get_ntohl(tvb,8);
 			diam_vnd_t* vendor;
-			
+
 			if (! ( vendor = emem_tree_lookup32(dictionary.vnds,vendorid) ) ) {
 				vendor = &unknown_vendor;
 			}
-			
+
 			cmd_vs = VND_CMD_VS(vendor);
 			proto_tree_add_item(tree, hf_diameter_vendor_id,tvb,8,4,FALSE);
-			
+
 			c->version_rfc = FALSE;
 			break;
 		}
@@ -407,7 +407,7 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 			break;
 	}
 	cmd_str = val_to_str(cmd, cmd_vs, "Unknown");
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 					 "cmd=%s(%d) %s=%s(%d) h2h=%x e2e=%x",
@@ -418,19 +418,19 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 					 fourth,
 					 tvb_get_ntohl(tvb,12),
 					 tvb_get_ntohl(tvb,16));
-	
+
 	proto_item_append_text(cmd_item," %s", cmd_str);
 
 	proto_tree_add_item(tree,hf_diameter_hopbyhopid,tvb,12,4,FALSE);
 	proto_tree_add_item(tree,hf_diameter_endtoendid,tvb,16,4,FALSE);
-	
+
 	offset = 20;
-	
+
 	while (offset < packet_len) {
 		offset += dissect_diameter_avp(c, tvb, offset);
 		offset +=  (offset % 4) ? 4 - (offset % 4) : 0 ;
 	}
-	
+
 }
 
 static guint
@@ -445,10 +445,10 @@ check_diameter(tvbuff_t *tvb)
 {
 	if (!tvb_bytes_exist(tvb, 0, 1))
 		return FALSE;   /* not enough bytes to check the version */
-	
+
 	if (tvb_get_guint8(tvb, 0) != 1)
 		return FALSE;   /* not version 1 */
-	
+
 		  /*
 		   * XXX - fetch length and make sure it's at least MIN_DIAMETER_SIZE?
 		   * Fetch flags and check that none of the DIAM_FLAGS_RESERVED bits
@@ -478,13 +478,13 @@ static char* alnumerize(char* name) {
 	char* r = name;
 	char* w = name;
 	char c;
-	
+
 	for (;(c = *r); r++) {
 		if (isalnum(c) || c == '_' || c == '-' || c == '.') {
 			*(w++) = c;
 		}
 	}
-	
+
 	*w = '\0';
 
 	return name;
@@ -508,7 +508,7 @@ guint reginfo(int* hf_ptr,
 		mask,
 		desc ? g_strdup(desc) : "",
 		HFILL }};
-	
+
 	g_array_append_vals(build_dict.hf,&hf,1);
 	return build_dict.hf->len - 1;
 }
@@ -518,10 +518,10 @@ void basic_avp_reginfo(diam_avp_t* a, const char* name, enum ftenum ft, base_dis
 		{ &(a->hf_value), { NULL, NULL, ft, base, VALS(vs), 0x0, "", HFILL }}
 	};
 	gint* ettp = &(a->ett);
-	
+
 	hf->hfinfo.name = g_strdup_printf("%s",name);
 	hf->hfinfo.abbrev = alnumerize(g_strdup_printf("diameter.%s",name));
-	
+
 	g_array_append_vals(build_dict.hf,hf,1);
 	g_array_append_vals(build_dict.ett,&ettp,1);
 }
@@ -538,9 +538,9 @@ static diam_avp_t* build_simple_avp(const avp_type_t* type,
 	a->dissector_rfc = type->rfc;
 	a->ett = -1;
 	a->hf_value = -1;
-	
+
 	basic_avp_reginfo(a,name,type->ft,type->base,vs);
-	
+
 	return a;
 }
 
@@ -595,19 +595,19 @@ extern int dictionary_load(void) {
 	diam_vnd_t* vnd;
 	GArray* vnd_shrt_arr = g_array_new(TRUE,TRUE,sizeof(value_string));
 
-	
+
 	build_dict.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	build_dict.ett = g_array_new(FALSE,TRUE,sizeof(gint*));
 	build_dict.types = g_hash_table_new(strcase_hash,strcase_equal);
 	build_dict.avps = g_hash_table_new(strcase_hash,strcase_equal);
-		
-	
+
+
 	dictionary.vnds = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_vnds");
 	dictionary.avps = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_avps");
-	
+
 	no_vnd.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 	no_vnd.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
-		
+
 	pe_tree_insert32(dictionary.vnds,0,&no_vnd);
 	g_hash_table_insert(vendors,"None",&no_vnd);
 
@@ -615,45 +615,48 @@ extern int dictionary_load(void) {
 	for (type = basic_types; type->name; type++) {
 		g_hash_table_insert(build_dict.types,type->name,(void*)type);
 	}
-	
+
 	/* load the dictionary */
-	d = ddict_scan(dir,"dictionary.xml"); 
-	
+	d = ddict_scan(dir,"dictionary.xml");
+        if (d == NULL) {
+		return 0;
+	}
+
 	/* populate the types */
 	for (t = d->typedefns; t; t = t->next) {
 		const avp_type_t* parent = NULL;
 		/* try to get the parent type */
-		
+
 		if (g_hash_table_lookup(build_dict.types,t->name))
 			continue;
-				
+
 		if (t->parent) {
 			parent = g_hash_table_lookup(build_dict.types,t->parent);
 		}
-		
+
 		if (!parent) parent = bytes;
-		
-		/* insert the parent type for this type */ 
+
+		/* insert the parent type for this type */
 		g_hash_table_insert(build_dict.types,t->name,(void*)parent);
 	}
-	
+
 	/* populate the applications */
 	if ((p = d->applications)) {
 		GArray* arr = g_array_new(TRUE,TRUE,sizeof(value_string));
-		
+
 		for (; p; p = p->next) {
 			value_string item = {p->code,p->name};
 			g_array_append_val(arr,item);
 		}
-		
+
 		dictionary.applications = (void*)arr->data;
 		g_array_free(arr,FALSE);
 	}
-	
+
 	if ((v = d->vendors)) {
 		for ( ; v; v = v->next) {
 			value_string item = {v->code,v->name};
-			
+
 			if (g_hash_table_lookup(vendors,v->name))
 				continue;
 
@@ -667,7 +670,7 @@ extern int dictionary_load(void) {
 			g_hash_table_insert(vendors,v->name,vnd);
 		}
 	}
-	
+
 	vnd_short_vs = (void*)vnd_shrt_arr->data;
 	g_array_free(vnd_shrt_arr,FALSE);
 
@@ -681,8 +684,8 @@ extern int dictionary_load(void) {
 			}
 		}
 	}
-	
-	
+
+
 	for (a = d->avps; a; a = a->next) {
 		ddict_enum_t* e;
 		value_string* vs = NULL;
@@ -695,24 +698,24 @@ extern int dictionary_load(void) {
 			g_warning("Diameter Dictionary: No Vendor: %s",vend);
 			vnd = &unknown_vendor;
 		}
-		
+
 		if ((e = a->enums)) {
 			GArray* arr = g_array_new(TRUE,TRUE,sizeof(value_string));
-			
+
 			for (; e; e = e->next) {
 				value_string item = {e->code,e->name};
 				g_array_append_val(arr,item);
 			}
 			vs = (void*)arr->data;
 		}
-		
+
 		if (! a->type || ! ( type = g_hash_table_lookup(build_dict.types,a->type) ) ) {
 			type = bytes;
 		}
-		
+
 		avp = type->build( type, a->code, vnd->code, a->name, vs);
 		g_hash_table_insert(build_dict.avps, a->name, avp);
-		
+
 		{
 			emem_tree_key_t k[] = {
 				{ 1, &(a->code) },
@@ -722,11 +725,11 @@ extern int dictionary_load(void) {
 			pe_tree_insert32_array(dictionary.avps,k,avp);
 		}
 	}
-	
+
 	g_hash_table_destroy(build_dict.types);
 	g_hash_table_destroy(build_dict.avps);
 	g_hash_table_destroy(vendors);
-	
+
 	return 1;
 }
 
@@ -739,7 +742,7 @@ proto_reg_handoff_diameter(void)
 	static int SctpPort=0;
 	static dissector_handle_t diameter_tcp_handle;
 	static dissector_handle_t diameter_handle;
-	
+
 	if (!Initialized) {
 		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 													  proto_diameter);
@@ -750,11 +753,11 @@ proto_reg_handoff_diameter(void)
 		dissector_delete("tcp.port", TcpPort, diameter_tcp_handle);
 		dissector_delete("sctp.port", SctpPort, diameter_handle);
 	}
-	
+
 	/* set port for future deletes */
 	TcpPort=gbl_diameterTcpPort;
 	SctpPort=gbl_diameterSctpPort;
-	
+
 	/* g_warning ("Diameter: Adding tcp dissector to port %d",
 		gbl_diameterTcpPort); */
 	dissector_add("tcp.port", gbl_diameterTcpPort, diameter_tcp_handle);
@@ -864,17 +867,17 @@ proto_register_diameter(void)
 		&ett_diameter_avpinfo,
 		&(unknown_avp.ett)
 	};
-	
-	
+
+
 	g_array_append_vals(build_dict.hf, hf_base, array_length(hf_base));
 	g_array_append_vals(build_dict.ett, ett_base, array_length(ett_base));
-	
+
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
-	
-	
+
+
 	proto_register_field_array(proto_diameter, (hf_register_info*)build_dict.hf->data, build_dict.hf->len);
 	proto_register_subtree_array((gint**)build_dict.ett->data, build_dict.ett->len);
-	
+
 	g_array_free(build_dict.hf,FALSE);
 	g_array_free(build_dict.ett,TRUE);
 
@@ -892,7 +895,7 @@ proto_register_diameter(void)
 								   "Set the TCP port for Diameter messages",
 								   10,
 								   &gbl_diameterTcpPort);
-	
+
 	prefs_register_uint_preference(diameter_module, "sctp.port",
 								   "Diameter SCTP Port",
 								   "Set the SCTP port for Diameter messages",
@@ -905,7 +908,7 @@ proto_register_diameter(void)
 								   "Whether the Diameter dissector should reassemble messages spanning multiple TCP segments."
 								   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 								   &gbl_diameter_desegment);
-	
+
 	/* Register some preferences we no longer support, so we can report
 	   them as obsolete rather than just illegal. */
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
@@ -914,7 +917,7 @@ proto_register_diameter(void)
 	prefs_register_obsolete_preference(diameter_module, "dictionary.use");
 	prefs_register_obsolete_preference(diameter_module, "allow_zero_as_app_id");
 	prefs_register_obsolete_preference(diameter_module, "suppress_console_output");
-	
+
 	to_load_dict_before_hf=0;
 } /* proto_register_diameter */
 

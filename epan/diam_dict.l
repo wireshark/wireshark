@@ -583,6 +583,11 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename) {
 	sys_dir = system_directory;
 
 	yyin = ddict_open(sys_dir,filename);
+
+	if (yyin == NULL) {
+		D(("unable to open %s\n", filename));
+		return NULL;
+	}
 	
 	write_ptr = NULL;
 	read_ptr = NULL;
