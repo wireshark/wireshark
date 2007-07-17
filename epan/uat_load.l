@@ -86,7 +86,7 @@
 		 */
 %}
 
-quoted_string \042([^\042]|\134\134|\134\042)*\042
+quoted_string \042([^\042]|\134\042)*\042
 binstring ([0-9a-zA-Z][0-9a-zA-Z])*
 separator [ \t]*,
 newline [ \t]*[\r]?\n
@@ -97,7 +97,7 @@ comment #[^\n]*\n
 %%
 <START_OF_LINE,NEXT_FIELD>{ws} ;
 <START_OF_LINE>{newline} linenum++;
-<START_OF_LINE>{comment} ;
+<START_OF_LINE>{comment} linenum++;
 
 <START_OF_LINE,NEXT_FIELD>{separator} {
 	ptr = g_strdup("");
