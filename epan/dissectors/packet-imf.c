@@ -136,7 +136,7 @@ struct imf_field {
   char         *name;     /* field name - in lower case for matching purposes */
   int          *hf_id;       /* wireshark field */
   void         (*subdissector)(tvbuff_t *tvb, int offset, int length, proto_item *item);
-  gboolean     add_to_col_info; /* add field to column info */    
+  gboolean     add_to_col_info; /* add field to column info */
 };
 
 #define NO_SUBDISSECTION NULL
@@ -174,7 +174,7 @@ struct imf_field imf_fields[] = {
   {"content-type", &hf_imf_content_type, NULL, FALSE}, /* handled separately as a special case */
   {"content-id", &hf_imf_content_id, NULL, FALSE},
   {"content-description", &hf_imf_content_description, NULL, FALSE},
-  {"content-transfer-encoding", &hf_imf_content_transfer_encoding, NULL, FALSE}, 
+  {"content-transfer-encoding", &hf_imf_content_transfer_encoding, NULL, FALSE},
   {"mime-version", &hf_imf_mime_version, NO_SUBDISSECTION, FALSE},
   /* MIXER - RFC 2156 */
   {"autoforwarded", &hf_imf_autoforwarded, NULL, FALSE},
@@ -226,10 +226,10 @@ static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_ite
 
   /* if there is a colon present it is a group */
   if((addr_pos = tvb_find_guint8(tvb, offset, length, ':')) == -1) {
-    
+
     /* there isn't - so it must be a mailbox */
     dissect_imf_mailbox(tvb, offset, length, item);
-    
+
   } else {
 
     /* it is a group */
@@ -246,15 +246,15 @@ static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_ite
     }
 
     if(tvb_get_guint8(tvb, addr_pos) != ';') {
-      
+
       dissect_imf_mailbox_list(tvb, addr_pos, length - (addr_pos - offset), group_item);
 
       /* XXX: need to check for final ';' */
 
     }
-    
+
   }
-  
+
 
   return;
 
@@ -269,13 +269,13 @@ static void dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_ite
 
   /* Here is the plan:
      If we can't find and angle brackets, then the whole field is an address.
-     If we find angle brackets, then the address is between them and the display name is 
+     If we find angle brackets, then the address is between them and the display name is
      anything before the opening angle bracket
   */
 
   if((addr_pos = tvb_find_guint8(tvb, offset, length, '<')) == -1) {
     /* we can't find an angle bracket - the whole field is therefore the address */
- 
+
     (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, offset, length, FALSE);
 
   } else {
@@ -293,7 +293,7 @@ static void dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_ite
 
     end_pos = tvb_find_guint8(tvb, addr_pos + 1, length - (addr_pos + 1 - offset), '>');
 
-    if(end_pos != -1) 
+    if(end_pos != -1)
       (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, FALSE);
 
   }
@@ -335,7 +335,7 @@ static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, prot
 
   /* now indicate the number of items found */
   proto_item_append_text(item, ", %d item%s", count, plurality(count, "", "s"));
-  
+
   return;
 }
 
@@ -375,17 +375,17 @@ static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, prot
 
   /* now indicate the number of items found */
   proto_item_append_text(item, ", %d item%s", count, plurality(count, "", "s"));
-  
+
   return;
 }
 
 
-static void dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item, 
+static void dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item,
 				     char **type, char **parameters)
 {
   int first_colon;
   int len;
-  int i; 
+  int i;
   proto_tree *ct_tree;
 
   /* first strip any whitespace */
@@ -401,16 +401,16 @@ static void dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, prot
 
   if(first_colon != -1) {
     ct_tree = proto_item_add_subtree(item, ett_imf_content_type);
-    
+
     len = first_colon - offset;
     proto_tree_add_item(ct_tree, hf_imf_content_type_type, tvb, offset, len, FALSE);
     if(type)
       /* this string must be freed */
       (*type) = tvb_get_string(tvb, offset, len);
-    
+
     len = length - (first_colon + 1 - offset);
     proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, FALSE);
-    if(parameters) 
+    if(parameters)
       /* this string must be freed */
       (*parameters) = tvb_get_string(tvb, first_colon + 1, len);
   }
@@ -453,9 +453,9 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
       /* couldn't find a CR - strange */
       return offset;
     }
-      
+
   }
-      
+
   return offset;
 
 }
@@ -477,7 +477,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean dissected = FALSE;
   tvbuff_t *next_tvb;
   struct imf_field *f_info;
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -509,18 +509,18 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* convert to lower case */
 
       for(p=key; *p; p++)
-	if(g_ascii_isupper(*p))
-	  *p = g_ascii_tolower(*p);
+	if(isupper(*p))
+	  *p = tolower(*p);
 
       /* look up the key */
       f_info = (struct imf_field *)g_hash_table_lookup(imf_field_table, key);
-      
+
       if(f_info == (struct imf_field *)NULL) {
 	/* set as an unknown extension */
 	f_info = imf_fields;
 	unknown_offset = start_offset;
       }
-      
+
       hf_id = *(f_info->hf_id);
 
       /* value starts immediately after the colon */
@@ -550,20 +550,20 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_item_append_text(item, " (Contact Wireshark developers if you want this supported.)");
 
 	  unknown_tree = proto_item_add_subtree(item, ett_imf_extension);
-	  
+
 	  item = proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, FALSE);
 
 	  /* remove 2 bytes to take off the final CRLF to make things a little prettier */
 	  item = proto_tree_add_item(unknown_tree, hf_id, tvb, start_offset, end_offset - start_offset - 2, FALSE);
 
 	} else
-	
+
 	  /* remove 2 bytes to take off the final CRLF to make things a little prettier */
 	  item = proto_tree_add_item(tree, hf_id, tvb, value_offset, end_offset - value_offset - 2, FALSE);
 
 	if(f_info->add_to_col_info && check_col(pinfo->cinfo, COL_INFO)) {
-	  
-	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s, ", f_info->name, 
+
+	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s, ", f_info->name,
 			  tvb_format_text(tvb, value_offset, end_offset - value_offset - 2));
 	}
 
@@ -596,8 +596,8 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, end_offset, -1, -1);
 
     dissected = dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
-    
-    g_free(content_type_str); 
+
+    g_free(content_type_str);
     content_type_str = NULL;
 
     if(parameters) {
@@ -851,7 +851,7 @@ proto_register_imf(void)
   imf_field_table=g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
 
   /* register the fields for lookup */
-  for(f = imf_fields; f->name; f++) 
+  for(f = imf_fields; f->name; f++)
     g_hash_table_insert(imf_field_table, (const gpointer)f->name, (const gpointer)f);
 
 }
