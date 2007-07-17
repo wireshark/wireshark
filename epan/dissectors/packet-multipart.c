@@ -622,7 +622,12 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 		char *hdr_str;
 		char *header_str;
 
+		/* Look for the end of the header (denoted by cr) */
 		next_offset = imf_find_field_end(tvb, offset, tvb_length_remaining(tvb, offset), &last_field);
+		/* If cr not found, won't have advanced - get out to avoid infinite loop! */
+		if (next_offset == offset) {
+			break;
+		}
 
 		hdr_str = tvb_get_ephemeral_string(tvb, offset, next_offset - offset);
 
