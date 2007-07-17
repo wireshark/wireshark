@@ -502,7 +502,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* XXX: flag an error */
       break;
     } else {
-      char *p;
+      guint8 *p;
 
       key = tvb_get_ephemeral_string(tvb, start_offset, end_offset - start_offset);
 
