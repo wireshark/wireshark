@@ -781,7 +781,7 @@ packet_list_at_end(void)
     g_return_val_if_fail (packet_list != NULL, FALSE);
     g_return_val_if_fail (ETH_CLIST(packet_list) != NULL, FALSE);
 
-    if (gtk_clist_row_is_visible(ETH_CLIST(packet_list), ETH_CLIST(packet_list)->rows - 1) == GTK_VISIBILITY_NONE){
+    if (eth_clist_row_is_visible(ETH_CLIST(packet_list), ETH_CLIST(packet_list)->rows - 1) == GTK_VISIBILITY_NONE){
         return FALSE;
     } else {
         return TRUE;
