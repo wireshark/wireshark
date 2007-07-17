@@ -327,7 +327,7 @@ def t_QSTRING (t):
 def t_UCASE_IDENT (t):
     r"[A-Z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
     if (is_class_ident(t.value)): t.type = 'CLASS_IDENT'
-    if (is_x880_syntax(t.value)): t.type = t.value
+    if (is_class_syntax(t.value)): t.type = t.value
     t.type = reserved_words.get(t.value, t.type)
     return t
 
@@ -6669,7 +6669,7 @@ def p_braceobjectbegin(t):
   'braceobjectbegin : '
   global lexer
   global obj_class
-  if set_x880_syntax(obj_class):
+  if set_class_syntax(obj_class):
     state = 'INITIAL'
   else:
     lexer.level = 1
@@ -6684,27 +6684,37 @@ def p_braceobjectend(t):
   'braceobjectend : '
   global lexer
   lexer.pop_state()
-  set_x880_syntax(None)
+  set_class_syntax(None)
 
 def p_bodyobject_1 (t):
   'bodyobject : '
   t[0] = { }
 
 def p_bodyobject_2 (t):
-  'bodyobject : x880_syntax_list'
+  'bodyobject : cls_syntax_list'
   t[0] = t[1]
 
-def p_x880_syntax_list_1 (t):
-  'x880_syntax_list : x880_syntax_list x880_syntax'
+def p_cls_syntax_list_1 (t):
+  'cls_syntax_list : cls_syntax_list cls_syntax'
   t[0] = t[1]
   t[0].update(t[2])
 
-def p_x880_syntax_list_2 (t):
-  'x880_syntax_list : x880_syntax'
+def p_cls_syntax_list_2 (t):
+  'cls_syntax_list : cls_syntax'
   t[0] = t[1]
 
-def p_x880_syntax_1 (t):
-  '''x880_syntax : ERRORS ObjectSet
+# X.681
+def p_cls_syntax_1 (t):
+  'cls_syntax : Type IDENTIFIED BY Value'
+  t[0] = { get_class_fieled(' ') : t[1], get_class_fieled(' '.join((t[2], t[3]))) : t[4] }
+
+def p_cls_syntax_2 (t):
+  'cls_syntax : HAS PROPERTY Value'
+  t[0] = { get_class_fieled(' '.join(t[1:-1])) : t[-1:][0] }
+
+# X.880
+def p_cls_syntax_3 (t):
+  '''cls_syntax : ERRORS ObjectSet
                  | LINKED ObjectSet
                  | RETURN RESULT BooleanValue 
                  | SYNCHRONOUS BooleanValue
@@ -6713,20 +6723,20 @@ def p_x880_syntax_1 (t):
                  | PRIORITY Value 
                  | ALWAYS RESPONDS BooleanValue
                  | IDEMPOTENT BooleanValue '''
-  t[0] = { get_x880_fieled(' '.join(t[1:-1])) : t[-1:][0] }
+  t[0] = { get_class_fieled(' '.join(t[1:-1])) : t[-1:][0] }
 
-def p_x880_syntax_2 (t):
-  '''x880_syntax : ARGUMENT Type
+def p_cls_syntax_4 (t):
+  '''cls_syntax : ARGUMENT Type
                  | RESULT Type
                  | PARAMETER Type
                  | CODE Value '''
-  t[0] = { get_x880_fieled(t[1]) : t[2] }
+  t[0] = { get_class_fieled(t[1]) : t[2] }
 
-def p_x880_syntax_3 (t):
-  '''x880_syntax : ARGUMENT Type OPTIONAL BooleanValue
+def p_cls_syntax_5 (t):
+  '''cls_syntax : ARGUMENT Type OPTIONAL BooleanValue
                  | RESULT Type OPTIONAL BooleanValue
                  | PARAMETER Type OPTIONAL BooleanValue '''
-  t[0] = { get_x880_fieled(t[1]) : t[2], get_x880_fieled(' '.join((t[1], t[3]))) : t[4] }
+  t[0] = { get_class_fieled(t[1]) : t[2], get_class_fieled(' '.join((t[1], t[3]))) : t[4] }
 
 # 12 Information object set definition and assignment
 
@@ -6801,6 +6811,71 @@ class_types_creator = {
 }
 
 class_names = { }
+
+x681_syntaxes = {
+  'TYPE-IDENTIFIER' : {
+    ' '             : '&Type',
+    'IDENTIFIED'    : 'IDENTIFIED',
+    #'BY'            : 'BY',         
+    'IDENTIFIED BY' : '&id',         
+  },
+  'ABSTRACT-SYNTAX' : {
+    ' '             : '&Type',
+    'IDENTIFIED'    : 'IDENTIFIED',
+    #'BY'            : 'BY',         
+    'IDENTIFIED BY' : '&id',         
+    'HAS'           : 'HAS',
+    'PROPERTY'      : 'PROPERTY',         
+    'HAS PROPERTY'  : '&property',         
+  },
+}
+
+class_syntaxes_enabled = { 
+  'TYPE-IDENTIFIER' : True,
+  'ABSTRACT-SYNTAX' : True,
+}
+
+class_syntaxes = {
+  'TYPE-IDENTIFIER' : x681_syntaxes['TYPE-IDENTIFIER'],
+  'ABSTRACT-SYNTAX' : x681_syntaxes['ABSTRACT-SYNTAX'],
+}
+
+class_current_syntax = None
+
+def get_syntax_tokens(syntaxes):
+  tokens = { }
+  for s in (syntaxes):
+    for k in (syntaxes[s].keys()):
+      if k.find(' ') < 0:
+        tokens[k] = k
+        tokens[k] = tokens[k].replace('-', '_')
+  return tokens.values()
+
+tokens = tokens + get_syntax_tokens(x681_syntaxes)
+
+def set_class_syntax(syntax):
+  global class_syntaxes_enabled
+  global class_current_syntax
+  #print "set_class_syntax", syntax, class_current_syntax
+  if class_syntaxes_enabled.get(syntax, False):
+    class_current_syntax = syntax
+    return True
+  else:
+    class_current_syntax = None
+    return False
+
+def is_class_syntax(name):
+  global class_syntaxes
+  global class_current_syntax
+  #print "is_class_syntax", name, class_current_syntax
+  if not class_current_syntax:
+    return False
+  return class_syntaxes[class_current_syntax].has_key(name)
+
+def get_class_fieled(name):
+  if not class_current_syntax:
+    return None
+  return class_syntaxes[class_current_syntax][name]
 
 def is_class_ident(name):
   return class_names.has_key(name)
@@ -7129,52 +7204,16 @@ x880_syntaxes = {
 #  },
 }
 
-x880_syntaxes_enabled = { }
-x880_current_syntax = None
-
 def x880_import(name):
   if x880_syntaxes.has_key(name):
-    x880_syntaxes_enabled[name] = True
+    class_syntaxes_enabled[name] = True
+    class_syntaxes[name] = x880_syntaxes[name]
   if x880_classes.has_key(name):
     add_class_ident(name)
     for f in (x880_classes[name].keys()):
       set_type_to_class(name, f, x880_classes[name][f])
 
-def set_x880_syntax(syntax):
-  global x880_syntaxes_enabled
-  global x880_current_syntax
-  #print "set_x880_syntax", syntax, x880_current_syntax
-  if x880_syntaxes_enabled.get(syntax, False):
-    x880_current_syntax = syntax
-    return True
-  else:
-    x880_current_syntax = None
-    return False
-
-def is_x880_syntax(name):
-  global x880_syntaxes
-  global x880_current_syntax
-  #print "is_x880_syntax", name, x880_current_syntax
-  if not x880_current_syntax:
-    return False
-  return x880_syntaxes[x880_current_syntax].has_key(name)
-
-def get_x880_fieled(name):
-  if not x880_current_syntax:
-    return None
-  return x880_syntaxes[x880_current_syntax][name]
-
-def get_x880_tokens():
-  global x880_syntaxes
-  tokens = { }
-  for s in (x880_syntaxes):
-    for k in (x880_syntaxes[s].keys()):
-      if k.find(' ') < 0:
-        tokens[k] = k
-        tokens[k] = tokens[k].replace('-', '_')
-  return tokens.values()
-
-tokens = tokens + get_x880_tokens()
+tokens = tokens + get_syntax_tokens(x880_syntaxes)
 
 #  {...} OID value
 #def p_lbrace_oid(t):
