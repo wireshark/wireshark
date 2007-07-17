@@ -229,7 +229,8 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 
 	if (! handles ) {
 		for (i=0 ; i < nk12_handles; i++) {
-			if ( epan_strcasestr(pinfo->pseudo_header->k12.stack_file, k12_handles[i].match) ) {
+			if ( epan_strcasestr(pinfo->pseudo_header->k12.stack_file, k12_handles[i].match) 
+			     || epan_strcasestr(pinfo->pseudo_header->k12.input_name, k12_handles[i].match) ) {
 				handles = k12_handles[i].handles;
 				break;
 			}
@@ -412,7 +413,7 @@ proto_register_k12(void)
 
   static uat_field_t uat_k12_flds[] = {
 	  UAT_FLD_CSTRING_ISPRINT(k12,match,
-							  "A string that will be matched (a=A) against an .stk filename.\n"
+							  "A string that will be matched (a=A) against an .stk filename or the name of a port.\n"
 							  "The first match wins, the order of entries in the table is important!."),
       UAT_FLD_CSTRING_OTHER(k12,protos,protos_chk_cb,
 							"The lowest layer protocol described by this .stk file (eg: mtp2).\n"
