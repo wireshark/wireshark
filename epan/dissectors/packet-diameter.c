@@ -313,8 +313,9 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	if (a == &unknown_avp) {
 		proto_tree* tu = proto_item_add_subtree(pi,ett_unknown);
 		proto_item* iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown AVP, "
-											 "if you know what this is you can add it to dictionary.xml");
-		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown AVP");
+		                                     "if you know what this is you can add it to dictionary.xml");
+		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown AVP (%u)", code);
+		PROTO_ITEM_SET_GENERATED(iu);
 	}
 	
 	offset += 4;
@@ -349,9 +350,10 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		if (vendor == &unknown_vendor) {
 			proto_tree* tu = proto_item_add_subtree(pi,ett_unknown);
 			proto_item* iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown Vendor, "
-												 "if you know whose this is you can add it to dictionary.xml");
+			                                     "if you know whose this is you can add it to dictionary.xml");
 			expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown Vendor");
-		}		
+			PROTO_ITEM_SET_GENERATED(iu);
+		}
 		offset += 4;
 	}
 
@@ -545,6 +547,7 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 			proto_tree* pt = proto_item_add_subtree(version_item,ett_err);
 			proto_item* pi = proto_tree_add_text(pt,tvb,0,1,"Unknown Diameter Version (decoding as RFC 3588)");
 			expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "Unknown Diameter Version");
+			PROTO_ITEM_SET_GENERATED(pi);
 			c->version_rfc = TRUE;
 			cmd_vs = VND_CMD_VS(&no_vnd);
 			break;
