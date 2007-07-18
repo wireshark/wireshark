@@ -814,7 +814,7 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	switch ( first_octet & 0xf0 ) {
 		case 0x00: {
 			if (len<7) return FALSE;
-			if (update_crc10_by_bytes(tvb_get_ntohs(tvb, 4) & 0x3FF, tvb_get_ptr(tvb, 6, len-4), len-4) ) return FALSE;
+			if (update_crc10_by_bytes((guint16)(tvb_get_ntohs(tvb, 4) & 0x3FF), tvb_get_ptr(tvb, 6, len-4), len-4) ) return FALSE;
 			break;
 		}
 		case 0x10:

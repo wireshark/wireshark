@@ -468,7 +468,7 @@ static const char* grouped_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	return NULL;
 }
 
-static const char const* msgflags_str[] = {
+static const char* msgflags_str[] = {
 	"----", "---T", "--E-", "--ET",
 	"-P--", "-P-T", "-PE-", "-PET",
 	"R---", "R--T", "R-E-", "R-ET",
