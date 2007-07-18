@@ -55,7 +55,7 @@ typedef struct _asn1_ctx_t {
     int hf_index;
     const char *direct_reference;
     gint32 indirect_reference;
-    guint32 encoding;  
+    gint encoding;  
       /* 
          0 : single-ASN1-type, 
          1 : octet-aligned, 
@@ -76,7 +76,7 @@ typedef struct _asn1_ctx_t {
   struct {
     tvbuff_t *data_value_descriptor;
     int hf_index;
-    guint32 identification;
+    gint identification;
       /* 
          0 : syntaxes, 
          1 : syntax, 
@@ -110,20 +110,37 @@ typedef struct _rose_ctx_t {
   dissector_table_t res_global_dissector_table;
   dissector_table_t res_local_dissector_table; 
   int apdu_depth;
-  guint32 code;  
-    /* 
-       0 : local, 
-       1 : global 
-    */
-  gint32 local;
-  const char *global;
-  proto_item *code_item;
+  struct {  /* "dynamic" data */
+    gint pdu;
+      /* 
+         1 : invoke, 
+         2 : returnResult, 
+         3 : returnError,
+         4 : reject
+      */
+    gint code;  
+      /* 
+         0 : local, 
+         1 : global 
+      */
+    gint32 code_local;
+    const char *code_global;
+    proto_item *code_item;
+  } d;
   void *private_data;
 } rose_ctx_t;
 
 extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
 extern gboolean asn1_ctx_check_signature(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
+extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
+
+extern void rose_ctx_init(rose_ctx_t *rctx);
+extern gboolean rose_ctx_check_signature(rose_ctx_t *rctx);
+extern void rose_ctx_clean_data(rose_ctx_t *rctx);
+
+extern asn1_ctx_t *get_asn1_ctx(void *ptr);
+extern rose_ctx_t *get_rose_ctx(void *ptr);
 
 extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
 

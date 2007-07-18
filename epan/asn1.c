@@ -46,12 +46,58 @@ void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, pack
 }
 
 gboolean asn1_ctx_check_signature(asn1_ctx_t *actx) {
-  return actx->signature == ASN1_CTX_SIGNATURE;
+  return actx && (actx->signature == ASN1_CTX_SIGNATURE);
 }
 
 void asn1_ctx_clean_external(asn1_ctx_t *actx) {
   memset(&actx->external, '\0', sizeof(actx->external));
   actx->external.hf_index = -1;
+  actx->external.encoding = -1;
+}
+
+void asn1_ctx_clean_epdv(asn1_ctx_t *actx) {
+  memset(&actx->embedded_pdv, '\0', sizeof(actx->embedded_pdv));
+  actx->embedded_pdv.hf_index = -1;
+  actx->embedded_pdv.identification = -1;
+}
+
+void rose_ctx_init(rose_ctx_t *rctx) {
+  memset(rctx, '\0', sizeof(*rctx));
+  rctx->signature = ROSE_CTX_SIGNATURE;
+}
+
+gboolean rose_ctx_check_signature(rose_ctx_t *rctx) {
+  return rctx && (rctx->signature == ROSE_CTX_SIGNATURE);
+}
+
+void rose_ctx_clean_data(rose_ctx_t *rctx) {
+  memset(&rctx->d, '\0', sizeof(rctx->d));
+  rctx->d.code = -1;
+}
+
+asn1_ctx_t *get_asn1_ctx(void *ptr) {
+  asn1_ctx_t *actx = (asn1_ctx_t*)ptr;
+
+  if (!asn1_ctx_check_signature(actx)) 
+    actx = NULL;
+
+  return actx;
+}
+
+rose_ctx_t *get_rose_ctx(void *ptr) {
+  rose_ctx_t *rctx = (rose_ctx_t*)ptr;
+  asn1_ctx_t *actx = (asn1_ctx_t*)ptr;
+
+  if (!asn1_ctx_check_signature(actx)) 
+    actx = NULL;
+
+  if (actx)
+    rctx = actx->rose_ctx;
+
+  if (!rose_ctx_check_signature(rctx)) 
+    rctx = NULL;
+
+  return rctx;
 }
 
 double asn1_get_real(const guint8 *real_ptr, gint real_len) {

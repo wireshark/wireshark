@@ -36,14 +36,13 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
-#include "packet-q932-ros.h"
 
 #define PNAME  "Q.932 Operations Service Element"
 #define PSNAME "Q932.ROS"
 #define PFNAME "q932.ros"
 
 /* Initialize the protocol and registered fields */
-int proto_rose = -1;
+int proto_q932_ros = -1;
 #include "packet-q932-ros-hf.c" 
 
 /* Initialize the subtree pointers */
@@ -55,11 +54,8 @@ int proto_rose = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
-static rose_ctx_t *rose_ctx;
+static rose_ctx_t *rose_ctx_tmp;
 
-static gint32 code_choice;
-static guint32 code_local;
-static const gchar *code_global;
 static guint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
@@ -67,15 +63,15 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 
 #include "packet-q932-ros-fn.c" 
 
-/*--- dissect_rose_apdu -----------------------------------------------------*/
-int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_ctx_t *rctx) {
-  if (rctx)
-    rose_ctx = rctx;
+/*--- dissect_q932_ros -----------------------------------------------------*/
+static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  rose_ctx_tmp = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rose_ctx_tmp);
   return dissect_ROS_PDU(tvb, pinfo, tree);
 }
 
-/*--- proto_register_rose ---------------------------------------------------*/
-void proto_register_rose(void) {
+/*--- proto_register_q932_ros -----------------------------------------------*/
+void proto_register_q932_ros(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
@@ -88,17 +84,18 @@ void proto_register_rose(void) {
   };
 
   /* Register protocol and dissector */
-  proto_rose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  proto_set_cant_toggle(proto_rose);
+  proto_q932_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_set_cant_toggle(proto_q932_ros);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_rose, hf, array_length(hf));
+  proto_register_field_array(proto_q932_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
 }
 
-/*--- proto_reg_handoff_rose ------------------------------------------------*/
-void proto_reg_handoff_rose(void) {
+/*--- proto_reg_handoff_q932_ros --------------------------------------------*/
+void proto_reg_handoff_q932_ros(void) {
   data_handle = find_dissector("data");
 }
 

@@ -18,19 +18,24 @@ Reject/problem/returnResult returnResultProblem
 
 ReturnResult/result/result  resultArgument
 
+#--- ROS ---
+
+#.FN_PARS
+ROS  VAL_PTR = &%(ACTX)s->rose_ctx->d.pdu
+#.FN_HDR ROS
+  /* will be moved to ROS_PDU when PDU function can be alternated from conformance file */
+  actx->rose_ctx = rose_ctx_tmp;
+  rose_ctx_clean_data(actx->rose_ctx);
+#.END
+
 #--- Code ---
 
-#.FN_HDR Code
-  code_choice = -1;
-  code_local = -1;
-  code_global = "";
 #.FN_PARS
-Code/local   VAL_PTR = &code_local
-Code/global  FN_VARIANT = _str  VAL_PTR = &code_global
-#.FN_FTR Code/local
-  code_choice = 0;
-#.FN_FTR Code/global
-  code_choice = 1;
+Code         VAL_PTR = &%(ACTX)s->rose_ctx->d.code
+Code/local   VAL_PTR = &%(ACTX)s->rose_ctx->d.code_local
+Code/global  FN_VARIANT = _str  VAL_PTR = &%(ACTX)s->rose_ctx->d.code_global
+#.FN_FTR Code
+  actx->rose_ctx->d.code_item = actx->created_item;
 #.END
 
 #--- Problem ---
@@ -70,24 +75,24 @@ Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
   arg_next_tvb = NULL;
 #.FN_FTR Invoke
-  if (code_choice == 0) {
-    arg_handle = dissector_get_port_handle(rose_ctx->arg_local_dissector_table, code_local);
-  } else if (code_choice == 1) {
-    arg_handle = dissector_get_string_handle(rose_ctx->arg_global_dissector_table, code_global);
+  if (actx->rose_ctx->d.code == 0) {
+    arg_handle = dissector_get_port_handle(actx->rose_ctx->arg_local_dissector_table, actx->rose_ctx->d.code_local);
+  } else if (actx->rose_ctx->d.code == 1) {
+    arg_handle = dissector_get_string_handle(actx->rose_ctx->arg_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
     arg_handle = NULL;
   }
 
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  INV:");
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  INV:");
   if (!arg_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(arg_handle)))) {
-    if (code_choice == 0)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
-    else if (code_choice == 1)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+    if (actx->rose_ctx->d.code == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
   if (arg_next_tvb) {
-    actx->pinfo->private_data = rose_ctx;
+    actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
   }
 #.END
@@ -113,24 +118,24 @@ ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
   res_next_tvb = NULL;
 #.FN_FTR ReturnResult
-  if (code_choice == 0) {
-    res_handle = dissector_get_port_handle(rose_ctx->res_local_dissector_table, code_local);
-  } else if (code_choice == 1) {
-    res_handle = dissector_get_string_handle(rose_ctx->res_global_dissector_table, code_global);
+  if (actx->rose_ctx->d.code == 0) {
+    res_handle = dissector_get_port_handle(actx->rose_ctx->res_local_dissector_table, actx->rose_ctx->d.code_local);
+  } else if (actx->rose_ctx->d.code == 1) {
+    res_handle = dissector_get_string_handle(actx->rose_ctx->res_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
     res_handle = NULL;
   }
 
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  RES:");
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  RES:");
   if (!res_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
-    if (code_choice == 0)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
-    else if (code_choice == 1)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+    if (actx->rose_ctx->d.code == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
   if (res_next_tvb) {
-    actx->pinfo->private_data = rose_ctx;
+    actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
   }
 #.END
@@ -156,24 +161,24 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
   err_next_tvb = NULL;
 #.FN_FTR ReturnError
-  if (code_choice == 0) {
-    /*err_handle = dissector_get_port_handle(rose_ctx->err_local_dissector_table, code_local);*/
-  } else if (code_choice == 1) {
-    /*err_handle = dissector_get_string_handle(rose_ctx->err_global_dissector_table, code_global);*/
+  if (actx->rose_ctx->d.code == 0) {
+    /*err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);*/
+  } else if (actx->rose_ctx->d.code == 1) {
+    /*err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);*/
   } else {
     err_handle = NULL;
   }
 
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  ERR:");
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  ERR:");
   if (!err_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(err_handle)))) {
-    if (code_choice == 0)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
-    else if (code_choice == 1)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+    if (actx->rose_ctx->d.code == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
   if (err_next_tvb) {
-    actx->pinfo->private_data = rose_ctx;
+    actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
   }
 #.END
@@ -183,5 +188,5 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 #.FN_HDR Reject
   problem_str[0] = '\0';
 #.FN_FTR Reject
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  REJ: %s", problem_str);
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  REJ: %s", problem_str);
 #.END

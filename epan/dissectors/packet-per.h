@@ -54,7 +54,7 @@ typedef int (*per_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);
 #define ASN1_OPTIONAL		ASN1_OPT
 
 typedef struct _per_choice_t {
-	int value;
+	gint value;
 	const int *p_id;
 	int extension;
 	per_type_fn func;
@@ -104,7 +104,7 @@ extern guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, as
 
 extern guint32 dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value);
 
-extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value);
+extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, gint *value);
 
 extern guint32 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence);
 

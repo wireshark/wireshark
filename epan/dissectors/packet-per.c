@@ -1244,7 +1244,7 @@ dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tr
 
 /* 22 Encoding the choice type */
 guint32
-dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value)
+dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, gint *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;
@@ -1257,6 +1257,8 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
 	proto_tree *choice_tree = NULL;
 
 DEBUG_ENTRY("dissect_per_choice");
+
+	if (value) *value = -1;
 
 	/* 22.5 */
 	if (choice[0].extension == ASN1_NO_EXTENSIONS){
@@ -1333,7 +1335,8 @@ DEBUG_ENTRY("dissect_per_choice");
 		}
 	}
 
-	if (value) *value = choice[index].value;
+	if (value && (index != -1)) 
+		*value = choice[index].value;
 
 	return offset;
 }

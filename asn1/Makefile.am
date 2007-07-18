@@ -295,7 +295,6 @@ EXTRA_DIST = \
 	q932/Makefile	\
 	q932/Makefile.nmake	\
 	q932/packet-q932-ros-template.c	\
-	q932/packet-q932-ros-template.h	\
 	q932/packet-q932-template.c	\
 	q932/packet-q932-template.h	\
 	qsig/qsig-cf.asn 	\

@@ -42,7 +42,6 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
-#include "packet-q932-ros.h"
 #include "packet-q932.h"
 
 #define PNAME  "Q.932"
@@ -98,7 +97,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 52 "packet-q932-template.c"
+#line 51 "packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -121,7 +120,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 57 "packet-q932-template.c"
+#line 56 "packet-q932-template.c"
 
 /* Preferences */
 
@@ -130,6 +129,7 @@ static rose_ctx_t q932_rose_ctx;
 
 /* Subdissectors */
 static dissector_handle_t data_handle = NULL; 
+static dissector_handle_t q932_ros_handle = NULL; 
 
 /* Gloabl variables */
 
@@ -680,7 +680,8 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
           case  3 :  /* returnError */
           case  4 :  /* reject */
             q932_rose_ctx.apdu_depth = 1;
-            dissect_rose_apdu(next_tvb, pinfo, tree, &q932_rose_ctx);
+            pinfo->private_data = &q932_rose_ctx;
+            call_dissector(q932_ros_handle, next_tvb, pinfo, tree);
             break;
           /* DSE APDU */
           case 12 :  /* begin */
@@ -784,7 +785,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /*--- dissect_q932_apdu -----------------------------------------------------*/
 static void
 dissect_q932_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  dissect_rose_apdu(tvb, pinfo, tree, pinfo->private_data);
+  call_dissector(q932_ros_handle, tvb, pinfo, tree);
 }
 
 /*--- proto_register_q932 ---------------------------------------------------*/
@@ -960,7 +961,7 @@ void proto_register_q932(void) {
         "q932.AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 297 "packet-q932-template.c"
+#line 298 "packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -985,7 +986,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 304 "packet-q932-template.c"
+#line 305 "packet-q932-template.c"
   };
 
   /* Register protocol and dissector */
@@ -995,6 +996,8 @@ void proto_register_q932(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_q932, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  rose_ctx_init(&q932_rose_ctx);
 
   /* Register dissector tables */
   q932_rose_ctx.arg_global_dissector_table = register_dissector_table("q932.ros.global.arg", "Q.932 Operation Argument (global opcode)", FT_STRING, BASE_NONE);
@@ -1013,6 +1016,7 @@ void proto_reg_handoff_q932(void) {
   /* Notification indicator */
   dissector_add("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle); 
 
+  q932_ros_handle = find_dissector("q932.ros");
   data_handle = find_dissector("data");
 }
 

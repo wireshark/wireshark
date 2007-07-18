@@ -44,14 +44,13 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
-#include "packet-q932-ros.h"
 
 #define PNAME  "Q.932 Operations Service Element"
 #define PSNAME "Q932.ROS"
 #define PFNAME "q932.ros"
 
 /* Initialize the protocol and registered fields */
-int proto_rose = -1;
+int proto_q932_ros = -1;
 
 /*--- Included file: packet-q932-ros-hf.c ---*/
 #line 1 "packet-q932-ros-hf.c"
@@ -82,7 +81,7 @@ static int hf_q932_ros_gfpROS = -1;               /* ROS */
 static int hf_q932_ros_InvokeId_present = -1;     /* InvokeId_present */
 
 /*--- End of included file: packet-q932-ros-hf.c ---*/
-#line 48 "packet-q932-ros-template.c"
+#line 47 "packet-q932-ros-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -101,7 +100,7 @@ static gint ett_q932_ros_InvokeId = -1;
 static gint ett_q932_ros_Components = -1;
 
 /*--- End of included file: packet-q932-ros-ett.c ---*/
-#line 51 "packet-q932-ros-template.c"
+#line 50 "packet-q932-ros-template.c"
 
 /* Preferences */
 
@@ -109,11 +108,8 @@ static gint ett_q932_ros_Components = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
-static rose_ctx_t *rose_ctx;
+static rose_ctx_t *rose_ctx_tmp;
 
-static gint32 code_choice;
-static guint32 code_local;
-static const gchar *code_global;
 static guint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
@@ -127,10 +123,7 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 static int
 dissect_q932_ros_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &code_local);
-
-#line 31 "q932-ros.cnf"
-  code_choice = 0;
+                                  &actx->rose_ctx->d.code_local);
 
   return offset;
 }
@@ -139,10 +132,7 @@ dissect_q932_ros_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_q932_ros_T_global(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &code_global);
-
-#line 33 "q932-ros.cnf"
-  code_choice = 1;
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->rose_ctx->d.code_global);
 
   return offset;
 }
@@ -162,14 +152,12 @@ static const ber_choice_t Code_choice[] = {
 
 static int
 dissect_q932_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 24 "q932-ros.cnf"
-  code_choice = -1;
-  code_local = -1;
-  code_global = "";
-
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Code_choice, hf_index, ett_q932_ros_Code,
-                                 NULL);
+                                 &actx->rose_ctx->d.code);
+
+#line 38 "q932-ros.cnf"
+  actx->rose_ctx->d.code_item = actx->created_item;
 
   return offset;
 }
@@ -270,7 +258,7 @@ dissect_q932_ros_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_q932_ros_InvokeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "q932-ros.cnf"
+#line 64 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -296,7 +284,7 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "q932-ros.cnf"
+#line 74 "q932-ros.cnf"
   dissector_handle_t arg_handle = NULL;
 
   arg_next_tvb = NULL;
@@ -304,25 +292,25 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Invoke_sequence, hf_index, ett_q932_ros_Invoke);
 
-#line 73 "q932-ros.cnf"
-  if (code_choice == 0) {
-    arg_handle = dissector_get_port_handle(rose_ctx->arg_local_dissector_table, code_local);
-  } else if (code_choice == 1) {
-    arg_handle = dissector_get_string_handle(rose_ctx->arg_global_dissector_table, code_global);
+#line 78 "q932-ros.cnf"
+  if (actx->rose_ctx->d.code == 0) {
+    arg_handle = dissector_get_port_handle(actx->rose_ctx->arg_local_dissector_table, actx->rose_ctx->d.code_local);
+  } else if (actx->rose_ctx->d.code == 1) {
+    arg_handle = dissector_get_string_handle(actx->rose_ctx->arg_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
     arg_handle = NULL;
   }
 
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  INV:");
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  INV:");
   if (!arg_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(arg_handle)))) {
-    if (code_choice == 0)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
-    else if (code_choice == 1)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+    if (actx->rose_ctx->d.code == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
   if (arg_next_tvb) {
-    actx->pinfo->private_data = rose_ctx;
+    actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
   }
 
@@ -333,7 +321,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_q932_ros_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "q932-ros.cnf"
+#line 107 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -372,7 +360,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 112 "q932-ros.cnf"
+#line 117 "q932-ros.cnf"
   dissector_handle_t res_handle = NULL;
 
   res_next_tvb = NULL;
@@ -380,25 +368,25 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnResult_sequence, hf_index, ett_q932_ros_ReturnResult);
 
-#line 116 "q932-ros.cnf"
-  if (code_choice == 0) {
-    res_handle = dissector_get_port_handle(rose_ctx->res_local_dissector_table, code_local);
-  } else if (code_choice == 1) {
-    res_handle = dissector_get_string_handle(rose_ctx->res_global_dissector_table, code_global);
+#line 121 "q932-ros.cnf"
+  if (actx->rose_ctx->d.code == 0) {
+    res_handle = dissector_get_port_handle(actx->rose_ctx->res_local_dissector_table, actx->rose_ctx->d.code_local);
+  } else if (actx->rose_ctx->d.code == 1) {
+    res_handle = dissector_get_string_handle(actx->rose_ctx->res_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
     res_handle = NULL;
   }
 
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  RES:");
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  RES:");
   if (!res_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
-    if (code_choice == 0)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
-    else if (code_choice == 1)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+    if (actx->rose_ctx->d.code == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
   if (res_next_tvb) {
-    actx->pinfo->private_data = rose_ctx;
+    actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
   }
 
@@ -409,7 +397,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_q932_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 144 "q932-ros.cnf"
+#line 149 "q932-ros.cnf"
 
   gint len;
 
@@ -435,7 +423,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 155 "q932-ros.cnf"
+#line 160 "q932-ros.cnf"
   dissector_handle_t err_handle = NULL;
 
   err_next_tvb = NULL;
@@ -443,25 +431,25 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnError_sequence, hf_index, ett_q932_ros_ReturnError);
 
-#line 159 "q932-ros.cnf"
-  if (code_choice == 0) {
-    /*err_handle = dissector_get_port_handle(rose_ctx->err_local_dissector_table, code_local);*/
-  } else if (code_choice == 1) {
-    /*err_handle = dissector_get_string_handle(rose_ctx->err_global_dissector_table, code_global);*/
+#line 164 "q932-ros.cnf"
+  if (actx->rose_ctx->d.code == 0) {
+    /*err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);*/
+  } else if (actx->rose_ctx->d.code == 1) {
+    /*err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);*/
   } else {
     err_handle = NULL;
   }
 
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  ERR:");
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  ERR:");
   if (!err_handle || 
       !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(err_handle)))) {
-    if (code_choice == 0)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
-    else if (code_choice == 1)
-      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+    if (actx->rose_ctx->d.code == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
   if (err_next_tvb) {
-    actx->pinfo->private_data = rose_ctx;
+    actx->pinfo->private_data = actx->rose_ctx;
     call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
   }
 
@@ -482,7 +470,7 @@ dissect_q932_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem_val);
 
-#line 44 "q932-ros.cnf"
+#line 49 "q932-ros.cnf"
   strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""));
 
   return offset;
@@ -507,7 +495,7 @@ dissect_q932_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem_val);
 
-#line 46 "q932-ros.cnf"
+#line 51 "q932-ros.cnf"
   strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""));
 
   return offset;
@@ -527,7 +515,7 @@ dissect_q932_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem_val);
 
-#line 48 "q932-ros.cnf"
+#line 53 "q932-ros.cnf"
   strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""));
 
   return offset;
@@ -549,7 +537,7 @@ dissect_q932_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &problem_val);
 
-#line 50 "q932-ros.cnf"
+#line 55 "q932-ros.cnf"
   strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""));
 
   return offset;
@@ -590,14 +578,14 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_q932_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "q932-ros.cnf"
+#line 189 "q932-ros.cnf"
   problem_str[0] = '\0';
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Reject_sequence, hf_index, ett_q932_ros_Reject);
 
-#line 186 "q932-ros.cnf"
-  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  REJ: %s", problem_str);
+#line 191 "q932-ros.cnf"
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  REJ: %s", problem_str);
 
   return offset;
 }
@@ -621,9 +609,14 @@ static const ber_choice_t ROS_choice[] = {
 
 static int
 dissect_q932_ros_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 26 "q932-ros.cnf"
+  /* will be moved to ROS_PDU when PDU function can be alternated from conformance file */
+  actx->rose_ctx = rose_ctx_tmp;
+  rose_ctx_clean_data(actx->rose_ctx);
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ROS_choice, hf_index, ett_q932_ros_ROS,
-                                 NULL);
+                                 &actx->rose_ctx->d.pdu);
 
   return offset;
 }
@@ -702,17 +695,17 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 
 /*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 69 "packet-q932-ros-template.c"
+#line 65 "packet-q932-ros-template.c"
 
-/*--- dissect_rose_apdu -----------------------------------------------------*/
-int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_ctx_t *rctx) {
-  if (rctx)
-    rose_ctx = rctx;
+/*--- dissect_q932_ros -----------------------------------------------------*/
+static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  rose_ctx_tmp = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rose_ctx_tmp);
   return dissect_ROS_PDU(tvb, pinfo, tree);
 }
 
-/*--- proto_register_rose ---------------------------------------------------*/
-void proto_register_rose(void) {
+/*--- proto_register_q932_ros -----------------------------------------------*/
+void proto_register_q932_ros(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
@@ -821,7 +814,7 @@ void proto_register_rose(void) {
         "q932_ros.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 83 "packet-q932-ros-template.c"
+#line 79 "packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -842,21 +835,22 @@ void proto_register_rose(void) {
     &ett_q932_ros_Components,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 88 "packet-q932-ros-template.c"
+#line 84 "packet-q932-ros-template.c"
   };
 
   /* Register protocol and dissector */
-  proto_rose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  proto_set_cant_toggle(proto_rose);
+  proto_q932_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_set_cant_toggle(proto_q932_ros);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_rose, hf, array_length(hf));
+  proto_register_field_array(proto_q932_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
 }
 
-/*--- proto_reg_handoff_rose ------------------------------------------------*/
-void proto_reg_handoff_rose(void) {
+/*--- proto_reg_handoff_q932_ros --------------------------------------------*/
+void proto_reg_handoff_q932_ros(void) {
   data_handle = find_dissector("data");
 }
 
