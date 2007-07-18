@@ -498,7 +498,7 @@ description_attr description=\042
 
 %%
 
-int debugging  = 0;
+static int debugging  = 0;
 
 static void ddict_debug(const char* fmt, ...) {
 	va_list ap;

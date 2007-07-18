@@ -339,7 +339,7 @@ static int refnum=0;
 #define DBS_GRAPH_DRAWING	(1 << 3)
 #define DBS_TPUT_ELMTS		(1 << 4)
 /*int debugging = DBS_FENTRY;*/
-int debugging = 0;
+static int debugging = 0;
 /*int debugging = DBS_AXES_TICKS;*/
 /*int debugging = DBS_AXES_DRAWING;*/
 /*int debugging = DBS_GRAPH_DRAWING;*/
