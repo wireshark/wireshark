@@ -147,7 +147,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	column-utils.h		\
 	conversation.h		\
 	crc6.h			\
-	crc16.h			\
+	crc10.h			\
 	crc16.h			\
 	crc32.h			\
 	crcdrm.h		\
