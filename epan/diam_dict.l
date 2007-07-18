@@ -410,6 +410,7 @@ description_attr description=\042
 	
 	avp = g_malloc(sizeof(ddict_avp_t));
 	avp->name = NULL;
+	avp->description = NULL;
 	avp->vendor = NULL;
 	avp->code = 0;
 	avp->type = NULL;
