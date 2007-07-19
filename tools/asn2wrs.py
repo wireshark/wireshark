@@ -677,12 +677,15 @@ class EthCtx:
     return val
 
   def get_obj_repr(self, ident, restr):
-    def set_type_fn(field, fnfield):
-      obj[fnfield] = 'NULL'
+    def set_type_fn(cls, field, fnfield):
+      obj[fnfield + '_fn'] = 'NULL'
+      obj[fnfield + '_pdu'] = 'NULL'
       if val.has_key(field) and isinstance(val[field], Type_Ref):
         p = val[field].eth_type_default_pars(self, '')
-        obj[fnfield] = p['TYPE_REF_FN']
-        obj[fnfield] = obj[fnfield] % p
+        obj[fnfield + '_fn'] = p['TYPE_REF_FN']
+        obj[fnfield + '_fn'] = obj[fnfield + '_fn'] % p  # one iteration
+        if (self.conform.check_item('PDU', cls + '.' + field)):
+          obj[fnfield + '_pdu'] = 'dissect_' + self.field[val[field].val]['ethname']
       return
     # end of get_type_fn()
     obj = { '_name' : ident, '_ident' : asn2c(ident)}
@@ -707,11 +710,13 @@ class EthCtx:
         obj[f] = val[f].fld_obj_repr(self)
       else:
         obj[f] = str(val[f])
+    if (obj['_class'] == 'TYPE-IDENTIFIER') or (obj['_class'] == 'ABSTRACT-SYNTAX'):
+      set_type_fn(obj['_class'], '&Type', '_type')
     if (obj['_class'] == 'OPERATION'):
-      set_type_fn('&ArgumentType', '_argument_fn')
-      set_type_fn('&ResultType', '_result_fn')
+      set_type_fn(obj['_class'], '&ArgumentType', '_argument')
+      set_type_fn(obj['_class'], '&ResultType', '_result')
     if (obj['_class'] == 'ERROR'):
-      set_type_fn('&ParameterType', '_parameter_fn')
+      set_type_fn(obj['_class'], '&ParameterType', '_parameter')
     return obj
 
   #--- eth_reg_module -----------------------------------------------------------
@@ -768,7 +773,10 @@ class EthCtx:
     ident = oassign.ident
     #print "eth_reg_oassign(ident='%s')" % (ident)
     if self.oassign.has_key(ident):
-      raise "Duplicate information object assignment for " + ident
+      if self.oassign[ident] == oassign:
+        return  # OK - already defined
+      else:
+        raise "Duplicate information object assignment for " + ident
     self.oassign[ident] = oassign
     self.oassign_ord.append(ident)
     self.oassign_cls.setdefault(oassign.cls, []).append(ident)
@@ -932,7 +940,10 @@ class EthCtx:
   def eth_reg_field(self, ident, type, idx='', parent=None, impl=False, pdu=None):
     #print "eth_reg_field(ident='%s', type='%s')" % (ident, type)
     if self.field.has_key(ident):
-      raise "Duplicate field for " + ident
+      if pdu and (type == self.field[ident]['type']):
+        pass  # OK already created PDU
+      else:
+        raise "Duplicate field for " + ident
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
                          'modified' : '', 'attr' : {} , 'create_field' : False }
     name = ident.split('/')[-1]
@@ -2840,8 +2851,24 @@ class ObjectAssignment (Node):
   def __init__(self,*args, **kw) :
     Node.__init__ (self,*args, **kw)
 
+  def __eq__(self, other):
+    if self.cls != other.cls:
+      return False
+    if len(self.val) != len(other.val):
+      return False
+    for f in (self.val.keys()):
+      if not other.val.has_key(f):
+        return False
+      if isinstance(self.val[f], Node) and isinstance(other.val[f], Node):
+        if not self.val[f].fld_obj_eq(other.val[f]):
+          return False
+      else:
+        if str(self.val[f]) != str(other.val[f]):
+          return False
+    return True
+
   def eth_reg(self, ident, ectx):
-    def make_virtual_type(field, prefix):
+    def make_virtual_type(cls, field, prefix):
       if isinstance(self.val, str): return
       if self.val.has_key(field) and not isinstance(self.val[field], Type_Ref):
         vnm = prefix + '-' + self.ident
@@ -2851,15 +2878,19 @@ class ObjectAssignment (Node):
         ectx.eth_reg_assign(vnm, t, virt=True)
         ectx.eth_reg_type(vnm, t)
         t.eth_reg_sub(vnm, ectx)
+      if self.val.has_key(field) and ectx.conform.check_item('PDU', cls + '.' + field):
+        ectx.eth_reg_field(self.val[field].val, self.val[field].val, impl=self.val[field].HasImplicitTag(ectx), pdu=ectx.conform.use_item('PDU', cls + '.' + field))
       return
     # end of make_virtual_type()
     if ectx.conform.omit_assignment('V', self.ident, ectx.Module()): return # Assignment to omit
     ectx.eth_reg_oassign(self)
+    if (self.cls == 'TYPE-IDENTIFIER') or (self.cls == 'ABSTRACT-SYNTAX'):
+      make_virtual_type(self.cls, '&Type', 'TYPE')
     if (self.cls == 'OPERATION'):
-      make_virtual_type('&ArgumentType', 'ARG')
-      make_virtual_type('&ResultType', 'RES')
+      make_virtual_type(self.cls, '&ArgumentType', 'ARG')
+      make_virtual_type(self.cls, '&ResultType', 'RES')
     if (self.cls == 'ERROR'):
-      make_virtual_type('&ParameterType', 'PAR')
+      make_virtual_type(self.cls, '&ParameterType', 'PAR')
 
 
 #--- Type ---------------------------------------------------------------------
@@ -2964,6 +2995,9 @@ class Type (Node):
     print "#Selection '%s' required for non-CHOICE type %s" % (sel, self.type)
     print self.str_depth(1)
     
+  def fld_obj_eq(self, other):
+    return isinstance(other, Type) and (self.eth_tname() == other.eth_tname())
+
   def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, selflag=False, idx='', parent=None):
     #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
     if (ectx.Tag() and (len(self.tags) > tstrip)):
@@ -4285,6 +4319,9 @@ class ChoiceType (Type):
 class ChoiceValue (Value):
   def to_str(self, ectx):
     return self.val.to_str(ectx)
+
+  def fld_obj_eq(self, other):
+    return isinstance(other, ChoiceValue) and (self.choice == other.choice) and (str(self.val.val) == str(other.val.val))
 
 #--- EnumeratedType -----------------------------------------------------------
 class EnumeratedType (Type):

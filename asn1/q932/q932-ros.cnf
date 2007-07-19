@@ -20,8 +20,6 @@ ReturnResult/result/result  resultArgument
 
 #--- ROS ---
 
-#.FN_PARS
-ROS  VAL_PTR = &%(ACTX)s->rose_ctx->d.pdu
 #.FN_HDR ROS
   /* will be moved to ROS_PDU when PDU function can be alternated from conformance file */
   actx->rose_ctx = rose_ctx_tmp;
@@ -75,6 +73,8 @@ Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
   arg_next_tvb = NULL;
 #.FN_FTR Invoke
+  actx->rose_ctx->d.pdu = 1;
+
   if (actx->rose_ctx->d.code == 0) {
     arg_handle = dissector_get_port_handle(actx->rose_ctx->arg_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if (actx->rose_ctx->d.code == 1) {
@@ -118,6 +118,8 @@ ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
   res_next_tvb = NULL;
 #.FN_FTR ReturnResult
+  actx->rose_ctx->d.pdu = 2;
+
   if (actx->rose_ctx->d.code == 0) {
     res_handle = dissector_get_port_handle(actx->rose_ctx->res_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if (actx->rose_ctx->d.code == 1) {
@@ -161,6 +163,8 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
   err_next_tvb = NULL;
 #.FN_FTR ReturnError
+  actx->rose_ctx->d.pdu = 3;
+
   if (actx->rose_ctx->d.code == 0) {
     /*err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);*/
   } else if (actx->rose_ctx->d.code == 1) {

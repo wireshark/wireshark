@@ -82,7 +82,7 @@ static const value_string qsig_str_pc[] = {
   { 0, NULL}
 };
 
-const value_string qsig_str_service[] = {
+static const value_string qsig_str_service[] = {
   { 13868, "QSIG-NA" },
   { 13873, "QSIG-CF" },
   { 13874, "QSIG-PR" },
@@ -113,7 +113,7 @@ const value_string qsig_str_service[] = {
   {   0, NULL}
 };
 
-const value_string qsig_str_service_name[] = {
+static const value_string qsig_str_service_name[] = {
   { 13868, "Name-Operations" },
   { 13873, "Call-Diversion-Operations" },
   { 13874, "Path-Replacement-Operations" },
@@ -144,7 +144,132 @@ const value_string qsig_str_service_name[] = {
   {   0, NULL}
 };
 
-const value_string qsig_str_operation[] = {
+#define NO_SRV (-1)
+static const gint32 op2srv_tab[] = {
+  /*   0 */ 13868, 
+  /*   1 */ 13868, 
+  /*   2 */ 13868, 
+  /*   3 */ 13868, 
+  /*   4 */ 13874, 
+  /*   5 */ 13874, 
+  /*   6 */ 13874, 
+  /*   7 */ 13869, 
+  /*   8 */ 13869, 
+  /*   9 */ 13869, 
+  /*  10 */ 13869, 
+  /*  11 */ 13869, 
+  /*  12 */ 13869, 
+  /*  13 */ 13869, 
+  /*  14 */ 13869, 
+  /*  15 */ 13873, 
+  /*  16 */ 13873, 
+  /*  17 */ 13873, 
+  /*  18 */ 13873, 
+  /*  19 */ 13873, 
+  /*  20 */ 13873, 
+  /*  21 */ 13873, 
+  /*  22 */ 13873, 
+  /*  23 */ 13873, 
+  /*  24 */ NO_SRV,
+  /*  25 */ NO_SRV,
+  /*  26 */ NO_SRV,
+  /*  27 */ 13870, 
+  /*  28 */ 13870, 
+  /*  29 */ 13870, 
+  /*  30 */ 13870, 
+  /*  31 */ 13870, 
+  /*  32 */ 13870, 
+  /*  33 */ 13870, 
+  /*  34 */ 14843, 
+  /*  35 */ 14844, 
+  /*  36 */ 14844, 
+  /*  37 */ 14844, 
+  /*  38 */ 14844, 
+  /*  39 */ 14844, 
+  /*  40 */ 13870, 
+  /*  41 */ 90001, 
+  /*  42 */ 90001, 
+  /*  43 */ 14846, 
+  /*  44 */ 14846, 
+  /*  45 */ 14846, 
+  /*  46 */ 14846, 
+  /*  47 */ 14846, 
+  /*  48 */ 14846, 
+  /*  49 */ 90001, 
+  /*  50 */ 15429, 
+  /*  51 */ 15429, 
+  /*  52 */ 15429, 
+  /*  53 */ 15429, 
+  /*  54 */ 15431, 
+  /*  55 */ 15431, 
+  /*  56 */ 15431, 
+  /*  57 */ 15052, 
+  /*  58 */ 15052, 
+  /*  59 */ 15050, 
+  /*  60 */ 15050, 
+  /*  61 */ 15050, 
+  /*  62 */ 15050, 
+  /*  63 */ 15050, 
+  /*  64 */ 15050, 
+  /*  65 */ 15050, 
+  /*  66 */ 15054, 
+  /*  67 */ 15054, 
+  /*  68 */ 15054, 
+  /*  69 */ 15054, 
+  /*  70 */ 15054, 
+  /*  71 */ 15431, 
+  /*  72 */ 15433, 
+  /*  73 */ 15433, 
+  /*  74 */ 15433, 
+  /*  75 */ 15433, 
+  /*  76 */ 15433, 
+  /*  77 */ 15433, 
+  /*  78 */ 15507, 
+  /*  79 */ 15507, 
+  /*  80 */  3471, 
+  /*  81 */  3471, 
+  /*  82 */  3471, 
+  /*  83 */ NO_SRV,
+  /*  84 */ 15772, 
+  /*  85 */ 15772, 
+  /*  86 */ 13874, 
+  /*  87 */ 15992, 
+  /*  88 */ 15992, 
+  /*  89 */ 17876, 
+  /*  90 */ 17876, 
+  /*  91 */ 17876, 
+  /*  92 */ 17876, 
+  /*  93 */ 17878, 
+  /*  94 */ 17878, 
+  /*  95 */ 17878, 
+  /*  96 */ 17878, 
+  /*  97 */ 15429, 
+  /*  98 */ 15429, 
+  /*  99 */ 19460, 
+  /* 100 */ 19460, 
+  /* 101 */ 19460, 
+  /* 102 */ 19460, 
+  /* 103 */ 21407, 
+  /* 104 */ 21407, 
+  /* 105 */ 21889, 
+  /* 106 */ 21889, 
+  /* 107 */   325, 
+  /* 108 */   325, 
+  /* 109 */   325, 
+  /* 110 */   325, 
+  /* 111 */   325, 
+  /* 112 */   344, 
+  /* 113 */   344, 
+  /* 114 */   344, 
+  /* 115 */  3471, 
+  /* 116 */  3471, 
+  /* 117 */  3471, 
+  /* 118 */  3471, 
+  /* 119 */  3472, 
+  /* 120 */  3472, 
+};                                 
+
+static const value_string qsig_str_operation[] = {
   {   0, "callingName" },
   {   1, "calledName" },
   {   2, "connectedName" },
@@ -268,179 +393,12 @@ const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
   {   0, NULL}
 };
-
-
-void dissect_qsig_arg(tvbuff_t*, packet_info*, proto_tree*, guint32);
-#define FNABODY(x) static void dissect_qsig_arg##x(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) \
-  { dissect_qsig_arg(tvb, pinfo, tree, (x)); }
-
-void dissect_qsig_res(tvbuff_t*, packet_info*, proto_tree*, guint32);
-#define FNRBODY(x) static void dissect_qsig_res##x(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) \
-  { dissect_qsig_res(tvb, pinfo, tree, (x)); }
-
-/* QSIG-NA */
-FNABODY(0)  FNRBODY(0)
-FNABODY(1)  FNRBODY(1)
-FNABODY(2)  FNRBODY(2)
-FNABODY(3)  FNRBODY(3)
-/* QSIG-CF */
-FNABODY(15)  FNRBODY(15)
-FNABODY(16)  FNRBODY(16)
-FNABODY(17)  FNRBODY(17)
-FNABODY(18)  FNRBODY(18)
-FNABODY(19)  FNRBODY(19)
-FNABODY(20)  FNRBODY(20)
-FNABODY(21)  FNRBODY(21)
-FNABODY(22)  FNRBODY(22)
-FNABODY(23)  FNRBODY(23)
-/* QSIG-PR */
-FNABODY(4)   FNRBODY(4)
-FNABODY(5)   FNRBODY(5)
-FNABODY(6)   FNRBODY(6)
-FNABODY(86)  FNRBODY(86)
-/* QSIG-CT */
-FNABODY(7)   FNRBODY(7)
-FNABODY(8)   FNRBODY(8)
-FNABODY(9)   FNRBODY(9)
-FNABODY(10)  FNRBODY(10)
-FNABODY(11)  FNRBODY(11)
-FNABODY(12)  FNRBODY(12)
-FNABODY(13)  FNRBODY(13)
-FNABODY(14)  FNRBODY(14)
-/* QSIG-CC */
-FNABODY(40)  FNRBODY(40)
-FNABODY(27)  FNRBODY(27)
-FNABODY(28)  FNRBODY(28)
-FNABODY(29)  FNRBODY(29)
-FNABODY(30)  FNRBODY(30)
-FNABODY(31)  FNRBODY(31)
-FNABODY(32)  FNRBODY(32)
-FNABODY(33)  FNRBODY(33)
-/* QSIG-CO */
-FNABODY(34)  FNRBODY(34)
-/* see common for QSIG-CO, QSIG-DND(O), QSIG-CI */                     
-/* QSIG-DND(O) */
-FNABODY(35)  FNRBODY(35)
-FNABODY(36)  FNRBODY(36)
-FNABODY(37)  FNRBODY(37)
-FNABODY(38)  FNRBODY(38)
-FNABODY(39)  FNRBODY(39)
-/* see common for QSIG-CO, QSIG-DND(O), QSIG-CI */                     
-/* QSIG-CI */
-FNABODY(43)  FNRBODY(43)
-FNABODY(44)  FNRBODY(44)
-FNABODY(45)  FNRBODY(45)
-FNABODY(46)  FNRBODY(46)
-FNABODY(47)  FNRBODY(47)
-FNABODY(48)  FNRBODY(48)
-/* QSIG-AOC */
-FNABODY(59)  FNRBODY(59)
-FNABODY(60)  FNRBODY(60)
-FNABODY(61)  FNRBODY(61)
-FNABODY(62)  FNRBODY(62)
-FNABODY(63)  FNRBODY(63)
-FNABODY(64)  FNRBODY(64)
-FNABODY(65)  FNRBODY(65)
-/* QSIG-RE */
-FNABODY(57)  FNRBODY(57)
-FNABODY(58)  FNRBODY(58)
-/* QSIG-CINT */
-FNABODY(66)  FNRBODY(66)
-FNABODY(67)  FNRBODY(67)
-FNABODY(68)  FNRBODY(68)
-FNABODY(69)  FNRBODY(69)
-FNABODY(70)  FNRBODY(70)
-/* QSIG-MWI */
-/* see common for QSIG-MWI, QSIG-MCM */                     
-/* SYNC-SIG */                     
-FNABODY(78)  FNRBODY(78)
-FNABODY(79)  FNRBODY(79)
-/* QSIG-CMN */
-FNABODY(84) FNRBODY(84)
-FNABODY(85) FNRBODY(85)
-/* QSIG-CPI(P) */
-FNABODY(87)  FNRBODY(87)
-FNABODY(88)  FNRBODY(88)
-/* QSIG-PUMR */
-FNABODY(89)  FNRBODY(89)
-FNABODY(90)  FNRBODY(90)
-FNABODY(91)  FNRBODY(91)
-FNABODY(92)  FNRBODY(92)
-/* QSIG-PUMCH */
-FNABODY(93)  FNRBODY(93)
-FNABODY(94)  FNRBODY(94)
-FNABODY(95)  FNRBODY(95)
-FNABODY(96)  FNRBODY(96)
-/* QSIG-SSCT */
-FNABODY(99)  FNRBODY(99)
-FNABODY(100) FNRBODY(100)
-FNABODY(101) FNRBODY(101)
-FNABODY(102) FNRBODY(102)
-/* QSIG-WTMLR */
-FNABODY(50)  FNRBODY(50)
-FNABODY(51)  FNRBODY(51)
-FNABODY(52)  FNRBODY(52)
-FNABODY(53)  FNRBODY(53)
-FNABODY(97)  FNRBODY(97)
-FNABODY(98)  FNRBODY(98)
-/* QSIG-WTMCH */                      
-FNABODY(54)  FNRBODY(54)
-FNABODY(55)  FNRBODY(55)
-FNABODY(56)  FNRBODY(56)
-FNABODY(71)  FNRBODY(71)
-/* QSIG-WTMAU */               
-FNABODY(72)  FNRBODY(72)
-FNABODY(73)  FNRBODY(73)
-FNABODY(74)  FNRBODY(74)
-FNABODY(75)  FNRBODY(75)
-FNABODY(76)  FNRBODY(76)
-FNABODY(77)  FNRBODY(77)
-/* QSIG-SD */                     
-FNABODY(103) FNRBODY(103)
-FNABODY(104) FNRBODY(104)
-/* QSIG-CIDL */
-FNABODY(105) FNRBODY(105)
-FNABODY(106) FNRBODY(106)
-/* QSIG-SMS */
-FNABODY(107) FNRBODY(107)
-FNABODY(108) FNRBODY(108)
-FNABODY(109) FNRBODY(109)
-FNABODY(110) FNRBODY(110)
-FNABODY(111) FNRBODY(111)
-/* QSIG-MCR */
-FNABODY(112)  FNRBODY(112)
-FNABODY(113)  FNRBODY(113)
-FNABODY(114)  FNRBODY(114)
-/* QSIG-MCM */                      
-FNABODY(115) FNRBODY(115)
-FNABODY(116) FNRBODY(116)
-FNABODY(117) FNRBODY(117)
-FNABODY(118) FNRBODY(118)
-/* QSIG-MID */                      
-FNABODY(119) FNRBODY(119)
-FNABODY(120) FNRBODY(120)
-/* common for QSIG-CO, QSIG-DND(O), QSIG-CI */                     
-FNABODY(41)  FNRBODY(41)
-FNABODY(42)  FNRBODY(42)
-FNABODY(49)  FNRBODY(49)
-/* common for QSIG-MWI, QSIG-MCM */                     
-FNABODY(80)  FNRBODY(80)
-FNABODY(81)  FNRBODY(81)
-FNABODY(82)  FNRBODY(82)
                      
-
-typedef guint32 (*pdu_fn)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
-
-typedef struct _qsig_op {
-  guint32 service;
-  dissector_t arg_dissector;
-  dissector_t res_dissector;
-  dissector_t arg_pdu;
-  dissector_t res_pdu;
-} qsig_op;
-#define NO_SRV ((guint32)-1)
-#define FNA(x) dissect_qsig_arg##x
-#define FNR(x) dissect_qsig_res##x
+typedef struct _qsig_op_t {
+  gint32 opcode;
+  new_dissector_t arg_pdu;
+  new_dissector_t res_pdu;
+} qsig_op_t;
 
 /* Initialize the protocol and registered fields */
 int proto_qsig = -1;
@@ -481,191 +439,242 @@ static dissector_handle_t data_handle = NULL;
 
 #include "packet-qsig-fn.c"
 
-
-static qsig_op qsig_tab[] = {
-  /*   0 */ { 13868, FNA(  0), FNR(  0), dissect_NameArg_PDU, NULL },
-  /*   1 */ { 13868, FNA(  1), FNR(  1), dissect_NameArg_PDU, NULL },
-  /*   2 */ { 13868, FNA(  2), FNR(  2), dissect_NameArg_PDU, NULL },
-  /*   3 */ { 13868, FNA(  3), FNR(  3), dissect_NameArg_PDU, NULL },
-  /*   4 */ { 13874, FNA(  4), FNR(  4), NULL, NULL },
-  /*   5 */ { 13874, FNA(  5), FNR(  5), NULL, NULL },
-  /*   6 */ { 13874, FNA(  6), FNR(  6), NULL, NULL },
-  /*   7 */ { 13869, FNA(  7), FNR(  7), NULL, NULL },
-  /*   8 */ { 13869, FNA(  8), FNR(  8), NULL, NULL },
-  /*   9 */ { 13869, FNA(  9), FNR(  9), NULL, NULL },
-  /*  10 */ { 13869, FNA( 10), FNR( 10), NULL, NULL },
-  /*  11 */ { 13869, FNA( 11), FNR( 11), NULL, NULL },
-  /*  12 */ { 13869, FNA( 12), FNR( 12), NULL, NULL },
-  /*  13 */ { 13869, FNA( 13), FNR( 13), NULL, NULL },
-  /*  14 */ { 13869, FNA( 14), FNR( 14), NULL, NULL },
-  /*  15 */ { 13873, FNA( 15), FNR( 15), dissect_ARG_activateDiversionQ_PDU, dissect_RES_activateDiversionQ_PDU },
-  /*  16 */ { 13873, FNA( 16), FNR( 16), dissect_ARG_deactivateDiversionQ_PDU, dissect_RES_deactivateDiversionQ_PDU },
-  /*  17 */ { 13873, FNA( 17), FNR( 17), dissect_ARG_interrogateDiversionQ_PDU, dissect_IntResultList_PDU },
-  /*  18 */ { 13873, FNA( 18), FNR( 18), dissect_ARG_checkRestriction_PDU, dissect_RES_checkRestriction_PDU },
-  /*  19 */ { 13873, FNA( 19), FNR( 19), dissect_ARG_callRerouteing_PDU, dissect_RES_callRerouteing_PDU },
-  /*  20 */ { 13873, FNA( 20), FNR( 20), dissect_ARG_divertingLegInformation1_PDU, NULL },
-  /*  21 */ { 13873, FNA( 21), FNR( 21), dissect_ARG_divertingLegInformation2_PDU, NULL },
-  /*  22 */ { 13873, FNA( 22), FNR( 22), dissect_ARG_divertingLegInformation3_PDU, NULL },
-  /*  23 */ { 13873, FNA( 23), FNR( 23), dissect_ARG_cfnrDivertedLegFailed_PDU, NULL },
-  /*  24 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
-  /*  25 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
-  /*  26 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
-  /*  27 */ { 13870, FNA( 27), FNR( 27), NULL, NULL },
-  /*  28 */ { 13870, FNA( 28), FNR( 28), NULL, NULL },
-  /*  29 */ { 13870, FNA( 29), FNR( 29), NULL, NULL },
-  /*  30 */ { 13870, FNA( 30), FNR( 30), NULL, NULL },
-  /*  31 */ { 13870, FNA( 31), FNR( 31), NULL, NULL },
-  /*  32 */ { 13870, FNA( 32), FNR( 32), NULL, NULL },
-  /*  33 */ { 13870, FNA( 33), FNR( 33), NULL, NULL },
-  /*  34 */ { 14843, FNA( 34), FNR( 34), NULL, NULL },
-  /*  35 */ { 14844, FNA( 35), FNR( 35), NULL, NULL },
-  /*  36 */ { 14844, FNA( 36), FNR( 36), NULL, NULL },
-  /*  37 */ { 14844, FNA( 37), FNR( 37), NULL, NULL },
-  /*  38 */ { 14844, FNA( 38), FNR( 38), NULL, NULL },
-  /*  39 */ { 14844, FNA( 39), FNR( 39), NULL, NULL },
-  /*  40 */ { 13870, FNA( 40), FNR( 40), NULL, NULL },
-  /*  41 */ { 90001, FNA( 41), FNR( 41), NULL, NULL },
-  /*  42 */ { 90001, FNA( 42), FNR( 42), NULL, NULL },
-  /*  43 */ { 14846, FNA( 43), FNR( 43), NULL, NULL },
-  /*  44 */ { 14846, FNA( 44), FNR( 44), NULL, NULL },
-  /*  45 */ { 14846, FNA( 45), FNR( 45), NULL, NULL },
-  /*  46 */ { 14846, FNA( 46), FNR( 46), NULL, NULL },
-  /*  47 */ { 14846, FNA( 47), FNR( 47), NULL, NULL },
-  /*  48 */ { 14846, FNA( 48), FNR( 48), NULL, NULL },
-  /*  49 */ { 90001, FNA( 49), FNR( 49), NULL, NULL },
-  /*  50 */ { 15429, FNA( 50), FNR( 50), NULL, NULL },
-  /*  51 */ { 15429, FNA( 51), FNR( 51), NULL, NULL },
-  /*  52 */ { 15429, FNA( 52), FNR( 52), NULL, NULL },
-  /*  53 */ { 15429, FNA( 53), FNR( 53), NULL, NULL },
-  /*  54 */ { 15431, FNA( 54), FNR( 54), NULL, NULL },
-  /*  55 */ { 15431, FNA( 55), FNR( 55), NULL, NULL },
-  /*  56 */ { 15431, FNA( 56), FNR( 56), NULL, NULL },
-  /*  57 */ { 15052, FNA( 57), FNR( 57), NULL, NULL },
-  /*  58 */ { 15052, FNA( 58), FNR( 58), NULL, NULL },
-  /*  59 */ { 15050, FNA( 59), FNR( 59), NULL, NULL },
-  /*  60 */ { 15050, FNA( 60), FNR( 60), NULL, NULL },
-  /*  61 */ { 15050, FNA( 61), FNR( 61), NULL, NULL },
-  /*  62 */ { 15050, FNA( 62), FNR( 62), NULL, NULL },
-  /*  63 */ { 15050, FNA( 63), FNR( 63), NULL, NULL },
-  /*  64 */ { 15050, FNA( 64), FNR( 64), NULL, NULL },
-  /*  65 */ { 15050, FNA( 65), FNR( 65), NULL, NULL },
-  /*  66 */ { 15054, FNA( 66), FNR( 66), NULL, NULL },
-  /*  67 */ { 15054, FNA( 67), FNR( 67), NULL, NULL },
-  /*  68 */ { 15054, FNA( 68), FNR( 68), NULL, NULL },
-  /*  69 */ { 15054, FNA( 69), FNR( 69), NULL, NULL },
-  /*  70 */ { 15054, FNA( 70), FNR( 70), NULL, NULL },
-  /*  71 */ { 15431, FNA( 71), FNR( 71), NULL, NULL },
-  /*  72 */ { 15433, FNA( 72), FNR( 72), NULL, NULL },
-  /*  73 */ { 15433, FNA( 73), FNR( 73), NULL, NULL },
-  /*  74 */ { 15433, FNA( 74), FNR( 74), NULL, NULL },
-  /*  75 */ { 15433, FNA( 75), FNR( 75), NULL, NULL },
-  /*  76 */ { 15433, FNA( 76), FNR( 76), NULL, NULL },
-  /*  77 */ { 15433, FNA( 77), FNR( 77), NULL, NULL },
-  /*  78 */ { 15507, FNA( 78), FNR( 78), NULL, NULL },
-  /*  79 */ { 15507, FNA( 79), FNR( 79), NULL, NULL },
-  /*  80 */ { 90002, FNA( 80), FNR( 80), NULL, NULL },
-  /*  81 */ { 90002, FNA( 81), FNR( 81), NULL, NULL },
-  /*  82 */ { 90002, FNA( 82), FNR( 82), NULL, NULL },
-  /*  83 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
-  /*  84 */ { 15772, FNA( 84), FNR( 84), NULL, NULL },
-  /*  85 */ { 15772, FNA( 85), FNR( 85), NULL, NULL },
-  /*  86 */ { 13874, FNA( 86), FNR( 86), NULL, NULL },
-  /*  87 */ { 15992, FNA( 87), FNR( 87), NULL, NULL },
-  /*  88 */ { 15992, FNA( 88), FNR( 88), NULL, NULL },
-  /*  89 */ { 17876, FNA( 89), FNR( 89), NULL, NULL },
-  /*  90 */ { 17876, FNA( 90), FNR( 90), NULL, NULL },
-  /*  91 */ { 17876, FNA( 91), FNR( 91), NULL, NULL },
-  /*  92 */ { 17876, FNA( 92), FNR( 92), NULL, NULL },
-  /*  93 */ { 17878, FNA( 93), FNR( 93), NULL, NULL },
-  /*  94 */ { 17878, FNA( 94), FNR( 94), NULL, NULL },
-  /*  95 */ { 17878, FNA( 95), FNR( 95), NULL, NULL },
-  /*  96 */ { 17878, FNA( 96), FNR( 96), NULL, NULL },
-  /*  97 */ { 15429, FNA( 97), FNR( 97), NULL, NULL },
-  /*  98 */ { 15429, FNA( 98), FNR( 98), NULL, NULL },
-  /*  99 */ { 19460, FNA( 99), FNR( 99), NULL, NULL },
-  /* 100 */ { 19460, FNA(100), FNR(100), NULL, NULL },
-  /* 101 */ { 19460, FNA(101), FNR(101), NULL, NULL },
-  /* 102 */ { 19460, FNA(102), FNR(102), NULL, NULL },
-  /* 103 */ { 21407, FNA(103), FNR(103), NULL, NULL },
-  /* 104 */ { 21407, FNA(104), FNR(104), NULL, NULL },
-  /* 105 */ { 21889, FNA(105), FNR(105), NULL, NULL },
-  /* 106 */ { 21889, FNA(106), FNR(106), NULL, NULL },
-  /* 107 */ {   325, FNA(107), FNR(107), NULL, NULL },
-  /* 108 */ {   325, FNA(108), FNR(108), NULL, NULL },
-  /* 109 */ {   325, FNA(109), FNR(109), NULL, NULL },
-  /* 110 */ {   325, FNA(110), FNR(110), NULL, NULL },
-  /* 111 */ {   325, FNA(111), FNR(111), NULL, NULL },
-  /* 112 */ {   344, FNA(112), FNR(112), NULL, NULL },
-  /* 113 */ {   344, FNA(113), FNR(113), NULL, NULL },
-  /* 114 */ {   344, FNA(114), FNR(114), NULL, NULL },
-  /* 115 */ {  3471, FNA(115), FNR(115), NULL, NULL },
-  /* 116 */ {  3471, FNA(116), FNR(116), NULL, NULL },
-  /* 117 */ {  3471, FNA(117), FNR(117), NULL, NULL },
-  /* 118 */ {  3471, FNA(118), FNR(118), NULL, NULL },
-  /* 119 */ {  3472, FNA(119), FNR(119), NULL, NULL },
-  /* 120 */ {  3472, FNA(120), FNR(120), NULL, NULL },
+static const qsig_op_t qsig_tab[] = {
+  /*   0 */ {   0, dissect_NameArg_PDU, NULL },
+  /*   1 */ {   1, dissect_NameArg_PDU, NULL },
+  /*   2 */ {   2, dissect_NameArg_PDU, NULL },
+  /*   3 */ {   3, dissect_NameArg_PDU, NULL },
+  /*   4 */ {   4, NULL, NULL },
+  /*   5 */ {   5, NULL, NULL },
+  /*   6 */ {   6, NULL, NULL },
+  /*   7 */ {   7, NULL, NULL },
+  /*   8 */ {   8, NULL, NULL },
+  /*   9 */ {   9, NULL, NULL },
+  /*  10 */ {  10, NULL, NULL },
+  /*  11 */ {  11, NULL, NULL },
+  /*  12 */ {  12, NULL, NULL },
+  /*  13 */ {  13, NULL, NULL },
+  /*  14 */ {  14, NULL, NULL },
+  /*  15 */ {  15, dissect_ARG_activateDiversionQ_PDU, dissect_RES_activateDiversionQ_PDU },
+  /*  16 */ {  16, dissect_ARG_deactivateDiversionQ_PDU, dissect_RES_deactivateDiversionQ_PDU },
+  /*  17 */ {  17, dissect_ARG_interrogateDiversionQ_PDU, dissect_IntResultList_PDU },
+  /*  18 */ {  18, dissect_ARG_checkRestriction_PDU, dissect_RES_checkRestriction_PDU },
+  /*  19 */ {  19, dissect_ARG_callRerouteing_PDU, dissect_RES_callRerouteing_PDU },
+  /*  20 */ {  20, dissect_ARG_divertingLegInformation1_PDU, NULL },
+  /*  21 */ {  21, dissect_ARG_divertingLegInformation2_PDU, NULL },
+  /*  22 */ {  22, dissect_ARG_divertingLegInformation3_PDU, NULL },
+  /*  23 */ {  23, dissect_ARG_cfnrDivertedLegFailed_PDU, NULL },
+  /*  27 */ {  27, NULL, NULL },
+  /*  28 */ {  28, NULL, NULL },
+  /*  29 */ {  29, NULL, NULL },
+  /*  30 */ {  30, NULL, NULL },
+  /*  31 */ {  31, NULL, NULL },
+  /*  32 */ {  32, NULL, NULL },
+  /*  33 */ {  33, NULL, NULL },
+  /*  34 */ {  34, NULL, NULL },
+  /*  35 */ {  35, NULL, NULL },
+  /*  36 */ {  36, NULL, NULL },
+  /*  37 */ {  37, NULL, NULL },
+  /*  38 */ {  38, NULL, NULL },
+  /*  39 */ {  39, NULL, NULL },
+  /*  40 */ {  40, NULL, NULL },
+  /*  41 */ {  41, NULL, NULL },
+  /*  42 */ {  42, NULL, NULL },
+  /*  43 */ {  43, NULL, NULL },
+  /*  44 */ {  44, NULL, NULL },
+  /*  45 */ {  45, NULL, NULL },
+  /*  46 */ {  46, NULL, NULL },
+  /*  47 */ {  47, NULL, NULL },
+  /*  48 */ {  48, NULL, NULL },
+  /*  49 */ {  49, NULL, NULL },
+  /*  50 */ {  50, NULL, NULL },
+  /*  51 */ {  51, NULL, NULL },
+  /*  52 */ {  52, NULL, NULL },
+  /*  53 */ {  53, NULL, NULL },
+  /*  54 */ {  54, NULL, NULL },
+  /*  55 */ {  55, NULL, NULL },
+  /*  56 */ {  56, NULL, NULL },
+  /*  57 */ {  57, NULL, NULL },
+  /*  58 */ {  58, NULL, NULL },
+  /*  59 */ {  59, NULL, NULL },
+  /*  60 */ {  60, NULL, NULL },
+  /*  61 */ {  61, NULL, NULL },
+  /*  62 */ {  62, NULL, NULL },
+  /*  63 */ {  63, NULL, NULL },
+  /*  64 */ {  64, NULL, NULL },
+  /*  65 */ {  65, NULL, NULL },
+  /*  66 */ {  66, NULL, NULL },
+  /*  67 */ {  67, NULL, NULL },
+  /*  68 */ {  68, NULL, NULL },
+  /*  69 */ {  69, NULL, NULL },
+  /*  70 */ {  70, NULL, NULL },
+  /*  71 */ {  71, NULL, NULL },
+  /*  72 */ {  72, NULL, NULL },
+  /*  73 */ {  73, NULL, NULL },
+  /*  74 */ {  74, NULL, NULL },
+  /*  75 */ {  75, NULL, NULL },
+  /*  76 */ {  76, NULL, NULL },
+  /*  77 */ {  77, NULL, NULL },
+  /*  78 */ {  78, NULL, NULL },
+  /*  79 */ {  79, NULL, NULL },
+  /*  80 */ {  80, NULL, NULL },
+  /*  81 */ {  81, NULL, NULL },
+  /*  82 */ {  82, NULL, NULL },
+  /*  84 */ {  84, NULL, NULL },
+  /*  85 */ {  85, NULL, NULL },
+  /*  86 */ {  86, NULL, NULL },
+  /*  87 */ {  87, NULL, NULL },
+  /*  88 */ {  88, NULL, NULL },
+  /*  89 */ {  89, NULL, NULL },
+  /*  90 */ {  90, NULL, NULL },
+  /*  91 */ {  91, NULL, NULL },
+  /*  92 */ {  92, NULL, NULL },
+  /*  93 */ {  93, NULL, NULL },
+  /*  94 */ {  94, NULL, NULL },
+  /*  95 */ {  95, NULL, NULL },
+  /*  96 */ {  96, NULL, NULL },
+  /*  97 */ {  97, NULL, NULL },
+  /*  98 */ {  98, NULL, NULL },
+  /*  99 */ {  99, NULL, NULL },
+  /* 100 */ { 100, NULL, NULL },
+  /* 101 */ { 101, NULL, NULL },
+  /* 102 */ { 102, NULL, NULL },
+  /* 103 */ { 103, NULL, NULL },
+  /* 104 */ { 104, NULL, NULL },
+  /* 105 */ { 105, NULL, NULL },
+  /* 106 */ { 106, NULL, NULL },
+  /* 107 */ { 107, NULL, NULL },
+  /* 108 */ { 108, NULL, NULL },
+  /* 109 */ { 109, NULL, NULL },
+  /* 110 */ { 110, NULL, NULL },
+  /* 111 */ { 111, NULL, NULL },
+  /* 112 */ { 112, NULL, NULL },
+  /* 113 */ { 113, NULL, NULL },
+  /* 114 */ { 114, NULL, NULL },
+  /* 115 */ { 115, NULL, NULL },
+  /* 116 */ { 116, NULL, NULL },
+  /* 117 */ { 117, NULL, NULL },
+  /* 118 */ { 118, NULL, NULL },
+  /* 119 */ { 119, NULL, NULL },
+  /* 120 */ { 120, NULL, NULL },
 };                                 
+
+static const qsig_op_t *get_op(gint32 opcode) {
+  int i;
+
+  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  for (i = array_length(qsig_tab) - 1; i >= 0; i--)
+    if (qsig_tab[i].opcode == opcode)
+      return &qsig_tab[i];
+  return NULL;
+}
+
+static gint32 get_service(gint32 opcode) {
+  if ((opcode <0) || (opcode >= array_length(op2srv_tab)))
+    return NULL;
+  return op2srv_tab[opcode];
+}
                   
 /*--- dissect_qsig_arg ------------------------------------------------------*/
-/*static*/ void   
-dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 operation) {
-  gint offset;
+static int   
+dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  int offset;
+  rose_ctx_t *rctx;
+  gint32 opcode, service;
+  const qsig_op_t *op_ptr;
   const gchar *p;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
   offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 1)  /* invoke */
+    return offset; 
+  if (rctx->d.code != 0)  /* local */
+    return offset; 
+  opcode = rctx->d.code_local;
+  op_ptr = get_op(opcode);
+  if (!op_ptr)
+    return offset; 
+  service = get_service(opcode);
+
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig); 
 
-  proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, operation);
-  p = match_strval(operation, VALS(qsig_str_operation));
+  proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
+  p = match_strval(opcode, VALS(qsig_str_operation));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
-    proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), " %s", p);
+    proto_item_append_text(rctx->d.code_item, " - %s", p);
+    if (rctx->apdu_depth >= 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
   }
-  if (operation >= array_length(qsig_tab)) return;
-  if (qsig_tab[operation].service != NO_SRV) {
-    ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, qsig_tab[operation].service);
-    p = match_strval(qsig_tab[operation].service, VALS(qsig_str_service_name));
-    if (p) proto_item_append_text(ti_tmp, " - %s", p);
-  }
-  if (qsig_tab[operation].arg_pdu)
-    qsig_tab[operation].arg_pdu(tvb, pinfo, qsig_tree);
+
+  ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, service);
+  p = match_strval(service, VALS(qsig_str_service_name));
+  if (p) proto_item_append_text(ti_tmp, " - %s", p);
+
+  if (op_ptr->arg_pdu)
+    offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree);
   else 
-    if (tvb_length_remaining(tvb, offset) > 0)
-      proto_tree_add_text(qsig_tree, tvb, offset, tvb_length_remaining(tvb, offset), "UNSUPPORTED ARGUMENT TYPE (QSIG)");
+    if (tvb_length_remaining(tvb, offset) > 0) {
+      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (QSIG)");
+      offset += tvb_length_remaining(tvb, offset);
+    }
+
+  return offset;
 }
 
 /*--- dissect_qsig_res -------------------------------------------------------*/
-/*static*/ void
-dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 operation) {
+static int
+dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset;
+  rose_ctx_t *rctx;
+  gint32 opcode, service;
+  const qsig_op_t *op_ptr;
   const gchar *p;
   proto_item *ti, *ti_tmp;
   proto_tree *qsig_tree;
 
   offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 2)  /* returnResult */
+    return offset; 
+  if (rctx->d.code != 0)  /* local */
+    return offset; 
+  opcode = rctx->d.code_local;
+  op_ptr = get_op(opcode);
+  if (!op_ptr)
+    return offset; 
+  service = get_service(opcode);
+
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig); 
 
-  proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, operation);
-  p = match_strval(operation, VALS(qsig_str_operation));
+  proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
+  p = match_strval(opcode, VALS(qsig_str_operation));
   if (p) {
     proto_item_append_text(ti, ": %s", p);
-    proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), " %s", p);
+    proto_item_append_text(rctx->d.code_item, " - %s", p);
+    if (rctx->apdu_depth >= 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
   }
-  if (operation >= array_length(qsig_tab)) return;
-  if (qsig_tab[operation].service != NO_SRV) {
-    ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, qsig_tab[operation].service);
-    p = match_strval(qsig_tab[operation].service, VALS(qsig_str_service_name));
-    if (p) proto_item_append_text(ti_tmp, " - %s", p);
-  }
-  if (qsig_tab[operation].res_pdu)
-    qsig_tab[operation].res_pdu(tvb, pinfo, qsig_tree);
+
+  ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, service);
+  p = match_strval(service, VALS(qsig_str_service_name));
+  if (p) proto_item_append_text(ti_tmp, " - %s", p);
+
+  if (op_ptr->res_pdu)
+    offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree);
   else 
-    if (tvb_length_remaining(tvb, offset) > 0)
-      proto_tree_add_text(qsig_tree, tvb, offset, tvb_length_remaining(tvb, offset), "UNSUPPORTED RESULT TYPE (QSIG)");
+    if (tvb_length_remaining(tvb, offset) > 0) {
+      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (QSIG)");
+      offset += tvb_length_remaining(tvb, offset);
+    }
+
+  return offset;
 }
 
 /*--- dissect_qsig_transit_counter_ie ---------------------------------------*/
@@ -785,22 +794,19 @@ void proto_register_qsig(void) {
 
 /*--- proto_reg_handoff_qsig ------------------------------------------------*/
 void proto_reg_handoff_qsig(void) {
-  guint32 op;
-  dissector_handle_t qsig_op_handle;
+  int i;
+  dissector_handle_t qsig_arg_handle;
+  dissector_handle_t qsig_res_handle;
   dissector_handle_t qsig_ie_handle;
 
   data_handle = find_dissector("data");
 
   if (find_dissector_table("q932.ros.local.arg")) {
-    for (op=0; op<array_length(qsig_tab); op++) {
-      if (qsig_tab[op].arg_dissector) {
-        qsig_op_handle = create_dissector_handle(qsig_tab[op].arg_dissector, proto_qsig);
-        dissector_add("q932.ros.local.arg", op, qsig_op_handle);
-      }
-      if (qsig_tab[op].res_dissector) {
-        qsig_op_handle = create_dissector_handle(qsig_tab[op].res_dissector, proto_qsig);
-        dissector_add("q932.ros.local.res", op, qsig_op_handle);
-      }
+    qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
+    qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);
+    for (i=0; i<array_length(qsig_tab); i++) {
+      dissector_add("q932.ros.local.arg", qsig_tab[i].opcode, qsig_arg_handle);
+      dissector_add("q932.ros.local.res", qsig_tab[i].opcode, qsig_res_handle);
     }
   }
 

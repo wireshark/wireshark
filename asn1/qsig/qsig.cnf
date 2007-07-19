@@ -4,35 +4,15 @@
 
 # $Id$
 
-# imported classes
-#.CLASS OPERATION
-#.CLASS ERROR
-
 
 #.EXPORTS  EXTERN VALS_WITH_TABLE
 
 Name
 
-#.PDU
+#.PDU_NEW
 
-#--- ECMA-164 QSIG-NA --------------------------------
-NameArg
-
-#--- ECMA-174 QSIG-CF --------------------------------
-ARG-activateDiversionQ
-RES-activateDiversionQ
-ARG-deactivateDiversionQ
-RES-deactivateDiversionQ
-ARG-interrogateDiversionQ
-ARG-checkRestriction
-RES-checkRestriction
-ARG-callRerouteing
-RES-callRerouteing
-ARG-divertingLegInformation1
-ARG-divertingLegInformation2
-ARG-divertingLegInformation3
-ARG-cfnrDivertedLegFailed
-IntResultList
+OPERATION.&ArgumentType
+OPERATION.&ResultType
 
 #.END
 
