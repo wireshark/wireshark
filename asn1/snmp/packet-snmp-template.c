@@ -1100,7 +1100,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, asn1_ctx_t *actx,tvbu
 
 static void set_ue_keys(snmp_ue_assoc_t* n ) {
 	guint key_size = n->user.authModel->key_size;
-	
+
 	n->user.authKey.data = se_alloc(key_size);
 	n->user.authKey.len = key_size;
 	n->user.authModel->pass2key(n->user.authPassword.data,
@@ -1108,7 +1108,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 								n->engine.data,
 								n->engine.len,
 								n->user.authKey.data);
-	
+
 	n->user.privKey.data = se_alloc(key_size);
 	n->user.privKey.len = key_size;
 	n->user.authModel->pass2key(n->user.privPassword.data,
@@ -1120,29 +1120,29 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 
 static snmp_ue_assoc_t* ue_se_dup(snmp_ue_assoc_t* o) {
 	snmp_ue_assoc_t* d = se_memdup(o,sizeof(snmp_ue_assoc_t));
-	
+
 	d->user.authModel = o->user.authModel;
-	
+
 	d->user.privProtocol = o->user.privProtocol;
-	
+
 	d->user.userName.data = se_memdup(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
-	
+
 	d->user.authPassword.data = o->user.authPassword.data ? se_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
-	
+
 	d->user.privPassword.data = o->user.privPassword.data ? se_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
-	
+
 	d->engine.len = o->engine.len;
-	
+
 	if (d->engine.len) {
 		d->engine.data = se_memdup(o->engine.data,o->engine.len);
 		set_ue_keys(d);
 	}
-	
+
 	return d;
-	
+
 }
 
 
@@ -1151,7 +1151,7 @@ static snmp_ue_assoc_t* ue_se_dup(snmp_ue_assoc_t* o) {
 static void renew_ue_cache(void) {
 	if (num_ueas) {
 		guint i;
-		
+
 		localized_ues = NULL;
 		unlocalized_ues = NULL;
 
@@ -1160,7 +1160,7 @@ static void renew_ue_cache(void) {
 
 			if (a->engine.len) {
 				CACHE_INSERT(localized_ues,a);
-				
+
 			} else {
 				CACHE_INSERT(unlocalized_ues,a);
 			}
@@ -1180,7 +1180,7 @@ static snmp_ue_assoc_t* localize_ue( snmp_ue_assoc_t* o, const guint8* engine, g
 	n->engine.len = engine_len;
 
 	set_ue_keys(n);
-	
+
 	return n;
 }
 
@@ -1358,7 +1358,7 @@ static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 	salt_len = tvb_length_remaining(p->priv_tvb,0);
 
 	if (salt_len != 8)  {
-		*error = "decryptionError: msgPrivacyParameters lenght != 8";
+		*error = "decryptionError: msgPrivacyParameters length != 8";
 		return NULL;
 	}
 
@@ -1426,7 +1426,7 @@ static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 	priv_len = tvb_length_remaining(p->priv_tvb,0);
 
 	if (priv_len != 8)  {
-		*error = "decryptionError: msgPrivacyParameters lenght != 8";
+		*error = "decryptionError: msgPrivacyParameters length != 8";
 		return NULL;
 	}
 
@@ -1942,7 +1942,7 @@ static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 
 	d->auth_model = o->auth_model;
 	d->user.authModel = auth_models[o->auth_model];
-	
+
 	d->priv_proto = o->priv_proto;
 	d->user.privProtocol = priv_protos[o->priv_proto];
 
@@ -1954,18 +1954,18 @@ static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 
 	d->user.privPassword.data = o->user.privPassword.data ? g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
-	
+
 	d->engine.len = o->engine.len;
 	if (o->engine.data) {
 		d->engine.data = g_memdup(o->engine.data,o->engine.len);
 	}
-	
+
 	d->user.authKey.data = o->user.authKey.data ? g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
 	d->user.authKey.len = o->user.authKey.len;
 
 	d->user.privKey.data = o->user.privKey.data ? g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
 	d->user.privKey.len = o->user.privKey.len;
-	
+
 	return d;
 }
 
@@ -1993,10 +1993,10 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 		g_string_truncate(es,es->len-2);
 		*err = ep_strdup(es->str);
 	}
-	
+
 	g_string_free(es,TRUE);
-	
-	return; 
+
+	return;
 }
 
 UAT_LSTRING_CB_DEF(snmp_users,userName,snmp_ue_assoc_t,user.userName.data,user.userName.len)
@@ -2081,7 +2081,7 @@ void proto_register_snmp(void) {
 	  &ett_decrypted,
 	  &ett_authParameters,
 	  &ett_internet,
-	  
+
 #include "packet-snmp-ettarr.c"
   };
   module_t *snmp_module;
@@ -2094,7 +2094,7 @@ void proto_register_snmp(void) {
 	  UAT_FLD_LSTRING(snmp_users,privPassword,"The password used for encrypting packets for this entry"),
 	  UAT_END_FIELDS
   };
-  
+
   assocs_uat = uat_new("SNMP Users",
 					   sizeof(snmp_ue_assoc_t),
 					   "snmp_users",
@@ -2106,7 +2106,7 @@ void proto_register_snmp(void) {
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
 					   fields);
-    
+
 #ifdef HAVE_NET_SNMP
 
 #ifdef _WIN32
@@ -2184,7 +2184,7 @@ void proto_register_snmp(void) {
 								"Users Table",
 								"Table of engine-user associations used for authentication and decryption",
 								assocs_uat);
-  
+
 	variable_oid_dissector_table =
 	    register_dissector_table("snmp.variable_oid",
 	      "SNMP Variable OID", FT_STRING, BASE_NONE);
