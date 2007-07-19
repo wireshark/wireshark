@@ -926,6 +926,8 @@ void proto_register_mysql(void)
                                        "Show SQL Query string in INFO column",
                                        "Whether the MySQL dissector should display the SQL query string in the INFO column.",
                                        &mysql_showquery);
+
+	 register_dissector("mysql", dissect_mysql_pdu, proto_mysql);
 }
 
 
