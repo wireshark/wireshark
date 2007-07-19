@@ -1387,7 +1387,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_attach_dpb,
-			{ "Database parameter block", "gdsdb.attach.dpblenght",
+			{ "Database parameter block", "gdsdb.attach.dpblength",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -1574,7 +1574,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_info_buffer_length,
-			{ "Buffer lenght", "gdsdb.info.bufferlength",
+			{ "Buffer length", "gdsdb.info.bufferlength",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -1655,7 +1655,7 @@ proto_register_gdsdb(void)
 		},
 		/* gdsdb_slice_response */
 		{ &hf_gdsdb_sliceresponse_length,
-			{ "Lenght", "gdsdb.sliceresponse.lenght",
+			{ "Lenght", "gdsdb.sliceresponse.length",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},

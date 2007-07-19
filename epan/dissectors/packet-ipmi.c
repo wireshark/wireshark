@@ -134,10 +134,10 @@ static gint ett_cmd_GetFRULedState_data_LEDState = -1;   /* add subtree for LED 
 static gint ett_cmd_GetFRULedState_data_LocalControlColor = -1;  /* add subtree for Local Control Color*/
 static gint ett_cmd_GetFRULedState_data_OverrideStateColor = -1;  /* add subtree for Override State Color*/
 /* Set FRU Activation Policy, added by lane */
-static gint ett_cmd_SetFRUActivationPolicy_data_FRUActivationPolicyMaskBit = -1; 
-static gint ett_cmd_SetFRUActivationPolicy_data_FRUActivationPolicySetBit = -1; 
+static gint ett_cmd_SetFRUActivationPolicy_data_FRUActivationPolicyMaskBit = -1;
+static gint ett_cmd_SetFRUActivationPolicy_data_FRUActivationPolicySetBit = -1;
 /* Get FRU Activation Policy, added by lane */
-static gint ett_cmd_GetFRUActivationPolicy_data_FRUActivationPolicy = -1; 
+static gint ett_cmd_GetFRUActivationPolicy_data_FRUActivationPolicy = -1;
 /* Get Power Level, added by lane */
 static gint ett_cmd_GetPowerLevel_data_Properties = -1; /* add subtree for Properties */
 
@@ -175,33 +175,33 @@ static int hf_ipmi_msg_csum2 = -1;
 /********* Sensor/Event, NetFN = 0x04 **********/
 
 /* Platform Event Message, added by lane */
-static int hf_PEM_datafield_EvMRev = -1; 
-static int hf_PEM_datafield_SensorType = -1; 
-static int hf_PEM_datafield_SensorNumber = -1; 
-static int hf_PEM_datafield_EventDirAndEventType_EventDir = -1; 
-static int hf_PEM_datafield_EventDirAndEventType_EventType = -1; 
+static int hf_PEM_datafield_EvMRev = -1;
+static int hf_PEM_datafield_SensorType = -1;
+static int hf_PEM_datafield_SensorNumber = -1;
+static int hf_PEM_datafield_EventDirAndEventType_EventDir = -1;
+static int hf_PEM_datafield_EventDirAndEventType_EventType = -1;
 
-static int hf_PEM_datafield_EventData1_threshold_76 = -1; 
-static int hf_PEM_datafield_EventData1_threshold_54 = -1; 
-static int hf_PEM_datafield_EventData1_threshold_30 = -1; 
-static int hf_PEM_datafield_EventData2_threshold = -1; 
-static int hf_PEM_datafield_EventData3_threshold = -1; 
+static int hf_PEM_datafield_EventData1_threshold_76 = -1;
+static int hf_PEM_datafield_EventData1_threshold_54 = -1;
+static int hf_PEM_datafield_EventData1_threshold_30 = -1;
+static int hf_PEM_datafield_EventData2_threshold = -1;
+static int hf_PEM_datafield_EventData3_threshold = -1;
 
-static int hf_PEM_datafield_EventData1_discrete_76 = -1; 
-static int hf_PEM_datafield_EventData1_discrete_54 = -1; 
-static int hf_PEM_datafield_EventData1_discrete_30 = -1; 
-static int hf_PEM_datafield_EventData2_discrete_74 = -1; 
-static int hf_PEM_datafield_EventData2_discrete_30 = -1; 
-static int hf_PEM_datafield_EventData3_discrete = -1; 
+static int hf_PEM_datafield_EventData1_discrete_76 = -1;
+static int hf_PEM_datafield_EventData1_discrete_54 = -1;
+static int hf_PEM_datafield_EventData1_discrete_30 = -1;
+static int hf_PEM_datafield_EventData2_discrete_74 = -1;
+static int hf_PEM_datafield_EventData2_discrete_30 = -1;
+static int hf_PEM_datafield_EventData3_discrete = -1;
 
-static int hf_PEM_datafield_EventData1_OEM_76 = -1; 
-static int hf_PEM_datafield_EventData1_OEM_54 = -1; 
-static int hf_PEM_datafield_EventData1_OEM_30 = -1; 
-static int hf_PEM_datafield_EventData2_OEM_74 = -1; 
-static int hf_PEM_datafield_EventData2_OEM_30 = -1; 
-static int hf_PEM_datafield_EventData3_OEM = -1; 
+static int hf_PEM_datafield_EventData1_OEM_76 = -1;
+static int hf_PEM_datafield_EventData1_OEM_54 = -1;
+static int hf_PEM_datafield_EventData1_OEM_30 = -1;
+static int hf_PEM_datafield_EventData2_OEM_74 = -1;
+static int hf_PEM_datafield_EventData2_OEM_30 = -1;
+static int hf_PEM_datafield_EventData3_OEM = -1;
 
-static int hf_PEM_datafield_HotSwapEvent_CurrentState = -1; 
+static int hf_PEM_datafield_HotSwapEvent_CurrentState = -1;
 static int hf_PEM_datafield_HotSwapEvent_StateChangeCause = -1;
 static int hf_PEM_datafield_HotSwapEvent_PreviousState = -1;
 static int hf_PEM_datafield_HotSwapEvent_FRUDeviceID = -1;
@@ -220,7 +220,7 @@ static int hf_GetDeviceSDRInfo_datafield_SensorPopulationChangeIndicator = -1;
 static int hf_GetDeviceSDR_datafield_NextRecordID = -1;
 static int hf_GetDeviceSDR_datafield_ReservationID = -1;
 static int hf_GetDeviceSDR_datafield_RecordID = -1;
-static int hf_GetDeviceSDR_datafield_OffsetIntoRecord = -1; 
+static int hf_GetDeviceSDR_datafield_OffsetIntoRecord = -1;
 static int hf_GetDeviceSDR_datafield_BytesToRead = -1;
 /* Reserve Device SDR Repository, added by lane */
 static int hf_ReserveDeviceSDRRepository_datafield_ReservationID = -1;
@@ -820,7 +820,7 @@ static const value_string ipmi_app_cmd_vals[] = {
 };
 
 /* ipmi_picmg_cmd_vals[] array added by lane  */
-static const value_string ipmi_picmg_cmd_vals[] = {	
+static const value_string ipmi_picmg_cmd_vals[] = {
 	{ 0x00,	"Get PICMG Properties" },
 	{ 0x01,	"Get Address Info" },
 	{ 0x02,	"Get Shelf Address Info" },
@@ -845,7 +845,7 @@ static const value_string ipmi_picmg_cmd_vals[] = {
 	{ 0x15,	"Set Fan Level" },
 	{ 0x16,	"Get Fan Level" },
 	{ 0x17,	"Bused Resource" },
-	{ 0x18,	"Get IPMB Link Info" },	
+	{ 0x18,	"Get IPMB Link Info" },
 	{ 0x00,	NULL },
 };
 
@@ -1211,7 +1211,7 @@ static const value_string cmd_GetDeviceID_Data_DeviceRevision_vals[] = {
 	{ 0x0b,	"11" },
 	{ 0x0c,	"12" },
 	{ 0x0d,	"13" },
-	{ 0x0e,	"14" },      
+	{ 0x0e,	"14" },
 	{ 0x0f,	"15" },
 	{ 0x00,	NULL },
 };
@@ -1237,7 +1237,7 @@ static const value_string cmd_GetDeviceID_Data_IPMIRevision_vals[] = {
 	{ 0x12,	"V2.1" },
 	{ 0x22,	"V2.2" },
 	{ 0x32,	"V2.3" },
-	{ 0x42,	"V2.4" },      
+	{ 0x42,	"V2.4" },
 	{ 0x52,	"V2.5" },
 	{ 0x62,	"V2.6" },
 	{ 0x72,	"V2.7" },
@@ -1278,7 +1278,7 @@ static const value_string cmd_GetSELInfo_Data_SELVersion_vals[] = {
 	{ 0x12,	"V2.1" },
 	{ 0x22,	"V2.2" },
 	{ 0x32,	"V2.3" },
-	{ 0x42,	"V2.4" },      
+	{ 0x42,	"V2.4" },
 	{ 0x52,	"V2.5" },
 	{ 0x62,	"V2.6" },
 	{ 0x72,	"V2.7" },
@@ -1624,7 +1624,7 @@ static const value_string cmd_GetFanLevel_data_OverrideFanLevel_vals[] = {
 typedef struct _ipmi_cmd_dissect{
   guint8  netfn;
   guint8  cmd;
-  void   (*dissectfunc)(proto_tree *, proto_tree *, packet_info *, tvbuff_t *, gint *, guint8, guint8, guint8);  
+  void   (*dissectfunc)(proto_tree *, proto_tree *, packet_info *, tvbuff_t *, gint *, guint8, guint8, guint8);
 } ipmi_cmd_dissect;
 
 
@@ -1652,7 +1652,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 	if(response) {
 
-		return;		
+		return;
 	}
 	else {
 
@@ -1665,26 +1665,26 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 		/* Sensor Type */
 		SensorType = tvb_get_guint8(tvb, auth_offset + 17) ;
-		
+
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_PEM_datafield_SensorType,
 			    					tvb, (*poffset)++, 1, TRUE);
 			len--;
 		}
-		
+
 		/* Sensor Number */
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_PEM_datafield_SensorNumber,
 			    					tvb, (*poffset)++, 1, TRUE);
 			len--;
 		}
-	
+
 		/* Event Dir & Event Type*/
 		EventDirAndEventType = tvb_get_guint8(tvb, auth_offset + 19) ;
 		EventType = EventDirAndEventType&0x7f;
-		
+
 		if (tree) {
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"EventDir&EventType: %s0x%02x", " ", EventDirAndEventType);
 				field_tree = proto_item_add_subtree(tf, ett_cmd_PEM_EventDirAndEventType);
@@ -1694,10 +1694,10 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				proto_tree_add_item(field_tree, hf_PEM_datafield_EventDirAndEventType_EventType,
 				   					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				len--;				
+				len--;
 			}
-		
-		
+
+
 		/* EventData 1~3 */
 		switch(SensorType) {
 
@@ -1707,7 +1707,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 
 				}
-				
+
 				/* threshold  */
 				if(0x01==EventType) {
 					/* EventData 1*/
@@ -1724,18 +1724,18 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				   					tvb, *poffset, 1, TRUE);
 						proto_tree_add_item(field_tree, hf_PEM_datafield_EventData1_threshold_30,
 				   					tvb, *poffset, 1, TRUE);
-				
+
 						(*poffset)++;
 						len--;
 					}
-					
+
 					/* EventData 2*/
 					if (tree&&(len!=0)) {
 						proto_tree_add_item(field_tree, hf_PEM_datafield_EventData2_threshold,
 				    					tvb, (*poffset)++, 1, TRUE);
 						len--;
 					}
-					
+
 					/* EventData 3*/
 					if (tree&&(len!=0)) {
 						proto_tree_add_item(ipmi_tree, hf_PEM_datafield_EventData3_threshold,
@@ -1744,7 +1744,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 				}
 
-	
+
 				/* discrete */
 				if(((EventType>=0x02)&&(EventType<=0x0b))||(0x6f==EventType)) {
 					/* EventData 1*/
@@ -1761,11 +1761,11 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				   					tvb, *poffset, 1, TRUE);
 						proto_tree_add_item(field_tree, hf_PEM_datafield_HotSwapEvent_CurrentState,
 				   					tvb, *poffset, 1, TRUE);
-				
+
 						(*poffset)++;
 						len--;
 					}
-					
+
 					/* EventData 2*/
 					if (tree&&(len!=0)) {
 						EventData2 = tvb_get_guint8(tvb, auth_offset + 21) ;
@@ -1778,11 +1778,11 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				    					tvb, *poffset, 1, TRUE);
 						proto_tree_add_item(field_tree, hf_PEM_datafield_HotSwapEvent_PreviousState,
 				   					tvb, *poffset, 1, TRUE);
-				
+
 						(*poffset)++;
 						len--;
 					}
-					
+
 					/* EventData 3*/
 					if (tree&&(len!=0)) {
 						proto_tree_add_item(ipmi_tree, hf_PEM_datafield_HotSwapEvent_FRUDeviceID,
@@ -1790,7 +1790,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 					}
 
 				}
-				
+
 				/* OEM */
 				if((EventType>=0x70)&&(EventType<=0x7f)) {
 					/* EventData 1*/
@@ -1807,7 +1807,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				   					tvb, *poffset, 1, TRUE);
 						proto_tree_add_item(field_tree, hf_PEM_datafield_EventData1_OEM_30,
 				   					tvb, *poffset, 1, TRUE);
-				
+
 						(*poffset)++;
 						len--;
 					}
@@ -1823,7 +1823,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				    					tvb, *poffset, 1, TRUE);
 						proto_tree_add_item(field_tree, hf_PEM_datafield_EventData2_OEM_30,
 				   					tvb, *poffset, 1, TRUE);
-				
+
 						(*poffset)++;
 						len--;
 					}
@@ -1845,7 +1845,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				}
 				break;
 		}
-		
+
 	}
 
 }
@@ -1872,7 +1872,7 @@ dissect_cmd_GetDeviceSDR(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 			*poffset += len;
 		}
-		
+
 	}
 	else {
 
@@ -1912,11 +1912,11 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;
 	guint8		flag;
-	
+
 	if(response) {
 
 		flag = tvb_get_guint8(tvb, auth_offset + 18) ;
-		
+
 		/* Number of the Sensors in device*/
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_GetDeviceSDRInfo_datafield_SensorNumber,
@@ -1924,7 +1924,7 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 		}
 		/* Flag */
 		if (tree) {
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Flag: %s0x%02x", " ", flag);
 
@@ -1943,7 +1943,7 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 				proto_tree_add_item(field_tree, hf_GetDeviceSDRInfo_datafield_Flag_DeviceLUNs0,
 				    					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 			}
 		/* Sensor Population Change Indicator */
 		if (tree) {
@@ -1951,7 +1951,7 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 			    					tvb, *poffset, 1, TRUE);
 			(*poffset)+=4;
 		}
-		
+
 	}
 	else
 		return;
@@ -2083,32 +2083,32 @@ dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 			(*poffset)++;
 
 			/* lower non-critical threshold */
-			if(ControlByte&0x01) 
+			if(ControlByte&0x01)
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_LowerNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* lower critical threshold */
-			if(ControlByte&0x02) 
+			if(ControlByte&0x02)
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_LowerCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* lower non-recoverable threshold */
-			if(ControlByte&0x04) 
+			if(ControlByte&0x04)
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_LowerNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* upper non-critical threshold */
-			if(ControlByte&0x08) 
+			if(ControlByte&0x08)
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_UpperNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* upper critical threshold value */
-			if(ControlByte&0x10) 
+			if(ControlByte&0x10)
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_UpperCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* upper non-recoverable threshold value */
-			if(ControlByte&0x20) 
+			if(ControlByte&0x20)
 				proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_UpperNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 		}
@@ -2151,32 +2151,32 @@ dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 			(*poffset)++;
 
 			/* lower non-critical threshold */
-			if(ControlByte&0x01) 
+			if(ControlByte&0x01)
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_LowerNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* lower critical threshold */
-			if(ControlByte&0x02) 
+			if(ControlByte&0x02)
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_LowerCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* lower non-recoverable threshold */
-			if(ControlByte&0x04) 
+			if(ControlByte&0x04)
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_LowerNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* upper non-critical threshold */
-			if(ControlByte&0x08) 
+			if(ControlByte&0x08)
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_UpperNonCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* upper critical threshold value */
-			if(ControlByte&0x10) 
+			if(ControlByte&0x10)
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_UpperCriticalThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 
 			/* upper non-recoverable threshold value */
-			if(ControlByte&0x20) 
+			if(ControlByte&0x20)
 				proto_tree_add_item(ipmi_tree, hf_GetSensorThresholds_datafield_UpperNonRecoverableThreshold,
 									tvb, (*poffset)++, 1, TRUE);
 		}
@@ -2200,7 +2200,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;
 	guint8		Response_Data_Byte2, Response_Data_Byte3, Response_Data_Byte4;
-	
+
 	if(response) {
 
 		/* Sensor reading*/
@@ -2210,9 +2210,9 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 		}
 		/* Response Data Byte2 */
 		if (tree) {
-			
+
 				Response_Data_Byte2 = tvb_get_guint8(tvb, auth_offset + 18) ;
-				
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Response Data Byte 2: %s0x%02x", " ", Response_Data_Byte2);
 
@@ -2227,15 +2227,15 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 				proto_tree_add_item(field_tree, hf_GetSensorReading_datafield_ResponseDataByte2_Bit40,
 				    					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 		}
-		
+
 		if(len==4) {
 				/* Response Data Byte3 (For discrete reading sensors) */
 				if (tree) {
-			
+
 					Response_Data_Byte3 = tvb_get_guint8(tvb, auth_offset + 19) ;
-				
+
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Response Data Byte 3: %s0x%02x", " ", Response_Data_Byte3);
 
@@ -2258,13 +2258,13 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 					proto_tree_add_item(field_tree, hf_GetSensorReading_datafield_ResponseDataByte3_Bit0,
 				    					tvb, *poffset, 1, TRUE);
 					(*poffset)++;
-				
+
 				}
 				/* Response Data Byte4 (For discrete reading sensors) */
 				if (tree) {
-			
+
 					Response_Data_Byte4 = tvb_get_guint8(tvb, auth_offset + 20) ;
-				
+
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Response Data Byte 4: %s0x%02x", " ", Response_Data_Byte4);
 
@@ -2287,15 +2287,15 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 					proto_tree_add_item(field_tree, hf_GetSensorReading_datafield_ResponseDataByte4_Bit0,
 				    					tvb, *poffset, 1, TRUE);
 					(*poffset)++;
-				
+
 				}
 		}
 		else {
 				/* Response Data Byte3 (For threshold-based sensors) */
 				if (tree) {
-			
+
 					Response_Data_Byte3 = tvb_get_guint8(tvb, auth_offset + 19) ;
-				
+
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Present threshold comparison status: %s0x%02x", " ", Response_Data_Byte3);
 
@@ -2316,10 +2316,10 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 					proto_tree_add_item(field_tree, hf_GetSensorReading_datafield_ResponseDataByte3_Bit0_threshold,
 				    					tvb, *poffset, 1, TRUE);
 					(*poffset)++;
-				
+
 				}
 		}
-		
+
 	}
 	else {
 		/* Sensor Number */
@@ -2328,7 +2328,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 			    					tvb, (*poffset)++, 1, TRUE);
 		}
 	}
-	
+
 
 }
 
@@ -2344,9 +2344,9 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;
 	guint8		device_revision, firmware_revision1, additional_device_support;
-	guint32		ManufactureID; 
-	guint16		ProductID; 			
-	
+	guint32		ManufactureID;
+	guint16		ProductID;
+
 
 	if(response) {
 
@@ -2355,18 +2355,18 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 		additional_device_support = tvb_get_guint8(tvb, auth_offset + 22) ;
 		ManufactureID = tvb_get_ntoh24(tvb, auth_offset + 23);
 		ProductID = tvb_get_ntohs(tvb, auth_offset + 26);
-		
+
 
 		/* Device ID */
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_GetDeviceID_datafield_DeviceID,
 			    					tvb, (*poffset)++, 1, TRUE);
 		}
-		
-		
+
+
 		/* DeviceSDR/DeviceRevision */
 		if (tree) {
-			
+
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Device SDR/Device Revision: %s (0x%02x)", val_to_str(device_revision>>7,
 					 cmd_GetDeviceID_data_DeviceSDR_vals, "Unknown (0x%02x)"), device_revision>>7);
@@ -2383,7 +2383,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 		/* Device available/Major Firmware Revision */
 		if (tree) {
-			
+
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Device available/Major Firmware Revision: %s (0x%02x)", val_to_str(firmware_revision1>>7,
 					 cmd_GetDeviceID_data_DeviceAvailable_vals, "Unknown (0x%02x)"), firmware_revision1>>7);
@@ -2403,7 +2403,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 			proto_tree_add_item(ipmi_tree, hf_GetDeviceID_datafield_MinorFirmwareRevision,
 			    					tvb, (*poffset)++, 1, TRUE);
 		}
-		
+
 		/* IPMI Revision */
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_GetDeviceID_datafield_IPMIRevision,
@@ -2412,7 +2412,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 		/* Additional Device Support */
 		if (tree) {
-			
+
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Additional Device Support: %s0x%02x", " ", additional_device_support);
 
@@ -2434,7 +2434,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 				    tvb, *poffset, 1, TRUE);
 			proto_tree_add_item(field_tree, hf_GetDeviceID_datafield_ADS_SensorDevice,
 				    tvb, *poffset, 1, TRUE);
-			
+
 			(*poffset)++;
 		}
 
@@ -2457,7 +2457,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 			proto_tree_add_item(ipmi_tree, hf_GetDeviceID_datafield_AFRI,
 			    					tvb, *poffset, 4, TRUE);
 			(*poffset)+=4;
-		}		
+		}
 
 	}
 	else
@@ -2604,7 +2604,7 @@ dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree,
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;
 	guint8		Response_Data_Byte4;
-	
+
 	if(response) {
 
 		/* FRU Inventory area size in bytes */
@@ -2615,9 +2615,9 @@ dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree,
 		}
 		/* Response Data Byte4 */
 		if (tree) {
-			
+
 			Response_Data_Byte4 =  tvb_get_guint8(tvb, auth_offset + 19) ;
-			
+
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Device is accessed by bytes or words: %s0x%02x", " ", Response_Data_Byte4);
 
@@ -2629,18 +2629,18 @@ dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree,
 				    tvb, *poffset, 1, TRUE);
 			(*poffset)++;
 		}
-		
+
 	}
 	else {
-		
+
 		/* FRU Device ID */
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_GetFRUInventoryAreaInfo_datafield_FRUDeviceID,
 			    					tvb, (*poffset)++, 1, TRUE);
 		}
-		
+
 	}
-	
+
 }
 
 static void
@@ -2651,7 +2651,7 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;
 	guint8		Operation_Support;
-	
+
 	if(response) {
 
 		/* SEL Version */
@@ -2659,11 +2659,11 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 			proto_tree_add_item(ipmi_tree, hf_GetSELInfo_datafield_SELVersion,
 			    					tvb, (*poffset)++, 1, TRUE);
 		}
-		
-		
+
+
 		/* number of log entries in SEL */
 		if (tree) {
-			
+
 			proto_tree_add_item(ipmi_tree, hf_GetSELInfo_datafield_Entries,
 				    tvb, *poffset, 2, TRUE);
 			(*poffset)+=2;
@@ -2671,7 +2671,7 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 
 		/* Free Space in bytes */
 		if (tree) {
-			
+
 			proto_tree_add_item(ipmi_tree, hf_GetSELInfo_datafield_FreeSpace,
 				    tvb, *poffset, 2, TRUE);
 			(*poffset)+=2;
@@ -2680,27 +2680,27 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 
 		/* Most recent addition timestamp */
 		if (tree) {
-			
+
 			proto_tree_add_item(ipmi_tree, hf_GetSELInfo_datafield_AdditionTimestamp,
 				    tvb, *poffset, 4, TRUE);
 			(*poffset)+=4;
-		
+
 		}
 
 		/* Most recent addition timestamp */
 		if (tree) {
-			
+
 			proto_tree_add_item(ipmi_tree, hf_GetSELInfo_datafield_EraseTimestamp,
 				    tvb, *poffset, 4, TRUE);
 			(*poffset)+=4;
-		
+
 		}
-		
+
 		/* Operation Support */
 		if (tree) {
-			
+
 			Operation_Support =  tvb_get_guint8(tvb, auth_offset + 30) ;
-			
+
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Operation Support: %s0x%02x", " ", Operation_Support);
 
@@ -2720,7 +2720,7 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 				    tvb, *poffset, 1, TRUE);
 			(*poffset)++;
 		}
-		
+
 	}
 	else
 		return;
@@ -2731,7 +2731,7 @@ static void
 dissect_cmd_Reserve_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
-	
+
 	if(response) {
 
 		/* Reservation ID */
@@ -2753,7 +2753,7 @@ dissect_cmd_Get_SEL_Entry(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 {
 
 	tvbuff_t		*next_tvb;
-	
+
 	if(response) {
 
 		/* Next SEL Record ID */
@@ -2769,10 +2769,10 @@ dissect_cmd_Get_SEL_Entry(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 			*poffset += len;
 		}
-		
+
 	}
 	else {
-		
+
 		/* Reservation ID */
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_GetSELEntry_datafield_ReservationID,
@@ -2808,14 +2808,14 @@ dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinf
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;
 	guint8		erasure_progress;
-	
+
 	if(response) {
 
 		/* Erasure progress */
 		if (tree) {
-			
+
 			erasure_progress =  tvb_get_guint8(tvb, auth_offset + 17) ;
-			
+
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Erasure progress: %s0x%02x", " ", erasure_progress);
 
@@ -2827,10 +2827,10 @@ dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinf
 				    tvb, *poffset, 1, TRUE);
 			(*poffset)++;
 		}
-		
+
 	}
 	else {
-		
+
 		/* Reservation ID */
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_ClearSEL_datafield_ReservationID,
@@ -2871,7 +2871,7 @@ dissect_cmd_Get_PICMG_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet
 		/*proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
 		guint8		picmg_identifier,  PICMGExtensionVersion, MaxFRUDeviceID, FRUDeviceIDforIPMController;*/
-			
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -2888,12 +2888,12 @@ dissect_cmd_Get_PICMG_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_GetPICMGProperties_datafield_MaxFRUDeviceID,
 			    						tvb, (*poffset)++, 1, TRUE);
-			}	
+			}
 			/*FRU Device ID for IPM Controller*/
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_GetPICMGProperties_datafield_FRUDeviceIDforIPMController,
 			    						tvb, (*poffset)++, 1, TRUE);
-			}	
+			}
 		}
 		else {
 			/* PICMG Identifier */
@@ -2921,7 +2921,7 @@ dissect_cmd_FRU_Control(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pi
 
 		}
 		else {
-			
+
 			/* PICMG Identifier */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_FRUControl_datafield_PICMGIdentifier,
@@ -2949,7 +2949,7 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
 		guint8		LedProperties;
-		
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -2959,9 +2959,9 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 			}
 			/* General Status LED Properties */
 			if (tree) {
-			
+
 				LedProperties = tvb_get_guint8(tvb, auth_offset + 18) ;
-				
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"General Status LED Properties: %s0x%02x", " ", LedProperties);
 
@@ -2978,7 +2978,7 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 				proto_tree_add_item(field_tree, hf_GetFRULedProperties_datafield_LedProperties_BlueLED,
 				    					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 			}
 			/* Application Specific LED Count */
 			if (tree) {
@@ -2988,7 +2988,7 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 
 		}
 		else {
-			
+
 			/* PICMG Identifier */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_GetFRULedProperties_datafield_PICMGIdentifier,
@@ -2999,12 +2999,12 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 				proto_tree_add_item(ipmi_tree, hf_GetFRULedProperties_datafield_FRUDeviceID,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 
 }
 
-static void 
+static void
 dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 							gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
@@ -3012,7 +3012,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
 		guint8		LEDColorCapabilities, DefaultLEDColorLocalControl, DefaultLEDColorOverride;
-		
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3022,9 +3022,9 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 			}
 			/* LED Color Capabilities */
 			if (tree) {
-			
+
 				LEDColorCapabilities = tvb_get_guint8(tvb, auth_offset + 18) ;
-				
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"LED Color Capabilities: %s0x%02x", " ", LEDColorCapabilities);
 
@@ -3047,13 +3047,13 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 				proto_tree_add_item(field_tree, hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_Reserved_0,
 				    					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 			}
 			/* Default LED Color in Local Control State*/
 			if (tree) {
-				
+
 				DefaultLEDColorLocalControl = tvb_get_guint8(tvb, auth_offset + 19) ;
-				
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Default LED Color in Local Control State: %s0x%02x", " ", DefaultLEDColorLocalControl);
 
@@ -3067,9 +3067,9 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 			}
 			/* Default LED Color in Override State */
 			if (tree) {
-				
+
 				DefaultLEDColorOverride = tvb_get_guint8(tvb, auth_offset + 20) ;
-				
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Default LED Color in Override State: %s0x%02x", " ", DefaultLEDColorOverride);
 
@@ -3084,7 +3084,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 
 		}
 		else {
-			
+
 			/* PICMG Identifier */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_GetLedColorCapabilities_datafield_PICMGIdentifier,
@@ -3100,13 +3100,13 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 				proto_tree_add_item(ipmi_tree, hf_GetLedColorCapabilities_datafield_LEDID,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-			
-			
+
+
 		}
 
 }
 
-static void 
+static void
 dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
@@ -3114,7 +3114,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 		proto_item	*tf = NULL;
 		guint8		Color;
 
-		
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3122,7 +3122,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 				proto_tree_add_item(ipmi_tree, hf_SetFRULedState_datafield_PICMGIdentifier,
 		    							tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 		else {
 
@@ -3156,7 +3156,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			/*On-duration */
 			if (tree) {
 				guint8 duration = tvb_get_guint8(tvb, *poffset);
-				proto_tree_add_uint_format(ipmi_tree, hf_SetFRULedState_datafield_Onduration, 
+				proto_tree_add_uint_format(ipmi_tree, hf_SetFRULedState_datafield_Onduration,
 									tvb, (*poffset)++, 1, duration,
 									"On-duration: %u ms (0x%02x)", duration * 10, duration);
 			}
@@ -3164,7 +3164,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			if (tree) {
 
 				Color = tvb_get_guint8(tvb, auth_offset + 21) ;
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Color when illuminated: %s0x%02x", " ", Color);
 
@@ -3175,14 +3175,14 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 				proto_tree_add_item(field_tree, hf_SetFRULedState_datafield_Color_ColorVal,
 				   					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 			}
-			
+
 		}
 
 }
 
-static void 
+static void
 dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
@@ -3190,7 +3190,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 		proto_item	*tf = NULL;
 		guint8		led_state, Color;
 
-		
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3202,7 +3202,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			if (tree) {
 
 				led_state = tvb_get_guint8(tvb, auth_offset + 18) ;
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"LED State: %s0x%02x", " ", led_state);
 
@@ -3241,7 +3241,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			if (tree) {
 
 				Color = tvb_get_guint8(tvb, auth_offset + 21) ;
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Local Control Color: %s0x%02x", " ", Color);
 
@@ -3252,7 +3252,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 				proto_tree_add_item(field_tree, hf_GetFRULedState_datafield_LocalControlColor_ColorVal,
 				   					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 			}
 			/* Override State LED Function */
 			if (tree) {
@@ -3275,9 +3275,9 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			}
 			/* Override State Color */
 			if (tree) {
-				
+
 				Color = tvb_get_guint8(tvb, auth_offset + 24) ;
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Override State Color: %s0x%02x", " ", Color);
 
@@ -3294,7 +3294,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 				proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LampTestDuration,
 		    							tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 		else {
 
@@ -3313,7 +3313,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 				proto_tree_add_item(ipmi_tree, hf_GetFRULedState_datafield_LEDID,
 		    							tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 
 }
@@ -3325,7 +3325,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
 		guint8		FRUActivationPolicyMaskBit, MaskBit1, MaskBit0, FRUActivationPolicySetBit;
-		
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3333,7 +3333,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 				proto_tree_add_item(ipmi_tree, hf_SetFRUActivationPolicy_datafield_PICMGIdentifier,
 		    							tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 		else {
 
@@ -3366,7 +3366,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			/* FRU Activation Policy Set Bit */
 			MaskBit1 = FRUActivationPolicyMaskBit & 0x02;
 			MaskBit0 = FRUActivationPolicyMaskBit & 0x01;
-			
+
 			if(MaskBit1&&MaskBit0) {
 
 				if (tree) {
@@ -3384,10 +3384,10 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 				    					tvb, *poffset, 1, TRUE);
 					(*poffset)++;
 				}
-				
+
 			}
 			else if(MaskBit1) {
-				
+
 					if (tree) {
 						FRUActivationPolicySetBit = tvb_get_guint8(tvb, auth_offset + 19) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
@@ -3403,7 +3403,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 				    					tvb, *poffset, 1, TRUE);
 						(*poffset)++;
 					}
-					
+
 				}
 			else if(MaskBit0) {
 
@@ -3424,7 +3424,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 					}
 				}
 			else {
-				
+
 				if (tree) {
 						FRUActivationPolicySetBit = tvb_get_guint8(tvb, auth_offset + 19) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
@@ -3440,10 +3440,10 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 				    					tvb, *poffset, 1, TRUE);
 						(*poffset)++;
 					}
-				
+
 			}
-				
-			
+
+
 		}
 
 }
@@ -3456,7 +3456,7 @@ dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
 		guint8		FRUActivationPolicy;
-		
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3480,7 +3480,7 @@ dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 				    					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
 			}
-			
+
 		}
 		else {
 
@@ -3494,7 +3494,7 @@ dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 				proto_tree_add_item(ipmi_tree, hf_GetFRUActivationPolicy_datafield_FRUDeviceID,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 
 
@@ -3512,7 +3512,7 @@ dissect_cmd_Set_FRU_Activation(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 				proto_tree_add_item(ipmi_tree, hf_SetFRUActivation_datafield_PICMGIdentifier,
 		    							tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 		else {
 
@@ -3530,8 +3530,8 @@ dissect_cmd_Set_FRU_Activation(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_SetFRUActivation_datafield_FRUActivationDeactivation,
 			    						tvb, (*poffset)++, 1, TRUE);
-			}	
-			
+			}
+
 		}
 
 }
@@ -3540,7 +3540,7 @@ static void
 dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
-				
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3554,7 +3554,7 @@ dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree
 			    						tvb, *poffset, 2, TRUE);
 				(*poffset)+=2;
 			}
-			
+
 		}
 		else {
 
@@ -3568,7 +3568,7 @@ dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree
 				proto_tree_add_item(ipmi_tree, hf_GetDeviceLocatorRecordID_datafield_FRUDeviceID,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-		
+
 		}
 
 }
@@ -3587,7 +3587,7 @@ dissect_cmd_Set_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 
 		}
 		else {
-			
+
 			/* PICMG Identifier */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_SetPowerLevel_datafield_PICMGIdentifier,
@@ -3607,8 +3607,8 @@ dissect_cmd_Set_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 			if (tree) {
 					proto_tree_add_item(ipmi_tree, hf_SetPowerLevel_datafield_SetPresentLevelsToDesiredLevels,
 			    						tvb, (*poffset)++, 1, TRUE);
-				}	
-						
+				}
+
 		}
 
 }
@@ -3621,11 +3621,11 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 		proto_item	*tf = NULL;
 		guint8		Properties, j;
 
-		
+
 		if(response) {
 
 			Properties = tvb_get_guint8(tvb, auth_offset + 18) ;
-			
+
 			/* PICMG Identifier */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_GetPowerLevel_datafield_PICMGIdentifier,
@@ -3633,7 +3633,7 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 			}
 			/* Properties */
 			if (tree) {
-			
+
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Properties: %s0x%02x", " ", Properties);
 
@@ -3646,7 +3646,7 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 				proto_tree_add_item(field_tree, hf_GetPowerLevel_datafield_Properties_PowerLevel,
 				    					tvb, *poffset, 1, TRUE);
 				(*poffset)++;
-				
+
 			}
 			/*Delay To Stable Power*/
 			if (tree) {
@@ -3660,13 +3660,13 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 			}
 			/*Power Draw*/
 			for(j=0; j<len-4; j++) {
-			
+
 				if (tree) {
 					proto_tree_add_item(ipmi_tree, hf_GetPowerLevel_datafield_PowerDraw,
 			    						tvb, (*poffset)++, 1, TRUE);
-				}	
+				}
 			}
-					
+
 		}
 		else {
 
@@ -3685,7 +3685,7 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 				proto_tree_add_item(ipmi_tree, hf_GetPowerLevel_datafield_PowerType,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 
 }
@@ -3704,7 +3704,7 @@ dissect_cmd_Set_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 		}
 		else {
-			
+
 			/* PICMG Identifier */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_SetFanLevel_datafield_PICMGIdentifier,
@@ -3720,7 +3720,7 @@ dissect_cmd_Set_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 				proto_tree_add_item(ipmi_tree, hf_SetFanLevel_datafield_FanLevel,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-						
+
 		}
 
 }
@@ -3729,7 +3729,7 @@ static void
 dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 auth_offset _U_)
 {
-				
+
 		if(response) {
 
 			/* PICMG Identifier */
@@ -3737,7 +3737,7 @@ dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 				proto_tree_add_item(ipmi_tree, hf_GetFanLevel_datafield_PICMGIdentifier,
 		    							tvb, (*poffset)++, 1, TRUE);
 			}
-			 
+
 			/* Override Fan Level */
 			if (tree) {
 				proto_tree_add_item(ipmi_tree, hf_GetFanLevel_datafield_OverrideFanLevel,
@@ -3750,7 +3750,7 @@ dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 			    						tvb, (*poffset)++, 1, TRUE);
 				}
 			}
-				
+
 		}
 		else {
 
@@ -3764,7 +3764,7 @@ dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 				proto_tree_add_item(ipmi_tree, hf_GetFanLevel_datafield_FRUDeviceID,
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
-			
+
 		}
 
 }
@@ -3778,7 +3778,7 @@ static void dissect_ipmi_data(proto_tree *, proto_tree *, packet_info *, tvbuff_
 
 
 static const ipmi_cmd_dissect ipmi_cmd_array[] = {
-	
+
 	/* Chassis netfn (0x00) */
 	{ 0x00,	0x00,	NULL},
 	{ 0x00,	0x01,	NULL},
@@ -3940,7 +3940,7 @@ static const ipmi_cmd_dissect ipmi_cmd_array[] = {
 	{0x2c,	0x15,	dissect_cmd_Set_Fan_Level},
 	{0x2c,	0x16,	dissect_cmd_Get_Fan_Level},
 	{0x2c,	0x17,	NULL},
-	{0x2c,	0x18,	NULL},		
+	{0x2c,	0x18,	NULL},
 };
 
 #define NUM_OF_CMD_ARRAY (sizeof(ipmi_cmd_array)/sizeof(ipmi_cmd_dissect))
@@ -4033,7 +4033,7 @@ static const ipmi_complcmd_dissect ipmi_complcmd_array[] = {
 	{ 0x0b,	0x43,	0x81,	"Cannot execute command, SEL erase in progress" },
 	{ 0x0b,	0x44,	0x80,	"Operation not supported for this Record Type" },
 	{ 0x0b,	0x44,	0x81,	"Cannot execute command, SEL erase in progress" },
-	{ 0x0b,	0x45,	0x80,	"Record rejected due to mismatch between record lenght in header data and number of bytes written" },
+	{ 0x0b,	0x45,	0x80,	"Record rejected due to mismatch between record length in header data and number of bytes written" },
 	{ 0x0b,	0x45,	0x81,	"Cannot execute command, SEL erase in progress" },
 	{ 0x0b,	0x46,	0x81,	"Operation not supported for this Record Type" },
 	{ 0x0b,	0x46,	0x81,	"Cannot execute command, SEL erase in progress" },
@@ -4220,7 +4220,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    netfn, get_netfn_cmd_text(netfn, cmd), cmd);
 		ipmi_tree = proto_item_add_subtree(ti, ett_ipmi);
 	}
-	
+
 /*
 	2.0:	IPMI v2.0 RMCP+ Session ID	4
 	BOTH:	Session Sequence Number		4
@@ -4262,7 +4262,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(payloadtype, ipmi_payload_vals,	"Unknown (0x%02x)"));
 		}
-	 
+
 		if ( payloadtype == IPMI_OEM_EXPLICIT){
 			proto_tree_add_item(field_tree, hf_ipmi_oem_iana,
 				tvb, offset, 4, TRUE);
@@ -4326,7 +4326,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			return;
-		
+
 		}
 
 	}
@@ -4389,7 +4389,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(tf, ", LUN 0x%02x", lun);
 		offset += 1;
 	}
-	
+
 
 	/* command */
 	if (tree) {
@@ -4397,7 +4397,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Command: %s (0x%02x)",
 				    get_netfn_cmd_text(netfn, cmd), cmd);
 	}
-	
+
 
 	/* completion code */
 	if (tree && response) {
@@ -4405,7 +4405,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Completion Code: %s (0x%02x)",
 				    get_ccode_cmd_text(netfn, cmd, ccode), ccode);
 	}
-	
+
 
 	/* If ccode is non zero and there is only one more byte remaining in
 	 * the packet this probably means that the response has been truncated
@@ -4433,7 +4433,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* dissect the data block, added by lane */
 	dissect_ipmi_data(tree, ipmi_tree, pinfo, tvb, &offset, len, netfn, cmd, response, auth_offset);
-	
+
 
 	/* checksum 2 */
 	if (tree) {
@@ -4456,11 +4456,11 @@ proto_register_ipmi(void)
 			"IPMI Payload Type", HFILL }},
 		{ &hf_ipmi_payloadtype_auth,{
 			"Authenticated","ipmi.session.payloadtype.auth",
-			FT_BOOLEAN,8,  TFS(&ipmi_payload_aut_val), 0x40,          
+			FT_BOOLEAN,8,  TFS(&ipmi_payload_aut_val), 0x40,
 			"IPMI Payload Type authenticated", HFILL }},
 		{ &hf_ipmi_payloadtype_enc,{
 			"Encryption","ipmi.session.payloadtype.enc",
-			FT_BOOLEAN,8,  TFS(&ipmi_payload_enc_val), 0x80,          
+			FT_BOOLEAN,8,  TFS(&ipmi_payload_enc_val), 0x80,
 			"IPMI Payload Type encryption", HFILL }},
 		{ &hf_ipmi_oem_iana,{
 			"OEM IANA", "ipmi.session.oem.iana",
@@ -4588,7 +4588,7 @@ proto_register_ipmi(void)
 		{ &hf_PEM_datafield_EventData3_threshold, {
 			"threshold value that triggered event", "PEM.datafield.EventData3_threshold",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"threshold value that triggered event", HFILL }},	
+			"threshold value that triggered event", HFILL }},
 		/* discrete */
 		{ &hf_PEM_datafield_EventData1_discrete_76, {
 			"[7,6] ", "PEM.datafield.EventData1_discrete_76",
@@ -4727,7 +4727,7 @@ proto_register_ipmi(void)
 		{ &hf_GetDeviceSDR_datafield_NextRecordID, {
 			"Record ID for next record", "GetDeviceSDR.datafield.ReservationID",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Record ID for next record", HFILL }},		
+			"Record ID for next record", HFILL }},
 	};
 
 	/* Data field of Set Sensor Hysteresis command, added by lane */
@@ -4889,7 +4889,7 @@ proto_register_ipmi(void)
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"upper non-recoverable threshold", HFILL }},
 	};
-	
+
 	/*  Data field of Get Sensor Reading command, added by lane */
 	static hf_register_info hf_GetSensorReading_datafield[] = {
 		{ &hf_GetSensorReading_datafield_SensorNumber, {
@@ -5037,7 +5037,7 @@ proto_register_ipmi(void)
 		{ &hf_GetDeviceID_datafield_MinorFirmwareRevision, {
 			"Minor Firmware Revision", "GetDeviceID.datafield.MinorFirmwareRevision",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Minor Firmware Revision", HFILL }},	
+			"Minor Firmware Revision", HFILL }},
 		{ &hf_GetDeviceID_datafield_IPMIRevision, {
 			"IPMI Revision", "GetDeviceID.datafield.IPMIRevision",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetDeviceID_Data_IPMIRevision_vals), 0,
@@ -5081,7 +5081,7 @@ proto_register_ipmi(void)
 		{ &hf_GetDeviceID_datafield_ProductID, {
 			"Product ID", "GetDeviceID.datafield.ProductID",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Product ID", HFILL }},	
+			"Product ID", HFILL }},
 		{ &hf_GetDeviceID_datafield_AFRI, {
 			"Auxiliary Firmware Revision Infomation", "GetDeviceID.datafield.AuxiliaryFirmwareRevisionInfomation",
 			FT_UINT32, BASE_HEX, NULL, 0,
@@ -5095,7 +5095,7 @@ proto_register_ipmi(void)
 			"Channel number", HFILL }},
 		{ &hf_Get_Channel_Auth_Cap_comp_info, {
 			"Compabillity information", "GetChannelAuthCap.resp.Auth_Cap_comp_info",
-			FT_BOOLEAN,8,  TFS(&ipmi_Auth_Cap_comp_val), 0x80,          
+			FT_BOOLEAN,8,  TFS(&ipmi_Auth_Cap_comp_val), 0x80,
 			"Compabillity information", HFILL }},
 		{ &hf_Get_Channel_Auth_Cap_Auth_types_b5, {
 			"OEM proprietary (per OEM identified by the IANA OEM ID in the RMCP Ping Response)", "GetChannelAuthCap.resp.auth_types_b4",
@@ -5160,7 +5160,7 @@ proto_register_ipmi(void)
 
 		{ &hf_Get_Channel_Auth_Cap_datafield_comp_info, {
 			"Compabillity information", "GetChannelAuthCap.datafield.compinfo",
-			FT_BOOLEAN,8,  TFS(&ipmi_Auth_Cap_datafield_comp_val), 0x80,          
+			FT_BOOLEAN,8,  TFS(&ipmi_Auth_Cap_datafield_comp_val), 0x80,
 			"Compabillity information", HFILL }},
 		{ &hf_Get_Channel_Auth_Cap_datafield_channel_number, {
 			"Channel number", "GetChannelAuthCap.datafield.channelno",
@@ -5193,7 +5193,7 @@ proto_register_ipmi(void)
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRUInventoryAreaInfo_Data_ResponseDataByte4_Bit0_vals), 0x01,
 			"Device is accessed by bytes or words ?", HFILL }},
 	};
-	
+
 	/* Data field of Get SEL Info command, added by lane */
 	static hf_register_info hf_GetSELInfo_datafield[] = {
 		{ &hf_GetSELInfo_datafield_SELVersion, {
@@ -5219,7 +5219,7 @@ proto_register_ipmi(void)
 		{ &hf_GetSELInfo_datafield_OperationSupport_Bit7, {
 			"Overflow Flag", "GetSELInfo.datafield.OperationSupport.Bit7",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetSELInfo_Data_OperationSupport_Bit7_vals), 0x80,
-			"Overflow Flag", HFILL }},	
+			"Overflow Flag", HFILL }},
 		{ &hf_GetSELInfo_datafield_OperationSupport_Reserved, {
 			"Reserved", "GetSELInfo.datafield.OperationSupport.Reserved",
 			FT_UINT8, BASE_HEX, NULL, 0x70,
@@ -5305,7 +5305,7 @@ proto_register_ipmi(void)
 			FT_UINT8, BASE_HEX, VALS(cmd_ClearSEL_Data_ErasureProgress_EraProg_vals), 0x0f,
 			"Erasure Progress", HFILL }},
 	};
-	
+
 
 /********* PICMG, NetFN = 0x2c *********/
 
@@ -5326,7 +5326,7 @@ proto_register_ipmi(void)
 		{ &hf_GetPICMGProperties_datafield_FRUDeviceIDforIPMController, {
 			"FRU Device ID for IPM Controller", "GetPICMGProperties.datafield.FRUDeviceIDforIPMController",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"FRU Device ID for IPM Controller", HFILL }},		
+			"FRU Device ID for IPM Controller", HFILL }},
 	};
 
 	/* Data field of FRU Control command, added by lane */
@@ -5395,7 +5395,7 @@ proto_register_ipmi(void)
 			"LED ID", "GetLedColorCapabilities.datafield.LEDID",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"LED ID", HFILL }},
-		/* LED Color Capabilities */	
+		/* LED Color Capabilities */
 		{ &hf_GetLedColorCapabilities_datafield_LEDColorCapabilities_Reserved_7, {
 			"Reserved", "GetLedColorCapabilities.datafield.LEDColorCapabilities.Reserved.bit7",
 			FT_UINT8, BASE_HEX, NULL, 0x80,
@@ -5428,7 +5428,7 @@ proto_register_ipmi(void)
 			"Reserved", "GetLedColorCapabilities.datafield.LEDColorCapabilities.Reserved.bit0",
 			FT_UINT8, BASE_HEX, NULL, 0x01,
 			"Reserved", HFILL }},
-		/* Default LED Color in Local Control State*/	
+		/* Default LED Color in Local Control State*/
 		{ &hf_GetLedColorCapabilities_datafield_DefaultLEDColorLocalControl_Reserved_74, {
 			"Reserved", "GetLedColorCapabilities.datafield.DefaultLEDColorLocalControl.Reserved.bit7-4",
 			FT_UINT8, BASE_HEX, NULL, 0xf0,
@@ -5437,7 +5437,7 @@ proto_register_ipmi(void)
 			"Default LED Color (Local Control State)", "GetLedColorCapabilities.datafield.DefaultLEDColorLocalControl.Color",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetLedColorCapabilities_data_DefaultLEDColor_vals), 0x0f,
 			"Default LED Color (Local Control State)", HFILL }},
-		/* Default LED Color in Override State */	
+		/* Default LED Color in Override State */
 		{ &hf_GetLedColorCapabilities_datafield_DefaultLEDColorOverride_Reserved_74, {
 			"Reserved", "GetLedColorCapabilities.datafield.DefaultLEDColorOverride.Reserved.bit7-4",
 			FT_UINT8, BASE_HEX, NULL, 0xf0,
@@ -5445,7 +5445,7 @@ proto_register_ipmi(void)
 		{ &hf_GetLedColorCapabilities_datafield_DefaultLEDColorOverride_Color, {
 			"Default LED Color (Override State)", "GetLedColorCapabilities.datafield.DefaultLEDColorOverride.Color",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetLedColorCapabilities_data_DefaultLEDColor_vals), 0x0f,
-			"Default LED Color (Override State)", HFILL }},				
+			"Default LED Color (Override State)", HFILL }},
 	};
 
 	/* Data field of Set FRU Led State, added by lane */
@@ -5477,7 +5477,7 @@ proto_register_ipmi(void)
 		{ &hf_SetFRULedState_datafield_Color_Reserved, {
 			"Bit 7...4 Reserved", "SetFRULedState.datafield.Color.Reserved",
 			FT_UINT8, BASE_HEX, NULL, 0xf0,
-			"Bit 7...4 Reserved", HFILL }},	
+			"Bit 7...4 Reserved", HFILL }},
 		{ &hf_SetFRULedState_datafield_Color_ColorVal, {
 			"Color", "SetFRULedState.datafield.Color.ColorVal",
 			FT_UINT8, BASE_HEX, VALS(cmd_SetFRULedState_data_Color_ColorVal_vals), 0x0f,
@@ -5509,7 +5509,7 @@ proto_register_ipmi(void)
 		{ &hf_GetFRULedState_datafield_LEDState_Bit1, {
 			"Override State", "GetFRULedState.datafield.LEDState.Bit1",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRULedState_data_LEDState_Bit21_vals), 0x02,
-			"Override State", HFILL }},	
+			"Override State", HFILL }},
 		{ &hf_GetFRULedState_datafield_LEDState_Bit0, {
 			"IPM Controller has a Local Control State ?", "GetFRULedState.datafield.LEDState.Bit0",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRULedState_data_LEDState_Bit0_vals), 0x01,
@@ -5529,7 +5529,7 @@ proto_register_ipmi(void)
 		{ &hf_GetFRULedState_datafield_LocalControlColor_Reserved, {
 			"Bit 7...4 Reserved", "GetFRULedState.datafield.LocalControlColor.Reserved",
 			FT_UINT8, BASE_HEX, NULL, 0xf0,
-			"Bit 7...4 Reserved", HFILL }},	
+			"Bit 7...4 Reserved", HFILL }},
 		{ &hf_GetFRULedState_datafield_LocalControlColor_ColorVal, {
 			"Color", "GetFRULedState.datafield.LocalControlColor.ColorVal",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRULedState_data_ColorVal_vals), 0x0f,
@@ -5549,7 +5549,7 @@ proto_register_ipmi(void)
 		{ &hf_GetFRULedState_datafield_OverrideStateColor_Reserved, {
 			"Bit 7...4 Reserved", "GetFRULedState.datafield.OverrideStateColor.Reserved",
 			FT_UINT8, BASE_HEX, NULL, 0xf0,
-			"Bit 7...4 Reserved", HFILL }},	
+			"Bit 7...4 Reserved", HFILL }},
 		{ &hf_GetFRULedState_datafield_OverrideStateColor_ColorVal, {
 			"Color", "GetFRULedState.datafield.OverrideStateColor.ColorVal",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRULedState_data_ColorVal_vals), 0x0f,
@@ -5573,7 +5573,7 @@ proto_register_ipmi(void)
 		{ &hf_SetFRUActivation_datafield_FRUActivationDeactivation, {
 			"FRU Activation/Deactivation", "SetFRUActivation.datafield.FRUActivationDeactivation",
 			FT_UINT8, BASE_HEX, VALS(cmd_SetFRUActivation_data_FRUActivationDeactivation_vals), 0,
-			"FRU Activation/Deactivation", HFILL }},		
+			"FRU Activation/Deactivation", HFILL }},
 	};
 
 	/* Data field of Set FRU Activation Policy command, added by lane */
@@ -5617,7 +5617,7 @@ proto_register_ipmi(void)
 		{ &hf_SetFRUActivationPolicy_datafield_FRUActivationPolicySetBit_Bit0_ignored, {
 			"Set or Clear Locked", "SetFRUActivationPolicy.datafield.FRUActivationPolicySetBit.Bit0_ignored",
 			FT_UINT8, BASE_HEX, VALS(cmd_SetFRUActivationPolicy_data_PFRUActivationPolicySetBit_Bit0_ignored_vals), 0x01,
-			"Set or Clear Locked", HFILL }},	
+			"Set or Clear Locked", HFILL }},
 	};
 
 	/* Data field of Get FRU Activation Policy command, added by lane */
@@ -5643,7 +5643,7 @@ proto_register_ipmi(void)
 			FT_UINT8, BASE_HEX, VALS(cmd_GetFRUActivationPolicy_data_FRUActivationPolicy_Bit0_vals), 0x01,
 			"Locked Bit", HFILL }},
 	};
-	
+
 	/* Data field of Get Device Locator Record ID, added by lane */
 	static hf_register_info hf_GetDeviceLocatorRecordID_datafield[] = {
 		{ &hf_GetDeviceLocatorRecordID_datafield_PICMGIdentifier, {
@@ -5677,7 +5677,7 @@ proto_register_ipmi(void)
 		{ &hf_SetPowerLevel_datafield_SetPresentLevelsToDesiredLevels, {
 			"Set Present Levels to Desired Levels", "SetPowerLevel.datafield.SetPresentLevelsToDesiredLevels",
 			FT_UINT8, BASE_HEX, VALS(cmd_SetPowerLevel_data_SetPresentLevelsToDesiredLevels_vals), 0,
-			"Set Present Levels to Desired Levels", HFILL }},		
+			"Set Present Levels to Desired Levels", HFILL }},
 	};
 
 	/* Data field of Get Power Level command, added by lane */
@@ -5789,13 +5789,13 @@ static gint *ett[] = {
 		&ett_cmd_GetSensorReading_ResponseDataByte3,
 		&ett_cmd_GetSensorReading_ResponseDataByte3_threshold,
 		&ett_cmd_GetSensorReading_ResponseDataByte4,
-		
+
 		/********* APP, NetFN = 0x06 *********/
 		/*Get Device ID, added by lane */
 		&ett_cmd_GetDeviceID_data_dr,
 		&ett_cmd_GetDeviceID_data_fr,
 		&ett_cmd_GetDeviceID_data_ads,
-		
+
 		/********* Storage, NetFN = 0x0a *********/
 		&ett_Get_Channel_Auth_Cap_anonymouslogin,
 		/* Get FRU Inventory Area Info, added by lane */
@@ -5825,7 +5825,7 @@ static gint *ett[] = {
 		&ett_cmd_GetFRUActivationPolicy_data_FRUActivationPolicy,
 		/* Get Power Level, added by lane*/
 		&ett_cmd_GetPowerLevel_data_Properties,
-		
+
 	};
 
 	proto_ipmi = proto_register_protocol(
@@ -5839,7 +5839,7 @@ static gint *ett[] = {
 			   array_length(hf_msg_field));
 
 	/********* Sensor/Event, NetFN = 0x04 *********/
-	
+
 	/* Platform Event Message, added by lane */
 	proto_register_field_array(proto_ipmi, hf_PEM_datafield,
 			   array_length(hf_PEM_datafield));
@@ -5869,15 +5869,15 @@ static gint *ett[] = {
 			   array_length(hf_GetSensorReading_datafield));
 
 	/********* APP, NetFN = 0x06 *********/
-	
+
 	/*Get Device ID, added by lane */
 	proto_register_field_array(proto_ipmi, hf_GetDeviceID_datafield,
 			   array_length(hf_GetDeviceID_datafield));
-	
+
 	/* Get Channel Authentication Capabilities */
 	proto_register_field_array(proto_ipmi, hf_Get_Ch_Auth_Cap_datafield,
 			   array_length(hf_Get_Ch_Auth_Cap_datafield));
-	
+
 	/********* Storage, NetFN = 0x0a *********/
 
 	/* Get FRU Inventory Area Info, added by lane */
@@ -5897,7 +5897,7 @@ static gint *ett[] = {
 			   array_length(hf_ClearSEL_datafield));
 
 	/********* PICMG, NetFN = 0X2c *********/
-	
+
 	/*Get PICMG Properties, added by lane */
 	proto_register_field_array(proto_ipmi, hf_GetPICMGProperties_datafield,
 			   array_length(hf_GetPICMGProperties_datafield));
@@ -5940,11 +5940,11 @@ static gint *ett[] = {
 	/* Get Fan Level, added by lane */
 	proto_register_field_array(proto_ipmi, hf_GetFanLevel_datafield,
 			   array_length(hf_GetFanLevel_datafield));
-	
+
 /****************************************************************************/
 
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 }
 
 void
@@ -5960,15 +5960,15 @@ proto_reg_handoff_ipmi(void)
 
 typedef  void (*P_FUN)(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb, gint *poffset, guint8 len, guint8 response, guint8 auth_offset);
 
-/* added hereinafter by lane */ 
+/* added hereinafter by lane */
 void
 dissect_ipmi_data(proto_tree *tree, proto_tree *ipmi_tree,	packet_info *pinfo,
-					tvbuff_t *tvb, gint *poffset, guint8 len, guint8 netfn, guint8 cmd, 
+					tvbuff_t *tvb, gint *poffset, guint8 len, guint8 netfn, guint8 cmd,
 					guint8 response, guint8 auth_offset)
 {
 	tvbuff_t	*next_tvb;
 	guint i;
-	
+
 	for (i = 0; i < NUM_OF_CMD_ARRAY; i++)	{
 		if(((netfn&0xfe)==ipmi_cmd_array[i].netfn) && (cmd==ipmi_cmd_array[i].cmd))	{
 			if(ipmi_cmd_array[i].dissectfunc) {

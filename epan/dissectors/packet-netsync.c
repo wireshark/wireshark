@@ -180,16 +180,16 @@ static gint dissect_uleb128( tvbuff_t *tvb, gint offset, guint* size)
 	do {
 		tmp = tvb_get_guint8(tvb, offset);
 		offset += 1;
-			
+
 		*size |= (tmp & 0x7F) << shift;
-		shift += 7;	
+		shift += 7;
 	} while (tmp & 0x80);
 
 
 	return offset - start_offset;
 }
 
-static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_) 
+static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
 	guint len = 0;
 
@@ -376,7 +376,7 @@ static gint dissect_netsync_cmd_send_delta(tvbuff_t *tvb,  gint offset, proto_tr
 static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
 	guint len = -1;
-	
+
 	proto_tree_add_item(tree, hf_netsync_cmd_data_type, tvb,
 				offset, 1, FALSE );
 	offset += 1;
@@ -449,19 +449,19 @@ get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 	/* skip version and command */
 	offset += 2;
-	
+
 	size_bytes = dissect_uleb128( tvb, offset, &size );
-		
+
 	/* the calculated size if for the data only, this doesn't
-	 * include the version (1 byte), command (1 byte), 
-	 * lenght (size_bytes bytes) and checksum (4 bytes)
+	 * include the version (1 byte), command (1 byte),
+	 * length (size_bytes bytes) and checksum (4 bytes)
 	 */
 
 	return 1 + 1 + size_bytes + size + 4;
 }
 
 static void
-dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint offset = 0;
 	guint8 tmp;
@@ -477,7 +477,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree == NULL)
 		return;
-	
+
 	while (tvb_reported_length_remaining(tvb, offset)  > 0) {
 		ti = proto_tree_add_item(tree, proto_netsync, tvb, offset, -1, FALSE);
 		netsync_tree = proto_item_add_subtree(ti, ett_netsync);
@@ -500,12 +500,12 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		do {
 			tmp = tvb_get_guint8(tvb, offset + size_bytes);
 			size_bytes += 1;
-			
+
 			size |= (tmp & 0x7F) << shift;
-			shift += 7;	
+			shift += 7;
 		} while (tmp & 0x80);
-		
-		
+
+
 		proto_tree_add_uint(netsync_tree, hf_netsync_size, tvb,
                                         offset, size_bytes, size );
 		offset += size_bytes;
@@ -576,8 +576,8 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4;
 
 
-		proto_item_append_text(netsync_tree, " V%d, Cmd: %s (%d), Size: %d", 
-					version, val_to_str(cmd, netsync_cmd_vals, "(0x%x)"), cmd, size );		
+		proto_item_append_text(netsync_tree, " V%d, Cmd: %s (%d), Size: %d",
+					version, val_to_str(cmd, netsync_cmd_vals, "(0x%x)"), cmd, size );
 
 		proto_item_set_len(netsync_tree, 1+1+size_bytes+size+4);
 	}
@@ -591,7 +591,7 @@ dissect_netsync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_register_netsync(void) 
+proto_register_netsync(void)
 {
 	static hf_register_info hf[] = {
 		/* General */
@@ -778,7 +778,7 @@ proto_register_netsync(void)
 }
 
 void
-proto_reg_handoff_netsync(void) 
+proto_reg_handoff_netsync(void)
 {
 	static gint initialized = 0;
 
@@ -788,7 +788,7 @@ proto_reg_handoff_netsync(void)
 		initialized = 1;
 	}
 
-	tcp_port_netsync = global_tcp_port_netsync;  
+	tcp_port_netsync = global_tcp_port_netsync;
 	dissector_add("tcp.port", global_tcp_port_netsync, netsync_handle);
 }
 

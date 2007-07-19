@@ -1,6 +1,6 @@
 /* packet-sebek.c
  * Routines for Sebek - Kernel based data capture - packet dissection
- * Modified to add sebek V3 
+ * Modified to add sebek V3
  * Copyright 2006, Camilo Viecco <cviecco@indiana.edu>
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
@@ -170,8 +170,8 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_sebek, tvb, 0, -1, FALSE);
 		sebek_tree = proto_item_add_subtree(ti, ett_sebek);
 
-		/* check for minimum lenght before deciding where to go*/
-		if (tvb->length<6) 
+		/* check for minimum length before deciding where to go*/
+		if (tvb->length<6)
 			sebek_ver = 0;
 		else
 			sebek_ver = tvb_get_ntohs(tvb, 4);
@@ -230,7 +230,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ts.secs = tvb_get_ntohl(tvb, offset);
 				ts.nsecs = tvb_get_ntohl(tvb, offset+4);
 				proto_tree_add_time(sebek_tree, hf_sebek_time, tvb, offset, 8, &ts);
-				offset += 8; 
+				offset += 8;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_ppid, tvb, offset, 4, FALSE);
 				offset += 4;

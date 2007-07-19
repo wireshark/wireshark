@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -93,7 +93,7 @@ static int hf_bssgp_tlli = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
-static gint ett_bssgp_qos_profile = -1; 
+static gint ett_bssgp_qos_profile = -1;
 static gint ett_bssgp_gprs_timer = -1;
 static gint ett_bssgp_cell_identifier = -1;
 static gint ett_bssgp_channel_needed = -1;
@@ -247,7 +247,7 @@ static const value_string tab_bssgp_pdu_types[] = {
 
 /* Information element coding, v 6.5.0, table 11.3, p 72 */
 #define BSSGP_IEI_ALIGNMENT_OCTETS                         0x00
-#define BSSGP_IEI_BMAX_DEFAULT_MS                          0x01              
+#define BSSGP_IEI_BMAX_DEFAULT_MS                          0x01
 #define BSSGP_IEI_BSS_AREA_INDICATION                      0x02
 #define BSSGP_IEI_BUCKET_LEAK_RATE                         0x03
 #define BSSGP_IEI_BVCI                                     0x04
@@ -329,7 +329,7 @@ static const value_string tab_nacc_cause[]={
   { 0x01,			"Syntax error in the Application Container" },
   { 0x02,			"Reporting Cell Identifier does not match with the Destination Cell Identifier or with the Source Cell Identifier" },
   { 0x03,			"SI/PSI type error" },
-  { 0x04,			"Inconsistent lenght of a SI/PSI message" },
+  { 0x04,			"Inconsistent length of a SI/PSI message" },
   { 0x05,			"Inconsistent set of messages" },
   { 0,				NULL },
 
@@ -403,7 +403,7 @@ static const value_string tab_bssgp_ie_types[] = {
   { BSSGP_IEI_RIM_PROTOCOL_VERSION,						"RIM Protocol Version Number" },
   { BSSGP_IEI_NUMBER_OF_CONTAINER_UNITS,				"Number of Container Units" },
   { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS,				"PFC Flow Control Parameters" },
-  { BSSGP_IEI_GLOBAL_CN_ID,								"Global CN Id" }, 
+  { BSSGP_IEI_GLOBAL_CN_ID,								"Global CN Id" },
   { 0,                                NULL },
 };
 
@@ -421,12 +421,12 @@ static const value_string tab_bssgp_ie_types[] = {
 
 static guint8
 get_masked_guint8(guint8 value, guint8 mask) {
-  const guint8 MASK_BIT_1 = 0x01; 
+  const guint8 MASK_BIT_1 = 0x01;
   guint8 i = 0;
-  
+
   while (!((mask >> i) & MASK_BIT_1)) {
     i++;
-    if (i > 7) return 0; 
+    if (i > 7) return 0;
   }
   return (value & mask) >> i;
 }
@@ -434,12 +434,12 @@ get_masked_guint8(guint8 value, guint8 mask) {
 #if 0
 static guint16
 get_masked_guint16(guint16 value, guint16 mask) {
-  const guint16 MASK_BIT_1 = 0x01; 
+  const guint16 MASK_BIT_1 = 0x01;
   guint8 i = 0;
-  
+
   while (!((mask >> i) & MASK_BIT_1)) {
     i++;
-    if (i > 15) return 0; 
+    if (i > 15) return 0;
   }
   return (value & mask) >> i;
 }
@@ -450,7 +450,7 @@ make_mask32(guint8 num_bits, guint8 shift_value) {
   const guint32 LEFT_MOST_1 = 0x80000000;
   int i;
   guint32 mask = LEFT_MOST_1;
-  
+
   for (i = 0; i < (num_bits - 1); i++) {
     mask = (mask >> 1) | LEFT_MOST_1;
   }
@@ -459,12 +459,12 @@ make_mask32(guint8 num_bits, guint8 shift_value) {
 
 static guint32
 get_masked_guint32(guint32 value, guint32 mask) {
-  const guint16 MASK_BIT_1 = 0x01; 
+  const guint16 MASK_BIT_1 = 0x01;
   guint8 i = 0;
-  
+
   while (!((mask >> i) & MASK_BIT_1)) {
     i++;
-    if (i > 31) return 0; 
+    if (i > 31) return 0;
   }
   return (value & mask) >> i;
 }
@@ -503,7 +503,7 @@ get_bit_field_label8(guint8 value, guint8 value_mask) {
   g_snprintf(formatted_label, 10, "%c%c%c%c %c%c%c%c",
 	     bits[0], bits[1], bits[2], bits[3],
 	     bits[4], bits[5], bits[6], bits[7]);
-  return formatted_label;  
+  return formatted_label;
 }
 
 static char*
@@ -516,7 +516,7 @@ get_bit_field_label16(guint16 value, guint16 value_mask) {
 	     bits[4], bits[5], bits[6], bits[7],
 	     bits[8], bits[9], bits[10], bits[11],
 	     bits[12], bits[13], bits[14], bits[15]);
-  return formatted_label;  
+  return formatted_label;
 }
 
 static proto_item *
@@ -552,13 +552,13 @@ get_start_octet(guint64 bo) {
 }
 
 static guint32
-get_end_octet(guint64 bo, guint32 bl) 
+get_end_octet(guint64 bo, guint32 bl)
 {
   return (guint32) ceil((gint64)(bo + bl) / 8.0);
 }
 
 static guint32
-get_num_octets_spanned(guint64 bo, guint32 bl) 
+get_num_octets_spanned(guint64 bo, guint32 bl)
 {
   return get_end_octet(bo, bl) - get_start_octet(bo);
 }
@@ -587,7 +587,7 @@ bssgp_tvb_get_bits8(tvbuff_t *tvb, guint64 bo, guint8 num_bits) {
   /* Returns 0-8 bits from tvb */
   guint8 shift_value;
   guint16 mask, data;
-  
+
   shift_value = get_byte_offset(bo);
   mask = make_mask(num_bits, shift_value);
   if (( mask & 0xff ) == 0 ) data = tvb_get_guint8(tvb, get_start_octet(bo)) << 8;
@@ -596,7 +596,7 @@ bssgp_tvb_get_bits8(tvbuff_t *tvb, guint64 bo, guint8 num_bits) {
 }
 
 static proto_item *
-bit_proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, 
+bit_proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb,
 			guint64 bo, guint8 bl, const char *value) {
   /* XXX: Use varargs */
   return proto_tree_add_text(tree, tvb, get_start_octet(bo),
@@ -618,7 +618,7 @@ bit_proto_tree_add_bit_field8(proto_tree *tree, tvbuff_t *tvb,
   label = get_bit_field_label16(value, mask);
 
   DISSECTOR_ASSERT(bl < 9);
-  
+
   if (get_num_octets_spanned(bo, bl) == 1) {
     end_i = 7;
   }
@@ -637,33 +637,33 @@ bit_proto_tree_add_bit_field8(proto_tree *tree, tvbuff_t *tvb,
 static const char*
 translate_abqp_reliability_class(guint8 value, build_info_t *bi) {
   switch (value) {
-  case 0: 
+  case 0:
     if (bi->ul_data) {
       return "Subscribed reliability class";
     }
     else {
       return "Reserved";
     }
-  case 1: 
-    return "Unused (Unacknowledged GTP; Acknowledged LLc and RLC, Protected data)"; 
-  case 2: 
-    return "Unacknowledged GTP; Acknowledged LLc and RLC, Protected data"; 
-  case 3: 
+  case 1:
+    return "Unused (Unacknowledged GTP; Acknowledged LLc and RLC, Protected data)";
+  case 2:
+    return "Unacknowledged GTP; Acknowledged LLc and RLC, Protected data";
+  case 3:
     return "Unacknowledged GTP and LLC; Acknowledged RLC, Protected data";
-  case 4: 
+  case 4:
     return "Unacknowledged GTP, LLC, and RLC, Protected data";
   case 5:
     return "Unacknowledged GTP, LLC, and RLC, Unprotedcted data";
-  case 7: 
+  case 7:
     return "Reserved";
   default:
-    return "Unacknowledged GTP and LLC; Acknowledged RLC, Protected data"; 
+    return "Unacknowledged GTP and LLC; Acknowledged RLC, Protected data";
   }
 }
 static const char*
 translate_abqp_delay_class(guint8 value, build_info_t *bi) {
   switch (value) {
-  case 0: 
+  case 0:
     if (bi->ul_data) {
       return "Subscribed delay class";
     }
@@ -706,7 +706,7 @@ translate_abqp_peak_throughput(guint8 value, build_info_t *bi) {
 static const char*
 translate_abqp_precedence_class(guint8 value, build_info_t *bi) {
   switch (value) {
-  case 0: 
+  case 0:
     if (bi->ul_data) {
       return "Subscribed precedence";
     }
@@ -784,7 +784,7 @@ translate_abqp_traffic_class(guint8 value, build_info_t *bi) {
 static const char*
 translate_abqp_delivery_order(guint8 value, build_info_t *bi) {
   switch (value) {
-  case 0: 
+  case 0:
     if (bi->ul_data) {
       return "Subscribed delivery order";
     }
@@ -858,7 +858,7 @@ translate_abqp_max_sdu_size(guint8 value, build_info_t *bi) {
     /* The network shall map all other values not explicitly defined onto one of the values defined in this version of the protocol. The network shall return a negotiated value which is explicitly defined in this version of the protocol */
     return "Error";
   }
-}  
+}
 
 static const char*
 translate_abqp_max_bit_rate_for_ul(guint8 value, build_info_t *bi) {
@@ -1088,28 +1088,28 @@ static const char*
 translate_msrac_extended_dtm_gprs_multislot_class(guint8 value, guint8 dgmsc) {
   switch (dgmsc) {
   case 0: return "Unused, interpreted as Multislot class 5 supported";
-  case 1: 
+  case 1:
     switch (value) {
     case 0: return "Multislot class 5 supported";
     case 1: return "Multislot class 6 supported";
-    case 2: 
-    case 3: 
+    case 2:
+    case 3:
       return "Unused, interpreted as Multislot class 5 supported";
     }
-  case 2: 
+  case 2:
     switch (value) {
     case 0: return "Multislot class 9 supported";
     case 1: return "Multislot class 10 supported";
-    case 2: 
-    case 3: 
+    case 2:
+    case 3:
       return "Unused, interpreted as Multislot class 5 supported";
     }
-  case 3: 
+  case 3:
     switch (value) {
     case 0: return "Multislot class 11 supported";
     case 1:
     case 2:
-    case 3: 
+    case 3:
       return "Unused, interpreted as Multislot class 5 supported";
     }
   }
@@ -1123,12 +1123,12 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
   switch (capability) {
   case 0:
     switch (class) {
-    case 8: 
+    case 8:
       return 30;
     case 10:
     case 23:
-    case 28: 
-    case 29: 
+    case 28:
+    case 29:
       return 39;
     case 11:
     case 20:
@@ -1140,12 +1140,12 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
     case 26:
     case 27:
       return 33;
-    default: 
+    default:
       return class;
     }
-  case 1:    
+  case 1:
     switch (class) {
-    case 8: 
+    case 8:
       return 35;
     case 10:
     case 19:
@@ -1162,7 +1162,7 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
     case 26:
     case 27:
       return 38;
-    default: 
+    default:
       return class;
     }
   case 2:
@@ -1227,15 +1227,15 @@ translate_channel_needed(guint8 value) {
   return NULL;
 }
 
-static proto_item* 
+static proto_item*
 bssgp_proto_tree_add_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const char *iename;
 
   iename = ie->name;
   if (iename == NULL)
     iename = val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown");
-  return proto_tree_add_uint_format(bi->bssgp_tree, hf_bssgp_ie_type, 
-				  bi->tvb, ie_start_offset, ie->total_length, 
+  return proto_tree_add_uint_format(bi->bssgp_tree, hf_bssgp_ie_type,
+				  bi->tvb, ie_start_offset, ie->total_length,
 				  ie->iei, "%s", iename);
 }
 
@@ -1259,22 +1259,22 @@ bssgp_proto_handoff(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, disse
   }
 }
 
-static void 
+static void
 decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
   const guint32 LOCAL_TLLI_MASK = 0xc0000000;
   const guint32 FOREIGN_TLLI_MASK = 0x80000000;
   guint16 nri;
-  
-  if (bssgp_decode_nri && (bssgp_nri_length != 0) && 
+
+  if (bssgp_decode_nri && (bssgp_nri_length != 0) &&
     (((tmsi_tlli & LOCAL_TLLI_MASK) == LOCAL_TLLI_MASK) ||
      ((tmsi_tlli & FOREIGN_TLLI_MASK) == FOREIGN_TLLI_MASK))) {
     nri = get_masked_guint32(tmsi_tlli, make_mask32( (guint8) bssgp_nri_length, 8));
     if (tf) {
-      proto_tree_add_uint_hidden(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4, 
-      nri);     
+      proto_tree_add_uint_hidden(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4,
+      nri);
     }
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 	  "NRI %u", nri);
 	}
   }
@@ -1314,7 +1314,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   odd_even = get_masked_guint8(data, MASK_ODD_EVEN_INDICATION);
 
   if (bi->bssgp_tree) {
-    pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+    pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				  MASK_ODD_EVEN_INDICATION);
     proto_item_append_text(pi, "Odd/Even Indication: %s number of identity digits%s",
 			odd_even == ODD ? "Odd" : "Even",
@@ -1323,10 +1323,10 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   type = get_masked_guint8(data, MASK_TYPE_OF_IDENTITY);
 
   if (bi->bssgp_tree) {
-    pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+    pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				  MASK_TYPE_OF_IDENTITY);
     proto_item_append_text(pi, "Type of Identity: %s",
-			   val_to_str(type, tab_type_of_identity, 
+			   val_to_str(type, tab_type_of_identity,
 				      "Reserved"));
   }
   bi->offset++;
@@ -1355,7 +1355,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
       bi->offset++;
     }
     bi->offset++;
-    
+
     if (bi->bssgp_tree) {
       proto_item_append_text(ti, ": ");
       for (i = 0; i < num_digits; i++) {
@@ -1380,10 +1380,10 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 	  if (tf)
 		  proto_tree_add_string(tf, hf_id, bi->tvb, ie_start_offset + 2, ((num_digits/2)+1), digits_str);
 
-    } 
+    }
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s", 
-			  val_to_str(type, tab_type_of_identity, 
+      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s",
+			  val_to_str(type, tab_type_of_identity,
 				     "Mobile identity unknown"),
 			  digits_str);
     }
@@ -1391,11 +1391,11 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   case BSSGP_MOBILE_IDENTITY_TYPE_TMSI_PTMSI:
     tmsi = tvb_get_ntohl(bi->tvb, bi->offset);
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			  "TMSI/P-TMSI %0x04x", tmsi);
     }
     if (bi->bssgp_tree) {
-      proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi, bi->tvb, bi->offset, 4, 
+      proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi, bi->tvb, bi->offset, 4,
 			  BSSGP_LITTLE_ENDIAN);
       proto_item_append_text(ti, ": %#04x", tmsi);
     }
@@ -1403,7 +1403,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     bi->offset += 4;
     break;
   default:
-    ;    
+    ;
   }
 #undef MAX_NUM_IMSI_DIGITS
 }
@@ -1423,7 +1423,7 @@ decode_mcc_mnc(build_info_t *bi, proto_tree *parent_tree) {
   mcc2 = get_masked_guint8(data, BSSGP_MASK_LEFT_OCTET_HALF);
   mcc1 = get_masked_guint8(data, BSSGP_MASK_RIGHT_OCTET_HALF);
   bi->offset++;
-  
+
   data = tvb_get_guint8(bi->tvb, bi->offset);
   mnc3 = get_masked_guint8(data, BSSGP_MASK_LEFT_OCTET_HALF);
   mcc3 = get_masked_guint8(data, BSSGP_MASK_RIGHT_OCTET_HALF);
@@ -1441,14 +1441,14 @@ decode_mcc_mnc(build_info_t *bi, proto_tree *parent_tree) {
 
   /* XXX: Interpretation of mnci? */
   mnc = 10 * mnc1 + mnc2;
- 
+
   if (mnc3 != UNUSED_MNC3) {
     mnc += 10 * mnc + mnc3;
   }
 
-  proto_tree_add_uint(parent_tree, hf_bssgp_mcc, 
+  proto_tree_add_uint(parent_tree, hf_bssgp_mcc,
 			     bi->tvb, start_offset, 3, mcc);
-  proto_tree_add_uint(parent_tree, hf_bssgp_mnc, 
+  proto_tree_add_uint(parent_tree, hf_bssgp_mnc,
 			     bi->tvb, start_offset, 3, mnc);
 
   if (mnc3 != UNUSED_MNC3) {
@@ -1469,11 +1469,11 @@ decode_lai(build_info_t *bi, proto_tree *parent_tree) {
   guint16 lac;
   char *mcc_mnc;
   static char lai[RES_LEN];
-  
+
   mcc_mnc = decode_mcc_mnc(bi, parent_tree);
 
   lac = tvb_get_ntohs(bi->tvb, bi->offset);
-  proto_tree_add_item(parent_tree, hf_bssgp_lac, 
+  proto_tree_add_item(parent_tree, hf_bssgp_lac,
 		      bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
   bi->offset += 2;
 
@@ -1487,8 +1487,8 @@ decode_rai(build_info_t *bi, proto_tree *parent_tree) {
 #define RES_LEN 20
   guint8 rac;
   static char rai[RES_LEN];
-  char *lai = decode_lai(bi, parent_tree);  
- 
+  char *lai = decode_lai(bi, parent_tree);
+
   rac = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_item(parent_tree, hf_bssgp_rac, bi->tvb, bi->offset, 1, BSSGP_LITTLE_ENDIAN);
   bi->offset++;
@@ -1508,7 +1508,7 @@ decode_rai_ci(build_info_t *bi, proto_tree *parent_tree) {
   rai = decode_rai(bi, parent_tree);
 
   ci = tvb_get_ntohs(bi->tvb, bi->offset);
-  proto_tree_add_item(parent_tree, hf_bssgp_ci, 
+  proto_tree_add_item(parent_tree, hf_bssgp_ci,
 		      bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
   bi->offset += 2;
   g_snprintf(rai_ci, RES_LEN, "RAI %s, CI %u", rai, ci);
@@ -1528,19 +1528,19 @@ bssgp_pi_append_queuing_delay(proto_item *pi, tvbuff_t *tvb, int offset) {
   }
 }
 
-static void 
+static void
 bssgp_pi_append_bucket_leak_rate(proto_item *pi, tvbuff_t *tvb, int offset) {
   guint16 value = tvb_get_ntohs(tvb, offset);
   proto_item_append_text(pi, ": %u bytes", value * 100);
 }
 
-static void 
+static void
 bssgp_pi_append_bucket_size(proto_item *pi, tvbuff_t *tvb, int offset) {
   guint16 value = tvb_get_ntohs(tvb, offset);
   proto_item_append_text(pi, ": %u bytes", value * 100);
 }
 
-static void 
+static void
 bssgp_pi_append_bucket_full_ratio(proto_item *pi, tvbuff_t *tvb, int offset) {
   guint8 value = tvb_get_guint8(tvb, offset);
   proto_item_append_text(pi, ": %.2f * Bmax ", value / 100.0);
@@ -1550,7 +1550,7 @@ static void
 bssgp_pi_append_pfi(proto_item *pi, tvbuff_t *tvb, int offset) {
   const guint8 MASK_PFI = 0x7f;
   guint8 value;
-  
+
   static const value_string tab_pfi[] = {
     { 0, "Best effort" },
     { 1, "Signaling" },
@@ -1563,12 +1563,12 @@ bssgp_pi_append_pfi(proto_item *pi, tvbuff_t *tvb, int offset) {
     { 0, NULL },
     /* Otherwise "Dynamically assigned (PFI: <value>)" */
   };
-  value = tvb_get_masked_guint8(tvb, offset, MASK_PFI);  
-  proto_item_append_text(pi, 
+  value = tvb_get_masked_guint8(tvb, offset, MASK_PFI);
+  proto_item_append_text(pi,
 		  val_to_str(value, tab_pfi, "Dynamically assigned (PFI: %d)"));
 }
 
-static void 
+static void
 decode_pfi(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   if (bi->bssgp_tree) {
@@ -1588,7 +1588,7 @@ decode_queuing_delay(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_bucket_size(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   if (bi->bssgp_tree) {
@@ -1598,7 +1598,7 @@ decode_bucket_size(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_bucket_leak_rate(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   if (bi->bssgp_tree) {
@@ -1608,17 +1608,17 @@ decode_bucket_leak_rate(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 get_value_length(bssgp_ie_t *ie, build_info_t *bi) {
   /* length indicator in bit 8, 0 => two bytes, 1 => one byte */
   const guint8 MASK_LENGTH_INDICATOR = 0x80;
   const guint8 MASK_ONE_BYTE_LENGTH = 0x7f;
   guint8 length_len;
   guint16 length;
-  
+
   length = tvb_get_guint8(bi->tvb, bi->offset);
   length_len = 1;
-  
+
   if (length & MASK_LENGTH_INDICATOR) {
     length &= MASK_ONE_BYTE_LENGTH;
   }
@@ -1633,8 +1633,8 @@ get_value_length(bssgp_ie_t *ie, build_info_t *bi) {
 }
 
 static void
-decode_simple_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, 
-		 const char *pre_str, const char *post_str, 
+decode_simple_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset,
+		 const char *pre_str, const char *post_str,
 		 gboolean show_as_dec) {
   /* XXX: Allow mask? */
   proto_item *ti;
@@ -1650,9 +1650,9 @@ decode_simple_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset,
 
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-    
+
     proto_item_append_text(ti, ": ");
-    
+
     if (pre_str) {
       proto_item_append_text(ti, "%s ", pre_str);
     }
@@ -1673,34 +1673,34 @@ decode_simple_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset,
   bi->offset += ie->value_length;
 }
 
-static int 
+static int
 check_correct_iei(bssgp_ie_t *ie, build_info_t *bi) {
   guint8 fetched_iei = tvb_get_guint8(bi->tvb, bi->offset);
 
 #ifdef BSSGP_DEBUG
   if (fetched_iei != ie->iei) {
-  proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, 1, 
-			"Tried IEI %s (%#02x), found IEI %s (%#02x)", 
-			val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown"), 
-			ie->iei, 
-			val_to_str(fetched_iei, tab_bssgp_ie_types, "Unknown"), 
+  proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, 1,
+			"Tried IEI %s (%#02x), found IEI %s (%#02x)",
+			val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown"),
+			ie->iei,
+			val_to_str(fetched_iei, tab_bssgp_ie_types, "Unknown"),
 			fetched_iei);
   }
 #endif
   return (fetched_iei == ie->iei);
 }
 
-static void 
+static void
 decode_iei_alignment_octets(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, " (%u bytes)", ie->value_length);
-  }  
+  }
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint16 bvci;
@@ -1710,14 +1710,14 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %u", bvci);
-    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_bvci, 
-			       bi->tvb, bi->offset, ie->value_length, 
+    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_bvci,
+			       bi->tvb, bi->offset, ie->value_length,
 			       BSSGP_LITTLE_ENDIAN);
   }
   bi->offset += ie->value_length;
 
   if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"BVCI %u", bvci);
   }
 }
@@ -1754,7 +1754,7 @@ const value_string tab_cause[] = {
     { 0,    NULL },
   };
 
-static void 
+static void
 decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
@@ -1763,8 +1763,8 @@ decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     value = tvb_get_guint8(bi->tvb, bi->offset);
-    proto_item_append_text(ti, ": %s (%#02x)", 
-			   val_to_str(value, tab_cause, 
+    proto_item_append_text(ti, ": %s (%#02x)",
+			   val_to_str(value, tab_cause,
 				      "Protocol error - unspecified"),
 			   value);
   }
@@ -1774,7 +1774,7 @@ decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 /*
  * 11.3.9 Cell Identifier 3GPP TS 48.018 version 6.7.0 Release 6
  */
-static void 
+static void
 decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -1783,7 +1783,7 @@ decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_cell_identifier);
-    
+
     rai_ci = decode_rai_ci(bi, tf);
     proto_item_append_text(ti, ": %s", rai_ci);
 
@@ -1796,21 +1796,21 @@ decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
 /*
  * 11.3.10 Channel needed
  */
-static void 
+static void
 decode_iei_channel_needed(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  /* XXX: 'If this IE is used for only one MS, the the first CHANNEL field 
+  /* XXX: 'If this IE is used for only one MS, the the first CHANNEL field
      is used and the second CHANNEL field is spare.' How know? */
   const guint8 MASK_CH1 = 0x03;
   const guint8 MASK_CH2 = 0x0c;
   proto_item *ti;
   guint8 data, ch1, ch2;
-  
+
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     data = tvb_get_guint8(bi->tvb, bi->offset);
     ch1 = get_masked_guint8(data, MASK_CH1);
     ch2 = get_masked_guint8(data, MASK_CH2);
-    proto_item_append_text(ti, ": Ch1: %s (%u), Ch2: %s (%u)", 
+    proto_item_append_text(ti, ": Ch1: %s (%u), Ch2: %s (%u)",
 			   translate_channel_needed(ch1),
 			   ch1,
 			   translate_channel_needed(ch2),
@@ -1821,7 +1821,7 @@ decode_iei_channel_needed(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
 /*
  * 11.3.11 DRX Parameters
  */
-static void 
+static void
 decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CYCLE_LENGTH_COEFFICIENT = 0xf0;
   const guint8 MASK_SPLIT_ON_CCCH = 0x08;
@@ -1862,7 +1862,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   tf = proto_item_add_subtree(ti, ett_bssgp_drx_parameters);
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "SPLIT PG CYCLE: code %u", value);
   if ((value >= 1) && (value <= 64)) {
     cycle_value = value;
@@ -1917,7 +1917,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_CYCLE_LENGTH_COEFFICIENT);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_CYCLE_LENGTH_COEFFICIENT);
   proto_item_append_text(pi, "CN specific DRX cycle length coefficient: %s (%#02x)",
 			 val_to_str(value, tab_cycle_length_coefficient,
@@ -1928,7 +1928,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_SPLIT_ON_CCCH);
   proto_item_append_text(pi, "SPLIT on CCCH: Split pg cycle on CCCH is%s supported by the mobile station",
 			 value == 0 ? " not" : "");
-  
+
   value = get_masked_guint8(data, MASK_NON_DRX_TIMER);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_NON_DRX_TIMER);
   proto_item_append_text(pi, "Non-DRX Timer: %s (%#x)",
@@ -1940,7 +1940,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
  * 11.3.12 eMLPP-Priority
  */
 
-static void 
+static void
 decode_iei_emlpp_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CALL_PRIORITY = 0x07;
   proto_item *ti;
@@ -1962,7 +1962,7 @@ decode_iei_emlpp_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     data = tvb_get_guint8(bi->tvb, bi->offset);
     value = get_masked_guint8(data, MASK_CALL_PRIORITY);
-    proto_item_append_text(ti, ": %s", 
+    proto_item_append_text(ti, ": %s",
 			   val_to_str(value, tab_call_priority, ""));
   }
   bi->offset += ie->value_length;
@@ -1971,7 +1971,7 @@ decode_iei_emlpp_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
  * 11.3.13 Flush Action
  */
 
-static void 
+static void
 decode_iei_flush_action(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
@@ -1997,14 +1997,14 @@ decode_iei_flush_action(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
  * 11.3.16 LLC Frames Discarded
  */
 
-static void 
+static void
 decode_iei_llc_frames_discarded(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   decode_simple_ie(ie, bi, ie_start_offset, "", " frames discarded", TRUE);
 }
 /*
  * 11.3.17 Location Area
  */
-static void 
+static void
 decode_iei_location_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -2022,7 +2022,7 @@ decode_iei_location_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 }
 
 static void
-decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb, 
+decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb,
 					    guint64 bo, guint32 length _U_) {
   proto_item *pi;
   guint8 value;
@@ -2032,8 +2032,8 @@ decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "Access Technology Type: %s (%#01x)", 
-			 translate_msrac_access_technology_type(value), 
+  proto_item_append_text(pi, "Access Technology Type: %s (%#01x)",
+			 translate_msrac_access_technology_type(value),
 			 value);
 
   bl = 3;
@@ -2056,13 +2056,13 @@ decode_msrac_additional_access_technologies(proto_tree *tree, tvbuff_t *tvb,
 }
 
 static gboolean
-struct_bits_exist(guint64 start_bo, guint32 struct_length, 
+struct_bits_exist(guint64 start_bo, guint32 struct_length,
 		  guint64 bo, guint32 num_bits) {
   return (bo + num_bits) <= (start_bo + struct_length);
 
 }
 
-static void 
+static void
 decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 				 guint64 bo, guint32 struct_length) {
   /* Error handling:
@@ -2099,7 +2099,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
     value = bssgp_tvb_get_bits8(tvb, bo, bl);
     ti = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
-    proto_item_append_text(ti, "A5 Bits: %#02x", value); 
+    proto_item_append_text(ti, "A5 Bits: %#02x", value);
     tf = proto_item_add_subtree(ti, ett_bssgp_msrac_a5_bits);
     for (i = 0; i < bl; i++) {
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo + i, 1);
@@ -2112,7 +2112,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   else {
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
-    proto_item_append_text(pi, "A5 bits: Same as in the immediately preceding Access capabilities field within this IE"); 
+    proto_item_append_text(pi, "A5 bits: Same as in the immediately preceding Access capabilities field within this IE");
   }
 
   /* ES IND */
@@ -2161,7 +2161,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   if (value == 1) {
     bo += bl;
-    ti = bit_proto_tree_add_text(tree, tvb, bo, bl, "Multislot capability"); 
+    ti = bit_proto_tree_add_text(tree, tvb, bo, bl, "Multislot capability");
     tf = proto_item_add_subtree(ti, ett_bssgp_msrac_multislot_capability);
 
     /* HSCSD Multislot Class */
@@ -2188,7 +2188,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo-1, bl);
       proto_item_append_text(pi, "HSCSD Multislot Class - Bits are not available" );
     }
-    
+
     /* GPRS Multislot Class, GPRS Extended Dynamic Allocation Capability */
     bl = 1;
     if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
@@ -2200,7 +2200,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
-      proto_item_append_text(pi, "GPRS Multislot Class: Multislot Class %u", 
+      proto_item_append_text(pi, "GPRS Multislot Class: Multislot Class %u",
 			     value);
 
       bl = 1;
@@ -2228,8 +2228,8 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
-      proto_item_append_text(pi, 
-			     "SMS_VALUE: %u/4 timeslot (~%u microseconds)", 
+      proto_item_append_text(pi,
+			     "SMS_VALUE: %u/4 timeslot (~%u microseconds)",
 			     value + 1, (value + 1) * 144);
 
       bl = 4;
@@ -2237,8 +2237,8 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
-      proto_item_append_text(pi, 
-			     "SM_VALUE: %u/4 timeslot (~%u microseconds)", 
+      proto_item_append_text(pi,
+			     "SM_VALUE: %u/4 timeslot (~%u microseconds)",
 			     value + 1, (value + 1) * 144);
     }
     else
@@ -2313,7 +2313,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       dgmsc = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
-      proto_item_append_text(pi, "DTM GPRS Multislot Class: %s", 
+      proto_item_append_text(pi, "DTM GPRS Multislot Class: %s",
 			     translate_msrac_dtm_gprs_multislot_class(dgmsc));
 
       /* Single slot DTM */
@@ -2322,10 +2322,10 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       value = bssgp_tvb_get_bits8(tvb, bo, bl);
       pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
       bo += bl;
-      proto_item_append_text(pi, 
+      proto_item_append_text(pi,
 			     "Single Slot DTM: Single slot DTM%s supported",
 			     value == 0 ? " not" : "");
-      
+
       /* DTM EGPRS Multislot Class */
       bl = 1;
       if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
@@ -2337,17 +2337,17 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 	demsc = bssgp_tvb_get_bits8(tvb, bo, bl);
 	pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
 	bo += bl;
-	proto_item_append_text(pi, "DTM EGPRS Multislot Class: %s", 
+	proto_item_append_text(pi, "DTM EGPRS Multislot Class: %s",
 			       translate_msrac_dtm_gprs_multislot_class(demsc));
       }
     }
-    proto_item_set_len(ti, get_num_octets_spanned(start_bo, 
+    proto_item_set_len(ti, get_num_octets_spanned(start_bo,
 						  (guint32) (bo - start_bo)));
   }
   else {
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
-    proto_item_append_text(pi, "Multislot capability: Same as in the immediately preceding Access capabilities field within this IE"); 
+    proto_item_append_text(pi, "Multislot capability: Same as in the immediately preceding Access capabilities field within this IE");
   }
 
   /* Additions in release 99 */
@@ -2373,14 +2373,14 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     }
     proto_item_append_text(pi, ", 8PSK modulation capability in uplink");
   }
-  
+
   /* COMPACT Interference Measurement Capability */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, 
+  proto_item_append_text(pi,
 			 "COMPACT Interference Measurement Capability: %s",
 			 value == 0 ? "Not implemented" : "Implemented");
 
@@ -2390,7 +2390,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "Revision Level Indicator: The ME is Release '%u %s", 
+  proto_item_append_text(pi, "Revision Level Indicator: The ME is Release '%u %s",
 			 value == 0 ? 98 : 99,
 			 value == 0 ? "or older" : "onwards");
 
@@ -2401,7 +2401,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "UMTS FDD Radio Access Technology Capability: UMTS FDD%s supported", 
+  proto_item_append_text(pi, "UMTS FDD Radio Access Technology Capability: UMTS FDD%s supported",
 			 value == 0 ? " not" : "");
 
   bl = 1;
@@ -2409,7 +2409,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "UMTS 3.84 Mcps TDD Radio Access Technology Capability: UMTS 3.84 Mcps TDD%s supported", 
+  proto_item_append_text(pi, "UMTS 3.84 Mcps TDD Radio Access Technology Capability: UMTS 3.84 Mcps TDD%s supported",
 			 value == 0 ? " not" : "");
 
   bl = 1;
@@ -2417,7 +2417,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "CDMA 2000 Radio Access Technology Capability: CDMA 2000%s supported", 
+  proto_item_append_text(pi, "CDMA 2000 Radio Access Technology Capability: CDMA 2000%s supported",
 			 value == 0 ? " not" : "");
 
 
@@ -2427,7 +2427,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "UMTS 1.28 Mcps TDD Radio Access Technology Capability: UMTS 1.28 Mcps TDD%s supported", 
+  proto_item_append_text(pi, "UMTS 1.28 Mcps TDD Radio Access Technology Capability: UMTS 1.28 Mcps TDD%s supported",
 			 value == 0 ? " not" : "");
 
 
@@ -2437,11 +2437,11 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "GERAN Feature Package 1: GERAN Feature Package 1%s supported", 
+  proto_item_append_text(pi, "GERAN Feature Package 1: GERAN Feature Package 1%s supported",
 			 value == 0 ? " not" : "");
 
 
-  /* Extended DTM xGPRS Multislot Class */  
+  /* Extended DTM xGPRS Multislot Class */
   bl = 1;
   if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
@@ -2452,7 +2452,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     value = bssgp_tvb_get_bits8(tvb, bo, bl);
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
-    proto_item_append_text(pi, "Extended DTM GPRS Multi Slot Class: %s", 
+    proto_item_append_text(pi, "Extended DTM GPRS Multi Slot Class: %s",
 			   translate_msrac_extended_dtm_gprs_multislot_class(value, dgmsc));
 
     /* XXX: 'This field shall be included only if the MS supports EGPRS DTM'.
@@ -2462,7 +2462,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
     value = bssgp_tvb_get_bits8(tvb, bo, bl);
     pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
     bo += bl;
-    proto_item_append_text(pi, "Extended DTM EGPRS Multi Slot Class: %s", 
+    proto_item_append_text(pi, "Extended DTM EGPRS Multi Slot Class: %s",
 			   translate_msrac_extended_dtm_gprs_multislot_class(value, demsc));
   }
 
@@ -2472,7 +2472,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = bssgp_tvb_get_bits8(tvb, bo, bl);
   pi = bit_proto_tree_add_bit_field8(tree, tvb, bo, bl);
   bo += bl;
-  proto_item_append_text(pi, "Modulation based multislot class support: %s supported", 
+  proto_item_append_text(pi, "Modulation based multislot class support: %s supported",
 			 value == 0 ? "Not" : "");
 
   /* Additions in release 5 */
@@ -2542,7 +2542,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   bo += bl;
   proto_item_append_text(pi, "Donwlink Advanced Receiver Performance: Downlink Advanced Receiver Performance %s supported",
 			 value == 0 ? "not" : "- phase 1");
-  
+
 
   /* Extended RLC_MAC Control Message Segmentation Capability */
   bl = 1;
@@ -2554,7 +2554,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 			 value == 0 ? " not" : "");
 }
 
-static void 
+static void
 decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   /* No need to check bi->bssgp_tree here */
   const guint8 ADD_ACC_TECHN = 0x0f;
@@ -2563,7 +2563,7 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   proto_tree *tf, *tf2;
   const char *att_name;
   guint64 start_bo;
-  
+
   start_bo = bo;
   ti = bit_proto_tree_add_text(tree, tvb, bo, 8,
 			       "MS RA capability value part");
@@ -2583,7 +2583,7 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   pi = bit_proto_tree_add_bit_field8(tf, tvb, bo, bl);
   proto_item_append_text(pi, "Length: %u bits", length);
   bo += bl;
- 
+
   if (att == ADD_ACC_TECHN) {
     bo++; /* Always '1' */
     ti2 = bit_proto_tree_add_text(tf, tvb, bo, length,
@@ -2592,11 +2592,11 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
     proto_item_set_len(ti, get_num_octets_spanned(start_bo, 4 + 7 + length + 1 + 1));
     decode_msrac_additional_access_technologies(tf2, tvb, bo, length);
   }
-  else if (att <= 0x0b) { 
+  else if (att <= 0x0b) {
     ti2 = bit_proto_tree_add_text(tf, tvb, bo, length, "Access Capabilities");
     tf2 = proto_item_add_subtree(ti2, ett_bssgp_msrac_access_capabilities);
     proto_item_set_len(ti, get_num_octets_spanned(start_bo, 4 + 7 + length + 1));
-    decode_msrac_access_capabilities(tf2, tvb, bo, length); 
+    decode_msrac_access_capabilities(tf2, tvb, bo, length);
   }
   /* else unknown Access Technology Type */
 
@@ -2610,14 +2610,14 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
 /*
  * 11.3.22 MS Radio Access Capability
  */
-static void 
+static void
 decode_iei_ms_radio_access_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
-  
+
   if (!bi->bssgp_tree) {
     bi->offset += ie->value_length;
-    return;  
+    return;
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_ms_radio_access_capability);
@@ -2632,7 +2632,7 @@ decode_iei_ms_radio_access_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_s
 /*
  * 11.3.23 OMC Id
  */
-static void 
+static void
 decode_iei_omc_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* XXX: Translation: where in 3GPP TS 12.20? */
   proto_item *ti;
@@ -2646,19 +2646,19 @@ decode_iei_omc_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 /*
  * 11.3.24 PDU In Error
  */
-static void 
+static void
 decode_iei_pdu_in_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
 
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-    proto_item_append_text(ti, ": Erroneous BSSGP PDU (%u bytes)", 
+    proto_item_append_text(ti, ": Erroneous BSSGP PDU (%u bytes)",
 			   ie->value_length);
   }
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_PCI = 0x40;
   const guint8 MASK_PRIORITY_LEVEL = 0x3c;
@@ -2691,39 +2691,39 @@ decode_iei_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (!bi->bssgp_tree) {
     bi->offset += ie->value_length;
     return;
-  }   
+  }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_priority);
-  
-  data = tvb_get_guint8(bi->tvb, bi->offset); 
-  
+
+  data = tvb_get_guint8(bi->tvb, bi->offset);
+
   value = get_masked_guint8(data, MASK_PCI);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_PCI);
   proto_item_append_text(pi, "PCI: This allocation request %s preempt an existing connection",
 			 value == 0 ? "shall not" : "may");
-  
+
   value = get_masked_guint8(data, MASK_PRIORITY_LEVEL);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PRIORITY_LEVEL);
   proto_item_append_text(pi, "Priority Level: %s",
 			 val_to_str(value, tab_priority_level, ""));
-  
+
   value = get_masked_guint8(data, MASK_QA);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_QA);
   proto_item_append_text(pi, "QA: Queuing%s allowed",
 			 value == 0 ? " not" : "");
-  
+
   value = get_masked_guint8(data, MASK_PVI);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PVI);
   proto_item_append_text(pi, "PVI: This connection %s be preempted by another allocation request",
 		      value == 0 ? "shall not" : "might");
-  
+
   bi->offset += ie->value_length;
 }
 /*
  * 11.3.28 QoS Profile
  */
-static void 
+static void
 decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CR_BIT = 0x20;
   const guint8 MASK_T_BIT = 0x10;
@@ -2735,14 +2735,14 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint16 peak_bit_rate;
 
   static const value_string tab_precedence_ul[] = {
-    { 0,   "High priority" }, 
+    { 0,   "High priority" },
     { 1,   "Normal priority" },
     { 2,   "Low priority" },
     { 0,   NULL },
   };
 
   static const value_string tab_precedence_dl[] = {
-    { 0,   "Radio priority 1" }, 
+    { 0,   "Radio priority 1" },
     { 1,   "Radio priority 2" },
     { 2,   "Radio priority 3" },
     { 3,   "Radio priority 4" },
@@ -2777,21 +2777,21 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   value = get_masked_guint8(data, MASK_T_BIT);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_T_BIT);
   proto_item_append_text(pi, "T: The SDU contains %s",
-			 value == 0 ? 
-			 "data" : 
+			 value == 0 ?
+			 "data" :
 			 "signalling (e.g. related to GMM)");
 
   value = get_masked_guint8(data, MASK_A_BIT);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_A_BIT);
   proto_item_append_text(pi, "A: Radio interface uses RLC/MAC %s functionality",
 			 value == 0 ? "ARQ " : "UNITDATA ");
-  
+
   value = get_masked_guint8(data, MASK_PRECEDENCE);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PRECEDENCE);
   proto_item_append_text(pi, "Precedence: ");
 
   if (bi->ul_data) {
-    proto_item_append_text(pi, val_to_str(value, tab_precedence_ul, 
+    proto_item_append_text(pi, val_to_str(value, tab_precedence_ul,
 					  "Reserved (Low priority)"));
   }
   else {
@@ -2804,7 +2804,7 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 /*
  * 11.3.29 Radio Cause
  */
-static void 
+static void
 decode_iei_radio_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
@@ -2829,7 +2829,7 @@ decode_iei_radio_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_ra_cap_upd_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
@@ -2852,7 +2852,7 @@ decode_iei_ra_cap_upd_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -2869,7 +2869,7 @@ decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
   proto_item_append_text(ti, ": RAI %s", rai);
 }
 
-static void 
+static void
 decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
 
@@ -2879,33 +2879,33 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %#04x", tlli);
-    
-    /* By Stefan Boman LN/Ericsson 2006-07-14 -- 
-	 * Commented the following four lines. Preventing redundant data 
+
+    /* By Stefan Boman LN/Ericsson 2006-07-14 --
+	 * Commented the following four lines. Preventing redundant data
 	 */
 	/*
 	ti = bssgp_proto_tree_add_ie(ie, bi, bi->offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
-        
-    proto_tree_add_item(tf, hf_bssgp_tlli, 
+
+    proto_tree_add_item(tf, hf_bssgp_tlli,
 			       bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
 	*/
   }
   bi->offset += 4;
 
   if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"TLLI %#4x", tlli);
   }
-  
+
   if (check_col(bi->pinfo->cinfo, COL_BSSGP_TLLI)) {
     col_add_fstr(bi->pinfo->cinfo, COL_BSSGP_TLLI, "%#04x", tlli);
   }
-  
+
   decode_nri(bi->bssgp_tree, bi, tlli);
 }
 
-static void 
+static void
 decode_iei_tmsi(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -2916,49 +2916,49 @@ decode_iei_tmsi(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %#04x", tmsi);
-    
+
     ti = bssgp_proto_tree_add_ie(ie, bi, bi->offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_tmsi_ptmsi);
-        
-    proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi, 
+
+    proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi,
 			       bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
   }
   bi->offset += 4;
 
   if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"(P)TMSI %#4x", tmsi);
   }
   decode_nri(bi->bssgp_tree, bi, tmsi);
 }
 
-static void 
+static void
 decode_iei_trigger_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* XXX: value is 20 octets long! How add/show? */
   proto_item *ti;
-  
+
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   }
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 proto_tree_add_lsa_id(build_info_t *bi, proto_tree *tree) {
   guint32 data, lsa_id;
   proto_item *pi;
-  
+
   data = tvb_get_ntoh24(bi->tvb, bi->offset);
   lsa_id = data >> 1;
-  
-  pi = proto_tree_add_text(tree, bi->tvb, bi->offset, 3, 
+
+  pi = proto_tree_add_text(tree, bi->tvb, bi->offset, 3,
 			   "LSA ID: %#03x (%s)", lsa_id,
-			   data & 1 ? 
+			   data & 1 ?
 			   "Universal LSA" : "PLMN significant number");
   bi->offset += 3;
 }
 
-static void 
+static void
 decode_iei_lsa_identifier_list(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_EP = 0x01;
   proto_item *ti, *pi;
@@ -2986,7 +2986,7 @@ decode_iei_lsa_identifier_list(bssgp_ie_t *ie, build_info_t *bi, int ie_start_of
   }
 }
 
-static void 
+static void
 decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_LSA_ONLY = 0x01;
   const guint8 MASK_ACT = 0x20;
@@ -3027,7 +3027,7 @@ decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   value = tvb_get_masked_guint8(bi->tvb, bi->offset, MASK_LSA_ONLY);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_LSA_ONLY);
   proto_item_append_text(pi, "LSA Only: %s",
-			 value == 0 ? 
+			 value == 0 ?
 			 "The subscriber has only access to the LSAs that are defined by the LSA information element" :
 			 "Allow an emergency call");
   bi->offset++;
@@ -3035,17 +3035,17 @@ decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   num_lsa_infos = (ie->value_length - 1) / 4;
 
   for (i = 0; i < num_lsa_infos; i++) {
-    ti2 = proto_tree_add_text(tf, bi->tvb, bi->offset, 4, 
+    ti2 = proto_tree_add_text(tf, bi->tvb, bi->offset, 4,
 			      "LSA Identification and attributes %u", i + 1);
     tf2 = proto_item_add_subtree(ti2, ett_bssgp_lsa_information_lsa_identification_and_attributes);
-    
+
     data = tvb_get_guint8(bi->tvb, bi->offset);
-    
+
     value = get_masked_guint8(data, MASK_ACT);
     pi = proto_tree_add_bitfield8(tf2, bi->tvb, bi->offset, MASK_ACT);
     proto_item_append_text(pi, "Act: The subscriber %s active mode support in the LSA",
 			   value == 0 ? "does not have" : "has");
-        
+
     value = get_masked_guint8(data, MASK_PREF);
     pi = proto_tree_add_bitfield8(tf2, bi->tvb, bi->offset, MASK_PREF);
     proto_item_append_text(pi, "Pref: The subscriber %s preferential access in the LSA",
@@ -3056,12 +3056,12 @@ decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
     proto_item_append_text(pi, "Priority: %s",
 			   val_to_str(value, tab_priority, ""));
     bi->offset++;
-    
+
     proto_tree_add_lsa_id(bi, tf2);
   }
 }
 
-static void 
+static void
 decode_iei_gprs_timer(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_UNIT_VALUE = 0xe0;
   const guint8 MASK_TIMER_VALUE = 0x1f;
@@ -3083,16 +3083,16 @@ decode_iei_gprs_timer(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     data = tvb_get_guint8(bi->tvb, bi->offset);
     value = get_masked_guint8(data, MASK_TIMER_VALUE);
     proto_item_append_text(ti, ": %u", value);
-    
+
     value = get_masked_guint8(data, MASK_UNIT_VALUE);
     proto_item_append_text(ti, ", %s",
-			   val_to_str(value, tab_unit_value, 
+			   val_to_str(value, tab_unit_value,
 				      "incremented in multiples of 1 minute"));
   }
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_DELAY_CLASS = 0x38;
   const guint8 MASK_RELIABILITY_CLASS = 0x07;
@@ -3122,16 +3122,16 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_abqp);
-    
+
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_DELAY_CLASS);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_DELAY_CLASS);
-  proto_item_append_text(pi, "Delay Class: %s (%#x)",  
+  proto_item_append_text(pi, "Delay Class: %s (%#x)",
 			 translate_abqp_delay_class(value, bi), value);
 
   value = get_masked_guint8(data, MASK_RELIABILITY_CLASS);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_RELIABILITY_CLASS);
   proto_item_append_text(pi, "Reliability Class: %s (%#x)",
 			 translate_abqp_reliability_class(value, bi), value);
@@ -3140,13 +3140,13 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_PEAK_THROUGHPUT);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_PEAK_THROUGHPUT);
   proto_item_append_text(pi, "Peak Throughput: %s (%#x)",
 			 translate_abqp_peak_throughput(value, bi), value);
 
   value = get_masked_guint8(data, MASK_PRECEDENCE_CLASS);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_PRECEDENCE_CLASS);
   proto_item_append_text(pi, "Precedence Class: %s (%#x)",
 			 translate_abqp_precedence_class(value, bi), value);
@@ -3155,7 +3155,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_MEAN_THROUGHPUT);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_MEAN_THROUGHPUT);
   proto_item_append_text(pi, "Mean Throughput: %s (%#02x)",
 			 translate_abqp_mean_throughput(value, bi), value);
@@ -3172,9 +3172,9 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   traffic_class = get_masked_guint8(data, MASK_TRAFFIC_CLASS);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_TRAFFIC_CLASS);
   proto_item_append_text(pi, "Traffic Class: %s (%#x)",
-			 translate_abqp_traffic_class(traffic_class, bi), 
+			 translate_abqp_traffic_class(traffic_class, bi),
 			 value);
-  if ((traffic_class == TRAFFIC_CLASS_INTERACTIVE) || 
+  if ((traffic_class == TRAFFIC_CLASS_INTERACTIVE) ||
       (traffic_class == TRAFFIC_CLASS_BACKGROUND)) {
     proto_item_append_text(pi, " (ignored)");
   }
@@ -3185,7 +3185,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			 translate_abqp_delivery_order(value, bi), value);
 
   value = get_masked_guint8(data, MASK_DELIVERY_OF_ERRONEOUS_SDU);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_DELIVERY_OF_ERRONEOUS_SDU);
   proto_item_append_text(pi, "Delivery of Erroneous SDU: %s (%#x)",
 			 translate_abqp_delivery_of_erroneous_sdu(value, bi),
@@ -3194,21 +3194,21 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* Octet 7 */
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Maximum SDU Size: %s",
 		      translate_abqp_max_sdu_size(value, bi));
   /* Octet 8 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Maximum bit rate for uplink: %s",
 		      translate_abqp_max_bit_rate_for_ul(value, bi));
   /* Octet 9 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Maximum bit rate for downlink: %s",
 		      translate_abqp_max_bit_rate_for_dl(value, bi));
   /* Octet 10 */
@@ -3221,7 +3221,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			 translate_abqp_residual_ber(value, bi), value);
 
   value = get_masked_guint8(data, MASK_SDU_ERROR_RATIO);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_SDU_ERROR_RATIO);
   proto_item_append_text(pi, "SDU Error Ratio: %s (%#x)",
 			 translate_abqp_sdu_error_ratio(value, bi), value);
@@ -3235,7 +3235,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			 translate_abqp_transfer_delay(value, bi), value);
 
   value = get_masked_guint8(data, MASK_TRAFFIC_HANDLING_PRIORITY);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_TRAFFIC_HANDLING_PRIORITY);
   proto_item_append_text(pi, "Traffic Handling Priority: %s (%#x)",
 			 translate_abqp_traffic_handling_priority(value, bi),
@@ -3249,14 +3249,14 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Guaranteed bit rate for uplink: %s",
 		      translate_abqp_guaranteed_bit_rate_for_ul(value, bi));
   /* Octet 13 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Guaranteed bit rate for downlink: %s",
 		      translate_abqp_guaranteed_bit_rate_for_dl(value, bi));
   /*
@@ -3271,7 +3271,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_SIGNALLING_INDICATION);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_SIGNALLING_INDICATION);
   proto_item_append_text(pi, "Signalling Indication: %s for signalling traffic",
 			 value == 0 ? "Not optimized" : "Optimized");
@@ -3282,7 +3282,7 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
 
   value = get_masked_guint8(data, MASK_SOURCE_STATISTICS_DESCRIPTOR);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_SOURCE_STATISTICS_DESCRIPTOR);
   proto_item_append_text(pi, "Source Statistics Descriptor: %s (%#x)",
 			 translate_abqp_source_statistics_descriptor(value, bi),
@@ -3301,20 +3301,20 @@ decode_iei_abqp(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 	  return;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Maximum bit rate for downlink (extended): %s",
 		      translate_abqp_max_bit_rate_for_dl_extended(value, bi));
   /* Octet 16 */
   bi->offset++;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
 		      "Guaranteed bit rate for downlink (extended): %s",
 		      translate_abqp_guaranteed_bit_rate_for_dl_extended(value, bi));
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_feature_bitmap(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_ENHANCED_RADIO_STATUS = 0x40;
   const guint8 MASK_PFC_FC = 0x20;
@@ -3333,15 +3333,15 @@ decode_iei_feature_bitmap(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_feature_bitmap);
-  
+
   data = tvb_get_guint8(bi->tvb, bi->offset);
 
   value = get_masked_guint8(data, MASK_ENHANCED_RADIO_STATUS);
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_ENHANCED_RADIO_STATUS);
   proto_item_append_text(pi, "Enhanced Radio Status: Enhanced Radio Status Procedures%s supported",
 			 value == 0 ? " not" : "");
-  
+
   value = get_masked_guint8(data, MASK_PFC_FC);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PFC_FC);
   proto_item_append_text(pi, "PFC_FC: PFC Flow Control Procedures%s supported",
@@ -3361,7 +3361,7 @@ decode_iei_feature_bitmap(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_INR);
   proto_item_append_text(pi, "INR: Inter-NSE re-routeing%s supported",
 			 value == 0 ? " not" : "");
-  
+
   value = get_masked_guint8(data, MASK_CBL);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_CBL);
   proto_item_append_text(pi, "CBL: Current Bucket Level Procedures%s supported",
@@ -3370,15 +3370,15 @@ decode_iei_feature_bitmap(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   value = get_masked_guint8(data, MASK_PFC);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PFC);
   proto_item_append_text(pi, "PFC: Packet Flow Context Procedures%s supported",
-			 value == 0 ? " not" : ""); 
+			 value == 0 ? " not" : "");
 
-  bi->offset += ie->value_length; 
+  bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_bucket_full_ratio(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
-  
+
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     bssgp_pi_append_bucket_full_ratio(ti, bi->tvb, bi->offset);
@@ -3386,11 +3386,11 @@ decode_iei_bucket_full_ratio(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_service_utran_cco(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_SERVICE_UTRAN_CCO = 0x07;
   proto_item *ti;
-  guint8 data, value; 
+  guint8 data, value;
 
   static const value_string tab_service_utran_cco[] = {
     { 0, "Network initiated cell change order procedure to UTRAN should be performed" },
@@ -3405,14 +3405,14 @@ decode_iei_service_utran_cco(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
     data = tvb_get_guint8(bi->tvb, bi->offset);
     value = get_masked_guint8(data, MASK_SERVICE_UTRAN_CCO);
     proto_item_append_text(ti, ": %s (%#02x)",
-			   val_to_str(value, tab_service_utran_cco, 
+			   val_to_str(value, tab_service_utran_cco,
 				      "No information available"),
 			   value);
   }
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_nsei(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint16 nsei;
@@ -3422,18 +3422,18 @@ decode_iei_nsei(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %u", nsei);
-    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_nsei, 
+    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_nsei,
 			       bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
   }
   bi->offset += ie->value_length;
 
   if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"NSEI %u", nsei);
   }
 }
 
-static void 
+static void
 decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_VERT = 0x01;
   const guint8 MASK_XA = 0x80;
@@ -3466,7 +3466,7 @@ decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset++;
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
-  
+
   value = get_masked_guint8(data, MASK_XA);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_XA);
   proto_item_append_text(pi, "HA: Horizontal Accuracy is%s specified",
@@ -3475,13 +3475,13 @@ decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (value == 1) {
     value = get_masked_guint8(data, MASK_ACCURACY);
     pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_ACCURACY);
-    proto_item_append_text(pi, "Horizontal Accuracy: %.1f m", 
+    proto_item_append_text(pi, "Horizontal Accuracy: %.1f m",
 			   10 * (pow(1.1, (double)value) - 1));
   }
   bi->offset++;
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
-  
+
   if (vert == 1) {
     value = get_masked_guint8(data, MASK_XA);
     pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_XA);
@@ -3490,21 +3490,21 @@ decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
     value = get_masked_guint8(data, MASK_ACCURACY);
     pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_ACCURACY);
-    proto_item_append_text(pi, "Vertical Accuracy: %.1f m", 
+    proto_item_append_text(pi, "Vertical Accuracy: %.1f m",
 			   45 * (pow(1.025, (double)value) - 1));
   }
   bi->offset++;
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
   value = get_masked_guint8(data, MASK_RT);
-  
+
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_RT);
   proto_item_append_text(pi, "RT: %s",
 			 val_to_str(value, tab_rt, ""));
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_lcs_client_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_CATEGORY = 0xf0;
   const guint8 MASK_SUBTYPE = 0x0f;
@@ -3530,7 +3530,7 @@ decode_iei_lcs_client_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   tf = proto_item_add_subtree(ti, ett_bssgp_lcs_client_type);
 
   data = tvb_get_guint8(bi->tvb, bi->offset);
-  
+
   category = get_masked_guint8(data, MASK_CATEGORY);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_CATEGORY);
   proto_item_append_text(pi, "Category: %s (%#x)",
@@ -3575,7 +3575,7 @@ decode_iei_lcs_client_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_requested_gps_assistance_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_A = 0x01;
   const guint8 MASK_B = 0x02;
@@ -3657,8 +3657,8 @@ decode_iei_requested_gps_assistance_data(bssgp_ie_t *ie, build_info_t *bi, int i
   gps_week = (data & 0xc0) << 2;
   data = tvb_get_guint8(bi->tvb, bi->offset + 1);
   gps_week += data;
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 2, 
-		      "GPS Week: %u", gps_week);  
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 2,
+		      "GPS Week: %u", gps_week);
   bi->offset += 2;
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
@@ -3687,14 +3687,14 @@ decode_iei_requested_gps_assistance_data(bssgp_ie_t *ie, build_info_t *bi, int i
     bi->offset++;
 
     value = tvb_get_guint8(bi->tvb, bi->offset);
-    proto_tree_add_text(tf2, bi->tvb, bi->offset, 1, 
+    proto_tree_add_text(tf2, bi->tvb, bi->offset, 1,
 			"IODE: %u", value);
     proto_item_append_text(ti2, ", IODE %u", value);
     bi->offset++;
   }
 }
 
-static void 
+static void
 decode_iei_location_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 LOCATION_ASSISTANCE = 1;
   const guint8 DECIPHERING_KEYS = 2;
@@ -3728,20 +3728,20 @@ decode_iei_location_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, "Location Information: %s",
-		      val_to_str(value, tab_location_information, 
+		      val_to_str(value, tab_location_information,
 				 "Reserved"));
   bi->offset++;
 
   if ((value == LOCATION_ASSISTANCE) || (value == DECIPHERING_KEYS)) {
     value = tvb_get_guint8(bi->tvb, bi->offset);
     proto_tree_add_text(tf, bi->tvb, bi->offset, 1, "Positioning Method: %s",
-			val_to_str(value, tab_positioning_method, 
+			val_to_str(value, tab_positioning_method,
 				   "Reserved"));
     bi->offset++;
   }
 }
 
-static void 
+static void
 decode_iei_location_estimate(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* XXX: Which paragraph in 3GPP TS 23.032?*/
   proto_item *ti;
@@ -3755,7 +3755,7 @@ decode_iei_location_estimate(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
   }
 }
 
-static void 
+static void
 decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_PDD = 0x0f;
   const guint8 MASK_METHOD = 0xf8;
@@ -3767,15 +3767,15 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
   if (!bi->bssgp_tree) {
     bi->offset += ie->value_length;
     return;
-  }  
+  }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_positioning_data);
 
   value = tvb_get_masked_guint8(bi->tvb, bi->offset, MASK_PDD);
   pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_PDD);
   proto_item_append_text(pi, "Positioning Data Discriminator: %s",
-		      value == 0 ? 
-		      "Indicate usage of each positioning method that was attempted either successfully or unseccessfully" : 
+		      value == 0 ?
+		      "Indicate usage of each positioning method that was attempted either successfully or unseccessfully" :
 		      "Reserved");
   bi->offset++;
 
@@ -3786,7 +3786,7 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
     value = get_masked_guint8(data, MASK_METHOD);
     pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_METHOD);
     proto_item_append_text(pi, "Method: ");
-    
+
     switch (value) {
     case 0: proto_item_set_text(pi, "Timing Advance"); break;
     case 1: proto_item_set_text(pi, "Reserved"); break;
@@ -3806,7 +3806,7 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
       }
     }
     proto_item_append_text(pi, " (%#02x)", value); /* Method */
-    
+
     value = get_masked_guint8(data, MASK_USAGE);
 
     switch (value) {
@@ -3815,14 +3815,14 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
     case 2: proto_item_append_text(pi, " attempted successfully: results used to verify but not generate location"); break;
     case 3: proto_item_append_text(pi, "attempted successfully: results used to generate location"); break;
     case 4: proto_item_append_text(pi, "a temmpted successfully: case where MS supports multiple mobile based positioning methods and the actual method or methods used by the MS cannot be determined"); break;
-    default: ; /* ??? */    
+    default: ; /* ??? */
     }
     proto_item_append_text(pi, " (%#x)", value); /* Usage */
     bi->offset++;
   }
 }
 
-static void 
+static void
 decode_iei_deciphering_keys(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_KEY_FLAG = 0x01;
   proto_item *ti, *pi;
@@ -3847,12 +3847,12 @@ decode_iei_deciphering_keys(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
 		      "Current Deciphering Key Value");
   bi->offset += 7;
 
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 7, 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 7,
 		      "Next Deciphering Key Value");
   bi->offset += 7;
 }
 
-static void 
+static void
 decode_iei_lcs_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /* XXX: coding (3GPP TS 29.002 7.6.11.7)? */
   proto_item *ti;
@@ -3864,7 +3864,7 @@ decode_iei_lcs_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   bi->offset += ie->value_length;
 }
 
-static void 
+static void
 decode_iei_lcs_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -3927,16 +3927,16 @@ decode_iei_lcs_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 			 val_to_str(value, tab_cause_value, "Unspecified"),
 			 value);
   bi->offset++;
-  
+
   value = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_text(tf, bi->tvb, bi->offset, 1, ": %s (%#02x)",
-			 val_to_str(value, tab_diagnostic_value, 
+			 val_to_str(value, tab_diagnostic_value,
 				    "Unrecognized => ignored"),
 		      value);
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_lcs_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_OTD_A = 0x10;
   const guint8 MASK_OTD_B = 0x08;
@@ -3984,7 +3984,7 @@ decode_iei_lcs_capability(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_rrlp_flags(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_FLAG1 = 0x01;
   proto_item *ti;
@@ -3994,7 +3994,7 @@ decode_iei_rrlp_flags(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     value = tvb_get_masked_guint8(bi->tvb, bi->offset, MASK_FLAG1);
     proto_item_append_text(ti, ": Flag1:%s Position Command (BSS to SGSN) or final response (SGSN to BSS) (%u)",
-			   value == 0 ? " Not a" : "", value);    
+			   value == 0 ? " Not a" : "", value);
   }
   bi->offset++;
 }
@@ -4009,7 +4009,7 @@ decode_iei_rim_application_identity(bssgp_ie_t *ie _U_, build_info_t *bi, int ie
 		return;
 	}
 
-	ti = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_appid, 
+	ti = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_appid,
 		bi->tvb, bi->offset, 1, FALSE);
 
     appid = tvb_get_guint8(bi->tvb, bi->offset);
@@ -4025,14 +4025,14 @@ decode_iei_rim_application_identity(bssgp_ie_t *ie _U_, build_info_t *bi, int ie
 }
 
 #if 0
-static void 
+static void
 decode_ran_information_common(build_info_t *bi, proto_tree *parent_tree) {
   proto_tree *tf;
   proto_item *ti;
   char *rai_ci;
   guint8 num_rai_cis, i;
 
-  ti = proto_tree_add_text(parent_tree, bi->tvb, bi->offset, 8, 
+  ti = proto_tree_add_text(parent_tree, bi->tvb, bi->offset, 8,
 			   "RAI + CI for Source Cell");
   tf = proto_item_add_subtree(ti, ett_bssgp_rai_ci);
 
@@ -4040,13 +4040,13 @@ decode_ran_information_common(build_info_t *bi, proto_tree *parent_tree) {
   proto_item_append_text(ti, ": %s", rai_ci);
 
   num_rai_cis = tvb_get_guint8(bi->tvb, bi->offset);
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 1, 
-		      "%u ""RAI+CI for Destination Cell"" follow%s", 
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 1,
+		      "%u ""RAI+CI for Destination Cell"" follow%s",
 		      num_rai_cis, (num_rai_cis == 0) ? "" : "s");
   bi->offset++;
 
   for (i = 0; i < num_rai_cis; i++) {
-    ti = proto_tree_add_text(parent_tree, bi->tvb, bi->offset, 8, 
+    ti = proto_tree_add_text(parent_tree, bi->tvb, bi->offset, 8,
 			     """RAI + CI for Destination Cell"" (%u)", i + 1);
     tf = proto_item_add_subtree(ti, ett_bssgp_rai_ci);
     rai_ci = decode_rai_ci(bi, tf);
@@ -4064,7 +4064,7 @@ static const value_string ra_discriminator_vals[] = {
     { 0, NULL },
   };
 
-static void 
+static void
 decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -4074,16 +4074,16 @@ decode_iei_rim_routing_information(bssgp_ie_t *ie, build_info_t *bi, int ie_star
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_rim_routing_information);
 
-	proto_tree_add_item(tf, hf_bssgp_ra_discriminator, 
+	proto_tree_add_item(tf, hf_bssgp_ra_discriminator,
 		bi->tvb, bi->offset, 1, FALSE);
 
 	data = tvb_get_guint8(bi->tvb, bi->offset);
- 	
+
 	bi->offset += 1;
 
   	decode_rai(bi, tf);
 
-  	proto_tree_add_item(tf, hf_bssgp_ci, 
+  	proto_tree_add_item(tf, hf_bssgp_ci,
 		      bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
   	bi->offset += 2;
 
@@ -4124,10 +4124,10 @@ decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
   }
 }
 
-/* 
+/*
  * 11.3.63.1.1 RAN-INFORMATION-REQUEST Application Container for the NACC Application
  */
-static void 
+static void
 decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   proto_tree *tf;
@@ -4136,7 +4136,7 @@ decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_i
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
-    
+
 	/*
 	 * Octet 3-10 Reporting Cell Identifier:
 	 * This field is encoded as the Cell Identifier defined in sub-clause 11.3.9
@@ -4148,7 +4148,7 @@ decode_iei_ran_information_request_application_container(bssgp_ie_t *ie, build_i
 	bi->offset += ie->value_length;
   }
 }
-static void 
+static void
 decode_iei_ran_information_application_container(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   const guint8 MASK_NUMBER_OF_SI_PSI = 0xfe;
   const guint8 MASK_UNIT_TYPE = 0x01;
@@ -4175,7 +4175,7 @@ decode_iei_ran_information_application_container(bssgp_ie_t *ie, build_info_t *b
   num_si_psi = get_masked_guint8(data, MASK_NUMBER_OF_SI_PSI);
   type_si_psi = get_masked_guint8(data, MASK_UNIT_TYPE);
 
-  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, 
+  pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset,
 				MASK_NUMBER_OF_SI_PSI);
   proto_item_append_text(pi, "Number of SI/PSI: %u ""SI/PSI"" follow%s",
 			   num_si_psi,
@@ -4185,26 +4185,26 @@ decode_iei_ran_information_application_container(bssgp_ie_t *ie, build_info_t *b
   proto_item_append_text(pi, "Type: %s messages as specified for %s follow",
 			   type_si_psi == TYPE_SI ? "SI" : "PSI",
 			   type_si_psi == TYPE_SI ? "BCCH" : "PBCCH");
-			   
+
   bi->offset++;
 
   for (i = 0; i < num_si_psi; i++) {
     if (type_si_psi == TYPE_SI) {
-      proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_SI, 
+      proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_SI,
 			  " SI (%u), %u octets", i + 1, LEN_SI);
       /* XXX: Not decoded yet; which section in 3GPP TS 44.018? */
 	  proto_tree_add_item(tf, hf_bssgp_rrc_si_msg_type, bi->tvb, bi->offset, 1, FALSE);
 	  /* TODO:
 	   * Add decoding in packet-gsm_a.c ? Needs a new exported function "gsm_a_decode_rr_message?)
-	   * 
+	   *
 	   */
       bi->offset += LEN_SI;
     }
     else if (type_si_psi == TYPE_PSI) {
-      proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_PSI, 
+      proto_tree_add_text(tf, bi->tvb, bi->offset, LEN_PSI,
 			  " PSI (%u), %u octets", i + 1, LEN_PSI);
       /* XXX: Not decoded yet; which section in 3GPP TS 44.060?
-	  
+
 	  System information messages: Reference
 Packet System Information Type 1 11.2.18
 Packet System Information Type 2 11.2.19
@@ -4249,7 +4249,7 @@ static const value_string ran_inf_pdu_type_ext_vals[] = {
   { 0, NULL },
 };
 /* 11.3.65 RIM PDU Indications 3GPP TS 48.018 version 6.7.0 Release 6 */
-static void 
+static void
 decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   /**  const guint8 MASK_EXT = 0x0E; **/
   const guint8 MASK_ACK = 0x01;
@@ -4263,11 +4263,11 @@ decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_of
   }
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_rim_pdu_indications);
-    
+
   data = tvb_get_guint8(bi->tvb, bi->offset);
-  
+
   if (bi->pdutype == BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT) {
-	  proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);	  
+	  proto_tree_add_item(tf, hf_ran_inf_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);
   }else{
 	  proto_tree_add_item(tf, hf_ran_inf_req_pdu_type_ext, bi->tvb, bi->offset, 1, FALSE);
   }
@@ -4279,7 +4279,7 @@ decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_of
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_number_of_container_units(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
@@ -4297,7 +4297,7 @@ decode_iei_number_of_container_units(bssgp_ie_t *ie, build_info_t *bi, int ie_st
   bi->offset++;
 }
 
-static void 
+static void
 decode_iei_pfc_flow_control_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree *tf, *tf2;
   proto_item *ti, *ti2, *pi;
@@ -4311,8 +4311,8 @@ decode_iei_pfc_flow_control_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_
   ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
   tf = proto_item_add_subtree(ti, ett_bssgp_pfc_flow_control_parameters);
 
-  num_pfc = tvb_get_guint8(bi->tvb, bi->offset); 
-  pi = proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, 1, 
+  num_pfc = tvb_get_guint8(bi->tvb, bi->offset);
+  pi = proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, 1,
 			   "Number of PFCs: ");
 
   if (num_pfc < 12) {
@@ -4329,7 +4329,7 @@ decode_iei_pfc_flow_control_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_
   b_pfc_included = (pfc_len == 6);
 
   for (i = 0; i < num_pfc; i++) {
-    ti2 = proto_tree_add_text(tf, bi->tvb, bi->offset, pfc_len, 
+    ti2 = proto_tree_add_text(tf, bi->tvb, bi->offset, pfc_len,
 			      "PFC (%u)", i + 1);
     tf2 = proto_item_add_subtree(ti2, ett_bssgp_pfc_flow_control_parameters_pfc);
 
@@ -4349,11 +4349,11 @@ decode_iei_pfc_flow_control_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_
       pi = proto_tree_add_text(tf2, bi->tvb, bi->offset, 1, "B_PFC");
       bssgp_pi_append_bucket_full_ratio(pi, bi->tvb, bi->offset);
       bi->offset++;
-    } 
+    }
   }
 }
 
-static void 
+static void
 decode_iei_global_cn_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree *ti;
   proto_tree *tf;
@@ -4370,11 +4370,11 @@ decode_iei_global_cn_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   mcc_mnc = decode_mcc_mnc(bi, tf);
   proto_item_append_text(ti, ": PLMN-Id %s", mcc_mnc);
 
-  value = tvb_get_ntohs(bi->tvb, bi->offset);  
-  proto_tree_add_text(tf, bi->tvb, bi->offset, 2, 
+  value = tvb_get_ntohs(bi->tvb, bi->offset);
+  proto_tree_add_text(tf, bi->tvb, bi->offset, 2,
 		      "CN-ID: %u", value);
   proto_item_append_text(ti, ", CN-Id %u", value);
-  bi->offset += 2; 
+  bi->offset += 2;
 }
 
 static void
@@ -4382,7 +4382,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   int org_offset = bi->offset;
 
   if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {
-/* TODO This code does not work well with omitted Optional elements 
+/* TODO This code does not work well with omitted Optional elements
 	proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[tvb_length_remaining] length remaining: %d", tvb_length_remaining(bi->tvb, bi->offset));
 	*/
     return;
@@ -4515,7 +4515,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     break;
   case BSSGP_IEI_TLLI:
     decode_iei_tlli(ie, bi, org_offset);
-    break; 
+    break;
   case BSSGP_IEI_TMSI:
     decode_iei_tmsi(ie, bi, org_offset);
     break;
@@ -4656,7 +4656,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   }
 }
 
-static void 
+static void
 decode_pdu_general(bssgp_ie_t *ies, int num_ies, build_info_t *bi) {
   int i;
   for (i = 0; i < num_ies; i++) {
@@ -4664,46 +4664,46 @@ decode_pdu_general(bssgp_ie_t *ies, int num_ies, build_info_t *bi) {
   }
 }
 
-static void 
+static void
 decode_pdu_dl_unitdata(build_info_t *bi) {
   bssgp_ie_t ies[] = {
     { BSSGP_IEI_TLLI, "TLLI (current)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_V, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_QOS_PROFILE, NULL, 
+    { BSSGP_IEI_QOS_PROFILE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_V, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_PDU_LIFETIME, NULL, 
+    { BSSGP_IEI_PDU_LIFETIME, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4},
 
-    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL, 
+    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
 
-    { BSSGP_IEI_PRIORITY, NULL, 
+    { BSSGP_IEI_PRIORITY, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3},
 
-    { BSSGP_IEI_DRX_PARAMETERS, NULL, 
+    { BSSGP_IEI_DRX_PARAMETERS, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4},
 
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
 
-    { BSSGP_IEI_TLLI, "TLLI (old)", 
+    { BSSGP_IEI_TLLI, "TLLI (old)",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6},
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3},
 
-    { BSSGP_IEI_LSA_INFORMATION, NULL, 
+    { BSSGP_IEI_LSA_INFORMATION, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
 
-    { BSSGP_IEI_SERVICE_UTRAN_CCO, NULL, 
+    { BSSGP_IEI_SERVICE_UTRAN_CCO, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3},
 
-    { BSSGP_IEI_ALIGNMENT_OCTETS, NULL, 
+    { BSSGP_IEI_ALIGNMENT_OCTETS, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
 
-    { BSSGP_IEI_LLC_PDU, NULL, 
+    { BSSGP_IEI_LLC_PDU, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
   };
   bi->dl_data = TRUE;
@@ -4712,28 +4712,28 @@ decode_pdu_dl_unitdata(build_info_t *bi) {
   decode_pdu_general(ies, 13, bi);
 }
 
-static void 
+static void
 decode_pdu_ul_unitdata(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_V, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_QOS_PROFILE, NULL, 
+    { BSSGP_IEI_QOS_PROFILE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_V, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, NULL, 
+    { BSSGP_IEI_CELL_IDENTIFIER, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_LSA_IDENTIFIER_LIST, NULL, 
+    { BSSGP_IEI_LSA_IDENTIFIER_LIST, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_ALIGNMENT_OCTETS, NULL, 
+    { BSSGP_IEI_ALIGNMENT_OCTETS, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LLC_PDU, NULL, 
+    { BSSGP_IEI_LLC_PDU, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = FALSE;
@@ -4742,13 +4742,13 @@ decode_pdu_ul_unitdata(build_info_t *bi) {
   decode_pdu_general(ies, 7, bi);
 }
 
-static void 
+static void
 decode_pdu_ra_capability(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL, 
+    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
   };
   bi->dl_data = TRUE;
@@ -4757,43 +4757,43 @@ decode_pdu_ra_capability(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_ptm_unitdata(build_info_t *bi) {
-  proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, -1, 
+  proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, -1,
 		      "This shall be developed in GPRS phase 2");
 }
 
-static void 
+static void
 decode_pdu_paging_ps(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_DRX_PARAMETERS, NULL, 
+    { BSSGP_IEI_DRX_PARAMETERS, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_LOCATION_AREA, NULL, 
+    { BSSGP_IEI_LOCATION_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 7 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
-    { BSSGP_IEI_BSS_AREA_INDICATION, NULL, 
+    { BSSGP_IEI_BSS_AREA_INDICATION, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_ABQP, NULL, 
+    { BSSGP_IEI_ABQP, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_QOS_PROFILE, NULL, 
+    { BSSGP_IEI_QOS_PROFILE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 5 },
 
-    { BSSGP_IEI_TMSI, "P-TMSI", 
+    { BSSGP_IEI_TMSI, "P-TMSI",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
   };
   bi->dl_data = TRUE;
@@ -4802,40 +4802,40 @@ decode_pdu_paging_ps(build_info_t *bi) {
   decode_pdu_general(ies, 10, bi);
 }
 
-static void 
+static void
 decode_pdu_paging_cs(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_DRX_PARAMETERS, NULL, 
+    { BSSGP_IEI_DRX_PARAMETERS, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_LOCATION_AREA, NULL, 
+    { BSSGP_IEI_LOCATION_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 7 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
-    { BSSGP_IEI_BSS_AREA_INDICATION, NULL, 
+    { BSSGP_IEI_BSS_AREA_INDICATION, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_CHANNEL_NEEDED, NULL, 
+    { BSSGP_IEI_CHANNEL_NEEDED, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_EMLPP_PRIORITY, NULL, 
+    { BSSGP_IEI_EMLPP_PRIORITY, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_TMSI, NULL, 
+    { BSSGP_IEI_TMSI, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_GLOBAL_CN_ID, NULL, 
+    { BSSGP_IEI_GLOBAL_CN_ID, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 7 },
   };
   bi->dl_data = TRUE;
@@ -4844,13 +4844,13 @@ decode_pdu_paging_cs(build_info_t *bi) {
   decode_pdu_general(ies, 11, bi);
 }
 
-static void 
+static void
 decode_pdu_ra_capability_update(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -4859,22 +4859,22 @@ decode_pdu_ra_capability_update(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_ra_capability_update_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_RA_CAP_UPD_CAUSE, NULL, 
+    { BSSGP_IEI_RA_CAP_UPD_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL, 
+    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
   };
   bi->dl_data = TRUE;
@@ -4883,19 +4883,19 @@ decode_pdu_ra_capability_update_ack(build_info_t *bi) {
   decode_pdu_general(ies, 5, bi);
 }
 
-static void 
+static void
 decode_pdu_radio_status(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TMSI, NULL, 
+    { BSSGP_IEI_TMSI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_RADIO_CAUSE, NULL, 
+    { BSSGP_IEI_RADIO_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -4904,13 +4904,13 @@ decode_pdu_radio_status(build_info_t *bi) {
   decode_pdu_general(ies, 4, bi);
 }
 
-static void 
+static void
 decode_pdu_suspend(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
   };
   bi->dl_data = FALSE;
@@ -4919,16 +4919,16 @@ decode_pdu_suspend(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_suspend_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
-    { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER, NULL, 
+    { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -4937,16 +4937,16 @@ decode_pdu_suspend_ack(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_suspend_nack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -4955,16 +4955,16 @@ decode_pdu_suspend_nack(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_resume(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
-    { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER, NULL, 
+    { BSSGP_IEI_SUSPEND_REFERENCE_NUMBER, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -4973,13 +4973,13 @@ decode_pdu_resume(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_resume_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
   };
@@ -4989,16 +4989,16 @@ decode_pdu_resume_ack(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_resume_nack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_ROUTEING_AREA, NULL, 
+    { BSSGP_IEI_ROUTEING_AREA, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 8 },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5007,13 +5007,13 @@ decode_pdu_resume_nack(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_bvc_block(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5022,10 +5022,10 @@ decode_pdu_bvc_block(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_bvc_block_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4},
   };
   bi->dl_data = TRUE;
@@ -5034,19 +5034,19 @@ decode_pdu_bvc_block_ack(build_info_t *bi) {
   decode_pdu_general(ies, 1, bi);
 }
 
-static void 
+static void
 decode_pdu_bvc_reset(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, NULL, 
+    { BSSGP_IEI_CELL_IDENTIFIER, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_FEATURE_BITMAP, NULL, 
+    { BSSGP_IEI_FEATURE_BITMAP, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5055,16 +5055,16 @@ decode_pdu_bvc_reset(build_info_t *bi) {
   decode_pdu_general(ies, 4, bi);
 }
 
-static void 
+static void
 decode_pdu_bvc_reset_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, NULL, 
+    { BSSGP_IEI_CELL_IDENTIFIER, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_FEATURE_BITMAP, NULL, 
+    { BSSGP_IEI_FEATURE_BITMAP, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5073,10 +5073,10 @@ decode_pdu_bvc_reset_ack(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_bvc_unblock(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
   };
   bi->dl_data = FALSE;
@@ -5085,10 +5085,10 @@ decode_pdu_bvc_unblock(build_info_t *bi) {
   decode_pdu_general(ies, 1, bi);
 }
 
-static void 
+static void
 decode_pdu_bvc_unblock_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
   };
   bi->dl_data = TRUE;
@@ -5097,28 +5097,28 @@ decode_pdu_bvc_unblock_ack(build_info_t *bi) {
   decode_pdu_general(ies, 1, bi);
 }
 
-static void 
+static void
 decode_pdu_flow_control_bvc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_BVC_BUCKET_SIZE, NULL, 
+    { BSSGP_IEI_BVC_BUCKET_SIZE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BUCKET_LEAK_RATE, NULL, 
+    { BSSGP_IEI_BUCKET_LEAK_RATE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BMAX_DEFAULT_MS, NULL, 
+    { BSSGP_IEI_BMAX_DEFAULT_MS, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_R_DEFAULT_MS, NULL, 
+    { BSSGP_IEI_R_DEFAULT_MS, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BUCKET_FULL_RATIO, NULL, 
+    { BSSGP_IEI_BUCKET_FULL_RATIO, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_BVC_MEASUREMENT, NULL, 
+    { BSSGP_IEI_BVC_MEASUREMENT, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
   };
   bi->dl_data = FALSE;
@@ -5127,10 +5127,10 @@ decode_pdu_flow_control_bvc(build_info_t *bi) {
   decode_pdu_general(ies, 7, bi);
 }
 
-static void 
+static void
 decode_pdu_flow_control_bvc_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5139,22 +5139,22 @@ decode_pdu_flow_control_bvc_ack(build_info_t *bi) {
   decode_pdu_general(ies, 1, bi);
 }
 
-static void 
+static void
 decode_pdu_flow_control_ms(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_MS_BUCKET_SIZE, NULL, 
+    { BSSGP_IEI_MS_BUCKET_SIZE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BUCKET_LEAK_RATE, NULL, 
+    { BSSGP_IEI_BUCKET_LEAK_RATE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BUCKET_FULL_RATIO, NULL, 
+    { BSSGP_IEI_BUCKET_FULL_RATIO, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5163,13 +5163,13 @@ decode_pdu_flow_control_ms(build_info_t *bi) {
   decode_pdu_general(ies, 5, bi);
 }
 
-static void 
+static void
 decode_pdu_flow_control_ms_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5178,19 +5178,19 @@ decode_pdu_flow_control_ms_ack(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_flush_ll(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_BVCI, "BVCI (old)", 
+    { BSSGP_IEI_BVCI, "BVCI (old)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BVCI, "BVCI (new)", 
+    { BSSGP_IEI_BVCI, "BVCI (new)",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_NSEI, "NSEI (new)", 
+    { BSSGP_IEI_NSEI, "NSEI (new)",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
   };
   bi->dl_data = TRUE;
@@ -5199,22 +5199,22 @@ decode_pdu_flush_ll(build_info_t *bi) {
   decode_pdu_general(ies, 4, bi);
 }
 
-static void 
+static void
 decode_pdu_flush_ll_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_FLUSH_ACTION, NULL, 
+    { BSSGP_IEI_FLUSH_ACTION, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_BVCI, "BVCI (new)", 
+    { BSSGP_IEI_BVCI, "BVCI (new)",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED, NULL, 
+    { BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 5 },
 
-    { BSSGP_IEI_NSEI, "NSEI (new)", 
+    { BSSGP_IEI_NSEI, "NSEI (new)",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
   };
   bi->dl_data = FALSE;
@@ -5223,22 +5223,22 @@ decode_pdu_flush_ll_ack(build_info_t *bi) {
   decode_pdu_general(ies, 5, bi);
 }
 
-static void 
+static void
 decode_pdu_llc_discarded(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_LLC_FRAMES_DISCARDED, NULL, 
+    { BSSGP_IEI_LLC_FRAMES_DISCARDED, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED, "Number of octets deleted", 
+    { BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED, "Number of octets deleted",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 5 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5247,25 +5247,25 @@ decode_pdu_llc_discarded(build_info_t *bi) {
   decode_pdu_general(ies, 5, bi);
 }
 
-static void 
+static void
 decode_pdu_flow_control_pfc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_MS_BUCKET_SIZE, NULL, 
+    { BSSGP_IEI_MS_BUCKET_SIZE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BUCKET_LEAK_RATE, NULL, 
+    { BSSGP_IEI_BUCKET_LEAK_RATE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BUCKET_FULL_RATIO, NULL, 
+    { BSSGP_IEI_BUCKET_FULL_RATIO, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS, NULL, 
+    { BSSGP_IEI_PFC_FLOW_CONTROL_PARAMETERS, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = FALSE;
@@ -5274,13 +5274,13 @@ decode_pdu_flow_control_pfc(build_info_t *bi) {
   decode_pdu_general(ies, 6, bi);
 }
 
-static void 
+static void
 decode_pdu_flow_control_pfc_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_TAG, NULL, 
+    { BSSGP_IEI_TAG, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5289,25 +5289,25 @@ decode_pdu_flow_control_pfc_ack(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_sgsn_invoke_trace(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TRACE_TYPE, NULL, 
+    { BSSGP_IEI_TRACE_TYPE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_TRACE_REFERENCE, NULL, 
+    { BSSGP_IEI_TRACE_REFERENCE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_TRIGGER_ID, NULL, 
+    { BSSGP_IEI_TRIGGER_ID, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_MOBILE_ID, NULL, 
+    { BSSGP_IEI_MOBILE_ID, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_OMC_ID, NULL, 
+    { BSSGP_IEI_OMC_ID, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_TRANSACTION_ID, NULL, 
+    { BSSGP_IEI_TRANSACTION_ID, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
   };
   bi->dl_data = TRUE;
@@ -5316,16 +5316,16 @@ decode_pdu_sgsn_invoke_trace(build_info_t *bi) {
   decode_pdu_general(ies, 6, bi);
 }
 
-static void 
+static void
 decode_pdu_status(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_BVCI, NULL, 
+    { BSSGP_IEI_BVCI, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_PDU_IN_ERROR, NULL, 
+    { BSSGP_IEI_PDU_IN_ERROR, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = TRUE;
@@ -5334,13 +5334,13 @@ decode_pdu_status(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_download_bss_pfc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5350,34 +5350,34 @@ decode_pdu_download_bss_pfc(build_info_t *bi) {
 }
 
 /* 10.4.17 CREATE-BSS-PFC */
-static void 
+static void
 decode_pdu_create_bss_pfc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_GPRS_TIMER, "PFT", 
+    { BSSGP_IEI_GPRS_TIMER, "PFT",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_ABQP, NULL, 
+    { BSSGP_IEI_ABQP, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_SERVICE_UTRAN_CCO, NULL, 
+    { BSSGP_IEI_SERVICE_UTRAN_CCO, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL, 
+    { BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_PRIORITY, "Allocation/Retention Priority", 
+    { BSSGP_IEI_PRIORITY, "Allocation/Retention Priority",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_GPRS_TIMER, "T10", 
+    { BSSGP_IEI_GPRS_TIMER, "T10",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 	  /* Inter RAT Handover Info 11.3.94 3GPP TS 48.018 version 6.11.0 Release 6 */
   };
@@ -5387,19 +5387,19 @@ decode_pdu_create_bss_pfc(build_info_t *bi) {
   decode_pdu_general(ies, 9, bi);
 }
 
-static void 
+static void
 decode_pdu_create_bss_pfc_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_ABQP, NULL, 
+    { BSSGP_IEI_ABQP, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5408,16 +5408,16 @@ decode_pdu_create_bss_pfc_ack(build_info_t *bi) {
   decode_pdu_general(ies, 4, bi);
 }
 
-static void 
+static void
 decode_pdu_create_bss_pfc_nack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5426,16 +5426,16 @@ decode_pdu_create_bss_pfc_nack(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_modify_bss_pfc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_ABQP, NULL, 
+    { BSSGP_IEI_ABQP, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = FALSE;
@@ -5444,19 +5444,19 @@ decode_pdu_modify_bss_pfc(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_modify_bss_pfc_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_GPRS_TIMER, "PFT", 
+    { BSSGP_IEI_GPRS_TIMER, "PFT",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_ABQP, NULL, 
+    { BSSGP_IEI_ABQP, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = TRUE;
@@ -5465,13 +5465,13 @@ decode_pdu_modify_bss_pfc_ack(build_info_t *bi) {
   decode_pdu_general(ies, 4, bi);
 }
 
-static void 
+static void
 decode_pdu_delete_bss_pfc(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = TRUE;
@@ -5480,13 +5480,13 @@ decode_pdu_delete_bss_pfc(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_delete_bss_pfc_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5495,16 +5495,16 @@ decode_pdu_delete_bss_pfc_ack(build_info_t *bi) {
   decode_pdu_general(ies, 2, bi);
 }
 
-static void 
+static void
 decode_pdu_delete_bss_pfc_req(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_PFI, NULL, 
+    { BSSGP_IEI_PFI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_CAUSE, NULL, 
+    { BSSGP_IEI_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
   };
   bi->dl_data = FALSE;
@@ -5513,43 +5513,43 @@ decode_pdu_delete_bss_pfc_req(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_perform_location_request(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_IMSI, NULL, 
+    { BSSGP_IEI_IMSI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_DRX_PARAMETERS, NULL, 
+    { BSSGP_IEI_DRX_PARAMETERS, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)", 
+    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_NSEI, "NSEI (PCU-PTP)", 
+    { BSSGP_IEI_NSEI, "NSEI (PCU-PTP)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LOCATION_TYPE, NULL, 
+    { BSSGP_IEI_LOCATION_TYPE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_CELL_IDENTIFIER, NULL, 
+    { BSSGP_IEI_CELL_IDENTIFIER, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_LCS_CAPABILITY, NULL, 
+    { BSSGP_IEI_LCS_CAPABILITY, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LCS_PRIORITY, NULL, 
+    { BSSGP_IEI_LCS_PRIORITY, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LCS_QOS, NULL, 
+    { BSSGP_IEI_LCS_QOS, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LCS_CLIENT_TYPE, NULL, 
+    { BSSGP_IEI_LCS_CLIENT_TYPE, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, NULL, 
+    { BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = TRUE;
@@ -5558,25 +5558,25 @@ decode_pdu_perform_location_request(build_info_t *bi) {
   decode_pdu_general(ies, 12, bi);
 }
 
-static void 
+static void
 decode_pdu_perform_location_response(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)", 
+    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_LOCATION_ESTIMATE, NULL, 
+    { BSSGP_IEI_LOCATION_ESTIMATE, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_POSITIONING_DATA, NULL, 
+    { BSSGP_IEI_POSITIONING_DATA, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_DECIPHERING_KEYS, NULL, 
+    { BSSGP_IEI_DECIPHERING_KEYS, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LCS_CAUSE, NULL, 
+    { BSSGP_IEI_LCS_CAUSE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = FALSE;
@@ -5585,16 +5585,16 @@ decode_pdu_perform_location_response(build_info_t *bi) {
   decode_pdu_general(ies, 6, bi);
 }
 
-static void 
+static void
 decode_pdu_perform_location_abort(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)", 
+    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_LCS_CAUSE, NULL, 
+    { BSSGP_IEI_LCS_CAUSE, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = TRUE;
@@ -5603,19 +5603,19 @@ decode_pdu_perform_location_abort(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
-static void 
+static void
 decode_pdu_position_command(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)", 
+    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_RRLP_FLAGS, NULL, 
+    { BSSGP_IEI_RRLP_FLAGS, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RRLP_APDU, NULL, 
+    { BSSGP_IEI_RRLP_APDU, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = FALSE;
@@ -5624,22 +5624,22 @@ decode_pdu_position_command(build_info_t *bi) {
   decode_pdu_general(ies, 4, bi);
 }
 
-static void 
+static void
 decode_pdu_position_response(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_TLLI, NULL, 
+    { BSSGP_IEI_TLLI, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)", 
+    { BSSGP_IEI_BVCI, "BVCI (PCU-PTP)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
-    { BSSGP_IEI_RRLP_FLAGS, NULL, 
+    { BSSGP_IEI_RRLP_FLAGS, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RRLP_APDU, NULL, 
+    { BSSGP_IEI_RRLP_APDU, NULL,
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
-    { BSSGP_IEI_LCS_CAUSE, NULL, 
+    { BSSGP_IEI_LCS_CAUSE, NULL,
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = TRUE;
@@ -5649,32 +5649,32 @@ decode_pdu_position_response(build_info_t *bi) {
 }
 
 
-static void 
+static void
 decode_pdu_ran_information(build_info_t *bi) {
   bssgp_ie_t ies[] = {
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "RAN-INFORMATION RIM Container", 
+    { BSSGP_IEI_RAN_INFORMATION_CONTAINER_UNIT, "RAN-INFORMATION RIM Container",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
-    
-	{ BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
+
+	{ BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
+    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications", 
+    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER, "RAN-INFORMATION RIM Container", 
+    { BSSGP_IEI_RAN_INFORMATION_APPLICATION_CONTAINER, "RAN-INFORMATION RIM Container",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
   };
@@ -5685,63 +5685,63 @@ decode_pdu_ran_information(build_info_t *bi) {
   decode_pdu_general(ies, 8, bi);
 }
 
-static void 
+static void
 decode_pdu_ran_information_request(build_info_t *bi) {
-  
+
   bssgp_ie_t ies[] = {
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-REQUEST RIM Container", 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-REQUEST RIM Container",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
-    
-	{ BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
+
+	{ BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
+    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications", 
+    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RAN_INFORMATION_REQUEST_APPLICATION_CONTAINER, "RAN-INFORMATION-REQUEST Application Container", 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_APPLICATION_CONTAINER, "RAN-INFORMATION-REQUEST Application Container",
       BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
-		
-  };  
+
+  };
 
   bi->dl_data = TRUE;
   bi->ul_data = TRUE;
-  
+
   decode_pdu_general(ies, 8, bi);
 
 }
 
-static void 
+static void
 decode_pdu_ran_information_ack(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-ACK RIM Container", 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-ACK RIM Container",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
+    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
+    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 4 },
 
   };
@@ -5751,28 +5751,28 @@ decode_pdu_ran_information_ack(build_info_t *bi) {
   decode_pdu_general(ies, 6, bi);
 }
 
-static void 
+static void
 decode_pdu_ran_information_error(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-ERROR RIM Container", 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-ERROR RIM Container",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
+    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_CAUSE, "RIM Cause", 
+    { BSSGP_IEI_CAUSE, "RIM Cause",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_PDU_IN_ERROR, NULL, 
+    { BSSGP_IEI_PDU_IN_ERROR, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
   };
   bi->dl_data = TRUE;
@@ -5781,32 +5781,32 @@ decode_pdu_ran_information_error(build_info_t *bi) {
   decode_pdu_general(ies, 7, bi);
 }
 
-static void 
+static void
 decode_pdu_ran_information_application_error(build_info_t *bi) {
   bssgp_ie_t ies[] = {
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Destination Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier", 
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
 
-    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-APPLICATION RIM Container", 
+    { BSSGP_IEI_RAN_INFORMATION_REQUEST_CONTAINER_UNIT, "RAN-INFORMATION-APPLICATION RIM Container",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 2 },
 
-    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity", 
+    { BSSGP_IEI_RIM_APPLICATION_IDENTITY, "Application Identity",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
    /* pdu indication, I hope RIM_PDU_INDICATIONS decode it right, it use the same IEI so it should... */
-    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications", 
+    { BSSGP_IEI_RIM_PDU_INDICATIONS, "PDU Indications",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number", 
+    { BSSGP_IEI_RIM_SEQUENCE_NUMBER, "Sequence Number",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
 
-    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version", 
+    { BSSGP_IEI_RIM_PROTOCOL_VERSION, "Protocol Version",
       BSSGP_IE_PRESENCE_O, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
 
-    { BSSGP_IEI_APPLICATION_ERROR_CONTAINER, NULL, 
+    { BSSGP_IEI_APPLICATION_ERROR_CONTAINER, NULL,
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN },
 
   };
@@ -5826,7 +5826,7 @@ decode_pdu(build_info_t *bi) {
     break;
   case BSSGP_PDU_UL_UNITDATA:
     decode_pdu_ul_unitdata(bi);
-    break; 
+    break;
   case BSSGP_PDU_RA_CAPABILITY:
     decode_pdu_ra_capability(bi);
     break;
@@ -5993,10 +5993,10 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->current_proto = "BSSGP";
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSGP");
-    
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
   bi.pdutype = tvb_get_guint8(tvb, 0);
@@ -6005,17 +6005,17 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, FALSE);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
-    proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1, 
+    proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1,
 				     bi.pdutype,
 				     "%s (%#02x)",
-				     val_to_str(bi.pdutype, tab_bssgp_pdu_types, 
+				     val_to_str(bi.pdutype, tab_bssgp_pdu_types,
 						"Unknown"), bi.pdutype);
     bi.bssgp_tree = bssgp_tree;
   }
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(bi.pdutype, 
-						   tab_bssgp_pdu_types, 
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(bi.pdutype,
+						   tab_bssgp_pdu_types,
 						   "Unknown PDU type"));
   }
   decode_pdu(&bi);
@@ -6023,36 +6023,36 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_bssgp(void)
-{                 
+{
   static hf_register_info hf[] = {
     { &hf_bssgp_pdu_type,
       { "PDU Type", "bssgp.pdu_type",
-	FT_UINT8, BASE_HEX, VALS(tab_bssgp_pdu_types), 0x0,          
+	FT_UINT8, BASE_HEX, VALS(tab_bssgp_pdu_types), 0x0,
 	"", HFILL }
     },
     { &hf_bssgp_iei_nacc_cause,
       { "NACC Cause", "bssgp.iei.nacc_cause",
-	FT_UINT8, BASE_HEX, VALS(tab_nacc_cause), 0x0,          
+	FT_UINT8, BASE_HEX, VALS(tab_nacc_cause), 0x0,
 	"NACC Cause", HFILL }
     },
     { &hf_bssgp_ie_type,
       { "IE Type", "bssgp.ie_type",
-	FT_UINT8, BASE_HEX, VALS(tab_bssgp_ie_types), 0x0,          
+	FT_UINT8, BASE_HEX, VALS(tab_bssgp_ie_types), 0x0,
 	"Information element type", HFILL }
     },
     { &hf_bssgp_bvci,
       { "BVCI", "bssgp.bvci",
-	FT_UINT16, BASE_HEX, NULL, 0x0,          
+	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_bssgp_tlli,
       { "TLLI", "bssgp.tlli",
-	FT_UINT32, BASE_HEX, NULL, 0x0,          
+	FT_UINT32, BASE_HEX, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_bssgp_nsei,
       { "NSEI", "bssgp.nsei",
-	FT_UINT16, BASE_HEX, NULL, 0x0,          
+	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"", HFILL }
     },
     { &hf_bssgp_mcc,
@@ -6192,7 +6192,7 @@ proto_register_bssgp(void)
   proto_register_field_array(proto_bssgp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("bssgp", dissect_bssgp, proto_bssgp);
-  
+
   /* Register configuration options */
   bssgp_module = prefs_register_protocol(proto_bssgp, proto_reg_handoff_bssgp);
   prefs_register_bool_preference(bssgp_module, "decode_nri",
@@ -6201,7 +6201,7 @@ proto_register_bssgp(void)
 				 &bssgp_decode_nri);
   prefs_register_uint_preference(bssgp_module, "nri_length", "NRI length",
 				 "NRI length, in bits",
-				 10, &bssgp_nri_length); 
+				 10, &bssgp_nri_length);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -6212,5 +6212,5 @@ proto_reg_handoff_bssgp(void)
   bssgp_handle = create_dissector_handle(dissect_bssgp, proto_bssgp);
   llc_handle = find_dissector("llcgprs");
   rrlp_handle = find_dissector("rrlp");
-  data_handle = find_dissector("data");  
+  data_handle = find_dissector("data");
 }

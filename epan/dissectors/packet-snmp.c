@@ -1225,7 +1225,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, asn1_ctx_t *actx,tvbu
 
 static void set_ue_keys(snmp_ue_assoc_t* n ) {
 	guint key_size = n->user.authModel->key_size;
-	
+
 	n->user.authKey.data = se_alloc(key_size);
 	n->user.authKey.len = key_size;
 	n->user.authModel->pass2key(n->user.authPassword.data,
@@ -1233,7 +1233,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 								n->engine.data,
 								n->engine.len,
 								n->user.authKey.data);
-	
+
 	n->user.privKey.data = se_alloc(key_size);
 	n->user.privKey.len = key_size;
 	n->user.authModel->pass2key(n->user.privPassword.data,
@@ -1245,29 +1245,29 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 
 static snmp_ue_assoc_t* ue_se_dup(snmp_ue_assoc_t* o) {
 	snmp_ue_assoc_t* d = se_memdup(o,sizeof(snmp_ue_assoc_t));
-	
+
 	d->user.authModel = o->user.authModel;
-	
+
 	d->user.privProtocol = o->user.privProtocol;
-	
+
 	d->user.userName.data = se_memdup(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
-	
+
 	d->user.authPassword.data = o->user.authPassword.data ? se_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
-	
+
 	d->user.privPassword.data = o->user.privPassword.data ? se_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
-	
+
 	d->engine.len = o->engine.len;
-	
+
 	if (d->engine.len) {
 		d->engine.data = se_memdup(o->engine.data,o->engine.len);
 		set_ue_keys(d);
 	}
-	
+
 	return d;
-	
+
 }
 
 
@@ -1276,7 +1276,7 @@ static snmp_ue_assoc_t* ue_se_dup(snmp_ue_assoc_t* o) {
 static void renew_ue_cache(void) {
 	if (num_ueas) {
 		guint i;
-		
+
 		localized_ues = NULL;
 		unlocalized_ues = NULL;
 
@@ -1285,7 +1285,7 @@ static void renew_ue_cache(void) {
 
 			if (a->engine.len) {
 				CACHE_INSERT(localized_ues,a);
-				
+
 			} else {
 				CACHE_INSERT(unlocalized_ues,a);
 			}
@@ -1305,7 +1305,7 @@ static snmp_ue_assoc_t* localize_ue( snmp_ue_assoc_t* o, const guint8* engine, g
 	n->engine.len = engine_len;
 
 	set_ue_keys(n);
-	
+
 	return n;
 }
 
@@ -1483,7 +1483,7 @@ static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 	salt_len = tvb_length_remaining(p->priv_tvb,0);
 
 	if (salt_len != 8)  {
-		*error = "decryptionError: msgPrivacyParameters lenght != 8";
+		*error = "decryptionError: msgPrivacyParameters length != 8";
 		return NULL;
 	}
 
@@ -1551,7 +1551,7 @@ static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encrypted
 	priv_len = tvb_length_remaining(p->priv_tvb,0);
 
 	if (priv_len != 8)  {
-		*error = "decryptionError: msgPrivacyParameters lenght != 8";
+		*error = "decryptionError: msgPrivacyParameters length != 8";
 		return NULL;
 	}
 
@@ -1662,7 +1662,7 @@ static int
 dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 343 "snmp.cnf"
 	guint length;
-	
+
 	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
@@ -1680,7 +1680,7 @@ static int
 dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 337 "snmp.cnf"
 	guint length;
-	
+
 	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, &value_tvb);
 	offset = offset + length;
 
@@ -1698,7 +1698,7 @@ static int
 dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 349 "snmp.cnf"
 	guint length;
-	
+
 	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
@@ -1716,7 +1716,7 @@ static int
 dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 355 "snmp.cnf"
 	guint length;
-	
+
 	snmp_variable_decode(tvb, tree, actx, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
@@ -1917,7 +1917,7 @@ dissect_snmp_T_internet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	/* see http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1125 */
   guint32 len;
   int cur_offset;
-	
+
   cur_offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
   get_ber_length(NULL, tvb, cur_offset, &len, NULL);
 
@@ -1926,7 +1926,7 @@ dissect_snmp_T_internet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	  case 16: offset = dissect_snmp_IpAddressIpv6(FALSE, tvb, offset, actx, tree, hf_snmp_internet_ipv6); break;
 	  default: offset = dissect_snmp_IpAddressOther(FALSE, tvb, offset, actx, tree, hf_snmp_internet_other); break;
   }
-  
+
   if (len != 4) {
 	proto_item* pi = get_ber_last_created_item();
 	proto_tree* pt = proto_item_add_subtree(pi,ett_internet);
@@ -1943,7 +1943,7 @@ dissect_snmp_T_internet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	expert_add_info_format( actx->pinfo, pi, PI_MALFORMED, PI_ERROR,
 		"Corrupt and Invalid packet" );
   }
-  
+
 
 
 
@@ -2172,8 +2172,8 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                        VarBind_sequence, hf_index, ett_snmp_VarBind);
 
 	if (oid_tvb && value_tvb) {
-		next_tvb_add_string(&var_list, value_tvb, (snmp_var_in_tree) ? tree : NULL, 
-			variable_oid_dissector_table, 
+		next_tvb_add_string(&var_list, value_tvb, (snmp_var_in_tree) ? tree : NULL,
+			variable_oid_dissector_table,
 			oid_to_str(tvb_get_ptr(oid_tvb, 0, tvb_length(oid_tvb)), tvb_length(oid_tvb)));
 	}
 
@@ -2844,11 +2844,11 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
 	proto_tree* flags_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_msgFlags);
-	
+
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
-	
+
 	usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
 	usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;
   }
@@ -2901,7 +2901,7 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 #line 250 "snmp.cnf"
 
 	switch(MsgSecurityModel){
-		case SNMP_SEC_USM:	/* 3 */		
+		case SNMP_SEC_USM:	/* 3 */
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
@@ -2953,7 +2953,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-		
+
 		const gchar* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
@@ -2961,10 +2961,10 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		if (! cleartext_tvb) {
 			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 				"Failed to decrypt encryptedPDU: %s", error);
-			
+
 			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 				"Failed to decrypt encryptedPDU: %s", error);
-				
+
 			return offset;
 		} else {
 			proto_item* decrypted_item;
@@ -2973,16 +2973,16 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 			if (! check_ScopedPdu(cleartext_tvb)) {
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 											"Decrypted data not formated as expected, wrong key?");
-				
+
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 									   "Decrypted data not formated as expected");
-				
+
 				return offset;
 			}
 
             add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
 			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
-			
+
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
@@ -3046,7 +3046,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		guint8* calc_auth;
 		guint calc_auth_len;
-		
+
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
@@ -3055,11 +3055,11 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 			expert_add_info_format( actx->pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Messsage authenticity: %s", error );
 		} else {
 			int severity;
-			gchar* fmt;			
+			gchar* fmt;
 
 			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, usm_p.authOK);
 			PROTO_ITEM_SET_GENERATED(authen_item);
-			
+
 			if (usm_p.authOK) {
 				fmt = "SNMP Authentication OK";
 				severity = PI_CHAT;
@@ -3760,7 +3760,7 @@ static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 
 	d->auth_model = o->auth_model;
 	d->user.authModel = auth_models[o->auth_model];
-	
+
 	d->priv_proto = o->priv_proto;
 	d->user.privProtocol = priv_protos[o->priv_proto];
 
@@ -3772,18 +3772,18 @@ static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 
 	d->user.privPassword.data = o->user.privPassword.data ? g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
-	
+
 	d->engine.len = o->engine.len;
 	if (o->engine.data) {
 		d->engine.data = g_memdup(o->engine.data,o->engine.len);
 	}
-	
+
 	d->user.authKey.data = o->user.authKey.data ? g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
 	d->user.authKey.len = o->user.authKey.len;
 
 	d->user.privKey.data = o->user.privKey.data ? g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
 	d->user.privKey.len = o->user.privKey.len;
-	
+
 	return d;
 }
 
@@ -3811,10 +3811,10 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 		g_string_truncate(es,es->len-2);
 		*err = ep_strdup(es->str);
 	}
-	
+
 	g_string_free(es,TRUE);
-	
-	return; 
+
+	return;
 }
 
 UAT_LSTRING_CB_DEF(snmp_users,userName,snmp_ue_assoc_t,user.userName.data,user.userName.len)
@@ -4236,7 +4236,7 @@ void proto_register_snmp(void) {
 	  &ett_decrypted,
 	  &ett_authParameters,
 	  &ett_internet,
-	  
+
 
 /*--- Included file: packet-snmp-ettarr.c ---*/
 #line 1 "packet-snmp-ettarr.c"
@@ -4278,7 +4278,7 @@ void proto_register_snmp(void) {
 	  UAT_FLD_LSTRING(snmp_users,privPassword,"The password used for encrypting packets for this entry"),
 	  UAT_END_FIELDS
   };
-  
+
   assocs_uat = uat_new("SNMP Users",
 					   sizeof(snmp_ue_assoc_t),
 					   "snmp_users",
@@ -4290,7 +4290,7 @@ void proto_register_snmp(void) {
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
 					   fields);
-    
+
 #ifdef HAVE_NET_SNMP
 
 #ifdef _WIN32
@@ -4368,7 +4368,7 @@ void proto_register_snmp(void) {
 								"Users Table",
 								"Table of engine-user associations used for authentication and decryption",
 								assocs_uat);
-  
+
 	variable_oid_dissector_table =
 	    register_dissector_table("snmp.variable_oid",
 	      "SNMP Variable OID", FT_STRING, BASE_NONE);
