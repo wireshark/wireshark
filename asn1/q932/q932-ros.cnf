@@ -3,6 +3,13 @@
 
 ROS
 
+#.OMIT_ASSIGNMENT
+
+Priority
+RejectProblem
+Components
+GFPInvokeIDSet
+ 
 #.TYPE_RENAME
 
 Invoke/argument             InvokeArgument

@@ -2044,8 +2044,8 @@ static const qsig_op_t *get_op(gint32 opcode) {
 }
 
 static gint32 get_service(gint32 opcode) {
-  if ((opcode <0) || (opcode >= array_length(op2srv_tab)))
-    return NULL;
+  if ((opcode < 0) || (opcode >= (int)array_length(op2srv_tab)))
+    return NO_SRV;
   return op2srv_tab[opcode];
 }
                   
@@ -2729,7 +2729,7 @@ void proto_reg_handoff_qsig(void) {
   if (find_dissector_table("q932.ros.local.arg")) {
     qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
     qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);
-    for (i=0; i<array_length(qsig_tab); i++) {
+    for (i=0; i<(int)array_length(qsig_tab); i++) {
       dissector_add("q932.ros.local.arg", qsig_tab[i].opcode, qsig_arg_handle);
       dissector_add("q932.ros.local.res", qsig_tab[i].opcode, qsig_res_handle);
     }

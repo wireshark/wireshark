@@ -91,7 +91,7 @@ void proto_register_q932_ros(void) {
   proto_register_field_array(proto_q932_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
+  new_register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
 }
 
 /*--- proto_reg_handoff_q932_ros --------------------------------------------*/
