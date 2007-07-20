@@ -2823,7 +2823,7 @@ main(int argc, char *argv[])
   }
 
   if (list_link_layer_types) {
-    status = capture_opts_list_link_layer_types(capture_opts);
+    status = capture_opts_list_link_layer_types(capture_opts, FALSE);
     exit(status);
   }
 

@@ -39,6 +39,10 @@
 #include <netinet/in.h>
 #endif
 
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>         /* needed to define AF_ values on UNIX */
 #endif
@@ -410,10 +414,14 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     return 0;
 }
 
-
-int capture_opts_list_link_layer_types(capture_options *capture_opts)
+/*
+ * If you change the output format of this function, you MUST update
+ * capture_sync.c:sync_linktype_list_open() accordingly!
+ */
+int
+capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machine_readable)
 {
-    gchar *err_str;
+    gchar *err_str, *desc_str;
     GList *lt_list, *lt_entry;
     data_link_info_t *data_link_info;
 
@@ -429,16 +437,28 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
         cmdarg_err("The capture device \"%s\" has no data link types.", capture_opts->iface);
       return 2;
     }
-    cmdarg_err_cont("Data link types (use option -y to set):");
-    for (lt_entry = lt_list; lt_entry != NULL;
-         lt_entry = g_list_next(lt_entry)) {
-      data_link_info = lt_entry->data;
-      cmdarg_err_cont("  %s", data_link_info->name);
-      if (data_link_info->description != NULL)
-        cmdarg_err_cont(" (%s)", data_link_info->description);
-      else
-        cmdarg_err_cont(" (not supported)");
-      putchar('\n');
+    if (machine_readable) {    /* tab-separated values to stdout */
+        for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+          data_link_info = lt_entry->data;
+          if (data_link_info->description != NULL)
+              desc_str = data_link_info->description;
+          else
+              desc_str = "(not supported)";
+          printf("%d\t%s\t%s\n", data_link_info->dlt, data_link_info->name,
+              desc_str);
+        }
+    } else {
+        cmdarg_err_cont("Data link types (use option -y to set):");
+        for (lt_entry = lt_list; lt_entry != NULL;
+             lt_entry = g_list_next(lt_entry)) {
+          data_link_info = lt_entry->data;
+          cmdarg_err_cont("  %s", data_link_info->name);
+          if (data_link_info->description != NULL)
+            cmdarg_err_cont(" (%s)", data_link_info->description);
+          else
+            cmdarg_err_cont(" (not supported)");
+          putchar('\n');
+        }
     }
     free_pcap_linktype_list(lt_list);
 
@@ -448,7 +468,7 @@ int capture_opts_list_link_layer_types(capture_options *capture_opts)
 /* Return an ASCII-formatted list of interfaces. */
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
 int
-capture_opts_list_interfaces(gboolean verbose)
+capture_opts_list_interfaces(gboolean machine_readable)
 {
     GList       *if_list;
     GList       *if_entry;
@@ -481,7 +501,7 @@ capture_opts_list_interfaces(gboolean verbose)
         if_info = if_entry->data;
         printf("%d. %s", i++, if_info->name);
 
-        if (!verbose) {
+        if (!machine_readable) {
             /* Add the description if it exists */
             if (if_info->description != NULL)
                 printf(" (%s)", if_info->description);

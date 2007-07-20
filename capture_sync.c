@@ -208,10 +208,35 @@ protect_arg (const gchar *argv)
 }
 #endif
 
+/* Initialize an argument list and add dumpcap to it. */
+static const char **
+init_pipe_args(int *argc) {
+    const char **argv;
+    const char *progfile_dir;
+    char *exename;
+
+    progfile_dir = get_progfile_dir();
+    if (progfile_dir == NULL) {
+      return NULL;
+    }
+
+    /* Allocate the string pointer array with enough space for the
+       terminating NULL pointer. */
+    *argc = 0;
+    argv = g_malloc(sizeof (char *));
+    *argv = NULL;
+
+    /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
+    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
+
+    /* Make that the first argument in the argument list (argv[0]). */
+    argv = sync_pipe_add_arg(argv, argc, exename);
+
+    return argv;
+}
 
 
 #define ARGV_NUMBER_LEN 24
-
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
 sync_pipe_start(capture_options *capture_opts) {
@@ -241,8 +266,6 @@ sync_pipe_start(capture_options *capture_opts) {
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
     int sync_pipe_read_fd;
-    const char *progfile_dir;
-    char *exename;
     int argc;
     const char **argv;
 
@@ -252,24 +275,12 @@ sync_pipe_start(capture_options *capture_opts) {
 
     capture_opts->fork_child = -1;
 
-    progfile_dir = get_progfile_dir();
-    if (progfile_dir == NULL) {
-      /* We don't know where to find dumpcap. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "We don't know where to find dumpcap.");
-      return FALSE;
+    argv = init_pipe_args(&argc);
+    if (!argv) {
+        /* We don't know where to find dumpcap. */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "We don't know where to find dumpcap.");
+        return FALSE;
     }
-
-    /* Allocate the string pointer array with enough space for the
-       terminating NULL pointer. */
-    argc = 0;
-    argv = g_malloc(sizeof (char *));
-    *argv = NULL;
-
-    /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
-    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
-
-    /* Make that the first argument in the argument list (argv[0]). */
-    argv = sync_pipe_add_arg(argv, &argc, exename);
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
@@ -451,9 +462,9 @@ sync_pipe_start(capture_options *capture_opts) {
       eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
-      execv(exename, (gpointer)argv);
+      execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
-		exename, strerror(errno));
+		argv[0], strerror(errno));
       sync_pipe_errmsg_to_parent(errmsg, "");
 
       /* Exit with "_exit()", so that we don't close the connection
@@ -466,7 +477,7 @@ sync_pipe_start(capture_options *capture_opts) {
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
 
-    g_free(exename);
+    g_free(argv[0]);  /* exename */
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -509,15 +520,15 @@ sync_pipe_start(capture_options *capture_opts) {
 }
 
 /*
- * Get an interface list using dumpcap.  On success, msg points to
+ * Run dumpcap with the supplied arguments.  On success, msg points to
  * a buffer containing the dumpcap output and returns 0.  On failure, msg
  * points to the error message returned by dumpcap, and returns dumpcap's
  * exit value.  In either case, msg must be freed with g_free().
  */
-/* XXX - This duplicates a lot of code in sync_pipe_start() and sync_interface_list_open() */
+/* XXX - This duplicates a lot of code in sync_pipe_start() */
 #define PIPE_BUF_SIZE 5120
-int
-sync_interface_list_open(gchar **msg) {
+static int
+sync_pipe_run_command(const char** argv, gchar **msg) {
 #ifdef _WIN32
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from parent to child */
@@ -533,15 +544,11 @@ sync_interface_list_open(gchar **msg) {
 #endif
     int fork_child = -1, fork_child_status;
     int sync_pipe_read_fd = -1;
-    const char *progfile_dir;
-    char *exename;
-    int argc;
-    const char **argv;
     GString *msg_buf = NULL;
     gchar buf[PIPE_BUF_SIZE+1];
     int count;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_run_command");
 
     if (!msg) {
         /* We can't return anything */
@@ -550,36 +557,6 @@ sync_interface_list_open(gchar **msg) {
 #endif
         return -1;
     }
-
-    progfile_dir = get_progfile_dir();
-    if (progfile_dir == NULL) {
-        /* We don't know where to find dumpcap. */
-        *msg = g_strdup("We don't know where to find dumpcap.");
-        return CANT_RUN_DUMPCAP;
-    }
-
-    /* Allocate the string pointer array with enough space for the
-       terminating NULL pointer. */
-    argc = 0;
-    argv = g_malloc(sizeof (char *));
-    *argv = NULL;
-
-    /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
-    exename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "dumpcap", progfile_dir);
-
-    /* Make that the first argument in the argument list (argv[0]). */
-    argv = sync_pipe_add_arg(argv, &argc, exename);
-
-    /* Ask for the interface list */
-    argv = sync_pipe_add_arg(argv, &argc, "-I");
-    argv = sync_pipe_add_arg(argv, &argc, "l");
-
-
-    /* dumpcap should be running in capture child mode (hidden feature) */
-#ifndef DEBUG_CHILD
-    argv = sync_pipe_add_arg(argv, &argc, "-Z");
-#endif
-
 
 #ifdef _WIN32
     /* init SECURITY_ATTRIBUTES */
@@ -654,16 +631,16 @@ sync_interface_list_open(gchar **msg) {
         eth_close(1);
         dup(sync_pipe[PIPE_WRITE]);
         eth_close(sync_pipe[PIPE_READ]);
-        execv(exename, (gpointer)argv);
+        execv(argv[0], (gpointer)argv);
         *msg = g_strdup_printf("Couldn't run %s in child process: %s",
-                exename, strerror(errno));
+                argv[0], strerror(errno));
         return CANT_RUN_DUMPCAP;
     }
 
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
 
-    g_free(exename);
+    g_free(argv[0]);  /* exename */
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -745,6 +722,129 @@ sync_interface_list_open(gchar **msg) {
     return fork_child_status;
 }
 
+/*
+ * Get an interface list using dumpcap.  On success, msg points to
+ * a buffer containing the dumpcap output and returns 0.  On failure, msg
+ * points to the error message returned by dumpcap, and returns dumpcap's
+ * exit value.  In either case, msg must be freed with g_free().
+ */
+int
+sync_interface_list_open(gchar **msg) {
+    int argc;
+    const char **argv;
+
+    if (!msg) {
+        /* We can't return anything */
+#ifdef _WIN32
+        g_string_free(args, TRUE);
+#endif
+        return -1;
+    }
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open");
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *msg = g_strdup_printf("We don't know where to find dumpcap.");
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* Ask for the interface list */
+    argv = sync_pipe_add_arg(argv, &argc, "-D");
+    argv = sync_pipe_add_arg(argv, &argc, "-M");
+
+    /* dumpcap should be running in capture child mode (hidden feature) */
+#ifndef DEBUG_CHILD
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#endif
+
+    return sync_pipe_run_command(argv, msg);
+}
+
+/*
+ * Get an linktype list using dumpcap.  On success, msg points to
+ * a buffer containing the dumpcap output and returns 0.  On failure, msg
+ * points to the error message returned by dumpcap, and returns dumpcap's
+ * exit value.  In either case, msg must be freed with g_free().
+ */
+int
+sync_linktype_list_open(gchar *ifname, gchar **msg) {
+    int argc;
+    const char **argv;
+
+    if (!msg) {
+        /* We can't return anything */
+#ifdef _WIN32
+        g_string_free(args, TRUE);
+#endif
+        return -1;
+    }
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_linktype_list_open");
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *msg = g_strdup_printf("We don't know where to find dumpcap.");
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* Ask for the linktype list */
+    argv = sync_pipe_add_arg(argv, &argc, "-i");
+    argv = sync_pipe_add_arg(argv, &argc, ifname);
+    argv = sync_pipe_add_arg(argv, &argc, "-L");
+    argv = sync_pipe_add_arg(argv, &argc, "-M");
+
+    /* dumpcap should be running in capture child mode (hidden feature) */
+#ifndef DEBUG_CHILD
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#endif
+
+    return sync_pipe_run_command(argv, msg);
+}
+
+/*
+ * Get interface stats using dumpcap.  On success, msg points to
+ * a buffer containing the dumpcap output and returns 0.  On failure, msg
+ * points to the error message returned by dumpcap, and returns dumpcap's
+ * exit value.  In either case, msg must be freed with g_free().
+ */
+int
+sync_interface_stats_open(gchar *ifname, gchar **msg) {
+    int argc;
+    const char **argv;
+
+    if (!msg) {
+        /* We can't return anything */
+#ifdef _WIN32
+        g_string_free(args, TRUE);
+#endif
+        return -1;
+    }
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *msg = g_strdup_printf("We don't know where to find dumpcap.");
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* Ask for the linktype list */
+    argv = sync_pipe_add_arg(argv, &argc, "-i");
+    argv = sync_pipe_add_arg(argv, &argc, ifname);
+    argv = sync_pipe_add_arg(argv, &argc, "-S");
+    argv = sync_pipe_add_arg(argv, &argc, "-M");
+
+    /* dumpcap should be running in capture child mode (hidden feature) */
+#ifndef DEBUG_CHILD
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#endif
+
+    return sync_pipe_run_command(argv, msg);
+}
 
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */

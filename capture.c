@@ -682,5 +682,62 @@ capture_interface_list(int *err, char **err_str)
     return if_list;
 }
 
+/* XXX - We parse simple text output to get our interface list.  Should
+ * we use "real" data serialization instead, e.g. via XML? */
+GList *
+capture_pcap_linktype_list(gchar *ifname, char **err_str)
+{
+    GList     *linktype_list = NULL;
+    int        err, i;
+    gchar     *msg;
+    gchar    **raw_list, **lt_parts;
+    data_link_info_t *data_link_info;
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
+
+    /* Try to get our interface list */
+    err = sync_linktype_list_open(ifname, &msg);
+    if (err != 0) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
+        if (err_str) {
+            *err_str = msg;
+        } else {
+            g_free(msg);
+        }
+        return NULL;
+    }
+
+    /* Split our lines */
+    raw_list = g_strsplit(msg, "\n", 0);
+    g_free(msg);
+
+    for (i = 0; raw_list[i] != NULL; i++) {
+        /* ...and what if the interface name has a tab in it, Mr. Clever Programmer? */
+        lt_parts = g_strsplit(raw_list[i], "\t", 3);
+        if (lt_parts[0] == NULL || lt_parts[1] == NULL || lt_parts[2] == NULL) {
+            g_strfreev(lt_parts);
+            continue;
+        }
+
+        data_link_info = g_malloc(sizeof (data_link_info_t));
+        data_link_info->dlt = (int) strtol(lt_parts[0], NULL, 10);
+        data_link_info->name = g_strdup(lt_parts[1]);
+        if (strcmp(lt_parts[2], "(not supported)") != NULL)
+            data_link_info->description = g_strdup(lt_parts[2]);
+        else
+            data_link_info->description = NULL;
+
+        linktype_list = g_list_append(linktype_list, data_link_info);
+    }
+    g_strfreev(raw_list);
+
+    /* Check to see if we built a list */
+    if (linktype_list == NULL) {
+        if (err_str)
+            *err_str = NULL;
+    }
+    return linktype_list;
+}
+
 
 #endif /* HAVE_LIBPCAP */

@@ -86,5 +86,10 @@ extern void capture_input_closed(capture_options *capture_opts);
  */
 extern GList *capture_interface_list(int *err, char **err_str);
 
+/**
+ * Fetch the linktype list for the specified interface from a child process.
+ */
+extern GList *capture_pcap_linktype_list(char *devname, char **err_str);
+
 
 #endif /* capture.h */

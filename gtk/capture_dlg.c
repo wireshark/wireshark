@@ -249,7 +249,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	   * It's in the list.
 	   * Get the list of link-layer types for it.
 	   */
-	  lt_list = get_pcap_linktype_list(if_name, NULL);
+	  lt_list = capture_pcap_linktype_list(if_name, NULL);
 
 	  /* create string of list of IP addresses of this interface */
 	  for (; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {

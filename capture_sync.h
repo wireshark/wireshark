@@ -67,5 +67,8 @@ signal_pipe_check_running(void);
 extern int
 sync_interface_list_open(gchar **msg);
 
+/** Get a linktype list using dumpcap */
+extern int
+sync_linktype_list_open(gchar *ifname, gchar **msg);
 
 #endif /* capture_sync.h */

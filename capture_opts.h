@@ -114,11 +114,11 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
 /* list link layer types */
 extern int
-capture_opts_list_link_layer_types(capture_options *capture_opts);
+capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machine_readable);
 
 /* list interfaces */
 extern int
-capture_opts_list_interfaces(gboolean verbose);
+capture_opts_list_interfaces(gboolean machine_readable);
 
 /* trim the snaplen entry */
 extern void

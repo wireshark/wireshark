@@ -115,7 +115,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");
   fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
-  fprintf(output, "  -I [l|s]                 print a detailed interface list (l) or interface statistics (s).\n");
+  fprintf(output, "  -M                       for -D and -L, produce machine-readable output\n");
   fprintf(output, "\n");
   fprintf(output, "Stop conditions:\n");
   fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
@@ -246,10 +246,12 @@ main(int argc, char *argv[])
   gboolean             stats_known;
   struct pcap_stat     stats;
   GLogLevelFlags       log_flags;
+  gboolean             list_interfaces = FALSE;
   gboolean             list_link_layer_types = FALSE;
+  gboolean             machine_readable = FALSE;
   int                  status;
 
-#define OPTSTRING_INIT "a:b:c:Df:hI:i:Lps:vw:y:Z"
+#define OPTSTRING_INIT "a:b:c:Df:hi:LMps:vw:y:Z"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -366,17 +368,13 @@ main(int argc, char *argv[])
 
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
-        status = capture_opts_list_interfaces(FALSE);
-        exit_main(status);
+        list_interfaces = TRUE;
         break;
-      /* XXX - We might want to use 'D' for this.  Do we use GNU
-       * getopt on every platform (which supports optional arguments)? */
-      /* XXX - Implement interface stats */
-      case 'I':
-        status = capture_opts_list_interfaces(TRUE);
-        exit_main(status);
       case 'L':        /* Print list of link-layer types and exit */
         list_link_layer_types = TRUE;
+        break;
+      case 'M':        /* For -D and -L, print machine-readable output */
+        machine_readable = TRUE;
         break;
       default:
       case '?':        /* Bad flag - print usage message */
@@ -408,7 +406,10 @@ main(int argc, char *argv[])
     exit_main(1);
   }
 
-  if (list_link_layer_types) {
+  if (list_interfaces && list_link_layer_types) {
+    cmdarg_err("Only one of -D or -L may be supplied.");
+    exit_main(1);
+  } else if (list_link_layer_types) {
     /* We're supposed to list the link-layer types for an interface;
        did the user also specify a capture file to be read? */
     /* No - did they specify a ring buffer option? */
@@ -445,8 +446,11 @@ main(int argc, char *argv[])
   /* get_interface_descriptive_name() is not available! */
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", capture_opts->iface);
 
-  if (list_link_layer_types) {
-    status = capture_opts_list_link_layer_types(capture_opts);
+  if (list_interfaces) {
+    status = capture_opts_list_interfaces(machine_readable);
+    exit_main(status);
+  } else if (list_link_layer_types) {
+    status = capture_opts_list_link_layer_types(capture_opts, machine_readable);
     exit_main(status);
   }
 
