@@ -109,6 +109,8 @@ typedef struct _rose_ctx_t {
   dissector_table_t arg_local_dissector_table; 
   dissector_table_t res_global_dissector_table;
   dissector_table_t res_local_dissector_table; 
+  dissector_table_t err_global_dissector_table;
+  dissector_table_t err_local_dissector_table; 
   int apdu_depth;
   struct {  /* "dynamic" data */
     gint pdu;

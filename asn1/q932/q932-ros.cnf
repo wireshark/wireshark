@@ -98,10 +98,11 @@ Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_HEX
     else if (actx->rose_ctx->d.code == 1)
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
-  if (arg_next_tvb) {
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
+  if (!arg_next_tvb) {  /* empty argument */
+    arg_next_tvb = tvb_new_subset(tvb, offset, 0, 0);
   }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
 #.END
 
 
@@ -143,10 +144,11 @@ ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_HEX
     else if (actx->rose_ctx->d.code == 1)
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
-  if (res_next_tvb) {
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+  if (!res_next_tvb) {  /* empty result */
+    res_next_tvb = tvb_new_subset(tvb, offset, 0, 0);
   }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
 #.END
 
 #--- RETURN ERROR ---
@@ -161,7 +163,7 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
   len = tvb_length_remaining(tvb, offset);
   if (len)
     proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
-  res_next_tvb = tvb_new_subset(tvb, offset, len, len);
+  err_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
 
@@ -173,9 +175,9 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
   actx->rose_ctx->d.pdu = 3;
 
   if (actx->rose_ctx->d.code == 0) {
-    /*err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);*/
+    err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if (actx->rose_ctx->d.code == 1) {
-    /*err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);*/
+    err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
     err_handle = NULL;
   }
@@ -188,10 +190,11 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
     else if (actx->rose_ctx->d.code == 1)
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
-  if (err_next_tvb) {
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
+  if (!err_next_tvb) {  /* empty error */
+    err_next_tvb = tvb_new_subset(tvb, offset, 0, 0);
   }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
 #.END
 
 #--- REJECT ---

@@ -1,7 +1,9 @@
--- QSIG-GF-EXT.asn
+-- QSIG-GF-ADE.asn
 --
 -- Taken from Ecma International
 -- http://www.ecma-international.org/publications/standards/Ecma-165.htm
+--
+-- B.1 Addressing information
 --
 -- $Id$
 --

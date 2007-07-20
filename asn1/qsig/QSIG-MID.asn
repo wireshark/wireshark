@@ -1,0 +1,131 @@
+-- QSIG-MID.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-347, (June 2003)
+-- http://www.ecma-international.org/publications/standards/Ecma-347.htm
+--
+-- $Id$
+--
+
+SS-MID-Operations-asn1-97 
+{iso (1) identified-organization (3) icd-ecma (12) standard (0) 
+qsig-mailbox-identification (347) mailbox-identification-operations-asn1-97 (2)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS    OPERATION, ERROR FROM  
+                 Remote-Operations-Information-Objects 
+                 {joint-iso-itu-t remote-operations (4) informationObjects (5) 
+                 version1 (0)} 
+ 
+            EXTENSION, Extension{} FROM  
+                 Manufacturer-specific-service-extension-class-asn1-97 
+                 {iso standard pss1-generic-procedures (11582)  msi-class-asn1-97 
+                 (11)} 
+ 
+            basicServiceNotProvided, userNotSubscribed, invalidServedUserNr  
+                 FROM General-Error-List 
+              {itu-t (0) recommendation (0) q (17) 950 general-error-list (1)} 
+ 
+            PresentedAddressUnscreened  FROM  
+                 Addressing-Data-Elements-asn1-97  
+                 {iso standard pss1-generic-procedures (11582) addressing-data-elements-asn1-97 (20)} 
+ 
+            Name FROM  
+                 Name-Operations-asn1-97 
+                 {iso standard pss1-name (13868) name-operations-asn1-97 (1)} 
+ 
+            MessageType, MsgCentreId FROM 
+                 SS-MCM-Operations-asn1-97 
+                 {iso (1) identified-organization (3) icd-ecma (12) standard (0) 
+                 qsig-message-centre-monitoring (347)  
+                 message-centre-monitoring-operations-asn1-97 (1)} 
+            ; 
+ 
+ 
+MID-Operations     OPERATION ::= {mIDMailboxAuth | 
+                                  mIDMailboxID} 
+ 
+mIDMailboxAuth     OPERATION ::= { 
+                   ARGUMENT      MIDMailboxAuthArg 
+                   RESULT        MIDDummyRes 
+                   ERRORS        {userNotSubscribed | 
+                                 invalidServedUserNr | 
+                                 invalidMailbox | 
+                                 authorizationFailed | 
+                                 unspecified} 
+                   CODE          local:119} 
+
+mIDMailboxID        OPERATION ::= { 
+                    ARGUMENT      MIDMailboxIDArg 
+                    RESULT        MIDDummyRes 
+                    ERRORS        {userNotSubscribed | 
+                                  invalidServedUserNr | 
+                                  invalidMailbox | 
+                                  unspecified} 
+                    CODE          local:120} 
+ 
+ 
+MIDMailboxAuthArg   ::= SEQUENCE 
+                        { 
+ 
+                        partyInfo           PartyInfo, 
+                        servedUserName      Name             OPTIONAL, 
+                        mailBox             [8]String        OPTIONAL, 
+                        password            String,  
+                        extensions          MIDExtensions    OPTIONAL, 
+                        ... 
+                        } 
+ 
+ 
+MIDMailboxIDArg    ::= SEQUENCE 
+                       { 
+ 
+                       partyInfo            PartyInfo, 
+                       servedUserName       Name             OPTIONAL, 
+                       mailBox              String, 
+                       extensions           MIDExtensions    OPTIONAL, 
+                       ...     
+                       } 
+ 
+ 
+MIDDummyRes        ::= MIDExtensions     
+                     
+PartyInfo      ::= SEQUENCE 
+                       { 
+                       servedUserNr         PresentedAddressUnscreened, 
+                       messageType          MessageType      OPTIONAL, 
+                       messageCentreID      MsgCentreId 
+                       } 
+ 
+String            ::= CHOICE 
+                      { 
+                      stringBmp            BMPString, 
+                      stringUtf8           UTF8String 
+                      } 
+ 
+ 
+MIDExtensions     ::= CHOICE 
+                      { 
+                      none                 NULL, 
+                      extension            [1] IMPLICIT Extension {{MIDExtSet}}, 
+                      multipleExtension    [2] IMPLICIT SEQUENCE OF  
+                                           Extension {{ MIDExtSet }} 
+                      } 
+
+invalidMailbox         ERROR ::= { 
+                       CODE      local:1039} 
+ 
+ 
+authorizationFailed    ERROR ::= { 
+                       CODE      local:1040} 
+ 
+unspecified            ERROR ::= { 
+                       PARAMETER Extension{{MIDExtSet}} 
+                       CODE      local:1008} 
+ 
+MIDExtSet              EXTENSION ::= {...} 
+      
+END        -- of SS-MID-Operations-asn1-97 

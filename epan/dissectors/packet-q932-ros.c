@@ -299,10 +299,11 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
     else if (actx->rose_ctx->d.code == 1)
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
-  if (arg_next_tvb) {
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
+  if (!arg_next_tvb) {  /* empty argument */
+    arg_next_tvb = tvb_new_subset(tvb, offset, 0, 0);
   }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
 
   return offset;
 }
@@ -311,7 +312,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_q932_ros_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 114 "q932-ros.cnf"
+#line 115 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -350,7 +351,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 124 "q932-ros.cnf"
+#line 125 "q932-ros.cnf"
   dissector_handle_t res_handle = NULL;
 
   res_next_tvb = NULL;
@@ -358,7 +359,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnResult_sequence, hf_index, ett_q932_ros_ReturnResult);
 
-#line 128 "q932-ros.cnf"
+#line 129 "q932-ros.cnf"
   actx->rose_ctx->d.pdu = 2;
 
   if (actx->rose_ctx->d.code == 0) {
@@ -377,10 +378,11 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     else if (actx->rose_ctx->d.code == 1)
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
-  if (res_next_tvb) {
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+  if (!res_next_tvb) {  /* empty result */
+    res_next_tvb = tvb_new_subset(tvb, offset, 0, 0);
   }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
 
   return offset;
 }
@@ -389,14 +391,14 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_q932_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "q932-ros.cnf"
+#line 160 "q932-ros.cnf"
 
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
     proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
-  res_next_tvb = tvb_new_subset(tvb, offset, len, len);
+  err_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
 
@@ -415,7 +417,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "q932-ros.cnf"
+#line 171 "q932-ros.cnf"
   dissector_handle_t err_handle = NULL;
 
   err_next_tvb = NULL;
@@ -423,13 +425,13 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ReturnError_sequence, hf_index, ett_q932_ros_ReturnError);
 
-#line 173 "q932-ros.cnf"
+#line 175 "q932-ros.cnf"
   actx->rose_ctx->d.pdu = 3;
 
   if (actx->rose_ctx->d.code == 0) {
-    /*err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);*/
+    err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if (actx->rose_ctx->d.code == 1) {
-    /*err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);*/
+    err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
     err_handle = NULL;
   }
@@ -442,10 +444,11 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     else if (actx->rose_ctx->d.code == 1)
       proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), " %s", actx->rose_ctx->d.code_global);
   }
-  if (err_next_tvb) {
-    actx->pinfo->private_data = actx->rose_ctx;
-    call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
+  if (!err_next_tvb) {  /* empty error */
+    err_next_tvb = tvb_new_subset(tvb, offset, 0, 0);
   }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
 
   return offset;
 }
@@ -572,13 +575,13 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_q932_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 200 "q932-ros.cnf"
+#line 203 "q932-ros.cnf"
   problem_str[0] = '\0';
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Reject_sequence, hf_index, ett_q932_ros_Reject);
 
-#line 202 "q932-ros.cnf"
+#line 205 "q932-ros.cnf"
   proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  REJ: %s", problem_str);
 
   return offset;

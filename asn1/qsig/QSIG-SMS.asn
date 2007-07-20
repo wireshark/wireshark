@@ -1,0 +1,341 @@
+-- QSIG-SMS.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-325, (June 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-325.htm
+--
+-- $Id$
+--
+
+Short-Message-Service-Operations-asn1-97 
+{iso(1) identified-organization(3) icd-ecma(12) standard(0) qsig-short-message-service(325) short-message-service-operations-asn1-97(1)} 
+ 
+DEFINITIONS::= 
+BEGIN 
+IMPORTS 
+ OPERATION,  
+ ERROR 
+FROM Remote-Operations-Information-Objects 
+{joint-iso-itu-t (2) remote-operations(4) informationObjects(5) version1(0)} 
+ EXTENSION, Extension{} 
+FROM Manufacturer-specific-service-extension-class-asn1-97 
+{iso(1) standard(0) pss1-generic-procedures(11582) msi-class-asn1-97(11)} 
+ Name 
+FROM Name-Operations-asn1-97 
+{iso(1) standard(0) pss1-name(13868) name-operations-asn1-97(1)} 
+ supplementaryServiceInteractionNotAllowed 
+FROM General-Error-List  
+{ccitt recommendation q 950 general-error-list(1)} 
+ PartyNumber 
+FROM Addressing-Data-Elements-asn1-97  
+{iso(1) standard(0) pss1-generic-procedures(11582) addressing-data-elements-asn1-97(20)}; 
+ 
+--TYPE DEFINITIONS FOR SMS OPERATIONS FOLLOW 
+ 
+Sms-Operations OPERATION ::={ 
+ 
+  smsSubmit | smsDeliver | smsStatusReport | smsCommand | scAlert} 
+ 
+smsSubmit OPERATION ::= {  
+  -- sent from the Sending User PINX/ Sending User Message Centre to the Service Centre 
+   ARGUMENT SmsSubmitArg 
+   RESULT SmsSubmitRes 
+   ERRORS {smsSubmitError | 
+     unspecified} 
+   CODE  local:107} 
+ 
+smsDeliver  OPERATION ::= {  
+  -- sent from the Service Centre to the Receiving User PINX or to the Receiving User Message Centre 
+   ARGUMENT  SmsDeliverArg 
+   RESULT  SmsDeliverRes  
+   ERRORS {smsDeliverError | 
+     unspecified} 
+   CODE  local:108} 
+
+smsStatusReport OPERATION ::= { 
+  -- sent from the Service Centre to the Sending User PINX or to the Sending User Message Centre 
+   ARGUMENT  SmsStatusReportArg 
+   RESULT SmsStatusReportRes 
+   ERRORS {smsStatusReportError | 
+     unspecified} 
+   CODE  local:109} 
+ 
+smsCommand OPERATION ::= { 
+  -- sent from the Sending User PINX or the Sending User Message Centre to the Service Centre 
+   ARGUMENT  SmsCommandArg 
+   RESULT SmsCommandRes 
+   ERRORS {smsCommandError | 
+     unspecified} 
+   CODE  local:110} 
+ 
+scAlert  OPERATION ::= { 
+  -- sent from the Receiving User PINX or the Receiving User Message Centre to the Service Centre 
+   ARGUMENT ScAlertArg 
+   RESULT DummyRes 
+   ERRORS {unspecified} 
+   CODE  local:111} 
+ 
+--TYPE DEFINITIONS FOR SMS DATA TYPES FOLLOW 
+ 
+SmsSubmitArg ::= SEQUENCE { 
+  destinationAddress PartyNumber, 
+  originatingAddress PartyNumber, 
+  messageReference MessageReference, 
+  smSubmitParameter SmSubmitParameter, 
+  userData   UserData, 
+  smsExtension  SmsExtension     OPTIONAL}  
+ 
+SmsSubmitRes ::= SEQUENCE { 
+  serviceCentreTimeStamp ServiceCentreTimeStamp, 
+  protocolIdentifier  [3] IMPLICIT ProtocolIdentifier   OPTIONAL, 
+  userData   [4] IMPLICIT UserData    OPTIONAL, 
+  smsExtension  SmsExtension     OPTIONAL} 
+ 
+SmsDeliverArg ::=  SEQUENCE {  
+  originatingAddress PartyNumber,  
+  destinationAddress PartyNumber, 
+  originatingName  Name      OPTIONAL, 
+  smDeliverParameter SmDeliverParameter, 
+  userData   UserData, 
+  smsExtension  SmsExtension     OPTIONAL} 
+ 
+SmsDeliverRes ::= SEQUENCE { 
+  smsDeliverResponseChoice SmsDeliverResChoice, 
+  smsExtension   SmsExtension    OPTIONAL} 
+
+SmsStatusReportArg ::=  SEQUENCE { 
+  messageReference MessageReference, 
+  serviceCentreTimeStamp ServiceCentreTimeStamp, 
+  dischargeTime   DischargeTime, 
+  recipientAddress  PartyNumber, 
+  recipientName  [10] Name     OPTIONAL, 
+  destinationAddress PartyNumber, 
+  status   Status, 
+  priority   [11] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  moreMessagesToSend [12] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  statusReportQualifier [13] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  protocolIdentifier  ProtocolIdentifier     OPTIONAL, 
+  userData   UserData     OPTIONAL, 
+  smsExtension  SmsExtension     OPTIONAL} 
+ 
+SmsStatusReportRes ::= SEQUENCE { 
+  smsStatusReportResponseChoice  SmsStatusReportResponseChoice, 
+  smsExtension   SmsExtension    OPTIONAL} 
+ 
+SmsCommandArg ::= SEQUENCE { 
+  destinationAddress  PartyNumber, 
+  messageReference   MessageReference,  
+  messageNumber   MessageReference,   
+  protocolIdentifier   ProtocolIdentifier, 
+  commandType   CommandType,  
+  commandData   CommandData    OPTIONAL, 
+  statusReportRequest  BOOLEAN          OPTIONAL, 
+  smsExtension   SmsExtension    OPTIONAL} 
+ 
+SmsCommandRes ::= SEQUENCE  { 
+  serviceCentreTimeStamp  ServiceCentreTimeStamp, 
+  protocolIdentifier   ProtocolIdentifier    OPTIONAL, 
+  userData    UserData    OPTIONAL, 
+  smsExtension   SmsExtension       OPTIONAL} 
+ 
+ScAlertArg ::=  SEQUENCE { 
+  originatingAddress  PartyNumber, 
+  smsExtension   SmsExtension    OPTIONAL} 
+ 
+DummyRes ::= CHOICE{ 
+  null   NULL, 
+  smsExtension  SmsExtension} 
+ 
+SmSubmitParameter ::= SEQUENCE { 
+  protocolIdentifier       ProtocolIdentifier, 
+  validityPeriod           ValidityPeriod     OPTIONAL, 
+  statusReportRequest [11] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  replyPath  [12] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  rejectDuplicates  [13] IMPLICIT BOOLEAN DEFAULT FALSE} 
+
+SmDeliverParameter ::= SEQUENCE { 
+  protocolIdentifier  ProtocolIdentifier, 
+  serviceCentreTimeStamp ServiceCentreTimeStamp, 
+  priority   [11] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  moreMessagesToSend [12] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  statusReportIndication [13] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  replyPath  [14] IMPLICIT BOOLEAN DEFAULT FALSE} 
+ 
+SmsDeliverResChoice ::= CHOICE { 
+  null   NULL, 
+  protocolIdentifier  ProtocolIdentifier, 
+  userData   [0] IMPLICIT UserData, 
+  resChoiceSeq  [1] IMPLICIT ResChoiceSeq} 
+ 
+ResChoiceSeq ::= SEQUENCE {  
+  protocolIdentifier  ProtocolIdentifier, 
+  userData   UserData} 
+ 
+SmsStatusReportResponseChoice ::= CHOICE { 
+  null   NULL, 
+  protocolIdentifier  ProtocolIdentifier, 
+  userData   [0] IMPLICIT UserData, 
+  resChoiceSeq   [1] IMPLICIT ResChoiceSeq} 
+ 
+MessageReference ::= INTEGER(0..255) 
+ 
+SmsExtension ::= CHOICE{ 
+  single   [1]IMPLICIT Extension{{SmsExtSet}}, 
+  multiple   [2]IMPLICIT  SEQUENCE OF  
+       Extension{{SmsExtSet}} 
+    } 
+ 
+SmsExtSet EXTENSION ::= {...} 
+ 
+ProtocolIdentifier ::=  INTEGER (0..127) 
+   -- definition of the ProtocolIdentifier values and default value can be found in annex E section 
+   -- E.1.2.1 
+ 
+ServiceCentreTimeStamp  ::=  GeneralizedTime(SIZE(12..19)) 
+    -- this date and time representation follows ISO 8601 
+ 
+DischargeTime   ::=  GeneralizedTime(SIZE(12..19)) 
+    -- this date and time representation follows ISO 8601 
+ 
+ValidityPeriod  ::= CHOICE{ 
+  validityPeriodRel  [0] IMPLICIT ValidityPeriodRel, 
+  validityPeriodAbs [1] IMPLICIT ValidityPeriodAbs, 
+  validityPeriodEnh [2] IMPLICIT ValidityPeriodEnh}  
+ 
+ValidityPeriodAbs  ::= GeneralizedTime(SIZE(12..19)) 
+   -- this date and time representation follows ISO 8601 
+ 
+ValidityPeriodRel ::=  INTEGER(0..255) 
+   -- the rules for the encoding of ValidityPeriodRel are shown in annex E section E.1.2.2 
+
+ValidityPeriodEnh ::= SEQUENCE{ 
+  singleShotSM  BOOLEAN DEFAULT FALSE, 
+  enhancedVP  EnhancedVP     OPTIONAL} 
+ 
+EnhancedVP ::= CHOICE{ 
+  validityPeriodRel  [0] IMPLICIT ValidityPeriodRel, 
+  validityPeriodSec  [1] IMPLICIT INTEGER(0..255), 
+  validityPeriodSemi [2] IMPLICIT ValidityPeriodSemi} 
+ 
+ValidityPeriodSemi ::= OCTET STRING (SIZE(3)) 
+   -- Validity Period is relative in semi-octet representation, see ETSI TS 100 901, section 9.1.2.3  
+   -- and section 9.2.3.12.3 
+ 
+UserData ::= SEQUENCE{ 
+ userDataHeader   [0] IMPLICIT UserDataHeader   OPTIONAL, 
+ class    [1] IMPLICIT INTEGER (0..3)   OPTIONAL, 
+ compressed   [2] IMPLICIT BOOLEAN DEFAULT FALSE,  
+ shortMessageText  ShortMessageText} 
+ 
+ShortMessageText ::=  SEQUENCE{ 
+ shortMessageTextType ShortMessageTextType, 
+ shortMessageTextData ShortMessageTextData} 
+ 
+ShortMessageTextType ::= INTEGER{ 
+    iA5Coded  (0), -- ShortMessageTextData shall contain data according to   
+    octetCoded  (1), -- the type given in ShortMessageTextType, for further 
+    uniCoded  (2), -- details see annex E. 1.3.4. 
+    compressedCoded (3)} (0..8) 
+  
+ShortMessageTextData ::= OCTET STRING (SIZE(0..140)) 
+ 
+Status ::=   INTEGER (0..255) 
+   -- definition of status values can be found in section E.7.6 in annex E 
+ 
+CommandType ::= INTEGER{ 
+  enquiry      (0), 
+  cancelSRR     (1),  
+  deletePreviouslySubmittedSM   (2),  
+  enableSRRrelatingToPreviouslySubmittedSM (3)} (0..255)  
+ 
+CommandData ::= OCTET STRING (SIZE(0..157)) 
+ 
+FailureCause ::= INTEGER (0..255) 
+  -- definition for failureCause values can be found in section E.3.1 in annex E 
+  
+UserDataHeader ::= SEQUENCE OF UserDataHeaderChoice 
+ 
+UserDataHeaderChoice ::= CHOICE{ 
+ smscControlParameterHeader  [0] IMPLICIT SmscControlParameterHeader, 
+ concatenated8BitSMHeader  [1] IMPLICIT Concatenated8BitSMHeader, 
+ concatenated16BitSMHeader  [2] IMPLICIT Concatenated16BitSMHeader, 
+ applicationPort8BitHeader   [3] IMPLICIT ApplicationPort8BitHeader, 
+ applicationPort16BitHeader  [4] IMPLICIT ApplicationPort16BitHeader, 
+ dataHeaderSourceIndicator  [5] IMPLICIT DataHeaderSourceIndicator, 
+ wirelessControlHeader   [6] IMPLICIT WirelessControlHeader, 
+ genericUserValue   [99] IMPLICIT GenericUserValue} 
+
+SmscControlParameterHeader ::= BIT STRING { 
+  sRforTransactionCompleted  (0),  
+  sRforPermanentError   (1),  
+  sRforTempErrorSCnotTrying  (2),  
+  sRforTempErrorSCstillTrying  (3),  
+  cancelSRRforConcatenatedSM (6),  
+  includeOrigUDHintoSR   (7)} (SIZE(8)) 
+ 
+Concatenated8BitSMHeader ::=  SEQUENCE{ 
+ concatenated8BitSMReferenceNumber  INTEGER(0..255), 
+ maximumNumberOf8BitSMInConcatenatedSM INTEGER(0..255), 
+ sequenceNumberOf8BitSM    INTEGER(0..255)} 
+ 
+Concatenated16BitSMHeader ::= SEQUENCE{ 
+ concatenated16BitSMReferenceNumber  INTEGER(0..65536), 
+ maximumNumberOf16BitSMInConcatenatedSM INTEGER(0..255), 
+ sequenceNumberOf16BitSM   INTEGER(0..255)} 
+ 
+ApplicationPort8BitHeader ::=   SEQUENCE{ 
+ destination8BitPort    INTEGER(0..255), 
+ originator8BitPort    INTEGER(0..255)} 
+ 
+ApplicationPort16BitHeader ::=  SEQUENCE{ 
+ destination16BitPort    INTEGER(0..65536), 
+ originator16BitPort    INTEGER(0..65536)} 
+ 
+DataHeaderSourceIndicator ::= INTEGER{ 
+ originalSender   (1),  -- valid in case of Status Report 
+ originalReceiver   (2),  -- valid in case of Status Report 
+ sMSC    (3)}(0..255) -- can occur in any message or report 
+ 
+WirelessControlHeader ::= OCTET STRING 
+ 
+GenericUserValue ::= SEQUENCE{ 
+ parameterValue  INTEGER(0..255), 
+ genericUserData  OCTET STRING} 
+ 
+smsDeliverError  ERROR ::= { 
+   PARAMETER SEQUENCE{ 
+    failureCause  FailureCause, 
+    protocolIdentifier  [0] IMPLICIT ProtocolIdentifier  OPTIONAL, 
+    userData   [1] IMPLICIT UserData   OPTIONAL, 
+    scAddressSaved  [2] IMPLICIT BOOLEAN DEFAULT FALSE} 
+   CODE  local:1026} 
+ 
+smsSubmitError ERROR ::= { 
+   PARAMETER  SEQUENCE{ 
+    failureCause   FailureCause, 
+    serviceCentreTimeStamp  ServiceCentreTimeStamp, 
+    protocolIdentifier   [0] IMPLICIT ProtocolIdentifier OPTIONAL,
+     userData   [1] IMPLICIT UserData  OPTIONAL}
+   CODE local:1027} 
+
+smsStatusReportError  ERROR ::= { 
+   PARAMETER SEQUENCE{ 
+    failureCause  FailureCause, 
+    protocolIdentifier  [0] IMPLICIT ProtocolIdentifier  OPTIONAL, 
+    userData   [1] IMPLICIT UserData   OPTIONAL, 
+    scAddressSaved  [2] IMPLICIT BOOLEAN DEFAULT FALSE} 
+   CODE local: 1028} 
+ 
+smsCommandError ERROR ::= { 
+   PARAMETER SEQUENCE{ 
+    failureCause  FailureCause, 
+    serviceCentreTimeStamp ServiceCentreTimeStamp, 
+    protocolIdentifier  [0] IMPLICIT ProtocolIdentifier  OPTIONAL, 
+    userData   [1] IMPLICIT UserData   OPTIONAL} 
+   CODE local:1029} 
+ 
+unspecified  ERROR ::= { 
+   PARAMETER SmsExtension 
+   CODE  local: 1008} 
+ 
+END -- of Short-Message-Service-Operations-asn1-97 

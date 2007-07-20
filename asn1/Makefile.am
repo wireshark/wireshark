@@ -297,11 +297,34 @@ EXTRA_DIST = \
 	q932/packet-q932-ros-template.c	\
 	q932/packet-q932-template.c	\
 	q932/packet-q932-template.h	\
-	qsig/qsig-cf.asn 	\
+	qsig/QSIG-AOC.asn \
+	qsig/QSIG-CC.asn \
+	qsig/QSIG-CF.asn \
+	qsig/QSIG-CI.asn \
+	qsig/QSIG-CIDL.asn \
+	qsig/QSIG-CINT.asn \
+	qsig/QSIG-CMN.asn \
+	qsig/QSIG-CO.asn \
+	qsig/QSIG-CPI.asn \
+	qsig/QSIG-CT.asn \
+	qsig/QSIG-DND.asn \
+	qsig/QSIG-MCM.asn \
+	qsig/QSIG-MCR.asn \
+	qsig/QSIG-MID.asn \
+	qsig/QSIG-NA.asn \
+	qsig/QSIG-PR.asn \
+	qsig/QSIG-PUMCH.asn \
+	qsig/QSIG-PUMR.asn \
+	qsig/QSIG-RE.asn \
+	qsig/QSIG-SD.asn \
+	qsig/QSIG-SMS.asn \
+	qsig/QSIG-SSCT.asn \
+	qsig/QSIG-WTMAU.asn \
+	qsig/QSIG-WTMCH.asn \
+	qsig/QSIG-WTMLR.asn \
 	qsig/qsig-gf-ade.asn 	\
 	qsig/qsig-gf-ext.asn 	\
 	qsig/qsig-gf-gp.asn 	\
-	qsig/qsig-na.asn 	\
 	qsig/qsig.cnf	\
 	qsig/qsig-exp.cnf	\
 	qsig/Makefile	\

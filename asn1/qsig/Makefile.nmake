@@ -8,7 +8,7 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=qsig
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
-QSIG_ASN=qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn qsig-na.asn qsig-cf.asn
+QSIG_ASN=qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn
 
 all: generate_dissector
 
@@ -16,7 +16,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(QSIG_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -T -X -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(QSIG_ASN)
+	$(PYTHON) "../../tools/asn2wrs.py" -e -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(QSIG_ASN)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1

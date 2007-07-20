@@ -4,15 +4,54 @@
 
 # $Id$
 
+#.OPT
+BER
+-T
+-X
+GROUP_BY_PROT
+-o qsig
+#.END
 
 #.EXPORTS  EXTERN VALS_WITH_TABLE
 
 Name
 
+#.MODULE
+Addressing-Data-Elements-asn1-97                         qsig
+Manufacturer-specific-service-extension-class-asn1-97    qsig
+PSS1-generic-parameters-definition-asn1-97               qsig
+
+Name-Operations-asn1-97                                  qsig.na
+Call-Diversion-Operations-asn1-97                        qsig.cf
+Path-Replacement-Operations-asn1-97                      qsig.pr
+Call-Transfer-Operations-asn1-97                         qsig.ct
+SS-CC-Operations-asn1-97                                 qsig.cc
+Call-Offer-Operations-asn1-97                            qsig.co
+Do-Not-Disturb-Operations-asn1-97                        qsig.dnd
+Call-Intrusion-Operations-asn1-97                        qsig.ci
+SS-AOC-Operations-asn1-97                                qsig.aoc
+Recall-Operations-asn1-97                                qsig.re
+Call-Interception-Operations-asn1-97                     qsig.cint
+Common-Information-Operations-asn1-97                    qsig.cmn
+Call-Interruption-Operations-asn1-97                     qsig.cpi
+PUM-Registration-Operations-asn1-97                      qsig.pumr
+Private-User-Mobility-Call-Handling-Operations-asn1-97   qsig.pumch
+Single-Step-Call-Transfer-Operations-asn1-97             qsig.ssct
+WTM-Location-Registration-Operations-asn1-97             qsig.wtmlr
+Wireless-Terminal-Call-Handling-Operations-asn1-97       qsig.wtmch
+WTM-Authentication-Operations-asn1-97                    qsig.wtmau
+SS-SD-Operations-asn1-97                                 qsig.sd
+Call-Identification-and-Call-Linkage-Operations-asn1-97  qsig.cidl
+Short-Message-Service-Operations-asn1-97                 qsig.sms
+SS-MCR-Operations-asn97                                  qsig.mcr
+SS-MCM-Operations-asn1-97                                qsig.mcm
+SS-MID-Operations-asn1-97                                qsig.mid
+
 #.PDU_NEW
 
 OPERATION.&ArgumentType
 OPERATION.&ResultType
+ERROR.&ParameterType
 
 #.END
 
@@ -48,4 +87,24 @@ NameData TYPE = FT_STRING  DISPLAY = BASE_NONE
 
 #.FN_BODY Extension/extensionArgument
 
+#.END
+
+#.FN_BODY AuthAlgorithm/param
+
+#.END
+
+#.TABLE10_BODY OPERATION
+  { %(&operationCode)3s, "%(_name)s" },
+#.END
+
+#.TABLE11_BODY OPERATION
+  /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
+#.END
+
+#.TABLE20_BODY ERROR
+  { %(&errorCode)4s, "%(_name)s" },
+#.END
+
+#.TABLE21_BODY ERROR
+  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
 #.END

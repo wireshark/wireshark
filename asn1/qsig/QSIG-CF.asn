@@ -1,0 +1,253 @@
+-- QSIG-CF.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-174, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-174.htm
+--
+-- $Id$
+--
+
+Call-Diversion-Operations-asn1-97  
+    { iso (1) standard (0) pss1-call-diversion (13873) call-diversion-operations-asn1-97 (1) } 
+ 
+  DEFINITIONS EXPLICIT TAGS  ::= 
+ 
+ BEGIN 
+ 
+  IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+      { joint-iso-itu-t  remote-operations (4) informationObjects(5) version1(0)} 
+ 
+    EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+      { iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11) } 
+ 
+    PSS1InformationElement FROM PSS1-generic-parameters-definition-asn1-97  
+     { iso (1) standard (0) pss1-generic-procedures (11582) pss1-generic-parameters-asn1-97 (17) 
+} 
+ 
+    Address, PartyNumber, PartySubaddress, PresentedNumberScreened, 
+   PresentedNumberUnscreened, PresentationAllowedIndicator FROM 
+   Addressing-Data-Elements-asn1-97 
+    { iso (1) standard (0) pss1-generic-procedures (11582) addressing-data-elements-asn1-97 (20) 
+} 
+ 
+    Name FROM Name-Operations-asn1-97 
+      { iso (1) standard (0) pss1-name (13868) name-operations-asn1-97 (1) } 
+ 
+    userNotSubscribed, notAvailable, invalidServedUserNr, basicServiceNotProvided,  
+   resourceUnavailable, supplementaryServiceInteractionNotAllowed FROM  
+   General-Error-List 
+      { ccitt recommendation q 950 general-error-list (1) }; 
+ 
+Call-Diversion-Operations OPERATION ::= {activateDiversionQ | deactivateDiversionQ | interrogateDiversionQ | 
+checkRestriction | callRerouteing | divertingLegInformation1 | divertingLegInformation2 | divertingLegInformation3 | 
+cfnrDivertedLegFailed} 
+
+  activateDiversionQ OPERATION ::={ 
+  -- Sent from the Activating PINX to the Served User PINX  
+    ARGUMENT  SEQUENCE  
+      {  procedure  Procedure, 
+       basicService  BasicService, 
+       divertedToAddress  Address, 
+       servedUserNr  PartyNumber, 
+       activatingUserNr  PartyNumber, 
+       extension  CHOICE { 
+               single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+               multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  OPTIONAL  
+} 
+   RESULT  CHOICE { 
+         null NULL, 
+            single   [1] IMPLICIT Extension{{DiversionExtensionSet}}, 
+         multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  
+   ERRORS  {  userNotSubscribed | notAvailable | invalidServedUserNr | 
+       basicServiceNotProvided | resourceUnavailable | invalidDivertedToNr | 
+       specialServiceNr | diversionToServedUserNr | temporarilyUnavailable | 
+       notAuthorized | unspecified } 
+   CODE  local: 15} 
+ 
+  deactivateDiversionQ OPERATION ::={ 
+  -- Sent from the Deactivating PINX to the Served User PINX  
+    ARGUMENT SEQUENCE   
+      {  procedure  Procedure, 
+       basicService  BasicService, 
+       servedUserNr  PartyNumber, 
+       deactivatingUserNr  PartyNumber, 
+       extension  CHOICE { 
+               single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+               multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} } OPTIONAL  } 
+   RESULT  CHOICE { 
+         null NULL, 
+            single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+         multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} } 
+   ERRORS     {userNotSubscribed | notAvailable| invalidServedUserNr | 
+            temporarilyUnavailable | notAuthorized | unspecified } 
+   CODE  local: 16}
+
+  interrogateDiversionQ OPERATION ::={ 
+  -- Sent from the Interrogating PINX to the Served User PINX  
+    ARGUMENT SEQUENCE   
+      {  procedure  Procedure, 
+       basicService  BasicService DEFAULT allServices, 
+       servedUserNr  PartyNumber, 
+       interrogatingUserNr  PartyNumber, 
+       extension  CHOICE { 
+                single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+                multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} } OPTIONAL  
+} 
+   RESULT  IntResultList 
+   ERRORS     {userNotSubscribed | notAvailable | invalidServedUserNr | 
+            temporarilyUnavailable | notAuthorized | unspecified } 
+   CODE  local: 17} 
+ 
+  checkRestriction  OPERATION ::={ 
+  -- Sent from the Served User PINX to the Diverted-to PINX  
+    ARGUMENT SEQUENCE  
+      {  servedUserNr  PartyNumber, 
+       basicService  BasicService, 
+       divertedToNr  PartyNumber, 
+       extension  CHOICE { 
+               single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+               multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  OPTIONAL } 
+   RESULT  CHOICE { 
+         null NULL, 
+            single   [1] IMPLICIT Extension{{DiversionExtensionSet}}, 
+         multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  
+    ERRORS      {notAvailable | invalidServedUserNr | 
+            invalidDivertedToNr | specialServiceNr | unspecified } 
+   CODE  local: 18}
+
+  callRerouteing   OPERATION ::={ 
+  -- Sent from the Served User PINX to the Rerouteing PINX  
+    ARGUMENT SEQUENCE  
+      {  rerouteingReason  DiversionReason, 
+       originalRerouteingReason  [0] IMPLICIT DiversionReason OPTIONAL, 
+       calledAddress  Address, 
+       diversionCounter  INTEGER (1..15), 
+       pSS1InfoElement  PSS1InformationElement, 
+      -- The basic call information elements Bearer capability, High layer compatibility, Low  
+      -- layer compatibity and Progress indicator can be embedded in the  
+      -- pSS1InfoElement in accordance with  6.5.3.1.5. 
+ 
+       lastRerouteingNr  [1] PresentedNumberUnscreened, 
+       subscriptionOption  [2] IMPLICIT SubscriptionOption,  
+          callingPartySubaddress  [3] PartySubaddress OPTIONAL,   
+       callingNumber  [4] PresentedNumberScreened, 
+       callingName  [5] Name OPTIONAL, 
+       originalCalledNr  [6] PresentedNumberUnscreened OPTIONAL, 
+       redirectingName  [7] Name OPTIONAL, 
+       originalCalledName  [8] Name OPTIONAL, 
+          extension       CHOICE { 
+             single    [9] IMPLICIT Extension{{DiversionExtensionSet}}, 
+             multiple[10] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  OPTIONAL  
+} 
+   RESULT  CHOICE { 
+         null NULL, 
+            single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+         multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} } 
+    ERRORS     {userNotSubscribed | notAvailable | resourceUnavailable | 
+         invalidDivertedToNr | specialServiceNr | diversionToServedUserNr | 
+         numberOfDiversionsExceeded |  
+         supplementaryServiceInteractionNotAllowed | unspecified } 
+      -- The error value numberOfDiversionsExceeded applies only in case of partial rerouteing.  
+   CODE  local: 19} 
+ 
+  divertingLegInformation1     OPERATION ::={ 
+  -- Sent from the Rerouteing PINX to the Originating PINX  
+    ARGUMENT  SEQUENCE  
+      {  diversionReason  DiversionReason, 
+       subscriptionOption  SubscriptionOption, 
+       nominatedNr  PartyNumber, 
+       extension  CHOICE { 
+             single    [9] IMPLICIT Extension{{DiversionExtensionSet}} , 
+             multiple [10] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  OPTIONAL 
+} 
+    RETURN RESULT   FALSE 
+    ALWAYS RESPONDS   FALSE 
+    CODE  local: 20}
+
+  divertingLegInformation2     OPERATION ::={ 
+  -- Sent from the Rerouteing PINX to the Diverted-to PINX  
+    ARGUMENT SEQUENCE  
+      {  diversionCounter  INTEGER (1..15), 
+       diversionReason  DiversionReason,  
+       originalDiversionReason  [0] IMPLICIT DiversionReason OPTIONAL, 
+       divertingNr  [1] PresentedNumberUnscreened OPTIONAL, 
+       originalCalledNr  [2] PresentedNumberUnscreened OPTIONAL, 
+       redirectingName  [3] Name OPTIONAL, 
+       originalCalledName  [4] Name OPTIONAL, 
+          extension        CHOICE { 
+               single   [5] IMPLICIT Extension{{DiversionExtensionSet}} , 
+               multiple[6] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} }  OPTIONAL  
+}  
+     -- The divertingNr element is mandatory except in the case of interworking. 
+    RETURN RESULT   FALSE 
+    ALWAYS RESPONDS   FALSE 
+    CODE  local: 21}  
+ 
+  divertingLegInformation3       OPERATION ::={ 
+  -- Sent from the Diverted-to PINX to the Originating PINX  
+    ARGUMENT   SEQUENCE  
+      {  presentationAllowedIndicator   PresentationAllowedIndicator,  
+       redirectionName  [0] Name OPTIONAL, 
+          extension       CHOICE { 
+               single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+               multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} } OPTIONAL } 
+    RETURN RESULT   FALSE 
+    ALWAYS RESPONDS   FALSE 
+    CODE  local: 22}  
+ 
+  cfnrDivertedLegFailed OPERATION ::={ 
+  -- Sent from the Rerouteing PINX to the Served User PINX  
+  -- This indicates that the diverted-to leg has been cleared during SS-CFNR execution. 
+    ARGUMENT   CHOICE { 
+         null NULL, 
+            single   [1] IMPLICIT Extension{{DiversionExtensionSet}} , 
+            multiple[2] IMPLICIT SEQUENCE OF Extension{{DiversionExtensionSet}} } 
+    RETURN RESULT   FALSE 
+    ALWAYS RESPONDS   FALSE 
+   CODE  local: 23} 
+
+-- Definitions of general used data types: 
+  DiversionReason  ::= ENUMERATED { unknown (0), cfu (1), cfb (2), cfnr (3)} 
+  -- The value unknown is only used if received from another network when interworking. 
+ 
+  IntResultList  ::= SET SIZE (0..29) OF IntResult 
+  IntResult  ::= SEQUENCE  { 
+     servedUserNr    PartyNumber, 
+     basicService    BasicService, 
+     procedure    Procedure, 
+     divertedToAddress  Address, 
+      remoteEnabled BOOLEAN DEFAULT FALSE,  
+     extension    CHOICE { 
+          single   [1] IMPLICIT  
+          Extension{{DiversionExtensionSet}} , 
+          multiple[2] IMPLICIT SEQUENCE OF  
+          Extension{{DiversionExtensionSet}} } 
+         OPTIONAL } 
+  Procedure  ::= ENUMERATED { cfu (0), cfb (1), cfnr (2) } 
+  SubscriptionOption  ::= ENUMERATED  { 
+     noNotification (0), 
+     notificationWithoutDivertedToNr (1), 
+      notificationWithDivertedToNr (2) } 
+ 
+  BasicService    ::= ENUMERATED  { 
+       allServices (0), 
+       speech (1), 
+       unrestrictedDigitalInformation (2), 
+       audio3100Hz (3), 
+       telephony (32), 
+       teletex (33), 
+       telefaxGroup4Class1 (34), 
+       videotexSyntaxBased (35), 
+        videotelephony (36)  } 
+ 
+  DiversionExtensionSet  EXTENSION ::= {...} 
+  invalidDivertedToNr      ERROR ::= {CODE local: 12} 
+  specialServiceNr      ERROR ::= {CODE local: 14} 
+  diversionToServedUserNr      ERROR ::= {CODE local: 15} 
+  numberOfDiversionsExceeded    ERROR ::= {CODE local: 24} 
+  temporarilyUnavailable      ERROR ::= {CODE local: 1000} 
+  notAuthorized      ERROR ::= {CODE local: 1007} 
+  unspecified      ERROR ::= {PARAMETER Extension{{DiversionExtensionSet}} 
+         CODE local:1008} 
+ 
+  END -- of Call-Diversion-Operations-asn1-97

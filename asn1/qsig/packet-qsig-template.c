@@ -270,140 +270,20 @@ static const gint32 op2srv_tab[] = {
 };                                 
 
 static const value_string qsig_str_operation[] = {
-  {   0, "callingName" },
-  {   1, "calledName" },
-  {   2, "connectedName" },
-  {   3, "busyName" },
-  {   4, "pathReplacePropose" },
-  {   5, "pathReplaceSetup" },
-  {   6, "pathReplaceRetain" },
-  {   7, "callTransferIdentify" },
-  {   8, "callTransferAbandon" },
-  {   9, "callTransferInitiate" },
-  {  10, "callTransferSetup" },
-  {  11, "callTransferActive" },
-  {  12, "callTransferComplete" },
-  {  13, "callTransferUpdate" },
-  {  14, "subaddressTransfer" },
-  {  15, "activateDiversionQ" },
-  {  16, "deactivateDiversionQ" },
-  {  17, "interrogateDiversionQ" },
-  {  18, "checkRestriction" },
-  {  19, "callRerouteing" },
-  {  20, "divertingLegInformation1" },
-  {  21, "divertingLegInformation2" },
-  {  22, "divertingLegInformation3" },
-  {  23, "cfnrDivertedLegFailed" },
-/*   24	Reserved (corresponding integer value used by ISO for MLPP) */	 
-/*   25	Reserved (corresponding integer value used by ISO for MLPP) */	 
-/*   26	Reserved (corresponding integer value used by ISO for MLPP) */	 
-  {  27, "ccnrRequest" },
-  {  28, "ccCancel" },
-  {  29, "ccExecPossible" },
-  {  30, "ccPathReserve" },
-  {  31, "ccRingout" },
-  {  32, "ccSuspend" },
-  {  33, "ccResume" },
-  {  34, "callOfferRequest" },
-  {  35, "doNotDisturbActivateQ" },
-  {  36, "doNotDisturbDeactivateQ" },
-  {  37, "doNotDisturbInterrogateQ" },
-  {  38, "doNotDisturbOverrideQ" },
-  {  39, "doNotDisturbOvrExecuteQ" },
-  {  40, "ccbsRequest" },
-  {  41, "pathRetain" },        /* common for QSIG-CO, QSIG-DND(O), QSIG-CI */
-  {  42, "serviceAvailable" },  /* common for QSIG-CO, QSIG-DND(O), QSIG-CI */
-  {  43, "callIntrusionRequest" },
-  {  44, "callIntrusionGetCIPL" },
-  {  45, "callIntrusionIsolate" },
-  {  46, "callIntrusionForcedRelease" },
-  {  47, "callIntrusionWOBRequest" },
-  {  48, "callIntrusionCompleted" },
-  {  49, "cfbOverride" },       /* common for QSIG-CO, QSIG-CI */
-  {  50, "locUpdate" },
-  {  51, "locDelete" },
-  {  52, "locDeReg" },
-  {  53, "pisnEnquiry" },
-  {  54, "wtmiEnquiry" },
-  {  55, "wtmiDivert" },
-  {  56, "wtmiInform" },
-  {  57, "recallAlerting" },
-  {  58, "recallAnswered" },
-  {  59, "chargeRequest" },
-  {  60, "getFinalCharge" },
-  {  61, "aocFinal" },
-  {  62, "aocInterim" },
-  {  63, "aocRate" },
-  {  64, "aocComplete" },
-  {  65, "aocDivChargeReq" },
-  {  66, "cintLegInformation1" },
-  {  67, "cintLegInformation2" },
-  {  68, "cintCondition" },
-  {  69, "cintDisable" },
-  {  70, "cintEnable" },
-  {  71, "wtmoCall" },
-  {  72, "authWtmUser" },
-  {  73, "getWtatParam" },
-  {  74, "wtatParamEnq" },
-  {  75, "getWtanParam" },
-  {  76, "wtanParamEnq" },
-  {  77, "transferAuthParam" },
-  {  78, "synchronizationRequest" },
-  {  79, "synchronizationInfo" },
-  {  80, "mwiActivate/mCMNewMsg" },        /* common for QSIG-MWI, QSIG-MCM */
-  {  81, "mwiDeactivate/mCMNoNewMsg" },    /* common for QSIG-MWI, QSIG-MCM */
-  {  82, "mwiInterrogate/mCMUpdateReq" },  /* common for QSIG-MWI, QSIG-MCM */
-/*   83	Reserved (corresponding integer value used by ISO for RRC) 	ISO/IEC 13241 */
-  {  84, "cmnRequest" },
-  {  85, "cmnInform" },
-  {  86, "pathReplaceInvite" },
-  {  87, "callInterruptionRequest" },
-  {  88, "callProtectionRequest" },
-  {  89, "pumRegistr" },
-  {  90, "pumDelReg" },
-  {  91, "pumDe-reg" },
-  {  92, "pumInterrog" },
-  {  93, "pumiEnquiry" },
-  {  94, "pumiDivert" },
-  {  95, "pumiInform" },
-  {  96, "pumoCall" },
-  {  97, "getRRCInf" },
-  {  98, "locInfoCheck" },
-  {  99, "ssctInitiate" },
-  { 100, "ssctSetup" },
-  { 101, "ssctPostDial" },
-  { 102, "ssctDigitInfo" },
-  { 103, "display" },
-  { 104, "keypad" },
-  { 105, "callIdentificationAssign" },
-  { 106, "callIdentificationUpdate" },
-  { 107, "smsSubmit" },
-  { 108, "smsDeliver" },
-  { 109, "smsStatusReport" },
-  { 110, "smsCommand" },
-  { 111, "scAlert" },
-  { 112, "mCRequest" },
-  { 113, "mCAlerting" },
-  { 114, "mCInform" },
-  { 115, "mCMUpdate" },
-  { 116, "mCMService" },
-  { 117, "mCMInterrogate" },
-  { 118, "mCMailboxFull" },
-  { 119, "mIDMailboxAuth" },
-  { 120, "mIDMailboxID" },
+#include "packet-qsig-table10.c"
+  {   0, NULL}
+};
+
+static const value_string qsig_str_error[] = {
+#include "packet-qsig-table20.c"
   {   0, NULL}
 };
                      
-typedef struct _qsig_op_t {
-  gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
-} qsig_op_t;
-
 /* Initialize the protocol and registered fields */
 int proto_qsig = -1;
 static int hf_qsig_operation = -1;
 static int hf_qsig_service = -1;
+static int hf_qsig_error = -1;
 static int hf_qsig_ie_type = -1;
 static int hf_qsig_ie_type_cs4 = -1;
 static int hf_qsig_ie_type_cs5 = -1;
@@ -439,133 +319,32 @@ static dissector_handle_t data_handle = NULL;
 
 #include "packet-qsig-fn.c"
 
-static const qsig_op_t qsig_tab[] = {
-  /*   0 */ {   0, dissect_NameArg_PDU, NULL },
-  /*   1 */ {   1, dissect_NameArg_PDU, NULL },
-  /*   2 */ {   2, dissect_NameArg_PDU, NULL },
-  /*   3 */ {   3, dissect_NameArg_PDU, NULL },
-  /*   4 */ {   4, NULL, NULL },
-  /*   5 */ {   5, NULL, NULL },
-  /*   6 */ {   6, NULL, NULL },
-  /*   7 */ {   7, NULL, NULL },
-  /*   8 */ {   8, NULL, NULL },
-  /*   9 */ {   9, NULL, NULL },
-  /*  10 */ {  10, NULL, NULL },
-  /*  11 */ {  11, NULL, NULL },
-  /*  12 */ {  12, NULL, NULL },
-  /*  13 */ {  13, NULL, NULL },
-  /*  14 */ {  14, NULL, NULL },
-  /*  15 */ {  15, dissect_ARG_activateDiversionQ_PDU, dissect_RES_activateDiversionQ_PDU },
-  /*  16 */ {  16, dissect_ARG_deactivateDiversionQ_PDU, dissect_RES_deactivateDiversionQ_PDU },
-  /*  17 */ {  17, dissect_ARG_interrogateDiversionQ_PDU, dissect_IntResultList_PDU },
-  /*  18 */ {  18, dissect_ARG_checkRestriction_PDU, dissect_RES_checkRestriction_PDU },
-  /*  19 */ {  19, dissect_ARG_callRerouteing_PDU, dissect_RES_callRerouteing_PDU },
-  /*  20 */ {  20, dissect_ARG_divertingLegInformation1_PDU, NULL },
-  /*  21 */ {  21, dissect_ARG_divertingLegInformation2_PDU, NULL },
-  /*  22 */ {  22, dissect_ARG_divertingLegInformation3_PDU, NULL },
-  /*  23 */ {  23, dissect_ARG_cfnrDivertedLegFailed_PDU, NULL },
-  /*  27 */ {  27, NULL, NULL },
-  /*  28 */ {  28, NULL, NULL },
-  /*  29 */ {  29, NULL, NULL },
-  /*  30 */ {  30, NULL, NULL },
-  /*  31 */ {  31, NULL, NULL },
-  /*  32 */ {  32, NULL, NULL },
-  /*  33 */ {  33, NULL, NULL },
-  /*  34 */ {  34, NULL, NULL },
-  /*  35 */ {  35, NULL, NULL },
-  /*  36 */ {  36, NULL, NULL },
-  /*  37 */ {  37, NULL, NULL },
-  /*  38 */ {  38, NULL, NULL },
-  /*  39 */ {  39, NULL, NULL },
-  /*  40 */ {  40, NULL, NULL },
-  /*  41 */ {  41, NULL, NULL },
-  /*  42 */ {  42, NULL, NULL },
-  /*  43 */ {  43, NULL, NULL },
-  /*  44 */ {  44, NULL, NULL },
-  /*  45 */ {  45, NULL, NULL },
-  /*  46 */ {  46, NULL, NULL },
-  /*  47 */ {  47, NULL, NULL },
-  /*  48 */ {  48, NULL, NULL },
-  /*  49 */ {  49, NULL, NULL },
-  /*  50 */ {  50, NULL, NULL },
-  /*  51 */ {  51, NULL, NULL },
-  /*  52 */ {  52, NULL, NULL },
-  /*  53 */ {  53, NULL, NULL },
-  /*  54 */ {  54, NULL, NULL },
-  /*  55 */ {  55, NULL, NULL },
-  /*  56 */ {  56, NULL, NULL },
-  /*  57 */ {  57, NULL, NULL },
-  /*  58 */ {  58, NULL, NULL },
-  /*  59 */ {  59, NULL, NULL },
-  /*  60 */ {  60, NULL, NULL },
-  /*  61 */ {  61, NULL, NULL },
-  /*  62 */ {  62, NULL, NULL },
-  /*  63 */ {  63, NULL, NULL },
-  /*  64 */ {  64, NULL, NULL },
-  /*  65 */ {  65, NULL, NULL },
-  /*  66 */ {  66, NULL, NULL },
-  /*  67 */ {  67, NULL, NULL },
-  /*  68 */ {  68, NULL, NULL },
-  /*  69 */ {  69, NULL, NULL },
-  /*  70 */ {  70, NULL, NULL },
-  /*  71 */ {  71, NULL, NULL },
-  /*  72 */ {  72, NULL, NULL },
-  /*  73 */ {  73, NULL, NULL },
-  /*  74 */ {  74, NULL, NULL },
-  /*  75 */ {  75, NULL, NULL },
-  /*  76 */ {  76, NULL, NULL },
-  /*  77 */ {  77, NULL, NULL },
-  /*  78 */ {  78, NULL, NULL },
-  /*  79 */ {  79, NULL, NULL },
-  /*  80 */ {  80, NULL, NULL },
-  /*  81 */ {  81, NULL, NULL },
-  /*  82 */ {  82, NULL, NULL },
-  /*  84 */ {  84, NULL, NULL },
-  /*  85 */ {  85, NULL, NULL },
-  /*  86 */ {  86, NULL, NULL },
-  /*  87 */ {  87, NULL, NULL },
-  /*  88 */ {  88, NULL, NULL },
-  /*  89 */ {  89, NULL, NULL },
-  /*  90 */ {  90, NULL, NULL },
-  /*  91 */ {  91, NULL, NULL },
-  /*  92 */ {  92, NULL, NULL },
-  /*  93 */ {  93, NULL, NULL },
-  /*  94 */ {  94, NULL, NULL },
-  /*  95 */ {  95, NULL, NULL },
-  /*  96 */ {  96, NULL, NULL },
-  /*  97 */ {  97, NULL, NULL },
-  /*  98 */ {  98, NULL, NULL },
-  /*  99 */ {  99, NULL, NULL },
-  /* 100 */ { 100, NULL, NULL },
-  /* 101 */ { 101, NULL, NULL },
-  /* 102 */ { 102, NULL, NULL },
-  /* 103 */ { 103, NULL, NULL },
-  /* 104 */ { 104, NULL, NULL },
-  /* 105 */ { 105, NULL, NULL },
-  /* 106 */ { 106, NULL, NULL },
-  /* 107 */ { 107, NULL, NULL },
-  /* 108 */ { 108, NULL, NULL },
-  /* 109 */ { 109, NULL, NULL },
-  /* 110 */ { 110, NULL, NULL },
-  /* 111 */ { 111, NULL, NULL },
-  /* 112 */ { 112, NULL, NULL },
-  /* 113 */ { 113, NULL, NULL },
-  /* 114 */ { 114, NULL, NULL },
-  /* 115 */ { 115, NULL, NULL },
-  /* 116 */ { 116, NULL, NULL },
-  /* 117 */ { 117, NULL, NULL },
-  /* 118 */ { 118, NULL, NULL },
-  /* 119 */ { 119, NULL, NULL },
-  /* 120 */ { 120, NULL, NULL },
+typedef struct _qsig_op_t {
+  gint32 opcode;
+  new_dissector_t arg_pdu;
+  new_dissector_t res_pdu;
+} qsig_op_t;
+
+static const qsig_op_t qsig_op_tab[] = {
+#include "packet-qsig-table11.c"
+};                                 
+
+typedef struct _qsig_err_t {
+  gint32 errcode;
+  new_dissector_t err_pdu;
+} qsig_err_t;
+
+static const qsig_err_t qsig_err_tab[] = {
+#include "packet-qsig-table21.c"
 };                                 
 
 static const qsig_op_t *get_op(gint32 opcode) {
   int i;
 
   /* search from the end to get the last occurence if the operation is redefined in some newer specification */
-  for (i = array_length(qsig_tab) - 1; i >= 0; i--)
-    if (qsig_tab[i].opcode == opcode)
-      return &qsig_tab[i];
+  for (i = array_length(qsig_op_tab) - 1; i >= 0; i--)
+    if (qsig_op_tab[i].opcode == opcode)
+      return &qsig_op_tab[i];
   return NULL;
 }
 
@@ -573,6 +352,16 @@ static gint32 get_service(gint32 opcode) {
   if ((opcode < 0) || (opcode >= (int)array_length(op2srv_tab)))
     return NO_SRV;
   return op2srv_tab[opcode];
+}
+
+static const qsig_err_t *get_err(gint32 errcode) {
+  int i;
+
+  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  for (i = array_length(qsig_err_tab) - 1; i >= 0; i--)
+    if (qsig_err_tab[i].errcode == errcode)
+      return &qsig_err_tab[i];
+  return NULL;
 }
                   
 /*--- dissect_qsig_arg ------------------------------------------------------*/
@@ -677,6 +466,52 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return offset;
 }
 
+/*--- dissect_qsig_err ------------------------------------------------------*/
+static int   
+dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  int offset;
+  rose_ctx_t *rctx;
+  gint32 errcode;
+  const qsig_err_t *err_ptr;
+  const gchar *p;
+  proto_item *ti;
+  proto_tree *qsig_tree;
+
+  offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 3)  /* returnError */
+    return offset; 
+  if (rctx->d.code != 0)  /* local */
+    return offset; 
+  errcode = rctx->d.code_local;
+  err_ptr = get_err(errcode);
+  if (!err_ptr)
+    return offset; 
+
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
+  qsig_tree = proto_item_add_subtree(ti, ett_qsig); 
+
+  proto_tree_add_uint(qsig_tree, hf_qsig_error, tvb, 0, 0, errcode);
+  p = match_strval(errcode, VALS(qsig_str_error));
+  if (p) {
+    proto_item_append_text(ti, ": %s", p);
+    proto_item_append_text(rctx->d.code_item, " - %s", p);
+    if (rctx->apdu_depth >= 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
+  }
+
+  if (err_ptr->err_pdu)
+    offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree);
+  else 
+    if (tvb_length_remaining(tvb, offset) > 0) {
+      proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (QSIG)");
+      offset += tvb_length_remaining(tvb, offset);
+    }
+
+  return offset;
+}
+
 /*--- dissect_qsig_transit_counter_ie ---------------------------------------*/
 static int
 dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length  _U_) {
@@ -751,6 +586,9 @@ void proto_register_qsig(void) {
     { &hf_qsig_service,   { "Service", "qsig.service",
                            FT_UINT8, BASE_DEC, VALS(qsig_str_service), 0x0,
                            "Supplementary Service", HFILL }},
+    { &hf_qsig_error,     { "Error", "qsig.error",
+                           FT_UINT8, BASE_DEC, VALS(qsig_str_error), 0x0,
+                           "Error", HFILL }},
     { &hf_qsig_ie_type, { "Type", "qsig.ie.type",
                           FT_UINT8, BASE_HEX, NULL, 0x0,
                           "Information Element Type", HFILL }},
@@ -797,17 +635,20 @@ void proto_reg_handoff_qsig(void) {
   int i;
   dissector_handle_t qsig_arg_handle;
   dissector_handle_t qsig_res_handle;
+  dissector_handle_t qsig_err_handle;
   dissector_handle_t qsig_ie_handle;
 
   data_handle = find_dissector("data");
 
-  if (find_dissector_table("q932.ros.local.arg")) {
-    qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
-    qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);
-    for (i=0; i<(int)array_length(qsig_tab); i++) {
-      dissector_add("q932.ros.local.arg", qsig_tab[i].opcode, qsig_arg_handle);
-      dissector_add("q932.ros.local.res", qsig_tab[i].opcode, qsig_res_handle);
-    }
+  qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
+  qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);
+  for (i=0; i<(int)array_length(qsig_op_tab); i++) {
+    dissector_add("q932.ros.local.arg", qsig_op_tab[i].opcode, qsig_arg_handle);
+    dissector_add("q932.ros.local.res", qsig_op_tab[i].opcode, qsig_res_handle);
+  }
+  qsig_err_handle = new_create_dissector_handle(dissect_qsig_err, proto_qsig);
+  for (i=0; i<(int)array_length(qsig_err_tab); i++) {
+    dissector_add("q932.ros.local.err", qsig_err_tab[i].errcode, qsig_err_handle);
   }
 
   qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs4, proto_qsig);

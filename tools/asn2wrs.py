@@ -551,6 +551,7 @@ class EthCtx:
     self.default_containing_variant = '_pdu_new'
     self.default_embedded_pdv_cb = None
     self.default_external_type_cb = None
+    self.emitted_pdu = {}
     self.module = {}
     self.module_ord = []
     self.all_type_attr = {}
@@ -1190,6 +1191,8 @@ class EthCtx:
       nm = asn2c(nm)
       if (self.field[f]['pdu']): 
         nm += '_PDU'
+        if (not self.merge_modules):
+          nm = self.eproto + '_' + nm
       t = self.field[f]['type']
       if self.type.has_key(t):
         ethtype = self.type[t]['ethname']
@@ -1225,7 +1228,7 @@ class EthCtx:
         self.eth_hfpdu_ord.append(nm)
       else:
         self.eth_hf_ord.append(nm)
-      fullname = "hf_%s_%s" % (self.eproto, nm)
+      fullname = 'hf_%s_%s' % (self.eproto, nm)
       attr = self.eth_get_type_attr(self.field[f]['type']).copy()
       attr.update(self.field[f]['attr'])
       if (self.NAPI() and attr.has_key('NAME')):
@@ -1728,7 +1731,11 @@ class EthCtx:
       fx.write('/*--- PDUs ---*/\n\n')
       for f in self.eth_hfpdu_ord:
         if (self.eth_hf[f]['pdu']):
-          fx.write(out_pdu(f))
+          if (self.emitted_pdu.has_key(f)):
+            fx.write("  /* %s already emitted */\n" % (f))
+          else:
+            fx.write(out_pdu(f))
+            self.emitted_pdu[f] = True
       fx.write('\n')
     fempty = pos == fx.tell()
     self.output.file_close(fx, discard=fempty)
@@ -2698,7 +2705,9 @@ class EthOut:
       fx.write('\n')
       mstr = "--- "
       if self.ectx.groups():
-        mstr += "Modules"
+        mstr += "Module"
+        if (len(self.ectx.modules) > 1):
+          mstr += "s"
         for (m, p) in self.ectx.modules:
           mstr += " %s" % (m)
       else:
@@ -3125,8 +3134,10 @@ class Type (Node):
     }
     if (ectx.eth_type[tname]['tree']):
       pars['ETT_INDEX'] = ectx.eth_type[tname]['tree']
-    if (not ectx.Per()):
-      pars['PINFO'] = 'pinfo'
+    if (ectx.merge_modules):
+      pars['PROTOP'] = ''
+    else:
+      pars['PROTOP'] = ectx.eth_type[tname]['proto'] + '_'
     return pars
 
   def eth_type_fn(self, proto, tname, ectx):
@@ -3825,7 +3836,7 @@ class SequenceOfType (SeqOfType):
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
     (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
-    pars['TABLE'] = '%(TNAME)s_sequence_of'
+    pars['TABLE'] = '%(PROTOP)s%(TNAME)s_sequence_of'
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -3882,7 +3893,7 @@ class SetOfType (SeqOfType):
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
     (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
-    pars['TABLE'] = '%(TNAME)s_set_of'
+    pars['TABLE'] = '%(PROTOP)s%(TNAME)s_set_of'
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -3987,7 +3998,7 @@ class SequenceType (SeqType):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    pars['TABLE'] = '%(TNAME)s_sequence'
+    pars['TABLE'] = '%(PROTOP)s%(TNAME)s_sequence'
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -4032,7 +4043,7 @@ class SetType(SeqType):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    pars['TABLE'] = '%(TNAME)s_set'
+    pars['TABLE'] = '%(PROTOP)s%(TNAME)s_set'
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -4208,7 +4219,7 @@ class ChoiceType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    pars['TABLE'] = '%(TNAME)s_choice'
+    pars['TABLE'] = '%(PROTOP)s%(TNAME)s_choice'
     return pars
 
   def eth_type_default_table(self, ectx, tname):
@@ -4418,7 +4429,7 @@ class EnumeratedType (Type):
     pars['EXT'] = ext
     pars['EXT_NUM'] = str(ext_num)
     if (map_table):
-      pars['TABLE'] = '%(TNAME)s_value_map'
+      pars['TABLE'] = '%(PROTOP)s%(TNAME)s_value_map'
     else:
       pars['TABLE'] = 'NULL'
     return pars
@@ -5123,7 +5134,7 @@ class BitStringType (Type):
       pars['ETT_INDEX'] = '-1'
     pars['TABLE'] = 'NULL'
     if self.eth_named_bits():
-      pars['TABLE'] = '%(TNAME)s_bits'
+      pars['TABLE'] = '%(PROTOP)s%(TNAME)s_bits'
     if self.HasContentsConstraint():
       pars['FN_VARIANT'] = ectx.default_containing_variant
       t = self.constr.GetContents(ectx)

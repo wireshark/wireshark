@@ -1,0 +1,207 @@
+-- QSIG-PUMR.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-282, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-282.htm
+--
+-- $Id$
+--
+
+PUM-Registration-Operations-asn1-97 
+       { iso (1) standard (0) pss1-pum-registration (17876) pum-registration-operations-asn1-97 (1) } 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects  
+    { joint-iso-itu-t (2) remote-operations (4) informationObjects (5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+    { iso (1) standard (0) pss1-generic-procedures (11582) msi-class-asn1-97 (11) } 
+  notAvailable, invalidServedUserNr, supplementaryServiceInteractionNotAllowed  
+   FROM General-Error-List 
+    { ccitt recommendation q 950 general-error-list (1) } 
+  PartyNumber FROM Addressing-Data-Elements-asn1-97 
+    { iso (1) standard (0) pss1-generic-procedures (11582)  
+      addressing-data-elements-asn1-97 (20) } 
+  BasicService FROM Call-Diversion-Operations-asn1-97 
+    { iso (1) standard (0) pss1-call-diversion (13873)  
+      call-diversion-operations-asn1-97 (1) } 
+  pisnEnquiry FROM WTM-Location-Registration-Operations-asn1-97 
+    { iso (1) standard (0) pss1-location-registration (15429)  
+      wtmlr-operations-asn1-97 (1) }; 
+ 
+PUM-Registration-Operations OPERATION ::= { pumRegistr | pumDelReg | pumDe-reg |  
+       pumInterrog | pisnEnquiry } 
+ 
+pumRegistr    OPERATION ::= { 
+ -- Registration (sent from the Visitor PINX to the Home PINX or  
+ --     from a Remote PINX to the Visitor PINX) 
+   ARGUMENT  PumRegistrArg 
+   RESULT  PumRegistrRes 
+    ERRORS  { invalidServedUserNr | notAuthorized | unspecified | 
+      notAvailable | temporarilyUnavailable | 
+     supplementaryServiceInteractionNotAllowed | 
+     pumUserNotSubscribedToThisServiceOpt | 
+      pumUserFailedAuthentication | hostingAddrInvalid } 
+   CODE  local: 89} 
+
+pumDelReg   OPERATION ::= { 
+ -- Delete Registration (sent from the Home PINX to the Previous Visitor PINX) 
+   ARGUMENT  PumDelRegArg 
+   RESULT  DummyRes 
+    ERRORS  { notAvailable | temporarilyUnavailable | unspecified | 
+     supplementaryServiceInteractionNotAllowed } 
+   CODE  local: 90} 
+pumDe-reg    OPERATION ::= { 
+ -- De-registration (sent from the Visitor PINX or Remote PINX to the Home PINX) 
+   ARGUMENT  PumDe-regArg 
+   RESULT  DummyRes 
+    ERRORS  { invalidServedUserNr | notAuthorized | unspecified | 
+     supplementaryServiceInteractionNotAllowed | 
+     pumUserNotSubscribedToThisServiceOpt | 
+      pumUserFailedAuthentication | hostingAddrInvalid | 
+     pumUserNotRegistered } 
+   CODE  local: 91} 
+pumInterrog   OPERATION ::= { 
+ -- Interrogation (sent from the Visitor PINX or Remote PINX to the Home PINX and 
+ --     from the Home PINX to the Visitor PINX) 
+   ARGUMENT  PumInterrogArg 
+   RESULT  PumInterrogRes 
+    ERRORS  { invalidServedUserNr | notAuthorized | unspecified | 
+     supplementaryServiceInteractionNotAllowed | 
+      pumUserFailedAuthentication | hostingAddrInvalid | 
+     pumUserNotRegistered } 
+   CODE  local: 92} 
+PumRegistrArg  ::= SEQUENCE  { pumUserId   CHOICE { pumNumber  PartyNumber, 
+                -- The PISN number of the PUM user, 
+                -- always a Complete Number. 
+              alternativeId  AlternativeId }, 
+     basicService  BasicService, 
+       -- specific basic service or all basic services, 
+     hostingAddr  PartyNumber, 
+       -- The PISN number of the hosting user, 
+       -- always a Complete Number. 
+     activatingUserAddr  [0]  PartyNumber  OPTIONAL, 
+       -- The PISN number of the activating user, 
+       -- always a Complete Number. 
+       -- Mandatory if sent from a Remote PINX, else not included. 
+     serviceOption  ServiceOption DEFAULT inCallRegistration, 
+       -- Type of registration (InCall, OutCall or AllCall) 
+     sessionParams SessionParams OPTIONAL, 
+       -- Duration of session, Number of outgoing calls 
+      userPin  CHOICE   { pumUserPin [6] IMPLICIT UserPin, 
+        activatingUserPin [7] IMPLICIT  UserPin }  OPTIONAL, 
+     argExtension  PumrExtension   OPTIONAL } 
+
+PumRegistrRes  ::= SEQUENCE  { pumNumber  PartyNumber, 
+     serviceOption  ServiceOption  OPTIONAL, 
+       -- Type of registration (InCall, OutCall or AllCall) 
+     sessionParams SessionParams OPTIONAL, 
+       -- Duration of session, Number of outgoing calls 
+     argExtension  PumrExtension   OPTIONAL } 
+DummyRes ::=  CHOICE   { null    NULL, 
+      extension  [ 1 ] IMPLICIT Extension{{PUMRExtSet}}, 
+      sequOfExtn  [ 2 ] IMPLICIT SEQUENCE OF  
+           Extension{{PUMRExtSet}} } 
+PumDelRegArg  ::= SEQUENCE  { pumUserId   CHOICE { pumNumber  PartyNumber, 
+                -- The PISN number of the PUM user, 
+                -- always a Complete Number. 
+              alternativeId  AlternativeId }, 
+     basicService  BasicService, 
+       -- specific basic service or all basic services, 
+     hostingAddr  PartyNumber, 
+       -- The PISN number of the hosting user, 
+       -- always a Complete Number. 
+     serviceOption  ServiceOption, 
+       -- Type of registration session (InCall, OutCall or AllCall) 
+     argExtension  PumrExtension   OPTIONAL } 
+PumDe-regArg  ::= SEQUENCE  { pumUserId   CHOICE { pumNumber  PartyNumber, 
+                -- The PISN number of the PUM user, 
+                -- always a Complete Number. 
+              alternativeId  AlternativeId }, 
+     basicService  BasicService, 
+       -- specific basic service or all basic services, 
+     hostingAddr  [0]  PartyNumber  OPTIONAL, 
+       -- The PISN number of the hosting user, 
+       -- always a Complete Number. 
+       -- Not included if serviceOption indicates 'inCallRegistration', 
+       -- optional if serviceOption indicates 'outCallRegistration'  
+       -- or 'allCallRegistration'. 
+     activatingUserAddr  [1]  PartyNumber  OPTIONAL, 
+       -- The PISN number of the activating user, 
+       -- always a Complete Number. 
+       -- Mandatory if sent from a Remote PINX, else not included. 
+     serviceOption  ServiceOption DEFAULT inCallRegistration, 
+       -- Type of registration session (InCall, OutCall or AllCall) 
+       -- If serviceOption indicates 'outCallRegistration' and  
+       -- hostingAddr is omitted, the de-registration applies to  
+       -- all OutCall registrations of this PUM user. 
+       -- If serviceOption indicates 'allCallRegistration' and  
+       -- hostingAddr is omitted, the de-registration applies to the  
+       -- AllCall and all OutCall registrations of this PUM user. 
+      userPin  CHOICE   { pumUserPin [6] IMPLICIT UserPin, 
+        activatingUserPin [7] IMPLICIT  UserPin }  OPTIONAL, 
+     argExtension  PumrExtension   OPTIONAL } 
+
+PumInterrogArg  ::=  SEQUENCE  { pumUserId   CHOICE { pumNumber  PartyNumber, 
+                -- The PISN number of the PUM user, 
+                -- always a Complete Number. 
+              alternativeId  AlternativeId }, 
+     basicService  BasicService, 
+       -- specific basic service or all basic services, 
+     hostingAddr  [0]  PartyNumber  OPTIONAL, 
+       -- The PISN number of the hosting user, 
+       -- always a Complete Number. 
+       -- Omission indicates 'all hosting addresses'. 
+     activatingUserAddr  [1]  PartyNumber  OPTIONAL, 
+       -- The PISN number of the activating user, 
+       -- always a Complete Number. 
+     serviceOption  [2]  ServiceOption  OPTIONAL, 
+     homeInfoOnly  BOOLEAN  DEFAULT TRUE, 
+        -- True = Only Home PINX information (default) 
+        -- False = Complete information 
+      userPin  CHOICE   { pumUserPin [6] IMPLICIT UserPin, 
+        activatingUserPin [7] IMPLICIT  UserPin }  OPTIONAL, 
+     argExtension  PumrExtension   OPTIONAL } 
+PumInterrogRes  ::=  SET SIZE(1..8) OF 
+         SEQUENCE  { basicService  [0] IMPLICIT  BasicService  OPTIONAL, 
+        -- specific basic service or all basic services, 
+        -- (Home PINX information) 
+     hostingAddr  [1]  PartyNumber  OPTIONAL, 
+        -- The PISN number of the hosting user, 
+        -- always a Complete Number. 
+        -- (Home PINX information) 
+     serviceOption  [2] IMPLICIT  ServiceOption  OPTIONAL, 
+        -- Type of registration session 
+        -- (InCall, OutCall or AllCall) 
+        -- (Home PINX information) 
+     interrogParams   SessionParams   OPTIONAL, 
+        -- Time left in registration session, 
+        -- Number of outgoing calls left 
+        -- (Visitor PINX information) 
+     argExtension  PumrExtension   OPTIONAL } 
+AlternativeId  ::=  OCTET STRING (SIZE(1..20)) 
+ServiceOption  ::= ENUMERATED { inCallRegistration    (0), 
+          outCallRegistration    (1), 
+          allCallRegistration    (2) } 
+SessionParams  ::= SEQUENCE  { durationOfSession  [ 1 ] IMPLICIT INTEGER OPTIONAL, 
+          -- Duration of session in seconds, 
+          -- default if omitted: duration of session unlimited. 
+          numberOfOutgCalls  [ 2 ] IMPLICIT INTEGER   OPTIONAL } 
+          -- Default if omitted: number of outgoing calls unlimited. 
+UserPin  ::=  OCTET STRING (SIZE(1..20)) 
+
+PumrExtension ::=  CHOICE  {  
+      extension  [ 4 ] IMPLICIT Extension {{PUMRExtSet}}, 
+      sequOfExtn  [ 5 ] IMPLICIT SEQUENCE OF  
+           Extension{{PUMRExtSet}} } 
+PUMRExtSet EXTENSION ::= {...}unspecified  ERROR  ::=  {   PARAMETER 
+ Extension{{PUMRExtSet}} 
+            CODE  local: 1008}  
+notAuthorized      ERROR  ::=  {  CODE  local:  1007} 
+temporarilyUnavailable      ERROR  ::=  {  CODE  local:  1000} 
+pumUserNotSubscribedToThisServiceOpt  ERROR  ::=  {  CODE  local:  1019} 
+pumUserFailedAuthentication   ERROR  ::=  {  CODE  local:  1020} 
+hostingAddrInvalid      ERROR  ::=  {  CODE  local:  1021} 
+pumUserNotRegistered      ERROR  ::=  {  CODE  local:  1022} 
+END  -- of PUM-Registration-Operations-asn1-97

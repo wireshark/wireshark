@@ -231,7 +231,7 @@ dissect_q932_PresentedNumberScreened
 dissect_q932_PresentedNumberUnscreened
 dissect_q932_PartyNumber              
 dissect_q932_PartySubaddress        
-dissect_qsig_Name
+dissect_qsig_na_Name
 dissect_rpc_array
 dissect_rpc_bool
 dissect_rpc_bytes

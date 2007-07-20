@@ -1,0 +1,171 @@
+-- QSIG-PR.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-176, 4th edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-176.htm
+--
+-- $Id$
+--
+
+Path-Replacement-Operations-asn1-97  
+  {iso standard pss1-path-replacement (13874) pr-operations-asn1-97(1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects  
+    {joint-iso-itu-t (2) remote-operations(4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+   {iso standard 
+    pss1-generic-procedures (11582) msi-class-asn1-97 (11)} 
+ notAvailable, supplementaryServiceInteractionNotAllowed 
+   FROM General-Error-List 
+    {ccitt recommendation q 950 general-error-list (1)} 
+  PartyNumber FROM Addressing-Data-Elements-asn1-97 
+    {iso(1) standard(0) pss1-generic-procedures(11582)  
+   addressing-data-elements-asn1-97 (20)}; 
+ 
+Path-Replacement-Operations OPERATION ::={ 
+pathReplacePropose | pathReplaceSetup | pathReplaceRetain | pathReplaceInvite} 
+ 
+pathReplaceInvite  OPERATION ::= { 
+ ARGUMENT     DummyArg 
+  RETURN RESULT   FALSE 
+ ERRORS { 
+     notAvailable | 
+     temporarilyUnavailable | 
+     supplementaryServiceInteractionNotAllowed | 
+     criteriaPermanentlyUnachievable | 
+     criteriaTemporarilyUnachievable | 
+     invalidRerouteingNumber | 
+     unrecognizedCallIdentity | 
+     establishmentFailure | 
+     collision | 
+     unspecified } 
+ ALWAYS RESPONDS  FALSE 
+  CODE      local: 86 } 
+
+pathReplacePropose  OPERATION ::= { 
+ ARGUMENT    PRProposeArg 
+  RETURN RESULT   FALSE   
+   ERRORS { 
+     notAvailable | 
+     temporarilyUnavailable | 
+     supplementaryServiceInteractionNotAllowed | 
+     criteriaPermanentlyUnachievable | 
+     criteriaTemporarilyUnachievable | 
+     invalidRerouteingNumber | 
+     unrecognizedCallIdentity | 
+     establishmentFailure | 
+     collision | 
+     unspecified } 
+ ALWAYS RESPONDS  FALSE 
+  CODE      local: 4 } 
+ 
+pathReplaceSetup   OPERATION ::= { 
+ ARGUMENT    PRSetupArg 
+ RESULT      DummyResult 
+ ERRORS { 
+     criteriaPermanentlyUnachievable | 
+     criteriaTemporarilyUnachievable | 
+     invalidRerouteingNumber | 
+     unrecognizedCallIdentity | 
+     temporarilyUnavailable | 
+     unspecified } 
+  CODE      local: 5 } 
+ 
+pathReplaceRetain   OPERATION ::= { 
+ ARGUMENT    PRRetainArg 
+ RESULT      DummyResult 
+ ERRORS { 
+     notAvailable | 
+     temporarilyUnavailable | 
+     supplementaryServiceInteractionNotAllowed | 
+     criteriaPermanentlyUnachievable | 
+     criteriaTemporarilyUnachievable | 
+     invalidRerouteingNumber | 
+     unrecognizedCallIdentity | 
+     establishmentFailure | 
+     unspecified } 
+  CODE      local: 6 } 
+
+PRProposeArg ::=  SEQUENCE { 
+     callIdentity     CallIdentity, 
+     rerouteingNumber  PartyNumber, 
+     extension  CHOICE { 
+      single  [1] IMPLICIT Extension{{PRExtSet}}, 
+        multiple  [2] IMPLICIT SEQUENCE OF Extension{{PRExtSet}} 
+     } OPTIONAL 
+   } 
+ 
+PRSetupArg ::=  SEQUENCE { 
+     callIdentity   CallIdentity, 
+      extension CHOICE { 
+      single  [1] IMPLICIT Extension{{PRExtSet}}, 
+        multiple  [2] IMPLICIT SEQUENCE OF Extension{{PRExtSet}} 
+     } OPTIONAL 
+   } 
+ 
+PRRetainArg ::=  SEQUENCE { 
+     callIdentity   CallIdentity, 
+     rerouteingNumber PartyNumber, 
+     extension  CHOICE { 
+      single  [1] IMPLICIT Extension{{PRExtSet}}, 
+        multiple  [2] IMPLICIT SEQUENCE OF Extension{{PRExtSet}} 
+     } OPTIONAL 
+   } 
+ 
+DummyResult ::=  CHOICE { 
+     null   NULL, 
+     single  [1] IMPLICIT Extension{{PRExtSet}}, 
+      multiple  [2] IMPLICIT SEQUENCE OF Extension{{PRExtSet}} 
+   } 
+ 
+DummyArg ::=  CHOICE { 
+     null   NULL, 
+     single  [1] IMPLICIT Extension{{PRExtSet}}, 
+      multiple  [2] IMPLICIT SEQUENCE OF Extension{{PRExtSet}} 
+   } 
+ 
+PRExtSet EXTENSION ::= {...} 
+ 
+CallIdentity ::=  NumericString (SIZE(1..4)) 
+ 
+temporarilyUnavailable  ERROR ::= {CODE  local: 1000} 
+    -- used when the operation is temporarily not available and none of 
+    -- the other errors applies - a later attempt could be successful 
+ 
+collision   ERROR ::= {CODE  local: 1001} 
+    -- used when a pathReplacePropose invoke APDU is received by a PINX 
+    -- which has sent a pathReplacePropose invoke APDU 
+
+criteriaPermanentlyUnachievable   ERROR ::= {CODE  local: 1002} 
+    -- used when the special criteria requested cannot be achieved 
+    -- because the necessary resources are permanently unavailable 
+ 
+criteriaTemporarilyUnachievable   ERROR ::= {CODE  local: 1003} 
+    -- used when the special criteria requested cannot be achieved 
+    -- because the necessary resources are temporarily unavailable 
+    -- a later attempt could be successful 
+ 
+invalidRerouteingNumber   ERROR ::= {CODE  local: 1004} 
+    -- used when the establishment of the new connection fails because the 
+    -- Called party number information element is not a valid number for 
+    -- routeing the new connection to 
+ 
+unrecognizedCallIdentity   ERROR ::= {CODE  local: 1005} 
+    -- used when establishment of the new connection fails because it could 
+    -- not be associated with the old connection at the Requesting PINX 
+ 
+establishmentFailure     ERROR ::= {CODE  local: 1006} 
+    -- used when establishment of the new connection fails and no other error 
+   -- applies 
+ 
+unspecified  ERROR ::= { 
+   PARAMETER   Extension{{PRExtSet}} 
+ CODE    local: 1008} 
+    -- used to convey a manufacturer specific error, possibly with other information 
+    -- of Path-Replacement-Operations 
+ 
+END -- of Path-Replacement-Operations-asn1-97 

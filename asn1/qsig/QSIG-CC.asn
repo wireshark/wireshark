@@ -1,0 +1,177 @@
+-- QSIG-CC.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-186, 4th edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-186.htm
+--
+-- $Id$
+--
+
+SS-CC-Operations-asn1-97 { iso (1) standard (0)  pss1-call-completion (13870)  operations-asn1-97 (1)} 
+DEFINITIONS  EXPLICIT TAGS ::= 
+BEGIN 
+IMPORTS 
+ OPERATION,  
+ ERROR    
+FROM  Remote-Operations-Information-Objects    
+{ joint-iso-itu-t remote-operations (4) informationObjects(5) version1 (0)} 
+ 
+ EXTENSION, Extension{}  
+FROM  Manufacturer-specific-service-extension-class-asn1-97 
+  { iso( 1) standard( 0) pss1-generic-procedures( 11582) msi-class-asn1-97( 11) } 
+ 
+ PSS1InformationElement 
+FROM PSS1-generic-parameters-definition-asn1-97 
+  { iso standard pss1-generic-procedures (11582) pss1-generic-parameters-asn1-97(17)} 
+  
+ PartyNumber, 
+ PartySubaddress, 
+ PresentedNumberUnscreened  
+FROM Addressing-Data-Elements-asn1-97 
+  {iso standard pss1-generic-procedures (11582) addressing-data-elements-asn1-97 (20)}  
+ 
+supplementaryServiceInteractionNotAllowed 
+FROM General-Error-List 
+    { ccitt (0) recommendation (0) q 950 general-error-list (1) } ; 
+ 
+CC-Operations OPERATION ::= {ccbsRequest | ccnrRequest | ccCancel | ccExecPossible | ccPathReserve | 
+  ccRingout | ccSuspend | ccResume } 
+ 
+  ccbsRequest OPERATION ::= { 
+ ARGUMENT  CcRequestArg 
+ RESULT  CcRequestRes 
+ ERRORS{ 
+  shortTermRejection |  
+ longTermRejection | 
+ unspecified | 
+ supplementaryServiceInteractionNotAllowed 
+   } 
+ CODE  local: 40 
+ } 
+
+  ccnrRequest OPERATION ::= { 
+ ARGUMENT  CcRequestArg 
+ RESULT  CcRequestRes 
+ ERRORS{ 
+  shortTermRejection |  
+ longTermRejection | 
+ unspecified | 
+ supplementaryServiceInteractionNotAllowed 
+     } 
+ CODE  local: 27 
+ } 
+ 
+  ccCancel OPERATION ::= { 
+ ARGUMENT  CcOptionalArg 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE  local: 28 
+ } 
+ 
+  ccExecPossible OPERATION ::= { 
+ ARGUMENT  CcOptionalArg 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE  local: 29 
+ } 
+ 
+  ccPathReserve OPERATION ::= { 
+ ARGUMENT  CcExtension 
+ RESULT  CcExtension 
+  ERRORS {     
+ remoteUserBusyAgain | 
+ failureToMatch | 
+ failedDueToInterworking | 
+  unspecified   
+   } 
+ CODE  local: 30 
+ }
+
+  ccRingout OPERATION ::= { 
+ ARGUMENT  CcExtension 
+ RETURN RESULT  FALSE 
+  ERRORS{     
+ remoteUserBusyAgain | 
+ failureToMatch | 
+ unspecified  
+   } 
+ ALWAYS RESPONDS  FALSE 
+ CODE  local: 31 
+ } 
+   
+  ccSuspend OPERATION ::= { 
+ ARGUMENT  CcExtension 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE  local: 32 
+ } 
+ 
+  ccResume OPERATION ::= { 
+ ARGUMENT   CcExtension 
+ RETURN RESULT  FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE  local: 33 
+ } 
+ 
+-- TYPE DEFINITIONS FOR CC DATA TYPES FOLLOW 
+CcRequestArg ::= SEQUENCE {   
+ numberA  PresentedNumberUnscreened,  
+ numberB  PartyNumber, 
+ service  PSS1InformationElement,  
+  -- permitted information elements are: 
+  -- Bearer capability; Low layer compatibility; High layer compatibility 
+  subaddrA  [10]   PartySubaddress  OPTIONAL, 
+  subaddrB  [11]   PartySubaddress  OPTIONAL, 
+  can-retain-service  [12]   IMPLICIT  BOOLEAN DEFAULT FALSE,  
+ retain-sig-connection  [13]   IMPLICIT  BOOLEAN OPTIONAL,   
+  -- TRUE: signalling connection to be retained; 
+  -- FALSE: signalling connection to be released; 
+  -- omission: release or retain signalling connection-- 
+  extension  CcExtension  OPTIONAL   
+ }
+
+CcRequestRes ::= SEQUENCE{ 
+  no-path-reservation  [0] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  retain-service  [1] IMPLICIT BOOLEAN DEFAULT FALSE, 
+  extension  CcExtension  OPTIONAL   
+ } 
+ 
+CcOptionalArg ::= CHOICE{   
+  fullArg  [0] IMPLICIT SEQUENCE {  
+ numberA  PartyNumber, 
+ numberB  PartyNumber, 
+ service   PSS1InformationElement, 
+  -- permitted information elements are: 
+   --Bearer capability; 
+    -- Low layer compatibility; 
+    -- High layer compatibility. 
+ subaddrA  [10] PartySubaddress  OPTIONAL, 
+ subaddrB  [11] PartySubaddress  OPTIONAL, 
+  extension  CcExtension OPTIONAL  
+ }, 
+  extArg  CcExtension   
+ } 
+ 
+CcExtension ::= CHOICE {  
+ none    NULL, 
+  single    [14] IMPLICIT Extension{{CCExtSet}}, 
+  multiple    [15] IMPLICIT SEQUENCE OF Extension{{CCExtSet}} 
+ } 
+ 
+CCExtSet   EXTENSION   ::= {...} 
+ 
+-- DEFINITIONS FOR ERRORS FOLLOW     
+ 
+unspecified ERROR ::= { 
+ PARAMETER   Extension{{CCExtSet}} 
+  CODE  local: 1008 
+ } 
+ 
+shortTermRejection  ERROR  ::= { CODE  local: 1010} 
+longTermRejection  ERROR  ::= { CODE  local: 1011} 
+remoteUserBusyAgain  ERROR  ::= { CODE  local: 1012} 
+failureToMatch  ERROR  ::= { CODE  local: 1013} 
+failedDueToInterworking  ERROR  ::= { CODE  local: 1014} 
+ 
+ 
+END  -- of SS-CC-Operations-asn1-97

@@ -1,0 +1,104 @@
+-- QSIG-CO.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-192, 4th edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-192.htm
+--
+-- $Id$
+--
+
+Call-Offer-Operations-asn1-97 
+  {iso(1) standard(0) pss1-call-offer(14843) call-offer-operations-asn1-97 (2) } 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+   {joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM Manufacturer-specific-service-extension-class-asn1-97 
+   {iso(1) standard(0) 
+    pss1-generic-procedures(11582) msi-class-asn1-97 (11)} 
+ notAvailable, supplementaryServiceInteractionNotAllowed 
+   FROM General-Error-List 
+    {ccitt recommendation q 950 general-error-list (1)}; 
+ 
+Call-Offer-Operations OPERATION ::= { callOfferRequest | pathRetain | serviceAvailable | cfbOverride } 
+ 
+pathRetain OPERATION  ::= { 
+ ARGUMENT    PathRetainArg 
+   RETURN RESULT   FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE      local: 41} 
+    -- this operation may be used by other supplementary services  
+    -- using other values of argument 
+ 
+serviceAvailable   OPERATION  ::= { 
+ ARGUMENT  ServiceAvailableArg 
+ RETURN RESULT   FALSE 
+ ALWAYS RESPONDS  FALSE 
+ CODE      local: 42} 
+    -- this operation may be used by other supplementary services  
+    -- using other values of argument 
+
+callOfferRequest   OPERATION  ::= { 
+   ARGUMENT  DummyArg 
+   RESULT    DummyRes 
+   ERRORS  {  
+     notAvailable |  
+     notBusy |  
+     temporarilyUnavailable | 
+     supplementaryServiceInteractionNotAllowed |  
+     unspecified} 
+   CODE     local: 34} 
+ 
+PathRetainArg ::=  CHOICE  {serviceList       ServiceList, 
+      extendedServiceList   SEQUENCE{ 
+         serviceList     ServiceList, 
+         extension    Extension{{COExtSet}} 
+         } 
+      } 
+ 
+ServiceAvailableArg ::=  CHOICE  {serviceList       ServiceList, 
+      extendedServiceList   SEQUENCE{ 
+         serviceList     ServiceList, 
+         extension     Extension{{COExtSet}} 
+         } 
+      } 
+ 
+ServiceList  ::=  BIT STRING {callOffer(0)} (SIZE(1..32))  
+  -- bits other than callOffer(0) are reserved for 
+  -- other supplementary services 
+ 
+DummyArg ::=  CHOICE{ 
+     null     NULL, 
+     extension   [1] IMPLICIT Extension{{COExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{COExtSet}}} 
+ 
+DummyRes ::=  CHOICE{ 
+     null     NULL, 
+     extension   [1] IMPLICIT Extension{{COExtSet}}, 
+      sequenceOfExtn  [2] IMPLICIT SEQUENCE OF Extension{{COExtSet}}} 
+
+cfbOverride    OPERATION ::= { 
+   ARGUMENT   DummyArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE     local: 49} 
+    -- used in the interaction with Call Forwarding Busy 
+COExtSet EXTENSION ::= {...} 
+ 
+notBusy  ERROR  ::= { CODE    local: 1009} 
+  -- used when an SS-CO request is received in 
+  -- a Terminating PINX and the called user is not busy 
+ 
+temporarilyUnavailable  ERROR  ::= { CODE    local: 1000} 
+  -- used when conditions for invocation of SS-CO 
+  -- are momentarily not met 
+ 
+unspecified  ERROR ::= { 
+   PARAMETER   Extension{{ COExtSet}} 
+ CODE    local: 1008} 
+ 
+ 
+END  -- of Call-Offer-Operations-asn1-97 

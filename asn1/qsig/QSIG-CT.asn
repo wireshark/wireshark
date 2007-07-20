@@ -1,0 +1,231 @@
+-- QSIG-CT.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-178, 3rd edition (December 2001)
+-- http://www.ecma-international.org/publications/standards/Ecma-178.htm
+--
+-- $Id$
+--
+
+Call-Transfer-Operations-asn1-97 
+  {iso(1)  standard(0) pss1-call-transfer(13869) call-transfer-operations-asn1-97 (1)} 
+ 
+DEFINITIONS EXPLICIT TAGS ::= 
+ 
+BEGIN 
+ 
+ 
+IMPORTS  
+  OPERATION, ERROR FROM   
+Remote-Operations-Information-Objects {joint-iso-itu-t(2) remote-operations(4) informationObjects(5) version1(0)} 
+  EXTENSION, Extension{} FROM   
+Manufacturer-specific-service-extension-class-asn1-97 {iso(1) standard(0) pss1-generic-procedures (11582)  
+msi-class-asn1-97(11)} 
+  Name FROM  
+Name-Operations-asn1-97 {iso(1) standard(0) pss1-name (13868) name-operations-asn1-97 (1)}  
+ supplementaryServiceInteractionNotAllowed, 
+ notAvailable, 
+ invalidCallState FROM 
+General-Error-List {ccitt (0) recommendation (0) q 950  general-error-list (1)} 
+ PresentedAddressScreened,  
+ PresentedNumberScreened, 
+ PartyNumber,  
+ PartySubaddress FROM 
+Addressing-Data-Elements-asn1-97 {iso(1) standard(0) pss1-generic-procedures (11582)  
+addressing-data-elements-asn1-97 (20)} 
+ PSS1InformationElement  
+FROM PSS1-generic-parameters-definition-asn1-97 { iso(1) standard (0) pss1-generic-procedures (11582) 
+ pss1-generic-parameters-asn1-97 (17)}; 
+ 
+--  TYPE DEFINITIONS FOR CT OPERATIONS FOLLOW 
+ 
+Call-Transfer-Operations OPERATION ::= {callTransferIdentify  | callTransferAbandon  | callTransferInitiate  | 
+callTransferSetup | callTransferActive | callTransferComplete | callTransferUpdate | subaddressTransfer} 
+ 
+callTransferIdentify  OPERATION ::= { 
+   ARGUMENT  DummyArg 
+   RESULT   CTIdentifyRes 
+   ERRORS { 
+ notAvailable | 
+ invalidCallState | 
+ unspecified | 
+ supplementaryServiceInteractionNotAllowed} 
+   CODE   local: 7} 
+
+callTransferAbandon  OPERATION ::= { 
+   ARGUMENT    DummyArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE   local: 8} 
+ 
+callTransferInitiate   OPERATION ::= { 
+   ARGUMENT  CTInitiateArg 
+   RESULT   DummyRes 
+   ERRORS {   
+ notAvailable | 
+ invalidCallState | 
+ invalidRerouteingNumber | 
+ unrecognizedCallIdentity | 
+ establishmentFailure | 
+ unspecified | 
+ supplementaryServiceInteractionNotAllowed } 
+   CODE   local: 9} 
+ 
+callTransferSetup    OPERATION ::= { 
+   ARGUMENT   CTSetupArg 
+   RESULT   DummyRes 
+   ERRORS{ 
+ notAvailable | 
+ invalidCallState | 
+ invalidRerouteingNumber | 
+ unrecognizedCallIdentity | 
+ unspecified |  
+ supplementaryServiceInteractionNotAllowed } 
+   CODE   local: 10} 
+ 
+callTransferActive OPERATION::= { 
+   ARGUMENT    CTActiveArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE    local: 11} 
+ 
+callTransferComplete  OPERATION ::= { 
+   ARGUMENT    CTCompleteArg 
+   RETURN RESULT  FALSE 
+   ALWAYS RESPONDS  FALSE 
+   CODE    local: 12} 
+
+callTransferUpdate  OPERATION ::= { 
+  ARGUMENT    CTUpdateArg 
+  RETURN RESULT  FALSE 
+  ALWAYS RESPONDS FALSE 
+  CODE    local: 13} 
+ 
+subaddressTransfer  OPERATION ::= { 
+  ARGUMENT    SubaddressTransferArg 
+  RETURN RESULT  FALSE 
+  ALWAYS RESPONDS FALSE 
+  CODE    local: 14} 
+ 
+-- TYPE DEFINITIONS FOR CT DATA TYPES FOLLOW 
+ 
+DummyArg ::=  CHOICE { 
+ null   NULL, 
+  single  [1] IMPLICIT Extension{{CTExtSet}}, 
+  multiple  [2] IMPLICIT SEQUENCE OF  Extension{{CTExtSet}} 
+ } 
+ 
+DummyRes ::=  CHOICE { 
+ null   NULL, 
+  single  [1] IMPLICIT Extension{{CTExtSet}}, 
+  multiple  [2] IMPLICIT SEQUENCE OF  Extension{{CTExtSet}} 
+ } 
+ 
+CTIdentifyRes ::=  SEQUENCE { 
+ callIdentity  CallIdentity, 
+ rerouteingNumber  PartyNumber, 
+  resultExtension  CHOICE {  
+  single   [6] IMPLICIT Extension{{CTExtSet}},  
+    multiple   [7] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+ }   OPTIONAL 
+ } 
+ 
+CTInitiateArg ::=  SEQUENCE { 
+ callIdentity  CallIdentity, 
+ rerouteingNumber  PartyNumber, 
+  argumentExtension  CHOICE {  
+  single   [6] IMPLICIT Extension{{CTExtSet}},  
+    multiple   [7] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+ } OPTIONAL 
+ } 
+
+CTSetupArg ::=  SEQUENCE { 
+ callIdentity  CallIdentity, 
+ argumentExtension  CHOICE { 
+  single   [0] IMPLICIT Extension{{CTExtSet}},  
+    multiple   [1] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+ } OPTIONAL 
+ } 
+ 
+CTActiveArg ::=  SEQUENCE{ 
+ connectedAddress  PresentedAddressScreened, 
+  basicCallInfoElements  PSS1InformationElement   OPTIONAL,  
+        -- ISO/IEC 11572 information element 
+        -- Progress indicator is conveyed 
+ connectedName  Name   OPTIONAL, 
+  argumentExtension  CHOICE {  
+  single   [9] IMPLICIT Extension{{CTExtSet}},  
+    multiple   [10] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+ } OPTIONAL 
+ } 
+ 
+CTCompleteArg ::=  SEQUENCE { 
+ endDesignation  EndDesignation, 
+ redirectionNumber  PresentedNumberScreened, 
+  basicCallInfoElements  PSS1InformationElement    OPTIONAL, 
+        -- ISO/IEC 11572 information element 
+        -- Progress indicator is conveyed 
+ redirectionName  Name   OPTIONAL, 
+  callStatus  CallStatus DEFAULT  answered, 
+ argumentExtension  CHOICE { 
+  single   [9] IMPLICIT Extension{{CTExtSet}},  
+    multiple    [10] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+ } OPTIONAL 
+ } 
+ 
+CTUpdateArg ::=  SEQUENCE { 
+ redirectionNumber  PresentedNumberScreened, 
+ redirectionName  Name   OPTIONAL, 
+  basicCallInfoElements  PSS1InformationElement    OPTIONAL, 
+  -- ISO/IEC 11572 information element 
+  -- Progress indicator is conveyed 
+  argumentExtension  CHOICE {  
+  single   [9] IMPLICIT Extension{{CTExtSet}},  
+    multiple   [10] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+   }OPTIONAL  } 
+
+SubaddressTransferArg ::=  SEQUENCE { 
+ redirectionSubaddress  PartySubaddress, 
+  argumentExtension  CHOICE {  
+  single   [0] IMPLICIT Extension{{CTExtSet}},  
+    multiple   [1] IMPLICIT SEQUENCE OF Extension{{CTExtSet}} 
+ } OPTIONAL 
+ } 
+ 
+CallStatus ::=  ENUMERATED{ 
+ answered(0), 
+ alerting(1)  
+ } 
+ 
+CallIdentity ::=  NumericString (SIZE (1..4)) 
+ 
+EndDesignation ::=  ENUMERATED { 
+ primaryEnd(0), 
+ secondaryEnd(1)  
+ } 
+ 
+CTExtSet EXTENSION ::= {...} 
+ 
+unspecified  ERROR  ::= {  
+    PARAMETER Extension {{CTExtSet}} 
+    CODE local: 1008 } 
+ 
+ 
+invalidRerouteingNumber  ERROR ::= {  CODE local: 1004} 
+  -- used when establishment of the new 
+  -- connection fails because 
+  -- the rerouteingNumber is not a valid 
+  -- PISN address 
+ 
+unrecognizedCallIdentity  ERROR ::= {  CODE local: 1005} 
+  -- used when establishment of the new 
+  -- connection fails because it could not be 
+  -- associated with a SS-CT entity 
+  -- at the Secondary PINX 
+ 
+establishmentFailure  ERROR ::= {  CODE local: 1006} 
+  -- used when establishment of the new 
+  -- connection fails and no other error applies 
+  -- of Call-Transfer-Operations 
+ 
+END -- of Call-Transfer-Operations-asn1-97 

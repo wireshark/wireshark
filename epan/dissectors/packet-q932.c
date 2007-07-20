@@ -1004,6 +1004,8 @@ void proto_register_q932(void) {
   q932_rose_ctx.res_global_dissector_table = register_dissector_table("q932.ros.global.res", "Q.932 Operation Result (global opcode)", FT_STRING, BASE_NONE);
   q932_rose_ctx.arg_local_dissector_table = register_dissector_table("q932.ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
   q932_rose_ctx.res_local_dissector_table = register_dissector_table("q932.ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
+  q932_rose_ctx.err_global_dissector_table = register_dissector_table("q932.ros.global.err", "Q.932 Error (global opcode)", FT_STRING, BASE_NONE);
+  q932_rose_ctx.err_local_dissector_table = register_dissector_table("q932.ros.local.err", "Q.932 Error (local opcode)", FT_UINT32, BASE_HEX); 
 }
 
 /*--- proto_reg_handoff_q932 ------------------------------------------------*/
