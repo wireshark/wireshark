@@ -6,18 +6,20 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg548"
    sodipodi:version="0.32"
    width="210mm"
    height="297mm"
-   sodipodi:docbase="/home/gerald/devel/wsweb/material"
+   sodipodi:docbase="/home/gerald/devel/wireshark/image"
    sodipodi:docname="wslogo.svg"
-   inkscape:version="0.42"
+   inkscape:version="0.45"
    inkscape:export-filename="/home/gerald/devel/wsweb/wslogotrans800.png"
-   inkscape:export-xdpi="181.64000"
-   inkscape:export-ydpi="181.64000">
+   inkscape:export-xdpi="181.24001"
+   inkscape:export-ydpi="181.24001"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:modified="TRUE">
   <metadata
      id="metadata1317">
     <rdf:RDF>
@@ -35,13 +37,13 @@
      id="base"
      showgrid="true"
      showguides="true"
-     inkscape:zoom="2.1302710"
+     inkscape:zoom="2.130271"
      inkscape:cx="431.18454"
      inkscape:cy="582.92903"
      inkscape:window-width="1262"
      inkscape:window-height="874"
-     inkscape:window-x="324"
-     inkscape:window-y="68"
+     inkscape:window-x="405"
+     inkscape:window-y="52"
      inkscape:current-layer="svg548"
      inkscape:guide-bbox="true" />
   <text
@@ -75,4 +77,14 @@
      inkscape:export-filename="/home/gerald/devel/wsweb/image/wslogo.png"
      inkscape:export-xdpi="90.000000"
      inkscape:export-ydpi="90.000000" />
+  <text
+     id="text4138"
+     y="413.71448"
+     x="574.64508"
+     style="font-size:13.94218159px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+     xml:space="preserve"><tspan
+       y="413.71448"
+       x="574.64508"
+       id="tspan4140"
+       sodipodi:role="line">®</tspan></text>
 </svg>
