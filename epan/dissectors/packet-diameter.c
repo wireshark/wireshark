@@ -59,9 +59,8 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 #include "packet-sip.h"
+#include "packet-ntp.h"
 #include "diam_dict.h"
-
-#define  NTP_TIME_DIFF                   (2208988800U)
 
 #define TCP_PORT_DIAMETER	3868
 #define SCTP_PORT_DIAMETER	3868
@@ -139,7 +138,7 @@ typedef struct _diam_dictionary_t {
 	value_string* commands;
 } diam_dictionary_t;
 
-typedef diam_avp_t* (*avp_constructor_t)(const avp_type_t*, guint32, const diam_vnd_t*, const char*,  const value_string*);
+typedef diam_avp_t* (*avp_constructor_t)(const avp_type_t*, guint32, const diam_vnd_t*, const char*,  const value_string*, void*);
 
 struct _avp_type_t {
 	char* name;
@@ -166,6 +165,18 @@ typedef struct _address_avp_t {
 	int hf_other;
 } address_avp_t;
 
+typedef enum {
+	REASEMBLE_NEVER = 0,
+	REASEMBLE_AT_END, 
+	REASEMBLE_BY_LENGTH
+} avp_reassemble_mode_t;
+
+typedef struct _proto_avp_t {
+	char* name;
+	dissector_handle_t handle;
+	avp_reassemble_mode_t reassemble_mode; 
+} proto_avp_t;
+
 static const char* simple_avp(diam_ctx_t*, diam_avp_t*, tvbuff_t*);
 
 static value_string no_vs[] = {{0, NULL} };
@@ -176,6 +187,8 @@ static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1,
 static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
 static struct _build_dict build_dict;
 static value_string* vnd_short_vs;
+static dissector_handle_t data_handle;
+
 static const true_false_string reserved_set = {
 	"Set",
 	"Unset"
@@ -411,6 +424,43 @@ static const char* address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) 
 	
 	proto_item_fill_label(pi->finfo, label);
 	label = strstr(label,": ")+2;
+	return label;
+}
+
+static const char* proto_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	proto_avp_t* t = a->type_data;
+	
+	col_set_writable(c->pinfo->cinfo, FALSE);
+
+	if (!t->handle) {
+		t->handle = find_dissector(t->name);
+		if(!t->handle) t->handle = data_handle;
+	}
+	
+	call_dissector(t->handle, tvb, c->pinfo, c->tree);
+	
+	return "";
+}
+
+static const char* time_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
+	int len = tvb_length_remaining(tvb,0);
+	guint8 ntptime[8] = {0,0,0,0,0,0,0,0};
+	char* label;
+	proto_item* pi;
+	
+	if ( len != 4 ) {
+		proto_item* pi = proto_tree_add_text(c->tree, tvb, 0, 4,
+											 "Error! AVP value MUST be 4 bytes");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+							   "Bad Timestamp Length (%u)", len);
+		return "[Malformed]";
+	}
+	
+	pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, FALSE);
+	tvb_memcpy(tvb,ntptime,0,4);
+	label = ntp_fmt_ts(ntptime);
+	proto_item_append_text(pi,"  %s",label);
 	return label;
 }
 
@@ -684,7 +734,8 @@ static diam_avp_t* build_address_avp(const avp_type_t* type _U_,
 									 guint32 code,
 									 const diam_vnd_t* vendor,
 									 const char* name,
-									 const value_string* vs _U_) {
+									 const value_string* vs _U_,
+									 void* data _U_) {
 	diam_avp_t* a = g_malloc0(sizeof(diam_avp_t));
 	address_avp_t* t = g_malloc(sizeof(address_avp_t));
 	gint* ettp = &(t->ett);
@@ -726,12 +777,39 @@ static diam_avp_t* build_address_avp(const avp_type_t* type _U_,
 	return a;
 }
 
+static diam_avp_t* build_proto_avp(const avp_type_t* type _U_,
+								   guint32 code,
+								   const diam_vnd_t* vendor,
+								   const char* name _U_,
+								   const value_string* vs _U_,
+								   void* data) {
+	diam_avp_t* a = g_malloc0(sizeof(diam_avp_t));
+	proto_avp_t* t = g_malloc0(sizeof(proto_avp_t));
+	gint* ettp = &(a->ett);
+	
+	a->code = code;
+	a->vendor = vendor;
+	a->dissector_v16 = proto_avp;
+	a->dissector_rfc = proto_avp;
+	a->ett = -1;
+	a->hf_value = -2;
+	a->type_data = t;
+	
+	t->name = data;
+	t->handle = NULL;
+	t->reassemble_mode = 0;
+	
+	g_array_append_vals(build_dict.ett,&ettp,1);
+	
+	return a;
+}
 
 static diam_avp_t* build_simple_avp(const avp_type_t* type,
 									guint32 code,
 									const diam_vnd_t* vendor,
 									const char* name,
-									const value_string* vs) {
+									const value_string* vs,
+									void* data _U_) {
 	diam_avp_t* a = g_malloc0(sizeof(diam_avp_t));
 	a->code = code;
 	a->vendor = vendor;
@@ -746,25 +824,27 @@ static diam_avp_t* build_simple_avp(const avp_type_t* type,
 }
 
 
+
 static const avp_type_t basic_types[] = {
-	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE , build_simple_avp },
-	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp },
-	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE , build_simple_avp },
-	{"integer32"				, simple_avp	, simple_avp	, FT_INT32			, BASE_DEC	, build_simple_avp },
-	{"unsigned32"				, simple_avp	, simple_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp },
-	{"integer64"				, simple_avp	, simple_avp	, FT_INT64			, BASE_DEC	, build_simple_avp },
-	{"unsigned64"				, simple_avp	, simple_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp },
-	{"float32"					, simple_avp	, simple_avp	, FT_FLOAT			, BASE_DEC	, build_simple_avp },
-	{"float64"					, simple_avp	, simple_avp	, FT_DOUBLE			, BASE_DEC	, build_simple_avp },
+	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE , build_simple_avp  },
+	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
+	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE , build_simple_avp  },
+	{"integer32"				, simple_avp	, simple_avp	, FT_INT32			, BASE_DEC	, build_simple_avp  },
+	{"unsigned32"				, simple_avp	, simple_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
+	{"integer64"				, simple_avp	, simple_avp	, FT_INT64			, BASE_DEC	, build_simple_avp  },
+	{"unsigned64"				, simple_avp	, simple_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp  },
+	{"float32"					, simple_avp	, simple_avp	, FT_FLOAT			, BASE_DEC	, build_simple_avp  },
+	{"float64"					, simple_avp	, simple_avp	, FT_DOUBLE			, BASE_DEC	, build_simple_avp  },
 	{"ipaddress"				,  NULL			, NULL			, FT_NONE			, BASE_NONE , build_address_avp },
-	{"time"						, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp },
-/*	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE , build_simple_avp },
-	{"diameteridentity"			, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE , build_simple_avp },
-	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE , build_simple_avp },
-	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE , build_simple_avp },
-	{"mipregistrationrequest"	, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE , build_simple_avp }, */
+	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE , build_simple_avp  },
+	{"diameteridentity"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE , build_simple_avp  },
+	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE , build_simple_avp  },
+	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE , build_simple_avp  },
+	{"time"						, time_avp		, time_avp		, FT_UINT32			, BASE_DEC	, build_simple_avp  },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
+
+
 
 static guint strcase_hash(gconstpointer key) {
 	char* k = ep_strdup(key);
@@ -895,7 +975,9 @@ extern int dictionary_load(void) {
 		ddict_enum_t* e;
 		value_string* vs = NULL;
 		const char* vend = a->vendor ? a->vendor : "None";
-
+		ddict_xmlpi_t* x;
+		void* avp_data = NULL;
+		
 		if ((vnd = g_hash_table_lookup(vendors,vend))) {
 			value_string vndvs = {a->code,a->name};
 			g_array_append_val(vnd->vs_avps,vndvs);
@@ -914,11 +996,26 @@ extern int dictionary_load(void) {
 			vs = (void*)arr->data;
 		}
 
-		if (! a->type || ! ( type = g_hash_table_lookup(build_dict.types,a->type) ) ) {
-			type = bytes;
+		type = NULL;
+
+		for( x = d->xmlpis; x; x = x->next ) {
+			if ( (strcase_equal(x->name,"avp-proto") && strcase_equal(x->key,a->name))
+				 || (a->type && strcase_equal(x->name,"type-proto") && strcase_equal(x->key,a->type))
+				 ) {
+				static avp_type_t proto_type = {"proto", proto_avp, proto_avp, FT_UINT32, BASE_NONE, build_proto_avp}; 
+				type =  &proto_type;
+				
+				avp_data = x->value;
+				break;
+			}
 		}
 
-		avp = type->build( type, a->code, vnd, a->name, vs);
+		if ( (!type) && a->type )
+			type = g_hash_table_lookup(build_dict.types,a->type);
+			
+		if (!type) type = bytes;
+
+		avp = type->build( type, a->code, vnd, a->name, vs, avp_data);
 		g_hash_table_insert(build_dict.avps, a->name, avp);
 
 		{
@@ -948,6 +1045,8 @@ proto_reg_handoff_diameter(void)
 	static dissector_handle_t diameter_tcp_handle;
 	static dissector_handle_t diameter_handle;
 
+	data_handle = find_dissector("data");
+	
 	if (!Initialized) {
 		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 													  proto_diameter);

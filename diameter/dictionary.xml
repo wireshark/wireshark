@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
+
+<?type-proto key="MIPRegistrationRequest" value="mip" ?>
+<?avp-proto key="Example-AVP" value="data" ?>
+
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
 	<!ENTITY nasreq SYSTEM "nasreq.xml">
 	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
@@ -1608,18 +1612,17 @@
 				<gavp name="Originator"/>
 			</grouped>
 		</avp>
-<!-- 
-890 WAG-Address Address
-891 WAG-PLMN-Id OctetString
-892 WLAN-Radio-Container Grouped
-893 WLAN-Technology Unsigned32
-894 WLAN-UE-Local-IPAddress Address
-895 PDG-Address Address
-896 PDG-Charging-Id Unsigned32
-897 Address-Data UTF8String
-898 Address-Domain Grouped
-899 Address-Type Enumerated
--->		
+<avp name="WAG-Address" code="890"><type type-name="Address"/></avp>
+<avp name="WAG-PLMN-Id" code="891"><type type-name="OctetString"/></avp>
+<avp name="WLAN-Radio-Container" code="892"><type type-name="Grouped"/></avp>
+<avp name="WLAN-Technology" code="893"><type type-name="Unsigned32"/></avp>
+<avp name="WLAN-UE-Local-IPAddress" code="894"><type type-name="Address"/></avp>
+<avp name="PDG-Address" code="895"><type type-name="Address"/></avp>
+<avp name="PDG-Charging-Id" code="896"><type type-name="Unsigned32"/></avp>
+<avp name="Address-Data" code="897"><type type-name="UTF8String"/></avp>
+<avp name="Address-Domain" code="898"><type type-name="Grouped"/></avp>
+<avp name="Address-Type" code="899"><type type-name="Enumerated"/></avp>
+
 		<!-- 3GPP TS 29.061 version 6.5.0 Release 6 -->
 
 		<avp name="TMGI" code="900" mandatory="must">
@@ -1676,66 +1679,65 @@
 		<avp name="MBMS-Session-Identity-Repetition-Number " code="912" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
+<avp name="MBMS-Required-QoS" code="913"><type type-name="UTF8String"/></avp>
+<avp name="MBMS-Counting-Information" code="914"><type type-name="Enumerated"/></avp>
 <!--
-913 MBMS-Required-QoS UTF8String
-914 MBMS-Counting-Information Enumerated
 Note: The AVP codes from 915 to 999 are reserved for TS 29.061
 29.210
-1000 Bearer-Usage Enumerated
-1001 Charging-Rule-Install Grouped
-1002 Charging-Rule-Remove Grouped
 -->
-1003 Charging-Rule-Definition Grouped
+<avp name="Bearer-Usage" code="1000"><type type-name="Enumerated"/></avp>
+<avp name="Charging-Rule-Install" code="1001"><type type-name="Grouped"/></avp>
+<avp name="Charging-Rule-Remove" code="1002"><type type-name="Grouped"/></avp>
+<avp name="Charging-Rule-Definition" code="1003"><type type-name="Grouped"/></avp>
 		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
+<avp name="Charging-Rule-Name" code="1005"><type type-name="OctetString"/></avp>
+<avp name="Event-Trigger" code="1006"><type type-name="Enumerated"/></avp>
+<avp name="Metering-Method" code="1007"><type type-name="Enumerated"/></avp>
+<avp name="Offline" code="1008"><type type-name="Enumerated"/></avp>
+<avp name="Online" code="1009"><type type-name="Enumerated"/></avp>
+<avp name="Precedence" code="1010"><type type-name="Unsigned32"/></avp>
+<avp name="Reporting-Level" code="1011"><type type-name="Enumerated"/></avp>
+<avp name="TFT-Filter" code="1012"><type type-name="IPFilterRule"/></avp>
+<avp name="TFT-Packet-Filter-Information" code="1013"><type type-name="Enumerated"/></avp>
+<avp name="ToS-Traffic-Class" code="1014"><type type-name="OctetString"/></avp>
 <!--
-1005 Charging-Rule-Name OctetString
-1006 Event-Trigger Enumerated
-1007 Metering-Method Enumerated
-1008 Offline Enumerated
-1009 Online Enumerated
-1010 Precedence Unsigned32
-1011 Reporting-Level Enumerated
-1012 TFT-Filter IPFilterRule
-1013 TFT-Packet-Filter-Information Enumerated
-1014 ToS-Traffic-Class OctetString
 29.210 [15]
 Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
 -->
 <!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
-<!--
-1100 Served-User-Identity Groupe
-1101 VASP-ID UTF8Str
-1102 VAS-ID UTF8Str
-1103 Trigger-Event Enumer
-1104 Sender-Address UTF8Str
-1105 Initial-Recipient-Address Groupe
-1106 Result-Recipient-Address Groupe
-1107 Sequence-Number Unsigne
-1108 Recipient-Address UTF8Str
-1109 Routeing-Address UTF8Str
-1110 Originating-Interface Enumer
-1111 Delivery-Report Enumer
-1112 Read-Reply Enumer
-1113 Sender-Visibility Enumer
-1114 Service-Key UTF8Str
-1115 Billing-Information UTF8Str
-1116 Status Group
-1117 Status-Code UTF8Str
-1118 Status-Text UTF8Str
-29.140 [16]
+<avp name="Served-User-Identity" code="1100"><type type-name="Groupe"/></avp>
+<avp name="VASP-ID" code="1101"><type type-name="UTF8Str"/></avp>
+<avp name="VAS-ID" code="1102"><type type-name="UTF8Str"/></avp>
+<avp name="Trigger-Event" code="1103"><type type-name="Enumer"/></avp>
+<avp name="Sender-Address" code="1104"><type type-name="UTF8Str"/></avp>
+<avp name="Initial-Recipient-Address" code="1105"><type type-name="Groupe"/></avp>
+<avp name="Result-Recipient-Address" code="1106"><type type-name="Groupe"/></avp>
+<avp name="Sequence-Number" code="1107"><type type-name="Unsigne"/></avp>
+<avp name="Recipient-Address" code="1108"><type type-name="UTF8Str"/></avp>
+<avp name="Routeing-Address" code="1109"><type type-name="UTF8Str"/></avp>
+<avp name="Originating-Interface" code="1110"><type type-name="Enumer"/></avp>
+<avp name="Delivery-Report" code="1111"><type type-name="Enumer"/></avp>
+<avp name="Read-Reply" code="1112"><type type-name="Enumer"/></avp>
+<avp name="Sender-Visibility" code="1113"><type type-name="Enumer"/></avp>
+<avp name="Service-Key" code="1114"><type type-name="UTF8Str"/></avp>
+<avp name="Billing-Information" code="1115"><type type-name="UTF8Str"/></avp>
+<avp name="Status" code="1116"><type type-name="Group"/></avp>
+<avp name="Status-Code" code="1117"><type type-name="UTF8Str"/></avp>
+<avp name="Status-Text" code="1118"><type type-name="UTF8Str"/></avp>
+<!--29.140 [16]
 Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 32.299
-1200 Domain-Name UTF8String
-1201 Recipient-Address Grouped
-1202 Submission-Time Time
-1203 MM-Content-Type Grouped
-1204 Type-Number Enumerated
-1205 Additional-Type-Information UTF8String
-1206 Content-Size Unsigned32
 -->
+<avp name="Domain-Name" code="1200"><type type-name="UTF8String"/></avp>
+<avp name="Recipient-Address" code="1201"><type type-name="Grouped"/></avp>
+<avp name="Submission-Time" code="1202"><type type-name="Time"/></avp>
+<avp name="MM-Content-Type" code="1203"><type type-name="Grouped"/></avp>
+<avp name="Type-Number" code="1204"><type type-name="Enumerated"/></avp>
+<avp name="Additional-Type-Information" code="1205"><type type-name="UTF8String"/></avp>
+<avp name="Content-Size" code="1206"><type type-name="Unsigned32"/></avp>
 		<avp name="Content-Size" code="1205" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -1745,28 +1747,26 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="SGSN-Address" code="1228" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
-<!--
-1209 Priority Enumerated
-1210 Message-ID UTF8String
-1211 Message-Type Enumerated
-1212 Message-Size Unsigned32
-1213 Message-Class Grouped
-1214 Class-Identifier Enumerated
-1215 Token-Text UTF8String
-1216 Delivery-Report-Requested Enumerated
-1217 Adaptations Enumerated
-1218 Applic-ID UTF8String
-1219 Aux-Applic-Info UTF8String
-1220 Content-Class Enumerated
-1221 DRM-Content Enumerated
-1222 Read-Reply-Report-Requested Enumerated
-1223 Reply-Applic-ID UTF8String
-1224 File-Repair-Supported Enumerated
-1225 MBMS-User-Service-Type Enumerated
-1226 Unit-Quota-Threshold Unsigned32
-1227 PDP-Address Address
-1228 SGSN-Address Address
--->
+<avp name="Priority" code="1209"><type type-name="Enumerated"/></avp>
+<avp name="Message-ID" code="1210"><type type-name="UTF8String"/></avp>
+<avp name="Message-Type" code="1211"><type type-name="Enumerated"/></avp>
+<avp name="Message-Size" code="1212"><type type-name="Unsigned32"/></avp>
+<avp name="Message-Class" code="1213"><type type-name="Grouped"/></avp>
+<avp name="Class-Identifier" code="1214"><type type-name="Enumerated"/></avp>
+<avp name="Token-Text" code="1215"><type type-name="UTF8String"/></avp>
+<avp name="Delivery-Report-Requested" code="1216"><type type-name="Enumerated"/></avp>
+<avp name="Adaptations" code="1217"><type type-name="Enumerated"/></avp>
+<avp name="Applic-ID" code="1218"><type type-name="UTF8String"/></avp>
+<avp name="Aux-Applic-Info" code="1219"><type type-name="UTF8String"/></avp>
+<avp name="Content-Class" code="1220"><type type-name="Enumerated"/></avp>
+<avp name="DRM-Content" code="1221"><type type-name="Enumerated"/></avp>
+<avp name="Read-Reply-Report-Requested" code="1222"><type type-name="Enumerated"/></avp>
+<avp name="Reply-Applic-ID" code="1223"><type type-name="UTF8String"/></avp>
+<avp name="File-Repair-Supported" code="1224"><type type-name="Enumerated"/></avp>
+<avp name="MBMS-User-Service-Type" code="1225"><type type-name="Enumerated"/></avp>
+<avp name="Unit-Quota-Threshold" code="1226"><type type-name="Unsigned32"/></avp>
+<avp name="PDP-Address" code="1227"><type type-name="Address"/></avp>
+<avp name="SGSN-Address" code="1228"><type type-name="Address"/></avp>
 		<avp name="PoC-Session-Id" code="1229" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
@@ -1849,24 +1849,26 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="Positioning-Data" code="1245" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
 		</avp>
+<avp name="WLAN-Session-Id" code="1246"><type type-name="UTF8String"/></avp>
+<avp name="PDP-Context-Type" code="1247"><type type-name="Enumerated"/></avp>
+<avp name="MMBox-Storage-Requested" code="1248"><type type-name="Enumerated"/></avp>
+<avp name="Number-Of-Talk-Burst" code="1249"><type type-name="Unsigned32"/></avp>
+<avp name="Called-Asserted-Identity" code="1250"><type type-name="UTF8String"/></avp>
+<avp name="Requested-Party-Address" code="1251"><type type-name="UTF8String"/></avp>
 <!--
-1246 WLAN-Session-Id UTF8String
-1247 PDP-Context-Type Enumerated
-1248 MMBox-Storage-Requested Enumerated
-1249 Number-Of-Talk-Burst Unsigned32
-1250 Called-Asserted-Identity UTF8String
-1251 Requested-Party-Address UTF8String
 1252 Reserved
 1253 Reserved
 1254 Reserved
-1255 Talk-Burst-Exchange Grouped
-1256 Talk-Burst-Volume Unsigned32
-1257 Talk-Burst-Time Unsigned32
-1258 Number-Of-Received-Talk-Bursts Enumerated
-1259 Received-Talk-Burst-Volume Unsigned32
-1260 Received-Talk-Burst-Time Unsigned32
-1261 PoC-Change-Conditions Enumerated
-1262 PoC-Change-Time Time
+-->
+<avp name="Talk-Burst-Exchange" code="1255"><type type-name="Grouped"/></avp>
+<avp name="Talk-Burst-Volume" code="1256"><type type-name="Unsigned32"/></avp>
+<avp name="Talk-Burst-Time" code="1257"><type type-name="Unsigned32"/></avp>
+<avp name="Number-Of-Received-Talk-Bursts" code="1258"><type type-name="Enumerated"/></avp>
+<avp name="Received-Talk-Burst-Volume" code="1259"><type type-name="Unsigned32"/></avp>
+<avp name="Received-Talk-Burst-Time" code="1260"><type type-name="Unsigned32"/></avp>
+<avp name="PoC-Change-Conditions" code="1261"><type type-name="Enumerated"/></avp>
+<avp name="PoC-Change-Time" code="1262"><type type-name="Time"/></avp>
+<!--
 Note: The AVP codes from 1263 to 1299 are reserved for TS 32.299
 -->
 

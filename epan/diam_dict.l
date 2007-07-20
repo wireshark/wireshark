@@ -42,6 +42,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include "emem.h"
 #include "diam_dict.h"
 
 typedef struct entity_t {
@@ -80,6 +81,7 @@ static ddict_gavp_t* gavp;
 static ddict_typedefn_t* typedefn;
 static ddict_cmd_t* cmd;
 static ddict_vendor_t* vnd;
+static ddict_xmlpi_t* xmlpi;
 
 static ddict_application_t* last_appl;
 static ddict_avp_t* last_avp;
@@ -88,6 +90,7 @@ static ddict_gavp_t* last_gavp;
 static ddict_typedefn_t* last_typedefn;
 static ddict_cmd_t* last_cmd;
 static ddict_vendor_t* last_vnd;
+static ddict_xmlpi_t* last_xmlpi;
 
 static char** attr_str;
 static unsigned* attr_uint;
@@ -101,6 +104,8 @@ static FILE* ddict_open(const char*, const char*);
 
 xmlpi_start [[:blank:] \r\n]*<\?[[:blank:] \r\n]*
 xmlpi_end [[:blank:] \r\n]*\?>[[:blank:] \r\n]*
+xmlpi_key_attr [[:blank:] \r\n]*key[[:blank:] \r\n]*=[[:blank:] \r\n]*\042
+xmlpi_value_attr [[:blank:] \r\n]*value[[:blank:] \r\n]*=[[:blank:] \r\n]*\042
 
 comment_start [[:blank:] \r\n]*<!--[[:blank:] \r\n]*
 comment_end [[:blank:] \r\n]*-->[[:blank:] \r\n]*
@@ -117,11 +122,11 @@ doctype_end [[:blank:] \r\n]*\][[:blank:] \r\n]*>[[:blank:] \r\n]*
 
 start_entity [[:blank:] \r\n]*<\!ENTITY[[:blank:] \r\n]*
 system [[:blank:] \r\n]*SYSTEM[[:blank:] \r\n]*\042
-entityname [a-z0-9]+
+entityname [a-z0-9-]+
 ndquot [^\042]+
 end_entity \042[[:blank:] \r\n]*>[[:blank:] \r\n]*
 
-entity \&[a-z0-9]+;
+entity \&[a-z0-9-]+;
 
 any .
 
@@ -175,7 +180,7 @@ description_attr description=\042
 %S LOADING LOADING_COMMENT LOADING_XMLPI ENTITY GET_SYSTEM GET_FILE END_ENTITY
 %S GET_ATTR GET_UINT_ATTR END_ATTR OUTSIDE IN_DICT IN_APPL IN_AVP APPL_ATTRS IGNORE_ATTR
 %S TYPE_ATTRS GAVP_ATTRS ENUM_ATTRS AVP_ATTRS VENDOR_ATTRS COMMAND_ATTRS TYPEDEFN_ATTRS
-	
+%S XMLPI_ATTRS XMLPI_GETKEY XMLPI_GETVAL XMLPI_ENDATTR
 %% 
 <LOADING>{doctype} ;
 <LOADING>{doctype_end} ;
@@ -185,8 +190,29 @@ description_attr description=\042
 <LOADING_COMMENT>{comment_end} BEGIN LOADING;
 
 <LOADING>{xmlpi_start} BEGIN LOADING_XMLPI;
-<LOADING_XMLPI>. ;
-<LOADING_XMLPI>{xmlpi_end} BEGIN LOADING;
+<LOADING_XMLPI>{whitespace} ;
+<LOADING_XMLPI>{entityname} {
+	xmlpi = g_malloc(sizeof(ddict_xmlpi_t));
+	xmlpi->name = g_strdup(yytext);
+	xmlpi->key = NULL;
+	xmlpi->value = NULL;
+	xmlpi->next = NULL;
+	
+	if (!dict->xmlpis) last_xmlpi = dict->xmlpis = xmlpi;
+	else last_xmlpi = last_xmlpi->next = xmlpi;
+	
+	BEGIN XMLPI_ATTRS;
+}
+
+<XMLPI_ATTRS>{xmlpi_key_attr} BEGIN XMLPI_GETKEY;
+<XMLPI_GETKEY>{ndquot} { xmlpi->key = strdup(yytext); BEGIN XMLPI_ATTRS; }
+
+<XMLPI_ATTRS>{xmlpi_value_attr} BEGIN XMLPI_GETVAL;
+<XMLPI_GETVAL>{ndquot} { xmlpi->value = strdup(yytext); BEGIN XMLPI_ATTRS; }
+
+<XMLPI_ATTRS>.
+<XMLPI_ATTRS>{xmlpi_end} BEGIN LOADING;
+
 
 <LOADING>{start_entity} BEGIN ENTITY;
 <ENTITY>{entityname} {
@@ -307,12 +333,6 @@ description_attr description=\042
 
 <OUTSIDE>{dictionary_start} {
 	D(("dictionary_start\n"));
-	dict = g_malloc(sizeof(ddict_t));
-	dict->applications = NULL;
-	dict->cmds = NULL;
-	dict->vendors = NULL;
-	dict->typedefns = NULL;
-	dict->avps = NULL;
 
 	BEGIN IN_DICT;
 }
@@ -604,15 +624,15 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	
 	write_ptr = NULL;
 	read_ptr = NULL;
+		
+	dict = g_malloc(sizeof(ddict_t));
+	dict->applications = NULL;
+	dict->cmds = NULL;
+	dict->vendors = NULL;
+	dict->typedefns = NULL;
+	dict->avps = NULL;
+	dict->xmlpis = NULL;
 	
-	ents.next = NULL;
-	current_yyinput = file_input;
-	BEGIN LOADING;
-	yylex();
-
-	D(("\n---------------\n%s\n------- %d -------\n",strbuf,len_strbuf));
-	
-	dict = NULL;
 	appl = NULL;
 	avp = NULL;
 	enumitem = NULL;
@@ -620,6 +640,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	typedefn = NULL;
 	cmd = NULL;
 	vnd = NULL;
+	xmlpi = NULL;
 	
 	last_appl = NULL;
 	last_avp = NULL;
@@ -628,7 +649,15 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	last_typedefn = NULL;
 	last_cmd = NULL;
 	last_vnd = NULL;
+	last_xmlpi = NULL;
 
+	ents.next = NULL;
+	current_yyinput = file_input;
+	BEGIN LOADING;
+	yylex();
+	
+	D(("\n---------------\n%s\n------- %d -------\n",strbuf,len_strbuf));
+	
 	current_yyinput = string_input;
 
 	BEGIN OUTSIDE;

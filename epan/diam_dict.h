@@ -66,12 +66,20 @@ typedef struct _ddict_cmd_t {
 	struct _ddict_cmd_t* next;
 } ddict_cmd_t;
 
+typedef struct _ddict_xmlpi_t {
+	char* name;
+	char* key;
+	char* value;
+	struct _ddict_xmlpi_t* next;
+} ddict_xmlpi_t;
+
 typedef struct _ddict_t {
 	ddict_application_t* applications;
 	ddict_vendor_t* vendors;
 	ddict_cmd_t* cmds;
 	ddict_typedefn_t* typedefns;
 	ddict_avp_t* avps;
+	ddict_xmlpi_t* xmlpis;
 } ddict_t;
 
 extern void ddict_print(FILE* fh, ddict_t* d);
