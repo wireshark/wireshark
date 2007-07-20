@@ -1,3 +1,4 @@
+
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
@@ -184,6 +185,7 @@ static GArray no_garr = { (void*)no_vs, 1 };
 static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_garr };
 static diam_vnd_t no_vnd = { 0, NULL, NULL };
 static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1, -1, NULL };
+static GArray* all_cmds;
 static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
 static struct _build_dict build_dict;
 static value_string* vnd_short_vs;
@@ -327,7 +329,9 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		proto_tree* tu = proto_item_add_subtree(pi,ett_unknown);
 		proto_item* iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown AVP, "
 		                                     "if you know what this is you can add it to dictionary.xml");
-		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown AVP (%u)", code);
+		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
+		                       "Unknown AVP %u (vendor=%s)", code,
+		                       val_to_str(vendorid, vnd_short_vs, "Unknown"));
 		PROTO_ITEM_SET_GENERATED(iu);
 	}
 	
@@ -531,7 +535,7 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 	guint32 version = (first_word & 0xff000000) >> 24;
 	guint32 flags_bits = (tvb_get_ntohl(tvb,4) & 0xff000000) >> 24;
 	int packet_len = first_word & 0x00ffffff;
-	proto_item *pi, *cmd_item, *version_item;
+	proto_item *pi, *cmd_item, *app_item, *version_item;
 	proto_tree* diam_tree;
 	diam_ctx_t* c = ep_alloc0(sizeof(diam_ctx_t));
 	int offset;
@@ -587,8 +591,20 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 			break;
 		}
 		case DIAMETER_RFC: {
-			cmd_vs = VND_CMD_VS(&no_vnd);
-			proto_tree_add_item(diam_tree, hf_diameter_application_id,tvb,8,4,FALSE);
+			cmd_vs = (value_string*)all_cmds->data;
+			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id,tvb,8,4,FALSE);
+			if (strcmp(val_to_str(tvb_get_ntohl(tvb, 8), dictionary.applications,
+				                  "Unknown"), "Unknown") == 0) {
+				proto_tree* tu = proto_item_add_subtree(app_item,ett_unknown);
+				proto_item* iu = proto_tree_add_text(tu,tvb, 8 ,4,"Unknown Application Id, "
+				                                     "if you know what this is you can add it to dictionary.xml");
+				expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
+				                       "Unknown Application Id (%u)",
+				                       tvb_get_ntohl(tvb, 8));
+				PROTO_ITEM_SET_GENERATED(iu);
+			}
+
+
 			c->version_rfc = TRUE;
 			break;
 		}
@@ -617,7 +633,15 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 					 tvb_get_ntohl(tvb,12),
 					 tvb_get_ntohl(tvb,16));
 
+	/* Append name to command item, warn if unknown */
 	proto_item_append_text(cmd_item," %s", cmd_str);
+	if (strcmp(cmd_str, "Unknown") == 0) {
+		proto_tree* tu = proto_item_add_subtree(cmd_item,ett_unknown);
+		proto_item* iu = proto_tree_add_text(tu,tvb, 5 ,3,"Unknown command, "
+		                                     "if you know what this is you can add it to dictionary.xml");
+		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Unknown command (%u)", cmd);
+		PROTO_ITEM_SET_GENERATED(iu);
+	}
 
 	proto_tree_add_item(diam_tree,hf_diameter_hopbyhopid,tvb,12,4,FALSE);
 	proto_tree_add_item(diam_tree,hf_diameter_endtoendid,tvb,16,4,FALSE);
@@ -891,6 +915,8 @@ extern int dictionary_load(void) {
 	no_vnd.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 	no_vnd.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
 
+	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
+
 	pe_tree_insert32(dictionary.vnds,0,&no_vnd);
 	g_hash_table_insert(vendors,"None",&no_vnd);
 
@@ -964,6 +990,8 @@ extern int dictionary_load(void) {
 			if ((vnd = g_hash_table_lookup(vendors,c->vendor))) {
 				value_string item = {c->code,c->name};
 				g_array_append_val(vnd->vs_cmds,item);
+				/* Also add to all_cmds as used by RFC version */
+				g_array_append_val(all_cmds,item);
 			} else {
 				fprintf(stderr,"Diameter Dictionary: No Vendor: %s",c->vendor);
 			}
