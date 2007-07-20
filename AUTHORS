@@ -2647,6 +2647,10 @@ Rob Casey < rcasey [AT] gmail.com > {
 	Kingfisher support
 }
 
+Ted Percival <ted[AT]midg3t.net> {
+	Support for PA-S4U2Self Kerberos packet type
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

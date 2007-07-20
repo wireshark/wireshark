@@ -23,6 +23,11 @@
  *
  * Some structures from RFC2630
  *
+ * Ted Percival ted[AT]midg3t.net
+ *	Support for PA-S4U2Self Kerberos packet type based on ASN.1 description
+ *	in Heimdal:
+ *	http://loka.it.su.se/source/xref/heimdal/heimdal/lib/asn1/k5.asn1
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -161,6 +166,7 @@ static gint hf_krb_cname = -1;
 static gint hf_krb_name_string = -1;
 static gint hf_krb_provsrv_location = -1;
 static gint hf_krb_e_text = -1;
+static gint hf_krb_s4u2self_auth = -1;
 static gint hf_krb_name_type = -1;
 static gint hf_krb_lr_type = -1;
 static gint hf_krb_from = -1;
@@ -1000,6 +1006,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
    come up with something better
 */
 #define KRB5_PA_PAC_REQUEST            128	/* MS extension */
+#define KRB5_PA_S4U2SELF               129	/* Impersonation (Microsoft extension) */
 #define KRB5_PA_PROV_SRV_LOCATION      255	/* packetcable stuff */
 
 /* Principal name-type */
@@ -1240,6 +1247,7 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
     { KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
     { KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
+    { KRB5_PA_S4U2SELF             , "PA-S4U2SELF" },
     { KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
     { 0                            , NULL },
 };
@@ -1958,7 +1966,27 @@ dissect_krb5_PA_PAC_REQUEST(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 	return offset;
 }
 
+static int
+dissect_krb5_s4u2self_auth(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	offset=dissect_ber_GeneralString(actx, tree, tvb, offset, hf_krb_s4u2self_auth, NULL, 0);
+	return offset;
+}
 
+static ber_old_sequence_t PA_S4U2SELF_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, dissect_krb5_cname },
+	{ BER_CLASS_CON, 1, 0, dissect_krb5_realm },
+	{ BER_CLASS_CON, 2, 0, dissect_krb5_Checksum },
+	{ BER_CLASS_CON, 3, 0, dissect_krb5_s4u2self_auth },
+	{ 0, 0, 0, NULL }
+};
+
+static int
+dissect_krb5_PA_S4U2SELF(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_S4U2SELF_sequence, -1, -1);
+	return offset;
+}
 
 
 static int
@@ -2229,6 +2257,9 @@ dissect_krb5_PA_DATA_value(proto_tree *parent_tree, tvbuff_t *tvb, int offset, a
  		break;
 	case KRB5_PA_PAC_REQUEST:
 		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
+		break;
+	case KRB5_PA_S4U2SELF:
+		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_S4U2SELF);
  		break;
 	case KRB5_PA_PROV_SRV_LOCATION:
 		offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
@@ -4618,6 +4649,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_e_text, {
 	    "e-text", "kerberos.e_text", FT_STRING, BASE_NONE,
 	    NULL, 0, "Additional (human readable) error description", HFILL }},
+	{ &hf_krb_s4u2self_auth, {
+	    "S4U2Self Auth", "kerberos.s4u2self.auth", FT_STRING, BASE_NONE,
+	    NULL, 0, "S4U2Self authentication string", HFILL }},
 	{ &hf_krb_realm, {
 	    "Realm", "kerberos.realm", FT_STRING, BASE_NONE,
 	    NULL, 0, "Name of the Kerberos Realm", HFILL }},
