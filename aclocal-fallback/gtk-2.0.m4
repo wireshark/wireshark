@@ -56,8 +56,8 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
   fi
 
   if test x"$no_gtk" = x ; then
-    GTK_CFLAGS=`$PKG_CONFIG $pkg_config_args --cflags`
-    GTK_LIBS=`$PKG_CONFIG $pkg_config_args --libs`
+    GTK_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_args`
+    GTK_LIBS=`$PKG_CONFIG --libs $pkg_config_args`
     gtk_config_major_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
     gtk_config_minor_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
