@@ -150,7 +150,7 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
 	return 1;
 }
 
-WSLUA_ATTR_GET FieldInfo_get_range(lua_State* L) {
+int FieldInfo_get_range(lua_State* L) {
 	/* the TvbRange covering this field */
 	FieldInfo fi = checkFieldInfo(L,1);
 	TvbRange r = ep_alloc(sizeof(struct _wslua_tvbrange));
@@ -163,14 +163,14 @@ WSLUA_ATTR_GET FieldInfo_get_range(lua_State* L) {
 	return 1;
 }
 
-WSLUA_ATTR_GET FieldInfo_get_generated(lua_State* L) {
+int FieldInfo_get_generated(lua_State* L) {
 	/* Whether this field was marked as generated. */
 	FieldInfo fi = checkFieldInfo(L,1);
 	lua_pushboolean(L,FI_GET_FLAG(fi, FI_GENERATED));
 	return 1;
 }
 
-WSLUA_ATTR_GET FieldInfo_get_name(lua_State* L) {
+int FieldInfo_get_name(lua_State* L) {
 	/* the filter name of this field. */
 	FieldInfo fi = checkFieldInfo(L,1);
 	lua_pushstring(L,fi->hfinfo->abbrev);
@@ -182,10 +182,16 @@ static const luaL_reg FieldInfo_get[] = {
     {"range", FieldInfo_get_range},
 /*    {"hidden", FieldInfo_get_hidden}, */
     {"generated", FieldInfo_get_generated},
+	
+	/* WSLUA_ATTRIBUTE FieldInfo_name RO The name of this field */
     {"name", FieldInfo_get_name},
+	/* WSLUA_ATTRIBUTE FieldInfo_label RO The string representing this field */
     {"label", FieldInfo__tostring},
+	/* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field */
     {"value", FieldInfo__call},
+	/* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field */
     {"len", FieldInfo__len},
+	/* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
     {"offset", FieldInfo__unm},
     {0, 0}
 };
