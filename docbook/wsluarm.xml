@@ -35,6 +35,129 @@
 	  any file.
 	</para>
   </section>
+  <section id="wslua_dissector_example">
+  <title>Example of Dissector written in Lua</title>
+    <programlisting>
+do
+        local p_multi = Proto("multi","MultiProto");
+
+        local vs_protos = {
+                [2] = "mtp2",
+                [3] = "mtp3",
+                [4] = "alcap",
+                [5] = "h248",
+                [6] = "ranap",
+                [7] = "rnsap",
+                [8] = "nbap"
+        }
+
+        local f_proto = ProtoField.uint8("multi.protocol","Protocol",BASE_DEC,vs_protos)
+        local f_dir = ProtoField.uint8("multi.direction","Direction",BASE_DEC,{ [1] = "incoming", [0] = "outgoing"})
+        local f_text = ProtoField.string("multi.text","Text")
+
+	p_multi.fields = { f_proto, f_dir, f_text }
+
+        local data_dis = Dissector.get("data")
+
+        local protos = {
+                [2] = Dissector.get("mtp2"),
+                [3] = Dissector.get("mtp3"),
+                [4] = Dissector.get("alcap"),
+                [5] = Dissector.get("h248"),
+                [6] = Dissector.get("ranap"),
+                [7] = Dissector.get("rnsap"),
+                [8] = Dissector.get("nbap"),
+                [9] = Dissector.get("rrc"),
+                [10] = DissectorTable.get("sctp.ppi"):get_dissector(3), -- m3ua
+                [11] = DissectorTable.get("ip.proto"):get_dissector(132), -- sctp
+        }
+
+        function p_multi.dissector(buf,pkt,root) 
+
+                local t = root:add(p_multi,buf(0,2))
+                t:add(f_proto,buf(0,1))
+                t:add(f_dir,buf(1,1))
+
+                local proto_id = buf(0,1):uint()
+
+                local dissector = protos[proto_id]
+
+                if dissector ~= nil then
+                        dissector:call(buf(2):tvb(),pkt,root)
+                elseif proto_id &lt; 2 then
+                        t:add(f_text,buf(2))
+                        -- pkt.cols.info:set(buf(2,buf:len() - 3):string())
+                else
+                        data_dis:call(buf(2):tvb(),pkt,root)
+                end 
+
+        end
+
+        local wtap_encap_table = DissectorTable.get("wtap_encap")
+        local udp_encap_table = DissectorTable.get("udp.port")
+
+        wtap_encap_table:add(wtap.USER15,p_multi)
+        wtap_encap_table:add(wtap.USER12,p_multi)
+        udp_encap_table:add(7555,p_multi)
+end
+	</programlisting>
+  </section>
+  <section id="wslua_tap_example">
+  <title>Example of Listener written in Lua</title>
+    <programlisting>
+-- This program will register a menu that will open a window with a count of occurrences
+-- of every address in the capture
+
+do
+	local function menuable_tap()
+		-- Declare the window we will use
+		local tw = TextWindow.new("Address Counter")
+		
+		-- This will contain a hash of counters of appereances of a certain address
+		local ips = {}
+		
+		-- this is our tap
+		local tap = Listener.new();
+
+		function remove()
+			-- this way we remove the listener than otherwise will remain running indifinitelly
+			tap:remove();
+		end
+		
+		-- we tell the window to call the remove() function when closed
+		tw:set_atclose(remove)
+
+		-- this function will be called once for each packet
+		function tap.packet(pinfo,tvb)
+			local src = ips[tostring(pinfo.src)] or 0
+			local dst = ips[tostring(pinfo.dst)] or 0
+
+			ips[tostring(pinfo.src)] = src + 1
+			ips[tostring(pinfo.dst)] = dst + 1
+		end
+
+		-- this function will be called once every few seconds to update our window
+		function tap.draw(t)
+			tw:clear()
+			for ip,num in pairs(ips) do
+				tw:append(ip .. "\t" .. num .. "\n");
+			end
+		end
+
+		-- this function will be called whenever a reset is needed
+		-- e.g. when reloading the capture file
+		function tap.reset()
+			tw:clear()
+			ips = {}
+		end
+	end
+
+	-- using this function we register our fuction
+	-- to be called when the user selects the Tools->Test->Packets menu
+	register_menu("Test/Packets",menuable_tap)
+end
+	</programlisting>
+  </section>
   <section id="wsluarm_modules">
   <title>Wireshark's Lua API Reference Manual</title>
     <para>
