@@ -1,3 +1,4 @@
+<!-- $Id$ -->
 <chapter id="wsluarm">
   <title>Lua Support in Wireshark</title>
   <section id="wsluarm_intro">
@@ -37,7 +38,7 @@
   <section id="wsluarm_modules">
   <title>Wireshark's Lua API Reference Manual</title>
     <para>
-      This Part of the User Guide describes the Wireshark specific functions embedded Lua API.
+      This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
 	</para>
     &WsLuaDumper;
     &WsLuaField;
