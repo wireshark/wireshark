@@ -1,0 +1,52 @@
+<chapter id="wsluarm">
+  <title>Lua Support in Wireshark</title>
+  <section id="wsluarm_intro">
+	<title>Introduction</title>
+    <para>
+      Wireshark has an embedded Lua interpreter. Lua is a powerful light-weight
+	  programming language designed for extending applications. Lua is designed
+	  and implemented by a team at PUC-Rio, the Pontifical Catholic University
+	  of Rio de Janeiro in Brazil. Lua was born and raised at Tecgraf, the
+	  Computer Graphics Technology Group of PUC-Rio, and is now housed at Lua.org.
+	  Both Tecgraf and Lua.org are laboratories of the Department of Computer Science.
+	</para>
+	<para>
+	   In Wireshark Lua can be used to write dissectors and taps. 
+	</para>
+	<para>
+	  Wireshark's Lua interpreter starts by loading <command>init.lua</command> that
+	  is located in the global configuration directory of Wireshark.
+	  Lua is disabled by default by setting the variable <command>disable_lua</command>
+	  to true in <command>init.lua</command>. To enable lua the line that sets that variable
+	  must be removed or commented out.
+	</para>
+	<para>
+	  After loading <command>init.lua</command> from the data directory if lua is enabled
+	  Wireshark will try to load a file named <command>init.lua</command> in the user's
+	  directory.
+	</para>
+	<para>
+	  The command line option <command>-X lua_script:&lt;file.lua&gt;</command> can be used to
+	  load lua scripts as well.	  
+	</para>
+	<para>
+	  The Lua code will be executed once after all the protocols have being initialized and before reading
+	  any file.
+	</para>
+  </section>
+  <section id="wsluarm_modules">
+  <title>Wireshark's Lua API Reference Manual</title>
+    <para>
+      This Part of the User Guide describes the Wireshark specific functions embedded Lua API.
+	</para>
+    &WsLuaDumper;
+    &WsLuaField;
+    &WsLuaGui;
+	&WsLuaListener;
+	&WsLuaPinfo;
+	&WsLuaProto;
+	&WsLuaTree;
+	&WsLuaTvb;
+	&WsLuaUtility;
+  </section>
+</chapter>

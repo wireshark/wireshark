@@ -297,6 +297,8 @@ FILE SECTION
 <!--
 WSLua Reference Manual
 -->
+
+  	<!ENTITY WsLuaRm SYSTEM "wsluarm.xml">
   	<!ENTITY WsLuaDumper SYSTEM "wsluarm_src/wslua_dumper.xml">
 	<!ENTITY WsLuaField SYSTEM "wsluarm_src/wslua_field.xml">
 	<!ENTITY WsLuaGui SYSTEM "wsluarm_src/wslua_gui.xml">
@@ -326,11 +328,13 @@ WSLua Reference Manual
   &ChapterStatistics;  
   &ChapterCustomize;
 
+  &WsLuaRm;
+  
   &AppFiles;
   &AppProtocols;
   &AppMessages;  
   &AppTools;
-
+  
   &AppGPL;
   <!-- 
   Removed, as these chapters must be reworked
@@ -342,17 +346,5 @@ WSLua Reference Manual
   &ChapterTroubleshoot;   
   -->
   
-  <chapter id="wsluarm">
-  <title>Wireshark's Lua API Reference Manual</title>
-  &WsLuaDumper;
-  &WsLuaField;
-  &WsLuaGui;
-  &WsLuaListener;
-  &WsLuaPinfo;
-  &WsLuaProto;
-  &WsLuaTree;
-  &WsLuaTvb;
-  &WsLuaUtility;
-  </chapter>
 
 </book>

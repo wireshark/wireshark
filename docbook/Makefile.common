@@ -16,6 +16,7 @@ WSUG_FILES =	\
 	wsug_src/WSUG_chapter_work.xml		\
 	wsug_src/WSUG_meta_info.xml		\
 	wsug_src/WSUG_preface.xml		\
+	wsluarm.xml				\
 	ws.css
 
 WSUG_GRAPHICS =	\
