@@ -1061,7 +1061,10 @@
 			<type type-name="DiameterIdentity"/>
 		</avp>
 		<avp name="Proxy-Info" code="284" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="OctetString"/>
+			<grouped>
+				<gavp name="Proxy-Host">
+				<gavp name="Proxy-State">
+			</grouped>
 		</avp>
 		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
