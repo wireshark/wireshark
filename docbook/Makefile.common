@@ -201,7 +201,7 @@ CLEANFILES =	\
 	release-notes.txt	\
 	svn_version.xml		\
 	user-guide.zip		\
-	wsluarm.xml			\
+	wsluarm			\
 	wsluarm_src/*.xml
 
 
@@ -216,20 +216,3 @@ WSLUA_MODULES = \
 	../epan/wslua/wslua_tvb.c \
 	../epan/wslua/wslua_util.c
 
-WSLUA_FILES = \
-	wslua_dumper.xml \
-	wslua_field.xml \
-	wslua_gui.xml \
-	wslua_listener.xml \
-	wslua_pinfo.xml \
-	wslua_proto.xml \
-	wslua_tree.xml \
-	wslua_tvb.xml \
-	wslua_util.xml 
-
-WSLUARM_SOURCE = \
-	wsluarm.xml \
-	svn_version.xml		\
-	Makefile		\
-	$(WSLUA_FILES)
-	

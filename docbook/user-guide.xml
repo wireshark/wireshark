@@ -24,6 +24,12 @@ BIOGRAPHICAL SECTION
   <!ENTITY AuthorFirstName3 "Ed">
   <!ENTITY AuthorOtherName3 "">
   <!ENTITY AuthorSurname3 "Warnicke">
+  
+  <!ENTITY AuthorFullName4 "Luis E. Garcia Ontanon">
+  <!ENTITY AuthorFirstName4 "Luis">
+  <!ENTITY AuthorOtherName4 "Enrique">
+  <!ENTITY AuthorSurname4 "Garcia Ontanon">
+
 
 <!--Author's Affiliation -->
   <!ENTITY AuthorShortAffiliation "">
@@ -43,6 +49,12 @@ BIOGRAPHICAL SECTION
   <!ENTITY AuthorOrgName3 "">
   <!ENTITY AuthorOrgDiv3 "">
   <!ENTITY AuthorEmail3 "hagbard[AT]physics.rutgers.edu">
+
+  <!ENTITY AuthorShortAffiliation4 "">
+  <!ENTITY AuthorJobTitle4 "">
+  <!ENTITY AuthorOrgName4 "">
+  <!ENTITY AuthorOrgDiv4 "">
+  <!ENTITY AuthorEmail4 "luis.ontanon[at]gmail.com">
 
 
 
@@ -281,6 +293,20 @@ FILE SECTION
   <!ENTITY AppTools SYSTEM "wsug_src/WSUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
+
+<!--
+WSLua Reference Manual
+-->
+  	<!ENTITY WsLuaDumper SYSTEM "wsluarm_src/wslua_dumper.xml">
+	<!ENTITY WsLuaField SYSTEM "wsluarm_src/wslua_field.xml">
+	<!ENTITY WsLuaGui SYSTEM "wsluarm_src/wslua_gui.xml">
+	<!ENTITY WsLuaListener SYSTEM "wsluarm_src/wslua_listener.xml">
+	<!ENTITY WsLuaPinfo SYSTEM "wsluarm_src/wslua_pinfo.xml">
+	<!ENTITY WsLuaProto SYSTEM "wsluarm_src/wslua_proto.xml">
+	<!ENTITY WsLuaTree SYSTEM "wsluarm_src/wslua_tree.xml">
+	<!ENTITY WsLuaTvb SYSTEM "wsluarm_src/wslua_tvb.xml">
+	<!ENTITY WsLuaUtility SYSTEM "wsluarm_src/wslua_util.xml">
+
 ]>
 
 <book>
@@ -316,4 +342,17 @@ FILE SECTION
   &ChapterTroubleshoot;   
   -->
   
+  <chapter id="wsluarm">
+  <title>Wireshark's Lua API Reference Manual</title>
+  &WsLuaDumper;
+  &WsLuaField;
+  &WsLuaGui;
+  &WsLuaListener;
+  &WsLuaPinfo;
+  &WsLuaProto;
+  &WsLuaTree;
+  &WsLuaTvb;
+  &WsLuaUtility;
+  </chapter>
+
 </book>

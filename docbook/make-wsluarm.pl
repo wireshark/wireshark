@@ -53,9 +53,9 @@ my $function;
 my @functions;
 
 my $docbook_template = {
-	module_header => "<chapter id='lua_module_%s'>\n",
+	module_header => "<section id='lua_module_%s'>\n",
 	module_desc => "\t<title>%s</title>\n",
-	module_footer => "</chapter>\n",
+	module_footer => "</section>\n",
 	class_header => "\t<section id='lua_class_%s'><title>%s</title>\n",
 	class_desc => "\t\t<para>%s</para>\n",
 	class_footer => "\t</section> <!-- class_footer: %s -->\n",
@@ -230,7 +230,14 @@ sub {
 		$name .= ".$2";
 		push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
 	} ],
-
+[ 'WSLUA_ATTR_GET\s+([A-Za-z]+)_([a-z_]+).*?' . $TRAILING_COMMENT_RE,
+        sub {
+                deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
+                my $name = "$1";
+                $name =~ tr/A-Z/a-z/;
+                $name .= ".$2";
+                push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
+        } ],
 [ '/\052\s+WSLUA_MOREARGS\s+([A-Za-z_]+)\s+(.*?)\052/',
 	sub {
 		deb ">ma=$1=$2=$3=$4=$5=$6=$7=\n";
@@ -387,27 +394,27 @@ while ( $file =  shift) {
 	close D;
 }
 
-my $wsluarm = '';
-open B, "< template-wsluarm.xml";
-$wsluarm .= $_ while(<B>);
-close B;
-
-my $ents = '';
-my $txt = '';
-
-for my $module_name (sort keys %modules) {
-	$ents .= <<"_ENT";
-	<!ENTITY $module_name SYSTEM "wsluarm_src/$modules{$module_name}">
-_ENT
-	$txt .= "&$module_name;\n";
-}
-
-$wsluarm =~ s/<!-- WSLUA_MODULE_ENTITIES -->/$ents/; 
-$wsluarm =~ s/<!-- WSLUA_MODULE_TEXT -->/$txt/;
-
-open X, "> wsluarm.xml";
-print X $wsluarm;
-close X;
+#my $wsluarm = '';
+#open B, "< template-wsluarm.xml";
+#$wsluarm .= $_ while(<B>);
+#close B;
+#
+#my $ents = '';
+#my $txt = '';
+#
+#for my $module_name (sort keys %modules) {
+#	$ents .= <<"_ENT";
+#	<!ENTITY $module_name SYSTEM "wsluarm_src/$modules{$module_name}">
+#_ENT
+#	$txt .= "&$module_name;\n";
+#}
+#
+#$wsluarm =~ s/<!-- WSLUA_MODULE_ENTITIES -->/$ents/; 
+#$wsluarm =~ s/<!-- WSLUA_MODULE_TEXT -->/$txt/;
+#
+#open X, "> wsluarm.xml";
+#print X $wsluarm;
+#close X;
 
 sub function_descr {
 	my $f = $_[0];

@@ -31,7 +31,6 @@ HTML2TXT?=lynx -dump -width=72 -nolist -stdin
 
 PERL = perl
 
-
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
 include Makefile.common
@@ -48,7 +47,7 @@ XMLLINT?="xmllint"
 	FOP_OPTS=$(FOP_OPTS) JAVA_OPTS=$(FOP_OPTS) $(FOP) $< $@
 
 
-all: svn_version_check wsug.validated wsdg.validated wsluarm.validated release_notes.validated wsug wsdg release_notes wsluarm
+all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes 
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -67,7 +66,7 @@ svn_version_check: FORCE
 svn_version.xml: svn_version_check
 
 
-wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf wsluarm
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -201,44 +200,8 @@ ifdef FOP
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
-
-$(WSLUA_FILES): wsluarm.xml
-
-wsluarm.xml: make-wsluarm.pl template-wsluarm.xml $(WSLUA_MODULES)
+wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
-
-wsluarm: wsluarm.html wsluarm.txt wsluarm-a4.pdf wsluarm-us.pdf
-
-# validate the content
-wsluarm.validated: $(WSLUARM_SOURCE)
-	@ echo --- WSLUARM - VALIDATING XML ---
-	$(XMLLINT) --valid --noout $<
-	touch $@
-
-# create html single page file
-wsluarm.html: $(WSLUARM_SOURCE)
-	@ echo --- WSLUARM - HTML ---
-	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
-
-# create txt single page file (through HTML)
-wsluarm.txt: $(WSLUARM_SOURCE)
-	@ echo --- WSLUARM - TXT ---
-	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(HTML2TXT) > $@
-
-# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
-# you will get lot's of errors, but that's ok
-wsluarm-us.fo: $(WSLUARM_SOURCE) custom_layer_pdf.xsl
-ifdef FOP
-	@ echo --- WSLUARM - PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
-endif
-
-# create pdf file (through XSL-FO), portrait pages on A4 paper
-# you will get lot's of errors, but that's ok
-wsluarm-a4.fo: $(WSLUARM_SOURCE) custom_layer_pdf.xsl
-ifdef FOP
-	@ echo --- WSLUARM - PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
-endif
+	touch wsluarm
 
 
