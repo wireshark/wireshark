@@ -66,10 +66,10 @@ svn_version_check: FORCE
 svn_version.xml: svn_version_check
 
 
-wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf wsluarm
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf 
 
 # validate the content
-wsug.validated: $(WSUG_SOURCE)
+wsug.validated: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
@@ -77,7 +77,7 @@ wsug.validated: $(WSUG_SOURCE)
 # create html single page file
 user-guide.html: wsug_html/user-guide.html
 
-wsug_html/user-guide.html: $(WSUG_SOURCE)
+wsug_html/user-guide.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p wsug_html/wsug_graphics/toolbar
 	cp wsug_graphics/*.* wsug_html/wsug_graphics
@@ -89,7 +89,7 @@ wsug_html/user-guide.html: $(WSUG_SOURCE)
 # create html chunked page files
 wsug_html_chunked: wsug_html_chunked/index.html
 
-wsug_html_chunked/index.html: $(WSUG_SOURCE)
+wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
 	cp wsug_graphics/*.* wsug_html_chunked/wsug_graphics
