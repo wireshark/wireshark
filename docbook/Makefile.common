@@ -162,6 +162,7 @@ WSUG_SOURCE =	\
 	user-guide.xml		\
 	svn_version.xml		\
 	Makefile			\
+	wsluarm			\
 	$(WSUG_FILES)		\
 	$(WSUG_GRAPHICS)
 

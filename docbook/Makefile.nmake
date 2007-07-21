@@ -213,3 +213,9 @@ release-notes.chm: $(RELEASE_NOTES_SOURCE)
 	-rm -r toc.hhc
 !endif
 
+
+wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
+        $(PERL) make-wsluarm.pl $(WSLUA_MODULES)
+        touch wsluarm
+
+
