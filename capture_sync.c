@@ -235,7 +235,6 @@ init_pipe_args(int *argc) {
     return argv;
 }
 
-
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
@@ -382,6 +381,7 @@ sync_pipe_start(capture_options *capture_opts) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
                         strerror(errno));
+      g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
     }
@@ -393,6 +393,7 @@ sync_pipe_start(capture_options *capture_opts) {
                         strerror(errno));
       CloseHandle(sync_pipe_read);
       CloseHandle(sync_pipe_write);
+      g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
     }
@@ -430,6 +431,7 @@ sync_pipe_start(capture_options *capture_opts) {
                     args->str, GetLastError());
       CloseHandle(sync_pipe_read);
       CloseHandle(sync_pipe_write);
+      g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
     }
@@ -450,6 +452,7 @@ sync_pipe_start(capture_options *capture_opts) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
 			strerror(errno));
+      g_free( (gpointer) argv[0]);
       g_free(argv);
       return FALSE;
     }
@@ -477,7 +480,7 @@ sync_pipe_start(capture_options *capture_opts) {
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
 
-    g_free(argv[0]);  /* exename */
+    g_free( (gpointer) argv[0]);  /* exename */
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -569,6 +572,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
         /* Couldn't create the pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
         return CANT_RUN_DUMPCAP;
     }
@@ -605,6 +609,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
                         args->str, GetLastError());
         CloseHandle(sync_pipe_read);
         CloseHandle(sync_pipe_write);
+        g_free( (gpointer) argv[0]);
         g_free( (gpointer) argv);
         return CANT_RUN_DUMPCAP;
     }
@@ -619,6 +624,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     if (pipe(sync_pipe) < 0) {
         /* Couldn't create the pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", strerror(errno));
+        g_free( (gpointer) argv[0]);
         g_free(argv);
         return CANT_RUN_DUMPCAP;
     }
@@ -640,7 +646,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
 #endif
 
-    g_free(argv[0]);  /* exename */
+    g_free( (gpointer) argv[0]);  /* exename */
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -735,9 +741,6 @@ sync_interface_list_open(gchar **msg) {
 
     if (!msg) {
         /* We can't return anything */
-#ifdef _WIN32
-        g_string_free(args, TRUE);
-#endif
         return -1;
     }
 
@@ -775,9 +778,6 @@ sync_linktype_list_open(gchar *ifname, gchar **msg) {
 
     if (!msg) {
         /* We can't return anything */
-#ifdef _WIN32
-        g_string_free(args, TRUE);
-#endif
         return -1;
     }
 
@@ -804,47 +804,6 @@ sync_linktype_list_open(gchar *ifname, gchar **msg) {
     return sync_pipe_run_command(argv, msg);
 }
 
-/*
- * Get interface stats using dumpcap.  On success, msg points to
- * a buffer containing the dumpcap output and returns 0.  On failure, msg
- * points to the error message returned by dumpcap, and returns dumpcap's
- * exit value.  In either case, msg must be freed with g_free().
- */
-int
-sync_interface_stats_open(gchar *ifname, gchar **msg) {
-    int argc;
-    const char **argv;
-
-    if (!msg) {
-        /* We can't return anything */
-#ifdef _WIN32
-        g_string_free(args, TRUE);
-#endif
-        return -1;
-    }
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
-
-    argv = init_pipe_args(&argc);
-
-    if (!argv) {
-        *msg = g_strdup_printf("We don't know where to find dumpcap.");
-        return CANT_RUN_DUMPCAP;
-    }
-
-    /* Ask for the linktype list */
-    argv = sync_pipe_add_arg(argv, &argc, "-i");
-    argv = sync_pipe_add_arg(argv, &argc, ifname);
-    argv = sync_pipe_add_arg(argv, &argc, "-S");
-    argv = sync_pipe_add_arg(argv, &argc, "-M");
-
-    /* dumpcap should be running in capture child mode (hidden feature) */
-#ifndef DEBUG_CHILD
-    argv = sync_pipe_add_arg(argv, &argc, "-Z");
-#endif
-
-    return sync_pipe_run_command(argv, msg);
-}
 
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
