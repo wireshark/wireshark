@@ -990,7 +990,7 @@ standard libpcap format.
 	  <varlistentry><term><command>payload_proto</command></term>
 	  <listitem>
 		<para>
-			This is the name of the payload protocol (the lowest layer in the packet data).
+			This is the name of the payload protocol (the lowest layer in the packet data). (e.g. "eth" for ethernet, "ip" for IPv4)
 		</para>
 	  </listitem>
 	  </varlistentry>
