@@ -518,6 +518,7 @@ proto_register_eth(void)
 
 	register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
 	register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
+	register_dissector("eth", dissect_eth_maybefcs, proto_eth);
 	eth_tap = register_tap("eth");
 }
 
