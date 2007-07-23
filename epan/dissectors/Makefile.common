@@ -202,6 +202,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-atm.c		\
 	packet-auto_rp.c	\
 	packet-ax4000.c		\
+	packet-bacapp.c		\
 	packet-bacnet.c		\
 	packet-bctp.c		\
 	packet-beep.c		\
@@ -241,6 +242,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-clip.c		\
 	packet-clnp.c		\
 	packet-componentstatus.c \
+	packet-cops.c 		\
 	packet-cosine.c		\
 	packet-cpfi.c		\
 	packet-cpha.c		\
@@ -323,6 +325,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dec-dnart.c	\
 	packet-dhcp-failover.c	\
 	packet-dhcpv6.c		\
+	packet-diameter.c	\
 	packet-dis.c		\
 	packet-dis-enums.c	\
 	packet-dis-fields.c	\
@@ -634,6 +637,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-scsi-sbc.c	\
 	packet-scsi-smc.c	\
 	packet-scsi-ssc.c	\
+	packet-sctp.c		\
 	packet-sdlc.c		\
 	packet-sdp.c		\
 	packet-sebek.c		\
@@ -745,14 +749,10 @@ CLEAN_DISSECTOR_SRC = \
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
-	packet-bacapp.c		\
-	packet-cops.c 		\
-	packet-diameter.c	\
 	packet-k12.c 		\
 	packet-nbd.c		\
 	packet-sccp.c		\
 	packet-scsi-osd.c	\
-	packet-sctp.c		\
 	packet-ssl-utils.c	\
 	packet-user_encap.c
 
