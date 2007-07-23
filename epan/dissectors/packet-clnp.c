@@ -967,14 +967,11 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   pinfo->fragmented = fragment;
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (is_class_234) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
+      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr,
-		 dst_ref,
-		 (fragment)? "[COTP Fragment]" : "EOT");
+		 dst_ref);
     } else {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) %s",
-		 tpdu_nr,
-		 (fragment)? "[COTP Fragment]" : "EOT");
+      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u)", tpdu_nr);
     }
   }
 
@@ -1025,8 +1022,17 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  fragment_length = tvb_length(next_tvb);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+      if(fragment) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]", 
+            fragment_length, plurality(fragment_length, "", "s"));
+      } else {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " EOT");
+      }
+  }
+
   if (cotp_reassemble) {
-    fragment_length = tvb_length(next_tvb);
     /*
      * XXX - these sequence numbers are connection sequence number,
      * not segment sequence numbers - the first segment of a
