@@ -100,8 +100,6 @@ int hf_camelsrt_DeltaTime35=-1;
 int hf_camelsrt_DeltaTime80=-1;
 int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 
-#include "packet-camel-table4.c"
-
 #include "packet-camel-hf.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
@@ -403,6 +401,7 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-cap3-sms-AC(61)" );
+
 #include "packet-camel-dis-tab.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
@@ -545,7 +544,6 @@ void proto_register_camel(void) {
 
 #ifdef REMOVED
 #endif
-#include "packet-camel-table3.c"
 #include "packet-camel-hfarr.c"
   };
 

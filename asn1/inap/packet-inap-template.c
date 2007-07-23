@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 #include "epan/expert.h"
 #include <epan/asn1.h>
 
@@ -585,6 +586,8 @@ void proto_reg_handoff_inap(void) {
     ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
+
+	add_oid_str_name("0.4.0.1.1.0.3.0","Core-INAP-CS1-Codes");
 }
 
 

@@ -109,82 +109,63 @@ int hf_camelsrt_DeltaTime80=-1;
 int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 
 
-/*--- Included file: packet-camel-table4.c ---*/
-#line 1 "packet-camel-table4.c"
-
-/* CAMEL OPERATIONS hf filelds */
-int hf_camel_playAnnouncement = -1;
-int hf_camel_promptAndCollectUserInformation = -1;
-int hf_camel_specializedResourceReport = -1;
-int hf_camel_activityTest = -1;
-int hf_camel_applyCharging = -1;
-int hf_camel_applyChargingReport = -1;
-int hf_camel_assistRequestInstructions = -1;
-int hf_camel_callGap = -1;
-int hf_camel_callInformationReport = -1;
-int hf_camel_callInformationRequest = -1;
-int hf_camel_cancel = -1;
-int hf_camel_collectInformation = -1;
-int hf_camel_connect = -1;
-int hf_camel_connectToResource = -1;
-int hf_camel_continue = -1;
-int hf_camel_continueWithArgument = -1;
-int hf_camel_disconnectForwardConnection = -1;
-int hf_camel_disconnectForwardConnectionWithArgument = -1;
-int hf_camel_disconnectLeg = -1;
-int hf_camel_entityReleased = -1;
-int hf_camel_establishTemporaryConnection = -1;
-int hf_camel_eventReportBCSM = -1;
-int hf_camel_furnishChargingInformation = -1;
-int hf_camel_initialDP = -1;
-int hf_camel_initiateCallAttempt = -1;
-int hf_camel_moveLeg = -1;
-int hf_camel_playTone = -1;
-int hf_camel_releaseCall = -1;
-int hf_camel_requestReportBCSMEvent = -1;
-int hf_camel_resetTimer = -1;
-int hf_camel_sendChargingInformation = -1;
-int hf_camel_splitLeg = -1;
-int hf_camel_activityTestGPRS = -1;
-int hf_camel_applyChargingGPRS = -1;
-int hf_camel_applyChargingReportGPRS = -1;
-int hf_camel_cancelGPRS = -1;
-int hf_camel_connectGPRS = -1;
-int hf_camel_continueGPRS = -1;
-int hf_camel_entityReleasedGPRS = -1;
-int hf_camel_eventReportGPRS = -1;
-int hf_camel_furnishChargingInformationGPRS = -1;
-int hf_camel_initialDPGPRS = -1;
-int hf_camel_releaseGPRS = -1;
-int hf_camel_requestReportGPRSEvent = -1;
-int hf_camel_resetTimerGPRS = -1;
-int hf_camel_sendChargingInformationGPRS = -1;
-int hf_camel_connectSMS = -1;
-int hf_camel_continueSMS = -1;
-int hf_camel_eventReportSMS = -1;
-int hf_camel_furnishChargingInformationSMS = -1;
-int hf_camel_initialDPSMS = -1;
-int hf_camel_releaseSMS = -1;
-int hf_camel_requestReportSMSEvent = -1;
-int hf_camel_resetTimerSMS = -1;
-/* END CAMEL OPERATIONS hf filelds */
-
-
-/* CAMEL ERRORS hf filelds */
-int hf_camel_cancelFailed = -1;
-int hf_camel_requestedInfoError = -1;
-int hf_camel_systemFailure = -1;
-int hf_camel_taskRefused = -1;
-/* END CAMEL ERRORS hf filelds */
-
-
-/*--- End of included file: packet-camel-table4.c ---*/
-#line 104 "packet-camel-template.c"
-
-
 /*--- Included file: packet-camel-hf.c ---*/
 #line 1 "packet-camel-hf.c"
+static int hf_camel_PAR_cancelFailed_PDU = -1;    /* PAR_cancelFailed */
+static int hf_camel_PAR_requestedInfoError_PDU = -1;  /* PAR_requestedInfoError */
+static int hf_camel_UnavailableNetworkResource_PDU = -1;  /* UnavailableNetworkResource */
+static int hf_camel_PAR_taskRefused_PDU = -1;     /* PAR_taskRefused */
 static int hf_camel_CAP_GPRS_ReferenceNumber_PDU = -1;  /* CAP_GPRS_ReferenceNumber */
+static int hf_camel_PlayAnnouncementArg_PDU = -1;  /* PlayAnnouncementArg */
+static int hf_camel_PromptAndCollectUserInformationArg_PDU = -1;  /* PromptAndCollectUserInformationArg */
+static int hf_camel_ReceivedInformationArg_PDU = -1;  /* ReceivedInformationArg */
+static int hf_camel_SpecializedResourceReportArg_PDU = -1;  /* SpecializedResourceReportArg */
+static int hf_camel_ApplyChargingArg_PDU = -1;    /* ApplyChargingArg */
+static int hf_camel_ApplyChargingReportArg_PDU = -1;  /* ApplyChargingReportArg */
+static int hf_camel_AssistRequestInstructionsArg_PDU = -1;  /* AssistRequestInstructionsArg */
+static int hf_camel_CallGapArg_PDU = -1;          /* CallGapArg */
+static int hf_camel_CallInformationReportArg_PDU = -1;  /* CallInformationReportArg */
+static int hf_camel_CallInformationRequestArg_PDU = -1;  /* CallInformationRequestArg */
+static int hf_camel_CancelArg_PDU = -1;           /* CancelArg */
+static int hf_camel_ConnectArg_PDU = -1;          /* ConnectArg */
+static int hf_camel_ConnectToResourceArg_PDU = -1;  /* ConnectToResourceArg */
+static int hf_camel_ContinueWithArgumentArg_PDU = -1;  /* ContinueWithArgumentArg */
+static int hf_camel_DisconnectForwardConnectionWithArgumentArg_PDU = -1;  /* DisconnectForwardConnectionWithArgumentArg */
+static int hf_camel_DisconnectLegArg_PDU = -1;    /* DisconnectLegArg */
+static int hf_camel_EntityReleasedArg_PDU = -1;   /* EntityReleasedArg */
+static int hf_camel_EstablishTemporaryConnectionArg_PDU = -1;  /* EstablishTemporaryConnectionArg */
+static int hf_camel_EventReportBCSMArg_PDU = -1;  /* EventReportBCSMArg */
+static int hf_camel_FurnishChargingInformationArg_PDU = -1;  /* FurnishChargingInformationArg */
+static int hf_camel_InitialDPArg_PDU = -1;        /* InitialDPArg */
+static int hf_camel_InitiateCallAttemptArg_PDU = -1;  /* InitiateCallAttemptArg */
+static int hf_camel_InitiateCallAttemptRes_PDU = -1;  /* InitiateCallAttemptRes */
+static int hf_camel_MoveLegArg_PDU = -1;          /* MoveLegArg */
+static int hf_camel_PlayToneArg_PDU = -1;         /* PlayToneArg */
+static int hf_camel_ReleaseCallArg_PDU = -1;      /* ReleaseCallArg */
+static int hf_camel_RequestReportBCSMEventArg_PDU = -1;  /* RequestReportBCSMEventArg */
+static int hf_camel_ResetTimerArg_PDU = -1;       /* ResetTimerArg */
+static int hf_camel_SendChargingInformationArg_PDU = -1;  /* SendChargingInformationArg */
+static int hf_camel_SplitLegArg_PDU = -1;         /* SplitLegArg */
+static int hf_camel_ApplyChargingGPRSArg_PDU = -1;  /* ApplyChargingGPRSArg */
+static int hf_camel_ApplyChargingReportGPRSArg_PDU = -1;  /* ApplyChargingReportGPRSArg */
+static int hf_camel_CancelGPRSArg_PDU = -1;       /* CancelGPRSArg */
+static int hf_camel_ConnectGPRSArg_PDU = -1;      /* ConnectGPRSArg */
+static int hf_camel_ContinueGPRSArg_PDU = -1;     /* ContinueGPRSArg */
+static int hf_camel_EntityReleasedGPRSArg_PDU = -1;  /* EntityReleasedGPRSArg */
+static int hf_camel_EventReportGPRSArg_PDU = -1;  /* EventReportGPRSArg */
+static int hf_camel_FurnishChargingInformationGPRSArg_PDU = -1;  /* FurnishChargingInformationGPRSArg */
+static int hf_camel_InitialDPGPRSArg_PDU = -1;    /* InitialDPGPRSArg */
+static int hf_camel_ReleaseGPRSArg_PDU = -1;      /* ReleaseGPRSArg */
+static int hf_camel_RequestReportGPRSEventArg_PDU = -1;  /* RequestReportGPRSEventArg */
+static int hf_camel_ResetTimerGPRSArg_PDU = -1;   /* ResetTimerGPRSArg */
+static int hf_camel_SendChargingInformationGPRSArg_PDU = -1;  /* SendChargingInformationGPRSArg */
+static int hf_camel_ConnectSMSArg_PDU = -1;       /* ConnectSMSArg */
+static int hf_camel_EventReportSMSArg_PDU = -1;   /* EventReportSMSArg */
+static int hf_camel_FurnishChargingInformationSMSArg_PDU = -1;  /* FurnishChargingInformationSMSArg */
+static int hf_camel_InitialDPSMSArg_PDU = -1;     /* InitialDPSMSArg */
+static int hf_camel_ReleaseSMSArg_PDU = -1;       /* ReleaseSMSArg */
+static int hf_camel_RequestReportSMSEventArg_PDU = -1;  /* RequestReportSMSEventArg */
+static int hf_camel_ResetTimerSMSArg_PDU = -1;    /* ResetTimerSMSArg */
 static int hf_camel_CAP_U_ABORT_REASON_PDU = -1;  /* CAP_U_ABORT_REASON */
 static int hf_camel_legID = -1;                   /* LegID */
 static int hf_camel_srfConnection = -1;           /* CallSegmentID */
@@ -600,7 +581,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 106 "packet-camel-template.c"
+#line 104 "packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -812,7 +793,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 128 "packet-camel-template.c"
+#line 126 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -1116,7 +1097,7 @@ static const value_string camel_RP_Cause_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 247 "packet-camel-template.c"
+#line 245 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1206,7 +1187,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 249 "packet-camel-template.c"
+#line 247 "packet-camel-template.c"
 
 static char camel_number_to_char(int number)
 {
@@ -6318,10 +6299,388 @@ dissect_camel_ROS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 /*--- PDUs ---*/
 
+static int dissect_PAR_cancelFailed_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_PAR_cancelFailed(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PAR_cancelFailed_PDU);
+  return offset;
+}
+static int dissect_PAR_requestedInfoError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_PAR_requestedInfoError(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PAR_requestedInfoError_PDU);
+  return offset;
+}
+static int dissect_UnavailableNetworkResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_UnavailableNetworkResource(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_UnavailableNetworkResource_PDU);
+  return offset;
+}
+static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_PAR_taskRefused(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PAR_taskRefused_PDU);
+  return offset;
+}
 static void dissect_CAP_GPRS_ReferenceNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_camel_CAP_GPRS_ReferenceNumber(FALSE, tvb, 0, &asn1_ctx, tree, hf_camel_CAP_GPRS_ReferenceNumber_PDU);
+}
+static int dissect_PlayAnnouncementArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PlayAnnouncementArg_PDU);
+  return offset;
+}
+static int dissect_PromptAndCollectUserInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PromptAndCollectUserInformationArg_PDU);
+  return offset;
+}
+static int dissect_ReceivedInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReceivedInformationArg_PDU);
+  return offset;
+}
+static int dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SpecializedResourceReportArg_PDU);
+  return offset;
+}
+static int dissect_ApplyChargingArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ApplyChargingArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingArg_PDU);
+  return offset;
+}
+static int dissect_ApplyChargingReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ApplyChargingReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingReportArg_PDU);
+  return offset;
+}
+static int dissect_AssistRequestInstructionsArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_AssistRequestInstructionsArg_PDU);
+  return offset;
+}
+static int dissect_CallGapArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_CallGapArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CallGapArg_PDU);
+  return offset;
+}
+static int dissect_CallInformationReportArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_CallInformationReportArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CallInformationReportArg_PDU);
+  return offset;
+}
+static int dissect_CallInformationRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CallInformationRequestArg_PDU);
+  return offset;
+}
+static int dissect_CancelArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_CancelArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CancelArg_PDU);
+  return offset;
+}
+static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ConnectArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectArg_PDU);
+  return offset;
+}
+static int dissect_ConnectToResourceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectToResourceArg_PDU);
+  return offset;
+}
+static int dissect_ContinueWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ContinueWithArgumentArg_PDU);
+  return offset;
+}
+static int dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_DisconnectForwardConnectionWithArgumentArg_PDU);
+  return offset;
+}
+static int dissect_DisconnectLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_DisconnectLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_DisconnectLegArg_PDU);
+  return offset;
+}
+static int dissect_EntityReleasedArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_EntityReleasedArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EntityReleasedArg_PDU);
+  return offset;
+}
+static int dissect_EstablishTemporaryConnectionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EstablishTemporaryConnectionArg_PDU);
+  return offset;
+}
+static int dissect_EventReportBCSMArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EventReportBCSMArg_PDU);
+  return offset;
+}
+static int dissect_FurnishChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_FurnishChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_FurnishChargingInformationArg_PDU);
+  return offset;
+}
+static int dissect_InitialDPArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_InitialDPArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitialDPArg_PDU);
+  return offset;
+}
+static int dissect_InitiateCallAttemptArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitiateCallAttemptArg_PDU);
+  return offset;
+}
+static int dissect_InitiateCallAttemptRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitiateCallAttemptRes_PDU);
+  return offset;
+}
+static int dissect_MoveLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_MoveLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_MoveLegArg_PDU);
+  return offset;
+}
+static int dissect_PlayToneArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_PlayToneArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_PlayToneArg_PDU);
+  return offset;
+}
+static int dissect_ReleaseCallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ReleaseCallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReleaseCallArg_PDU);
+  return offset;
+}
+static int dissect_RequestReportBCSMEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_RequestReportBCSMEventArg_PDU);
+  return offset;
+}
+static int dissect_ResetTimerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ResetTimerArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ResetTimerArg_PDU);
+  return offset;
+}
+static int dissect_SendChargingInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SendChargingInformationArg_PDU);
+  return offset;
+}
+static int dissect_SplitLegArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_SplitLegArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SplitLegArg_PDU);
+  return offset;
+}
+static int dissect_ApplyChargingGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingGPRSArg_PDU);
+  return offset;
+}
+static int dissect_ApplyChargingReportGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ApplyChargingReportGPRSArg_PDU);
+  return offset;
+}
+static int dissect_CancelGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_CancelGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CancelGPRSArg_PDU);
+  return offset;
+}
+static int dissect_ConnectGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectGPRSArg_PDU);
+  return offset;
+}
+static int dissect_ContinueGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ContinueGPRSArg_PDU);
+  return offset;
+}
+static int dissect_EntityReleasedGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EntityReleasedGPRSArg_PDU);
+  return offset;
+}
+static int dissect_EventReportGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EventReportGPRSArg_PDU);
+  return offset;
+}
+static int dissect_FurnishChargingInformationGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_FurnishChargingInformationGPRSArg_PDU);
+  return offset;
+}
+static int dissect_InitialDPGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitialDPGPRSArg_PDU);
+  return offset;
+}
+static int dissect_ReleaseGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReleaseGPRSArg_PDU);
+  return offset;
+}
+static int dissect_RequestReportGPRSEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_RequestReportGPRSEventArg_PDU);
+  return offset;
+}
+static int dissect_ResetTimerGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ResetTimerGPRSArg_PDU);
+  return offset;
+}
+static int dissect_SendChargingInformationGPRSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_SendChargingInformationGPRSArg_PDU);
+  return offset;
+}
+static int dissect_ConnectSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ConnectSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ConnectSMSArg_PDU);
+  return offset;
+}
+static int dissect_EventReportSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_EventReportSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_EventReportSMSArg_PDU);
+  return offset;
+}
+static int dissect_FurnishChargingInformationSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_FurnishChargingInformationSMSArg_PDU);
+  return offset;
+}
+static int dissect_InitialDPSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_InitialDPSMSArg_PDU);
+  return offset;
+}
+static int dissect_ReleaseSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ReleaseSMSArg_PDU);
+  return offset;
+}
+static int dissect_RequestReportSMSEventArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_RequestReportSMSEventArg_PDU);
+  return offset;
+}
+static int dissect_ResetTimerSMSArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_ResetTimerSMSArg_PDU);
+  return offset;
 }
 static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -6331,7 +6690,7 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 294 "packet-camel-template.c"
+#line 292 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -6342,148 +6701,148 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
   switch(opcode){
     case opcode_playAnnouncement:  /* playAnnouncement */
-      offset= dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, actx, tree, hf_camel_playAnnouncement);
+      offset= dissect_PlayAnnouncementArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-      offset= dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_promptAndCollectUserInformation);
+      offset= dissect_PromptAndCollectUserInformationArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_specializedResourceReport:  /* specializedResourceReport */
-      offset= dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, actx, tree, hf_camel_specializedResourceReport);
+      offset= dissect_SpecializedResourceReportArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_applyCharging:  /* applyCharging */
-      offset= dissect_camel_ApplyChargingArg(FALSE, tvb, offset, actx, tree, hf_camel_applyCharging);
+      offset= dissect_ApplyChargingArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_applyChargingReport:  /* applyChargingReport */
-      offset= dissect_camel_ApplyChargingReportArg(FALSE, tvb, offset, actx, tree, hf_camel_applyChargingReport);
+      offset= dissect_ApplyChargingReportArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_assistRequestInstructions:  /* assistRequestInstructions */
-      offset= dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, actx, tree, hf_camel_assistRequestInstructions);
+      offset= dissect_AssistRequestInstructionsArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_callGap:  /* callGap */
-      offset= dissect_camel_CallGapArg(FALSE, tvb, offset, actx, tree, hf_camel_callGap);
+      offset= dissect_CallGapArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_callInformationReport:  /* callInformationReport */
-      offset= dissect_camel_CallInformationReportArg(FALSE, tvb, offset, actx, tree, hf_camel_callInformationReport);
+      offset= dissect_CallInformationReportArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_callInformationRequest:  /* callInformationRequest */
-      offset= dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, actx, tree, hf_camel_callInformationRequest);
+      offset= dissect_CallInformationRequestArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_cancel:  /* cancel */
-      offset= dissect_camel_CancelArg(FALSE, tvb, offset, actx, tree, hf_camel_cancel);
+      offset= dissect_CancelArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_connect:  /* connect */
-      offset= dissect_camel_ConnectArg(FALSE, tvb, offset, actx, tree, hf_camel_connect);
+      offset= dissect_ConnectArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_connectToResource:  /* connectToResource */
-      offset= dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, actx, tree, hf_camel_connectToResource);
+      offset= dissect_ConnectToResourceArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_continueWithArgument:  /* continueWithArgument */
-      offset= dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, actx, tree, hf_camel_continueWithArgument);
+      offset= dissect_ContinueWithArgumentArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_dFCWithArgument:  /* disconnectForwardConnectionWithArgument */
-      offset= dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, actx, tree, hf_camel_disconnectForwardConnectionWithArgument);
+      offset= dissect_DisconnectForwardConnectionWithArgumentArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_disconnectLeg:  /* disconnectLeg */
-      offset= dissect_camel_DisconnectLegArg(FALSE, tvb, offset, actx, tree, hf_camel_disconnectLeg);
+      offset= dissect_DisconnectLegArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_entityReleased:  /* entityReleased */
-      offset= dissect_camel_EntityReleasedArg(FALSE, tvb, offset, actx, tree, hf_camel_entityReleased);
+      offset= dissect_EntityReleasedArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_establishTemporaryConnection:  /* establishTemporaryConnection */
-      offset= dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, actx, tree, hf_camel_establishTemporaryConnection);
+      offset= dissect_EstablishTemporaryConnectionArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_eventReportBCSM:  /* eventReportBCSM */
-      offset= dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, actx, tree, hf_camel_eventReportBCSM);
+      offset= dissect_EventReportBCSMArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_furnishChargingInformation:  /* furnishChargingInformation */
-      offset= dissect_camel_FurnishChargingInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_furnishChargingInformation);
+      offset= dissect_FurnishChargingInformationArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_initialDP:  /* initialDP */
-      offset= dissect_camel_InitialDPArg(FALSE, tvb, offset, actx, tree, hf_camel_initialDP);
+      offset= dissect_InitialDPArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-      offset= dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, actx, tree, hf_camel_initiateCallAttempt);
+      offset= dissect_InitiateCallAttemptArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_moveLeg:  /* moveLeg */
-      offset= dissect_camel_MoveLegArg(FALSE, tvb, offset, actx, tree, hf_camel_moveLeg);
+      offset= dissect_MoveLegArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_playTone:  /* playTone */
-      offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, actx, tree, hf_camel_playTone);
+      offset= dissect_PlayToneArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_releaseCall:  /* releaseCall */
-      offset= dissect_camel_ReleaseCallArg(FALSE, tvb, offset, actx, tree, hf_camel_releaseCall);
+      offset= dissect_ReleaseCallArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_requestReportBCSMEvent:  /* requestReportBCSMEvent */
-      offset= dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, actx, tree, hf_camel_requestReportBCSMEvent);
+      offset= dissect_RequestReportBCSMEventArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_resetTimer:  /* resetTimer */
-      offset= dissect_camel_ResetTimerArg(FALSE, tvb, offset, actx, tree, hf_camel_resetTimer);
+      offset= dissect_ResetTimerArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_sendChargingInformation:  /* sendChargingInformation */
-      offset= dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_sendChargingInformation);
+      offset= dissect_SendChargingInformationArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_splitLeg:  /* splitLeg */
-      offset= dissect_camel_SplitLegArg(FALSE, tvb, offset, actx, tree, hf_camel_splitLeg);
+      offset= dissect_SplitLegArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_applyChargingGPRS:  /* applyChargingGPRS */
-      offset= dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_applyChargingGPRS);
+      offset= dissect_ApplyChargingGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_applyChargingReportGPRS:  /* applyChargingReportGPRS */
-      offset= dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_applyChargingReportGPRS);
+      offset= dissect_ApplyChargingReportGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_cancelGPRS:  /* cancelGPRS */
-      offset= dissect_camel_CancelGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_cancelGPRS);
+      offset= dissect_CancelGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_connectGPRS:  /* connectGPRS */
-      offset= dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_connectGPRS);
+      offset= dissect_ConnectGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_continueGPRS:  /* continueGPRS */
-      offset= dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_continueGPRS);
+      offset= dissect_ContinueGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_entityReleasedGPRS:  /* entityReleasedGPRS */
-      offset= dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_entityReleasedGPRS);
+      offset= dissect_EntityReleasedGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_eventReportGPRS:  /* eventReportGPRS */
-      offset= dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_eventReportGPRS);
+      offset= dissect_EventReportGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_furnishChargingInformationGPRS:  /* furnishChargingInformationGPRS */
-      offset= dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_furnishChargingInformationGPRS);
+      offset= dissect_FurnishChargingInformationGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_initialDPGPRS:  /* initialDPGPRS */
-      offset= dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_initialDPGPRS);
+      offset= dissect_InitialDPGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_releaseGPRS:  /* releaseGPRS */
-      offset= dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_releaseGPRS);
+      offset= dissect_ReleaseGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_requestReportGPRSEvent:  /* requestReportGPRSEvent */
-      offset= dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, actx, tree, hf_camel_requestReportGPRSEvent);
+      offset= dissect_RequestReportGPRSEventArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_resetTimerGPRS:  /* resetTimerGPRS */
-      offset= dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_resetTimerGPRS);
+      offset= dissect_ResetTimerGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_sendChargingInformationGPRS:  /* sendChargingInformationGPRS */
-      offset= dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, hf_camel_sendChargingInformationGPRS);
+      offset= dissect_SendChargingInformationGPRSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_connectSMS:  /* connectSMS */
-      offset= dissect_camel_ConnectSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_connectSMS);
+      offset= dissect_ConnectSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_eventReportSMS:  /* eventReportSMS */
-      offset= dissect_camel_EventReportSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_eventReportSMS);
+      offset= dissect_EventReportSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_furnishChargingInformationSMS:  /* furnishChargingInformationSMS */
-      offset= dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_furnishChargingInformationSMS);
+      offset= dissect_FurnishChargingInformationSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_initialDPSMS:  /* initialDPSMS */
-      offset= dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_initialDPSMS);
+      offset= dissect_InitialDPSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_releaseSMS:  /* releaseSMS */
-      offset= dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_releaseSMS);
+      offset= dissect_ReleaseSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_requestReportSMSEvent:  /* requestReportSMSEvent */
-      offset= dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, actx, tree, hf_camel_requestReportSMSEvent);
+      offset= dissect_RequestReportSMSEventArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_resetTimerSMS:  /* resetTimerSMS */
-      offset= dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_resetTimerSMS);
+      offset= dissect_ResetTimerSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
@@ -6499,10 +6858,10 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   switch(opcode){
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-	  offset= dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, hf_camel_promptAndCollectUserInformation);
+	  offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_initiateCallAttempt:  /* initiateCallAttempt */
-	  offset= dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, actx, tree, hf_camel_initiateCallAttempt);
+	  offset= dissect_InitiateCallAttemptRes_PDU(tvb, actx->pinfo , tree);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -6518,16 +6877,16 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
-      dissect_camel_PAR_cancelFailed(FALSE, tvb, offset, actx, tree, hf_camel_cancelFailed);
+      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree);
       break;
     case errcode_requestedInfoError:  /* requestedInfoError */
-      dissect_camel_PAR_requestedInfoError(FALSE, tvb, offset, actx, tree, hf_camel_requestedInfoError);
+      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree);
       break;
     case errcode_systemFailure:  /* systemFailure */
-      dissect_camel_UnavailableNetworkResource(FALSE, tvb, offset, actx, tree, hf_camel_systemFailure);
+      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree);
       break;
     case errcode_taskRefused:  /* taskRefused */
-      dissect_camel_PAR_taskRefused(FALSE, tvb, offset, actx, tree, hf_camel_taskRefused);
+      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree);
       break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
@@ -6539,7 +6898,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 296 "packet-camel-template.c"
+#line 294 "packet-camel-template.c"
 
 
 
@@ -6651,6 +7010,7 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-cap3-sms-AC(61)" );
 
+
 /*--- Included file: packet-camel-dis-tab.c ---*/
 #line 1 "packet-camel-dis-tab.c"
   register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_CAP_GPRS_ReferenceNumber_PDU, proto_camel, "id-CAP-GPRS-ReferenceNumber");
@@ -6658,7 +7018,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 407 "packet-camel-template.c"
+#line 406 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
   }
@@ -6801,312 +7161,228 @@ void proto_register_camel(void) {
 #ifdef REMOVED
 #endif
 
-/*--- Included file: packet-camel-table3.c ---*/
-#line 1 "packet-camel-table3.c"
-
-/* CAMEL OPERATIONS hf filelds */
-    { &hf_camel_playAnnouncement,
-      { "playAnnouncement", "camel.playAnnouncement",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.playAnnouncement", HFILL }},
-
-    { &hf_camel_promptAndCollectUserInformation,
-      { "promptAndCollectUserInformation", "camel.promptAndCollectUserInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.promptAndCollectUserInformation", HFILL }},
-
-    { &hf_camel_specializedResourceReport,
-      { "specializedResourceReport", "camel.specializedResourceReport",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.specializedResourceReport", HFILL }},
-
-    { &hf_camel_activityTest,
-      { "activityTest", "camel.activityTest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.activityTest", HFILL }},
-
-    { &hf_camel_applyCharging,
-      { "applyCharging", "camel.applyCharging",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.applyCharging", HFILL }},
-
-    { &hf_camel_applyChargingReport,
-      { "applyChargingReport", "camel.applyChargingReport",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.applyChargingReport", HFILL }},
-
-    { &hf_camel_assistRequestInstructions,
-      { "assistRequestInstructions", "camel.assistRequestInstructions",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.assistRequestInstructions", HFILL }},
-
-    { &hf_camel_callGap,
-      { "callGap", "camel.callGap",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.callGap", HFILL }},
-
-    { &hf_camel_callInformationReport,
-      { "callInformationReport", "camel.callInformationReport",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.callInformationReport", HFILL }},
-
-    { &hf_camel_callInformationRequest,
-      { "callInformationRequest", "camel.callInformationRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.callInformationRequest", HFILL }},
-
-    { &hf_camel_cancel,
-      { "cancel", "camel.cancel",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.cancel", HFILL }},
-
-    { &hf_camel_collectInformation,
-      { "collectInformation", "camel.collectInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.collectInformation", HFILL }},
-
-    { &hf_camel_connect,
-      { "connect", "camel.connect",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.connect", HFILL }},
-
-    { &hf_camel_connectToResource,
-      { "connectToResource", "camel.connectToResource",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.connectToResource", HFILL }},
-
-    { &hf_camel_continue,
-      { "continue", "camel.continue",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.continue", HFILL }},
-
-    { &hf_camel_continueWithArgument,
-      { "continueWithArgument", "camel.continueWithArgument",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.continueWithArgument", HFILL }},
-
-    { &hf_camel_disconnectForwardConnection,
-      { "disconnectForwardConnection", "camel.disconnectForwardConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.disconnectForwardConnection", HFILL }},
-
-    { &hf_camel_disconnectForwardConnectionWithArgument,
-      { "disconnectForwardConnectionWithArgument", "camel.disconnectForwardConnectionWithArgument",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.disconnectForwardConnectionWithArgument", HFILL }},
-
-    { &hf_camel_disconnectLeg,
-      { "disconnectLeg", "camel.disconnectLeg",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.disconnectLeg", HFILL }},
-
-    { &hf_camel_entityReleased,
-      { "entityReleased", "camel.entityReleased",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.entityReleased", HFILL }},
-
-    { &hf_camel_establishTemporaryConnection,
-      { "establishTemporaryConnection", "camel.establishTemporaryConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.establishTemporaryConnection", HFILL }},
-
-    { &hf_camel_eventReportBCSM,
-      { "eventReportBCSM", "camel.eventReportBCSM",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.eventReportBCSM", HFILL }},
-
-    { &hf_camel_furnishChargingInformation,
-      { "furnishChargingInformation", "camel.furnishChargingInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.furnishChargingInformation", HFILL }},
-
-    { &hf_camel_initialDP,
-      { "initialDP", "camel.initialDP",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.initialDP", HFILL }},
-
-    { &hf_camel_initiateCallAttempt,
-      { "initiateCallAttempt", "camel.initiateCallAttempt",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.initiateCallAttempt", HFILL }},
-
-    { &hf_camel_moveLeg,
-      { "moveLeg", "camel.moveLeg",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.moveLeg", HFILL }},
-
-    { &hf_camel_playTone,
-      { "playTone", "camel.playTone",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.playTone", HFILL }},
-
-    { &hf_camel_releaseCall,
-      { "releaseCall", "camel.releaseCall",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.releaseCall", HFILL }},
-
-    { &hf_camel_requestReportBCSMEvent,
-      { "requestReportBCSMEvent", "camel.requestReportBCSMEvent",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.requestReportBCSMEvent", HFILL }},
-
-    { &hf_camel_resetTimer,
-      { "resetTimer", "camel.resetTimer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.resetTimer", HFILL }},
-
-    { &hf_camel_sendChargingInformation,
-      { "sendChargingInformation", "camel.sendChargingInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.sendChargingInformation", HFILL }},
-
-    { &hf_camel_splitLeg,
-      { "splitLeg", "camel.splitLeg",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.splitLeg", HFILL }},
-
-    { &hf_camel_activityTestGPRS,
-      { "activityTestGPRS", "camel.activityTestGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.activityTestGPRS", HFILL }},
-
-    { &hf_camel_applyChargingGPRS,
-      { "applyChargingGPRS", "camel.applyChargingGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.applyChargingGPRS", HFILL }},
-
-    { &hf_camel_applyChargingReportGPRS,
-      { "applyChargingReportGPRS", "camel.applyChargingReportGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.applyChargingReportGPRS", HFILL }},
-
-    { &hf_camel_cancelGPRS,
-      { "cancelGPRS", "camel.cancelGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.cancelGPRS", HFILL }},
-
-    { &hf_camel_connectGPRS,
-      { "connectGPRS", "camel.connectGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.connectGPRS", HFILL }},
-
-    { &hf_camel_continueGPRS,
-      { "continueGPRS", "camel.continueGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.continueGPRS", HFILL }},
-
-    { &hf_camel_entityReleasedGPRS,
-      { "entityReleasedGPRS", "camel.entityReleasedGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.entityReleasedGPRS", HFILL }},
-
-    { &hf_camel_eventReportGPRS,
-      { "eventReportGPRS", "camel.eventReportGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.eventReportGPRS", HFILL }},
-
-    { &hf_camel_furnishChargingInformationGPRS,
-      { "furnishChargingInformationGPRS", "camel.furnishChargingInformationGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.furnishChargingInformationGPRS", HFILL }},
-
-    { &hf_camel_initialDPGPRS,
-      { "initialDPGPRS", "camel.initialDPGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.initialDPGPRS", HFILL }},
-
-    { &hf_camel_releaseGPRS,
-      { "releaseGPRS", "camel.releaseGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.releaseGPRS", HFILL }},
-
-    { &hf_camel_requestReportGPRSEvent,
-      { "requestReportGPRSEvent", "camel.requestReportGPRSEvent",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.requestReportGPRSEvent", HFILL }},
-
-    { &hf_camel_resetTimerGPRS,
-      { "resetTimerGPRS", "camel.resetTimerGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.resetTimerGPRS", HFILL }},
-
-    { &hf_camel_sendChargingInformationGPRS,
-      { "sendChargingInformationGPRS", "camel.sendChargingInformationGPRS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.sendChargingInformationGPRS", HFILL }},
-
-    { &hf_camel_connectSMS,
-      { "connectSMS", "camel.connectSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.connectSMS", HFILL }},
-
-    { &hf_camel_continueSMS,
-      { "continueSMS", "camel.continueSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.continueSMS", HFILL }},
-
-    { &hf_camel_eventReportSMS,
-      { "eventReportSMS", "camel.eventReportSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.eventReportSMS", HFILL }},
-
-    { &hf_camel_furnishChargingInformationSMS,
-      { "furnishChargingInformationSMS", "camel.furnishChargingInformationSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.furnishChargingInformationSMS", HFILL }},
-
-    { &hf_camel_initialDPSMS,
-      { "initialDPSMS", "camel.initialDPSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.initialDPSMS", HFILL }},
-
-    { &hf_camel_releaseSMS,
-      { "releaseSMS", "camel.releaseSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.releaseSMS", HFILL }},
-
-    { &hf_camel_requestReportSMSEvent,
-      { "requestReportSMSEvent", "camel.requestReportSMSEvent",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.requestReportSMSEvent", HFILL }},
-
-    { &hf_camel_resetTimerSMS,
-      { "resetTimerSMS", "camel.resetTimerSMS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.resetTimerSMS", HFILL }},
-
-/* END CAMEL OPERATIONS hf filelds */
-
-
-/* CAMEL ERRORS  hf filelds */
-    { &hf_camel_cancelFailed,
-      { "cancelFailed", "camel.cancelFailed",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.cancelFailed", HFILL }},
-    { &hf_camel_requestedInfoError,
-      { "requestedInfoError", "camel.requestedInfoError",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.requestedInfoError", HFILL }},
-    { &hf_camel_systemFailure,
-      { "systemFailure", "camel.systemFailure",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.systemFailure", HFILL }},
-    { &hf_camel_taskRefused,
-      { "taskRefused", "camel.taskRefused",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camel.taskRefused", HFILL }},
-/* END CAMEL ERRORS hf filelds */
-
-
-/*--- End of included file: packet-camel-table3.c ---*/
-#line 549 "packet-camel-template.c"
-
 /*--- Included file: packet-camel-hfarr.c ---*/
 #line 1 "packet-camel-hfarr.c"
+    { &hf_camel_PAR_cancelFailed_PDU,
+      { "PAR-cancelFailed", "camel.PAR_cancelFailed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.PAR_cancelFailed", HFILL }},
+    { &hf_camel_PAR_requestedInfoError_PDU,
+      { "PAR-requestedInfoError", "camel.PAR_requestedInfoError",
+        FT_UINT32, BASE_DEC, VALS(camel_PAR_requestedInfoError_vals), 0,
+        "camel.PAR_requestedInfoError", HFILL }},
+    { &hf_camel_UnavailableNetworkResource_PDU,
+      { "UnavailableNetworkResource", "camel.UnavailableNetworkResource",
+        FT_UINT32, BASE_DEC, VALS(camel_UnavailableNetworkResource_vals), 0,
+        "camel.UnavailableNetworkResource", HFILL }},
+    { &hf_camel_PAR_taskRefused_PDU,
+      { "PAR-taskRefused", "camel.PAR_taskRefused",
+        FT_UINT32, BASE_DEC, VALS(camel_PAR_taskRefused_vals), 0,
+        "camel.PAR_taskRefused", HFILL }},
     { &hf_camel_CAP_GPRS_ReferenceNumber_PDU,
       { "CAP-GPRS-ReferenceNumber", "camel.CAP_GPRS_ReferenceNumber",
         FT_NONE, BASE_NONE, NULL, 0,
         "camel.CAP_GPRS_ReferenceNumber", HFILL }},
+    { &hf_camel_PlayAnnouncementArg_PDU,
+      { "PlayAnnouncementArg", "camel.PlayAnnouncementArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.PlayAnnouncementArg", HFILL }},
+    { &hf_camel_PromptAndCollectUserInformationArg_PDU,
+      { "PromptAndCollectUserInformationArg", "camel.PromptAndCollectUserInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.PromptAndCollectUserInformationArg", HFILL }},
+    { &hf_camel_ReceivedInformationArg_PDU,
+      { "ReceivedInformationArg", "camel.ReceivedInformationArg",
+        FT_UINT32, BASE_DEC, VALS(camel_ReceivedInformationArg_vals), 0,
+        "camel.ReceivedInformationArg", HFILL }},
+    { &hf_camel_SpecializedResourceReportArg_PDU,
+      { "SpecializedResourceReportArg", "camel.SpecializedResourceReportArg",
+        FT_UINT32, BASE_DEC, VALS(camel_SpecializedResourceReportArg_vals), 0,
+        "camel.SpecializedResourceReportArg", HFILL }},
+    { &hf_camel_ApplyChargingArg_PDU,
+      { "ApplyChargingArg", "camel.ApplyChargingArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ApplyChargingArg", HFILL }},
+    { &hf_camel_ApplyChargingReportArg_PDU,
+      { "ApplyChargingReportArg", "camel.ApplyChargingReportArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.ApplyChargingReportArg", HFILL }},
+    { &hf_camel_AssistRequestInstructionsArg_PDU,
+      { "AssistRequestInstructionsArg", "camel.AssistRequestInstructionsArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.AssistRequestInstructionsArg", HFILL }},
+    { &hf_camel_CallGapArg_PDU,
+      { "CallGapArg", "camel.CallGapArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.CallGapArg", HFILL }},
+    { &hf_camel_CallInformationReportArg_PDU,
+      { "CallInformationReportArg", "camel.CallInformationReportArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.CallInformationReportArg", HFILL }},
+    { &hf_camel_CallInformationRequestArg_PDU,
+      { "CallInformationRequestArg", "camel.CallInformationRequestArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.CallInformationRequestArg", HFILL }},
+    { &hf_camel_CancelArg_PDU,
+      { "CancelArg", "camel.CancelArg",
+        FT_UINT32, BASE_DEC, VALS(camel_CancelArg_vals), 0,
+        "camel.CancelArg", HFILL }},
+    { &hf_camel_ConnectArg_PDU,
+      { "ConnectArg", "camel.ConnectArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ConnectArg", HFILL }},
+    { &hf_camel_ConnectToResourceArg_PDU,
+      { "ConnectToResourceArg", "camel.ConnectToResourceArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ConnectToResourceArg", HFILL }},
+    { &hf_camel_ContinueWithArgumentArg_PDU,
+      { "ContinueWithArgumentArg", "camel.ContinueWithArgumentArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ContinueWithArgumentArg", HFILL }},
+    { &hf_camel_DisconnectForwardConnectionWithArgumentArg_PDU,
+      { "DisconnectForwardConnectionWithArgumentArg", "camel.DisconnectForwardConnectionWithArgumentArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.DisconnectForwardConnectionWithArgumentArg", HFILL }},
+    { &hf_camel_DisconnectLegArg_PDU,
+      { "DisconnectLegArg", "camel.DisconnectLegArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.DisconnectLegArg", HFILL }},
+    { &hf_camel_EntityReleasedArg_PDU,
+      { "EntityReleasedArg", "camel.EntityReleasedArg",
+        FT_UINT32, BASE_DEC, VALS(camel_EntityReleasedArg_vals), 0,
+        "camel.EntityReleasedArg", HFILL }},
+    { &hf_camel_EstablishTemporaryConnectionArg_PDU,
+      { "EstablishTemporaryConnectionArg", "camel.EstablishTemporaryConnectionArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.EstablishTemporaryConnectionArg", HFILL }},
+    { &hf_camel_EventReportBCSMArg_PDU,
+      { "EventReportBCSMArg", "camel.EventReportBCSMArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.EventReportBCSMArg", HFILL }},
+    { &hf_camel_FurnishChargingInformationArg_PDU,
+      { "FurnishChargingInformationArg", "camel.FurnishChargingInformationArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.FurnishChargingInformationArg", HFILL }},
+    { &hf_camel_InitialDPArg_PDU,
+      { "InitialDPArg", "camel.InitialDPArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.InitialDPArg", HFILL }},
+    { &hf_camel_InitiateCallAttemptArg_PDU,
+      { "InitiateCallAttemptArg", "camel.InitiateCallAttemptArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.InitiateCallAttemptArg", HFILL }},
+    { &hf_camel_InitiateCallAttemptRes_PDU,
+      { "InitiateCallAttemptRes", "camel.InitiateCallAttemptRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.InitiateCallAttemptRes", HFILL }},
+    { &hf_camel_MoveLegArg_PDU,
+      { "MoveLegArg", "camel.MoveLegArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.MoveLegArg", HFILL }},
+    { &hf_camel_PlayToneArg_PDU,
+      { "PlayToneArg", "camel.PlayToneArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.PlayToneArg", HFILL }},
+    { &hf_camel_ReleaseCallArg_PDU,
+      { "ReleaseCallArg", "camel.ReleaseCallArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.ReleaseCallArg", HFILL }},
+    { &hf_camel_RequestReportBCSMEventArg_PDU,
+      { "RequestReportBCSMEventArg", "camel.RequestReportBCSMEventArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.RequestReportBCSMEventArg", HFILL }},
+    { &hf_camel_ResetTimerArg_PDU,
+      { "ResetTimerArg", "camel.ResetTimerArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ResetTimerArg", HFILL }},
+    { &hf_camel_SendChargingInformationArg_PDU,
+      { "SendChargingInformationArg", "camel.SendChargingInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.SendChargingInformationArg", HFILL }},
+    { &hf_camel_SplitLegArg_PDU,
+      { "SplitLegArg", "camel.SplitLegArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.SplitLegArg", HFILL }},
+    { &hf_camel_ApplyChargingGPRSArg_PDU,
+      { "ApplyChargingGPRSArg", "camel.ApplyChargingGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ApplyChargingGPRSArg", HFILL }},
+    { &hf_camel_ApplyChargingReportGPRSArg_PDU,
+      { "ApplyChargingReportGPRSArg", "camel.ApplyChargingReportGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ApplyChargingReportGPRSArg", HFILL }},
+    { &hf_camel_CancelGPRSArg_PDU,
+      { "CancelGPRSArg", "camel.CancelGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.CancelGPRSArg", HFILL }},
+    { &hf_camel_ConnectGPRSArg_PDU,
+      { "ConnectGPRSArg", "camel.ConnectGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ConnectGPRSArg", HFILL }},
+    { &hf_camel_ContinueGPRSArg_PDU,
+      { "ContinueGPRSArg", "camel.ContinueGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ContinueGPRSArg", HFILL }},
+    { &hf_camel_EntityReleasedGPRSArg_PDU,
+      { "EntityReleasedGPRSArg", "camel.EntityReleasedGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.EntityReleasedGPRSArg", HFILL }},
+    { &hf_camel_EventReportGPRSArg_PDU,
+      { "EventReportGPRSArg", "camel.EventReportGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.EventReportGPRSArg", HFILL }},
+    { &hf_camel_FurnishChargingInformationGPRSArg_PDU,
+      { "FurnishChargingInformationGPRSArg", "camel.FurnishChargingInformationGPRSArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.FurnishChargingInformationGPRSArg", HFILL }},
+    { &hf_camel_InitialDPGPRSArg_PDU,
+      { "InitialDPGPRSArg", "camel.InitialDPGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.InitialDPGPRSArg", HFILL }},
+    { &hf_camel_ReleaseGPRSArg_PDU,
+      { "ReleaseGPRSArg", "camel.ReleaseGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ReleaseGPRSArg", HFILL }},
+    { &hf_camel_RequestReportGPRSEventArg_PDU,
+      { "RequestReportGPRSEventArg", "camel.RequestReportGPRSEventArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.RequestReportGPRSEventArg", HFILL }},
+    { &hf_camel_ResetTimerGPRSArg_PDU,
+      { "ResetTimerGPRSArg", "camel.ResetTimerGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ResetTimerGPRSArg", HFILL }},
+    { &hf_camel_SendChargingInformationGPRSArg_PDU,
+      { "SendChargingInformationGPRSArg", "camel.SendChargingInformationGPRSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.SendChargingInformationGPRSArg", HFILL }},
+    { &hf_camel_ConnectSMSArg_PDU,
+      { "ConnectSMSArg", "camel.ConnectSMSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ConnectSMSArg", HFILL }},
+    { &hf_camel_EventReportSMSArg_PDU,
+      { "EventReportSMSArg", "camel.EventReportSMSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.EventReportSMSArg", HFILL }},
+    { &hf_camel_FurnishChargingInformationSMSArg_PDU,
+      { "FurnishChargingInformationSMSArg", "camel.FurnishChargingInformationSMSArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.FurnishChargingInformationSMSArg", HFILL }},
+    { &hf_camel_InitialDPSMSArg_PDU,
+      { "InitialDPSMSArg", "camel.InitialDPSMSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.InitialDPSMSArg", HFILL }},
+    { &hf_camel_ReleaseSMSArg_PDU,
+      { "ReleaseSMSArg", "camel.ReleaseSMSArg",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "camel.ReleaseSMSArg", HFILL }},
+    { &hf_camel_RequestReportSMSEventArg_PDU,
+      { "RequestReportSMSEventArg", "camel.RequestReportSMSEventArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.RequestReportSMSEventArg", HFILL }},
+    { &hf_camel_ResetTimerSMSArg_PDU,
+      { "ResetTimerSMSArg", "camel.ResetTimerSMSArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "camel.ResetTimerSMSArg", HFILL }},
     { &hf_camel_CAP_U_ABORT_REASON_PDU,
       { "CAP-U-ABORT-REASON", "camel.CAP_U_ABORT_REASON",
         FT_UINT32, BASE_DEC, VALS(camel_CAP_U_ABORT_REASON_vals), 0,
@@ -8761,7 +9037,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 550 "packet-camel-template.c"
+#line 548 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -8962,7 +9238,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 561 "packet-camel-template.c"
+#line 559 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

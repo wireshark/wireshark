@@ -41,6 +41,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/oid_resolv.h>
 #include "epan/expert.h"
 #include <epan/asn1.h>
 
@@ -579,7 +580,7 @@ static int hf_inap_uIScriptSpecificInfo_02 = -1;  /* T_uIScriptSpecificInfo_02 *
 static int hf_inap_sRFgapCriteria = -1;           /* SRFGapCriteria */
 
 /*--- End of included file: packet-inap-hf.c ---*/
-#line 57 "packet-inap-template.c"
+#line 58 "packet-inap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -834,7 +835,7 @@ static gint ett_inap_ScriptRunArg = -1;
 static gint ett_inap_SRFCallGapArg = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 72 "packet-inap-template.c"
+#line 73 "packet-inap-template.c"
 
 const value_string inap_opr_code_strings[] = {
 
@@ -8085,7 +8086,7 @@ static void dissect_SpecializedResourceReportArg_PDU(tvbuff_t *tvb _U_, packet_i
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 201 "packet-inap-template.c"
+#line 202 "packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -8473,6 +8474,8 @@ void proto_reg_handoff_inap(void) {
     ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
+
+	add_oid_str_name("0.4.0.1.1.0.3.0","Core-INAP-CS1-Codes");
 }
 
 
@@ -10540,7 +10543,7 @@ void proto_register_inap(void) {
         "inap.SRFGapCriteria", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 599 "packet-inap-template.c"
+#line 602 "packet-inap-template.c"
   };
 
 
@@ -10792,7 +10795,7 @@ void proto_register_inap(void) {
     &ett_inap_SRFCallGapArg,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 611 "packet-inap-template.c"
+#line 614 "packet-inap-template.c"
   };
 
   /* Register protocol */
