@@ -159,7 +159,7 @@ update_pref_check(gchar *pref_name, gchar *value, char *check_prefix, char *chec
 }
 
 /* a new key value pair from the update file */
-static int
+static prefs_set_pref_e
 update_pref(gchar *pref_name, gchar *value, void *private_data)
 {
     update_info_t *update_info = private_data;
