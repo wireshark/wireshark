@@ -2651,6 +2651,10 @@ Ted Percival <ted[AT]midg3t.net> {
 	Support for PA-S4U2Self Kerberos packet type
 }
 
+Marc Petit-Huguenin	<marc [AT] petit-huguenin.org> {
+	Update STUN2 to draft-ietf-behave-rfc3489bis-07
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -2770,7 +2774,6 @@ Kaul			<mykaul [AT] gmail.com>
 John Sullivan		<john [AT] kanargh.force9.co.uk>
 Martin André		<andre [AT] clarinet.u-strasbg.fr>
 Andrei Emeltchenko	<Andrei.Emeltchenko [AT] nokia.com>
-Marc Petit-Huguenin	<marc [AT] petit-huguenin.org>
 Kirby Files		<kfiles [AT] masergy.com>
 Ravi Valmikam           <rvalmikam [AT] airvananet.com>
 Diego Pettenò		<flameeyes [AT] gentoo.org>
