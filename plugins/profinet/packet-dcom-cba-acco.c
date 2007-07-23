@@ -822,7 +822,7 @@ cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 pr
     }
 
 	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
-        "Unknown provider frame with ProvCRID:0x%x", provcrid);
+        "Unknown provider frame ProvCRID");
 
     return NULL;
 }
