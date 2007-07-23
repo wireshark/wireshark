@@ -342,7 +342,9 @@ conversation_cb(GtkWidget * w, gpointer data _U_, int action)
   break;
     case(CONV_ETHER):
         /* XXX - is this the right way to check for Ethernet? */
-	if (cfile.edt->pi.ethertype == 0x0) {
+        /* check for the data link address type */
+        /* (ethertype will be 0 when used as length field) */
+        if (cfile.edt->pi.dl_src.type != 1) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Error filtering conversation.  Please make\n"
 			      "sure you have a Ethernet packet selected.");
@@ -2408,7 +2410,7 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
       cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
-      cf->current_frame != NULL ? (cf->edt->pi.ethertype != 0) : FALSE);
+      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == 1) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
       cf->current_frame != NULL ? (cf->edt->pi.ethertype == 0x800) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/TCP",
