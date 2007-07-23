@@ -458,6 +458,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-isl.c		\
 	packet-ismp.c		\
 	packet-isns.c		\
+	packet-isup.c		\
 	packet-isup_thin.c	\
 	packet-iua.c		\
 	packet-iuup.c		\
@@ -747,7 +748,6 @@ DISSECTOR_SRC =	\
 	packet-bacapp.c		\
 	packet-cops.c 		\
 	packet-diameter.c	\
-	packet-isup.c		\
 	packet-k12.c 		\
 	packet-nbd.c		\
 	packet-sccp.c		\
