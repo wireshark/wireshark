@@ -111,6 +111,7 @@ enum {
   COL_TEI,            /* Q.921 TEI */
   COL_FR_DLCI,	      /* Frame Relay DLCI */
   COL_BSSGP_TLLI,     /* GPRS BSSGP IE TLLI */
+  COL_EXPERT,         /* Expert Info */
   NUM_COL_FMTS        /* Should always be last */
 };
 

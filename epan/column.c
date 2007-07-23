@@ -95,14 +95,14 @@ col_format_to_string(gint fmt) {
     "%H", 
     "%P", 
     "%y", 
-	"%v",
+	"%z",
 	"%q",
 	"%f",
     "%U",  
     "%E",
 	"%C",
 	"%l",
-	"%z"
+	"%a"
 };
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -168,6 +168,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"TEI",                                      /* XXX - why is it missing in column_utils.c and elsewhere? */
 	"Frame Relay DLCI",							/* COL_FR_DLCI */
 	"GPRS BSSGP TLLI",							/* COL_BSSGP_TLLI */
+	"Expert Info Severity",					    /* COL_EXPERT */
 };
 
 const gchar *
@@ -285,6 +286,9 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_BSSGP_TLLI:
       fmt_list[COL_BSSGP_TLLI] = TRUE;
+      break;
+    case COL_EXPERT:
+      fmt_list[COL_EXPERT] = TRUE;
       break;
     default:
       break;
@@ -571,6 +575,9 @@ get_column_longest_string(gint format)
     case COL_BSSGP_TLLI:
       return "0xffffffff";
       break;
+    case COL_EXPERT:
+      return "ERROR";
+      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
@@ -739,6 +746,9 @@ get_column_format_from_str(gchar *str) {
 	return COL_FR_DLCI;
       case 'l':
 	return COL_BSSGP_TLLI;
+	break;
+      case 'a':
+	return COL_EXPERT;
 	break;
     }
     cptr++;

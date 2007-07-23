@@ -138,6 +138,9 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		expert_set_item_flags(pi, group, severity);
 	}
 
+	if (check_col(pinfo->cinfo, COL_EXPERT))
+	  col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "?%u?"));
+
 	tap_queue_packet(expert_tap, pinfo, ei);
 }
 

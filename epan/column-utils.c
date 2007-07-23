@@ -1353,6 +1353,9 @@ col_fill_in(packet_info *pinfo)
     case COL_BSSGP_TLLI: /* done by packet-bssgp.c */
         break;
 
+    case COL_EXPERT:    /* done by expert.c */
+        break;
+
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;
