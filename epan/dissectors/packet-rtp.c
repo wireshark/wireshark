@@ -158,6 +158,7 @@ static int hf_rtp_seq_nr       = -1;
 static int hf_rtp_ext_seq_nr   = -1;
 static int hf_rtp_timestamp    = -1;
 static int hf_rtp_ssrc         = -1;
+static int hf_rtp_csrc_items   = -1;
 static int hf_rtp_csrc_item    = -1;
 static int hf_rtp_data         = -1;
 static int hf_rtp_padding_data = -1;
@@ -169,6 +170,7 @@ static int hf_rtp_rfc2198_bl_len= -1;
 /* RTP header extension fields   */
 static int hf_rtp_prof_define  = -1;
 static int hf_rtp_length       = -1;
+static int hf_rtp_hdr_exts     = -1;
 static int hf_rtp_hdr_ext      = -1;
 
 /* RTP setup fields */
@@ -1038,7 +1040,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* CSRC list*/
 	if ( csrc_count > 0 ) {
 		if ( tree ) {
-			ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Contributing Source identifiers");
+			ti = proto_tree_add_item(rtp_tree, hf_rtp_csrc_items, tvb, offset,
+			                         csrc_count * 4, FALSE);
+			proto_item_append_text(ti, " (%u items)", csrc_count);
 			rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
 		}
 		for (i = 0; i < csrc_count; i++ ) {
@@ -1064,14 +1068,16 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset += 2;
 		if ( hdr_extension > 0 ) {
 			if ( tree ) {
-				ti = proto_tree_add_text(rtp_tree, tvb, offset, hdr_extension * 4, "Header extensions");
+				ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension * 4,
+				                         FALSE);
 				/* I'm re-using the old tree variable here
 				   from the CSRC list!*/
 				rtp_csrc_tree = proto_item_add_subtree( ti,
 				    ett_hdr_ext );
 			}
 			for (i = 0; i < hdr_extension; i++ ) {
-				if ( tree ) proto_tree_add_uint( rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+				if ( tree ) proto_tree_add_uint(rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4,
+				                                tvb_get_ntohl( tvb, offset ) );
 				offset += 4;
 			}
 		}
@@ -1505,12 +1511,36 @@ proto_register_rtp(void)
 			}
 		},
 		{
+			&hf_rtp_csrc_items,
+			{
+				"Contributing Source identifiers",
+				"rtp.csrc.items",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
 			&hf_rtp_csrc_item,
 			{
 				"CSRC item",
 				"rtp.csrc.item",
 				FT_UINT32,
 				BASE_HEX_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtp_hdr_exts,
+			{
+				"Header extensions",
+				"rtp.hdr_exts",
+				FT_NONE,
+				BASE_NONE,
 				NULL,
 				0x0,
 				"", HFILL
