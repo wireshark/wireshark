@@ -280,6 +280,7 @@ static int hf_pn_io_domain_boundary = -1;
 static int hf_pn_io_multicast_boundary = -1;
 static int hf_pn_io_adjust_properties = -1;
 static int hf_pn_io_mau_type = -1;
+static int hf_pn_io_mau_type_mode = -1;
 static int hf_pn_io_port_state = -1;
 static int hf_pn_io_line_delay = -1;
 static int hf_pn_io_number_of_peers = -1;
@@ -407,6 +408,12 @@ static int hf_pn_io_fs_hello_retry = -1;
 static int hf_pn_io_fs_hello_delay = -1;
 
 
+static int hf_pn_io_check_sync_mode = -1;
+static int hf_pn_io_check_sync_mode_reserved = -1;
+static int hf_pn_io_check_sync_mode_sync_master = -1;
+static int hf_pn_io_check_sync_mode_cable_delay = -1;
+
+
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_block_header = -1;
@@ -436,6 +443,7 @@ static gint ett_pn_io_data_status = -1;
 static gint ett_pn_io_iocr = -1;
 static gint ett_pn_io_mrp_rtmode = -1;
 static gint ett_pn_io_control_block_properties = -1;
+static gint ett_pn_io_check_sync_mode = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -541,6 +549,8 @@ static const value_string pn_io_block_type[] = {
 	{ 0x021B, "AdjustPortState"},
 	{ 0x021C, "Checking PortState"},
 	{ 0x021D, "Media redundancy RT mode for clients"},
+	{ 0x021E, "CheckSyncDifference"},
+	{ 0x021F, "CheckMAUTypeDifference"},
 	{ 0x0220, "PDPortFODataReal"},
 	{ 0x0221, "Reading real fiber optic manufacturerspecific data"},
 	{ 0x0222, "PDPortFODataAdjust"},
@@ -1292,6 +1302,14 @@ static const value_string pn_io_mau_type[] = {
     /*0x002F - 0x0035 reserved */
 	{ 0x0036, "100BASEPXFD" },
     /*0x0037 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+
+static const value_string pn_io_mau_type_mode[] = {
+	{ 0x0000, "OFF" },
+	{ 0x0001, "ON" },
+    /*0x0002 - 0xFFFF reserved */
     { 0, NULL }
 };
 
@@ -2873,6 +2891,52 @@ dissect_MrpRTModeClientData_block(tvbuff_t *tvb, int offset,
 
     /* MRP_RTMode */
     offset = dissect_MrpRTMode(tvb, offset, pinfo, tree, item, drep);
+
+    return offset;
+}
+
+
+static int
+dissect_CheckSyncDifference_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint16 u16CheckSyncMode;
+
+
+    sub_item = proto_tree_add_item(tree, hf_pn_io_check_sync_mode, tvb, offset, 2, FALSE);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_check_sync_mode);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_check_sync_mode_reserved, &u16CheckSyncMode);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_check_sync_mode_sync_master, &u16CheckSyncMode);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_check_sync_mode_cable_delay, &u16CheckSyncMode);
+
+
+    proto_item_append_text(sub_item, "CheckSyncMode: SyncMaster:%d, CableDelay:%d",
+        (u16CheckSyncMode & 0x2) && 1, (u16CheckSyncMode & 0x1) && 1);
+
+    proto_item_append_text(item, ": SyncMaster:%d, CableDelay:%d",
+        (u16CheckSyncMode >> 1) & 1, u16CheckSyncMode & 1);
+
+    return offset;
+}
+
+
+static int
+dissect_CheckMAUTypeDifference_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16MAUTypeMode;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_mau_type_mode, &u16MAUTypeMode);
+
+    proto_item_append_text(item, ": MAUTypeMode:%s",
+        val_to_str(u16MAUTypeMode, pn_io_mau_type_mode, "0x%x"));
 
     return offset;
 }
@@ -4796,6 +4860,12 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x021D):
         dissect_MrpRTModeClientData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
+    case(0x021E):
+        dissect_CheckSyncDifference_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x021F):
+        dissect_CheckMAUTypeDifference_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
     case(0x0220):
         dissect_PDPortFODataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
@@ -5967,6 +6037,8 @@ proto_register_pn_io (void)
       { "AdjustProperties", "pn_io.adjust_properties", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_mau_type,
       { "MAUType", "pn_io.mau_type", FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0, "", HFILL }},
+    { &hf_pn_io_mau_type_mode,
+      { "MAUTypeMode", "pn_io.mau_type_mode", FT_UINT16, BASE_HEX, VALS(pn_io_mau_type_mode), 0x0, "", HFILL }},
     { &hf_pn_io_port_state,
       { "PortState", "pn_io.port_state", FT_UINT16, BASE_HEX, VALS(pn_io_port_state), 0x0, "", HFILL }},
     { &hf_pn_io_line_delay,
@@ -6200,6 +6272,15 @@ proto_register_pn_io (void)
     { &hf_pn_io_fs_hello_delay,
 	    { "FSHelloDelay", "pn_io.fs_hello_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+    { &hf_pn_io_check_sync_mode,
+      { "CheckSyncMode", "pn_io.check_sync_mode", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_check_sync_mode_reserved,
+      { "Reserved", "pn_io.check_sync_mode.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFFC, "", HFILL }},
+    { &hf_pn_io_check_sync_mode_sync_master,
+      { "SyncMaster", "pn_io.check_sync_mode.sync_master", FT_UINT16, BASE_HEX, NULL, 0x0002, "", HFILL }},
+    { &hf_pn_io_check_sync_mode_cable_delay,
+      { "CableDelay", "pn_io.check_sync_mode.cable_delay", FT_UINT16, BASE_HEX, NULL, 0x0001, "", HFILL }},
+
     };
 
 	static gint *ett[] = {
@@ -6231,7 +6312,8 @@ proto_register_pn_io (void)
         &ett_pn_io_data_status,
         &ett_pn_io_iocr,
         &ett_pn_io_mrp_rtmode,
-        &ett_pn_io_control_block_properties
+        &ett_pn_io_control_block_properties,
+        &ett_pn_io_check_sync_mode
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
