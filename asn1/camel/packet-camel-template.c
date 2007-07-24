@@ -83,6 +83,13 @@ static int hf_camel_PDPAddress_IPv4 = -1;
 static int hf_camel_PDPAddress_IPv6 = -1;
 static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
 static int hf_camel_RP_Cause = -1;
+static int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_FCIBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_FCISMSBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_SCIBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_CallResult = -1;
 
 /* Used by camel-persistentdata.c */
 int hf_camelsrt_SessionId=-1;
@@ -98,7 +105,6 @@ int hf_camelsrt_DeltaTime65=-1;
 int hf_camelsrt_DeltaTime22=-1;
 int hf_camelsrt_DeltaTime35=-1;
 int hf_camelsrt_DeltaTime80=-1;
-int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 
 #include "packet-camel-hf.c"
 
@@ -120,6 +126,8 @@ static gint ett_camel = -1;
 static gint ett_camelisup_parameter = -1;
 static gint ett_camel_AccessPointName = -1;
 static gint ett_camel_pdptypenumber = -1;
+static gint ett_camel_cause = -1;
+static gint ett_camel_RPcause = -1;
 static gint ett_camel_stat = -1;
 
 #include "packet-camel-ett.c"
@@ -457,6 +465,41 @@ void proto_register_camel(void) {
       { "RP Cause",  "camel.RP_Cause",
       FT_UINT8, BASE_DEC, NULL, 0,
 	"RP Cause Value", HFILL }},
+    
+  { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
+    { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC,  VALS(camel_CAMEL_AChBillingChargingCharacteristics_vals), 0,
+      "CAMEL-AChBillingChargingCharacteristics", HFILL }}, 
+    
+  { &hf_camel_CAMEL_FCIBillingChargingCharacteristics,
+    { "CAMEL-FCIBillingChargingCharacteristics", "camel.CAMEL_FCIBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCIBillingChargingCharacteristics_vals), 0,
+      "CAMEL-FCIBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics,
+    { "CAMEL-FCIGPRSBillingChargingCharacteristics", "camel.CAMEL_FCIGPRSBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      "CAMEL-FCIGPRSBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_FCISMSBillingChargingCharacteristics,
+    { "CAMEL-FCISMSBillingChargingCharacteristics", "camel.CAMEL_FCISMSBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCISMSBillingChargingCharacteristics_vals), 0,
+      "CAMEL-FCISMSBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_SCIBillingChargingCharacteristics,
+    { "CAMEL-SCIBillingChargingCharacteristics", "camel.CAMEL_SCIBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_SCIBillingChargingCharacteristics_vals), 0,
+      "CAMEL-SCIBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics,
+    { "CAMEL-SCIGPRSBillingChargingCharacteristics", "camel.CAMEL_SCIGPRSBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      "CAMEL-FSCIGPRSBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_CallResult,
+    { "CAMEL-CAMEL_CallResult", "camel.CAMEL_CallResult",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_CallResult_vals), 0,
+      "CAMEL-CallResult", HFILL }},
 
   /* Camel Service Response Time */
     { &hf_camelsrt_SessionId,
@@ -537,10 +580,6 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
     },
-    { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
-      { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CAMEL-AChBillingChargingCharacteristics", HFILL }},
 
 #ifdef REMOVED
 #endif
@@ -553,6 +592,8 @@ void proto_register_camel(void) {
     &ett_camelisup_parameter,
     &ett_camel_AccessPointName,
     &ett_camel_pdptypenumber,
+    &ett_camel_cause,
+    &ett_camel_RPcause,
     &ett_camel_stat,
 
 #include "packet-camel-ettarr.c"

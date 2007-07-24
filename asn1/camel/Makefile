@@ -10,7 +10,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(ASN_FILE_LIST) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h camel.cnf 
-	python ../../tools/asn2wrs.py -b -e -p camel -c camel.cnf -s packet-$(PROTOCOL_NAME)-template $(ASN_FILE_LIST)
+	python ../../tools/asn2wrs.py  -b -X -T -L -e -k -p $(PROTOCOL_NAME) -c camel.cnf -s packet-$(PROTOCOL_NAME)-template $(ASN_FILE_LIST)
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

@@ -91,6 +91,13 @@ static int hf_camel_PDPAddress_IPv4 = -1;
 static int hf_camel_PDPAddress_IPv6 = -1;
 static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
 static int hf_camel_RP_Cause = -1;
+static int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_FCIBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_FCISMSBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_SCIBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics = -1;
+static int hf_camel_CAMEL_CallResult = -1;
 
 /* Used by camel-persistentdata.c */
 int hf_camelsrt_SessionId=-1;
@@ -106,7 +113,6 @@ int hf_camelsrt_DeltaTime65=-1;
 int hf_camelsrt_DeltaTime22=-1;
 int hf_camelsrt_DeltaTime35=-1;
 int hf_camelsrt_DeltaTime80=-1;
-int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
 
 
 /*--- Included file: packet-camel-hf.c ---*/
@@ -581,7 +587,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 104 "packet-camel-template.c"
+#line 110 "packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -601,6 +607,8 @@ static gint ett_camel = -1;
 static gint ett_camelisup_parameter = -1;
 static gint ett_camel_AccessPointName = -1;
 static gint ett_camel_pdptypenumber = -1;
+static gint ett_camel_cause = -1;
+static gint ett_camel_RPcause = -1;
 static gint ett_camel_stat = -1;
 
 
@@ -793,7 +801,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 126 "packet-camel-template.c"
+#line 134 "packet-camel-template.c"
 
 
 /* Preference settings default */
@@ -1097,7 +1105,7 @@ static const value_string camel_RP_Cause_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 245 "packet-camel-template.c"
+#line 253 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1187,7 +1195,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 247 "packet-camel-template.c"
+#line 255 "packet-camel-template.c"
 
 static char camel_number_to_char(int number)
 {
@@ -1919,18 +1927,21 @@ dissect_camel_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_camel_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-       tvbuff_t *camel_tvb;
-       guint8 Cause_value;
+tvbuff_t *parameter_tvb;
+guint8 Cause_value;
+proto_item *item;
+proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &camel_tvb);
+                                       &parameter_tvb);
 
 
-       if (camel_tvb)
-           dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_cause);
 
-
-       return offset;
+ dissect_q931_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_cause_indicator, &Cause_value);
 
   return offset;
 }
@@ -2038,14 +2049,18 @@ dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
 
 static int
 dissect_camel_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
- tvbuff_t	*parameter_tvb;
+ tvbuff_t	*parameter_tvb; 
+ proto_item *item;
+ proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
 	return offset;
- dissect_camel_CAMEL_CallResult(FALSE, parameter_tvb, 0, actx, tree, -1);
-
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_CallResult);
+ dissect_camel_CAMEL_CallResult(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_CallResult);
 
 
   return offset;
@@ -3857,12 +3872,17 @@ dissect_camel_EventTypeSMS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_camel_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
 	return offset;
- dissect_camel_CAMEL_FCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_FCIBillingChargingCharacteristics);
+ dissect_camel_CAMEL_FCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCIBillingChargingCharacteristics);
 
 
   return offset;
@@ -3872,13 +3892,18 @@ dissect_camel_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
- tvbuff_t	*parameter_tvb;
+ tvbuff_t	*parameter_tvb; 
+ proto_item *item;
+ proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
 	return offset;
- dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_FCIGPRSBillingChargingCharacteristics);
+ dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics);
 
 
   return offset;
@@ -3889,12 +3914,17 @@ dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, t
 static int
 dissect_camel_FCISMSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
-	return offset;
- dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+	return offset; 
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_FCISMSBillingChargingCharacteristics);
+ dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCISMSBillingChargingCharacteristics);
 
 
   return offset;
@@ -4733,17 +4763,21 @@ dissect_camel_RequestedInformationTypeList(gboolean implicit_tag _U_, tvbuff_t *
 static int
 dissect_camel_RPCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-       tvbuff_t *camel_tvb;
-       guint8 Cause_value;
+tvbuff_t *parameter_tvb;
+guint8 Cause_value;
+proto_item *item;
+proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &camel_tvb);
+                                       &parameter_tvb);
 
 
-       if (camel_tvb)
-           dissect_RP_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_RP_Cause, &Cause_value);
+ if (!parameter_tvb)
+	return offset;
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_RPcause);
 
-       return offset;
+ dissect_RP_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_RP_Cause, &Cause_value);
 
   return offset;
 }
@@ -4753,12 +4787,17 @@ dissect_camel_RPCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_camel_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
 	return offset;
- dissect_camel_CAMEL_SCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_SCIBillingChargingCharacteristics);
+ dissect_camel_CAMEL_SCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_SCIBillingChargingCharacteristics);
 
 
   return offset;
@@ -4769,12 +4808,17 @@ dissect_camel_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 static int
 dissect_camel_SCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
+ proto_item *item;
+ proto_tree *subtree; 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
-	return offset;
- dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, tree, -1);
+	return offset; 
+ item = get_ber_last_created_item();
+ subtree = proto_item_add_subtree(item, ett_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
+ dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
 
 
   return offset;
@@ -6690,7 +6734,7 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 292 "packet-camel-template.c"
+#line 300 "packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -6898,7 +6942,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 294 "packet-camel-template.c"
+#line 302 "packet-camel-template.c"
 
 
 
@@ -7018,7 +7062,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 406 "packet-camel-template.c"
+#line 414 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
   }
@@ -7073,6 +7117,41 @@ void proto_register_camel(void) {
       { "RP Cause",  "camel.RP_Cause",
       FT_UINT8, BASE_DEC, NULL, 0,
 	"RP Cause Value", HFILL }},
+    
+  { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
+    { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC,  VALS(camel_CAMEL_AChBillingChargingCharacteristics_vals), 0,
+      "CAMEL-AChBillingChargingCharacteristics", HFILL }}, 
+    
+  { &hf_camel_CAMEL_FCIBillingChargingCharacteristics,
+    { "CAMEL-FCIBillingChargingCharacteristics", "camel.CAMEL_FCIBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCIBillingChargingCharacteristics_vals), 0,
+      "CAMEL-FCIBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics,
+    { "CAMEL-FCIGPRSBillingChargingCharacteristics", "camel.CAMEL_FCIGPRSBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      "CAMEL-FCIGPRSBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_FCISMSBillingChargingCharacteristics,
+    { "CAMEL-FCISMSBillingChargingCharacteristics", "camel.CAMEL_FCISMSBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCISMSBillingChargingCharacteristics_vals), 0,
+      "CAMEL-FCISMSBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_SCIBillingChargingCharacteristics,
+    { "CAMEL-SCIBillingChargingCharacteristics", "camel.CAMEL_SCIBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_SCIBillingChargingCharacteristics_vals), 0,
+      "CAMEL-SCIBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics,
+    { "CAMEL-SCIGPRSBillingChargingCharacteristics", "camel.CAMEL_SCIGPRSBillingChargingCharacteristics",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      "CAMEL-FSCIGPRSBillingChargingCharacteristics", HFILL }},
+
+  { &hf_camel_CAMEL_CallResult,
+    { "CAMEL-CAMEL_CallResult", "camel.CAMEL_CallResult",
+      FT_UINT32, BASE_DEC, VALS(camel_CAMEL_CallResult_vals), 0,
+      "CAMEL-CallResult", HFILL }},
 
   /* Camel Service Response Time */
     { &hf_camelsrt_SessionId,
@@ -7153,10 +7232,6 @@ void proto_register_camel(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "DeltaTime between EventReportGPRS and ContinueGPRS", HFILL }
     },
-    { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
-      { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "CAMEL-AChBillingChargingCharacteristics", HFILL }},
 
 #ifdef REMOVED
 #endif
@@ -9037,7 +9112,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 548 "packet-camel-template.c"
+#line 587 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9046,6 +9121,8 @@ void proto_register_camel(void) {
     &ett_camelisup_parameter,
     &ett_camel_AccessPointName,
     &ett_camel_pdptypenumber,
+    &ett_camel_cause,
+    &ett_camel_RPcause,
     &ett_camel_stat,
 
 
@@ -9238,7 +9315,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 559 "packet-camel-template.c"
+#line 600 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
