@@ -115,6 +115,7 @@ static int hf_pn_io_iocr_properties_reserved_1 = -1;
 static int hf_pn_io_iocr_properties_media_redundancy = -1;
 static int hf_pn_io_iocr_properties_reserved_2 = -1;
 static int hf_pn_io_data_length = -1;
+static int hf_pn_io_ir_frame_data = -1;
 static int hf_pn_io_frame_id = -1;
 static int hf_pn_io_send_clock_factor = -1;
 static int hf_pn_io_reduction_ratio = -1;
@@ -444,6 +445,7 @@ static gint ett_pn_io_iocr = -1;
 static gint ett_pn_io_mrp_rtmode = -1;
 static gint ett_pn_io_control_block_properties = -1;
 static gint ett_pn_io_check_sync_mode = -1;
+static gint ett_pn_io_ir_frame_data = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -3462,7 +3464,7 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
 /* dissect the PDIRFrameData block */
 static int
 dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
 {
     guint32 u32FrameSendOffset;
     guint16 u16DataLength;
@@ -3473,42 +3475,59 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     guint8 u8RXPort;
     guint8 u8FrameDetails;
     guint8 u8NumberOfTxPortGroups;
+    guint16  u16EndOffset;
+    proto_tree *ir_frame_data_tree = NULL;
+    proto_item *ir_frame_data_sub_item = NULL;
 
 
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* FrameSendOffset */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_frame_send_offset, &u32FrameSendOffset);
-    /* DataLength */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_data_length, &u16DataLength);
-    /* ReductionRatio */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_reduction_ratio, &u16ReductionRatio);
-    /* Phase */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_phase, &u16Phase);
-    /* FrameID */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_frame_id, &u16FrameID);
+    u16EndOffset = offset + u16BodyLength -2;
 
-    /* Ethertype */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ethertype, &u16Ethertype);
-    /* RxPort */
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_rx_port, &u8RXPort);
-    /* FrameDetails */
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_frame_details, &u8FrameDetails);
-    /* TxPortGroup */
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
+    /* dissect all IR frame data */
+    while (offset < u16EndOffset)
+    {
+    
+     /* new subtree for each IR frame */
+      ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, FALSE);
+      ir_frame_data_tree = proto_item_add_subtree(ir_frame_data_sub_item, ett_pn_io_ir_frame_data);
+ 
+      /* FrameSendOffset */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                     hf_pn_io_frame_send_offset, &u32FrameSendOffset);
+      /* DataLength */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                     hf_pn_io_data_length, &u16DataLength);
+      /* ReductionRatio */
+    	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                     hf_pn_io_reduction_ratio, &u16ReductionRatio);
+      /* Phase */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                     hf_pn_io_phase, &u16Phase);
+      /* FrameID */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                     hf_pn_io_frame_id, &u16FrameID);
+ 
+      /* Ethertype */
+    	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                     hf_pn_io_ethertype, &u16Ethertype);
+      /* RxPort */
+    	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                    hf_pn_io_rx_port, &u8RXPort);
+      /* FrameDetails */
+    	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                    hf_pn_io_frame_details, &u8FrameDetails);
+      /* TxPortGroup */
+	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
+                                    hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
+ 
+      /* align to next dataset */
+      offset = dissect_pn_align4(tvb, offset, pinfo, ir_frame_data_tree); 
 
-
-    proto_item_append_text(item, ": Offset:%u, Len:%u, Ratio:%u, Phase:%u, FrameID:%u",
-        u32FrameSendOffset, u16DataLength, u16ReductionRatio, u16Phase, u16FrameID);
+      proto_item_append_text(ir_frame_data_tree, ": Offset:%u, Len:%u, Ratio:%u, Phase:%u, FrameID:0x%04x",
+                             u32FrameSendOffset, u16DataLength, u16ReductionRatio, u16Phase, u16FrameID);
+                             
+    }
 
     return offset;
 }
@@ -4800,7 +4819,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_PDIRGlobalData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0207):
-        dissect_PDIRFrameData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_PDIRFrameData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0209):
         dissect_AdjustDomainBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -5721,6 +5740,8 @@ proto_register_pn_io (void)
 
     { &hf_pn_io_data_length,
       { "DataLength", "pn_io.data_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ir_frame_data,
+      { "Frame data", "pn_io.ir_frame_data", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_frame_id,
       { "FrameID", "pn_io.frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_send_clock_factor,
@@ -6313,7 +6334,8 @@ proto_register_pn_io (void)
         &ett_pn_io_iocr,
         &ett_pn_io_mrp_rtmode,
         &ett_pn_io_control_block_properties,
-        &ett_pn_io_check_sync_mode
+        &ett_pn_io_check_sync_mode,
+        &ett_pn_io_ir_frame_data
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
