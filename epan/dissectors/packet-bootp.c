@@ -20,6 +20,7 @@
  * RFC 3203: DHCP reconfigure extension
  * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
+ * RFC 3442: Classless Static Route Option for DHCP version 4
  * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
@@ -428,7 +429,7 @@ static struct opt_info bootp_opt[] = {
 /* 118 */ { "Subnet Selection Option",		       	ipv4_list, NULL },
 /* 119 */ { "Domain Search",				opaque, NULL },
 /* 120 */ { "SIP Servers",				opaque, NULL },
-/* 121 */ { "Classless Static Route",		       	opaque, NULL },
+/* 121 */ { "Classless Static Route",		       	special, NULL },
 /* 122 */ { "CableLabs Client Configuration",		opaque, NULL },
 /* 123 */ { "Unassigned",				opaque, NULL },
 /* 124 */ { "V-I Vendor Class",				opaque, NULL },
@@ -1227,6 +1228,55 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			break;
 		}
 		break;
+
+	case 121: {	/* Classless Static Route */
+		int mask_width, significant_octets;
+		optend = optoff + optlen;
+		/* minimum length is 5 bytes */
+		if (optlen < 5) {
+			proto_item_append_text(vti, " [ERROR: Option length < 5 bytes]");
+			break;
+		}
+		while (optoff < optend) {
+			mask_width = tvb_get_guint8(tvb, optoff);
+			/* mask_width <= 32 */
+			if (mask_width > 32) {
+				proto_tree_add_text(v_tree, tvb, optoff,
+					optend - optoff,
+					"Subnet/MaskWidth-Router: [ERROR: Mask width (%d) > 32]",
+					mask_width);
+				break;
+			}
+			significant_octets = (mask_width + 7) / 8;
+			vti = proto_tree_add_text(v_tree, tvb, optoff,
+				1 + significant_octets + 4,
+				"Subnet/MaskWidth-Router: ");
+			optoff++;
+			/* significant octets + router(4) */
+			if (optend < optoff + significant_octets + 4) {
+				proto_item_append_text(vti, "[ERROR: Remaining length (%d) < %d bytes]",
+					optend - optoff, significant_octets + 4);
+				break;
+			}
+			if(mask_width == 0)
+				proto_item_append_text(vti, "default");
+			else {
+				for(i = 0 ; i < significant_octets ; i++) {
+					if (i > 0)
+						proto_item_append_text(vti, ".");
+					byte = tvb_get_guint8(tvb, optoff++);
+					proto_item_append_text(vti, "%d", byte);
+				}
+				for(i = significant_octets ; i < 4 ; i++)
+					proto_item_append_text(vti, ".0");
+				proto_item_append_text(vti, "/%d", mask_width);
+			}
+			proto_item_append_text(vti, "-%s",
+			    ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
+			optoff += 4;
+		}
+		break;
+	}
 
 	case 125: { 	/* V-I Vendor-specific Information */
 	        int enterprise = 0;
