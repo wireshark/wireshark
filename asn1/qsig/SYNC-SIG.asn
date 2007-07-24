@@ -1,0 +1,74 @@
+-- SYNC-SIG.asn
+--
+-- Taken from Ecma International
+-- Standard ECMA-245, 2nd Edition - September 1997
+-- http://www.ecma-international.org/publications/standards/Ecma-245.htm
+--
+-- $Id$
+--
+--  updated from macro notation to information object notation
+--
+
+Synchronization-Operations-asn1-97
+ { iso (1) standard (0) pinx-clock-synchronization (15507) synchronization-operations-asn1-97 (1) }
+
+DEFINITIONS EXPLICIT TAGS::=
+
+BEGIN
+
+IMPORTS           OPERATION, ERROR FROM 
+                       Remote-Operations-Information-Objects 
+                       {joint-iso-itu-t remote-operations (4) informationObjects (5) 
+                       version1 (0)} 
+ 
+                  EXTENSION, Extension{} FROM  
+                       Manufacturer-specific-service-extension-class-asn1-97 
+                       {iso standard pss1-generic-procedures (11582)   
+                       msi-class-asn1-97 (11)} ;
+
+-- The following two operations shall apply to SYNC-SIG
+
+Synchronization-Operations OPERATION ::= { synchronizationRequest | synchronizationInfo } 
+
+synchronizationRequest OPERATION ::= {
+  ARGUMENT  SynchronizationReqArg
+  RESULT    SynchronizationReqRes
+  ERRORS    {unspecified}
+  CODE      local:78
+}
+
+synchronizationInfo OPERATION ::= {
+  ARGUMENT  SynchronizationInfoArg
+  CODE      local:79
+} 
+
+SynchronizationReqArg ::= SEQUENCE {
+  action        Action,
+  argExtension  ArgExtension OPTIONAL
+}
+
+SynchronizationReqRes ::= SEQUENCE {
+  action   Action,
+  response BOOLEAN,  -- TRUE = yes, FALSE = no
+  argExtension ArgExtension OPTIONAL
+}
+
+SynchronizationInfoArg ::= SEQUENCE {
+  stateinfo     INTEGER { freerunning  (0),  idle  (1)},
+  argExtension  ArgExtension OPTIONAL
+}
+
+Action ::= INTEGER { enslavement(0), holdon (1)}
+
+ArgExtension::= CHOICE{
+  extension  [1] IMPLICIT Extension,
+  sequOfExtn [2] IMPLICIT SEQUENCE OF Extension 
+}
+
+unspecified            ERROR ::= { 
+                       PARAMETER    Extension{{SYNCExtSet}} 
+                       CODE        local:1008} 
+
+SYNCExtSet     EXTENSION ::= {...} 
+
+END -- of Synchronization-Operations-asn1-97

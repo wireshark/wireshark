@@ -106,26 +106,26 @@ CharacterSet ::= INTEGER
         -- The value 2 was assigned for CCITT Rec. T.61 
         -- which has been withdrawn by ITU-T. 
    iso8859-2 (3), 
-    -- The character set “iso8859-2” is specified in International 
+    -- The character set "iso8859-2" is specified in International 
     -- Standard ISO 8859-2 
   iso8859-3 (4), 
-         --The character set “iso8859-3” is specified in International 
+         --The character set "iso8859-3" is specified in International 
     -- Standard ISO 8859-3 
    iso8859-4 (5), 
-    --The character set “iso8859-4” is specified in International 
+    --The character set "iso8859-4" is specified in International 
     -- Standard ISO 8859-4 
    iso8859-5 (6), 
-    --The character set “iso8859-5” is specified in International 
+    --The character set "iso8859-5" is specified in International 
     -- Standard ISO 8859-5 
    iso8859-7 (7), 
-    --The character set “iso8859-7” is specified in International 
+    --The character set "iso8859-7" is specified in International 
     -- Standard ISO 8859-7 
    iso10646-BmpString (8),  
-    -- The character set “iso10646-BmpString” is specified in International 
+    -- The character set "iso10646-BmpString" is specified in International 
         -- Standard ISO 10646-1 and in ITU-T Rec. X.680 
         -- with this character set, each character occupies 2 octets in NameData 
    iso10646-utf-8String (9) 
-    -- The character set “iso10646-utf-8String” is specified in International 
+    -- The character set "iso10646-utf-8String" is specified in International 
     -- Standard ISO 10646-1 
         -- UTF-8-String is defined in Annex R of ISO 10646-1 
     -- with this character set, each character occupies a variable 

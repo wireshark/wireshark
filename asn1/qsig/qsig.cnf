@@ -32,6 +32,7 @@ Call-Intrusion-Operations-asn1-97                        qsig.ci
 SS-AOC-Operations-asn1-97                                qsig.aoc
 Recall-Operations-asn1-97                                qsig.re
 Call-Interception-Operations-asn1-97                     qsig.cint
+Synchronization-Operations-asn1-97                       qsig.sync
 Common-Information-Operations-asn1-97                    qsig.cmn
 Call-Interruption-Operations-asn1-97                     qsig.cpi
 PUM-Registration-Operations-asn1-97                      qsig.pumr
@@ -65,7 +66,31 @@ ARG-divertingLegInformation1/extension DLI1Extension
 ARG-divertingLegInformation2/extension DLI2Extension
 ARG-divertingLegInformation3/extension DLI3Extension
 IntResult/extension     IRExtension
-#.END
+PRProposeArg/extension  PRPExtension
+PRSetupArg/extension    PRSExtension
+PRRetainArg/extension   PRRExtension
+CTInitiateArg/argumentExtension   CTIargumentExtension
+CTSetupArg/argumentExtension      CTSargumentExtension
+CTActiveArg/argumentExtension     CTAargumentExtension
+CTCompleteArg/argumentExtension   CTCargumentExtension
+CTUpdateArg/argumentExtension     CTUargumentExtension
+SubaddressTransferArg/argumentExtension STargumentExtension
+DNDActivateArg/argumentExtension     DNDAargumentExtension
+DNDDeactivateArg/argumentExtension   DNDDargumentExtension
+DNDInterrogateArg/argumentExtension  DNDIargumentExtension
+DNDOverrideArg/argumentExtension     DNDOargumentExtension
+SSCTInitiateArg/argumentExtension   SSCTIargumentExtension
+SSCTSetupArg/argumentExtension      SSCTSargumentExtension
+SSCTDigitInfoArg/argumentExtension  SSCTDargumentExtension
+PumRegistrArg/pumUserId   RpumUserId
+PumDelRegArg/pumUserId    XpumUserId
+PumDe-regArg/pumUserId    DpumUserId
+PumInterrogArg/pumUserId  IpumUserId
+MCMNewMsgArg/argumentExt        MCMNewArgumentExt
+MCMNoNewMsgArg/argumentExt      MCMNoNewArgumentExt
+MCMUpdateReqArg/argumentExt     MCMUpdArgArgumentExt
+MCMUpdateReqResElt/argumentExt  MCMUpdResArgumentExt
+#.END                           
 
 #.FIELD_RENAME
 NameArg/nameSequence/extension extensionNA
@@ -78,7 +103,38 @@ ARG-divertingLegInformation1/extension        extensionDLI1
 ARG-divertingLegInformation2/extension        extensionDLI2
 ARG-divertingLegInformation3/extension        extensionDLI3
 IntResult/extension            extensionIR
-#.END
+PRSetupArg/extension     extensionPRS
+PRProposeArg/extension   extensionPRP
+PRRetainArg/extension    extensionPRR
+CTInitiateArg/argumentExtension   argumentExtensionCTI
+CTSetupArg/argumentExtension      argumentExtensionCTS
+CTActiveArg/argumentExtension     argumentExtensionCTA
+CTCompleteArg/argumentExtension   argumentExtensionCTC
+CTUpdateArg/argumentExtension     argumentExtensionCTU
+SubaddressTransferArg/argumentExtension argumentExtensionST
+DNDActivateArg/argumentExtension     argumentExtensionDNDA
+DNDDeactivateArg/argumentExtension   argumentExtensionDNDD
+DNDInterrogateArg/argumentExtension  argumentExtensionDNDI
+DNDOverrideArg/argumentExtension     argumentExtensionDNDO
+SSCTInitiateArg/argumentExtension   argumentExtensionSSCTI
+SSCTSetupArg/argumentExtension      argumentExtensionSSCTS
+SSCTDigitInfoArg/argumentExtension  argumentExtensionSSCTD
+PumRegistrArg/pumUserId   pumRUserId                 
+PumDelRegArg/pumUserId    pumXUserId
+PumDe-regArg/pumUserId    pumDUserId
+PumInterrogArg/pumUserId  pumIUserId
+MCMNewMsgArg/argumentExt        argumentExtMCMNew
+MCMNoNewMsgArg/argumentExt      argumentExtMCMNoNew
+MCMUpdateReqArg/argumentExt     argumentExtMCMUpdArg
+MCMUpdateReqResElt/argumentExt  argumentExtMCMUpdRes
+CallIdentificationAssignArg/extension  extensiont
+CallIdentificationUpdateArg/extension  extensiont
+DisplayArg/extension  sdextension
+KeypadArg/extension   sdextension
+AddressHeader/priority ahpriority
+WtmoArg/extension  wtmoaextension
+PumoArg/extension  pumoaextension
+#.END                                
 
 
 #.TYPE_ATTR
