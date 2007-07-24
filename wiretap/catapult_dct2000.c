@@ -43,7 +43,7 @@
 #define MAX_PROTOCOL_NAME          64
 #define MAX_PORT_DIGITS            2
 #define MAX_VARIANT_DIGITS         32
-#define MAX_OUTHDR_NAME            64
+#define MAX_OUTHDR_NAME            256
 #define AAL_HEADER_CHARS           12
 
 /* TODO:
