@@ -1185,11 +1185,11 @@ set_file_type_list(GtkWidget *option_menu)
   GtkWidget *ft_menu, *ft_menu_item;
   int ft;
   guint index;
-  guint item_to_select;
+  gint item_to_select;
 
   /* Default to the first supported file type, if the file's current
      type isn't supported. */
-  item_to_select = 0;
+  item_to_select = -1;
 
   ft_menu = gtk_menu_new();
 
@@ -1212,12 +1212,21 @@ set_file_type_list(GtkWidget *option_menu)
   }
 
   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), ft_menu);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), item_to_select);
-  /* Manually call the signal handler to activate the first menu item
-   * since gtk_option_menu_set_history() doesn't do it for us. The first two
-   * entries in the wiretap file types are placeholders so we start at #2, which
-   * is the normal libpcap format. */
-  select_file_type_cb(NULL, GINT_TO_POINTER(2));
+  if (item_to_select >= 0) {
+	  /* Select the current File format in the menu */
+	  gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), item_to_select);
+	  select_file_type_cb(NULL, GINT_TO_POINTER(filetype));
+  } else {
+	  
+	  /*
+	   * Manually call the signal handler to activate the first menu item
+	   * since gtk_option_menu_set_history() doesn't do it for us. The first two
+	   * entries in the wiretap file types are placeholders so we start at #2, which
+	   * is the normal libpcap format.
+	   */
+	  gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), 0);
+	  select_file_type_cb(NULL, GINT_TO_POINTER(WTAP_FILE_PCAP));
+  }
 }
 
 static void
