@@ -1490,7 +1490,8 @@ void proto_register_mac_header_generic(void)
 void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0;
-	guint payload_offset, payload_length;
+	guint payload_offset;
+	guint payload_length = 0;
 
 	static guint8 frag_number[MAX_CID];
 	static guint cid_list[MAX_CID];
@@ -1499,7 +1500,8 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	static char *data_str = "Data transport PDU (%u bytes)";
 	char *str_ptr;
 	gint length, i, cid_index;
-	guint tvb_len, ret_length, ubyte, new_tvb_len, new_payload_len;
+	guint tvb_len, ret_length, ubyte, new_tvb_len;
+	guint new_payload_len = 0;
 	guint mac_ht, mac_ec, mac_esf, mac_ci, mac_eks, mac_len, mac_cid, cid;
 	guint ffb_grant_mgmt_subheader, packing_subheader, fragment_subheader;
 	guint mesh_subheader;
