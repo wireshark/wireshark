@@ -3464,7 +3464,7 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
 /* dissect the PDIRFrameData block */
 static int
 dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint16 u16BodyLength)
 {
     guint32 u32FrameSendOffset;
     guint16 u16DataLength;
