@@ -413,6 +413,9 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, TRUE);
 					offset += padding;
 				}
+
+				proto_item_append_text(prop_item, " [Named Property: %s]", name_string);
+
 			}
 		}
 		
