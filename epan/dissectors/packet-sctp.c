@@ -3330,7 +3330,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   /* now dissect the chunk value */
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
-	  result = dissect_data_chunk(chunk_tvb, length, pinfo, tree, chunk_tree, chunk_item, flags_item, ha);
+    result = dissect_data_chunk(chunk_tvb, length, pinfo, tree, chunk_tree, chunk_item, flags_item, ha);
     break;
   case SCTP_INIT_CHUNK_ID:
     dissect_init_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
@@ -3402,7 +3402,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   if (padding_length > 0)
     proto_tree_add_item(chunk_tree, hf_chunk_padding, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
 
-  if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks) && check_col(pinfo->cinfo, COL_PROTOCOL))
+  if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks) && check_col(pinfo->cinfo, COL_INFO))
     col_set_fence(pinfo->cinfo, COL_INFO);
 
   return result;
