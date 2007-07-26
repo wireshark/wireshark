@@ -3052,7 +3052,6 @@ int dissect_ber_object_identifier(gboolean implicit_tag, asn1_ctx_t *actx, proto
 	int eoffset;
 	int hoffset;
 	char *str;
-	proto_item *item = NULL;
 	proto_item *cause;
 	header_field_info *hfi;
 	const gchar *name;
