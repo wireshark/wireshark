@@ -364,7 +364,7 @@ dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 #line 116 "tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
-	tcap_private.oid= (void*) cur_oid; 
+	tcap_private.oid= (void*) cur_oid;
 	tcap_private.acv=TRUE;
 
 
@@ -390,12 +390,12 @@ gint8 class;
 
 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
-next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
 if (!next_tvb)
-	return offset+len; 
+	return offset+len;
 dissect_tcap_UserInformation(TRUE, next_tvb, 0, actx, tree, -1);
- 
- 
+
+
 return offset+len;
 
 
@@ -639,7 +639,7 @@ gint8 class;
 	gint tag;
 	guint32 len;
 	gint ind_field;
-	
+
 /* Calculate the correct length, Tags will be shown in DialoguePDU */
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
@@ -870,13 +870,13 @@ gint8 class;
 	gint tag;
 	guint32 len;
 	gint ind_field;
-	
+
 
 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-                                    
- 
+
+
  if (!next_tvb)
 	return offset;
 
@@ -990,10 +990,10 @@ gint8 class;
  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
  offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 	/* need to strip the EOC off the next_tvb */
-	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
 
 if (!next_tvb)
-	return offset; 
+	return offset;
  dissect_tcap_param(actx,tree,tvb,0);
  offset += len;
   return offset;
@@ -1401,7 +1401,7 @@ if (parameter_tvb){
         	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
 	}
 
-}	
+}
 
 
 
@@ -1425,8 +1425,15 @@ dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 #line 232 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
+/*  Do not change col_add_str() to col_append_str() here: we _want_ this call
+ *  to overwrite whatever's currently in the INFO column (e.g., "UDT" from
+ *  the SCCP dissector).
+ *
+ *  If there's something there that should not be overwritten, whoever
+ *  put that info there should call col_set_fence() to protect it.
+ */
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Begin ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        Begin_sequence, hf_index, ett_tcap_Begin);
@@ -1466,12 +1473,12 @@ if (parameter_tvb){
 		break;
 	case 4:
 		gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
-		break;	
+		break;
 	default:
 		gp_tcapsrt_info->dst_tid=0;
 		break;
 	}
-	
+
 	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
@@ -1497,11 +1504,11 @@ static const ber_old_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 240 "tcap.cnf"
+#line 247 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " End ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "End ");
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        End_sequence, hf_index, ett_tcap_End);
@@ -1526,11 +1533,11 @@ static const ber_old_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 248 "tcap.cnf"
+#line 255 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Continue ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        Continue_sequence, hf_index, ett_tcap_Continue);
@@ -1600,16 +1607,16 @@ static const ber_old_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "tcap.cnf"
+#line 263 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Abort ");
- 
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+
    offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        Abort_sequence, hf_index, ett_tcap_Abort);
 
-  
+
 
 
   return offset;
@@ -1622,7 +1629,7 @@ static int dissect_abort_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_tcap_TransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 288 "tcap.cnf"
+#line 295 "tcap.cnf"
 
 tvbuff_t *next_tvb;
 
@@ -2104,19 +2111,19 @@ dissect_tcap_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 tvbuff_t *next_tvb;
 dissector_handle_t subdissector_handle;
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
+next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
 
 if (! (subdissector_handle = get_ansi_tcap_subdissector(actx->pinfo->match_port))) {
     subdissector_handle = data_handle;
-} 
-  
+}
+
     tcap_subdissector_used=TRUE;
 
 call_dissector(subdissector_handle, next_tvb, actx->pinfo, tcap_top_tree);
-    
+
 offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
-	
+
 
 
   return offset;
@@ -2170,25 +2177,25 @@ static const ber_old_sequence_t TransactionPDU_sequence[] = {
 
 static int
 dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 270 "tcap.cnf"
+#line 277 "tcap.cnf"
 if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " QueryWithPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
+
 if ((hf_index == hf_tcap_ansiqueryWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " QueryWithOutPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
+
 if ((hf_index == hf_tcap_ansiresponse)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Response");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
+
 if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ConversationWithPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
+
 if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ConversationWithoutPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
+
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);
-  
+
 
 
 
@@ -2272,9 +2279,9 @@ static const ber_old_sequence_t AbortPDU_sequence[] = {
 
 static int
 dissect_tcap_AbortPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 264 "tcap.cnf"
+#line 271 "tcap.cnf"
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Abort ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);

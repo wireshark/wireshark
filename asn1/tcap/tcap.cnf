@@ -2,7 +2,7 @@
 # $Id$
 # tcap conformation file
 
-# 
+#
 
 #.MODULE_IMPORT
 
@@ -30,13 +30,13 @@ gint8 class;
 	gint tag;
 	guint32 len;
 	gint ind_field;
-	
+
 
 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-                                    
- 
+
+
  if (!next_tvb)
 	return offset;
 
@@ -62,7 +62,7 @@ gint8 class;
 	gint tag;
 	guint32 len;
 	gint ind_field;
-	
+
 /* Calculate the correct length, Tags will be shown in DialoguePDU */
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
@@ -83,10 +83,10 @@ gint8 class;
  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
  offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 	/* need to strip the EOC off the next_tvb */
-	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
 
 if (!next_tvb)
-	return offset; 
+	return offset;
  dissect_tcap_param(actx,tree,tvb,0);
  offset += len;
   return offset;
@@ -102,19 +102,19 @@ gint8 class;
 
 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
-next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
 if (!next_tvb)
-	return offset+len; 
+	return offset+len;
 dissect_tcap_UserInformation(TRUE, next_tvb, 0, actx, tree, -1);
- 
- 
+
+
 return offset+len;
 #.FN_BODY Component
 dissect_tcap_TheComponent(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (void*) cur_oid; 
+	tcap_private.oid= (void*) cur_oid;
 	tcap_private.acv=TRUE;
 
 # Do not overwrite the ApplicationContext with the UserInfoOID !
@@ -138,23 +138,23 @@ offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, 0, hf_index,
                                     NULL);
 
 
-#.FN_BODY ComponentPDU 	
+#.FN_BODY ComponentPDU
 tvbuff_t *next_tvb;
 dissector_handle_t subdissector_handle;
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
+next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
 
 if (! (subdissector_handle = get_ansi_tcap_subdissector(actx->pinfo->match_port))) {
     subdissector_handle = data_handle;
-} 
-  
+}
+
     tcap_subdissector_used=TRUE;
 
 call_dissector(subdissector_handle, next_tvb, actx->pinfo, tcap_top_tree);
-    
+
 offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
-	
+
 #.FN_BODY OrigTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len, i;
@@ -190,7 +190,7 @@ if (parameter_tvb){
         	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
 	}
 
-}	
+}
 
 
 #.FN_BODY DestTransactionID
@@ -215,12 +215,12 @@ if (parameter_tvb){
 		break;
 	case 4:
 		gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
-		break;	
+		break;
 	default:
 		gp_tcapsrt_info->dst_tid=0;
 		break;
 	}
-	
+
 	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
@@ -231,8 +231,15 @@ if (parameter_tvb){
 #.FN_BODY Begin
 gp_tcapsrt_info->ope=TC_BEGIN;
 
+/*  Do not change col_add_str() to col_append_str() here: we _want_ this call
+ *  to overwrite whatever's currently in the INFO column (e.g., "UDT" from
+ *  the SCCP dissector).
+ *
+ *  If there's something there that should not be overwritten, whoever
+ *  put that info there should call col_set_fence() to protect it.
+ */
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Begin ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 
 %(DEFAULT_BODY)s
 
@@ -240,7 +247,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " End ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "End ");
 
 %(DEFAULT_BODY)s
 
@@ -248,7 +255,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Continue ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 
 %(DEFAULT_BODY)s
 
@@ -256,33 +263,33 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Abort ");
- 
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+
  %(DEFAULT_BODY)s
-  
+
 #.FN_BODY AbortPDU
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Abort ");
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransactionPDU
 if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " QueryWithPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
+
 if ((hf_index == hf_tcap_ansiqueryWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " QueryWithOutPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
+
 if ((hf_index == hf_tcap_ansiresponse)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Response");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
+
 if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ConversationWithPerm");		
-				
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
+
 if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ConversationWithoutPerm");		
-				
-%(DEFAULT_BODY)s  
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
+
+%(DEFAULT_BODY)s
 
 #.FN_BODY TransactionID VAL_PTR = &next_tvb
 

@@ -818,15 +818,15 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t bw_key[] = {
 				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
 			};
-			
+
 			if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
 				assoc = new_assoc(opck,dpck);
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
-			
+
 			pinfo->p2p_dir = P2P_DIR_SENT;
-			
+
 			break;
 		}
 		case SCCP_MSG_TYPE_CC:
@@ -837,7 +837,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t bw_key[] = {
 				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
 			};
-			
+
 			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
 				goto got_assoc;
 			}
@@ -849,9 +849,9 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			assoc = new_assoc(dpck,opck);
 
 	 got_assoc:
-			
+
 			pinfo->p2p_dir = P2P_DIR_RECV;
-			
+
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
@@ -869,17 +869,17 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t key[] = {
 				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
 			};
-			
+
 			assoc = se_tree_lookup32_array(assocs,key);
-			
+
 			if (assoc) {
 				if (assoc->calling_dpc == dpck) {
 					pinfo->p2p_dir = P2P_DIR_RECV;
 				} else {
 					pinfo->p2p_dir = P2P_DIR_SENT;
-				}			
+				}
 			}
-			
+
 			break;
 		}
     }
@@ -1506,7 +1506,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 other_ssn = INVALID_SSN;
     const mtp3_addr_pc_t* dpc;
     const mtp3_addr_pc_t* opc;
-	
+
     if (trace_sccp && assoc && assoc != &no_assoc) {
 	pinfo->sccp_info = assoc->curr_msg;
     } else {
@@ -1532,22 +1532,22 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
     }
 
-    
+
     if (num_sccp_users && pinfo->src.type == AT_SS7PC) {
 	guint i;
 	dissector_handle_t handle = NULL;
         gboolean uses_tcap = FALSE;
-	
+
 	for (i=0; i < num_sccp_users; i++) {
 		sccp_user_t* u = &(sccp_users[i]);
-		
+
 		if (dpc->ni != u->ni) continue;
-			
-		 if (value_is_in_range(u->called_ssn, ssn)  && value_is_in_range(u->called_pc, dpc->pc) ) { 
+
+		 if (value_is_in_range(u->called_ssn, ssn)  && value_is_in_range(u->called_pc, dpc->pc) ) {
 			handle = *(u->handlep);
 			uses_tcap = u->uses_tcap;
 			break;
-		} else if (value_is_in_range(u->called_ssn, other_ssn) && value_is_in_range(u->called_pc, opc->pc) ) { 
+		} else if (value_is_in_range(u->called_ssn, other_ssn) && value_is_in_range(u->called_pc, opc->pc) ) {
 			handle = *(u->handlep);
 			uses_tcap = u->uses_tcap;
 			break;
@@ -1564,7 +1564,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
    }
-    
+
     if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
 		return;
     }
@@ -1959,7 +1959,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   offset = SCCP_MSG_TYPE_LENGTH;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+    /*  Do not change col_add_fstr() to col_append_fstr() here: we _want_
+     *  this call to overwrite whatever's currently in the INFO column (e.g.,
+     *  "DATA" from the SCTP dissector).
+     *
+     *  If there's something there that should not be overwritten, whoever
+     *  put that info there should call col_set_fence() to protect it.
+     */
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		 val_to_str(message_type, sccp_message_type_acro_values, "Unknown"));
   };
 
@@ -2164,7 +2171,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   case SCCP_MSG_TYPE_UDT:
     pinfo->sccp_info = sccp_msg = new_ud_msg(pinfo,message_type);
-  
+
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2187,7 +2194,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   case SCCP_MSG_TYPE_UDTS:
     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
-  
+
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RETURN_CAUSE, offset,
 				     RETURN_CAUSE_LENGTH);
@@ -2480,7 +2487,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 	  PROTO_ITEM_SET_GENERATED(pi);
 	  if (assoc->msgs) {
 		sccp_msg_info_t* m;
-		  for(m = assoc->msgs; m ; m = m->data.co.next) { 	
+		  for(m = assoc->msgs; m ; m = m->data.co.next) {
 			pi = proto_tree_add_uint( pt,hf_sccp_assoc_msg,tvb,0,0,m->framenum);
 
 			if (assoc->payload != SCCP_PLOAD_NONE)
@@ -2607,7 +2614,7 @@ static struct _sccp_ul {
 static void sccp_users_update_cb(void* r, const char** err _U_) {
 	sccp_user_t* u = r;
 	struct _sccp_ul* c;
-		
+
 	for (c=user_list; c->handlep; c++) {
 		if (c->id == u->user) {
 			u->uses_tcap = c->uses_tcap;
@@ -2615,7 +2622,7 @@ static void sccp_users_update_cb(void* r, const char** err _U_) {
 			return;
 		}
 	}
-	
+
 	u->uses_tcap = FALSE;
 	u->handlep = &data_handle;
 }
@@ -2623,14 +2630,14 @@ static void sccp_users_update_cb(void* r, const char** err _U_) {
 static void* sccp_users_copy_cb(void* n, const void* o, unsigned siz _U_) {
 	const sccp_user_t* u = o;
 	sccp_user_t* un = n;
-	
+
 	un->ni = u->ni;
 	un->user = u->user;
 	un->uses_tcap = u->uses_tcap;
 	un->handlep = u->handlep;
 	if (u->called_pc) un->called_pc = range_copy(u->called_pc);
 	if (u->called_ssn) un->called_ssn = range_copy(u->called_ssn);
-	
+
 	return n;
 }
 
@@ -3055,7 +3062,7 @@ proto_register_sccp(void)
     &ett_sccp_assoc
   };
 
- 
+
   static uat_field_t users_flds[] = {
 		UAT_FLD_DEC(sccp_users,ni,"Network Indicator"),
 		UAT_FLD_RANGE(sccp_users,called_pc,65535,"DPCs for which this protocol is to be used"),
@@ -3076,7 +3083,7 @@ proto_register_sccp(void)
 	sccp_users_update_cb,
 	sccp_users_free_cb,
 	users_flds );
-  
+
  /* Register the protocol name and description */
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",
 				       "SCCP", "sccp");
