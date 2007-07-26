@@ -376,6 +376,7 @@ GatekeeperRejectReason_vals     DATA
 gcamel_StatSRT                  DATA
 gtcap_StatSRT                   DATA
 get_addr_name
+get_asn1_ctx
 get_basename
 get_ber_identifier
 get_ber_last_created_item
@@ -430,6 +431,7 @@ get_persdatafile_dir
 get_plugin_dir
 get_plugins_pers_dir
 get_progfile_dir
+get_rose_ctx
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
@@ -694,6 +696,7 @@ report_open_failure
 report_read_failure
 reset_tap_listeners
 reset_tcp_reassembly
+rose_ctx_init
 rpc_init_proc_table
 rpc_init_prog
 rpc_procs                       DATA

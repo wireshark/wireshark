@@ -1147,25 +1147,26 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 			case FT_UINT16:
 			case FT_UINT24:
 			case FT_UINT32:
-				actx->created_item=ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-len, len, (guint32)val);
+				actx->created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-len, len, (guint32)val);
 				break;
 			case FT_INT8:
 			case FT_INT16:
 			case FT_INT24:
 			case FT_INT32:
-				actx->created_item=ber_last_created_item=proto_tree_add_int(tree, hf_id, tvb, offset-len, len, (gint32)val);
+				actx->created_item=proto_tree_add_int(tree, hf_id, tvb, offset-len, len, (gint32)val);
 				break;
 			case FT_INT64:
-				actx->created_item=ber_last_created_item=proto_tree_add_int64(tree, hf_id, tvb, offset-len, len, val);
+				actx->created_item=proto_tree_add_int64(tree, hf_id, tvb, offset-len, len, val);
 				break;
 			case FT_UINT64:
-				actx->created_item=ber_last_created_item=proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
+				actx->created_item=proto_tree_add_uint64(tree, hf_id, tvb, offset-len, len, (guint64)val);
 				break;
 			default:
 				DISSECTOR_ASSERT_NOT_REACHED();
 			}
 		}
 	}
+	ber_last_created_item = actx->created_item;
 	if(value){
 		*value=val;
 	}
@@ -3097,23 +3098,24 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
+	actx->created_item=ber_last_created_item=NULL;
 	hfi = proto_registrar_get_nth(hf_id);
 	if (hfi->type == FT_OID) {
-		item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
+		actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
 	} else if (IS_FT_STRING(hfi->type)) {
 		str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
-		item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
-		if(item){
+		actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
+		if(actx->created_item){
 			/* see if we know the name of this oid */
 			name = get_oid_name(tvb_get_ptr(tvb, offset, len), len);
 			if(name){
-				proto_item_append_text(item, " (%s)", name);
+				proto_item_append_text(actx->created_item, " (%s)", name);
 			}
 		}
 	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-
+	ber_last_created_item=actx->created_item;
 	if (value_tvb)
 		*value_tvb = tvb_new_subset(tvb, offset, len, len);
 
