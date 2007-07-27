@@ -255,6 +255,7 @@ static int hf_diameter_avp_flags_reserved5 = -1;
 static int hf_diameter_avp_flags_reserved6 = -1;
 static int hf_diameter_avp_flags_reserved7 = -1;
 static int hf_diameter_avp_vendor_id = -1;
+static int hf_diameter_avp_data_wrong_length = -1;
 
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
@@ -280,6 +281,7 @@ static const char* avpflags_str[] = {
 	"VMP",
 };
 
+/* Dissect an AVP at offset */
 static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	guint32 code = tvb_get_ntohl(tvb,offset);
 	guint32 len = tvb_get_ntohl(tvb,offset+4);
@@ -316,8 +318,10 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		vendor = a->vendor;
 	}
 
+	/* Get dictionary of AVPs matching found vendor */
 	vendor_avp_vs = VND_AVP_VS(vendor);
 
+	/* Add root of tree for this AVP */
 	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,FALSE);
 	avp_tree = proto_item_add_subtree(avp_item,a->ett);
 
@@ -325,6 +329,7 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	code_str = val_to_str(code, vendor_avp_vs, "Unknown");
 	proto_item_append_text(pi," %s", code_str);
 
+	/* Code */
 	if (a == &unknown_avp) {
 		proto_tree* tu = proto_item_add_subtree(pi,ett_unknown);
 		proto_item* iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown AVP, "
@@ -339,6 +344,7 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 
 	proto_item_set_text(avp_item,"AVP: %s(%u) l=%u f=%s", code_str, code, len, avpflags_str[flags_bits_idx]);
 
+	/* Flags */
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_flags,tvb,offset,1,FALSE);
 	{
 		proto_tree* flags_tree = proto_item_add_subtree(pi,ett_diameter_avp_flags);
@@ -358,9 +364,11 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	}
 	offset += 1;
 
+	/* Length */
 	proto_tree_add_item(avp_tree,hf_diameter_avp_len,tvb,offset,3,FALSE);
 	offset += 3;
 
+	/* Vendor flag */
 	if (vendor_flag) {
 		proto_item_append_text(avp_item," vnd=%s", val_to_str(vendorid, vnd_short_vs, "%d"));
 		pi = proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,FALSE);
@@ -374,7 +382,10 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 		offset += 4;
 	}
 
-	if ( len == (guint32)(vendor_flag ? 12 : 8) ) return len;
+	if ( len == (guint32)(vendor_flag ? 12 : 8) ) {
+		/* Data is empty so return now */
+		return len;
+	}
 
 	subtvb = tvb_new_subset(tvb,offset,len-(8+(vendor_flag?4:0)),len-(8+(vendor_flag?4:0)));
 
@@ -501,6 +512,31 @@ static const char* simple_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
 	proto_item_fill_label(pi->finfo, label);
 	label = strstr(label,": ")+2;
+	return label;
+}
+
+static const char* unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi;
+
+	/* Verify length before adding */
+	gint length = tvb_length_remaining(tvb,0);
+	if (length == 4) {
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		proto_item_fill_label(pi->finfo, label);
+		label = strstr(label,": ")+2;
+	}
+	else {
+		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
+										 tvb, 0, length,
+										 tvb_get_ptr(tvb, 0, length),
+										"Error!  Bad Integer32 Length");
+		expert_add_info_format(c->pinfo, pi,
+							   PI_MALFORMED, PI_NOTE,
+							   "Bad Integer32 Length (%u)",
+							   length);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
 	return label;
 }
 
@@ -650,8 +686,11 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 	offset = 20;
 
+	/* Dissect AVPs until the end of the packet is reached */
 	while (offset < packet_len) {
 		offset += dissect_diameter_avp(c, tvb, offset);
+
+		/* Skip to next 4-byte boundary */
 		offset +=  (offset % 4) ? 4 - (offset % 4) : 0 ;
 	}
 
@@ -854,7 +893,7 @@ static const avp_type_t basic_types[] = {
 	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE , build_simple_avp  },
 	{"integer32"				, simple_avp	, simple_avp	, FT_INT32			, BASE_DEC	, build_simple_avp  },
-	{"unsigned32"				, simple_avp	, simple_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
+	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC	, build_simple_avp  },
 	{"integer64"				, simple_avp	, simple_avp	, FT_INT64			, BASE_DEC	, build_simple_avp  },
 	{"unsigned64"				, simple_avp	, simple_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp  },
 	{"float32"					, simple_avp	, simple_avp	, FT_FLOAT			, BASE_DEC	, build_simple_avp  },
@@ -1187,6 +1226,9 @@ proto_register_diameter(void)
 	{ &(unknown_avp.hf_value),
 		  { "Value","diameter.avp.unknown", FT_BYTES, BASE_NONE,
 			  NULL, 0x0, "", HFILL }},
+	{ &hf_diameter_avp_data_wrong_length,
+		  { "Data","diameter.avp.invalid-data", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, "", HFILL }},
 	{ &hf_diameter_code,
 		  { "Command Code", "diameter.cmd.code", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_diameter_avp_code,
