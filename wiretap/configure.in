@@ -21,21 +21,6 @@ AC_PROG_LIBTOOL
 AC_PATH_PROG(LEX, flex)
 
 #
-# Check whether Flex supports -R, so we can build reentrant scanners.
-#
-AC_MSG_CHECKING(whether Flex can generate reentrant scanners)
-if flex -R -t <<EOF >/dev/null 2>&1
-%%
-%%
-EOF
-then
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(FLEX_REENTRANT_SCANNERS, 1, [Define if Flex can generate reentrant scanners])
-else
-    AC_MSG_RESULT(no)
-fi
-
-#
 # Try to add some additional gcc checks to CFLAGS
 #
 AC_ARG_ENABLE(extra-gcc-checks,
