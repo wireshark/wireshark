@@ -23,6 +23,7 @@ UniDialoguePDU B "0.0.17.773.1.2.1"  "uniDialogue-as-id"
 
 #.FIELD_RENAME
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY DialogueOC
 tvbuff_t	*next_tvb;
 gint8 class;
@@ -45,6 +46,7 @@ offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 
 return offset+len;
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY ExternalPDU
 gint8 class;
 	gboolean pc;
@@ -56,21 +58,20 @@ offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &ta
 offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 %(DEFAULT_BODY)s
 
-#.FN_BODY Dialog1
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len;
-	gint ind_field;
+#----------------------------------------------------------------------------------------
+#.FN_BODY Dialog1 VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
 
-/* Calculate the correct length, Tags will be shown in DialoguePDU */
-offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
 
  dissect_tcap_DialoguePDU(TRUE, tvb, 0, actx, tree, -1);
 
-return offset+len;
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY Parameter
 tvbuff_t	*next_tvb;
 gint8 class;
@@ -88,9 +89,10 @@ gint8 class;
 if (!next_tvb)
 	return offset;
  dissect_tcap_param(actx,tree,tvb,0);
- offset += len;
-  return offset;
 
+ return offset+len;
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY User-information
 tvbuff_t	*next_tvb;
 gint8 class;
@@ -107,11 +109,32 @@ if (!next_tvb)
 	return offset+len;
 dissect_tcap_UserInformation(TRUE, next_tvb, 0, actx, tree, -1);
 
-
 return offset+len;
-#.FN_BODY Component
-dissect_tcap_TheComponent(implicit_tag, tvb, offset, actx, tree, hf_index);
 
+#----------------------------------------------------------------------------------------
+#.FN_BODY Component
+tvbuff_t	*next_tvb;
+gint8 class;
+gboolean pc;
+gint tag;
+guint32 len, comp_offset;
+gint ind_field;
+
+comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
+/* we can believe the length now */
+next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
+
+if (!next_tvb)
+  return comp_offset;
+
+%(DEFAULT_BODY)s
+
+ dissect_tcap_TheComponent(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+
+/* return comp_offset+len; or return offset (will be automatically added */
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
 	tcap_private.oid= (void*) cur_oid;
@@ -119,14 +142,34 @@ dissect_tcap_TheComponent(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 # Do not overwrite the ApplicationContext with the UserInfoOID !
 #
+#----------------------------------------------------------------------------------------
 #.FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
 %(DEFAULT_BODY)s
-#	tcap_private.oid= (void*)tcapext_oid;
-#	tcap_private.acv=TRUE;
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY ExternUserInfo
-dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, actx, tree, hf_index);
+tvbuff_t	*next_tvb;
+gint8 class;
+gboolean pc;
+gint tag;
+guint32 len, comp_offset;
+gint ind_field;
 
+comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
+/* we can believe the length now */
+next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
+
+if (!next_tvb)
+  return comp_offset;
+
+%(DEFAULT_BODY)s
+
+dissect_tcap_TheExternUserInfo(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+
+return comp_offset+len;
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY ANSIParameters
 /* we are doing the ParamSet here so need to look at the tags*/
 	guint32 len;
@@ -137,24 +180,28 @@ else
 offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, 0, hf_index,
                                     NULL);
 
-
+#----------------------------------------------------------------------------------------
 #.FN_BODY ComponentPDU
-tvbuff_t *next_tvb;
-dissector_handle_t subdissector_handle;
+tvbuff_t	*next_tvb;
+gint8 class;
+gboolean pc;
+gint tag;
+guint32 len, comp_offset;
+gint ind_field;
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
+/* we can believe the length now */
+next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
 
-if (! (subdissector_handle = get_ansi_tcap_subdissector(actx->pinfo->match_port))) {
-    subdissector_handle = data_handle;
-}
+if (!next_tvb)
+  return offset;
 
-    tcap_subdissector_used=TRUE;
+%(DEFAULT_BODY)s
 
-call_dissector(subdissector_handle, next_tvb, actx->pinfo, tcap_top_tree);
+dissect_tcap_TheComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
-offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
-
+#----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len, i;
@@ -193,6 +240,7 @@ if (parameter_tvb){
 }
 
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY DestTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len , i;
@@ -268,36 +316,61 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 
 #.FN_HDR AbortPDU
+gp_tcapsrt_info->ope=TC_ANSI_ABORT;
+
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.END
 
 
 #.FN_HDR TCMessage/ansiqueryWithPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
 #.FN_HDR TCMessage/ansiqueryWithoutPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
 #.FN_HDR TCMessage/ansiresponse
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
 #.FN_HDR TCMessage/ansiconversationWithPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
 #.FN_HDR TCMessage/ansiconversationWithoutPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
 
 #.END
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY TransactionID VAL_PTR = &next_tvb
 
 tvbuff_t *next_tvb;
+guint8 len;
 
 %(DEFAULT_BODY)s
 
-if(next_tvb)
+if(next_tvb) {
 	tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
+	len = tvb_length_remaining(next_tvb, 0);
+	switch(len) {
+	case 1:
+		gp_tcapsrt_info->src_tid=tvb_get_guint8(next_tvb, 0);
+		break;
+	case 2:
+		gp_tcapsrt_info->src_tid=tvb_get_ntohs(next_tvb, 0);
+		break;
+	case 4:
+		gp_tcapsrt_info->src_tid=tvb_get_ntohl(next_tvb, 0);
+		break;
+	default:
+		gp_tcapsrt_info->src_tid=0;
+		break;
+	}
+}
 
 #.END

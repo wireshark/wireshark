@@ -48,7 +48,7 @@
 #define TCAP_INVOKE_ID_TAG	0x02
 #define TCAP_LINKED_ID_TAG	0x80
 
-#define	TCAP_EOC_LEN		2		
+#define	TCAP_EOC_LEN		2
 
 #define	TCAP_CONSTRUCTOR(TCtag)	(TCtag & 0x20)
 
@@ -56,6 +56,8 @@
 #define TC_CONT 2
 #define TC_END 3
 #define TC_ABORT 4
+#define TC_ANSI_ABORT 5
+#define TC_ANSI_ALL 6
 
 struct tcap_private_t {
   gboolean acv; /* Is the Application Context Version present */
@@ -68,8 +70,11 @@ struct tcap_private_t {
 extern gint tcap_standard;
 
 extern const value_string tcap_component_type_str[];
+void proto_reg_handoff_tcap(void);
+void proto_register_tcap(void);
 
 extern dissector_handle_t get_itu_tcap_subdissector(guint32 ssn);
+dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn);
 
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);

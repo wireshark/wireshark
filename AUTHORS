@@ -2651,8 +2651,12 @@ Ted Percival <ted[AT]midg3t.net> {
 	Support for PA-S4U2Self Kerberos packet type
 }
 
-Marc Petit-Huguenin	<marc [AT] petit-huguenin.org> {
+Marc Petit-Huguenin <marc [AT] petit-huguenin.org> {
 	Update STUN2 to draft-ietf-behave-rfc3489bis-07
+}
+
+Florent Drouin <florent.drouin [AT] alcatel-lucent.fr> {
+	TCAP statistics
 }
 
 and by:
