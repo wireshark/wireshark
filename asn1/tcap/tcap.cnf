@@ -228,7 +228,7 @@ if (parameter_tvb){
         	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
 	   }
 }
-#.FN_BODY Begin
+#.FN_HDR Begin
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -240,56 +240,56 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  */
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
+#.END
 
-%(DEFAULT_BODY)s
 
-#.FN_BODY End
+#.FN_HDR End
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "End ");
+#.END
 
-%(DEFAULT_BODY)s
 
-#.FN_BODY Continue
+#.FN_HDR Continue
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
+#.END
 
-%(DEFAULT_BODY)s
 
-#.FN_BODY Abort
+#.FN_HDR Abort
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+#.END
 
- %(DEFAULT_BODY)s
 
-#.FN_BODY AbortPDU
+#.FN_HDR AbortPDU
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+#.END
 
-%(DEFAULT_BODY)s
 
-#.FN_BODY TransactionPDU
-if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+#.FN_HDR TCMessage/ansiqueryWithPerm
+if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
-
-if ((hf_index == hf_tcap_ansiqueryWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+#.FN_HDR TCMessage/ansiqueryWithoutPerm
+if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
-
-if ((hf_index == hf_tcap_ansiresponse)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+#.FN_HDR TCMessage/ansiresponse
+if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
-
-if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+#.FN_HDR TCMessage/ansiconversationWithPerm
+if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
-
-if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+#.FN_HDR TCMessage/ansiconversationWithoutPerm
+if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
 
-%(DEFAULT_BODY)s
+#.END
 
 #.FN_BODY TransactionID VAL_PTR = &next_tvb
 

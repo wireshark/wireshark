@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-tcap.c                                                            */
+/* .\packet-tcap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -98,11 +98,11 @@ static int hf_tcap_end = -1;                      /* End */
 static int hf_tcap_continue = -1;                 /* Continue */
 static int hf_tcap_abort = -1;                    /* Abort */
 static int hf_tcap_ansiunidirectional = -1;       /* UniTransactionPDU */
-static int hf_tcap_ansiqueryWithPerm = -1;        /* TransactionPDU */
-static int hf_tcap_ansiqueryWithoutPerm = -1;     /* TransactionPDU */
-static int hf_tcap_ansiresponse = -1;             /* TransactionPDU */
-static int hf_tcap_ansiconversationWithPerm = -1;  /* TransactionPDU */
-static int hf_tcap_ansiconversationWithoutPerm = -1;  /* TransactionPDU */
+static int hf_tcap_ansiqueryWithPerm = -1;        /* T_ansiqueryWithPerm */
+static int hf_tcap_ansiqueryWithoutPerm = -1;     /* T_ansiqueryWithoutPerm */
+static int hf_tcap_ansiresponse = -1;             /* T_ansiresponse */
+static int hf_tcap_ansiconversationWithPerm = -1;  /* T_ansiconversationWithPerm */
+static int hf_tcap_ansiconversationWithoutPerm = -1;  /* T_ansiconversationWithoutPerm */
 static int hf_tcap_ansiabort = -1;                /* AbortPDU */
 static int hf_tcap_dialoguePortion = -1;          /* DialoguePortion */
 static int hf_tcap_components = -1;               /* ComponentPortion */
@@ -1438,9 +1438,6 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        Begin_sequence, hf_index, ett_tcap_Begin);
 
-
-
-
   return offset;
 }
 static int dissect_begin_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -1513,9 +1510,6 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        End_sequence, hf_index, ett_tcap_End);
 
-
-
-
   return offset;
 }
 static int dissect_end_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -1541,9 +1535,6 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        Continue_sequence, hf_index, ett_tcap_Continue);
-
-
-
 
   return offset;
 }
@@ -1613,11 +1604,8 @@ gp_tcapsrt_info->ope=TC_ABORT;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
-   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        Abort_sequence, hf_index, ett_tcap_Abort);
-
-
-
 
   return offset;
 }
@@ -2177,44 +2165,91 @@ static const ber_old_sequence_t TransactionPDU_sequence[] = {
 
 static int
 dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 277 "tcap.cnf"
-if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
-
-if ((hf_index == hf_tcap_ansiqueryWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
-
-if ((hf_index == hf_tcap_ansiresponse)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
-
-if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
-
-if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
-
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);
 
+  return offset;
+}
 
 
+
+static int
+dissect_tcap_T_ansiqueryWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 277 "tcap.cnf"
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
+
+  offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
 static int dissect_ansiqueryWithPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_TransactionPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiqueryWithPerm);
+  return dissect_tcap_T_ansiqueryWithPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiqueryWithPerm);
+}
+
+
+
+static int
+dissect_tcap_T_ansiqueryWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 280 "tcap.cnf"
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
+
+  offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
 }
 static int dissect_ansiqueryWithoutPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_TransactionPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiqueryWithoutPerm);
+  return dissect_tcap_T_ansiqueryWithoutPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiqueryWithoutPerm);
+}
+
+
+
+static int
+dissect_tcap_T_ansiresponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 283 "tcap.cnf"
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
+
+  offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
 }
 static int dissect_ansiresponse_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_TransactionPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiresponse);
+  return dissect_tcap_T_ansiresponse(TRUE, tvb, offset, actx, tree, hf_tcap_ansiresponse);
+}
+
+
+
+static int
+dissect_tcap_T_ansiconversationWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 286 "tcap.cnf"
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
+
+  offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
 }
 static int dissect_ansiconversationWithPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_TransactionPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiconversationWithPerm);
+  return dissect_tcap_T_ansiconversationWithPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiconversationWithPerm);
+}
+
+
+
+static int
+dissect_tcap_T_ansiconversationWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 289 "tcap.cnf"
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
+
+
+  offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
 }
 static int dissect_ansiconversationWithoutPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_TransactionPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiconversationWithoutPerm);
+  return dissect_tcap_T_ansiconversationWithoutPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiconversationWithoutPerm);
 }
 
 
@@ -2285,9 +2320,6 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
                                        AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
-
-
-
 
   return offset;
 }
@@ -2651,23 +2683,23 @@ proto_register_tcap(void)
     { &hf_tcap_ansiqueryWithPerm,
       { "ansiqueryWithPerm", "tcap.ansiqueryWithPerm",
         FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.TransactionPDU", HFILL }},
+        "tcap.T_ansiqueryWithPerm", HFILL }},
     { &hf_tcap_ansiqueryWithoutPerm,
       { "ansiqueryWithoutPerm", "tcap.ansiqueryWithoutPerm",
         FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.TransactionPDU", HFILL }},
+        "tcap.T_ansiqueryWithoutPerm", HFILL }},
     { &hf_tcap_ansiresponse,
       { "ansiresponse", "tcap.ansiresponse",
         FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.TransactionPDU", HFILL }},
+        "tcap.T_ansiresponse", HFILL }},
     { &hf_tcap_ansiconversationWithPerm,
       { "ansiconversationWithPerm", "tcap.ansiconversationWithPerm",
         FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.TransactionPDU", HFILL }},
+        "tcap.T_ansiconversationWithPerm", HFILL }},
     { &hf_tcap_ansiconversationWithoutPerm,
       { "ansiconversationWithoutPerm", "tcap.ansiconversationWithoutPerm",
         FT_NONE, BASE_NONE, NULL, 0,
-        "tcap.TransactionPDU", HFILL }},
+        "tcap.T_ansiconversationWithoutPerm", HFILL }},
     { &hf_tcap_ansiabort,
       { "ansiabort", "tcap.ansiabort",
         FT_NONE, BASE_NONE, NULL, 0,
