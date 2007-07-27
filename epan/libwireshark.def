@@ -318,6 +318,7 @@ expert_group_vals               DATA
 expert_severity_vals            DATA
 FacilityReason_vals             DATA
 fc_fc4_val                      DATA
+fetch_tapped_data
 filesystem_opt
 file_open_error_message
 file_write_error_message
