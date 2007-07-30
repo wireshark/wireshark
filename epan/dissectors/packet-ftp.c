@@ -82,6 +82,7 @@ static const value_string response_table[] = {
 	{ 225, "Data connection open; no transfer in progress" },
 	{ 226, "Closing data connection" },
 	{ 227, "Entering Passive Mode" },
+	{ 229, "Entering Extended Passive Mode" },
 	{ 230, "User logged in, proceed" },
 	{ 250, "Requested file action okay, completed" },
 	{ 257, "PATHNAME created" },
@@ -223,12 +224,80 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 	return ret;
 }
 
+
+static gboolean
+parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
+{
+	int n;
+	char *args;
+	char *p;
+	guchar c;
+	gboolean ret = FALSE;
+	gboolean delimiters_seen = FALSE;
+
+	/*
+	 * Copy the rest of the line into a null-terminated buffer.
+	 */
+	args = ep_alloc(linelen + 1);
+	memcpy(args, line, linelen);
+	args[linelen] = '\0';
+	p = args;
+
+	/*
+	 * Look for ( <d> <d> <d>
+	   (Try to cope with '(' in description)
+	 */
+	for (; !delimiters_seen;) {
+		char delimiter = '\0';
+		while ((c = *p) != '\0' && (c != '('))
+			p++;
+		
+		if (*p == '\0') {
+			return FALSE;
+		}
+
+		/* Skip '(' */
+		p++;
+
+		/* Make sure same delimiter is used 3 times */
+		for (n=0; n<3; n++) {
+			if ((c = *p) != '\0') {
+				if (delimiter == '\0') {
+					delimiter = c;
+				}
+				if (c != delimiter) {
+					break;;
+				}
+			p++;
+			}
+			else {
+				break;
+			}
+		}
+		delimiters_seen = TRUE;
+	}
+
+	/*
+	 * Should now be at digits.
+	 */
+	if (*p != '\0') {
+		/*
+		 * We didn't run out of text without finding anything.
+		 */
+		*ftp_port = atoi(p);
+		ret = TRUE;
+	}
+
+	return ret;
+}
+
+
 static void
 dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gboolean        is_request;
-        proto_tree      *ftp_tree = NULL;
-        proto_tree      *reqresp_tree = NULL;
+	gboolean        is_request;
+	proto_tree      *ftp_tree = NULL;
+	proto_tree      *reqresp_tree = NULL;
 	proto_item	*ti;
 	gint		offset = 0;
 	const guchar	*line;
@@ -236,6 +305,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar		code_str[4];
 	gboolean	is_port_request = FALSE;
 	gboolean	is_pasv_response = FALSE;
+	gboolean	is_epasv_response = FALSE;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
@@ -348,14 +418,18 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * See if it's a passive-mode response.
 			 *
-			 * XXX - check for "229" responses to EPSV
-			 * commands, to handle IPv6, as per RFC 2428?
-			 *
 			 * XXX - does anybody do FOOBAR, as per RFC
 			 * 1639, or has that been supplanted by RFC 2428?
 			 */
 			if (code == 227)
 				is_pasv_response = TRUE;
+
+			/*
+			 * Responses to EPSV command, as per RFC 2428
+			 * XXX - handle IPv6?
+			 */
+			if (code == 229)
+				is_epasv_response = TRUE;
 
 			/*
 			 * Skip the 3 digits and, if present, the
@@ -400,8 +474,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * If this is a PORT request or a PASV response, handle it.
 	 */
 	if (is_port_request) {
-		if (parse_port_pasv(line, linelen, &ftp_ip,
-		    &ftp_port)) {
+		if (parse_port_pasv(line, linelen, &ftp_ip, &ftp_port)) {
 			if (tree) {
 				proto_tree_add_ipv4(reqresp_tree,
 				    hf_ftp_active_ip, tvb, 0, 0,
@@ -410,10 +483,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_ftp_active_port, tvb, 0, 0,
 				    ftp_port);
 			}
-			SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
-			    (const guint8 *)&ftp_ip);
-			ftp_nat = !ADDRESSES_EQUAL(&pinfo->src,
-			    &ftp_ip_address);
+			SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4, (const guint8 *)&ftp_ip);
+			ftp_nat = !ADDRESSES_EQUAL(&pinfo->src, &ftp_ip_address);
 			if (ftp_nat) {
 				if (tree) {
 					proto_tree_add_boolean(
@@ -490,6 +561,36 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 */
 					conversation = conversation_new(
 					    pinfo->fd->num, &ftp_ip_address, &pinfo->dst,
+					    PT_TCP, ftp_port, 0, NO_PORT2);
+					conversation_set_dissector(conversation,
+					    ftpdata_handle);
+				}
+			}
+		}
+	}
+
+
+	if (is_epasv_response) {
+		if (linelen != 0) {
+			/*
+			 * This frame contains an  EPSV response; set up a
+			 * conversation for the data.
+			 */
+			if (parse_extended_pasv_response(line, linelen, &ftp_port)) {
+				/* Add port number to tree */
+				if (tree) {
+					proto_tree_add_uint(reqresp_tree,
+					                    hf_ftp_pasv_port, tvb, 0, 0,
+					                    ftp_port);
+				}
+
+				/* Find/create conversation for data */
+				conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+				                                 &pinfo->dst, PT_TCP, ftp_port, 0,
+				                                 NO_PORT_B);
+				if (conversation == NULL) {
+					conversation = conversation_new(
+					    pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					    PT_TCP, ftp_port, 0, NO_PORT2);
 					conversation_set_dissector(conversation,
 					    ftpdata_handle);
