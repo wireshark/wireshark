@@ -965,7 +965,12 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		      struct tcapsrt_info_t *p_tcapsrt_info)
 {
   struct tcaphash_context_t *tcap_context=NULL;
-
+	
+  /* if this packet isn't loaded because of a read filter, don't output anything */
+  if(pinfo == NULL || pinfo->fd->num == 0) {
+    return NULL;
+  }
+  
   switch (p_tcapsrt_info->ope) {
     
   case TC_BEGIN:

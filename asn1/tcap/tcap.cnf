@@ -130,7 +130,7 @@ if (!next_tvb)
 
 %(DEFAULT_BODY)s
 
- dissect_tcap_TheComponent(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+ dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
 /* return comp_offset+len; or return offset (will be automatically added */
 
@@ -199,7 +199,7 @@ if (!next_tvb)
 
 %(DEFAULT_BODY)s
 
-dissect_tcap_TheComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+dissect_tcap_ANSI_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID

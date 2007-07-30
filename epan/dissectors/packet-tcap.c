@@ -296,8 +296,8 @@ static dissector_table_t sccp_ssn_table;
 static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
-static int dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
-static int dissect_tcap_TheComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
+static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
+static int dissect_tcap_ANSI_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 static int dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
 
 static GHashTable* ansi_sub_dissectors = NULL;
@@ -317,11 +317,13 @@ extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector)
 
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
     g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-    dissector_delete("sccp.ssn",ssn,tcap_handle);
+    if (!get_itu_tcap_subdissector(ssn))
+      dissector_delete("sccp.ssn",ssn,tcap_handle);
 }
 extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
     g_hash_table_remove(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
-	dissector_delete("sccp.ssn", ssn,tcap_handle);
+    if (!get_ansi_tcap_subdissector(ssn))
+      dissector_delete("sccp.ssn", ssn,tcap_handle);
 }
 
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
@@ -1357,7 +1359,7 @@ if (!next_tvb)
                                      NULL);
 
 
- dissect_tcap_TheComponent(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+ dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
 /* return comp_offset+len; or return offset (will be automatically added */
 
@@ -2173,7 +2175,7 @@ if (!next_tvb)
                                      NULL);
 
 
-dissect_tcap_TheComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+dissect_tcap_ANSI_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
 
 
@@ -2476,7 +2478,7 @@ static void dissect_UniDialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 145 "packet-tcap-template.c"
+#line 147 "packet-tcap-template.c"
 
 
 
@@ -2568,7 +2570,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 229 "packet-tcap-template.c"
+#line 231 "packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3131,7 +3133,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 291 "packet-tcap-template.c"
+#line 293 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3196,7 +3198,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 301 "packet-tcap-template.c"
+#line 303 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -3374,7 +3376,7 @@ static void raz_tcap_private(struct tcap_private_t * p_tcap_private)
  * Call ITU Subdissector to decode the Tcap Component
  */
 static int
-dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
+dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
 {
   dissector_handle_t subdissector_handle=NULL;
   gboolean is_subdissector=FALSE;
@@ -3506,7 +3508,7 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
  * Call ANSI Subdissector to decode the Tcap Component
  */
 static int
-dissect_tcap_TheComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
+dissect_tcap_ANSI_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_)
 {
   dissector_handle_t subdissector_handle;
   gboolean is_subdissector=FALSE;
