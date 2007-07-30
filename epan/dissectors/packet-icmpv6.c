@@ -68,9 +68,9 @@
  * and
  *
  *	draft-ietf-mobileip-hmipv6-05.txt
- * 
+ *
  * and
- * 
+ *
  * 	rfc4068.txt
  */
 
@@ -341,7 +341,7 @@ again:
 	    offset + 2, 6, "Reserved: 0 (correct)");
 	else
 	   proto_tree_add_text(icmp6opt_tree, tvb,
-	    offset +2, 6, "Reserved: MUST be 0 (incorrect!)");	
+	    offset +2, 6, "Reserved: MUST be 0 (incorrect!)");
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
 	dissect_contained_icmpv6(tvb, offset + 8, pinfo, icmp6opt_tree);
@@ -501,11 +501,11 @@ again:
 			1, "Status: %s",
 			val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
 
-	if (opt_naack->fmip6_opt_len == 3) 
+	if (opt_naack->fmip6_opt_len == 3)
 	{
 		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
 		proto_tree_add_text(icmp6opt_tree, tvb,
-			offset + sizeof(*opt_naack), 
+			offset + sizeof(*opt_naack),
 			16, "New Care-of Address: %s",
 			ip6_to_str(&in6));
 	}
@@ -593,7 +593,7 @@ again:
 						1, "Prefix length: %u", opt_ip->fmip6_opt_prefix_len);
 
 				proto_tree_add_text(icmp6opt_tree, tvb,
-						offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_ip6_address), 
+						offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_ip6_address),
 						16, "IPv6 Address: %s",
 						ip6_to_str(&opt_ip->fmip6_opt_ip6_address));
 				break;
@@ -614,7 +614,7 @@ again:
 						1, "Prefix length: %u", opt_nr->fmip6_opt_prefix_len);
 
 				proto_tree_add_text(icmp6opt_tree, tvb,
-						offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix), 
+						offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix),
 						16, "Prefix: %s",
 						ip6_to_str(&opt_nr->fmip6_opt_prefix));
 				break;
@@ -1176,18 +1176,18 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
     recordSize = 4 + 16 + (16 * sourceNb) + (auxDataLen * 4);
 
     tvb_get_ipv6(tvb, localOffset, &addr);
-    tf = proto_tree_add_text( tree, tvb, offset, recordSize, 
+    tf = proto_tree_add_text( tree, tvb, offset, recordSize,
 #ifdef INET6
 			      "%s: %s (%s)", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
-			      get_hostname6(&addr), ip6_to_str(&addr) 
+			      get_hostname6(&addr), ip6_to_str(&addr)
 #else
 			      "%s: %s", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
-			      ip6_to_str(&addr) 
+			      ip6_to_str(&addr)
 #endif
 			      );
     sub_tree = proto_item_add_subtree(tf, ett_multicastRR);
 
-    proto_tree_add_text( sub_tree, tvb, offset,   1, "Mode: %s", 
+    proto_tree_add_text( sub_tree, tvb, offset,   1, "Mode: %s",
 			 val_to_str(recordType, mldrv2ModesNames,"Unknown mode") );
     proto_tree_add_text( sub_tree, tvb, offset+1, 1, "Aux data len: %u", auxDataLen * 4);
     proto_tree_add_text( sub_tree, tvb, localOffset, 16, "Multicast Address: %s", ip6_to_str(&addr) );
@@ -1195,7 +1195,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
 
     for( ; sourceNb; sourceNb--, localOffset += 16 ) {
       tvb_get_ipv6(tvb, localOffset, &addr);
-      proto_tree_add_text( sub_tree, tvb, localOffset, 16, 
+      proto_tree_add_text( sub_tree, tvb, localOffset, 16,
 #ifdef INET6
 			   "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr) );
 #else
@@ -1212,7 +1212,7 @@ dissect_mldqv2(tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree)
 
   for ( ; count; count--, offset += 16) {
       tvb_get_ipv6(tvb, offset, &addr);
-      proto_tree_add_text(tree, tvb, offset, 16, 
+      proto_tree_add_text(tree, tvb, offset, 16,
 			  "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr));
   }
 }
@@ -1569,14 +1569,14 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    guint16 qqi;
 		    guint8 flag;
 		    guint16 nsrcs;
-		    
+
 		    mrc = g_ntohs(dp->icmp6_maxdelay);
 		    flag = tvb_get_guint8(tvb, offset + sizeof(*dp) + 16);
 		    qqi = tvb_get_guint8(tvb, offset + sizeof(*dp) + 16 + 1);
 		    nsrcs = tvb_get_ntohs(tvb, offset + sizeof(*dp) + 16 + 2);
 
 		    if (mrc >= 32768)
-		    	mrc = ((mrc & 0x0fff) | 0x1000) << 
+		    	mrc = ((mrc & 0x0fff) | 0x1000) <<
 				(((mrc & 0x7000) >> 12) + 3);
 		    proto_tree_add_text(icmp6_tree, tvb,
 		        offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
@@ -1623,7 +1623,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	case ICMP6_MLDV2_REPORT: {
 	  guint16 nbRecords;
-	  
+
 	  nbRecords = tvb_get_ntohs( tvb, offset+4+2 );
 	  dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
 	  break;
@@ -1976,6 +1976,8 @@ proto_register_icmpv6(void)
 					 "ICMPv6", "icmpv6");
   proto_register_field_array(proto_icmpv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
 }
 
 void

@@ -876,7 +876,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     { 4, "640 kbit/s"},
     { 5, "1.28 Mbit/s"},
     { 6, "2.56 Mbit/s"},
-    { 7, "5.12 Mbit/s"}, 
+    { 7, "5.12 Mbit/s"},
     { 8, "10.24 Mbit/s"},
     { 9, "20.48 Mbit/s"},
     {10, "40.96 Mbit/s"},
@@ -893,15 +893,15 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   guint8 rate = command & 0x0f;
 
   switch (function) {
-  case 0x00: /* rate request */ 
+  case 0x00: /* rate request */
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-			"%s: Rate request, %s, QS TTL %u", optp->name, 
-		      val_to_str(rate, qs_rates, "Unknown"), 
+			"%s: Rate request, %s, QS TTL %u", optp->name,
+		      val_to_str(rate, qs_rates, "Unknown"),
 		      tvb_get_guint8(tvb, offset + 3));
     break;
   case 0x08: /* rate report */
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-			"%s: Rate report, %s", optp->name, 
+			"%s: Rate report, %s", optp->name,
 			val_to_str(rate, qs_rates, "Unknown"));
     break;
   default:
@@ -1446,7 +1446,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
       tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
       ipsum == 0) {
-		ipfd_head = fragment_add_check(tvb, offset, pinfo, 
+		ipfd_head = fragment_add_check(tvb, offset, pinfo,
 			     iph->ip_p ^ iph->ip_id ^ src32 ^ dst32,
 			     ip_fragment_table,
 			     ip_reassembled_table,
@@ -1717,10 +1717,10 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
     guint           reported_length;
     guint           label;
     gboolean        unknown_object;
-    
+
     if (!tree)
         return;
-    
+
     reported_length = tvb_reported_length_remaining(tvb, offset);
 
     if (reported_length < 4 /* Common header */)
@@ -1730,8 +1730,8 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
                             "MPLS Extensions (truncated)");
         return;
     }
-    
-    /* Add a tree for the MPLS extensions */           
+
+    /* Add a tree for the MPLS extensions */
     ti = proto_tree_add_none_format(tree, hf_icmp_mpls, tvb,
                                             offset, reported_length, "MPLS Extensions");
 
@@ -1749,7 +1749,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
     /* Checksum */
     cksum = tvb_get_ntohs(tvb, offset + 2);
-    
+
     computed_cksum = ip_checksum(tvb_get_ptr(tvb, offset, reported_length),
                                     reported_length);
 
@@ -1818,7 +1818,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
         /* Default cases will set this flag to TRUE */
         unknown_object = FALSE;
-        
+
         switch (class_num)
         {
             case MPLS_STACK_ENTRY_OBJECT_CLASS:
@@ -1840,7 +1840,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
                             /* Create a subtree for each entry (the text will be set later) */
                             tf_entry = proto_tree_add_text(mpls_object_tree,
                                                             tvb, offset, 4, " ");
-                            mpls_stack_object_tree = proto_item_add_subtree(tf_entry, 
+                            mpls_stack_object_tree = proto_item_add_subtree(tf_entry,
                                                                             ett_icmp_mpls_stack_object);
 
                             /* Label */
@@ -1866,7 +1866,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
                                                     tmp);
 
                             proto_item_append_text(tf_entry, ", Exp: %u", (tmp >> 1) & 0x07);
-                                                    
+
                             /* Stack bit */
                             proto_tree_add_boolean(mpls_stack_object_tree,
                                                     hf_icmp_mpls_s,
@@ -1876,7 +1876,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
                                                     tmp);
 
                             proto_item_append_text(tf_entry, ", S: %u", tmp  & 0x01);
-                                                    
+
                             /* TTL */
                             ttl = tvb_get_guint8(tvb, offset + 3);
 
@@ -1888,7 +1888,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
                                                 FALSE);
 
                             proto_item_append_text(tf_entry, ", TTL: %u", ttl);
-                                                
+
                             /* Skip the entry */
                             offset += 4;
 
@@ -1936,18 +1936,18 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
                 break;
         } /* end switch class_num */
-        
+
         /* The switches couldn't decode the object */
         if (unknown_object == TRUE)
         {
             proto_item_set_text(tf_object, "Unknown object (%d/%d)", class_num, c_type);
-            
+
             if (obj_trunc_length > 4)
                 proto_tree_add_text(mpls_object_tree, tvb,
                                     offset, obj_trunc_length - 4,
                                     "Data (%d bytes)", obj_trunc_length - 4);
         }
-        
+
         /* */
         if (obj_trunc_length < obj_length)
             proto_item_append_text(tf_object, " (truncated)");
@@ -2213,19 +2213,19 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Decode the IP header and first 64 bits of data from the
 	   original datagram. */
 	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
-	
+
 	/* There is a collision between RFC 1812 and draft-ietf-mpls-icmp-02.
 	We don't know how to decode the 128th and following bytes of the ICMP payload.
 	According to draft-ietf-mpls-icmp-02, these bytes should be decoded as MPLS extensions
 	whereas RFC 1812 tells us to decode them as a portion of the original packet.
 	Let the user decide.
-	
+
 	Here the user decided to favor MPLS extensions.
 	Force the IP dissector to decode only the first 128 bytes. */
 	if ((tvb_reported_length(tvb) > 8 + 128) &&
 			favor_icmp_mpls_ext && (tvb_get_ntohs(tvb, 8 + 2) > 128))
 		set_actual_length(next_tvb, 128);
-	
+
 	call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
 
 	/* Restore the "we're inside an error packet" flag. */
@@ -2237,7 +2237,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((tvb_reported_length(tvb) > 8 + 128)
 			&& (tvb_get_ntohs(tvb, 8 + 2) <= 128 || favor_icmp_mpls_ext))
 		dissect_mpls_extensions(tvb, 8 + 128, icmp_tree);
-	
+
 	break;
 
       case ICMP_ECHOREPLY:
@@ -2638,11 +2638,11 @@ proto_register_icmp(void)
     { &hf_icmp_mpls,
       { "ICMP Extensions for MPLS",	"icmp.mpls",	FT_NONE, BASE_NONE,	NULL, 0x0,
 	"", HFILL }},
-    
+
 	{ &hf_icmp_mpls_version,
 		{ "Version",		"icmp.mpls.version", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
-            
+
     { &hf_icmp_mpls_reserved,
       { "Reserved",	"icmp.mpls.res",	FT_UINT16, BASE_HEX,	NULL, 0x0,
       	"", HFILL }},
@@ -2694,20 +2694,22 @@ proto_register_icmp(void)
 	&ett_icmp_mpls_object,
 	&ett_icmp_mpls_stack_object
   };
-  
+
   module_t *icmp_module;
-  
+
   proto_icmp = proto_register_protocol("Internet Control Message Protocol",
 				       "ICMP", "icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  
+
   icmp_module = prefs_register_protocol(proto_icmp, NULL);
-  
+
   prefs_register_bool_preference(icmp_module, "favor_icmp_mpls",
 	    "Favor ICMP extensions for MPLS",
 	    "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
 	    &favor_icmp_mpls_ext);
+
+  register_dissector("icmp", dissect_icmp, proto_icmp);
 }
 
 void
