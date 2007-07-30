@@ -186,7 +186,9 @@ selected(int recno)
 
 /* is the packet in the selected timeframe */
 static gboolean check_timestamp(wtap *wth) {
+	static int i = 0;
 	struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
+	if (i%250) printf("== %d starttime=%lu stoptime=%lu ts=%lu",i,starttime,stoptime,pkthdr->ts.secs);
 	return ( (time_t) pkthdr->ts.secs >= starttime ) && ( (time_t) pkthdr->ts.secs <= stoptime );
 }
 
@@ -385,7 +387,8 @@ int main(int argc, char *argv[])
   char *filename;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
-
+  gboolean check_ts;
+  
   /* Register wiretap plugins */
   if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
 	  g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
@@ -396,7 +399,7 @@ int main(int argc, char *argv[])
 		register_all_wiretap_modules();
     }
 #endif
-
+  
   /* Process the options */
   while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {
 
@@ -519,6 +522,7 @@ int main(int argc, char *argv[])
 		starttm.tm_isdst = -1;
 
 		starttime = mktime(&starttm);
+		printf("=START=> given='%s' stoptime=%lu\n",optarg,starttime);
 		break;
 	}
 	case 'B':
@@ -535,6 +539,7 @@ int main(int argc, char *argv[])
 		check_startstop = TRUE;
 		stoptm.tm_isdst = -1;
 		stoptime = mktime(&stoptm);
+		printf("=STOP=> given='%s' stoptime=%lu\n",optarg,stoptime);
 		break;
 	}
     }
@@ -561,12 +566,14 @@ int main(int argc, char *argv[])
 	  stoptm.tm_mon = 11;
 
 	  stoptime = mktime(&stoptm);
+	  printf("=STOP=NEVER=> stoptime=%lu\n",stoptime);
   }
 
   if (starttime > stoptime) {
 	  fprintf(stderr, "editcap: start time is after the stop time\n");
 	  exit(1);
   }
+  printf("==> stoptime=%lu stoptime=%lu\n",starttime,stoptime);
 
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
@@ -653,8 +660,10 @@ int main(int argc, char *argv[])
 
 	}
       }
-
-      if ( ((check_startstop && check_timestamp(wth)) || (!check_startstop && !check_timestamp(wth))) && ((!selected(count) && !keep_em) ||
+	
+      check_ts = check_timestamp(wth);
+		
+      if ( ((check_startstop && check_ts) || (!check_startstop && !check_ts)) && ((!selected(count) && !keep_em) ||
           (selected(count) && keep_em)) ) {
 
         if (verbose)
