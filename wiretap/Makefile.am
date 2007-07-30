@@ -79,12 +79,9 @@ ascend-grammar.c : ascend-grammar.y
 	fi
 	$(YACC) -d -p ascend -o ascend-grammar.c $(srcdir)/ascend-grammar.y
 
-ascend-scanner.c : ascend-scanner.l
+.l.c:
 	@if [ ! -x "$(LEX)" ]; then \
 		echo "Neither lex nor flex was found"; \
 		exit 1; \
 	fi
-	$(LEX) -Pascend -oascend-scanner.c $(srcdir)/ascend-scanner.l
-
-k12text.c : k12text.l
-	$(LEX) -ok12text.c $(srcdir)/k12text.l
+	$(LEX) -o$@ $<

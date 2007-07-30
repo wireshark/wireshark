@@ -1,6 +1,22 @@
+/*
+ * We want to stop processing when we get to the end of the input.
+ */
 %option noyywrap
+
+/*
+ * We don't use unput, so don't generate code for it.
+ */
 %option nounput 
+
+/*
+ * We don't read from the terminal.
+ */
 %option never-interactive
+
+/*
+ * Prefix scanner routines with "Mate" rather than "yy", so this scanner
+ * can coexist with other scanners.
+ */
 %option prefix="Mate"
 
 %{
@@ -28,7 +44,7 @@
 	* 
 	* You should have received a copy of the GNU General Public License
 	* along with this program; if not, write to the Free Software
-	* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	*/
 	
 #include "mate.h"	

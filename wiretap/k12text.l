@@ -1,8 +1,26 @@
+/*
+ * We want to stop processing when we get to the end of the input.
+ */
 %option noyywrap
+
+/*
+ * We don't use unput, so don't generate code for it.
+ */
 %option nounput 
-%option outfile="k12text.c"
-%option prefix="K12Text_"
+
+/*
+ * We don't read from the terminal.
+ */
 %option never-interactive
+
+/*
+ * Prefix scanner routines with "K12Text_" rather than "yy", so this scanner
+ * can coexist with other scanners.
+ */
+%option prefix="K12Text_"
+
+%option outfile="k12text.c"
+
 %{
 /* k12text.l
  *

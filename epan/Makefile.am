@@ -125,20 +125,12 @@ tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
 exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
 
-radius_dict.c: radius_dict.l
-	$(LEX) $^
-
-uat_load.c: uat_load.l
-	$(LEX) -ouat_load.c $(srcdir)/uat_load.l
-
-diam_dict.c: diam_dict.l
-	$(LEX) -odiam_dict.c $(srcdir)/diam_dict.l
-	
-dtd_parse.c : dtd_parse.l
-	$(LEX) -odtd_parse.c $(srcdir)/dtd_parse.l
-
-dtd_preparse.c : dtd_preparse.l
-	$(LEX) -odtd_preparse.c $(srcdir)/dtd_preparse.l
+.l.c:
+	@if [ ! -x "$(LEX)" ]; then \
+		echo "Neither lex nor flex was found"; \
+		exit 1; \
+	fi
+	$(LEX) -o$@ $<
 
 dtd_grammar.h: dtd_grammar.c
 

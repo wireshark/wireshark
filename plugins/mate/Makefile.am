@@ -130,8 +130,12 @@ EXTRA_DIST = \
 	moduleinfo.nmake	\
 	plugin.rc.in
 
-mate_parser.c : mate_parser.l
-	$(LEX) -Pdf_ -omate_parser.c $(srcdir)/mate_parser.l
+.l.c:
+	@if [ ! -x "$(LEX)" ]; then \
+		echo "Neither lex nor flex was found"; \
+		exit 1; \
+	fi
+	$(LEX) -o$@ $<
 
 LEMON = ../../tools/lemon
 
