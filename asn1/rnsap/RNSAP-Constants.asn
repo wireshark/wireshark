@@ -1,13 +1,12 @@
 -- RNSAP-Constants.asn
 --
--- Taken from 3GPP TS 25.423 V7.4.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-740.zip/25423-740.DOC
+-- Taken from 3GPP TS 25.423 V7.5.0 (2007-06)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-750.zip/25423-750.DOC
 --
--- 9.3.6 Constant Definitions
+-- 9.3.6	Constant Definitions
 --
 -- $Id$
 --
-
 
 -- **************************************************************
 --
@@ -180,6 +179,9 @@ maxNrOfHS-DSCHTBSs						INTEGER ::= 90
 maxNrOfHS-DSCHTBSs-HS-SCCHless			INTEGER ::= 4
 maxHS-PDSCHCodeNrComp-1					INTEGER ::= 15
 maxNrOfEHICHCodes						INTEGER ::= 4
+maxGANSSSat								INTEGER ::= 32
+maxNoGANSS								INTEGER ::= 8
+maxSgnType								INTEGER ::= 4
 
 
 
@@ -717,8 +719,27 @@ id-E-DCH-LCR-Information-Reconfig											ProtocolIE-ID ::= 678
 id-E-DCH-LCR-Information-Response											ProtocolIE-ID ::= 679
 id-HS-PDSCH-Code-Change-Grant												ProtocolIE-ID ::= 680
 id-HS-PDSCH-Code-Change-Indicator											ProtocolIE-ID ::= 681
+id-Extended-SRNC-ID															ProtocolIE-ID ::= 682
+id-Extended-RNC-ID															ProtocolIE-ID ::= 683
 id-SixtyfourQAM-DL-SupportIndicator											ProtocolIE-ID ::= 684
+id-Enhanced-FACH-Support-Indicator											ProtocolIE-ID ::= 685
+id-Enhanced-FACH-Information-ResponseFDD									ProtocolIE-ID ::= 686
+id-SixteenQAM-UL-Information												ProtocolIE-ID ::= 688
+id-HSDSCH-MACdPDUSizeFormat													ProtocolIE-ID ::= 690
+id-MaximumMACdPDU-SizeExtended												ProtocolIE-ID ::= 691
+id-F-DPCH-SlotFormat														ProtocolIE-ID ::= 692
+id-F-DPCH-SlotFormatSupportRequest											ProtocolIE-ID ::= 693
 id-eDCH-MACdFlow-Retransmission-Timer-LCR									ProtocolIE-ID ::= 694
+id-Max-UE-DTX-Cycle															ProtocolIE-ID ::= 695
+id-SixteenQAM-UL-Information-to-Modify										ProtocolIE-ID ::= 696
+id-E-TFCI-BetaEC-Boost														ProtocolIE-ID ::= 697
+id-E-TFCI-BetaED-Switch														ProtocolIE-ID ::= 698
+id-GANSS-Common-Data														ProtocolIE-ID ::= 699
+id-GANSS-Information														ProtocolIE-ID ::= 700
+id-GANSS-Generic-Data														ProtocolIE-ID ::= 701
+id-TUTRANGANSSMeasurementThresholdInformation								ProtocolIE-ID ::= 702
+id-TUTRANGANSSMeasurementValueInformation									ProtocolIE-ID ::= 703
+id-Enhanced-PCH-Support-Indicator											ProtocolIE-ID ::= 704
 
 
 END
