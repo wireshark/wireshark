@@ -75,6 +75,7 @@
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/timestamp.h>
+#include <epan/dfilter/dfilter-macro.h>
 #include "file_util.h"
 
 
@@ -3251,7 +3252,9 @@ cf_select_packet(capture_file *cf, int row)
 
   epan_dissect_run(cf->edt, &cf->pseudo_header, cf->pd, cf->current_frame,
           NULL);
-
+  
+  dfilter_macro_build_ftv_cache(cf->edt->tree);
+  
   cf_callback_invoke(cf_cb_packet_selected, cf);
 }
 

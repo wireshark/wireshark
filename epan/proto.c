@@ -409,8 +409,6 @@ proto_cleanup(void)
 
 }
 
-typedef gboolean (*proto_tree_traverse_func)(proto_node *, gpointer);
-
 static gboolean
 proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
     gpointer data)
@@ -439,7 +437,7 @@ proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
 	return FALSE;
 }
 
-static gboolean
+gboolean
 proto_tree_traverse_in_order(proto_tree *tree, proto_tree_traverse_func func,
     gpointer data)
 {

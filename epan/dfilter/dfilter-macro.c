@@ -37,10 +37,55 @@
 #include <epan/emem.h>
 #include <epan/uat.h>
 #include <epan/report_err.h>
+#include <epan/proto.h>
+
+typedef struct {
+	const char* name;
+	gboolean usable;
+	char* repr;
+} fvt_cache_entry_t;
 
 static uat_t* dfilter_macro_uat = NULL;
 static dfilter_macro_t* macros = NULL;
 static guint num_macros;
+static GHashTable* fvt_cache = NULL;
+
+static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
+	fvt_cache_entry_t* e = v;
+	if (e->repr) g_free(e->repr);
+	g_free(e);
+	return TRUE;
+}
+
+static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
+	field_info* finfo = node->finfo;
+	fvt_cache_entry_t* e;
+	
+	if (!finfo) return FALSE;
+	
+	if ((e = g_hash_table_lookup(fvt_cache,finfo->hfinfo->abbrev))) {
+		e->usable = FALSE;
+	} else if (finfo->value.ftype->val_to_string_repr) {
+		switch (finfo->hfinfo->type) {
+			case FT_NONE:
+			case FT_PROTOCOL:
+				return FALSE;
+			default:
+				break;
+		}
+		e = g_malloc(sizeof(fvt_cache_entry_t));
+		e->name = finfo->hfinfo->abbrev,
+		e->repr = fvalue_to_string_repr(&(finfo->value), FTREPR_DFILTER, NULL);
+		e->usable = TRUE;
+		g_hash_table_insert(fvt_cache,(void*)finfo->hfinfo->abbrev,e);
+	}
+	return FALSE;
+}
+
+void dfilter_macro_build_ftv_cache(void* tree_root) {
+	g_hash_table_foreach_remove(fvt_cache,free_value,NULL);
+	proto_tree_traverse_in_order(tree_root, fvt_cache_cb, NULL);
+}
 
 void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
 	guint i;
@@ -101,6 +146,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 	GString* text;
 	int argc = 0;
 	dfilter_macro_t* m = NULL;
+	fvt_cache_entry_t* e;
 	int* arg_pos_p;
 	gchar** parts;
 	gchar* ret;
@@ -115,8 +161,17 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 	}
 
 	if (!m) {
-		*error = ep_strdup_printf("macro '%s' does not exist", name);
-		return NULL;
+		if (fvt_cache && (e = g_hash_table_lookup(fvt_cache,name) )) {
+			if(e->usable) {
+				return e->repr;
+			} else {
+				*error = ep_strdup_printf("macro '%s' is unusable", name);
+				return NULL;
+			}
+		} else {
+			*error = ep_strdup_printf("macro '%s' does not exist", name);
+			return NULL;
+		}
 	}
 
 	if (args) {
@@ -221,7 +276,7 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 					}
 					break;
 				} case NAME: {
-					if ( isalnum((guchar)c) || c == '_' ) {
+					if ( isalnum((int)c) || c == '_' || c == '-' || c == '.' ) {
 						g_string_append_c(name,c);
 					} else if ( c == ':') {
 						state = ARGS;
@@ -482,8 +537,14 @@ void dfilter_macro_init(void) {
 				    macro_update,
 				    macro_free,
 				    uat_fields);
+
+	fvt_cache = g_hash_table_new(g_str_hash,g_str_equal);
 }
 
 void dfilter_macro_get_uat(void** p) {
 	*p = dfilter_macro_uat;
 }
+
+
+
+  

@@ -317,7 +317,10 @@ typedef proto_node proto_item;
 	((proto_item) ? FI_SET_FLAG((proto_item)->finfo, FI_URL) : 0)
 
 typedef void (*proto_tree_foreach_func)(proto_node *, gpointer);
+typedef gboolean (*proto_tree_traverse_func)(proto_node *, gpointer);
 
+extern gboolean proto_tree_traverse_in_order(proto_tree *tree,
+    proto_tree_traverse_func func, gpointer data);
 extern void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);
 

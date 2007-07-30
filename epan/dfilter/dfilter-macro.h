@@ -54,4 +54,6 @@ void dfilter_macro_init(void);
 
 void dfilter_macro_get_uat(void**);
 
+void dfilter_macro_build_ftv_cache(void* tree_root);
+
 #endif /* _DFILTER_MACRO_H */
