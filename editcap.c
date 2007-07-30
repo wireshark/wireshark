@@ -188,7 +188,7 @@ selected(int recno)
 static gboolean check_timestamp(wtap *wth) {
 	static int i = 0;
 	struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
-	if (i%250) printf("== %d starttime=%lu stoptime=%lu ts=%lu",i,starttime,stoptime,pkthdr->ts.secs);
+	if (!((i++)%250)) printf("== %d starttime=%lu stoptime=%lu ts=%lu",i,starttime,stoptime,pkthdr->ts.secs);
 	return ( (time_t) pkthdr->ts.secs >= starttime ) && ( (time_t) pkthdr->ts.secs <= stoptime );
 }
 
