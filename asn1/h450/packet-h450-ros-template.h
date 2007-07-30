@@ -1,14 +1,6 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h450.h                                                            */
-/* ../../tools/asn2wrs.py -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
-
-/* Input file: packet-h450-template.h */
-
-#line 1 "packet-h450-template.h"
-/* packet-h450.h
- * Routines for h450 packet dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+/* packet-h450-ros.h
+ * Routines for H.450 packet dissection
+ * 2007  Tomas Kukosa
  *
  * $Id$
  *
@@ -31,13 +23,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_H450_H
-#define PACKET_H450_H
+#ifndef PACKET_H450_ROS_H
+#define PACKET_H450_ROS_H
 
+#include "packet-h450-ros-exp.h"
 
-
-/*#include "packet-H450-exp.h" */
-
-#endif  /* PACKET_H450_H */
-
+#endif  /* PACKET_H450_ROS_H */
 

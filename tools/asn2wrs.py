@@ -1263,9 +1263,10 @@ class EthCtx:
       if self.type[t]['import']:
         continue
       m = self.type[t]['module']
-      if not self.all_tags.has_key(m):
-        self.all_tags[m] = {}
-      self.all_tags[m][t] = self.type[t]['val'].GetTTag(self)
+      if not self.Per():
+        if not self.all_tags.has_key(m):
+          self.all_tags[m] = {}
+        self.all_tags[m][t] = self.type[t]['val'].GetTTag(self)
       if not self.all_type_attr.has_key(m):
         self.all_type_attr[m] = {}
       self.all_type_attr[m][t] = self.eth_get_type_attr(t).copy()
@@ -4176,20 +4177,31 @@ class ChoiceType (Type):
     #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
     return not self.HasOwnTag()
 
-  def get_vals(self, ectx):
+  def detect_tagval(self, ectx):
     tagval = False
-    if (ectx.Ber()):
-      lst = self.elt_list[:]
-      if hasattr(self, 'ext_list'):
-        lst.extend(self.ext_list)
-      if (len(lst) > 0):
-        t = lst[0].GetTag(ectx)[0]
-        tagval = True
-      if (t == 'BER_CLASS_UNI'):
+    lst = self.elt_list[:]
+    if hasattr(self, 'ext_list'):
+      lst.extend(self.ext_list)
+    if (len(lst) > 0) and (not ectx.Per() or lst[0].HasOwnTag()):
+      t = lst[0].GetTag(ectx)[0]
+      tagval = True
+    else:
+      t = ''
+      tagval = False
+    if (t == 'BER_CLASS_UNI'):
+      tagval = False
+    for e in (lst):
+      if not ectx.Per() or e.HasOwnTag():
+        tt = e.GetTag(ectx)[0]
+      else:
+        tt = ''
         tagval = False
-      for e in (lst):
-        if (e.GetTag(ectx)[0] != t):
-          tagval = False
+      if (tt != t):
+        tagval = False
+    return tagval
+
+  def get_vals(self, ectx):
+    tagval = self.detect_tagval(ectx)
     vals = []
     cnt = 0
     for e in (self.elt_list):
@@ -4260,19 +4272,7 @@ class ChoiceType (Type):
     # end out_item()
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
-    tagval = False
-    if (ectx.Ber()):
-      lst = self.elt_list[:]
-      if hasattr(self, 'ext_list'):
-        lst.extend(self.ext_list)
-      if (len(lst) > 0):
-        t = lst[0].GetTag(ectx)[0]
-        tagval = True
-      if (t == 'BER_CLASS_UNI'):
-        tagval = False
-      for e in (lst):
-        if (e.GetTag(ectx)[0] != t):
-          tagval = False
+    tagval = self.detect_tagval(ectx)
     if (ectx.Ber()):
         if (ectx.NewBer()):
             table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"

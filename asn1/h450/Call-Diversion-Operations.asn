@@ -1,0 +1,325 @@
+-- Call-Diversion-Operations.asn
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.3/1998/Call-Diversion-Operations.asn
+--
+-- $Id$
+--
+
+-- Module Call-Diversion-Operations (H.450.3:02/1998)
+Call-Diversion-Operations {itu-t recommendation h 450 3 version1(0)
+  call-diversion-operations(0)} DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  OPERATION, ERROR
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)}
+  EXTENSION, Extension{}
+    FROM Manufacturer-specific-service-extension-definition {itu-t
+      recommendation h 450 1 version1(0) msi-definition(18)}
+  H225InformationElement
+    FROM H225-generic-parameters-definition {itu-t recommendation h 450 
+      1 version1(0) h225-generic-parameters(6)}
+  NonStandardParameter
+    FROM H323-MESSAGES
+  EndpointAddress, PartySubaddress, PresentationAllowedIndicator
+    FROM Addressing-Data-Elements {itu-t recommendation h 450 1 version1(0)
+      addressing-data-elements(9)}
+  userNotSubscribed, notAvailable, invalidServedUserNumber,
+    basicServiceNotProvided, resourceUnavailable,
+    supplementaryServiceInteractionNotAllowed
+    FROM H4501-General-Error-List {itu-t recommendation h 450 1 version1(0)
+      general-error-list(1)};
+
+H323CallDiversionOperations OPERATION ::=
+  {activateDiversionQ | deactivateDiversionQ | interrogateDiversionQ |
+   checkRestriction | callRerouting | divertingLegInformation1 |
+   divertingLegInformation2 | divertingLegInformation3 |
+   divertingLegInformation4 | cfnrDivertedLegFailed}
+
+activateDiversionQ OPERATION ::=
+  { -- sent from the activating h.323-endpoint to the served h.323-endpoint
+  ARGUMENT
+    SEQUENCE {procedure          Procedure,
+              basicService       BasicService,
+              divertedToAddress  EndpointAddress,
+              servedUserNr       EndpointAddress,
+              activatingUserNr   EndpointAddress,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RESULT
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter}
+  OPTIONAL  TRUE
+  ERRORS
+    {userNotSubscribed | notAvailable | invalidServedUserNumber |
+      basicServiceNotProvided | resourceUnavailable | invalidDivertedNumber |
+      specialServiceNumber | diversionToServedUserNumber |
+      temporarilyUnavailable | notAuthorized | unspecified}
+  CODE      local:15
+}
+
+deactivateDiversionQ OPERATION ::=
+  { -- sent from the deactivating h.323-endpoint to the served h.323-endpoint
+  ARGUMENT
+    SEQUENCE {procedure           Procedure,
+              basicService        BasicService,
+              servedUserNr        EndpointAddress,
+              deactivatingUserNr  EndpointAddress,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RESULT
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter}
+  OPTIONAL  TRUE
+  ERRORS
+    {userNotSubscribed | notAvailable | invalidServedUserNumber |
+      temporarilyUnavailable | notAuthorized | unspecified}
+  CODE      local:16
+}
+
+interrogateDiversionQ OPERATION ::=
+  { -- sent from the interrogating h.323-endpoint to the served h.323-endpoint
+  ARGUMENT
+    SEQUENCE {procedure            Procedure,
+              basicService         BasicService DEFAULT allServices,
+              servedUserNr         EndpointAddress,
+              interrogatingUserNr  EndpointAddress,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RESULT    IntResultList
+  ERRORS
+    {userNotSubscribed | notAvailable | invalidServedUserNumber |
+      temporarilyUnavailable | notAuthorized | unspecified}
+  CODE      local:17
+}
+
+checkRestriction OPERATION ::=
+  { -- sent from the served h.323-endpoint to the diverted-to h.323-endpoint
+  ARGUMENT
+    SEQUENCE {servedUserNr  EndpointAddress,
+              basicService  BasicService,
+              divertedToNr  EndpointAddress,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RESULT
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter}
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | invalidServedUserNumber | invalidDivertedNumber |
+      specialServiceNumber | unspecified}
+  CODE      local:18
+}
+
+callRerouting OPERATION ::=
+  { -- sent from the served h.323-endpoint to the rerouting h.323-endpoint
+  ARGUMENT
+    SEQUENCE {reroutingReason          DiversionReason,
+              originalReroutingReason  DiversionReason OPTIONAL,
+              calledAddress            EndpointAddress,
+              diversionCounter         INTEGER(1..15),
+              h225InfoElement          H225InformationElement,
+              -- The H.225 information elements Bearer capability, 
+              -- High layer compatibility, Low layer compatibility and 
+              -- Progress Indicator information element may  be embedded 
+              -- in the h225InfoElement in accordance with H.450.1. 
+              lastReroutingNr          EndpointAddress,
+              subscriptionOption       SubscriptionOption,
+              callingPartySubaddress   PartySubaddress OPTIONAL,
+              callingNumber            EndpointAddress,
+              callingInfo              BMPString(SIZE (1..128)) OPTIONAL,
+              originalCalledNr         EndpointAddress OPTIONAL,
+              redirectingInfo          BMPString(SIZE (1..128)) OPTIONAL,
+              originalCalledInfo       BMPString(SIZE (1..128)) OPTIONAL,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RESULT
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter}
+  OPTIONAL  TRUE
+  ERRORS
+    {userNotSubscribed | notAvailable | resourceUnavailable |
+      invalidDivertedNumber | specialServiceNumber |
+      diversionToServedUserNumber | numberOfDiversionsExceeded |
+      supplementaryServiceInteractionNotAllowed | unspecified}
+  CODE      local:19
+}
+
+divertingLegInformation1 OPERATION ::=
+  { -- sent from the re-routing h.323-endpoint to the originating h.323-endpoint  
+  -- if the re-routing endpoint equals the originating endpoint, this operation 
+
+  -- is not applicable; may also be sent from the rerouting endpoint to other 
+  -- members of a conference, if subscription option allows. 
+  ARGUMENT
+    SEQUENCE {diversionReason     DiversionReason,
+              subscriptionOption  SubscriptionOption,
+              nominatedNr         EndpointAddress,
+              nominatedInfo       BMPString(SIZE (1..128)) OPTIONAL,
+              redirectingNr       EndpointAddress OPTIONAL,
+              redirectingInfo     BMPString(SIZE (1..128)) OPTIONAL,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:20
+}
+
+divertingLegInformation2 OPERATION ::=
+  { --sent from the re-routing h.323-endpoint to the diverted-to h.323-endpoint 
+  ARGUMENT
+    SEQUENCE {diversionCounter         INTEGER(1..15),
+              diversionReason          DiversionReason,
+              originalDiversionReason  DiversionReason OPTIONAL,
+              divertingNr              EndpointAddress OPTIONAL,
+              originalCalledNr         EndpointAddress OPTIONAL,
+              redirectingInfo          BMPString(SIZE (1..128)) OPTIONAL,
+              originalCalledInfo       BMPString(SIZE (1..128)) OPTIONAL,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  -- The divertingNr element is mandatory except in the case of interworking
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:21
+}
+
+divertingLegInformation3 OPERATION ::= {
+  --sent from the diverted-to h.323-endpoint to the originating h.323-endpoint
+  ARGUMENT
+    SEQUENCE {presentationAllowedIndicator  PresentationAllowedIndicator,
+              redirectionNr                 EndpointAddress OPTIONAL,
+              redirectionInfo               BMPString(SIZE (1..128)) OPTIONAL,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:22
+}
+
+divertingLegInformation4 OPERATION ::= {
+  -- If call diversion in not performed by the forwarding terminal but by a
+  --  gatekeeper, the gatekeeper may send divertingLegInformation4 apdu to the 
+  -- forwarding terminal. 
+  ARGUMENT
+    SEQUENCE {diversionReason     DiversionReason,
+              subscriptionOption  SubscriptionOption,
+              callingNr           EndpointAddress,
+              callingInfo         BMPString(SIZE (1..128)) OPTIONAL,
+              nominatedNr         EndpointAddress,
+              nominatedInfo       BMPString(SIZE (1..128)) OPTIONAL,
+              extension
+                CHOICE {extensionSeq     ExtensionSeq,
+                        nonStandardData  NonStandardParameter} OPTIONAL,
+              ...}
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:100
+}
+
+cfnrDivertedLegFailed OPERATION ::=
+  { -- sent from the rerouting h.323-terminal to the served  h.323-endpoint
+  ARGUMENT
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter}
+  OPTIONAL         TRUE
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:23
+}
+
+-- This indicates that the diverted-to leg has been cleared during SS-CFNR execution.
+-- Definitions of general used data types:
+DiversionReason ::= ENUMERATED {unknown(0), cfu(1), cfb(2), cfnr(3), ...
+                                }
+
+-- The value unknown is only used if received from another network when interworking.
+IntResultList ::= SET SIZE (0..29) OF IntResult
+
+IntResult ::= SEQUENCE {
+  servedUserNr       EndpointAddress,
+  basicService       BasicService,
+  procedure          Procedure,
+  divertedToAddress  EndpointAddress,
+  remoteEnabled      BOOLEAN DEFAULT FALSE,
+  extension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+Procedure ::= ENUMERATED {cfu(0), cfb(1), cfnr(2), ...
+                          }
+
+SubscriptionOption ::= ENUMERATED {
+  noNotification(0), notificationWithoutDivertedToNr(1),
+  notificationWithDivertedToNr(2), ...
+  }
+
+invalidDivertedNumber ERROR ::= {CODE  local:12
+}
+
+specialServiceNumber ERROR ::= {CODE  local:14
+}
+
+diversionToServedUserNumber ERROR ::= {CODE  local:15
+}
+
+numberOfDiversionsExceeded ERROR ::= {CODE  local:24
+}
+
+temporarilyUnavailable ERROR ::= {CODE  local:1000
+}
+
+notAuthorized ERROR ::= {CODE  local:1007
+}
+
+unspecified ERROR ::= {
+  PARAMETER
+    CHOICE {extension    Extension{{ExtensionSet}},
+            nonStandard  NonStandardParameter}
+  CODE       local:1008
+}
+
+BasicService ::= ENUMERATED {
+  allServices(0),
+  -- speech (1),
+  -- unrestrictedDigitalInformation (2),
+  -- audio3.1KHz (3),
+  -- telephony (32),
+  -- teletex (33),
+  -- telefaxGroup4Class1 (34),
+  -- videotexSyntaxBased (35),
+  -- videotelephony (36), 
+  ...
+  }
+
+-- For multimedia calls the value "allServices" shall be used only. 
+-- The usage of the other codepoints for multimedia calls is for further study.
+ExtensionSeq ::= SEQUENCE OF Extension{{ExtensionSet}}
+
+ExtensionSet EXTENSION ::=
+  {...}
+
+-- Actual values defined by individual manufacturers
+END -- of Call-Diversion-Operations
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

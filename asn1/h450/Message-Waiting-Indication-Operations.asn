@@ -1,0 +1,171 @@
+-- Message-Waiting-Indication-Operations.asn
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.7/1999/Message-Waiting-Indication-Operations.asn
+--
+-- $Id$
+--
+
+-- Module Message-Waiting-Indication-Operations (H.450.7:05/1999)
+Message-Waiting-Indication-Operations {itu-t recommendation h 450 7 version1(0)
+  message-waiting-operations(0)} DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  OPERATION, ERROR
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)}
+  EXTENSION, Extension{}
+    FROM Manufacturer-specific-service-extension-definition {itu-t
+      recommendation h 450 1 version1(0) msi-definition(18)}
+  userNotSubscribed, invalidServedUserNumber, basicServiceNotProvided
+    FROM H4501-General-Error-List {itu-t recommendation h 450 1 version1(0)
+      general-error-list(1)}
+  EndpointAddress
+    FROM Addressing-Data-Elements {itu-t recommendation h 450 1 version1(0)
+      addressing-data-elements(9)}
+  MixedExtension
+    FROM Call-Hold-Operations {itu-t recommendation h 450 4 version1(0)
+      call-hold-operations(0)};
+
+H323-MWI-Operations OPERATION ::=
+  {mwiActivate | mwiDeactivate | mwiInterrogate}
+
+mwiActivate OPERATION ::= {
+  ARGUMENT  MWIActivateArg
+  RESULT    DummyRes
+  ERRORS
+    {userNotSubscribed | invalidServedUserNumber | basicServiceNotProvided |
+      undefined}
+  CODE      local:80
+}
+
+mwiDeactivate OPERATION ::= {
+  ARGUMENT  MWIDeactivateArg
+  RESULT    DummyRes
+  ERRORS
+    {userNotSubscribed | invalidServedUserNumber | basicServiceNotProvided |
+      undefined}
+  CODE      local:81
+}
+
+mwiInterrogate OPERATION ::= {
+  ARGUMENT  MWIInterrogateArg
+  RESULT    MWIInterrogateRes
+  ERRORS
+    {userNotSubscribed | invalidServedUserNumber | notActivated |
+      invalidMsgCentreId | undefined}
+  CODE      local:82
+}
+
+MWIActivateArg ::= SEQUENCE {
+  servedUserNr   EndpointAddress,
+  basicService   BasicService,
+  msgCentreId    MsgCentreId OPTIONAL,
+  nbOfMessages   NbOfMessages OPTIONAL,
+  originatingNr  EndpointAddress OPTIONAL,
+  timestamp      TimeStamp OPTIONAL,
+  priority       INTEGER(0..9) OPTIONAL,
+  -- the value 0 means the highest priority and 9 the lowest
+  extensionArg   SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+DummyRes ::= SEQUENCE SIZE (0..255) OF MixedExtension
+
+MWIDeactivateArg ::= SEQUENCE {
+  servedUserNr  EndpointAddress,
+  basicService  BasicService,
+  msgCentreId   MsgCentreId OPTIONAL,
+  callbackReq   BOOLEAN OPTIONAL,
+  extensionArg  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+MWIInterrogateArg ::= SEQUENCE {
+  servedUserNr  EndpointAddress,
+  basicService  BasicService,
+  msgCentreId   MsgCentreId OPTIONAL,
+  callbackReq   BOOLEAN OPTIONAL,
+  extensionArg  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+MWIInterrogateRes ::= SEQUENCE SIZE (1..64) OF MWIInterrogateResElt
+
+MWIInterrogateResElt ::= SEQUENCE {
+  basicService   BasicService,
+  msgCentreId    MsgCentreId OPTIONAL,
+  nbOfMessages   NbOfMessages OPTIONAL,
+  originatingNr  EndpointAddress OPTIONAL,
+  timestamp      TimeStamp OPTIONAL,
+  priority       INTEGER(0..9) OPTIONAL,
+  -- the value 0 means the highest priority and 9 the lowest
+  extensionArg   SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+MsgCentreId ::= CHOICE {
+  -- only partyNumber provides a callable identification
+  integer        INTEGER(0..65535),
+  partyNumber    EndpointAddress,
+  numericString  NumericString(SIZE (1..10))
+}
+
+NbOfMessages ::= INTEGER(0..65535)
+
+TimeStamp ::= GeneralizedTime(SIZE (12..19))
+
+-- a VisibleString representation of date and time following ISO 8601 
+-- containing:
+--	- the (local) date in 8 digits (YYYYMMDD),
+--	- followed by (local) time of day in 4 or 6 digits [HHMM(SS)],
+--	-	optionally followed by the letter "Z" or by a local time differential 
+--		from UTC time in 5 digits ("+"HHMM or "-"HHMM);
+-- Examples:
+--	1) 19970621194530, meaning 21 June 1997, 19:45:30;
+--	2) 19970621194530Z, meaning the same as 1);
+--	3) 19970621194530-0500, meaning the same as 1), 
+--		5 hours retarded in relation to UTC time
+undefined ERROR ::= {
+  PARAMETER  SEQUENCE SIZE (0..255) OF MixedExtension
+  OPTIONAL   TRUE
+  CODE       local:2002
+}
+
+invalidMsgCentreId ERROR ::=
+  { -- returned by a Message Centre endpoint when an unknown Message 
+  -- Centre Identifier is specified in a mwiInterrogate invoke
+  CODE  local:1018
+}
+
+BasicService ::= ENUMERATED {
+  -- MWI Services:
+  --	for compatibility among vendors, speech is recommended for voice mail
+  --	indications
+  allServices(0), speech(1), unrestrictedDigitalInformation(2), audio3100Hz(3),
+  telephony(32), teletex(33), telefaxGroup4Class1(34), videotexSyntaxBased(35),
+  videotelephony(36), telefaxGroup2-3(37), reservedNotUsed1(38),
+  reservedNotUsed2(39), reservedNotUsed3(40), reservedNotUsed4(41),
+  reservedNotUsed5(42),
+  --
+  -- MWI Service Classes:
+  email(51), video(52), fileTransfer(53), shortMessageService(54),
+  speechAndVideo(55), speechAndFax(56), speechAndEmail(57), videoAndFax(58),
+  videoAndEmail(59), faxAndEmail(60), speechVideoAndFax(61),
+  speechVideoAndEmail(62), speechFaxAndEmail(63), videoFaxAndEmail(64),
+  speechVideoFaxAndEmail(65), multimediaUnknown(66),
+  serviceUnknown(67),
+  --
+  -- Reserved for future additions:
+  futureReserve1(68), futureReserve2(69), futureReserve3(70),
+  futureReserve4(71), futureReserve5(72), futureReserve6(73),
+  futureReserve7(74), futureReserve8(75)}
+
+notActivated ERROR ::= {CODE  local:31
+}
+
+END -- of Message-Waiting-Indication-Operations
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

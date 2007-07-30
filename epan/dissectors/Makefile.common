@@ -101,6 +101,7 @@ ASN_DISSECTOR_SRC = \
 	packet-h245.c \
 	packet-h248.c \
 	packet-h450.c \
+	packet-h450-ros.c \
 	packet-imf.c \
 	packet-inap.c \
 	packet-ldap.c \
@@ -868,7 +869,7 @@ DISSECTOR_INCLUDES =	\
 	packet-h235.h	\
 	packet-h245.h	\
 	packet-h248.h	\
-	packet-h450.h	\
+	packet-h450-ros.h	\
 	packet-hci_h4.h	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\

@@ -1,0 +1,246 @@
+-- Call-Transfer-Operations.asn
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.2/1998/Call-Transfer-Operations.asn
+--
+-- $Id$
+--
+
+-- Module Call-Transfer-Operations (H.450.2:02/1998)
+Call-Transfer-Operations {itu-t recommendation h 450 2 version1(0)
+  call-transfer-operations(0)} DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  OPERATION, ERROR
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)}
+  EXTENSION, Extension{}
+    FROM Manufacturer-specific-service-extension-definition {itu-t
+      recommendation h 450 1 version1(0) msi-definition(18)}
+  notAvailable, supplementaryServiceInteractionNotAllowed, invalidCallState
+    FROM H4501-General-Error-List {itu-t recommendation h 450 1 version1(0)
+      general-error-list(1)}
+  EndpointAddress, PartySubaddress
+    FROM Addressing-Data-Elements {itu-t recommendation h 450 1 version1(0)
+      addressing-data-elements(9)}
+  NonStandardParameter
+    FROM H323-MESSAGES -- see H.225.0
+      
+  H225InformationElement
+    FROM H225-generic-parameters-definition {itu-t recommendation h 450 
+      1 version1(0) h225-generic-parameters(6)};
+
+H323CallTransferOperations OPERATION ::=
+  {callTransferIdentify | callTransferAbandon | callTransferInitiate |
+   callTransferSetup | callTransferUpdate | subaddressTransfer |
+   callTransferComplete | callTransferActive}
+
+callTransferIdentify OPERATION ::= {
+  -- sent from transferring endpoint to transferred-to endpoint
+  ARGUMENT  DummyArg
+  OPTIONAL  TRUE
+  RESULT    CTIdentifyRes
+  ERRORS
+    {notAvailable | invalidCallState |
+      supplementaryServiceInteractionNotAllowed | unspecified}
+  CODE      local:7
+}
+
+callTransferAbandon OPERATION ::= {
+  -- sent from transferring to transferred-to endpoint
+  ARGUMENT         DummyArg
+  OPTIONAL         TRUE
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:8
+}
+
+callTransferInitiate OPERATION ::= {
+  -- sent from transfering to transferred endpoint
+  ARGUMENT  CTInitiateArg
+  RESULT    DummyRes
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | invalidCallState | invalidReroutingNumber |
+      unrecognizedCallIdentity | establishmentFailure |
+      supplementaryServiceInteractionNotAllowed | unspecified}
+  CODE      local:9
+}
+
+callTransferSetup OPERATION ::= {
+  -- sent from transferred to transferred-to endpoint
+  ARGUMENT  CTSetupArg
+  RESULT    DummyRes
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | invalidCallState | invalidReroutingNumber |
+      unrecognizedCallIdentity | unspecified |
+      supplementaryServiceInteractionNotAllowed}
+  CODE      local:10
+}
+
+callTransferUpdate OPERATION ::= {
+  -- may be sent from transferred to transferred-to endpoint (in SETUP) and
+  -- vice versa (in CONNECT)
+  ARGUMENT         CTUpdateArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:13
+}
+
+subaddressTransfer OPERATION ::= {
+  -- may be sent from transferred to the transferred-to endpoint and vice versa
+  ARGUMENT         SubaddressTransferArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:14
+}
+
+callTransferComplete OPERATION ::= {
+  -- sent from GK to the transferred endpoint, if GK performs call transfer 
+  -- (see 10.6.1).
+  ARGUMENT         CTCompleteArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:12
+}
+
+callTransferActive OPERATION ::= {
+  -- sent from gatekeeper to the transferred endpoint, in case of transfer ringing
+  -- after transferred-to endpoint has answered the call (only in case of
+  -- transfer performed by gatekeeper)
+  ARGUMENT         CTActiveArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:11
+}
+
+DummyArg ::= CHOICE {
+  extensionSeq     ExtensionSeq,
+  nonStandardData  NonStandardParameter
+}
+
+DummyRes ::= CHOICE {
+  extensionSeq     ExtensionSeq,
+  nonStandardData  NonStandardParameter
+}
+
+CTInitiateArg ::= SEQUENCE {
+  callIdentity       CallIdentity,
+  reroutingNumber    EndpointAddress,
+  argumentExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+CTSetupArg ::= SEQUENCE {
+  callIdentity        CallIdentity,
+  transferringNumber  EndpointAddress OPTIONAL,
+  argumentExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+CTIdentifyRes ::= SEQUENCE {
+  callIdentity     CallIdentity,
+  reroutingNumber  EndpointAddress,
+  resultExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+CTUpdateArg ::= SEQUENCE {
+  redirectionNumber      EndpointAddress,
+  redirectionInfo        BMPString(SIZE (1..128)) OPTIONAL,
+  basicCallInfoElements  H225InformationElement OPTIONAL,
+  -- Information element 
+  -- Progress indicator may be conveyed
+  argumentExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+SubaddressTransferArg ::= SEQUENCE {
+  redirectionSubaddress  PartySubaddress,
+  argumentExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+CTCompleteArg ::= SEQUENCE {
+  endDesignation         EndDesignation,
+  redirectionNumber      EndpointAddress,
+  -- number of new connected user
+  basicCallInfoElements  H225InformationElement OPTIONAL,
+  -- Information element Progress indicator may be conveyed
+  redirectionInfo        BMPString(SIZE (1..128)) OPTIONAL,
+  callStatus             CallStatus DEFAULT answered,
+  argumentExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+EndDesignation ::= ENUMERATED {primaryEnd(0), secondaryEnd(1), ...
+                               }
+
+CallStatus ::= ENUMERATED {answered(0), alerting(1), ...
+                           }
+
+CTActiveArg ::= SEQUENCE {
+  connectedAddress       EndpointAddress,
+  -- number of new connected user
+  basicCallInfoElements  H225InformationElement OPTIONAL,
+  -- Information element Progress indicator may be conveyed
+  connectedInfo          BMPString(SIZE (1..128)) OPTIONAL,
+  argumentExtension
+    CHOICE {extensionSeq     ExtensionSeq,
+            nonStandardData  NonStandardParameter} OPTIONAL,
+  ...
+}
+
+CallIdentity ::= NumericString(SIZE (0..4))
+
+-- size 0 means 'empty'
+ExtensionSeq ::= SEQUENCE OF Extension{{ExtensionSet}}
+
+ExtensionSet EXTENSION ::=
+  {...}
+
+-- Actual values defined by individual manufacturers
+unspecified ERROR ::= {
+  PARAMETER
+    CHOICE {extension    Extension{{ExtensionSet}},
+            nonStandard  NonStandardParameter}
+  CODE       local:1008
+}
+
+invalidReroutingNumber ERROR ::= {
+  -- used when establishment of the new connection fails
+  -- because the reroutingNumber is not a valid alias address
+  CODE  local:1004
+}
+
+unrecognizedCallIdentity ERROR ::= {
+  -- used when establishment of the new connection fails because it
+  -- could not be associated with a SS-CT entity at the 
+  -- transferred-to endpoint
+  CODE  local:1005
+}
+
+establishmentFailure ERROR ::= {
+  -- used when establishment of the new connection fails and
+  -- no other error applies
+  CODE  local:1006
+}
+
+END -- of Call-Transfer-Operations
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

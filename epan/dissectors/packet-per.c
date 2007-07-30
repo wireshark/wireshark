@@ -738,11 +738,9 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	}
 
 	/* 19.6 ub>=64k or unset */
-	if(max_len>=65536){
-		/* semi-constrained whole number for number of elements */
-		/* each element encoded as 10.9 */
+	if ((max_len >= 65536) || (max_len == NO_BOUND)) {
+		/* no constraint, see 10.9.4.2 */
 		offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length);
-		length+=min_len;
 		goto call_sohelper;
 	}
 

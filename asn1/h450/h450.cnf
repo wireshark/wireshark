@@ -3,39 +3,61 @@
 # Copyright 2004 Anders Broman 
 # $Id$
 
-#.INCLUDE ../h225/h225-exp.cnf
-
-#.MODULE
-Remote-Operations-Apdus ros
+#.OPT
+PER
+ALIGNED
+GROUP_BY_PROT
+-o h450
 #.END
 
-#----------------------------------------------------------------------------------------
-#.PDU
-CallTransferIdentify
-CallTransferAbandon
-CallTransferInitiate
-CallTransferSetup
-CallTransferUpdate
-SubaddressTransfer
-CallTransferComplete
-CallTransferActive
-ActivateDiversionQArg
-ActivateDiversionQRes
-DeactivateDiversionQRes
-InterrogateDiversionQRes
-CheckRestrictionRes
-CallReroutingRes
+#.INCLUDE ../h225/h225-exp.cnf
+#.INCLUDE h450-ros-exp.cnf 
+
+#.MODULE
+
+H4501-Supplementary-ServiceAPDU-Structure           h450
+Addressing-Data-Elements                            h450
+H225-generic-parameters-definition                  h450
+Manufacturer-specific-service-extension-definition  h450
+H4501-General-Error-List                            h450
+
+Call-Transfer-Operations               h450.2
+Call-Diversion-Operations              h450.3
+Call-Hold-Operations                   h450.4
+Call-Park-Pickup-Operations            h450.5
+Call-Waiting-Operations                h450.6
+Message-Waiting-Indication-Operations  h450.7
+Name-Operations                        h450.8
+Call-Completion-Operations             h450.9
+Call-Offer-Operations                  h450.10
+Call-Intrusion-Operations              h450.11
+Common-Information-Operations          h450.12
+
+#.PDU_NEW
+H4501SupplementaryService
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+ERROR.&ParameterType
+
+#.FN_HDR H4501SupplementaryService
+  proto_tree_add_item_hidden(tree, proto_h450, tvb, offset, -1, FALSE);
+#.END
+
+#.FN_HDR ServiceApdus/rosApdus/_item
+  h450_rose_ctx.apdu_depth = 1;
+  actx->rose_ctx = &h450_rose_ctx;
+#.END
 
 #.TYPE_RENAME
-ActivateDiversionQArg/extension ActivateDiversionQArg_extension
-DeactivateDiversionQArg/extension DeactivateDiversionQArg_extension
-InterrogateDiversionQ/extension InterrogateDiversionQ_extension
-CheckRestrictionArg/extension CheckRestrictionArg_extension
-CallReroutingArg/extension CallReroutingArg_extension
-DivertingLegInformation1Arg/extension DivertingLegInformation1Arg_extension
-DivertingLegInformation2Arg/extension DivertingLegInformation2Arg_extension
-DivertingLegInformation3Arg/extension DivertingLegInformation3Arg_extension
-DivertingLegInformation4Arg/extension DivertingLegInformation4Arg_extension
+ARG-activateDiversionQ/extension ActivateDiversionQArg_extension
+ARG-deactivateDiversionQ/extension DeactivateDiversionQArg_extension
+ARG-interrogateDiversionQ/extension InterrogateDiversionQ_extension
+ARG-checkRestriction/extension CheckRestrictionArg_extension
+ARG-callRerouting/extension CallReroutingArg_extension
+ARG-divertingLegInformation1/extension DivertingLegInformation1Arg_extension
+ARG-divertingLegInformation2/extension DivertingLegInformation2Arg_extension
+ARG-divertingLegInformation3/extension DivertingLegInformation3Arg_extension
+ARG-divertingLegInformation4/extension DivertingLegInformation4Arg_extension
 IntResult/extension IntResult_extension
 
 #.FIELD_RENAME
@@ -57,9 +79,10 @@ SubaddressTransferArg/argumentExtension subaddressTransferArg_argumentExtension
 CTCompleteArg/argumentExtension cTCompleteArg_argumentExtension 
 CTActiveArg/argumentExtension cTActiveArg_argumentExtension
 MixedExtension/extension mixedExtension_extension
-Unspecified/extension unspecified_extension
-CheckRestrictionArg/extension checkRestrictionArg_extension
-DivertingLegInformation1Arg/extension divertingLegInformation1Arg_extension
+PAR-unspecified/extension unspecified_extension
+ARG-checkRestriction/extension checkRestrictionArg_extension
+ARG-divertingLegInformation1/extension divertingLegInformation1Arg_extension
+ARG-divertingLegInformation2/extension divertingLegInformation2Arg_extension
 CcRequestArg/extension ccRequestArg_extension
 CcRequestRes/extension ccRequestRes_extension
 CcShortArg/extension ccShortArg_extension
@@ -68,12 +91,12 @@ CoReqOptArg/extension coReqOptArg_extension
 RUAlertOptArg/extension rUAlertOptArg_extension
 CfbOvrOptArg/extension cfbOvrOptArg_extension
 CmnArg/extension cmnArg_extension
-ActivateDiversionQArg/extension activateDiversionQArg_extension 
-InterrogateDiversionQ/extension interrogateDiversionQ_extension
-CallReroutingArg/extension callReroutingArg_extension 
-DivertingLegInformation4Arg/extension divertingLegInformation4Arg_extension 
-DivertingLegInformation3Arg/extension divertingLegInformation3Arg_extension 
-DeactivateDiversionQArg/extension deactivateDiversionQArg_extension 
+ARG-activateDiversionQ/extension activateDiversionQArg_extension 
+ARG-interrogateDiversionQ/extension interrogateDiversionQ_extension
+ARG-callRerouting/extension callReroutingArg_extension 
+ARG-divertingLegInformation4/extension divertingLegInformation4Arg_extension 
+ARG-divertingLegInformation3/extension divertingLegInformation3Arg_extension 
+ARG-deactivateDiversionQ/extension deactivateDiversionQArg_extension 
 IntResult/extension intResult_extension
 
 MWIActivateArg/extensionArg mWIActivateArg_extensionArg 
@@ -96,8 +119,6 @@ PickExeArg/extensionArg pickExeArg_extensionArg
 CpNotifyArg/extensionArg cpNotifyArg_extensionArg
 CpickupNotifyArg/extensionArg cpickupNotifyArg_extensionArg
 CallWaitingArg/extensionArg callWaitingArg_extensionArg
-NameArg/extensionArg nameArg_extensionArg
-CmnRequestArg/extensionArg cmnRequestArg_extensionArg
 CIRequestArg/argumentExtension cIRequestArg_argumentExtension 
 CIGetCIPLOptArg/argumentExtension cIGetCIPLOptArg_argumentExtension
 CIIsOptArg/argumentExtension cIIsOptArg_argumentExtension
@@ -112,3 +133,19 @@ CIIsOptRes/resultExtension cIIsOptRes_resultExtension
 CIFrcRelOptRes/resultExtension cIFrcRelOptRes_resultExtension
 CIWobOptRes/resultExtension cIWobOptRes_resultExtension
 CISilentOptRes/resultExtension cISilentOptRes_resultExtension
+
+#.TABLE10_BODY OPERATION
+  { %(&operationCode)3s, "%(_name)s" },
+#.END
+
+#.TABLE11_BODY OPERATION
+  /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
+#.END
+
+#.TABLE20_BODY ERROR
+  { %(&errorCode)4s, "%(_name)s" },
+#.END
+
+#.TABLE21_BODY ERROR
+  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#.END

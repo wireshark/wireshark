@@ -1,0 +1,211 @@
+-- Call-Intrusion-Operations.asn
+--
+-- Taken from ITU ASN.1 database
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.11/2001/Call-Intrusion-Operations.asn
+--
+-- $Id$
+--
+
+-- Module Call-Intrusion-Operations (H.450.11:03/2001)
+Call-Intrusion-Operations {itu-t recommendation h 450 11 version1(0)
+  call-intrusion-operations(0)} DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+IMPORTS
+  OPERATION, ERROR
+    FROM Remote-Operations-Information-Objects {joint-iso-itu-t
+      remote-operations(4) informationObjects(5) version1(0)}
+  CallIdentifier
+    FROM H323-MESSAGES -- see H.225.0
+      
+  MixedExtension, undefined
+    FROM Call-Hold-Operations {itu-t recommendation h 450 4 version1(0)
+      call-hold-operations(0)}
+  notAvailable, supplementaryServiceInteractionNotAllowed
+    FROM H4501-General-Error-List {itu-t recommendation h 450 1 version1(0)
+      general-error-list(1)}
+  callWaiting
+    FROM Call-Waiting-Operations {itu-t recommendation h 450 6 version1(0)
+      call-waiting-operations(0)}
+  cfbOverride, remoteUserAlerting
+    FROM Call-Offer-Operations {itu-t recommendation h 450 10 version1(0)
+      call-offer-operations(0)};
+
+H323CallIntrusionOperations OPERATION ::=
+  {callIntrusionRequest | callIntrusionGetCIPL | callIntrusionIsolate |
+   callIntrusionForcedRelease | callIntrusionWOBRequest |
+   callIntrusionSilentMonitor | callIntrusionNotification | cfbOverride |
+   remoteUserAlerting | callWaiting}
+
+-- callWaiting is only used for interaction with Call Transfer 
+callIntrusionRequest OPERATION ::= {
+  ARGUMENT  CIRequestArg
+  RESULT    CIRequestRes
+  ERRORS
+    {notAvailable | notBusy | temporarilyUnavailable | notAuthorized |
+      undefined | supplementaryServiceInteractionNotAllowed}
+  CODE      local:43
+}
+
+callIntrusionGetCIPL OPERATION ::= {
+  ARGUMENT         CIGetCIPLOptArg
+  OPTIONAL         TRUE
+  RESULT           CIGetCIPLRes
+  ALWAYS RESPONDS  FALSE
+  CODE             local:44
+}
+
+callIntrusionIsolate OPERATION ::= {
+  ARGUMENT  CIIsOptArg
+  OPTIONAL  TRUE
+  RESULT    CIIsOptRes
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | undefined | supplementaryServiceInteractionNotAllowed}
+  CODE      local:45
+}
+
+callIntrusionForcedRelease OPERATION ::= {
+  ARGUMENT  CIFrcRelArg
+  OPTIONAL  TRUE
+  RESULT    CIFrcRelOptRes
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | notBusy | temporarilyUnavailable | notAuthorized |
+      undefined | supplementaryServiceInteractionNotAllowed}
+  CODE      local:46
+}
+
+callIntrusionWOBRequest OPERATION ::= {
+  ARGUMENT  CIWobOptArg
+  OPTIONAL  TRUE
+  RESULT    CIWobOptRes
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | undefined | supplementaryServiceInteractionNotAllowed}
+  CODE      local:47
+}
+
+callIntrusionSilentMonitor OPERATION ::= {
+  ARGUMENT  CISilentArg
+  RESULT    CISilentOptRes
+  OPTIONAL  TRUE
+  ERRORS
+    {notAvailable | notBusy | temporarilyUnavailable | notAuthorized |
+      undefined | supplementaryServiceInteractionNotAllowed}
+  CODE      local:116
+}
+
+callIntrusionNotification OPERATION ::= {
+  ARGUMENT         CINotificationArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:117
+}
+
+CIRequestArg ::= SEQUENCE {
+  ciCapabilityLevel  CICapabilityLevel,
+  argumentExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIRequestRes ::= SEQUENCE {
+  ciStatusInformation  CIStatusInformation,
+  resultExtension      SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIGetCIPLOptArg ::= SEQUENCE {
+  argumentExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIGetCIPLRes ::= SEQUENCE {
+  ciProtectionLevel          CIProtectionLevel,
+  silentMonitoringPermitted  NULL OPTIONAL,
+  resultExtension            SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIIsOptArg ::= SEQUENCE {
+  argumentExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIIsOptRes ::= SEQUENCE {
+  resultExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIFrcRelArg ::= SEQUENCE {
+  ciCapabilityLevel  CICapabilityLevel,
+  argumentExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIFrcRelOptRes ::= SEQUENCE {
+  resultExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIWobOptArg ::= SEQUENCE {
+  argumentExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CIWobOptRes ::= SEQUENCE {
+  resultExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CISilentArg ::= SEQUENCE {
+  ciCapabilityLevel  CICapabilityLevel,
+  specificCall       CallIdentifier OPTIONAL,
+  argumentExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CISilentOptRes ::= SEQUENCE {
+  resultExtension  SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CINotificationArg ::= SEQUENCE {
+  ciStatusInformation  CIStatusInformation,
+  argumentExtension    SEQUENCE SIZE (0..255) OF MixedExtension OPTIONAL,
+  ...
+}
+
+CICapabilityLevel ::= INTEGER {
+  intrusionLowCap(1), intrusionMediumCap(2), intrusionHighCap(3)}(1..3)
+
+CIProtectionLevel ::= INTEGER {
+  lowProtection(0), mediumProtection(1), highProtection(2), fullProtection(3)
+}(0..3)
+
+CIStatusInformation ::= CHOICE {
+  callIntrusionImpending  NULL,
+  callIntruded            NULL,
+  callIsolated            NULL,
+  callForceReleased       NULL,
+  callIntrusionComplete   NULL,
+  callIntrusionEnd        NULL,
+  ...
+}
+
+notBusy ERROR ::= {CODE  local:1009
+} -- used when the called user is not busy
+
+temporarilyUnavailable ERROR ::= {CODE  local:1000
+} -- used when conditions for invocation of SS-CI
+
+-- are momentarily not met
+notAuthorized ERROR ::= {CODE  local:1007
+} -- used when a SS-CI request is rejected
+
+-- because of insufficient CICL or if silent
+-- monitoring is not permitted
+END -- of Call-Intrusion-Operations
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+
