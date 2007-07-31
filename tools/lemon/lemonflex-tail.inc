@@ -17,7 +17,9 @@ int	MODNAME_wrap(void);
 #define TEXT_FUNC	CONCAT(MODNAME,_scanner_text)
 #define FILE_FUNC	CONCAT(MODNAME,_scanner_file)
 #define CLEANUP_FUNC	CONCAT(MODNAME,_scanner_cleanup)
+#ifndef YY_SKIP_YYWRAP
 #define WRAP_FUNC	CONCAT(MODNAME,_wrap)
+#endif
 
 /* flex 2.5.31 no longer #defines these as yy_* if used with -P. */
 #ifndef yy_scan_string
@@ -61,15 +63,14 @@ CLEANUP_FUNC (void)
 	yy_delete_buffer(YY_CURRENT_BUFFER);
 }
 
+#ifndef YY_SKIP_YYWRAP
 /* Flex has an option '%option noyywrap' so that I don't have to
  * provide this yywrap function, but in order to maintain portability,
- * I'll just use this yywrap() function.
+ * I'll just use this yywrap() function if that option wasn't used.
  */
 int
-WRAP_FUNC ()
+WRAP_FUNC (void)
 {
 	return 1; /* stop at EOF, instead of looking for next file */
 }
-
-
-
+#endif
