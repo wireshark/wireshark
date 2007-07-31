@@ -920,7 +920,8 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     if ((strcmp(protocol_name, "ip") == 0) ||
         (strcmp(protocol_name, "sctp") == 0) ||
         (strcmp(protocol_name, "gre") == 0) ||
-        (strcmp(protocol_name, "mipv6") == 0))
+        (strcmp(protocol_name, "mipv6") == 0) ||
+        (strcmp(protocol_name, "igmp") == 0))
     {
         *encap = WTAP_ENCAP_RAW_IP;
     }
