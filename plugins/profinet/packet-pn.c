@@ -117,6 +117,23 @@ dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset + 2;
 }
 
+/* dissect a 32 bit signed integer */
+int
+dissect_pn_int32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                       proto_tree *tree, int hfindex, gint32 *pdata)
+{
+    gint32 data;
+
+    data = tvb_get_ntohl (tvb, offset);
+
+    if (tree) {
+        proto_tree_add_int(tree, hfindex, tvb, offset, 4, data);
+    }
+    if (pdata)
+        *pdata = data;
+    return offset + 4;
+}
+
 /* dissect a 24bit OUI (IEC organizational unique id) */
 int 
 dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
