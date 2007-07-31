@@ -143,8 +143,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (u16FrameID < 0x0040) {
         pszProtShort 	= "PN-PTCP";
         pszProtAddInfo  = "Synchronization, ";
-        pszProtSummary  = "acyclic Real-Time";
-        pszProtComment	= "0x0000-0x003F: Acyclic Real-Time: Sync";
+        pszProtSummary  = "Real-Time";
+        pszProtComment	= "0x0000-0x003F: Real-Time: Sync (with follow up)";
         bCyclic         = FALSE;
     } else if (u16FrameID < 0x0080) {
         pszProtShort 	= "PN-RT";
@@ -153,11 +153,11 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pszProtComment	= "0x0040-0x007F: Reserved ID";
         bCyclic         = FALSE;
     } else if (u16FrameID < 0x0100) {
-        pszProtShort 	= "PN-RTC0";
+        pszProtShort 	= "PN-PTCP";
         pszProtAddInfo  = "Synchronization, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment	= "0x0080-0x00FF: Isochronous-Real-Time: Clock-sync";
-        bCyclic         = TRUE;
+        pszProtComment	= "0x0080-0x00FF: Real-Time: Sync (without follow up)";
+        bCyclic         = FALSE;
     } else if (u16FrameID < 0x8000){
         pszProtShort 	= "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
