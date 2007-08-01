@@ -21,6 +21,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+include ../Makefile.am.inc
+
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 include Makefile.common
@@ -78,10 +80,3 @@ ascend-grammar.c : ascend-grammar.y
 		exit 1; \
 	fi
 	$(YACC) -d -p ascend -o ascend-grammar.c $(srcdir)/ascend-grammar.y
-
-.l.c:
-	@if [ ! -x "$(LEX)" ]; then \
-		echo "Neither lex nor flex was found"; \
-		exit 1; \
-	fi
-	$(LEX) -o$@ $<

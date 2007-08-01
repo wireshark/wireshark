@@ -463,6 +463,7 @@ MAINTAINERCLEANFILES =		\
 EXTRA_DIST = \
 	FAQ			\
 	INSTALL.configure	\
+	Makefile.am.inc		\
 	Makefile.common		\
 	Makefile.nmake		\
 	README.aix		\

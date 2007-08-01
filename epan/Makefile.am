@@ -22,6 +22,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+include ../Makefile.am.inc
+
 if HAVE_LIBLUA
 wslua_lib = wslua/libwslua.la
 wslua_dir = wslua
@@ -124,13 +126,6 @@ tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
 
 exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
-
-.l.c:
-	@if [ ! -x "$(LEX)" ]; then \
-		echo "Neither lex nor flex was found"; \
-		exit 1; \
-	fi
-	$(LEX) -o$@ $<
 
 dtd_grammar.h: dtd_grammar.c
 

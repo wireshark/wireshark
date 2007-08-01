@@ -21,6 +21,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+
+include ../../Makefile.am.inc
+
 if HAVE_WARNINGS_AS_ERRORS
 AM_NON_GENERATED_CFLAGS = -Werror
 endif
@@ -92,13 +95,6 @@ EXTRA_DIST = \
 	grammar.lemon		\
 	scanner.l		\
 	Makefile.nmake		
-
-.l.c:
-	@if [ ! -x "$(LEX)" ]; then \
-		echo "Neither lex nor flex was found"; \
-		exit 1; \
-	fi
-	$(LEX) -o$@ $<
 
 scanner.o : scanner.c grammar.h
 
