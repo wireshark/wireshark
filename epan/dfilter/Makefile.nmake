@@ -14,10 +14,14 @@ CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
+.SUFFIXES: .l
+
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-
+.l.c:
+	$(LEX) -o$@ $<
+	
 OBJECTS = \
 	dfilter.obj		\
 	dfilter-macro.obj \
@@ -63,9 +67,6 @@ distclean: clean
 	rm -f scanner.c grammar.c grammar.h grammar.out
 
 maintainer-clean: distclean
-
-scanner.c : scanner.l
-	$(LEX) -Pdf_ -oscanner.c scanner.l
 
 scanner.obj : scanner.c grammar.h
 

@@ -45,9 +45,14 @@ libwireshark_LIBS = \
 	$(WSLUA_LIB) \
 	dissectors\dissectors.lib
 
+.SUFFIXES: .l
+
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
+.l.c:
+	$(LEX) -o$@ $<
+	
 LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_ALL_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
@@ -256,25 +261,20 @@ inet_ntop.c: ..\inet_ntop.c
 inet_pton.c: ..\inet_pton.c
 	xcopy ..\inet_pton.c . /d
 
-radius_dict.c : radius_dict.l
-	$(LEX) radius_dict.l
-
-diam_dict.c : diam_dict.l
-	$(LEX) diam_dict.l
-
 sminmpec.c: enterprise-numbers make-sminmpec.pl
 	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
 
-dtd_parse.c : dtd_parse.l
-	$(LEX) -odtd_parse.c dtd_parse.l
-
-dtd_preparse.c : dtd_preparse.l
-	$(LEX) -odtd_preparse.c dtd_preparse.l
-
-uat_load.c : uat_load.l
-	$(LEX) -ouat_load.c uat_load.l
-
 dtd_grammar.h: dtd_grammar.c
+
+radius_dict.obj : radius_dict.c
+
+diam_dict.obj : diam_dict.c
+
+dtd_parse.obj : dtd_parse.c
+
+dtd_preparse.obj : dtd_preparse.c
+
+uat_load.obj : uat_load.c
 
 LEMON=..\tools\lemon
 

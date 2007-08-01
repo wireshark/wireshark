@@ -14,8 +14,13 @@ LEMON=..\..\tools\lemon
 CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
+.SUFFIXES: .l
+
 .c.obj::
 	$(CC) $(CFLAGS) -Fdmate.pdb -c $<
+
+.l.c:
+	$(LEX) -o$@ $<
 	
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
@@ -109,8 +114,7 @@ distclean: clean
 
 maintainer-clean: distclean
 
-mate_parser.c : mate_parser.l
-	$(LEX) -Pdf_ -omate_parser.c mate_parser.l
+mate_parser.obj : mate_parser.c
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
