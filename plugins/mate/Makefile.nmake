@@ -5,6 +5,8 @@
 #
 
 include ..\..\config.nmake
+include ..\..\Makefile.nmake.inc
+
 include moduleinfo.nmake
 
 include Makefile.common
@@ -14,14 +16,9 @@ LEMON=..\..\tools\lemon
 CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
-.SUFFIXES: .l
-
 .c.obj::
-	$(CC) $(CFLAGS) -Fdmate.pdb -c $<
+	$(CC) $(CFLAGS) -Fd$(PACKAGE).pdb -c $<
 
-.l.c:
-	$(LEX) -o$@ $<
-	
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK

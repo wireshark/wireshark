@@ -466,6 +466,7 @@ EXTRA_DIST = \
 	Makefile.am.inc		\
 	Makefile.common		\
 	Makefile.nmake		\
+	Makefile.nmake.inc	\
 	README.aix		\
 	README.bsd		\
 	README.hpux		\

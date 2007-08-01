@@ -5,10 +5,9 @@
 
 include ..\config.nmake
 include <win32.mak>
+include ..\Makefile.nmake.inc
+
 include Makefile.common
-
-
-############### no need to modify below this line #########
 
 LINK= link
 
@@ -45,14 +44,9 @@ libwireshark_LIBS = \
 	$(WSLUA_LIB) \
 	dissectors\dissectors.lib
 
-.SUFFIXES: .l
-
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-.l.c:
-	$(LEX) -o$@ $<
-	
 LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_ALL_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \

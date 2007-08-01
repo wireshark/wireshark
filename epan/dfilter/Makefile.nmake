@@ -4,8 +4,7 @@
 # $Id$
 
 include ..\..\config.nmake
-
-############### no need to modify below this line #########
+include ..\..\Makefile.nmake.inc
 
 LEMON=..\..\tools\lemon
 
@@ -14,14 +13,9 @@ CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
-.SUFFIXES: .l
-
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-.l.c:
-	$(LEX) -o$@ $<
-	
 OBJECTS = \
 	dfilter.obj		\
 	dfilter-macro.obj \
