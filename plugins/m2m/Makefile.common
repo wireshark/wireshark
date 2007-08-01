@@ -31,8 +31,7 @@ DISSECTOR_SRC = \
 	packet-m2m.c
 
 # corresponding headers
-DISSECTOR_INCLUDES =	\
-	wmxtypes.h
+DISSECTOR_INCLUDES =
 
 # Dissector helpers.  They're included in the source files in this
 # directory, but they're not dissectors themselves, i.e. they're not

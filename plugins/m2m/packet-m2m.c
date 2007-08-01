@@ -33,15 +33,14 @@
 #endif
 
 #include <string.h>
-#include "moduleinfo.h"
 
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/etypes.h>
 #include <plugins/wimax/wimax_tlv.h>
-#include "wmxtypes.h"
 
 /* forward reference */
 static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -162,7 +161,7 @@ static hf_register_info hf[] =
 		{
 			"Packet Sequence Number", "m2m.seq_number",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -170,7 +169,7 @@ static hf_register_info hf[] =
 		{
 			"Value", "m2m.frame_number",
 			FT_UINT24, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -178,7 +177,7 @@ static hf_register_info hf[] =
 		{
 			"Number of TLVs in the packet", "m2m.tlv_count",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	}
 };
@@ -211,7 +210,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Type", "m2m.tlv_type",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -219,7 +218,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Length", "m2m.tlv_len",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -227,7 +226,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Length Size", "m2m.tlv_len_size",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -235,7 +234,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value (hex)", "m2m.multibyte_tlv_value",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -243,7 +242,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.protocol_vers_tlv_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -251,7 +250,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.burst_num_tlv_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -259,7 +258,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.frag_type_tlv_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -267,7 +266,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.frag_num_tlv_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -275,7 +274,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value (hex)", "m2m.pdu_burst_tlv_value",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -283,7 +282,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value (hex)", "m2m.fast_fb_tlv_value",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -291,7 +290,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.fch_burst_tlv_value",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -299,7 +298,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.cdma_code_tlv_value",
 			FT_UINT24, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -307,7 +306,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.crc16_status_tlv_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -315,7 +314,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.burst_power_tlv_value",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -323,7 +322,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.burst_cinr_tlv_value",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -331,7 +330,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value", "m2m.preamble_tlv_value",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -339,7 +338,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value (hex)", "m2m.harq_ack_burst_tlv_value",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -347,7 +346,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Value (hex)", "m2m.phy_attributes",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	},
 	{
@@ -355,7 +354,7 @@ static hf_register_info hf_tlv[] =
 		{
 			"Invalid TLV (hex)", "m2m.invalid_tlv",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
-			"", HFILL
+			NULL, HFILL
 		}
 	}
 };
@@ -375,7 +374,7 @@ void proto_reg_handoff_m2m(void)
 	if (!Initialized)
 	{
 		m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
-		dissector_add("ethertype", WMX_M2M, m2m_handle);
+		dissector_add("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 	}
 }
 
@@ -418,10 +417,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint tlv_frag_type = 0;
 	gint tlv_frag_number = 0;
 	tlv_info_t m2m_tlv_info;
-	gint i;
 	gint hf = 0;
-	static gboolean checked_frame = FALSE;
-	static gint frame_col = -1;
 
 	/* display the M2M protocol name */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -435,7 +431,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	if (tree)
+
 	{	/* we are being asked for details */
 		m2m_item = proto_tree_add_item(tree, proto_m2m, tvb, 0, -1, FALSE);
 		m2m_tree = proto_item_add_subtree(m2m_item, ett_m2m);
@@ -538,31 +534,6 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_tree_add_item(tlv_tree, hf_m2m_frame_number, tvb, offset, 3, FALSE);
 					proto_item_append_text(ti, ": %d", g_frame_number);
-					if (!checked_frame)
-					{
-						/* See if a "Frame" column is defined */
-						if (pinfo->cinfo != NULL)
-						{
-							for (i=0; i < pinfo->cinfo->num_cols; i++ )
-							{
-								if (strcmp(pinfo->cinfo->col_title[i], "Frame") == 0)
-								{
-									frame_col = i;
-								}
-							}
-						}
-						checked_frame = TRUE;
-					}
-					if (check_col(pinfo->cinfo, COL_IF_DIR))
-					{
-						/* Check if Frame column is present */
-						if (frame_col != -1)
-						{
-							/* Display frame number in Frame column */
-							
-							col_append_fstr(pinfo->cinfo, COL_IF_DIR, "%7u", g_frame_number);
-						}
-					}
 				break;
 
 				case TLV_FCH_BURST:

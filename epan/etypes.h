@@ -71,6 +71,10 @@
 #define ETHERTYPE_ARP		0x0806
 #endif
 
+#ifndef ETHERTYPE_WMX_M2M
+#define ETHERTYPE_WMX_M2M	0x08f0
+#endif
+
 #ifndef ETHERTYPE_VINES_IP
 #define ETHERTYPE_VINES_IP	0x0bad
 #endif
