@@ -688,6 +688,7 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
             break;
         default:
             g_assert(!"BUG: A bad parameter");
+            return 0;
     }
 
     COPY_ADDRESS(to,from);
