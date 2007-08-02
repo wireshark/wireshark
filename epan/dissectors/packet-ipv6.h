@@ -157,8 +157,8 @@ struct ip6_frag {
 #define SHIM6_TYPE_R2 		0x04	/* 0 000 0100 */
 #define SHIM6_TYPE_R1BIS	0x05	/* 0 000 0101 */
 #define SHIM6_TYPE_I2BIS	0x06	/* 0 000 0110 */
-#define SHIM6_TYPE_UPD_ACK	0x40	/* 0 100 0000 = 64 */
-#define SHIM6_TYPE_UPD_REQ	0x41	/* 0 100 0001 = 65 */
+#define SHIM6_TYPE_UPD_REQ	0x40	/* 0 100 0000 = 64 */
+#define SHIM6_TYPE_UPD_ACK	0x41	/* 0 100 0001 = 65 */
 #define SHIM6_TYPE_KEEPALIVE	0x42	/* 0 100 0010 = 66 */
 #define SHIM6_TYPE_PROBE 	0x43	/* 0 100 0011 = 67 */
 
