@@ -115,7 +115,8 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
   fprintf(output, "  -D                       print list of interfaces and exit\n");
   fprintf(output, "  -L                       print list of link-layer types of iface and exit\n");
-  fprintf(output, "  -M                       for -D and -L, produce machine-readable output\n");
+  fprintf(output, "  -S                       print statistics for each interface once every second\n");
+  fprintf(output, "  -M                       for -D, -L, and -S produce machine-readable output\n");
   fprintf(output, "\n");
   fprintf(output, "Stop conditions:\n");
   fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
@@ -249,9 +250,10 @@ main(int argc, char *argv[])
   gboolean             list_interfaces = FALSE;
   gboolean             list_link_layer_types = FALSE;
   gboolean             machine_readable = FALSE;
-  int                  status;
+  gboolean             print_statistics = FALSE;
+  int                  status, run_once_args = 0;
 
-#define OPTSTRING_INIT "a:b:c:Df:hi:LMps:vw:y:Z"
+#define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -369,9 +371,15 @@ main(int argc, char *argv[])
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
         list_interfaces = TRUE;
+        run_once_args++;
         break;
       case 'L':        /* Print list of link-layer types and exit */
         list_link_layer_types = TRUE;
+        run_once_args++;
+        break;
+      case 'S':        /* Print interface statistics once a second */
+        print_statistics = TRUE;
+        run_once_args++;
         break;
       case 'M':        /* For -D and -L, print machine-readable output */
         machine_readable = TRUE;
@@ -406,8 +414,8 @@ main(int argc, char *argv[])
     exit_main(1);
   }
 
-  if (list_interfaces && list_link_layer_types) {
-    cmdarg_err("Only one of -D or -L may be supplied.");
+  if (run_once_args > 1) {
+    cmdarg_err("Only one of -D, -L, or -S may be supplied.");
     exit_main(1);
   } else if (list_link_layer_types) {
     /* We're supposed to list the link-layer types for an interface;
@@ -451,6 +459,9 @@ main(int argc, char *argv[])
     exit_main(status);
   } else if (list_link_layer_types) {
     status = capture_opts_list_link_layer_types(capture_opts, machine_readable);
+    exit_main(status);
+  } else if (print_statistics) {
+    status = capture_opts_print_statistics(machine_readable);
     exit_main(status);
   }
 

@@ -71,4 +71,17 @@ sync_interface_list_open(gchar **msg);
 extern int
 sync_linktype_list_open(gchar *ifname, gchar **msg);
 
+/** Start getting interface statistics using dumpcap. */
+extern int
+sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg);
+
+/** Stop gathering statistics. */
+extern int
+sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg);
+
+/** Read a line from a pipe, similar to fgets.  Non-blocking. */
+extern int
+sync_pipe_gets_nonblock(int pipe, char *bytes, int max);
+
+
 #endif /* capture_sync.h */

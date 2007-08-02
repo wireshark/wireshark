@@ -107,7 +107,6 @@ GList           *if_list;
 
 /* the "runtime" data of one interface */
 typedef struct if_dlg_data_s {
-    pcap_t      *pch;
     GtkWidget   *device_lb;
     GtkWidget   *descr_lb;
     GtkWidget   *ip_lb;
@@ -122,8 +121,6 @@ typedef struct if_dlg_data_s {
     gchar       *device;
     if_info_t   if_info;
 } if_dlg_data_t;
-
-void update_if(if_dlg_data_t *if_dlg_data);
 
 
 /* start capture button was pressed */
@@ -185,48 +182,9 @@ capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
 }
 #endif
 
-
-/* open a single interface */
-static void
-open_if(gchar *name, if_dlg_data_t *if_dlg_data)
-{
-  gchar       open_err_str[PCAP_ERRBUF_SIZE];
-
-  /*
-   * XXX - on systems with BPF, the number of BPF devices limits the
-   * number of devices on which you can capture simultaneously.
-   *
-   * This means that
-   *
-   *	1) this might fail if you run out of BPF devices
-   *
-   * and
-   *
-   *	2) opening every interface could leave too few BPF devices
-   *	   for *other* programs.
-   *
-   * It also means the system could end up getting a lot of traffic
-   * that it has to pass through the networking stack and capture
-   * mechanism, so opening all the devices and presenting packet
-   * counts might not always be a good idea.
-   */
-  if_dlg_data->pch = pcap_open_live(name,
-		       MIN_PACKET_SIZE,
-		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
-		       open_err_str);
-
-  if (if_dlg_data->pch != NULL) {
-    update_if(if_dlg_data);
-  } else {
-    printf("open_if: %s\n", open_err_str);
-    gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), "error");
-    gtk_label_set_text(GTK_LABEL(if_dlg_data->last_lb), "error");
-  }
-}
-
 /* update a single interface */
 void
-update_if(if_dlg_data_t *if_dlg_data)
+update_if(if_dlg_data_t *if_dlg_data, if_stat_cache_t *sc)
 {
   struct pcap_stat stats;
   gchar *str;
@@ -243,8 +201,8 @@ update_if(if_dlg_data_t *if_dlg_data)
    * (Note also that some versions of libpcap, on some versions of UN*X,
    * have the same bug.)
    */
-  if (if_dlg_data->pch) {
-    if(pcap_stats(if_dlg_data->pch, &stats) >= 0) {
+  if (sc) {
+    if(capture_stats(sc, if_dlg_data->device, &stats)) {
 #ifdef _WIN32
       diff = stats.ps_recv - if_dlg_data->last_packets;
       if_dlg_data->last_packets = stats.ps_recv;
@@ -269,31 +227,20 @@ update_if(if_dlg_data_t *if_dlg_data)
   }
 }
 
-
-/* close a single interface */
-static void
-close_if(if_dlg_data_t *if_dlg_data)
-{
-    if(if_dlg_data->pch)
-        pcap_close(if_dlg_data->pch);
-}
-
-
-
 /* update all interfaces */
 static gboolean
 update_all(gpointer data)
 {
     GList *curr;
     int ifs;
-
+    if_stat_cache_t *sc = data;
 
     if(!cap_if_w) {
         return FALSE;
     }
 
-    for(ifs = 0; (curr = g_list_nth(data, ifs)); ifs++) {
-        update_if(curr->data);
+    for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
+        update_if(curr->data, sc);
     }
 
     return TRUE;
@@ -322,17 +269,15 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
 
 /* the window was closed, cleanup things */
 static void
-capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
 {
     GList *curr;
     int ifs;
+    if_stat_cache_t *sc = user_data;
 
     gtk_timeout_remove(timer_id);
 
     for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
-        if_dlg_data_t *if_dlg_data = curr->data;
-
-        close_if(if_dlg_data);
         g_free(curr->data);
     }
 
@@ -343,8 +288,10 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
     /* Note that we no longer have a "Capture Options" dialog box. */
     cap_if_w = NULL;
 
+    capture_stat_stop(sc);
+
 #ifdef HAVE_AIRPCAP
-	airpcap_set_toolbar_stop_capture(airpcap_if_active);
+    airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
 }
 
@@ -438,6 +385,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   if_addr_t     *ip_addr;
   GString       *if_tool_str = g_string_new("");
   gchar         *tmp_str;
+  if_stat_cache_t *sc;
 
   if (cap_if_w != NULL) {
     /* There's already a "Capture Interfaces" dialog box; reactivate it. */
@@ -567,6 +515,10 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_size_request(stop_bt, &requisition);
   height += requisition.height + 15;
 
+  /* Start gathering statistics (using dumpcap) */
+  sc = capture_stat_start(if_list);
+
+  /* List the interfaces */
   for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
       g_string_assign(if_tool_str, "");
       if_info = curr->data;
@@ -674,8 +626,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 8, 9, row, row+1);
 #endif
 
-      open_if(if_info->name, if_dlg_data);
-
       if_data = g_list_append(if_data, if_dlg_data);
 
       row++;
@@ -713,7 +663,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_grab_default(close_bt);
 
   SIGNAL_CONNECT(cap_if_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(cap_if_w, "destroy", capture_if_destroy_cb, NULL);
+  SIGNAL_CONNECT(cap_if_w, "destroy", capture_if_destroy_cb, sc);
 
   gtk_widget_show_all(cap_if_w);
   window_present(cap_if_w);
@@ -721,7 +671,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   set_capture_if_dialog_for_capture_in_progress(is_capture_in_progress());
 
     /* update the interface list every 1000ms */
-  timer_id = gtk_timeout_add(1000, update_all, if_data);
+  timer_id = gtk_timeout_add(1000, update_all, sc);
 }
 
 

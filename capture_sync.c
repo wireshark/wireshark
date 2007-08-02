@@ -37,10 +37,13 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
 #include <signal.h>
 
 #ifdef _WIN32
-#include <fcntl.h>
 #include "epan/unicode-utils.h"
 #endif
 
@@ -523,15 +526,17 @@ sync_pipe_start(capture_options *capture_opts) {
 }
 
 /*
- * Run dumpcap with the supplied arguments.  On success, msg points to
- * a buffer containing the dumpcap output and returns 0.  On failure, msg
- * points to the error message returned by dumpcap, and returns dumpcap's
- * exit value.  In either case, msg must be freed with g_free().
+ * Open dumpcap with the supplied arguments.  On success, msg points to
+ * a buffer containing the dumpcap output and returns 0.  read_fd and
+ * fork_child point to the pipe's file descriptor and child PID/handle,
+ * respectively.  On failure, msg points to the error message returned by
+ * dumpcap, and returns dumpcap's exit value.  In either case, msg must be
+ * freed with g_free().
  */
 /* XXX - This duplicates a lot of code in sync_pipe_start() */
 #define PIPE_BUF_SIZE 5120
 static int
-sync_pipe_run_command(const char** argv, gchar **msg) {
+sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar **msg) {
 #ifdef _WIN32
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from parent to child */
@@ -545,12 +550,9 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
-    int fork_child = -1, fork_child_status;
-    int sync_pipe_read_fd = -1;
-    GString *msg_buf = NULL;
-    gchar buf[PIPE_BUF_SIZE+1];
-    int count;
 
+    *fork_child = -1;
+    *read_fd = -1;
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_run_command");
 
     if (!msg) {
@@ -613,12 +615,12 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
         g_free( (gpointer) argv);
         return CANT_RUN_DUMPCAP;
     }
-    fork_child = (int) pi.hProcess;
+    *fork_child = (int) pi.hProcess;
     g_string_free(args, TRUE);
 
     /* associate the operating system filehandle to a C run-time file handle */
     /* (good file handle infos at: http://www.flounder.com/handles.htm) */
-    sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
+    *read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
 
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
@@ -629,7 +631,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
         return CANT_RUN_DUMPCAP;
     }
 
-    if ((fork_child = fork()) == 0) {
+    if ((*fork_child = fork()) == 0) {
         /*
          * Child process - run dumpcap with the right arguments to make
          * it just capture with the specified capture parameters
@@ -643,7 +645,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
         return CANT_RUN_DUMPCAP;
     }
 
-    sync_pipe_read_fd = sync_pipe[PIPE_READ];
+    *read_fd = sync_pipe[PIPE_READ];
 #endif
 
     g_free( (gpointer) argv[0]);  /* exename */
@@ -662,31 +664,34 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     eth_close(sync_pipe[PIPE_WRITE]);
 #endif
 
-    if (fork_child == -1) {
+    if (*fork_child == -1) {
         /* We couldn't even create the child process. */
         *msg = g_strdup_printf("Couldn't create child process: %s", strerror(errno));
-        eth_close(sync_pipe_read_fd);
+        eth_close(*read_fd);
         return CANT_RUN_DUMPCAP;
     }
 
     /* we might wait for a moment till child is ready, so update screen now */
     main_window_update();
+    return 0;
+}
 
-    /* We were able to set up to read dumpcap's output.  Do so and
-       return its exit value. */
-    msg_buf = g_string_new("");
-    while ((count = eth_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
-        buf[count] = '\0';
-        g_string_append(msg_buf, buf);
-    }
+static int
+#ifdef _WIN32
+sync_pipe_close_command(int *read_fd, int *fork_child, gchar **msg) {
+#else
+sync_pipe_close_command(int *read_fd, gchar **msg) {
+#endif
+    int fork_child_status;
 
-    eth_close(sync_pipe_read_fd);
+    eth_close(*read_fd);
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open: wait till child closed");
 
 #ifdef _WIN32
-    if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
-        g_string_free(msg_buf, TRUE);
+    /* XXX - Should we signal the child somehow? */
+    sync_pipe_kill(*fork_child);
+    if (_cwait(&fork_child_status, *fork_child, _WAIT_CHILD) == -1) {
         *msg = g_strdup_printf("Child capture process stopped unexpectedly "
             "(errno:%u)", errno);
         return CANT_RUN_DUMPCAP;
@@ -697,7 +702,6 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
             /* The child exited. */
             fork_child_status = WEXITSTATUS(fork_child_status);
         } else {
-            g_string_free(msg_buf, TRUE);
             if (WIFSTOPPED(fork_child_status)) {
                 /* It stopped, rather than exiting.  "Should not happen." */
                 *msg = g_strdup_printf("Child capture process stopped: %s",
@@ -716,16 +720,56 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
             return CANT_RUN_DUMPCAP;
         }
     } else {
-      g_string_free(msg_buf, TRUE);
       *msg = g_strdup_printf("Child capture process stopped unexpectedly "
         "(errno:%u)", errno);
       return CANT_RUN_DUMPCAP;
     }
 #endif
+    return 0;
+}
+
+/*
+ * Run dumpcap with the supplied arguments.  On success, msg points to
+ * a buffer containing the dumpcap output and returns 0.  On failure, msg
+ * points to the error message returned by dumpcap, and returns dumpcap's
+ * exit value.  In either case, msg must be freed with g_free().
+ */
+/* XXX - This duplicates a lot of code in sync_pipe_start() */
+#define PIPE_BUF_SIZE 5120
+static int
+sync_pipe_run_command(const char** argv, gchar **msg) {
+    int sync_pipe_read_fd, fork_child, ret;
+    gchar buf[PIPE_BUF_SIZE+1];
+    GString *msg_buf = NULL;
+    int count;
+
+    ret = sync_pipe_open_command(argv, &sync_pipe_read_fd, &fork_child, msg);
+
+    if (ret)
+	return ret;
+
+    /* We were able to set up to read dumpcap's output.  Do so and
+       return its exit value. */
+    msg_buf = g_string_new("");
+    while ((count = eth_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
+        buf[count] = '\0';
+        g_string_append(msg_buf, buf);
+    }
+
+#ifdef _WIN32
+    ret = sync_pipe_close_command(&sync_pipe_read_fd, &fork_child, msg);
+#else
+    ret = sync_pipe_close_command(&sync_pipe_read_fd, msg);
+#endif
+
+    if (ret) {
+	g_string_free(msg_buf, TRUE);
+	return ret;
+    }
 
     *msg = msg_buf->str;
     g_string_free(msg_buf, FALSE);
-    return fork_child_status;
+    return 0;
 }
 
 /*
@@ -804,6 +848,52 @@ sync_linktype_list_open(gchar *ifname, gchar **msg) {
     return sync_pipe_run_command(argv, msg);
 }
 
+/*
+ * Start getting interface statistics using dumpcap.  On success, read_fd
+ * contains the file descriptor for the pipe's stdout, msg is unchanged,
+ * and zero is returned.  On failure, msg will point to an error message
+ * that must be g_free()d and a nonzero error value will be returned.
+ */
+int
+sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
+    int argc;
+    const char **argv;
+
+    if (!msg) {
+        /* We can't return anything */
+        return -1;
+    }
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_linktype_list_open");
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *msg = g_strdup_printf("We don't know where to find dumpcap.");
+        return CANT_RUN_DUMPCAP;
+    }
+
+    /* Ask for the linktype list */
+    argv = sync_pipe_add_arg(argv, &argc, "-S");
+    argv = sync_pipe_add_arg(argv, &argc, "-M");
+
+    /* dumpcap should be running in capture child mode (hidden feature) */
+#ifndef DEBUG_CHILD
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#endif
+
+    return sync_pipe_open_command(argv, read_fd, fork_child, msg);
+}
+
+/* Close down the stats process */
+int
+sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg) {
+#ifdef _WIN32
+    return sync_pipe_close_command(read_fd, fork_child, msg);
+#else
+    return sync_pipe_close_command(read_fd, msg);
+#endif
+}
 
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
@@ -811,7 +901,6 @@ static int
 pipe_read_bytes(int pipe, char *bytes, int required) {
     int newly;
     int offset = 0;
-
 
     while(required) {
         newly = read(pipe, &bytes[offset], required);
@@ -834,6 +923,67 @@ pipe_read_bytes(int pipe, char *bytes, int required) {
 
     return offset;
 }
+
+static gboolean pipe_data_available(int pipe) {
+#ifdef _WIN32 /* PeekNamedPipe */
+    HANDLE hPipe = (HANDLE) _get_osfhandle(pipe);
+    DWORD bytes_avail;
+
+    if (hPipe == INVALID_HANDLE_VALUE)
+        return FALSE;
+
+    if (! PeekNamedPipe(hPipe, NULL, 0, NULL, &bytes_avail, NULL))
+        return FALSE;
+
+    if (bytes_avail > 0)
+        return TRUE;
+    return FALSE;
+#else /* select */
+    fd_set rfds;
+    struct timeval timeout;
+
+    FD_ZERO(&rfds);
+    FD_SET(pipe, &rfds);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+
+    if (select(pipe+1, &rfds, NULL, NULL, &timeout) > 0)
+        return TRUE;
+
+    return FALSE;
+#endif
+}
+
+/* Read a line from a pipe, similar to fgets */
+int
+sync_pipe_gets_nonblock(int pipe, char *bytes, int max) {
+    int newly;
+    int offset = -1;
+
+    while(offset < max - 1) {
+        offset++;
+        if (! pipe_data_available(pipe))
+            break;
+        newly = read(pipe, &bytes[offset], 1);
+        if (newly == 0) {
+            /* EOF - not necessarily an error */
+            break;
+        } else if (newly < 0) {
+            /* error */
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+                  "read from pipe %d: error(%u): %s", pipe, errno, strerror(errno));
+            return newly;
+        } else if (bytes[offset] == '\n') {
+            break;
+        }
+    }
+
+    if (offset >= 0)
+        bytes[offset] = '\0';
+
+    return offset;
+}
+
 
 /* convert header values (indicator and 4-byte length) */
 static void

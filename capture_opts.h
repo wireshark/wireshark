@@ -120,6 +120,10 @@ capture_opts_list_link_layer_types(capture_options *capture_opts, gboolean machi
 extern int
 capture_opts_list_interfaces(gboolean machine_readable);
 
+/* print interface statistics */
+extern int
+capture_opts_print_statistics(gboolean machine_readable);
+
 /* trim the snaplen entry */
 extern void
 capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min);

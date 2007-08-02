@@ -44,12 +44,16 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -92,7 +96,16 @@
 #include "file_util.h"
 #include "log.h"
 
+typedef struct if_stat_cache_item_s {
+    char *name;
+    struct pcap_stat ps;
+} if_stat_cache_item_t;
 
+struct if_stat_cache_s {
+    int stat_fd;
+    int fork_child;
+    GList *cache_list;  /* List of if_stat_chache_entry_t */
+};
 
 /**
  * Start a capture.
@@ -675,7 +688,7 @@ capture_interface_list(int *err, char **err_str)
 
     /* Check to see if we built a list */
     if (if_list == NULL) {
-        if (*err_str)
+        if (err_str && *err_str)
             *err_str = g_strdup("No interfaces found");
         *err = NO_INTERFACES_FOUND;
     }
@@ -722,7 +735,7 @@ capture_pcap_linktype_list(gchar *ifname, char **err_str)
         data_link_info = g_malloc(sizeof (data_link_info_t));
         data_link_info->dlt = (int) strtol(lt_parts[0], NULL, 10);
         data_link_info->name = g_strdup(lt_parts[1]);
-        if (strcmp(lt_parts[2], "(not supported)") != NULL)
+        if (strcmp(lt_parts[2], "(not supported)") != 0)
             data_link_info->description = g_strdup(lt_parts[2]);
         else
             data_link_info->description = NULL;
@@ -739,5 +752,119 @@ capture_pcap_linktype_list(gchar *ifname, char **err_str)
     return linktype_list;
 }
 
+if_stat_cache_t *
+capture_stat_start(GList *if_list) {
+    int stat_fd, fork_child;
+    gchar *msg;
+    if_stat_cache_t *sc = NULL;
+    GList *if_entry;
+    if_info_t *if_info;
+    if_stat_cache_item_t *sc_item;
+
+    /* Fire up dumpcap. */
+    /*
+     * XXX - on systems with BPF, the number of BPF devices limits the
+     * number of devices on which you can capture simultaneously.
+     *
+     * This means that
+     *
+     *	1) this might fail if you run out of BPF devices
+     *
+     * and
+     *
+     *	2) opening every interface could leave too few BPF devices
+     *	   for *other* programs.
+     *
+     * It also means the system could end up getting a lot of traffic
+     * that it has to pass through the networking stack and capture
+     * mechanism, so opening all the devices and presenting packet
+     * counts might not always be a good idea.
+     */
+     if (sync_interface_stats_open(&stat_fd, &fork_child, &msg) == 0) {
+        sc = g_malloc(sizeof(if_stat_cache_t));
+        sc->stat_fd = stat_fd;
+        sc->fork_child = fork_child;
+        sc->cache_list = NULL;
+
+        /* Initialize the cache */
+        for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+            if_info = if_entry->data;
+            sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
+            sc_item->name = g_strdup(if_info->name);
+            sc->cache_list = g_list_append(sc->cache_list, sc_item);
+        }
+    }
+    return sc;
+}
+
+#define MAX_STAT_LINE_LEN 500
+
+static void
+capture_stat_cache_update(if_stat_cache_t *sc) {
+    gchar stat_line[MAX_STAT_LINE_LEN];
+    gchar **stat_parts;
+    GList *sc_entry;
+    if_stat_cache_item_t *sc_item;
+
+    if (!sc)
+        return;
+
+    while (sync_pipe_gets_nonblock(sc->stat_fd, stat_line, MAX_STAT_LINE_LEN) > 0) {
+        g_strstrip(stat_line);
+        stat_parts = g_strsplit(stat_line, "\t", 3);
+        if (stat_parts[0] == NULL || stat_parts[1] == NULL ||
+            stat_parts[2] == NULL) {
+            g_strfreev(stat_parts);
+            continue;
+        }
+        for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
+            sc_item = sc_entry->data;
+            if (strcmp(sc_item->name, stat_parts[0]) == 0) {
+                sc_item->ps.ps_recv = (u_int) strtoul(stat_parts[1], NULL, 10);
+                sc_item->ps.ps_drop = (u_int) strtoul(stat_parts[2], NULL, 10);
+            }
+        }
+        g_strfreev(stat_parts);
+    }
+}
+
+gboolean
+capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps) {
+    GList *sc_entry;
+    if_stat_cache_item_t *sc_item;
+
+    if (!sc || !ifname || !ps) {
+        return FALSE;
+    }
+
+    capture_stat_cache_update(sc);
+    for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
+        sc_item = sc_entry->data;
+        if (strcmp(sc_item->name, ifname) == 0) {
+            memcpy(ps, &sc_item->ps, sizeof(struct pcap_stat));
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+void
+capture_stat_stop(if_stat_cache_t *sc) {
+    GList *sc_entry;
+    if_stat_cache_item_t *sc_item;
+    gchar *msg;
+
+    if (!sc)
+        return;
+
+    sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
+
+    for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
+        sc_item = sc_entry->data;
+        g_free(sc_item->name);
+        g_free(sc_item);
+    }
+    g_free(sc);
+}
 
 #endif /* HAVE_LIBPCAP */
