@@ -14,17 +14,6 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-MODULES = 	\
-	wslua_tvb.c \
-	wslua_proto.c \
-	wslua_tree.c \
-	wslua_pinfo.c \
-	wslua_listener.c \
-	wslua_gui.c \
-	wslua_util.c \
-	wslua_field.c \
-	wslua_dumper.c
-
 OBJECTS= \
 	init_wslua.obj \
 	register_wslua.obj \

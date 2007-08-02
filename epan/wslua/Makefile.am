@@ -18,7 +18,7 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
 if HAVE_WARNINGS_AS_ERRORS
@@ -29,19 +29,8 @@ INCLUDES = -I$(top_srcdir) @LUA_INCLUDES@
 
 noinst_LTLIBRARIES = libwslua.la
 
-wslua_modules = 	\
-	$(srcdir)/wslua_tvb.c \
-	$(srcdir)/wslua_proto.c \
-	$(srcdir)/wslua_tree.c \
-	$(srcdir)/wslua_pinfo.c \
-	$(srcdir)/wslua_listener.c \
-	$(srcdir)/wslua_gui.c \
-	$(srcdir)/wslua_util.c \
-	$(srcdir)/wslua_field.c \
-	$(srcdir)/wslua_dumper.c
-
 libwslua_la_SOURCES = \
-	$(wslua_modules) \
+	$(MODULES) \
 	taps_wslua.c \
 	register_wslua.c \
 	init_wslua.c \
@@ -81,6 +70,7 @@ EXTRA_DIST = \
 	template-init.lua \
 	make-init-lua.pl \
 	make-taps.pl \
+	Makefile.common \
 	Makefile.nmake
 
 taps_used = \
