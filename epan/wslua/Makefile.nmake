@@ -4,7 +4,7 @@
 
 include ..\..\config.nmake
 
-############### no need to modify below this line #########
+include Makefile.common
 
 CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) $(LUA_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)

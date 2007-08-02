@@ -21,6 +21,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 #
 
+include Makefile.common
+
 if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
