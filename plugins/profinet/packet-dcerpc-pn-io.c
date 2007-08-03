@@ -446,6 +446,7 @@ static gint ett_pn_io_mrp_rtmode = -1;
 static gint ett_pn_io_control_block_properties = -1;
 static gint ett_pn_io_check_sync_mode = -1;
 static gint ett_pn_io_ir_frame_data = -1;
+static gint ett_pn_io_ar_info = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -562,6 +563,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0400, "MultipleBlockHeader"},
 	{ 0x0500, "RecordDataReadQuery"},
 	{ 0x0600, "FSHello"},
+	{ 0x0608, "PDInterfaceFSUDataAdjust"},
 	{ 0x0F00, "MaintenanceItem"},
 	{ 0, NULL }
 };
@@ -1083,8 +1085,10 @@ static const value_string pn_io_index[] = {
     /*0x8063 - 0x806F reserved */
 	{ 0x8070, "PDNCDataCheck for one subslot" },
     /*0x8071 - 0x807F reserved */
-        { 0x8080, "PDInterfaceDataReal" },
-    /*0x8081 - 0xAFEF reserved */
+	{ 0x8080, "PDInterfaceDataReal" },
+    /*0x8081 - 0x808F reserved */
+	{ 0x8090, "Expected PDInterfaceFSUDataAdjust" },
+    /*0x8091 - 0xAFEF reserved */
 	{ 0xAFF0, "I&M0" },
 	{ 0xAFF1, "I&M1" },
 	{ 0xAFF2, "I&M2" },
@@ -1433,8 +1437,71 @@ static const value_string pn_io_fs_hello_mode_vals[] = {
 };
 
 
+GList *pnio_ars;
+
+typedef struct pnio_ar_s {
+    /* generic */
+    e_uuid_t        aruuid;
+    guint16         inputframeid;
+    guint16         outputframeid;
+
+    /* controller only */
+    /*const char      controllername[33];*/
+    const guint8    controllermac[6];
+    guint16         controlleralarmref;
+
+    /* device only */
+    const guint8    devicemac[6];
+    guint16         devicealarmref;
+} pnio_ar_t;
+
+
+
+static void
+pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
+{
+	proto_item *item;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
+
+
+    pinfo->profinet_conv = ar;
+    pinfo->profinet_type = 10;
+
+	if (tree) {
+		sub_item = proto_tree_add_text(tree, tvb, 0, 0, "ARUUID:%s ContrMAC:%s ContrAlRef:0x%x DevMAC:%s DevAlRef:0x%x InCR:0x%x OutCR=0x%x",
+            guid_to_str((const e_guid_t*) &ar->aruuid), 
+            ether_to_str((const guint8 *)ar->controllermac), ar->controlleralarmref,
+            ether_to_str((const guint8 *)ar->devicemac), ar->devicealarmref,
+            ar->inputframeid, ar->outputframeid);
+		sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_info);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+
+	    item = proto_tree_add_guid(sub_tree, hf_pn_io_ar_uuid, tvb, 0, 0, (e_guid_t *) &ar->aruuid);
+        PROTO_ITEM_SET_GENERATED(item);
+        
+	    item = proto_tree_add_ether(sub_tree, hf_pn_io_cminitiator_macadd, tvb, 0, 0, ar->controllermac);
+        PROTO_ITEM_SET_GENERATED(item);
+	    item = proto_tree_add_uint(sub_tree, hf_pn_io_localalarmref, tvb, 0, 0, ar->controlleralarmref);
+        PROTO_ITEM_SET_GENERATED(item);
+
+	    item = proto_tree_add_ether(sub_tree, hf_pn_io_cmresponder_macadd, tvb, 0, 0, ar->devicemac);
+        PROTO_ITEM_SET_GENERATED(item);
+	    item = proto_tree_add_uint(sub_tree, hf_pn_io_localalarmref, tvb, 0, 0, ar->devicealarmref);
+        PROTO_ITEM_SET_GENERATED(item);
+
+	    item = proto_tree_add_uint(sub_tree, hf_pn_io_frame_id, tvb, 0, 0, ar->inputframeid);
+        PROTO_ITEM_SET_GENERATED(item);
+	    item = proto_tree_add_uint(sub_tree, hf_pn_io_frame_id, tvb, 0, 0, ar->outputframeid);
+        PROTO_ITEM_SET_GENERATED(item);
+	}
+}
+
+
+
+
 static int dissect_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen);
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar);
 
 static int dissect_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -1443,6 +1510,46 @@ static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex);
 
 
+
+
+
+static pnio_ar_t *
+pnio_ar_find_by_aruuid(packet_info *pinfo, e_uuid_t *aruuid)
+{
+    GList       *ars;
+    pnio_ar_t   *ar;
+
+
+    /* find pdev */
+    for(ars = pnio_ars; ars != NULL; ars = g_list_next(ars)) {
+        ar = ars->data;
+
+        if( memcmp(&ar->aruuid, aruuid, sizeof(e_uuid_t)) == 0) {
+            return ar;
+        }
+    }
+
+    return NULL;
+}
+
+
+static pnio_ar_t *
+pnio_ar_new(e_uuid_t *aruuid)
+{
+    pnio_ar_t *ar;
+
+
+    ar = se_alloc0(sizeof(pnio_ar_t));
+
+    memcpy(&ar->aruuid, aruuid, sizeof(e_uuid_t));
+
+    ar->controlleralarmref  = 0xffff;
+    ar->devicealarmref      = 0xffff;
+
+    pnio_ars = g_list_append(pnio_ars, ar);
+
+    return ar;
+}
 
 
 
@@ -1674,6 +1781,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     guint32 u32ExtChannelAddValue;
     guint16 u16Index;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     switch(u16UserStructureIdentifier) {
@@ -1700,7 +1808,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
         *body_length -= 12;
         break;
     case(0x8100):   /* MaintenanceItem */
-        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         *body_length -= 12;
         break;
     /* XXX - dissect remaining user structures of [AlarmItem] */
@@ -2136,6 +2244,7 @@ dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
     guint16 u16LengthData;
     guint16 u16Index;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     /* SubstituteActiveFlag */
@@ -2159,7 +2268,7 @@ dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
     offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iops);
 
     /* SubstituteValue */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
 
     return offset;
 }
@@ -2259,12 +2368,17 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
 /* dissect the write request block */
 static int
 dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t ** ar)
 {
     e_uuid_t aruuid;
     e_uuid_t null_uuid;
 
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
+
+    *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
+    if(*ar == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODWriteReq: AR not existing!");
+    }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_record_data_length, u32RecDataLen);
@@ -2290,12 +2404,17 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
 /* dissect the read request block */
 static int
 dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
     e_uuid_t aruuid;
     e_uuid_t null_uuid;
 
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
+
+    *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
+    if(*ar == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODReadReq: AR not existing!");
+    }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_record_data_length, u32RecDataLen);
@@ -2322,7 +2441,7 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
 /* dissect the write response block */
 static int
 dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
     e_uuid_t aruuid;
     guint16 u16AddVal1;
@@ -2330,6 +2449,11 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 
 
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
+
+    *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
+    if(*ar == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODWriteRes: AR not existing!");
+    }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_record_data_length, u32RecDataLen);
@@ -2356,7 +2480,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 /* dissect the read response block */
 static int
 dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
     e_uuid_t aruuid;
     guint16 u16AddVal1;
@@ -2364,6 +2488,11 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 
 
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
+
+    *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
+    if(*ar == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODReadRes: AR not existing!");
+    }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_record_data_length, u32RecDataLen);
@@ -2390,7 +2519,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 /* dissect the control/connect block */
 static int
 dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t **ar)
 {
     e_uuid_t    ar_uuid;
     guint16     u16SessionKey;
@@ -2405,6 +2534,11 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ar_uuid, &ar_uuid);
+
+    *ar = pnio_ar_find_by_aruuid(pinfo, &ar_uuid);
+    if(*ar == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ControlConnect: AR not existing!");
+    }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
@@ -3158,6 +3292,7 @@ dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
     guint32 u32FiberOpticCableType;
     guint16 u16Index;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     /* Padding */
@@ -3173,7 +3308,7 @@ dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
 
     /* optional: FiberOpticManufacturerSpecific */
     if(u16BodyLength != 10) {
-        dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
     }
 
     return offset;
@@ -3420,6 +3555,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
     guint16 u16SubslotNr;
     guint16 u16Index;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -3435,9 +3571,9 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
         u16SlotNr, u16SubslotNr);
 
     /* PDIRGlobalData */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
     /* PDIRFrameData */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
 
     return offset;
 }
@@ -3881,12 +4017,44 @@ dissect_FSHello_block(tvbuff_t *tvb, int offset,
 }
 
 
+
+
+/* dissect the FSUDataAdjust block */
+static int
+dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+{
+    tvbuff_t *tvb_new;
+
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    u16BodyLength -= 2;
+
+    /* sub blocks */
+    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    offset += u16BodyLength;
+
+#if 0
+    proto_item_append_text(item, ": Mode:%s, Interval:%ums, Retry:%u, Delay:%ums",
+        val_to_str(u32FSHelloMode, pn_io_fs_hello_mode_vals, "0x%x"),
+		u32FSHelloInterval, u32FSHelloRetry, u32FSHelloDelay);
+#endif
+
+	return offset;
+}
+
+
+
 /* dissect the ARBlockReq */
 static int
 dissect_ARBlockReq(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t ** ar)
 {
     guint16 u16ARType;
+    e_uuid_t aruuid;
     e_uuid_t uuid;
     guint16 u16SessionKey;
     guint8 mac[6];
@@ -3894,12 +4062,13 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
     guint16 u16UDPRTPort;
     guint16 u16NameLength;
     char *pStationName;
+    pnio_ar_t * par;
 
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ar_type, &u16ARType);
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ar_uuid, &uuid);
+                        hf_pn_io_ar_uuid, &aruuid);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -3930,6 +4099,16 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
         u16UDPRTPort,
         pStationName);
 
+    par = pnio_ar_find_by_aruuid(pinfo, &aruuid);
+    if(par == NULL) {
+        par = pnio_ar_new(&aruuid);
+        memcpy( (void *) (&par->controllermac), mac, sizeof(par->controllermac));
+        /*strncpy( (char *) (&par->controllername), pStationName, sizeof(par->controllername));*/
+    } else {
+        //expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockReq: AR already existing!");
+    }
+    *ar = par;
+
     return offset;
 }
 
@@ -3937,13 +4116,14 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
 /* dissect the ARBlockRes */
 static int
 dissect_ARBlockRes(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t ** ar)
 {
     guint16 u16ARType;
     e_uuid_t uuid;
     guint16 u16SessionKey;
     guint8 mac[6];
     guint16 u16UDPRTPort;
+    pnio_ar_t * par;
 
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -3963,6 +4143,14 @@ dissect_ARBlockRes(tvbuff_t *tvb, int offset,
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5],
         u16UDPRTPort);
 
+    par = pnio_ar_find_by_aruuid(pinfo, &uuid);
+    if(par == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockRes: AR not existing!");
+    } else {
+        memcpy( (void *) (&par->devicemac), mac, sizeof(par->controllermac));
+    }
+    *ar = par;
+
     return offset;
 }
 
@@ -3970,7 +4158,7 @@ dissect_ARBlockRes(tvbuff_t *tvb, int offset,
 /* dissect the IOCRBlockReq */
 static int
 dissect_IOCRBlockReq(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t *ar)
 {
     guint16 u16IOCRType;
     guint16 u16IOCRReference;
@@ -4108,6 +4296,32 @@ dissect_IOCRBlockReq(tvbuff_t *tvb, int offset,
 	    proto_item_set_len(api_item, offset - u32ApiStart);
     }
 
+    if(ar != NULL) {
+        switch(u16IOCRType) {
+        case(1): /* Input CR */
+            if(ar->inputframeid != 0 && ar->inputframeid != u16FrameID) {
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: input frameID changed from %u to %u!", 
+                    ar->inputframeid, u16FrameID);
+            }
+            ar->inputframeid = u16FrameID;
+            break;
+        case(2): /* Output CR */
+#if 0
+            /* will usually contain invalid marker 0xffff here */
+            if(ar->outputframeid != 0 && ar->outputframeid != u16FrameID) {
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: output frameID changed from %u to %u!", 
+                    ar->outputframeid, u16FrameID);
+            }
+            ar->outputframeid = u16FrameID;
+#endif
+            break;
+        default:
+            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: IOCRType %u undecoded!", u16IOCRType);
+        }
+    } else {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: no corresponding AR found!");
+    }
+
     return offset;
 }
 
@@ -4115,7 +4329,7 @@ dissect_IOCRBlockReq(tvbuff_t *tvb, int offset,
 /* dissect the AlarmCRBlockReq */
 static int
 dissect_AlarmCRBlockReq(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t *ar)
 {
     guint16 u16AlarmCRType;
     guint16 u16LT;
@@ -4162,6 +4376,16 @@ dissect_AlarmCRBlockReq(tvbuff_t *tvb, int offset,
         u16LT, u16RTATimeoutFactor, u16RTARetries, u16LocalAlarmReference, u16MaxAlarmDataLength,
         u16AlarmCRTagHeaderHigh, u16AlarmCRTagHeaderLow);
 
+    if(ar != NULL) {
+        if(ar->controlleralarmref != 0xffff && ar->controlleralarmref != u16LocalAlarmReference) {
+            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockReq: local alarm ref changed from %u to %u!", 
+                ar->controlleralarmref, u16LocalAlarmReference);
+        }
+        ar->controlleralarmref = u16LocalAlarmReference;
+    } else {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockReq: no corresponding AR found!");
+    }
+
     return offset;
 }
 
@@ -4169,7 +4393,7 @@ dissect_AlarmCRBlockReq(tvbuff_t *tvb, int offset,
 /* dissect the AlarmCRBlockRes */
 static int
 dissect_AlarmCRBlockRes(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t *ar)
 {
     guint16 u16AlarmCRType;
     guint16 u16LocalAlarmReference;
@@ -4187,6 +4411,17 @@ dissect_AlarmCRBlockRes(tvbuff_t *tvb, int offset,
         val_to_str(u16AlarmCRType, pn_io_alarmcr_type, "0x%x"),
         u16LocalAlarmReference, u16MaxAlarmDataLength);
 
+    if(ar != NULL) {
+        if(ar->devicealarmref != 0xffff && ar->devicealarmref != u16LocalAlarmReference) {
+            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockRes: local alarm ref changed from %u to %u!", 
+                ar->devicealarmref, u16LocalAlarmReference);
+        }
+        ar->devicealarmref = u16LocalAlarmReference;
+    } else {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockRes: no corresponding AR found!");
+    }
+
+
     return offset;
 }
 
@@ -4195,7 +4430,7 @@ dissect_AlarmCRBlockRes(tvbuff_t *tvb, int offset,
 /* dissect the IOCRBlockRes */
 static int
 dissect_IOCRBlockRes(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, pnio_ar_t *ar)
 {
     guint16 u16IOCRType;
     guint16 u16IOCRReference;
@@ -4212,6 +4447,29 @@ dissect_IOCRBlockRes(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": %s, Ref:0x%04x, FrameID:0x%04x",
         val_to_str(u16IOCRType, pn_io_iocr_type, "0x%x"),
         u16IOCRReference, u16FrameID);
+
+    if(ar != NULL) {
+        switch(u16IOCRType) {
+        case(1): /* Input CR */
+            if(ar->inputframeid != 0 && ar->inputframeid != u16FrameID) {
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: input frameID changed from %u to %u!", 
+                    ar->inputframeid, u16FrameID);
+            }
+            ar->inputframeid = u16FrameID;
+            break;
+        case(2): /* Output CR */
+            if(ar->outputframeid != 0 && ar->outputframeid != u16FrameID) {
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: output frameID changed from %u to %u!", 
+                    ar->outputframeid, u16FrameID);
+            }
+            ar->outputframeid = u16FrameID;
+            break;
+        default:
+            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: IOCRType %u undecoded!", u16IOCRType);
+        }
+    } else {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: no corresponding AR found!");
+    }
 
     return offset;
 }
@@ -4665,7 +4923,7 @@ dissect_RecordDataReadQuery_block(tvbuff_t *tvb, int offset,
 /* dissect one PN-IO block (depending on the block type) */
 static int
 dissect_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
     guint16 u16BlockType;
     guint16 u16BlockLength;
@@ -4720,10 +4978,10 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_AlarmNotification_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0008):
-        dissect_IODWriteReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODWriteReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen, ar);
         break;
     case(0x0009):
-        dissect_IODReadReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODReadReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen, ar);
         break;
     case(0x0010):
         dissect_DiagnosisData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength, u8BlockVersionLow);
@@ -4776,13 +5034,13 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_IandM0FilterData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0101):
-        dissect_ARBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_ARBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep, ar);
         break;
     case(0x0102):
-        dissect_IOCRBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_IOCRBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep, *ar);
         break;
     case(0x0103):
-        dissect_AlarmCRBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_AlarmCRBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep, *ar);
         break;
     case(0x0104):
         dissect_ExpectedSubmoduleBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4795,7 +5053,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0112):
     case(0x0113):
     case(0x0114):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, ar);
         break;
     case(0x0200):
         dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
@@ -4912,6 +5170,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0600):
         dissect_FSHello_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
+    case(0x0608):
+        dissect_PDInterfaceFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        break;
     case(0x0f00):
         dissect_Maintenance_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -4920,19 +5181,19 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_Alarm_ack_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x8008):
-        dissect_IODWriteResHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODWriteResHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen, ar);
         break;
     case(0x8009):
-        dissect_IODReadResHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODReadResHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen, ar);
         break;
     case(0x8101):
-        dissect_ARBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_ARBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep, ar);
         break;
     case(0x8102):
-        dissect_IOCRBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_IOCRBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep, *ar);
         break;
     case(0x8103):
-        dissect_AlarmCRBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_AlarmCRBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep, *ar);
         break;
     case(0x8104):
         dissect_ModuleDiffBlock(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4942,7 +5203,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8112):
     case(0x8113):
     case(0x8114):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, ar);
         break;
     default:
         dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
@@ -4962,11 +5223,16 @@ dissect_blocks(tvbuff_t *tvb, int offset,
 {
     guint16 u16Index = 0;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     while(tvb_length(tvb) > (guint) offset) {
-        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         u16Index++;
+    }
+
+    if(ar != NULL) {
+        pnio_ar_info(tvb, pinfo, tree, ar);
     }
 
 	return offset;
@@ -5096,6 +5362,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
     const gchar *userProfile;
+    pnio_ar_t *ar = NULL;
 
 
     /* user specified format? */
@@ -5131,6 +5398,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
     case(0x8070):   /* PDNCDataCheck for one subslot */
     case(0x8080):   /* PDInterfaceDataReal */
+    case(0x8090):   /* PDInterfaceFSUDataAdjust */
 
     case(0xaff0):   /* I&M0 */
     case(0xaff1):   /* I&M1 */
@@ -5171,7 +5439,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf830):   /* LogData */
     case(0xf831):   /* PDevData */
     case(0xf840):   /* I&M0FilterData */
-        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
 
     /*** multiple blocks possible ***/
@@ -5257,15 +5525,20 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
 {
     guint16 u16Index = 0;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 
     /* IODReadHeader */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
 
     /* RecordDataRead */
     if(u32RecDataLen != 0) {
         offset = dissect_RecordDataRead(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
+    }
+
+    if(ar != NULL) {
+        pnio_ar_info(tvb, pinfo, tree, ar);
     }
 
 	return offset;
@@ -5277,6 +5550,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
     const gchar *userProfile;
+    pnio_ar_t *ar = NULL;
 
 
     /* user specified format? */
@@ -5306,10 +5580,11 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
     case(0x8070):   /* PDNCDataCheck for one subslot */
+    case(0x8090):   /* PDInterfaceFSUDataAdjust */
 
     case(0xe030):   /* IsochronousModeData for one AR */
     case(0xe050):   /* FastStartUp data for one AR */
-        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, u32RecDataLen);
@@ -5321,7 +5596,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IODWriteReq(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, pnio_ar_t **ar)
 {
     gint remain;
     guint16 u16Index = 0;
@@ -5329,12 +5604,12 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
 
 
     /* IODWriteHeader */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, ar);
 
     /* IODWriteMultipleReq? */
     if(u16Index == 0xe040) {
         while((remain = tvb_length_remaining(tvb, offset)) > 0) {
-            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep);
+            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, ar);
         }
     } else {
         /* RecordDataWrite */
@@ -5362,9 +5637,15 @@ static int
 dissect_IPNIO_Write_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+    pnio_ar_t *ar = NULL;
+
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep);
+    offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar);
+
+    if(ar != NULL) {
+        pnio_ar_info(tvb, pinfo, tree, ar);
+    }
 
 	return offset;
 }
@@ -5378,16 +5659,21 @@ dissect_IODWriteRes(tvbuff_t *tvb, int offset,
     gint remain;
     guint16 u16Index = 0;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     /* IODWriteResHeader */
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
 
     /* IODWriteMultipleRes? */
     if(u16Index == 0xe040) {
         while((remain = tvb_length_remaining(tvb, offset)) > 0) {
             offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
         }
+    }
+
+    if(ar != NULL) {
+        pnio_ar_info(tvb, pinfo, tree, ar);
     }
 
     return offset;
@@ -5484,6 +5770,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     int     start_offset = offset;
     guint16 u16Index = 0;
     guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
 
 
     proto_item *rta_item;
@@ -5545,7 +5832,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     case(1):    /* Data-RTA */
     	if (check_col(pinfo->cinfo, COL_INFO))
 	        col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
-        offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, &u16Index, &u32RecDataLen);
+        offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
     case(2):    /* NACK-RTA */
     	if (check_col(pinfo->cinfo, COL_INFO))
@@ -5644,6 +5931,11 @@ static dcerpc_sub_dissector pn_io_dissectors[] = {
 { 5, "Read Implicit",    dissect_IPNIO_rqst,    dissect_IPNIO_Read_resp },
 	{ 0, NULL, NULL, NULL }
 };
+
+
+static void pnio_reinit( void) {
+    pnio_ars = NULL;
+}
 
 
 void
@@ -6335,12 +6627,15 @@ proto_register_pn_io (void)
         &ett_pn_io_mrp_rtmode,
         &ett_pn_io_control_block_properties,
         &ett_pn_io_check_sync_mode,
-        &ett_pn_io_ir_frame_data
+        &ett_pn_io_ir_frame_data,
+        &ett_pn_io_ar_info
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
 	proto_register_field_array (proto_pn_io, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
+
+	register_init_routine(pnio_reinit);
 }
 
 void

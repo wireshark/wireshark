@@ -170,6 +170,7 @@ typedef struct _packet_info {
   guint16 link_number;
   guint8  annex_a_used;
   guint16 profinet_type; 	/* the type of PROFINET packet (0: not a PROFINET packet) */
+  void *profinet_conv; 	    /* the PROFINET conversation data (NULL: not a PROFINET packet) */
   void *usb_conv_info;
   void *tcp_tree;		/* proto_tree for the tcp layer */
 
