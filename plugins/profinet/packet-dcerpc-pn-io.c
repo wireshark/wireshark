@@ -1514,7 +1514,7 @@ static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
 
 
 static pnio_ar_t *
-pnio_ar_find_by_aruuid(packet_info *pinfo, e_uuid_t *aruuid)
+pnio_ar_find_by_aruuid(packet_info *pinfo _U_, e_uuid_t *aruuid)
 {
     GList       *ars;
     pnio_ar_t   *ar;
@@ -4022,7 +4022,7 @@ dissect_FSHello_block(tvbuff_t *tvb, int offset,
 /* dissect the FSUDataAdjust block */
 static int
 dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint16 u16BodyLength)
 {
     tvbuff_t *tvb_new;
 
