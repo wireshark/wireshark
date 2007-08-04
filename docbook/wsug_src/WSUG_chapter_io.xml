@@ -952,7 +952,8 @@
 	    opened with the proper viewer or executed in the case of
 	    executables (if it is for the same platform you are
 	    running Wireshark on) without any further work on your
-	    part.  This feature is not available in the GTK1 build of Wireshark.
+	    part.  This feature is not available in the GTK1 build of
+	    Wireshark or when using GTK2 versions below 2.4.
 	  </para>
     <figure>
       <title>The "Export Objects" dialog box</title>
