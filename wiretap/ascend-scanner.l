@@ -54,7 +54,7 @@
 #include "ascend-grammar.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
-#include "ascend-scanner_lex.h""
+#include "ascend-scanner_lex.h"
 
 FILE_T yy_fh;
 extern char *ascend_ra_ptr;
