@@ -40,7 +40,7 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 
 $(OBJECTS): config.h
 
-RUNLEX = ..\runlex.sh
+RUNLEX = ..\tools\runlex.sh
 
 ascend-scanner_lex.h : ascend-scanner.c
 ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
