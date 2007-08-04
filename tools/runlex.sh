@@ -107,7 +107,7 @@ fi
 # Is the outfile where we think it is?
 #
 outfile_base=`basename "$outfile"`
-if [ "$outfile_base" != "$outfile" -a ! -e "$outfile" -a -e "$outfile_base" ]
+if [ "$outfile_base" != "$outfile" -a \( ! -r "$outfile" \) -a -r "$outfile_base" ]
 then
 	#
 	# No, it's not, but it is in the current directory.  Put it
