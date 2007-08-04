@@ -68,6 +68,7 @@
 #include <stdarg.h>
 #include "emem.h"
 #include "diam_dict.h"
+#include "diam_dict_lex.h"
 
 typedef struct entity_t {
 	char* name;

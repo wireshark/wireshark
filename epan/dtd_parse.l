@@ -56,6 +56,7 @@
 #include "dtd.h"
 #include "dtd_grammar.h"
 #include "dtd_parse.h"
+#include "dtd_parse_lex.h"
 	
 	struct _proto_xmlpi_attr {
 		gchar* name;

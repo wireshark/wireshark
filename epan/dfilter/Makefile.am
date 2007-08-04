@@ -44,7 +44,8 @@ DISTCLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in	\
-	scanner.c
+	scanner.c	\
+	scanner_lex.h
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 
@@ -86,7 +87,8 @@ libdfilter_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
 libdfilter_generated_la_SOURCES = \
 	grammar.c 		\
 	grammar.h 		\
-	scanner.c
+	scanner.c		\
+	scanner_lex.h
 
 libdfilter_la_LIBADD = libdfilter_generated.la
 libdfilter_la_DEPENDENCIES = libdfilter_generated.la
@@ -96,7 +98,9 @@ EXTRA_DIST = \
 	scanner.l		\
 	Makefile.nmake		
 
-scanner.o : scanner.c grammar.h
+RUNLEX=$(top_srcdir)/tools/runlex.sh
+
+scanner_lex.h : scanner.c
 
 LEMON=../../tools/lemon
 

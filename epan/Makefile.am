@@ -127,9 +127,21 @@ tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
 exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
 
-dtd_grammar.h: dtd_grammar.c
+RUNLEX=$(top_srcdir)/tools/runlex.sh
+
+diam_dict_lex.h: diam_dict.c
+
+dtd_parse_lex.h: dtd_parse.c
+
+dtd_preparse_lex.h: dtd_preparse.c
+
+radius_dict_lex.h: radius_dict.c
+
+uat_load_lex.h: uat_load.c
 
 LEMON=../tools/lemon
+
+dtd_grammar.h: dtd_grammar.c
 
 dtd_grammar.c: dtd_grammar.lemon $(LEMON)/lemon$(EXEEXT)
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon

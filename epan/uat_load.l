@@ -63,6 +63,7 @@
 
 #include <epan/emem.h>
 #include "uat-int.h"
+#include "uat_load_lex.h"
 	
 	static uat_t* uat;
 	static guint colnum;

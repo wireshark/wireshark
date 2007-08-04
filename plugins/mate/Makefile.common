@@ -34,6 +34,7 @@ DISSECTOR_SRC = \
 DISSECTOR_INCLUDES = \
 	mate.h	\
 	mate_grammar.h	\
+	mate_parser_lex.h	\
 	mate_util.h
 
 # Dissector helpers.  They're included in the source files in this

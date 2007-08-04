@@ -122,6 +122,7 @@ DISTCLEANFILES = \
 MAINTAINERCLEANFILES = \
 	Makefile.in		\
 	mate_parser.c		\
+	mate_parser_lex.h	\
 	plugin.c
 
 EXTRA_DIST = \
@@ -131,6 +132,10 @@ EXTRA_DIST = \
 	Makefile.common	\
 	moduleinfo.nmake	\
 	plugin.rc.in
+
+RUNLEX = $(top_srcdir)/tools/runlex.sh
+
+mate_parser_lex.h : mate_parser.c
 
 LEMON = ../../tools/lemon
 

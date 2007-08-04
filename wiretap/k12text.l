@@ -62,6 +62,7 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "k12.h"
+#include "k12text_lex.h"
 
 static guint h;
 static guint m;

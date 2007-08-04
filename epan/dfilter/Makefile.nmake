@@ -58,10 +58,13 @@ clean:
 # the same for now.
 #
 distclean: clean
-	rm -f scanner.c grammar.c grammar.h grammar.out
+	rm -f scanner.c scanner_lex.h grammar.c grammar.h grammar.out
 
 maintainer-clean: distclean
 
+RUNLEX=..\..\tools\runlex.sh
+
+scanner_lex.h : scanner.c
 scanner.obj : scanner.c grammar.h
 
 grammar.h : grammar.c

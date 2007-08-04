@@ -66,6 +66,7 @@ EXTRA_DIST = \
 	config.h.win32		\
 	Makefile.common		\
 	Makefile.nmake		\
+	runlex.sh		\
 	wtap.def		\
 	file_util.c		\
 	$(GENERATOR_SOURCES) 	\
@@ -73,6 +74,12 @@ EXTRA_DIST = \
 
 libwiretap_la_LIBADD = libwiretap_generated.la
 libwiretap_la_DEPENDENCIES = libwiretap_generated.la
+
+RUNLEX = $(top_srcdir)/runlex.sh
+
+ascend-scanner_lex.h : ascend-scanner.c
+
+k12text_lex.h : k12text.c
 
 ascend-grammar.c : ascend-grammar.y
 	@if [ -z "$(YACC)" ]; then \

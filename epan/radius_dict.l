@@ -63,6 +63,7 @@
 #include <errno.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-radius.h>
+#include "radius_dict_lex.h"
 #define ECHO
 #define MAX_INCLUDE_DEPTH 10
 

@@ -123,7 +123,9 @@ GENERATED_C_FILES = \
 
 # The header files that they generate.
 GENERATED_HEADER_FILES = \
-	ascend-grammar.h
+	ascend-grammar.h	\
+	ascend-scanner_lex.h	\
+	k12text_lex.h
 
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)

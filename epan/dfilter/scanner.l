@@ -54,6 +54,7 @@
 #include "syntax-tree.h"
 #include "grammar.h"
 #include "dfunctions.h"
+#include "scanner_lex.h"
 
 /*
  * GLib 1.2[.x] doesn't define G_MAXINT32 or G_MININT32; if they're not

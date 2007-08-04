@@ -49,6 +49,7 @@
 	
 #include "mate.h"	
 #include "mate_grammar.h"
+#include "mate_parser_lex.h"
 	
 	void MateParser(void*,int, gchar*, mate_config* matecfg);
 	void *MateParserAlloc(void *(*)(gulong));

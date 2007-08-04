@@ -40,12 +40,16 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 
 $(OBJECTS): config.h
 
-ascend-grammar.c ascend-grammar.h : ascend-grammar.y
-	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
+RUNLEX = ..\runlex.sh
 
+ascend-scanner_lex.h : ascend-scanner.c
 ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
 
+k12text_lex.h : k12text.c
 k12text.obj : k12text.c
+
+ascend-grammar.c ascend-grammar.h : ascend-grammar.y
+	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
 
 config.h	: config.h.win32 ..\config.nmake
 	sed -e s/@VERSION@/$(WTAP_VERSION)/ \

@@ -107,10 +107,14 @@ clean:
 # the same for now.
 #
 distclean: clean
-	rm -f mate_parser.c mate_grammar.c mate_grammar.h mate_grammar.out
+	rm -f mate_parser.c mate_parser_lex.h mate_grammar.c \
+	mate_grammar.h mate_grammar.out
 
 maintainer-clean: distclean
 
+RUNLEX = ..\..\tools\runlex.sh
+
+mate_parser_lex.h : mate_parser.c
 mate_parser.obj : mate_parser.c
 
 mate_grammar.h : mate_grammar.c

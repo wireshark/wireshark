@@ -24,4 +24,4 @@
 .SUFFIXES: .l
 
 .l.c:
-	$(LEX) -o$@ $<
+	$(SH) $(RUNLEX) "$(LEX)" -o$@ $<

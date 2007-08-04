@@ -96,6 +96,7 @@ EXTRA_DIST = \
 	msnchat						\
 	netscreen2dump.py				\
 	pkt-from-core.py				\
+	runlex.sh					\
 	unix2dos.pl					\
 	win32-setup.sh					\
 	wireshark_be.py					\
