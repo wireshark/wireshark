@@ -122,7 +122,10 @@ static xml_ns_t xml_ns = {"xml","/",-1,-1,-1,NULL,NULL,NULL};
 static xml_ns_t unknown_ns = {"unknown","?",-1,-1,-1,NULL,NULL,NULL};
 static xml_ns_t* root_ns;
 
-static gboolean pref_heuristic = FALSE;
+static gboolean pref_heuristic_media = FALSE;
+static gboolean pref_heuristic_tcp = FALSE;
+static range_t *global_xml_tcp_range = NULL;
+static range_t *xml_tcp_range = NULL;
 
 #define XML_CDATA -1000
 #define XML_SCOPED_NAME -1001
@@ -209,7 +212,8 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    if ( pref_heuristic && tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
+    if ( (pref_heuristic_media || pref_heuristic_tcp)
+		  && tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
         dissect_xml(tvb, pinfo, tree);
         return TRUE;
     } else {
@@ -1180,12 +1184,29 @@ static void init_xml_names(void) {
 #endif
 }
 
+static void range_delete_xml_tcp_callback(guint32 port) {
+	dissector_delete("tcp.port", port, xml_handle);
+}
+
+static void range_add_xml_tcp_callback(guint32 port) {
+	dissector_add("tcp.port", port, xml_handle);
+}
+
 static void apply_prefs(void) {
-    if (pref_heuristic) {
+    if (pref_heuristic_media) {
         heur_dissector_add("http", dissect_xml_heur, xml_ns.hf_tag);
         heur_dissector_add("sip", dissect_xml_heur, xml_ns.hf_tag);
         heur_dissector_add("media", dissect_xml_heur, xml_ns.hf_tag);
     }
+	
+    if (pref_heuristic_tcp) {
+        heur_dissector_add("tcp", dissect_xml_heur, xml_ns.hf_tag);
+    }
+	
+	range_foreach(xml_tcp_range, range_delete_xml_tcp_callback);
+	g_free(xml_tcp_range);
+	xml_tcp_range = range_copy(global_xml_tcp_range);
+	range_foreach(xml_tcp_range, range_add_xml_tcp_callback);	
 }
 
 void
@@ -1223,16 +1244,25 @@ proto_register_xml(void) {
 	proto_register_subtree_array((gint**)g_array_data(ett_arr), ett_arr->len);
 
 	xml_module = prefs_register_protocol(xml_ns.hf_tag,apply_prefs);
-    prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics",
+    prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics for media types",
                                    "Try to recognize XML for unknown media types",
-                                   &pref_heuristic);
-
+                                   &pref_heuristic_media);
+    prefs_register_bool_preference(xml_module, "heuristic_tcp", "Use Heuristics for tcp",
+                                   "Try to recognize XML for unknown TCP ports",
+                                   &pref_heuristic_tcp);
+	prefs_register_range_preference(xml_module, "tcp.port", "TCP Ports",
+									"TCP Ports range",
+									&global_xml_tcp_range, 65535);
+	
     g_array_free(hf_arr,FALSE);
     g_array_free(ett_arr,TRUE);
 
 	register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
 	init_xml_parser();
+
+	xml_tcp_range = range_empty();
+
 
 }
 
