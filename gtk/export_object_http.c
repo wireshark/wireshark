@@ -32,8 +32,9 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-/* This feature has not been ported to GTK1 */
-#if GTK_MAJOR_VERSION >= 2
+/* This feature has not been ported to GTK1 and uses some functions only
+ * only available in GTK 2.4 and above. */
+#if GTK_CHECK_VERSION(2,4,0)
 
 #include <epan/dissectors/packet-http.h>
 
@@ -78,4 +79,4 @@ eo_http_cb(GtkWidget *widget _U_, gpointer data _U_)
 	export_object_window("http_eo", "HTTP", eo_http_packet);
 }
 
-#endif /* GTK_MAJOR_VERSION >= 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */

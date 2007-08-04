@@ -31,8 +31,9 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-/* This feature has not been ported to GTK1 */
-#if GTK_MAJOR_VERSION >= 2
+/* This feature has not been ported to GTK1 and uses some functions only
+ * only available in GTK 2.4 and above. */
+#if GTK_CHECK_VERSION(2,4,0)
 
 #include <alert_box.h>
 #include <simple_dialog.h>
@@ -424,4 +425,4 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	cf_retap_packets(&cfile, FALSE);
 }
 
-#endif /* GTK_MAJOR_VERSION >= 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */

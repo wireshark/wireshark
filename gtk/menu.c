@@ -424,7 +424,7 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
     ITEM_FACTORY_ENTRY("/File/Export/Selected Packet _Bytes...", "<control>H", savehex_cb,
                              0, NULL, NULL),
-#if GTK_MAJOR_VERSION >= 2
+#if GTK_CHECK_VERSION(2,4,0)
     ITEM_FACTORY_ENTRY("/File/Export/_Objects/_HTTP", NULL, eo_http_cb, 0, NULL,
 		       NULL),
 #endif
