@@ -111,15 +111,10 @@ LIBWIRESHARK_DISTCLEAN_GENERATED_SRC = \
 #
 LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC = \
 	diam_dict.c		\
-	diam_dict_lex.h		\
 	dtd_parse.c 		\
-	dtd_parse_lex.h		\
 	dtd_preparse.c 		\
-	dtd_preparse_lex.h	\
 	radius_dict.c 		\
-	radius_dict_lex.h	\
-	uat_load.c		\
-	uat_load_lex.h
+	uat_load.c
 
 LIBWIRESHARK_GENERATED_SRC = 	\
 	$(LIBWIRESHARK_DISTCLEAN_GENERATED_SRC) \
@@ -158,7 +153,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	crcdrm.h		\
 	diam_dict.h		\
 	dtd.h			\
-	dtd_grammar.h 		\
 	dtd_parse.h 		\
 	emem.h			\
 	epan.h			\
@@ -235,3 +229,25 @@ LIBWIRESHARK_INCLUDES = 	\
 	x264_prt_id.h		\
 	xdlc.h			\
 	xmlstub.h
+
+#
+# As with LIBWIRESHARK_DISTCLEAN_GENERATED_SRC, so with
+# LIBWIRESHARK_DISTCLEAN_GENERATED_INCLUDES.
+#
+LIBWIRESHARK_DISTCLEAN_GENERATED_SRC = \
+	dtd_grammar.h
+
+#
+# As with LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC, so with
+# LIBWIRESHARK_NODISTCLEAN_GENERATED_INCLUDES.
+#
+LIBWIRESHARK_NODISTCLEAN_GENERATED_INCLUDES = \
+	diam_dict_lex.h		\
+	dtd_parse_lex.h		\
+	dtd_preparse_lex.h	\
+	radius_dict_lex.h	\
+	uat_load_lex.h
+
+LIBWIRESHARK_GENERATED_INCLUDES = 	\
+	$(LIBWIRESHARK_DISTCLEAN_GENERATED_INCLUDES) \
+	$(LIBWIRESHARK_NODISTCLEAN_GENERATED_INCLUDES)
