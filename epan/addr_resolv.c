@@ -438,8 +438,6 @@ static void parse_services_file(const char * path)
 
 static void initialize_services(void)
 {
-  FILE *serv_p = NULL;
-
 
   /* the hash table won't ignore duplicates, so use the personal path first */
 
