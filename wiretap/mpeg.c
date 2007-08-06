@@ -247,14 +247,15 @@ mpeg_close(wtap *wth)
 	g_free(wth->capture.mpeg);
 }
 
-/* XXX We probably need more magic to open more types */
 struct _mpeg_magic {
 	size_t len;
 	const gchar* match;
 } magic[] = {
-	{3,"TAG"},
-	{3,"ID3"},
-	{0,NULL}
+	{ 3, "TAG" }, /* ID3v1 */
+	{ 3, "ID3" }, /* ID3v2 */
+	{ 3, "\0\0\1" }, /* MPEG PES */
+	/* XXX MPEG audio is missing. */
+	{ 0, NULL }
 };
 
 int 
