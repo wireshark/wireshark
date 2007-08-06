@@ -15,6 +15,12 @@ MiscCallInfo
 RedirectionInformation
 ServiceKey
 
+#.PDU_NEW
+ERROR.&ParameterType
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+#.END
+
 #.NO_EMIT
 
 #.TYPE_RENAME
@@ -73,6 +79,45 @@ SpecializedResourceReportArg
 CancelArg
 RequestCurrentStatusReportResultArg
 ReceivedInformationArg
+
+# This table creates the value_sting to name Inap operation codes and errors
+# in file packet-inap-table.c which is included in the template file
+#
+#.TABLE_HDR
+/* INAP OPERATIONS */
+const value_string inap_opr_code_strings[] = {
+#.TABLE_BODY OPERATION.&operationCode
+	{ %(&operationCode)-40s, "%(_ident)s" },
+#.TABLE_FTR
+  { 0, NULL }
+};
+#.END
+
+#.TABLE_HDR
+/* INAP ERRORS */
+static const value_string inap_err_code_string_vals[] = {
+#.TABLE_BODY ERROR&errorCode
+	{ %(&errorCode)-40s, "%(_ident)s" },  
+#.TABLE_FTR
+  { 0, NULL }
+};
+#.END
+
+# Create a table of opcode and corresponding args and res
+#.TABLE11_HDR
+typedef struct _inap_op_t {
+  gint32 opcode;
+  new_dissector_t arg_pdu;
+  new_dissector_t res_pdu;
+} inap_op_t;
+
+static const inap_op_t inap_op_tab[] = {
+#.TABLE11_BODY OPERATION.&operationCode
+  /* %(_name)-31s */ { %(&operationCode)-40s, %(_argument_pdu)-45s, %(_result_pdu)s },
+#.TABLE11_FTR
+};
+#.END
+
 
 #.FN_BODY TriggerData/triggerPar
 /* FIX ME */

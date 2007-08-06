@@ -817,7 +817,7 @@ ForwardCallIndicators ::= OCTET STRING(SIZE (2))
 ForwardGVNS{B2:b2} ::=
   OCTET STRING(SIZE (minForwardGVNSLength..maxForwardGVNSLength))
 
--- Indicates the GVNS Forward information. Refer to Q.735, §6 for encoding.
+-- Indicates the GVNS Forward information. Refer to Q.735, õ6 for encoding.
 ForwardingCondition ::= ENUMERATED {busy(0), noanswer(1), any(2)}
 
 -- Indicates the condition that must be met to complete the connect.

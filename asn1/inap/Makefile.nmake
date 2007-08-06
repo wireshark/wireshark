@@ -9,11 +9,10 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 PROTOCOL_NAME=inap
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
 ROS_ASN= ../ros/Remote-Operations-Information-Objects.asn 
-1248_1_ASN_FILES= IN-object-identifiers.asn IN-common-datatypes.asn
-1248_2_ASN_FILES=IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn
-1248_3_ASN_FILES=IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn
-1248_CLASSES_ASN=IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn
-ASN_FILE_LIST=$(ROS_ASN) $(1248_CLASSES_ASN) inap.asn $(1248_1_ASN_FILES) $(1248_2_ASN_FILES) $(1248_3_ASN_FILES)
+1248_1_ASN_FILES= IN-common-classes.asn IN-common-datatypes.asn IN-errortypes.asn IN-errorcodes.asn IN-object-identifiers.asn IN-operationcodes.asn 
+1248_2_ASN_FILES= IN-SSF-SCF-Classes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn
+1248_3_ASN_FILES= IN-SCF-SRF-Classes.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn
+ASN_FILE_LIST=$(ROS_ASN) inap.asn $(1248_1_ASN_FILES) $(1248_2_ASN_FILES) $(1248_3_ASN_FILES)
 
 all: generate_dissector
 
@@ -21,7 +20,7 @@ generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(ASN_FILE_LIST) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h inap.cnf 
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -X -e -p $(PROTOCOL_NAME) -c inap.cnf -s packet-$(PROTOCOL_NAME)-template $(ASN_FILE_LIST)
+	$(PYTHON) "../../tools/asn2wrs.py" -b -X -T -e -k -p $(PROTOCOL_NAME) -c inap.cnf -s packet-$(PROTOCOL_NAME)-template $(ASN_FILE_LIST)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
