@@ -128,6 +128,7 @@
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"
 #define ENAME_MANUF		"manuf"
+#define ENAME_SERVICES	"services"
 
 #define MAXMANUFLEN	9	/* max vendor name length with ending '\0' */
 #define HASHETHSIZE	1024
@@ -231,6 +232,7 @@ static hashipxnet_t	*ipxnet_table[HASHIPXNETSIZE];
 
 static int 		eth_resolution_initialized = 0;
 static int 		ipxnet_resolution_initialized = 0;
+static int 		service_resolution_initialized = 0;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 
@@ -249,6 +251,8 @@ gchar *g_ethers_path  = NULL;		/* global ethers file    */
 gchar *g_pethers_path = NULL; 		/* personal ethers file  */
 gchar *g_ipxnets_path  = NULL;		/* global ipxnets file   */
 gchar *g_pipxnets_path = NULL;		/* personal ipxnets file */
+gchar *g_services_path  = NULL;		/* global services file   */
+gchar *g_pservices_path = NULL;		/* personal services file */
 					/* first resolving call  */
 
 /* GNU ADNS */
@@ -274,9 +278,187 @@ GList *adns_queue_head = NULL;
 
 #endif /* HAVE_GNU_ADNS */
 
+
+/*
+ *  Miscellaneous functions
+ */
+
+static int fgetline(char **buf, int *size, FILE *fp)
+{
+  int len;
+  int c;
+
+  if (fp == NULL)
+    return -1;
+
+  if (*buf == NULL) {
+    if (*size == 0)
+      *size = BUFSIZ;
+
+    if ((*buf = g_malloc(*size)) == NULL)
+      return -1;
+  }
+
+  if (feof(fp))
+    return -1;
+
+  len = 0;
+  while ((c = getc(fp)) != EOF && c != '\r' && c != '\n') {
+    if (len+1 >= *size) {
+      if ((*buf = g_realloc(*buf, *size += BUFSIZ)) == NULL)
+	return -1;
+    }
+    (*buf)[len++] = c;
+  }
+
+  if (len == 0 && c == EOF)
+    return -1;
+
+  (*buf)[len] = '\0';
+
+  return len;
+
+} /* fgetline */
+
+
 /*
  *  Local function definitions
  */
+
+
+static void add_service_name(hashport_t **proto_table, guint port, const char *service_name)
+{
+  int hash_idx;
+  hashport_t *tp;
+  
+
+  hash_idx = HASH_PORT(port);
+  tp = proto_table[hash_idx];
+
+  if( tp == NULL ) {
+    tp = proto_table[hash_idx] = (hashport_t *)g_malloc(sizeof(hashport_t));
+  } else {
+    while(1) {
+      if( tp->port == port ) {
+        return;
+      }
+      if (tp->next == NULL) {
+        tp->next = (hashport_t *)g_malloc(sizeof(hashport_t));
+        tp = tp->next;
+        break;
+      }
+      tp = tp->next;
+    }
+  }
+
+  /* fill in a new entry */
+  tp->port = port;
+  tp->next = NULL;
+
+  strncpy(tp->name, service_name, MAXNAMELEN);
+  tp->name[MAXNAMELEN-1] = '\0';
+}
+
+
+static void parse_service_line (char *line)
+{
+  /*
+   *  See the services(4) or services(5) man page for services file format
+   *  (not available on all systems).
+   */
+
+  gchar *cp;
+  gchar *service;
+  gchar *port;
+
+
+  if ((cp = strchr(line, '#')))
+    *cp = '\0';
+
+  if ((cp = strtok(line, " \t")) == NULL)
+    return;
+
+  service = cp;
+
+  if ((cp = strtok(NULL, " \t")) == NULL)
+    return;
+
+  port = cp;
+
+  if ((cp = strtok(cp, "/")) == NULL)
+    return;
+
+  if ((cp = strtok(NULL, "/")) == NULL)
+    return;
+
+  /* seems we got all interesting things from the file */
+  if(strcmp(cp, "tcp") == 0) {
+    add_service_name(tcp_port_table, atoi(port), service);
+    return;
+  }
+
+  if(strcmp(cp, "udp") == 0) {
+    add_service_name(udp_port_table, atoi(port), service);
+    return;
+  }
+
+  if(strcmp(cp, "sctp") == 0) {
+    add_service_name(sctp_port_table, atoi(port), service);
+    return;
+  }
+
+  if(strcmp(cp, "dcp") == 0) {
+    add_service_name(dccp_port_table, atoi(port), service);
+    return;
+  }
+
+} /* parse_service_line */
+
+
+
+static void parse_services_file(const char * path)
+{
+  FILE *serv_p;
+  static int     size = 0;
+  static char   *buf = NULL;
+
+  /* services hash table initialization */
+  serv_p = eth_fopen(path, "r");
+
+  if (serv_p == NULL)
+    return;
+
+  while (fgetline(&buf, &size, serv_p) >= 0) {
+    parse_service_line (buf);
+  }
+
+  fclose(serv_p);
+}
+
+
+static void initialize_services(void)
+{
+  FILE *serv_p = NULL;
+
+
+  /* the hash table won't ignore duplicates, so use the personal path first */
+
+  /* set personal services path */
+  if (g_pservices_path == NULL)
+    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
+
+  parse_services_file(g_pservices_path);
+
+  /* Compute the pathname of the services file. */
+  if (g_services_path == NULL) {
+    g_services_path = get_datafile_path(ENAME_SERVICES);
+  }
+
+  parse_services_file(g_services_path);
+
+} /* initialize_services */
+
+
 
 static gchar *serv_name_lookup(guint port, port_type proto)
 {
@@ -285,6 +467,12 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   hashport_t **table;
   const char *serv_proto = NULL;
   struct servent *servp;
+
+
+  if (!service_resolution_initialized) {
+    initialize_services();
+    service_resolution_initialized = 1;
+  }
 
   switch(proto) {
   case PT_UDP:
@@ -559,48 +747,6 @@ static const gchar *solve_address_to_name(address *addr)
     return NULL;
   }
 } /* solve_address_to_name */
-
-
-/*
- *  Miscellaneous functions
- */
-
-static int fgetline(char **buf, int *size, FILE *fp)
-{
-  int len;
-  int c;
-
-  if (fp == NULL)
-    return -1;
-
-  if (*buf == NULL) {
-    if (*size == 0)
-      *size = BUFSIZ;
-
-    if ((*buf = g_malloc(*size)) == NULL)
-      return -1;
-  }
-
-  if (feof(fp))
-    return -1;
-
-  len = 0;
-  while ((c = getc(fp)) != EOF && c != '\r' && c != '\n') {
-    if (len+1 >= *size) {
-      if ((*buf = g_realloc(*buf, *size += BUFSIZ)) == NULL)
-	return -1;
-    }
-    (*buf)[len++] = c;
-  }
-
-  if (len == 0 && c == EOF)
-    return -1;
-
-  (*buf)[len] = '\0';
-
-  return len;
-
-} /* fgetline */
 
 
 /*
