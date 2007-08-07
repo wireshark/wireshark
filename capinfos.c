@@ -283,7 +283,6 @@ int main(int argc, char *argv[])
     } else {
 		init_report_err(failure_message,NULL,NULL);
 		init_plugins();
-		register_all_wiretap_modules();
     }
 #endif
     

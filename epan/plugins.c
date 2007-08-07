@@ -431,6 +431,7 @@ init_plugins(void)
 	    g_free(plugins_pers_dir);
 	}
     }
+	register_all_wiretap_modules();
 }
 
 void

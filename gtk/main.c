@@ -2407,7 +2407,6 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
-  register_all_wiretap_modules();
 #endif
 
   register_all_tap_listeners();
