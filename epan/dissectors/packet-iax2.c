@@ -1100,7 +1100,41 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 
     int ies_type = tvb_get_guint8(tvb, offset);
     int ies_len = tvb_get_guint8(tvb, offset + 1);
+    guint16 apparent_addr_family;
 
+    /* do non-tree-dependent stuff first */
+    switch(ies_type) {
+      case IAX_IE_DATAFORMAT:
+        if (ies_len != 4) THROW(ReportedBoundsError);
+        ie_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
+        break;
+
+      case IAX_IE_APPARENT_ADDR:
+        /* the family is little-endian. That's probably broken, given
+           everything else is big-endian, but that's not our fault.
+        */
+        apparent_addr_family = tvb_get_letohs(tvb, offset+2);
+        switch( apparent_addr_family ) {
+          /* these come from linux/socket.h */
+          case 2: /* AF_INET */
+            /* IAX is always over UDP */
+            ie_data->peer_ptype = PT_UDP;
+            ie_data->peer_port = tvb_get_ntohs(tvb, offset+4);
+
+            /* the ip address is big-endian, but then so is peer_address.data */
+            SET_ADDRESS(&ie_data->peer_address,AT_IPv4,4,tvb_get_ptr(tvb,offset+6,4));
+            break;
+
+          default:
+            g_warning("Not supported in IAX dissector: peer address family of %u", apparent_addr_family);
+            break;
+        }
+        break;
+    }
+
+
+    /* the rest of this stuff only needs doing if we have an iax_tree */
+    
     if( iax_tree ) {
       proto_item *ti, *ie_item = NULL;
       proto_tree *ies_tree;
@@ -1162,48 +1196,26 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	case IAX_IE_APPARENT_ADDR:
 	{
 	  proto_tree *sockaddr_tree = NULL;
-	  guint16 family;
 
 	  ie_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
 	  sockaddr_tree = proto_item_add_subtree(ie_item, ett_iax2_ies_apparent_addr);
 
-	  /* the family is little-endian. That's probably broken, given
-	     everything else is big-endian, but that's not our fault.
-	  */
-	  family = tvb_get_letohs(tvb, offset+2);
-	  proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, family);
+	  proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
 	      
-	  switch( family ) {
+	  switch(  apparent_addr_family ) {
 	    /* these come from linux/socket.h */
 	    case 2: /* AF_INET */
 	    {
 	      guint32 addr;
-	      
-	      /* IAX is always over UDP */
-	      ie_data->peer_ptype = PT_UDP;
-	      ie_data->peer_port = tvb_get_ntohs(tvb, offset+4);
 	      proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
-	      /* the ip address is big-endian, but then so is address.data */
-	      SET_ADDRESS(&ie_data->peer_address,AT_IPv4,4,tvb_get_ptr(tvb,offset+6,4));
 	      memcpy(&addr, ie_data->peer_address.data, 4);
 	      proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, addr);
 	      break;
 	    }
-
-	    default:
-	      g_warning("Not supported in IAX dissector: peer address family of %u", family);
-	      break;
 	  }
 	  break;
 	}
 	      
-        case IAX_IE_DATAFORMAT:
-          if (ies_len != 4) THROW(ReportedBoundsError);
-          ie_item = proto_tree_add_item (ies_tree, ie_hf, tvb,
-                               offset + 2, ies_len, FALSE);
-          ie_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
-          break;
-
 	default:
 	  if( ie_hf != -1 ) {
             /* throw an error if the IE isn't the expected length */
