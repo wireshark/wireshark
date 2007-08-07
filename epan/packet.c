@@ -1476,6 +1476,37 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, int proto)
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
 }
 
+
+
+static int find_matching_heur_dissector( gconstpointer a, gconstpointer b) {
+    const heur_dtbl_entry_t *dtbl_entry_a = (const heur_dtbl_entry_t *) a;
+    const heur_dtbl_entry_t *dtbl_entry_b = (const heur_dtbl_entry_t *) b;
+    return (dtbl_entry_a->dissector == dtbl_entry_b->dissector) &&
+		(dtbl_entry_a->protocol == dtbl_entry_b->protocol) ? 0 : 1;
+}
+
+void heur_dissector_delete(const char *name, heur_dissector_t dissector, int proto) {
+	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
+	heur_dtbl_entry_t dtbl_entry;
+	GSList* found_entry;
+	
+	/* sanity check */
+	g_assert(sub_dissectors != NULL);
+
+	dtbl_entry.dissector = dissector;
+
+	dtbl_entry.protocol = find_protocol_by_id(proto);
+
+	found_entry = g_slist_find_custom(*sub_dissectors, (gpointer) &dtbl_entry, find_matching_heur_dissector);
+
+	if (found_entry) {
+		*sub_dissectors = g_slist_remove_link(*sub_dissectors, found_entry);
+		g_free(g_slist_nth_data(found_entry, 1));
+		g_slist_free_1(found_entry);
+	}
+}
+
+
 gboolean
 dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
