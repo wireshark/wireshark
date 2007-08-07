@@ -124,6 +124,8 @@ static xml_ns_t* root_ns;
 
 static gboolean pref_heuristic_media = FALSE;
 static gboolean pref_heuristic_tcp = FALSE;
+static gboolean pref_heuristic_media_save = FALSE;
+static gboolean pref_heuristic_tcp_save = FALSE;
 static range_t *global_xml_tcp_range = NULL;
 static range_t *xml_tcp_range = NULL;
 
@@ -1193,15 +1195,29 @@ static void range_add_xml_tcp_callback(guint32 port) {
 }
 
 static void apply_prefs(void) {
-    if (pref_heuristic_media) {
-        heur_dissector_add("http", dissect_xml_heur, xml_ns.hf_tag);
-        heur_dissector_add("sip", dissect_xml_heur, xml_ns.hf_tag);
-        heur_dissector_add("media", dissect_xml_heur, xml_ns.hf_tag);
-    }
+	if (pref_heuristic_media_save != pref_heuristic_media) {
+		if (pref_heuristic_media) {
+			heur_dissector_add("http", dissect_xml_heur, xml_ns.hf_tag);
+			heur_dissector_add("sip", dissect_xml_heur, xml_ns.hf_tag);
+			heur_dissector_add("media", dissect_xml_heur, xml_ns.hf_tag);
+			pref_heuristic_media_save = TRUE;
+		} else {
+			heur_dissector_delete("http", dissect_xml_heur, xml_ns.hf_tag);
+			heur_dissector_delete("sip", dissect_xml_heur, xml_ns.hf_tag);
+			heur_dissector_delete("media", dissect_xml_heur, xml_ns.hf_tag);
+			pref_heuristic_media_save = FALSE;
+		}
+	}
 	
-    if (pref_heuristic_tcp) {
-        heur_dissector_add("tcp", dissect_xml_heur, xml_ns.hf_tag);
-    }
+    if (pref_heuristic_tcp_save != pref_heuristic_tcp ) {
+		if (pref_heuristic_tcp) {
+			heur_dissector_add("tcp", dissect_xml_heur, xml_ns.hf_tag);
+			pref_heuristic_tcp_save = TRUE;
+		} else {
+			heur_dissector_delete("tcp", dissect_xml_heur, xml_ns.hf_tag);
+			pref_heuristic_tcp_save = FALSE;
+		}
+	}
 	
 	range_foreach(xml_tcp_range, range_delete_xml_tcp_callback);
 	g_free(xml_tcp_range);
