@@ -391,6 +391,25 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((octet  & 0xf8) != 0xf8)
 	 return offset;
 
+	/* Search for delimiter 0xffff in the remain tvb buffer */
+	length = tvb_ensure_length_remaining(tvb, offset);
+	for(i=0; i<(length-1); ++i){
+		/* Loop end criteria is (length-1) because we take 2 bytes each loop */
+		data = tvb_get_ntohs(tvb, offset+i);
+		if (0xffff == data) break;
+	}
+	if (i >= (length-1)){
+		/* SIGCOMP may be subdissector of SIP, so we use  
+		 * pinfo->saved_can_desegment to determine whether do desegment 
+		 * as well as pinfo->can_desegment */
+		if (pinfo->can_desegment || pinfo->saved_can_desegment){
+			/* Delimiter oxffff was not found, not a complete SIGCOMP PDU */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len=DESEGMENT_ONE_MORE_SEGMENT;
+			return -1;
+		}
+	}
+
 	/* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIGCOMP");
