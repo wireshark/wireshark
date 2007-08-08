@@ -316,8 +316,8 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.tcp_tree = NULL;
 	edt->pi.dcerpc_procedure_name="";
 	edt->pi.sccp_info = NULL;
-	edt->pi.clnp_srcref = NULL;
-	edt->pi.clnp_dstref = NULL;
+	edt->pi.clnp_srcref = 0;
+	edt->pi.clnp_dstref = 0;
 	
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
