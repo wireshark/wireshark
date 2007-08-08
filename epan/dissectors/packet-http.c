@@ -2407,4 +2407,6 @@ proto_reg_handoff_message_http(void)
 			proto_message_http);
 
 	dissector_add_string("media_type", "message/http", message_http_handle);
+
+	reinit_http();
 }
