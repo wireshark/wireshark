@@ -874,6 +874,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             */
             protocol_handle = 0;
 
+            /* Work with generic XML protocol.
+               This is a bit of a hack, but xml isn't really a proper
+               encapsulation type... */
+            if (strcmp(protocol_name, "xml") == 0)
+            {
+                protocol_handle = find_dissector("xml");
+            }
+
             /* Try IP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_ipprim_heuristic)
             {
