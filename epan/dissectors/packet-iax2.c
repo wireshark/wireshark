@@ -1200,6 +1200,10 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	  ie_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
 	  sockaddr_tree = proto_item_add_subtree(ie_item, ett_iax2_ies_apparent_addr);
 
+	  /* the family is little-endian. That's probably broken, given
+	     everything else is big-endian, but that's not our fault.
+	  */
+	  apparent_addr_family = tvb_get_letohs(tvb, offset+2);
 	  proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
 	      
 	  switch(  apparent_addr_family ) {
