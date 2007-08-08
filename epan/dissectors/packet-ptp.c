@@ -1,18 +1,21 @@
 /* packet-ptp.c
  * Routines for PTP (Precision Time Protocol) dissection
  * Copyright 2004, Auges Tchouante <tchouante2001@yahoo.fr>
- * Copyright 2004, Dominic Béchaz <bdo@zhwin.ch> , ZHW/InES
+ * Copyright 2004, Dominic Bechaz <bdo@zhwin.ch> , ZHW/InES
  * Copyright 2004, Markus Seehofer <mseehofe@nt.hirschmann.de>
+ * Copyright 2006, Christian Schaer <scc@zhwin.ch>
+ * Copyright 2007, Markus Renz <Markus.Renz@hirschmann.de>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
  *   - Included the "startingBoundaryHops" field in
  *     ptp_management messages.
- * -
+ * - Christian Schaer 07.07.2006 <scc@zhwin.ch>
+ *   - Added support for PTP version 2 
+ * - Markus Renz 2007-06-01 
+ *   updated support for PTPv2 - ToDo: Management and Signaling Messages 
  * 
  * $Id$
- *
- * A plugin for:
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -40,10 +43,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+
 
 #include <glib.h>
 
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
+
 #include <epan/packet.h>
+#include <epan/etypes.h>
 
 
 /**********************************************************/
@@ -54,8 +64,15 @@
 
 /*END Port definition's for PTP*/
 
+static int proto_ptp = -1;
+
+/***********************************************************************************/
+/* Definitions and fields for PTPv1 dissection.                                    */
+/***********************************************************************************/
+
+
 /**********************************************************/
-/* Offsets of fields within a PTP packet.				  */
+/* Offsets of fields within a PTPv1 packet.				  */
 /**********************************************************/
 
 /*Common offsets for all Messages (Synch, Delay_Req, Follow_Up, Delay_Resp ....)*/
@@ -419,14 +436,16 @@ static const value_string ptp_communicationid_vals[] = {
 #define	PTP_FOLLOWUP_MESSAGE	0x02
 #define	PTP_DELAY_RESP_MESSAGE	0x03
 #define	PTP_MANAGEMENT_MESSAGE	0x04
+#define	PTP_OTHER_MESSAGE		0x05
 
 static const value_string ptp_control_vals[] = {
-  {PTP_SYNC_MESSAGE,  "Sync Message"},
-  {PTP_DELAY_REQ_MESSAGE,  "Delay_Req Message"},
+  {PTP_SYNC_MESSAGE,  		"Sync Message"},
+  {PTP_DELAY_REQ_MESSAGE,  	"Delay_Req Message"},
   {PTP_FOLLOWUP_MESSAGE,    "Follow_Up Message"},
-  {PTP_DELAY_RESP_MESSAGE, "Delay_Resp Message"},
-  {PTP_MANAGEMENT_MESSAGE,   "Management Message"},
-  {0,              NULL          } };
+  {PTP_DELAY_RESP_MESSAGE, 	"Delay_Resp Message"},
+  {PTP_MANAGEMENT_MESSAGE,  "Management Message"},
+  {PTP_OTHER_MESSAGE,   	"Other Message"},
+  {0,              			NULL          } };
 
 /*END PTP message types*/
 
@@ -454,7 +473,6 @@ static const value_string ptp_bool_vals[] = {
 /* Initialize the protocol and registered fields		  */
 /**********************************************************/
 
-static int proto_ptp = -1;
 static int hf_ptp_versionptp = -1;
 static int hf_ptp_versionnetwork = -1;
 static int hf_ptp_subdomain = -1;
@@ -473,8 +491,8 @@ static int hf_ptp_flags_ext_sync = -1;
 static int hf_ptp_flags_parent = -1;
 static int hf_ptp_flags_sync_burst = -1;
 
-/*offsets for ptp_sync and delay_req (=sdr) messages*/
-static int hf_ptp_origintimestamp = -1;	/*Field for seconds & nanoseconds*/
+/*Fields for ptp_sync and delay_req (=sdr) messages*/
+static int hf_ptp_sdr_origintimestamp = -1;	/*Field for seconds & nanoseconds*/
 static int hf_ptp_sdr_origintimestamp_seconds = -1;
 static int hf_ptp_sdr_origintimestamp_nanoseconds = -1;
 static int hf_ptp_sdr_epochnumber = -1;
@@ -500,13 +518,13 @@ static int hf_ptp_sdr_estimatedmastervariance = -1;
 static int hf_ptp_sdr_estimatedmasterdrift = -1;
 static int hf_ptp_sdr_utcreasonable = -1;
 
-/*offsets for follow_up (=fu) messages*/
+/*Fields for follow_up (=fu) messages*/
 static int hf_ptp_fu_associatedsequenceid = -1;
 static int hf_ptp_fu_preciseorigintimestamp = -1;
 static int hf_ptp_fu_preciseorigintimestamp_seconds = -1;
 static int hf_ptp_fu_preciseorigintimestamp_nanoseconds = -1;
 
-/*offsets for delay_resp (=dr) messages*/
+/*Fields for delay_resp (=dr) messages*/
 static int hf_ptp_dr_delayreceipttimestamp = -1;
 static int hf_ptp_dr_delayreceipttimestamp_seconds = -1;
 static int hf_ptp_dr_delayreceipttimestamp_nanoseconds = -1;
@@ -515,7 +533,7 @@ static int hf_ptp_dr_requestingsourceuuid = -1;
 static int hf_ptp_dr_requestingsourceportid = -1;
 static int hf_ptp_dr_requestingsourcesequenceid = -1;
 
-/*offsets for management (=mm) messages*/
+/*Fields for management (=mm) messages*/
 static int hf_ptp_mm_targetcommunicationtechnology = -1;
 static int hf_ptp_mm_targetuuid = -1;
 static int hf_ptp_mm_targetportid = -1;
@@ -651,12 +669,396 @@ static gint ett_ptp_flags = -1;
 static gint ett_ptp_time = -1;
 static gint ett_ptp_time2 = -1;
 
+/* END Definitions and fields for PTPv1 dissection. */
 
-/* Code to actually dissect the packets */
+
+
+
+
+/***********************************************************************************/
+/* Definitions and fields for PTPv2 dissection.                                    */
+/***********************************************************************************/
+
+
+/**********************************************************/
+/* Offsets of fields within a PTPv2 packet.				  */
+/**********************************************************/
+
+/*Common offsets for all Messages (Sync, Delay_Req, Follow_Up, Delay_Resp ....)*/
+#define	PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET                 0
+#define	PTP_V2_VERSIONPTP_OFFSET			                        1
+#define	PTP_V2_MESSAGE_LENGTH_OFFSET		                        2
+#define	PTP_V2_DOMAIN_NUMBER_OFFSET		               		        4
+#define	PTP_V2_FLAGS_OFFSET                                         6
+#define	PTP_V2_CORRECTION_OFFSET                                    8
+#define	PTP_V2_CORRECTIONNS_OFFSET                                  8
+#define	PTP_V2_CORRECTIONSUBNS_OFFSET                               14
+#define	PTP_V2_CLOCKIDENTITY_OFFSET									20 /*++*/
+#define	PTP_V2_SOURCEPORTID_OFFSET                                  28
+#define	PTP_V2_SEQUENCEID_OFFSET                                    30
+#define	PTP_V2_CONTROL_OFFSET                                       32
+#define	PTP_V2_LOGMESSAGEPERIOD_OFFSET                              33
+
+
+/*Offsets for PTP_Announce (=AN) messages*/
+#define	PTP_V2_AN_ORIGINTIMESTAMP_OFFSET                            34
+#define	PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET                     34
+#define	PTP_V2_AN_ORIGINTIMESTAMPNANOSECONDS_OFFSET                 40
+#define	PTP_V2_AN_ORIGINCURRENTUTCOFFSET_OFFSET                     44
+#define	PTP_V2_AN_TIMESOURCE_OFFSET                              	47
+#define	PTP_V2_AN_LOCALSTEPSREMOVED_OFFSET                          48
+#define	PTP_V2_AN_GRANDMASTERCLOCKIDENTITY_OFFSET                   50 /*++ bis ++*/
+#define	PTP_V2_AN_GRANDMASTERCLOCKCLASS_OFFSET                 		58
+#define	PTP_V2_AN_GRANDMASTERCLOCKACCURACY_OFFSET                 	59
+#define	PTP_V2_AN_GRANDMASTERCLOCKVARIANCE_OFFSET                 	60 /* ++ */
+#define	PTP_V2_AN_PRIORITY_1_OFFSET                                 62  
+#define	PTP_V2_AN_PRIORITY_2_OFFSET                                 63 
+
+/*Offsets for PTP_Sync AND PTP_DelayRequest (=SDR) messages*/
+#define	PTP_V2_SDR_ORIGINTIMESTAMP_OFFSET                           34
+#define	PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET                    34
+#define	PTP_V2_SDR_ORIGINTIMESTAMPNANOSECONDS_OFFSET                40
+
+
+/*Offsets for PTP_Follow_Up (=FU) messages*/
+#define	PTP_V2_FU_PRECISEORIGINTIMESTAMP_OFFSET                     34
+#define	PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET              34
+#define	PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET          40
+
+/*Offsets for PTP_DelayResponse (=DR) messages*/
+#define	PTP_V2_DR_RECEIVETIMESTAMP_OFFSET                           34
+#define	PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET                    34
+#define	PTP_V2_DR_RECEIVETIMESTAMPNANOSECONDS_OFFSET                40
+#define	PTP_V2_DR_REQUESTINGPORTIDENTITY_OFFSET                     44 /* ++ */
+#define	PTP_V2_DR_REQUESTINGSOURCEPORTID_OFFSET                     52
+
+
+/*Offsets for PTP_PDelayRequest (=PDRQ) messages*/
+#define	PTP_V2_PDRQ_ORIGINTIMESTAMP_OFFSET                          34
+#define	PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET                   34
+#define	PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET               40
+#define	PTP_V2_PDRQ_RESERVED_OFFSET                   				44
+
+
+/*Offsets for PTP_PDelayResponse (=PDRS) messages*/
+#define	PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMP_OFFSET                  34 
+#define	PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET           34 
+#define	PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPNANOSECONDS_OFFSET       40 
+#define	PTP_V2_PDRS_REQUESTINGPORTIDENTITY_OFFSET                   44 /* ++ */
+#define	PTP_V2_PDRS_REQUESTINGSOURCEPORTID_OFFSET                   52 /* ++ */
+
+
+/*Offsets for PTP_PDelayResponseFollowUp (=PDFU) messages*/
+#define	PTP_V2_PDFU_RESPONSEORIGINTIMESTAMP_OFFSET                  34
+#define	PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET           34
+#define	PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPNANOSECONDS_OFFSET       40
+#define	PTP_V2_PDFU_REQUESTINGPORTIDENTITY_OFFSET                   44 /* ++ */
+#define	PTP_V2_PDFU_REQUESTINGSOURCEPORTID_OFFSET                   52
+
+
+/*Offsets for PTP_Signalling (=SIG) messages*/
+#define	PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET                       	34
+#define	PTP_V2_SIG_TARGETPORTID_OFFSET                             	42
+
+
+/*Offsets for PTP_Management (=MM) messages*/
+#define	PTP_V2_MM_TARGETPORTIDENTITY_OFFSET                      	34 /* ++ */
+#define	PTP_V2_MM_TARGETPORTID_OFFSET                              	42
+#define	PTP_V2_MM_STARTINGBOUNDARYHOPS_OFFSET                      	44
+#define	PTP_V2_MM_BOUNDARYHOPS_OFFSET                              	45
+#define	PTP_V2_MM_ACTION_OFFSET                              		46 /* ++ */
+#define	PTP_V2_MM_RESERVED_OFFSET                              		47 /* ++ */
+
+
+#define PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK			0x10
+
+/**********************************************************/
+/* flag-field-mask-definitions 		 					  */
+/**********************************************************/
+#define	PTP_V2_FLAGS_LI61_BITMASK				    				0x0001
+#define	PTP_V2_FLAGS_LI59_BITMASK				    				0x0002
+#define	PTP_V2_FLAGS_UTC_OFFSET_VALID_BITMASK				    	0x0004
+#define	PTP_V2_FLAGS_PTP_TIMESCALE_BITMASK				    		0x0008
+#define	PTP_V2_FLAGS_TIME_TRACEABLE_BITMASK				    		0x0010
+#define	PTP_V2_FLAGS_FREQUENCY_TRACEABLE_BITMASK				    0x0020
+#define	PTP_V2_FLAGS_ALTERNATE_BITMASK				    			0x0100
+#define	PTP_V2_FLAGS_TWO_STEP_BITMASK				    			0x0200
+#define	PTP_V2_FLAGS_UNICAST_BITMASK				    			0x0400
+#define	PTP_V2_FLAGS_SPECIFIC1_BITMASK				    			0x2000
+#define	PTP_V2_FLAGS_SPECIFIC2_BITMASK				    			0x4000
+#define	PTP_V2_FLAGS_SECURITY_BITMASK				    			0x8000
+
+
+
+/**********************************************************/
+/* PTP v2 message ids	(ptp messageid field)	  	      */
+/**********************************************************/
+#define	PTP_V2_SYNC_MESSAGE                     0x00
+#define	PTP_V2_DELAY_REQ_MESSAGE                0x01
+#define	PTP_V2_PATH_DELAY_REQ_MESSAGE           0x02
+#define	PTP_V2_PATH_DELAY_RESP_MESSAGE          0x03
+#define	PTP_V2_FOLLOWUP_MESSAGE                 0x08
+#define	PTP_V2_DELAY_RESP_MESSAGE               0x09
+#define	PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE      0x0A
+#define	PTP_V2_ANNOUNCE_MESSAGE                 0x0B
+#define	PTP_V2_SIGNALLING_MESSAGE               0x0C
+#define	PTP_V2_MANAGEMENT_MESSAGE               0x0D
+
+
+static const value_string ptp_v2_messageid_vals[] = {
+    {PTP_V2_SYNC_MESSAGE,  "Sync Message"},
+    {PTP_V2_DELAY_REQ_MESSAGE,  "Delay_Req Message"},
+    {PTP_V2_PATH_DELAY_REQ_MESSAGE, "Path_Delay_Req Message"},
+    {PTP_V2_PATH_DELAY_RESP_MESSAGE, "Path_Delay_Resp Message"},
+    {PTP_V2_FOLLOWUP_MESSAGE,    "Follow_Up Message"},
+    {PTP_V2_DELAY_RESP_MESSAGE, "Delay_Resp Message"},
+    {PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE, "Path_Delay_Resp_Follow_Up Message"},
+    {PTP_V2_ANNOUNCE_MESSAGE, "Announce Message"},
+    {PTP_V2_SIGNALLING_MESSAGE, "Signalling Message"},
+    {PTP_V2_MANAGEMENT_MESSAGE,   "Management Message"},
+    {0,              NULL          } 
+};
+
+static const value_string ptp_v2_clockaccuracy_vals[] = {
+    {0x20,  "The time is accurate to within 25 ns"},
+	{0x21,  "The time is accurate to within 100 ns"},
+	{0x22,  "The time is accurate to within 250 ns"},
+	{0x23,  "The time is accurate to within 1 us"},
+	{0x24,  "The time is accurate to within 2,5 us"},
+	{0x25,  "The time is accurate to within 10 us"},
+	{0x26,  "The time is accurate to within 25 us"},
+	{0x27,  "The time is accurate to within 100 us"},
+	{0x28,  "The time is accurate to within 250 us"},
+	{0x29,  "The time is accurate to within 1 ms"},
+	{0x2A,  "The time is accurate to within 2,5 ms"},
+	{0x2B,  "The time is accurate to within 10 ms"},
+	{0x2C,  "The time is accurate to within 25 ms"},
+	{0x2D,  "The time is accurate to within 100 ms"},
+	{0x2E,  "The time is accurate to within 250 ms"},
+	{0x2F,  "The time is accurate to within 1 s"},
+	{0x30,  "The time is accurate to within 10 s"},
+	{0xFE,  "Accuracy Unknown"},
+	{0,              NULL          } 
+};
+
+static const value_string ptp_v2_timesource_vals[] = {
+    {0x10,  "ATOMIC_CLOCK"},
+	{0x20,  "GPS"},
+	{0x30,  "TERRESTRIAL_RADIO"},
+	{0x40,  "PTP"},
+	{0x50,  "NTP"},
+	{0x60,  "HAND_SET"},
+	{0x90,  "OTHER"},
+	{0xA0,  "INTERNAL_OSCILLATOR"},
+	{0xFF,  "reserved"},
+	{0,              NULL          } 
+};
+
+static const value_string ptp_v2_mm_action_vals[] = {
+    {0x0,  "GET"},
+	{0x1,  "SET"},
+	{0x2,  "RESPONSE"},
+	{0x3,  "COMMAND"},
+	{0x4,  "ACKNOWLEDGE"},
+	{0,              NULL          } 
+};
+
+/**********************************************************/
+/* Initialize the protocol and registered fields		  */
+/**********************************************************/
+
+static int hf_ptp_v2_transportspecific = -1;
+static int hf_ptp_v2_transportspecific_v1_compatibility = -1; /* over UDP */
+static int hf_ptp_v2_transportspecific_802as_conform = -1; /* over Ethernet */
+static int hf_ptp_v2_messageid = -1;
+static int hf_ptp_v2_versionptp = -1;
+static int hf_ptp_v2_messagelength = -1;
+static int hf_ptp_v2_domainnumber = -1;
+static int hf_ptp_v2_flags = -1;
+static int hf_ptp_v2_flags_alternatemaster = -1;
+static int hf_ptp_v2_flags_twostep = -1;
+static int hf_ptp_v2_flags_unicast = -1;
+static int hf_ptp_v2_flags_specific1 = -1;
+static int hf_ptp_v2_flags_specific2 = -1;
+static int hf_ptp_v2_flags_security = -1;
+static int hf_ptp_v2_flags_li61 = -1;
+static int hf_ptp_v2_flags_li59 = -1;
+static int hf_ptp_v2_flags_utcoffsetvalid = -1;
+static int hf_ptp_v2_flags_ptptimescale = -1;
+static int hf_ptp_v2_flags_timetraceable = -1;
+static int hf_ptp_v2_flags_frequencytraceable = -1;
+static int hf_ptp_v2_correction = -1;
+static int hf_ptp_v2_correctionns = -1;
+static int hf_ptp_v2_correctionsubns = -1;
+static int hf_ptp_v2_clockidentity = -1;
+static int hf_ptp_v2_sourceportid = -1;
+static int hf_ptp_v2_sequenceid = -1;
+static int hf_ptp_v2_control = -1;
+static int hf_ptp_v2_logmessageperiod = -1;
+
+
+/*Fields for PTP_Announce (=an) messages*/
+static int hf_ptp_v2_an_origintimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_an_origintimestamp_seconds = -1;
+static int hf_ptp_v2_an_origintimestamp_nanoseconds = -1;
+static int hf_ptp_v2_an_origincurrentutcoffset = -1;
+static int hf_ptp_v2_an_timesource = -1;
+static int hf_ptp_v2_an_localstepsremoved = -1;
+static int hf_ptp_v2_an_grandmasterclockidentity = -1;
+static int hf_ptp_v2_an_grandmasterclockclass = -1;
+static int hf_ptp_v2_an_grandmasterclockaccuracy = -1;
+static int hf_ptp_v2_an_grandmasterclockvariance = -1;
+static int hf_ptp_v2_an_priority1 = -1;
+static int hf_ptp_v2_an_priority2 = -1;
+
+
+/*Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages*/
+static int hf_ptp_v2_sdr_origintimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_sdr_origintimestamp_seconds = -1;
+static int hf_ptp_v2_sdr_origintimestamp_nanoseconds = -1;
+
+
+/*Fields for PTP_Follow_Up (=fu) messages*/
+static int hf_ptp_v2_fu_preciseorigintimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_fu_preciseorigintimestamp_seconds = -1;
+static int hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds = -1;
+
+
+/*Fields for PTP_DelayResponse (=dr) messages*/
+static int hf_ptp_v2_dr_receivetimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_dr_receivetimestamp_seconds = -1;
+static int hf_ptp_v2_dr_receivetimestamp_nanoseconds = -1;
+static int hf_ptp_v2_dr_requestingportidentity = -1;
+static int hf_ptp_v2_dr_requestingsourceportid = -1;
+
+
+/*Fields for PTP_PDelayRequest (=pdrq) messages*/
+static int hf_ptp_v2_pdrq_origintimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_pdrq_origintimestamp_seconds = -1;
+static int hf_ptp_v2_pdrq_origintimestamp_nanoseconds = -1;
+
+
+/*Fields for PTP_PDelayResponse (=pdrs) messages*/
+static int hf_ptp_v2_pdrs_requestreceipttimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_pdrs_requestreceipttimestamp_seconds = -1;
+static int hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds = -1;
+static int hf_ptp_v2_pdrs_requestingportidentity = -1;
+static int hf_ptp_v2_pdrs_requestingsourceportid = -1;
+
+
+/*Fields for PTP_PDelayResponseFollowUp (=pdfu) messages*/
+static int hf_ptp_v2_pdfu_responseorigintimestamp = -1;	/*Field for seconds & nanoseconds*/
+static int hf_ptp_v2_pdfu_responseorigintimestamp_seconds = -1;
+static int hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds = -1;
+static int hf_ptp_v2_pdfu_requestingportidentity = -1;
+static int hf_ptp_v2_pdfu_requestingsourceportid = -1;
+
+
+/*Fields for PTP_Signalling (=sig) messages*/
+static int hf_ptp_v2_sig_targetportidentity = -1;
+static int hf_ptp_v2_sig_targetportid = -1;
+
+
+/*Fields for PTP_Management (=mm) messages*/
+static int hf_ptp_v2_mm_targetportidentity = -1;
+static int hf_ptp_v2_mm_targetportid = -1;
+static int hf_ptp_v2_mm_startingboundaryhops = -1;
+static int hf_ptp_v2_mm_boundaryhops = -1;
+static int hf_ptp_v2_mm_action = -1;
+
+
+/* Initialize the subtree pointers */
+static gint ett_ptp_v2 = -1;
+static gint ett_ptp_v2_flags = -1;
+static gint ett_ptp_v2_correction = -1;
+static gint ett_ptp_v2_time = -1;
+static gint ett_ptp_v2_time2 = -1;
+/* static gint ett_ptp_v2_timesource = -1; 
+static gint ett_ptp_v2_priority = -1; */
+static gint ett_ptp_v2_transportspecific = -1;
+
+/* For tronsport specific field  Ethernet or UDP */
+static gboolean ptpv2_oE = FALSE;
+/* END Definitions and fields for PTPv2 dissection. */
+
+
+/* forward declaration of local functions for v1 and v2 */
+
+static void
+dissect_ptp_oE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static int
+is_ptp_v1(tvbuff_t *tvb);
+
+static void
+dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static gboolean
+is_ptp_v2(tvbuff_t *tvb);
+
+static void
+dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/**********************************************************/
+/* Implementation of the functions              		  */
+/**********************************************************/
+
+
+/* Code to dissect the packet */
+
+static void
+dissect_ptp_oE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	ptpv2_oE = TRUE;
+	/* PTP over Ethernet only available with PTPv2 */
+	dissect_ptp_v2(tvb, pinfo, tree);
+}
+
 static void
 dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8	ptp_control, ptp_mm_messagekey = 0;
+	ptpv2_oE = FALSE;
+	if(is_ptp_v1(tvb))
+        dissect_ptp_v1(tvb, pinfo, tree);
+    else if(is_ptp_v2(tvb))
+        dissect_ptp_v2(tvb, pinfo, tree);
+}
+
+
+/* Code to check if packet is PTPv1 */
+
+static gboolean
+is_ptp_v1(tvbuff_t *tvb)
+{
+    guint16 version_ptp;
+
+    version_ptp = tvb_get_ntohs(tvb, PTP_VERSIONPTP_OFFSET);
+
+    if( version_ptp == 1) return TRUE;
+    else return FALSE;
+}
+
+
+/* Code to check if packet is PTPv2 */
+
+static gboolean
+is_ptp_v2(tvbuff_t *tvb)
+{
+    guint8 version_ptp;
+
+    version_ptp = 0x0F & tvb_get_guint8(tvb, PTP_V2_VERSIONPTP_OFFSET);
+
+    if( version_ptp == 2) return TRUE;
+    else return FALSE;
+}
+
+
+/* Code to actually dissect the PTPv1 packets */
+
+static void
+dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8	ptp_control, ptp_mm_messagekey = 0;
 	nstime_t ts;	/*time structure with seconds and nanoseconds*/
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -665,7 +1067,7 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv1");
 
 
 /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
@@ -789,7 +1191,7 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ts.nsecs =  tvb_get_ntohl(tvb, PTP_SDR_ORIGINTIMESTAMP_NANOSECONDS_OFFSET);
 			if(tree){
 				time_ti = proto_tree_add_time(ptp_tree,
-			    	hf_ptp_origintimestamp, tvb, PTP_SDR_ORIGINTIMESTAMP_OFFSET, 8, &ts);
+			    	hf_ptp_sdr_origintimestamp, tvb, PTP_SDR_ORIGINTIMESTAMP_OFFSET, 8, &ts);
 
 				ptp_time_tree = proto_item_add_subtree(time_ti, ett_ptp_time);
 
@@ -1051,6 +1453,8 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 						ts.nsecs = tvb_get_ntohl(tvb,
 								PTP_MM_CURRENT_DATA_SET_OFFSETFROMMASTERNANOSECONDS_OFFSET);
+
+						if (ts.nsecs & 0x80000000) ts.nsecs = ts.nsecs & 0x7FFFFFFF;
 
 						if(tree){
 							time_ti = proto_tree_add_time(ptp_tree,
@@ -1319,13 +1723,351 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
+/* Code to actually dissect the PTPv2 packets */
+
+void
+dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 ptp_v2_messageid;
+	guint64 timeStamp;
+    double cor;
+    gint64 temp_cor;
+    guint16 temp_cor_sub;
+
+
+    /* Set up structures needed to add the protocol subtree and manage it */
+	proto_item *ti, *transportspecific_ti, *flags_ti, *correction_ti;
+	proto_tree *ptp_tree, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_correction_tree;
+
+    /* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
+
+
+    /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
+
+	ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
+
+    /* Create and set the string for "Info" column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
+	}
+
+
+   if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, FALSE);
+
+		ptp_tree = proto_item_add_subtree(ti, ett_ptp_v2);
+
+		transportspecific_ti = proto_tree_add_item(ptp_tree,
+			hf_ptp_v2_transportspecific, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+
+		ptp_transportspecific_tree = proto_item_add_subtree(transportspecific_ti, ett_ptp_v2_transportspecific);
+		
+		if (ptpv2_oE == TRUE)
+		{
+			proto_tree_add_item(ptp_transportspecific_tree,
+				hf_ptp_v2_transportspecific_802as_conform, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+		}
+		else
+		{
+			proto_tree_add_item(ptp_transportspecific_tree,
+				hf_ptp_v2_transportspecific_v1_compatibility, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+		}
+
+		proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_messageid, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_versionptp, tvb, PTP_V2_VERSIONPTP_OFFSET, 1, FALSE);
+
+        proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_messagelength, tvb, PTP_V2_MESSAGE_LENGTH_OFFSET, 2, FALSE);
+
+		proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_domainnumber, tvb, PTP_V2_DOMAIN_NUMBER_OFFSET, 1, FALSE);
+
+
+		flags_ti = proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_flags, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+
+		ptp_flags_tree = proto_item_add_subtree(flags_ti, ett_ptp_v2_flags);
+
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_security, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+		
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_specific2, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+			
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_specific1, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+			
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_unicast, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);	
+			
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_twostep, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);	
+			
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_alternatemaster, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_frequencytraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+		
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_timetraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_ptptimescale, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+			
+		proto_tree_add_item(ptp_flags_tree,
+			hf_ptp_v2_flags_utcoffsetvalid, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_li59, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);	
+			
+		proto_tree_add_item(ptp_flags_tree,
+		    hf_ptp_v2_flags_li61, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);			            
+
+        temp_cor = tvb_get_ntohl(tvb, PTP_V2_CORRECTIONNS_OFFSET);
+
+        temp_cor_sub = tvb_get_ntohs(tvb, PTP_V2_CORRECTIONSUBNS_OFFSET);
+		
+        temp_cor = temp_cor << 16;
+
+        if(temp_cor & 0x800000){
+            temp_cor = temp_cor | G_GINT64_CONSTANT(0xFFFFFFFFFF000000);
+            temp_cor = temp_cor | tvb_get_ntohs(tvb, PTP_V2_CORRECTIONNS_OFFSET+4);
+            
+            cor = ((1.0*temp_cor) + (temp_cor_sub/65536.0));
+        }
+        else
+        {
+            temp_cor = temp_cor | tvb_get_ntohs(tvb, PTP_V2_CORRECTIONNS_OFFSET+4);
+            cor = temp_cor + (temp_cor_sub/65536.0);
+        }
+
+
+		correction_ti = proto_tree_add_double_format(ptp_tree,
+            hf_ptp_v2_correction, tvb, PTP_V2_CORRECTION_OFFSET, 8, cor, "correction: %f nanoseconds", cor);
+
+		ptp_correction_tree = proto_item_add_subtree(correction_ti, ett_ptp_v2_correction);
+        
+        proto_tree_add_text(ptp_correction_tree, tvb, PTP_V2_CORRECTIONNS_OFFSET, 8,
+		"correctionNs: % "PRId64 " nanoseconds" , temp_cor);
+
+        proto_tree_add_double_format(ptp_correction_tree,
+		    hf_ptp_v2_correctionsubns, tvb, PTP_V2_CORRECTION_OFFSET, 8, (temp_cor_sub/65536.0), "correctionSubNs: %f nanoseconds", (temp_cor_sub/65536.0));	
+
+		proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_clockidentity, tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 8, FALSE);
+
+		proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_sourceportid, tvb, PTP_V2_SOURCEPORTID_OFFSET, 2, FALSE);
+
+		proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_sequenceid, tvb, PTP_V2_SEQUENCEID_OFFSET, 2, FALSE);
+
+		proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_control, tvb, PTP_V2_CONTROL_OFFSET, 1, FALSE);
+
+        proto_tree_add_item(ptp_tree,
+		    hf_ptp_v2_logmessageperiod, tvb, PTP_V2_LOGMESSAGEPERIOD_OFFSET, 1, FALSE);
+
+		switch(ptp_v2_messageid){
+			case PTP_V2_ANNOUNCE_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
+					"originTimestamp (seconds): % "PRId64, timeStamp);
+				
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_nanoseconds, tvb,
+							PTP_V2_AN_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+				
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origincurrentutcoffset, tvb,
+                    PTP_V2_AN_ORIGINCURRENTUTCOFFSET_OFFSET, 2, FALSE);
+                
+				proto_tree_add_item(ptp_tree,
+                    hf_ptp_v2_an_timesource, tvb, PTP_V2_AN_TIMESOURCE_OFFSET, 1, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_localstepsremoved, tvb,
+                        PTP_V2_AN_LOCALSTEPSREMOVED_OFFSET, 2, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_grandmasterclockidentity, tvb,
+                    PTP_V2_AN_GRANDMASTERCLOCKIDENTITY_OFFSET, 8, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_grandmasterclockclass, tvb,
+                    PTP_V2_AN_GRANDMASTERCLOCKCLASS_OFFSET, 1, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_grandmasterclockaccuracy, tvb,
+                    PTP_V2_AN_GRANDMASTERCLOCKACCURACY_OFFSET, 1, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_grandmasterclockvariance, tvb,
+                    PTP_V2_AN_GRANDMASTERCLOCKVARIANCE_OFFSET, 2, FALSE);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_an_priority1, tvb,
+					PTP_V2_AN_PRIORITY_1_OFFSET, 1, FALSE);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_an_priority2, tvb,
+					PTP_V2_AN_PRIORITY_2_OFFSET, 1, FALSE);
+        
+			    break;
+		    }
+			
+		    case PTP_V2_SYNC_MESSAGE:
+            case PTP_V2_DELAY_REQ_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
+					"originTimestamp (seconds): % "PRId64, timeStamp);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_nanoseconds, tvb,
+					PTP_V2_SDR_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+		
+			    break;
+		    }
+			
+			case PTP_V2_FOLLOWUP_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, 6,
+					"preciseOriginTimestamp (seconds): % "PRId64, timeStamp);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
+					PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+				
+			    break;
+		    }
+			
+			case PTP_V2_DELAY_RESP_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET, 6,
+					"receiveTimestamp (seconds): % "PRId64, timeStamp);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_receivetimestamp_nanoseconds, tvb,
+					PTP_V2_DR_RECEIVETIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+				
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_requestingportidentity, tvb,
+                    PTP_V2_DR_REQUESTINGPORTIDENTITY_OFFSET, 8, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_requestingsourceportid, tvb,
+                    PTP_V2_DR_REQUESTINGSOURCEPORTID_OFFSET, 2, FALSE);
+
+			    break;
+		    }
+			
+		    case PTP_V2_PATH_DELAY_REQ_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
+					"originTimestamp (seconds): % "PRId64, timeStamp);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_nanoseconds, tvb,
+					PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+				
+			    break;
+		    }
+					
+		    case PTP_V2_PATH_DELAY_RESP_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET, 6,
+					"requestreceiptTimestamp (seconds): % "PRId64, timeStamp);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds, tvb,
+					PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+				
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingportidentity, tvb,
+                    PTP_V2_PDRS_REQUESTINGPORTIDENTITY_OFFSET, 8, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingsourceportid, tvb,
+                    PTP_V2_PDRS_REQUESTINGSOURCEPORTID_OFFSET, 2, FALSE);
+
+			    break;
+		    }
+                     
+            case PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE:{
+                timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET);
+				timeStamp = timeStamp << 16;
+				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET+4);
+				
+				proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, 6,
+					"responseOriginTimestamp (seconds): % "PRId64, timeStamp);
+
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds, tvb,
+					PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+				
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_requestingportidentity, tvb,
+                    PTP_V2_PDFU_REQUESTINGPORTIDENTITY_OFFSET, 8, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_requestingsourceportid, tvb,
+                    PTP_V2_PDFU_REQUESTINGSOURCEPORTID_OFFSET, 2, FALSE);
+
+			    break;            
+            }
+            
+            case PTP_V2_SIGNALLING_MESSAGE:{
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportidentity, tvb,
+                    PTP_V2_SIG_TARGETPORTIDENTITY_OFFSET, 8, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportid, tvb,
+                    PTP_V2_SIG_TARGETPORTID_OFFSET, 2, FALSE);
+			    break;
+		    }
+			
+            case PTP_V2_MANAGEMENT_MESSAGE:{
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_targetportidentity, tvb,
+                    PTP_V2_MM_TARGETPORTIDENTITY_OFFSET, 8, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_targetportid, tvb,
+                    PTP_V2_MM_TARGETPORTID_OFFSET, 2, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_startingboundaryhops, tvb,
+                    PTP_V2_MM_STARTINGBOUNDARYHOPS_OFFSET, 1, FALSE);
+
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_boundaryhops, tvb,
+                    PTP_V2_MM_BOUNDARYHOPS_OFFSET, 1, FALSE);
+					
+				/* ToDo Enumeration4 auflï¿½sen in Subtree */	
+				proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_action, tvb,
+                    PTP_V2_MM_ACTION_OFFSET, 1, FALSE);
+			    break;
+		    }
+		    default:{
+
+			    break;
+		    }
+        } /* switch */
+
+   } /* tree */
+
+}
+
+
 /* Register the protocol with Wireshark */
 
 void
 proto_register_ptp(void)
 {
 	static hf_register_info hf[] = {
-		/*Common Fields for all frames*/
+        /* PTPv1 fields **********************************************************/
+		/*Common fields for all frames*/
 		{ &hf_ptp_versionptp,
 			{ "versionPTP",           "ptp.versionptp",
 			FT_UINT16, BASE_DEC, NULL, 0x00,
@@ -1415,7 +2157,7 @@ proto_register_ptp(void)
 		/*END OF THE FLAG-FIELD*/
 
 		/*offsets for ptp_sync and delay_req (=sdr) messages*/
-		{ &hf_ptp_origintimestamp,
+		{ &hf_ptp_sdr_origintimestamp,
 			{ "originTimestamp",           "ptp.sdr.origintimestamp",
 			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
 			"", HFILL }
@@ -2105,6 +2847,386 @@ proto_register_ptp(void)
 			FT_INT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }
 		},
+        
+		
+		
+		
+		/* PTPv2 fields **********************************************************/
+        /*Common fields for all frames*/
+        { &hf_ptp_v2_transportspecific,
+			{ "transportSpecific",           "ptp.v2.transportspecific",
+			FT_UINT8, BASE_HEX, NULL, 0xF0,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_transportspecific_v1_compatibility,
+			{ "V1 Compatibility",           "ptp.v2.transportspecific.v1compatibility",
+			FT_BOOLEAN, 8, NULL, PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_transportspecific_802as_conform,
+			{ "802.1as conform",           "ptp.v2.transportspecific.802.1asconform",
+			FT_BOOLEAN, 8, NULL, PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_messageid,
+			{ "messageId",           "ptp.v2.messageid",
+			FT_UINT8, BASE_HEX, VALS(ptp_v2_messageid_vals), 0x0F,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_versionptp,
+			{ "versionPTP",           "ptp.v2.versionptp",
+			FT_UINT8, BASE_DEC, NULL, 0x0F,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_messagelength,
+			{ "messageLength",           "ptp.v2.messagelength",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_domainnumber,
+			{ "subdomainNumber",           "ptp.v2.subdomainnumber",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_flags,
+			{ "flags",           "ptp.v2.flags",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_flags_alternatemaster,
+			{ "PTP_ALTERNATE_MASTER",     "ptp.v2.flags.alternatemaster",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_ALTERNATE_BITMASK,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_flags_twostep,
+			{ "PTP_TWO_STEP",           "ptp.v2.flags.twostep",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_TWO_STEP_BITMASK,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_flags_unicast,
+			{ "PTP_UNICAST",           "ptp.v2.flags.unicast",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_UNICAST_BITMASK,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_flags_specific1,
+			{ "PTP profile Specific 1",           "ptp.v2.flags.specific1",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SPECIFIC1_BITMASK,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_flags_specific2,
+			{ "PTP profile Specific 2",           "ptp.v2.flags.specific2",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SPECIFIC2_BITMASK,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_flags_security,
+			{ "PTP_SECURITY",           "ptp.v2.flags.security",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SECURITY_BITMASK,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_flags_li61,
+			{ "PTP_LI_61",           "ptp.v2.flags.li61",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_LI61_BITMASK,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_flags_li59,
+			{ "PTP_LI_59",           "ptp.v2.flags.li59",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_LI59_BITMASK,
+			"", HFILL }
+		},        
+        { &hf_ptp_v2_flags_utcoffsetvalid,
+			{ "PTP_UTC_REASONABLE",           "ptp.v2.flags.utcreasonable",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_UTC_OFFSET_VALID_BITMASK,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_flags_ptptimescale,
+			{ "PTP_TIMESCALE",           "ptp.v2.flags.timescale",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_PTP_TIMESCALE_BITMASK,
+			"", HFILL }
+		},  
+		{ &hf_ptp_v2_flags_timetraceable,
+			{ "TIME_TRACEABLE",           "ptp.v2.flags.timetraceable",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_TIME_TRACEABLE_BITMASK,
+			"", HFILL }
+		}, 
+		{ &hf_ptp_v2_flags_frequencytraceable,
+			{ "FREQUENCY_TRACEABLE",           "ptp.v2.flags.frequencytraceable",
+			FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_FREQUENCY_TRACEABLE_BITMASK,
+			"", HFILL }
+		},         
+        { &hf_ptp_v2_correction,
+			{ "correction",           "ptp.v2.correction",
+			FT_DOUBLE, BASE_NONE, NULL, 0x0,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_correctionns,
+			{ "correctionNs",           "ptp.v2.correction.ns",
+			FT_INT64, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_correctionsubns,
+			{ "correctionSubNs",           "ptp.v2.correction.subns",
+			FT_DOUBLE, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_clockidentity,
+			{ "ClockIdentity",           "ptp.v2.clockidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_sourceportid,
+			{ "SourcePortID",           "ptp.v2.sourceportid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_sequenceid,
+			{ "sequenceId",           "ptp.v2.sequenceid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_control,
+			{ "control",           "ptp.v2.control",
+			FT_UINT8, BASE_DEC, VALS(ptp_control_vals), 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_logmessageperiod,
+			{ "logMessagePeriod",           "ptp.v2.logmessageperiod",
+			FT_INT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_Announce (=an) messages*/
+        { &hf_ptp_v2_an_origintimestamp,
+			{ "originTimestamp",           "ptp.v2.an.origintimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_origintimestamp_seconds,
+			{ "originTimestamp (seconds)",           "ptp.v2.an.origintimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_origintimestamp_nanoseconds,
+			{ "originTimestamp (nanoseconds)",           "ptp.v2.an.origintimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_origincurrentutcoffset,
+			{ "originCurrentUTCOffset",           "ptp.v2.an.origincurrentutcoffset",
+			FT_INT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_timesource,
+			{ "TimeSource",           "ptp.v2.timesource",
+			FT_UINT8, BASE_HEX, VALS(ptp_v2_timesource_vals), 0x0, 
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_localstepsremoved,
+			{ "localStepsRemoved",           "ptp.v2.an.localstepsremoved",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_grandmasterclockidentity,
+			{ "grandmasterClockIdentity",           "ptp.v2.an.grandmasterclockidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_grandmasterclockclass,
+			{ "grandmasterClockClass",           "ptp.v2.an.grandmasterclockclass",
+			FT_UINT8, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_grandmasterclockaccuracy,
+			{ "grandmasterClockAccuracy",           "ptp.v2.an.grandmasterclockaccuracy",
+			FT_UINT8, BASE_HEX, VALS(ptp_v2_clockaccuracy_vals), 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_grandmasterclockvariance,
+			{ "grandmasterClockVariance",           "ptp.v2.an.grandmasterclockvariance",
+			FT_INT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_priority1,
+			{ "priority1",           "ptp.v2.an.priority1",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_an_priority2,
+			{ "priority2",           "ptp.v2.an.priority2",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages*/
+        { &hf_ptp_v2_sdr_origintimestamp,
+			{ "originTimestamp",           "ptp.v2.sdr.origintimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_sdr_origintimestamp_seconds,
+			{ "originTimestamp (seconds)",           "ptp.v2.sdr.origintimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_sdr_origintimestamp_nanoseconds,
+			{ "originTimestamp (nanoseconds)",           "ptp.v2.sdr.origintimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_Follow_Up (=fu) messages*/
+        { &hf_ptp_v2_fu_preciseorigintimestamp,
+			{ "preciseOriginTimestamp",           "ptp.v2.fu.preciseorigintimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_fu_preciseorigintimestamp_seconds,
+			{ "preciseOriginTimestamp (seconds)",           "ptp.v2.fu.preciseorigintimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds,
+			{ "preciseOriginTimestamp (nanoseconds)",           "ptp.v2.fu.preciseorigintimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_DelayResponse (=dr) messages*/
+        { &hf_ptp_v2_dr_receivetimestamp,
+			{ "receiveTimestamp",           "ptp.v2.dr.receivetimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_dr_receivetimestamp_seconds,
+			{ "receiveTimestamp (seconds)",           "ptp.v2.dr.receivetimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_dr_receivetimestamp_nanoseconds,
+			{ "receiveTimestamp (nanoseconds)",           "ptp.v2.dr.receivetimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_dr_requestingportidentity,
+			{ "requestingSourcePortIdentity",           "ptp.v2.dr.requestingsourceportidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_dr_requestingsourceportid,
+			{ "requestingSourcePortId",           "ptp.v2.dr.requestingsourceportid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_PDelayRequest (=pdrq) messages*/
+        { &hf_ptp_v2_pdrq_origintimestamp,
+			{ "originTimestamp",           "ptp.v2.pdrq.origintimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdrq_origintimestamp_seconds,
+			{ "originTimestamp (seconds)",           "ptp.v2.pdrq.origintimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdrq_origintimestamp_nanoseconds,
+			{ "originTimestamp (nanoseconds)",           "ptp.v2.pdrq.origintimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_PDelayResponse (=pdrs) messages*/
+        { &hf_ptp_v2_pdrs_requestreceipttimestamp,
+			{ "requestreceiptTimestamp",           "ptp.v2.pdrs.requestreceipttimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdrs_requestreceipttimestamp_seconds,
+			{ "requestreceiptTimestamp (seconds)",           "ptp.v2.pdrs.requestreceipttimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds,
+			{ "requestreceiptTimestamp (nanoseconds)",           "ptp.v2.pdrs.requestreceipttimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdrs_requestingportidentity,
+			{ "requestingSourcePortIdentity",           "ptp.v2.pdrs.requestingportidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdrs_requestingsourceportid,
+			{ "requestingSourcePortId",           "ptp.v2.pdrs.requestingsourceportid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_PDelayResponseFollowUp (=pdfu) messages*/
+        { &hf_ptp_v2_pdfu_responseorigintimestamp,
+			{ "responseOriginTimestamp",           "ptp.v2.pdfu.responseorigintimestamp",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdfu_responseorigintimestamp_seconds,
+			{ "responseOriginTimestamp (seconds)",           "ptp.v2.pdfu.responseorigintimestamp.seconds",
+			FT_UINT64, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds,
+			{ "responseOriginTimestamp (nanoseconds)",           "ptp.v2.pdfu.responseorigintimestamp.nanoseconds",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdfu_requestingportidentity,
+			{ "requestingSourcePortIdentity",           "ptp.v2.pdfu.requestingportidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_pdfu_requestingsourceportid,
+			{ "requestingSourcePortId",           "ptp.v2.pdfu.requestingsourceportid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_Signalling (=sig) messages*/
+        { &hf_ptp_v2_sig_targetportidentity,
+			{ "targetPortIdentity",           "ptp.v2.sig.targetportidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_sig_targetportid,
+			{ "targetPortId",           "ptp.v2.sig.targetportid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+
+        /*Fields for PTP_Management (=mm) messages*/
+        { &hf_ptp_v2_mm_targetportidentity,
+			{ "targetPortIdentity",           "ptp.v2.mm.targetportidentity",
+			FT_INT64, BASE_HEX, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_mm_targetportid,
+			{ "targetPortId",           "ptp.v2.mm.targetportid",
+			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_mm_startingboundaryhops,
+			{ "startingBoundaryHops",           "ptp.v2.mm.startingboundaryhops",
+			FT_UINT8, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+        { &hf_ptp_v2_mm_boundaryhops,
+			{ "boundaryHops",           "ptp.v2.mm.boundaryhops",
+			FT_UINT8, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+		{ &hf_ptp_v2_mm_action,
+			{ "action",           "ptp.v2.mm.action",
+			FT_UINT8, BASE_DEC, VALS(ptp_v2_mm_action_vals), 0x0F,
+			"", HFILL }
+		},
+
 	};
 
 /* Setup protocol subtree array */
@@ -2113,6 +3235,12 @@ proto_register_ptp(void)
 		&ett_ptp_flags,
 		&ett_ptp_time,
 		&ett_ptp_time2,
+        &ett_ptp_v2,
+		&ett_ptp_v2_transportspecific,
+        &ett_ptp_v2_flags,
+        &ett_ptp_v2_correction,
+        &ett_ptp_v2_time,
+        &ett_ptp_v2_time2,        
 	};
 
 /* Register the protocol name and description */
@@ -2129,13 +3257,15 @@ proto_reg_handoff_ptp(void)
 {
 	dissector_handle_t event_port_ptp_handle;
     dissector_handle_t general_port_ptp_handle;
+	dissector_handle_t ethertype_ptp_handle;
 
-	event_port_ptp_handle = create_dissector_handle(dissect_ptp,
-	    proto_ptp);
-	general_port_ptp_handle = create_dissector_handle(dissect_ptp,
-	    proto_ptp);
+	event_port_ptp_handle = create_dissector_handle(dissect_ptp, proto_ptp);
+	general_port_ptp_handle = create_dissector_handle(dissect_ptp, proto_ptp);
+	ethertype_ptp_handle = create_dissector_handle(dissect_ptp_oE, proto_ptp);
 
 	dissector_add("udp.port", EVENT_PORT_PTP, event_port_ptp_handle);
 	dissector_add("udp.port", GENERAL_PORT_PTP, general_port_ptp_handle);
+	dissector_add("ethertype", ETHERTYPE_PTP, ethertype_ptp_handle);
 }
+
 
