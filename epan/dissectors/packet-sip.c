@@ -703,6 +703,19 @@ static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
 	return (counter);
 }
 
+static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
+	gint counter = offset;
+	gint end;
+	guint8 tempchar;
+	end = 0;
+
+	for(counter = offset; counter > end &&
+		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
+	counter++;
+	return (counter);
+}
+
 /* Structure to collect info about a sip uri */
 typedef struct _uri_offset_info
 {
@@ -2130,13 +2143,20 @@ separator_found2:
 						}
 						content_type_len = value_len;
 						semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
+						/* Content-Type     =  ( "Content-Type" / "c" ) HCOLON media-type
+						 * media-type       =  m-type SLASH m-subtype *(SEMI m-parameter)
+						 * SEMI    =  SWS ";" SWS ; semicolon 
+						 * LWS  =  [*WSP CRLF] 1*WSP ; linear whitespace
+						 * SWS  =  [LWS] ; sep whitespace
+						 */
 						if ( semi_colon_offset != -1) {
+							gint content_type_end;
 							/*
 							 * Skip whitespace after the semicolon.
 							 */
 							parameter_offset = tvb_skip_wsp(tvb, semi_colon_offset +1, value_offset + value_len - (semi_colon_offset +1));
-
-							content_type_len = semi_colon_offset - value_offset;
+							content_type_end = tvb_skip_wsp_return(tvb, semi_colon_offset-1);
+							content_type_len = content_type_end - value_offset;
 							content_type_parameter_str_len = value_offset + value_len - parameter_offset;
 							content_type_parameter_str = tvb_get_ephemeral_string(tvb, parameter_offset,
 							                             content_type_parameter_str_len);
@@ -2148,6 +2168,9 @@ separator_found2:
 #else
 						media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
 #endif
+						/* Debug code
+						proto_tree_add_text(hdr_tree, tvb, value_offset,content_type_len,"media_type_str=%s",media_type_str);
+						*/
 					break;
 
 					case POS_CONTENT_LENGTH :
