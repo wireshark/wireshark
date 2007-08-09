@@ -117,7 +117,7 @@ extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE 
 #define ETH_DIRENT			struct dirent
 #define eth_dir_open(name,flags,error)	opendir(name)
 #define eth_dir_read_name		readdir
-#define eth_dir_get_name(dirent)	(gchar *)dirent->d_name
+#define eth_dir_get_name(dirent)	(gchar *)(dirent)->d_name
 #define eth_dir_rewind			rewinddir
 #define eth_dir_close			closedir
 #endif /* GLIB_MAJOR_VERSION */
