@@ -324,6 +324,10 @@ AC_ARG_WITH(pcap,
 ])
 AC_WIRETAP_PCAP_CHECK
 
+# C libraries that are not libc (like ulibc) require -lm.
+AC_CHECK_LIBM
+AC_SUBST(LIBM)
+
 dnl zlib check
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 
