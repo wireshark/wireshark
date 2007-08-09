@@ -56,6 +56,8 @@
 #endif
 
 #ifdef HAVE_LIBPORTAUDIO
+/* TODO: The RTP Player it is only supported for GTK >=2 */
+#if GTK_MAJOR_VERSION >= 2
 
 #include <epan/stats_tree.h>
 #include <epan/addr_resolv.h>
@@ -160,9 +162,6 @@ PortAudioStream *pa_stream;
 #else /* PORTAUDIO_API_1 */
 PaStream *pa_stream;
 #endif /* PORTAUDIO_API_1 */
-
-/* TODO: The RTP Player it is only supported for GTK >=2 */
-#if GTK_MAJOR_VERSION >= 2
 
 /* defines a RTP stream */
 typedef struct _rtp_stream_info {
