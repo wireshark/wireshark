@@ -427,31 +427,30 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
 
     if(offset != -1) {
       if(tvb_get_guint8(tvb, ++offset) == '\n') {
-
-	/* OK - so we have found CRLF */
-	/* peek the next character */
-
-	switch(tvb_get_guint8(tvb, ++offset)) {
-	case '\r':
-	  /* probably end of the fields */
-	  if(last_field)
-	    *last_field = TRUE;
-	  return offset;
-	  break;
-	case  ' ':
-	case '\t':
-	  /* continuation line */
-	  break;
-	default:
-	  /* this is a new field */
-	  return offset;
-	  break;
-	}
-      }
-    } else {
-
-      /* couldn't find a CR - strange */
-      return offset;
+		  /* OK - so we have found CRLF */
+		  /* peek the next character */
+		  switch(tvb_get_guint8(tvb, ++offset)) {
+		  case '\r':
+			  /* probably end of the fields */
+			  if(tvb_get_guint8(tvb, ++offset) == '\n')
+				  offset++;
+			  if(last_field)
+				  *last_field = TRUE;
+			  return offset;
+			  break;
+		  case  ' ':
+		  case '\t':
+			  /* continuation line */
+			  break;
+		  default:
+			  /* this is a new field */
+			  return offset;
+			  break;
+		  }
+	  }
+	}else {
+		/* couldn't find a CR - strange */
+		return offset;
     }
 
   }

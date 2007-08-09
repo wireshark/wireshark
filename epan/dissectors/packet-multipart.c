@@ -29,7 +29,7 @@
  *
  * References for "media-type multipart/mixed :
  * http://www.iana.org/assignments/media-types/index.html
- * http://www.rfc-editor.org/rfc/rfc2045.txt
+ * http://www.ietf.org/rfc/rfc2045.txt?number=2045
  * http://www.rfc-editor.org/rfc/rfc2046.txt
  * http://www.rfc-editor.org/rfc/rfc2047.txt
  * http://www.rfc-editor.org/rfc/rfc2048.txt
@@ -622,8 +622,10 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 		char *hdr_str;
 		char *header_str;
 
-		/* Look for the end of the header (denoted by cr) */
-		next_offset = imf_find_field_end(tvb, offset, tvb_length_remaining(tvb, offset), &last_field);
+		/* Look for the end of the header (denoted by cr) 
+		 * 3:d argument to imf_find_field_end() maxlen; must be last offset in the tvb.
+		 */
+		next_offset = imf_find_field_end(tvb, offset, tvb_length_remaining(tvb, offset)+offset, &last_field);
 		/* If cr not found, won't have advanced - get out to avoid infinite loop! */
 		if (next_offset == offset) {
 			break;
