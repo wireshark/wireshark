@@ -182,10 +182,8 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbparse_elem_t* tok = NULL;
 	static GPtrArray* stack = NULL;
 	xml_frame_t* current_frame;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/XML");
-
+	char* colinfo_str;
+	
 	if(!tree) return;
 
 	if (stack != NULL)
@@ -205,7 +203,14 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (! root_ns ) {
 		root_ns = &xml_ns;
+		colinfo_str = "/XML";
+	} else {
+		colinfo_str = ep_strdup_printf("/%s",root_ns->name);
+		g_strup(colinfo_str);
 	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, colinfo_str);
 
 	current_frame->ns = root_ns;
 
