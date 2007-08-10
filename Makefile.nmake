@@ -585,9 +585,9 @@ setup: verify_tools clean_setup
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.10/glib-2.12.12.zip
+		glib gtk2.10/glib-2.12.13.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.10/glib-dev-2.12.12.zip
+		glib gtk2.10/glib-dev-2.12.13.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.8/glib-2.12.12.zip
@@ -670,13 +670,13 @@ setup: verify_tools clean_setup
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/gtk+-2.10.12.zip
+		gtk2 gtk2.10/gtk+-2.10.14.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/gtk+-dev-2.10.12.zip
+		gtk2 gtk2.10/gtk+-dev-2.10.14.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/cairo-1.4.2.zip
+		gtk2 gtk2.10/cairo-1.4.8.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/cairo-dev-1.4.2.zip
+		gtk2 gtk2.10/cairo-dev-1.4.8.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/atk-1.18.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
