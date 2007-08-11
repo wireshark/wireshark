@@ -112,9 +112,10 @@ GString* quoted_string = NULL;
 "lt"			return simple(TOKEN_TEST_LT);
 "<="			return simple(TOKEN_TEST_LE);
 "le"			return simple(TOKEN_TEST_LE);
-"bitwise_and"		return simple(TOKEN_TEST_BITWISE_AND);
-"&"			return simple(TOKEN_TEST_BITWISE_AND);
+"bitwise_and"	return simple(TOKEN_TEST_BITWISE_AND);
+"&"				return simple(TOKEN_TEST_BITWISE_AND);
 "contains"		return simple(TOKEN_TEST_CONTAINS);
+"~"				return simple(TOKEN_TEST_MATCHES);
 "matches"		return simple(TOKEN_TEST_MATCHES);
 "!"				return simple(TOKEN_TEST_NOT);
 "not"			return simple(TOKEN_TEST_NOT);
@@ -122,7 +123,6 @@ GString* quoted_string = NULL;
 "and"			return simple(TOKEN_TEST_AND);
 "||"			return simple(TOKEN_TEST_OR);
 "or"			return simple(TOKEN_TEST_OR);
-
 
 
 "["					{
@@ -176,7 +176,7 @@ GString* quoted_string = NULL;
 	return SCAN_FAILED;
 }
 
-\"					{
+\042				{
 	/* start quote */
 	/* The example of how to scan for strings was taken from
 	the flex 2.5.4 manual, from the section "Start Conditions".
@@ -208,7 +208,7 @@ GString* quoted_string = NULL;
 	return SCAN_FAILED;
 }
 
-<DQUOTE>\"				{
+<DQUOTE>\042			{
 	/* end quote */
 	int token;
 	BEGIN(INITIAL);
@@ -244,7 +244,7 @@ GString* quoted_string = NULL;
 	g_string_append_c(quoted_string, yytext[1]);
 }
 
-<DQUOTE>[^\\\"]+			{
+<DQUOTE>[^\\\042]+			{
 	/* non-escaped string */
 	g_string_append(quoted_string, yytext);
 }
