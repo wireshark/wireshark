@@ -57,13 +57,13 @@
 
 #ifdef HAVE_LIBPORTAUDIO
 /* TODO: The RTP Player it is only supported for GTK >=2 */
+#include <gtk/gtk.h>
 #if GTK_MAJOR_VERSION >= 2
 
 #include <epan/stats_tree.h>
 #include <epan/addr_resolv.h>
 #include <string.h>
 #include <glib.h>
-#include <gtk/gtk.h>
 #include "globals.h"
 #include "portaudio.h"
 #include "simple_dialog.h"
