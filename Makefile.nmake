@@ -864,6 +864,7 @@ install-common-files:
 	if exist editcap.pdb xcopy editcap.pdb $(INSTALL_DIR) /d	
 	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
+	xcopy ".\services" $(INSTALL_DIR) /d
 	xcopy ".\FAQ" $(INSTALL_DIR) /d
 	xcopy ".\README" $(INSTALL_DIR) /d
 	xcopy ".\README.win32" $(INSTALL_DIR) /d

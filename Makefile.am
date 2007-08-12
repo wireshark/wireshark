@@ -675,6 +675,7 @@ EXTRA_DIST = \
 	packaging/u3/win32/makefile.nmake	\
 	packaging/u3/win32/manifest.tmpl	\
 	packaging/u3/win32/u3util.c		\
+	services			\
 	tools/idl2wrs.sh.in			\
 	wka.tmpl
 

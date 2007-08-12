@@ -119,6 +119,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\help\display_filters.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\faq.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\manuf $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\service $(DEVICE) $(COPY_FLAGS)
 !IFDEF HHC_DIR
 	$(COPY) $(TOPDIR)\packaging\nsis\user-guide.chm $(DEVICE) $(COPY_FLAGS)
 !ENDIF
