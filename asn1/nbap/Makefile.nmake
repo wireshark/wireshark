@@ -7,15 +7,16 @@ include ../../config.nmake
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=nbap
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
+NBAP_ASN=NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn 
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py nbap.asn packet-nbap-template.c packet-nbap-template.h nbap.cnf
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(NBAP_ASN) packet-nbap-template.c nbap.cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -e -F -p $(PROTOCOL_NAME) -c nbap.cnf -s packet-nbap-template nbap.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -p $(PROTOCOL_NAME) -c nbap.cnf -s packet-nbap-template $(NBAP_ASN)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
@@ -35,12 +36,9 @@ maintainer-clean: distclean
 
 fix_eol: generate_dissector
 	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
-	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
-	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
+	del /f packet-$(PROTOCOL_NAME).c.tmp
 
 copy_files: generate_dissector fix_eol
 	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
-	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
 

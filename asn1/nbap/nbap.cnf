@@ -3,88 +3,963 @@
 # Copyright 2005 Anders Broman 
 # $Id$
 
+#.OPT
+PER
+ALIGNED
+#.END
+
 #.PDU
 NBAP-PDU
 
-#.NO_EMIT
+#.MAKE_DEFINES
+ProcedureCode
 
+#.MAKE_ENUM
+ProtocolIE-ID
+ProcedureID/ddMode
 
 #.TYPE_RENAME
+ProcedureID/ddMode DdMode
+
+ProtocolIE-Field/value     ProtocolIE_Field_value
+PrivateIE-Field/value      PrivateIE_Field_value
+InitiatingMessage/value    InitiatingMessage_value
+SuccessfulOutcome/value    SuccessfulOutcome_value
+UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
+Outcome/value              Outcome_value
+
+MidambleShiftAndBurstType/type1     Type1
+MidambleShiftAndBurstType768/type1  Type7681
+MidambleShiftAndBurstType/type2     Type2
+MidambleShiftAndBurstType768/type2  Type7682
+MidambleShiftAndBurstType/type3     Type3
+MidambleShiftAndBurstType768/type3  Type7683
+
+MidambleShiftAndBurstType/type1/midambleAllocationMode     MidambleAllocationMode1
+MidambleShiftAndBurstType/type2/midambleAllocationMode     MidambleAllocationMode2
+MidambleShiftAndBurstType/type3/midambleAllocationMode     MidambleAllocationMode3
+MidambleShiftAndBurstType768/type1/midambleAllocationMode  MidambleAllocationMode7681
+MidambleShiftAndBurstType768/type2/midambleAllocationMode  MidambleAllocationMode7682
+MidambleShiftAndBurstType768/type3/midambleAllocationMode  MidambleAllocationMode7683
+
 
 #.FIELD_RENAME
+DL-HS-PDSCH-Timeslot-InformationItem-LCR-PSCH-ReconfRqst/timeSlot timeSlotLCR
+E-PUCH-Timeslot-Item-InfoLCR/timeSlot timeSlotLCR
+
 CellSyncBurstTiming/initialPhase initialPhase_0_1048575
 
 
-#.FN_PARS  ProcedureCode
+#.OMIT_ASSIGNMENT
+Presence
+ProtocolIE-FieldPair
+ProtocolIE-ContainerList
+ProtocolIE-ContainerPair
+ProtocolIE-ContainerPairList
+#.END
 
-VAL_PTR = &ProcedureCode
+#.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nbap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
                               "unknown message"));
-#.FN_PARS ProtocolIE-ID
- 
-VAL_PTR = &ProtocolIE_ID
+#.END
+#.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
 
-#.FN_PARS ProcedureID/ddMode
- 
-VAL_PTR = &ddMode
+#.FN_HDR ProcedureID
+  ProcedureCode = 0xFFFF;
+  ddMode = 0xFFFF;
+  ProcedureID = NULL;
+#.END
 
-#.FN_BODY Extension
-	/* FIX ME */
-	guint length;
+#.FN_FTR ProcedureID
+  ProcedureID = ep_strdup_printf("%s/%s", 
+                                 val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
+                                 val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));      
+#.END
 
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_nbap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
-#.FN_BODY InitiatingMessageValue
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
 
-	offset = dissect_nbap_InitiatingMessageValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY SuccessfulOutcomeValue
-
-	offset = dissect_nbap_SuccessfulOutcomeValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY OutcomeValue
-	/* FIX ME */
-	guint length;
-
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_nbap_pdu_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
-
-#.FN_BODY UnsuccessfulOutcomeValue
-
-	offset = dissect_nbap_UnsuccessfulOutcomeValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY ProtocolIEValue
-
-	offset = dissect_nbap_ProtocolIEValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY FirstValue
-	/* FIX ME */
-	guint length;
-
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_nbap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
-
-#.FN_BODY SecondValue
-	/* FIX ME */
-	guint length;
-
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_nbap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
 
-#.FN_BODY PrivateIEvalue
-	/* FIX ME */
-	guint length;
+#.REGISTER_NEW
 
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_nbap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
+#NBAP-PROTOCOL-IES
+TUTRANGPSMeasurementValueInformation N nbap.ies id-TUTRANGPSMeasurementValueInformation
+SFNSFNMeasurementValueInformation  N nbap.ies id-SFNSFNMeasurementValueInformation
+TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue N nbap.ies id-TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission
+HS-DSCHRequiredPower               N nbap.ies id-HS-DSCHRequiredPowerValueInformation
+HS-DSCHProvidedBitRate             N nbap.ies id-HS-DSCHProvidedBitRateValueInformation
+Transmitted-Carrier-Power-For-CellPortion-Value N nbap.ies id-Transmitted-Carrier-Power-For-CellPortion-Value
+Received-total-wide-band-power-For-CellPortion-Value N nbap.ies id-Received-total-wide-band-power-For-CellPortion-Value
+TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCH-E-RGCHOrE-HICHTransmissionCellPortionValue N nbap.ies id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCH-E-RGCHOrE-HICHTransmissionCellPortionValue
+UpPTSInterferenceValue             N nbap.ies id-UpPTSInterferenceValue
+DLTransmissionBranchLoadValue      N nbap.ies id-DLTransmissionBranchLoadValue
+HS-DSCHRequiredPowerValueInformation-For-CellPortion N nbap.ies id-HS-DSCHRequiredPowerValueInformation-For-CellPortion
+HS-DSCHProvidedBitRateValueInformation-For-CellPortion N nbap.ies id-HS-DSCHProvidedBitRateValueInformation-For-CellPortion
+E-DCHProvidedBitRate               N nbap.ies id-E-DCHProvidedBitRateValueInformation
+E-DCH-Non-serving-Relative-Grant-Down-Commands N nbap.ies id-E-DCH-Non-serving-Relative-Grant-Down-CommandsValue
+Received-Scheduled-EDCH-Power-Share-Value N nbap.ies id-Received-Scheduled-EDCH-Power-Share-Value
+Received-Scheduled-EDCH-Power-Share-For-CellPortion-Value N nbap.ies id-Received-Scheduled-EDCH-Power-Share-For-CellPortion-Value
+TUTRANGANSSMeasurementValueInformation N nbap.ies id-TUTRANGANSSMeasurementValueInformation
+Rx-Timing-Deviation-Value-LCR      N nbap.ies id-Rx-Timing-Deviation-Value-LCR
+Angle-Of-Arrival-Value-LCR         N nbap.ies id-Angle-Of-Arrival-Value-LCR
+HS-SICH-Reception-Quality-Value    N nbap.ies id-HS-SICH-Reception-Quality
+Best-Cell-Portions-Value           N nbap.ies id-Best-Cell-Portions-Value
+Rx-Timing-Deviation-Value-768      N nbap.ies id-Rx-Timing-Deviation-Value-768
+Rx-Timing-Deviation-Value-384-ext  N nbap.ies id-Rx-Timing-Deviation-Value-384-ext
+Extended-Round-Trip-Time-Value     N nbap.ies id-Extended-Round-Trip-Time-Value
+NeighbouringTDDCellMeasurementInformationLCR N nbap.ies id-neighbouringTDDCellMeasurementInformationLCR
+NeighbouringTDDCellMeasurementInformation768 N nbap.ies id-neighbouringTDDCellMeasurementInformation768
+ReportCharacteristicsType-OnModification N nbap.ies id-ReportCharacteristicsType-OnModification
+Transmitted-Carrier-Power-Value    N nbap.ies id-Transmitted-Carrier-Power-For-CellPortion
+Received-total-wide-band-power-Value-IncrDecrThres N nbap.ies id-Received-total-wide-band-power-For-CellPortion
+TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue N nbap.ies id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCH-E-RGCHOrE-HICHTransmissionCellPortion
+RSEPS-Value-IncrDecrThres          N nbap.ies id-Received-Scheduled-EDCH-Power-Share
+TUTRANGPSMeasurementThresholdInformation N nbap.ies id-TUTRANGPSMeasurementThresholdInformation
+SFNSFNMeasurementThresholdInformation N nbap.ies id-SFNSFNMeasurementThresholdInformation
+HS-SICH-Reception-Quality-Measurement-Value N nbap.ies id-HS-SICH-Reception-Quality-Measurement-Value
+HS-DSCHRequiredPowerValue          N nbap.ies id-HS-DSCHRequiredPowerValue
+HS-DSCHRequiredPowerValue          N nbap.ies id-HS-DSCHRequiredPowerValue-For-Cell-Portion
+RSEPS-Value-IncrDecrThres          N nbap.ies id-Received-Scheduled-EDCH-Power-Share-For-CellPortion
+HS-SICH-Reception-Quality-Measurement-Value N nbap.ies id-Additional-HS-SICH-Reception-Quality-Measurement-Value
+TUTRANGANSSMeasurementThresholdInformation N nbap.ies id-TUTRANGANSSMeasurementThresholdInformation
+C-ID                               N nbap.ies id-C-ID
+ConfigurationGenerationID          N nbap.ies id-ConfigurationGenerationID
+CommonPhysicalChannelType-CTCH-SetupRqstFDD N nbap.ies id-CommonPhysicalChannelType-CTCH-SetupRqstFDD
+FACH-ParametersListIE-CTCH-SetupRqstFDD N nbap.ies id-FACH-ParametersListIE-CTCH-SetupRqstFDD
+PCH-ParametersItem-CTCH-SetupRqstFDD N nbap.ies id-PCH-ParametersItem-CTCH-SetupRqstFDD
+RACH-ParametersItem-CTCH-SetupRqstFDD N nbap.ies id-RACH-ParametersItem-CTCH-SetupRqstFDD
+CommonPhysicalChannelType-CTCH-SetupRqstTDD N nbap.ies id-CommonPhysicalChannelType-CTCH-SetupRqstTDD
+Secondary-CCPCH-parameterListIE-CTCH-SetupRqstTDD N nbap.ies id-Secondary-CCPCH-parameterListIE-CTCH-SetupRqstTDD
+Secondary-CCPCH-LCR-parameterList-CTCH-SetupRqstTDD N nbap.ies id-Secondary-CCPCH-LCR-parameterList-CTCH-SetupRqstTDD
+FACH-ParametersListIE-CTCH-SetupRqstTDD N nbap.ies id-FACH-ParametersListIE-CTCH-SetupRqstTDD
+PCH-ParametersItem-CTCH-SetupRqstTDD N nbap.ies id-PCH-ParametersItem-CTCH-SetupRqstTDD
+PICH-ParametersItem-CTCH-SetupRqstTDD N nbap.ies id-PICH-ParametersItem-CTCH-SetupRqstTDD
+PICH-LCR-Parameters-CTCH-SetupRqstTDD N nbap.ies id-PICH-LCR-Parameters-CTCH-SetupRqstTDD
+PRACH-ParametersItem-CTCH-SetupRqstTDD N nbap.ies id-PRACH-ParametersItem-CTCH-SetupRqstTDD
+PRACH-LCR-ParametersList-CTCH-SetupRqstTDD N nbap.ies id-PRACH-LCR-ParametersList-CTCH-SetupRqstTDD
+RACH-ParameterItem-CTCH-SetupRqstTDD N nbap.ies id-RACH-ParameterItem-CTCH-SetupRqstTDD
+FACH-CommonTransportChannel-InformationResponse N nbap.ies id-FACH-ParametersList-CTCH-SetupRsp
+CommonTransportChannel-InformationResponse N nbap.ies id-PCH-Parameters-CTCH-SetupRsp
+CommonTransportChannel-InformationResponse N nbap.ies id-RACH-Parameters-CTCH-SetupRsp
+CriticalityDiagnostics             N nbap.ies id-CriticalityDiagnostics
+Cause                              N nbap.ies id-Cause
+CommonPhysicalChannelType-CTCH-ReconfRqstFDD N nbap.ies id-CommonPhysicalChannelType-CTCH-ReconfRqstFDD
+FACH-ParametersListIE-CTCH-ReconfRqstFDD N nbap.ies id-FACH-ParametersListIE-CTCH-ReconfRqstFDD
+PCH-ParametersItem-CTCH-ReconfRqstFDD N nbap.ies id-PCH-ParametersItem-CTCH-ReconfRqstFDD
+PICH-ParametersItem-CTCH-ReconfRqstFDD N nbap.ies id-PICH-ParametersItem-CTCH-ReconfRqstFDD
+PRACH-ParametersListIE-CTCH-ReconfRqstFDD N nbap.ies id-PRACH-ParametersListIE-CTCH-ReconfRqstFDD
+AICH-ParametersListIE-CTCH-ReconfRqstFDD N nbap.ies id-AICH-ParametersListIE-CTCH-ReconfRqstFDD
+Secondary-CCPCH-Parameters-CTCH-ReconfRqstTDD N nbap.ies id-Secondary-CCPCH-Parameters-CTCH-ReconfRqstTDD
+PICH-Parameters-CTCH-ReconfRqstTDD N nbap.ies id-PICH-Parameters-CTCH-ReconfRqstTDD
+FACH-ParametersList-CTCH-ReconfRqstTDD N nbap.ies id-FACH-ParametersList-CTCH-ReconfRqstTDD
+PCH-Parameters-CTCH-ReconfRqstTDD  N nbap.ies id-PCH-Parameters-CTCH-ReconfRqstTDD
+Secondary-CCPCHListIE-CTCH-ReconfRqstTDD N nbap.ies id-Secondary-CCPCHListIE-CTCH-ReconfRqstTDD
+CommonPhysicalChannelID            N nbap.ies id-CommonPhysicalChannelID
+BlockingPriorityIndicator          N nbap.ies id-BlockingPriorityIndicator
+ShutdownTimer                      N nbap.ies id-ShutdownTimer
+Start-Of-Audit-Sequence-Indicator  N nbap.ies id-Start-Of-Audit-Sequence-Indicator
+End-Of-Audit-Sequence-Indicator    N nbap.ies id-End-Of-Audit-Sequence-Indicator
+Cell-InformationList-AuditRsp      N nbap.ies id-Cell-InformationList-AuditRsp
+CCP-InformationList-AuditRsp       N nbap.ies id-CCP-InformationList-AuditRsp
+Local-Cell-InformationList-AuditRsp N nbap.ies id-Local-Cell-InformationList-AuditRsp
+Local-Cell-Group-InformationList-AuditRsp N nbap.ies id-Local-Cell-Group-InformationList-AuditRsp
+Cell-InformationItem-AuditRsp      N nbap.ies id-Cell-InformationItem-AuditRsp
+Common-PhysicalChannel-Status-Information N nbap.ies id-P-SCH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-S-SCH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-P-CPICH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-S-CPICH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-P-CCPCH-Information
+Common-TransportChannel-Status-Information N nbap.ies id-BCH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-S-CCPCH-Information
+Common-TransportChannel-Status-Information N nbap.ies id-PCH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-PICH-Information
+Common-TransportChannel-Status-Information N nbap.ies id-FACH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-PRACH-Information
+Common-TransportChannel-Status-Information N nbap.ies id-RACH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-AICH-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-SCH-Information
+CCP-InformationItem-AuditRsp       N nbap.ies id-CCP-InformationItem-AuditRsp
+Common-PhysicalChannel-Status-Information N nbap.ies id-FPACH-LCR-Information-AuditRsp
+Common-PhysicalChannel-Status-Information768 N nbap.ies id-S-CCPCH-768-Information-AuditRsp
+Common-PhysicalChannel-Status-Information768 N nbap.ies id-PRACH-768-Information
+Local-Cell-InformationItem-AuditRsp N nbap.ies id-Local-Cell-InformationItem-AuditRsp
+Local-Cell-Group-InformationItem-AuditRsp N nbap.ies id-Local-Cell-Group-InformationItem-AuditRsp
+Power-Local-Cell-Group-InformationItem-AuditRsp N nbap.ies id-Power-Local-Cell-Group-InformationItem-AuditRsp
+Common-PhysicalChannel-Status-Information N nbap.ies id-PLCCH-Information-AuditRsp
+Common-PhysicalChannel-Status-Information N nbap.ies id-E-RUCCH-Information
+Common-PhysicalChannel-Status-Information768 N nbap.ies id-E-RUCCH-768-Information
+MeasurementID                      N nbap.ies id-MeasurementID
+CommonMeasurementObjectType-CM-Rqst N nbap.ies id-CommonMeasurementObjectType-CM-Rqst
+CommonMeasurementType              N nbap.ies id-CommonMeasurementType
+MeasurementFilterCoefficient       N nbap.ies id-MeasurementFilterCoefficient
+ReportCharacteristics              N nbap.ies id-ReportCharacteristics
+FNReportingIndicator               N nbap.ies id-SFNReportingIndicator
+SFN                                N nbap.ies id-SFN
+PowerLocalCellGroup-CM-Rqst        N nbap.ies id-Power-Local-Cell-Group-choice-CM-Rqst
+CommonMeasurementObjectType-CM-Rsp N nbap.ies id-CommonMeasurementObjectType-CM-Rsp
+PowerLocalCellGroup-CM-Rsp         N nbap.ies id-Power-Local-Cell-Group-choice-CM-Rsp
+CommonMeasurementObjectType-CM-Rprt N nbap.ies id-CommonMeasurementObjectType-CM-Rprt
+PowerLocalCellGroup-CM-Rprt        N nbap.ies id-Power-Local-Cell-Group-choice-CM-Rprt
+Local-Cell-ID                      N nbap.ies id-Local-Cell-ID
+T-Cell                             N nbap.ies id-T-Cell
+UARFCN                             N nbap.ies id-UARFCNforNu
+UARFCN                             N nbap.ies id-UARFCNforNd
+MaximumTransmissionPower           N nbap.ies id-MaximumTransmissionPower
+Closedlooptimingadjustmentmode     N nbap.ies id-Closed-Loop-Timing-Adjustment-Mode
+PrimaryScramblingCode              N nbap.ies id-PrimaryScramblingCode
+Synchronisation-Configuration-Cell-SetupRqst N nbap.ies id-Synchronisation-Configuration-Cell-SetupRqst
+DL-TPC-Pattern01Count              N nbap.ies id-DL-TPC-Pattern01Count
+PrimarySCH-Information-Cell-SetupRqstFDD N nbap.ies id-PrimarySCH-Information-Cell-SetupRqstFDD
+SecondarySCH-Information-Cell-SetupRqstFDD N nbap.ies id-SecondarySCH-Information-Cell-SetupRqstFDD
+PrimaryCPICH-Information-Cell-SetupRqstFDD N nbap.ies id-PrimaryCPICH-Information-Cell-SetupRqstFDD
+SecondaryCPICH-InformationList-Cell-SetupRqstFDD N nbap.ies id-SecondaryCPICH-InformationList-Cell-SetupRqstFDD
+PrimaryCCPCH-Information-Cell-SetupRqstFDD N nbap.ies id-PrimaryCCPCH-Information-Cell-SetupRqstFDD
+Limited-power-increase-information-Cell-SetupRqstFDD N nbap.ies id-Limited-power-increase-information-Cell-SetupRqstFDD
+SecondaryCPICH-InformationItem-Cell-SetupRqstFDD N nbap.ies id-SecondaryCPICH-InformationItem-Cell-SetupRqstFDD
+CellPortion-InformationItem-Cell-SetupRqstFDD N nbap.ies id-CellPortion-InformationItem-Cell-SetupRqstFDD
+UARFCN                             N nbap.ies id-UARFCNforNt
+CellParameterID                    N nbap.ies id-CellParameterID
+TransmissionDiversityApplied       N nbap.ies id-TransmissionDiversityApplied
+SyncCase                           N nbap.ies id-SyncCase
+ConstantValue                      N nbap.ies id-DPCHConstant
+ConstantValue                      N nbap.ies id-PUSCHConstant
+ConstantValue                      N nbap.ies id-PRACHConstant
+TimingAdvanceApplied               N nbap.ies id-TimingAdvanceApplied
+SCH-Information-Cell-SetupRqstTDD  N nbap.ies id-SCH-Information-Cell-SetupRqstTDD
+PCCPCH-Information-Cell-SetupRqstTDD N nbap.ies id-PCCPCH-Information-Cell-SetupRqstTDD
+TimeSlotConfigurationList-Cell-SetupRqstTDD N nbap.ies id-TimeSlotConfigurationList-Cell-SetupRqstTDD
+SyncCaseIndicatorItem-Cell-SetupRqstTDD-PSCH N nbap.ies id-SyncCaseIndicatorItem-Cell-SetupRqstTDD-PSCH
+Synchronisation-Configuration-Cell-ReconfRqst N nbap.ies id-Synchronisation-Configuration-Cell-ReconfRqst
+PrimarySCH-Information-Cell-ReconfRqstFDD N nbap.ies id-PrimarySCH-Information-Cell-ReconfRqstFDD
+SecondarySCH-Information-Cell-ReconfRqstFDD N nbap.ies id-SecondarySCH-Information-Cell-ReconfRqstFDD
+PrimaryCPICH-Information-Cell-ReconfRqstFDD N nbap.ies id-PrimaryCPICH-Information-Cell-ReconfRqstFDD
+SecondaryCPICH-InformationList-Cell-ReconfRqstFDD N nbap.ies id-SecondaryCPICH-InformationList-Cell-ReconfRqstFDD
+PrimaryCCPCH-Information-Cell-ReconfRqstFDD N nbap.ies id-PrimaryCCPCH-Information-Cell-ReconfRqstFDD
+SecondaryCPICH-InformationItem-Cell-ReconfRqstFDD N nbap.ies id-SecondaryCPICH-InformationItem-Cell-ReconfRqstFDD
+CellPortion-InformationItem-Cell-ReconfRqstFDD N nbap.ies id-CellPortion-InformationItem-Cell-ReconfRqstFDD
+SCH-Information-Cell-ReconfRqstTDD N nbap.ies id-SCH-Information-Cell-ReconfRqstTDD
+PCCPCH-Information-Cell-ReconfRqstTDD N nbap.ies id-PCCPCH-Information-Cell-ReconfRqstTDD
+TimeSlotConfigurationList-Cell-ReconfRqstTDD N nbap.ies id-TimeSlotConfigurationList-Cell-ReconfRqstTDD
+IndicationType-ResourceStatusInd   N nbap.ies id-IndicationType-ResourceStatusInd
+Local-Cell-InformationItem-ResourceStatusInd N nbap.ies id-Local-Cell-InformationItem-ResourceStatusInd
+Local-Cell-Group-InformationItem-ResourceStatusInd N nbap.ies id-Local-Cell-Group-InformationItem-ResourceStatusInd
+Power-Local-Cell-Group-InformationItem-ResourceStatusInd N nbap.ies id-Power-Local-Cell-Group-InformationItem-ResourceStatusInd
+Local-Cell-InformationItem2-ResourceStatusInd N nbap.ies id-Local-Cell-InformationItem2-ResourceStatusInd
+Local-Cell-Group-InformationItem2-ResourceStatusInd N nbap.ies id-Local-Cell-Group-InformationItem2-ResourceStatusInd
+Power-Local-Cell-Group-InformationItem2-ResourceStatusInd N nbap.ies id-Power-Local-Cell-Group-InformationItem2-ResourceStatusInd
+CCP-InformationItem-ResourceStatusInd N nbap.ies id-CCP-InformationItem-ResourceStatusInd
+Cell-InformationItem-ResourceStatusInd N nbap.ies id-Cell-InformationItem-ResourceStatusInd
+Common-PhysicalChannel-Status-Information N nbap.ies id-FPACH-LCR-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-DwPCH-LCR-Information
+Common-PhysicalChannel-Status-Information N nbap.ies id-PLCCH-Information-ResourceStatusInd
+Common-PhysicalChannel-Status-Information768 N nbap.ies id-S-CCPCH-768-Information-ResourceStatusInd
+BCCH-ModificationTime              N nbap.ies id-BCCH-ModificationTime
+MIB-SB-SIB-InformationList-SystemInfoUpdateRqst N nbap.ies id-MIB-SB-SIB-InformationList-SystemInfoUpdateRqst
+SegmentInformationListIE-SystemInfoUpdate N nbap.ies id-SegmentInformationListIE-SystemInfoUpdate
+CRNC-CommunicationContextID        N nbap.ies id-CRNC-CommunicationContextID
+UL-DPCH-Information-RL-SetupRqstFDD N nbap.ies id-UL-DPCH-Information-RL-SetupRqstFDD
+DL-DPCH-Information-RL-SetupRqstFDD N nbap.ies id-DL-DPCH-Information-RL-SetupRqstFDD
+DCH-FDD-Information                N nbap.ies id-DCH-FDD-Information
+RL-InformationList-RL-SetupRqstFDD N nbap.ies id-RL-InformationList-RL-SetupRqstFDD
+Transmission-Gap-Pattern-Sequence-Information N nbap.ies id-Transmission-Gap-Pattern-Sequence-Information
+Active-Pattern-Sequence-Information N nbap.ies id-Active-Pattern-Sequence-Information
+RL-InformationItem-RL-SetupRqstFDD N nbap.ies id-RL-InformationItem-RL-SetupRqstFDD
+UL-CCTrCH-InformationList-RL-SetupRqstTDD N nbap.ies id-UL-CCTrCH-InformationList-RL-SetupRqstTDD
+DL-CCTrCH-InformationList-RL-SetupRqstTDD N nbap.ies id-DL-CCTrCH-InformationList-RL-SetupRqstTDD
+DCH-TDD-Information                N nbap.ies id-DCH-TDD-Information
+DSCH-TDD-Information               N nbap.ies id-DSCH-TDD-Information
+USCH-Information                   N nbap.ies id-USCH-Information
+RL-Information-RL-SetupRqstTDD     N nbap.ies id-RL-Information-RL-SetupRqstTDD
+UL-CCTrCH-InformationItem-RL-SetupRqstTDD N nbap.ies id-UL-CCTrCH-InformationItem-RL-SetupRqstTDD
+UL-DPCH-InformationItem-RL-SetupRqstTDD N nbap.ies id-UL-DPCH-InformationList-RL-SetupRqstTDD
+DL-CCTrCH-InformationItem-RL-SetupRqstTDD N nbap.ies id-DL-CCTrCH-InformationItem-RL-SetupRqstTDD
+DL-DPCH-InformationItem-RL-SetupRqstTDD N nbap.ies id-DL-DPCH-InformationList-RL-SetupRqstTDD
+NodeB-CommunicationContextID       N nbap.ies id-NodeB-CommunicationContextID
+CommunicationControlPortID         N nbap.ies id-CommunicationControlPortID
+RL-InformationResponseList-RL-SetupRspFDD N nbap.ies id-RL-InformationResponseList-RL-SetupRspFDD
+RL-InformationResponseItem-RL-SetupRspFDD N nbap.ies id-RL-InformationResponseItem-RL-SetupRspFDD
+RL-InformationResponse-RL-SetupRspTDD N nbap.ies id-RL-InformationResponse-RL-SetupRspTDD
+DCH-InformationResponse            N nbap.ies id-DCH-InformationResponse
+DSCH-InformationResponse           N nbap.ies id-DSCH-InformationResponse
+USCH-InformationResponse           N nbap.ies id-USCH-InformationResponse
+CauseLevel-RL-SetupFailureFDD      N nbap.ies id-CauseLevel-RL-SetupFailureFDD
+Unsuccessful-RL-InformationRespItem-RL-SetupFailureFDD N nbap.ies id-Unsuccessful-RL-InformationRespItem-RL-SetupFailureFDD
+Successful-RL-InformationRespItem-RL-SetupFailureFDD N nbap.ies id-Successful-RL-InformationRespItem-RL-SetupFailureFDD
+CauseLevel-RL-SetupFailureTDD      N nbap.ies id-CauseLevel-RL-SetupFailureTDD
+Unsuccessful-RL-InformationResp-RL-SetupFailureTDD N nbap.ies id-Unsuccessful-RL-InformationResp-RL-SetupFailureTDD
+Compressed-Mode-Deactivation-Flag  N nbap.ies id-Compressed-Mode-Deactivation-Flag
+RL-InformationList-RL-AdditionRqstFDD N nbap.ies id-RL-InformationList-RL-AdditionRqstFDD
+RL-InformationItem-RL-AdditionRqstFDD N nbap.ies id-RL-InformationItem-RL-AdditionRqstFDD
+UL-CCTrCH-InformationList-RL-AdditionRqstTDD N nbap.ies id-UL-CCTrCH-InformationList-RL-AdditionRqstTDD
+DL-CCTrCH-InformationList-RL-AdditionRqstTDD N nbap.ies id-DL-CCTrCH-InformationList-RL-AdditionRqstTDD
+RL-Information-RL-AdditionRqstTDD  N nbap.ies id-RL-Information-RL-AdditionRqstTDD
+UL-DPCH-InformationItem-RL-AdditionRqstTDD N nbap.ies id-UL-DPCH-InformationItem-RL-AdditionRqstTDD
+DL-DPCH-InformationItem-RL-AdditionRqstTDD N nbap.ies id-DL-DPCH-InformationItem-RL-AdditionRqstTDD
+RL-InformationResponseList-RL-AdditionRspFDD N nbap.ies id-RL-InformationResponseList-RL-AdditionRspFDD
+RL-InformationResponseItem-RL-AdditionRspFDD N nbap.ies id-RL-InformationResponseItem-RL-AdditionRspFDD
+RL-InformationResponse-RL-AdditionRspTDD N nbap.ies id-RL-InformationResponse-RL-AdditionRspTDD
+CauseLevel-RL-AdditionFailureFDD   N nbap.ies id-CauseLevel-RL-AdditionFailureFDD
+Unsuccessful-RL-InformationRespItem-RL-AdditionFailureFDD N nbap.ies id-Unsuccessful-RL-InformationRespItem-RL-AdditionFailureFDD
+Successful-RL-InformationRespItem-RL-AdditionFailureFDD N nbap.ies id-Successful-RL-InformationRespItem-RL-AdditionFailureFDD
+CauseLevel-RL-AdditionFailureTDD   N nbap.ies id-CauseLevel-RL-AdditionFailureTDD
+Unsuccessful-RL-InformationResp-RL-AdditionFailureTDD N nbap.ies id-Unsuccessful-RL-InformationResp-RL-AdditionFailureTDD
+UL-DPCH-Information-RL-ReconfPrepFDD N nbap.ies id-UL-DPCH-Information-RL-ReconfPrepFDD
+DL-DPCH-Information-RL-ReconfPrepFDD N nbap.ies id-DL-DPCH-Information-RL-ReconfPrepFDD
+FDD-DCHs-to-Modify                 N nbap.ies id-FDD-DCHs-to-Modify
+DCH-FDD-Information                N nbap.ies id-DCHs-to-Add-FDD
+DCH-DeleteList-RL-ReconfPrepFDD    N nbap.ies id-DCH-DeleteList-RL-ReconfPrepFDD
+RL-InformationList-RL-ReconfPrepFDD N nbap.ies id-RL-InformationList-RL-ReconfPrepFDD
+RL-InformationItem-RL-ReconfPrepFDD N nbap.ies id-RL-InformationItem-RL-ReconfPrepFDD
+UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD N nbap.ies id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
+UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD N nbap.ies id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
+UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD N nbap.ies id-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD N nbap.ies id-DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD N nbap.ies id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD N nbap.ies id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
+TDD-DCHs-to-Modify                 N nbap.ies id-TDD-DCHs-to-Modify
+DCH-TDD-Information                N nbap.ies id-DCHs-to-Add-TDD
+DCH-DeleteList-RL-ReconfPrepTDD    N nbap.ies id-DCH-DeleteList-RL-ReconfPrepTDD
+DSCH-Information-ModifyList-RL-ReconfPrepTDD N nbap.ies id-DSCH-Information-ModifyList-RL-ReconfPrepTDD
+DSCH-TDD-Information               N nbap.ies id-DSCHs-to-Add-TDD
+DSCH-Information-DeleteList-RL-ReconfPrepTDD N nbap.ies id-DSCH-Information-DeleteList-RL-ReconfPrepTDD
+USCH-Information-ModifyList-RL-ReconfPrepTDD N nbap.ies id-USCH-Information-ModifyList-RL-ReconfPrepTDD
+USCH-Information                   N nbap.ies id-USCH-Information-Add
+USCH-Information-DeleteList-RL-ReconfPrepTDD N nbap.ies id-USCH-Information-DeleteList-RL-ReconfPrepTDD
+RL-Information-RL-ReconfPrepTDD    N nbap.ies id-RL-Information-RL-ReconfPrepTDD
+UL-DPCH-InformationAddItem-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationAddListIE-RL-ReconfPrepTDD
+UL-DPCH-InformationModify-AddItem-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD
+UL-DPCH-InformationModify-ModifyItem-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationModify-ModifyListIE-RL-ReconfPrepTDD
+UL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD
+DL-DPCH-InformationAddItem-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD
+DL-DPCH-InformationModify-AddItem-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD
+DL-DPCH-InformationModify-ModifyItem-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationModify-ModifyListIE-RL-ReconfPrepTDD
+DL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD
+RL-InformationResponseList-RL-ReconfReady N nbap.ies id-RL-InformationResponseList-RL-ReconfReady
+RL-InformationResponseItem-RL-ReconfReady N nbap.ies id-RL-InformationResponseItem-RL-ReconfReady
+CauseLevel-RL-ReconfFailure        N nbap.ies id-CauseLevel-RL-ReconfFailure
+RL-ReconfigurationFailureItem-RL-ReconfFailure N nbap.ies id-RL-ReconfigurationFailureItem-RL-ReconfFailure
+CFN                                N nbap.ies id-CFN
+UL-DPCH-Information-RL-ReconfRqstFDD N nbap.ies id-UL-DPCH-Information-RL-ReconfRqstFDD
+DL-DPCH-Information-RL-ReconfRqstFDD N nbap.ies id-DL-DPCH-Information-RL-ReconfRqstFDD
+DCH-DeleteList-RL-ReconfRqstFDD    N nbap.ies id-DCH-DeleteList-RL-ReconfRqstFDD
+RL-InformationList-RL-ReconfRqstFDD N nbap.ies id-RL-InformationList-RL-ReconfRqstFDD
+RL-InformationItem-RL-ReconfRqstFDD N nbap.ies id-RL-InformationItem-RL-ReconfRqstFDD
+UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD N nbap.ies id-UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD
+UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD N nbap.ies id-UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD
+DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD N nbap.ies id-DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD
+DL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD N nbap.ies id-DL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD
+DCH-DeleteList-RL-ReconfRqstTDD    N nbap.ies id-DCH-DeleteList-RL-ReconfRqstTDD
+RL-Information-RL-ReconfRqstTDD    N nbap.ies id-RL-Information-RL-ReconfRqstTDD
+UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD N nbap.ies id-UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD
+UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD N nbap.ies id-UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD
+DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD N nbap.ies id-DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD
+DL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD N nbap.ies id-DL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD
+RL-InformationResponseList-RL-ReconfRsp N nbap.ies id-RL-InformationResponseList-RL-ReconfRsp
+RL-InformationResponseItem-RL-ReconfRsp N nbap.ies id-RL-InformationResponseItem-RL-ReconfRsp
+RL-informationList-RL-DeletionRqst N nbap.ies id-RL-informationList-RL-DeletionRqst
+RL-informationItem-RL-DeletionRqst N nbap.ies id-RL-informationItem-RL-DeletionRqst
+PowerAdjustmentType                N nbap.ies id-PowerAdjustmentType
+DL-Power                           N nbap.ies id-DLReferencePower
+InnerLoopDLPCStatus                N nbap.ies id-InnerLoopDLPCStatus
+DL-ReferencePowerInformationList-DL-PC-Rqst N nbap.ies id-DLReferencePowerList-DL-PC-Rqst
+MaxAdjustmentStep                  N nbap.ies id-MaxAdjustmentStep
+AdjustmentPeriod                   N nbap.ies id-AdjustmentPeriod
+ScaledAdjustmentRatio              N nbap.ies id-AdjustmentRatio
+DL-ReferencePowerInformationItem-DL-PC-Rqst N nbap.ies id-DL-ReferencePowerInformationItem-DL-PC-Rqst
+DL-TimeslotISCPInfo                N nbap.ies id-TimeslotISCPInfo
+DedicatedMeasurementObjectType-DM-Rqst N nbap.ies id-DedicatedMeasurementObjectType-DM-Rqst
+DedicatedMeasurementType           N nbap.ies id-DedicatedMeasurementType
+FNReportingIndicator               N nbap.ies id-CFNReportingIndicator
+RL-InformationItem-DM-Rqst         N nbap.ies id-RL-InformationItem-DM-Rqst
+DedicatedMeasurementObjectType-DM-Rsp N nbap.ies id-DedicatedMeasurementObjectType-DM-Rsp
+RL-InformationItem-DM-Rsp          N nbap.ies id-RL-InformationItem-DM-Rsp
+RL-Set-InformationItem-DM-Rsp      N nbap.ies id-RL-Set-InformationItem-DM-Rsp
+DedicatedMeasurementObjectType-DM-Rprt N nbap.ies id-DedicatedMeasurementObjectType-DM-Rprt
+RL-InformationItem-DM-Rprt         N nbap.ies id-RL-InformationItem-DM-Rprt
+RL-Set-InformationItem-DM-Rprt     N nbap.ies id-RL-Set-InformationItem-DM-Rprt
+Reporting-Object-RL-FailureInd     N nbap.ies id-Reporting-Object-RL-FailureInd
+RL-InformationItem-RL-FailureInd   N nbap.ies id-RL-InformationItem-RL-FailureInd
+RL-Set-InformationItem-RL-FailureInd N nbap.ies id-RL-Set-InformationItem-RL-FailureInd
+CCTrCH-InformationItem-RL-FailureInd N nbap.ies id-CCTrCH-InformationItem-RL-FailureInd
+RL-InformationList-RL-PreemptRequiredInd N nbap.ies id-RL-InformationList-RL-PreemptRequiredInd
+RL-InformationItem-RL-PreemptRequiredInd N nbap.ies id-RL-InformationItem-RL-PreemptRequiredInd
+Reporting-Object-RL-RestoreInd     N nbap.ies id-Reporting-Object-RL-RestoreInd
+RL-InformationItem-RL-RestoreInd   N nbap.ies id-RL-InformationItem-RL-RestoreInd
+RL-Set-InformationItem-RL-RestoreInd N nbap.ies id-RL-Set-InformationItem-RL-RestoreInd
+CCTrCH-InformationItem-RL-RestoreInd N nbap.ies id-CCTrCH-InformationItem-RL-RestoreInd
+MaximumTransmissionPower           N nbap.ies id-HS-PDSCH-HS-SCCH-E-AGCH-E-RGCH-E-HICH-MaxPower-PSCH-ReconfRqst
+DL-ScramblingCode                  N nbap.ies id-HS-PDSCH-HS-SCCH-ScramblingCode-PSCH-ReconfRqst
+HS-PDSCH-FDD-Code-Information      N nbap.ies id-HS-PDSCH-FDD-Code-Information-PSCH-ReconfRqst
+HS-SCCH-FDD-Code-Information       N nbap.ies id-HS-SCCH-FDD-Code-Information-PSCH-ReconfRqst
+PDSCHSets-AddList-PSCH-ReconfRqst  N nbap.ies id-PDSCHSets-AddList-PSCH-ReconfRqst
+PDSCHSets-ModifyList-PSCH-ReconfRqst N nbap.ies id-PDSCHSets-ModifyList-PSCH-ReconfRqst
+PDSCHSets-DeleteList-PSCH-ReconfRqst N nbap.ies id-PDSCHSets-DeleteList-PSCH-ReconfRqst
+PUSCHSets-AddList-PSCH-ReconfRqst  N nbap.ies id-PUSCHSets-AddList-PSCH-ReconfRqst
+PUSCHSets-ModifyList-PSCH-ReconfRqst N nbap.ies id-PUSCHSets-ModifyList-PSCH-ReconfRqst
+PUSCHSets-DeleteList-PSCH-ReconfRqst N nbap.ies id-PUSCHSets-DeleteList-PSCH-ReconfRqst
+PDSCH-Information-AddItem-PSCH-ReconfRqst N nbap.ies id-PDSCH-Information-AddListIE-PSCH-ReconfRqst
+PDSCH-Information-ModifyItem-PSCH-ReconfRqst N nbap.ies id-PDSCH-Information-ModifyListIE-PSCH-ReconfRqst
+PDSCH-ModifyInformation-LCR-ModifyItem-PSCH-ReconfRqst N nbap.ies id-PDSCH-ModifyInformation-LCR-PSCH-ReconfRqst
+PUSCH-Information-AddItem-PSCH-ReconfRqst N nbap.ies id-PUSCH-Information-AddListIE-PSCH-ReconfRqst
+PUSCH-Information-ModifyItem-PSCH-ReconfRqst N nbap.ies id-PUSCH-Information-ModifyListIE-PSCH-ReconfRqst
+PUSCH-ModifyInformation-LCR-ModifyItem-PSCH-ReconfRqst N nbap.ies id-PUSCH-ModifyInformation-LCR-PSCH-ReconfRqst
+CauseLevel-PSCH-ReconfFailure      N nbap.ies id-CauseLevel-PSCH-ReconfFailure
+Unsuccessful-PDSCHSetItem-PSCH-ReconfFailureTDD N nbap.ies id-Unsuccessful-PDSCHSetItem-PSCH-ReconfFailureTDD
+Unsuccessful-PUSCHSetItem-PSCH-ReconfFailureTDD N nbap.ies id-Unsuccessful-PUSCHSetItem-PSCH-ReconfFailureTDD
+ResetIndicator                     N nbap.ies id-ResetIndicator
+CommunicationContextInfoItem-Reset N nbap.ies id-CommunicationContextInfoItem-Reset
+CommunicationControlPortInfoItem-Reset N nbap.ies id-CommunicationControlPortInfoItem-Reset
+InformationExchangeID              N nbap.ies id-InformationExchangeID
+InformationExchangeObjectType-InfEx-Rqst N nbap.ies id-InformationExchangeObjectType-InfEx-Rqst
+InformationType                    N nbap.ies id-InformationType
+InformationReportCharacteristics   N nbap.ies id-InformationReportCharacteristics
+InformationExchangeObjectType-InfEx-Rsp N nbap.ies id-InformationExchangeObjectType-InfEx-Rsp
+InformationExchangeObjectType-InfEx-Rprt N nbap.ies id-InformationExchangeObjectType-InfEx-Rprt
+CellSyncBurstRepetitionPeriod      N nbap.ies id-cellSyncBurstRepetitionPeriod
+TimeslotInfo-CellSyncInitiationRqstTDD N nbap.ies id-timeslotInfo-CellSyncInitiationRqstTDD
+CellSyncBurstTransInit-CellSyncInitiationRqstTDD N nbap.ies id-CellSyncBurstTransInit-CellSyncInitiationRqstTDD
+CellSyncBurstMeasureInit-CellSyncInitiationRqstTDD N nbap.ies id-CellSyncBurstMeasureInit-CellSyncInitiationRqstTDD
+TimeSlot                           N nbap.ies id-TimeSlot
+NCyclesPerSFNperiod                N nbap.ies id-NCyclesPerSFNperiod
+NRepetitionsPerCyclePeriod         N nbap.ies id-NRepetitionsPerCyclePeriod
+CellSyncBurstTransReconfInfo-CellSyncReconfRqstTDD N nbap.ies id-CellSyncBurstTransReconfInfo-CellSyncReconfRqstTDD
+CellSyncBurstMeasInfo-CellSyncReconfRqstTDD N nbap.ies id-CellSyncBurstMeasReconfiguration-CellSyncReconfRqstTDD
+CellSyncBurstMeasInfoListIE-CellSyncReconfRqstTDD N nbap.ies id-CellSyncBurstMeasInfoList-CellSyncReconfRqstTDD
+SynchronisationReportType          N nbap.ies id-SynchronisationReportType
+SynchronisationReportCharacteristics N nbap.ies id-SynchronisationReportCharacteristics
+CellAdjustmentInfo-SyncAdjustmentRqstTDD N nbap.ies id-CellAdjustmentInfo-SyncAdjustmntRqstTDD
+CellAdjustmentInfoItem-SyncAdjustmentRqstTDD N nbap.ies id-CellAdjustmentInfoItem-SyncAdjustmentRqstTDD
+CauseLevel-SyncAdjustmntFailureTDD N nbap.ies id-CauseLevel-SyncAdjustmntFailureTDD
+Unsuccessful-cell-InformationRespItem-SyncAdjustmntFailureTDD N nbap.ies id-Unsuccessful-cell-InformationRespItem-SyncAdjustmntFailureTDD
+CSBTransmissionID                  N nbap.ies id-CSBTransmissionID
+CSBMeasurementID                   N nbap.ies id-CSBMeasurementID
+CellSyncInfo-CellSyncReprtTDD      N nbap.ies id-CellSyncInfo-CellSyncReprtTDD
+SyncReportType-CellSyncReprtTDD    N nbap.ies id-SyncReportType-CellSyncReprtTDD
+SignallingBearerRequestIndicator   N nbap.ies id-SignallingBearerRequestIndicator
+DCH-RearrangeList-Bearer-RearrangeInd N nbap.ies id-DCH-RearrangeList-Bearer-RearrangeInd
+DSCH-RearrangeList-Bearer-RearrangeInd N nbap.ies id-DSCH-RearrangeList-Bearer-RearrangeInd
+USCH-RearrangeList-Bearer-RearrangeInd N nbap.ies id-USCH-RearrangeList-Bearer-RearrangeInd
+HSDSCH-RearrangeList-Bearer-RearrangeInd N nbap.ies id-HSDSCH-RearrangeList-Bearer-RearrangeInd
+DelayedActivationInformationList-RL-ActivationCmdFDD N nbap.ies id-DelayedActivationList-RL-ActivationCmdFDD
+DelayedActivationInformation-RL-ActivationCmdFDD N nbap.ies id-DelayedActivationInformation-RL-ActivationCmdFDD
+DelayedActivationInformationList-RL-ActivationCmdTDD N nbap.ies id-DelayedActivationList-RL-ActivationCmdTDD
+DelayedActivationInformation-RL-ActivationCmdTDD N nbap.ies id-DelayedActivationInformation-RL-ActivationCmdTDD
+HSDSCH-FDD-Update-Information      N nbap.ies id-HSDSCH-FDD-Update-Information
+HSDSCH-TDD-Update-Information      N nbap.ies id-HSDSCH-TDD-Update-Information
+Modification-Period                N nbap.ies id-Modification-Period
+MICH-CFN                           N nbap.ies id-MICH-CFN
+NI-Information                     N nbap.ies id-NI-Information-NotifUpdateCmd
+
+#NBAP-PROTOCOL-EXTENSION
+BroadcastCommonTransportBearerIndication N nbap.extension id-BroadcastCommonTransportBearerIndication
+MessageStructure                   N nbap.extension id-MessageStructure
+TypeOfError                        N nbap.extension id-TypeOfError
+TnlQos                             N nbap.extension id-TnlQos
+Unidirectional-DCH-Indicator       N nbap.extension id-Unidirectional-DCH-Indicator
+ExtendedPropagationDelay           N nbap.extension id-ExtendedPropagationDelay
+DL-Power                           N nbap.extension id-Initial-DL-Power-TimeslotLCR-InformationItem
+DL-Power                           N nbap.extension id-Maximum-DL-Power-TimeslotLCR-InformationItem
+DL-Power                           N nbap.extension id-Minimum-DL-Power-TimeslotLCR-InformationItem
+BindingID                          N nbap.extension id-bindingID
+TransportLayerAddress              N nbap.extension id-transportlayeraddress
+E-DCH-PowerOffset-for-SchedulingInfo N nbap.extension id-E-DCH-PowerOffset-for-SchedulingInfo
+SixteenQAM-UL-Information          N nbap.extension id-SixteenQAM-UL-Information
+SixteenQAM-UL-Information-to-Modify N nbap.extension id-SixteenQAM-UL-Information-to-Modify
+E-TFCI-BetaEC-Boost                N nbap.extension id-E-TFCI-BetaEC-Boost
+E-TFCI-BetaED-Switch               N nbap.extension id-E-TFCI-BetaED-Switch
+SAT-Info-Almanac-ExtList           N nbap.extension id-SAT-Info-Almanac-ExtItem
+HARQ-Preamble-Mode                 N nbap.extension id-HARQ-Preamble-Mode
+MIMO-Information                   N nbap.extension id-MIMO-Information
+HSDSCH-MACdPDUSizeFormat           N nbap.extension id-HSDSCH-MACdPDUSizeFormat
+UL-SIR                             N nbap.extension id-HSSICH-SIRTarget
+TDD-TPC-UplinkStepSize-LCR         N nbap.extension id-HSSICH-TPC-StepSize
+UE-Capability-Information          N nbap.extension id-ueCapability-Info
+HS-PDSCH-Code-Change-Grant         N nbap.extension id-HS-PDSCH-Code-Change-Grant
+MIMO-InformationToModify           N nbap.extension id-MIMO-InformationToModify
+HARQ-Preamble-Mode-Activation-Indicator N nbap.extension id-HARQ-Preamble-Mode-Activation-Indicator
+HSSCCH-Specific-InformationRespListTDD768 N nbap.extension id-hsSCCH-Specific-Information-ResponseTDD768
+MAC-PDU-SizeExtended               N nbap.extension id-MaximumMACdPDU-SizeExtended
+HS-SICH-failed                     N nbap.extension id-Additional-failed-HS-SICH
+HS-SICH-missed                     N nbap.extension id-Additional-missed-HS-SICH
+HS-SICH-total                      N nbap.extension id-Additional-total-HS-SICH
+ContinuousPacketConnectivityHS-SCCH-less-Information N nbap.extension id-ContinuousPacketConnectivityHS-SCCH-less-Information
+ContinuousPacketConnectivityHS-SCCH-less-Information-Response N nbap.extension id-ContinuousPacketConnectivityHS-SCCH-less-Information-Response
+HS-PDSCH-Code-Change-Indicator     N nbap.extension id-HS-PDSCH-Code-Change-Indicator
+GANSS-Information                  N nbap.extension id-GANSS-Information
+GANSS-Common-Data                  N nbap.extension id-GANSS-Common-Data
+GANSS-Generic-Data                 N nbap.extension id-GANSS-Generic-Data
+SyncDLCodeIdThreInfoLCR            N nbap.extension id-SyncDLCodeIdThreInfoLCR
+Extended-RNC-ID                    N nbap.extension id-Extended-RNC-ID
+LCRTDD-Uplink-Physical-Channel-Capability N nbap.extension id-LCRTDD-uplink-Physical-Channel-Capability
+PLCCHinformation                   N nbap.extension id-PLCCH-Information-UL-TimeslotLCR-Info
+MICH-Parameters-CTCH-SetupRqstFDD  N nbap.extension id-MICH-Parameters-CTCH-SetupRqstFDD
+FDD-S-CCPCH-FrameOffset            N nbap.extension id-FDD-S-CCPCH-FrameOffset-CTCH-SetupRqstFDD
+ModulationPO-MBSFN                 N nbap.extension id-ModulationPO-MBSFN
+Secondary-CCPCH-SlotFormat-Extended N nbap.extension id-Secondary-CCPCH-SlotFormat-Extended
+BroadcastReference                 N nbap.extension id-BroadcastReference
+TSTD-Indicator                     N nbap.extension id-Tstd-indicator
+MICH-Parameters-CTCH-SetupRqstTDD  N nbap.extension id-MICH-Parameters-CTCH-SetupRqstTDD
+Secondary-CCPCH-parameterExtendedList-CTCH-SetupRqstTDD N nbap.extension id-Additional-S-CCPCH-Parameters-CTCH-SetupRqstTDD
+Secondary-CCPCH-LCR-parameterExtendedList-CTCH-SetupRqstTDD N nbap.extension id-Additional-S-CCPCH-LCR-Parameters-CTCH-SetupRqstTDD
+Secondary-CCPCH-768-parameterList-CTCH-SetupRqstTDD N nbap.extension id-S-CCPCH-768-Parameters-CTCH-SetupRqstTDD
+ModulationMBSFN                    N nbap.extension id-S-CCPCH-Modulation
+TFCI-Presence                      N nbap.extension id-tFCI-Presence
+DL-Power                           N nbap.extension id-maxFACH-Power-LCR-CTCH-SetupRqstTDD
+DL-Power                           N nbap.extension id-PCH-Power-LCR-CTCH-SetupRqstTDD
+PICH-768-ParametersItem-CTCH-SetupRqstTDD N nbap.extension id-PICH-768-Parameters-CTCH-SetupRqstTDD
+FPACH-LCR-Parameters-CTCH-SetupRqstTDD N nbap.extension id-FPACH-LCR-Parameters-CTCH-SetupRqstTDD
+PRACH-768-ParametersItem-CTCH-SetupRqstTDD N nbap.extension id-PRACH-768-Parameters-CTCH-SetupRqstTDD
+MICH-Parameters-CTCH-ReconfRqstFDD N nbap.extension id-MICH-Parameters-CTCH-ReconfRqstFDD
+FPACH-LCR-Parameters-CTCH-ReconfRqstTDD N nbap.extension id-FPACH-LCR-Parameters-CTCH-ReconfRqstTDD
+MICH-Parameters-CTCH-ReconfRqstTDD N nbap.extension id-MICH-Parameters-CTCH-ReconfRqstTDD
+PLCCH-Parameters-CTCH-ReconfRqstTDD N nbap.extension id-PLCCH-Parameters-CTCH-ReconfRqstTDD
+Secondary-CCPCH-768-Parameters-CTCH-ReconfRqstTDD N nbap.extension id-S-CCPCH-768-Parameters-CTCH-ReconfRqstTDD
+PICH-768-Parameters-CTCH-ReconfRqstTDD N nbap.extension id-PICH-768-Parameters-CTCH-ReconfRqstTDD
+MICH-768-Parameters-CTCH-ReconfRqstTDD N nbap.extension id-MICH-768-Parameters-CTCH-ReconfRqstTDD
+Secondary-CCPCH-parameterExtendedList-CTCH-ReconfRqstTDD N nbap.extension id-Additional-S-CCPCH-Parameters-CTCH-ReconfRqstTDD
+Secondary-CCPCH-LCR-parameterExtendedList-CTCH-ReconfRqstTDD N nbap.extension id-Additional-S-CCPCH-LCR-Parameters-CTCH-ReconfRqstTDD
+DL-Power                           N nbap.extension id-maxFACH-Power-LCR-CTCH-ReconfRqstTDD
+DL-Power                           N nbap.extension id-PCH-Power-LCR-CTCH-ReconfRqstTDD
+CommonPhysicalChannelID768         N nbap.extension id-CommonPhysicalChannelID768-CommonTrChDeletionReq
+Power-Local-Cell-Group-InformationList-AuditRsp N nbap.extension id-Power-Local-Cell-Group-InformationList-AuditRsp
+FPACH-LCR-InformationList-AuditRsp N nbap.extension id-FPACH-LCR-InformationList-AuditRsp
+Common-PhysicalChannel-Status-Information N nbap.extension id-DwPCH-LCR-InformationList-AuditRsp
+HS-DSCH-Resources-Information-AuditRsp N nbap.extension id-HSDSCH-Resources-Information-AuditRsp
+Common-PhysicalChannel-Status-Information N nbap.extension id-MICH-Information-AuditRsp
+S-CCPCH-InformationListExt-AuditRsp N nbap.extension id-S-CCPCH-InformationListExt-AuditRsp
+S-CCPCH-LCR-InformationListExt-AuditRsp N nbap.extension id-S-CCPCH-LCR-InformationListExt-AuditRsp
+E-DCH-Resources-Information-AuditRsp N nbap.extension id-E-DCH-Resources-Information-AuditRsp
+PLCCH-InformationList-AuditRsp     N nbap.extension id-PLCCH-InformationList-AuditRsp
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-P-CCPCH-768-Information-AuditRsp
+S-CCPCH-768-InformationList-AuditRsp N nbap.extension id-S-CCPCH-768-InformationList-AuditRsp
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-PICH-768-Information-AuditRsp
+PRACH-768-InformationList-AuditRsp N nbap.extension id-PRACH-768-InformationList-AuditRsp
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-SCH-768-Information-AuditRsp
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-MICH-768-Information-AuditRsp
+E-RUCCH-InformationList-AuditRsp   N nbap.extension id-E-RUCCH-InformationList-AuditRsp
+E-RUCCH-768-InformationList-AuditRsp N nbap.extension id-E-RUCCH-768-InformationList-AuditRsp
+ReferenceClockAvailability         N nbap.extension id-ReferenceClockAvailability
+Local-Cell-ID                      N nbap.extension id-Power-Local-Cell-Group-ID
+HSDPA-Capability                   N nbap.extension id-HSDPA-Capability
+E-DCH-Capability                   N nbap.extension id-E-DCH-Capability
+E-DCH-TTI2ms-Capability            N nbap.extension id-E-DCH-TTI2ms-Capability
+E-DCH-SF-Capability                N nbap.extension id-E-DCH-SF-Capability
+E-DCH-HARQ-Combining-Capability    N nbap.extension id-E-DCH-HARQ-Combining-Capability
+E-DCHCapacityConsumptionLaw        N nbap.extension id-E-DCH-CapacityConsumptionLaw
+F-DPCH-Capability                  N nbap.extension id-F-DPCH-Capability
+E-DCH-TDD-CapacityConsumptionLaw   N nbap.extension id-E-DCH-TDD-CapacityConsumptionLaw
+ContinuousPacketConnectivityDTX-DRX-Capability N nbap.extension id-ContinuousPacketConnectivityDTX-DRX-Capability
+Max-UE-DTX-Cycle                   N nbap.extension id-Max-UE-DTX-Cycle
+ContinuousPacketConnectivityHS-SCCH-less-Capability N nbap.extension id-ContinuousPacketConnectivityHS-SCCH-less-Capability
+MIMO-Capability                    N nbap.extension id-MIMO-Capability
+SixtyfourQAM-DL-Capability         N nbap.extension id-SixtyfourQAM-DL-Capability
+MBMS-Capability                    N nbap.extension id-MBMS-Capability
+Enhanced-FACH-Capability           N nbap.extension id-Enhanced-FACH-Capability
+Enhanced-PCH-Capability            N nbap.extension id-Enhanced-PCH-Capability
+SixteenQAM-UL-Capability           N nbap.extension id-SixteenQAM-UL-Capability
+HSDSCH-MACdPDU-SizeCapability      N nbap.extension id-HSDSCH-MACdPDU-SizeCapability
+F-DPCH-SlotFormatCapability        N nbap.extension id-F-DPCH-SlotFormatCapability
+CommonMeasurementAccuracy          N nbap.extension id-CommonMeasurementAccuracy
+MeasurementRecoveryBehavior        N nbap.extension id-MeasurementRecoveryBehavior
+RTWP-ReportingIndicator            N nbap.extension id-RTWP-ReportingIndicator
+RTWP-CellPortion-ReportingIndicator N nbap.extension id-RTWP-CellPortion-ReportingIndicator
+Reference-ReceivedTotalWideBandPowerReporting N nbap.extension id-Reference-ReceivedTotalWideBandPowerReporting
+TimeSlotLCR                        N nbap.extension id-TimeSlotLCR-CM-Rqst
+NeighbouringCellMeasurementInformation N nbap.extension id-NeighbouringCellMeasurementInformation
+MeasurementRecoverySupportIndicator N nbap.extension id-MeasurementRecoverySupportIndicator
+Reference-ReceivedTotalWideBandPowerSupportIndicator N nbap.extension id-Reference-ReceivedTotalWideBandPowerSupportIndicator
+Reference-ReceivedTotalWideBandPower N nbap.extension id-Reference-ReceivedTotalWideBandPower
+MeasurementRecoveryReportingIndicator N nbap.extension id-MeasurementRecoveryReportingIndicator
+IPDLParameter-Information-Cell-SetupRqstFDD N nbap.extension id-IPDLParameter-Information-Cell-SetupRqstFDD
+CellPortion-InformationList-Cell-SetupRqstFDD N nbap.extension id-CellPortion-InformationList-Cell-SetupRqstFDD
+MIMO-PilotConfiguration            N nbap.extension id-MIMO-PilotConfiguration
+TimeSlotConfigurationList-LCR-Cell-SetupRqstTDD N nbap.extension id-TimeSlotConfigurationList-LCR-Cell-SetupRqstTDD
+PCCPCH-LCR-Information-Cell-SetupRqstTDD N nbap.extension id-PCCPCH-LCR-Information-Cell-SetupRqstTDD
+DwPCH-LCR-Information-Cell-SetupRqstTDD N nbap.extension id-DwPCH-LCR-Information-Cell-SetupRqstTDD
+ReferenceSFNoffset                 N nbap.extension id-ReferenceSFNoffset
+IPDLParameter-Information-Cell-SetupRqstTDD N nbap.extension id-IPDLParameter-Information-Cell-SetupRqstTDD
+IPDLParameter-Information-LCR-Cell-SetupRqstTDD N nbap.extension id-IPDLParameter-Information-LCR-Cell-SetupRqstTDD
+PCCPCH-768-Information-Cell-SetupRqstTDD N nbap.extension id-PCCPCH-768-Information-Cell-SetupRqstTDD
+SCH-768-Information-Cell-SetupRqstTDD N nbap.extension id-SCH-768-Information-Cell-SetupRqstTDD
+MBSFN-Only-Mode-Indicator          N nbap.extension id-MBSFN-Only-Mode-Indicator-Cell-SetupRqstTDD-LCR
+CellParameterID                    N nbap.extension id-MBSFN-Cell-ParameterID-Cell-SetupRqstTDD
+CellParameterID                    N nbap.extension id-Time-Slot-Parameter-ID
+IPDLParameter-Information-Cell-ReconfRqstFDD N nbap.extension id-IPDLParameter-Information-Cell-ReconfRqstFDD
+CellPortion-InformationList-Cell-ReconfRqstFDD N nbap.extension id-CellPortion-InformationList-Cell-ReconfRqstFDD
+TimeSlotConfigurationList-LCR-Cell-ReconfRqstTDD N nbap.extension id-TimeSlotConfigurationList-LCR-Cell-ReconfRqstTDD
+DwPCH-LCR-Information-Cell-ReconfRqstTDD N nbap.extension id-DwPCH-LCR-Information-Cell-ReconfRqstTDD
+IPDLParameter-Information-Cell-ReconfRqstTDD N nbap.extension id-IPDLParameter-Information-Cell-ReconfRqstTDD
+IPDLParameter-Information-LCR-Cell-ReconfRqstTDD N nbap.extension id-IPDLParameter-Information-LCR-Cell-ReconfRqstTDD
+SCH-768-Information-Cell-ReconfRqstTDD N nbap.extension id-SCH-768-Information-Cell-ReconfRqstTDD
+PCCPCH-768-Information-Cell-ReconfRqstTDD N nbap.extension id-PCCPCH-768-Information-Cell-ReconfRqstTDD
+CellParameterID                    N nbap.extension id-MBSFN-Cell-ParameterID-Cell-ReconfRqstTDD
+Power-Local-Cell-Group-InformationList-ResourceStatusInd N nbap.extension id-Power-Local-Cell-Group-InformationList-ResourceStatusInd
+MBSFN-Only-Mode-Capability         N nbap.extension id-MBSFN-Only-Mode-Capability
+Power-Local-Cell-Group-InformationList2-ResourceStatusInd N nbap.extension id-Power-Local-Cell-Group-InformationList2-ResourceStatusInd
+FPACH-LCR-InformationList-ResourceStatusInd N nbap.extension id-FPACH-LCR-InformationList-ResourceStatusInd
+DwPCH-LCR-Information-ResourceStatusInd N nbap.extension id-DwPCH-LCR-Information-ResourceStatusInd
+HS-DSCH-Resources-Information-ResourceStatusInd N nbap.extension id-HSDSCH-Resources-Information-ResourceStatusInd
+Common-PhysicalChannel-Status-Information N nbap.extension id-MICH-Information-ResourceStatusInd
+S-CCPCH-InformationListExt-ResourceStatusInd N nbap.extension id-S-CCPCH-InformationListExt-ResourceStatusInd
+S-CCPCH-LCR-InformationListExt-ResourceStatusInd N nbap.extension id-S-CCPCH-LCR-InformationListExt-ResourceStatusInd
+E-DCH-Resources-Information-ResourceStatusInd N nbap.extension id-E-DCH-Resources-Information-ResourceStatusInd
+PLCCH-InformationList-ResourceStatusInd N nbap.extension id-PLCCH-InformationList-ResourceStatusInd
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-P-CCPCH-768-Information-ResourceStatusInd
+S-CCPCH-768-InformationList-ResourceStatusInd N nbap.extension id-S-CCPCH-768-InformationList-ResourceStatusInd
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-PICH-768-Information-ResourceStatusInd
+PRACH-768-InformationList-ResourceStatusInd N nbap.extension id-PRACH-768-InformationList-ResourceStatusInd
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-SCH-768-Information-ResourceStatusInd
+Common-PhysicalChannel-Status-Information768 N nbap.extension id-MICH-768-Information-ResourceStatusInd
+E-RUCCH-InformationList-ResourceStatusInd N nbap.extension id-E-RUCCH-InformationList-ResourceStatusInd
+E-RUCCH-768-InformationList-ResourceStatusInd N nbap.extension id-E-RUCCH-768-InformationList-ResourceStatusInd
+DL-PowerBalancing-Information      N nbap.extension id-DL-PowerBalancing-Information
+HSDSCH-FDD-Information             N nbap.extension id-HSDSCH-FDD-Information
+HSDSCH-RNTI                        N nbap.extension id-HSDSCH-RNTI
+RL-ID                              N nbap.extension id-HSPDSCH-RL-ID
+E-DPCH-Information-RL-SetupRqstFDD N nbap.extension id-E-DPCH-Information-RL-SetupRqstFDD
+E-DCH-FDD-Information              N nbap.extension id-E-DCH-FDD-Information
+Serving-E-DCH-RL-ID                N nbap.extension id-Serving-E-DCH-RL-ID
+F-DPCH-Information-RL-SetupRqstFDD N nbap.extension id-F-DPCH-Information-RL-SetupRqstFDD
+Initial-DL-DPCH-TimingAdjustment-Allowed N nbap.extension id-Initial-DL-DPCH-TimingAdjustment-Allowed
+DCH-Indicator-For-E-DCH-HSDPA-Operation N nbap.extension id-DCH-Indicator-For-E-DCH-HSDPA-Operation
+CFN                                N nbap.extension id-Serving-Cell-Change-CFN
+ContinuousPacketConnectivityDTX-DRX-Information N nbap.extension id-ContinuousPacketConnectivityDTX-DRX-Information
+DPC-Mode                           N nbap.extension id-DPC-Mode
+UL-DPDCH-Indicator-For-E-DCH-Operation N nbap.extension id-UL-DPDCH-Indicator-For-E-DCH-Operation
+RL-Specific-DCH-Info               N nbap.extension id-RL-Specific-DCH-Info
+DelayedActivation                  N nbap.extension id-DelayedActivation
+Primary-CPICH-Usage-for-Channel-Estimation N nbap.extension id-Primary-CPICH-Usage-for-Channel-Estimation
+CommonPhysicalChannelID            N nbap.extension id-Secondary-CPICH-Information
+E-DCH-RL-Indication                N nbap.extension id-E-DCH-RL-Indication
+RL-Specific-E-DCH-Info             N nbap.extension id-RL-Specific-E-DCH-Info
+SynchronisationIndicator           N nbap.extension id-SynchronisationIndicator
+F-DPCH-SlotFormat                  N nbap.extension id-F-DPCH-SlotFormat
+HSDSCH-TDD-Information             N nbap.extension id-HSDSCH-TDD-Information
+RL-ID                              N nbap.extension id-PDSCH-RL-ID
+E-DCH-Information                  N nbap.extension id-E-DCH-Information
+RL-ID                              N nbap.extension id-E-DCH-Serving-RL-ID
+E-DCH-768-Information              N nbap.extension id-E-DCH-768-Information
+E-DCH-LCR-Information              N nbap.extension id-E-DCH-LCR-Information
+UL-DPCH-LCR-Information-RL-SetupRqstTDD N nbap.extension id-UL-DPCH-LCR-Information-RL-SetupRqstTDD
+UL-SIR                             N nbap.extension id-UL-SIRTarget
+TDD-TPC-UplinkStepSize-LCR         N nbap.extension id-TDD-TPC-UplinkStepSize-LCR-RL-SetupRqstTDD
+UL-DPCH-768-Information-RL-SetupRqstTDD N nbap.extension id-UL-DPCH-768-Information-RL-SetupRqstTDD
+DL-DPCH-LCR-Information-RL-SetupRqstTDD N nbap.extension id-DL-DPCH-LCR-Information-RL-SetupRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Initial-DL-Power-RL-SetupRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Maximum-DL-Power-RL-SetupRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Minimum-DL-Power-RL-SetupRqstTDD
+DL-DPCH-768-Information-RL-SetupRqstTDD N nbap.extension id-DL-DPCH-768-Information-RL-SetupRqstTDD
+DL-TimeslotISCPInfoLCR             N nbap.extension id-TimeslotISCP-LCR-InfoList-RL-SetupRqstTDD
+UL-Synchronisation-Parameters-LCR  N nbap.extension id-UL-Synchronisation-Parameters-LCR
+HSDSCH-FDD-Information-Response    N nbap.extension id-HSDSCH-FDD-Information-Response
+DL-PowerBalancing-ActivationIndicator N nbap.extension id-DL-PowerBalancing-ActivationIndicator
+RL-Set-ID                          N nbap.extension id-E-DCH-RL-Set-ID
+E-DCH-FDD-DL-Control-Channel-Information N nbap.extension id-E-DCH-FDD-DL-Control-Channel-Information
+DL-DPCH-TimingAdjustment           N nbap.extension id-Initial-DL-DPCH-TimingAdjustment
+E-DCH-FDD-Information-Response     N nbap.extension id-E-DCH-FDD-Information-Response
+RL-InformationResponse-LCR-RL-SetupRspTDD N nbap.extension id-RL-InformationResponse-LCR-RL-SetupRspTDD
+HSDSCH-TDD-Information-Response    N nbap.extension id-HSDSCH-TDD-Information-Response
+E-DCH-Information-Response         N nbap.extension id-E-DCH-Information-Response
+HS-DSCH-Serving-Cell-Change-Info   N nbap.extension id-HS-DSCH-Serving-Cell-Change-Info
+E-DPCH-Information-RL-AdditionReqFDD N nbap.extension id-E-DPCH-Information-RL-AdditionReqFDD
+DL-Power                           N nbap.extension id-DLReferencePower
+HSDSCH-Configured-Indicator        N nbap.extension id-HSDSCH-Configured-Indicator
+UL-DPCH-InformationItem-LCR-RL-AdditionRqstTDD N nbap.extension id-UL-DPCH-InformationItem-LCR-RL-AdditionRqstTDD
+TDD-TPC-UplinkStepSize-LCR         N nbap.extension id-TDD-TPC-UplinkStepSize-LCR-RL-AdditionRqstTDD
+UL-DPCH-InformationItem-768-RL-AdditionRqstTDD N nbap.extension id-UL-DPCH-InformationItem-768-RL-AdditionRqstTDD
+DL-DPCH-InformationItem-LCR-RL-AdditionRqstTDD N nbap.extension id-DL-DPCH-InformationItem-LCR-RL-AdditionRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Initial-DL-Power-RL-AdditionRqstTDD
+TDD-TPC-DownlinkStepSize           N nbap.extension id-TDD-TPC-DownlinkStepSize-RL-AdditionRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Maximum-DL-Power-RL-AdditionRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Minimum-DL-Power-RL-AdditionRqstTDD
+DL-DPCH-InformationItem-768-RL-AdditionRqstTDD N nbap.extension id-DL-DPCH-InformationItem-768-RL-AdditionRqstTDD
+DL-TimeslotISCPInfoLCR             N nbap.extension id-TimeslotISCP-InformationList-LCR-RL-AdditionRqstTDD
+HS-DSCH-Serving-Cell-Change-Info-Response N nbap.extension id-HS-DSCH-Serving-Cell-Change-Info-Response
+E-DCH-Serving-Cell-Change-Info-Response N nbap.extension id-E-DCH-Serving-Cell-Change-Info-Response
+MAChs-ResetIndicator               N nbap.extension id-MAChs-ResetIndicator
+RL-InformationResponse-LCR-RL-AdditionRspTDD N nbap.extension id-RL-InformationResponse-LCR-RL-AdditionRspTDD
+SignallingBearerRequestIndicator   N nbap.extension id-SignallingBearerRequestIndicator
+HSDSCH-Information-to-Modify       N nbap.extension id-HSDSCH-Information-to-Modify
+HSDSCH-MACdFlows-Information       N nbap.extension id-HSDSCH-MACdFlows-to-Add
+HSDSCH-MACdFlows-to-Delete         N nbap.extension id-HSDSCH-MACdFlows-to-Delete
+E-DPCH-Information-RL-ReconfPrepFDD N nbap.extension id-E-DPCH-Information-RL-ReconfPrepFDD
+E-DCH-FDD-Information-to-Modify    N nbap.extension id-E-DCH-FDD-Information-to-Modify
+E-DCH-MACdFlows-Information        N nbap.extension id-E-DCH-MACdFlows-to-Add
+E-DCH-MACdFlows-to-Delete          N nbap.extension id-E-DCH-MACdFlows-to-Delete
+F-DPCH-Information-RL-ReconfPrepFDD N nbap.extension id-F-DPCH-Information-RL-ReconfPrepFDD
+Fast-Reconfiguration-Mode          N nbap.extension id-Fast-Reconfiguration-Mode
+CPC-Information                    N nbap.extension id-CPC-Information
+DL-DPCH-Power-Information-RL-ReconfPrepFDD N nbap.extension id-DL-DPCH-Power-Information-RL-ReconfPrepFDD
+DL-DPCH-TimingAdjustment           N nbap.extension id-DL-DPCH-TimingAdjustment
+Secondary-CPICH-Information-Change N nbap.extension id-Secondary-CPICH-Information-Change
+MultipleRL-Information-RL-ReconfPrepTDD N nbap.extension id-multiple-RL-Information-RL-ReconfPrepTDD
+E-DCH-Information-Reconfig         N nbap.extension id-E-DCH-Information-Reconfig
+E-DCH-768-Information-Reconfig     N nbap.extension id-E-DCH-768-Information-Reconfig
+E-DCH-LCR-Information-Reconfig     N nbap.extension id-E-DCH-LCR-Information-Reconfig
+UL-DPCH-LCR-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfPrepTDD
+TDD-TPC-UplinkStepSize-LCR         N nbap.extension id-TDD-TPC-UplinkStepSize-InformationAdd-LCR-RL-ReconfPrepTDD
+RL-ID                              N nbap.extension id-RL-ID
+MultipleRL-UL-DPCH-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-multipleRL-ul-DPCH-InformationList
+UL-DPCH-768-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-UL-DPCH-768-InformationAddItemIE-RL-ReconfPrepTDD
+UL-DPCH-768-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-UL-DPCH-768-InformationAddListIE-RL-ReconfPrepTDD
+UL-DPCH-LCR-InformationModify-AddList-RL-ReconfPrepTDD N nbap.extension id-UL-DPCH-LCR-InformationModify-AddList
+TDD-TPC-UplinkStepSize-LCR         N nbap.extension id-TDD-TPC-UplinkStepSize-InformationModify-LCR-RL-ReconfPrepTDD
+MultipleRL-UL-DPCH-InformationModifyList-RL-ReconfPrepTDD N nbap.extension id-multipleRL-ul-DPCH-InformationModifyList
+UL-DPCH-768-InformationModify-AddList-RL-ReconfPrepTDD N nbap.extension id-UL-DPCH-768-InformationModify-AddItem
+UL-DPCH-768-InformationModify-AddList-RL-ReconfPrepTDD N nbap.extension id-UL-DPCH-768-InformationModify-AddList
+UL-TimeslotLCR-InformationModify-ModifyList-RL-ReconfPrepTDD N nbap.extension id-UL-TimeslotLCR-Information-RL-ReconfPrepTDD
+UL-Timeslot768-InformationModify-ModifyList-RL-ReconfPrepTDD N nbap.extension id-UL-Timeslot768-Information-RL-ReconfPrepTDD
+PLCCHinformation                   N nbap.extension id-PLCCH-Information-RL-ReconfPrepTDDLCR
+TDD-UL-DPCH-TimeSlotFormat-LCR     N nbap.extension id-UL-DPCH-TimeSlotFormat-LCR-ModifyItem-RL-ReconfPrepTDD
+DL-DPCH-LCR-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-DL-DPCH-LCR-InformationAddList-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-CCTrCH-Initial-DL-Power-RL-ReconfPrepTDD
+TDD-TPC-DownlinkStepSize           N nbap.extension id-TDD-TPC-DownlinkStepSize-InformationAdd-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-CCTrCH-Maximum-DL-Power-InformationAdd-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-CCTrCH-Minimum-DL-Power-InformationAdd-RL-ReconfPrepTDD
+MultipleRL-DL-DPCH-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-multipleRL-dl-DPCH-InformationList
+DL-DPCH-768-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-DL-DPCH-768-InformationAddItem-RL-ReconfPrepTDD
+DL-DPCH-768-InformationAddList-RL-ReconfPrepTDD N nbap.extension id-DL-DPCH-768-InformationAddList-RL-ReconfPrepTDD
+DL-DPCH-LCR-InformationModify-AddList-RL-ReconfPrepTDD N nbap.extension id-DL-DPCH-LCR-InformationModify-AddList-RL-ReconfPrepTDD
+TDD-TPC-DownlinkStepSize           N nbap.extension id-TDD-TPC-DownlinkStepSize-InformationModify-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-CCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-CCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfPrepTDD
+MultipleRL-DL-DPCH-InformationModifyList-RL-ReconfPrepTDD N nbap.extension id-multipleRL-dl-DPCH-InformationModifyList
+DL-DPCH-768-InformationModify-AddList-RL-ReconfPrepTDD N nbap.extension id-DL-DPCH-768-InformationModify-AddItem-RL-ReconfPrepTDD
+DL-DPCH-768-InformationModify-AddList-RL-ReconfPrepTDD N nbap.extension id-DL-DPCH-768-InformationModify-AddList-RL-ReconfPrepTDD
+DL-Timeslot-LCR-InformationModify-ModifyList-RL-ReconfPrepTDD N nbap.extension id-DL-Timeslot-LCR-InformationModify-ModifyList-RL-ReconfPrepTDD
+DL-Timeslot-768-InformationModify-ModifyList-RL-ReconfPrepTDD N nbap.extension id-DL-Timeslot-768-InformationModify-ModifyList-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-Maximum-DL-Power-Modify-LCR-InformationModify-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-Minimum-DL-Power-Modify-LCR-InformationModify-RL-ReconfPrepTDD
+TDD-DL-DPCH-TimeSlotFormat-LCR     N nbap.extension id-DL-DPCH-TimeSlotFormat-LCR-ModifyItem-RL-ReconfPrepTDD
+DL-Power                           N nbap.extension id-InitDL-Power
+DL-TimeslotISCPInfoLCR             N nbap.extension id-TimeslotISCP-LCR-InfoList-RL-ReconfPrepTDD
+CommunicationControlPortID         N nbap.extension id-TargetCommunicationControlPortID
+Fast-Reconfiguration-Permission    N nbap.extension id-Fast-Reconfiguration-Permission
+DL-PowerBalancing-UpdatedIndicator N nbap.extension id-DL-PowerBalancing-UpdatedIndicator
+HSDSCH-Information-to-Modify-Unsynchronised N nbap.extension id-HSDSCH-Information-to-Modify-Unsynchronised
+E-DPCH-Information-RL-ReconfRqstFDD N nbap.extension id-E-DPCH-Information-RL-ReconfRqstFDD
+Multiple-RL-Information-RL-ReconfRqstTDD N nbap.extension id-multiple-RL-Information-RL-ReconfRqstTDD
+DL-DPCH-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD N nbap.extension id-DL-DPCH-LCR-InformationModify-ModifyList-RL-ReconfRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Maximum-DL-Power-InformationModify-RL-ReconfRqstTDD
+DL-Power                           N nbap.extension id-CCTrCH-Minimum-DL-Power-InformationModify-RL-ReconfRqstTDD
+MultipleRL-DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD N nbap.extension id-multipleRL-dl-CCTrCH-InformationModifyList-RL-ReconfRqstTDD
+DL-TimeslotISCPInfoLCR             N nbap.extension id-TimeslotISCPInfoList-LCR-DL-PC-RqstTDD
+PrimaryCCPCH-RSCP                  N nbap.extension id-PrimCCPCH-RSCP-DL-PC-RqstTDD
+PrimaryCCPCH-RSCP-Delta            N nbap.extension id-PrimaryCCPCH-RSCP-Delta
+NumberOfReportedCellPortions       N nbap.extension id-NumberOfReportedCellPortions
+AlternativeFormatReportingIndicator N nbap.extension id-AlternativeFormatReportingIndicator
+PUSCH-Info-DM-Rqst                 N nbap.extension id-PUSCH-Info-DM-Rqst
+HSSICH-Info-DM-Rqst                N nbap.extension id-HSSICH-Info-DM-Rqst
+DPCH-ID768                         N nbap.extension id-DPCH-ID768-DM-Rqst
+PUSCH-Info-DM-Rsp                  N nbap.extension id-PUSCH-Info-DM-Rsp
+HS-SICH-ID                         N nbap.extension id-HSSICH-Info-DM-Rsp
+Multiple-DedicatedMeasurementValueList-TDD-DM-Rsp N nbap.extension id-multiple-DedicatedMeasurementValueList-TDD-DM-Rsp
+Multiple-DedicatedMeasurementValueList-LCR-TDD-DM-Rsp N nbap.extension id-multiple-DedicatedMeasurementValueList-LCR-TDD-DM-Rsp
+Multiple-PUSCH-InfoList-DM-Rsp     N nbap.extension id-multiple-PUSCH-InfoList-DM-Rsp
+Multiple-HSSICHMeasurementValueList-TDD-DM-Rsp N nbap.extension id-multiple-HSSICHMeasurementValueList-TDD-DM-Rsp
+DPCH-ID768                         N nbap.extension id-DPCH-ID768-DM-Rsp
+Multiple-DedicatedMeasurementValueList-768-TDD-DM-Rsp N nbap.extension id-multiple-DedicatedMeasurementValueList-768-TDD-DM-Rsp
+PUSCH-Info-DM-Rprt                 N nbap.extension id-PUSCH-Info-DM-Rprt
+HS-SICH-ID                         N nbap.extension id-HSSICH-Info-DM-Rprt
+Multiple-PUSCH-InfoList-DM-Rprt    N nbap.extension id-multiple-PUSCH-InfoList-DM-Rprt
+DPCH-ID768                         N nbap.extension id-DPCH-ID768-DM-Rprt
+DL-ScramblingCode                  N nbap.extension id-E-AGCH-And-E-RGCH-E-HICH-FDD-Scrambling-Code
+E-AGCH-FDD-Code-Information        N nbap.extension id-E-AGCH-FDD-Code-Information
+E-RGCH-E-HICH-FDD-Code-Information N nbap.extension id-E-RGCH-E-HICH-FDD-Code-Information
+HSDPA-And-EDCH-CellPortion-InformationList-PSCH-ReconfRqst N nbap.extension id-HSDPA-And-EDCH-CellPortion-Information-PSCH-ReconfRqst
+Maximum-Target-ReceivedTotalWideBandPower N nbap.extension id-Maximum-Target-ReceivedTotalWideBandPower
+Target-NonServing-EDCH-To-Total-EDCH-Power-Ratio N nbap.extension id-Target-NonServing-EDCH-To-Total-EDCH-Power-Ratio
+HSDSCH-Common-System-InformationFDD N nbap.extension id-HSDSCH-Common-System-InformationFDD
+HSDSCH-Paging-System-InformationFDD N nbap.extension id-HSDSCH-Paging-System-InformationFDD
+HS-PDSCH-TDD-Information-PSCH-ReconfRqst N nbap.extension id-HS-PDSCH-TDD-Information-PSCH-ReconfRqst
+Add-To-HS-SCCH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Add-To-HS-SCCH-Resource-Pool-PSCH-ReconfRqst
+Modify-HS-SCCH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Modify-HS-SCCH-Resource-Pool-PSCH-ReconfRqst
+Delete-From-HS-SCCH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Delete-From-HS-SCCH-Resource-Pool-PSCH-ReconfRqst
+ConfigurationGenerationID          N nbap.extension id-ConfigurationGenerationID
+E-PUCH-Information-PSCH-ReconfRqst N nbap.extension id-E-PUCH-Information-PSCH-ReconfRqst
+Add-To-E-AGCH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Add-To-E-AGCH-Resource-Pool-PSCH-ReconfRqst
+Modify-E-AGCH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Modify-E-AGCH-Resource-Pool-PSCH-ReconfRqst
+Delete-From-E-AGCH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Delete-From-E-AGCH-Resource-Pool-PSCH-ReconfRqst
+E-HICH-Information-PSCH-ReconfRqst N nbap.extension id-E-HICH-Information-PSCH-ReconfRqst
+Maximum-Generated-ReceivedTotalWideBandPowerInOtherCells N nbap.extension id-Maximum-Generated-ReceivedTotalWideBandPowerInOtherCells
+E-PUCH-Information-768-PSCH-ReconfRqst N nbap.extension id-E-PUCH-Information-768-PSCH-ReconfRqst
+Add-To-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst N nbap.extension id-Add-To-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst
+Modify-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst N nbap.extension id-Modify-E-AGCH-Resource-Pool-768-PSCH-ReconfRqst
+E-HICH-Information-768-PSCH-ReconfRqst N nbap.extension id-E-HICH-Information-768-PSCH-ReconfRqst
+E-PUCH-Information-LCR-PSCH-ReconfRqst N nbap.extension id-E-PUCH-Information-LCR-PSCH-ReconfRqst
+Add-To-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst N nbap.extension id-Add-To-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst
+Modify-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst N nbap.extension id-Modify-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst
+Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst N nbap.extension id-Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst
+Modify-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst N nbap.extension id-Modify-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst
+Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst N nbap.extension id-Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst
+SYNC-UL-Partition-LCR              N nbap.extension id-SYNC-UL-Partition-LCR
+Reference-ReceivedTotalWideBandPower-LCR N nbap.extension id-Reference-ReceivedTotalWideBandPower-LCR
+PDSCH-AddInformation-LCR-AddItem-PSCH-ReconfRqst N nbap.extension id-PDSCH-AddInformation-LCR-PSCH-ReconfRqst
+PDSCH-AddInformation-768-AddItem-PSCH-ReconfRqst N nbap.extension id-PDSCH-AddInformation-768-PSCH-ReconfRqst
+TDD-DL-DPCH-TimeSlotFormat-LCR     N nbap.extension id-PDSCH-Timeslot-Format-PSCH-ReconfRqst-LCR
+PDSCH-ModifyInformation-768-ModifyItem-PSCH-ReconfRqst N nbap.extension id-PDSCH-ModifyInformation-768-PSCH-ReconfRqst
+PUSCH-AddInformation-LCR-AddItem-PSCH-ReconfRqst N nbap.extension id-PUSCH-AddInformation-LCR-PSCH-ReconfRqst
+PUSCH-AddInformation-768-AddItem-PSCH-ReconfRqst N nbap.extension id-PUSCH-AddInformation-768-PSCH-ReconfRqst
+TDD-UL-DPCH-TimeSlotFormat-LCR     N nbap.extension id-PUSCH-Timeslot-Format-PSCH-ReconfRqst-LCR
+PUSCH-ModifyInformation-768-ModifyItem-PSCH-ReconfRqst N nbap.extension id-PUSCH-ModifyInformation-768-PSCH-ReconfRqst
+DL-HS-PDSCH-Timeslot-Information-768-PSCH-ReconfRqst N nbap.extension id-dL-HS-PDSCH-Timeslot-Information-768-PSCH-ReconfRqst
+HS-SCCH-Information-768-PSCH-ReconfRqst N nbap.extension id-hS-SCCH-Information-768-PSCH-ReconfRqst
+HS-SCCH-InformationModify-768-PSCH-ReconfRqst N nbap.extension id-hS-SCCH-InformationModify-768-PSCH-ReconfRqst
+E-HICH-TimeOffset                  N nbap.extension id-E-HICH-TimeOffset
+E-HICH-TimeOffsetLCR               N nbap.extension id-E-HICH-TimeOffsetLCR
+HSDSCH-Common-System-Information-ResponseFDD N nbap.extension id-HSDSCH-Common-System-Information-ResponseFDD
+HSDSCH-Paging-System-Information-ResponseFDD N nbap.extension id-HSDSCH-Paging-System-Information-ResponseFDD
+SYNCDlCodeId-TransInitLCR-CellSyncInitiationRqstTDD N nbap.extension id-SYNCDlCodeId-TransInitLCR-CellSyncInitiationRqstTDD
+SYNCDlCodeId-MeasureInitLCR-CellSyncInitiationRqstTDD N nbap.extension id-SYNCDlCodeId-MeasureInitLCR-CellSyncInitiationRqstTDD
+NSubCyclesPerCyclePeriod           N nbap.extension id-NSubCyclesPerCyclePeriod-CellSyncReconfRqstTDD
+SYNCDlCodeIdTransReconfInfoLCR-CellSyncReconfRqstTDD N nbap.extension id-SYNCDlCodeIdTransReconfInfoLCR-CellSyncReconfRqstTDD
+SYNCDlCodeIdMeasInfoLCR-CellSyncReconfRqstTDD N nbap.extension id-SYNCDlCodeIdMeasReconfigurationLCR-CellSyncReconfRqstTDD
+DwPCH-Power                        N nbap.extension id-DwPCH-Power
+TimingAdjustmentValueLCR           N nbap.extension id-TimingAdjustmentValueLCR
+TimingAdjustmentValue              N nbap.extension id-AccumulatedClockupdate-CellSyncReprtTDD
+SyncDLCodeIdsMeasInfoList-CellSyncReprtTDD N nbap.extension id-SyncDLCodeIdsMeasInfoList-CellSyncReprtTDD
+E-DCH-RearrangeList-Bearer-RearrangeInd N nbap.extension id-E-DCH-RearrangeList-Bearer-RearrangeInd
+E-DCH-FDD-Update-Information       N nbap.extension id-E-DCH-FDD-Update-Information
+
+#NBAP-ELEMENTARY-PROCEDURE
+CellSetupRequestFDD                    S nbap.proc.imsg "id-cellSetup/fdd"
+CellSetupResponse                      S nbap.proc.sout "id-cellSetup/fdd"
+CellSetupFailure                       S nbap.proc.uout "id-cellSetup/fdd"
+CellSetupRequestTDD                    S nbap.proc.imsg "id-cellSetup/tdd"
+CellSetupResponse                      S nbap.proc.sout "id-cellSetup/tdd"
+CellSetupFailure                       S nbap.proc.uout "id-cellSetup/tdd"
+CellReconfigurationRequestFDD          S nbap.proc.imsg "id-cellReconfiguration/fdd"
+CellReconfigurationResponse            S nbap.proc.sout "id-cellReconfiguration/fdd"
+CellReconfigurationFailure             S nbap.proc.uout "id-cellReconfiguration/fdd"
+CellReconfigurationRequestTDD          S nbap.proc.imsg "id-cellReconfiguration/tdd"
+CellReconfigurationResponse            S nbap.proc.sout "id-cellReconfiguration/tdd"
+CellReconfigurationFailure             S nbap.proc.uout "id-cellReconfiguration/tdd"
+CellDeletionRequest                    S nbap.proc.imsg "id-cellDeletion/common"
+CellDeletionResponse                   S nbap.proc.sout "id-cellDeletion/common"
+CommonTransportChannelSetupRequestFDD  S nbap.proc.imsg "id-commonTransportChannelSetup/fdd"
+CommonTransportChannelSetupResponse    S nbap.proc.sout "id-commonTransportChannelSetup/fdd"
+CommonTransportChannelSetupFailure     S nbap.proc.uout "id-commonTransportChannelSetup/fdd"
+CommonTransportChannelSetupRequestTDD  S nbap.proc.imsg "id-commonTransportChannelSetup/tdd"
+CommonTransportChannelSetupResponse    S nbap.proc.sout "id-commonTransportChannelSetup/tdd"
+CommonTransportChannelSetupFailure     S nbap.proc.uout "id-commonTransportChannelSetup/tdd"
+CommonTransportChannelReconfigurationRequestFDD S nbap.proc.imsg "id-commonTransportChannelReconfigure/fdd"
+CommonTransportChannelReconfigurationResponse S nbap.proc.sout "id-commonTransportChannelReconfigure/fdd"
+CommonTransportChannelReconfigurationFailure S nbap.proc.uout "id-commonTransportChannelReconfigure/fdd"
+CommonTransportChannelReconfigurationRequestTDD S nbap.proc.imsg "id-commonTransportChannelReconfigure/tdd"
+CommonTransportChannelReconfigurationResponse S nbap.proc.sout "id-commonTransportChannelReconfigure/tdd"
+CommonTransportChannelReconfigurationFailure S nbap.proc.uout "id-commonTransportChannelReconfigure/tdd"
+CommonTransportChannelDeletionRequest  S nbap.proc.imsg "id-commonTransportChannelDelete/common"
+CommonTransportChannelDeletionResponse S nbap.proc.sout "id-commonTransportChannelDelete/common"
+AuditRequest                           S nbap.proc.imsg "id-audit/common"
+AuditResponse                          S nbap.proc.sout "id-audit/common"
+AuditFailure                           S nbap.proc.uout "id-audit/common"
+BlockResourceRequest                   S nbap.proc.imsg "id-blockResource/common"
+BlockResourceResponse                  S nbap.proc.sout "id-blockResource/common"
+BlockResourceFailure                   S nbap.proc.uout "id-blockResource/common"
+RadioLinkSetupRequestFDD               S nbap.proc.imsg "id-radioLinkSetup/fdd"
+RadioLinkSetupResponseFDD              S nbap.proc.sout "id-radioLinkSetup/fdd"
+RadioLinkSetupFailureFDD               S nbap.proc.uout "id-radioLinkSetup/fdd"
+RadioLinkSetupRequestTDD               S nbap.proc.imsg "id-radioLinkSetup/tdd"
+RadioLinkSetupResponseTDD              S nbap.proc.sout "id-radioLinkSetup/tdd"
+RadioLinkSetupFailureTDD               S nbap.proc.uout "id-radioLinkSetup/tdd"
+SystemInformationUpdateRequest         S nbap.proc.imsg "id-systemInformationUpdate/common"
+SystemInformationUpdateResponse        S nbap.proc.sout "id-systemInformationUpdate/common"
+SystemInformationUpdateFailure         S nbap.proc.uout "id-systemInformationUpdate/common"
+ResetRequest                           S nbap.proc.imsg "id-reset/common"
+ResetResponse                          S nbap.proc.sout "id-reset/common"
+CommonMeasurementInitiationRequest     S nbap.proc.imsg "id-commonMeasurementInitiation/common"
+CommonMeasurementInitiationResponse    S nbap.proc.sout "id-commonMeasurementInitiation/common"
+CommonMeasurementInitiationFailure     S nbap.proc.uout "id-commonMeasurementInitiation/common"
+RadioLinkAdditionRequestFDD            S nbap.proc.imsg "id-radioLinkAddition/fdd"
+RadioLinkAdditionResponseFDD           S nbap.proc.sout "id-radioLinkAddition/fdd"
+RadioLinkAdditionFailureFDD            S nbap.proc.uout "id-radioLinkAddition/fdd"
+RadioLinkAdditionRequestTDD            S nbap.proc.imsg "id-radioLinkAddition/tdd"
+RadioLinkAdditionResponseTDD           S nbap.proc.sout "id-radioLinkAddition/tdd"
+RadioLinkAdditionFailureTDD            S nbap.proc.uout "id-radioLinkAddition/tdd"
+RadioLinkDeletionRequest               S nbap.proc.imsg "id-radioLinkDeletion/common"
+RadioLinkDeletionResponse              S nbap.proc.sout "id-radioLinkDeletion/common"
+RadioLinkReconfigurationPrepareFDD     S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationReady          S nbap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationFailure        S nbap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationPrepareTDD     S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationReady          S nbap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationFailure        S nbap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationRequestFDD     S nbap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationResponse       S nbap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationFailure        S nbap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationRequestTDD     S nbap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/tdd"
+RadioLinkReconfigurationResponse       S nbap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/tdd"
+RadioLinkReconfigurationFailure        S nbap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/tdd"
+DedicatedMeasurementInitiationRequest  S nbap.proc.imsg "id-dedicatedMeasurementInitiation/common"
+DedicatedMeasurementInitiationResponse S nbap.proc.sout "id-dedicatedMeasurementInitiation/common"
+DedicatedMeasurementInitiationFailure  S nbap.proc.uout "id-dedicatedMeasurementInitiation/common"
+PhysicalSharedChannelReconfigurationRequestFDD S nbap.proc.imsg "id-physicalSharedChannelReconfiguration/fdd"
+PhysicalSharedChannelReconfigurationResponse S nbap.proc.sout "id-physicalSharedChannelReconfiguration/fdd"
+PhysicalSharedChannelReconfigurationFailure S nbap.proc.uout "id-physicalSharedChannelReconfiguration/fdd"
+PhysicalSharedChannelReconfigurationRequestTDD S nbap.proc.imsg "id-physicalSharedChannelReconfiguration/tdd"
+PhysicalSharedChannelReconfigurationResponse S nbap.proc.sout "id-physicalSharedChannelReconfiguration/tdd"
+PhysicalSharedChannelReconfigurationFailure S nbap.proc.uout "id-physicalSharedChannelReconfiguration/tdd"
+InformationExchangeInitiationRequest   S nbap.proc.imsg "id-informationExchangeInitiation/common"
+InformationExchangeInitiationResponse  S nbap.proc.sout "id-informationExchangeInitiation/common"
+InformationExchangeInitiationFailure   S nbap.proc.uout "id-informationExchangeInitiation/common"
+CellSynchronisationInitiationRequestTDD S nbap.proc.imsg "id-cellSynchronisationInitiation/tdd"
+CellSynchronisationInitiationResponseTDD S nbap.proc.sout "id-cellSynchronisationInitiation/tdd"
+CellSynchronisationInitiationFailureTDD S nbap.proc.uout "id-cellSynchronisationInitiation/tdd"
+CellSynchronisationReconfigurationRequestTDD S nbap.proc.imsg "id-cellSynchronisationReconfiguration/tdd"
+CellSynchronisationReconfigurationResponseTDD S nbap.proc.sout "id-cellSynchronisationReconfiguration/tdd"
+CellSynchronisationReconfigurationFailureTDD S nbap.proc.uout "id-cellSynchronisationReconfiguration/tdd"
+CellSynchronisationAdjustmentRequestTDD S nbap.proc.imsg "id-cellSynchronisationAdjustment/tdd"
+CellSynchronisationAdjustmentResponseTDD S nbap.proc.sout "id-cellSynchronisationAdjustment/tdd"
+CellSynchronisationAdjustmentFailureTDD S nbap.proc.uout "id-cellSynchronisationAdjustment/tdd"
+ResourceStatusIndication               S nbap.proc.imsg "id-resourceStatusIndication/common"
+AuditRequiredIndication                S nbap.proc.imsg "id-auditRequired/common"
+CommonMeasurementReport                S nbap.proc.imsg "id-commonMeasurementReport/common"
+CommonMeasurementTerminationRequest    S nbap.proc.imsg "id-commonMeasurementTermination/common"
+CommonMeasurementFailureIndication     S nbap.proc.imsg "id-commonMeasurementFailure/common"
+RadioLinkReconfigurationCommit         S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationCommit/common"
+RadioLinkReconfigurationCancel         S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationCancellation/common"
+RadioLinkFailureIndication             S nbap.proc.imsg "id-radioLinkFailure/common"
+RadioLinkPreemptionRequiredIndication  S nbap.proc.imsg "id-radioLinkPreemption/common"
+RadioLinkRestoreIndication             S nbap.proc.imsg "id-radioLinkRestoration/common"
+DedicatedMeasurementReport             S nbap.proc.imsg "id-dedicatedMeasurementReport/common"
+DedicatedMeasurementTerminationRequest S nbap.proc.imsg "id-dedicatedMeasurementTermination/common"
+DedicatedMeasurementFailureIndication  S nbap.proc.imsg "id-dedicatedMeasurementFailure/common"
+DL-PowerControlRequest                 S nbap.proc.imsg "id-downlinkPowerControl/fdd"
+DL-PowerTimeslotControlRequest         S nbap.proc.imsg "id-downlinkPowerTimeslotControl/tdd"
+CompressedModeCommand                  S nbap.proc.imsg "id-compressedModeCommand/fdd"
+UnblockResourceIndication              S nbap.proc.imsg "id-unblockResource/common"
+ErrorIndication                        S nbap.proc.imsg "id-errorIndicationForDedicated/common"
+ErrorIndication                        S nbap.proc.imsg "id-errorIndicationForCommon/common"
+CellSynchronisationReportTDD           S nbap.proc.imsg "id-cellSynchronisationReporting/tdd"
+CellSynchronisationTerminationRequestTDD S nbap.proc.imsg "id-cellSynchronisationTermination/tdd"
+CellSynchronisationFailureIndicationTDD S nbap.proc.imsg "id-cellSynchronisationFailure/tdd"
+PrivateMessage                         S nbap.proc.imsg "id-privateMessageForDedicated/common"
+PrivateMessage                         S nbap.proc.imsg "id-privateMessageForCommon/common"
+InformationReport                      S nbap.proc.imsg "id-informationReporting/common"
+InformationExchangeTerminationRequest  S nbap.proc.imsg "id-informationExchangeTermination/common"
+InformationExchangeFailureIndication   S nbap.proc.imsg "id-informationExchangeFailure/common"
+BearerRearrangementIndication          S nbap.proc.imsg "id-BearerRearrangement/common"
+RadioLinkActivationCommandFDD          S nbap.proc.imsg "id-radioLinkActivation/fdd"
+RadioLinkActivationCommandTDD          S nbap.proc.imsg "id-radioLinkActivation/tdd"
+RadioLinkParameterUpdateIndicationFDD  S nbap.proc.imsg "id-radioLinkParameterUpdate/fdd"
+RadioLinkParameterUpdateIndicationTDD  S nbap.proc.imsg "id-radioLinkParameterUpdate/tdd"
+MBMSNotificationUpdateCommand          S nbap.proc.imsg "id-mBMSNotificationUpdate/common"
+
+#.END

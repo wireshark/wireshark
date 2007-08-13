@@ -5157,7 +5157,7 @@ class BitStringType (Type):
     #print "eth_type_default_table(tname='%s')" % (tname)
     table = ''
     bits = self.eth_named_bits()
-    if (bits):
+    if (bits and ectx.Ber()):
       table = ectx.eth_bits(tname, bits)
     return table
 

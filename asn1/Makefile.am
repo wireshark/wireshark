@@ -213,10 +213,14 @@ EXTRA_DIST = \
 	mpeg/packet-mpeg-pes-template.c \
 	nbap/Makefile	\
 	nbap/Makefile.nmake	\
-	nbap/nbap.asn	\
+	nbap/NBAP-CommonDataTypes.asn \
+	nbap/NBAP-Constants.asn \
+	nbap/NBAP-Containers.asn \
+	nbap/NBAP-IEs.asn \
+	nbap/NBAP-PDU-Contents.asn \
+	nbap/NBAP-PDU-Descriptions.asn \
 	nbap/nbap.cnf	\
 	nbap/packet-nbap-template.c	\
-	nbap/packet-nbap-template.h	\
 	ns-cert-exts/Makefile	\
 	ns-cert-exts/Makefile.nmake	\
 	ns-cert-exts/NETSCAPE-CERT-EXTS.asn	\
