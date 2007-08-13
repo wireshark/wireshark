@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-rtse.c                                                            */
+/* .\packet-rtse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -891,7 +891,7 @@ dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
    }
 
    offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
-	                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
+                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
 
 
 
@@ -965,9 +965,6 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_rtse);
 	}
 	if (rtse_reassemble && session->spdu_type == SES_DATA_TRANSFER) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE Fragment]");
-
 		/* strip off the OCTET STRING encoding - including any CONSTRUCTED OCTET STRING */
 		dissect_ber_octet_string(FALSE, &asn1_ctx, NULL, tvb, offset, 0, &data_tvb);
 
@@ -986,7 +983,13 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 			pinfo->fragmented = TRUE;
 			data_handled = TRUE;
+		} else {
+			fragment_length = tvb_length_remaining (tvb, offset);
 		}
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[RTSE fragment, %u byte%s]",
+					fragment_length, plurality(fragment_length, "", "s"));
 	} else if (rtse_reassemble && session->spdu_type == SES_MAJOR_SYNC_POINT) {
 		if (next_tvb) {
 			/* ROS won't do this for us */
@@ -1184,7 +1187,7 @@ void proto_register_rtse(void) {
         "rtse.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 319 "packet-rtse-template.c"
+#line 322 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1208,7 +1211,7 @@ void proto_register_rtse(void) {
     &ett_rtse_T_encoding,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 328 "packet-rtse-template.c"
+#line 331 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;

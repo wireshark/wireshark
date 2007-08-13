@@ -80,7 +80,7 @@ static void append_oid(packet_info *pinfo, const char *oid)
 
   if(check_col(pinfo->cinfo, COL_INFO)) {
     name = get_oid_str_name(oid);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", name ? name : oid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : oid);
   }
 }
 

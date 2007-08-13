@@ -553,7 +553,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  item = proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, FALSE);
 
 	  /* remove 2 bytes to take off the final CRLF to make things a little prettier */
-	  item = proto_tree_add_item(unknown_tree, hf_id, tvb, start_offset, end_offset - start_offset - 2, FALSE);
+	  item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, start_offset, end_offset - start_offset - 2, FALSE);
 
 	} else
 

@@ -2117,7 +2117,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 
 			/* if we consumed some bytes, 
 			   or we knew the length was zero (during the first pass only) */
-			if(count || (first_pass && (len == 0))) {
+			if(count || (first_pass && (len == 0 || (ind_field == 1 && len == 2)))) {
 			    /* we found it! */
 			    if(set_idx < MAX_SET_ELEMENTS)
 				  mandatory_fields &= ~(1 << set_idx);
@@ -2378,7 +2378,7 @@ printf("SET dissect_old_ber_set(%s) calling subdissector\n",name);
 
 			/* if we consumed some bytes, 
 			   or we knew the length was zero (during the first pass only) */
-			if(count || (first_pass && (len == 0))) {
+			if(count || (first_pass && (len == 0 || (ind_field == 1 && len == 2)))) {
 			    /* we found it! */
 			    if(set_idx < MAX_SET_ELEMENTS)
 				  mandatory_fields &= ~(1 << set_idx);
