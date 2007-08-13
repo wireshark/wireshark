@@ -114,6 +114,8 @@ void proto_register_ulp(void) {
 
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
