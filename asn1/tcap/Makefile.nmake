@@ -7,16 +7,28 @@ include ../../config.nmake
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=tcap
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+PROTOCOL_NAME2=ansi_tcap
+ITU_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+ANSI_FILES=packet-$(PROTOCOL_NAME2).c packet-$(PROTOCOL_NAME2).h
+DISSECTOR_FILES=$(ITU_FILES) $(ANSI_FILES)
 TCAP_ASN=tcap.asn
+ANSI_ASN_FILES=  TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(TCAP_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h tcap.cnf 
+$(ITU_FILES): ../../tools/asn2wrs.py $(TCAP_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h tcap.cnf 
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" -b -e -p $(PROTOCOL_NAME) -c tcap.cnf -s packet-$(PROTOCOL_NAME)-template $(TCAP_ASN)
+!ELSE
+	@echo Error: You need Python to use asn2wrs.py
+	@exit 1
+!ENDIF
+
+$(ANSI_FILES): ../../tools/asn2wrs.py $(ANSI_ASN_FILES) packet-$(PROTOCOL_NAME2)-template.c packet-$(PROTOCOL_NAME2)-template.h ansi_tcap.cnf 
+!IFDEF PYTHON
+	$(PYTHON) "../../tools/asn2wrs.py" -b -X -T -e -p $(PROTOCOL_NAME2) -c ansi_tcap.cnf -s packet-$(PROTOCOL_NAME2)-template $(ANSI_ASN_FILES)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
@@ -40,7 +52,14 @@ fix_eol: generate_dissector
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
 	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
+	move packet-$(PROTOCOL_NAME2).c packet-$(PROTOCOL_NAME2).c.tmp
+	move packet-$(PROTOCOL_NAME2).h packet-$(PROTOCOL_NAME2).h.tmp
+	$(UNIX2DOS) < packet-$(PROTOCOL_NAME2).c.tmp > packet-$(PROTOCOL_NAME2).c
+	$(UNIX2DOS) < packet-$(PROTOCOL_NAME2).h.tmp > packet-$(PROTOCOL_NAME2).h
+	del /f packet-$(PROTOCOL_NAME2).c.tmp packet-$(PROTOCOL_NAME2).h.tmp
 
 copy_files: generate_dissector fix_eol
 	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
 	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
+	xcopy packet-$(PROTOCOL_NAME2).c ..\..\epan\dissectors /d /y
+	xcopy packet-$(PROTOCOL_NAME2).h ..\..\epan\dissectors /d /y
