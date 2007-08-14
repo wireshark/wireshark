@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-tcap.c                                                            */
+/* .\packet-tcap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -290,6 +290,7 @@ static proto_tree * tcap_top_tree=NULL;
 static proto_tree * tcap_stat_tree=NULL;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t ansi_tcap_handle;
 
 static dissector_table_t sccp_ssn_table;
 
@@ -2478,7 +2479,7 @@ static void dissect_UniDialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 147 "packet-tcap-template.c"
+#line 148 "packet-tcap-template.c"
 
 
 
@@ -2500,6 +2501,42 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 	asn1_ctx_t asn1_ctx;
+	gint8 class;
+	gboolean pc;
+	gint tag;
+
+	/* Check if ANSI TCAP and call the ANSI TCAP dissector if that's the case 
+	 * PackageType ::= CHOICE { unidirectional			[PRIVATE 1] IMPLICIT UniTransactionPDU,
+	 * 						 queryWithPerm				[PRIVATE 2] IMPLICIT TransactionPDU,
+	 * 						 queryWithoutPerm			[PRIVATE 3] IMPLICIT TransactionPDU,
+	 * 						 response					[PRIVATE 4] IMPLICIT TransactionPDU,
+	 * 						 conversationWithPerm		[PRIVATE 5] IMPLICIT TransactionPDU,
+	 * 						 conversationWithoutPerm	[PRIVATE 6] IMPLICIT TransactionPDU,
+	 * 						 abort						[PRIVATE 22] IMPLICIT Abort 
+	 * 						 }
+	 * 	
+	 * 
+	 */
+	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+#if 0
+	if(class == BER_CLASS_PRI){
+		switch(tag){
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 22:
+			call_dissector(ansi_tcap_handle, tvb, pinfo, parent_tree);
+			return;
+			break;
+		default:
+			return;
+		}
+	}
+#endif
+	/* ITU TCAP */
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     tcap_top_tree = parent_tree;
@@ -2562,6 +2599,8 @@ proto_reg_handoff_tcap(void)
     }
 
     data_handle = find_dissector("data");
+	ansi_tcap_handle = find_dissector("ansi_tcap");
+
 
 /*--- Included file: packet-tcap-dis-tab.c ---*/
 #line 1 "packet-tcap-dis-tab.c"
@@ -2570,7 +2609,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 231 "packet-tcap-template.c"
+#line 270 "packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3133,7 +3172,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 293 "packet-tcap-template.c"
+#line 332 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3198,7 +3237,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 303 "packet-tcap-template.c"
+#line 342 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

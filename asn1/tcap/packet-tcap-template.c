@@ -97,6 +97,7 @@ static proto_tree * tcap_top_tree=NULL;
 static proto_tree * tcap_stat_tree=NULL;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t ansi_tcap_handle;
 
 static dissector_table_t sccp_ssn_table;
 
@@ -165,6 +166,42 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 	asn1_ctx_t asn1_ctx;
+	gint8 class;
+	gboolean pc;
+	gint tag;
+
+	/* Check if ANSI TCAP and call the ANSI TCAP dissector if that's the case 
+	 * PackageType ::= CHOICE { unidirectional			[PRIVATE 1] IMPLICIT UniTransactionPDU,
+	 * 						 queryWithPerm				[PRIVATE 2] IMPLICIT TransactionPDU,
+	 * 						 queryWithoutPerm			[PRIVATE 3] IMPLICIT TransactionPDU,
+	 * 						 response					[PRIVATE 4] IMPLICIT TransactionPDU,
+	 * 						 conversationWithPerm		[PRIVATE 5] IMPLICIT TransactionPDU,
+	 * 						 conversationWithoutPerm	[PRIVATE 6] IMPLICIT TransactionPDU,
+	 * 						 abort						[PRIVATE 22] IMPLICIT Abort 
+	 * 						 }
+	 * 	
+	 * 
+	 */
+	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+#if 0
+	if(class == BER_CLASS_PRI){
+		switch(tag){
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 22:
+			call_dissector(ansi_tcap_handle, tvb, pinfo, parent_tree);
+			return;
+			break;
+		default:
+			return;
+		}
+	}
+#endif
+	/* ITU TCAP */
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     tcap_top_tree = parent_tree;
@@ -227,6 +264,8 @@ proto_reg_handoff_tcap(void)
     }
 
     data_handle = find_dissector("data");
+	ansi_tcap_handle = find_dissector("ansi_tcap");
+
 #include "packet-tcap-dis-tab.c"
 }
 

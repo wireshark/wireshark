@@ -81,6 +81,7 @@ ASN_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
 	packet-ansi_map.c \
+	packet-ansi_tcap.c \
 	packet-camel.c \
 	packet-cdt.c \
 	packet-cmip.c \
@@ -771,6 +772,7 @@ DISSECTOR_INCLUDES =	\
 	packet-alcap.h	\
 	packet-ansi_a.h	\
 	packet-ansi_map.h	\
+	packet-ansi_tcap.h \
 	packet-ap1394.h	\
 	packet-arcnet.h	\
 	packet-arp.h	\
