@@ -167,7 +167,9 @@ static int hf_gtp_sndcp_number		= -1;
 static int hf_gtp_tear_ind			= -1;
 static int hf_gtp_teid				= -1;
 static int hf_gtp_teid_cp			= -1;
+static int hf_gtp_ulink_teid_cp		= -1;
 static int hf_gtp_teid_data			= -1;
+static int hf_gtp_ulink_teid_data	= -1;
 static int hf_gtp_teid_ii			= -1;
 static int hf_gtp_tft_code			= -1;
 static int hf_gtp_tft_spare			= -1;
@@ -3865,7 +3867,7 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	guint8		ggsn_addr_len, apn_len, trans_id, vaa, order, nsapi, sapi, pdu_send_no, pdu_rec_no, pdp_cntxt_id,
 			pdp_type_org, pdp_type_num, pdp_addr_len;
 	guint16		length, sn_down, sn_up, up_flow;
-	guint32 	addr_ipv4, up_teid, up_teid_cp;
+	guint32 	addr_ipv4;
 	struct	e_in6_addr addr_ipv6;
 	proto_tree	*ext_tree_pdp;
 	proto_item	*te;
@@ -3919,11 +3921,9 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 			offset = offset + 8;
 			break;
 		case 1:
-			up_teid = tvb_get_ntohl(tvb, offset+6);
-			up_teid_cp = tvb_get_ntohl(tvb, offset+10);
 			pdp_cntxt_id = tvb_get_guint8(tvb, offset+14);
-			proto_tree_add_text(ext_tree_pdp, tvb, offset+6, 4, "Uplink TEID: %x", up_teid);
-			proto_tree_add_text(ext_tree_pdp, tvb, offset+10, 4, "Uplink TEID control plane: %x", up_teid_cp);
+			proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_cp, tvb, offset+6, 4, FALSE);
+			proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_data, tvb, offset+10, 4, FALSE);
 			proto_tree_add_text(ext_tree_pdp, tvb, offset+14, 1, "PDP context identifier: %u", pdp_cntxt_id);
 			offset = offset + 15;
 			break;
@@ -3962,11 +3962,11 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	switch (ggsn_addr_len) {
 		case 4:
 			addr_ipv4 = tvb_get_ipv4(tvb, offset+1);
-			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 4, "GGSN address: %s", ip_to_str((guint8 *)&addr_ipv4));
+			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 4, "GGSN Address for control plane: %s", ip_to_str((guint8 *)&addr_ipv4));
 			break;
 		case 16:
 			tvb_get_ipv6(tvb, offset+1, &addr_ipv6);
-			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 16, "GGSN address: %s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
+			proto_tree_add_text(ext_tree_pdp, tvb, offset+1, 16, "GGSN Address for User Traffic: %s", ip6_to_str((struct e_in6_addr*)&addr_ipv6));
 			break;
 		default:
 			break;
@@ -4000,9 +4000,16 @@ decode_gtp_pdp_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	decode_apn(tvb, offset+1, apn_len, ext_tree_pdp);
 
 	offset = offset + 1 + apn_len;
-
+	/*
+	 * The Transaction Identifier is the 4 or 12 bit Transaction Identifier used in the 3GPP TS 24.008 [5] Session Management
+	 * messages which control this PDP Context. If the length of the Transaction Identifier is 4 bit, the second octet shall be
+	 * set to all zeros. The encoding is defined in 3GPP TS 24.007 [3]. The latest Transaction Identifier sent from SGSN to
+	 * MS is stored in the PDP context IE.
+	 * NOTE: Bit 5-8 of the first octet in the encoding defined in 3GPP TS 24.007 [3] is mapped into bit 1-4 of the first
+	 * octet in this field.
+	 */
 	trans_id = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "Transaction identifier: %u", trans_id);
+	proto_tree_add_text(ext_tree_pdp, tvb, offset, 2, "Transaction identifier: %u", trans_id);
 
 	return 3+length;
 }
@@ -5989,7 +5996,9 @@ proto_register_gtp(void)
 		{ &hf_gtp_tear_ind, { "Teardown Indicator", "gtp.tear_ind", FT_BOOLEAN, BASE_NONE,NULL, 0, "Teardown Indicator", HFILL }},
 		{ &hf_gtp_teid, { "TEID", "gtp.teid", FT_UINT32, BASE_HEX, NULL, 0, "Tunnel Endpoint Identifier", HFILL }},
 		{ &hf_gtp_teid_cp, { "TEID Control Plane", "gtp.teid_cp", FT_UINT32, BASE_HEX, NULL, 0, "Tunnel Endpoint Identifier Control Plane", HFILL }},
+		{ &hf_gtp_ulink_teid_cp, { "Uplink TEID Control Plane", "gtp.teid_cp", FT_UINT32, BASE_HEX, NULL, 0, "Uplink Tunnel Endpoint Identifier Control Plane", HFILL }},
 		{ &hf_gtp_teid_data, { "TEID Data I", "gtp.teid_data", FT_UINT32, BASE_HEX, NULL, 0, "Tunnel Endpoint Identifier Data I", HFILL }},
+		{ &hf_gtp_ulink_teid_data, { "Uplink TEID Data I", "gtp.teid_data", FT_UINT32, BASE_HEX, NULL, 0, "UplinkTunnel Endpoint Identifier Data I", HFILL }},
 		{ &hf_gtp_teid_ii, { "TEID Data II", "gtp.teid_ii", FT_UINT32, BASE_HEX, NULL, 0, "Tunnel Endpoint Identifier Data II", HFILL }},
 		{ &hf_gtp_tft_code, { "TFT operation code", "gtp.tft_code", FT_UINT8, BASE_DEC, VALS (tft_code_type), GTPv1_TFT_CODE_MASK, "TFT operation code", HFILL }},
 		{ &hf_gtp_tft_spare, { "TFT spare bit",	"gtp.tft_spare", FT_UINT8, BASE_DEC, NULL, GTPv1_TFT_SPARE_MASK, "TFT spare bit", HFILL }},
