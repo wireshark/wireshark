@@ -1110,13 +1110,29 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 {
   int hash_idx;
   hashmanuf_t *tp;
+  guint8 stripped_addr[3];
 
   hash_idx = HASH_ETH_MANUF(addr);
 
+  /* first try to find a "perfect match" */
   tp = manuf_table[hash_idx];
-
   while(tp != NULL) {
     if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
+      return tp;
+    }
+    tp = tp->next;
+  }
+
+  /* strip off special bits and try again to find the name */
+  /* the first address byte contains two special bits: */
+  /* 0x01 multicast / broadcast bit */
+  /* 0x02 locally administered bit */
+  memcpy(stripped_addr, addr, 3);
+  stripped_addr[0] &= 0xFC;
+
+  tp = manuf_table[hash_idx];
+  while(tp != NULL) {
+    if (memcmp(tp->addr, stripped_addr, sizeof(tp->addr)) == 0) {
       return tp;
     }
     tp = tp->next;
