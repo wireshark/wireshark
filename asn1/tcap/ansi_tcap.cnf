@@ -1,0 +1,43 @@
+# tcap.cnf
+# $Id$
+# tcap conformation file
+
+
+#--- INVOKE ---
+#.FIELD_ATTR
+Invoke/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+
+#.FN_BODY Invoke/parameter
+tvbuff_t	*parameter_tvb;
+
+  offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+  if(!parameter_tvb)
+	return offset;
+
+
+#.FIELD_ATTR
+ReturnResult/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+
+#.FN_BODY ReturnResult/parameter
+tvbuff_t	*parameter_tvb;
+
+proto_tree_add_text(tree, tvb, offset, -1, "ReturnResult/result/result");
+
+  offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+#--- RETURN ERROR ---
+
+#.FIELD_ATTR
+ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+
+#.FN_BODY ReturnError/parameter
+tvbuff_t	*parameter_tvb;
+
+proto_tree_add_text(tree, tvb, offset, -1, "ReturnError/parameter");
+
+  offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
