@@ -134,7 +134,11 @@ static const value_string mip6_ba_status_value[] = {
 	{ 140, "Mobile Router Operation not permitted" },
 	{ 141, "Invalid Prefix" },
 	{ 142, "Not Authorized for Prefix" },
-	{ 143, "Forwarding Setup failed" },
+	{ 143, "Mobile Network Prefix information unavailable" },
+	{ 145, "Proxy Registration not supported by the LMA" },
+	{ 146, "Proxy Registrations from this MAG not allowed" },
+	{ 147, "No home address for this NAI" },
+	{ 148, "Invalid Time Stamp Option" },
 	{   0, NULL }
 };
 
