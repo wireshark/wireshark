@@ -1123,12 +1123,13 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
     tp = tp->next;
   }
 
-  /* strip off special bits and try again to find the name */
-  /* the first address byte contains two special bits: */
-  /* 0x01 multicast / broadcast bit */
-  /* 0x02 locally administered bit */
+  /* Mask out the broadcast/multicast flag but not the locally
+   * administered flag as localy administered means: not assigend
+   * by the IEEE but the local administrator instead.
+   * 0x01 multicast / broadcast bit
+   * 0x02 locally administered bit */
   memcpy(stripped_addr, addr, 3);
-  stripped_addr[0] &= 0xFC;
+  stripped_addr[0] &= 0xFE;
 
   tp = manuf_table[hash_idx];
   while(tp != NULL) {
