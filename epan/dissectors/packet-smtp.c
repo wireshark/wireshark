@@ -111,6 +111,7 @@ static  dissector_handle_t imf_handle = NULL;
 struct smtp_proto_data {
   guint16 pdu_type;
   guint16 conversation_id;
+  gboolean more_frags;
 };
 
 /*
@@ -118,8 +119,11 @@ struct smtp_proto_data {
  */
 struct smtp_request_val {
   gboolean reading_data; /* Reading message data, not commands */
-  guint16 crlf_seen;     /* Have we seen a CRLF on the end of a packet */
-  guint16 data_seen;     /* Have we seen a DATA command yet */
+  gboolean crlf_seen;    /* Have we seen a CRLF on the end of a packet */
+  gboolean data_seen;    /* Have we seen a DATA command yet */
+  guint32 msg_read_len;  /* Length of BDAT message read so far */
+  guint32 msg_tot_len;   /* Total length of BDAT message */
+  gboolean msg_last;     /* Is this the last BDAT chunk */
 };
 
 
@@ -249,8 +253,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
 	request_val = se_alloc(sizeof(struct smtp_request_val));
 	request_val->reading_data = FALSE;
-	request_val->crlf_seen = 0;
-	request_val->data_seen = 0;
+	request_val->crlf_seen = FALSE;
+	request_val->data_seen = FALSE;
+	request_val->msg_read_len = 0;
+	request_val->msg_tot_len = 0;
+	request_val->msg_last = TRUE;
 
 	conversation_add_proto_data(conversation, proto_smtp, request_val);
 
@@ -282,12 +289,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (length_remaining == tvb_reported_length_remaining(tvb, offset) &&
 	    tvb_strneql(tvb, offset + length_remaining - 2, "\r\n", 2) == 0) {
 
-	  request_val->crlf_seen = 1;
+	  request_val->crlf_seen = TRUE;
 
 	}
 	else {
 
-	  request_val->crlf_seen = 0;
+	  request_val->crlf_seen = FALSE;
 
 	}
       }
@@ -302,6 +309,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	frame_data = se_alloc(sizeof(struct smtp_proto_data));
 
 	frame_data->conversation_id = conversation->index;
+	frame_data->more_frags = TRUE;
 
 	if (request_val->reading_data) {
 	  /*
@@ -322,6 +330,30 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * Message data with no EOM.
 	     */
 	    frame_data->pdu_type = SMTP_PDU_MESSAGE;
+
+	    if (request_val->msg_tot_len > 0) {
+	      /* 
+	       * We are handling a BDAT message.
+	       * Check if we have reached end of the data chunk.
+	       */
+	      request_val->msg_read_len += tvb_length_remaining(tvb, offset);
+
+              if (request_val->msg_read_len == request_val->msg_tot_len) {
+		/* 
+		 * We have reached end of BDAT data chunk.
+		 * Everything that comes after this is commands.
+		 */
+		request_val->reading_data = FALSE;
+
+		if (request_val->msg_last) {
+		  /* 
+		   * We have found the LAST data chunk.
+		   * The message can now be reassembled.
+		   */
+		  frame_data->more_frags = FALSE;
+		}
+	      }
+	    }
 	  }
 	} else {
 	  /*
@@ -348,6 +380,45 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      frame_data->pdu_type = SMTP_PDU_CMD;
 	      request_val->reading_data = TRUE;
 	      request_val->data_seen = TRUE;
+
+	    } else if (strncasecmp(line, "BDAT", 4) == 0) {
+
+	      /*
+	       * BDAT command.
+	       * This is a command, but everything that comes after it,
+	       * until given length is received, is data.
+	       */
+	      guint32 msg_len;
+
+	      msg_len = strtoul (line+5, NULL, 10);
+
+	      frame_data->pdu_type = SMTP_PDU_CMD;
+	      request_val->data_seen = TRUE;
+	      request_val->msg_tot_len += msg_len;
+
+	      if (msg_len == 0) {
+		/* No data to read, next will be a command */
+		request_val->reading_data = FALSE;
+	      } else {
+		request_val->reading_data = TRUE;
+	      }
+
+	      if (strncasecmp(line+linelen-4, "LAST", 4) == 0) {
+		/*
+		 * This is the last data chunk.
+		 */
+	        request_val->msg_last = TRUE;
+
+		if (msg_len == 0) {
+		  /* 
+		   * No more data to expect.
+		   * The message can now be reassembled.
+		   */
+		  frame_data->more_frags = FALSE;
+		}
+	      } else {
+	        request_val->msg_last = FALSE;
+	      }
 
 	    } else {
 
@@ -401,7 +472,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_data->pdu_type) {
 	case SMTP_PDU_MESSAGE:
 
+	  length_remaining = tvb_length_remaining(tvb, offset);
 	  col_set_str(pinfo->cinfo, COL_INFO, smtp_data_desegment ? "DATA fragment" : "Message Body");
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", %d byte%s", length_remaining,
+			  plurality (length_remaining, "", "s"));
 	  break;
 
 	case SMTP_PDU_EOM:
@@ -452,20 +526,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  if(smtp_data_desegment) {
 
-	    frag_msg = fragment_add_seq_next (tvb, 0, pinfo, 
-					      frame_data->conversation_id, smtp_data_segment_table,
-					      smtp_data_reassembled_table, tvb_length_remaining(tvb,0), TRUE);
-
-
-	    if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
-	      /* Add a "Reassembled in" link if not reassembled in this frame */
-	      proto_tree_add_uint (smtp_tree, *(smtp_data_frag_items.hf_reassembled_in),
-					     tvb, 0, 0, frag_msg->reassembled_in);
-	    }
-
-	    pinfo->fragmented = TRUE;
+	    frag_msg = fragment_add_seq_next (tvb, 0, pinfo, frame_data->conversation_id, 
+					      smtp_data_segment_table, smtp_data_reassembled_table, 
+					      tvb_length_remaining(tvb,0), frame_data->more_frags);
 	  } else {
-
+	    
 	    /*
 	     * Message body.
 	     * Put its lines into the protocol tree, a line at a time.
@@ -495,25 +560,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* terminate the desegmentation */
 	    frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
 					      smtp_data_reassembled_table);
-
-	    next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled DATA", 
-						 frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
-
-	    /* XXX: this is presumptious - we may have negotiated something else */
-	    if(imf_handle)
-	      call_dissector(imf_handle, next_tvb, pinfo, tree);
-	    else {
-
-	      /*
-	       * Message body.
-	       * Put its lines into the protocol tree, a line at a time.
-	       */
-
-	      dissect_smtp_data(tvb, offset, smtp_tree);
-
-	    }
-
-	    pinfo->fragmented = FALSE;
 	  }
 
 	  break;
@@ -549,8 +595,37 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset + 5, linelen - 5, FALSE);
 	  }
 
+	  if (smtp_data_desegment && !frame_data->more_frags) {
+
+	    /* terminate the desegmentation */
+	    frag_msg = fragment_end_seq_next (pinfo, frame_data->conversation_id, smtp_data_segment_table,
+					      smtp_data_reassembled_table);
+	  }
 	}
 
+	if (smtp_data_desegment) {
+	  next_tvb = process_reassembled_data (tvb, offset, pinfo, "Reassembled DATA",
+					       frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
+	  if (next_tvb) {
+	    /* XXX: this is presumptious - we may have negotiated something else */
+	    if(imf_handle) {
+	      call_dissector(imf_handle, next_tvb, pinfo, tree);
+	    } else {
+	      
+	      /*
+	       * Message body.
+	       * Put its lines into the protocol tree, a line at a time.
+	       */
+	      
+	      dissect_smtp_data(tvb, offset, smtp_tree);
+	      
+	    }
+	    
+	    pinfo->fragmented = FALSE;
+	  } else {
+	    pinfo->fragmented = TRUE;
+	  }
+	}
       }
       else {
 
