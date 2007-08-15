@@ -287,7 +287,6 @@ static int hf_reserved_0x02 = -1;
 static int hf_reserved_0x04 = -1;
 static int hf_reserved_0x07 = -1;
 static int hf_reserved_0x08 = -1;
-static int hf_reserved_0x0F = -1;
 static int hf_reserved_0x1F = -1;
 static int hf_reserved_0x20 = -1;
 static int hf_reserved_0x40 = -1;
@@ -955,7 +954,7 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 	gboolean failure = FALSE;
 	gdouble  multiplier;
 	guint8   i;
-	gint     p;
+	gint64   p;
 
 	if (no_char >= MAX_SIC_LEN) {
 		/* Illegal length */
@@ -970,7 +969,7 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 	}
 
 	for (i = 0; i < no_char; i++) {
-		p = (gint) pow (multiplier, no_char - 1 - i);
+		p = (gint64) pow (multiplier, no_char - 1 - i);
 		sic[i] = (gchar) (bin / p);
 		bin -= sic[i] * p;
 		if (sic[i] <= 9) {
@@ -1173,7 +1172,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 					if ((key & 0xE0) == 0xC0) {        /* bit 7-4: 110x */
 						length = 4;
 						bytes = 3;
-						value = (tvb_get_ntohl (tvb, offset) >> 8) & 0x1FF;
+						value = (tvb_get_ntohl (tvb, offset) >> 8) & 0x1FFFFF;
 					} else if ((key & 0xF0) == 0xA0) { /* bit 7-4: 1010 */
 						length = 5;
 						bytes = 4;
@@ -2161,7 +2160,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo _U_,
 		if (dmp_subject_as_id) {
 			subject = tvb_get_string (tvb, offset, len);
 			g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%s", subject);
-			free (subject);
+			g_free (subject);
 		}
 		proto_tree_add_item (message_tree, hf_message_subject, tvb, offset,
 				     len, FALSE);
@@ -3502,9 +3501,6 @@ void proto_register_dmp (void)
 		{ &hf_reserved_0x08,
 		  { "Reserved", "dmp.reserved", FT_UINT8, BASE_DEC,
 		    NULL, 0x08, "Reserved", HFILL } },
-		{ &hf_reserved_0x0F,
-		  { "Reserved", "dmp.reserved", FT_UINT8, BASE_DEC,
-		    NULL, 0x0F, "Reserved", HFILL } },
 		{ &hf_reserved_0x1F,
 		  { "Reserved", "dmp.reserved", FT_UINT8, BASE_DEC,
 		    NULL, 0x1F, "Reserved", HFILL } },
