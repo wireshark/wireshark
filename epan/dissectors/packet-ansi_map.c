@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ansi_map.c                                                        */
+/* ./packet-ansi_map.c                                                        */
 /* ../../tools/asn2wrs.py -b -X -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
@@ -1537,7 +1537,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
-			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,tvb_length_remaining(tvb,offset)));
+			proto_item_append_text(item, " - %s", tvb_get_ephemeral_string(tvb,offset,tvb_length_remaining(tvb,offset)));
 			break;
 		case 3:
 			/* Octet string */
@@ -1567,7 +1567,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
-			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,tvb_length_remaining(tvb,offset)));
+			proto_item_append_text(item, " - %s", tvb_get_ephemeral_string(tvb,offset,tvb_length_remaining(tvb,offset)));
 			break;
 		case 3:
 			/* Octet string */
