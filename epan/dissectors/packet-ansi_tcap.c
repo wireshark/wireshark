@@ -171,7 +171,7 @@ static gint ett_ansi_tcap_T_paramSet = -1;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-struct tcap_private_t tcap_private;
+struct tcap_private_t ansi_tcap_private;
 
 gboolean g_ansi_tcap_HandleSRT=FALSE;
 extern gboolean gtcap_PersistentSRT;
@@ -191,7 +191,7 @@ static dissector_handle_t data_handle;
 
 static dissector_table_t sccp_ssn_table;
 
-static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
+static void raz_ansi_tcap_private(struct tcap_private_t * p_ansi_tcap_private);
 
 static GHashTable* ansi_sub_dissectors = NULL;
 static GHashTable* itu_sub_dissectors = NULL;
@@ -986,9 +986,9 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
     cur_oid = NULL;
     tcapext_oid = NULL;
-    raz_tcap_private(&tcap_private);
+    raz_ansi_tcap_private(&ansi_tcap_private);
 
-    pinfo->private_data = &tcap_private;
+    pinfo->private_data = &ansi_tcap_private;
     gp_tcapsrt_info=tcapsrt_razinfo();
     tcap_subdissector_used=FALSE;
     gp_tcap_context=NULL;
@@ -1001,7 +1001,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			stat_tree = proto_item_add_subtree(stat_item, ett_ansi_tcap_stat);
 		}
 		p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
-		tcap_private.context=p_tcap_context;
+		ansi_tcap_private.context=p_tcap_context;
 
 		/* If the current message is TCAP only,
 		 * save the Application contexte name for the next messages
@@ -1022,9 +1022,9 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 }
 
-static void raz_tcap_private(struct tcap_private_t * p_tcap_private)
+static void raz_ansi_tcap_private(struct tcap_private_t * p_ansi_tcap_private)
 {
-  memset(p_tcap_private,0,sizeof(struct tcap_private_t) );
+  memset(p_ansi_tcap_private,0,sizeof(struct tcap_private_t) );
 }
 
 void
