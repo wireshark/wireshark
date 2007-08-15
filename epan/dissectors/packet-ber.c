@@ -572,20 +572,40 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	    !dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
+		gint length_remaining;
+		
+		length_remaining = tvb_length_remaining(tvb, offset);
 
 		if (oid == NULL) {
-		  item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No OID supplied to call_ber_oid_callback");
+		  item=proto_tree_add_text(tree, next_tvb, 0, length_remaining, "BER: No OID supplied to call_ber_oid_callback");
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: No OID supplied");
 		} else {
-		  item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
+		  item=proto_tree_add_text(tree, next_tvb, 0, length_remaining, "BER: Dissector for OID:%s not implemented. Contact Wireshark developers if you want this supported", oid);
 		  proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		  expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "BER Error Dissector for OID not implemented");
 		}
-		if(item){
+	        if (decode_unexpected) {
+		  int ber_offset;
+		  gint32 ber_len;
+
+		  if(item){
 			next_tree=proto_item_add_subtree(item, ett_ber_unknown);
+		  }
+		  ber_offset = get_ber_identifier(next_tvb, 0, NULL, NULL, NULL);
+		  ber_offset = get_ber_length(NULL, next_tvb, ber_offset, &ber_len, NULL);
+		  if ((ber_len + ber_offset) == length_remaining) {
+		    /* Decoded an ASN.1 tag with a length indicating this
+		     * could be BER encoded data.  Try dissecting as unknown BER.
+		     */
+		    dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+		  } else {
+		    proto_tree_add_text(next_tree, next_tvb, 0, length_remaining, 
+				    "Unknown Data (%d byte%s)", length_remaining, 
+				    plurality(length_remaining, "", "s"));
+		  }
 		}
-		dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+
 	}
 
 	/*XXX until we change the #.REGISTER signature for _PDU()s
