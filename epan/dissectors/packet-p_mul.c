@@ -421,11 +421,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Dest: %u", no_dest);
 
     if (p_mul_reassemble) {
-      /* Add fragment to fragment table */
-      frag_msg = fragment_add_seq_check (tvb, offset, pinfo, message_id,
-                                         p_mul_fragment_table,
-                                         p_mul_reassembled_table, 0, 0, TRUE);
-      fragment_set_tot_len (pinfo, message_id, p_mul_fragment_table, no_pdus);
+      /* Start fragment table */
+      fragment_start_seq_check (pinfo, message_id, p_mul_fragment_table, no_pdus - 1);
     }
     break;
 
@@ -445,7 +442,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       /* Add fragment to fragment table */
       frag_msg = fragment_add_seq_check (tvb, offset, pinfo, message_id,
                                          p_mul_fragment_table,
-                                         p_mul_reassembled_table, seq_no,
+                                         p_mul_reassembled_table, seq_no - 1,
                                          data_len, TRUE);
       new_tvb = process_reassembled_data (tvb, offset, pinfo,
                                           "Reassembled Data", frag_msg,
