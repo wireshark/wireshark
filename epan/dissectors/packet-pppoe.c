@@ -138,7 +138,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed_tags);
 
 		tagstart = offset;
-		
+
 		/* Loop until all data seen or End-Of-List tag found */
 		while (tagstart <= payload_length-2 )
 		{
@@ -151,7 +151,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
 				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
 			}
-			
+
 			/* Show tag data */
 			switch (poe_tag)
 			{
@@ -166,7 +166,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					if (check_col(pinfo->cinfo,COL_INFO))
 					{
 						col_append_fstr(pinfo->cinfo, COL_INFO, "  AC-Name='%s'",
-						               tvb_get_string(tvb, tagstart+4, poe_tag_length));
+						               tvb_get_ephemeral_string(tvb, tagstart+4, poe_tag_length));
 					}
 					break;
 				case PPPOE_TAG_HOST_UNIQ:
@@ -273,7 +273,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
 	}
-	
+
 	/* Now dissect any tags */
 	if (reported_payload_length > 0)
 	{
@@ -312,7 +312,7 @@ void proto_register_pppoed(void)
 				 NULL, 0x0, "", HFILL
 			}
 		},
-		
+
 		/* Discovery tag fields */
 		{ &hf_pppoed_tags,
 			{ "PPPoE Tags", "pppoed.tags", FT_NONE, BASE_NONE,

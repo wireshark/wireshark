@@ -1233,7 +1233,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return;
 
 	/* Save the request URI for various later uses */
-	request_uri = (gchar *)tvb_get_string(tvb, offset, tokenlen);
+	request_uri = (gchar *)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	stat_info->request_uri = ep_strdup(request_uri);
  	conv_data->request_uri = se_strdup(request_uri);
 
@@ -1502,7 +1502,7 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
 		    	    next_tvb, 0, 0, strings[0]);
 			PROTO_ITEM_SET_GENERATED(item);
 
-			item = proto_tree_add_uint(sub_tree, hf_http_proxy_connect_port, 
+			item = proto_tree_add_uint(sub_tree, hf_http_proxy_connect_port,
 			    next_tvb, 0, 0, strtol(strings[1], NULL, 10) );
 			PROTO_ITEM_SET_GENERATED(item);
 

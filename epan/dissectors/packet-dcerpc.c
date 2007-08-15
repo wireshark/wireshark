@@ -1380,7 +1380,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     } else {
         /*
-         * "tvb_get_string()" throws an exception if the entire string
+         * "tvb_get_ephemeral_string()" throws an exception if the entire string
          * isn't in the tvbuff.  If the length is bogus, this should
          * keep us from trying to allocate an immensely large buffer.
          * (It won't help if the length is *valid* but immensely large,
@@ -1388,7 +1388,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * if we had an immensely large tvbuff....)
          */
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = tvb_get_string(tvb, offset, buffer_len);
+        s = tvb_get_ephemeral_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                 buffer_len, drep[0] & 0x10);
@@ -1399,8 +1399,6 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (data)
 	    *data = s;
-    else
-	    g_free(s);
 
     offset += buffer_len;
 
@@ -1454,7 +1452,7 @@ dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* This function is aimed for PIDL useage and dissects a UNIQUE pointer to
  * unicode string.
  */
-int 
+int
 PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int chsize, int hfindex, guint32 param)
 {
 	dcerpc_info *di;
@@ -1567,7 +1565,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     } else {
         /*
-         * "tvb_get_string()" throws an exception if the entire string
+         * "tvb_get_ephemeral_string()" throws an exception if the entire string
          * isn't in the tvbuff.  If the length is bogus, this should
          * keep us from trying to allocate an immensely large buffer.
          * (It won't help if the length is *valid* but immensely large,
@@ -1575,7 +1573,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * if we had an immensely large tvbuff....)
          */
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
-        s = tvb_get_string(tvb, offset, buffer_len);
+        s = tvb_get_ephemeral_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
                                 buffer_len, drep[0] & 0x10);
@@ -1586,8 +1584,6 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (data)
 	    *data = s;
-    else
-	    g_free(s);
 
     offset += buffer_len;
 
@@ -1595,6 +1591,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     return offset;
 }
+
 /* Dissect an varying string of chars.
    This corresponds to IDL of the form '[string] char *foo'.
 

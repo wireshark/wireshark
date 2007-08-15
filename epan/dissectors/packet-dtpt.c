@@ -236,7 +236,7 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 	guint32	wstring_padding = 0;
 
 	wstring_length = tvb_get_letohl(tvb, offset);
-	wstring_data = tvb_fake_unicode(tvb, offset+4, wstring_length, 1);
+	wstring_data = tvb_get_ephemeral_faked_unicode(tvb, offset+4, wstring_length, 1);
 	wstring_size = wstring_length;
 	if (wstring_size%4) {
 		wstring_padding = (4-wstring_size%4);
@@ -256,13 +256,9 @@ dissect_dtpt_wstring(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 				proto_tree_add_string(dtpt_wstring_tree, hf_dtpt_wstring_data,
 					tvb, offset+4, wstring_length, wstring_data);
 			if (wstring_padding)
-				proto_tree_add_text(dtpt_wstring_tree, tvb, 
+				proto_tree_add_text(dtpt_wstring_tree, tvb,
 					offset+4+wstring_length,wstring_padding, "Padding");
 		}
-	}
-	if (wstring_data != NULL) {
-		free(wstring_data);
-		wstring_data = NULL;
 	}
 	offset += 4+wstring_size;
 	return offset;
@@ -412,7 +408,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 	return offset;
 }
 
-static int 
+static int
 dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint		offset = 0;
@@ -593,7 +589,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint32	offset2;
 
 		offset2 = offset + 24*num_addrs;
-		
+
 		for (i=0;i<num_addrs;i++,offset+=24) {
 			proto_item	*dtpt_addr1_item = NULL;
 			proto_tree	*dtpt_addr1_tree = NULL;
@@ -630,12 +626,12 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			offset2_start = offset2;
-	
+
 			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_local, SOCKADDR_WITH_LEN);
 			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_remote, SOCKADDR_WITH_LEN);
 
 			if (dtpt_addr2_item)
-				proto_item_set_len(dtpt_addr2_item,	
+				proto_item_set_len(dtpt_addr2_item,
 					offset2 - offset2_start);
 		}
 		offset = offset2;
@@ -671,7 +667,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
-		
+
 	offset += 4+blob_rawsize;
 
 	if (dtpt_item)

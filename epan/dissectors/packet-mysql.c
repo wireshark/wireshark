@@ -1358,7 +1358,8 @@ static int mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		}
 		if (mysql_showquery) {
 		        if (check_col(pinfo->cinfo, COL_INFO))
-		                col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",tvb_get_string(tvb, offset, strlen));
+		                col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",
+						tvb_get_ephemeral_string(tvb, offset, strlen));
 		}
 		offset+= strlen;
 		conn_data->state= RESPONSE_TABULAR;
@@ -1400,7 +1401,7 @@ static int mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		strlen= my_tvb_strsize(tvb, offset);
 		if (req_tree) {
 			proto_tree_add_text(req_tree, tvb, offset, strlen, "Table name: %s",
-					    tvb_get_string(tvb, offset, strlen));
+					    tvb_get_ephemeral_string(tvb, offset, strlen));
 		}
 		offset+= strlen;
 		conn_data->state= RESPONSE_TABULAR;

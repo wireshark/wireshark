@@ -2031,7 +2031,7 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset, char *
         /*
          * ASCII.
          */
-        string = tvb_get_string(tvb, foffset, str_length);
+        string = tvb_get_ephemeral_string(tvb, foffset, str_length);
     } else {
         /*
          * Unicode.

@@ -5169,7 +5169,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
   guint8 indicator;
   gint gen_name_length;
   char *gen_name=NULL;
-  
+
   gen_name=ep_alloc(MAXGNAME + 1);
   gen_name[0] = '\0';
   gen_name_length = tvb_length(parameter_tvb) - 1;
@@ -5177,13 +5177,13 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
   proto_tree_add_uint(parameter_tree, hf_isup_generic_name_presentation, parameter_tvb, 1, 1, indicator);
   proto_tree_add_boolean(parameter_tree, hf_isup_generic_name_availability, parameter_tvb, 1, 1, indicator);
   proto_tree_add_uint(parameter_tree, hf_isup_generic_name_type, parameter_tvb, 1, 1, indicator);
-  gen_name = tvb_get_string(parameter_tvb,1,gen_name_length); 
+  gen_name = tvb_get_ephemeral_string(parameter_tvb,1,gen_name_length);
   gen_name[gen_name_length] = '\0';
   proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 2, gen_name_length, gen_name);
   proto_item_set_text(parameter_item, "Generic name: %s", gen_name);
-  
+
   }
-  
+
 /* ------------------------------------------------------------------
  Dissector Parameter Generic digits
  */

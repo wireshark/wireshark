@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -257,7 +257,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				p_add_proto_data(pinfo->fd, proto_msrp, p_conv_packet_data);
 			}
-		}                                                           
+		}
 	}
 
 	/* Create setup info subtree with summary info. */
@@ -325,7 +325,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 	}
 }
 
-/* This code is modeled on the code in packet-sip.c 
+/* This code is modeled on the code in packet-sip.c
  *  ABNF code for the MSRP header:
  *  The following syntax specification uses the augmented Backus-Naur
  *  Form (BNF) as described in RFC-2234 [6].
@@ -348,10 +348,10 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
  *  Examples:
  *  "MSRP 1234 SEND(CRLF)"
  *	"MSRP 1234 200 OK(CRLF)
- */	
+ */
 static gboolean
 check_msrp_header(tvbuff_t *tvb)
-{	
+{
 	gint offset = 0;
 	gint linelen;
 	gint space_offset;
@@ -496,7 +496,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( !check_msrp_header(tvb)){
 		return 0;
 	}
-	/* We have a MSRP header with at least three tokens 
+	/* We have a MSRP header with at least three tokens
 	 *
 	 * Note that "tvb_find_line_end()" will return a value that
 	 * is not longer than what's in the buffer, so the
@@ -543,7 +543,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRP");
 	if (is_msrp_response){
 		if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -590,7 +590,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
 			proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,FALSE);
 			proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,
-			                    atoi(tvb_get_string(tvb, token_3_start, token_3_len)));
+			                    atoi(tvb_get_ephemeral_string(tvb, token_3_start, token_3_len)));
 
 		}else{
 			th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,FALSE);
@@ -609,7 +609,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msrp_headers_item = proto_tree_add_item(msrp_tree, hf_msrp_msg_hdr, tvb, offset,(end_line_offset - offset), FALSE);
 		msrp_hdr_tree = proto_item_add_subtree(msrp_headers_item, ett_msrp_hdr);
 
-		/* 
+		/*
 		 * Process the headers
 		 */
 		while (tvb_reported_length_remaining(tvb, offset) > 0 && offset < end_line_offset  ) {
@@ -751,9 +751,9 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msrp_end_tree = proto_item_add_subtree(ti, ett_msrp_end_line);
 
 		proto_tree_add_item(msrp_end_tree,hf_msrp_transactionID,tvb,end_line_offset + 7,token_2_len,FALSE);
-		/* continuation-flag */ 
+		/* continuation-flag */
 		proto_tree_add_item(msrp_end_tree,hf_msrp_cnt_flg,tvb,end_line_offset+end_line_len-1,1,FALSE);
-			
+
 		if (global_msrp_raw_text){
 			ti = proto_tree_add_text(tree, tvb, 0, -1,"Message Session Relay Protocol(as raw text)");
 			raw_tree = proto_item_add_subtree(ti, ett_msrp);

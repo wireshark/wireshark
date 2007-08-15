@@ -159,7 +159,7 @@ static const value_string pdu_vals[] = {
   { Request_PDU,          "Request PDU"         },
   { Reject_PDU,           "Reject PDU"          },
   { Release_PDU,          "Release PDU"         },
-  { 0,                    NULL                  } 
+  { 0,                    NULL                  }
 };
 
 static enum_val_t decode_options[] = {
@@ -332,10 +332,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   /* Checksum */
   len = tvb_length (tvb);
-  value = tvb_get_string (tvb, 0, len);
+  value = tvb_get_ephemeral_string (tvb, 0, len);
   checksum1 = checksum (value, len, offset);
   checksum2 = tvb_get_ntohs (tvb, offset);
-  g_free (value);
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, FALSE);
   if (checksum1 == checksum2) {
     proto_item_append_text (en, " (correct)");
@@ -363,7 +362,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     message_id = tvb_get_ntohl (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, FALSE);
     offset += 4;
-    
+
     proto_item_append_text (ti, ", MSID: %u", message_id);
     if (check_col (pinfo->cinfo, COL_INFO))
       col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);

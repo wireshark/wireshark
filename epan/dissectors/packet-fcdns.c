@@ -13,17 +13,17 @@
  * don't bother with the "Copied from" - you don't even need to put
  * in a "Copied from" if you copied an existing dissector, especially
  * if the bulk of the code in the new dissector is your code)
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -215,7 +215,7 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfind
 
 	flags = tvb_get_ntohl (tvb, offset);
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hfindex, 
+		item=proto_tree_add_uint(parent_tree, hfindex,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_cos_flags);
 	}
@@ -268,7 +268,7 @@ static const true_false_string tfs_fcdns_fc4features_t = {
 	"t is NOT set"
 };
 
-/* The feature routines just decode FCP's FC-4 features field 
+/* The feature routines just decode FCP's FC-4 features field
  * based on the flahs in offset and the type in offset+1
  */
 static void
@@ -281,7 +281,7 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	flags = tvb_get_guint8(tvb, offset);
 	type = tvb_get_guint8(tvb, offset+1);
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcdns_fc4features, 
+		item=proto_tree_add_uint(parent_tree, hf_fcdns_fc4features,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_fc4features);
 	}
@@ -303,7 +303,7 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
         proto_tree_add_item (tree, hf_fcdns_req_fc4type, tvb, offset+1, 1, 0);
 }
 
-/* The feature routines just decode FCP's FC-4 features field 
+/* The feature routines just decode FCP's FC-4 features field
  */
 static void
 dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
@@ -314,7 +314,7 @@ dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 	flags = tvb_get_guint8(tvb, offset);
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcdns_fc4features, 
+		item=proto_tree_add_uint(parent_tree, hf_fcdns_fc4features,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_fc4features);
 	}
@@ -398,7 +398,7 @@ dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex
 
 
 	flags = tvb_get_ntohl (tvb, offset+4);
-        
+
 	proto_tree_add_boolean(tree, hf_fcdns_fc4type_swils, tvb, offset+4, 4, flags);
 	if (flags&0x0010){
 		proto_item_append_text(item, "  SW_ILS");
@@ -465,7 +465,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                  offset+12, 1, 0);
             if (!tvb_offset_exists (tvb, 29+len))
                 return;
-            
+
             if (len) {
                 proto_tree_add_item (req_tree, hf_fcdns_rply_spname, tvb,
                                      offset+13, len, 0);
@@ -598,7 +598,7 @@ dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
         }
         else {
             len = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_item (req_tree, hf_fcdns_rply_spnamelen, 
+            proto_tree_add_item (req_tree, hf_fcdns_rply_spnamelen,
                                  tvb, offset, 1, 0);
             proto_tree_add_string (req_tree, hf_fcdns_rply_spname, tvb,
                                    offset+1, len,
@@ -1023,7 +1023,7 @@ dissect_fcdns_rnnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                    tvb, offset+1, 3,
                                    fc_to_str (tvb_get_ptr (tvb, offset+1,
                                                            3)));
-            proto_tree_add_string (req_tree, hf_fcdns_req_nname, tvb, 
+            proto_tree_add_string (req_tree, hf_fcdns_req_nname, tvb,
                                    offset+4, 8,
                                    fcwwn_to_str (tvb_get_ptr (tvb, offset+4,
                                                               8)));
@@ -1088,7 +1088,7 @@ dissect_fcdns_rspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
         proto_tree_add_item (req_tree, hf_fcdns_req_spnamelen, tvb,
                              offset+4, 1, 0);
         len = tvb_get_guint8 (tvb, offset+4);
-        
+
         proto_tree_add_item (req_tree, hf_fcdns_req_spname, tvb, offset+5,
                              len, 0);
     }
@@ -1124,7 +1124,7 @@ dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 
         len = tvb_length (tvb) - offset - 36;
         offset += 36;
-        
+
         while (len > 0) {
             dlen = tvb_get_guint8 (tvb, offset);
             proto_tree_add_item (req_tree, hf_fcdns_req_fdesclen, tvb, offset,
@@ -1242,7 +1242,7 @@ dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
                                offset+4, idlen,
                                "Unknown member type format");
-            
+
     }
 }
 
@@ -1263,7 +1263,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
             objfmt = tvb_get_guint8 (tvb, offset);
 
             proto_tree_add_item (tree, hf_fcdns_sw2_objfmt, tvb, offset, 1, 0);
-            proto_tree_add_string (tree, hf_fcdns_rply_ownerid, tvb, offset+1, 
+            proto_tree_add_string (tree, hf_fcdns_rply_ownerid, tvb, offset+1,
                                    3, fc_to_str (tvb_get_ptr (tvb, offset+1,
                                                               3)));
             proto_tree_add_item (tree, hf_fcdns_rply_ptype, tvb, offset+4,
@@ -1325,7 +1325,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
                     proto_tree_add_item (tree, hf_fcdns_num_fc4desc, tvb,
                                          offset+129, 1, 0);
                 }
-                offset += 388;  /* FC4 desc is 260 bytes, maybe padded */ 
+                offset += 388;  /* FC4 desc is 260 bytes, maybe padded */
             }
         }
     }
@@ -1521,9 +1521,9 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset);
     cthdr.in_id = tvb_get_ntoh24 (tvb, offset+1);
-    cthdr.opcode = ntohs (cthdr.opcode);
+    cthdr.opcode = g_ntohs (cthdr.opcode);
     opcode = cthdr.opcode;
-    cthdr.maxres_size = ntohs (cthdr.maxres_size);
+    cthdr.maxres_size = g_ntohs (cthdr.maxres_size);
 
     /* Determine the type of server the request/response is for */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -1557,25 +1557,25 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              pinfo->ptype, pinfo->oxid,
                                              pinfo->rxid, NO_PORT2);
         }
-    
+
         ckey.conv_idx = conversation->index;
-        
+
         cdata = (fcdns_conv_data_t *)g_hash_table_lookup (fcdns_req_hash,
                                                             &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
              * case of another request using the same exchange as a previous
-             * req. 
+             * req.
              */
             cdata->opcode = opcode;
         }
         else {
             req_key = se_alloc (sizeof(fcdns_conv_key_t));
             req_key->conv_idx = conversation->index;
-            
+
             cdata = se_alloc (sizeof(fcdns_conv_data_t));
             cdata->opcode = opcode;
-            
+
             g_hash_table_insert (fcdns_req_hash, req_key, cdata);
         }
         if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -1614,7 +1614,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 else
                     failed_opcode = cdata->opcode;
             }
-            
+
             if (check_col (pinfo->cinfo, COL_INFO)) {
                 if (opcode != FCCT_MSG_RJT) {
                     col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
@@ -1628,7 +1628,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               "0x%x"));
                 }
             }
-                
+
             if (tree) {
                 if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                     /* No record of what this accept is for. Can't decode */
@@ -1645,7 +1645,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item (fcdns_tree, hf_fcdns_maxres_size, tvb, offset+10,
                              2, 0);
     }
-    
+
     switch (opcode) {
     case FCCT_MSG_RJT:
         dissect_fcdns_rjt (tvb, fcdns_tree);
@@ -1795,7 +1795,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_fcdns (void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -1932,7 +1932,7 @@ proto_register_fcdns (void)
           {"Class of Service Supported", "fcdns.reply.cos", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_fcdns_req_cos,
-          {"Requested Class of Service", "fcdns.req.class", FT_UINT32, BASE_HEX, 
+          {"Requested Class of Service", "fcdns.req.class", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_fcdns_cos_f,
           {"F", "fcdns.cos.f", FT_BOOLEAN, 32,
@@ -1977,10 +1977,10 @@ proto_register_fcdns (void)
           {"FC-4 Types Supported", "fcdns.rply.fc4type", FT_NONE, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_fcdns_req_fc4types,
-          {"FC-4 Types Supported", "fcdns.req.fc4types", FT_NONE, BASE_HEX, 
+          {"FC-4 Types Supported", "fcdns.req.fc4types", FT_NONE, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_fcdns_fc4type,
-          {"FC-4 Types", "fcdns.req.fc4type", FT_NONE, BASE_HEX, 
+          {"FC-4 Types", "fcdns.req.fc4type", FT_NONE, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_fcdns_fc4features,
           {"FC-4 Feature Bits", "fcdns.fc4features", FT_UINT8,
@@ -1999,7 +1999,7 @@ proto_register_fcdns (void)
         &ett_fc4flags,
         &ett_fc4features,
     };
-    
+
     /* Register the protocol name and description */
     proto_fcdns = proto_register_protocol("Fibre Channel Name Server",
                                           "FC-dNS", "fcdns");

@@ -123,7 +123,7 @@ fw1_init(void)
   int		i;
 
   for (i=0; i<interface_anzahl; i++) {
-    free(p_interfaces[i]);
+    g_free(p_interfaces[i]);
   }
   interface_anzahl = 0;
 }

@@ -2120,17 +2120,15 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
 		break;
 
 	case STRUCT_ID_STRING:
-		id_string = tvb_get_string (tvb, offset, (gint) dmp_struct_length);
+		id_string = tvb_get_ephemeral_string (tvb, offset, (gint) dmp_struct_length);
 		g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%s", id_string);
-		g_free (id_string);
 		tf = proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb,
 					  offset, dmp_struct_length, FALSE);
 		break;
 
 	case STRUCT_ID_ZSTRING:
-		id_string = tvb_get_stringz (tvb, offset, &length);
+		id_string = tvb_get_ephemeral_stringz (tvb, offset, &length);
 		g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%s", id_string);
-		g_free (id_string);
 		tf = proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb,
 					  offset, length, FALSE);
 		break;
@@ -2158,9 +2156,8 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo _U_,
 	if (dmp.body_format == FREE_TEXT_SUBJECT) {
 		len = tvb_strsize (tvb, offset);
 		if (dmp_subject_as_id) {
-			subject = tvb_get_string (tvb, offset, len);
+			subject = tvb_get_ephemeral_string (tvb, offset, len);
 			g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%s", subject);
-			g_free (subject);
 		}
 		proto_tree_add_item (message_tree, hf_message_subject, tvb, offset,
 				     len, FALSE);

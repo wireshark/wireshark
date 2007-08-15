@@ -405,14 +405,14 @@ static void dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, prot
     len = first_colon - offset;
     proto_tree_add_item(ct_tree, hf_imf_content_type_type, tvb, offset, len, FALSE);
     if(type)
-      /* this string must be freed */
-      (*type) = tvb_get_string(tvb, offset, len);
+      /* This string will be automatically freed */
+      (*type) = tvb_get_ephemeral_string(tvb, offset, len);
 
     len = length - (first_colon + 1 - offset);
     proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, FALSE);
     if(parameters)
-      /* this string must be freed */
-      (*parameters) = tvb_get_string(tvb, first_colon + 1, len);
+      /* This string will be automatically freed */
+      (*parameters) = tvb_get_ephemeral_string(tvb, first_colon + 1, len);
   }
 }
 
@@ -596,13 +596,6 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissected = dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
 
-    g_free(content_type_str);
-    content_type_str = NULL;
-
-    if(parameters) {
-      g_free(parameters);
-      parameters = NULL;
-    }
   } else {
 
     /* just show the lines or highlight the rest of the buffer as message text */

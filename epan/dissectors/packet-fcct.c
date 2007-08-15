@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -159,22 +159,22 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fc_ct_preamble cthdr;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC_CT");
-    
+
     /*
       cthdr.revision = tvb_get_guint8 (tvb, offset++);
       cthdr.in_id = tvb_get_ntoh24 (tvb, offset);
       offset += 3;
-      
+
       cthdr.gstype = tvb_get_guint8 (tvb, offset++);
       cthdr.options = tvb_get_guint8 (tvb, offset++);
     */
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset++);
     cthdr.in_id = tvb_get_ntoh24 (tvb, offset);
-    cthdr.opcode = ntohs (cthdr.opcode);
-    cthdr.maxres_size = ntohs (cthdr.maxres_size);
+    cthdr.opcode = g_ntohs (cthdr.opcode);
+    cthdr.maxres_size = g_ntohs (cthdr.maxres_size);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         if (cthdr.opcode < FCCT_MSG_REQ_MAX) {
@@ -185,19 +185,19 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else if (cthdr.opcode == FCCT_MSG_RJT) {
             col_append_fstr (pinfo->cinfo, COL_INFO, " Reject (%s)",
-                             val_to_str (cthdr.rjt_code, fc_ct_rjt_code_vals, "0x%x")); 
+                             val_to_str (cthdr.rjt_code, fc_ct_rjt_code_vals, "0x%x"));
         }
         else {
             col_append_str (pinfo->cinfo, COL_INFO, " Reserved");
         }
     }
-    
+
     in_id = cthdr.in_id;
-    in_id = htonl (in_id) >> 8;
+    in_id = g_htonl (in_id) >> 8;
 
     /* Determine server */
     server = get_gs_server (cthdr.gstype, cthdr.gssubtype);
-    
+
     if (tree) {
         offset = 0;
         ti = proto_tree_add_protocol_format (tree, proto_fcct, tvb, 0, FCCT_PRMBL_SIZE,
@@ -209,7 +209,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_string (fcct_tree, hf_fcct_inid, tvb, offset, 3,
                                fc_to_str ((guint8 *)&in_id));
         offset += 3; /* sizeof FC address */
-        
+
         proto_tree_add_item (fcct_tree, hf_fcct_gstype, tvb, offset++,
                              sizeof (guint8), 0);
         proto_tree_add_item (fcct_tree, hf_fcct_gssubtype, tvb, offset,
@@ -238,12 +238,12 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_fcct(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcct_revision,
-          {"Revision", "fcct.revision", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}}, 
+          {"Revision", "fcct.revision", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}},
         { &hf_fcct_inid,
           {"IN_ID", "fcct.in_id", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL}},
         { &hf_fcct_gstype,
