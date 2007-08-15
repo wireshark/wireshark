@@ -1691,6 +1691,46 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    more_frags, REASSEMBLE_FLAGS_NO_FRAG_NUMBER);
 }
 
+void
+fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+			 guint32 tot_len)
+{
+	fragment_key key, *new_key;
+	fragment_data *fd_head;
+
+	/* Have we already seen this frame ?*/
+	if (pinfo->fd->flags.visited) {
+		return;
+	}
+
+	/* Create key to search hash with */
+	key.src = pinfo->src;
+	key.dst = pinfo->dst;
+	key.id  = id;
+
+	/* Check if fragment data exist for this key */
+	fd_head = g_hash_table_lookup(fragment_table, &key);
+
+	if (fd_head == NULL) {
+		/* Create list-head. */
+		fd_head = g_mem_chunk_alloc(fragment_data_chunk);
+	  
+		fd_head->next = NULL;
+		fd_head->datalen = tot_len;
+		fd_head->offset = 0;
+		fd_head->len = 0;
+		fd_head->flags = FD_BLOCKSEQUENCE|FD_DATALEN_SET;	  
+		fd_head->data = NULL;
+		fd_head->reassembled_in = 0;
+		/*
+		 * We're going to use the key to insert the fragment,
+		 * so copy it to a long-term store.
+		 */
+		new_key = fragment_key_copy(&key);
+		g_hash_table_insert(fragment_table, new_key, fd_head);
+	}
+}
+
 fragment_data *
 fragment_end_seq_next(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 		      GHashTable *reassembled_table)
