@@ -52,7 +52,7 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 	if (!parameter_tvb)
 		return offset;
 
-	object_identifier_id = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+	object_identifier_id = tvb_get_ephemeral_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
 	name = get_oid_str_name(object_identifier_id);
 
 	if(name){
@@ -154,7 +154,7 @@ char *mechanism = NULL;
     if (mechanism == NULL)
         mechanism = ldap_info->auth_mech;
     else {
-      if (ldap_info->auth_mech == NULL) {
+      if (ldap_info->auth_mech != NULL) {
         g_free(ldap_info->auth_mech);
       }
       ldap_info->auth_mech = mechanism;
@@ -428,7 +428,7 @@ ldap_conv_info_t *ldap_info;
       break;
   
   if(i == len) {
-    string = tvb_get_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
+    string = tvb_get_ephemeral_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
  
     pi = get_ber_last_created_item();
      

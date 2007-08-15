@@ -909,7 +909,7 @@ char *mechanism = NULL;
     if (mechanism == NULL)
         mechanism = ldap_info->auth_mech;
     else {
-      if (ldap_info->auth_mech == NULL) {
+      if (ldap_info->auth_mech != NULL) {
         g_free(ldap_info->auth_mech);
       }
       ldap_info->auth_mech = mechanism;
@@ -1899,7 +1899,7 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
       break;
   
   if(i == len) {
-    string = tvb_get_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
+    string = tvb_get_ephemeral_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
  
     pi = get_ber_last_created_item();
      
@@ -2324,7 +2324,7 @@ dissect_ldap_LDAPOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	if (!parameter_tvb)
 		return offset;
 
-	object_identifier_id = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+	object_identifier_id = tvb_get_ephemeral_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
 	name = get_oid_str_name(object_identifier_id);
 
 	if(name){
