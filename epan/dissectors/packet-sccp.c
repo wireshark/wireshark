@@ -1197,7 +1197,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
       national == 0) {
 
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator
-					     : hf_sccp_called_itu_global_title_indicator,
+					     : hf_sccp_calling_itu_global_title_indicator,
 			tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
 
     ssni = tvb_get_guint8(tvb, 0) & ITU_SSN_INDICATOR_MASK;
@@ -1655,6 +1655,9 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
   ti = tvb_get_guint8(tvb, offset) & ANSI_ISNI_TI_MASK;
   proto_tree_add_uint(param_tree, hf_sccp_ansi_isni_ti, tvb, offset,
 		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, ti);
+
+  proto_tree_add_item(param_tree, hf_sccp_ansi_isni_counter, tvb, offset,
+		      ANSI_ISNI_ROUTING_CONTROL_LENGTH, TRUE);
 
   offset += ANSI_ISNI_ROUTING_CONTROL_LENGTH;
 
@@ -2999,7 +3002,7 @@ proto_register_sccp(void)
 	"", HFILL}},
     { &hf_sccp_ansi_isni_counter,
       { "ISNI Counter", "sccp.isni.counter",
-	FT_UINT8, BASE_HEX, NULL, ANSI_ISNI_COUNTER_MASK,
+	FT_UINT8, BASE_DEC, NULL, ANSI_ISNI_COUNTER_MASK,
 	"", HFILL}},
     {&hf_sccp_xudt_msg_fragments,
 	{"Message fragments", "sccp.msg.fragments",
