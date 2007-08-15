@@ -1,899 +1,987 @@
 <!-- WSUG Chapter Advanced -->
-
 <!-- $Id$ -->
-
 <chapter id="ChapterAdvanced">
   <title>Advanced Topics</title>
-
-  <section id="ChAdvIntroduction"><title>Introduction</title>
-  <para>
-  In this chapter some of the advanced features of Wireshark will be described.
-  </para>
+  <section id="ChAdvIntroduction">
+    <title>Introduction</title>
+    <para>In this chapter some of the advanced features of
+    Wireshark will be described.</para>
   </section>
-
-  <section id="ChAdvFollowTCPSection"><title>Following TCP streams</title>
-    <para>
-	  If you are working with TCP based protocols it can be very helpful
-    to see the data from a TCP stream in the way that the application
-	  layer sees it.
-	  Perhaps you are looking for passwords in a Telnet stream, or you
-	  are trying to make sense of a data stream.
-	  Maybe you just need a display filter to show only the packets of that
-	  TCP stream.
-	  If so, Wireshark's ability to follow a TCP stream will be useful to you.
-    </para>
-    <para>
-      Simply select a TCP packet in the packet list of the stream/connection
-	  you are interested in and then select the Follow TCP Stream menu item
-	  from the Wireshark Tools menu (or use the context menu in the packet
-	  list).
-	  Wireshark will set an appropriate display filter and pop up a dialog
-	  box with all the data from the TCP stream laid out in order,
-	  as shown in <xref linkend="ChAdvFollowStream"/>.
-    </para>
+  <section id="ChAdvFollowTCPSection">
+    <title>Following TCP streams</title>
+    <para>If you are working with TCP based protocols it can be
+    very helpful to see the data from a TCP stream in the way that
+    the application layer sees it. Perhaps you are looking for
+    passwords in a Telnet stream, or you are trying to make sense
+    of a data stream. Maybe you just need a display filter to show
+    only the packets of that TCP stream. If so, Wireshark's ability
+    to follow a TCP stream will be useful to you.</para>
+    <para>Simply select a TCP packet in the packet list of the
+    stream/connection you are interested in and then select the
+    Follow TCP Stream menu item from the Wireshark Tools menu (or
+    use the context menu in the packet list). Wireshark will set an
+    appropriate display filter and pop up a dialog box with all the
+    data from the TCP stream laid out in order, as shown in 
+    <xref linkend="ChAdvFollowStream" />.</para>
     <note>
       <title>Note!</title>
-      <para>
-	It is worthwhile noting that Follow TCP Stream installs a display filter
-	to select all the packets in the TCP stream you have selected.
-      </para>
+      <para>It is worthwhile noting that Follow TCP Stream installs
+      a display filter to select all the packets in the TCP stream
+      you have selected.</para>
     </note>
-	<section><title>The "Follow TCP Stream" dialog box </title>
-    <figure id="ChAdvFollowStream">
+    <section>
       <title>The "Follow TCP Stream" dialog box</title>
-      <graphic entityref="WiresharkFollowStream" format="PNG"/>
-    </figure>
-    <para>
-	The stream content is displayed in the same sequence as it appeared on
-	the network.
-	Traffic from A to B is marked in red, while traffic from B to A is
-	marked in blue.
-	If you like, you can change these colors in the Edit/Preferences
-	"Colors" page.
-    </para>
-    <para>
-	Non-printable characters will be replaced by dots.
-	XXX - What about line wrapping (maximum line length) and CRNL conversions?
-    </para>
-    <para>
-	The stream content won't be updated while doing a live capture.
-	To get the latest content you'll have to reopen the dialog.
-    </para>
-    <para>
-      You can choose from the following actions:
+      <figure id="ChAdvFollowStream">
+        <title>The "Follow TCP Stream" dialog box</title>
+        <graphic entityref="WiresharkFollowStream" format="PNG" />
+      </figure>
+      <para>The stream content is displayed in the same sequence as
+      it appeared on the network. Traffic from A to B is marked in
+      red, while traffic from B to A is marked in blue. If you
+      like, you can change these colors in the Edit/Preferences
+      "Colors" page.</para>
+      <para>Non-printable characters will be replaced by dots. XXX
+      - What about line wrapping (maximum line length) and CRNL
+      conversions?</para>
+      <para>The stream content won't be updated while doing a live
+      capture. To get the latest content you'll have to reopen the
+      dialog.</para>
+      <para>You can choose from the following actions: 
       <orderedlist>
-	<listitem>
-	  <para>
-	    <command>Save As</command> Save the stream data in the currently
-		selected format.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>Print</command> Print the stream data in the currently
-		selected format.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>Direction</command> Choose the stream direction to be
-		displayed ("Entire conversation", "data from A to B only" or "data
-		from B to A only").
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>Filter out this stream</command> Apply a display filter
-		removing the current TCP stream data from the display.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>Close</command> Close this dialog box, leaving the current
-		display filter in effect.
-	  </para>
-	</listitem>
-      </orderedlist>
-    </para>
-    <para>
-      You can choose to view the data in one of the following formats:
+        <listitem>
+          <para>
+          <command>Save As</command>Save the stream data in the
+          currently selected format.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>Print</command>Print the stream data in the
+          currently selected format.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>Direction</command>Choose the stream direction
+          to be displayed ("Entire conversation", "data from A to B
+          only" or "data from B to A only").</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>Filter out this stream</command>Apply a display
+          filter removing the current TCP stream data from the
+          display.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>Close</command>Close this dialog box, leaving
+          the current display filter in effect.</para>
+        </listitem>
+      </orderedlist></para>
+      <para>You can choose to view the data in one of the following
+      formats: 
       <orderedlist>
-	<listitem>
-	  <para>
-	    <command>ASCII</command>. In this view you see the data from
-	    each direction in ASCII. Obviously best for ASCII based protocols,
-		e.g. HTTP.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>EBCDIC</command>. For the big-iron freaks out there.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>HEX Dump</command>. This allows you to see all the
-	    data.
-		This will require a lot of screen space and is best used with
-		binary protocols.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>C Arrays</command>. This allows you to import the stream data
-		into your own C program.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    <command>Raw</command>. This allows you to load the unaltered stream
-		data into a different program for further examination.
-		The display will look the same as the ASCII setting, but "Save As"
-		will result in a binary file.
-	  </para>
-	</listitem>
-      </orderedlist>
-    </para>
-  </section>
-  </section>
-
-  <section id="ChAdvTimestamps"><title>Time Stamps</title>
-	<para>
-	Time stamps, their precisions and all that can be quite
-	confusing. This section will provide you with information about what's going
-	on while Wireshark processes time stamps.
-	</para>
-    <para>
-	While packets are captured, each packet is time stamped as it comes in.
-	These time stamps will be saved to the capture file, so they also will be
-	available for (later) analysis.
-	</para>
-	<para>
-	So where do these time stamps come from?
-	While capturing, Wireshark gets the time stamps from the libpcap (WinPcap)
-	library, which in turn gets them from the operating system kernel.
-	If the capture data is loaded from a capture file, Wireshark obviously gets
-	the data from that file.
-	</para>
-  <section><title>Wireshark internals</title>
-	<para>
-	The internal format that Wireshark uses to keep a packet time stamp consists
-	of the date (in days since 1.1.1970) and the time of day (in nanoseconds
-	since midnight). You can adjust the way Wireshark displays the time stamp data
-	in the packet list, see the "Time Display Format" item in the
-	<xref linkend="ChUseViewMenuSection"/> for details.
-	</para>
-	<para>
-	While reading or writing capture files, Wireshark converts the time stamp
-	data between the capture file format and the internal format as required.
-	</para>
-	<para>
-	While capturing, Wireshark uses the libpcap (WinPcap) capture library which
-	supports microsecond resolution. Unless you are working with specialized
-	capturing hardware, this resolution should be adequate.
-	</para>
-  </section>
-  <section><title>Capture file formats</title>
-	<para>
-	Every capture file format that Wireshark knows support time stamps.
-	The time stamp precision
-	supported by a specific capture file format differs widely and varies
-	from one second "0" to one nanosecond "0.123456789".
-	Most file formats store the time stamps with a fixed precision
-	(e.g. microseconds), while some file formats are even capable to store the
-	time stamp precision itself (whatever the benefit may be).
-	</para>
-	<para>
-	The common libpcap capture file format that is used by Wireshark (and a
-	lot of other tools) supports a fixed microsecond resolution "0.123456"
-	only.
-	</para>
-    <note>
-      <title>Note!</title>
-      <para>
-	  Writing data into a capture file format that doesn't provide
-	  the capability to store the actual precision will lead to loss of information.
-	  Example: If you load a capture file with nanosecond resolution and
-	  store the capture data to a libpcap file (with microsecond resolution)
-	  Wireshark obviously must reduce the precision from nanosecond to microsecond.
-      </para>
-    </note>
-  </section>
-  <section><title>Accuracy</title>
-	<para>
-	It's often asked: "Which time stamp accuracy is provided by Wireshark?".
-	Well, Wireshark doesn't create any time stamps itself but simply gets them
-	from "somewhere else" and displays them. So accuracy will depend on the
-	capture system (operating system, performance, ...) that you use.
-	Because of this, the above question is difficult to answer in a
-	general way.
-    <note>
-      <title>Note!</title>
-      <para>
-	  USB connected network adapters often provide a very bad time stamp
-	  accuracy. The incoming packets have to take "a long and winding
-	  road" to travel through the USB cable until they actually reach the
-	  kernel. As the incoming packets are time stamped when they are processed
-	  by the kernel, this time stamping mechanism becomes very inaccurate.
-      </para>
-      <para>
-	  Conclusion: don't use USB connected NIC's when you need precise
-	  time stamp accuracy! (XXX - are there any such NIC's that stamps already
-	  on the USB hardware?)
-      </para>
-    </note>
-	</para>
-  </section>
-  </section>
-
-  <section id="ChAdvTimezones"><title>Time Zones</title>
-	<para>
-	If you travel across the planet, time zones can be confusing. If you get a
-	capture file from somewhere around the world time zones can even be a lot
-	more confusing ;-)
-	</para>
-	<para>
-	First of all, there are two reasons why you may not need to think about
-	time zones at all:
-	<itemizedlist>
-	  <listitem>
-	  <para>
-		You are only interested in the time differences between the packet
-		time stamps and don't need to know the exact date and time of the
-		captured packets (which is often the case).
-	  </para>
-	  </listitem>
-	  <listitem>
-	  <para>
-	  	You don't get capture files from different time zones than your own,
-		so there are simply no time zone problems. For example: everyone in
-		your team is working in the same time zone than yourself.
-	  </para>
-	  </listitem>
-	</itemizedlist>
-	</para>
-	<sidebar><title>What are time zones?</title>
-	<para>
-	People expect that the time reflects the sunset. Dawn should be in the
-	morning maybe around 06:00 and dusk in the evening maybe at 20:00.
-	These times will obviously vary depending on the season.
-	It would be very confusing if everyone on earth would use the same
-	global time as this would correspond to the sunset only at a small part
-	of the world.
-	</para>
-	<para>
-	For that reason, the earth is split into several different time zones,
-	each zone with a local time that corresponds to the local sunset.
-	</para>
-	<para>
-	The time zone's base time is UTC (Coordinated Universal Time) or Zulu
-	Time (military and aviation). The older term GMT (Greenwich Mean Time)
-	shouldn't be used as it is slightly incorrect (up to 0.9 seconds
-	difference to UTC).
-	The UTC base time equals to 0 (based at Greenwich, England) and all
-	time zones have an offset to UTC between -12 to +14 hours!
-	</para>
-	<para>
-	For example: If you live in
-	Berlin you are in a time zone one hour earlier than UTC, so you are in
-	time zone "+1" (time difference in hours compared to UTC). If it's
-	3 o'clock in Berlin it's 2 o'clock in UTC "at the same moment".
-	</para>
-	<para>
-	Be aware that at a few places on earth don't use time zones with even
-	hour offsets (e.g. New Delhi uses UTC+05:30)!
-	</para>
-	<para>
-	Further information can be found at:
-	<ulink url="&WikipediaTimezone;">&WikipediaTimezone;</ulink> and
-	<ulink url="&WikipediaUTC;">&WikipediaUTC;</ulink>.
-	</para>
-
-	</sidebar>
-	<sidebar><title>What is daylight saving time (DST)?</title>
-	<para>
-	Daylight Saving Time (DST), also known as Summer Time, is intended to
-	"save" some daylight during the summer months.
-	To do this, a lot of countries (but not all!) add an DST hour to the
-	already existing UTC offset.
-	So you may need to take another hour (or in very rare cases even two
-	hours!) difference into your "time zone calculations".
-	</para>
-	<para>
-	Unfortunately, the date at which DST actually takes effect is different
-	throughout the world. You may also note, that the northern and southern
-	hemispheres have opposite DST's (e.g. while it's summer in Europe it's
-	winter in Australia).
-	</para>
-	<para>
-	Keep in mind: UTC remains the same all year around, regardless of DST!
-	</para>
-	<para>
-	Further information can be found at:
-	<ulink url="&WikipediaDaylightSaving;">&WikipediaDaylightSaving;</ulink>.
-	</para>
-	</sidebar>
-	<para>
-	Further time zone and DST information can be found at:
-	<ulink url="&TimezoneGMTSite;">&TimezoneGMTSite;</ulink> and
-	<ulink url="&TimezoneWorldClockSite;">&TimezoneWorldClockSite;</ulink>.
-	</para>
-  <section><title>Set your computer's time correct!</title>
-	<para>
-	If you work with people around the world, it's very helpful to set your
-	computer's time and time zone right.
-	</para>
-	<para>
-	You should set your computers time and time zone in the correct sequence:
-	<orderedlist>
-	  <listitem>
-	  <para>
-		Set your time zone to your current location
-	  </para>
-	  </listitem>
-	  <listitem>
-	  <para>
-		Set your computer's clock to the local time
-	  </para>
-	  </listitem>
-	</orderedlist>
-	This way you will tell your computer both the local time and also the time
-	offset to UTC.
-	<tip><title>Tip!</title>
-	<para>
-	If you travel around the world, it's an often made mistake to adjust the
-	hours of your computer clock to the local time. Don't adjust the
-	hours but your time zone setting instead! For your computer, the time is
-	essentially the same as before, you are simply in a different time zone
-	with a different local time!
-	</para>
-	</tip>
-	<tip><title>Tip!</title>
-	<para>
-	You can use the Network Time Protocol (NTP) to automatically adjust your
-	computer to the correct time, by synchronizing it to Internet NTP clock
-	servers. NTP clients are available for all operating systems that
-	Wireshark supports (and for a lot more), for examples see:
-	<ulink url="&NTPSite;">&NTPSite;</ulink>.
-	</para>
-	</tip>
-	</para>
-  </section>
-  <section><title>Wireshark and Time Zones</title>
-	<para>
-	So what's the relationship between Wireshark and time zones anyway?
-	</para>
-	<para>
-	Wireshark's native capture file format (libpcap format), and some
-	other capture file formats, such as the Windows Sniffer,
-	EtherPeek, AiroPeek, and Sun snoop formats, save the arrival
-	time of packets as UTC values.
-	UN*X systems, and "Windows NT based" systems (Windows NT 4.0,
-	Windows 2000, Windows XP, Windows Server 2003, Windows Vista)
-	represent time internally as UTC.
-	When Wireshark is capturing, no conversion is necessary.
-	However, if the system time zone is not set
-	correctly, the system's UTC time might not be correctly set even
-	if the system clock appears to display correct local time.
-	"Windows 9x based" systems (Windows 95, Windows 98, Windows Me)
-	represent time internally as local time.
-	When capturing, WinPcap has to convert the time to UTC before
-	supplying it to Wireshark.
-	If the system's time zone is not set correctly, that conversion will
-	not be done correctly.
-	</para>
-	<para>
-	Other capture file formats, such as the Microsoft Network
-	Monitor, DOS-based Sniffer, and Network Instruments Observer
-	formats, save the arrival time of packets as local time values.
-	</para>
-	<para>
-	Internally to Wireshark, time stamps are represented in UTC; this
-	means that, when reading capture files that save the arrival
-	time of packets as local time values, Wireshark must convert
-	those local time values to UTC values.
-	</para>
-	<para>
-	Wireshark in turn will display the time stamps always in local
-	time.  The displaying computer will convert them from UTC to
-	local time and displays this (local) time.  For capture files
-	saving the arrival time of packets as UTC values, this means
-	that the arrival time will be displayed as the local time in
-	your time zone, which might not be the same as the arrival time
-	in the time zone in which the packet was captured.  For capture
-	files saving the arrival time of packets as local time values,
-	the conversion to UTC will be done using your time zone's offset
-	from UTC and DST rules, which means the conversion will not be
-	done correctly; the conversion back to local time for display
-	might undo this correctly, in which case the arrival time will
-	be displayed as the arrival time in which the packet was
-	captured.
-	</para>
-	<para>
-    <table id="ChAdvTabTimezones" frame="none">
-      <title>Time zone examples for UTC arrival times (without DST)</title>
-      <tgroup cols="7">
-<!--	<colspec colnum="1" colwidth="72pt"/>
-	  <colspec colnum="2" colwidth="80pt"/>
-	  <colspec colnum="3" colwidth="80pt"/>-->
-	    <thead>
-	      <row>
-		<entry></entry>
-		<entry>Los Angeles</entry>
-		<entry>New York</entry>
-		<entry>Madrid</entry>
-		<entry>London</entry>
-		<entry>Berlin</entry>
-		<entry>Tokyo</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry><command>Capture File (UTC)</command></entry>
-		<entry>10:00</entry>
-		<entry>10:00</entry>
-		<entry>10:00</entry>
-		<entry>10:00</entry>
-		<entry>10:00</entry>
-		<entry>10:00</entry>
-	      </row>
-	      <row>
-		<entry><command>Local Offset to UTC</command></entry>
-		<entry>-8</entry>
-		<entry>-5</entry>
-		<entry>-1</entry>
-		<entry>0</entry>
-		<entry>+1</entry>
-		<entry>+9</entry>
-	      </row>
-	      <row>
-		<entry><command>Displayed Time (Local Time)</command></entry>
-		<entry>02:00</entry>
-		<entry>05:00</entry>
-		<entry>09:00</entry>
-		<entry>10:00</entry>
-		<entry>11:00</entry>
-		<entry>19:00</entry>
-	      </row>
-	    </tbody>
-      </tgroup>
-    </table>
-	</para>
-	<para>
-	An example:
-	Let's assume that someone in Los Angeles captured a packet with
-	Wireshark at exactly 2 o'clock local time and sends you this
-	capture file.  The capture file's time stamp will be represented
-	in UTC as 10 o'clock.  You are located in Berlin and will see 11
-	o'clock on your Wireshark display.
-	</para>
-	<para>
-	Now you have a phone call, video conference or Internet meeting with that
-	one to talk about that capture file.
-	As you are both looking at the displayed time on your local computers,
-	the one in Los Angeles still sees 2 o'clock but you in Berlin will see
-	11 o'clock. The time displays are different as both Wireshark displays
-	will show the (different) local times at the same point in time.
-	</para>
-	<para>
-	<command>Conclusion</command>: You may not bother about the date/time
-	of the time stamp you currently look at, unless you must make sure that
-	the date/time is as expected.
-	So, if you get a capture file from a different time zone and/or DST, you'll
-	have to find out the time zone/DST difference between the two local times
-	and "mentally adjust" the time stamps accordingly.
-	In any case, make sure that every computer in question has the correct
-	time and time zone setting.
-	</para>
-  </section>
-  </section>
-
-  <section id="ChAdvReassemblySection"><title>Packet Reassembling</title>
-    <section><title>What is it?</title>
-    <para>
-	Network protocols often need to transport large chunks of data, which are
-	complete in itself, e.g. when transferring a file. The underlying
-	protocol might not be able to handle that chunk size (e.g. limitation of
-	the network packet size), or is stream-based like TCP, which doesn't know
-	data chunks at all.
-    </para>
-    <para>
-	In that case the network protocol has to handle that chunk boundaries
-	itself and (if required) spreading the data over multiple packets.
-	It obviously also needs a mechanism to find back the chunk boundaries on
-	the receiving side.
-    </para>
-	<tip><title>Tip!</title>
-    <para>
-	Wireshark calls this mechanism reassembling, although a specific protocol
-	specification might use a different term for this (e.g. desegmentation,
-	defragmentation, ...).
-	</para>
-	</tip>
-    </section>
-    <section><title>How Wireshark handles it</title>
-    <para>
-	For some of the network protocols Wireshark knows of, a mechanism is
-	implemented to find, decode and display these chunks of data.
-	Wireshark will try to find the corresponding packets of this chunk,
-	and will show the combined data as additional pages in the
-	"Packet Bytes" pane
-	(for information about this pane, see <xref
-	linkend="ChUsePacketBytesPaneSection"/>).
-    </para>
-    <para>
-    <figure id="ChAdvWiresharkBytesPaneTabs">
-      <title>The "Packet Bytes" pane with a reassembled tab</title>
-      <graphic entityref="WiresharkBytesPaneTabs" format="PNG"/>
-    </figure>
-    </para>
-
-    <note><title>Note!</title>
-    <para>
-	Reassembling might take place at several protocol layers, so it's possible
-	that multiple tabs in the "Packet Bytes" pane appear.
-	</para>
-    </note>
-    <note><title>Note!</title>
-    <para>
-	You will find the reassembled data in the last packet of the chunk.
-	</para>
-    </note>
-    <para>
-	An example:
-		In a <command>HTTP</command> GET response, the requested data (e.g. a
-		HTML page) is returned. Wireshark will show the hex dump of the data in
-		a new tab "Uncompressed entity body" in the "Packet Bytes" pane.
-    </para>
-    <para>
-	Reassembling is enabled in the preferences by default. The defaults
-	were changed from disabled to enabled in September 2005. If you created
-	your preference settings before this date, you might look if reassembling
-	is actually enabled, as it can be extremely helpful while analyzing
-	network packets.
-    </para>
-    <para>
-	The enabling or disabling of the reassemble settings of a protocol typically
-	requires two things:
-	<orderedlist>
-	<listitem>
-    <para>
-	the lower level protocol (e.g., TCP) must support
-	reassembly. Often this reassembly can be enabled or disabled
-	via the protocol preferences.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	the higher level protocol (e.g., HTTP) must use the
-	reassembly mechanism to reassemble fragmented protocol data. This too
-	can often be enabled or disabled via the protocol preferences.
-    </para>
-	</listitem>
-	</orderedlist>
-    </para>
-    <para>
-	The tooltip of the higher level protocol setting will notify you if and
-	which lower level protocol setting has to be considered too.
-    </para>
+        <listitem>
+          <para>
+          <command>ASCII</command>. In this view you see the data
+          from each direction in ASCII. Obviously best for ASCII
+          based protocols, e.g. HTTP.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>EBCDIC</command>. For the big-iron freaks out
+          there.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>HEX Dump</command>. This allows you to see all
+          the data. This will require a lot of screen space and is
+          best used with binary protocols.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>C Arrays</command>. This allows you to import
+          the stream data into your own C program.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>Raw</command>. This allows you to load the
+          unaltered stream data into a different program for
+          further examination. The display will look the same as
+          the ASCII setting, but "Save As" will result in a binary
+          file.</para>
+        </listitem>
+      </orderedlist></para>
     </section>
   </section>
-
-  <section id="ChAdvNameResolutionSection"><title>Name Resolution</title>
-    <para>
-	Name resolution tries to resolve some of the numerical address values into
-	a human readable format. There are two possible ways to do these
-	conversations, depending on the resolution to be done: calling
-	system/network services (like the gethostname function) and/or evaluate
-	from Wireshark specific configuration files.
-	For details about the configuration files Wireshark uses for name
-	resolution and alike, see <xref linkend="AppFiles"/>.
-	</para>
-    <para>
-	The name resolution feature can be en-/disabled separately for the
-	protocol layers of the following sections.
-    </para>
-
-	<section><title>Name Resolution drawbacks</title>
-    <para>
-	Name resolution can be invaluable while working with Wireshark and may
-	even save you hours of work. Unfortunately, it also has it's drawbacks.
-    </para>
+  <section id="ChAdvExpert">
+    <title>Expert Infos</title>
+    <para>The expert infos is a kind of log of the anomalies found
+    by Wireshark in the capture file.</para>
+    <para>Today we already have a lot of very sophisticated ways to
+    detect network problems in Wireshark, thanks to the hard work
+    of our development team :-)</para>
+    <para>Unfortunately you'll have to dig deeply into the protocol
+    details and probably customize the coloring rules to take real
+    advantage of it. This is even more unfortunate, if you don't
+    know the protocol well which you are currently examine.</para>
+    <para>The general idea behind the following "Expert Info" is to
+    have a better display of "uncommon" or just notable network
+    behaviour. This way, both novice and expert users will
+    hopefully find probable network problems a lot faster, compared
+    to scanning the packet list "manually" .</para>
+    <para>The following will first describe the components of a
+    single expert info, then the User Interface.</para>
+    <warning>
+      <title>Expert infos are only a hint!</title>
+      <para>Take expert infos as a hint what's worth looking at,
+      but not more. For example: The absense of expert infos
+      doesn't necessarily mean everything is ok!</para>
+    </warning>
+    <note>
+      <title>The amount of expert infos largely depends on the
+      protocol being used!</title>
+      <para>While some common protocols like TCP/IP will show
+      detailed expert infos, most other protocols currently won't
+      show any expert infos at all.</para>
+    </note>
+    <section id="ChAdvExpertInfoEntries">
+      <title>Expert Info Entries</title>
+      <para>Each expert info will contain the following things
+      which will be described in detail below: 
+      <table id="ChAdvTabTimezones" frame="none">
+        <title>Some example expert infos</title>
+        <tgroup cols="7">
+          <thead>
+            <row>
+              <entry>Packet #</entry>
+              <entry>Severity</entry>
+              <entry>Group</entry>
+              <entry>Protocol</entry>
+              <entry>Summary</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>1</entry>
+              <entry>Note</entry>
+              <entry>Sequence</entry>
+              <entry>TCP</entry>
+              <entry>Duplicate ACK (#1)</entry>
+            </row>
+            <row>
+              <entry>2</entry>
+              <entry>Chat</entry>
+              <entry>Sequence</entry>
+              <entry>TCP</entry>
+              <entry>Connection reset (RST)</entry>
+            </row>
+            <row>
+              <entry>8</entry>
+              <entry>Note</entry>
+              <entry>Sequence</entry>
+              <entry>TCP</entry>
+              <entry>Keep-Alive</entry>
+            </row>
+            <row>
+              <entry>9</entry>
+              <entry>Warn</entry>
+              <entry>Sequence</entry>
+              <entry>TCP</entry>
+              <entry>Fast retransmission (suspected)</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table></para>
+      <section id="ChAdvExpertSeverity">
+        <title>Severity</title>
+        <para>Every expert info has a specific severity level. The
+        following severity levels are used, in parentheses are the
+        colors in which the items will be marked in the GUI: 
+        <itemizedlist>
+          <listitem>
+            <para>
+            <command>Chat (gray)</command>information about usual
+            workflow, e.g. a TCP packet with the SYN flag
+            set</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Note (cyan)</command>notable things, e.g. an
+            application returned an "usual" error code like HTTP
+            404</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Warn (yellow)</command>warning, e.g.
+            application returned an "unusual" error code like a
+            connection problem</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Error (red)</command>serious problem, e.g.
+            [Malformed Packet]</para>
+          </listitem>
+        </itemizedlist></para>
+      </section>
+      <section id="ChAdvExpertGroup">
+        <title>Group</title>
+        <para>There are some common groups of expert infos. The
+        following are currently implemented: 
+        <itemizedlist>
+          <listitem>
+            <para>
+            <command>Checksum</command>a checksum was
+            invalid</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Sequence</command>protocol sequence
+            suspicious, e.g. sequence wasn't continuous or a
+            retransmission was detected or ...</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Response Code</command>problem with
+            application response code, e.g. HTTP 404 page not
+            found</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Request Code</command>an application request
+            (e.g. File Handle == xxxx), usually PI_CHAT</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Undecoded</command>dissector incomplete or
+            data can't be decoded for other reasons</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Reassemble</command>problems while
+            reassembling, e.g. not all fragments were available or
+            an exception happened while reassembling</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Malformed</command>malformed packet or
+            dissector has a bug, dissection of this packet
+            aborted</para>
+          </listitem>
+          <listitem>
+            <para>
+            <command>Debug</command>debugging (should not occur in
+            released versions)</para>
+          </listitem>
+        </itemizedlist>It's possible that more of such values are
+        added in the future ...</para>
+      </section>
+      <section id="ChAdvExpertProtocol">
+        <title>Protocol</title>
+        <para>The protocol in which the expert info was
+        caused.</para>
+      </section>
+      <section id="ChAdvExpertSummary">
+        <title>Summary</title>
+        <para>Each expert info will also have a short additional
+        text with some further explanation.</para>
+      </section>
+    </section>
+    <section id="ChAdvExpertDialog">
+      <title>"Expert Info Composite" dialog</title>
+      <para>From the main menu you can open the expert info dialog,
+      using: "Analyze/Expert Info Composite"</para>
+      <para>XXX - "Analyze/Expert Info" is also existing but is
+      subject to removal and therefore not explained here.</para>
+      <graphic entityref="WiresharkExpertInfoDialog"
+      format="PNG" />
+      <section id="ChAdvExpertDialogDetails">
+        <title>Details tab</title>
+        <para>The Details tab provides the expert infos in a "log
+        like" view, each entry in it's own line (much like the
+        packet list). As the amount of expert infos of a capture
+        file can easily become very large, getting an idea of the
+        interesting infos with this view can take quite a
+        while.</para>
+      </section>
+      <section id="ChAdvExpertDialogTabs">
+        <title>Errors / Warnings / Notes / Chats tabs</title>
+        <para>An easier and quicker way to find the most
+        interesting infos than using the Details tab, is to have a
+        look at the seperate tabs for each severity level. As the
+        tab also contains the number of existing entries - it's
+        easy to find the tab with the most important
+        entries.</para>
+        <para>There are usually a lot of identical expert infos
+        only differing in the packet number. These identical infos
+        will be combined into a single line of the dialog - with a
+        count column how often they appeared in the capture file.
+        Clicking on the plus sign shows the individual packet
+        numbers in a tree view.</para>
+      </section>
+    </section>
+  </section>
+  <section id="ChAdvTimestamps">
+    <title>Time Stamps</title>
+    <para>Time stamps, their precisions and all that can be quite
+    confusing. This section will provide you with information about
+    what's going on while Wireshark processes time stamps.</para>
+    <para>While packets are captured, each packet is time stamped
+    as it comes in. These time stamps will be saved to the capture
+    file, so they also will be available for (later)
+    analysis.</para>
+    <para>So where do these time stamps come from? While capturing,
+    Wireshark gets the time stamps from the libpcap (WinPcap)
+    library, which in turn gets them from the operating system
+    kernel. If the capture data is loaded from a capture file,
+    Wireshark obviously gets the data from that file.</para>
+    <section>
+      <title>Wireshark internals</title>
+      <para>The internal format that Wireshark uses to keep a
+      packet time stamp consists of the date (in days since
+      1.1.1970) and the time of day (in nanoseconds since
+      midnight). You can adjust the way Wireshark displays the time
+      stamp data in the packet list, see the "Time Display Format"
+      item in the 
+      <xref linkend="ChUseViewMenuSection" />for details.</para>
+      <para>While reading or writing capture files, Wireshark
+      converts the time stamp data between the capture file format
+      and the internal format as required.</para>
+      <para>While capturing, Wireshark uses the libpcap (WinPcap)
+      capture library which supports microsecond resolution. Unless
+      you are working with specialized capturing hardware, this
+      resolution should be adequate.</para>
+    </section>
+    <section>
+      <title>Capture file formats</title>
+      <para>Every capture file format that Wireshark knows support
+      time stamps. The time stamp precision supported by a specific
+      capture file format differs widely and varies from one second
+      "0" to one nanosecond "0.123456789". Most file formats store
+      the time stamps with a fixed precision (e.g. microseconds),
+      while some file formats are even capable to store the time
+      stamp precision itself (whatever the benefit may be).</para>
+      <para>The common libpcap capture file format that is used by
+      Wireshark (and a lot of other tools) supports a fixed
+      microsecond resolution "0.123456" only.</para>
+      <note>
+        <title>Note!</title>
+        <para>Writing data into a capture file format that doesn't
+        provide the capability to store the actual precision will
+        lead to loss of information. Example: If you load a capture
+        file with nanosecond resolution and store the capture data
+        to a libpcap file (with microsecond resolution) Wireshark
+        obviously must reduce the precision from nanosecond to
+        microsecond.</para>
+      </note>
+    </section>
+    <section>
+      <title>Accuracy</title>
+      <para>It's often asked: "Which time stamp accuracy is
+      provided by Wireshark?". Well, Wireshark doesn't create any
+      time stamps itself but simply gets them from "somewhere else"
+      and displays them. So accuracy will depend on the capture
+      system (operating system, performance, ...) that you use.
+      Because of this, the above question is difficult to answer in
+      a general way. 
+      <note>
+        <title>Note!</title>
+        <para>USB connected network adapters often provide a very
+        bad time stamp accuracy. The incoming packets have to take
+        "a long and winding road" to travel through the USB cable
+        until they actually reach the kernel. As the incoming
+        packets are time stamped when they are processed by the
+        kernel, this time stamping mechanism becomes very
+        inaccurate.</para>
+        <para>Conclusion: don't use USB connected NIC's when you
+        need precise time stamp accuracy! (XXX - are there any such
+        NIC's that stamps already on the USB hardware?)</para>
+      </note></para>
+    </section>
+  </section>
+  <section id="ChAdvTimezones">
+    <title>Time Zones</title>
+    <para>If you travel across the planet, time zones can be
+    confusing. If you get a capture file from somewhere around the
+    world time zones can even be a lot more confusing ;-)</para>
+    <para>First of all, there are two reasons why you may not need
+    to think about time zones at all: 
+    <itemizedlist>
+      <listitem>
+        <para>You are only interested in the time differences
+        between the packet time stamps and don't need to know the
+        exact date and time of the captured packets (which is often
+        the case).</para>
+      </listitem>
+      <listitem>
+        <para>You don't get capture files from different time zones
+        than your own, so there are simply no time zone problems.
+        For example: everyone in your team is working in the same
+        time zone than yourself.</para>
+      </listitem>
+    </itemizedlist></para>
+    <sidebar>
+      <title>What are time zones?</title>
+      <para>People expect that the time reflects the sunset. Dawn
+      should be in the morning maybe around 06:00 and dusk in the
+      evening maybe at 20:00. These times will obviously vary
+      depending on the season. It would be very confusing if
+      everyone on earth would use the same global time as this
+      would correspond to the sunset only at a small part of the
+      world.</para>
+      <para>For that reason, the earth is split into several
+      different time zones, each zone with a local time that
+      corresponds to the local sunset.</para>
+      <para>The time zone's base time is UTC (Coordinated Universal
+      Time) or Zulu Time (military and aviation). The older term
+      GMT (Greenwich Mean Time) shouldn't be used as it is slightly
+      incorrect (up to 0.9 seconds difference to UTC). The UTC base
+      time equals to 0 (based at Greenwich, England) and all time
+      zones have an offset to UTC between -12 to +14 hours!</para>
+      <para>For example: If you live in Berlin you are in a time
+      zone one hour earlier than UTC, so you are in time zone "+1"
+      (time difference in hours compared to UTC). If it's 3 o'clock
+      in Berlin it's 2 o'clock in UTC "at the same moment".</para>
+      <para>Be aware that at a few places on earth don't use time
+      zones with even hour offsets (e.g. New Delhi uses
+      UTC+05:30)!</para>
+      <para>Further information can be found at: 
+      <ulink url="&amp;WikipediaTimezone;">
+      &amp;WikipediaTimezone;</ulink>and 
+      <ulink url="&amp;WikipediaUTC;">
+      &amp;WikipediaUTC;</ulink>.</para>
+    </sidebar>
+    <sidebar>
+      <title>What is daylight saving time (DST)?</title>
+      <para>Daylight Saving Time (DST), also known as Summer Time,
+      is intended to "save" some daylight during the summer months.
+      To do this, a lot of countries (but not all!) add an DST hour
+      to the already existing UTC offset. So you may need to take
+      another hour (or in very rare cases even two hours!)
+      difference into your "time zone calculations".</para>
+      <para>Unfortunately, the date at which DST actually takes
+      effect is different throughout the world. You may also note,
+      that the northern and southern hemispheres have opposite
+      DST's (e.g. while it's summer in Europe it's winter in
+      Australia).</para>
+      <para>Keep in mind: UTC remains the same all year around,
+      regardless of DST!</para>
+      <para>Further information can be found at: 
+      <ulink url="&amp;WikipediaDaylightSaving;">
+      &amp;WikipediaDaylightSaving;</ulink>.</para>
+    </sidebar>
+    <para>Further time zone and DST information can be found at: 
+    <ulink url="&amp;TimezoneGMTSite;">
+    &amp;TimezoneGMTSite;</ulink>and 
+    <ulink url="&amp;TimezoneWorldClockSite;">
+    &amp;TimezoneWorldClockSite;</ulink>.</para>
+    <section>
+      <title>Set your computer's time correct!</title>
+      <para>If you work with people around the world, it's very
+      helpful to set your computer's time and time zone
+      right.</para>
+      <para>You should set your computers time and time zone in the
+      correct sequence: 
+      <orderedlist>
+        <listitem>
+          <para>Set your time zone to your current location</para>
+        </listitem>
+        <listitem>
+          <para>Set your computer's clock to the local time</para>
+        </listitem>
+      </orderedlist>This way you will tell your computer both the
+      local time and also the time offset to UTC. 
+      <tip>
+        <title>Tip!</title>
+        <para>If you travel around the world, it's an often made
+        mistake to adjust the hours of your computer clock to the
+        local time. Don't adjust the hours but your time zone
+        setting instead! For your computer, the time is essentially
+        the same as before, you are simply in a different time zone
+        with a different local time!</para>
+      </tip>
+      <tip>
+        <title>Tip!</title>
+        <para>You can use the Network Time Protocol (NTP) to
+        automatically adjust your computer to the correct time, by
+        synchronizing it to Internet NTP clock servers. NTP clients
+        are available for all operating systems that Wireshark
+        supports (and for a lot more), for examples see: 
+        <ulink url="&amp;NTPSite;">&amp;NTPSite;</ulink>.</para>
+      </tip></para>
+    </section>
+    <section>
+      <title>Wireshark and Time Zones</title>
+      <para>So what's the relationship between Wireshark and time
+      zones anyway?</para>
+      <para>Wireshark's native capture file format (libpcap
+      format), and some other capture file formats, such as the
+      Windows Sniffer, EtherPeek, AiroPeek, and Sun snoop formats,
+      save the arrival time of packets as UTC values. UN*X systems,
+      and "Windows NT based" systems (Windows NT 4.0, Windows 2000,
+      Windows XP, Windows Server 2003, Windows Vista) represent
+      time internally as UTC. When Wireshark is capturing, no
+      conversion is necessary. However, if the system time zone is
+      not set correctly, the system's UTC time might not be
+      correctly set even if the system clock appears to display
+      correct local time. "Windows 9x based" systems (Windows 95,
+      Windows 98, Windows Me) represent time internally as local
+      time. When capturing, WinPcap has to convert the time to UTC
+      before supplying it to Wireshark. If the system's time zone
+      is not set correctly, that conversion will not be done
+      correctly.</para>
+      <para>Other capture file formats, such as the Microsoft
+      Network Monitor, DOS-based Sniffer, and Network Instruments
+      Observer formats, save the arrival time of packets as local
+      time values.</para>
+      <para>Internally to Wireshark, time stamps are represented in
+      UTC; this means that, when reading capture files that save
+      the arrival time of packets as local time values, Wireshark
+      must convert those local time values to UTC values.</para>
+      <para>Wireshark in turn will display the time stamps always
+      in local time. The displaying computer will convert them from
+      UTC to local time and displays this (local) time. For capture
+      files saving the arrival time of packets as UTC values, this
+      means that the arrival time will be displayed as the local
+      time in your time zone, which might not be the same as the
+      arrival time in the time zone in which the packet was
+      captured. For capture files saving the arrival time of
+      packets as local time values, the conversion to UTC will be
+      done using your time zone's offset from UTC and DST rules,
+      which means the conversion will not be done correctly; the
+      conversion back to local time for display might undo this
+      correctly, in which case the arrival time will be displayed
+      as the arrival time in which the packet was captured.</para>
+      <para>
+        <table id="ChAdvTabTimezones" frame="none">
+          <title>Time zone examples for UTC arrival times (without
+          DST)</title>
+          <tgroup cols="7">
+            <!--    <colspec colnum="1" colwidth="72pt"/>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <colspec colnum="2" colwidth="80pt"/>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <colspec colnum="3" colwidth="80pt"/>-->
+            <thead>
+              <row>
+                <entry></entry>
+                <entry>Los Angeles</entry>
+                <entry>New York</entry>
+                <entry>Madrid</entry>
+                <entry>London</entry>
+                <entry>Berlin</entry>
+                <entry>Tokyo</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <command>Capture File (UTC)</command>
+                </entry>
+                <entry>10:00</entry>
+                <entry>10:00</entry>
+                <entry>10:00</entry>
+                <entry>10:00</entry>
+                <entry>10:00</entry>
+                <entry>10:00</entry>
+              </row>
+              <row>
+                <entry>
+                  <command>Local Offset to UTC</command>
+                </entry>
+                <entry>-8</entry>
+                <entry>-5</entry>
+                <entry>-1</entry>
+                <entry>0</entry>
+                <entry>+1</entry>
+                <entry>+9</entry>
+              </row>
+              <row>
+                <entry>
+                  <command>Displayed Time (Local Time)</command>
+                </entry>
+                <entry>02:00</entry>
+                <entry>05:00</entry>
+                <entry>09:00</entry>
+                <entry>10:00</entry>
+                <entry>11:00</entry>
+                <entry>19:00</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+      </para>
+      <para>An example: Let's assume that someone in Los Angeles
+      captured a packet with Wireshark at exactly 2 o'clock local
+      time and sends you this capture file. The capture file's time
+      stamp will be represented in UTC as 10 o'clock. You are
+      located in Berlin and will see 11 o'clock on your Wireshark
+      display.</para>
+      <para>Now you have a phone call, video conference or Internet
+      meeting with that one to talk about that capture file. As you
+      are both looking at the displayed time on your local
+      computers, the one in Los Angeles still sees 2 o'clock but
+      you in Berlin will see 11 o'clock. The time displays are
+      different as both Wireshark displays will show the
+      (different) local times at the same point in time.</para>
+      <para>
+      <command>Conclusion</command>: You may not bother about the
+      date/time of the time stamp you currently look at, unless you
+      must make sure that the date/time is as expected. So, if you
+      get a capture file from a different time zone and/or DST,
+      you'll have to find out the time zone/DST difference between
+      the two local times and "mentally adjust" the time stamps
+      accordingly. In any case, make sure that every computer in
+      question has the correct time and time zone setting.</para>
+    </section>
+  </section>
+  <section id="ChAdvReassemblySection">
+    <title>Packet Reassembling</title>
+    <section>
+      <title>What is it?</title>
+      <para>Network protocols often need to transport large chunks
+      of data, which are complete in itself, e.g. when transferring
+      a file. The underlying protocol might not be able to handle
+      that chunk size (e.g. limitation of the network packet size),
+      or is stream-based like TCP, which doesn't know data chunks
+      at all.</para>
+      <para>In that case the network protocol has to handle that
+      chunk boundaries itself and (if required) spreading the data
+      over multiple packets. It obviously also needs a mechanism to
+      find back the chunk boundaries on the receiving side.</para>
+      <tip>
+        <title>Tip!</title>
+        <para>Wireshark calls this mechanism reassembling, although
+        a specific protocol specification might use a different
+        term for this (e.g. desegmentation, defragmentation,
+        ...).</para>
+      </tip>
+    </section>
+    <section>
+      <title>How Wireshark handles it</title>
+      <para>For some of the network protocols Wireshark knows of, a
+      mechanism is implemented to find, decode and display these
+      chunks of data. Wireshark will try to find the corresponding
+      packets of this chunk, and will show the combined data as
+      additional pages in the "Packet Bytes" pane (for information
+      about this pane, see 
+      <xref linkend="ChUsePacketBytesPaneSection" />).</para>
+      <para>
+        <figure id="ChAdvWiresharkBytesPaneTabs">
+          <title>The "Packet Bytes" pane with a reassembled
+          tab</title>
+          <graphic entityref="WiresharkBytesPaneTabs"
+          format="PNG" />
+        </figure>
+      </para>
+      <note>
+        <title>Note!</title>
+        <para>Reassembling might take place at several protocol
+        layers, so it's possible that multiple tabs in the "Packet
+        Bytes" pane appear.</para>
+      </note>
+      <note>
+        <title>Note!</title>
+        <para>You will find the reassembled data in the last packet
+        of the chunk.</para>
+      </note>
+      <para>An example: In a 
+      <command>HTTP</command>GET response, the requested data (e.g.
+      a HTML page) is returned. Wireshark will show the hex dump of
+      the data in a new tab "Uncompressed entity body" in the
+      "Packet Bytes" pane.</para>
+      <para>Reassembling is enabled in the preferences by default.
+      The defaults were changed from disabled to enabled in
+      September 2005. If you created your preference settings
+      before this date, you might look if reassembling is actually
+      enabled, as it can be extremely helpful while analyzing
+      network packets.</para>
+      <para>The enabling or disabling of the reassemble settings of
+      a protocol typically requires two things: 
+      <orderedlist>
+        <listitem>
+          <para>the lower level protocol (e.g., TCP) must support
+          reassembly. Often this reassembly can be enabled or
+          disabled via the protocol preferences.</para>
+        </listitem>
+        <listitem>
+          <para>the higher level protocol (e.g., HTTP) must use the
+          reassembly mechanism to reassemble fragmented protocol
+          data. This too can often be enabled or disabled via the
+          protocol preferences.</para>
+        </listitem>
+      </orderedlist></para>
+      <para>The tooltip of the higher level protocol setting will
+      notify you if and which lower level protocol setting has to
+      be considered too.</para>
+    </section>
+  </section>
+  <section id="ChAdvNameResolutionSection">
+    <title>Name Resolution</title>
+    <para>Name resolution tries to resolve some of the numerical
+    address values into a human readable format. There are two
+    possible ways to do these conversations, depending on the
+    resolution to be done: calling system/network services (like
+    the gethostname function) and/or evaluate from Wireshark
+    specific configuration files. For details about the
+    configuration files Wireshark uses for name resolution and
+    alike, see 
+    <xref linkend="AppFiles" />.</para>
+    <para>The name resolution feature can be en-/disabled
+    separately for the protocol layers of the following
+    sections.</para>
+    <section>
+      <title>Name Resolution drawbacks</title>
+      <para>Name resolution can be invaluable while working with
+      Wireshark and may even save you hours of work. Unfortunately,
+      it also has it's drawbacks.</para>
       <itemizedlist>
-	<listitem>
-	<para>
-	<command>Name resolution will often fail.</command> The name to be
-	resolved might simply be unknown by the name servers asked or the servers
-	are just not available and the name is also not found in Wireshark's
-	configuration files.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>The resolved names are not stored in the capture file or
-	somewhere else.</command>
-	So the resolved names might not be available if you open the capture file
-	later or on a different machine.
-	Each time you open a capture file it may look "slightly different",
-	maybe simply because you can't connect to a name server (which you could
-	connect before).
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>DNS may add additional packets to your capture file.</command>
-	You may see packets to/from your machine in your capture file, which are
-	caused by name resolution network services of the machine Wireshark
-	captures from.
-	XXX - are there any other such packets than DNS ones?
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>Resolved DNS names are cached by Wireshark.</command>
-	This is required for acceptable performance.
-	However, if the name resolution information
-	should change while Wireshark is running,
-	Wireshark won't notice a change to the name resolution information once
-	it's get cached. If this information changes while Wireshark is running,
-	e.g. a new DHCP lease takes effect, Wireshark won't notice it.
-	XXX - is this true for all or only for DNS info?
-    </para>
-	</listitem>
+        <listitem>
+          <para>
+          <command>Name resolution will often fail.</command>The
+          name to be resolved might simply be unknown by the name
+          servers asked or the servers are just not available and
+          the name is also not found in Wireshark's configuration
+          files.</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>The resolved names are not stored in the capture
+          file or somewhere else.</command>So the resolved names
+          might not be available if you open the capture file later
+          or on a different machine. Each time you open a capture
+          file it may look "slightly different", maybe simply
+          because you can't connect to a name server (which you
+          could connect before).</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>DNS may add additional packets to your capture
+          file.</command>You may see packets to/from your machine
+          in your capture file, which are caused by name resolution
+          network services of the machine Wireshark captures from.
+          XXX - are there any other such packets than DNS
+          ones?</para>
+        </listitem>
+        <listitem>
+          <para>
+          <command>Resolved DNS names are cached by
+          Wireshark.</command>This is required for acceptable
+          performance. However, if the name resolution information
+          should change while Wireshark is running, Wireshark won't
+          notice a change to the name resolution information once
+          it's get cached. If this information changes while
+          Wireshark is running, e.g. a new DHCP lease takes effect,
+          Wireshark won't notice it. XXX - is this true for all or
+          only for DNS info?</para>
+        </listitem>
       </itemizedlist>
-    <tip><title>Tip!</title>
-    <para>
-	The name resolution in the packet list is done while the list is filled.
-	If a name could be resolved after a packet was added to the list, that
-	former entry won't be changed. As the name resolution results are cached,
-	you can use "View/Reload" to rebuild the packet list, this time with the
-	correctly resolved names. However, this isn't possible while a capture is
-	in progress.
-    </para>
+      <tip>
+        <title>Tip!</title>
+        <para>The name resolution in the packet list is done while
+        the list is filled. If a name could be resolved after a
+        packet was added to the list, that former entry won't be
+        changed. As the name resolution results are cached, you can
+        use "View/Reload" to rebuild the packet list, this time
+        with the correctly resolved names. However, this isn't
+        possible while a capture is in progress.</para>
+      </tip>
+    </section>
+    <section>
+      <title>Ethernet name resolution (MAC layer)</title>
+      <para>Try to resolve an Ethernet MAC address (e.g.
+      00:09:5b:01:02:03) to something more "human readable".</para>
+      <para>
+      <command>ARP name resolution (system
+      service)</command>Wireshark will ask the operating system to
+      convert an Ethernet address to the corresponding IP address
+      (e.g. 00:09:5b:01:02:03 -&gt; 192.168.0.1).</para>
+      <para>
+      <command>Ethernet codes (ethers file)</command>If the ARP
+      name resolution failed, Wireshark tries to convert the
+      Ethernet address to a known device name, which has been
+      assigned by the user using an ethers file (e.g.
+      00:09:5b:01:02:03 -&gt; homerouter).</para>
+      <para>
+      <command>Ethernet manufacturer codes (manuf file)</command>If
+      both ARP and ethers didn't returned a result, Wireshark tries
+      to convert the first 3 bytes of an ethernet address to an
+      abbreviated manufacturer name, which has been assigned by the
+      IEEE (e.g. 00:09:5b:01:02:03 -&gt; Netgear_01:02:03).</para>
+    </section>
+    <section>
+      <title>IP name resolution (network layer)</title>
+      <para>Try to resolve an IP address (e.g. 216.239.37.99) to
+      something more "human readable".</para>
+      <para>
+      <command>DNS/ADNS name resolution (system/library
+      service)</command>Wireshark will ask the operating system (or
+      the ADNS library), to convert an IP address to the hostname
+      associated with it (e.g. 216.239.37.99 -&gt;
+      www.1.google.com). The DNS service is using synchronous calls
+      to the DNS server. So Wireshark will stop responding until a
+      response to a DNS request is returned. If possible, you might
+      consider using the ADNS library (which won't wait for a
+      network response).</para>
+      <warning>
+        <title>Warning!</title>
+        <para>Enabling network name resolution when your name
+        server is unavailable may significantly slow down Wireshark
+        while it waits for all of the name server requests to time
+        out. Use ADNS in that case.</para>
+      </warning>
+      <para>
+      <command>DNS vs. ADNS</command>here's a short comparison:
+      Both mechanisms are used to convert an IP address to some
+      human readable (domain) name. The usual DNS call
+      gethostname() will try to convert the address to a name. To
+      do this, it will first ask the systems hosts file (e.g.
+      /etc/hosts) if it finds a matching entry. If that fails, it
+      will ask the configured DNS server(s) about the name.</para>
+      <para>So the real difference between DNS and ADNS comes when
+      the system has to wait for the DNS server about a name
+      resolution. The system call gethostname() will wait until a
+      name is resolved or an error occurs. If the DNS server is
+      unavailable, this might take quite a while (several seconds).
+      The ADNS service will work a bit differently. It will also
+      ask the DNS server, but it won't wait for the answer. It will
+      just return to Wireshark in a very short amount of time. The
+      actual (and the following) address fields won't show the
+      resolved name until the ADNS call returned. As mentioned
+      above, the values get cached, so you can use View/Reload to
+      "update" these fields to show the resolved values.</para>
+      <para>
+      <command>hosts name resolution (hosts file)</command>If DNS
+      name resolution failed, Wireshark will try to convert an IP
+      address to the hostname associated with it, using a hosts
+      file provided by the user (e.g. 216.239.37.99 -&gt;
+      www.google.com).</para>
+    </section>
+    <section>
+      <title>IPX name resolution (network layer)</title>
+      <para>
+      <command>ipxnet name resolution (ipxnets file)</command>XXX -
+      add ipxnets name resolution explanation.</para>
+    </section>
+    <section>
+      <title>TCP/UDP port name resolution (transport layer)</title>
+      <para>Try to resolve a TCP/UDP port (e.g. 80) to something
+      more "human readable".</para>
+      <para>
+      <command>TCP/UDP port conversion (system
+      service)</command>Wireshark will ask the operating system to
+      convert a TCP or UDP port to its well known name (e.g. 80
+      -&gt; http).</para>
+      <para>XXX - mention the role of the /etc/services file (but
+      don't forget the files and folders section)!</para>
+    </section>
+  </section>
+  <section id="ChAdvChecksums">
+    <title>Checksums</title>
+    <para>Several network protocols use checksums to ensure data
+    integrity.</para>
+    <tip>
+      <title>Tip!</title>
+      <para>Applying checksums as described here is also known as 
+      <command>redundancy check</command>.</para>
     </tip>
-	</section>
-
-	<section><title>Ethernet name resolution (MAC layer)</title>
-	<para>
-	Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to
-	something more "human readable".
-	</para>
-    <para><command>ARP name resolution (system service)</command>
-	Wireshark will ask the operating system to convert an Ethernet address
-	to the corresponding IP address (e.g. 00:09:5b:01:02:03 -> 192.168.0.1).
-    </para>
-    <para><command>Ethernet codes (ethers file)</command>
-	If the ARP name resolution failed, Wireshark tries to convert the Ethernet
-	address to a known device name, which has been assigned by the user using
-	an ethers file (e.g. 00:09:5b:01:02:03 -> homerouter).
-    </para>
-    <para><command>Ethernet manufacturer codes (manuf file)</command>
-	If both ARP and ethers didn't returned a result, Wireshark tries to convert
-	the first 3 bytes of an ethernet address to an abbreviated manufacturer name,
-	which has been assigned by the IEEE
-	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
-    </para>
-	</section>
-
-	<section><title>IP name resolution (network layer)</title>
-	<para>
-	Try to resolve an IP address (e.g. 216.239.37.99) to
-	something more "human readable".
-	</para>
-    <para><command>DNS/ADNS name resolution (system/library service)</command>
-	Wireshark will ask the operating system (or the ADNS library),
-	to convert an IP address to the hostname associated with it
-	(e.g. 216.239.37.99 -> www.1.google.com). The DNS service is using
-	synchronous calls to the DNS server. So Wireshark will stop responding
-	until a response to a DNS request is returned. If possible, you might
-	consider using the ADNS library (which won't wait for a network response).
-    </para>
-	<warning>
-	  <title>Warning!</title>
-	  <para>
-		Enabling network name resolution when your name server is
-		unavailable may significantly slow down Wireshark while it waits
-		for all of the name server requests to time out. Use ADNS in that
-		case.
-	  </para>
-	</warning>
-	<para>
-	<command>DNS vs. ADNS</command>
-	here's a short comparison: Both mechanisms are
-	used to convert an IP address to some human readable (domain) name. The
-	usual DNS call gethostname() will try to convert the address to a name.
-	To do this, it will first ask the systems hosts file (e.g. /etc/hosts)
-	if it finds a matching entry. If that fails, it will ask the configured
-	DNS server(s) about the name.
-	</para>
-	<para>
-	So the real difference between DNS and ADNS comes when the system has
-	to wait for the DNS server about a name resolution.
-	The system call gethostname() will wait until a name is resolved or an
-	error occurs.
-	If the DNS server is unavailable, this might take quite
-	a while (several seconds).
-	The ADNS service will work a bit differently.
-	It will also ask the DNS server, but it won't wait for the answer.
-	It will	just return to Wireshark in a very short amount of time.
-	The actual (and the following) address fields won't show the resolved
-	name until the ADNS call returned. As mentioned above, the values get
-	cached, so you can use View/Reload to "update" these fields to show the
-	resolved values.
-	</para>
-    <para><command>hosts name resolution (hosts file)</command>
-	If DNS name resolution failed, Wireshark will try to convert an IP address
-	to the hostname associated with it, using a hosts file provided by the
-	user (e.g. 216.239.37.99 -> www.google.com).
-    </para>
-	</section>
-
-	<section><title>IPX name resolution (network layer)</title>
-    <para><command>ipxnet name resolution (ipxnets file)</command>
-	XXX - add ipxnets name resolution explanation.
-    </para>
-	</section>
-
-	<section><title>TCP/UDP port name resolution (transport layer)</title>
-	<para>
-	Try to resolve a TCP/UDP port (e.g. 80) to
-	something more "human readable".
-	</para>
-    <para><command>TCP/UDP port conversion (system service)</command>
-	Wireshark will ask the operating system to convert a TCP or UDP port to
-	its well known name (e.g. 80 -> http).
-    </para>
-    <para>
-	XXX - mention the role of the /etc/services file
-	(but don't forget the files and folders section)!
-    </para>
-	</section>
-  </section>
-
-  <section id="ChAdvChecksums"><title>Checksums</title>
-    <para>
-	Several network protocols use checksums to ensure data integrity.
-    </para>
-	<tip><title>Tip!</title>
-	<para>
-	Applying checksums as described here is also known as
-	<command>redundancy check</command>.
-	</para>
-	</tip>
-	<sidebar><title>What are checksums for?</title>
-	<para>
-	Checksums are used to ensure the integrity of data portions for data
-	transmission or storage.
-	A checksum is basically a calculated summary of such a data portion.
-	</para>
-	<para>
-	Network data transmissions often produce errors, such as toggled, missing
-	or duplicated bits.
-	As a result, the data received might not be identical to the data
-	transmitted, which is obviously a bad thing.
-	</para>
-	<para>
-	Because of these transmission errors, network protocols very often use
-	checksums to detect such errors.
-	The transmitter will calculate a checksum of the data and transmits the
-	data together with the checksum.
-	The receiver will calculate the checksum of the received data with the same
-	algorithm as the transmitter.
-	If the received and calculated checksums don't match a transmission error
-	has occurred.
-	</para>
-	<para>
-	Some checksum algorithms are able to recover (simple) errors by
-	calculating where the expected error must be and repairing it.
-	</para>
-	<para>
-	If there are errors that cannot be recovered, the receiving side throws
-	away the packet. Depending on the network protocol, this data loss is
-	simply ignored or the sending side needs to detect this loss somehow and
-	retransmits the required packet(s).
-	</para>
-	<para>
-	Using a checksum drastically reduces the number of undetected transmission
-	errors. However, the usual checksum algorithms cannot guarantee an error
-	detection of 100%, so a very small number of transmission errors may
-	remain undetected.
-	</para>
-	<para>
-	There are several different kinds of checksum algorithms, an example of
-	an often used checksum algorithm is CRC32.
-	The checksum algorithm actually chosen for a specific network protocol
-	will depend on the expected error rate of the network medium, the
-	importance of error detection, the processor load to perform the
-	calculation, the performance needed and many other things.
-	</para>
-	<para>
-	Further information about checksums can be found at:
-	<ulink url="&WikipediaWebsite;/wiki/Checksum"/>.
-	</para>
-	</sidebar>
-  <section><title>Wireshark checksum validation</title>
-	<para>
-	Wireshark will validate the checksums of several protocols,
-	e.g.: IP, TCP, UDP, ...
-	</para>
-	<para>
-	It will do the same calculation as a "normal receiver" would do,
-	and shows the checksum fields in the packet details with a comment, e.g.:
-	[correct], [invalid, must be 0x12345678] or alike.
-	</para>
-	<para>
-	Checksum validation can be switched off for various protocols in the
-	Wireshark protocol preferences, e.g. to (very slightly) increase
-	performance.
-	</para>
-	<para>
-	If the checksum validation is enabled and it detected an invalid checksum,
-	features like packet reassembling won't be processed.
-	This is avoided as incorrect connection data could "confuse" the internal
-	database.
-	</para>
-  </section>
-
-  <section><title>Checksum offloading</title>
-	<para>
-	The checksum calculation might be done by the network driver, protocol
-	driver or even in hardware.
-	</para>
-	<para>
-	For example: The Ethernet transmitting hardware calculates the
-	Ethernet CRC32 checksum and the receiving hardware validates this
-	checksum.
-	If the received checksum is wrong Wireshark won't even see the packet,
-	as the Ethernet hardware internally throws away the packet.
-	</para>
-	<para>
-	Higher level checksums are "traditionally" calculated by the protocol
-	implementation and the completed packet is then handed over to the
-	hardware.
-	</para>
-	<para>
-	Recent network hardware can perform advanced features such as IP checksum
-	calculation, also known as checksum offloading.
-	The network driver won't calculate the checksum itself but simply hand
-	over an empty (zero or garbage filled) checksum field to the hardware.
-	</para>
-	<note><title>Note!</title>
-	<para>
-	Checksum offloading often causes confusion as the network packets to be
-	transmitted are handed over to Wireshark before the checksums are actually
-	calculated.
-	Wireshark gets these "empty" checksums and displays them as
-	invalid, even though the packets will contain valid checksums when they
-	leave the network hardware later.
-	</para>
-	</note>
-	<para>
-	Checksum offloading can be confusing and having a lot of [invalid]
-	messages on the screen can be quite annoying.
-	As mentioned above, invalid checksums may lead to unreassembled packets,
-	making the analysis of the packet data much harder.
-	</para>
-	<para>
-	You can do two things to avoid this checksum offloading problem:
+    <sidebar>
+      <title>What are checksums for?</title>
+      <para>Checksums are used to ensure the integrity of data
+      portions for data transmission or storage. A checksum is
+      basically a calculated summary of such a data portion.</para>
+      <para>Network data transmissions often produce errors, such
+      as toggled, missing or duplicated bits. As a result, the data
+      received might not be identical to the data transmitted,
+      which is obviously a bad thing.</para>
+      <para>Because of these transmission errors, network protocols
+      very often use checksums to detect such errors. The
+      transmitter will calculate a checksum of the data and
+      transmits the data together with the checksum. The receiver
+      will calculate the checksum of the received data with the
+      same algorithm as the transmitter. If the received and
+      calculated checksums don't match a transmission error has
+      occurred.</para>
+      <para>Some checksum algorithms are able to recover (simple)
+      errors by calculating where the expected error must be and
+      repairing it.</para>
+      <para>If there are errors that cannot be recovered, the
+      receiving side throws away the packet. Depending on the
+      network protocol, this data loss is simply ignored or the
+      sending side needs to detect this loss somehow and
+      retransmits the required packet(s).</para>
+      <para>Using a checksum drastically reduces the number of
+      undetected transmission errors. However, the usual checksum
+      algorithms cannot guarantee an error detection of 100%, so a
+      very small number of transmission errors may remain
+      undetected.</para>
+      <para>There are several different kinds of checksum
+      algorithms, an example of an often used checksum algorithm is
+      CRC32. The checksum algorithm actually chosen for a specific
+      network protocol will depend on the expected error rate of
+      the network medium, the importance of error detection, the
+      processor load to perform the calculation, the performance
+      needed and many other things.</para>
+      <para>Further information about checksums can be found at: 
+      <ulink url="&amp;WikipediaWebsite;/wiki/Checksum" />.</para>
+    </sidebar>
+    <section>
+      <title>Wireshark checksum validation</title>
+      <para>Wireshark will validate the checksums of several
+      protocols, e.g.: IP, TCP, UDP, ...</para>
+      <para>It will do the same calculation as a "normal receiver"
+      would do, and shows the checksum fields in the packet details
+      with a comment, e.g.: [correct], [invalid, must be
+      0x12345678] or alike.</para>
+      <para>Checksum validation can be switched off for various
+      protocols in the Wireshark protocol preferences, e.g. to
+      (very slightly) increase performance.</para>
+      <para>If the checksum validation is enabled and it detected
+      an invalid checksum, features like packet reassembling won't
+      be processed. This is avoided as incorrect connection data
+      could "confuse" the internal database.</para>
+    </section>
+    <section>
+      <title>Checksum offloading</title>
+      <para>The checksum calculation might be done by the network
+      driver, protocol driver or even in hardware.</para>
+      <para>For example: The Ethernet transmitting hardware
+      calculates the Ethernet CRC32 checksum and the receiving
+      hardware validates this checksum. If the received checksum is
+      wrong Wireshark won't even see the packet, as the Ethernet
+      hardware internally throws away the packet.</para>
+      <para>Higher level checksums are "traditionally" calculated
+      by the protocol implementation and the completed packet is
+      then handed over to the hardware.</para>
+      <para>Recent network hardware can perform advanced features
+      such as IP checksum calculation, also known as checksum
+      offloading. The network driver won't calculate the checksum
+      itself but simply hand over an empty (zero or garbage filled)
+      checksum field to the hardware.</para>
+      <note>
+        <title>Note!</title>
+        <para>Checksum offloading often causes confusion as the
+        network packets to be transmitted are handed over to
+        Wireshark before the checksums are actually calculated.
+        Wireshark gets these "empty" checksums and displays them as
+        invalid, even though the packets will contain valid
+        checksums when they leave the network hardware
+        later.</para>
+      </note>
+      <para>Checksum offloading can be confusing and having a lot
+      of [invalid] messages on the screen can be quite annoying. As
+      mentioned above, invalid checksums may lead to unreassembled
+      packets, making the analysis of the packet data much
+      harder.</para>
+      <para>You can do two things to avoid this checksum offloading
+      problem: 
       <itemizedlist>
-	<listitem>
-	<para>
-	Turn off the checksum offloading in the network driver, if this option is
-	available.
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-	Turn off checksum validation of the specific protocol in the Wireshark
-	preferences.
-	</para>
-	</listitem>
-      </itemizedlist>
-	</para>
+        <listitem>
+          <para>Turn off the checksum offloading in the network
+          driver, if this option is available.</para>
+        </listitem>
+        <listitem>
+          <para>Turn off checksum validation of the specific
+          protocol in the Wireshark preferences.</para>
+        </listitem>
+      </itemizedlist></para>
+    </section>
   </section>
-  </section>
-
 </chapter>
 <!-- End of WSUG Chapter Advanced -->
-
-

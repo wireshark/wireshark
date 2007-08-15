@@ -166,6 +166,7 @@ FILE SECTION
   <!ENTITY WiresharkColoringRulesDialog SYSTEM "./wsug_graphics/ws-coloring-rules-dialog.png" NDATA PNG>
   <!ENTITY WiresharkColoringFields SYSTEM "./wsug_graphics/ws-coloring-fields.png" NDATA PNG>
   <!ENTITY WiresharkEditColorDialog SYSTEM "./wsug_graphics/ws-edit-color-rule-dialog.png" NDATA PNG>
+  <!ENTITY WiresharkExpertInfoDialog SYSTEM "./wsug_graphics/ws-expert-infos.png" NDATA PNG>
   <!ENTITY WiresharkChooseColorDialog SYSTEM "./wsug_graphics/ws-choose-color-rule.png" NDATA PNG>
   <!ENTITY WiresharkFollowStream SYSTEM "./wsug_graphics/ws-follow-stream.png" NDATA PNG>
   <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ws-find-packet.png" NDATA PNG>  
