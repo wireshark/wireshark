@@ -147,7 +147,7 @@
       <title>Expert Info Entries</title>
       <para>Each expert info will contain the following things
       which will be described in detail below: 
-      <table id="ChAdvTabTimezones" frame="none">
+      <table id="ChAdvTabExpertInfoEntries" frame="none">
         <title>Some example expert infos</title>
         <tgroup cols="7">
           <thead>
