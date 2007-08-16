@@ -240,7 +240,7 @@
           <listitem>
             <para>
             <command>Request Code</command>an application request
-            (e.g. File Handle == xxxx), usually Chat level</para>
+            (e.g. File Handle == x), usually Chat level</para>
           </listitem>
           <listitem>
             <para>
@@ -314,29 +314,31 @@
         pinpoint problems.</para>
       </section>
     </section>
-    <section id="ChAdvExpertColumn">
-      <title>"Expert" Packet List Column</title>
-      <para>XXX - add screenshot</para>
-      <para>There is an optional "Expert Info Severity" packet list
-      column (since SVN 22387 -&gt; 0.99.7), that displays the most
-      significant severity of a packet, or stays empty if
-      everything seems ok. This column is not displayed by default,
-      but can be easily added using Edit/Preferences/Columns (XXX -
-      add link).</para>
-    </section>
     <section id="ChAdvExpertColorizedTree">
       <title>"Colorized" Protocol Details Tree</title>
-      <para>XXX - add screenshot</para>
+      <graphic entityref="WiresharkExpertColoredTree"
+      format="PNG" />
       <para>The protocol field causing an expert info is colorized,
-      e.g. uses a yellow background for a warning severity. This
+      e.g. uses a cyan background for a note severity level. This
       color is propagated to the toplevel protocol item in the
       tree, so it's easy to find the field that caused the expert
       info.</para>
-      <para>For example, if a [TCP zero window] is detected, the
-      corresponding TCP window protocol field is marked with a
-      yellow background. To easier find that item in the packet
-      tree, the TCP protocol toplevel item is marked yellow as
-      well.</para>
+      <para>For the example screenshot above, the IP "Time to live"
+      value is very low (only 1), so the corresponding protocol
+      field is marked with a cyan background. To easier find that
+      item in the packet tree, the IP protocol toplevel item is
+      marked cyan as well.</para>
+    </section>
+    <section id="ChAdvExpertColumn">
+      <title>"Expert" Packet List Column (optional)</title>
+      <graphic entityref="WiresharkExpertColumn" format="PNG" />
+      <para>An optional "Expert Info Severity" packet list column
+      is available (since SVN 22387 -&gt; 0.99.7), that displays
+      the most significant severity of a packet, or stays empty if
+      everything seems ok. This column is not displayed by default,
+      but can be easily added using the Preferences Columns page
+      described in 
+      <xref linkend="ChCustPreferencesSection" />.</para>
     </section>
   </section>
   <section id="ChAdvTimestamps">
@@ -576,8 +578,8 @@
           DST)</title>
           <tgroup cols="7">
             <!--    <colspec colnum="1" colwidth="72pt"/>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <colspec colnum="2" colwidth="80pt"/>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <colspec colnum="3" colwidth="80pt"/>-->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <colspec colnum="2" colwidth="80pt"/>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <colspec colnum="3" colwidth="80pt"/>-->
             <thead>
               <row>
                 <entry></entry>
