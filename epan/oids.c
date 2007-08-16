@@ -146,6 +146,62 @@ static char* alnumerize(const char* name) {
 	return s;
 }
 
+struct _smi_type_data {
+	char*               name;
+	enum SmiBasetype    base; 
+	enum ftenum			type;
+	int					display;
+};
+
+const struct _smi_type_data* get_typedata(SmiType* smiType) {
+	static const struct _smi_type_data types_by_name[] =  {
+		{"IpAddress",0,FT_IPv4,BASE_NONE},
+		{"InetAddressIPv4",0,FT_IPv4,BASE_NONE},
+		{"InetAddressIPv6",0,FT_IPv4,BASE_NONE},
+		{"NetworkAddress",0,FT_IPv4,BASE_NONE},
+		{"MacAddress",0,FT_ETHER,BASE_NONE},
+		{"TimeTicks",0,FT_RELATIVE_TIME,BASE_NONE},
+		{"Ipv6Address",0,FT_IPv4,BASE_NONE},
+		{"TimeStamp",0,FT_RELATIVE_TIME,BASE_NONE}
+	};
+	static const struct _smi_type_data types_by_base[] =  {
+		{NULL,SMI_BASETYPE_UNKNOWN,FT_BYTES,BASE_NONE},
+		{NULL,SMI_BASETYPE_INTEGER32,FT_INT32,BASE_DEC},
+		{NULL,SMI_BASETYPE_OCTETSTRING,FT_BYTES,BASE_NONE},
+		{NULL,SMI_BASETYPE_OBJECTIDENTIFIER,FT_OID,BASE_NONE},
+		{NULL,SMI_BASETYPE_UNSIGNED32,FT_UINT32,BASE_NONE},
+		{NULL,SMI_BASETYPE_UNSIGNED64,FT_UINT64,BASE_DEC},
+		{NULL,SMI_BASETYPE_FLOAT32,FT_FLOAT,BASE_DEC},
+		{NULL,SMI_BASETYPE_FLOAT64,FT_DOUBLE,BASE_DEC},
+		{NULL,SMI_BASETYPE_FLOAT128,FT_BYTES,BASE_NONE},
+		{NULL,SMI_BASETYPE_ENUM,FT_UINT32,BASE_DEC},
+		{NULL,SMI_BASETYPE_BITS,FT_BYTES,BASE_DEC},
+	};
+	const struct _smi_type_data* type = NULL;
+	SmiType* sT = smiType;
+	guint i;
+
+
+	do {
+		for (i = 0; i < array_length(types_by_name) ; i++ ) {
+			const char* name = smiRenderType(sT, SMI_RENDER_NAME);
+			type = &(types_by_name[i]);
+			if (name && g_str_equal(name, types_by_name[i].name)) {
+				return type;
+			}
+		}
+	} while(( sT  = smiGetParentType(sT) ));
+	
+	if (! type) {
+		for (i = 0; i < array_length(types_by_base) ; i++ ) {
+			if(sT->basetype == types_by_base[i].base) {
+				return type;
+			}
+		}
+	}
+	return types_by_base;
+}
+
 #define IS_ENUMABLE(ft) (( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
 						   || (ft == FT_INT8) || (ft == FT_INT16) || (ft == FT_INT24) || (ft == FT_INT32) \
 						   || (ft == FT_UINT64) || (ft == FT_INT64) ))
@@ -156,22 +212,8 @@ void register_mibs(void) {
 	guint i;
 	int proto_smi = -1;
 	
-	static struct _smi_type_data {
-		enum ftenum			type;
-		int					display;
-	} types[] =  {
-	{FT_BYTES,BASE_NONE},
-	{FT_INT32,BASE_DEC},
-	{FT_BYTES,BASE_NONE},
-	{FT_OID,BASE_NONE},
-	{FT_UINT32,BASE_DEC},
-	{FT_INT64,BASE_DEC},
-	{FT_UINT64,BASE_DEC},
-	{FT_FLOAT,BASE_DEC},
-	{FT_DOUBLE,BASE_DEC},
-	{FT_BYTES,BASE_NONE},
-	{FT_UINT32,BASE_DEC},
-	};
+	
+	
 	GArray* hfa = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	GArray* etta = g_array_new(FALSE,TRUE,sizeof(gint*));
 	static uat_field_t smi_fields[] = {
@@ -220,11 +262,9 @@ void register_mibs(void) {
 			
 			if (smiType) {
 				SmiNamedNumber* smiEnum; 
-				struct _smi_type_data* typedata;
+				const struct _smi_type_data* typedata =  get_typedata(smiType);
 				hf_register_info hf = { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0, "", HFILL }};
-				
-				typedata = &(types[smiType->basetype <= SMI_BASETYPE_ENUM ? smiType->basetype : SMI_BASETYPE_UNKNOWN]);
-				
+								
 				hf.hfinfo.name = oid_data->name;
 				hf.p_id = &(oid_data->value_hfid);
 				hf.hfinfo.type = typedata->type;

@@ -27,22 +27,6 @@
 #ifndef __OIDS_H__
 #define __OIDS_H__
 
-#ifndef HAVE_SMI
-/* Values from smi.h in case it is not included */
-#define SMI_BASETYPE_UNKNOWN 0
-#define SMI_BASETYPE_INTEGER32 1
-#define SMI_BASETYPE_OCTETSTRING 2
-#define SMI_BASETYPE_OBJECTIDENTIFIER 3
-#define SMI_BASETYPE_UNSIGNED32 4
-#define SMI_BASETYPE_INTEGER64 5
-#define SMI_BASETYPE_UNSIGNED64 6
-#define SMI_BASETYPE_FLOAT32 7
-#define SMI_BASETYPE_FLOAT64 8
-#define SMI_BASETYPE_FLOAT128 9
-#define SMI_BASETYPE_ENUM 10
-#define SMI_BASETYPE_BITS 11
-#endif
-
 struct _oid_bit_t {
 	guint offset;
 	int hfid;
