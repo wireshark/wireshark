@@ -857,9 +857,9 @@ main_menu_new(GtkAccelGroup ** table) {
 }
 
 
-void menu_dissector_filter_cb(  GtkWidget *widget,
+void menu_dissector_filter_cb(  GtkWidget *widget _U_,
                                 gpointer callback_data,
-                                guint callback_action)
+                                guint callback_action _U_)
 {
     dissector_filter_t      *filter_entry = callback_data;
     GtkWidget		        *filter_te;
@@ -882,7 +882,7 @@ void menu_dissector_filter_cb(  GtkWidget *widget,
     g_free( (void *) buf);
 }
 
-gboolean menu_dissector_filter_spe_cb(frame_data *fd, epan_dissect_t *edt, gpointer callback_data) {
+gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data) {
     dissector_filter_t *filter_entry = callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
