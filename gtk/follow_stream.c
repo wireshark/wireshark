@@ -33,7 +33,6 @@
 #include <gtk/gtk.h>
 
 #include <alert_box.h>
-#include <main.h>
 #include <isprint.h>
 #include <print.h>
 #include <epan/follow.h>
@@ -48,6 +47,9 @@
 #include <gtk/gui_utils.h>
 #include <simple_dialog.h>
 #include <wiretap/file_util.h>
+
+#include "main.h"
+#include "print_mswin.h"
 
 /* static variable declarations to speed up the performance
  * of follow_load_text and follow_add_to_gtk_text
@@ -73,6 +75,7 @@ follow_read_stream(follow_info_t *follow_info,
 
 	default :
 		g_assert_not_reached();
+		return 0;    
 	}
 }
 
