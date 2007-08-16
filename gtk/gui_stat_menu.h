@@ -65,8 +65,8 @@ extern void register_stat_menu_item(
     const char *name, 
     register_stat_group_t group,
     GtkItemFactoryCallback callback,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
-    gboolean (*selected_tree_row_enabled)(field_info *),
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data);
 
 #ifdef __cplusplus

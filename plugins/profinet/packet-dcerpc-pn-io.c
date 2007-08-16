@@ -61,6 +61,7 @@
 #include <epan/emem.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
+#include <epan/dissector_filters.h>
 
 #include "packet-pn.h"
 
@@ -5921,6 +5922,59 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 }
 
 
+
+gboolean
+pn_io_ar_conv_valid(packet_info *pinfo)
+{
+    return (pinfo->profinet_type == 10);
+}
+
+char *
+pn_io_ar_conv_filter(packet_info *pinfo)
+{
+    pnio_ar_t *ar = pinfo->profinet_conv;
+    char* buf;
+
+    if(pinfo->profinet_type != 10) {
+        return NULL;
+    }
+
+    buf = g_strdup_printf(
+        "pn_io.ar_uuid == %s || "                                   /* ARUUID */
+        "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "   /* Alarm CR (contr -> dev) */
+        "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",      /* Alarm CR (dev -> contr) */
+        guid_to_str((const e_guid_t*) &ar->aruuid),
+        ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
+        ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+    return buf;
+}
+
+char *
+pn_io_ar_conv_data_filter(packet_info *pinfo)
+{
+    pnio_ar_t *ar = pinfo->profinet_conv;
+    char* buf;
+
+    if(pinfo->profinet_type != 10) {
+        return NULL;
+    }
+
+    buf = g_strdup_printf(
+        "pn_io.ar_uuid == %s || "                                           /* ARUUID */
+        "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Input CR && dev MAC -> contr MAC */
+        "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Output CR && contr MAC -> dev MAC */
+        "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "           /* Alarm CR (contr -> dev) */
+        "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",              /* Alarm CR (dev -> contr) */
+        guid_to_str((const e_guid_t*) &ar->aruuid),
+        ar->inputframeid, ether_to_str((const guint8 *)ar->devicemac), ether_to_str((const guint8 *)ar->controllermac),
+        ar->outputframeid, ether_to_str((const guint8 *)ar->controllermac), ether_to_str((const guint8 *)ar->devicemac),
+        ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
+        ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+    return buf;
+}
+
+
+
 /* the PNIO dcerpc interface table */
 static dcerpc_sub_dissector pn_io_dissectors[] = {
 { 0, "Connect", dissect_IPNIO_rqst, dissect_IPNIO_resp },
@@ -6636,6 +6690,9 @@ proto_register_pn_io (void)
 	proto_register_subtree_array (ett, array_length (ett));
 
 	register_init_routine(pnio_reinit);
+
+    register_dissector_filter("PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
+    register_dissector_filter("PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
 }
 
 void

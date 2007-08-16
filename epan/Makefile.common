@@ -43,6 +43,7 @@ LIBWIRESHARK_SRC = 		\
 	crc32.c			\
 	crc6.c			\
 	crcdrm.c		\
+	dissector_filters.c		\
 	emem.c			\
 	epan.c			\
 	ex-opt.c		\
@@ -152,6 +153,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	crc32.h			\
 	crcdrm.h		\
 	diam_dict.h		\
+	dissector_filters.h		\
 	dtd.h			\
 	dtd_parse.h 		\
 	emem.h			\

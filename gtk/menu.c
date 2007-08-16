@@ -40,6 +40,7 @@
 #include <epan/tap.h>
 #include <epan/timestamp.h>
 #include <epan/ipproto.h>
+#include <epan/dissector_filters.h>
 
 #include "about_dlg.h"
 #include "capture_dlg.h"
@@ -99,8 +100,8 @@ typedef struct _menu_item {
     gboolean enabled;
     GtkItemFactoryCallback callback;
     gpointer callback_data;
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *);
-    gboolean (*selected_tree_row_enabled)(field_info *);
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data);
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data);
     GList *children;
 } menu_item_t;
 
@@ -855,6 +856,59 @@ main_menu_new(GtkAccelGroup ** table) {
   return menubar;
 }
 
+
+void menu_dissector_filter_cb(  GtkWidget *widget,
+                                gpointer callback_data,
+                                guint callback_action)
+{
+    dissector_filter_t      *filter_entry = callback_data;
+    GtkWidget		        *filter_te;
+    const char              *buf;    
+
+
+    filter_te = OBJECT_GET_DATA(popup_menu_object, E_DFILTER_TE_KEY);
+
+    /* XXX - this gets the packet_info of the last dissected packet, */
+    /* which is not necessarily the last selected packet */
+    /* e.g. "Update list of packets in real time" won't work correct */
+    buf = filter_entry->build_filter_string(&cfile.edt->pi);
+
+	gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
+
+	/* Run the display filter so it goes in effect - even if it's the
+	   same as the previous display filter. */
+	main_filter_packets(&cfile, buf, TRUE);
+
+    g_free( (void *) buf);
+}
+
+gboolean menu_dissector_filter_spe_cb(frame_data *fd, epan_dissect_t *edt, gpointer callback_data) {
+    dissector_filter_t *filter_entry = callback_data;
+
+    /* XXX - this gets the packet_info of the last dissected packet, */
+    /* which is not necessarily the last selected packet */
+    /* e.g. "Update list of packets in real time" won't work correct */
+    return (edt != NULL) ? filter_entry->is_filter_valid(&edt->pi) : FALSE;
+}
+
+void menu_dissector_filter(void) {
+    GList *list_entry = dissector_filter_list;
+    dissector_filter_t *filter_entry;
+
+    while(list_entry != NULL) {
+        filter_entry = list_entry->data;
+
+        register_stat_menu_item(filter_entry->name, REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER,
+            menu_dissector_filter_cb,
+            menu_dissector_filter_spe_cb,
+            NULL /* selected_tree_row_enabled */,
+            filter_entry);
+
+        list_entry = g_list_next(list_entry);
+    }
+}
+
+
 static void
 menus_init(void) {
   if (initialize) {
@@ -888,6 +942,7 @@ menus_init(void) {
 		}
 #endif
 
+    menu_dissector_filter();
     merge_all_tap_menus(tap_menu_tree_root);
 
     /* Initialize enabled/disabled state of menu items */
@@ -926,8 +981,8 @@ static GList * tap_menu_item_add(
     char *name,
     gint group,
     GtkItemFactoryCallback callback,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
-    gboolean (*selected_tree_row_enabled)(field_info *),
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data,
 	GList *curnode)
 {
@@ -980,8 +1035,8 @@ register_stat_menu_item(
     const char *name,
     register_stat_group_t group,
     GtkItemFactoryCallback callback,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
-    gboolean (*selected_tree_row_enabled)(field_info *),
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data)
 {
     /*static const char toolspath[] = "/Statistics/";*/
@@ -1006,6 +1061,7 @@ register_stat_menu_item(
     case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
     case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
+    case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
 #ifdef HAVE_LUA_5_1
     case(REGISTER_TOOLS_GROUP_NONE):
 		toolspath = "/Tools/";
@@ -1137,6 +1193,8 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_ANALYZE_GROUP_NONE):
                 break;
+            case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
+                break;
 #ifdef HAVE_LUA_5_1
             case(REGISTER_TOOLS_GROUP_NONE):
                 break;
@@ -1145,7 +1203,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 g_assert_not_reached();
             }
 #endif
-            gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, 2);
+            gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
             added++;
         }
@@ -1211,6 +1269,10 @@ void merge_all_tap_menus(GList *node) {
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_NONE)) {
 		entry->path = "/Analyze/";
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+    }
+    if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER)) {
+		entry->path = "/Analyze/Conversation Filter/";
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
 #ifdef HAVE_LUA_5_1
@@ -2308,7 +2370,7 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 		 * based on its return value.
 		 */
 		if (node_data->selected_packet_enabled != NULL)
-			node_data->enabled = node_data->selected_packet_enabled(fd, edt);
+			node_data->enabled = node_data->selected_packet_enabled(fd, edt, node_data->callback_data);
 	} else {
 		/*
 		 * It's an interior node; call
@@ -2418,7 +2480,7 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
-      cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0) : FALSE);
+      cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(packet_list_menu_factory, "/Decode As...",
@@ -2467,7 +2529,7 @@ walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
 		 * based on its return value.
 		 */
 		if (node_data->selected_tree_row_enabled != NULL)
-			node_data->enabled = node_data->selected_tree_row_enabled(fi);
+			node_data->enabled = node_data->selected_tree_row_enabled(fi, node_data->callback_data);
 	} else {
 		/*
 		 * It's an interior node; call

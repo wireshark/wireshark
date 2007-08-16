@@ -4007,7 +4007,7 @@ static int rint (double x)
 #endif
 
 
-static gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt)
+static gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_)
 {
     return current_frame != NULL ? (edt->pi.ipproto == IP_PROTO_TCP) : FALSE;
 }

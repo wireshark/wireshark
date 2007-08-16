@@ -137,6 +137,7 @@ dissector_change_string
 dissector_delete
 dissector_delete_string
 dissector_dump_decodes
+dissector_filter_list           DATA
 dissector_get_port_handle
 dissector_get_string_handle
 dissector_handle_get_protocol_index
@@ -678,6 +679,7 @@ register_ber_syntax_dissector
 register_count
 register_dissector
 register_dissector_table
+register_dissector_filter
 register_final_registration_routine
 register_giop_user
 register_giop_user_module
