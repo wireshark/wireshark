@@ -5929,7 +5929,7 @@ pn_io_ar_conv_valid(packet_info *pinfo)
     return (pinfo->profinet_type == 10);
 }
 
-char *
+const gchar *
 pn_io_ar_conv_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = pinfo->profinet_conv;
@@ -5949,7 +5949,7 @@ pn_io_ar_conv_filter(packet_info *pinfo)
     return buf;
 }
 
-char *
+const gchar *
 pn_io_ar_conv_data_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = pinfo->profinet_conv;
