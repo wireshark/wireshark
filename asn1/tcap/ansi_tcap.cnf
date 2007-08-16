@@ -2,6 +2,15 @@
 # $Id$
 # tcap conformation file
 
+#--- OperationCode ---
+
+#.FN_PARS
+OperationCode            VAL_PTR = &ansi_tcap_private.d.OperationCode
+OperationCode/national   VAL_PTR = &ansi_tcap_private.d.OperationCode_national
+OperationCode/private    FN_VARIANT = _str  VAL_PTR = &ansi_tcap_private.d.OperationCode_private
+#.FN_FTR OperationCode
+  ansi_tcap_private.d.OperationCode_item = actx->created_item;
+#.END
 
 #--- INVOKE ---
 #.FIELD_ATTR
@@ -14,7 +23,10 @@ tvbuff_t	*parameter_tvb;
                                        &parameter_tvb);
   if(!parameter_tvb)
 	return offset;
+#.FN_FTR Invoke
+  ansi_tcap_private.d.pdu = 1;
 
+#--- RETURN RESULT ---
 
 #.FIELD_ATTR
 ReturnResult/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
@@ -26,6 +38,9 @@ proto_tree_add_text(tree, tvb, offset, -1, "ReturnResult/result/result");
 
   offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
+
+#.FN_FTR ReturnResult
+  ansi_tcap_private.d.pdu = 2;
 
 
 #--- RETURN ERROR ---
@@ -40,4 +55,32 @@ proto_tree_add_text(tree, tvb, offset, -1, "ReturnError/parameter");
 
   offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
+#.FN_FTR ReturnError
+  ansi_tcap_private.d.pdu = 3;
+#.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
 
+tvbuff_t *next_tvb;
+guint8 len;
+
+%(DEFAULT_BODY)s
+
+if(next_tvb) {
+	ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
+	len = tvb_length_remaining(next_tvb, 0);
+	switch(len) {
+	case 1:
+		gp_tcapsrt_info->src_tid=tvb_get_guint8(next_tvb, 0);
+		break;
+	case 2:
+		gp_tcapsrt_info->src_tid=tvb_get_ntohs(next_tvb, 0);
+		break;
+	case 4:
+		gp_tcapsrt_info->src_tid=tvb_get_ntohl(next_tvb, 0);
+		break;
+	default:
+		gp_tcapsrt_info->src_tid=0;
+		break;
+	}
+}
+
+#.END

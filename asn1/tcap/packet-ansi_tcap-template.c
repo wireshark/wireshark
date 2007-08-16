@@ -81,7 +81,6 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-struct tcap_private_t ansi_tcap_private;
 
 gboolean g_ansi_tcap_HandleSRT=FALSE;
 extern gboolean gtcap_PersistentSRT;
@@ -101,10 +100,17 @@ static dissector_handle_t data_handle;
 
 static dissector_table_t sccp_ssn_table;
 
-static void raz_ansi_tcap_private(struct tcap_private_t * p_ansi_tcap_private);
+static void raz_ansi_tcap_private(struct ansi_tcap_private_t * p_ansi_tcap_private);
 
 static GHashTable* ansi_sub_dissectors = NULL;
 static GHashTable* itu_sub_dissectors = NULL;
+
+struct ansi_tcap_private_t ansi_tcap_private;
+
+static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
+  memset(a_tcap_ctx, '\0', sizeof(*a_tcap_ctx));
+  a_tcap_ctx->signature = ANSI_TCAP_CTX_SIGNATURE;
+}
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 /*
@@ -141,7 +147,9 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 	asn1_ctx_t asn1_ctx;
+
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	ansi_tcap_ctx_init(&ansi_tcap_private);
 
     tcap_top_tree = parent_tree;
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -194,9 +202,9 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 }
 
-static void raz_ansi_tcap_private(struct tcap_private_t * p_ansi_tcap_private)
+static void raz_ansi_tcap_private(struct ansi_tcap_private_t * p_ansi_tcap_private)
 {
-  memset(p_ansi_tcap_private,0,sizeof(struct tcap_private_t) );
+  memset(p_ansi_tcap_private,0,sizeof(struct ansi_tcap_private_t) );
 }
 
 void

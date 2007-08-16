@@ -27,6 +27,34 @@
 #ifndef PACKET_ANSI_TCAP_H
 #define PACKET_ANSI_TCAP_H
 
+#define ANSI_TCAP_CTX_SIGNATURE 0x41544341  /* "ATCA" */
+
+struct ansi_tcap_private_t {
+  guint32 signature;
+  gboolean acv; /* Is the Application Context Version present */
+  void * objectApplicationId_oid;
+  guint32 session_id;
+  void * context;
+  gchar *TransactionID_str;
+  struct {  /* "dynamic" data */
+    gint pdu;
+      /* 
+         1 : invoke, 
+         2 : returnResult, 
+         3 : returnError,
+         4 : reject
+      */
+    gint OperationCode;  
+      /* 
+         0 : national, 
+         1 : private 
+      */
+    gint32 OperationCode_national;
+    gint32 OperationCode_private;
+    proto_item *OperationCode_item;
+  } d;
+
+};
 
 /*extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);*/
 
