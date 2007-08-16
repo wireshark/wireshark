@@ -115,21 +115,12 @@
   <section id="ChAdvExpert">
     <title>Expert Infos</title>
     <para>The expert infos is a kind of log of the anomalies found
-    by Wireshark in the capture file.</para>
-    <para>Today we already have a lot of very sophisticated ways to
-    detect network problems in Wireshark, thanks to the hard work
-    of our development team :-)</para>
-    <para>Unfortunately you'll have to dig deeply into the protocol
-    details and probably customize the coloring rules to take real
-    advantage of it. This is even more unfortunate, if you don't
-    know the protocol well which you are currently examine.</para>
+    by Wireshark in a capture file.</para>
     <para>The general idea behind the following "Expert Info" is to
     have a better display of "uncommon" or just notable network
     behaviour. This way, both novice and expert users will
     hopefully find probable network problems a lot faster, compared
     to scanning the packet list "manually" .</para>
-    <para>The following will first describe the components of a
-    single expert info, then the User Interface.</para>
     <warning>
       <title>Expert infos are only a hint!</title>
       <para>Take expert infos as a hint what's worth looking at,
@@ -143,6 +134,8 @@
       detailed expert infos, most other protocols currently won't
       show any expert infos at all.</para>
     </note>
+    <para>The following will first describe the components of a
+    single expert info, then the User Interface.</para>
     <section id="ChAdvExpertInfoEntries">
       <title>Expert Info Entries</title>
       <para>Each expert info will contain the following things
@@ -247,7 +240,7 @@
           <listitem>
             <para>
             <command>Request Code</command>an application request
-            (e.g. File Handle == xxxx), usually PI_CHAT</para>
+            (e.g. File Handle == xxxx), usually Chat level</para>
           </listitem>
           <listitem>
             <para>
@@ -269,10 +262,10 @@
           <listitem>
             <para>
             <command>Debug</command>debugging (should not occur in
-            released versions)</para>
+            release versions)</para>
           </listitem>
-        </itemizedlist>It's possible that more of such values are
-        added in the future ...</para>
+        </itemizedlist>It's possible that more such group values
+        will be added in the future ...</para>
       </section>
       <section id="ChAdvExpertProtocol">
         <title>Protocol</title>
@@ -291,32 +284,59 @@
       using: "Analyze/Expert Info Composite"</para>
       <para>XXX - "Analyze/Expert Info" is also existing but is
       subject to removal and therefore not explained here.</para>
+      <para>XXX - add explanation of the dialogs context
+      menu.</para>
       <graphic entityref="WiresharkExpertInfoDialog"
       format="PNG" />
+      <section id="ChAdvExpertDialogTabs">
+        <title>Errors / Warnings / Notes / Chats tabs</title>
+        <para>An easy and quick way to find the most interesting
+        infos than using the Details tab, is to have a look at the
+        seperate tabs for each severity level. As the tab label
+        also contains the number of existing entries, it's easy to
+        find the tab with the most important entries.</para>
+        <para>There are usually a lot of identical expert infos
+        only differing in the packet number. These identical infos
+        will be combined into a single line - with a count column
+        how often they appeared in the capture file. Clicking on
+        the plus sign shows the individual packet numbers in a tree
+        view.</para>
+      </section>
       <section id="ChAdvExpertDialogDetails">
         <title>Details tab</title>
         <para>The Details tab provides the expert infos in a "log
         like" view, each entry in it's own line (much like the
         packet list). As the amount of expert infos of a capture
         file can easily become very large, getting an idea of the
-        interesting infos with this view can take quite a
-        while.</para>
+        interesting infos with this view can take quite a while.
+        The advantage of this tab is to have all entries in the
+        sequence as they appeared, this is sometimes a help to
+        pinpoint problems.</para>
       </section>
-      <section id="ChAdvExpertDialogTabs">
-        <title>Errors / Warnings / Notes / Chats tabs</title>
-        <para>An easier and quicker way to find the most
-        interesting infos than using the Details tab, is to have a
-        look at the seperate tabs for each severity level. As the
-        tab also contains the number of existing entries - it's
-        easy to find the tab with the most important
-        entries.</para>
-        <para>There are usually a lot of identical expert infos
-        only differing in the packet number. These identical infos
-        will be combined into a single line of the dialog - with a
-        count column how often they appeared in the capture file.
-        Clicking on the plus sign shows the individual packet
-        numbers in a tree view.</para>
-      </section>
+    </section>
+    <section id="ChAdvExpertColumn">
+      <title>"Expert" Packet List Column</title>
+      <para>XXX - add screenshot</para>
+      <para>There is an optional "Expert Info Severity" packet list
+      column (since SVN 22387 -&gt; 0.99.7), that displays the most
+      significant severity of a packet, or stays empty if
+      everything seems ok. This column is not displayed by default,
+      but can be easily added using Edit/Preferences/Columns (XXX -
+      add link).</para>
+    </section>
+    <section id="ChAdvExpertColorizedTree">
+      <title>"Colorized" Protocol Details Tree</title>
+      <para>XXX - add screenshot</para>
+      <para>The protocol field causing an expert info is colorized,
+      e.g. uses a yellow background for a warning severity. This
+      color is propagated to the toplevel protocol item in the
+      tree, so it's easy to find the field that caused the expert
+      info.</para>
+      <para>For example, if a [TCP zero window] is detected, the
+      corresponding TCP window protocol field is marked with a
+      yellow background. To easier find that item in the packet
+      tree, the TCP protocol toplevel item is marked yellow as
+      well.</para>
     </section>
   </section>
   <section id="ChAdvTimestamps">
