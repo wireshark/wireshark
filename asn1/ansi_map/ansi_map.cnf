@@ -86,6 +86,12 @@
 
 #.FN_BODY RejectParameters
 
+# N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
+# 6.3.2 Component Portion
+# The Operation Code is partitioned into an Operation Family followed by a
+# Specifier associated with each Operation Family member. For TIA/EIA-41 the
+# Operation Family is coded as decimal 9. Bit H of the Operation Family is always
+# coded as 0.
 #.FN_BODY PrivateOperationCode VAL_PTR = &OperationCode
  %(DEFAULT_BODY)s
  proto_tree_add_item(tree, hf_ansi_map_op_code_fam, tvb, offset-2,1,FALSE);
