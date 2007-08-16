@@ -185,6 +185,11 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
   gint16 cs;
   guint8 *hpp, *pls;
 
+  if (len < offset+2) {
+    /* Buffer to small */
+    return 0;
+  }
+
   buffer[offset] = 0;
   buffer[offset+1] = 0;
   ctmp = len - offset - 1;
@@ -331,11 +336,11 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 2;
 
   /* Checksum */
+  en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, FALSE);
   len = tvb_length (tvb);
   value = tvb_get_ephemeral_string (tvb, 0, len);
   checksum1 = checksum (value, len, offset);
   checksum2 = tvb_get_ntohs (tvb, offset);
-  en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, FALSE);
   if (checksum1 == checksum2) {
     proto_item_append_text (en, " (correct)");
   } else {
