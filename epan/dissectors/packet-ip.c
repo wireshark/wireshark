@@ -60,6 +60,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/nstime.h>
+#include <epan/expert.h>
 
 static int ip_tap = -1;
 
@@ -1189,6 +1190,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   e_ip *iph;
   const guchar		*src_addr, *dst_addr;
   guint32 		src32, dst32;
+  int ttl;
   proto_tree *tree;
   proto_item *item;
   proto_tree *checksum_tree;
@@ -1321,8 +1323,15 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       (iph->ip_off & IP_OFFSET)*8);
   }
 
-  if (tree)
-    proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
+  ttl = tvb_get_guint8(tvb, offset + 8);
+  if (tree) {
+    item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
+  } else {
+    item = NULL;
+  }
+  if(ttl < 5) {
+    expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", ttl);
+  }
 
   iph->ip_p = tvb_get_guint8(tvb, offset + 9);
   if (tree) {
