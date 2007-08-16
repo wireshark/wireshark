@@ -71,6 +71,7 @@ WIRESHARK_GTK_SRC = \
 	find_dlg.c	\
 	firewall_dlg.c	\
 	follow_dlg.c	\
+	follow_stream.c	\
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \

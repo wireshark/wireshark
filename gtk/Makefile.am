@@ -69,6 +69,7 @@ noinst_HEADERS = \
 	find_dlg.h	\
 	firewall_dlg.h	\
 	follow_dlg.h	\
+	follow_stream.h	\
 	font_utils.h	\
 	goto_dlg.h	\
 	graph_analysis.h \
