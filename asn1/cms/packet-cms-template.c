@@ -40,6 +40,7 @@
 #include "packet-cms.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
+#include "packet-pkcs12.h"
 
 #include <epan/crypt/crypt-sha1.h>
 #include <epan/crypt/crypt-md5.h>

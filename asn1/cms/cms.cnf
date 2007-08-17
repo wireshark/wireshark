@@ -49,8 +49,6 @@ RC2CBCParameters 	B "1.2.840.113549.3.2" "id-alg-rc2-cbc"
 RC2CBCParameters 	B "1.2.840.113549.3.4" "id-alg-rc4"
 RC2WrapParameter	B "1.2.840.113549.1.9.16.3.7" "id-alg-cmsrc2-wrap"
 
-
-
 #.NO_EMIT
 
 #.TYPE_RENAME
@@ -158,7 +156,6 @@ EncryptedContentInfo/contentType	encryptedContentType
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-
 #.FN_PARS RC2ParameterVersion
   VAL_PTR = &length
 
@@ -169,6 +166,19 @@ EncryptedContentInfo/contentType	encryptedContentType
 
   if(cap_tree != NULL) 
     proto_item_append_text(cap_tree, " (%%d bits)", length); 
+
+#.FN_PARS EncryptedContent VAL_PTR = &encrypted_tvb
+
+#.FN_HDR EncryptedContent
+	tvbuff_t *encrypted_tvb;
+	proto_item *item;
+#.END
+
+#.FN_FTR EncryptedContent
+
+	item = get_ber_last_created_item();
+
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
 
 #.END
 
