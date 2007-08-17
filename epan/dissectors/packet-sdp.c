@@ -1412,7 +1412,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
 	  /* get_string is needed here as the string is "saved" in a hashtable */
-	  transport_info->encoding_name = (char*)tvb_get_string(tvb, offset, tokenlen);
+	  transport_info->encoding_name = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
 	  key=g_malloc( sizeof(gint) );
 	  *key=atol((char*)payload_type);

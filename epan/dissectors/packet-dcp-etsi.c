@@ -149,7 +149,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint8 *sync;
   proto_tree *dcp_tree = NULL;
-  sync = tvb_get_string (tvb, 0, 2);
+  sync = tvb_get_ephemeral_string (tvb, 0, 2);
   if((sync[0]!='A' && sync[0]!='P') || sync[1]!='F')
     return FALSE;
 
@@ -171,7 +171,6 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   }
 
   dissector_try_string(dcp_dissector_table, (char*)sync, tvb, pinfo, dcp_tree);
-  g_free (sync);
   return TRUE;
 }
 
@@ -612,7 +611,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   while(offset<tvb_length(tvb)) {
     guint32 bits;
     guint32 bytes;
-    char *tag = (char*)tvb_get_string (tvb, offset, 4); offset += 4;
+    char *tag = (char*)tvb_get_ephemeral_string (tvb, offset, 4); offset += 4;
     bits = tvb_get_ntohl(tvb, offset); offset += 4;
     bytes = bits / 8;
     if(bits % 8)
@@ -621,7 +620,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_item *i = NULL;
       const guint8 *p = tvb_get_ptr(tvb, offset, bytes);
       if(strcmp(tag, "*ptr")==0) {
-        prot = (char*)tvb_get_string (tvb, offset, 4);
+        prot = (char*)tvb_get_ephemeral_string (tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
         i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
