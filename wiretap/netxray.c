@@ -782,6 +782,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	case WTAP_ENCAP_ETHERNET:
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 	case WTAP_ENCAP_ISDN:
+	case WTAP_ENCAP_LAPB:
 		/*
 		 * It appears that, in at least some version 2 Ethernet
 		 * captures, for frames that have 0xff in hdr_2_x.xxx[2]
@@ -1303,6 +1304,28 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			 */
 			pseudo_header->x25.flags =
 			    (hdr->hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
+
+			/*
+			 * It appears, at least with version 2 captures,
+			 * that we have 4 bytes of stuff (which might be
+			 * a valid FCS or might be junk) at the end of
+			 * the packet if hdr->hdr_2_x.xxx[2] and
+			 * hdr->hdr_2_x.xxx[3] are 0xff, and we don't if
+			 * they don't.
+			 *
+			 * XXX - does the low-order bit of hdr->hdr_2_x.xxx[8]
+			 * indicate a bad FCS, as is the case with
+			 * Ethernet?
+			 */
+			if (hdr->hdr_2_x.xxx[2] == 0xff &&
+			    hdr->hdr_2_x.xxx[3] == 0xff) {
+				/*
+				 * FCS, or junk, at the end.
+				 * XXX - is it an FCS if "fcs_valid" is
+				 * true?
+				 */
+				padding = 4;
+			}
 			break;
 
 		case WTAP_ENCAP_PPP_WITH_PHDR:
