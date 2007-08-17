@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x509sat.c                                                         */
+/* ./packet-x509sat.c                                                         */
 /* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
@@ -1797,9 +1797,20 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 292 "x509sat.cnf"
+	tvbuff_t	*wide_tvb;
+	proto_item	*item;
+	char		*string;
+
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_BMPString,
                                             actx, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &wide_tvb);
+
+#line 298 "x509sat.cnf"
+	item = get_ber_last_created_item();
+	string = tvb_get_ephemeral_faked_unicode (wide_tvb, 0, tvb_length(wide_tvb) / 2, FALSE);
+	proto_item_append_text(item, " %s", string);	
+
 
   return offset;
 }
