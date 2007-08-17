@@ -48,7 +48,6 @@
 #else
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sys/sysinfo.h>
 #endif
 
 #ifdef HAVE_LIBGCRYPT
