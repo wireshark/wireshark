@@ -286,6 +286,10 @@
 #define ETHERTYPE_AOE           0x88A2
 #endif
 
+#ifndef ETHERTYPE_IEEE_802_1AD
+#define ETHERTYPE_IEEE_802_1AD  0x88A8 /* IEEE 802.1ad Provider Bridge, Q-in-Q */
+#endif
+
 #ifndef ETHERTYPE_EPL_V2
 #define ETHERTYPE_EPL_V2        0x88AB
 #endif
@@ -342,6 +346,10 @@
 
 #ifndef ETHERTYPE_MRP
 #define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
+#endif
+
+#ifndef ETHERTYPE_IEEE_802_1AH
+#define ETHERTYPE_IEEE_802_1AH  0x88F0 /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif
 
 #ifndef ETHERTYPE_PTP

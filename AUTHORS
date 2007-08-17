@@ -150,6 +150,7 @@ Ashok Narayanan         <ashokn[AT]cisco.com> {
 	Support for reading compressed capture files
 	MPLS
 	Link Management Protocol
+	IEEE 802.1ad and 802.1ah
 }
 
 Aaron Hillegass         <aaron[AT]classmax.com> {
@@ -2657,6 +2658,10 @@ Marc Petit-Huguenin <marc [AT] petit-huguenin.org> {
 
 Florent Drouin <florent.drouin [AT] alcatel-lucent.fr> {
 	TCAP statistics
+}
+
+Karen Feng <kfeng [AT] fas.harvard.edu> {
+	802.1ad and 802.1ah support
 }
 
 and by:

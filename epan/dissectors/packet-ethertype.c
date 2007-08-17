@@ -36,6 +36,7 @@
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
 #include "packet-vlan.h"
+#include "packet-ieee8021ah.h"
 #include "packet-vines.h"
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
@@ -76,6 +77,8 @@ const value_string etype_vals[] = {
     {ETHERTYPE_MS_NLB_HEARTBEAT,	"MS NLB heartbeat"	},
     {ETHERTYPE_HOMEPLUG,			"Homeplug"			},
     {ETHERTYPE_VLAN,				"802.1Q Virtual LAN"		},
+    {ETHERTYPE_IEEE_802_1AD,			"802.1ad Provider Bridge (Q-in-Q)"},
+    {ETHERTYPE_IEEE_802_1AH,			"802.1ah Provider Backbone Bridge (mac-in-mac)"},
     {ETHERTYPE_EAPOL,				"802.1X Authentication"         },
     {ETHERTYPE_RSN_PREAUTH,			"802.11i Pre-Authentication"    },
     {ETHERTYPE_MPLS,				"MPLS label switched packet"	},
@@ -159,6 +162,10 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
       break;
     case ETHERTYPE_VLAN:
       capture_vlan(pd, offset, len, ld);
+      break;
+    case ETHERTYPE_IEEE_802_1AD:
+    case ETHERTYPE_IEEE_802_1AH:
+      capture_ieee8021ah(pd, offset, len, ld);
       break;
     case ETHERTYPE_VINES_IP:
     case ETHERTYPE_VINES_ECHO:
