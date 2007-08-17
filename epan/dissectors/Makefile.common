@@ -336,6 +336,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dmp.c		\
 	packet-dnp.c		\
 	packet-dns.c		\
+	packet-dpnss.c		\
 	packet-drda.c 		\
 	packet-dsi.c		\
 	packet-dtls.c		\
