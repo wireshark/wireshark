@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-pkcs12.h                                                          */
-/* ../../tools/asn2wrs.py -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
+/* ./packet-pkcs12.h                                                          */
+/* ../../tools/asn2wrs.py -X -T -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.h */
 
@@ -33,6 +33,9 @@
 
 #ifndef PACKET_PKCS12_H
 #define PACKET_PKCS12_H
+
+void PBE_reset_parameters(void);
+int PBE_decrypt_data(const char *object_identifier_id, tvbuff_t *encrypted_tvb, asn1_ctx_t *actx, proto_item *item);
 
 #endif  /* PACKET_PKCS12_H */
 

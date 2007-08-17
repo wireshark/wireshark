@@ -26,5 +26,8 @@
 #ifndef PACKET_PKCS12_H
 #define PACKET_PKCS12_H
 
+void PBE_reset_parameters(void);
+int PBE_decrypt_data(const char *object_identifier_id, tvbuff_t *encrypted_tvb, asn1_ctx_t *actx, proto_item *item);
+
 #endif  /* PACKET_PKCS12_H */
 

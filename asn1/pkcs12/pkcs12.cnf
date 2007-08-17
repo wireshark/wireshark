@@ -13,7 +13,6 @@ PKCS-5	x509af
 
 #.EXPORTS
 
-
 #.REGISTER
 KeyBag				B "1.2.840.113549.1.12.10.1.1"	"keyBag"
 PKCS8ShroudedKeyBag	B "1.2.840.113549.1.12.10.1.2"	"pkcs8ShroudedKeyBag"
@@ -55,6 +54,7 @@ PBKDF2Params/salt		saltChoice
 
 #.PDU
 AuthenticatedSafe
+PrivateKeyInfo
 
 #.FN_BODY PFX
 	dissector_handle_t dissector_handle;
@@ -96,8 +96,8 @@ AuthenticatedSafe
   append_oid(tree, object_identifier_id);
 #.END
 
-#.FN_PARS SecretBag/secretId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
-#.FN_FTR SecretBag/secretId
+#.FN_PARS SecretBag/secretTypeId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+#.FN_FTR SecretBag/secretTypeId
   append_oid(tree, object_identifier_id);
 #.END
 
@@ -125,7 +125,37 @@ AuthenticatedSafe
 #.FN_BODY SecretBag/secretValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		
+#.FN_HDR PBEParameter
+	/* initialise the encryption parameters */
+	PBE_reset_parameters();
 
 #.END
+
+#.FN_PARS OCTET_STRING VAL_PTR = (hf_index == hf_pkcs12_salt ? &salt : NULL)
+#.FN_PARS INTEGER VAL_PTR = (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL)
+
+#.FN_PARS EncryptedData VAL_PTR = &encrypted_tvb
+
+#.FN_HDR EncryptedData
+	tvbuff_t *encrypted_tvb;
+	dissector_handle_t dissector_handle;
+	proto_item *item;
+#.END
+
+#.FN_FTR EncryptedData
+
+	item = get_ber_last_created_item();
+
+	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
+	dissector_change_string("ber.oid", (gchar*) object_identifier_id, dissector_handle);
+	
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
+	
+	/* restore the original dissector */
+	dissector_reset_string("ber.oid", object_identifier_id);
+	
+#.END
+
 
 
