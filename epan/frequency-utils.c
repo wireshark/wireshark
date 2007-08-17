@@ -54,7 +54,7 @@ static freq_cvt_t freq_cvt[] = {
  */
 gint
 ieee80211_mhz_to_chan(guint freq) {
-    int i;
+    guint i;
 
     for (i = 0; i < NUM_FREQ_CVT; i++) {
         if (freq >= freq_cvt[i].fmin && freq <= freq_cvt[i].fmax) {
@@ -69,7 +69,7 @@ ieee80211_mhz_to_chan(guint freq) {
  */
 guint
 ieee80211_chan_to_mhz(gint chan, gboolean is_bg) {
-    int i;
+    guint i;
 
     for (i = 0; i < NUM_FREQ_CVT; i++) {
         if (is_bg == freq_cvt[i].is_bg &&
