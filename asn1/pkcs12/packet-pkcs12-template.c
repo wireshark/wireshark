@@ -71,7 +71,7 @@ static gint ett_decrypted_pbe = -1;
 static const char *object_identifier_id = NULL; 
 static int iteration_count = 0;
 static tvbuff_t *salt = NULL;
-static gchar	*password = NULL;
+static const char *password = NULL;
 static gboolean try_null_password = FALSE;
 
 static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
