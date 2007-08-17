@@ -71,6 +71,7 @@
 #include <epan/ex-opt.h>
 #include <epan/funnel.h>
 #include <epan/expert.h>
+#include <epan/frequency-utils.h>
 
 /* general (not GTK specific) */
 #include "file.h"
@@ -4449,23 +4450,23 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_cm)->entry),FALSE);
     OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
 
-	if (airpcap_if_active != NULL && airpcap_if_active->pSupportedChannels != NULL && airpcap_if_active->numSupportedChannels > 0){
-		guint i = 0;
-		for (; i<airpcap_if_active->numSupportedChannels; i++){
-			channel_list = g_list_append(channel_list, airpcap_get_channelstr_from_freq(airpcap_if_active->pSupportedChannels[i].Frequency));
-		}
-		gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list) ;
-	}
+    if (airpcap_if_active != NULL && airpcap_if_active->pSupportedChannels != NULL && airpcap_if_active->numSupportedChannels > 0){
+        guint i = 0;
+        for (; i<airpcap_if_active->numSupportedChannels; i++){
+            channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(airpcap_if_active->pSupportedChannels[i].Frequency));
+        }
+        gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list);
+    }
 
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
 		"Change the 802.11 RF channel", NULL);
 
     WIDGET_SET_SIZE(channel_cm, 120, 28);
 
-	if(airpcap_if_active != NULL)
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), airpcap_get_channelstr_from_freq(airpcap_if_active->channelInfo.Frequency));
-	else
-        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
+    if(airpcap_if_active != NULL)
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), ieee80211_mhz_to_str(airpcap_if_active->channelInfo.Frequency));
+    else
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
 
     gtk_widget_show(channel_cm);
 

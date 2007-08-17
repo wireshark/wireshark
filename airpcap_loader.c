@@ -46,6 +46,7 @@
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/crypt/airpdcap_ws.h>
 #include <epan/strutil.h>
+#include <epan/frequency-utils.h>
 #include "capture_ui_utils.h"
 
 #include "simple_dialog.h"
@@ -117,44 +118,6 @@ module_t *wlan_prefs = NULL;
 
 Dot11Channel *pSupportedChannels;
 ULONG numSupportedChannels;
-
-static Dot11Channel Dot11aChannels[] =
-{
-	{34,  5170, 0},
-	{36,  5180, 0},
-	{38,  5190, 0},
-	{40,  5200, 0},
-	{42,  5210, 0},
-	{44,  5220, 0},
-	{46,  5230, 0},
-	{48,  5240, 0},
-	{52,  5260, 0},
-	{56,  5280, 0},
-	{60,  5300, 0},
-	{64,  5320, 0},
-	{149, 5745, 0},
-	{153, 5765, 0},
-	{157, 5785, 0},
-	{161, 5805, 0},
-};
-
-static Dot11Channel Dot11bChannels[] =
-{
-	{1,  2412, 0},
-	{2,  2417, 0},
-	{3,  2422, 0},
-	{4,  2427, 0},
-	{5,  2432, 0},
-	{6,  2437, 0},
-	{7,  2442, 0},
-	{8,  2447, 0},
-  {9,  2452, 0},
-	{10, 2457, 0},
-	{11, 2462, 0},
-	{12, 2467, 0},
-	{13, 2472, 0},
-	{14, 2484, 0},
-};
 
 static AirpcapChannelInfo LegacyChannels[] =
 {
@@ -816,193 +779,111 @@ airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo *
 Dot11Channel*
 airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSupportedChannels)
 {
-	AirpcapChannelInfo *chanInfo;
-	ULONG i=0, j=0, numInfo = 0;
-	if (!AirpcapLoaded) return FALSE;
-  if (airpcap_if_get_device_supported_channels(ah, &chanInfo, &numInfo) == FALSE) return NULL;
-	numSupportedChannels = 0;
+    AirpcapChannelInfo *chanInfo;
+    ULONG i=0, j=0, numInfo = 0;
 
-	/*
-	 * allocate a bigger array
-	 */
-	if (numInfo == 0)
-		return FALSE;
+    if (!AirpcapLoaded)
+        return FALSE;
+    if (airpcap_if_get_device_supported_channels(ah, &chanInfo, &numInfo) == FALSE)
+        return NULL;
+    numSupportedChannels = 0;
 
-	pSupportedChannels = malloc(numInfo * (sizeof *pSupportedChannels));
+    /*
+     * allocate a bigger array
+     */
+    if (numInfo == 0)
+        return NULL;
 
-	for (i = 0; i < numInfo; i++)
-	{
-		ULONG supportedChannel = 0xFFFFFFFF;
+    pSupportedChannels = malloc(numInfo * (sizeof *pSupportedChannels));
 
-		/*
-		 * search if we have it already
-		 */
-		for (j = 0; j < numSupportedChannels; j++)
-		{
-			if (pSupportedChannels[j].Frequency == chanInfo[i].Frequency)
-			{
-				supportedChannel = j;
-				break;
-			}
-		}
+    for (i = 0; i < numInfo; i++)
+    {
+        ULONG supportedChannel = 0xFFFFFFFF;
 
-		if (supportedChannel == 0xFFFFFFFF)
-		{
-			/*
-			 * not found, create a new item
-			 */
-			pSupportedChannels[numSupportedChannels].Frequency = chanInfo[i].Frequency;
+        /*
+         * search if we have it already
+         */
+        for (j = 0; j < numSupportedChannels; j++)
+        {
+            if (pSupportedChannels[j].Frequency == chanInfo[i].Frequency)
+            {
+                supportedChannel = j;
+                break;
+            }
+        }
 
-			switch(chanInfo[i].ExtChannel)
-			{
-			case -1: pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_HIGH; break;
-			case +1: pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_LOW; break;
-			case 0:
-			default: pSupportedChannels[numSupportedChannels].Flags = 0;
-			}
+        if (supportedChannel == 0xFFFFFFFF)
+        {
+            /*
+             * not found, create a new item
+             */
+            pSupportedChannels[numSupportedChannels].Frequency = chanInfo[i].Frequency;
 
-			/*
-			 * match with the ABG channels
-			 */
+            switch(chanInfo[i].ExtChannel)
+            {
+                case -1:
+                    pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_HIGH;
+                    break;
+                case +1:
+                    pSupportedChannels[numSupportedChannels].Flags = FLAG_CAN_BE_LOW;
+                    break;
+                case 0:
+                default:
+                    pSupportedChannels[numSupportedChannels].Flags = 0;
+            }
 
-			for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++)
-			{
-				if (pSupportedChannels[numSupportedChannels].Frequency == Dot11aChannels[j].Frequency)
-				{
-					pSupportedChannels[numSupportedChannels].Flags |= FLAG_IS_A_CHANNEL;
-					pSupportedChannels[numSupportedChannels].Channel = Dot11aChannels[j].Channel;
-					break;
-				}
-			}
+            /*
+             * Gather channel information
+             */
 
-			for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++)
-			{
-				if (pSupportedChannels[numSupportedChannels].Frequency == Dot11bChannels[j].Frequency)
-				{
-					pSupportedChannels[numSupportedChannels].Flags |= FLAG_IS_BG_CHANNEL;
-					pSupportedChannels[numSupportedChannels].Channel = Dot11bChannels[j].Channel;
-					break;
-				}
-			}
+            pSupportedChannels[numSupportedChannels].Flags |=
+                FREQ_IS_BG(pSupportedChannels[numSupportedChannels].Frequency) ?
+                    FLAG_IS_BG_CHANNEL : FLAG_IS_A_CHANNEL;
+            pSupportedChannels[numSupportedChannels].Channel =
+                ieee80211_mhz_to_chan(pSupportedChannels[numSupportedChannels].Frequency);
+            numSupportedChannels++;
+        }
+        else
+        {
+            /*
+             * just update the ext channel flags
+             */
+            switch(chanInfo[i].ExtChannel)
+            {
+                case -1:
+                    pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_HIGH;
+                    break;
+                case +1:
+                    pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_LOW;
+                    break;
+                case 0:
+                default:
+                    break;
+            }
+        }
+    }
 
-			if ((pSupportedChannels[numSupportedChannels].Flags & (FLAG_IS_BG_CHANNEL | FLAG_IS_A_CHANNEL)) == 0){
-				pSupportedChannels[numSupportedChannels].Channel = 0;
-			}
+    if (numSupportedChannels < 1)
+        return NULL;
+    /*
+     * Now sort the list by frequency
+     */
+    for (i = 0 ; i < numSupportedChannels - 1; i++)
+    {
+        for (j = i + 1; j < numSupportedChannels; j++)
+        {
+            if (pSupportedChannels[i].Frequency > pSupportedChannels[j].Frequency)
+            {
+                Dot11Channel temp = pSupportedChannels[i];
+                pSupportedChannels[i] = pSupportedChannels[j];
+                pSupportedChannels[j] = temp;
+            }
+        }
+    }
 
-			numSupportedChannels++;
-		}
-		else
-		{
-			/*
-			 * just update the ext channel flags
-			 */
-			switch(chanInfo[i].ExtChannel)
-			{
-			case -1: pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_HIGH; break;
-			case +1: pSupportedChannels[supportedChannel].Flags |= FLAG_CAN_BE_LOW; break;
-			case 0:
-			default:
-				break;
-			}
-		}
-	}
-
-	/*
-	 * Now sort the list by frequency
-	 */
-	for (i = 0 ; i < numSupportedChannels - 1; i++)
-	{
-		for (j = i + 1; j < numSupportedChannels; j++)
-		{
-			if (pSupportedChannels[i].Frequency > pSupportedChannels[j].Frequency)
-			{
-				Dot11Channel temp = pSupportedChannels[i];
-				pSupportedChannels[i] = pSupportedChannels[j];
-				pSupportedChannels[j] = temp;
-			}
-		}
-	}
-
-	*pNumSupportedChannels = numSupportedChannels;
+    *pNumSupportedChannels = numSupportedChannels;
     return pSupportedChannels;
 }
-
-/*
- * Get channel representation string given a Frequency
- */
-gchar*
-airpcap_get_channelstr_from_freq(ULONG chan_freq){
-	gchar *channelstr;
-	guint j;
-
-	channelstr = (gchar*)g_malloc(sizeof(gchar)*20);
-	for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++)
-	{
-		if (chan_freq == Dot11aChannels[j].Frequency)
-		{
-			sprintf(channelstr, "%u MHz [A %u]", chan_freq, Dot11aChannels[j].Channel);
-			return channelstr;
-		}
-	}
-
-	for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++)
-	{
-		if (chan_freq == Dot11bChannels[j].Frequency)
-		{
-			sprintf(channelstr, "%u MHz [BG %u]", chan_freq, Dot11bChannels[j].Channel);
-			return channelstr;
-		}
-	}
-
-	sprintf(channelstr, "%u MHz", chan_freq);
-
-	return channelstr;
-}
-
-/*
- * Get channel number given a Frequency
- */
-guint
-airpcap_get_channel_number_from_freq(ULONG chan_freq){
-	guint j;
-
-  for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++){
-		if (chan_freq == Dot11bChannels[j].Frequency){
-			return Dot11bChannels[j].Channel;
-		}
-	}
-
-	for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++){
-		if (chan_freq == Dot11aChannels[j].Frequency){
-			return Dot11aChannels[j].Channel;
-		}
-	}
-
-	return 0;
-}
-
-/*
- * Get Frequency given a Channel number
- */
-ULONG
-airpcap_get_freq_from_channel_number(guint chan_number){
-	guint j;
-
-  for (j = 0; j < sizeof(Dot11bChannels)/sizeof(Dot11bChannels[0]); j++){
-		if (chan_number == Dot11bChannels[j].Channel){
-			return Dot11bChannels[j].Frequency;
-		}
-	}
-
-	for (j = 0; j < sizeof(Dot11aChannels)/sizeof(Dot11aChannels[0]); j++){
-		if (chan_number == Dot11aChannels[j].Channel){
-			return Dot11aChannels[j].Frequency;
-		}
-	}
-
-	return 0;
-}
-
 
 /*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
@@ -1023,9 +904,9 @@ airpcap_if_set_device_channel_ex(PAirpcapHandle ah, AirpcapChannelInfo ChannelIn
     if (!AirpcapLoaded) return FALSE;
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
       guint channel = 0;
-      channel = airpcap_get_channel_number_from_freq(ChannelInfo.Frequency);
+      channel = ieee80211_mhz_to_chan(ChannelInfo.Frequency);
 
-      if (channel == 0){
+      if (channel < 0){
         return FALSE;
       } else {
         return airpcap_if_set_device_channel(ah, channel);
@@ -1057,7 +938,7 @@ airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannel
 
       if (!airpcap_if_get_device_channel(ah, &channel)) return FALSE;
 
-      chan_freq = airpcap_get_freq_from_channel_number(channel);
+      chan_freq = ieee80211_chan_to_mhz(channel, TRUE);
       if (chan_freq == 0) return FALSE;
       pChannelInfo->Frequency = chan_freq;
 

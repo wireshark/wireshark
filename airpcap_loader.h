@@ -293,24 +293,6 @@ Dot11Channel*
 airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, PULONG pNumSupportedChannels);
 
 /*
- * Get channel representation string given a Frequency
- */
-gchar*
-airpcap_get_channelstr_from_freq(ULONG chan_freq);
-
-/*
- * Get channel number given a Frequency
- */
-guint
-airpcap_get_channel_number_from_freq(ULONG chan_freq);
-
-/*
- * Get Frequency given a Channel number
- */
-ULONG
-airpcap_get_freq_from_channel_number(guint chan_number);
-
-/*
  * Airpcap wrapper, used to set the channel of an airpcap adapter
  */
 BOOL

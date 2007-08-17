@@ -917,10 +917,10 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
-  
+
   if (addr->type == AT_NONE)
     return;	/* no address, nothing to do */
-  
+
   if (is_res) {
     get_addr_name_buf(addr, pinfo->cinfo->col_buf[col],COL_MAX_LEN-1);
   } else {
@@ -1329,11 +1329,11 @@ col_fill_in(packet_info *pinfo)
       pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
-        
+
     case COL_HPUX_SUBSYS: /* done by nettl disector */
     case COL_HPUX_DEVID:  /* done by nettl disector */
       break;
-        
+
     case COL_DCE_CALL:	/* done by dcerpc */
       break;
 
@@ -1342,7 +1342,7 @@ col_fill_in(packet_info *pinfo)
 
     case COL_8021Q_VLAN_ID:
         break;
-    
+
     case COL_DSCP_VALUE:	/* done by packet-ip.c */
      	break;
 
@@ -1354,6 +1354,9 @@ col_fill_in(packet_info *pinfo)
         break;
 
     case COL_EXPERT:    /* done by expert.c */
+        break;
+
+    case COL_FREQ_CHAN:    /* done by radio dissectors */
         break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */

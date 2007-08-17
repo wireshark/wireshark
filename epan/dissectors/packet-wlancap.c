@@ -2,16 +2,16 @@
  *  packet-wlancap.c
  *	Decode packets with a AVS-WLAN header
  *
- *  AVS linux-wlan-based products use a new sniff header to replace the 
+ *  AVS linux-wlan-based products use a new sniff header to replace the
  *  old prism2-specific one dissected in packet-prism2.c.  This one has
- *  additional fields, is designed to be non-hardware-specific, and more 
- *  importantly, version and length fields so it can be extended later 
+ *  additional fields, is designed to be non-hardware-specific, and more
+ *  importantly, version and length fields so it can be extended later
  *  without breaking anything.
  *
  *  See
  *
  *	https://mail.shaftnet.org/chora/browse.php?rt=wlanng&f=trunk%2Fdoc%2Fcapturefrm.txt
- * 
+ *
  * By Solomon Peachy
  *
  * $Id$
@@ -128,10 +128,10 @@ proto_register_wlancap(void)
   static const value_string phy_type[] = {
     { 0, "Unknown" },
     { 1, "FHSS 802.11 '97" },
-    { 2, "DSSS 802.11 '97" }, 
+    { 2, "DSSS 802.11 '97" },
     { 3, "IR Baseband" },
     { 4, "DSSS 802.11b" },
-    { 5, "PBCC 802.11b" }, 
+    { 5, "PBCC 802.11b" },
     { 6, "OFDM 802.11g" },
     { 7, "PBCC 802.11g" },
     { 8, "OFDM 802.11a" },
@@ -167,21 +167,21 @@ proto_register_wlancap(void)
   };
 
   static hf_register_info hf[] = {
-    { &hf_wlan_magic, { "Header magic", "wlancap.magic", FT_UINT32, 
+    { &hf_wlan_magic, { "Header magic", "wlancap.magic", FT_UINT32,
 			  BASE_HEX, NULL, 0xFFFFFFF0, "", HFILL } },
-    { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32, 
+    { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32,
 			  BASE_DEC, NULL, 0xF, "", HFILL } },
-    { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32, 
+    { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32,
 			 BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_mactime, { "MAC timestamp", "wlancap.mactime", FT_UINT64, 
+    { &hf_wlan_mactime, { "MAC timestamp", "wlancap.mactime", FT_UINT64,
 			  BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_hosttime, { "Host timestamp", "wlancap.hosttime", FT_UINT64, 
+    { &hf_wlan_hosttime, { "Host timestamp", "wlancap.hosttime", FT_UINT64,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_phytype, { "PHY type", "wlancap.phytype", FT_UINT32, BASE_DEC,
 			  VALS(phy_type), 0x0, "", HFILL } },
     { &hf_wlan_channel, { "Channel", "wlancap.channel", FT_UINT32, BASE_DEC,
 			  NULL, 0x0, "", HFILL } },
-    { &hf_wlan_datarate, { "Data rate", "wlancap.datarate", FT_UINT32, 
+    { &hf_wlan_datarate, { "Data rate", "wlancap.datarate", FT_UINT32,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_antenna, { "Antenna", "wlancap.antenna", FT_UINT32, BASE_DEC,
 			  NULL, 0x0, "", HFILL } },
@@ -189,21 +189,21 @@ proto_register_wlancap(void)
 			   NULL, 0x0, "", HFILL } },
     { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
 			   VALS(ssi_type), 0x0, "", HFILL } },
-    { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32, 
+    { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32,
 			     BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32, 
+    { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32,
 			    BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32, 
+    { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
 			   BASE_DEC, VALS(preamble_type), 0x0, "", HFILL } },
-    { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32, 
+    { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
 			   BASE_DEC, VALS(encoding_type), 0x0, "", HFILL } },
-    { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32, 
+    { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32, 
+    { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_sniffer_addr, { "Sniffer Address", "wlancap.sniffer_addr", FT_ETHER, 
+    { &hf_wlan_sniffer_addr, { "Sniffer Address", "wlancap.sniffer_addr", FT_ETHER,
 			       BASE_NONE, NULL, 0x0, "Sniffer Hardware Address", HFILL } },
-    { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES, 
+    { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
 			  BASE_NONE, NULL, 0x0, "", HFILL } },
   };
   static gint *ett[] = {
@@ -240,14 +240,18 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "AVS WLAN Capture v%x, Length %d",version, length);
 
+    if (check_col(pinfo->cinfo, COL_FREQ_CHAN)) {
+      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u",
+		   tvb_get_ntohl(tvb, offset + 28));
+    }
     if (check_col(pinfo->cinfo, COL_TX_RATE)) {
       guint32 txrate = tvb_get_ntohl(tvb, offset + 32);
-      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
 		   txrate / 10, txrate % 10);
     }
     if (check_col(pinfo->cinfo, COL_RSSI)) {
       /* XXX cook ssi_signal (Based on type; ie format) */
-      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
 		   tvb_get_ntohl(tvb, offset + 48));
     }
 
@@ -273,8 +277,8 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* XXX - all other 802.11 pseudo-headers use 500Kb/s, not 100Kb/s,
          as the units. */
       datarate = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_uint_format(wlan_tree, hf_wlan_datarate, tvb, offset, 
-				 4, datarate * 100, 
+      proto_tree_add_uint_format(wlan_tree, hf_wlan_datarate, tvb, offset,
+				 4, datarate * 100,
 				 "Data Rate: %u Kb/s", datarate * 100);
       offset+=4;
       proto_tree_add_item(wlan_tree, hf_wlan_antenna, tvb, offset, 4, FALSE);

@@ -139,7 +139,7 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
     length = pntohl(pd+sizeof(guint32));
 
     /* Handle the new type of capture format */
-    if ((cookie == WLANCAP_MAGIC_COOKIE_V1) || 
+    if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
 	(cookie == WLANCAP_MAGIC_COOKIE_V2)) {
       if(!BYTES_ARE_IN_FRAME(offset, len, length)) {
         ld->other++;
@@ -163,6 +163,7 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
 /*
  * yah, I know, macros, ugh, but it makes the code
  * below more readable
+ * XXX - This should be rewritten to use ptvcursors, then.
  */
 #define IFHELP(size, name, var, str) \
         if(tree) {						  \
@@ -197,12 +198,12 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* handle the new capture type. */
     msgcode = tvb_get_ntohl(tvb, offset);
-    if ((msgcode == WLANCAP_MAGIC_COOKIE_V1) || 
+    if ((msgcode == WLANCAP_MAGIC_COOKIE_V1) ||
 	(msgcode == WLANCAP_MAGIC_COOKIE_V2)) {
 	    call_dissector(wlancap_handle, tvb, pinfo, tree);
 	    return;
     }
-      
+
     tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -231,6 +232,10 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     VALFIELD(hosttime, "Host Time");
     VALFIELD(mactime, "MAC Time");
+    if (hdr.channel.status == 0) {
+      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", hdr.channel.data);
+    }
     VALFIELD(channel, "Channel");
     if (hdr.rate.status == 0) {
       if (check_col(pinfo->cinfo, COL_RSSI))

@@ -50,6 +50,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/range.h>
+#include <epan/frequency-utils.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap().  Should we move it somewhere
  * else? */
@@ -125,8 +126,8 @@
 #define IEEE80211_CHAN_2GHZ     0x0080  /* 2 GHz spectrum channel. */
 #define IEEE80211_CHAN_5GHZ     0x0100  /* 5 GHz spectrum channel */
 #define IEEE80211_CHAN_PASSIVE  0x0200  /* Only passive scan allowed */
-#define	IEEE80211_CHAN_DYN	0x0400	/* Dynamic CCK-OFDM channel */
-#define	IEEE80211_CHAN_GFSK	0x0800	/* GFSK channel (FHSS PHY) */
+#define IEEE80211_CHAN_DYN      0x0400  /* Dynamic CCK-OFDM channel */
+#define IEEE80211_CHAN_GFSK     0x0800  /* GFSK channel (FHSS PHY) */
 
 /*
  * Useful combinations of channel characteristics.
@@ -315,41 +316,6 @@ static const value_string vs_80211_common_phy_type[] = {
 };
 /* XXX - End - Copied from packet-radiotap.c */
 
-/* Useful frequency to channel pairings */
-static const value_string vs_80211_chan_freq_flags[] = {
-    {2412, "BG 1"},
-    {2417, "BG 2"},
-    {2422, "BG 3"},
-    {2427, "BG 4"},
-    {2432, "BG 5"},
-    {2437, "BG 6"},
-    {2442, "BG 7"},
-    {2447, "BG 8"},
-    {2452, "BG 9"},
-    {2457, "BG 10"},
-    {2462, "BG 11"},
-    {2467, "BG 12"},
-    {2472, "BG 13"},
-    {2484, "BG 14"},
-    {5170, "A 34"},
-    {5180, "A 36"},
-    {5190, "A 38"},
-    {5200, "A 40"},
-    {5210, "A 42"},
-    {5220, "A 44"},
-    {5230, "A 46"},
-    {5240, "A 48"},
-    {5260, "A 52"},
-    {5280, "A 56"},
-    {5300, "A 60"},
-    {5320, "A 64"},
-    {5745, "A 149"},
-    {5765, "A 153"},
-    {5785, "A 157"},
-    {5805, "A 161"},
-    {0, NULL}
-};
-
 /* Tables for A-MPDU reassembly */
 static GHashTable *ampdu_fragment_table = NULL;
 static GHashTable *ampdu_reassembled_table = NULL;
@@ -461,6 +427,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     gint rate_kbps;
     guint32 common_flags;
     guint16 common_frequency;
+    gchar *chan_str;
 
     if (!tree)
         return;
@@ -504,9 +471,13 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     ptvcursor_advance(csr, 2);
 
     common_frequency = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
+    chan_str = ieee80211_mhz_to_str(common_frequency);
     proto_tree_add_uint_format(ptvcursor_tree(csr), hf_80211_common_chan_freq, ptvcursor_tvbuff(csr),
-	ptvcursor_current_offset(csr), 2, common_frequency, "Channel frequency: %u [%s]", common_frequency,
-	val_to_str(common_frequency, (const value_string *) &vs_80211_chan_freq_flags, "Not Defined"));
+	ptvcursor_current_offset(csr), 2, common_frequency, "Channel frequency: %s", chan_str);
+    if (check_col(pinfo->cinfo, COL_FREQ_CHAN)) {
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
+    }
+    g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
     ptvcursor_add_with_subtree(csr, hf_80211_common_chan_flags, 2, TRUE,
@@ -525,6 +496,10 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     ptvcursor_add(csr, hf_80211_common_fhss_hopset, 1, TRUE);
     ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, TRUE);
 
+    if (check_col(pinfo->cinfo, COL_RSSI)) {
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+            (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr)));
+    }
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antsignal, 1, 0x80); /* -128 */
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antnoise, 1, 0x80);
 
@@ -611,10 +586,6 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ti = ptvcursor_add(csr, hf_80211n_mac_phy_num_streams, 1, TRUE);
     if (tvb_get_guint8(tvb, ptvcursor_current_offset(csr) - 1) == 0)
         proto_item_append_text(ti, " (unknown)");
-    if (check_col(pinfo->cinfo, COL_RSSI)) {
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
-            tvb_get_guint8(tvb, ptvcursor_current_offset(csr)));
-    }
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_rssi_combined, 1, 255);
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_rssi_ant0_ctl, 1, 255);
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_rssi_ant1_ctl, 1, 255);
@@ -627,8 +598,7 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     ext_frequency = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     proto_tree_add_uint_format(ptvcursor_tree(csr), hf_80211n_mac_phy_ext_chan_freq, ptvcursor_tvbuff(csr),
-	ptvcursor_current_offset(csr), 2, ext_frequency, "Ext. Channel frequency: %u [%s]", ext_frequency,
-	val_to_str(ext_frequency, (const value_string *) &vs_80211_chan_freq_flags, "Not Defined"));
+	ptvcursor_current_offset(csr), 2, ext_frequency, "Ext. Channel frequency: %s", ieee80211_mhz_to_str(ext_frequency));
     ptvcursor_advance(csr, 2);
 
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_phy_ext_chan_flags, 2, TRUE,

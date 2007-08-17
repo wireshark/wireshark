@@ -112,6 +112,7 @@ enum {
   COL_FR_DLCI,	      /* Frame Relay DLCI */
   COL_BSSGP_TLLI,     /* GPRS BSSGP IE TLLI */
   COL_EXPERT,         /* Expert Info */
+  COL_FREQ_CHAN,      /* IEEE 802.11 (and WiMax?) - Channel */
   NUM_COL_FMTS        /* Should always be last */
 };
 

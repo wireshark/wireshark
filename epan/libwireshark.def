@@ -470,6 +470,9 @@ host_ip_af
 host_name_lookup_process
 http_dissector_add
 ieee802a_add_oui
+ieee80211_chan_to_mhz
+ieee80211_mhz_to_chan
+ieee80211_mhz_to_str
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
 init_dissection

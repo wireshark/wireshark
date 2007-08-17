@@ -40,6 +40,7 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/frequency-utils.h>
 #include <epan/crypt/wep-wpadefs.h>
 
 #include <pcap.h>
@@ -2163,30 +2164,30 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
                       0, 0);
     gtk_misc_set_alignment (GTK_MISC (capture_type_lb), 0, 0.5);
 
-	/* Start: Channel offset label */
-	channel_offset_lb = gtk_label_new ("Channel Offset:");
+    /* Start: Channel offset label */
+    channel_offset_lb = gtk_label_new ("Channel Offset:");
     gtk_widget_set_name (channel_offset_lb, "channel_offset_lb");
     gtk_widget_show (channel_offset_lb);
     gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_offset_lb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (channel_offset_lb), 0, 0.5);
-	/* End: Channel offset label */
+    /* End: Channel offset label */
 
-	/* Start: Channel offset combo box */
-	channel_offset_cb = gtk_combo_new();
-	gtk_widget_set_name (channel_offset_cb, "channel_offset_cb");
-	gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_offset_cb)->entry),FALSE);
+    /* Start: Channel offset combo box */
+    channel_offset_cb = gtk_combo_new();
+    gtk_widget_set_name (channel_offset_cb, "channel_offset_cb");
+    gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_offset_cb)->entry),FALSE);
 
-	airpcap_update_channel_offset_cb(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, channel_offset_cb);
-	airpcap_update_channel_offset_combo_entry(channel_offset_cb, airpcap_if_selected->channelInfo.ExtChannel);
+    airpcap_update_channel_offset_cb(airpcap_if_selected, airpcap_if_selected->channelInfo.Frequency, channel_offset_cb);
+    airpcap_update_channel_offset_combo_entry(channel_offset_cb, airpcap_if_selected->channelInfo.ExtChannel);
 
-	gtk_widget_show(channel_offset_cb);
+    gtk_widget_show(channel_offset_cb);
 
-	gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_offset_cb, 1, 2, 1, 2,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-	/* End: Channel offset combo box */
+    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_offset_cb, 1, 2, 1, 2,
+                  (GtkAttachOptions) (GTK_FILL),
+                  (GtkAttachOptions) (0), 0, 0);
+    /* End: Channel offset combo box */
 
     channel_cm = gtk_combo_new ();
     gtk_widget_set_name (channel_cm, "channel_cm");
@@ -2195,12 +2196,12 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
                       (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
-	if (airpcap_if_selected != NULL && airpcap_if_selected->pSupportedChannels != NULL && airpcap_if_selected->numSupportedChannels > 0){
-		for (i = 0; i<(airpcap_if_selected->numSupportedChannels); i++){
-			channel_cm_items = g_list_append(channel_cm_items, airpcap_get_channelstr_from_freq(airpcap_if_selected->pSupportedChannels[i].Frequency));
-		}
-		gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_cm_items) ;
-	}
+    if (airpcap_if_selected != NULL && airpcap_if_selected->pSupportedChannels != NULL && airpcap_if_selected->numSupportedChannels > 0){
+        for (i = 0; i<(airpcap_if_selected->numSupportedChannels); i++){
+            channel_cm_items = g_list_append(channel_cm_items, ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
+        }
+        gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_cm_items);
+    }
 
     /* Select the first entry */
     if (airpcap_if_selected != NULL)
@@ -2227,8 +2228,8 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
         g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
 
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OK){
-      capture_type_cm_items =
-          g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
+        capture_type_cm_items =
+            g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI);
     }
     gtk_combo_set_popdown_strings (GTK_COMBO (capture_type_cm),
                                    capture_type_cm_items);

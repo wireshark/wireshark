@@ -48,63 +48,64 @@
 const gchar *
 col_format_to_string(gint fmt) {
   const gchar *slist[] = {
-	"%m", 
-	"%t",
-	"%Rt",
-	"%At",
-	"%Yt",
-	"%Tt",
-	"%Gt",
-	"%s",
-	"%rs",
-	"%us",
-	"%hs",
-	"%rhs",
-	"%uhs",
-	"%ns",
-	"%rns",
-	"%uns",
-	"%d",
-	"%rd",
-	"%ud",
-	"%hd",
-	"%rhd",
+    "%m",
+    "%t",
+    "%Rt",
+    "%At",
+    "%Yt",
+    "%Tt",
+    "%Gt",
+    "%s",
+    "%rs",
+    "%us",
+    "%hs",
+    "%rhs",
+    "%uhs",
+    "%ns",
+    "%rns",
+    "%uns",
+    "%d",
+    "%rd",
+    "%ud",
+    "%hd",
+    "%rhd",
     "%uhd",
-    "%nd", 
+    "%nd",
     "%rnd",
-	"%und", 
-    "%S", 
-    "%rS", 
-    "%uS", 
-    "%D", 
-    "%rD", 
-    "%uD", 
+    "%und",
+    "%S",
+    "%rS",
+    "%uS",
+    "%D",
+    "%rD",
+    "%uD",
     "%p",
-	"%i", 
-    "%L", 
-    "%B", 
-    "%XO", 
-    "%XR", 
-    "%I", 
-    "%c", 
-    "%Xs", 
-	"%Xd", 
-    "%V", 
-    "%x", 
-    "%e", 
-    "%H", 
-    "%P", 
-    "%y", 
-	"%z",
-	"%q",
-	"%f",
-    "%U",  
+    "%i",
+    "%L",
+    "%B",
+    "%XO",
+    "%XR",
+    "%I",
+    "%c",
+    "%Xs",
+    "%Xd",
+    "%V",
+    "%x",
+    "%e",
+    "%H",
+    "%P",
+    "%y",
+    "%z",
+    "%q",
+    "%f",
+    "%U",
     "%E",
-	"%C",
-	"%l",
-	"%a"
+    "%C",
+    "%l",
+    "%a",
+    "%F"
 };
-                     
+
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
 
@@ -163,12 +164,13 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"DCE/RPC call (cn_call_id / dg_seqnum)",    /* COL_DCE_CALL */
 	"DCE/RPC context ID (cn_ctx_id)",           /* COL_DCE_CTX */
 	"802.1Q VLAN id",                           /* COL_8021Q_VLAN_ID */
-	"IP DSCP Value",		     	    /* COL_DSCP_VALUE */
-	"L2 COS Value (802.1p)",		    /* COL_COS_VALUE */
+	"IP DSCP Value",                            /* COL_DSCP_VALUE */
+	"L2 COS Value (802.1p)",                    /* COL_COS_VALUE */
 	"TEI",                                      /* XXX - why is it missing in column_utils.c and elsewhere? */
-	"Frame Relay DLCI",							/* COL_FR_DLCI */
-	"GPRS BSSGP TLLI",							/* COL_BSSGP_TLLI */
-	"Expert Info Severity",					    /* COL_EXPERT */
+	"Frame Relay DLCI",                         /* COL_FR_DLCI */
+	"GPRS BSSGP TLLI",                          /* COL_BSSGP_TLLI */
+	"Expert Info Severity",                     /* COL_EXPERT */
+	"Frequency/Channel"                         /* COL_FREQ_CHAN */
 };
 
 const gchar *
@@ -290,12 +292,15 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
     case COL_EXPERT:
       fmt_list[COL_EXPERT] = TRUE;
       break;
+    case COL_FREQ_CHAN:
+      fmt_list[COL_FREQ_CHAN] = TRUE;
+      break;
     default:
       break;
   }
 }
 
-/* Returns a string representing the longest possible value for 
+/* Returns a string representing the longest possible value for
    a timestamp column type. */
 static const char *
 get_timestamp_column_longest_string(gint type, gint precision)
@@ -436,7 +441,7 @@ get_timestamp_column_longest_string(gint type, gint precision)
 	return "";
 }
 
-/* Returns the longer string of the column title or the hard-coded width of 
+/* Returns the longer string of the column title or the hard-coded width of
  * its contents for building the packet list layout. */
 const gchar *
 get_column_width_string(gint format, gint col)
@@ -577,6 +582,9 @@ get_column_longest_string(gint format)
       break;
     case COL_EXPERT:
       return "ERROR";
+      break;
+    case COL_FREQ_CHAN:
+      return "9999 MHz [A 999]";
       break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
@@ -750,6 +758,9 @@ get_column_format_from_str(gchar *str) {
       case 'a':
 	return COL_EXPERT;
 	break;
+      case 'F':
+	return COL_FREQ_CHAN;
+	break;
     }
     cptr++;
   }
@@ -795,12 +806,12 @@ build_column_format_array(capture_file *cfile, gboolean reset_fences)
     cfile->cinfo.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) *
 						     COL_MAX_LEN);
   }
-    
+
   for (i = 0; i < cfile->cinfo.num_cols; i++) {
     for (j = 0; j < NUM_COL_FMTS; j++) {
       if (!cfile->cinfo.fmt_matx[i][j])
 	      continue;
-		    
+
       if (cfile->cinfo.col_first[j] == -1)
         cfile->cinfo.col_first[j] = i;
 

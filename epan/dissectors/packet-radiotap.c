@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/crc32.h>
+#include <epan/frequency-utils.h>
 #include "packet-ieee80211.h"
 #include "packet-radiotap.h"
 
@@ -637,45 +638,6 @@ proto_register_radiotap(void)
 
 }
 
-/*
- * Convert MHz frequency to IEEE channel number.
- */
-static int
-ieee80211_mhz2ieee(int freq, int flags)
-{
-#define IS_CHAN_IN_PUBLIC_SAFETY_BAND(_c) ((_c) > 4940 && (_c) < 4990)
-    if (flags & IEEE80211_CHAN_2GHZ) {		/* 2GHz band */
-	if (freq == 2484)
-	    return 14;
-	if (freq < 2484)
-	    return (freq - 2407) / 5;
-	else
-	    return 15 + ((freq - 2512) / 20);
-    } else if (flags & IEEE80211_CHAN_5GHZ) {	/* 5Ghz band */
-	if (IS_CHAN_IN_PUBLIC_SAFETY_BAND(freq))
-	    return ((freq * 10) + (((freq % 5) == 2) ? 5 : 0) - 49400) / 5;
-	if (freq <= 5000)
-	    return (freq - 4000) / 5;
-	else
-	    return (freq - 5000) / 5;
-    } else {					/* either, guess */
-	if (freq == 2484)
-	    return 14;
-	if (freq < 2484)
-	    return (freq - 2407) / 5;
-	if (freq < 5000) {
-	    if (IS_CHAN_IN_PUBLIC_SAFETY_BAND(freq))
-		return ((freq * 10) + (((freq % 5) == 2) ? 5 : 0) - 49400)/5;
-	    else if (freq > 4900)
-		return (freq - 4000) / 5;
-	    else
-		return 15 + ((freq - 2512) / 20);
-	}
-	return (freq - 5000) / 5;
-    }
-#undef IS_CHAN_IN_PUBLIC_SAFETY_BAND
-}
-
 static void
 dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -695,7 +657,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint8 dbm;
     guint8 db, rflags;
     guint32 present, next_present;
-    int bit, channel;
+    int bit;
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -913,6 +875,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    proto_item *it;
 	    proto_tree *flags_tree;
+	    gchar *chan_str;
+
 	    align_offset = ALIGN_OFFSET(offset, 2);
 	    offset += align_offset;
 	    length_remaining -= align_offset;
@@ -921,17 +885,14 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (tree) {
 		freq = tvb_get_letohs(tvb, offset);
 		flags = tvb_get_letohs(tvb, offset+2);
-		channel = ieee80211_mhz2ieee(freq, flags);
-		if (channel < 1) {
-			proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
-				tvb, offset, 2, freq,
-				"Channel frequency: %u (invalid)", freq);
-		} else {
-			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel,
-				tvb, offset, 2, (guint32) channel);
-			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_frequency,
-				tvb, offset, 2, freq);
+		chan_str = ieee80211_mhz_to_str(freq);
+		if (check_col(pinfo->cinfo, COL_FREQ_CHAN)) {
+		    col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%s", chan_str);
 		}
+		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_channel_frequency,
+				tvb, offset, 2, freq,
+				"Channel frequency: %s", chan_str);
+		g_free(chan_str);
 		/* We're already 2-byte aligned. */
 		it = proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_flags,
 			tvb, offset+2, 2, flags);

@@ -37,6 +37,7 @@
 
 #include <epan/filesystem.h>
 #include <epan/strutil.h>
+#include <epan/frequency-utils.h>
 #include <epan/crypt/airpdcap_ws.h>
 
 #include "gtk/main.h"
@@ -63,19 +64,15 @@ gboolean change_airpcap_settings = FALSE;
  * if the adapter passed as parameter is "Any" ... if not,
  * this function returns the only channel number string.
  */
-gchar*
+static gchar*
 airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
 {
     gchar *frequencies;
-    gchar *tmp;
     guint n,i;
     GList *current_item;
     airpcap_if_info_t* current_adapter;
-
-    /* Allocate the string used to store the ASCII representation of the WEP key */
-    frequencies = (gchar*)g_malloc(sizeof(gchar)*128);
-    /* Make sure that the first char is '\0' in order to make g_strlcat() work */
-    frequencies[0]='\0';
+    GString *freq_str = g_string_new("");
+    gchar *sep = "";
 
     if(airpcap_if_is_any(if_info))
     {
@@ -83,23 +80,19 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
 
         for(i = 0; i < n; i++)
         {
-	        current_item = g_list_nth(airpcap_if_list,i);
-	        current_adapter = (airpcap_if_info_t*)current_item->data;
-	        if(current_adapter != if_info && g_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
-	        {
-			if (airpcap_get_channel_number_from_freq(current_adapter->channelInfo.Frequency) != 0){
-				tmp = g_strdup_printf("%d",airpcap_get_channel_number_from_freq(current_adapter->channelInfo.Frequency));
-		        }else{
-				tmp = g_strdup_printf("%d MHz",current_adapter->channelInfo.Frequency);
-			}
-		        g_strlcat(frequencies,tmp,128);
-		        g_free(tmp);
-
-		        if(i<(n-1)) g_strlcat(frequencies,",",128);
-	        }
-	      }
+            current_item = g_list_nth(airpcap_if_list,i);
+            current_adapter = (airpcap_if_info_t*)current_item->data;
+            if(current_adapter != if_info && g_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
+            {
+                g_string_sprintfa(freq_str, "%s%s", sep,
+                    ieee80211_mhz_to_str(current_adapter->channelInfo.Frequency));
+                sep = ", ";
+            }
+        }
     }
 
+    frequencies = freq_str->str;
+    g_string_free(freq_str, FALSE);
     return frequencies;
 }
 
@@ -170,7 +163,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 			GList	  *channel_list = NULL;
 
 			for (; i<if_info->numSupportedChannels; i++){
-				channel_list = g_list_append(channel_list, airpcap_get_channelstr_from_freq(if_info->pSupportedChannels[i].Frequency));
+				channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
 			}
 			gtk_combo_set_popdown_strings( GTK_COMBO(airpcap_toolbar_channel), channel_list);
 			g_list_free(channel_list);
@@ -270,7 +263,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   			GList	  *channel_list = NULL;
 
   			for (; i<if_info->numSupportedChannels; i++){
-  				channel_list = g_list_append(channel_list, airpcap_get_channelstr_from_freq(if_info->pSupportedChannels[i].Frequency));
+  				channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
   			}
   			gtk_combo_set_popdown_strings( GTK_COMBO(airpcap_toolbar_channel), channel_list);
   			g_list_free(channel_list);
@@ -602,8 +595,8 @@ airpcap_channel_combo_set_by_number(GtkWidget* w,UINT chan_freq)
 {
 	gchar *entry_text;
 
-	entry_text = airpcap_get_channelstr_from_freq(chan_freq);
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),airpcap_get_channelstr_from_freq(chan_freq));
+	entry_text = ieee80211_mhz_to_str(chan_freq);
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),ieee80211_mhz_to_str(chan_freq));
 	g_free(entry_text);
 }
 
@@ -697,21 +690,21 @@ airpcap_if_is_any(airpcap_if_info_t* if_info)
 void
 airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info)
 {
-	gchar* frequency_list;
+    gchar* frequency_list;
 
     if(airpcap_if_is_any(if_info))
     {
-		frequency_list = airpcap_get_all_channels_list(if_info);
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),frequency_list);
-		g_free(frequency_list);
-    change_airpcap_settings = FALSE;
-		gtk_widget_set_sensitive(GTK_WIDGET(w),FALSE);
+        frequency_list = airpcap_get_all_channels_list(if_info);
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),frequency_list);
+        g_free(frequency_list);
+        change_airpcap_settings = FALSE;
+        gtk_widget_set_sensitive(GTK_WIDGET(w),FALSE);
     }
     else
     {
-		airpcap_channel_combo_set_by_number(w,if_info->channelInfo.Frequency);
-    change_airpcap_settings = TRUE;
-		gtk_widget_set_sensitive(GTK_WIDGET(w),TRUE);
+        airpcap_channel_combo_set_by_number(w,if_info->channelInfo.Frequency);
+        change_airpcap_settings = TRUE;
+        gtk_widget_set_sensitive(GTK_WIDGET(w),TRUE);
     }
 }
 
@@ -721,15 +714,15 @@ airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info)
 void
 airpcap_update_channel_offset_combo_entry(GtkWidget* w, gchar extChannel)
 {
-	gchar channel_offset_value[3];
+    gchar channel_offset_value[3];
 
-	if (extChannel > 0){
-		sprintf(channel_offset_value, "+%d", extChannel);
-	}else{
-		sprintf(channel_offset_value, "%d", extChannel);
-	}
+    if (extChannel > 0){
+        sprintf(channel_offset_value, "+%d", extChannel);
+    }else{
+        sprintf(channel_offset_value, "%d", extChannel);
+    }
 
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry), channel_offset_value);
+    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry), channel_offset_value);
 }
 
 /*
@@ -738,29 +731,29 @@ airpcap_update_channel_offset_combo_entry(GtkWidget* w, gchar extChannel)
 ULONG
 airpcap_load_channel_offset_cb(airpcap_if_info_t* if_info, GtkWidget* channel_offset_cb, ULONG chan_freq)
 {
-	GList *channel_offset_list = NULL;
+    GList *channel_offset_list = NULL;
 
-	if (if_info != NULL && if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
-		guint i = 0;
+    if (if_info != NULL && if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
+        guint i = 0;
 
-		for (; i<if_info->numSupportedChannels; i++){
-			if (if_info->pSupportedChannels[i].Frequency == chan_freq){
-				if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)){
-					channel_offset_list = g_list_append(channel_offset_list, "-1");
-				}
-				channel_offset_list = g_list_append(channel_offset_list, "0");
-				if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_LOW)){
-					channel_offset_list = g_list_append(channel_offset_list, "+1");
-				}
-				gtk_combo_set_popdown_strings( GTK_COMBO(channel_offset_cb), channel_offset_list) ;
-        gtk_widget_set_sensitive(channel_offset_cb, g_list_length(channel_offset_list) > 1);
-				g_list_free(channel_offset_list);
-				return if_info->pSupportedChannels[i].Flags;
-			}
-		}
-	}
+        for (; i<if_info->numSupportedChannels; i++){
+            if (if_info->pSupportedChannels[i].Frequency == chan_freq){
+                if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)){
+                    channel_offset_list = g_list_append(channel_offset_list, "-1");
+                }
+                channel_offset_list = g_list_append(channel_offset_list, "0");
+                if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_LOW)){
+                    channel_offset_list = g_list_append(channel_offset_list, "+1");
+                }
+                gtk_combo_set_popdown_strings( GTK_COMBO(channel_offset_cb), channel_offset_list) ;
+                gtk_widget_set_sensitive(channel_offset_cb, g_list_length(channel_offset_list) > 1);
+                g_list_free(channel_offset_list);
+                return if_info->pSupportedChannels[i].Flags;
+            }
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /*
