@@ -22,7 +22,10 @@ tvbuff_t	*parameter_tvb;
   offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
   if(!parameter_tvb)
-	return offset;
+    return offset;
+  
+  find_tcap_subdisector(parameter_tvb, actx, tcap_top_tree);
+
 #.FN_FTR Invoke
   ansi_tcap_private.d.pdu = 1;
 
@@ -34,10 +37,13 @@ ReturnResult/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 #.FN_BODY ReturnResult/parameter
 tvbuff_t	*parameter_tvb;
 
-proto_tree_add_text(tree, tvb, offset, -1, "ReturnResult/result/result");
 
   offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
+  if(!parameter_tvb)
+    return offset;
+  
+  find_tcap_subdisector(parameter_tvb, actx, tcap_top_tree);
 
 #.FN_FTR ReturnResult
   ansi_tcap_private.d.pdu = 2;
@@ -51,12 +57,60 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 #.FN_BODY ReturnError/parameter
 tvbuff_t	*parameter_tvb;
 
-proto_tree_add_text(tree, tvb, offset, -1, "ReturnError/parameter");
-
   offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
+  if(!parameter_tvb)
+    return offset;
+  
+  find_tcap_subdisector(parameter_tvb, actx, tcap_top_tree);
+
 #.FN_FTR ReturnError
   ansi_tcap_private.d.pdu = 3;
+
+#--- ObjectIDApplicationContext --
+#.FN_BODY ObjectIDApplicationContext FN_VARIANT = _str  VAL_PTR = &oid_str
+
+ static const char * oid_str;
+
+ %(DEFAULT_BODY)s
+ 	ansi_tcap_private.objectApplicationId_oid= (void*) cur_oid;
+	ansi_tcap_private.oid_is_present=TRUE;
+
+#.FN_HDR PackageType/unidirectional
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
+
+#.FN_HDR PackageType/queryWithPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
+
+#.FN_HDR PackageType/queryWithoutPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
+
+#.FN_HDR PackageType/response
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "response ");
+
+#.FN_HDR PackageType/conversationWithPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
+
+#.FN_HDR PackageType/conversationWithoutPerm
+gp_tcapsrt_info->ope=TC_ANSI_ALL;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
+
+#.FN_HDR PackageType/abort
+gp_tcapsrt_info->ope=TC_ANSI_ABORT;
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+
 #.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
 
 tvbuff_t *next_tvb;

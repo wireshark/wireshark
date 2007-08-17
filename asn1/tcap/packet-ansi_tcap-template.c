@@ -88,7 +88,7 @@ extern gboolean gtcap_DisplaySRT;
 extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
 
-static dissector_handle_t	tcap_handle = NULL;
+/* static dissector_handle_t	tcap_handle = NULL; */
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
@@ -97,10 +97,9 @@ static proto_tree * tcap_stat_tree=NULL;
 static proto_item * tcap_stat_item=NULL;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t ansi_map_handle;
 
 static dissector_table_t sccp_ssn_table;
-
-static void raz_ansi_tcap_private(struct ansi_tcap_private_t * p_ansi_tcap_private);
 
 static GHashTable* ansi_sub_dissectors = NULL;
 static GHashTable* itu_sub_dissectors = NULL;
@@ -110,6 +109,7 @@ struct ansi_tcap_private_t ansi_tcap_private;
 static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
   memset(a_tcap_ctx, '\0', sizeof(*a_tcap_ctx));
   a_tcap_ctx->signature = ANSI_TCAP_CTX_SIGNATURE;
+  ansi_tcap_private.oid_is_present = FALSE;
 }
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
@@ -129,7 +129,62 @@ dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
 }
 */
 
+/* As currently ANSI MAP is the only possible sub dissector this function
+ *  must be improved to handle general cases.
+ *
+ * 
+ *
+ * TODO: 
+ * 1)Handle national codes
+ *     Design option
+ *     - Create a ansi.tcap.national dissector table and have dissectors for
+ *       national codes register there and let ansi tcap call them.
+ * 2)Handle Private codes properly
+ *     Design question
+ *     Unclear how to differentiate between different private "code sets".
+ *     Use SCCP SSN table as before? or a ansi.tcap.private dissector table?
+ *
+ */
+static gboolean
+find_tcap_subdisector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 
+	/* If "DialoguePortion objectApplicationId ObjectIDApplicationContext
+	 * points to the subdissector this code can be used.
+	 *
+	if(ansi_tcap_private.d.oid_is_present){
+		call_ber_oid_callback(ansi_tcap_private.objectApplicationId_oid, tvb, 0, actx-pinfo, tree);
+		return TRUE;
+	}
+	*/
+	if(ansi_tcap_private.d.OperationCode == 0){
+		/* national */
+		proto_tree_add_text(tree, tvb, 0, -1, 
+			"Dissector for ANSI TCAP NATIONAL code:%u not implemented. Contact Wireshark developers if you want this supported",
+			ansi_tcap_private.d.OperationCode_national);
+		return FALSE;
+	}else if(ansi_tcap_private.d.OperationCode == 1){
+		/* private */
+		if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
+			proto_tree_add_text(tree, tvb, 0, -1,
+				"Dissector for ANSI TCAP PRIVATE code:%u not implemented. Contact Wireshark developers if you want this supported",
+				ansi_tcap_private.d.OperationCode_private);
+			return FALSE;
+		}
+	}
+	/* This is abit of a hack as it assumes the private codes with a "family" of 0x09 is ANSI MAP
+	 * Se TODO above.
+	 * N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
+	 * 6.3.2 Component Portion
+	 * The Operation Code is partitioned into an Operation Family followed by a
+	 * Specifier associated with each Operation Family member. For TIA/EIA-41 the
+	 * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
+	 * coded as 0.
+	 */
+
+	call_dissector(ansi_map_handle, tvb, actx->pinfo, tree);
+
+	return FALSE;
+}
 
 #include "packet-ansi_tcap-fn.c"
 
@@ -166,7 +221,6 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
     cur_oid = NULL;
     tcapext_oid = NULL;
-    raz_ansi_tcap_private(&ansi_tcap_private);
 
     pinfo->private_data = &ansi_tcap_private;
     gp_tcapsrt_info=tcapsrt_razinfo();
@@ -202,17 +256,14 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 }
 
-static void raz_ansi_tcap_private(struct ansi_tcap_private_t * p_ansi_tcap_private)
-{
-  memset(p_ansi_tcap_private,0,sizeof(struct ansi_tcap_private_t) );
-}
 
 void
 proto_reg_handoff_ansi_tcap(void)
 {
 
 	data_handle = find_dissector("data");
-
+	ansi_map_handle = find_dissector("ansi_map");
+	ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
 
 
