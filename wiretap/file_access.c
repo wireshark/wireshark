@@ -73,6 +73,7 @@
 #include "ber.h"
 #include "catapult_dct2000.h"
 #include "mpeg.h"
+#include "netscreen.h"
 
 
 
@@ -122,6 +123,11 @@ static wtap_open_routine_t open_routines_base[] = {
 	 * would be, for example, saved copies of a Telnet session
 	 * to some box.
 	 */
+
+	/* I put NetScreen *before* erf, because there were some
+	 * false positives with my test-files (Sake Blok, July 2007)
+	 */
+	netscreen_open, 
 	erf_open,
 	k12text_open,
 	etherpeek_open,
@@ -554,9 +560,13 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "MPEG", "mpeg", "*.mpeg;*.mpg;*.mp3", ".mpeg", FALSE,
 	  NULL, NULL },
 
-	  	/* WTAP_FILE_K12TEXT  */
+	/* WTAP_FILE_K12TEXT  */
 	{ "K12 text file", "k12text", "*.txt", ".txt", TRUE,
 	  k12text_dump_can_write_encap, k12text_dump_open },
+
+	/* WTAP_FILE_NETSCREEN */
+	{ "NetScreen snoop text file", "netscreen", "*.*", NULL, FALSE,
+	  NULL, NULL },
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
