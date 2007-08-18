@@ -25,7 +25,8 @@ FOP=fop
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
 #HTML2TXT=elinks -dump -dump-width 72
 #HTML2TXT=links -dump -width 72
-HTML2TXT?=lynx -dump -width=72 -nolist -stdin
+# (See Bug # 1446 for note re 'force-html' below)
+HTML2TXT?=lynx -dump -width=72 -nolist -stdin -force-html
 #HTML2TXT="true"
 
 
