@@ -2056,7 +2056,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s - Diag.:%d",
 		    short_name,
 		    restart_code(tvb_get_guint8(tvb, 3)),
-		    (int)tvb_get_guint8(tvb, 3));
+		    (int)tvb_get_guint8(tvb, 4));
 	}
 	if (x25_tree) {
 	    proto_tree_add_uint_format(x25_tree, hf_x25_type, tvb, 2, 1,
@@ -2346,7 +2346,21 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* If the Call Req. has not been captured, let's look at the first
-       byte of the payload to see if this looks like IP or CLNP. */
+       two bytes of the payload to see if this looks like COTP. */
+    if (tvb_get_guint8(tvb, localoffset) == tvb_length(next_tvb)-1) {
+      /* First byte contains the length of the remaining buffer */
+      if ((tvb_get_guint8(tvb, localoffset+1) & 0x0F) == 0) {
+	/* Second byte contains a valid COTP TPDU */
+	if (!pinfo->fd->flags.visited)
+	    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
+	call_dissector(ositp_handle, next_tvb, pinfo, tree);
+	pinfo->private_data = saved_private_data;
+	return;
+      }
+    }
+
+    /* Then let's look at the first byte of the payload to see if this
+       looks like IP or CLNP. */
     switch (tvb_get_guint8(tvb, localoffset)) {
 
     case 0x45:
