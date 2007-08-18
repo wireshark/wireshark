@@ -198,7 +198,7 @@ proto_tree_set_int(field_info *fi, gint32 value);
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
 static void
-proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
+proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint length, gboolean little_endian);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
@@ -1023,8 +1023,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 
 		case FT_INT64:
 		case FT_UINT64:
-			DISSECTOR_ASSERT(length == 8);
-			proto_tree_set_uint64_tvb(new_fi, tvb, start, little_endian);
+			DISSECTOR_ASSERT( length <= 8 && length >= 1);
+			proto_tree_set_uint64_tvb(new_fi, tvb, start, length, little_endian);
 			break;
 
 		/* XXX - make these just FT_INT? */
@@ -1982,13 +1982,40 @@ proto_tree_set_uint64(field_info *fi, guint64 value)
 }
 
 static void
-proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian)
+proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,  guint length, gboolean little_endian)
 {
-	guint64 value;
-
-	value = little_endian ? tvb_get_letoh64(tvb, start)
-			      : tvb_get_ntoh64(tvb, start);
-
+	guint64 value = 0;
+	guint8* b = ep_tvb_memdup(tvb,start,length);
+	
+	if(little_endian) {
+		b += length;
+		switch(length) {
+			default: DISSECTOR_ASSERT_NOT_REACHED();
+			case 8: value <<= 8; value += *--b;
+			case 7: value <<= 8; value += *--b;
+			case 6: value <<= 8; value += *--b;
+			case 5: value <<= 8; value += *--b;
+			case 4: value <<= 8; value += *--b;
+			case 3: value <<= 8; value += *--b;
+			case 2: value <<= 8; value += *--b;
+			case 1: value <<= 8; value += *--b;
+				break;
+		}
+	} else {
+		switch(length) {
+			default: DISSECTOR_ASSERT_NOT_REACHED();
+			case 8: value <<= 8; value += *b++;
+			case 7: value <<= 8; value += *b++;
+			case 6: value <<= 8; value += *b++;
+			case 5: value <<= 8; value += *b++;
+			case 4: value <<= 8; value += *b++;
+			case 3: value <<= 8; value += *b++;
+			case 2: value <<= 8; value += *b++;
+			case 1: value <<= 8; value += *b++;
+				break;
+		}
+	}
+	
 	proto_tree_set_uint64(fi, value);
 }
 
