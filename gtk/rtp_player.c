@@ -78,6 +78,7 @@
 
 
 #include <epan/dissectors/packet-rtp.h>
+#include <epan/rtp_pt.h>
 
 #include "rtp_player.h"
 #include "codecs/G711a/G711adecode.h"
