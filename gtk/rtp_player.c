@@ -451,24 +451,27 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff)
 
 	payload_type = rp->info->info_payload_type;
 	switch (payload_type) {
-	case 0:	/* G711 Ulaw */
+
+	case PT_PCMU:	/* G.711 u-law */
 		tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711u(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
-	case 8:	/* G711 Alaw */
+
+	case PT_PCMA:	/* G.711 A-law */
 		tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711a(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
+
 #ifdef HAVE_G729_G723
-	case 18:	/* G729 */
+	case PT_G729:	/* G.729 */
 		tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 8); /* G729 8kbps => 64kbps/8kbps = 8  */
 		decodeG729(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
-	case 4:	/* G723 */
 
+	case PT_G723:	/* G.723 */
 		if (rp->info->info_payload_len%24 == 0)	/* G723 High 6.4kbps */
 			tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 10); /* G723 High 64kbps/6.4kbps = 10  */	
 		else if (rp->info->info_payload_len%20 == 0)    /* G723 Low 5.3kbps */
@@ -480,7 +483,14 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff)
 			  tmp_buff, &decoded_bytes);
 		break;
 #endif /* HAVE_G729_G723 */
-	} 
+
+	default:
+		/*
+		 * XXX - return an error here, so the user gets told that
+		 * we don't support this codec!
+		 */
+		break;
+	}
 
 	*out_buff = tmp_buff;
 	return decoded_bytes;
