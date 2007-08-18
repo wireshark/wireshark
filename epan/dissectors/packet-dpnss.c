@@ -223,7 +223,7 @@ static const value_string dpnss_sic_sic_details_for_data_rates2_vals[] = {
  *
  */
 static int
-dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, gint offset)
 {
 	guint hash_offset;
 
@@ -321,7 +321,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		offset++;
-		if(octet&0x80==0x80){
+		if((octet&0x80)==0x80){
 			/* Extension bit set 
 			 * Synch/Asynchronous Information
 			 */
@@ -392,7 +392,7 @@ void
 proto_reg_handoff_dpnss(void)
 {
 	dissector_handle_t dpnss_handle;
-	static int dpnss_prefs_initialized = FALSE;
+/** 	static int dpnss_prefs_initialized = FALSE; **/
 	
 	dpnss_handle = create_dissector_handle(dissect_dpnss, proto_dpnss);
 
