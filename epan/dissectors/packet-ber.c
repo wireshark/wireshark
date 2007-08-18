@@ -99,6 +99,8 @@ static gint hf_ber_unknown_PrintableString = -1;
 static gint hf_ber_unknown_TeletexString = -1;
 static gint hf_ber_unknown_VisibleString = -1;
 static gint hf_ber_unknown_GeneralString = -1;
+static gint hf_ber_unknown_UniversalString = -1;
+static gint hf_ber_unknown_BMPString = -1;
 static gint hf_ber_unknown_IA5String = -1;
 static gint hf_ber_unknown_UTCTime = -1;
 static gint hf_ber_unknown_UTF8String = -1;
@@ -457,6 +459,12 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			break;
 		case BER_UNI_TAG_GeneralString:
 			offset = dissect_ber_GeneralString(&asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_GeneralString, NULL, 0);
+			break;
+		case BER_UNI_TAG_BMPString:
+			offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_BMPString, NULL);
+			break;
+		case BER_UNI_TAG_UniversalString:
+			offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_UniversalString, NULL);
 			break;
 		case BER_UNI_TAG_IA5String:
 			offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_IA5String, NULL);
@@ -4040,6 +4048,12 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_GeneralString, {
 	    "GeneralString", "ber.unknown.GeneralString", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown GeneralString", HFILL }},
+	{ &hf_ber_unknown_UniversalString, {
+	    "UniversalString", "ber.unknown.UniversalString", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown UniversalString", HFILL }},
+	{ &hf_ber_unknown_BMPString, {
+	    "BMPString", "ber.unknown.BMPString", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown BMPString", HFILL }},
 	{ &hf_ber_unknown_IA5String, {
 	    "IA5String", "ber.unknown.IA5String", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown IA5String", HFILL }},
