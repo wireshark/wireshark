@@ -327,7 +327,7 @@ static const value_string dpnss_clearing_cause_code_vals[] = {
 	{ 0,	NULL }
 };
 static int
-dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	guint8 octet, type_of_data;
 
