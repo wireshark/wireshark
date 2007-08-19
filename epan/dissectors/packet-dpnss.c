@@ -520,7 +520,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Note: On data calls the SIC may comprise more than one octet.
 			 * The Service Indicator Code is coded in accordance with ANNEX 1.
 			 */
-			sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Selection Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Service Indicator Code");
 			sic_field_tree = proto_item_add_subtree(sic_field_item, ett_dpnss_sic_field);
 			offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
 			/*
@@ -544,12 +544,14 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case DPNSS_CC_MSG_NIM:
 			/* 2.1.6 NETWORK INDICATION Message - NIM */
+			/* fall trough */
 		case DPNSS_CC_MSG_NAM:
 			/* 2.1.9 NUMBER ACKNOWLEDGE Message - NAM */
 				/* Indication Field */
 			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
 			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
 			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			break;
 		case DPNSS_CC_MSG_CRM:
 			/* 2.1.7 CLEAR REQUEST Message - CRM */
 			/* 2.1.8 CLEAR INDICATION Message - CIM */
@@ -590,7 +592,6 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
 			}
 			break;
-		break;
 		default:
 			proto_tree_add_text(tree, tvb, offset, 1, "Unknown or Dissection of this message not supported yet");
 			break;
@@ -617,7 +618,7 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (octet){
 	case DPNNS_MESSAGE_GROUP_CC:
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "CC MSG");
+			col_set_str(pinfo->cinfo, COL_INFO, "CC MSG ");
 		/* Call Control Message Group */
 		dissect_dpnss_cc_msg(tvb, pinfo, dpnss_tree);
 		break;
