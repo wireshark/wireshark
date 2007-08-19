@@ -1,4 +1,4 @@
-/* oid.h
+/* oids.h
  * Definitions for OBJECT IDENTIFIER operations
  *
  * $Id$
@@ -27,6 +27,8 @@
 #ifndef __OIDS_H__
 #define __OIDS_H__
 
+#define BER_TAG_ANY -1 
+
 struct _oid_bit_t {
 	guint offset;
 	int hfid;
@@ -38,11 +40,20 @@ typedef struct _oid_bits_info_t {
 	struct _oid_bit_t* data;
 } oid_bits_info_t;
 
+typedef struct _oid_value_type_t {
+	enum ftenum ft_type;
+	int display;
+	gint8 ber_class;
+	gint32 ber_tag;
+	int min_len; 
+	int max_len;
+} oid_value_type_t; 
+
 typedef struct _oid_info_t {
 	guint32 subid;
 	char* name;
 	void* children; /* an emem_tree_t* */
-	int value_type;
+	const oid_value_type_t* value_type;
 	int value_hfid;
 	oid_bits_info_t* bits;
 	struct _oid_info_t* parent;

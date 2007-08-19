@@ -34,9 +34,10 @@
 #include <ctype.h>
 
 #include "emem.h"
-#include "uat.h"
+#include "uat-int.h"
 #include "packet.h"
 #include "report_err.h"
+#include "dissectors/packet-ber.h"
 
 #ifdef HAVE_SMI
 #include <smi.h>
@@ -44,13 +45,29 @@
 
 #include "oids.h"
 
-static oid_info_t oid_root = { 0, "", NULL, SMI_BASETYPE_UNKNOWN, -1, NULL, NULL};
+static const oid_value_type_t integer_type = { FT_INT32, BASE_DEC, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, 1, 4 };
+static const oid_value_type_t bytes_type = { FT_BYTES, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0, -1 };
+static const oid_value_type_t oid_type = { FT_OID, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID, 1, -1 };
+static const oid_value_type_t ipv4_type = { FT_IPv4, BASE_NONE, BER_CLASS_APP, 0, 4, 4 };
+static const oid_value_type_t counter32_type = { FT_UINT32, BASE_DEC, BER_CLASS_APP, 1, 1, 4 };
+static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC, BER_CLASS_APP, 2, 1, 4 };
+static const oid_value_type_t timeticks_type = { FT_UINT32, BASE_DEC, BER_CLASS_APP, 3, 1, 4 };
+static const oid_value_type_t opaque_type = { FT_BYTES, BASE_NONE, BER_CLASS_APP, 4, 1, 4 };
+static const oid_value_type_t counter64_type = { FT_UINT64, BASE_NONE, BER_CLASS_APP, 6, 8, 8 };
+static const oid_value_type_t ipv6_type = {FT_IPv6, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16 };
+static const oid_value_type_t float_type = {FT_FLOAT, BASE_DEC, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4, 4 };
+static const oid_value_type_t double_type = {FT_DOUBLE, BASE_DEC, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8, 8 };
+static const oid_value_type_t ether_type = {FT_ETHER, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6, 6 };
+static const oid_value_type_t string_type = {FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0, -1 };
+static const oid_value_type_t unknown_type = {FT_BYTES, BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY, 0, -1 };
+
+static oid_info_t oid_root = { 0, NULL, NULL, &unknown_type,-1, NULL, NULL};
 static emem_tree_t* oids_by_name = NULL;
 
-static oid_info_t* add_oid(char* name, int type, guint oid_len, guint32 *subids) {
+static oid_info_t* add_oid(char* name, const oid_value_type_t* type, guint oid_len, guint32 *subids) {
 	guint i = 0;
 	oid_info_t* c = &oid_root;
-	
+		
 	oid_len--;
 	
 	do {
@@ -58,39 +75,32 @@ static oid_info_t* add_oid(char* name, int type, guint oid_len, guint32 *subids)
 		
 		if(n) {
 			if (i == oid_len) {
-				if (!n->name)
+				if (n->name) {
 					n->name = g_strdup(name);
-				
-				if (n->value_type == SMI_BASETYPE_UNKNOWN)
 					n->value_type = type;
+				}
 				
 				return n;
-			} else {
-				c = n;
-				continue;
-			}
-		} else {
-			oid_info_t* o = g_malloc(sizeof(oid_info_t));
-			o->subid = subids[i];
-			o->children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_children");
-			o->value_hfid = -1;
-			o->parent = c;
-			o->bits = NULL;
+			}		} else {
+			n = g_malloc(sizeof(oid_info_t));
+			n->subid = subids[i];
+			n->children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_children");
+			n->value_hfid = -1;
+			n->parent = c;
+			n->bits = NULL;
 
-			emem_tree_insert32(c->children,o->subid,o);
+			emem_tree_insert32(c->children,n->subid,n);
 
 			if (i == oid_len) {
-				o->name = g_strdup(name);
-				o->value_type = type;
-				return o;
+				n->name = g_strdup(name);
+				n->value_type = type;
+				return n;
 			} else {
-				o->name = NULL;
-				o->value_type = SMI_BASETYPE_UNKNOWN;
-				c = o;
-				continue;
+				n->name = g_strdup(name);
+				n->value_type = NULL;
 			}
 		}
-		
+		c = n;
 	} while(++i);
 	
 	g_assert_not_reached();
@@ -98,7 +108,7 @@ static oid_info_t* add_oid(char* name, int type, guint oid_len, guint32 *subids)
 }
 
 extern void oid_add(char* name, guint oid_len, guint32 *subids) {
-	add_oid(name,SMI_BASETYPE_UNKNOWN,oid_len,subids);
+	add_oid(name,&unknown_type,oid_len,subids);
 }
 
 #ifdef HAVE_SMI
@@ -146,60 +156,61 @@ static char* alnumerize(const char* name) {
 	return s;
 }
 
-struct _smi_type_data {
-	char*               name;
-	enum SmiBasetype    base; 
-	enum ftenum			type;
-	int					display;
-};
+typedef struct {
+	char* name;
+	SmiBasetype base;
+	const oid_value_type_t* type;
+} oid_value_type_mapping_t;
 
-const struct _smi_type_data* get_typedata(SmiType* smiType) {
-	static const struct _smi_type_data types_by_name[] =  {
-		{"IpAddress",0,FT_IPv4,BASE_NONE},
-		{"InetAddressIPv4",0,FT_IPv4,BASE_NONE},
-		{"InetAddressIPv6",0,FT_IPv4,BASE_NONE},
-		{"NetworkAddress",0,FT_IPv4,BASE_NONE},
-		{"MacAddress",0,FT_ETHER,BASE_NONE},
-		{"TimeTicks",0,FT_RELATIVE_TIME,BASE_NONE},
-		{"Ipv6Address",0,FT_IPv4,BASE_NONE},
-		{"TimeStamp",0,FT_RELATIVE_TIME,BASE_NONE}
+const oid_value_type_t* get_typedata(SmiType* smiType) {
+	static const oid_value_type_mapping_t types[] =  {
+		{"IpAddress", SMI_BASETYPE_UNKNOWN, &ipv4_type},
+		{"InetAddressIPv4",SMI_BASETYPE_UNKNOWN,&ipv4_type},
+		{"InetAddressIPv6",SMI_BASETYPE_UNKNOWN,&ipv6_type},
+		{"NetworkAddress",SMI_BASETYPE_UNKNOWN,&ipv4_type},
+		{"MacAddress",SMI_BASETYPE_UNKNOWN,&ether_type},
+		{"TimeTicks",SMI_BASETYPE_UNKNOWN,&timeticks_type},
+		{"Ipv6Address",SMI_BASETYPE_UNKNOWN,&ipv6_type},
+		{"TimeStamp",SMI_BASETYPE_UNKNOWN,&integer_type},
+		{"DisplayString",SMI_BASETYPE_UNKNOWN,&string_type},
+		{"DateAndTime",SMI_BASETYPE_UNKNOWN,&string_type},
+		{"Counter32",SMI_BASETYPE_UNKNOWN,&counter32_type},
+		{"Unsigned32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
+		{"Gauge32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
+		{"unk",SMI_BASETYPE_UNKNOWN,&unknown_type},
+		{"i32",SMI_BASETYPE_INTEGER32,&integer_type},
+		{"octets",SMI_BASETYPE_OCTETSTRING,&bytes_type},
+		{"oid",SMI_BASETYPE_OBJECTIDENTIFIER,&oid_type},
+		{"u32",SMI_BASETYPE_UNSIGNED32,&unsigned32_type},
+		{"u64",SMI_BASETYPE_UNSIGNED64,&counter64_type},
+		{"f32",SMI_BASETYPE_FLOAT32,&float_type},
+		{"f64",SMI_BASETYPE_FLOAT64,&double_type},
+		{"f128",SMI_BASETYPE_FLOAT128,&bytes_type},
+		{"enum",SMI_BASETYPE_ENUM,&integer_type},
+		{"bits",SMI_BASETYPE_BITS,&bytes_type},
+		{NULL,0,NULL}
 	};
-	static const struct _smi_type_data types_by_base[] =  {
-		{NULL,SMI_BASETYPE_UNKNOWN,FT_BYTES,BASE_NONE},
-		{NULL,SMI_BASETYPE_INTEGER32,FT_INT32,BASE_DEC},
-		{NULL,SMI_BASETYPE_OCTETSTRING,FT_BYTES,BASE_NONE},
-		{NULL,SMI_BASETYPE_OBJECTIDENTIFIER,FT_OID,BASE_NONE},
-		{NULL,SMI_BASETYPE_UNSIGNED32,FT_UINT32,BASE_NONE},
-		{NULL,SMI_BASETYPE_UNSIGNED64,FT_UINT64,BASE_DEC},
-		{NULL,SMI_BASETYPE_FLOAT32,FT_FLOAT,BASE_DEC},
-		{NULL,SMI_BASETYPE_FLOAT64,FT_DOUBLE,BASE_DEC},
-		{NULL,SMI_BASETYPE_FLOAT128,FT_BYTES,BASE_NONE},
-		{NULL,SMI_BASETYPE_ENUM,FT_UINT32,BASE_DEC},
-		{NULL,SMI_BASETYPE_BITS,FT_BYTES,BASE_DEC},
-	};
-	const struct _smi_type_data* type = NULL;
+	const oid_value_type_mapping_t* t;
 	SmiType* sT = smiType;
-	guint i;
 
-
+	if (!smiType) return NULL;
+		
 	do {
-		for (i = 0; i < array_length(types_by_name) ; i++ ) {
+		for (t = types; t->type ; t++ ) {
 			const char* name = smiRenderType(sT, SMI_RENDER_NAME);
-			type = &(types_by_name[i]);
-			if (name && g_str_equal(name, types_by_name[i].name)) {
-				return type;
+			if (name && t->name && g_str_equal(name, t->name )) {
+				return t->type;
 			}
 		}
 	} while(( sT  = smiGetParentType(sT) ));
 	
-	if (! type) {
-		for (i = 0; i < array_length(types_by_base) ; i++ ) {
-			if(sT->basetype == types_by_base[i].base) {
-				return type;
-			}
+	for (t = types; t->type ; t++ ) {
+		if(smiType->basetype == t->base) {
+			return t->type;
 		}
 	}
-	return types_by_base;
+
+	return &unknown_type;
 }
 
 #define IS_ENUMABLE(ft) (( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
@@ -211,8 +222,6 @@ void register_mibs(void) {
     SmiNode *smiNode;
 	guint i;
 	int proto_smi = -1;
-	
-	
 	
 	GArray* hfa = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	GArray* etta = g_array_new(FALSE,TRUE,sizeof(gint*));
@@ -254,23 +263,23 @@ void register_mibs(void) {
 			 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
 			
 			SmiType* smiType =  smiGetNodeType(smiNode);
-			
+			const oid_value_type_t* typedata =  get_typedata(smiType);
 			oid_info_t* oid_data = add_oid(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_QUALIFIED),
-										   smiType ? smiType->basetype : SMI_BASETYPE_UNKNOWN,
+										   typedata,
 										   smiNode->oidlen,
 										   smiNode->oid);
-			
-			if (smiType) {
+
+			if (typedata) {
 				SmiNamedNumber* smiEnum; 
-				const struct _smi_type_data* typedata =  get_typedata(smiType);
-				hf_register_info hf = { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0, "", HFILL }};
-								
-				hf.hfinfo.name = oid_data->name;
-				hf.p_id = &(oid_data->value_hfid);
-				hf.hfinfo.type = typedata->type;
-				hf.hfinfo.display = typedata->display;
-				hf.hfinfo.abbrev = alnumerize(hf.hfinfo.name);
-				hf.hfinfo.blurb = g_strdup(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL));
+				hf_register_info hf = { &(oid_data->value_hfid), { 
+					oid_data->name,
+					alnumerize(oid_data->name),
+					typedata->ft_type,
+					typedata->display,
+					NULL,
+					0,
+					g_strdup(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL)),
+					HFILL }};
 				
 				if ( IS_ENUMABLE(hf.hfinfo.type) && (smiEnum = smiGetFirstNamedNumber(smiType))) {
 					GArray* vals = g_array_new(TRUE,TRUE,sizeof(value_string));
@@ -296,7 +305,7 @@ void register_mibs(void) {
 					
 					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum), bits->num++);
 					
-					bits->data = g_malloc(sizeof(struct _oid_bit_t));
+					bits->data = g_malloc(sizeof(struct _oid_bit_t)*bits->num);
 					
 					for(smiEnum = smiGetFirstNamedNumber(smiType),n=0;
 						smiEnum;
@@ -342,19 +351,19 @@ void oid_init(void) {
 }
 
 const char* oid_subid2string(guint32* subids, guint len) {
-	char* s = ep_alloc(len*11);
-	char* w = s;	
+	char* s = ep_alloc0(len*11);
+	char* w = s;
 	
 	do {
 		w += sprintf(w,"%u.",*subids++);
 	} while(--len);
 	
-	*w = '\0';
+	if (w!=s) *(w-1) = '\0'; else *(w) = '\0';
 	
 	return s;
 }
 
-guint chech_num_oid(const char* str) {
+guint check_num_oid(const char* str) {
 	const char* r = str;
 	char c = '\0';
 	guint n = 0;
@@ -362,18 +371,18 @@ guint chech_num_oid(const char* str) {
 	if (*r == '.') return 0;
 	
 	do {
-		switch(*r) {
+		switch(*r++) {
 			case '.':
 				n++;
-				if (c == '.') return 0;
-				case '1' : case '2' : case '3' : case '4' : case '5' : 
-				case '6' : case '7' : case '8' : case '9' : case '0' :
-					continue;
-				case '\0':
-					break;
-				default:
-					return 0;
-		}
+				if (c == '.') return 0; 
+			case '1' : case '2' : case '3' : case '4' : case '5' : 
+			case '6' : case '7' : case '8' : case '9' : case '0' :
+				continue;
+			case '\0':
+				break;
+			default:
+				return 0;
+		} 
 		c = *r;
 	} while(1);
 	
@@ -385,7 +394,12 @@ guint chech_num_oid(const char* str) {
 guint oid_string2subid(const char* str, guint32** subids_p) {
 	const char* r = str;
 	guint32* subids;
-	guint n = chech_num_oid(str);
+	guint n = check_num_oid(str);
+	
+	if (!n) {
+		*subids_p = NULL;
+		return 0;
+	}
 	
 	*subids_p = subids = ep_alloc_array(guint32,n);
 	
@@ -415,11 +429,7 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 	gboolean is_first = TRUE;
 	guint32* subids;
 	
-	for (i=0; i<oid_len; i++){
-		guint8 byte = oid_bytes[i];
-		if (byte & 0x80) continue;
-		n++;
-	}
+	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 	
 	*subids_p = subids = ep_alloc(sizeof(guint32)*n);
 	
@@ -436,8 +446,8 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 		if (is_first) {
 			guint32 subid0 = 0;
 			
-			if (subid >= 40) { (*subids)++; subid-=40; }
-			if (subid >= 40) { (*subids)++; subid-=40; }
+			if (subid >= 40) { subid0++; subid-=40; }
+			if (subid >= 40) { subid0++; subid-=40; }
 			
 			*subids++ = subid0;
 			
@@ -548,37 +558,55 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint8* bytes;
 	guint8* b;
 	
-	if (subids_len < 2) return 0;
-	
-	subid = (subids[1] * 40) + subids[0];
-	
-	for( i = 2; i < subids_len; i++ ) {
-		if (subid & 0xF0000000) {
-			bytelen += 5;
-		} else if (subid & 0x0FE00000) {
-			bytelen += 4;
-		} else if (subid & 0x001FC000) {
-			bytelen += 3;
-		} else if (subid & 0x00003F10) {
-			bytelen += 2;
-		} else {
-			bytelen += 1;
-		}
+	if (subids_len < 2) {
+		*bytes_p = NULL;
+		return 0;
 	}
+	
+	subid = (subids[0] * 40) + subids[1];
+	i = 2;
+	
+	do {
+		if (subid <= 0x0000007F) {
+			bytelen += 1;
+		} else if (subid <= 0x00003FFF ) {
+			bytelen += 2;
+		} else if (subid <= 0x001FFFFF ) {
+			bytelen += 3;
+		} else if (subid <= 0x0FFFFFFF ) {
+			bytelen += 4;
+		} else {
+			bytelen += 5;
+		}
+		
+			subid = subids[i];
+	} while ( i++ < subids_len );
 	
 	*bytes_p = b = bytes = ep_alloc(bytelen);
 	
-	subid = (subids[1] * 40) + subids[0];
+	subid = (subids[0] * 40) + subids[1];
+	i = 2;
 	
-	for (i = 2; i<subids_len; i++) {
-		guint32 v;
+	do {
+		guint len;
 		
-		if (( v = subid & 0xF0000000 )) *(b++) = v << 28;
-		if (( v = subid & 0x0FE00000 )) *(b++) = v << 21;
-		if (( v = subid & 0x001FC000 )) *(b++) = v << 21;
-		if (( v = subid & 0x00003F10 )) *(b++) = v << 21;
-		*(b++) =  subid & 0x0000007F;
-	}
+		if ((subid <= 0x0000007F )) len = 1;
+		else if ((subid <= 0x00003FFF )) len = 2;
+		else if ((subid <= 0x001FFFFF )) len = 3;
+		else if ((subid <= 0x0FFFFFFF )) len = 4;
+		else len = 5;
+		
+		switch(len) {
+			default: DISSECTOR_ASSERT_NOT_REACHED(); break;
+			case 5: *(b++) = ((subid & 0xF0000000) << 28) | 0x80;
+			case 4: *(b++) = ((subid & 0x0FE00000 ) >> 21)  | 0x80;
+			case 3: *(b++) = ((subid & 0x001FC000 ) >> 14)  | 0x80;
+			case 2: *(b++) = ((subid & 0x00003F10 ) >> 7)  | 0x80;
+			case 1: *(b++) =  subid & 0x0000007F ; break;
+		}
+		
+		subid = subids[i];
+	} while ( i++ < subids_len);
 	
 	return bytelen;
 }
@@ -631,13 +659,50 @@ const gchar *oid_resolved_from_string(const gchar *oid_str) {
 	}
 }
 
+extern char* oid_test_a2b(guint32 num_subids, guint32* subids);
+char* oid_test_a2b(guint32 num_subids, guint32* subids) {
+	guint8* sub2enc;
+	guint8* str2enc;
+	guint32* enc2sub;
+	guint32* str2sub;
+	const char* sub2str = oid_subid2string(subids, num_subids);
+	guint sub2enc_len = oid_subid2encoded(num_subids, subids,&sub2enc);
+	guint enc2sub_len = oid_encoded2subid(sub2enc, sub2enc_len, &enc2sub);
+	const char* enc2str = oid_encoded2string(sub2enc, sub2enc_len);
+	guint str2enc_len = oid_string2encoded(sub2str,&str2enc);
+	guint str2sub_len = oid_string2subid(sub2str,&str2sub);
+	
+	return ep_strdup_printf(
+							"oid_subid2string=%s \n"
+							"oid_subid2encoded=[%d]%s \n"
+							"oid_encoded2subid=%s \n "
+							"oid_encoded2string=%s \n"
+							"oid_string2encoded=[%d]%s \n"
+							"oid_string2subid=%s \n "
+							,sub2str
+							,sub2enc_len,bytestring_to_str(sub2enc, sub2enc_len, ':')
+							,enc2sub ? oid_subid2string(enc2sub,enc2sub_len) : "-"
+							,enc2str
+							,str2enc_len,bytestring_to_str(str2enc, str2enc_len, ':')
+							,str2sub ? oid_subid2string(str2sub,str2sub_len) : "-"
+							);	
+}
+
 const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	guint matched;
 	guint left;
 	oid_info_t* oid = oid_get(num_subids, subids, &matched, &left);
 	
-	return oid2str(oid, subids, num_subids, left);
+	while (! oid->name ) {
+		if (!(oid = oid->parent)) {
+			return oid_subid2string(subids,num_subids);
+		}
+		left++;
+		matched--;
+	}
+	
+	return ep_strdup_printf("%s.%s",
+							oid->name,
+							oid_subid2string(&(subids[matched]),left));
 }
-
-
 
