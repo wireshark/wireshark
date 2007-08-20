@@ -918,6 +918,7 @@ install-common-files:
 	xcopy ".\plugins\rudp\rudp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\sbus\sbus.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\stats_tree\stats_tree.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\unistim\unistim.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\v5ua\v5ua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\wimax\wimax.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)

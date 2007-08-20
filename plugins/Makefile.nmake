@@ -31,6 +31,7 @@ all: \
 	rudp \
 	sbus \
 	stats_tree \
+	unistim \
 	v5ua \
 	wimax
 
@@ -144,12 +145,17 @@ rudp::
 	cd ..
 
 sbus:: 
-       cd sbus
-       $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-       cd ..
+	cd sbus
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
 
 stats_tree:: 
 	cd stats_tree
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+unistim:: 
+	cd unistim
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -234,6 +240,9 @@ clean:
 	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd unistim
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -312,6 +321,9 @@ distclean: clean
 	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
+	cd unistim
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
 	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
@@ -387,6 +399,9 @@ maintainer-clean: distclean
 	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	cd unistim
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
 	cd v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -427,6 +442,7 @@ install-plugins:
 	xcopy rudp\*.dll $(VERSION) /d
 	xcopy sbus\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
+	xcopy unistim\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
 	xcopy wimax\*.dll $(VERSION) /d
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins

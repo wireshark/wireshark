@@ -236,6 +236,7 @@ plugin_ldadd = \
 	-dlopen plugins/rudp/rudp.la \
 	-dlopen plugins/sbus/sbus.la \
 	-dlopen plugins/stats_tree/stats_tree.la \
+	-dlopen plugins/unistim/unistim.la \
 	-dlopen plugins/v5ua/v5ua.la \
 	-dlopen plugins/wimax/wimax.la
 	

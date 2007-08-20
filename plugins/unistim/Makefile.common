@@ -1,6 +1,9 @@
-# Makefile.am
-# Automake file for Wireshark
-#
+# Makefile.common for unistim plugin
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+# Copyright 2007 Don Newton <dnewton@cypresscom.net>
+#  
 # $Id$
 #
 # Wireshark - Network traffic analyzer
@@ -21,42 +24,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = \
-	agentx \
-	artnet \
-	asn1 \
-	ciscosm \
-	docsis \
-	enttec \
-	giop \
-	gryphon \
-	h223 \
-	irda \
-	lwres \
-	m2m \
-	mate \
-	mgcp \
-	opcua \
-	opsi \
-	pcli \
-	profinet \
-	rlm \
-	rtnet \
-	rudp \
-	sbus \
-	stats_tree \
-	unistim \
-	v5ua \
-	wimax
+# the name of the plugin
+PLUGIN_NAME = unistim
 
+# the dissector sources (without any helpers)
+DISSECTOR_SRC = \
+	packet-unistim.c
 
-plugindir = @plugindir@
-
-
-EXTRA_DIST = \
-	Makefile.nmake
-
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
-
+DISSECTOR_INCLUDES =   \
+	audio.h        \
+	basic.h        \
+	broadcast.h    \
+	defines.h      \
+	display.h      \
+	header_field.h \
+	key.h          \
+	network.h      \
+	packet-unistim.h
