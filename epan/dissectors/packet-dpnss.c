@@ -60,7 +60,10 @@ static int hf_dpnss_sic_oct2_net_ind_clk	= -1;
 static int hf_dpnss_sic_oct2_async_data		= -1;
 static int hf_dpnss_sic_oct2_async_flow_ctrl = -1;
 static int hf_dpnss_clearing_cause			= -1;
-static int hf_dpnss_rejection_cause			= -1; 
+static int hf_dpnss_rejection_cause			= -1;
+static int hf_dpnss_man_code				= -1;
+static int hf_dpnss_subcode					= -1;
+static int hf_dpnss_maintenance_action		= -1;
 
 #define DPNNS_MESSAGE_GROUP_CC			0
 #define DPNNS_MESSAGE_GROUP_E2E			2
@@ -122,6 +125,15 @@ static const value_string dpnss_cc_msg_short_type_vals[] = {
 	{0,	NULL }
 };
 
+#define DPNSS_E2E_MSG_EEM_C				2
+#define DPNSS_E2E_MSG_EEM_I				3
+#define DPNSS_E2E_MSG_SCRM				4
+#define DPNSS_E2E_MSG_SCIM				5
+#define DPNSS_E2E_MSG_ERM_C				6
+#define DPNSS_E2E_MSG_ERM_I				7
+#define DPNSS_E2E_MSG_NSIM				8
+
+
 /* 2.2 END-TO-END MESSAGE GROUP */
 static const value_string dpnss_e2e_msg_type_vals[] = {
 	{2,		"END-to-END Message (COMPLETE) - EEM(C)"},
@@ -144,6 +156,13 @@ static const value_string dpnss_e2e_msg_short_type_vals[] = {
 	{8,		"NSIM"}, 
 	{ 0,	NULL }
 };
+
+#define DPNSS_LbL_MSG_LLM_C				0
+#define DPNSS_LbL_MSG_LLM_I				1
+#define DPNSS_LbL_MSG_LLRM				2
+#define DPNSS_LbL_MSG_SM				4
+#define DPNSS_LbL_MSG_LMM				5
+#define DPNSS_LbL_MSG_LMRM				6
 
 /* 2.3 LINK-BY-LINK MESSAGE GROUP */
 static const value_string dpnss_LbL_msg_type_vals[] = {
@@ -326,6 +345,31 @@ static const value_string dpnss_clearing_cause_code_vals[] = {
 	{0x2e,		"DTE Uncontrolled Not Ready"},
 	{ 0,	NULL }
 };
+/* ANNEX 6 : MAINTENANCE ACTIONS (p235) */
+static const value_string dpnss_maintenance_actions_vals[] = {
+	{0x1,		"BBC - Back-Busy Control"},
+	{0x2,		"LBC - Loop-Back Control"},
+	{0x3,		"LBA - Loop-Back Abort"},
+	{0x4,		"TCS-R - Traffic Channel Status Request"},
+	{0x5,		"ACK - Acknowledge"},
+	{0x6,		"NTC - Non-Looped-Back Test Control"},
+	{ 0,	NULL }
+};
+
+/* ANNEX 7 : CODING OF USAGE IDENTIFIERS */
+static const value_string dpnss_man_code_vals[] = {
+	{0x0,		"Reserved"},
+	{0x1,		"BT"},
+	{0x2,		"Ericsson"},
+	{0x3,		"Lucent"},
+	{0x4,		"Philips"},
+	{0x5,		"Siemens"},
+	{0x6,		"Westell"},
+	{0x7,		"Mitel"},
+	{ 0,	NULL }
+};
+
+
 static int
 dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
@@ -448,8 +492,13 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item *sic_field_item, *ind_field_item;
+	proto_tree *sic_field_tree, *ind_field_tree;
 	int offset = 0;
-	guint8 octet;
+	int tvb_end_offset;
+	guint8 octet;	
+
+	tvb_end_offset = tvb_length(tvb);
 
 	proto_tree_add_item(tree, hf_dpnss_LbL_msg_type, tvb, offset, 1, FALSE);
 	octet = tvb_get_guint8(tvb,offset)&0x0f;
@@ -457,10 +506,70 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(octet, dpnss_LbL_msg_short_type_vals, "Unknown (%d)" ));
-	switch (octet){
-	default:
-		proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
-		break;
+	if(tree){
+		switch (octet){
+		case DPNSS_LbL_MSG_LLM_C:
+			/* 2.3.1 LINK-by-LINK Message (COMPLETE) - LLM(C)*/
+		case DPNSS_LbL_MSG_LLM_I:
+			/* 2.3.2 LINK-by-LINK Message (INCOMPLETE) - LLM(I) */
+			/* Indication Field */
+			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			break;
+		case DPNSS_LbL_MSG_LLRM:
+			/* 2.3.3 LINK-by-LINK REJECT Message - LLRM */
+			/* Rejection Cause */
+			proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, FALSE);
+			/* Indication Field (Optional) */
+			if(tvb_end_offset>offset){
+				ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+				ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+				offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			}
+			break;
+		case DPNSS_LbL_MSG_SM:
+			/* 2.3.4 SWAP Message - SM */
+			/* Service Indicator Code
+			 * Note: On data calls the SIC may comprise more than one octet.
+			 * The Service Indicator Code is coded in accordance with ANNEX 1.
+			 */
+			sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Service Indicator Code");
+			sic_field_tree = proto_item_add_subtree(sic_field_item, ett_dpnss_sic_field);
+			offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
+			/* Indication Field */
+			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			break;
+		case DPNSS_LbL_MSG_LMM:
+			/* 2.3.5 LINK MAINTENANCE Message - LMM */
+			/* Maintenance Action 
+			 * respond to a request for,maintenance actions to be performed.
+			 * The Maintenance Action field identifies the action required or
+			 * the response being made. The Maintenance Action field is coded
+			 * as shown in ANNEX 6.
+			 */
+			proto_tree_add_item(tree, hf_dpnss_maintenance_action, tvb, offset, 1, FALSE);
+			offset++;
+			/* Indication Field */
+			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			break;
+		case DPNSS_LbL_MSG_LMRM:
+			/* 2.3.6 LINK MAINTENANCE REJECT Message - LMRM */
+			proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, FALSE);
+			offset++;
+			/* Indication Field */
+			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
+			break;
+		}
 	}
 }
 
@@ -468,8 +577,13 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item *sel_field_item, *sic_field_item, *ind_field_item;
+	proto_tree *sel_field_tree, *sic_field_tree, *ind_field_tree;
 	int offset = 0;
-	guint8 octet;
+	int tvb_end_offset;
+	guint8 octet;	
+
+	tvb_end_offset = tvb_length(tvb);
 
 	proto_tree_add_item(tree, hf_dpnss_e2e_msg_type, tvb, offset, 1, FALSE);
 	octet = tvb_get_guint8(tvb,offset)&0x0f;
@@ -477,10 +591,76 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(octet, dpnss_e2e_msg_short_type_vals, "Unknown (%d)" ));
-	switch (octet){
-	default:
-		proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
-		break;
+	if(tree){
+		switch (octet){
+		case DPNSS_E2E_MSG_EEM_C:
+		/* 2.2.1 END-to-END Message (COMPLETE) - EEM(C) */
+		case DPNSS_E2E_MSG_EEM_I:
+			/* Fall trough /*
+			/* Indication Field */
+			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			break;
+		case DPNSS_E2E_MSG_SCRM:
+			/* 2.2.3 SINGLE-CHANNEL CLEAR REQUEST Message - SCRM */
+		case DPNSS_E2E_MSG_SCIM:
+			/* 2.2.4 SINGLE-CHANNEL CLEAR INDICATION Message - SCIM */
+			/* Clearing Cause */
+			proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, FALSE);
+			offset++;
+			/* Indication Field (Optional) */
+			if(tvb_end_offset>offset){
+				ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+				ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
+				offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
+			}
+			break;
+		case DPNSS_E2E_MSG_ERM_C:
+			/* 2.2.5 END-to-END RECALL Message (COMPLETE) - ERM(C) */
+		case DPNSS_E2E_MSG_ERM_I:
+			/* 2.2.6 END-to-END RECALL Message (INCOMPLETE) - ERM(I) */
+			/* Service Indicator Code
+			 * Note: On data calls the SIC may comprise more than one octet.
+			 * The Service Indicator Code is coded in accordance with ANNEX 1.
+			 */
+			sic_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Service Indicator Code");
+			sic_field_tree = proto_item_add_subtree(sic_field_item, ett_dpnss_sic_field);
+			offset =dissect_dpnss_sic(tvb, pinfo, sic_field_tree, offset);
+			/*
+			 * Selection Field
+			 * The Selection Field contains the selection information relating
+			 * to a call set-up or Supplementary Service Request, and is
+			 * structured as shown in Subsection 3.
+			 */
+			sel_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Selection Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
+			sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
+			offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
+			break;
+		case DPNSS_E2E_MSG_NSIM:
+			/* 2.2.7 NON SPECIFIED INFORMATION Message - NSIM */
+			/* Usage Identifier Oct 1 - 
+			 * coding of the Usage Identifier, as described in section 49.
+			 * The use of NSIMs is described in greater detail in SECTION 49.
+			 * BIT  8       7 6 5 4 3          2 1
+			 *     ext | Manufacturer code | subcode
+			 */
+			octet = tvb_get_guint8(tvb,offset);
+			proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_dpnss_man_code, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_dpnss_subcode, tvb, offset, 1, FALSE);
+			offset++;
+			if((octet&0x80)==0x80){
+				/* /* Extension bit set */
+				offset++;
+			}
+			/* User Information oct 2 + n 
+			 */
+			proto_tree_add_text(tree, tvb, offset, -1, "User Information");
+		default:
+			proto_tree_add_text(tree, tvb, offset, 1, "Dissection of this message not supported yet");
+			break;
+		}
 	}
 }
 
@@ -514,8 +694,6 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case DPNSS_CC_MSG_RM_I:
 			/* 2.1.4 RECALL Message (INCOMPLETE) - RM(I)*/
 			/* fall trough */
-
-			
 			/* Service Indicator Code
 			 * Note: On data calls the SIC may comprise more than one octet.
 			 * The Service Indicator Code is coded in accordance with ANNEX 1.
@@ -547,7 +725,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* fall trough */
 		case DPNSS_CC_MSG_NAM:
 			/* 2.1.9 NUMBER ACKNOWLEDGE Message - NAM */
-				/* Indication Field */
+			/* Indication Field */
 			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
 			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
 			offset = dissect_dpnss_sup_info_str(tvb, pinfo, ind_field_tree, offset);
@@ -578,9 +756,9 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case DPNSS_CC_MSG_SSRM_I:
 			/* 2.1.11 SUBSEQUENT SERVICE REQUEST Message (INCOMPLETE) - SSRM(I) */
+			/* Selection Field */
 			sel_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Selection Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
 			sel_field_tree = proto_item_add_subtree(sel_field_item, ett_dpnss_sel_field);
-			/* Selection Field */
 			offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
 			break;
 		case DPNSS_CC_MSG_SSRM_C:
@@ -756,6 +934,21 @@ proto_register_dpnss(void)
 			{ "Rejection Cause",           "dpnss.rejection_cause",
 			FT_UINT8, BASE_DEC, VALS(dpnss_clearing_cause_code_vals), 0x0,          
 			"Rejection Cause", HFILL }
+		},
+		{ &hf_dpnss_man_code,
+			{ "Manufacturer Code",           "dpnss.man_code",
+			FT_UINT8, BASE_DEC, VALS(dpnss_man_code_vals), 0x3c,          
+			"Manufacturer Code", HFILL }
+		},
+		{ &hf_dpnss_subcode,
+			{ "Subcode",           "dpnss.subcode",
+			FT_UINT8, BASE_DEC, NULL, 0x03,          
+			"Subcode", HFILL }
+		},
+		{ &hf_dpnss_maintenance_action,
+			{ "Maintenance action",           "dpnss.maint_act",
+			FT_UINT8, BASE_DEC, VALS(dpnss_maintenance_actions_vals), 0x0,          
+			"Maintenance action", HFILL }
 		},
 	};
 
