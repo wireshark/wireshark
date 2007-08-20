@@ -596,7 +596,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case DPNSS_E2E_MSG_EEM_C:
 		/* 2.2.1 END-to-END Message (COMPLETE) - EEM(C) */
 		case DPNSS_E2E_MSG_EEM_I:
-			/* Fall trough /*
+			/* Fall trough */
 			/* Indication Field */
 			ind_field_item = proto_tree_add_text(tree, tvb, offset, -1, "Indication Field: %s",tvb_format_text(tvb,offset,tvb_length_remaining(tvb, offset)));
 			ind_field_tree = proto_item_add_subtree(ind_field_item, ett_dpnss_ind_field);
@@ -651,7 +651,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(tree, hf_dpnss_subcode, tvb, offset, 1, FALSE);
 			offset++;
 			if((octet&0x80)==0x80){
-				/* /* Extension bit set */
+				/* Extension bit set */
 				offset++;
 			}
 			/* User Information oct 2 + n 
