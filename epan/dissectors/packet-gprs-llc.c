@@ -1,5 +1,5 @@
 /* packet-llcgprs.c
- * Routines for Logical Link Control GPRS dissection ETSI 4.64
+ * Routines for Logical Link Control GPRS dissection ETSI 4.64(TS 101 351 V8.7.0)
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
  * $Id$
