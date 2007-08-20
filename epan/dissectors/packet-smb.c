@@ -4178,6 +4178,7 @@ dissect_lock_and_read_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 typedef struct _rw_info_t {
 	guint32 offset;
 	guint32 len;
+	guint16 fid;
 } rw_info_t;
 
 
@@ -4219,6 +4220,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		rwi=se_alloc(sizeof(rw_info_t));
 		rwi->offset=ofs;
 		rwi->len=cnt;
+		rwi->fid=fid;
 
 		si->sip->extra_info_type=SMB_EI_RWINFO;
 		si->sip->extra_info=rwi;
@@ -6186,6 +6188,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		rwi=se_alloc(sizeof(rw_info_t));
 		rwi->offset=ofs;
 		rwi->len=maxcnt;
+		rwi->fid=fid;
 
 		si->sip->extra_info_type=SMB_EI_RWINFO;
 		si->sip->extra_info=rwi;
@@ -6276,6 +6279,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		PROTO_ITEM_SET_GENERATED(it);
 		it=proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
 		PROTO_ITEM_SET_GENERATED(it);
+
+		/* we need the fid for the call to dcerpc below */
+		fid=rwi->fid;
 	}
 
 	/* remaining */
@@ -6431,6 +6437,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		rwi=se_alloc(sizeof(rw_info_t));
 		rwi->offset=ofs;
 		rwi->len=datalen;
+		rwi->fid=fid;
 
 		si->sip->extra_info_type=SMB_EI_RWINFO;
 		si->sip->extra_info=rwi;
