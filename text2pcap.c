@@ -1076,7 +1076,7 @@ parse_options (int argc, char *argv[])
         case 'm': max_offset = strtol(optarg, NULL, 0); break;
         case 'o':
             if (optarg[0]!='h' && optarg[0] != 'o') {
-                fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
+                fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
                 usage();
             }
             offset_base = (optarg[0]=='o') ? 8 : 16;
