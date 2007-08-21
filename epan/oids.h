@@ -105,8 +105,8 @@ extern const gchar *oid_resolved_from_string(const gchar *oid_str);
  *  *left_p will be set to the number of remaining unresolved subids 
  */
 extern oid_info_t* oid_get(guint oid_len, guint32 *subids, guint* matched_p, guint* left_p);
-extern oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint* matched, guint* left);
-extern oid_info_t* oid_get_from_string(const gchar *oid_str, guint* matched, guint* left);
+extern oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint32 **subids, guint* matched, guint* left);
+extern oid_info_t* oid_get_from_string(const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
 
 /* these are used to add oids to the collection */
  extern void oid_add(char* name, guint oid_len, guint32 *subids);

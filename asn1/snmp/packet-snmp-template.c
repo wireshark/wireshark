@@ -43,6 +43,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#define D(args) do {printf args; fflush(stdout); } while(0)
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -160,9 +162,6 @@ static snmp_ue_assoc_t* unlocalized_ues = NULL;
 
 
 static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
-
-/* Subdissector tables */
-static dissector_table_t variable_oid_dissector_table;
 
 #define TH_AUTH   0x01
 #define TH_CRYPT  0x02
@@ -314,12 +313,15 @@ static int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	gboolean pc;
 	gint32 tag;
 	gboolean ind;
+	guint32* subids;
 	guint8* oid_bytes;
 	oid_info_t* oid_info;
 	guint oid_matched, oid_left;
 	proto_item *pi_varbind, *pi_value = NULL;
 	proto_tree *pt;
-	char* label;
+	char label[ITEM_LABEL_LENGTH];
+	char* repr = NULL;
+	char* valstr;
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
 
@@ -377,9 +379,11 @@ static int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	}
 	
 	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
-	oid_info = oid_get_from_encoded(oid_bytes, name_len, &oid_matched, &oid_left);
-		
-	if (oid_left == 1 && ber_class != BER_CLASS_CON && tag != BER_UNI_TAG_NULL) {
+	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
+	
+	*label = '\0';
+	
+	if (oid_left == 1 && oid_info->value_hfid >= 0 && ber_class != BER_CLASS_CON && tag != BER_UNI_TAG_NULL) {
 		if ((oid_info->value_type->ber_class != BER_CLASS_ANY) &&
 			(ber_class != oid_info->value_type->ber_class))
 			goto expected_different;
@@ -395,6 +399,8 @@ static int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 			goto expected_other_size;
 
 		pi_varbind = proto_tree_add_item(tree,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+		proto_item_fill_label(pi_varbind->finfo, label);
+		
 	} else {
 		pi_varbind = proto_tree_add_text(tree,tvb,seq_offset,seq_len,"VarBind");
 	}
@@ -477,22 +483,33 @@ static int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 				break;
 		}
 	} 
-	
+		
 	pi_value = proto_tree_add_item(pt,hfid,tvb,value_offset,value_len,FALSE);
 
-	if (oid_left != 1) {
-		const char* unres = oid_encoded2string(oid_bytes, name_len);
-		char* repr = ep_alloc(ITEM_LABEL_LENGTH+1);
-		
-		proto_item_fill_label(pi_value->finfo, repr);
-		repr = strstr(repr,": ");
-		
-		label = g_strdup_printf("%s: %s",unres,repr);
-		proto_item_set_text(pi_varbind,label);
-
+	if (! *label ) {
+		proto_item_fill_label(pi_value->finfo, label);
 	}
-
-
+	
+	if (oid_info->name) {
+		if (oid_left >= 1) {
+			repr  = ep_strdup_printf("%s.%s (%s)",
+									 oid_info->name,
+									 oid_subid2string(&(subids[oid_matched]),oid_left),
+									 oid_subid2string(subids,oid_matched+oid_left));
+		} else {
+			repr  = ep_strdup_printf("%s (%s)",
+									 oid_info->name,
+									 oid_subid2string(subids,oid_matched));
+		}
+	} else {
+		repr  = ep_strdup_printf("%s", oid_subid2string(subids,oid_matched+oid_left));			
+	}
+	
+	valstr = strstr(label,": ");
+	valstr = valstr ? valstr+2 : "NULL";
+	
+	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
+		
 	return seq_offset + seq_len;
 
 expected_other_size: {
@@ -1665,10 +1682,6 @@ void proto_register_snmp(void) {
 								assocs_uat);
   
   
-	variable_oid_dissector_table = register_dissector_table("snmp.variable_oid",
-															"SNMP Variable OID",
-															FT_STRING, BASE_NONE);
-
 	register_init_routine(renew_ue_cache);
 }
 

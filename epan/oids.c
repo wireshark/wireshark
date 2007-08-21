@@ -35,8 +35,10 @@
 
 #include "emem.h"
 #include "uat-int.h"
+#include "prefs.h"
 #include "packet.h"
 #include "report_err.h"
+#include "filesystem.h"
 #include "dissectors/packet-ber.h"
 
 #ifdef HAVE_SMI
@@ -75,17 +77,21 @@ static oid_info_t* add_oid(char* name, const oid_value_type_t* type, guint oid_l
 		
 		if(n) {
 			if (i == oid_len) {
-				if (n->name) {
+				if (! n->name) {
 					n->name = g_strdup(name);
+				}
+				
+				if (! n->value_type) {
 					n->value_type = type;
 				}
 				
 				return n;
-			}		} else {
+			}
+		} else {
 			n = g_malloc(sizeof(oid_info_t));
 			n->subid = subids[i];
 			n->children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_children");
-			n->value_hfid = -1;
+			n->value_hfid = -2;
 			n->parent = c;
 			n->bits = NULL;
 
@@ -115,6 +121,10 @@ extern void oid_add(char* name, guint oid_len, guint32 *subids) {
 typedef struct smi_module_t {
 	char* name;
 } smi_module_t;
+
+static smi_module_t* smi_paths = NULL;
+static guint num_smi_paths = 0;
+static uat_t* smi_paths_uat = NULL;
 
 static smi_module_t* smi_modules = NULL;
 static guint num_smi_modules = 0;
@@ -174,10 +184,11 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"TimeStamp",SMI_BASETYPE_UNKNOWN,&integer_type},
 		{"DisplayString",SMI_BASETYPE_UNKNOWN,&string_type},
 		{"DateAndTime",SMI_BASETYPE_UNKNOWN,&string_type},
+		{"Counter",SMI_BASETYPE_UNKNOWN,&counter32_type},
 		{"Counter32",SMI_BASETYPE_UNKNOWN,&counter32_type},
 		{"Unsigned32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
+		{"Gauge",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
 		{"Gauge32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
-		{"unk",SMI_BASETYPE_UNKNOWN,&unknown_type},
 		{"i32",SMI_BASETYPE_INTEGER32,&integer_type},
 		{"octets",SMI_BASETYPE_OCTETSTRING,&bytes_type},
 		{"oid",SMI_BASETYPE_OBJECTIDENTIFIER,&oid_type},
@@ -188,6 +199,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"f128",SMI_BASETYPE_FLOAT128,&bytes_type},
 		{"enum",SMI_BASETYPE_ENUM,&integer_type},
 		{"bits",SMI_BASETYPE_BITS,&bytes_type},
+		{"unk",SMI_BASETYPE_UNKNOWN,&unknown_type},
 		{NULL,0,NULL}
 	};
 	const oid_value_type_mapping_t* t;
@@ -213,23 +225,28 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 	return &unknown_type;
 }
 
-#define IS_ENUMABLE(ft) (( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
+#define IS_ENUMABLE(ft) ( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
 						   || (ft == FT_INT8) || (ft == FT_INT16) || (ft == FT_INT24) || (ft == FT_INT32) \
-						   || (ft == FT_UINT64) || (ft == FT_INT64) ))
+						   || (ft == FT_UINT64) || (ft == FT_INT64) )
 
 void register_mibs(void) {
 	SmiModule *smiModule;
     SmiNode *smiNode;
 	guint i;
-	int proto_smi = -1;
-	
+	int proto_mibs = -1;
+	module_t* mibs_module;
 	GArray* hfa = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	GArray* etta = g_array_new(FALSE,TRUE,sizeof(gint*));
 	static uat_field_t smi_fields[] = {
 		UAT_FLD_CSTRING(smi_mod,name,"The module's name"),
 		UAT_END_FIELDS
 	};
+	static uat_field_t smi_paths_fields[] = {
+		UAT_FLD_CSTRING(smi_mod,name,"The directory name"),
+		UAT_END_FIELDS
+	};
 	char* smi_load_error = NULL;
+	GString* path_str;
 	
 	smi_modules_uat = uat_new("SMI Modules",
 							  sizeof(smi_module_t),
@@ -243,17 +260,58 @@ void register_mibs(void) {
 							  smi_mod_free_cb,
 							  smi_fields);
 	
+	smi_paths_uat = uat_new("SMI Paths",
+							  sizeof(smi_module_t),
+							  "smi_paths",
+							  (void**)&smi_paths,
+							  &num_smi_paths,
+							  UAT_CAT_GENERAL,
+							  "ChSNMPSMIPaths",
+							  smi_mod_copy_cb,
+							  NULL,
+							  smi_mod_free_cb,
+							  smi_paths_fields);
+	
+	
 	uat_load(smi_modules_uat, &smi_load_error);
 	
 	if (smi_load_error) {
 		report_failure("Error Loading SMI Modules Table: %s",smi_load_error);
+		return;
+	}
+
+	uat_load(smi_paths_uat, &smi_load_error);
+
+	if (smi_load_error) {
+		report_failure("Error Loading SMI Paths Table: %s",smi_load_error);
+		return;
 	}
 	
+	path_str = g_string_new(get_datafile_path("mibs"));
+	g_string_sprintfa(path_str,":%s",get_persconffile_path("mibs", FALSE));
+
+	for(i=0;i<num_smi_paths;i++) {
+		if (!smi_paths[i].name) continue;
+	}
+		
 	smiInit(NULL);
 	
-	for(i=0;i<num_smi_modules;i++)
-		smiLoadModule(smi_modules[i].name);
+	smiSetPath(path_str->str);
 	
+	g_string_free(path_str,TRUE);
+	
+	for(i=0;i<num_smi_modules;i++) {
+		if (!smi_modules[i].name) continue;
+	
+
+		if (smiIsLoaded(smi_modules[i].name)) {
+			continue;
+		} else {
+			char* mod_name =  smiLoadModule(smi_modules[i].name);
+			printf("%d %s %s\n",i,smi_modules[i].name,mod_name);
+		}
+	}
+		
 	for (smiModule = smiGetFirstModule();
 		 smiModule;
 		 smiModule = smiGetNextModule(smiModule)) {
@@ -269,7 +327,7 @@ void register_mibs(void) {
 										   smiNode->oidlen,
 										   smiNode->oid);
 
-			if (typedata) {
+			if ( typedata && oid_data->value_hfid == -2 ) {
 				SmiNamedNumber* smiEnum; 
 				hf_register_info hf = { &(oid_data->value_hfid), { 
 					oid_data->name,
@@ -281,6 +339,8 @@ void register_mibs(void) {
 					g_strdup(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL)),
 					HFILL }};
 				
+				oid_data->value_hfid = -1;
+				
 				if ( IS_ENUMABLE(hf.hfinfo.type) && (smiEnum = smiGetFirstNamedNumber(smiType))) {
 					GArray* vals = g_array_new(TRUE,TRUE,sizeof(value_string));
 					
@@ -291,9 +351,12 @@ void register_mibs(void) {
 						}
 					}
 					
-					hf.hfinfo.strings = vals->data;
+					hf.hfinfo.strings = VALS(vals->data);
 					g_array_free(vals,FALSE);
-				} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
+				}
+#if 0
+ /* packet-snmp does not use this yet */
+				else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
 					guint n = 0;
 					oid_bits_info_t* bits = g_malloc(sizeof(oid_bits_info_t));
 					gint* ettp = &(bits->ett);
@@ -326,16 +389,31 @@ void register_mibs(void) {
 						g_array_append_val(hfa,hf2);
 					}
 				}
-				
+#endif
 				g_array_append_val(hfa,hf);
 			}
 		}
 	}
 	
-	proto_smi = proto_register_protocol("MIBs", "MIBS", "mibs");
+	proto_mibs = proto_register_protocol("MIBs", "MIBS", "mibs");
 	
-	proto_register_field_array(proto_smi, (hf_register_info*)hfa->data, hfa->len);
+	proto_register_field_array(proto_mibs, (hf_register_info*)hfa->data, hfa->len);
+	mibs_module = prefs_register_protocol(proto_mibs, NULL);
 	
+	prefs_register_uat_preference(mibs_module, "smi_paths",
+								  "MIB paths",
+								  "List of directories where MIBs are to be looked for",
+								  smi_paths_uat);
+	
+	prefs_register_uat_preference(mibs_module, "smi_modules",
+											   "MIB modules",
+											   "List of MIB modules to be loaded",
+											   smi_modules_uat);
+	
+	proto_register_subtree_array((gint**)etta->data, etta->len);
+
+	
+	g_array_free(etta,TRUE);
 	g_array_free(hfa,FALSE);
 }
 #endif
@@ -480,57 +558,12 @@ done:
 }
 
 
-oid_info_t* oid_get_from_encoded(const guint8 *bytes, gint byteslen, guint* matched_p, guint* len_p) {
-	gint i;
-	guint32 subid = 0;
-	oid_info_t* oid = &oid_root;
-	guint matched = 0;
-	guint left = FALSE;
+oid_info_t* oid_get_from_encoded(const guint8 *bytes, gint byteslen, guint32** subids_p, guint* matched_p, guint* left_p) {
+	return oid_get(oid_encoded2subid(bytes, byteslen, subids_p), *subids_p, matched_p, left_p);
+}	
 	
-	for (i=0; i<byteslen; i++){
-		guint8 byte = bytes[i];
-		oid_info_t* next_oid;
-		
-		subid <<= 7;
-		subid |= byte & 0x7F;
-		
-		if (byte & 0x80) {
-			continue;
-		}
-		
-		if (i == 0) {
-			guint32 subid0 = 0;
-			
-			if (subid >= 40) { subid0++; subid-=40; }
-			if (subid >= 40) { subid0++; subid-=40; }
-			
-			if(( next_oid = emem_tree_lookup32(oid->children,subid0) )) {
-				matched++;
-				oid = next_oid;
-			} else {
-				left++;
-			}
-		}
-		
-		if((next_oid = emem_tree_lookup32(oid->children,subid))) {
-			matched++;
-			oid = next_oid;
-		} else {
-			left++;
-		}		
-		
-		subid = 0;
-	}
-	
-	*matched_p = matched;
-	*len_p = left;
-	return oid;
-}
-
-oid_info_t* oid_get_from_string(const gchar *oid_str, guint* matched, guint* left) {
-	guint32* subids;
-	guint len = oid_string2subid(oid_str, &subids);
-	return oid_get(len, subids, matched, left);
+oid_info_t* oid_get_from_string(const gchar *oid_str, guint32** subids_p, guint* matched, guint* left) {
+	return oid_get(oid_string2subid(oid_str, subids_p), *subids_p, matched, left);
 }
 
 const gchar *oid_resolved_from_encoded(const guint8 *oid, gint oid_len) {
@@ -701,8 +734,12 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 		matched--;
 	}
 	
-	return ep_strdup_printf("%s.%s",
-							oid->name,
-							oid_subid2string(&(subids[matched]),left));
+	if (left) {
+		return ep_strdup_printf("%s.%s",
+								oid->name,
+								oid_subid2string(&(subids[matched]),left));
+	} else {
+		return oid->name;
+	}
 }
 
