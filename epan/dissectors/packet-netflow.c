@@ -1,22 +1,22 @@
 /*
  ** packet-netflow.c
- ** 
+ **
  *****************************************************************************
  ** (c) 2002 bill fumerola <fumerola@yahoo-inc.com>
  ** (C) 2005-06 Luca Deri <deri@ntop.org>
  **
  ** All rights reserved.
- ** 
+ **
  ** This program is free software; you can redistribute it and/or
  ** modify it under the terms of the GNU General Public License
  ** as published by the Free Software Foundation; either version 2
  ** of the License, or (at your option) any later version.
- ** 
+ **
  ** This program is distributed in the hope that it will be useful,
  ** but WITHOUT ANY WARRANTY; without even the implied warranty of
  ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  ** GNU General Public License for more details.
- ** 
+ **
  ** You should have received a copy of the GNU General Public License
  ** along with this program; if not, write to the Free Software
  ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -76,7 +76,7 @@ static guint global_ipfix_port = UDP_PORT_IPFIX;
 static guint ipfix_port = 0;
 
 /*
- * pdu identifiers & sizes 
+ * pdu identifiers & sizes
  */
 
 #define V1PDU_SIZE		(4 * 12)
@@ -175,7 +175,7 @@ static int      ett_field = -1;
 static int      ett_dataflowset = -1;
 
 /*
- * cflow header 
+ * cflow header
  */
 
 static int      hf_cflow_version = -1;
@@ -190,7 +190,7 @@ static int      hf_cflow_samplingmode = -1;
 static int      hf_cflow_samplerate = -1;
 
 /*
- * cflow version specific info 
+ * cflow version specific info
  */
 static int      hf_cflow_sequence = -1;
 static int      hf_cflow_engine_type = -1;
@@ -333,8 +333,8 @@ proto_tree_add_mpls_label(proto_tree * pdutree, tvbuff_t * tvb, int offset, int 
 		guint8 b2 = tvb_get_guint8(tvb, offset + 2);
 		proto_tree_add_text(pdutree, tvb, offset, length,
 			"MPLS-Label%d: %u exp-bits: %u %s", level,
-			((b0<<12)+(b1<<4)+(b2>>4)), 
-			((b2>>1)&0x7), 
+			((b0<<12)+(b1<<4)+(b2>>4)),
+			((b2>>1)&0x7),
 			((b2&0x1)?"top-of-stack":""));
 	} else {
 		proto_tree_add_text(pdutree, tvb, offset, length,
@@ -369,7 +369,7 @@ static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
 				   int offset, hdrinfo_t * hdrinfo);
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
 				    int offset, int len, hdrinfo_t * hdrinfo);
-static int	v9_template_hash(guint16 id, const address * net_src, 
+static int	v9_template_hash(guint16 id, const address * net_src,
 				 guint32 src_id);
 static void	v9_template_add(struct v9_template * template);
 static struct v9_template *v9_template_get(guint16 id, address  * net_src,
@@ -424,7 +424,9 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	hdrinfo.vspec = ver;
 	hdrinfo.src_id = 0;
-	COPY_ADDRESS(&hdrinfo.net_src, &pinfo->net_src);
+	SET_ADDRESS(&hdrinfo.net_src, pinfo->net_src.type, pinfo->net_src.len,
+		    pinfo->net_src.data);
+
 
 	switch (ver) {
 	case 1:
@@ -472,7 +474,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	offset += 2;
 
 	/*
-	 * set something interesting in the display now that we have info 
+	 * set something interesting in the display now that we have info
 	 */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (ver == 9) {
@@ -497,7 +499,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	/*
 	 * the rest is only interesting if we're displaying/searching the
-	 * packet 
+	 * packet
 	 */
 	if (!tree)
 		return;
@@ -538,7 +540,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	/*
-	 * version specific header 
+	 * version specific header
 	 */
 	if (ver == 5 || ver == 7 || ver == 8 || ver == 9 || ver == 10) {
 		proto_tree_add_item(netflow_tree, hf_cflow_sequence,
@@ -627,16 +629,16 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	if (pdus <= 0) { /* no payload to decode - in theory */
 		/* This is absurd, but does happens in practice.  */
-		proto_tree_add_text(netflow_tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+		proto_tree_add_text(netflow_tree, tvb, offset, tvb_length_remaining(tvb, offset),
 					"FlowSets impossibles - PDU Count is %d", pdus);
 		return;
 	}
 	/*
-	 * everything below here should be payload 
+	 * everything below here should be payload
 	 */
 	for (x = 1; x < pdus + 1; x++) {
           	/*
-		 * make sure we have a pdu's worth of data 
+		 * make sure we have a pdu's worth of data
 		 */
 		available = tvb_length_remaining(tvb, offset);
 		if(((ver == 9) || (ver == 10)) && available >= 4) {
@@ -649,7 +651,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		if ((ver == 9) || (ver == 10)) {
 			pduitem = proto_tree_add_text(netflow_tree, tvb,
-						      offset, pdusize, 
+						      offset, pdusize,
 						      (ver == 9) ? "FlowSet %u" : "DataRecord %u", x);
 		} else {
 			pduitem = proto_tree_add_text(netflow_tree, tvb,
@@ -662,7 +664,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		if (pduret < pdusize) pduret = pdusize; /* padding */
 
 		/*
-		 * if we came up short, stop processing 
+		 * if we came up short, stop processing
 		 */
 		if (pduret == pdusize)
 			offset += pduret;
@@ -672,7 +674,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 }
 
 /*
- * flow_process_* == common groups of fields, probably could be inline 
+ * flow_process_* == common groups of fields, probably could be inline
  */
 
 static int
@@ -729,13 +731,13 @@ flow_process_timeperiod(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 	ts_delta.nsecs = (msec_delta % 1000) * 1000000;
 
 
-	timeitem = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb, 
+	timeitem = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
 				       offset_s, 8, &ts_delta);
 	timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
-	proto_tree_add_time(timetree, hf_cflow_timestart, tvb, offset_s, 4, 
+	proto_tree_add_time(timetree, hf_cflow_timestart, tvb, offset_s, 4,
 			    &ts_start);
-	proto_tree_add_time(timetree, hf_cflow_timeend, tvb, offset_e, 4, 
+	proto_tree_add_time(timetree, hf_cflow_timeend, tvb, offset_e, 4,
 			    &ts_end);
 
 	return offset;
@@ -839,7 +841,7 @@ dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 }
 
 /*
- * dissect a version 8 pdu, returning the length of the pdu processed 
+ * dissect a version 8 pdu, returning the length of the pdu processed
  */
 
 static int
@@ -1039,7 +1041,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
 		    offset, 2, FALSE);
 		offset += 2;
 	} else {
-		/* Data */    
+		/* Data */
 		proto_tree_add_item(pdutree, (ver == 9) ? hf_cflow_data_flowset_id :  hf_cflow_data_datarecord_id, tvb,
 				    offset, 2, FALSE);
 		offset += 2;
@@ -1120,38 +1122,38 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	   		switch( type ) {
 	   		case 1: /* system */
 				if( length <= 4) {
-				 	 proto_tree_add_item(pdutree, hf_cflow_scope_system, 
+				 	 proto_tree_add_item(pdutree, hf_cflow_scope_system,
 						tvb, offset, length, FALSE);
 				} else {
 				 	 proto_tree_add_text(pdutree,
-						tvb, offset, length, 
+						tvb, offset, length,
 						"ScopeSystem: invalid size %d", length );
 				}
 				break;
 	   		case 2: /* interface */
 				if( length <= 4) {
-				 	 proto_tree_add_item(pdutree, hf_cflow_scope_interface, 
+				 	 proto_tree_add_item(pdutree, hf_cflow_scope_interface,
 						tvb, offset, length, FALSE);
 				} else {
 				 	 proto_tree_add_text(pdutree,
-						tvb, offset, length, 
+						tvb, offset, length,
 						"ScopeInterface: invalid size %d", length );
 				}
 				break;
 	   		case 3: /* linecard */
-				proto_tree_add_item(pdutree, hf_cflow_scope_linecard, 
+				proto_tree_add_item(pdutree, hf_cflow_scope_linecard,
 						tvb, offset, length, FALSE);
 				break;
 	   		case 4: /* netflow cache */
-				proto_tree_add_item(pdutree, hf_cflow_scope_cache, 
+				proto_tree_add_item(pdutree, hf_cflow_scope_cache,
 						tvb, offset, length, FALSE);
 				break;
 	   		case 5: /* template */
-				proto_tree_add_item(pdutree, hf_cflow_scope_template, 
+				proto_tree_add_item(pdutree, hf_cflow_scope_template,
 						tvb, offset, length, FALSE);
 				break;
 	   		default: /* unknown */
-				proto_tree_add_item(pdutree, hf_cflow_scope_unknown, 
+				proto_tree_add_item(pdutree, hf_cflow_scope_unknown,
 						tvb, offset, length, FALSE);
 				break;
 			}
@@ -1346,15 +1348,15 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 				msec_delta = msec_end - msec_start;
 				ts_delta.secs = msec_delta / 1000;
 				ts_delta.nsecs = (msec_delta % 1000) * 1000000;
-			
-				timeitem = 
-				  proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb, 
+
+				timeitem =
+				  proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
 						      offset_s, 0, &ts_delta);
 				timetree = proto_item_add_subtree(timeitem, ett_flowtime);
-			
+
 				proto_tree_add_time(timetree, hf_cflow_timestart, tvb,
 						    offset_s, 4, &ts_start);
-				proto_tree_add_time(timetree, hf_cflow_timeend, tvb, 
+				proto_tree_add_time(timetree, hf_cflow_timeend, tvb,
 						    offset_e, 4, &ts_end);
 			}
 			break;
@@ -1449,32 +1451,32 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			}
 			break;
 
-		case 46: /* top MPLS label type*/ 
+		case 46: /* top MPLS label type*/
 			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_type,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 47: /* top MPLS label PE address*/ 
+		case 47: /* top MPLS label PE address*/
 			proto_tree_add_item(pdutree, hf_cflow_mpls_pe_addr,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 48: /* Flow Sampler ID */ 
+		case 48: /* Flow Sampler ID */
 			proto_tree_add_text(pdutree, tvb, offset, length,
 			    "FlowSamplerID: %d", tvb_get_guint8(tvb, offset));
 			break;
 
-		case 49: /* FLOW_SAMPLER_MODE  */ 
+		case 49: /* FLOW_SAMPLER_MODE  */
 			proto_tree_add_item(pdutree, hf_cflow_sampler_mode,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 50: /* FLOW_SAMPLER_RANDOM_INTERVAL  */ 
+		case 50: /* FLOW_SAMPLER_RANDOM_INTERVAL  */
 			proto_tree_add_item(pdutree, hf_cflow_sampler_random_interval,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 51: /*  FLOW_CLASS */ 
+		case 51: /*  FLOW_CLASS */
 			proto_tree_add_item(pdutree, hf_cflow_flow_class,
 			    tvb, offset, length, FALSE);
 			break;
@@ -1484,12 +1486,12 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 53: /*  TTL_MAXIMUM */ 
+		case 53: /*  TTL_MAXIMUM */
 			proto_tree_add_item(pdutree, hf_cflow_ttl_maximum,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 54: /* IPV4_ID  */ 
+		case 54: /* IPV4_ID  */
 			proto_tree_add_item(pdutree, hf_cflow_ipv4_id,
 			    tvb, offset, length, FALSE);
 			break;
@@ -1499,43 +1501,43 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 61: /* DIRECTION   */ 
+		case 61: /* DIRECTION   */
 			proto_tree_add_item(pdutree, hf_cflow_direction,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 70: /* MPLS label1*/ 
+		case 70: /* MPLS label1*/
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 1);
 			break;
 
-		case 71: /* MPLS label2*/ 
+		case 71: /* MPLS label2*/
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 2);
 			break;
 
-		case 72: /* MPLS label3*/ 
+		case 72: /* MPLS label3*/
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 3);
 			break;
 
-		case 73: /* MPLS label4*/ 
+		case 73: /* MPLS label4*/
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 4);
 			break;
 
-		case 82: /* IF_NAME  */ 
+		case 82: /* IF_NAME  */
 			proto_tree_add_item(pdutree, hf_cflow_if_name,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 83: /* IF_DESCR  */ 
+		case 83: /* IF_DESCR  */
 			proto_tree_add_item(pdutree, hf_cflow_if_descr,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 84: /* SAMPLER_NAME  */ 
+		case 84: /* SAMPLER_NAME  */
 			proto_tree_add_item(pdutree, hf_cflow_sampler_name,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 89: /* FORWARDING_STATUS */ 
+		case 89: /* FORWARDING_STATUS */
 			proto_tree_add_item(pdutree, hf_cflow_forwarding_status,
 			    tvb, offset, length, FALSE);
 			proto_tree_add_item(pdutree, hf_cflow_forwarding_code,
@@ -1609,7 +1611,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 				    tvb, offset, length, FALSE);
 			} else {
 				proto_tree_add_text(pdutree, tvb, offset, length,
-				    "Bytes Squared: length %u", length);			  
+				    "Bytes Squared: length %u", length);
 			}
 			break;
 
@@ -1638,7 +1640,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 					    tvb, offset, length, FALSE);
 			break;
 
-		case 314: /* SECTION_PAYLOAD */ 
+		case 314: /* SECTION_PAYLOAD */
 			proto_tree_add_item(pdutree, hf_cflow_section_payload,
 					    tvb, offset, length, FALSE);
 			break;
@@ -1655,9 +1657,9 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		if (offset_s) {
 			proto_tree_add_time(pdutree, hf_cflow_timestart, tvb,
 					    offset_s, 4, &ts_start);
-		} 
+		}
 		if (offset_e) {
-			proto_tree_add_time(pdutree, hf_cflow_timeend, tvb, 
+			proto_tree_add_time(pdutree, hf_cflow_timeend, tvb,
 					    offset_e, 4, &ts_end);
 		}
 	}
@@ -1719,7 +1721,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
   memset(&template, 0, sizeof(template));
   template.id = id;
   template.count = option_len/4;
-  COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
+  SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
   template.source_id = hdrinfo->src_id;
   /* Option scopes */
   template.count_scopes = option_scope_len/4;
@@ -1733,7 +1735,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
   tvb_memcpy(tvb, (guint8 *)template.entries, template_offset, size);
 
   v9_template_add(&template);
-  
+
   return (0);
 }
 
@@ -1771,7 +1773,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 		memset(&template, 0, sizeof(template));
 		template.id = id;
 		template.count = count;
-		COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
+		SE_COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
 		template.source_id = hdrinfo->src_id;
 		template.count_scopes = 0;
 		template.scopes = NULL;
@@ -1974,11 +1976,11 @@ static int
 v9_template_hash(guint16 id, const address * net_src, guint32 src_id)
 {
 	guint32 val = 0;
-	const guint32 *p; 
+	const guint32 *p;
 	int i;
 
 	p = (guint32 *)net_src->data;
-	
+
 	val += id;
 
 	if (net_src->type == AT_IPv4) {
@@ -2014,7 +2016,7 @@ v9_template_add(struct v9_template *template)
 		template->length += template->entries[i].length;
 	}
 
-	memcpy(&v9_template_cache[v9_template_hash(template->id, 
+	memcpy(&v9_template_cache[v9_template_hash(template->id,
 		    &template->source_addr, template->source_id)],
 	    template, sizeof(*template));
 }
@@ -2052,7 +2054,7 @@ dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinf
 	memset(&ts, '\0', sizeof(ts));
 
 	/*
-	 * memcpy so we can use the values later to calculate a prefix 
+	 * memcpy so we can use the values later to calculate a prefix
 	 */
 	srcaddr = tvb_get_ipv4(tvb, offset);
 	proto_tree_add_ipv4(pdutree, hf_cflow_srcaddr, tvb, offset, 4,
@@ -2073,7 +2075,7 @@ dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinf
 	offset = flow_process_ports(pdutree, tvb, offset);
 
 	/*
-	 * and the similarities end here 
+	 * and the similarities end here
 	 */
 
 	ver = hdrinfo->vspec;
@@ -2169,7 +2171,11 @@ netflow_reinit(void)
 	 * the cache.
 	 */
 	for (i = 0; i < V9TEMPLATE_CACHE_MAX_ENTRIES; i++)
+	{
+		if (v9_template_cache[i].scopes)
+			g_free(v9_template_cache[i].scopes);
 		g_free(v9_template_cache[i].entries);
+	}
 	memset(v9_template_cache, 0, sizeof v9_template_cache);
 }
 
@@ -2178,7 +2184,7 @@ proto_register_netflow(void)
 {
 	static hf_register_info hf[] = {
 		/*
-		 * flow header 
+		 * flow header
 		 */
 		{&hf_cflow_version,
 		 {"Version", "cflow.version",
@@ -2235,7 +2241,7 @@ proto_register_netflow(void)
 
 		/*
 		 * end version-agnostic header
-		 * version-specific flow header 
+		 * version-specific flow header
 		 */
 		{&hf_cflow_sequence,
 		 {"FlowSequence", "cflow.sequence",
@@ -2268,7 +2274,7 @@ proto_register_netflow(void)
 		  "CFlow V8 Aggregation Version", HFILL}
 		 },
 		/*
-		 * end version specific header storage 
+		 * end version specific header storage
 		 */
 		/*
 		 * Version 9
@@ -2377,7 +2383,7 @@ proto_register_netflow(void)
 		},
 
 		/*
-		 * begin pdu content storage 
+		 * begin pdu content storage
 		 */
 		{&hf_cflow_srcaddr,
 		 {"SrcAddr", "cflow.srcaddr",
@@ -2599,12 +2605,12 @@ proto_register_netflow(void)
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Flow Destination Prefix", HFILL}
 		 },
-		{&hf_cflow_mpls_top_label_type, 
+		{&hf_cflow_mpls_top_label_type,
 		 {"TopLabelType", "cflow.toplabeltype",
 		  FT_UINT8, BASE_DEC, VALS(special_mpls_top_label_type), 0x0,
 		  "Top MPLS label Type", HFILL}
 		 },
-		{&hf_cflow_mpls_pe_addr, 
+		{&hf_cflow_mpls_pe_addr,
 		 {"TopLabelAddr", "cflow.toplabeladdr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Top MPLS label PE address", HFILL}
@@ -2613,67 +2619,67 @@ proto_register_netflow(void)
 		 {"SamplerMode", "cflow.sampler_mode",
 		  FT_UINT8, BASE_DEC, VALS(v9_sampler_mode), 0x0,
 		  "Flow Sampler Mode", HFILL}
-		 },		
+		 },
 		{&hf_cflow_sampler_random_interval ,
 		 {"SamplerRandomInterval", "cflow.sampler_random_interval",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Flow Sampler Random Interval", HFILL}
-		 },		
+		 },
 		{&hf_cflow_flow_class ,
 		 {"FlowClass", "cflow.flow_class",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		  "Flow Class", HFILL}
-		 },		
+		 },
 		{&hf_cflow_ttl_minimum ,
 		 {"MinTTL", "cflow.ttl_min",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		  "TTL minimum", HFILL}
-		 },		
+		 },
 		{&hf_cflow_ttl_maximum ,
 		 {"MaxTTL", "cflow.ttl_max",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		  "TTL maximum", HFILL}
-		 },		
+		 },
 		{&hf_cflow_ipv4_id ,
 		 {"IPv4Ident", "cflow.ipv4_ident",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "IPv4 Identifier", HFILL}
-		 },		
+		 },
 		{&hf_cflow_ip_version ,
 		 {"IPVersion", "cflow.ip_version",
 		  FT_BYTES, BASE_HEX, NULL, 0x0,
 		  "IP Version", HFILL}
-		 },		
+		 },
 		{&hf_cflow_direction ,
 		 {"Direction", "cflow.direction",
 		  FT_UINT8, BASE_DEC, VALS(v9_direction), 0x0,
 		  "Direction", HFILL}
-		 },		
+		 },
 		{&hf_cflow_if_name ,
 		 {"IfName", "cflow.if_name",
 		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
 		  "SNMP Interface Name", HFILL}
-		 },		
+		 },
 		{&hf_cflow_if_descr ,
 		 {"IfDescr", "cflow.if_descr",
 		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
 		  "SNMP Interface Description", HFILL}
-		 },		
+		 },
 		{&hf_cflow_sampler_name ,
 		 {"SamplerName", "cflow.sampler_name",
 		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
 		  "Sampler Name", HFILL}
-		 },		
+		 },
 		{&hf_cflow_forwarding_status ,
 		 {"ForwdStat", "cflow.forwarding_status",
 		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status), 0xC0,
 		  "Forwarding Status", HFILL}
-		 },		
+		 },
 		{&hf_cflow_forwarding_code ,
 		 {"ForwdCode", "cflow.forwarding_code",
 		  FT_UINT8, BASE_DEC, NULL, 0x3F,
 		  "Forwarding Code", HFILL}
-		 },		
+		 },
 		{&hf_cflow_peer_srcas,
 		 {"PeerSrcAS", "cflow.peer_srcas",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -2684,7 +2690,7 @@ proto_register_netflow(void)
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Peer Destination AS", HFILL}
 		 },
-		{&hf_cflow_flow_exporter, 
+		{&hf_cflow_flow_exporter,
 		 {"FlowExporter", "cflow.flow_exporter",
 		  FT_BYTES/*FT_IPv4*/, BASE_HEX, NULL, 0x0,
 		  "Flow Exporter", HFILL}
@@ -2763,14 +2769,14 @@ proto_register_netflow(void)
 		 {"SectionHeader", "cflow.section_header",
 		  FT_BYTES, BASE_HEX, NULL, 0x0,
 		  "Header of Packet", HFILL}
-		 },		
+		 },
 		{&hf_cflow_section_payload ,
 		 {"SectionPayload", "cflow.section_payload",
 		  FT_BYTES, BASE_HEX, NULL, 0x0,
 		  "Payload of Packet", HFILL}
 		 },
 		/*
-		 * end pdu content storage 
+		 * end pdu content storage
 		 */
 		{&hf_cflow_scope_system ,
 		 {"ScopeSystem", "cflow.scope_system",
@@ -2835,7 +2841,7 @@ proto_register_netflow(void)
 
 
 /*
- * protocol/port association 
+ * protocol/port association
  */
 void
 proto_reg_handoff_netflow(void)
