@@ -195,7 +195,7 @@ AC_OUTPUT(
 3.5  Changes to the installers
 
 If you want to include your plugin in an installer you have to add lines
-in the NSIS installer Makefile.nmake and wireshark.nsi files, and U3
+in the NSIS installer Makefile.nmake and wireshark.nsi files, and the U3
 installer makefile.nmake file.
 
 For the NSIS installer:
@@ -208,7 +208,16 @@ For the NSIS installer:
 		File "..\..\plugins\xxx\xxx.dll"
 
 	to the list of "File" statements in the "Dissector Plugins"
-	section.
+	section in packaging/nsis/wireshark.nsi.
+
+For the U3 installer:
+
+	Add
+
+		$(COPY) $(TOPDIR)\plugins\xxx\xxx.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+
+	to the list of commands for the "distribution" target in
+	packaging/u3/win32/makefile.nmake.
 
 4. Development and plugins on Unix
 
