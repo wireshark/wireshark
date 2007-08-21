@@ -2883,10 +2883,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tap_queue_packet(tcp_tap, pinfo, tcph);
 
 
-  /* A FIN packet might complete reassembly so we need to explicitely
+  /* A FIN packet might complete reassembly so we need to explicitly
    * check for this here.
-   * If this segment completes reassembly we add the FIN as a final dummy
-   * byte to the reassembled PDU and check if reassembly completed successfully
    */
   if( (tcph->th_flags & TH_FIN)
   &&  (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ){
@@ -2897,18 +2895,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(msp){
       fragment_data *ipfd_head;
 
-      ipfd_head = fragment_add(tvb, offset-1, pinfo, msp->first_frame,
+      ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
 			tcp_fragment_table,
 			tcph->th_seq - msp->seq,
-			1,
+			tcph->th_seglen,
 			FALSE );
       if(ipfd_head){
         tvbuff_t *next_tvb;
 
-        /* create a new TVB structure for desegmented data
-         * datalen-1 to strip the dummy FIN byte off
-         */
-        next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen-1, ipfd_head->datalen-1);
+        /* create a new TVB structure for desegmented data */
+        next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen, ipfd_head->datalen);
 
         /* add this tvb as a child to the original one */
         tvb_set_child_real_data_tvbuff(tvb, next_tvb);
@@ -2917,7 +2913,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         add_new_data_source(pinfo, next_tvb, "Reassembled TCP");
 
         /* call the payload dissector
-         * but make sure we dont offer desegmentation any more
+         * but make sure we don't offer desegmentation any more
          */
 	pinfo->can_desegment = 0;
 
