@@ -755,6 +755,7 @@ File "..\..\plugins\rlm\rlm.dll"
 File "..\..\plugins\rtnet\rtnet.dll"
 File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\sbus\sbus.dll"
+File "..\..\plugins\unistim\unistim.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
 File "..\..\plugins\wimax\wimax.dll"
 SectionEnd
