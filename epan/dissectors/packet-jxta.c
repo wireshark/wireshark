@@ -1129,8 +1129,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             if (NULL != found_addr) {
                 found_addr->type = AT_URI;
                 found_addr->len = strlen(*current_token);
-                /* FIXME 20050605 bondolo THIS ALLOCATION IS A MEMORY LEAK! */
-                found_addr->data = g_strdup(*current_token);
+                found_addr->data = se_strdup(*current_token);
             }
 
             token_offset += strlen(*current_token) + 1;
