@@ -52,6 +52,7 @@ static GSList *color_filter_list = NULL;
 /* keep "old" deleted filters in this list until 
  * the dissection no longer needs them (e.g. file is closed) */
 static GSList *color_filter_deleted_list = NULL;
+static GSList *color_filter_valid_list = NULL;
 
 /* Color Filters can en-/disabled. */
 gboolean filters_enabled = TRUE;
@@ -187,13 +188,30 @@ color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
 {
 	color_filter_t *colorf = filter_arg;
 
-        g_assert(colorf->c_colorfilter == NULL);
+	g_assert(colorf->c_colorfilter == NULL);
 	if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		"Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
 			      colorf->filter_name, colorf->filter_text, dfilter_error_msg);
 		/* this filter was compilable before, so this should never happen */
-		g_assert_not_reached();
+		/* except if the OK button of the parent window has been clicked */
+		/* so don't use g_assert_not_reached() but check the filters again */
+	}
+}
+
+static void
+color_filter_validate_cb(gpointer filter_arg, gpointer unused _U_)
+{
+	color_filter_t *colorf = filter_arg;
+
+	g_assert(colorf->c_colorfilter == NULL);
+	if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		"Removing color filter name: \"%s\" text: \"%s\".\n%s",
+			      colorf->filter_name, colorf->filter_text, dfilter_error_msg);
+		/* Delete the color filter from the list of color filters. */
+		color_filter_valid_list = g_slist_remove(color_filter_valid_list, colorf);
+		color_filter_delete(colorf);
 	}
 }
 
@@ -207,7 +225,14 @@ color_filters_apply(GSList *cfl)
         color_filter_list = NULL;
 
         /* clone all list entries from edit to normal list */
-        color_filter_list = color_filter_list_clone(cfl);
+        color_filter_valid_list = NULL;
+        color_filter_valid_list = color_filter_list_clone(cfl);
+
+        /* compile all filter */
+        g_slist_foreach(color_filter_valid_list, color_filter_validate_cb, NULL);
+
+        /* clone all list entries from edit to normal list */
+        color_filter_list = color_filter_list_clone(color_filter_valid_list);
 
         /* compile all filter */
         g_slist_foreach(color_filter_list, color_filter_compile_cb, NULL);
