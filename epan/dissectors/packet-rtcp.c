@@ -59,6 +59,7 @@
 #include <string.h>
 
 #include "packet-rtcp.h"
+#include "packet-rtp.h"
 #include "packet-ntp.h"
 #include <epan/conversation.h>
 
@@ -113,7 +114,7 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_RTPFB, "Generic RTP Feedback" },
 	{ RTCP_PSFB, "Payload-specific" },
 	{ RTCP_XR,   "Extended report (RFC 3611)"},
-	{ 0,         NULL },
+	{ 0,         NULL }
 };
 
 /* RTCP SDES types (Section A.11.2) */
@@ -140,7 +141,7 @@ static const value_string rtcp_sdes_type_vals[] =
 	{ RTCP_SDES_NOTE,  "NOTE (note about source)" },
 	{ RTCP_SDES_PRIV,  "PRIV (private extensions)" },
 	{ RTCP_SDES_H323_CADDR,"H323-CADDR (H.323 callable address)"},
-	{ 0,               NULL },
+	{ 0,               NULL }
 };
 
 /* RTCP XR Blocks (Section 4, RTC 3611) */
@@ -228,7 +229,7 @@ static const value_string rtcp_app_poc1_floor_cnt_type_vals[] =
 	{  TBCP_DISCONNECT,                    "TBCP Disconnect"},
 	{  TBCP_CONNECT,                       "TBCP Connect"},
 	{  TBCP_BURST_TAKEN_EXPECT_REPLY,      "TBCP Talk Burst Taken (ack expected)"},
-	{  0,   NULL },
+	{  0,   NULL }
 };
 
 static const value_string rtcp_app_poc1_reason_code1_vals[] =
@@ -238,7 +239,7 @@ static const value_string rtcp_app_poc1_reason_code1_vals[] =
 	{  3,   "Only one participant in the group"},
 	{  4,   "Retry-after timer has not expired"},
 	{  5,   "Listen only"},
-	{  0,   NULL },
+	{  0,   NULL }
 };
 
 static const value_string rtcp_app_poc1_reason_code2_vals[] =
@@ -247,7 +248,7 @@ static const value_string rtcp_app_poc1_reason_code2_vals[] =
 	{  2,   "Talk burst too long"},
 	{  3,   "No permission to send a Talk Burst"},
 	{  4,   "Talk burst pre-empted"},
-	{  0,   NULL },
+	{  0,   NULL }
 };
 
 static const value_string rtcp_app_poc1_reason_code_ack_vals[] =
@@ -255,7 +256,7 @@ static const value_string rtcp_app_poc1_reason_code_ack_vals[] =
 	{  0,   "Accepted"},
 	{  1,   "Busy"},
 	{  2,   "Not accepted"},
-	{  0,   NULL },
+	{  0,   NULL }
 };
 static const value_string rtcp_app_poc1_conn_sess_type_vals[] =
 {
@@ -264,7 +265,7 @@ static const value_string rtcp_app_poc1_conn_sess_type_vals[] =
 	{  2,	"Ad-hoc"},
 	{  3,	"Pre-arranged"},
 	{  4,	"Chat"},
-	{  0,	NULL },
+	{  0,	NULL }
 };
 
 static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
@@ -273,14 +274,14 @@ static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
 	{  1,	"Normal priority"},
 	{  2,	"High priority"},
 	{  3,	"Pre-emptive priority"},
-	{  0,	NULL },
+	{  0,	NULL }
 };
 /* RFC 4585 */
 static const value_string rtcp_rtpfb_fmt_vals[] =
 {
 	{  1,	"Generic negative acknowledgement"},
 	{  31,	"Reserved for future extensions"},
-	{  0,	NULL },
+	{  0,	NULL }
 };
 
 static const value_string rtcp_psfb_fmt_vals[] =
@@ -290,7 +291,7 @@ static const value_string rtcp_psfb_fmt_vals[] =
 	{  3,	"Reference Picture Selection Indication"},
 	{  15,	"Application Layer Feedback"},
 	{  31,	"Reserved for future extensions"},
-	{  0,	NULL },
+	{  0,	NULL }
 };
 
 /* RTCP header fields                   */
@@ -404,6 +405,10 @@ static int hf_rtcp_length_check = -1;
 static int hf_rtcp_rtpfb_fmt = -1;
 static int hf_rtcp_psfb_fmt = -1;
 static int hf_rtcp_fci = -1;
+static int hf_srtcp_e = -1;
+static int hf_srtcp_index = -1;
+static int hf_srtcp_mki = -1;
+static int hf_srtcp_auth_tag = -1;
 
 /* RTCP setup fields */
 static int hf_rtcp_setup        = -1;
@@ -430,7 +435,7 @@ static gint ett_rtcp_roundtrip_delay	= -1;
 static gint ett_xr_block                = -1;
 static gint ett_xr_block_contents       = -1;
 static gint ett_xr_ssrc                 = -1;
-static gint  ett_xr_loss_chunk = -1;
+static gint ett_xr_loss_chunk		= -1;
 static gint ett_poc1_conn_contents	= -1;
 
 /* Protocol registration */
@@ -464,10 +469,11 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /* Set up an RTCP conversation using the info given */
-void rtcp_add_address( packet_info *pinfo,
+void srtcp_add_address( packet_info *pinfo,
                        address *addr, int port,
                        int other_port,
-                       const gchar *setup_method, guint32 setup_frame_number)
+                       const gchar *setup_method, guint32 setup_frame_number,
+                       struct srtp_info *srtcp_info)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -530,6 +536,16 @@ void rtcp_add_address( packet_info *pinfo,
 	strncpy(p_conv_data->setup_method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
 	p_conv_data->setup_method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
 	p_conv_data->setup_frame_number = setup_frame_number;
+	p_conv_data->srtcp_info = srtcp_info;
+}
+
+/* Set up an RTCP conversation using the info given */
+void rtcp_add_address( packet_info *pinfo,
+                       address *addr, int port,
+                       int other_port,
+                       const gchar *setup_method, guint32 setup_frame_number)
+{
+	srtcp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, NULL);
 }
 
 static gboolean
@@ -901,7 +917,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* Item len of 1 because its an FT_UINT_STRING... */
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_sip_uri,
 				                    tvb, offset, 1, FALSE );
-                offset++;
+				offset++;
 
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
@@ -1910,7 +1926,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	if ( count != 0 )
 		offset = dissect_rtcp_rr( pinfo, tvb, offset, tree, count, packet_length-(offset-sr_offset) );
 	else
-    {
+	{
 		/* If length remaining, assume profile-specific extension bytes */
 		if ((offset-sr_offset) < (int)packet_length)
 		{
@@ -2271,9 +2287,43 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint16 total_packet_length = 0;
 	guint rtcp_subtype		 = 0;
 	guint32 app_length		 = 0;
+	gboolean srtcp_encrypted = FALSE;
+	gboolean srtcp_now_encrypted = FALSE;
+	conversation_t *p_conv   = NULL;
+	struct _rtcp_conversation_info *p_conv_data = NULL;
+	struct srtp_info *srtcp_info = NULL;
+	gboolean e_bit;
+	guint32 srtcp_offset = 0;
+	guint32 srtcp_index  = 0;
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
+	}
+
+	/* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
+	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
+	                           pinfo->ptype,
+	                           pinfo->srcport, pinfo->destport, NO_ADDR_B);
+	if (p_conv)
+	{
+		p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+		if (p_conv_data && p_conv_data->srtcp_info)
+		{
+			srtcp_info = p_conv_data->srtcp_info;
+			/* get the offset to the start of the SRTCP fields at the end of the packet */
+			srtcp_offset = tvb_length_remaining(tvb,offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
+				/* It has been setup as SRTCP, but skip to the SRTCP E field at the end
+				   to see if this particular packet is encrypted or not. The E bit is the MSB. */
+			srtcp_index = tvb_get_ntohl(tvb,srtcp_offset);
+			e_bit = (srtcp_index & 0x80000000) ? TRUE : FALSE;
+			srtcp_index &= 0x7fffffff;
+
+			if (srtcp_info->encryption_algorithm!=SRTP_ENC_ALG_NULL) {
+				/* just flag it for now - the first SR or RR header and SSRC are unencrypted */
+				if (e_bit)
+					srtcp_encrypted = TRUE;
+			}
+		}
 	}
 
     /*
@@ -2282,7 +2332,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
      * RTCP message. The last compound message contains padding,
      * that enables us to break from the while loop.
      */
-    while ( tvb_bytes_exist( tvb, offset, 4) ) {
+    while ( !srtcp_now_encrypted && tvb_bytes_exist( tvb, offset, 4) ) {
         /*
          * First retreive the packet_type
          */
@@ -2346,6 +2396,11 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
                 offset += 4;
 
+                if (srtcp_encrypted) { /* rest of the payload is encrypted - do not try to dissect */
+                    srtcp_now_encrypted = TRUE;
+                    break;
+                }
+
                 if ( packet_type == RTCP_SR )
                     offset = dissect_rtcp_sr( pinfo, tvb, offset, rtcp_tree, elem_count, packet_length-8 );
                 else
@@ -2403,10 +2458,10 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             case RTCP_NACK:
                 offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
                 break;
-			case RTCP_RTPFB:
-				/* Transport layer FB message */
-				/* Feedback message type (FMT): 5 bits */
-				proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_fmt, tvb, offset, 1, FALSE );
+            case RTCP_RTPFB:
+                /* Transport layer FB message */
+                /* Feedback message type (FMT): 5 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_fmt, tvb, offset, 1, FALSE );
                 offset++;
                 /* Packet type, 8 bits */
                 proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -2416,18 +2471,18 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 /* SSRC of packet sender, 32 bits */
                 proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
                 offset += 4;
-				/* SSRC of media source, 32 bits */
+                /* SSRC of media source, 32 bits */
                 proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
                 offset += 4;
-				/* Feedback Control Information (FCI) */
-				if (packet_length > 2)
-					proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
-				break;
+                /* Feedback Control Information (FCI) */
+                if (packet_length > 2)
+                    proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
+                break;
 
-			case RTCP_PSFB:
-				/* Payload-specific FB message */
-				/* Feedback message type (FMT): 5 bits */
-				proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_fmt, tvb, offset, 1, FALSE );
+            case RTCP_PSFB:
+                /* Payload-specific FB message */
+                /* Feedback message type (FMT): 5 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_fmt, tvb, offset, 1, FALSE );
                 offset++;
                 /* Packet type, 8 bits */
                 proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -2437,13 +2492,13 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 /* SSRC of packet sender, 32 bits */
                 proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
                 offset += 4;
-				/* SSRC of media source, 32 bits */
+                /* SSRC of media source, 32 bits */
                 proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
                 offset += 4;
-				/* Feedback Control Information (FCI) */
-				if (packet_length > 2)
-					proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
-				break;
+                /* Feedback Control Information (FCI) */
+                if (packet_length > 2)
+                    proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
+                break;
             default:
                 /*
                  * To prevent endless loops in case of an unknown message type
@@ -2468,8 +2523,24 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
     }
 
+	/* If the payload was encrypted, the main payload was not dissected */
+	if (srtcp_encrypted == TRUE) {
+		proto_tree_add_text(rtcp_tree, tvb, offset, srtcp_offset-offset, "Encrypted RTCP Payload - not dissected");
+		proto_tree_add_item(rtcp_tree, hf_srtcp_e, tvb, srtcp_offset, 4, FALSE);
+		proto_tree_add_uint(rtcp_tree, hf_srtcp_index, tvb, srtcp_offset, 4, srtcp_index);
+		srtcp_offset += 4;
+		if (srtcp_info->mki_len) {
+			proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, FALSE);
+			srtcp_offset += srtcp_info->mki_len;
+		}
+
+		if (srtcp_info->auth_tag_len) {
+			proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, FALSE);
+			srtcp_offset += srtcp_info->auth_tag_len;
+		}
+	}
     /* offset should be total_packet_length by now... */
-    if (offset == total_packet_length)
+    else if (offset == (int)total_packet_length)
     {
         ti = proto_tree_add_boolean_format_value(tree, hf_rtcp_length_check, tvb,
                                             0, 0, TRUE, "OK - %u bytes",
@@ -3938,6 +4009,54 @@ proto_register_rtcp(void)
 			}
 		},
 
+		{
+			&hf_srtcp_e,
+			{
+				"SRTCP E flag",
+				"srtcp.e",
+				FT_BOOLEAN,
+				32,
+				NULL,
+				0x80000000,
+				"SRTCP Encryption Flag", HFILL
+			}
+		},
+		{
+			&hf_srtcp_index,
+			{
+				"SRTCP Index",
+				"srtcp.index",
+				FT_UINT32,
+				BASE_DEC_HEX,
+				NULL,
+				0x7fffffff,
+				"SRTCP Index", HFILL
+			}
+		},
+		{
+			&hf_srtcp_mki,
+			{
+				"SRTCP MKI",
+				"srtcp.mki",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0,
+				"SRTCP Master Key Index", HFILL
+			}
+		},
+		{
+			&hf_srtcp_auth_tag,
+			{
+				"SRTCP Auth Tag",
+				"srtcp.auth_tag",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0,
+				"SRTCP Authentication Tag", HFILL
+			}
+		},
 };
 	static gint *ett[] =
 	{

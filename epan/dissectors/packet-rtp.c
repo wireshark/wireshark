@@ -186,6 +186,10 @@ static gint ett_rtp_setup = -1;
 static gint ett_rtp_rfc2198 = -1;
 static gint ett_rtp_rfc2198_hdr = -1;
 
+/* SRTP fields */
+static int hf_srtp_encrypted_payload = -1;
+static int hf_srtp_mki = -1;
+static int hf_srtp_auth_tag = -1;
 
 /* PacketCable CCC header fields */
 static int proto_pkt_ccc       = -1;
@@ -335,6 +339,21 @@ const value_string rtp_payload_type_short_vals[] =
        { 0,            NULL },
 };
 
+static const value_string srtp_encryption_alg_vals[] =
+{
+	{ SRTP_ENC_ALG_NULL,	"Null Encryption" },
+	{ SRTP_ENC_ALG_AES_CM, "AES-128 Counter Mode" },
+	{ SRTP_ENC_ALG_AES_F8,	"AES-128 F8 Mode" },
+	{ 0, NULL },
+};
+
+static const value_string srtp_auth_alg_vals[] =
+{
+	{ SRTP_AUTH_ALG_NONE,		"No Authentication" },
+	{ SRTP_AUTH_ALG_HMAC_SHA1,	"HMAC-SHA1" },
+	{ 0, NULL },
+};
+
 
 /* initialisation routine */
 static void rtp_fragment_init(void)
@@ -351,11 +370,12 @@ rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
 	rtp_dyn_payload = NULL;
 }
 
-/* Set up an RTP conversation */
-void rtp_add_address(packet_info *pinfo,
+/* Set up an SRTP conversation */
+void srtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload)
+                     const gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload,
+                     struct srtp_info *srtp_info)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -424,6 +444,16 @@ void rtp_add_address(packet_info *pinfo,
 	p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
 	p_conv_data->frame_number = setup_frame_number;
 	p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
+	p_conv_data->srtp_info = srtp_info;
+}
+
+/* Set up an RTP conversation */
+void rtp_add_address(packet_info *pinfo,
+                     address *addr, int port,
+                     int other_port,
+                     const gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload)
+{
+	srtp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, rtp_dyn_payload, NULL);
 }
 
 static gboolean
@@ -491,10 +521,42 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 {
 	struct _rtp_conversation_info *p_conv_data = NULL;
 	gboolean found_match = FALSE;
+	int payload_len;
+	struct srtp_info *srtp_info;
+	int offset=0;
+
+	payload_len = tvb_length_remaining(newtvb, offset);
+
+	/* first check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	if (p_conv_data && p_conv_data->srtp_info) {
+		srtp_info = p_conv_data->srtp_info;
+		payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
+
+		if (p_conv_data->srtp_info->encryption_algorithm==SRTP_ENC_ALG_NULL) {
+			if (rtp_tree)
+				proto_tree_add_text(rtp_tree, newtvb, offset, payload_len, "SRTP Payload with NULL encryption");
+		}
+		else {
+			if (rtp_tree)
+				proto_tree_add_item(rtp_tree, hf_srtp_encrypted_payload, newtvb, offset, payload_len, FALSE);
+			found_match = TRUE;	/* use this flag to prevent dissection below */
+		}
+		offset += payload_len;
+
+		if (srtp_info->mki_len) {
+			proto_tree_add_item(rtp_tree, hf_srtp_mki, newtvb, offset, srtp_info->mki_len, FALSE);
+			offset += srtp_info->mki_len;
+		}
+
+		if (srtp_info->auth_tag_len) {
+			proto_tree_add_item(rtp_tree, hf_srtp_auth_tag, newtvb, offset, srtp_info->auth_tag_len, FALSE);
+			offset += srtp_info->auth_tag_len;
+		}
+	}
 
 	/* if the payload type is dynamic (96 to 127), we check if the conv is set and we look for the pt definition */
-	if ( (payload_type >=96) && (payload_type <=127) ) {
-		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	else if ( (payload_type >=96) && (payload_type <=127) ) {
 		if (p_conv_data && p_conv_data->rtp_dyn_payload) {
 			gchar *payload_type_str = NULL;
 			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
@@ -516,7 +578,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* if we don't found, it is static OR could be set static from the preferences */
-	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+	if (!found_match && !dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
 		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 
 }
@@ -845,6 +907,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     sync_src;
 	guint32     csrc_item;
 	struct _rtp_conversation_info *p_conv_data = NULL;
+	struct srtp_info *srtp_info = NULL;
+	unsigned int srtp_offset;
 
 	/* Can tap up to 4 RTP packets within same packet */
 	static struct _rtp_info rtp_info_arr[4];
@@ -966,6 +1030,15 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
+	}
+
+	/* check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	if (p_conv_data && p_conv_data->srtp_info) {
+		srtp_info = p_conv_data->srtp_info;
+		if (rtp_info->info_all_data_present) {
+			srtp_offset = rtp_info->info_data_len - srtp_info->mki_len - srtp_info->auth_tag_len;
+		}
 	}
 
 	/* if it is dynamic payload, let use the conv data to see if it is defined */
@@ -1221,6 +1294,7 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
 				p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
 				p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;
+				p_conv_packet_data->srtp_info = p_conv_data->srtp_info;
 				p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
 
 				/* calculate extended sequence number */
@@ -1711,6 +1785,21 @@ proto_register_rtp(void)
 		 {"RTP fragment, reassembled in frame", "rtp.reassembled_in",
 		  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		  "This RTP packet is reassembled in this frame", HFILL }
+		},
+		{&hf_srtp_encrypted_payload,
+		 {"SRTP Encrypted Payload", "srtp.enc_payload",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  "SRTP Encrypted Payload", HFILL }
+		},
+		{&hf_srtp_mki,
+		 {"SRTP MKI", "srtp.mki",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  "SRTP Master Key Index", HFILL }
+		},
+		{&hf_srtp_auth_tag,
+		 {"SRTP Auth Tag", "srtp.auth_tag",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  "SRTP Authentication Tag", HFILL }
 		}
 
 	};

@@ -49,6 +49,9 @@ struct _rtcp_conversation_info
     guint32 calculated_delay_used_frame;
     gint    calculated_delay_report_gap;
     gint32  calculated_delay;
+
+    /* SRTCP context */
+    struct srtp_info *srtcp_info;
 };
 
 
@@ -57,3 +60,10 @@ void rtcp_add_address(packet_info *pinfo,
                       address *addr, int port,
                       int other_port,
                       const gchar *setup_method, guint32 setup_frame_number);
+
+/* Add an SRTP conversation with the given details */
+void srtcp_add_address(packet_info *pinfo,
+                      address *addr, int port,
+                      int other_port,
+                      const gchar *setup_method, guint32 setup_frame_number,
+                      struct srtp_info *srtcp_info);
