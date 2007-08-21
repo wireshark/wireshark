@@ -2163,7 +2163,7 @@ separator_found2:
 						semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
 						/* Content-Type     =  ( "Content-Type" / "c" ) HCOLON media-type
 						 * media-type       =  m-type SLASH m-subtype *(SEMI m-parameter)
-						 * SEMI    =  SWS ";" SWS ; semicolon 
+						 * SEMI    =  SWS ";" SWS ; semicolon
 						 * LWS  =  [*WSP CRLF] 1*WSP ; linear whitespace
 						 * SWS  =  [LWS] ; sep whitespace
 						 */
@@ -2747,8 +2747,13 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		(strlen(call_id)+1 <= MAX_CALL_ID_SIZE) ?
 			strlen(call_id)+1 :
 			MAX_CALL_ID_SIZE);
-	COPY_ADDRESS(&key.dest_address, &pinfo->net_dst);
-	COPY_ADDRESS(&key.source_address, &pinfo->net_src);
+	/*  We're only using these addresses locally (for the hash lookup) so
+	 *  there is no need to make a (g_malloc'd) copy of them.
+	 */
+	SET_ADDRESS(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,
+		    pinfo->net_dst.data);
+	SET_ADDRESS(&key.source_address, pinfo->net_src.type,
+		    pinfo->net_src.len, pinfo->net_src.data);
 	key.dest_port = pinfo->destport;
 	key.source_port = pinfo->srcport;
 
@@ -2776,8 +2781,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 
 		/* Fill in key and value details */
 		g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
-		COPY_ADDRESS(&(p_key->dest_address), &pinfo->net_dst);
-		COPY_ADDRESS(&(p_key->source_address), &pinfo->net_src);
+		SE_COPY_ADDRESS(&(p_key->dest_address), &pinfo->net_dst);
+		SE_COPY_ADDRESS(&(p_key->source_address), &pinfo->net_src);
 		p_key->dest_port = pinfo->destport;
 		p_key->source_port = pinfo->srcport;
 

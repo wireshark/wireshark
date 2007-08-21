@@ -852,7 +852,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (ADDRESSES_EQUAL(&decr->initiator, &null_addr)) {
     /* XXX - We assume that we're seeing the second packet in an exchange here.
      * Is there a way to verify this? */
-    COPY_ADDRESS(&decr->initiator, &pinfo->src);
+    SE_COPY_ADDRESS(&decr->initiator, &pinfo->src);
   }
 
   pinfo->private_data = decr;
@@ -1318,7 +1318,7 @@ v2_tid2encstr(guint16 tid)
     { 14,	"ENCR_AES-CCM_8" },					/* [RFC4309] */
     { 15,	"ENCR-AES-CCM_12" },				/* [RFC4309] */
     { 16,	"ENCR-AES-CCM_16" },				/* [RFC4309] */
-    { 17,	"UNASSIGNED" },				
+    { 17,	"UNASSIGNED" },
     { 18,	"AES-GCM with a 8 octet ICV" },		/* [RFC4106] */
     { 19,	"AES-GCM with a 12 octet ICV" },	/* [RFC4106] */
     { 20,	"AES-GCM with a 16 octet ICV" },	/* [RFC4106] */
@@ -1403,7 +1403,7 @@ v2_tid2dhstr(guint16 tid)
     { 20,	"384-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
     { 21,	"521-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
 	/*
-    22-1023    RESERVED TO IANA                    [RFC4306] 
+    22-1023    RESERVED TO IANA                    [RFC4306]
  1024-65535    PRIVATE USE                         [RFC4306]
  */
     { 0,	NULL },
@@ -2320,7 +2320,7 @@ dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
 {
   tvbuff_t *eap_tvb = NULL;
-  
+
   eap_tvb = tvb_new_subset(tvb, offset,length, length );
   if ((eap_tvb != NULL)&& eap_handle != NULL){
 	  call_dissector(eap_handle, eap_tvb, pinfo, tree);

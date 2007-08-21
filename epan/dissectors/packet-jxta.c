@@ -769,7 +769,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             /* The initiator welcome frame */
             tpt_conv_data->tpt_ptype = pinfo->ptype;
             tpt_conv_data->initiator_welcome_frame = pinfo->fd->num;
-            COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
+            SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
             tpt_conv_data->initiator_tpt_port = pinfo->srcport;
 
             welcome_addr = &tpt_conv_data->initiator_address;
@@ -782,7 +782,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 tpt_conv_data->receiver_tpt_port = tpt_conv_data->initiator_tpt_port;
                 tpt_conv_data->receiver_address = tpt_conv_data->initiator_address;
                 tpt_conv_data->initiator_welcome_frame = pinfo->fd->num;
-                COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
+                SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
                 tpt_conv_data->initiator_tpt_port = pinfo->srcport;
 
                 welcome_addr = &tpt_conv_data->initiator_address;
@@ -791,7 +791,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 /* The receiver welcome frame */
                 tpt_conv_data->tpt_ptype = pinfo->ptype;
                 tpt_conv_data->receiver_welcome_frame = pinfo->fd->num;
-                COPY_ADDRESS(&tpt_conv_data->receiver_tpt_address, &pinfo->src);
+                SE_COPY_ADDRESS(&tpt_conv_data->receiver_tpt_address, &pinfo->src);
                 tpt_conv_data->receiver_tpt_port = pinfo->srcport;
 
                 welcome_addr = &tpt_conv_data->receiver_address;
@@ -984,17 +984,17 @@ static conversation_t *get_tpt_conversation(packet_info * pinfo, gboolean create
         tpt_conv_data = se_alloc(sizeof(jxta_stream_conversation_data));
         tpt_conv_data->tpt_ptype = pinfo->ptype;
 
-        COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
+        SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
         tpt_conv_data->initiator_tpt_port = pinfo->srcport;
         tpt_conv_data->initiator_welcome_frame = 0;
         /* XXX bondolo This is not quite correct as it should include port until a peerid can be associated. */
-        COPY_ADDRESS(&tpt_conv_data->initiator_address, &pinfo->src);
+        SE_COPY_ADDRESS(&tpt_conv_data->initiator_address, &pinfo->src);
 
-        COPY_ADDRESS(&tpt_conv_data->receiver_tpt_address, &pinfo->dst);
+        SE_COPY_ADDRESS(&tpt_conv_data->receiver_tpt_address, &pinfo->dst);
         tpt_conv_data->receiver_tpt_port = pinfo->destport;
         tpt_conv_data->receiver_welcome_frame = 0;
         /* XXX bondolo This is not quite correct as it should include port until a peerid can be associated. */
-        COPY_ADDRESS(&tpt_conv_data->receiver_address, &pinfo->dst);
+        SE_COPY_ADDRESS(&tpt_conv_data->receiver_address, &pinfo->dst);
 
         conversation_add_proto_data(tpt_conversation, proto_jxta, tpt_conv_data);
     }
