@@ -557,7 +557,7 @@ static struct opt_info bootp_opt[] = {
 /* 246 */ { "Private",					opaque, NULL },
 /* 247 */ { "Private",					opaque, NULL },
 /* 248 */ { "Private",					opaque, NULL },
-/* 249 */ { "Classless static routes",			opaque, NULL },
+/* 249 */ { "Classless Static Route (Microsoft)",	special, NULL },
 /* 250 */ { "Private",					opaque, NULL },
 /* 251 */ { "Private",					opaque, NULL },
 /* 252 */ { "Proxy autodiscovery",			string, NULL },
@@ -1229,7 +1229,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 		break;
 
-	case 121: {	/* Classless Static Route */
+	case 121:	/* Classless Static Route */
+	case 249: {	/* Classless Static Route (Microsoft) */
 		int mask_width, significant_octets;
 		optend = optoff + optlen;
 		/* minimum length is 5 bytes */
