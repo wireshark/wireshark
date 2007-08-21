@@ -151,7 +151,7 @@ typedef struct {
 
 typedef struct {
 	struct wtap_nstime now;
-	double t0;
+	time_t t0;
 } mpeg_t;
 
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);

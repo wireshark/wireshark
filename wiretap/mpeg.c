@@ -41,7 +41,6 @@
 #include "buffer.h"
 #include "file_wrappers.h"
 #include <errno.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -106,6 +105,8 @@ mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	return TRUE;
 }
 
+#define SCRHZ 27000000
+
 static gboolean 
 mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 		gint64 *data_offset)
@@ -138,10 +139,6 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 			guint32 pack0;
 			guint64 pack;
 			guint8 stuffing;
-			guint32 scr;
-			guint16 scr_ext;
-			double t;
-			double secs;
 
 			bytes_read = file_read(&pack1, 1, sizeof pack1, wth->fh);
 			if (bytes_read != sizeof pack1) {
@@ -172,15 +169,20 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 					stuffing &= 0x07;
 					packet_size = 14 + stuffing;
 
-					scr = (guint32)
-						((pack >> 59 & 0x0007) << 30 |
-						(pack >> 43 & 0x7fff) << 15 |
-						 (pack >> 27 & 0x7fff) << 0);
-					scr_ext = (guint16)(pack >> 17 & 0x1ff);
-					t = wth->capture.mpeg->t0 + scr / 90e3 + scr_ext / 27e6;
-
-					wth->capture.mpeg->now.nsecs = (int)(modf(t, &secs) * 1e9);
-					wth->capture.mpeg->now.secs = (time_t)secs;
+					{
+						guint64 bytes = pack >> 16;
+						guint64 ts =
+							(bytes >> 43 & 0x0007) << 30 |
+							(bytes >> 27 & 0x7fff) << 15 |
+							(bytes >> 11 & 0x7fff) << 0;
+						unsigned ext = bytes >> 1 & 0x1ff;
+						guint64 cr = 300 * ts + ext;
+						unsigned rem = cr % SCRHZ;
+						wth->capture.mpeg->now.secs
+							= wth->capture.mpeg->t0 + cr / SCRHZ;
+						wth->capture.mpeg->now.nsecs
+							= 1000000000LL * rem / SCRHZ;
+					}
 					ts = wth->capture.mpeg->now;
 					break;
 				default:
@@ -297,7 +299,7 @@ good_magic:
 	wth->capture.mpeg = g_malloc(sizeof(mpeg_t));
 	wth->capture.mpeg->now.secs = time(NULL);
 	wth->capture.mpeg->now.nsecs = 0;
-	wth->capture.mpeg->t0 = (double) wth->capture.mpeg->now.secs;
+	wth->capture.mpeg->t0 = wth->capture.mpeg->now.secs;
 
 	return 1;
 }

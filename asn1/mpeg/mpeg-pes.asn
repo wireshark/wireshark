@@ -26,24 +26,6 @@ PES ::= SEQUENCE {
 	} (0..255)
 }
 
-Pack ::= SEQUENCE {
-	must-be-zero BOOLEAN,
-	must-be-one0 BOOLEAN,
-	scr30 BIT STRING (SIZE (3)),
-	must-be-one1 BOOLEAN,
-	scr15 BIT STRING (SIZE (15)),
-	must-be-one2 BOOLEAN,
-	scr0 BIT STRING (SIZE (15)),
-	must-be-one3 BOOLEAN,
-	scr-ext BIT STRING (SIZE (9)),
-	must-be-one4 BOOLEAN,
-	program-mux-rate BIT STRING (SIZE (22)),
-	must-be-one5 BOOLEAN,
-	must-be-one6 BOOLEAN,
-	reserved BIT STRING (SIZE (5)),
-	stuffing-length INTEGER (0..7)
-}
-
 Stream ::= SEQUENCE {
 	length INTEGER (0..65535),
 	must-be-one BOOLEAN,

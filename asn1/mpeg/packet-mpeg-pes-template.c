@@ -43,12 +43,30 @@
 
 static int proto_mpeg = -1;
 static int proto_mpeg_pes = -1;
+
+static int ett_mpeg_pes_pack_header = -1;
+static int ett_mpeg_pes_header_data = -1;
+
 static int hf_mpeg_pes_pack_header = -1;
+static int hf_mpeg_pes_scr = -1;
+static int hf_mpeg_pes_program_mux_rate = -1;
+static int hf_mpeg_pes_stuffing_length = -1;
 static int hf_mpeg_pes_stuffing = -1;
 static int hf_mpeg_pes_extension = -1;
 static int hf_mpeg_pes_header_data = -1;
+static int hf_mpeg_pes_pts = -1;
+static int hf_mpeg_pes_dts = -1;
+static int hf_mpeg_pes_escr = -1;
+static int hf_mpeg_pes_es_rate = -1;
+static int hf_mpeg_pes_copy_info = -1;
+static int hf_mpeg_pes_crc = -1;
+static int hf_mpeg_pes_extension_flags = -1;
+static int hf_mpeg_pes_private_data = -1;
+static int hf_mpeg_pes_pack_length = -1;
+static int hf_mpeg_pes_sequence = -1;
+static int hf_mpeg_pes_pstd_buffer = -1;
+static int hf_mpeg_pes_extension2 = -1;
 static int hf_mpeg_pes_padding = -1;
-
 static int hf_mpeg_pes_data = -1;
 
 static int hf_mpeg_video_sequence_header = -1;
@@ -59,6 +77,7 @@ static int hf_mpeg_video_quantization_matrix = -1;
 static int hf_mpeg_video_data = -1;
 
 enum { PES_PREFIX = 1 };
+
 enum {
 	STREAM_PICTURE = 0x00,
 	STREAM_SEQUENCE = 0xb3,
@@ -75,6 +94,204 @@ enum {
 	STREAM_VIDEO = 0xe0
 };
 
+enum {
+	PTS_FLAG = 0x80,
+	DTS_FLAG = 0x40,
+	ESCR_FLAG = 0x20,
+	ES_RATE_FLAG = 0x10,
+	DSM_TRICK_MODE_FLAG = 0x08,
+	COPY_INFO_FLAG = 0x04,
+	CRC_FLAG = 0x02,
+	EXTENSION_FLAG = 0x01,
+};
+
+enum {
+	PRIVATE_DATA_FLAG = 0x80,
+	PACK_LENGTH_FLAG = 0x40,
+	SEQUENCE_FLAG = 0x20,
+	PSTD_BUFFER_FLAG = 0x10,
+	MUST_BE_ONES = 0x07,
+	EXTENSION_FLAG2 = 0x01,
+};
+
+static guint64 tvb_get_ntoh40(tvbuff_t *tvb, unsigned offset)
+{
+	return (guint64)tvb_get_guint8(tvb, offset) << 32
+		| tvb_get_ntohl(tvb, offset + 1);
+}
+
+static guint64 tvb_get_ntoh48(tvbuff_t *tvb, unsigned offset)
+{
+	return (guint64)tvb_get_ntohs(tvb, offset) << 32
+		| tvb_get_ntohl(tvb, offset + 2);
+}
+
+#define TSHZ 90000
+
+static guint64 decode_time_stamp(tvbuff_t *tvb, unsigned offset, nstime_t *nst)
+{
+	guint64 bytes = tvb_get_ntoh40(tvb, offset);
+	guint64 ts =
+		(bytes >> 33 & 0x0007) << 30 |
+		(bytes >> 17 & 0x7fff) << 15 |
+		(bytes >>  1 & 0x7fff) << 0;
+	unsigned rem = ts % TSHZ;
+	nst->secs = ts / TSHZ;
+	nst->nsecs = 1000000000LL * rem / TSHZ;
+	return ts;
+}
+
+#define SCRHZ 27000000
+
+static guint64 decode_clock_reference(tvbuff_t *tvb, unsigned offset,
+		nstime_t *nst)
+{
+	guint64 bytes = tvb_get_ntoh48(tvb, offset);
+	guint64 ts =
+		(bytes >> 43 & 0x0007) << 30 |
+		(bytes >> 27 & 0x7fff) << 15 |
+		(bytes >> 11 & 0x7fff) << 0;
+	unsigned ext = bytes >> 1 & 0x1ff;
+	guint64 cr = 300 * ts + ext;
+	unsigned rem = cr % SCRHZ;
+	nst->secs = cr / SCRHZ;
+	nst->nsecs = 1000000000LL * rem / SCRHZ;
+	return cr;
+}
+
+static void
+dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *root, unsigned flags)
+{
+	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_header_data, tvb,
+			0, -1, FALSE);
+	proto_tree *tree = proto_item_add_subtree(item, ett_mpeg_pes_header_data);
+
+	unsigned offset = 0;
+	if (flags & PTS_FLAG) {
+		nstime_t nst;
+		decode_time_stamp(tvb, offset, &nst);
+		proto_tree_add_time(tree, hf_mpeg_pes_pts, tvb,
+				offset, 5, &nst);
+		offset += 5;
+
+		if (check_col(pinfo->cinfo, COL_DEF_DST)) {
+			SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
+			col_add_fstr(pinfo->cinfo, COL_DEF_DST,
+					"PTS %u.%09u", nst.secs, nst.nsecs);
+		}
+	}
+	if (flags & DTS_FLAG) {
+		nstime_t nst;
+		decode_time_stamp(tvb, offset, &nst);
+		proto_tree_add_time(tree, hf_mpeg_pes_dts, tvb,
+				offset, 5, &nst);
+		offset += 5;
+
+		if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
+			SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
+			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
+					"DTS %u.%09u", nst.secs, nst.nsecs);
+		}
+	}
+	if (flags & ESCR_FLAG) {
+		nstime_t nst;
+		decode_clock_reference(tvb, offset, &nst);
+		proto_tree_add_time(tree, hf_mpeg_pes_escr, tvb,
+				offset, 6, &nst);
+		offset += 6;
+	}
+	if (flags & ES_RATE_FLAG) {
+		unsigned es_rate = (tvb_get_ntohs(tvb, offset) >> 1 & 0x3fff) * 50;
+		proto_tree_add_uint(tree, hf_mpeg_pes_es_rate, tvb,
+				offset, 3, es_rate);
+		offset += 3;
+	}
+	if (flags & COPY_INFO_FLAG) {
+		proto_tree_add_item(tree, hf_mpeg_pes_copy_info, tvb,
+				offset, 1, FALSE);
+		offset++;
+	}
+	if (flags & CRC_FLAG) {
+		proto_tree_add_item(tree, hf_mpeg_pes_crc, tvb,
+				offset, 2, FALSE);
+		offset += 2;
+	}
+
+	if (flags & EXTENSION_FLAG) {
+		int flags2 = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_mpeg_pes_extension_flags, tvb,
+				offset, 1, FALSE);
+		offset++;
+
+		if (flags2 & PRIVATE_DATA_FLAG) {
+			proto_tree_add_item(tree, hf_mpeg_pes_private_data, tvb,
+					offset, 2, FALSE);
+			offset += 2;
+		}
+		if (flags2 & PACK_LENGTH_FLAG) {
+			proto_tree_add_item(tree, hf_mpeg_pes_pack_length, tvb,
+					offset, 1, FALSE);
+			offset++;
+		}
+		if (flags2 & SEQUENCE_FLAG) {
+			proto_tree_add_item(tree, hf_mpeg_pes_sequence, tvb,
+					offset, 2, FALSE);
+			offset += 2;
+		}
+		if (flags2 & PSTD_BUFFER_FLAG) {
+			unsigned pstd = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_uint(tree, hf_mpeg_pes_pstd_buffer, tvb,
+					offset, 2, (pstd & 0x2000 ? 1024 : 128) * (pstd & 0x1ff));
+			offset += 2;
+		}
+		if (flags2 & EXTENSION_FLAG2) {
+			proto_tree_add_item(tree, hf_mpeg_pes_extension2, tvb,
+					offset, 2, FALSE);
+			offset += 2;
+		}
+	}
+}
+
+static unsigned
+dissect_mpeg_pes_pack_header(tvbuff_t *tvb, unsigned offset,
+		packet_info *pinfo, proto_tree *root)
+{
+	unsigned program_mux_rate, stuffing_length;
+
+	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_pack_header, tvb,
+			offset / 8, 10, FALSE);
+	proto_tree *tree = proto_item_add_subtree(item, ett_mpeg_pes_pack_header);
+
+	nstime_t nst;
+	decode_clock_reference(tvb, offset / 8, &nst);
+	proto_tree_add_time(tree, hf_mpeg_pes_scr, tvb, offset / 8, 6, &nst);
+	offset += 6 * 8;
+
+	program_mux_rate = (tvb_get_ntoh24(tvb, offset / 8) >> 2) * 50;
+	proto_tree_add_uint(tree, hf_mpeg_pes_program_mux_rate, tvb, offset / 8, 3,
+			program_mux_rate);
+	offset += 3 * 8;
+
+	if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
+		SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
+		col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "%u B/s", program_mux_rate);
+	}
+
+	stuffing_length = tvb_get_guint8(tvb, offset / 8) & 0x07;
+	proto_tree_add_item(tree, hf_mpeg_pes_stuffing_length, tvb,
+			offset / 8, 1, FALSE);
+	offset += 1 * 8;
+
+	if (stuffing_length > 0) {
+		proto_tree_add_item(tree, hf_mpeg_pes_stuffing, tvb,
+				offset / 8, stuffing_length, FALSE);
+		offset += stuffing_length * 8;
+	}
+
+	return offset;
+}
+
 void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -84,7 +301,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int prefix;
 	int stream;
 	asn1_ctx_t asn1_ctx;
-	int offset = 0;
+	unsigned offset = 0;
 
 	if (!tvb_bytes_exist(tvb, 0, 3))
 		return FALSE;	/* not enough bytes for a PES prefix */
@@ -156,31 +373,23 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		es = tvb_new_subset(tvb, offset / 8, -1, -1);
 		dissect_mpeg_pes(es, pinfo, tree);
 	} else if (stream == STREAM_PACK) {
-		int length;
-		switch (tvb_get_guint8(tvb, 4) >> 6) {
-			case 1:
-				length = tvb_get_guint8(tvb, 13) & 0x07;
-				offset = dissect_mpeg_pes_Pack(tvb, offset, &asn1_ctx,
-						tree, hf_mpeg_pes_pack_header);
-				if (length > 0)
-					proto_tree_add_item(tree, hf_mpeg_pes_stuffing, tvb,
-							offset / 8, length, FALSE);
-				break;
-			default:
-				length = 8;
-				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-						offset / 8, length, FALSE);
+		if (tvb_get_guint8(tvb, offset / 8) >> 6 == 1) {
+			offset = dissect_mpeg_pes_pack_header(tvb, offset, pinfo, tree);
+		} else {
+			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
+					offset / 8, 8, FALSE);
+			offset += 8 * 8;
 		}
-		offset += length * 8;
-	} else if (stream == STREAM_SYSTEM) {
-		offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
-				tree, hf_mpeg_pes_extension);
-		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-				offset / 8, -1, FALSE);
-	} else if (stream == STREAM_PADDING) {
-		int padding_length;
+	} else if (stream == STREAM_SYSTEM || stream == STREAM_PRIVATE2) {
+		unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
+		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
+				offset / 8, 2, FALSE);
+		offset += 2 * 8;
 
-		padding_length = tvb_get_ntohs(tvb, 4);
+		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
+				offset / 8, data_length, FALSE);
+	} else if (stream == STREAM_PADDING) {
+		unsigned padding_length = tvb_get_ntohs(tvb, offset / 8);
 		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
 				offset / 8, 2, FALSE);
 		offset += 2 * 8;
@@ -189,32 +398,43 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset / 8, padding_length, FALSE);
 	} else if (stream == STREAM_PRIVATE1
 			|| stream >= STREAM_AUDIO) {
-		int length;
-		int header_length;
-		tvbuff_t *es;
+		int length = tvb_get_ntohs(tvb, 4);
 
-		length = tvb_get_ntohs(tvb, 4);
+		if ((tvb_get_guint8(tvb, 6) & 0xc0) == 0x80) {
+			int header_length;
+			tvbuff_t *es;
 
-		offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
-				tree, hf_mpeg_pes_extension);
-		length -= 5 * 8;
+			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
+					tree, hf_mpeg_pes_extension);
+			length -= 5 * 8;
 
-		header_length = tvb_get_guint8(tvb, 8);
-		if (header_length > 0) {
-			proto_tree_add_item(tree, hf_mpeg_pes_header_data, tvb,
-					offset / 8, header_length, FALSE);
-			offset += header_length * 8;
-			length -= header_length * 8;
+			header_length = tvb_get_guint8(tvb, 8);
+			if (header_length > 0) {
+				int flags = tvb_get_guint8(tvb, 7);
+				tvbuff_t *header_data = tvb_new_subset(tvb, offset / 8,
+						header_length, header_length);
+				dissect_mpeg_pes_header_data(header_data, pinfo, tree, flags);
+				offset += header_length * 8;
+				length -= header_length * 8;
+			}
+
+			es = tvb_new_subset(tvb, offset / 8, -1, length / 8);
+			if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
+				dissect_mpeg_pes(es, pinfo, tree);
+			else if (tvb_get_guint8(es, 0) == 0xff)
+				dissect_mpeg(es, pinfo, tree);
+			else
+				proto_tree_add_item(tree, hf_mpeg_pes_data, es,
+						0, -1, FALSE);
+		} else {
+			unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
+			proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
+					offset / 8, 2, FALSE);
+			offset += 2 * 8;
+
+			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
+					offset / 8, data_length, FALSE);
 		}
-
-		es = tvb_new_subset(tvb, offset / 8, -1, length / 8);
-		if (tvb_get_ntoh24(es, 0) == PES_PREFIX)
-			dissect_mpeg_pes(es, pinfo, tree);
-		else if (tvb_get_guint8(es, 0) == 0xff)
-			dissect_mpeg(es, pinfo, tree);
-		else
-			proto_tree_add_item(tree, hf_mpeg_pes_data, es,
-					0, -1, FALSE);
 	} else {
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 				offset / 8, -1, FALSE);
@@ -245,6 +465,15 @@ proto_register_mpeg_pes(void)
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_scr,
+			{ "system clock reference (SCR)", "mpeg-pes.scr",
+				FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_program_mux_rate,
+			{ "PES program mux rate", "mpeg-pes.program-mux-rate",
+				FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_stuffing_length,
+			{ "PES stuffing length", "mpeg-pes.stuffing-length",
+				FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
 		{ &hf_mpeg_pes_stuffing,
 			{ "PES stuffing bytes", "mpeg-pes.stuffing",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -254,6 +483,42 @@ proto_register_mpeg_pes(void)
 		{ &hf_mpeg_pes_header_data,
 			{ "PES header data", "mpeg-pes.header-data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_pts,
+			{ "presentation time stamp (PTS)", "mpeg-pes.pts",
+				FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_dts,
+			{ "decode time stamp (DTS)", "mpeg-pes.dts",
+				FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_escr,
+			{ "elementary stream clock reference (ESCR)", "mpeg-pes.escr",
+				FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_es_rate,
+			{ "elementary stream rate", "mpeg-pes.es-rate",
+				FT_UINT24, BASE_DEC, NULL, 0x7ffe, NULL, HFILL }},
+		{ &hf_mpeg_pes_copy_info,
+			{ "copy info", "mpeg-pes.copy-info",
+				FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+		{ &hf_mpeg_pes_crc,
+			{ "CRC", "mpeg-pes.crc",
+				FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_extension_flags,
+			{ "extension flags", "mpeg-pes.extension-flags",
+				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_private_data,
+			{ "private data", "mpeg-pes.private-data",
+				FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_pack_length,
+			{ "pack length", "mpeg-pes.pack-length",
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_sequence,
+			{ "sequence", "mpeg-pes.sequence",
+				FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_pstd_buffer,
+			{ "P-STD buffer size", "mpeg-pes.pstd-buffer",
+				FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_extension2,
+			{ "extension2", "mpeg-pes.extension2",
+				FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_mpeg_pes_padding,
 			{ "PES padding", "mpeg-pes.padding",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -282,6 +547,8 @@ proto_register_mpeg_pes(void)
 
 	static gint *ett[] = {
 #include "packet-mpeg-pes-ettarr.c"
+		&ett_mpeg_pes_pack_header,
+		&ett_mpeg_pes_header_data,
 	};
 
 	proto_mpeg = proto_register_protocol(
