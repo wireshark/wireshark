@@ -2402,7 +2402,7 @@ proto_register_ip(void)
 			"", HFILL }},
 
 		{ &hf_ip_frag_offset,
-		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, BASE_DEC, NULL, 0x1fff,
 			"", HFILL }},
 
 		{ &hf_ip_ttl,
