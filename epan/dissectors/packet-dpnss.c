@@ -723,7 +723,7 @@ static const dpnns_sup_serv_set_t dpnns_sup_serv_set[] = {
  	{250, "ROP-INVA",	"ROUTE OPTIMISATION INVITE WITH ACKNOWLEDGEMENT", DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
  	{251, "PCLG-P",		"PUBLIC CALLING PARTY NUMBER-PROVIDED",			DPNSS_ISDN_NUM_ATTR, DPNSS_ISDN_NUMBER_DIGITS, DPNSS_NONE, DPNSS_NONE },
  	{252, "PCLG-D",		"PUBLIC CALLING PARTY NUMBER-DEFAULT",			DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
- 	{253, "PCON-P",		"PUBLIC CONNECTED NUMBER-PROVIDED",				DPNSS_ISDN_NUM_ATTR, DPNSS_ISDN_NUMBER_DIGITS},
+ 	{253, "PCON-P",		"PUBLIC CONNECTED NUMBER-PROVIDED",				DPNSS_ISDN_NUM_ATTR, DPNSS_ISDN_NUMBER_DIGITS, DPNSS_NONE, DPNSS_NONE },
  	{254, "PCON-D",		"PUBLIC CONNECTED NUMBER-DEFAULT",				DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE,				DPNSS_NONE },
 };
 
@@ -1055,7 +1055,8 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree *sup_str_tree;
 	gint		start_offset, hash_offset, tvb_end_offset, sup_inf_str_end_offset, str_no;
 	gint		par_start_offset, par_end_offset, number_of_found_par;
-	gint		sup_str_num, sup_inf_str_len, par_type_num; 
+	gint		sup_inf_str_len, par_type_num; 
+	guint		sup_str_num;
 	guint8		octet;
 	gboolean	last_string = FALSE;
 	gboolean	has_par;
