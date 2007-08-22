@@ -592,11 +592,11 @@ static guint64 decode_clock_reference(tvbuff_t *tvb, unsigned offset,
 		(bytes >> 43 & 0x0007) << 30 |
 		(bytes >> 27 & 0x7fff) << 15 |
 		(bytes >> 11 & 0x7fff) << 0;
-	unsigned ext = bytes >> 1 & 0x1ff;
+	unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
 	guint64 cr = 300 * ts + ext;
-	unsigned rem = cr % SCRHZ;
+	unsigned rem = (unsigned)(cr % SCRHZ);
 	nst->secs = cr / SCRHZ;
-	nst->nsecs = 1000000000LL * rem / SCRHZ;
+	nst->nsecs = (int)(G_GINT64_CONSTANT(1000000000) * rem / SCRHZ);
 	return cr;
 }
 
