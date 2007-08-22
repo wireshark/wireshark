@@ -659,7 +659,7 @@ static gboolean
 dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-       guint8 pana_res;
+       guint16 pana_res;
        guint16 msg_length;
        guint16 flags;
        guint32 buffer_length;
@@ -689,7 +689,7 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                return FALSE;
        }
 
-       /* check that the reserved byte is zero */
+       /* check that the reserved field is zero */
        if(pana_res!=0){
                return FALSE;
        }
