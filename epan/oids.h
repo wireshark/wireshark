@@ -40,6 +40,18 @@ typedef struct _oid_bits_info_t {
 	struct _oid_bit_t* data;
 } oid_bits_info_t;
 
+typedef enum _oid_key_type_t {
+	OID_KEY_TYPE_WRONG,
+	OID_KEY_TYPE_INTEGER,
+	OID_KEY_TYPE_FIXED_STRING,
+	OID_KEY_TYPE_FIXED_BYTES,
+	OID_KEY_TYPE_STRING,
+	OID_KEY_TYPE_BYTES,
+	OID_KEY_TYPE_NSAP,
+	OID_KEY_TYPE_OID,
+	OID_KEY_TYPE_IPADDR
+} oid_key_type_t;
+
 typedef struct _oid_value_type_t {
 	enum ftenum ft_type;
 	int display;
@@ -47,14 +59,42 @@ typedef struct _oid_value_type_t {
 	gint32 ber_tag;
 	int min_len; 
 	int max_len;
+	oid_key_type_t keytype;
+	oid_key_type_t keytype_implicit;
+	int keysize;
 } oid_value_type_t; 
+
+typedef enum _oid_kind_t {
+	OID_KIND_UNKNOWN = 0,
+	OID_KIND_NODE,
+	OID_KIND_SCALAR,
+	OID_KIND_TABLE,
+	OID_KIND_ROW,
+	OID_KIND_COLUMN,
+	OID_KIND_NOTIFICATION,
+	OID_KIND_GROUP,
+	OID_KIND_COMPLIANCE,
+	OID_KIND_CAPABILITIES
+} oid_kind_t;
+
+typedef struct _oid_key_t {
+	char* name;
+	guint32 num_subids;
+	oid_key_type_t key_type;
+	int hfid;
+	enum ftenum ft_type;
+	int display;
+	struct _oid_key_t* next;
+} oid_key_t;
 
 typedef struct _oid_info_t {
 	guint32 subid;
 	char* name;
+	oid_kind_t kind;
 	void* children; /* an emem_tree_t* */
 	const oid_value_type_t* value_type;
 	int value_hfid;
+	oid_key_t* key;
 	oid_bits_info_t* bits;
 	struct _oid_info_t* parent;
 } oid_info_t;

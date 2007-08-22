@@ -45,28 +45,33 @@
 #include <smi.h>
 #endif
 
+#define D(level,args) do if (debuglevel >= level) { printf args; printf("\n"); fflush(stdout); } while(0)
+
 #include "oids.h"
 
-static const oid_value_type_t integer_type = { FT_INT32, BASE_DEC, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, 1, 4 };
-static const oid_value_type_t bytes_type = { FT_BYTES, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0, -1 };
-static const oid_value_type_t oid_type = { FT_OID, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID, 1, -1 };
-static const oid_value_type_t ipv4_type = { FT_IPv4, BASE_NONE, BER_CLASS_APP, 0, 4, 4 };
-static const oid_value_type_t counter32_type = { FT_UINT32, BASE_DEC, BER_CLASS_APP, 1, 1, 4 };
-static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC, BER_CLASS_APP, 2, 1, 4 };
-static const oid_value_type_t timeticks_type = { FT_UINT32, BASE_DEC, BER_CLASS_APP, 3, 1, 4 };
-static const oid_value_type_t opaque_type = { FT_BYTES, BASE_NONE, BER_CLASS_APP, 4, 1, 4 };
-static const oid_value_type_t counter64_type = { FT_UINT64, BASE_NONE, BER_CLASS_APP, 6, 8, 8 };
-static const oid_value_type_t ipv6_type = {FT_IPv6, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16 };
-static const oid_value_type_t float_type = {FT_FLOAT, BASE_DEC, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4, 4 };
-static const oid_value_type_t double_type = {FT_DOUBLE, BASE_DEC, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8, 8 };
-static const oid_value_type_t ether_type = {FT_ETHER, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6, 6 };
-static const oid_value_type_t string_type = {FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0, -1 };
-static const oid_value_type_t unknown_type = {FT_BYTES, BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY, 0, -1 };
+static int debuglevel = 0;
 
-static oid_info_t oid_root = { 0, NULL, NULL, &unknown_type,-1, NULL, NULL};
+static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
+static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_WRONG,       0};
+static const oid_value_type_t oid_type =        { FT_OID,    BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID,         1,  -1, OID_KEY_TYPE_OID,     OID_KEY_TYPE_OID,         0};
+static const oid_value_type_t ipv4_type =       { FT_IPv4,   BASE_NONE, BER_CLASS_APP, 0,                       4,   4, OID_KEY_TYPE_IPADDR,  OID_KEY_TYPE_IPADDR,      4};
+static const oid_value_type_t counter32_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 1,                       1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
+static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 2,                       1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
+static const oid_value_type_t timeticks_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 3,                       1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
+static const oid_value_type_t opaque_type =     { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 4,                       1,   4, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_WRONG,       0};
+static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       8,   8, OID_KEY_TYPE_NSAP,    OID_KEY_TYPE_NSAP,        0};
+static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_NONE, BER_CLASS_APP, 6,                       8,   8, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
+static const oid_value_type_t ipv6_type =       { FT_IPv6,   BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_FIXED_BYTES, 16};
+static const oid_value_type_t float_type =      { FT_FLOAT,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4,   4, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
+static const oid_value_type_t double_type =     { FT_DOUBLE, BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8,   8, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
+static const oid_value_type_t ether_type =      { FT_ETHER,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6,   6, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_FIXED_BYTES, 6};
+static const oid_value_type_t string_type =     { FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_STRING,  OID_KEY_TYPE_WRONG,       0};
+static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY,             0,  -1, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
+
+static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -2, NULL, NULL, NULL};
 static emem_tree_t* oids_by_name = NULL;
 
-static oid_info_t* add_oid(char* name, const oid_value_type_t* type, guint oid_len, guint32 *subids) {
+static oid_info_t* add_oid(char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
 	guint i = 0;
 	oid_info_t* c = &oid_root;
 		
@@ -90,8 +95,10 @@ static oid_info_t* add_oid(char* name, const oid_value_type_t* type, guint oid_l
 		} else {
 			n = g_malloc(sizeof(oid_info_t));
 			n->subid = subids[i];
+			n->kind = kind;
 			n->children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_children");
 			n->value_hfid = -2;
+			n->key = key;
 			n->parent = c;
 			n->bits = NULL;
 
@@ -100,10 +107,12 @@ static oid_info_t* add_oid(char* name, const oid_value_type_t* type, guint oid_l
 			if (i == oid_len) {
 				n->name = g_strdup(name);
 				n->value_type = type;
+				n->kind = OID_KIND_UNKNOWN;
 				return n;
 			} else {
 				n->name = g_strdup(name);
 				n->value_type = NULL;
+				n->kind = kind;
 			}
 		}
 		c = n;
@@ -114,7 +123,7 @@ static oid_info_t* add_oid(char* name, const oid_value_type_t* type, guint oid_l
 }
 
 extern void oid_add(char* name, guint oid_len, guint32 *subids) {
-	add_oid(name,&unknown_type,oid_len,subids);
+	add_oid(name,OID_KIND_UNKNOWN,&unknown_type,NULL,oid_len,subids);
 }
 
 #ifdef HAVE_SMI
@@ -166,14 +175,12 @@ static char* alnumerize(const char* name) {
 	return s;
 }
 
-typedef struct {
-	char* name;
-	SmiBasetype base;
-	const oid_value_type_t* type;
-} oid_value_type_mapping_t;
-
 const oid_value_type_t* get_typedata(SmiType* smiType) {
-	static const oid_value_type_mapping_t types[] =  {
+	static const struct _type_mapping_t {
+		char* name;
+		SmiBasetype base;
+		const oid_value_type_t* type;
+	} types[] =  {
 		{"IpAddress", SMI_BASETYPE_UNKNOWN, &ipv4_type},
 		{"InetAddressIPv4",SMI_BASETYPE_UNKNOWN,&ipv4_type},
 		{"InetAddressIPv6",SMI_BASETYPE_UNKNOWN,&ipv6_type},
@@ -189,6 +196,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"Unsigned32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
 		{"Gauge",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
 		{"Gauge32",SMI_BASETYPE_UNKNOWN,&unsigned32_type},
+		{"NsapAddress",SMI_BASETYPE_UNKNOWN,&nsap_type},
 		{"i32",SMI_BASETYPE_INTEGER32,&integer_type},
 		{"octets",SMI_BASETYPE_OCTETSTRING,&bytes_type},
 		{"oid",SMI_BASETYPE_OBJECTIDENTIFIER,&oid_type},
@@ -202,7 +210,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"unk",SMI_BASETYPE_UNKNOWN,&unknown_type},
 		{NULL,0,NULL}
 	};
-	const oid_value_type_mapping_t* t;
+	const struct _type_mapping_t* t;
 	SmiType* sT = smiType;
 
 	if (!smiType) return NULL;
@@ -223,6 +231,94 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 	}
 
 	return &unknown_type;
+}
+
+static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
+	*key_p = NULL;
+	
+	switch(sN->nodekind) {
+		case SMI_NODEKIND_ROW: {
+			SmiElement* sE;
+			oid_key_t* kl = NULL;
+			
+			switch (sN->indexkind) {
+				case SMI_INDEX_INDEX:
+					break;
+				case SMI_INDEX_AUGMENT:
+				case SMI_INDEX_REORDER:
+				case SMI_INDEX_SPARSE:
+				case SMI_INDEX_UNKNOWN:
+				case SMI_INDEX_EXPAND:
+					return OID_KIND_UNKNOWN;
+			};
+			
+			for (sE = smiGetFirstElement(sN); sE; sE = smiGetNextElement(sE)) {
+				SmiNode* elNode =  smiGetElementNode(sE) ;
+				SmiType* elType = smiGetNodeType(elNode);
+				oid_key_t* k;
+				const oid_value_type_t* typedata =  get_typedata(elType);
+				
+				k = g_malloc(sizeof(oid_key_t));
+				
+				k->name = g_strdup_printf("%s.%s",
+										  smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED),
+										  smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME));
+				k->hfid = -2;
+				k->ft_type = typedata ? typedata->ft_type : FT_BYTES;
+				k->ft_type = typedata ? typedata->display : BASE_NONE;
+				k->next = NULL;
+				
+								
+				if (typedata) {
+					k->key_type = elNode->implied ? typedata->keytype_implicit : typedata->keytype;
+					k->num_subids = typedata->keysize;
+				} else {
+					if (elType) {
+						switch (elType->basetype) {
+							case SMI_BASETYPE_BITS:
+							case SMI_BASETYPE_OCTETSTRING:
+								k->key_type = elNode->implied ? OID_KEY_TYPE_BYTES : OID_KEY_TYPE_WRONG;
+								k->num_subids = 0;
+								break;
+							case SMI_BASETYPE_ENUM:
+							case SMI_BASETYPE_OBJECTIDENTIFIER:
+							case SMI_BASETYPE_INTEGER32:
+							case SMI_BASETYPE_UNSIGNED32:
+							case SMI_BASETYPE_INTEGER64:
+							case SMI_BASETYPE_UNSIGNED64:
+								k->key_type = OID_KEY_TYPE_INTEGER;
+								k->num_subids = 1;
+								break;
+							default: 
+								k->key_type = OID_KEY_TYPE_WRONG;
+								k->num_subids = 0;
+								break;
+						}
+					} else {
+						k->key_type = OID_KEY_TYPE_WRONG;
+						k->num_subids = 0;
+						break;
+					}
+				}
+				
+				if (!*key_p) *key_p = k;
+				if (kl) kl->next = k;
+				
+				kl = k;
+			}
+			
+			return OID_KIND_ROW;
+		}
+		case SMI_NODEKIND_NODE: return OID_KIND_NODE;
+		case SMI_NODEKIND_SCALAR: return OID_KIND_SCALAR;
+		case SMI_NODEKIND_TABLE: return OID_KIND_TABLE;
+		case SMI_NODEKIND_COLUMN: return OID_KIND_COLUMN;
+		case SMI_NODEKIND_NOTIFICATION: return OID_KIND_NOTIFICATION;
+		case SMI_NODEKIND_GROUP: return OID_KIND_GROUP;
+		case SMI_NODEKIND_COMPLIANCE: return OID_KIND_COMPLIANCE;
+		case SMI_NODEKIND_CAPABILITIES: return OID_KIND_CAPABILITIES;
+		default: return OID_KIND_UNKNOWN;
+	}
 }
 
 #define IS_ENUMABLE(ft) ( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
@@ -247,6 +343,9 @@ void register_mibs(void) {
 	};
 	char* smi_load_error = NULL;
 	GString* path_str;
+	char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
+	
+	debuglevel = debug_env ? strtoul(debug_env,NULL,10) : 0;
 	
 	smi_modules_uat = uat_new("SMI Modules",
 							  sizeof(smi_module_t),
@@ -291,9 +390,14 @@ void register_mibs(void) {
 	g_string_sprintfa(path_str,":%s",get_persconffile_path("mibs", FALSE));
 
 	for(i=0;i<num_smi_paths;i++) {
-		if (!smi_paths[i].name) continue;
-	}
+		if (!( smi_paths[i].name && *smi_paths[i].name))
+			continue;
 		
+		g_string_sprintfa(path_str,":%s",smi_paths[i].name);
+	}
+	
+	D(1,("SMI Path: '%s'",path_str->str));
+	
 	smiInit(NULL);
 	
 	smiSetPath(path_str->str);
@@ -308,7 +412,10 @@ void register_mibs(void) {
 			continue;
 		} else {
 			char* mod_name =  smiLoadModule(smi_modules[i].name);
-			printf("%d %s %s\n",i,smi_modules[i].name,mod_name);
+			if (mod_name)	
+				D(2,("Loaded: '%s'[%d] as %s",smi_modules[i].name,i,mod_name ));
+			else 
+				D(1,("Failed to load: '%s'[%d]",smi_modules[i].name,i));
 		}
 	}
 		
@@ -316,17 +423,28 @@ void register_mibs(void) {
 		 smiModule;
 		 smiModule = smiGetNextModule(smiModule)) {
 		
+		D(3,("\tModule: %s", smiModule->name));
+		
 		for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY); 
 			 smiNode;
 			 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
-			
+
 			SmiType* smiType =  smiGetNodeType(smiNode);
 			const oid_value_type_t* typedata =  get_typedata(smiType);
+			oid_key_t* key;
+			oid_kind_t kind = smikind(smiNode,&key);
 			oid_info_t* oid_data = add_oid(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_QUALIFIED),
+										   kind,
 										   typedata,
+										   key,
 										   smiNode->oidlen,
 										   smiNode->oid);
-
+			
+			
+			D(4,("\t\tNode: subid=%u name=%s kind=%d",
+				 oid_data->subid, oid_data->name, oid_data->kind
+				 ));
+			
 			if ( typedata && oid_data->value_hfid == -2 ) {
 				SmiNamedNumber* smiEnum; 
 				hf_register_info hf = { &(oid_data->value_hfid), { 
@@ -354,44 +472,67 @@ void register_mibs(void) {
 					hf.hfinfo.strings = VALS(vals->data);
 					g_array_free(vals,FALSE);
 				}
-#if 0
- /* packet-snmp does not use this yet */
-				else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
-					guint n = 0;
-					oid_bits_info_t* bits = g_malloc(sizeof(oid_bits_info_t));
-					gint* ettp = &(bits->ett);
+#if 0 /* packet-snmp does not hanldle bits yet */
+			} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
+				guint n = 0;
+				oid_bits_info_t* bits = g_malloc(sizeof(oid_bits_info_t));
+				gint* ettp = &(bits->ett);
+				
+				bits->num = 0;
+				bits->ett = -1;
+				
+				g_array_append_val(etta,ettp);
+				
+				for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum), bits->num++);
+				
+				bits->data = g_malloc(sizeof(struct _oid_bit_t)*bits->num);
+				
+				for(smiEnum = smiGetFirstNamedNumber(smiType),n=0;
+					smiEnum;
+					smiEnum = smiGetNextNamedNumber(smiEnum),n++) {
+					guint mask = 1 << (smiEnum->value.value.integer32 % 8);
+					char* base = alnumerize(oid_data->name);
+					char* ext = alnumerize(smiEnum->name);
+					hf_register_info hf2 = { &(bits->data[n].hfid), { NULL, NULL, FT_UINT8, BASE_HEX, NULL, mask, "", HFILL }};
 					
-					bits->num = 0;
-					bits->ett = -1;
+					bits->data[n].hfid = -1;
+					bits->data[n].offset = smiEnum->value.value.integer32 / 8;
 					
-					g_array_append_val(etta,ettp);
+					hf2.hfinfo.name = g_strdup_printf("%s:%s",oid_data->name,smiEnum->name);
+					hf2.hfinfo.abbrev = g_strdup_printf("%s.%s",base,ext);
 					
-					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum), bits->num++);
-					
-					bits->data = g_malloc(sizeof(struct _oid_bit_t)*bits->num);
-					
-					for(smiEnum = smiGetFirstNamedNumber(smiType),n=0;
-						smiEnum;
-						smiEnum = smiGetNextNamedNumber(smiEnum),n++) {
-						guint mask = 1 << (smiEnum->value.value.integer32 % 8);
-						char* base = alnumerize(oid_data->name);
-						char* ext = alnumerize(smiEnum->name);
-						hf_register_info hf2 = { &(bits->data[n].hfid), { NULL, NULL, FT_UINT8, BASE_HEX, NULL, mask, "", HFILL }};
-						
-						bits->data[n].hfid = -1;
-						bits->data[n].offset = smiEnum->value.value.integer32 / 8;
-						
-						hf2.hfinfo.name = g_strdup_printf("%s:%s",oid_data->name,smiEnum->name);
-						hf2.hfinfo.abbrev = g_strdup_printf("%s.%s",base,ext);
-						
-						g_free(base);
-						g_free(ext);
-						g_array_append_val(hfa,hf2);
-					}
+					g_free(base);
+					g_free(ext);
+					g_array_append_val(hfa,hf2);
 				}
-#endif
+#endif /* packet-snmp does not use this yet */
 				g_array_append_val(hfa,hf);
 			}
+			
+			if ((key = oid_data->key)) {
+				for(; key; key = key->next) { 
+					hf_register_info hf = { &(key->hfid), { 
+						key->name,
+						alnumerize(key->name),
+						key->ft_type,
+						key->display,
+						NULL,
+						0,
+						"",
+						HFILL }};
+					
+					D(5,("\t\t\tIndex: name=%s subids=%d key_type=%d",
+						 key->name, key->num_subids, key->key_type ));
+					
+					if (key->hfid == -2) {
+						g_array_append_val(hfa,hf);
+						key->hfid = -1;
+					} else {
+						g_free((void*)hf.hfinfo.abbrev);
+					}
+				}
+			}
+			
 		}
 	}
 	
