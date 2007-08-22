@@ -1114,7 +1114,6 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_boolean(actor_flags_tree, hf_lacpdu_flags_a_expired, tvb,
                 LACPDU_ACTOR_STATE, 1, flags);
 
-        sep = cont_sep;
         if (sep != initial_sep)
         {
             /* We put something in; put in the terminating ")" */
@@ -1239,7 +1238,6 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_boolean(partner_flags_tree, hf_lacpdu_flags_p_expired, tvb,
                 LACPDU_PARTNER_STATE, 1, flags);
 
-        sep = cont_sep;
         if (sep != initial_sep)
         {
             /* We put something in; put in the terminating ")" */
