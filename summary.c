@@ -123,6 +123,6 @@ summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
 {
   st->cfilter = capture_opts->cfilter;
   st->iface = capture_opts->iface;
-  st->iface_descr = GET_IFACE_DESCR(capture_opts);
+  st->iface_descr = get_iface_description(capture_opts);
 }
 #endif

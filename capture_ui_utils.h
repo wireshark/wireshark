@@ -25,6 +25,8 @@
 #ifndef __CAPTURE_UI_UTILS_H__
 #define __CAPTURE_UI_UTILS_H__
 
+#include "capture_opts.h"
+
 /** @file
  *  GList of available capture interfaces.
  */
@@ -74,6 +76,14 @@ const char *get_if_name(const char *if_text);
  *
  * @return The descriptive name (must be g_free'd later)
  */
-char * build_capture_combo_name(GList *if_list, gchar *if_name);
+char *build_capture_combo_name(GList *if_list, gchar *if_name);
+
+/** Return the interface description (after setting it if not already set)
+ *
+ * @param capture_opts The capture_options structure that contains the used interface
+ *
+ * @return A pointer to capture_ops->iface_descr
+ */
+const char *get_iface_description(capture_options *capture_opts);
 
 #endif

@@ -53,7 +53,8 @@ typedef struct capture_options_tag {
 				      *< set this field because doing so
 				      *< requires too many dependencies.
 				      *< Readers of this field should use
-				      *< GET_IFACE_DESCR to access it. */
+				      *< get_iface_description() from
+				      *< "capture_ui_utils.h" to access it. */
 
 #ifdef _WIN32
     int      buffer_size;           /**< the capture buffer size (MB) */
@@ -104,15 +105,6 @@ typedef struct capture_options_tag {
     capture_state state;            /**< current state of the capture engine */
     gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
 } capture_options;
-
-/*  Get iface_descr (and set it if it's not set already).
- *  It is assumed the caller includes capture_ui_utils.h (ugh, but what else
- *  can we do?)
- */
-#define GET_IFACE_DESCR(capture_opts) capture_opts->iface_descr ? \
-				      capture_opts->iface_descr : \
-				      capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface)
-
 
 /* initialize the capture_options with some reasonable values */
 extern void

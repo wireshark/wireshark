@@ -346,4 +346,17 @@ get_if_name(const char *if_text)
   return if_name;
 }
 
+/*  Return capture_opts->iface_descr (after setting it if it is not set)
+ *  This is necessary because capture_opts.c can't set iface_descr (at least
+ *  not without adding significant dependencies there).
+ */
+const char *
+get_iface_description(capture_options *capture_opts)
+{
+	if (!capture_opts->iface_descr)
+		capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
+
+	return(capture_opts->iface_descr);
+
+}
 #endif /* HAVE_LIBPCAP */
