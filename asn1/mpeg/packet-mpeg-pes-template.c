@@ -135,9 +135,9 @@ static guint64 decode_time_stamp(tvbuff_t *tvb, unsigned offset, nstime_t *nst)
 		(bytes >> 33 & 0x0007) << 30 |
 		(bytes >> 17 & 0x7fff) << 15 |
 		(bytes >>  1 & 0x7fff) << 0;
-	unsigned rem = ts % TSHZ;
-	nst->secs = ts / TSHZ;
-	nst->nsecs = 1000000000LL * rem / TSHZ;
+	unsigned rem = (unsigned)(ts % TSHZ);
+	nst->secs = (time_t)(ts / TSHZ);
+	nst->nsecs = (int)(G_GINT64_CONSTANT(1000000000) * rem / TSHZ);
 	return ts;
 }
 
@@ -154,7 +154,7 @@ static guint64 decode_clock_reference(tvbuff_t *tvb, unsigned offset,
 	unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
 	guint64 cr = 300 * ts + ext;
 	unsigned rem = (unsigned)(cr % SCRHZ);
-	nst->secs = cr / SCRHZ;
+	nst->secs = (time_t)(cr / SCRHZ);
 	nst->nsecs = (int)(G_GINT64_CONSTANT(1000000000) * rem / SCRHZ);
 	return cr;
 }
