@@ -86,6 +86,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->cf                      = cfile;
   capture_opts->cfilter                 = g_strdup("");     /* No capture filter string specified */
   capture_opts->iface                   = NULL;             /* Default is "pick the first interface" */
+  capture_opts->iface_descr             = NULL;
 #ifdef _WIN32
   capture_opts->buffer_size             = 1;                /* 1 MB */
 #endif
@@ -133,6 +134,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "CFile              : 0x%p", capture_opts->cf);
     g_log(log_domain, log_level, "Filter             : %s", capture_opts->cfilter);
     g_log(log_domain, log_level, "Interface          : %s", capture_opts->iface);
+    g_log(log_domain, log_level, "Interface Descr    : %s", capture_opts->iface_descr);
 #ifdef _WIN32
     g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
 #endif
@@ -317,6 +319,10 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
         return 1;
       }
       capture_opts->iface = g_strdup(if_info->name);
+      /*  We don't set iface_descr here because doing so requires
+       *  capture_ui_utils.c which requires epan/prefs.c which is
+       *  probably a bit too much dependency for here...
+       */
       free_interface_list(if_list);
     } else {
       capture_opts->iface = g_strdup(optarg);
@@ -686,6 +692,10 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
       if (capture_device != NULL) {
           /* Yes - use it. */
           capture_opts->iface = g_strdup(capture_device);
+	  /*  We don't set iface_descr here because doing so requires
+	   *  capture_ui_utils.c which requires epan/prefs.c which is
+	   *  probably a bit too much dependency for here...
+	   */
       } else {
         /* No - pick the first one from the list of interfaces. */
         if_list = get_interface_list(&err, &err_str);
@@ -705,6 +715,10 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
         }
         if_info = if_list->data;	/* first interface */
         capture_opts->iface = g_strdup(if_info->name);
+	/*  We don't set iface_descr here because doing so requires
+	 *  capture_ui_utils.c which requires epan/prefs.c which is
+	 *  probably a bit too much dependency for here...
+	 */
         free_interface_list(if_list);
       }
     }

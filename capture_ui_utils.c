@@ -100,6 +100,8 @@ capture_dev_user_descr_find(const gchar *if_name)
  * If the user has specified a comment, use that.  Otherwise,
  * if get_interface_list() supplies a description, use that,
  * otherwise use the interface name.
+ *
+ * The result must be g_free()'d when you're done with it.
  */
 char *
 get_interface_descriptive_name(const char *if_name)

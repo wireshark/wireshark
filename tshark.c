@@ -1593,7 +1593,6 @@ capture(void)
   int         pcap_cnt;
   condition  *volatile cnd_autostop_size = NULL;
   condition  *volatile cnd_autostop_duration = NULL;
-  char       *descr;
 #ifndef _WIN32
   void        (*oldhandler)(int);
 #endif
@@ -1692,9 +1691,8 @@ capture(void)
 #endif /* _WIN32 */
 
   /* Let the user know what interface was chosen. */
-  descr = get_interface_descriptive_name(capture_opts.iface);
-  fprintf(stderr, "Capturing on %s\n", descr);
-  g_free(descr);
+  capture_opts.iface_descr = get_interface_descriptive_name(capture_opts.iface);
+  fprintf(stderr, "Capturing on %s\n", capture_opts.iface_descr);
 
   /* initialize capture stop conditions */
   init_capture_stop_conditions();

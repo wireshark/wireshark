@@ -48,6 +48,7 @@
 #include "capture_dlg.h"
 #include "capture_if_details_dlg.h"
 #include "capture_errs.h"
+#include "capture_ui_utils.h"
 #include "recent.h"
 #include <epan/prefs.h>
 
@@ -136,8 +137,11 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 
   if (capture_opts->iface)
     g_free(capture_opts->iface);
+  if (capture_opts->iface_descr)
+    g_free(capture_opts->iface_descr);
 
   capture_opts->iface = g_strdup(if_dlg_data->device);
+  capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
 
   /* XXX - remove this? */
   if (capture_opts->save_file) {
@@ -160,8 +164,11 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
 
   if (capture_opts->iface)
     g_free(capture_opts->iface);
+  if (capture_opts->iface_descr)
+    g_free(capture_opts->iface_descr);
 
   capture_opts->iface = g_strdup(if_dlg_data->device);
+  capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
 
   /* stop capturing from all interfaces, we are going to do real work now ... */
   window_destroy(cap_if_w);

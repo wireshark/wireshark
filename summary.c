@@ -123,10 +123,6 @@ summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
 {
   st->cfilter = capture_opts->cfilter;
   st->iface = capture_opts->iface;
-  if(st->iface) {
-    st->iface_descr = get_interface_descriptive_name(st->iface);
-  } else {
-    st->iface_descr = NULL;
-  }
+  st->iface_descr = GET_IFACE_DESCR(capture_opts);
 }
 #endif

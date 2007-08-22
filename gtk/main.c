@@ -1608,7 +1608,7 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 
     if(capture_opts->iface) {
         title = g_strdup_printf("%s: Capturing - Wireshark",
-                            get_interface_descriptive_name(capture_opts->iface));
+				GET_IFACE_DESCR(capture_opts));
     } else {
         title = g_strdup_printf("Capturing - Wireshark");
     }
@@ -1643,7 +1643,7 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
        switching to the next multiple file. */
     if(capture_opts->iface) {
         title = g_strdup_printf("%s: Capturing - Wireshark",
-                            get_interface_descriptive_name(capture_opts->iface));
+				GET_IFACE_DESCR(capture_opts));
     } else {
         title = g_strdup_printf("Capturing - Wireshark");
     }
@@ -1660,8 +1660,8 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 
     if(capture_opts->iface) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-            get_interface_descriptive_name(capture_opts->iface),
-            (capture_opts->save_file) ? capture_opts->save_file : "");
+				      GET_IFACE_DESCR(capture_opts),
+				      (capture_opts->save_file) ? capture_opts->save_file : "");
     } else {
         capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
             (capture_opts->save_file) ? capture_opts->save_file : "");
@@ -1687,39 +1687,45 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
     /* XXX - don't show the highest expert level unless the TCP checksum offloading is "solved" */
     if (cf->f_datalen/1024/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld MB [Expert: %s]",
-            get_interface_descriptive_name(capture_opts->iface),
-            capture_opts->save_file,
-            cf->f_datalen/1024/1024,
-            val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
+				      GET_IFACE_DESCR(capture_opts),
+				      capture_opts->save_file,
+				      cf->f_datalen/1024/1024,
+				      val_to_str(expert_get_highest_severity(),
+						 expert_severity_vals,
+						 "Unknown (%u)"));
     } else if (cf->f_datalen/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld KB [Expert: %s]",
-            get_interface_descriptive_name(capture_opts->iface),
-            capture_opts->save_file,
-            cf->f_datalen/1024,
-            val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
+				      GET_IFACE_DESCR(capture_opts),
+				      capture_opts->save_file,
+				      cf->f_datalen/1024,
+				      val_to_str(expert_get_highest_severity(),
+						 expert_severity_vals,
+						 "Unknown (%u)"));
     } else {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %lld Bytes [Expert: %s]",
-            get_interface_descriptive_name(capture_opts->iface),
-            capture_opts->save_file,
-            cf->f_datalen,
-            val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
+				      GET_IFACE_DESCR(capture_opts),
+				      capture_opts->save_file,
+				      cf->f_datalen,
+				      val_to_str(expert_get_highest_severity(),
+						 expert_severity_vals,
+						 "Unknown (%u)"));
     }
 #endif
     if (cf->f_datalen/1024/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
-            get_interface_descriptive_name(capture_opts->iface),
-            capture_opts->save_file,
-            cf->f_datalen/1024/1024);
+				      GET_IFACE_DESCR(capture_opts),
+				      capture_opts->save_file,
+				      cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
-            get_interface_descriptive_name(capture_opts->iface),
-            capture_opts->save_file,
-            cf->f_datalen/1024);
+				      GET_IFACE_DESCR(capture_opts),
+				      capture_opts->save_file,
+				      cf->f_datalen/1024);
     } else {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
-            get_interface_descriptive_name(capture_opts->iface),
-            capture_opts->save_file,
-            cf->f_datalen);
+				      GET_IFACE_DESCR(capture_opts),
+				      capture_opts->save_file,
+				      cf->f_datalen);
     }
 
     statusbar_push_file_msg(capture_msg);
@@ -1782,8 +1788,8 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
     statusbar_pop_file_msg();
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-        get_interface_descriptive_name(capture_opts->iface),
-        (capture_opts->save_file) ? capture_opts->save_file : "");
+				  GET_IFACE_DESCR(capture_opts),
+				  (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " P: 0");

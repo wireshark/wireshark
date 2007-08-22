@@ -696,6 +696,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
        make the one from the preferences file the default */
     if_device = g_strdup(prefs.capture_device);
     capture_opts->iface = g_strdup(get_if_name(if_device));
+    capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
     g_free(if_device);
   }
 
@@ -1316,7 +1317,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 /* everythings prepared, now it's really time to start the capture */
 void
-capture_start_confirmed(void) {
+capture_start_confirmed(void)
+{
 
 
     /* init iface, if never used before */
@@ -1338,6 +1340,7 @@ capture_start_confirmed(void) {
         if_device = g_strdup(prefs.capture_device);
         if_name = get_if_name(if_device);
         capture_opts->iface = g_strdup(if_name);
+	capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
 
         g_free(if_device);
     }
@@ -1516,7 +1519,10 @@ capture_dlg_prep(gpointer parent_w) {
   }
   if (capture_opts->iface)
     g_free(capture_opts->iface);
+  if (capture_opts->iface_descr)
+    g_free(capture_opts->iface_descr);
   capture_opts->iface = g_strdup(if_name);
+  capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
   g_free(entry_text);
   /* The Linktype will be stored when the interface will be changed, or if not, not datalink option is used,
      the acquisition will be performed on the default datalink for the device */
