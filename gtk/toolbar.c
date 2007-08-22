@@ -153,13 +153,13 @@ static gboolean toolbar_init = FALSE;
 
 #ifdef HAVE_LIBPCAP
 static GtkWidget *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
-static GtkWidget *capture_filter_button;
+static GtkWidget *capture_filter_button, *autoscroll_button;
 #endif /* HAVE_LIBPCAP */
 static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *reload_button;
 static GtkWidget *print_button, *find_button, *history_forward_button, *history_back_button;
 static GtkWidget *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkWidget *display_filter_button;
-static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *autoscroll_button, *resize_columns_button;
+static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
 static GtkWidget *color_display_button, *prefs_button, *help_button;
 
 #if GTK_MAJOR_VERSION >= 2
