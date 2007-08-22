@@ -24,7 +24,6 @@
 #define __WTAP_CAPTURE_H__
 
 /* XXX - needed until "wiretap" can do live packet captures */
-int wtap_pcap_encap_to_wtap_encap(int encap);
 const guchar *wtap_process_pcap_packet(gint linktype,
     const struct pcap_pkthdr *phdr, const guchar *pd,
     union wtap_pseudo_header *pseudo_header, struct wtap_pkthdr *whdr,

@@ -54,10 +54,7 @@
 
 /* Needed for wtap_pcap_encap_to_wtap_encap().  Should we move it somewhere
  * else? */
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#endif
-#include <wiretap/wtap-capture.h>
+#include <wiretap/libpcap.h>
 
 #include "packet-frame.h"
 #include "packet-eth.h"
