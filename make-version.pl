@@ -98,19 +98,21 @@ sub read_svn_info {
 			$version_pref{"svn_client"} = 1;
 		}
 
-		# We need to find out whether our parser can handle the entries file
-		$line = <ENTRIES>;
-		chomp $line;
-		if ($line eq '<?xml version="1.0" encoding="utf-8"?>') {
-			$repo_version = "pre1.4";
-		} elsif ($line =~ /^8$/) {
-			$repo_version = "1.4";
-		} else {
-			$repo_version = "unknown";
-		}
+                else {
+                        # We need to find out whether our parser can handle the entries file
+                        $line = <ENTRIES>;
+                        chomp $line;
+                        if ($line eq '<?xml version="1.0" encoding="utf-8"?>') {
+			        $repo_version = "pre1.4";
+                        } elsif ($line =~ /^8$/) {
+                                $repo_version = "1.4";
+                        } else {
+                                $repo_version = "unknown";
+                        }
+                }
 	}
 	if ($version_pref{"svn_client"} || ($repo_version ne "pre1.4")) {
-		$line = qx{svn info};
+		$line = qx{svn info $srcdir};
 		if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
 		}
@@ -269,9 +271,9 @@ sub get_config {
 
 &get_config();
 
-if (-d "./.svn") {
+if (-d "$srcdir/.svn") {
 	print "This is a build from SVN (or a SVN snapshot).\n";
-	&read_svn_info(".");
+	&read_svn_info();
 	if ($pkg_version) {
 		print "Generating package version.  Ignoring $version_file\n";
 		&update_configure_in;
