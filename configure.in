@@ -702,24 +702,8 @@ fi
 AC_SUBST(editcap_bin)
 AC_SUBST(editcap_man)
 
-
-# Enable/disable dumpcap
-
-AC_ARG_ENABLE(dumpcap,
-  AC_HELP_STRING( [--enable-dumpcap],
-                  [build dumpcap.  @<:@default=yes@:>@]),
-    enable_dumpcap=$enableval,enable_dumpcap=yes)
-
-if test "x$enable_dumpcap" = "xyes" ; then
-	dumpcap_bin="dumpcap\$(EXEEXT)"
-	dumpcap_man="dumpcap.1"
-else
-	dumpcap_bin=""
-	dumpcap_man=""
-fi
-AC_SUBST(dumpcap_bin)
-AC_SUBST(dumpcap_man)
-
+# Enabling/disabling of dumpcap is done later (after we know if we have PCAP
+# or not)
 
 # Enable/disable capinfos
 
@@ -857,6 +841,37 @@ else
 	AC_MSG_RESULT(yes)
 	AC_WIRESHARK_PCAP_CHECK
 fi
+
+# Enable/disable dumpcap
+
+dnl dumpcap check
+AC_MSG_CHECKING(whether to build dumpcap)
+
+AC_ARG_ENABLE(dumpcap,
+  AC_HELP_STRING( [--enable-dumpcap],
+                  [build dumpcap.  @<:@default=yes@:>@]),
+    enable_dumpcap=$enableval,enable_dumpcap=yes)
+
+if test "x$enable_dumpcap" = "xyes" ; then
+	if test "x$want_pcap" = "xno" ; then
+		enable_dumpcap=no
+		AC_MSG_RESULT(pcap not available - disabling dumpcap)
+	else
+		AC_MSG_RESULT(yes)
+	fi
+else
+	AC_MSG_RESULT(no)
+fi
+
+if test "x$enable_dumpcap" = "xyes" ; then
+	dumpcap_bin="dumpcap\$(EXEEXT)"
+	dumpcap_man="dumpcap.1"
+else
+	dumpcap_bin=""
+	dumpcap_man=""
+fi
+AC_SUBST(dumpcap_bin)
+AC_SUBST(dumpcap_man)
 
 dnl zlib check
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
