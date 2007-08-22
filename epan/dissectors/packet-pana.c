@@ -23,7 +23,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 /* This protocol implements PANA as of the internet draft
- * draft-ietf-pana-pana-15  which is a workitem of the ietf workgroup
+ * draft-ietf-pana-pana-18  which is a workitem of the ietf workgroup
  * internet area/pana
  */
 
@@ -44,7 +44,6 @@
 #include <epan/emem.h>
 
 #define PANA_UDP_PORT 3001
-#define PANA_VERSION 1
 
 #define MIN_AVP_SIZE 8
 
@@ -53,6 +52,7 @@
 #define PANA_FLAG_C 0x2000
 #define PANA_FLAG_A 0x1000
 #define PANA_FLAG_P 0x0800
+#define PANA_FLAG_I 0x0400
 #define PANA_FLAG_RES6 0x0200
 #define PANA_FLAG_RES7 0x0100
 #define PANA_FLAG_RES8 0x0080
@@ -66,7 +66,6 @@
 #define PANA_FLAG_RES 0x0fff
 
 #define PANA_AVP_FLAG_V 0x8000
-#define PANA_AVP_FLAG_M 0x4000
 #define PANA_AVP_FLAG_RES2 0x2000
 #define PANA_AVP_FLAG_RES3 0x1000
 #define PANA_AVP_FLAG_RES4 0x0800
@@ -86,7 +85,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_pana = -1;
-static int hf_pana_version_type = -1;
 static int hf_pana_reserved_type = -1;
 static int hf_pana_length_type = -1;
 static int hf_pana_msg_type = -1;
@@ -105,11 +103,11 @@ static int hf_pana_flag_s = -1;
 static int hf_pana_flag_c = -1;
 static int hf_pana_flag_a = -1;
 static int hf_pana_flag_p = -1;
+static int hf_pana_flag_i = -1;
 static int hf_pana_avp_code = -1;
 static int hf_pana_avp_length = -1;
 static int hf_pana_avp_flags = -1;
 static int hf_pana_avp_flag_v = -1;
-static int hf_pana_avp_flag_m = -1;
 static int hf_pana_avp_reserved = -1;
 static int hf_pana_avp_vendorid = -1;
 
@@ -136,14 +134,15 @@ static const value_string msg_subtype_names[] = {
 };
 
 static const value_string avp_code_names[] = {
-       { 1, "Algorithm AVP" },
-       { 2, "AUTH AVP" },
-       { 3, "EAP-Payload AVP" },
+       { 1, "AUTH AVP" },
+       { 2, "EAP-Payload AVP" },
+       { 3, "Integrity-Algorithm AVP" },
        { 4, "Key-Id AVP" },
        { 5, "Nonce AVP" },
-       { 6, "Result-Code" },
-       { 7, "Session-Lifetime" },
-       { 8, "Termination-Cause" },
+       { 6, "PRF-Algorithm AVP" },
+       { 7, "Result-Code" },
+       { 8, "Session-Lifetime" },
+       { 9, "Termination-Cause" },
        { 0, NULL }
 };
 
@@ -238,6 +237,9 @@ dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
        proto_tree_add_boolean(flags_tree, hf_pana_flag_p, tvb, offset, 2, flags);
        if (flags & PANA_FLAG_P)
                proto_item_append_text(flags_item, ", P flag set");
+       proto_tree_add_boolean(flags_tree, hf_pana_flag_i, tvb, offset, 2, flags);
+       if (flags & PANA_FLAG_I)
+               proto_item_append_text(flags_item, ", I flag set");
 }
 
 /*
@@ -258,9 +260,6 @@ dissect_pana_avp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
        proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_v, tvb, offset, 2, flags);
        if (flags & PANA_AVP_FLAG_V)
                proto_item_append_text(avp_flags_item, ", Vendor");
-       proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_m, tvb, offset, 2, flags);
-       if (flags & PANA_AVP_FLAG_M)
-               proto_item_append_text(avp_flags_item, ", Mandatory");
 }
 
 
@@ -270,19 +269,17 @@ dissect_pana_avp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
 static pana_avp_types
 pana_avp_get_type(guint16 avp_code, guint32 vendor_id)
 {
-
        if(vendor_id == 0) {
                switch(avp_code) {
-                       case 1: return PANA_UNSIGNED32;         /* Algorithm AVP */
-                       case 2: return PANA_OCTET_STRING;       /* AUTH AVP */
-                       case 3: return PANA_EAP;                /* EAP-Payload AVP */
-                       case 4: return PANA_GROUPED;            /* Failed-AVP AVP */
-                       case 5: return PANA_OCTET_STRING;       /* Failed-Message-Header AVP */
-                       case 6: return PANA_INTEGER32;          /* Key-Id AVP */
-                       case 7: return PANA_OCTET_STRING;       /* Nonce AVP */
-                       case 8: return PANA_RESULT_CODE;        /* Result-Code AVP */
-                       case 9: return PANA_UNSIGNED32;         /* Session-Lifetime AVP */
-                       case 10: return PANA_ENUMERATED;        /* Termination-Cause AVP */
+                       case 1: return PANA_OCTET_STRING;       /* AUTH AVP */
+                       case 2: return PANA_EAP;                /* EAP-Payload AVP */
+                       case 3: return PANA_UNSIGNED32;         /* Integrity-Algorithm AVP */
+                       case 4: return PANA_INTEGER32;          /* Key-Id AVP */
+                       case 5: return PANA_OCTET_STRING;       /* Nonce AVP */
+                       case 6: return PANA_UNSIGNED32;         /* PRF-Algorithm AVP */
+                       case 7: return PANA_RESULT_CODE;        /* Result-Code AVP */
+                       case 8: return PANA_UNSIGNED32;         /* Session-Lifetime AVP */
+                       case 9: return PANA_ENUMERATED;         /* Termination-Cause AVP */
                        default: return PANA_OCTET_STRING;
                }
        } else {
@@ -614,13 +611,9 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-       /* Version */
-       proto_tree_add_item(pana_tree, hf_pana_version_type, tvb, offset, 1, FALSE);
-       offset += 1;
-
        /* Reserved field */
-       proto_tree_add_item(pana_tree, hf_pana_reserved_type, tvb, offset, 1, FALSE);
-       offset += 1;
+       proto_tree_add_item(pana_tree, hf_pana_reserved_type, tvb, offset, 2, FALSE);
+       offset += 2;
 
        /* Length */
        proto_tree_add_item(pana_tree, hf_pana_length_type, tvb, offset, 2, FALSE);
@@ -666,7 +659,6 @@ static gboolean
 dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-       guint8 pana_version;
        guint8 pana_res;
        guint16 msg_length;
        guint16 flags;
@@ -682,16 +674,10 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        }
 
        /* Get header fields */
-       pana_version = tvb_get_guint8(tvb, 0);
-       pana_res = tvb_get_guint8(tvb, 1);
+       pana_res = tvb_get_ntohs(tvb, 0);
        msg_length = tvb_get_ntohs(tvb, 2);
        flags = tvb_get_ntohs(tvb, 4);
        msg_type = tvb_get_ntohs(tvb, 6);
-
-       /* Check version */
-       if(pana_version != PANA_VERSION) {
-               return FALSE;
-       }
 
        /* Check minimum packet length */
        if(msg_length < 12) {
@@ -709,7 +695,7 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        }
 
        /* verify that none of the reserved bits are set */
-       if(flags&0x07ff){
+       if(flags&0x03ff){
                return FALSE;
        }
 
@@ -734,11 +720,6 @@ proto_register_pana(void)
   module_t *pana_module;
 
        static hf_register_info hf[] = {
-               { &hf_pana_version_type,
-                       { "PANA Version", "pana.version",
-                       FT_UINT8, BASE_DEC, NULL, 0x0,
-                       NULL, HFILL }
-               },
                { &hf_pana_response_in,
                        { "Response In", "pana.response_in",
                        FT_FRAMENUM, BASE_DEC, NULL, 0x0,
@@ -756,7 +737,7 @@ proto_register_pana(void)
                },
                { &hf_pana_reserved_type,
                        { "PANA Reserved", "pana.reserved",
-                       FT_UINT8, BASE_HEX, NULL, 0x0,
+                       FT_UINT16, BASE_HEX, NULL, 0x0,
                        NULL, HFILL }
                },
                { &hf_pana_length_type,
@@ -773,27 +754,32 @@ proto_register_pana(void)
                },
                { &hf_pana_flag_r,
                        { "Request", "pana.flags.r",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_R,
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_FLAG_R,
                        NULL, HFILL }
                },
                { &hf_pana_flag_s,
                        { "Start", "pana.flags.s",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_S,
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_FLAG_S,
                        NULL, HFILL }
                },
                { &hf_pana_flag_c,
                        { "Complete","pana.flags.c",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_C,
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_FLAG_C,
                        NULL, HFILL }
                },
                { &hf_pana_flag_a,
                        { "Auth","pana.flags.a",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_A,
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_FLAG_A,
                        NULL, HFILL }
                },
                { &hf_pana_flag_p,
                        { "Ping","pana.flags.p",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_P,
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_FLAG_P,
+                       NULL, HFILL }
+               },
+               { &hf_pana_flag_i,
+                       { "IP Reconfig","pana.flags.i",
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_FLAG_I,
                        NULL, HFILL }
                },
 
@@ -831,12 +817,7 @@ proto_register_pana(void)
                },
                { &hf_pana_avp_flag_v,
                        { "Vendor", "pana.avp.flags.v",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_V,
-                       NULL, HFILL }
-               },
-               { &hf_pana_avp_flag_m,
-                       { "Mandatory", "pana.avp.flags.m",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_AVP_FLAG_M,
+                       FT_BOOLEAN, 16, TFS(&tfs_set_notset), PANA_AVP_FLAG_V,
                        NULL, HFILL }
                },
                { &hf_pana_avp_reserved,
