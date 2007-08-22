@@ -175,13 +175,13 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 							(bytes >> 43 & 0x0007) << 30 |
 							(bytes >> 27 & 0x7fff) << 15 |
 							(bytes >> 11 & 0x7fff) << 0;
-						unsigned ext = bytes >> 1 & 0x1ff;
+						unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
 						guint64 cr = 300 * ts + ext;
-						unsigned rem = cr % SCRHZ;
+						unsigned rem = (unsigned)(cr % SCRHZ);
 						wth->capture.mpeg->now.secs
-							= wth->capture.mpeg->t0 + cr / SCRHZ;
+							= wth->capture.mpeg->t0 + (time_t)(cr / SCRHZ);
 						wth->capture.mpeg->now.nsecs
-							= 1000000000LL * rem / SCRHZ;
+							= (int)(G_GINT64_CONSTANT(1000000000) * rem / SCRHZ);
 					}
 					ts = wth->capture.mpeg->now;
 					break;
