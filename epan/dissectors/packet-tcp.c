@@ -701,7 +701,7 @@ finished_fwd:
 	if( seglen>0
 	&&  tcpd->fwd->nextseq
 	&&  (LT_SEQ(seq, tcpd->fwd->nextseq)) ){
-		guint32 t;
+		guint64 t;
 
 		if(tcpd->ta && (tcpd->ta->flags&TCP_A_KEEP_ALIVE) ){
 			goto finished_checking_retransmission_type;
@@ -714,7 +714,7 @@ finished_fwd:
 		 * duplicate ack
 		 * then this is a fast retransmission
 		 */
-		t=(guint32) (pinfo->fd->abs_ts.secs-tcpd->rev->lastacktime.secs)*1000000000;
+		t=(pinfo->fd->abs_ts.secs-tcpd->rev->lastacktime.secs)*1000000000;
 		t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->rev->lastacktime.nsecs;
 		if( tcpd->rev->dupacknum>=2
 		&&  tcpd->rev->lastack==seq
@@ -730,7 +730,7 @@ finished_fwd:
 		 * seen sequence number, then it is an OUT-OF-ORDER segment.
 		 *   (3ms is an arbitrary number)
 		 */
-		t=(guint32) (pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
+		t=(pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
 		t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
 		if( t<3000000 ){
 			if(!tcpd->ta){
