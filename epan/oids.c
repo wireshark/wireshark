@@ -107,12 +107,12 @@ static oid_info_t* add_oid(char* name, oid_kind_t kind, const oid_value_type_t* 
 			if (i == oid_len) {
 				n->name = g_strdup(name);
 				n->value_type = type;
-				n->kind = OID_KIND_UNKNOWN;
+				n->kind = kind;
 				return n;
 			} else {
 				n->name = g_strdup(name);
 				n->value_type = NULL;
-				n->kind = kind;
+				n->kind = OID_KIND_UNKNOWN;
 			}
 		}
 		c = n;
@@ -265,7 +265,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 										  smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME));
 				k->hfid = -2;
 				k->ft_type = typedata ? typedata->ft_type : FT_BYTES;
-				k->ft_type = typedata ? typedata->display : BASE_NONE;
+				k->display = typedata ? typedata->display : BASE_NONE;
 				k->next = NULL;
 				
 								
@@ -441,8 +441,8 @@ void register_mibs(void) {
 										   smiNode->oid);
 			
 			
-			D(4,("\t\tNode: subid=%u name=%s kind=%d",
-				 oid_data->subid, oid_data->name, oid_data->kind
+			D(4,("\t\tNode: %s name=%s kind=%d",
+				 oid_subid2string(smiNode->oid, smiNode->oidlen), oid_data->name, oid_data->kind
 				 ));
 			
 			if ( typedata && oid_data->value_hfid == -2 ) {
