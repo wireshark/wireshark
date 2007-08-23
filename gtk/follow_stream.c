@@ -60,6 +60,8 @@ static GdkColor client_fg, client_bg;
 static GtkTextTag *server_tag, *client_tag;
 #endif
 
+GList *follow_infos = NULL;
+
 frs_return_t
 follow_read_stream(follow_info_t *follow_info,
 		   gboolean (*print_line)(char *, size_t, gboolean, void *),
@@ -75,7 +77,7 @@ follow_read_stream(follow_info_t *follow_info,
 
 	default :
 		g_assert_not_reached();
-		return 0;    
+		return 0;
 	}
 }
 
@@ -108,19 +110,19 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 
 #if GTK_MAJOR_VERSION < 2
 	if (is_server) {
-		gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &server_fg, 
+		gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &server_fg,
 				&server_bg, buffer, nchars);
 	} else {
-		gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &client_fg, 
+		gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &client_fg,
 				&client_bg, buffer, nchars);
 	}
 #else
 	gtk_text_buffer_get_end_iter(buf, &iter);
 	if (is_server) {
-		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars, 
+		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars,
 						 server_tag, NULL);
 	} else {
-		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars, 
+		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars,
 						 client_tag, NULL);
 	}
 #endif
@@ -129,9 +131,9 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 
 /*
  * XXX - for text printing, we probably want to wrap lines at 80 characters;
- * (PostScript printing is doing this already), and perhaps put some kind of 
- * dingbat (to use the technical term) to indicate a wrapped line, along the 
- * lines of what's done when displaying this in a window, as per Warren Young's 
+ * (PostScript printing is doing this already), and perhaps put some kind of
+ * dingbat (to use the technical term) to indicate a wrapped line, along the
+ * lines of what's done when displaying this in a window, as per Warren Young's
  * suggestion.
  */
 gboolean
@@ -376,7 +378,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 		if(last_pos_mark)
 			gtk_text_buffer_delete_mark(buffer, last_pos_mark);
 	}
-	
+
 }
 
 void
@@ -538,10 +540,10 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 #else
 	/* Connect the ok_button to file_save_as_ok_cb function and pass along a
 	   pointer to the file selection box widget */
-	SIGNAL_CONNECT(GTK_FILE_SELECTION(new_win)->ok_button, 
+	SIGNAL_CONNECT(GTK_FILE_SELECTION(new_win)->ok_button,
 		       "clicked", follow_save_as_ok_cb, new_win);
 
-	window_set_cancel_button(new_win, 
+	window_set_cancel_button(new_win,
 				 GTK_FILE_SELECTION(new_win)->cancel_button, window_cancel_button_cb);
 
 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");

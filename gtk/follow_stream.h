@@ -87,7 +87,7 @@ typedef struct {
 
 /* List of "follow_info_t" structures for all "Follow TCP Stream" windows,
    so we can redraw them all if the colors or font changes. */
-GList *follow_infos;
+extern GList *follow_infos;
 
 void follow_charset_toggle_cb(GtkWidget * w, gpointer parent_w);
 void follow_load_text(follow_info_t *follow_info);
