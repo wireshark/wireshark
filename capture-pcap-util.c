@@ -45,7 +45,7 @@
 #endif
 
 #include <wtap.h>
-#include <wtap-capture.h>
+#include <libpcap.h>
 
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
