@@ -440,6 +440,9 @@ get_tcp_port
 get_tempfile_path
 get_udp_port
 getenv_utf8
+golay_encode
+golay_errors
+golay_decode
 gsm_a_bssmap_msg_strings        DATA
 gsm_a_dtap_msg_cc_strings       DATA
 gsm_a_dtap_msg_gmm_strings      DATA
@@ -892,4 +895,3 @@ write_prefs
 ws_strsplit
 wtap_nstime_to_sec
 xml_escape
-golay_errors
