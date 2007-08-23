@@ -38,13 +38,13 @@
 #include <epan/packet.h>
 #include <epan/stream.h>
 #include <epan/reassemble.h>
+#include <epan/golay.h>
 #include <epan/iax2_codec_type.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-h245.h>
 
 #include "packet-h223.h"
-#include "golay.h"
 
 #include <string.h>
 

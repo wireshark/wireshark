@@ -43,7 +43,7 @@ LIBWIRESHARK_SRC = 		\
 	crc32.c			\
 	crc6.c			\
 	crcdrm.c		\
-	dissector_filters.c		\
+	dissector_filters.c	\
 	emem.c			\
 	epan.c			\
 	ex-opt.c		\
@@ -55,6 +55,7 @@ LIBWIRESHARK_SRC = 		\
 	frequency-utils.c	\
 	funnel.c    		\
 	gcp.c			\
+        golay.c			\
 	guid-utils.c    	\
 	h225-persistentdata.c	\
 	in_cksum.c		\
@@ -154,7 +155,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	crc32.h			\
 	crcdrm.h		\
 	diam_dict.h		\
-	dissector_filters.h		\
+	dissector_filters.h	\
 	dtd.h			\
 	dtd_parse.h 		\
 	emem.h			\
@@ -172,6 +173,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	funnel.h		\
 	garrayfix.h		\
 	gcp.h			\
+	golay.h			\
 	gnuc_format_check.h	\
 	greproto.h		\
 	guid-utils.h		\
