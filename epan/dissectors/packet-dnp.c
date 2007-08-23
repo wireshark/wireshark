@@ -295,32 +295,39 @@
 #define AL_OBJ_DCTR_16     0x1404   /* 20 04 16-Bit Delta Counter */
 #define AL_OBJ_CTR_32NF    0x1405   /* 20 05 32-Bit Binary Counter Without Flag */
 #define AL_OBJ_CTR_16NF    0x1406   /* 20 06 16-Bit Binary Counter Without Flag */
-#define AL_OBJ_DLTCTR_32NF 0x1407   /* 20 07 32-Bit Delta Counter Without Flag */
-#define AL_OBJ_DLTCTR_16NF 0x1408   /* 20 08 16-Bit Delta Counter Without Flag */
+#define AL_OBJ_DCTR_32NF   0x1407   /* 20 07 32-Bit Delta Counter Without Flag */
+#define AL_OBJ_DCTR_16NF   0x1408   /* 20 08 16-Bit Delta Counter Without Flag */
+#define AL_OBJ_FCTR_ALL    0x1500   /* 21 00 Frozen Binary Counter All Variations */
 #define AL_OBJ_FCTR_32     0x1501   /* 21 01 32-Bit Frozen Counter */
 #define AL_OBJ_FCTR_16     0x1502   /* 21 02 16-Bit Frozen Counter */
-                        /* 0x1503      21 03 32-Bit Frozen Delta Counter */
-                        /* 0x1504      21 04 16-Bit Frozen Delta Counter */
-                        /* 0x1505      21 05 32-Bit Frozen Counter w/ Time of Freeze */
-                        /* 0x1506      21 06 16-Bit Frozen Counter w/ Time of Freeze */
-                        /* 0x1507      21 07 32-Bit Frozen Delta Counter w/ Time of Freeze */
-                        /* 0x1508      21 08 16-Bit Frozen Delta Counter w/ Time of Freeze */
-                        /* 0x1509      21 09 32-Bit Frozen Counter Without Flag */
-                        /* 0x1510      21 10 16-Bit Frozen Counter Without Flag */
-                        /* 0x1511      21 11 32-Bit Frozen Delta Counter Without Flag */
-                        /* 0x1512      21 12 16-Bit Frozen Delta Counter Without Flag */
+#define AL_OBJ_FDCTR_32    0x1503   /* 21 03 32-Bit Frozen Delta Counter */
+#define AL_OBJ_FDCTR_16    0x1504   /* 21 04 16-Bit Frozen Delta Counter */
+#define AL_OBJ_FCTR_32T    0x1505   /* 21 05 32-Bit Frozen Counter w/ Time of Freeze */
+#define AL_OBJ_FCTR_16T    0x1506   /* 21 06 16-Bit Frozen Counter w/ Time of Freeze */
+#define AL_OBJ_FDCTR_32T   0x1507   /* 21 07 32-Bit Frozen Delta Counter w/ Time of Freeze */
+#define AL_OBJ_FDCTR_16T   0x1508   /* 21 08 16-Bit Frozen Delta Counter w/ Time of Freeze */
+#define AL_OBJ_FCTR_32NF   0x1509   /* 21 09 32-Bit Frozen Counter Without Flag */
+#define AL_OBJ_FCTR_16NF   0x1510   /* 21 10 16-Bit Frozen Counter Without Flag */
+#define AL_OBJ_FDCTR_32NF  0x1511   /* 21 11 32-Bit Frozen Delta Counter Without Flag */
+#define AL_OBJ_FDCTR_16NF  0x1512   /* 21 12 16-Bit Frozen Delta Counter Without Flag */
 #define AL_OBJ_CTRC_ALL    0x1600   /* 22 00 Counter Change Event All Variations */
 #define AL_OBJ_CTRC_32     0x1601   /* 22 01 32-Bit Counter Change Event w/o Time */
 #define AL_OBJ_CTRC_16     0x1602   /* 22 02 16-Bit Counter Change Event w/o Time */
-#define AL_OBJ_DLTCTRC_32  0x1603   /* 22 03 32-Bit Delta Counter Change Event w/o Time */
-#define AL_OBJ_DLTCTRC_16  0x1604   /* 22 04 16-Bit Delta Counter Change Event w/o Time */
+#define AL_OBJ_DCTRC_32    0x1603   /* 22 03 32-Bit Delta Counter Change Event w/o Time */
+#define AL_OBJ_DCTRC_16    0x1604   /* 22 04 16-Bit Delta Counter Change Event w/o Time */
 #define AL_OBJ_CTRC_32T    0x1605   /* 22 05 32-Bit Counter Change Event with Time */
 #define AL_OBJ_CTRC_16T    0x1606   /* 22 06 16-Bit Counter Change Event with Time */
-#define AL_OBJ_DLTCTRC_32T 0x1607   /* 22 07 32-Bit Delta Counter Change Event with Time */
-#define AL_OBJ_DLTCTRC_16T 0x1608   /* 22 08 16-Bit Delta Counter Change Event with Time */
-                        /* 0x1701      23 01 32-Bit Counter Change Event w/o Time */
-                        /* 0x1702      23 02 16-Bit Frozen Counter Change Event w/o Time */
-                        /* 0x1703      23 03 32-Bit Frozen Delta Counter Change Event w/o Time */
+#define AL_OBJ_DCTRC_32T   0x1607   /* 22 07 32-Bit Delta Counter Change Event with Time */
+#define AL_OBJ_DCTRC_16T   0x1608   /* 22 08 16-Bit Delta Counter Change Event with Time */
+#define AL_OBJ_FCTRC_ALL   0x1700   /* 21 00 Frozen Binary Counter Change Event All Variations */
+#define AL_OBJ_FCTRC_32    0x1701   /* 21 01 32-Bit Frozen Counter Change Event */
+#define AL_OBJ_FCTRC_16    0x1702   /* 21 02 16-Bit Frozen Counter Change Event */
+#define AL_OBJ_FDCTRC_32   0x1703   /* 21 03 32-Bit Frozen Delta Counter Change Event */
+#define AL_OBJ_FDCTRC_16   0x1704   /* 21 04 16-Bit Frozen Delta Counter Change Event */
+#define AL_OBJ_FCTRC_32T   0x1705   /* 21 05 32-Bit Frozen Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FCTRC_16T   0x1706   /* 21 06 16-Bit Frozen Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FDCTRC_32T  0x1707   /* 21 07 32-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
+#define AL_OBJ_FDCTRC_16T  0x1708   /* 21 08 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
 
 /* Counter Quality Flags */
 #define AL_OBJ_CTR_FLAG0   0x0001   /* Point Online (0=Offline; 1=Online) */
@@ -691,21 +698,43 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_CTR_ALL,    "Binary Counter All Variations (Obj:20, Var:All)" },
   { AL_OBJ_CTR_32,     "32-Bit Binary Counter (Obj:20, Var:01)" },
   { AL_OBJ_CTR_16,     "16-Bit Binary Counter (Obj:20, Var:02)" },
+  { AL_OBJ_DCTR_32,    "32-Bit Binary Delta Counter (Obj:20, Var:03)" },
+  { AL_OBJ_DCTR_16,    "16-Bit Binary Delta Counter (Obj:20, Var:04)" },
   { AL_OBJ_CTR_32NF,   "32-Bit Binary Counter Without Flag (Obj:20, Var:05)" },
   { AL_OBJ_CTR_16NF,   "16-Bit Binary Counter Without Flag (Obj:20, Var:06)" },
-  { AL_OBJ_DLTCTR_32NF,"32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07)" },
-  { AL_OBJ_DLTCTR_16NF,"16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08)" },
-  { AL_OBJ_FCTR_32,    "32-Bit Frozen Counter (Obj:21, Var:01)"},
-  { AL_OBJ_FCTR_16,    "16-Bit Frozen Counter (Obj:21, Var:02)"},
+  { AL_OBJ_DCTR_32NF,  "32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07)" },
+  { AL_OBJ_DCTR_16NF,  "16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08)" },
+  { AL_OBJ_FCTR_ALL,   "Frozen Binary Counter All Variations (Obj:21, Var:All)" },
+  { AL_OBJ_FCTR_32,    "32-Bit Frozen Binary Counter (Obj:21, Var:01)" },
+  { AL_OBJ_FCTR_16,    "16-Bit Frozen Binary Counter (Obj:21, Var:02)" },
+  { AL_OBJ_FDCTR_32,   "32-Bit Frozen Binary Delta Counter (Obj:21, Var:03)" },
+  { AL_OBJ_FDCTR_16,   "16-Bit Frozen Binary Delta Counter (Obj:21, Var:04)" },
+  { AL_OBJ_FCTR_32T,   "32-Bit Frozen Binary Counter (Obj:21, Var:01)" },
+  { AL_OBJ_FCTR_16T,   "16-Bit Frozen Binary Counter (Obj:21, Var:02)" },
+  { AL_OBJ_FDCTR_32T,  "32-Bit Frozen Binary Delta Counter (Obj:21, Var:03)" },
+  { AL_OBJ_FDCTR_16T,  "16-Bit Frozen Binary Delta Counter (Obj:21, Var:04)" },
+  { AL_OBJ_FCTR_32NF,  "32-Bit Frozen Binary Counter Without Flag (Obj:21, Var:05)" },
+  { AL_OBJ_FCTR_16NF,  "16-Bit Frozen Binary Counter Without Flag (Obj:21, Var:06)" },
+  { AL_OBJ_FDCTR_32NF, "32-Bit Frozen Binary Delta Counter Without Flag (Obj:21, Var:07)" },
+  { AL_OBJ_FDCTR_16NF, "16-Bit Frozen Binary Delta Counter Without Flag (Obj:21, Var:08)" },
   { AL_OBJ_CTRC_ALL,   "Binary Counter Change All Variations (Obj:22, Var:All)" },
   { AL_OBJ_CTRC_32,    "32-Bit Counter Change Event w/o Time (Obj:22, Var:01)" },
   { AL_OBJ_CTRC_16,    "16-Bit Counter Change Event w/o Time (Obj:22, Var:02)" },
-  { AL_OBJ_DLTCTRC_32, "32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03)" },
-  { AL_OBJ_DLTCTRC_16, "16-Bit Delta Counter Change Event w/o Time (Obj:22, Var:04)" },
+  { AL_OBJ_DCTRC_32,   "32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03)" },
+  { AL_OBJ_DCTRC_16,   "16-Bit Delta Counter Change Event w/o Time (Obj:22, Var:04)" },
   { AL_OBJ_CTRC_32T,   "32-Bit Counter Change Event with Time (Obj:22, Var:05)" },
   { AL_OBJ_CTRC_16T,   "16-Bit Counter Change Event with Time (Obj:22, Var:06)" },
-  { AL_OBJ_DLTCTRC_32T,"32-Bit Delta Counter Change Event with Time (Obj:22, Var:07)" },
-  { AL_OBJ_DLTCTRC_16T,"16-Bit Delta Counter Change Event with Time (Obj:22, Var:08)" },
+  { AL_OBJ_DCTRC_32T,  "32-Bit Delta Counter Change Event with Time (Obj:22, Var:07)" },
+  { AL_OBJ_DCTRC_16T,  "16-Bit Delta Counter Change Event with Time (Obj:22, Var:08)" },
+  { AL_OBJ_FCTRC_ALL,  "Frozen Binary Counter Change All Variations (Obj:23, Var:All)" },
+  { AL_OBJ_FCTRC_32,   "32-Bit Frozen Counter Change Event w/o Time (Obj:23, Var:01)" },
+  { AL_OBJ_FCTRC_16,   "16-Bit Frozen Counter Change Event w/o Time (Obj:23, Var:02)" },
+  { AL_OBJ_FDCTRC_32,  "32-Bit Frozen Delta Counter Change Event w/o Time (Obj:23, Var:03)" },
+  { AL_OBJ_FDCTRC_16,  "16-Bit Frozen Delta Counter Change Event w/o Time (Obj:23, Var:04)" },
+  { AL_OBJ_FCTRC_32T,  "32-Bit Frozen Counter Change Event with Time (Obj:23, Var:05)" },
+  { AL_OBJ_FCTRC_16T,  "16-Bit Frozen Counter Change Event with Time (Obj:23, Var:06)" },
+  { AL_OBJ_FDCTRC_32T, "32-Bit Frozen Delta Counter Change Event with Time (Obj:23, Var:07)" },
+  { AL_OBJ_FDCTRC_16T, "16-Bit Frozen Delta Counter Change Event with Time (Obj:23, Var:08)" },
   { AL_OBJ_AI_ALL,     "Analog Input All Variations (Obj:30, Var:All)" },
   { AL_OBJ_AI_32,      "32-Bit Analog Input (Obj:30, Var:01)" },
   { AL_OBJ_AI_16,      "16-Bit Analog Input (Obj:30, Var:02)" },
@@ -881,9 +910,6 @@ static const fragment_items dnp3_frag_items = {
 typedef struct {
   guint conv_seq_number;
 } dnp3_conv_t;
-
-/* the GMemChunk base structure */
-static GMemChunk *dnp3_conv_vals = NULL;
 
 /* The conversation sequence number */
 static guint seq_number = 0;
@@ -1213,7 +1239,7 @@ dnp3_al_get_timestamp(nstime_t *timestamp, tvbuff_t *tvb, int data_pos)
 /*  Returns: New offset pointer into tvb                         */
 /*****************************************************************/
 static int
-dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolean header_only)
+dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolean header_only, guint16 *al_objtype)
 {
 
   guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code,
@@ -1233,6 +1259,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
   orig_offset = offset;
 
   /* Application Layer Objects in this Message */
+  *al_objtype =
   al_obj = tvb_get_ntohs(tvb, offset);
 
   /* Create Data Objects Detail Tree */
@@ -1612,28 +1639,52 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
 
           case AL_OBJ_CTR_32:     /* 32-Bit Binary Counter (Obj:20, Var:01) */
           case AL_OBJ_CTR_16:     /* 16-Bit Binary Counter (Obj:20, Var:02) */
+          case AL_OBJ_DCTR_32:    /* 32-Bit Binary Delta Counter (Obj:20, Var:03) */
+          case AL_OBJ_DCTR_16:    /* 16-Bit Binary Delta Counter (Obj:20, Var:04) */
           case AL_OBJ_CTR_32NF:   /* 32-Bit Binary Counter Without Flag (Obj:20, Var:05) */
           case AL_OBJ_CTR_16NF:   /* 16-Bit Binary Counter Without Flag (Obj:20, Var:06) */
-          case AL_OBJ_DLTCTR_32NF:/* 32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07) */
-          case AL_OBJ_DLTCTR_16NF:/* 16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08) */
+          case AL_OBJ_DCTR_32NF:  /* 32-Bit Binary Delta Counter Without Flag (Obj:20, Var:07) */
+          case AL_OBJ_DCTR_16NF:  /* 16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08) */
           case AL_OBJ_FCTR_32:    /* 32-Bit Frozen Counter (Obj:21, Var:01) */
           case AL_OBJ_FCTR_16:    /* 16-Bit Frozen Counter (Obj:21, Var:02) */
+          case AL_OBJ_FDCTR_32:	  /* 21 03 32-Bit Frozen Delta Counter */
+          case AL_OBJ_FDCTR_16:   /* 21 04 16-Bit Frozen Delta Counter */
+          case AL_OBJ_FCTR_32T:   /* 21 05 32-Bit Frozen Counter w/ Time of Freeze */
+          case AL_OBJ_FCTR_16T:   /* 21 06 16-Bit Frozen Counter w/ Time of Freeze */
+          case AL_OBJ_FDCTR_32T:  /* 21 07 32-Bit Frozen Delta Counter w/ Time of Freeze */
+          case AL_OBJ_FDCTR_16T:  /* 21 08 16-Bit Frozen Delta Counter w/ Time of Freeze */
+          case AL_OBJ_FCTR_32NF:  /* 21 09 32-Bit Frozen Counter Without Flag */
+          case AL_OBJ_FCTR_16NF:  /* 21 10 16-Bit Frozen Counter Without Flag */
+          case AL_OBJ_FDCTR_32NF: /* 21 11 32-Bit Frozen Delta Counter Without Flag */
+          case AL_OBJ_FDCTR_16NF: /* 21 12 16-Bit Frozen Delta Counter Without Flag */
           case AL_OBJ_CTRC_32:    /* 32-Bit Counter Change Event w/o Time (Obj:22, Var:01) */
           case AL_OBJ_CTRC_16:    /* 16-Bit Counter Change Event w/o Time (Obj:22, Var:02) */
-          case AL_OBJ_DLTCTRC_32: /* 32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03) */
-          case AL_OBJ_DLTCTRC_16: /* 16-Bit Delta Counter Change Event w/o Time (Obj:22, Var:04) */
+          case AL_OBJ_DCTRC_32:   /* 32-Bit Delta Counter Change Event w/o Time (Obj:22, Var:03) */
+          case AL_OBJ_DCTRC_16:   /* 16-Bit Delta Counter Change Event w/o Time (Obj:22, Var:04) */
           case AL_OBJ_CTRC_32T:   /* 32-Bit Counter Change Event with Time (Obj:22, Var:05) */
           case AL_OBJ_CTRC_16T:   /* 16-Bit Counter Change Event with Time (Obj:22, Var:06) */
-          case AL_OBJ_DLTCTRC_32T:/* 32-Bit Delta Counter Change Event with Time (Obj:22, Var:07) */
-          case AL_OBJ_DLTCTRC_16T:/* 16-Bit Delta Counter Change Event with Time (Obj:22, Var:08) */
+          case AL_OBJ_DCTRC_32T:  /* 32-Bit Delta Counter Change Event with Time (Obj:22, Var:07) */
+          case AL_OBJ_DCTRC_16T:  /* 16-Bit Delta Counter Change Event with Time (Obj:22, Var:08) */
+          case AL_OBJ_FCTRC_32:   /* 21 01 32-Bit Frozen Counter Change Event */
+          case AL_OBJ_FCTRC_16:   /* 21 02 16-Bit Frozen Counter Change Event */
+          case AL_OBJ_FDCTRC_32:  /* 21 03 32-Bit Frozen Delta Counter Change Event */
+          case AL_OBJ_FDCTRC_16:  /* 21 04 16-Bit Frozen Delta Counter Change Event */
+          case AL_OBJ_FCTRC_32T:  /* 21 05 32-Bit Frozen Counter Change Event w/ Time of Freeze */
+          case AL_OBJ_FCTRC_16T:  /* 21 06 16-Bit Frozen Counter Change Event w/ Time of Freeze */
+          case AL_OBJ_FDCTRC_32T: /* 21 07 32-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
+          case AL_OBJ_FDCTRC_16T: /* 21 08 16-Bit Frozen Delta Counter Change Event w/ Time of Freeze */
 
-            /* Get Point Flags for those types that have them */
+            /* Get Point Flags for those types that have them, it's easier to block out those that don't have flags */
             switch (al_obj)
             {
               case AL_OBJ_CTR_32NF:
               case AL_OBJ_CTR_16NF:
-              case AL_OBJ_DLTCTR_32NF:
-              case AL_OBJ_DLTCTR_16NF:
+              case AL_OBJ_DCTR_32NF:
+              case AL_OBJ_DCTR_16NF:
+              case AL_OBJ_FCTR_32NF:
+              case AL_OBJ_FCTR_16NF:
+              case AL_OBJ_FDCTR_32NF:
+              case AL_OBJ_FDCTR_16NF:
                 break;
 
               default:
@@ -1643,16 +1694,27 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
                 break;
             }
 
+            /* Get Counter values */
             switch (al_obj)
             {
               case AL_OBJ_CTR_32:
+              case AL_OBJ_DCTR_32:
               case AL_OBJ_CTR_32NF:
-              case AL_OBJ_DLTCTR_32NF:
+              case AL_OBJ_DCTR_32NF:
               case AL_OBJ_FCTR_32:
+              case AL_OBJ_FDCTR_32:
+              case AL_OBJ_FCTR_32T:
+              case AL_OBJ_FDCTR_32T:
+              case AL_OBJ_FCTR_32NF:
+              case AL_OBJ_FDCTR_32NF:
               case AL_OBJ_CTRC_32:
-              case AL_OBJ_DLTCTRC_32:
+              case AL_OBJ_DCTRC_32:
               case AL_OBJ_CTRC_32T:
-              case AL_OBJ_DLTCTRC_32T:
+              case AL_OBJ_DCTRC_32T:
+              case AL_OBJ_FCTRC_32:
+              case AL_OBJ_FDCTRC_32:
+              case AL_OBJ_FCTRC_32T:
+              case AL_OBJ_FDCTRC_32T:
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Count: %d", al_val32);
@@ -1661,13 +1723,23 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
                 break;
 
               case AL_OBJ_CTR_16:
+              case AL_OBJ_DCTR_16:
               case AL_OBJ_CTR_16NF:
-              case AL_OBJ_DLTCTR_16NF:
+              case AL_OBJ_DCTR_16NF:
               case AL_OBJ_FCTR_16:
+              case AL_OBJ_FDCTR_16:
+              case AL_OBJ_FCTR_16T:
+              case AL_OBJ_FDCTR_16T:
+              case AL_OBJ_FCTR_16NF:
+              case AL_OBJ_FDCTR_16NF:
               case AL_OBJ_CTRC_16:
-              case AL_OBJ_DLTCTRC_16:
+              case AL_OBJ_DCTRC_16:
               case AL_OBJ_CTRC_16T:
-              case AL_OBJ_DLTCTRC_16T:
+              case AL_OBJ_DCTRC_16T:
+              case AL_OBJ_FCTRC_16:
+              case AL_OBJ_FDCTRC_16:
+              case AL_OBJ_FCTRC_16T:
+              case AL_OBJ_FDCTRC_16T:
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Count: %d", al_val16);
@@ -1679,10 +1751,18 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             /* Get the time for those points that have it */
             switch (al_obj)
             {
+              case AL_OBJ_FCTR_32T:
+              case AL_OBJ_FCTR_16T:
+              case AL_OBJ_FDCTR_32T:
+              case AL_OBJ_FDCTR_16T:
               case AL_OBJ_CTRC_32T:
               case AL_OBJ_CTRC_16T:
-              case AL_OBJ_DLTCTRC_32T:
-              case AL_OBJ_DLTCTRC_16T:
+              case AL_OBJ_DCTRC_32T:
+              case AL_OBJ_DCTRC_16T:
+              case AL_OBJ_FCTRC_32T:
+              case AL_OBJ_FCTRC_16T:
+              case AL_OBJ_FDCTRC_32T:
+              case AL_OBJ_FDCTRC_16T:
                 dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
                 proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(&al_abstime));
                 proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
@@ -1918,8 +1998,8 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
 static int
 dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8        al_ctl, al_seq, al_func;
-  guint16       bytes;
+  guint8        al_ctl, al_seq, al_func, al_class = 0, i;
+  guint16       bytes, obj_type;
   gboolean      al_fir, al_fin, al_con;
   guint         data_len = 0, offset = 0;
   proto_item   *ti = NULL, *tc, *t_robj;
@@ -1938,166 +2018,183 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   func_code_str = val_to_str(al_func, dnp3_al_func_vals, "Unknown function (0x%02x)");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", func_code_str);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", func_code_str);
+    col_set_fence(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    /* format up the text representation */
-    ti = proto_tree_add_text(tree, tvb, offset, data_len, "Application Layer: (");
-    if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(ti, "FIR, ");
-    if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(ti, "FIN, ");
-    if (al_ctl & DNP3_AL_CON)  proto_item_append_text(ti, "CON, ");
-    proto_item_append_text(ti, "Sequence %d, %s)", al_seq, func_code_str);
+  /* format up the text representation */
+  ti = proto_tree_add_text(tree, tvb, offset, data_len, "Application Layer: (");
+  if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(ti, "FIR, ");
+  if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(ti, "FIN, ");
+  if (al_ctl & DNP3_AL_CON)  proto_item_append_text(ti, "CON, ");
+  proto_item_append_text(ti, "Sequence %d, %s)", al_seq, func_code_str);
 
-    /* Add the al tree branch */
-    al_tree = proto_item_add_subtree(ti, ett_dnp3_al);
+  /* Add the al tree branch */
+  al_tree = proto_item_add_subtree(ti, ett_dnp3_al);
 
-    /* Application Layer control byte subtree */
-    tc = proto_tree_add_uint_format(al_tree, hf_dnp3_al_ctl, tvb, offset, 1, al_ctl,
-            "Control: 0x%02x (", al_ctl);
-    if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(tc, "FIR, ");
-    if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(tc, "FIN, ");
-    if (al_ctl & DNP3_AL_CON)  proto_item_append_text(tc, "CON, ");
-    proto_item_append_text(tc, "Sequence %d)", al_seq);
+  /* Application Layer control byte subtree */
+  tc = proto_tree_add_uint_format(al_tree, hf_dnp3_al_ctl, tvb, offset, 1, al_ctl,
+      "Control: 0x%02x (", al_ctl);
+  if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(tc, "FIR, ");
+  if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(tc, "FIN, ");
+  if (al_ctl & DNP3_AL_CON)  proto_item_append_text(tc, "CON, ");
+  proto_item_append_text(tc, "Sequence %d)", al_seq);
 
-    field_tree = proto_item_add_subtree(tc, ett_dnp3_al_ctl);
-    proto_tree_add_boolean(field_tree, hf_dnp3_al_fir, tvb, offset, 1, al_ctl);
-    proto_tree_add_boolean(field_tree, hf_dnp3_al_fin, tvb, offset, 1, al_ctl);
-    proto_tree_add_boolean(field_tree, hf_dnp3_al_con, tvb, offset, 1, al_ctl);
-    proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, FALSE);
-    offset += 1;
+  field_tree = proto_item_add_subtree(tc, ett_dnp3_al_ctl);
+  proto_tree_add_boolean(field_tree, hf_dnp3_al_fir, tvb, offset, 1, al_ctl);
+  proto_tree_add_boolean(field_tree, hf_dnp3_al_fin, tvb, offset, 1, al_ctl);
+  proto_tree_add_boolean(field_tree, hf_dnp3_al_con, tvb, offset, 1, al_ctl);
+  proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, FALSE);
+  offset += 1;
 
-    /* If this packet is NOT the final Application Layer Message, exit and continue
-       processing the remaining data in the fragment.
-    if (!al_fin)
-    {
-      t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Buffering User Data Until Final Frame is Received..");
-      return 1;
-    } */
+  /* If this packet is NOT the final Application Layer Message, exit and continue
+  processing the remaining data in the fragment.
+  if (!al_fin)
+  {
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Buffering User Data Until Final Frame is Received..");
+  return 1;
+  } */
 
-    /* Application Layer Function Code Byte  */
-    proto_tree_add_uint_format(al_tree, hf_dnp3_al_func, tvb, offset, 1, al_func,
-                "Function Code: %s (0x%02x)", func_code_str, al_func);
-    offset += 1;
+  /* Application Layer Function Code Byte  */
+  proto_tree_add_uint_format(al_tree, hf_dnp3_al_func, tvb, offset, 1, al_func,
+    "Function Code: %s (0x%02x)", func_code_str, al_func);
+  offset += 1;
 
-    switch (al_func) {
+  switch (al_func) {
 
-      case AL_FUNC_READ:     /* Read Function Code 0x01 */
+  case AL_FUNC_READ:     /* Read Function Code 0x01 */
 
-        /* Create Read Request Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "READ Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+  /* Create Read Request Data Objects Tree */
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "READ Request Data Objects");
+  robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
-        /* Process Data Object Details */
-        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, offset, robj_tree, TRUE);
-        }
+  /* Process Data Object Details */
+  while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+    offset = dnp3_al_process_object(tvb, offset, robj_tree, TRUE, &obj_type);
 
+    /* Update class type for each object that was a class read */
+    switch(obj_type) {
+      case AL_OBJ_CLASS0:
+      case AL_OBJ_CLASS1:
+      case AL_OBJ_CLASS2:
+      case AL_OBJ_CLASS3:
+        al_class |= (1 << ((obj_type & 0x0f) - 1));
         break;
-
-      case AL_FUNC_WRITE:     /* Write Function Code 0x02 */
-
-        /* Create Write Request Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "WRITE Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
-
-        /* Process Data Object Details */
-        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE);
-        }
-
-        break;
-
-      case AL_FUNC_SELECT:     /* Select Function Code 0x03 */
-
-        /* Create Select Request Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "SELECT Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
-
-        /* Process Data Object Details */
-        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE);
-        }
-
-        break;
-
-      case AL_FUNC_OPERATE:    /* Operate Function Code 0x04 */
-                               /* Functionally identical to 'SELECT' Function Code */
-
-        /* Create Operate Request Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "OPERATE Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
-
-        /* Process Data Object Details */
-        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE);
-        }
-
-        break;
-
-      case AL_FUNC_DIROP:     /* Direct Operate Function Code 0x05 */
-                              /* Functionally identical to 'SELECT' Function Code */
-
-        /* Create Direct Operate Request Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "DIRECT OPERATE Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
-
-        /* Process Data Object Details */
-        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE);
-        }
-
-        break;
-
-      case AL_FUNC_ENSPMSG:   /* Enable Spontaneous Messages Function Code 0x14 */
-
-        /* Create Enable Spontaneous Messages Data Objects Tree */
-        t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Enable Spontaneous Msg's Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
-
-        /* Process Data Object Details */
-        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
-          offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE);
-        }
-
-        break;
-
-      case AL_FUNC_DELAYMST:  /* Delay Measurement Function Code 0x17 */
-
-        break;
-
-      case AL_FUNC_RESPON:   /* Response Function Code 0x81 */
-      case AL_FUNC_UNSOLI:   /* Unsolicited Response Function Code 0x82 */
-
-        /* Application Layer IIN bits req'd if message is a response */
-        dnp3_al_process_iin(tvb, offset, al_tree);
-        offset += 2;
-
-        /* Ensure there is actual data remaining in the message.
-           A response will not contain data following the IIN bits,
-           if there is none available */
-        bytes = tvb_reported_length_remaining(tvb, offset);
-        if (bytes > 0)
-        {
-          /* Create Response Data Objects Tree */
-          t_robj = proto_tree_add_text(al_tree, tvb, offset, -1,"RESPONSE Data Objects");
-          robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
-
-          /* Process Data Object Details */
-          while (offset <= (data_len-2)) {  /* 2 octet object code + CRC32 */
-            offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE);
-          }
-
-          break;
-        }
-
-      default:    /* Unknown Function */
-
+      default:
         break;
     }
   }
-  else
+
+  /* Update the col info if there were class reads */
+  if (check_col(pinfo->cinfo, COL_INFO) && (al_class > 0)) {
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
+    for (i = 0; i < 4; i++) {
+      if (al_class & (1 << i)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%d", i);
+      }
+    }
+  }
+
+  break;
+
+  case AL_FUNC_WRITE:     /* Write Function Code 0x02 */
+
+  /* Create Write Request Data Objects Tree */
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "WRITE Request Data Objects");
+  robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+  /* Process Data Object Details */
+  while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+    offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE, &obj_type);
+  }
+
+  break;
+
+  case AL_FUNC_SELECT:     /* Select Function Code 0x03 */
+
+  /* Create Select Request Data Objects Tree */
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "SELECT Request Data Objects");
+  robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+  /* Process Data Object Details */
+  while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+    offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE, &obj_type);
+  }
+
+  break;
+
+  case AL_FUNC_OPERATE:    /* Operate Function Code 0x04 */
+             /* Functionally identical to 'SELECT' Function Code */
+
+  /* Create Operate Request Data Objects Tree */
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "OPERATE Request Data Objects");
+  robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+  /* Process Data Object Details */
+  while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+    offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE, &obj_type);
+  }
+
+  break;
+
+  case AL_FUNC_DIROP:     /* Direct Operate Function Code 0x05 */
+            /* Functionally identical to 'SELECT' Function Code */
+
+  /* Create Direct Operate Request Data Objects Tree */
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "DIRECT OPERATE Request Data Objects");
+  robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+  /* Process Data Object Details */
+  while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+    offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE, &obj_type);
+  }
+
+  break;
+
+  case AL_FUNC_ENSPMSG:   /* Enable Spontaneous Messages Function Code 0x14 */
+
+  /* Create Enable Spontaneous Messages Data Objects Tree */
+  t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Enable Spontaneous Msg's Data Objects");
+  robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+  /* Process Data Object Details */
+  while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+    offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE, &obj_type);
+  }
+
+  break;
+
+  case AL_FUNC_DELAYMST:  /* Delay Measurement Function Code 0x17 */
+
+  break;
+
+  case AL_FUNC_RESPON:   /* Response Function Code 0x81 */
+  case AL_FUNC_UNSOLI:   /* Unsolicited Response Function Code 0x82 */
+
+  /* Application Layer IIN bits req'd if message is a response */
+  dnp3_al_process_iin(tvb, offset, al_tree);
+  offset += 2;
+
+  /* Ensure there is actual data remaining in the message.
+     A response will not contain data following the IIN bits,
+     if there is none available */
+  bytes = tvb_reported_length_remaining(tvb, offset);
+  if (bytes > 0)
   {
-    offset += 2;  /* No tree, correct offset */
+    /* Create Response Data Objects Tree */
+    t_robj = proto_tree_add_text(al_tree, tvb, offset, -1,"RESPONSE Data Objects");
+    robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
+
+    /* Process Data Object Details */
+    while (offset <= (data_len-2)) {  /* 2 octet object code + CRC32 */
+      offset = dnp3_al_process_object(tvb, offset, robj_tree, FALSE, &obj_type);
+    }
+
+    break;
+  }
+
+  default:    /* Unknown Function */
+
+  break;
   }
 
   return 0;
@@ -2163,99 +2260,92 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_fstr(pinfo->cinfo, COL_INFO, "len=%d, from %d to %d, %s",
             dl_len, dl_src, dl_dst, func_code_str);
 
-  if (tree) {
+  /* create display subtree for the protocol */
+  ti = proto_tree_add_item(tree, proto_dnp3, tvb, offset, -1, FALSE);
+  dnp3_tree = proto_item_add_subtree(ti, ett_dnp3);
 
-    /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_dnp3, tvb, offset, -1, FALSE);
-    dnp3_tree = proto_item_add_subtree(ti, ett_dnp3);
+  /* Create Subtree for Data Link Layer */
+  tdl = proto_tree_add_text(dnp3_tree, tvb, offset, DNP_HDR_LEN,
+        "Data Link Layer, Len: %d, From: %d, To: %d, ", dl_len, dl_src, dl_dst);
+  if (dl_prm) {
+    if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tdl, "DIR, ");
+    if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tdl, "PRM, ");
+    if (dl_ctl & DNP3_CTL_FCB) proto_item_append_text(tdl, "FCB, ");
+    if (dl_ctl & DNP3_CTL_FCV) proto_item_append_text(tdl, "FCV, ");
+  }
+  else {
+    if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tdl, "DIR, ");
+    if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tdl, "PRM, ");
+    if (dl_ctl & DNP3_CTL_RES) proto_item_append_text(tdl, "RES, ");
+    if (dl_ctl & DNP3_CTL_DFC) proto_item_append_text(tdl, "DFC, ");
+  }
+  proto_item_append_text(tdl, func_code_str);
+  dl_tree = proto_item_add_subtree(tdl, ett_dnp3_dl);
 
-    /* Create Subtree for Data Link Layer */
-    tdl = proto_tree_add_text(dnp3_tree, tvb, offset, DNP_HDR_LEN,
-          "Data Link Layer, Len: %d, From: %d, To: %d, ", dl_len, dl_src, dl_dst);
-    if (dl_prm) {
-      if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tdl, "DIR, ");
-      if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tdl, "PRM, ");
-      if (dl_ctl & DNP3_CTL_FCB) proto_item_append_text(tdl, "FCB, ");
-      if (dl_ctl & DNP3_CTL_FCV) proto_item_append_text(tdl, "FCV, ");
-    }
-    else {
-      if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tdl, "DIR, ");
-      if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tdl, "PRM, ");
-      if (dl_ctl & DNP3_CTL_RES) proto_item_append_text(tdl, "RES, ");
-      if (dl_ctl & DNP3_CTL_DFC) proto_item_append_text(tdl, "DFC, ");
-    }
-    proto_item_append_text(tdl, func_code_str);
-    dl_tree = proto_item_add_subtree(tdl, ett_dnp3_dl);
+  /* start bytes */
+  proto_tree_add_item(dl_tree, hf_dnp3_start, tvb, offset, 2, FALSE);
+  offset += 2;
 
-    /* start bytes */
-    proto_tree_add_item(dl_tree, hf_dnp3_start, tvb, offset, 2, FALSE);
-    offset += 2;
+  /* add length field */
+  proto_tree_add_item(dl_tree, hf_dnp3_len, tvb, offset, 1, FALSE);
+  offset += 1;
 
-    /* add length field */
-    proto_tree_add_item(dl_tree, hf_dnp3_len, tvb, offset, 1, FALSE);
+  /* Add Control Byte Subtree */
+  tc = proto_tree_add_uint_format(dl_tree, hf_dnp3_ctl, tvb, offset, 1, dl_ctl,
+          "Control: 0x%02x (", dl_ctl);
+  /* Add Text to Control Byte Subtree Header */
+  if (dl_prm) {
+    if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tc, "DIR, ");
+    if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tc, "PRM, ");
+    if (dl_ctl & DNP3_CTL_FCB) proto_item_append_text(tc, "FCB, ");
+    if (dl_ctl & DNP3_CTL_FCV) proto_item_append_text(tc, "FCV, ");
+  }
+  else {
+    if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tc, "DIR, ");
+    if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tc, "PRM, ");
+    if (dl_ctl & DNP3_CTL_RES) proto_item_append_text(tc, "RES, ");
+    if (dl_ctl & DNP3_CTL_DFC) proto_item_append_text(tc, "DFC, ");
+  }
+  proto_item_append_text(tc, "%s)", func_code_str );
+  field_tree = proto_item_add_subtree(tc, ett_dnp3_dl_ctl);
+
+  /* Add Control Byte Subtree Items */
+  if (dl_prm) {
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_fcb, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_fcv, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_prifunc, tvb, offset, 1, FALSE);
+  }
+  else {
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_dfc, tvb, offset, 1, TRUE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_secfunc, tvb, offset, 1, FALSE);
+  }
     offset += 1;
 
-    /* Add Control Byte Subtree */
-    tc = proto_tree_add_uint_format(dl_tree, hf_dnp3_ctl, tvb, offset, 1, dl_ctl,
-            "Control: 0x%02x (", dl_ctl);
-    /* Add Text to Control Byte Subtree Header */
-    if (dl_prm) {
-      if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tc, "DIR, ");
-      if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tc, "PRM, ");
-      if (dl_ctl & DNP3_CTL_FCB) proto_item_append_text(tc, "FCB, ");
-      if (dl_ctl & DNP3_CTL_FCV) proto_item_append_text(tc, "FCV, ");
-    }
-    else {
-      if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tc, "DIR, ");
-      if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tc, "PRM, ");
-      if (dl_ctl & DNP3_CTL_RES) proto_item_append_text(tc, "RES, ");
-      if (dl_ctl & DNP3_CTL_DFC) proto_item_append_text(tc, "DFC, ");
-    }
-    proto_item_append_text(tc, "%s)", func_code_str );
-    field_tree = proto_item_add_subtree(tc, ett_dnp3_dl_ctl);
+  /* add destination and source addresses */
+  proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, TRUE);
+  offset += 2;
+  proto_tree_add_item(dl_tree, hf_dnp3_src, tvb, offset, 2, TRUE);
+  offset += 2;
 
-    /* Add Control Byte Subtree Items */
-    if (dl_prm) {
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_fcb, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_fcv, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_prifunc, tvb, offset, 1, FALSE);
-    }
-    else {
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_dfc, tvb, offset, 1, TRUE);
-      proto_tree_add_item(field_tree, hf_dnp3_ctl_secfunc, tvb, offset, 1, FALSE);
-    }
-      offset += 1;
-
-    /* add destination and source addresses */
-    proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, TRUE);
-    offset += 2;
-    proto_tree_add_item(dl_tree, hf_dnp3_src, tvb, offset, 2, TRUE);
-    offset += 2;
-
-    /* and header CRC */
-    dl_crc = tvb_get_letohs(tvb, offset);
-    calc_dl_crc = calculateCRC(tvb_get_ptr(tvb, 0, DNP_HDR_LEN - 2), DNP_HDR_LEN - 2);
-    if (dl_crc == calc_dl_crc)
-      proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-               dl_crc, "CRC: 0x%04x [correct]", dl_crc);
-    else
-    {
-      proto_tree_add_boolean_hidden(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
-                  offset, 2, TRUE);
-      proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb,
-               offset, 2, dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
-                     dl_crc, calc_dl_crc);
-    }
-    offset += 2;
-  }
+  /* and header CRC */
+  dl_crc = tvb_get_letohs(tvb, offset);
+  calc_dl_crc = calculateCRC(tvb_get_ptr(tvb, 0, DNP_HDR_LEN - 2), DNP_HDR_LEN - 2);
+  if (dl_crc == calc_dl_crc)
+    proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
+             dl_crc, "CRC: 0x%04x [correct]", dl_crc);
   else
   {
-    offset += 10; /* No tree so correct offset */
+    proto_tree_add_boolean_hidden(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
+                offset, 2, TRUE);
+    proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb,
+             offset, 2, dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
+                   dl_crc, calc_dl_crc);
   }
+  offset += 2;
 
   /* If the DataLink function is 'Request Link Status' or 'Status of Link',
      or 'Reset Link' we don't expect any Transport or Application Layer Data
@@ -2270,27 +2360,21 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tr_fir = tr_ctl & DNP3_TR_FIR;
     tr_fin = tr_ctl & DNP3_TR_FIN;
 
-    if (tree)
-    {
-      /* Add Transport Layer Tree */
-      tc = proto_tree_add_uint_format(dnp3_tree, hf_dnp3_tr_ctl, tvb, offset, 1, tr_ctl,
-              "Transport Layer: 0x%02x (", tr_ctl);
-      if (tr_fir) proto_item_append_text(tc, "FIR, ");
-      if (tr_fin) proto_item_append_text(tc, "FIN, ");
-      proto_item_append_text(tc, "Sequence %d)", tr_seq);
+    /* Add Transport Layer Tree */
+    tc = proto_tree_add_uint_format(dnp3_tree, hf_dnp3_tr_ctl, tvb, offset, 1, tr_ctl,
+            "Transport Layer: 0x%02x (", tr_ctl);
+    if (tr_fir) proto_item_append_text(tc, "FIR, ");
+    if (tr_fin) proto_item_append_text(tc, "FIN, ");
+    proto_item_append_text(tc, "Sequence %d)", tr_seq);
 
-      tr_tree = proto_item_add_subtree(tc, ett_dnp3_tr_ctl);
-      proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fin, tvb, offset, 1, tr_ctl);
-      proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fir, tvb, offset, 1, tr_ctl);
-      proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, FALSE);
-    }
+    tr_tree = proto_item_add_subtree(tc, ett_dnp3_tr_ctl);
+    proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fin, tvb, offset, 1, tr_ctl);
+    proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fir, tvb, offset, 1, tr_ctl);
+    proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, FALSE);
 
     /* Allocate AL chunk tree */
-    if (tree != NULL)
-    {
-      al_chunks = proto_tree_add_text(tr_tree, tvb, offset + 1, -1, "Application data chunks");
-      al_tree = proto_item_add_subtree(al_chunks, ett_dnp3_al_data);
-    }
+    al_chunks = proto_tree_add_text(tr_tree, tvb, offset + 1, -1, "Application data chunks");
+    al_tree = proto_item_add_subtree(al_chunks, ett_dnp3_al_data);
 
     /* extract the application layer data, validating the CRCs */
 
@@ -2317,22 +2401,16 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       crc_OK = calc_crc == act_crc;
       if (crc_OK)
       {
-        if (tree)
-        {
-          proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
-                  "Application Chunk %d Len: %d CRC 0x%04x",
-                  i, chk_size, act_crc);
-        }
+	  	proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
+			  "Application Chunk %d Len: %d CRC 0x%04x",
+			  i, chk_size, act_crc);
         data_len -= chk_size;
       }
       else
       {
-        if (tree)
-        {
-          proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
-                  "Application Chunk %d Len: %d Bad CRC got 0x%04x expected 0x%04x",
-                  i, chk_size, act_crc, calc_crc);
-        }
+        proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
+                "Application Chunk %d Len: %d Bad CRC got 0x%04x expected 0x%04x",
+                i, chk_size, act_crc, calc_crc);
         data_len = 0;
         break;
       }
@@ -2353,60 +2431,59 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* A fragmented packet */
         pinfo->fragmented = TRUE;
 
-        /* look up the conversation */
+        /* Look up the conversation to get the fragment reassembly id */
         conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
           pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-        conv_data_ptr = NULL;
-
-        /* if conversation found get the data pointer that you stored */
-        if (conversation && (!tr_fir || (conversation->setup_frame == pinfo->fd->num)))
-          conv_data_ptr = (dnp3_conv_t*)conversation_get_proto_data(conversation, proto_dnp3);
-
-        if (conv_data_ptr == NULL) {
-          /* new conversation create local data structure */
-          conv_data_ptr = g_mem_chunk_alloc(dnp3_conv_vals);
-
-          /*** Increment static global ***/
-          conv_data_ptr->conv_seq_number = seq_number++;
-
-          /* create the conversation with your data pointer  */
+        if (conversation == NULL) {
+          /* No conversation yet, so make one */
           conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
             pinfo->srcport, pinfo->destport, 0);
+	}
+
+        conv_data_ptr = (dnp3_conv_t*)conversation_get_proto_data(conversation, proto_dnp3);
+
+        if (conv_data_ptr == NULL) {
+          /* New data structure required */
+          conv_data_ptr = se_alloc(sizeof(dnp3_conv_t));
+
+          /*** Increment static global fragment reassembly id ***/
+          conv_data_ptr->conv_seq_number = seq_number++;
+
           conversation_add_proto_data(conversation, proto_dnp3, (void *)conv_data_ptr);
         }
         conv_seq_number = conv_data_ptr->conv_seq_number;
 
-        /*
-        * If we've already seen this frame, look it up in the
-        * table of reassembled packets, otherwise add it to
-        * whatever reassembly is in progress, if any, and see
-        * if it's done.
-        */
-        frag_msg = fragment_add_seq_check(al_tvb, 0, pinfo, conv_seq_number,
-                 al_fragment_table,
-                 al_reassembled_table,
-                 tr_seq,
-                 tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
-                 !tr_fin);
+	/*
+	* Add the frame to
+	* whatever reassembly is in progress, if any, and see
+	* if it's done.
+	*/
+	frag_msg = fragment_add_seq_check(al_tvb, 0, pinfo, conv_seq_number,
+			 al_fragment_table,
+			 al_reassembled_table,
+			 tr_seq,
+			 tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
+			 !tr_fin);
 
         next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
             "Reassembled DNP 3.0 Application Layer message", frag_msg, &dnp3_frag_items,
             &update_col_info, tr_tree);
 
-        if (frag_msg) { /* Reassembled */
+        if (next_tvb) { /* Reassembled */
           /* We have the complete payload */
           if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_str (pinfo->cinfo, COL_INFO,
-                " (Application Layer Message reassembled)");
+            col_add_str (pinfo->cinfo, COL_INFO,
+                "Reassembled Application Layer");
+            col_set_fence(pinfo->cinfo, COL_INFO);
         }
         else
         {
           /* We don't have the complete reassembled payload. */
-          next_tvb = NULL;
           if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_fstr (pinfo->cinfo, COL_INFO,
-                " (Application Layer Message %u unreassembled)", tr_seq);
+            col_add_fstr (pinfo->cinfo, COL_INFO,
+                "Application Layer fragment %u", tr_seq);
+            col_set_fence(pinfo->cinfo, COL_INFO);
         }
 
       }
@@ -2415,6 +2492,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* No reassembly required */
         next_tvb = al_tvb;
         add_new_data_source(pinfo, next_tvb, "DNP 3.0 Application Layer message");
+        if (check_col (pinfo->cinfo, COL_INFO))
+          col_clear (pinfo->cinfo, COL_INFO);
       }
       pinfo->fragmented = save_fragmented;
     }
@@ -2422,8 +2501,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
       /* CRC error - throw away the data. */
       next_tvb = NULL;
-      if (tree)
-        proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %d chunks", i);
+      proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %d chunks", i);
     }
 
     if (next_tvb)
@@ -2485,17 +2563,6 @@ dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dnp3_init(void)
 {
-  /* destroy memory chunks if needed */
-
-  if (dnp3_conv_vals)
-    g_mem_chunk_destroy(dnp3_conv_vals);
-
-  /* now create memory chunks */
-
-  dnp3_conv_vals = g_mem_chunk_new("dnp3_proto_vals",
-    sizeof(dnp3_conv_t),
-    dnp3_conv_init_count * sizeof(dnp3_conv_t),
-    G_ALLOC_AND_FREE);
 }
 
 static void
@@ -2552,10 +2619,10 @@ proto_register_dnp3(void)
     { "Source", "dnp3.src", FT_UINT16, BASE_DEC, NULL, 0x0, "Source Address", HFILL }},
 
     { &hf_dnp_hdr_CRC,
-    { "CRC", "dnp.hdr.CRC", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { "CRC", "dnp3.hdr.CRC", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
 
     { &hf_dnp_hdr_CRC_bad,
-    { "Bad CRC", "dnp.hdr.CRC_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { "Bad CRC", "dnp3.hdr.CRC_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_dnp3_tr_ctl,
     { "Transport Control", "dnp3.tr.ctl", FT_UINT8, BASE_HEX, NULL, 0x0, "Tranport Layer Control Byte", HFILL }},
