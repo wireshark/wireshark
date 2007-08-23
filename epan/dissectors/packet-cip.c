@@ -1086,10 +1086,10 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
          pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific data" );
          cmd_data_tree = proto_item_add_subtree( pi, ett_cmd_data );
 
-	 if( gen_status == CI_GRC_SUCCESS )
+	 if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
 	 {
 	     /* Success responses */
-	     
+
 	     if( ( tvb_get_guint8( tvb, offset ) & 0x7F ) == SC_FWD_OPEN )
 	     {
                /* Forward open Response (Success) */
@@ -1480,10 +1480,10 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
  	    if ( collision )
 	    {
 	       /* Audit Change */
-	                
+
 	       temp_data = tvb_get_letohs( tvb, offset+2+req_path_size );
 	       temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Change Type: ");
-	       
+
 	       if (temp_data == 0)
 		  proto_item_append_text(temp_item, "Full" );
 	       else if (temp_data == 1)
@@ -1498,32 +1498,32 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
                /* Display the priority/tick timer */
 	       temp_byte = tvb_get_guint8( tvb, offset+2+req_path_size );
 	       proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 1, "Priority/Time_tick: 0x%02X", temp_byte );
-	       
+
 	       /* Display the time-out ticks */
 	       temp_data = tvb_get_guint8( tvb, offset+2+req_path_size+1 );
 	       proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+1, 1, "Time-out_ticks: %d", temp_data );
-	       
+
 	       /* Display the actual time out */
 	       temp_data = ( 1 << ( temp_byte & 0x0F ) ) * temp_data;
 	       proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Actual Time Out: %dms", temp_data );
-	       
+
 	       /* Message request size */
 	       msg_req_siz = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
 	       proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+2, 2, "Message Request Size: 0x%04X", msg_req_siz );
-	       
+
 	       /* Message Request */
 	       temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4, msg_req_siz, "Message Request" );
 	       temp_tree = proto_item_add_subtree(temp_item, ett_mes_req );
-	       
+
 	       /*
 	       ** We call our selves again to disect embedded packet
 	       */
-	       
+
 	       if(check_col(pinfo->cinfo, COL_INFO))
 		  col_append_fstr( pinfo->cinfo, COL_INFO, ": ");
 
 	       dissect_cip_data( temp_tree, tvb, offset+2+req_path_size+4, msg_req_siz, pinfo );
-	       
+
 	       if( msg_req_siz % 2 )
 	       {
 		  /* Pad byte */
@@ -1531,15 +1531,15 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
 				       tvb_get_guint8( tvb, offset+2+req_path_size+4+msg_req_siz ) );
 		  msg_req_siz++;	/* include the padding */
 	       }
-	       
+
 	       /* Route Path Size */
 	       route_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+4+msg_req_siz )*2;
 	       proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4+msg_req_siz, 1, "Route Path Size: %d (words)", route_path_size/2 );
-	       
+
 	       /* Reserved */
 	       proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+5+msg_req_siz, 1, "Reserved (0x%02X)",
 				    tvb_get_guint8( tvb, offset+2+req_path_size+5+msg_req_siz ) );
-	       
+
 	       /* Route Path */
 	       temp_item = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz, route_path_size, "Route Path: ");
 	       dissect_epath( tvb, temp_item, offset+2+req_path_size+6+msg_req_siz, route_path_size );
@@ -1613,7 +1613,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
 	 else if ( tvb_get_guint8( tvb, offset ) == SC_CHANGE_COMPLETE )
 	 {
 	   /* Change complete request */
-	   
+
             temp_data = tvb_get_letohs( tvb, offset+2+req_path_size );
 	    temp_item = proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size, 2, "Change Type: ");
 
