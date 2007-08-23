@@ -1734,7 +1734,7 @@ proto_register_cast(void)
     },
 
     { &hf_cast_bitRate,
-      { "BitRate", "skinny.bitRate",
+      { "BitRate", "cast.bitRate",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"BitRate.",
 	HFILL }
