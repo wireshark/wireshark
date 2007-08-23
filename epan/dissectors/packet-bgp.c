@@ -1507,7 +1507,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	    const char *msg;
 	    int     off;
 	    gint    k;
-	    guint16 alen, tlen, aoff; 
+	    guint16 alen, tlen, aoff, aoff_save; 
 	    guint16 af;
             guint8  saf, snpa;
 	    guint8  nexthop_len;
@@ -2121,6 +2121,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                     break;
                 }
 
+                aoff_save = aoff;
                 tlen -= nexthop_len + 4;
                 aoff += nexthop_len + 4 ;
 
@@ -2167,6 +2168,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         }
 		    }
                 }
+		aoff = aoff_save;
 		break;
 	   case BGPTYPE_MP_UNREACH_NLRI:
 	        af = tvb_get_ntohs(tvb, o + i + aoff);
@@ -2182,6 +2184,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			tlen - 3, "Withdrawn routes (%u %s)", tlen - 3,
                         (tlen - 3 == 1) ? "byte" : "bytes");
 
+		aoff_save = aoff;
 		tlen -= 3;
 		aoff += 3;
 		if (tlen > 0) {
@@ -2199,6 +2202,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         aoff += advance;
                     }
                 }
+                aoff = aoff_save;
                 break;
 	    case BGPTYPE_CLUSTER_LIST:
 		if (tlen % 4 != 0) {
