@@ -835,9 +835,9 @@ io_stat_draw(io_stat_t *io)
 			} else if(io->interval>=100){
 				g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
 			} else if(io->interval>=10){
-				g_snprintf(label_string, 15, "%d.%2ds", current_interval/1000,(current_interval/10)%100);
+				g_snprintf(label_string, 15, "%d.%02ds", current_interval/1000,(current_interval/10)%100);
 			} else {
-				g_snprintf(label_string, 15, "%d.%3ds", current_interval/1000,current_interval%1000);
+				g_snprintf(label_string, 15, "%d.%03ds", current_interval/1000,current_interval%1000);
 			}
 #if GTK_MAJOR_VERSION < 2
                         lwidth=gdk_string_width(font, label_string);
