@@ -58,6 +58,7 @@
 #include <epan/req_resp_hdrs.h>
 #include <epan/emem.h>
 
+#include "packet-isup.h"
 #include "packet-sip.h"
 #include <epan/tap.h>
 #include <epan/expert.h>
@@ -508,6 +509,8 @@ static header_parameter_t via_parameters_hf_array[] =
 	{"comp",          &hf_sip_via_comp},
 	{"sigcomp-id",    &hf_sip_via_sigcomp_id}
 };
+
+
 
 /*
  * Type of line.  It's either a SIP Request-Line, a SIP Status-Line, or
@@ -1188,6 +1191,45 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 
 	return current_offset;
 }
+
+/* Dissect the details of a Reason header */
+static void
+dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset){
+
+	gint  current_offset, semi_colon_offset, length;
+	gchar *param_name = NULL;
+	guint cause_value;
+
+		/* skip Spaces and Tabs */
+	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+	if (start_offset >= line_end_offset)
+	{
+		/* Nothing to parse */
+		return;
+	}
+
+	current_offset = start_offset;
+	semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
+	length = semi_colon_offset - current_offset;
+	proto_tree_add_text(tree, tvb, start_offset, length,
+		"Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
+
+	param_name = tvb_get_ephemeral_string(tvb, start_offset, length);
+	if (strcasecmp(param_name, "Q.850") == 0){
+		current_offset = tvb_find_guint8(tvb, semi_colon_offset, line_end_offset-semi_colon_offset, '=')+1;
+		length = line_end_offset - current_offset;
+
+		/* q850_cause_code_vals */
+		cause_value = atoi(tvb_get_ephemeral_string(tvb, current_offset, length));
+		proto_tree_add_text(tree, tvb, current_offset, length,
+			"Cause: %u(0x%x)[%s]", cause_value,cause_value,
+			val_to_str(cause_value, q850_cause_code_vals, "Unknown (%d)" ));
+
+	}
+
+}
+
 
 /* Dissect the details of a Via header */
 static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
@@ -2319,7 +2361,7 @@ separator_found2:
 							                             tvb_format_text(tvb, offset, linelen));
 							reason_tree = proto_item_add_subtree(ti, ett_sip_reason);
 						}
-						semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
+						dissect_sip_reason_header(tvb, reason_tree, value_offset, line_end_offset);
 						break;
 					default :
 						/* Default case is to assume its an FT_STRING field */
