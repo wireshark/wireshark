@@ -892,3 +892,4 @@ write_prefs
 ws_strsplit
 wtap_nstime_to_sec
 xml_escape
+golay_errors
