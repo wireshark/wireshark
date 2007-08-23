@@ -1,5 +1,5 @@
 /* follow_stream.c
- * Routines for following data streams
+ * Common routines for following data streams
  *
  * $Id$
  *
