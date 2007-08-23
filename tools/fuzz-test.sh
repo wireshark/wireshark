@@ -96,8 +96,8 @@ fi
 echo "Running $TSHARK with args: $TSHARK_ARGS ($HOWMANY)"
 echo ""
 
-# Not yet - properly handle empty filenames
-#trap "rm $TMP_DIR/$TMP_FILE $TMP_DIR/$FUZZ_FILE; exit 1" 1 2 15
+# Clean up on <ctrl>C, etc
+trap "rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE; echo ""; exit 1" HUP INT TERM
 
 # Iterate over our capture files.
 PASS=0
@@ -132,12 +132,10 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
 	    > /dev/null 2>&1 && DISSECTOR_BUG=1
 	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-	    FUZZ_FILE="fuzz-`$DATE +%Y-%m-%d`-$$.pcap"
             echo ""
 	    echo " ERROR"
 	    echo -e "Processing failed.  Capture info follows:\n"
-	    mv $TMP_DIR/$TMP_FILE $TMP_DIR/$FUZZ_FILE
-	    echo "  Output file: $TMP_DIR/$FUZZ_FILE"
+	    echo "  Output file: $TMP_DIR/$TMP_FILE"
 	    if [ $DISSECTOR_BUG -ne 0 ] ; then
 		echo -e "stderr follows:\n"
 		cat $TMP_DIR/$ERR_FILE
