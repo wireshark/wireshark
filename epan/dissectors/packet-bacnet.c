@@ -164,7 +164,7 @@ static int hf_bacnet_rejectreason = -1;
 static int hf_bacnet_rportnum = -1;
 static int hf_bacnet_portid = -1;
 static int hf_bacnet_pinfolen = -1;
-static int hf_bacnet_pinfo = -1;
+static int hf_bacnet_term_time_value = -1;
 
 static gint ett_bacnet = -1;
 static gint ett_bacnet_control = -1;
@@ -346,99 +346,119 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		bacnet_mesgtyp =  tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_format_value(bacnet_tree,
 		hf_bacnet_mesgtyp, tvb, offset, 1, bacnet_mesgtyp,
-		    "%02x (%s)", bacnet_mesgtyp,
-		    bacnet_mesgtyp_name(bacnet_mesgtyp));
-		    offset ++;
-	}
-	/* Vendor ID
-	 * The standard says: "If Bit 7 of the control octet is 1 and
-	 * the Message Type field contains a value in the range
-	 * X'80' - X'FF', then a Vendor ID field shall be present (...)."
-	 * We should not go any further in dissecting the packet if it's
-	 * not present, but we don't know about that: No length field...
-	 */
-	if ((bacnet_mesgtyp > 0x7f) && (bacnet_control == BAC_CONTROL_NET)) {
-		proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
-			tvb, offset, 2, FALSE);
-		offset += 2;
-		/* attention: doesnt work here because of if(tree) */
-		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-	}
-	/* Performance Index (in I-Could-Be-Router-To-Network) */
-	if (bacnet_mesgtyp == BAC_NET_ICB_R) {
-		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-			tvb, offset, 2, FALSE);
-		offset += 2;
-		proto_tree_add_item(bacnet_tree, hf_bacnet_perf,
-			tvb, offset, 1, FALSE);
+			"%02x (%s)", bacnet_mesgtyp,
+			bacnet_mesgtyp_name(bacnet_mesgtyp));
+		/* Put the NPDU Type in the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_add_str(pinfo->cinfo, COL_INFO,
+				bacnet_mesgtyp_name(bacnet_mesgtyp));
+		}
 		offset ++;
-	}
-	/* Reason, DNET (in Reject-Message-To-Network) */
-	if (bacnet_mesgtyp == BAC_NET_REJ) {
-		bacnet_rejectreason = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint_format_value(bacnet_tree,
-			hf_bacnet_rejectreason,
-			tvb, offset, 1,
-			bacnet_rejectreason, "%d (%s)",
-			bacnet_rejectreason,
-			bacnet_rejectreason_name(bacnet_rejectreason));
-		offset ++;
-		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-			tvb, offset, 2, FALSE);
-		offset += 2;
-	}
-	/* N*DNET (in Router-Busy-To-Network,Router-Available-To-Network) */
-	if ((bacnet_mesgtyp == BAC_NET_R_BUSY) ||
-	    (bacnet_mesgtyp == BAC_NET_R_AVA) || (bacnet_mesgtyp == BAC_NET_IAM_R) ) {
-		while(tvb_reported_length_remaining(tvb, offset) > 1 ) {
+		/* Vendor ID
+		* The standard says: "If Bit 7 of the control octet is 1 and
+		* the Message Type field contains a value in the range
+		* X'80' - X'FF', then a Vendor ID field shall be present (...)."
+		* We should not go any further in dissecting the packet if it's
+		* not present, but we don't know about that: No length field...
+		*/
+		if (bacnet_mesgtyp > 0x7f) {
+			proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
+				tvb, offset, 2, FALSE);
+			offset += 2;
+			/* attention: doesnt work here because of if(tree) */
+			call_dissector(data_handle,
+				tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+		}
+		/* Performance Index (in I-Could-Be-Router-To-Network) */
+		if (bacnet_mesgtyp == BAC_NET_ICB_R) {
+			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+				tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(bacnet_tree, hf_bacnet_perf,
+				tvb, offset, 1, FALSE);
+			offset ++;
+		}
+		/* Reason, DNET (in Reject-Message-To-Network) */
+		if (bacnet_mesgtyp == BAC_NET_REJ) {
+			bacnet_rejectreason = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint_format_value(bacnet_tree,
+				hf_bacnet_rejectreason,
+				tvb, offset, 1,
+				bacnet_rejectreason, "%d (%s)",
+				bacnet_rejectreason,
+				bacnet_rejectreason_name(bacnet_rejectreason));
+			offset ++;
 			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
 				tvb, offset, 2, FALSE);
 			offset += 2;
 		}
-	}
-	/* Initialize-Routing-Table */
-	if ( (bacnet_mesgtyp == BAC_NET_INIT_RTAB) ||
-	    (bacnet_mesgtyp == BAC_NET_INIT_RTAB_ACK) ) {
-		bacnet_rportnum = tvb_get_guint8(tvb, offset);
-		/* number of ports */
-		proto_tree_add_uint(bacnet_tree, hf_bacnet_rportnum,
-			tvb, offset, 1, bacnet_rportnum);
-		offset ++;
-		for(i=0; i>bacnet_rportnum; i++) {
-		    	/* Connected DNET */
-		    	proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
-		    	offset += 2;
-		    	/* Port ID */
-		     	proto_tree_add_item(bacnet_tree, hf_bacnet_portid,
-				tvb, offset, 1, FALSE);
-			offset ++;
-		    	/* Port Info Length */
-			bacnet_pinfolen = tvb_get_guint8(tvb, offset);
-		     	proto_tree_add_uint(bacnet_tree, hf_bacnet_pinfolen,
-				tvb, offset, 1, bacnet_pinfolen);
-		    	offset ++;
-			for(j=0; j>bacnet_pinfolen; j++){
-		    	    /* Port Info */
-		     	    proto_tree_add_item(bacnet_tree, hf_bacnet_pinfo,
-				tvb, offset, 1, FALSE);
-		    	    offset ++;
+		/* N*DNET (in Router-Busy-To-Network,Router-Available-To-Network) */
+		if ((bacnet_mesgtyp == BAC_NET_R_BUSY) ||
+			(bacnet_mesgtyp == BAC_NET_WHO_R) ||
+			(bacnet_mesgtyp == BAC_NET_R_AVA) ||
+			(bacnet_mesgtyp == BAC_NET_IAM_R) ) {
+			while(tvb_reported_length_remaining(tvb, offset) > 1 ) {
+				proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+					tvb, offset, 2, FALSE);
+				offset += 2;
 			}
 		}
+		/* Initialize-Routing-Table */
+		if ( (bacnet_mesgtyp == BAC_NET_INIT_RTAB) ||
+			(bacnet_mesgtyp == BAC_NET_INIT_RTAB_ACK) ) {
+			bacnet_rportnum = tvb_get_guint8(tvb, offset);
+			/* number of ports */
+			proto_tree_add_uint(bacnet_tree, hf_bacnet_rportnum,
+				tvb, offset, 1, bacnet_rportnum);
+			offset ++;
+			for(i=0; i<bacnet_rportnum; i++) {
+					/* Connected DNET */
+					proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+					tvb, offset, 2, FALSE);
+					offset += 2;
+					/* Port ID */
+					proto_tree_add_item(bacnet_tree, hf_bacnet_portid,
+					tvb, offset, 1, FALSE);
+				offset ++;
+					/* Port Info Length */
+				bacnet_pinfolen = tvb_get_guint8(tvb, offset);
+					proto_tree_add_uint(bacnet_tree, hf_bacnet_pinfolen,
+					tvb, offset, 1, bacnet_pinfolen);
+				offset ++;
+				proto_tree_add_text(bacnet_tree, tvb, offset,
+					bacnet_pinfolen, "Port Info: %s",
+					tvb_bytes_to_str(tvb, offset, bacnet_pinfolen));
+				offset += bacnet_pinfolen;
+			}
+		}
+		/* Establish-Connection-To-Network */
+		if (bacnet_mesgtyp == BAC_NET_EST_CON) {
+			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+				tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(bacnet_tree, hf_bacnet_term_time_value,
+				tvb, offset, 1, FALSE);
+			offset ++;
+		}
+		/* Disconnect-Connection-To-Network */
+		if (bacnet_mesgtyp == BAC_NET_DISC_CON) {
+			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
+				tvb, offset, 2, FALSE);
+			offset += 2;
+		}
+		proto_item_set_len(ti, offset);
 	}
-	proto_item_set_len(ti, offset);
-
-/* dissect BACnet APDU
- */
-        next_tvb = tvb_new_subset(tvb,offset,-1,-1);
-        if (bacnet_control & BAC_CONTROL_NET) {
-                /* Unknown function - dissect the payload as data */
-                call_dissector(data_handle, next_tvb, pinfo, tree);
-        } else {
-        	/* APDU - call the APDU dissector */
-        	call_dissector(bacapp_handle, next_tvb, pinfo, tree);
-        }
+	/* dissect BACnet APDU */
+	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+	if (bacnet_control & BAC_CONTROL_NET) {
+		/* Unknown function - dissect the payload as data */
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+	} else {
+		/* APDU - call the APDU dissector */
+		call_dissector(bacapp_handle, next_tvb, pinfo, tree);
+	}
 }
 
 void
@@ -593,11 +613,11 @@ proto_register_bacnet(void)
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"Port ID", HFILL }
 		},
-		{ &hf_bacnet_pinfo,
-			{ "Port Info", "bacnet.pinfo",
-			FT_UINT8, BASE_HEX, NULL, 0,
-			"Port Info", HFILL }
-		},
+		{ &hf_bacnet_term_time_value,
+			{ "Termination Time Value (seconds)", "bacnet.term_time_value",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Termination Time Value", HFILL }
+		}
 	};
 
 	static gint *ett[] = {
