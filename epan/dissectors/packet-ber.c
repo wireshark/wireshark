@@ -378,7 +378,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset=get_ber_length(NULL, tvb, offset, &len, &ind);
+	offset=get_ber_length(tvb, offset, &len, &ind);
 
 	if(len>(guint32)tvb_length_remaining(tvb, offset)){
 		/* hmm   maybe something bad happened or the frame is short,
@@ -423,7 +423,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 				int ber_offset;
 				guint32 ber_len;
 				ber_offset = get_ber_identifier(tvb, offset, NULL, &pc, NULL);
-				ber_offset = get_ber_length(NULL, tvb, ber_offset, &ber_len, NULL);
+				ber_offset = get_ber_length(tvb, ber_offset, &ber_len, NULL);
 				if (pc && (ber_len + (ber_offset - offset) == len)) {
 					/* Decoded a constructed ASN.1 tag with a length indicating this
 					 * could be BER encoded data.  Try dissecting as unknown BER.
@@ -601,7 +601,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 			next_tree=proto_item_add_subtree(item, ett_ber_unknown);
 		  }
 		  ber_offset = get_ber_identifier(next_tvb, 0, NULL, NULL, NULL);
-		  ber_offset = get_ber_length(NULL, next_tvb, ber_offset, &ber_len, NULL);
+		  ber_offset = get_ber_length(next_tvb, ber_offset, &ber_len, NULL);
 		  if ((ber_len + ber_offset) == length_remaining) {
 		    /* Decoded an ASN.1 tag with a length indicating this
 		     * could be BER encoded data.  Try dissecting as unknown BER.
@@ -746,7 +746,7 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  */
 /* 8.1.3 Length octets */
 int
-get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
+get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
 	guint8 oct, len;
 	guint32 tmp_len;
 	guint32 tmp_length;
@@ -785,7 +785,7 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 				/* not an EOC at offset */
 				s_offset=offset;
 				offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
-				offset= get_ber_length(tree,tvb,offset, &tmp_len, NULL);
+				offset= get_ber_length(tvb,offset, &tmp_len, NULL);
 				tmp_length += tmp_len+(offset-s_offset); /* length + tag and length */
 				offset += tmp_len;
                                 /* Make sure we've moved forward in the packet */
@@ -816,7 +816,7 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 	guint32 tmp_length;
 	gboolean tmp_ind;
 
-	offset = get_ber_length(tree, tvb, offset, &tmp_length, &tmp_ind);
+	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
 
 	if(show_internal_ber_fields){
 		if(tmp_ind){
@@ -1411,7 +1411,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
                 /* Make sure we move forward */
 		if (eoffset <= hoffset)
@@ -1735,7 +1735,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
                 /* Make sure we move forward */
 		if (eoffset <= hoffset)
@@ -2065,7 +2065,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
 
 		/* Look through the Set to see if this class/id exists and
@@ -2329,7 +2329,7 @@ printf("SET dissect_old_ber_set(%s) entered\n",name);
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
 
 		/* Look through the Set to see if this class/id exists and
@@ -2527,7 +2527,7 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset=get_ber_length(parent_tree, tvb, offset, &len, &ind);
+	offset=get_ber_length(tvb, offset, &len, &ind);
 	  end_offset = offset + len ;
 
 	/* Some sanity checks.
@@ -2753,7 +2753,7 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset=get_ber_length(parent_tree, tvb, offset, &len, &ind);
+	offset=get_ber_length(tvb, offset, &len, &ind);
 	  end_offset = offset + len ;
 
 	/* Some sanity checks.
@@ -3025,7 +3025,7 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n",name);
 
 	if(!implicit_tag) {
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, NULL);
+		offset = get_ber_length(tvb, offset, &len, NULL);
 		eoffset = offset + len;
 
 		/* sanity check */
@@ -3261,7 +3261,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 
 			/* read header and len for next field */
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
-			offset = get_ber_length(tree, tvb, offset, &len, &ind);
+			offset = get_ber_length(tvb, offset, &len, &ind);
 			/* best place to get real length of implicit sequence of or set of is here... */
 			/* adjust end_offset if we find somthing that doesnt match */
 			offset += len;
@@ -3309,7 +3309,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		}
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
                 /* Make sure we move forward */
 		if (eoffset <= hoffset)
@@ -3468,7 +3468,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 
 			/* read header and len for next field */
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
-			offset = get_ber_length(tree, tvb, offset, &len, &ind);
+			offset = get_ber_length(tvb, offset, &len, &ind);
 			/* best place to get real length of implicit sequence of or set of is here... */
 			/* adjust end_offset if we find somthing that doesnt match */
 			offset += len;
@@ -3515,7 +3515,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 		}
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
                 /* Make sure we move forward */
 		if (eoffset <= hoffset)

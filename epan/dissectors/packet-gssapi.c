@@ -302,7 +302,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Read header */
 		offset = get_ber_identifier(gss_tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tree, gss_tvb, offset, &len1, &ind_field);
+		offset = get_ber_length(gss_tvb, offset, &len1, &ind_field);
 
 
 		if (!(class == BER_CLASS_APP && pc && tag == 0)) {

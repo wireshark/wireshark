@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-qsig.c                                                            */
-/* ../../tools/asn2wrs.py -e -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
+/* ./packet-qsig.c                                                            */
+/* ../../tools/asn2wrs.py -e -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn QSIG-CINT.asn SYNC-SIG.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
 
 /* Input file: packet-qsig-template.c */
 
@@ -378,11 +378,6 @@ static const value_string qsig_str_operation[] = {
   {  57, "recallAlerting" },
   {  58, "recallAnswered" },
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-  {  78, "synchronizationRequest" },
-  {  79, "synchronizationInfo" },
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
   {  66, "cintLegInformation1" },
@@ -390,6 +385,11 @@ static const value_string qsig_str_operation[] = {
   {  68, "cintCondition" },
   {  69, "cintDisable" },
   {  70, "cintEnable" },
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+  {  78, "synchronizationRequest" },
+  {  79, "synchronizationInfo" },
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
@@ -569,13 +569,13 @@ static const value_string qsig_str_error[] = {
 
 /* Unknown or empty loop list ERROR */
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-  { 1008, "unspecified" },
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
 /* Unknown or empty loop list ERROR */
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+  { 1008, "unspecified" },
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
@@ -1043,20 +1043,6 @@ static int hf_qsig_re_connectedSubaddress = -1;   /* PartySubaddress */
 static int hf_qsig_re_connectedName = -1;         /* Name */
 static int hf_qsig_re_argumentExtension_01 = -1;  /* T_argumentExtension_01 */
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-static int hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU = -1;  /* SynchronizationReqArg */
-static int hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU = -1;  /* SynchronizationReqRes */
-static int hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU = -1;  /* SynchronizationInfoArg */
-static int hf_qsig_sync_qsig_sync_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_sync_action = -1;              /* Action */
-static int hf_qsig_sync_argExtension = -1;        /* ArgExtension */
-static int hf_qsig_sync_response = -1;            /* BOOLEAN */
-static int hf_qsig_sync_stateinfo = -1;           /* T_stateinfo */
-static int hf_qsig_sync_extension = -1;           /* Extension */
-static int hf_qsig_sync_sequOfExtn = -1;          /* SEQUENCE_OF_Extension */
-static int hf_qsig_sync_sequOfExtn_item = -1;     /* Extension */
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
 static int hf_qsig_cint_qsig_cint_CintInformation1Arg_PDU = -1;  /* CintInformation1Arg */
@@ -1075,6 +1061,20 @@ static int hf_qsig_cint_none = -1;                /* NULL */
 static int hf_qsig_cint_single = -1;              /* Extension */
 static int hf_qsig_cint_multiple = -1;            /* SEQUENCE_OF_Extension */
 static int hf_qsig_cint_multiple_item = -1;       /* Extension */
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+static int hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU = -1;  /* SynchronizationReqArg */
+static int hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU = -1;  /* SynchronizationReqRes */
+static int hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU = -1;  /* SynchronizationInfoArg */
+static int hf_qsig_sync_qsig_sync_Extension_PDU = -1;  /* Extension */
+static int hf_qsig_sync_action = -1;              /* Action */
+static int hf_qsig_sync_argExtension = -1;        /* ArgExtension */
+static int hf_qsig_sync_response = -1;            /* BOOLEAN */
+static int hf_qsig_sync_stateinfo = -1;           /* T_stateinfo */
+static int hf_qsig_sync_extension = -1;           /* Extension */
+static int hf_qsig_sync_sequOfExtn = -1;          /* SEQUENCE_OF_Extension */
+static int hf_qsig_sync_sequOfExtn_item = -1;     /* Extension */
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
@@ -1775,14 +1775,6 @@ static gint ett_qsig_re_SEQUENCE_OF_Extension = -1;
 static gint ett_qsig_re_ReAnswerArg = -1;
 static gint ett_qsig_re_T_argumentExtension_01 = -1;
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-static gint ett_qsig_sync_SynchronizationReqArg = -1;
-static gint ett_qsig_sync_SynchronizationReqRes = -1;
-static gint ett_qsig_sync_SynchronizationInfoArg = -1;
-static gint ett_qsig_sync_ArgExtension = -1;
-static gint ett_qsig_sync_SEQUENCE_OF_Extension = -1;
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
 static gint ett_qsig_cint_CintInformation1Arg = -1;
@@ -1790,6 +1782,14 @@ static gint ett_qsig_cint_CintInformation2Arg = -1;
 static gint ett_qsig_cint_CintCondArg = -1;
 static gint ett_qsig_cint_CintExtension = -1;
 static gint ett_qsig_cint_SEQUENCE_OF_Extension = -1;
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+static gint ett_qsig_sync_SynchronizationReqArg = -1;
+static gint ett_qsig_sync_SynchronizationReqRes = -1;
+static gint ett_qsig_sync_SynchronizationInfoArg = -1;
+static gint ett_qsig_sync_ArgExtension = -1;
+static gint ett_qsig_sync_SEQUENCE_OF_Extension = -1;
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
@@ -6475,162 +6475,6 @@ static int dissect_qsig_re_ReAnswerArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 }
 
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-
-static const value_string qsig_sync_Action_vals[] = {
-  {   0, "enslavement" },
-  {   1, "holdon" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_qsig_sync_Action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t qsig_sync_SEQUENCE_OF_Extension_sequence_of[1] = {
-  { &hf_qsig_sync_sequOfExtn_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Extension },
-};
-
-static int
-dissect_qsig_sync_SEQUENCE_OF_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      qsig_sync_SEQUENCE_OF_Extension_sequence_of, hf_index, ett_qsig_sync_SEQUENCE_OF_Extension);
-
-  return offset;
-}
-
-
-static const value_string qsig_sync_ArgExtension_vals[] = {
-  {   1, "extension" },
-  {   2, "sequOfExtn" },
-  { 0, NULL }
-};
-
-static const ber_choice_t qsig_sync_ArgExtension_choice[] = {
-  {   1, &hf_qsig_sync_extension , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
-  {   2, &hf_qsig_sync_sequOfExtn, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_sync_SEQUENCE_OF_Extension },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_qsig_sync_ArgExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 qsig_sync_ArgExtension_choice, hf_index, ett_qsig_sync_ArgExtension,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t qsig_sync_SynchronizationReqArg_sequence[] = {
-  { &hf_qsig_sync_action    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_Action },
-  { &hf_qsig_sync_argExtension, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_sync_ArgExtension },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_qsig_sync_SynchronizationReqArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   qsig_sync_SynchronizationReqArg_sequence, hf_index, ett_qsig_sync_SynchronizationReqArg);
-
-  return offset;
-}
-
-
-
-static int
-dissect_qsig_sync_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const ber_sequence_t qsig_sync_SynchronizationReqRes_sequence[] = {
-  { &hf_qsig_sync_action    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_Action },
-  { &hf_qsig_sync_response  , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_BOOLEAN },
-  { &hf_qsig_sync_argExtension, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_sync_ArgExtension },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_qsig_sync_SynchronizationReqRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   qsig_sync_SynchronizationReqRes_sequence, hf_index, ett_qsig_sync_SynchronizationReqRes);
-
-  return offset;
-}
-
-
-static const value_string qsig_sync_T_stateinfo_vals[] = {
-  {   0, "freerunning" },
-  {   1, "idle" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_qsig_sync_T_stateinfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t qsig_sync_SynchronizationInfoArg_sequence[] = {
-  { &hf_qsig_sync_stateinfo , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_T_stateinfo },
-  { &hf_qsig_sync_argExtension, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_sync_ArgExtension },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_qsig_sync_SynchronizationInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   qsig_sync_SynchronizationInfoArg_sequence, hf_index, ett_qsig_sync_SynchronizationInfoArg);
-
-  return offset;
-}
-
-/*--- PDUs ---*/
-
-static int dissect_qsig_sync_SynchronizationReqArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_qsig_sync_SynchronizationReqArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU);
-  return offset;
-}
-static int dissect_qsig_sync_SynchronizationReqRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_qsig_sync_SynchronizationReqRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU);
-  return offset;
-}
-static int dissect_qsig_sync_SynchronizationInfoArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_qsig_sync_SynchronizationInfoArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU);
-  return offset;
-}
-static int dissect_qsig_sync_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_qsig_Extension(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_Extension_PDU);
-  return offset;
-}
-
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
 
@@ -6825,6 +6669,162 @@ static int dissect_qsig_cint_CintExtension_PDU(tvbuff_t *tvb _U_, packet_info *p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   offset = dissect_qsig_cint_CintExtension(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_cint_qsig_cint_CintExtension_PDU);
+  return offset;
+}
+
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+
+static const value_string qsig_sync_Action_vals[] = {
+  {   0, "enslavement" },
+  {   1, "holdon" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_qsig_sync_Action(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t qsig_sync_SEQUENCE_OF_Extension_sequence_of[1] = {
+  { &hf_qsig_sync_sequOfExtn_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_qsig_Extension },
+};
+
+static int
+dissect_qsig_sync_SEQUENCE_OF_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      qsig_sync_SEQUENCE_OF_Extension_sequence_of, hf_index, ett_qsig_sync_SEQUENCE_OF_Extension);
+
+  return offset;
+}
+
+
+static const value_string qsig_sync_ArgExtension_vals[] = {
+  {   1, "extension" },
+  {   2, "sequOfExtn" },
+  { 0, NULL }
+};
+
+static const ber_choice_t qsig_sync_ArgExtension_choice[] = {
+  {   1, &hf_qsig_sync_extension , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_qsig_Extension },
+  {   2, &hf_qsig_sync_sequOfExtn, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_qsig_sync_SEQUENCE_OF_Extension },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_qsig_sync_ArgExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 qsig_sync_ArgExtension_choice, hf_index, ett_qsig_sync_ArgExtension,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t qsig_sync_SynchronizationReqArg_sequence[] = {
+  { &hf_qsig_sync_action    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_Action },
+  { &hf_qsig_sync_argExtension, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_sync_ArgExtension },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_qsig_sync_SynchronizationReqArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   qsig_sync_SynchronizationReqArg_sequence, hf_index, ett_qsig_sync_SynchronizationReqArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_qsig_sync_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t qsig_sync_SynchronizationReqRes_sequence[] = {
+  { &hf_qsig_sync_action    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_Action },
+  { &hf_qsig_sync_response  , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_BOOLEAN },
+  { &hf_qsig_sync_argExtension, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_sync_ArgExtension },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_qsig_sync_SynchronizationReqRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   qsig_sync_SynchronizationReqRes_sequence, hf_index, ett_qsig_sync_SynchronizationReqRes);
+
+  return offset;
+}
+
+
+static const value_string qsig_sync_T_stateinfo_vals[] = {
+  {   0, "freerunning" },
+  {   1, "idle" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_qsig_sync_T_stateinfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t qsig_sync_SynchronizationInfoArg_sequence[] = {
+  { &hf_qsig_sync_stateinfo , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_qsig_sync_T_stateinfo },
+  { &hf_qsig_sync_argExtension, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_qsig_sync_ArgExtension },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_qsig_sync_SynchronizationInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   qsig_sync_SynchronizationInfoArg_sequence, hf_index, ett_qsig_sync_SynchronizationInfoArg);
+
+  return offset;
+}
+
+/*--- PDUs ---*/
+
+static int dissect_qsig_sync_SynchronizationReqArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_qsig_sync_SynchronizationReqArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU);
+  return offset;
+}
+static int dissect_qsig_sync_SynchronizationReqRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_qsig_sync_SynchronizationReqRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU);
+  return offset;
+}
+static int dissect_qsig_sync_SynchronizationInfoArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_qsig_sync_SynchronizationInfoArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU);
+  return offset;
+}
+static int dissect_qsig_sync_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_qsig_Extension(FALSE, tvb, offset, &asn1_ctx, tree, hf_qsig_sync_qsig_sync_Extension_PDU);
   return offset;
 }
 
@@ -11987,11 +11987,6 @@ static const qsig_op_t qsig_op_tab[] = {
   /* recallAlerting           */ {  57, dissect_qsig_re_ReAlertingArg_PDU, NULL },
   /* recallAnswered           */ {  58, dissect_qsig_re_ReAnswerArg_PDU, NULL },
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-  /* synchronizationRequest   */ {  78, dissect_qsig_sync_SynchronizationReqArg_PDU, dissect_qsig_sync_SynchronizationReqRes_PDU },
-  /* synchronizationInfo      */ {  79, dissect_qsig_sync_SynchronizationInfoArg_PDU, NULL },
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
   /* cintLegInformation1      */ {  66, dissect_qsig_cint_CintInformation1Arg_PDU, NULL },
@@ -11999,6 +11994,11 @@ static const qsig_op_t qsig_op_tab[] = {
   /* cintCondition            */ {  68, dissect_qsig_cint_CintCondArg_PDU, NULL },
   /* cintDisable              */ {  69, dissect_qsig_cint_CintExtension_PDU, NULL },
   /* cintEnable               */ {  70, dissect_qsig_cint_CintExtension_PDU, NULL },
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+  /* synchronizationRequest   */ {  78, dissect_qsig_sync_SynchronizationReqArg_PDU, dissect_qsig_sync_SynchronizationReqRes_PDU },
+  /* synchronizationInfo      */ {  79, dissect_qsig_sync_SynchronizationInfoArg_PDU, NULL },
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
@@ -12182,13 +12182,13 @@ static const qsig_err_t qsig_err_tab[] = {
 
 /* Unknown or empty loop list ERROR */
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-  /* unspecified              */ { 1008, dissect_qsig_sync_Extension_PDU },
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
 /* Unknown or empty loop list ERROR */
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+  /* unspecified              */ { 1008, dissect_qsig_sync_Extension_PDU },
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
@@ -13881,53 +13881,6 @@ void proto_register_qsig(void) {
         FT_UINT32, BASE_DEC, VALS(qsig_re_T_argumentExtension_01_vals), 0,
         "qsig_re.T_argumentExtension_01", HFILL }},
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-    { &hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU,
-      { "SynchronizationReqArg", "qsig.sync.SynchronizationReqArg",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "qsig_sync.SynchronizationReqArg", HFILL }},
-    { &hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU,
-      { "SynchronizationReqRes", "qsig.sync.SynchronizationReqRes",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "qsig_sync.SynchronizationReqRes", HFILL }},
-    { &hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU,
-      { "SynchronizationInfoArg", "qsig.sync.SynchronizationInfoArg",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "qsig_sync.SynchronizationInfoArg", HFILL }},
-    { &hf_qsig_sync_qsig_sync_Extension_PDU,
-      { "Extension", "qsig.sync.Extension",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.Extension", HFILL }},
-    { &hf_qsig_sync_action,
-      { "action", "qsig.sync.action",
-        FT_INT32, BASE_DEC, VALS(qsig_sync_Action_vals), 0,
-        "qsig_sync.Action", HFILL }},
-    { &hf_qsig_sync_argExtension,
-      { "argExtension", "qsig.sync.argExtension",
-        FT_UINT32, BASE_DEC, VALS(qsig_sync_ArgExtension_vals), 0,
-        "qsig_sync.ArgExtension", HFILL }},
-    { &hf_qsig_sync_response,
-      { "response", "qsig.sync.response",
-        FT_BOOLEAN, 8, NULL, 0,
-        "qsig_sync.BOOLEAN", HFILL }},
-    { &hf_qsig_sync_stateinfo,
-      { "stateinfo", "qsig.sync.stateinfo",
-        FT_INT32, BASE_DEC, VALS(qsig_sync_T_stateinfo_vals), 0,
-        "qsig_sync.T_stateinfo", HFILL }},
-    { &hf_qsig_sync_extension,
-      { "extension", "qsig.sync.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.Extension", HFILL }},
-    { &hf_qsig_sync_sequOfExtn,
-      { "sequOfExtn", "qsig.sync.sequOfExtn",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "qsig_sync.SEQUENCE_OF_Extension", HFILL }},
-    { &hf_qsig_sync_sequOfExtn_item,
-      { "Item", "qsig.sync.sequOfExtn_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "qsig.Extension", HFILL }},
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
     { &hf_qsig_cint_qsig_cint_CintInformation1Arg_PDU,
@@ -13992,6 +13945,53 @@ void proto_register_qsig(void) {
         "qsig_cint.SEQUENCE_OF_Extension", HFILL }},
     { &hf_qsig_cint_multiple_item,
       { "Item", "qsig.cint.multiple_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "qsig.Extension", HFILL }},
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+    { &hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU,
+      { "SynchronizationReqArg", "qsig.sync.SynchronizationReqArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "qsig_sync.SynchronizationReqArg", HFILL }},
+    { &hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU,
+      { "SynchronizationReqRes", "qsig.sync.SynchronizationReqRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "qsig_sync.SynchronizationReqRes", HFILL }},
+    { &hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU,
+      { "SynchronizationInfoArg", "qsig.sync.SynchronizationInfoArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "qsig_sync.SynchronizationInfoArg", HFILL }},
+    { &hf_qsig_sync_qsig_sync_Extension_PDU,
+      { "Extension", "qsig.sync.Extension",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "qsig.Extension", HFILL }},
+    { &hf_qsig_sync_action,
+      { "action", "qsig.sync.action",
+        FT_INT32, BASE_DEC, VALS(qsig_sync_Action_vals), 0,
+        "qsig_sync.Action", HFILL }},
+    { &hf_qsig_sync_argExtension,
+      { "argExtension", "qsig.sync.argExtension",
+        FT_UINT32, BASE_DEC, VALS(qsig_sync_ArgExtension_vals), 0,
+        "qsig_sync.ArgExtension", HFILL }},
+    { &hf_qsig_sync_response,
+      { "response", "qsig.sync.response",
+        FT_BOOLEAN, 8, NULL, 0,
+        "qsig_sync.BOOLEAN", HFILL }},
+    { &hf_qsig_sync_stateinfo,
+      { "stateinfo", "qsig.sync.stateinfo",
+        FT_INT32, BASE_DEC, VALS(qsig_sync_T_stateinfo_vals), 0,
+        "qsig_sync.T_stateinfo", HFILL }},
+    { &hf_qsig_sync_extension,
+      { "extension", "qsig.sync.extension",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "qsig.Extension", HFILL }},
+    { &hf_qsig_sync_sequOfExtn,
+      { "sequOfExtn", "qsig.sync.sequOfExtn",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "qsig_sync.SEQUENCE_OF_Extension", HFILL }},
+    { &hf_qsig_sync_sequOfExtn_item,
+      { "Item", "qsig.sync.sequOfExtn_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "qsig.Extension", HFILL }},
 
@@ -15997,14 +15997,6 @@ void proto_register_qsig(void) {
     &ett_qsig_re_ReAnswerArg,
     &ett_qsig_re_T_argumentExtension_01,
 
-/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
-
-    &ett_qsig_sync_SynchronizationReqArg,
-    &ett_qsig_sync_SynchronizationReqRes,
-    &ett_qsig_sync_SynchronizationInfoArg,
-    &ett_qsig_sync_ArgExtension,
-    &ett_qsig_sync_SEQUENCE_OF_Extension,
-
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
     &ett_qsig_cint_CintInformation1Arg,
@@ -16012,6 +16004,14 @@ void proto_register_qsig(void) {
     &ett_qsig_cint_CintCondArg,
     &ett_qsig_cint_CintExtension,
     &ett_qsig_cint_SEQUENCE_OF_Extension,
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+    &ett_qsig_sync_SynchronizationReqArg,
+    &ett_qsig_sync_SynchronizationReqRes,
+    &ett_qsig_sync_SynchronizationInfoArg,
+    &ett_qsig_sync_ArgExtension,
+    &ett_qsig_sync_SEQUENCE_OF_Extension,
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 

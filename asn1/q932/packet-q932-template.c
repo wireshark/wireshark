@@ -145,7 +145,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
   while (offset < ie_end) {
     hoffset = offset;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len, NULL);
+    offset = get_ber_length(tvb, offset, &len, NULL);
     eoffset = offset + len;
     next_tvb =  tvb_new_subset(tvb, hoffset, eoffset - hoffset, eoffset - hoffset);
     switch (class) {

@@ -285,7 +285,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 
 	if(!implicit_tag){
 		offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset=get_ber_length(NULL, tvb, offset, &len, &ind);
+		offset=get_ber_length(tvb, offset, &len, &ind);
 	} else {
 		len=tvb_length_remaining(tvb,offset);
 	}
@@ -569,7 +569,7 @@ one_more_pdu:
      * length of the LDAP message.
      */
 	messageOffset = get_ber_identifier(tvb, offset, &class, &pc, &ber_tag);
-	messageOffset = get_ber_length(tree, tvb, messageOffset, &msg_len, &ind);
+	messageOffset = get_ber_length(tvb, messageOffset, &msg_len, &ind);
 
     /* sanity check */
     if((msg_len<4) || (msg_len>10000000)) return;
@@ -1178,7 +1178,7 @@ get_normal_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	 * offset is where the tag is
 	 * offset+1 is where length starts
 	 */
-	data_offset=get_ber_length(NULL, tvb, offset+1, &len, &ind);
+	data_offset=get_ber_length(tvb, offset+1, &len, &ind);
 	return len+data_offset-offset;
 }
 
@@ -1366,7 +1366,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto this_was_not_sasl;
 	}
 		
-	offset=get_ber_length(NULL, tvb, 5, &gss_len, &ind);
+	offset=get_ber_length(tvb, 5, &gss_len, &ind);
 	if(sasl_len!=(gss_len+offset-4)){
 		goto this_was_not_sasl;
 	}
@@ -1389,7 +1389,7 @@ this_was_not_sasl:
 	}
 
 	/* check that length makes sense */
-	offset=get_ber_length(NULL, tvb, 1, &ldap_len, &ind);
+	offset=get_ber_length(tvb, 1, &ldap_len, &ind);
 
 	/* dont check ind since indefinite length is never used for ldap (famous last words)*/
 	if(ldap_len<2){

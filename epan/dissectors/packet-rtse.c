@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-rtse.c                                                            */
+/* ./packet-rtse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -887,7 +887,7 @@ dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
      * dissector.
      */
      offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+     offset = get_ber_length(tvb, offset, &len1, &ind_field);
    }
 
    offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,

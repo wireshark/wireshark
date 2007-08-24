@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-pkix1explicit.c                                                   */
+/* ./packet-pkix1explicit.c                                                   */
 /* ../../tools/asn2wrs.py -e -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn */
 
 /* Input file: packet-pkix1explicit-template.c */

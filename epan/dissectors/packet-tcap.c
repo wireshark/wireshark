@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-tcap.c                                                            */
+/* ./packet-tcap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -3358,7 +3358,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 
 	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	tag_offset = offset;
-	offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+	offset = get_ber_length(tvb, offset, &len, &ind_field);
 	len_offset = offset;
 
 	if (pc)

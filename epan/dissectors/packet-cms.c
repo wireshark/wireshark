@@ -459,7 +459,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, actx, NULL, hf_cms_eContent);
 
   pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
-  content_offset = pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
+  content_offset = pdu_offset = get_ber_length(tvb, pdu_offset, &len, &ind);
   pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, actx->pinfo, top_tree ? top_tree : tree);
   
   /* save the content for checking the message digest */	
@@ -1524,7 +1524,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   /* move past TLV */
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
-  old_offset = get_ber_length(tree, tvb, old_offset, NULL, NULL);
+  old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
   if(content_tvb) 
     cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);

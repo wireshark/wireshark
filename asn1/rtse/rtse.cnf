@@ -105,7 +105,7 @@ EXTERNALt
      * dissector.
      */
      offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+     offset = get_ber_length(tvb, offset, &len1, &ind_field);
    }
 
    offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,

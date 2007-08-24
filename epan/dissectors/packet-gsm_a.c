@@ -7596,7 +7596,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		/* Get the length of the component there can be more tnan one component in a facility message */
 	  
 		header_end_offset = get_ber_identifier(tvb, offset, &class, &pc, &comp_type_tag);
-		header_end_offset = get_ber_length(tree, tvb, header_end_offset, &component_len, &ind);
+		header_end_offset = get_ber_length(tvb, header_end_offset, &component_len, &ind);
 		if (ind){
 			proto_tree_add_text(tree, tvb, offset+1, 1,
 				"Indefinte length, ignoring component");

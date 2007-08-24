@@ -1423,7 +1423,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
     start = offset;
 
     offset = get_ber_identifier(tvb, offset, &class, &pc, &ber_tag);
-    offset = get_ber_length(tree, tvb, offset, &vb_length, &ind);
+    offset = get_ber_length(tvb, offset, &vb_length, &ind);
 
     vb_value_start = offset;
 

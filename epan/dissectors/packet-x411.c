@@ -152,33 +152,6 @@ static int hf_x411_PDSName_PDU = -1;              /* PDSName */
 static int hf_x411_PhysicalDeliveryCountryName_PDU = -1;  /* PhysicalDeliveryCountryName */
 static int hf_x411_PostalCode_PDU = -1;           /* PostalCode */
 static int hf_x411_PhysicalDeliveryOfficeName_PDU = -1;  /* PhysicalDeliveryOfficeName */
-static int hf_x411_UniversalPhysicalDeliveryOfficeName_PDU = -1;  /* UniversalPhysicalDeliveryOfficeName */
-static int hf_x411_PhysicalDeliveryOfficeNumber_PDU = -1;  /* PhysicalDeliveryOfficeNumber */
-static int hf_x411_UniversalPhysicalDeliveryOfficeNumber_PDU = -1;  /* UniversalPhysicalDeliveryOfficeNumber */
-static int hf_x411_ExtensionORAddressComponents_PDU = -1;  /* ExtensionORAddressComponents */
-static int hf_x411_UniversalExtensionORAddressComponents_PDU = -1;  /* UniversalExtensionORAddressComponents */
-static int hf_x411_PhysicalDeliveryPersonalName_PDU = -1;  /* PhysicalDeliveryPersonalName */
-static int hf_x411_UniversalPhysicalDeliveryPersonalName_PDU = -1;  /* UniversalPhysicalDeliveryPersonalName */
-static int hf_x411_PhysicalDeliveryOrganizationName_PDU = -1;  /* PhysicalDeliveryOrganizationName */
-static int hf_x411_UniversalPhysicalDeliveryOrganizationName_PDU = -1;  /* UniversalPhysicalDeliveryOrganizationName */
-static int hf_x411_ExtensionPhysicalDeliveryAddressComponents_PDU = -1;  /* ExtensionPhysicalDeliveryAddressComponents */
-static int hf_x411_UniversalExtensionPhysicalDeliveryAddressComponents_PDU = -1;  /* UniversalExtensionPhysicalDeliveryAddressComponents */
-static int hf_x411_UnformattedPostalAddress_PDU = -1;  /* UnformattedPostalAddress */
-static int hf_x411_UniversalUnformattedPostalAddress_PDU = -1;  /* UniversalUnformattedPostalAddress */
-static int hf_x411_StreetAddress_PDU = -1;        /* StreetAddress */
-static int hf_x411_UniversalStreetAddress_PDU = -1;  /* UniversalStreetAddress */
-static int hf_x411_PostOfficeBoxAddress_PDU = -1;  /* PostOfficeBoxAddress */
-static int hf_x411_UniversalPostOfficeBoxAddress_PDU = -1;  /* UniversalPostOfficeBoxAddress */
-static int hf_x411_PosteRestanteAddress_PDU = -1;  /* PosteRestanteAddress */
-static int hf_x411_UniversalPosteRestanteAddress_PDU = -1;  /* UniversalPosteRestanteAddress */
-static int hf_x411_UniquePostalName_PDU = -1;     /* UniquePostalName */
-static int hf_x411_UniversalUniquePostalName_PDU = -1;  /* UniversalUniquePostalName */
-static int hf_x411_LocalPostalAttributes_PDU = -1;  /* LocalPostalAttributes */
-static int hf_x411_UniversalLocalPostalAttributes_PDU = -1;  /* UniversalLocalPostalAttributes */
-static int hf_x411_ExtendedNetworkAddress_PDU = -1;  /* ExtendedNetworkAddress */
-static int hf_x411_TerminalType_PDU = -1;         /* TerminalType */
-static int hf_x411_TeletexDomainDefinedAttributes_PDU = -1;  /* TeletexDomainDefinedAttributes */
-static int hf_x411_UniversalDomainDefinedAttributes_PDU = -1;  /* UniversalDomainDefinedAttributes */
 static int hf_x411_ExtendedEncodedInformationType_PDU = -1;  /* ExtendedEncodedInformationType */
 static int hf_x411_MTANameAndOptionalGDI_PDU = -1;  /* MTANameAndOptionalGDI */
 static int hf_x411_AsymmetricToken_PDU = -1;      /* AsymmetricToken */
@@ -853,7 +826,7 @@ static int dissect_empty_result(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x411_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 434 "x411.cnf"
+#line 417 "x411.cnf"
 	tvbuff_t	*mtaname = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
@@ -872,7 +845,6 @@ dissect_x411_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	}
 
 	}
-
 
 
 
@@ -974,7 +946,7 @@ static int dissect_token_type_identifier_impl(proto_tree *tree _U_, tvbuff_t *tv
 
 static int
 dissect_x411_TokenTypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 776 "x411.cnf"
+#line 759 "x411.cnf"
 	
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
@@ -1120,7 +1092,7 @@ static const ber_old_choice_t Credentials_choice[] = {
 
 static int
 dissect_x411_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 781 "x411.cnf"
+#line 767 "x411.cnf"
   guint32 credentials;
 
     offset = dissect_ber_old_choice(actx, tree, tvb, offset,
@@ -1221,7 +1193,7 @@ static int dissect_category_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x411_CategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 294 "x411.cnf"
+#line 269 "x411.cnf"
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
@@ -1415,7 +1387,7 @@ static const value_string x411_MTABindError_vals[] = {
 
 static int
 dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 767 "x411.cnf"
+#line 750 "x411.cnf"
   int error = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &error);
@@ -1432,7 +1404,7 @@ dissect_x411_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_x411_AddrNumericString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 555 "x411.cnf"
+#line 528 "x411.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1473,7 +1445,7 @@ static int dissect_numeric_code(proto_tree *tree _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x411_AddrPrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 544 "x411.cnf"
+#line 517 "x411.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1516,7 +1488,7 @@ static const ber_old_choice_t CountryName_choice[] = {
 
 static int
 dissect_x411_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 309 "x411.cnf"
+#line 283 "x411.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
@@ -1527,15 +1499,15 @@ dissect_x411_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
 
  if(doing_address)
     g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
 
-    offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     CountryName_choice, hf_index, ett_x411_CountryName,
-                                     NULL);
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                              CountryName_choice, hf_index, ett_x411_CountryName, NULL);
+
 
 
 
@@ -1561,7 +1533,7 @@ static const ber_old_choice_t AdministrationDomainName_choice[] = {
 
 static int
 dissect_x411_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 328 "x411.cnf"
+#line 305 "x411.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
@@ -1572,16 +1544,14 @@ dissect_x411_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
 
   if(doing_address)
     g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
 
-    offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName,
-                                     NULL);
-
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                              AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
 
 
 
@@ -1609,7 +1579,7 @@ static const ber_old_choice_t PrivateDomainIdentifier_choice[] = {
 
 static int
 dissect_x411_PrivateDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 480 "x411.cnf"
+#line 468 "x411.cnf"
 
 	if(doing_address)
 		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
@@ -1617,7 +1587,6 @@ dissect_x411_PrivateDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 	  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
                                      PrivateDomainIdentifier_choice, hf_index, ett_x411_PrivateDomainIdentifier,
                                      NULL);
-
 
 
 
@@ -1641,7 +1610,7 @@ static const ber_old_sequence_t GlobalDomainIdentifier_sequence[] = {
 
 static int
 dissect_x411_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 659 "x411.cnf"
+#line 630 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = tree;
@@ -1657,6 +1626,7 @@ dissect_x411_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s/", oraddress);
 		}
 	}
+
 
 
 
@@ -1676,7 +1646,7 @@ static int dissect_attempted_domain(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x411_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 674 "x411.cnf"
+#line 649 "x411.cnf"
 	tvbuff_t 	*id = NULL;
 	
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
@@ -1709,7 +1679,7 @@ static const ber_old_sequence_t MTSIdentifier_sequence[] = {
 
 static int
 dissect_x411_MTSIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 687 "x411.cnf"
+#line 662 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -1747,7 +1717,7 @@ static int dissect_message_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x411_X121Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 452 "x411.cnf"
+#line 437 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1782,7 +1752,7 @@ static int dissect_network_address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_x411_TerminalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 463 "x411.cnf"
+#line 451 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1818,7 +1788,7 @@ static const ber_old_choice_t PrivateDomainName_choice[] = {
 
 static int
 dissect_x411_PrivateDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 473 "x411.cnf"
+#line 461 "x411.cnf"
 
 	if(doing_address)
 		g_strlcat(oraddress, "/P=", MAX_ORA_STR_LEN);
@@ -1840,7 +1810,7 @@ static int dissect_private_domain_name_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 
 static int
 dissect_x411_OrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 488 "x411.cnf"
+#line 478 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1879,7 +1849,7 @@ static int dissect_numeric_user_identifier_impl(proto_tree *tree _U_, tvbuff_t *
 
 static int
 dissect_x411_T_printable_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 575 "x411.cnf"
+#line 548 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1893,7 +1863,6 @@ dissect_x411_T_printable_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 	}
 
 
-
   return offset;
 }
 static int dissect_printable_surname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -1904,7 +1873,7 @@ static int dissect_printable_surname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_x411_T_printable_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 585 "x411.cnf"
+#line 557 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1918,7 +1887,6 @@ dissect_x411_T_printable_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 	}
 
 
-
   return offset;
 }
 static int dissect_printable_given_name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
@@ -1929,7 +1897,7 @@ static int dissect_printable_given_name_impl(proto_tree *tree _U_, tvbuff_t *tvb
 
 static int
 dissect_x411_T_printable_initials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 595 "x411.cnf"
+#line 566 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1953,7 +1921,7 @@ static int dissect_printable_initials_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 
 static int
 dissect_x411_T_printable_generation_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 604 "x411.cnf"
+#line 575 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1998,7 +1966,7 @@ static int dissect_personal_name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x411_OrganizationalUnitName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 498 "x411.cnf"
+#line 491 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2051,7 +2019,7 @@ static const ber_old_sequence_t BuiltInStandardAttributes_sequence[] = {
 
 static int
 dissect_x411_BuiltInStandardAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 711 "x411.cnf"
+#line 686 "x411.cnf"
 
 	address_item = tree;	
 
@@ -2071,7 +2039,7 @@ static int dissect_built_in_standard_attributes(proto_tree *tree _U_, tvbuff_t *
 
 static int
 dissect_x411_T_printable_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 614 "x411.cnf"
+#line 585 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2095,7 +2063,7 @@ static int dissect_printable_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x411_T_printable_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 623 "x411.cnf"
+#line 594 "x411.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2167,10 +2135,9 @@ static int dissect_extension_attribute_type_impl(proto_tree *tree _U_, tvbuff_t 
 
 static int
 dissect_x411_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 301 "x411.cnf"
+#line 276 "x411.cnf"
 
-	if(extension_id != -1) 
-		offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, actx->pinfo, tree);
+	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, actx->pinfo, tree);
 
 
 
@@ -2225,7 +2192,7 @@ static const ber_old_sequence_t ORName_sequence[] = {
 
 int
 dissect_x411_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 646 "x411.cnf"
+#line 617 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = NULL;
@@ -2484,7 +2451,7 @@ static const value_string x411_BuiltInContentType_vals[] = {
 
 static int
 dissect_x411_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 394 "x411.cnf"
+#line 375 "x411.cnf"
   guint32	ict = -1;	
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2519,7 +2486,7 @@ static int dissect_built_in_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int of
 
 int
 dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 381 "x411.cnf"
+#line 359 "x411.cnf"
 	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &content_type_id);
@@ -2576,7 +2543,7 @@ static int dissect_ContentTypes_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x411_ContentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 347 "x411.cnf"
+#line 325 "x411.cnf"
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
@@ -2587,7 +2554,7 @@ dissect_x411_ContentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
 
   /* this is magic I haven't seen used before - I've stripped the tag - but now I'm going to say it is IMPLICIT! */
@@ -2662,7 +2629,7 @@ static int dissect_per_message_indicators(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_x411_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 751 "x411.cnf"
+#line 729 "x411.cnf"
 	tvbuff_t *arrival = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
@@ -2749,7 +2716,7 @@ static int dissect_bilateral_domain(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x411_T_bilateral_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 795 "x411.cnf"
+#line 781 "x411.cnf"
 	proto_item *item = NULL;
 	int 	    loffset = 0;
 	guint32	    len = 0;
@@ -2829,7 +2796,7 @@ static const value_string x411_RoutingAction_vals[] = {
 
 static int
 dissect_x411_RoutingAction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 759 "x411.cnf"
+#line 740 "x411.cnf"
 	int action = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2837,7 +2804,6 @@ dissect_x411_RoutingAction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 	proto_item_append_text(address_item, " %s", val_to_str(action, x411_RoutingAction_vals, "action(%d)"));
-
 
 
 
@@ -2906,7 +2872,7 @@ static const ber_old_sequence_t DomainSuppliedInformation_set[] = {
 
 static int
 dissect_x411_DomainSuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 733 "x411.cnf"
+#line 708 "x411.cnf"
 
 	doing_address = FALSE;
 
@@ -2934,7 +2900,7 @@ static const ber_old_sequence_t TraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_TraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 717 "x411.cnf"
+#line 692 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -2985,7 +2951,7 @@ static int dissect_standard_extension_impl(proto_tree *tree _U_, tvbuff_t *tvb _
 
 static int
 dissect_x411_T_private_extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 370 "x411.cnf"
+#line 351 "x411.cnf"
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
@@ -3048,7 +3014,7 @@ static int dissect_criticality_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 282 "x411.cnf"
+#line 257 "x411.cnf"
 	const char *name;
 
 	if(extension_id != -1) 
@@ -3252,7 +3218,7 @@ static int dissect_message_envelope(proto_tree *tree _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_x411_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 412 "x411.cnf"
+#line 393 "x411.cnf"
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
@@ -3272,7 +3238,6 @@ dissect_x411_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
       dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
     }
   }
-
 
 
 
@@ -3384,7 +3349,7 @@ static int dissect_subject_intermediate_trace_information(proto_tree *tree _U_, 
 
 static int
 dissect_x411_AdditionalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 264 "x411.cnf"
+#line 239 "x411.cnf"
    proto_item *item = NULL;
    int         loffset = 0;
    guint32     len = 0;
@@ -3640,7 +3605,7 @@ static const ber_old_choice_t ReportType_choice[] = {
 
 static int
 dissect_x411_ReportType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 819 "x411.cnf"
+#line 811 "x411.cnf"
 	int report = -1;
 
   	  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
@@ -3911,7 +3876,7 @@ static const ber_old_choice_t MTS_APDU_choice[] = {
 
 static int
 dissect_x411_MTS_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 810 "x411.cnf"
+#line 799 "x411.cnf"
 	int apdu = -1;
 
   	  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
@@ -3975,7 +3940,7 @@ static const ber_old_sequence_t MTASuppliedInformation_set[] = {
 
 static int
 dissect_x411_MTASuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 742 "x411.cnf"
+#line 717 "x411.cnf"
 
 	doing_address = FALSE;
 
@@ -4004,7 +3969,7 @@ static const ber_old_sequence_t InternalTraceInformationElement_sequence[] = {
 
 static int
 dissect_x411_InternalTraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 725 "x411.cnf"
+#line 700 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -5130,7 +5095,7 @@ static int dissect_built_in_argument_impl(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_x411_T_refused_extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 306 "x411.cnf"
+#line 280 "x411.cnf"
 /*XXX not implemented yet */
 
 
@@ -5612,7 +5577,7 @@ static int dissect_standard_parameters_impl(proto_tree *tree _U_, tvbuff_t *tvb 
 
 static int
 dissect_x411_T_type_extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 279 "x411.cnf"
+#line 254 "x411.cnf"
 /*XXX not implemented yet */
 
 
@@ -5978,7 +5943,7 @@ static const ber_old_sequence_t ORAddress_sequence[] = {
 
 int
 dissect_x411_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 633 "x411.cnf"
+#line 604 "x411.cnf"
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	doing_address = TRUE;
@@ -6544,7 +6509,7 @@ dissect_x411_CertificateSelectors(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x411_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 508 "x411.cnf"
+#line 504 "x411.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -6559,7 +6524,6 @@ dissect_x411_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 
-
   return offset;
 }
 
@@ -6567,21 +6531,9 @@ dissect_x411_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_x411_TeletexCommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 519 "x411.cnf"
-	tvbuff_t	*string = NULL;
-
-	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             actx, tree, tvb, offset, hf_index,
-                                            &string);
-
-
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
-
-
-
+                                            NULL);
 
   return offset;
 }
@@ -6676,19 +6628,7 @@ static int dissect_universal_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_x411_UniversalCommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 530 "x411.cnf"
-	tvbuff_t	*string = NULL;
-
-	  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-
-	if(doing_address && string) {
-		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
-		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
-	}
-
-
-
+  offset = dissect_x411_UniversalOrBMPString(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -6717,7 +6657,7 @@ dissect_x411_UniversalOrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_x411_AddrTeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 566 "x411.cnf"
+#line 539 "x411.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -7104,15 +7044,6 @@ dissect_x411_UniversalPostOfficeBoxAddress(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
-dissect_x411_PosteRestanteAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_x411_PDSParameter(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
 dissect_x411_UniversalPosteRestanteAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_x411_UniversalPDSParameter(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -7318,7 +7249,7 @@ static const ber_old_sequence_t MTANameAndOptionalGDI_sequence[] = {
 
 static int
 dissect_x411_MTANameAndOptionalGDI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 702 "x411.cnf"
+#line 677 "x411.cnf"
 
 	doing_address = TRUE;
 
@@ -7366,7 +7297,7 @@ static int dissect_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_x411_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 791 "x411.cnf"
+#line 777 "x411.cnf"
 
 	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, actx->pinfo, tree);
 
@@ -7828,141 +7759,6 @@ static void dissect_PhysicalDeliveryOfficeName_PDU(tvbuff_t *tvb _U_, packet_inf
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x411_PhysicalDeliveryOfficeName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_PhysicalDeliveryOfficeName_PDU);
 }
-static void dissect_UniversalPhysicalDeliveryOfficeName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalPhysicalDeliveryOfficeName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalPhysicalDeliveryOfficeName_PDU);
-}
-static void dissect_PhysicalDeliveryOfficeNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_PhysicalDeliveryOfficeNumber(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_PhysicalDeliveryOfficeNumber_PDU);
-}
-static void dissect_UniversalPhysicalDeliveryOfficeNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalPhysicalDeliveryOfficeNumber(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalPhysicalDeliveryOfficeNumber_PDU);
-}
-static void dissect_ExtensionORAddressComponents_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_ExtensionORAddressComponents(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_ExtensionORAddressComponents_PDU);
-}
-static void dissect_UniversalExtensionORAddressComponents_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalExtensionORAddressComponents(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalExtensionORAddressComponents_PDU);
-}
-static void dissect_PhysicalDeliveryPersonalName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_PhysicalDeliveryPersonalName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_PhysicalDeliveryPersonalName_PDU);
-}
-static void dissect_UniversalPhysicalDeliveryPersonalName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalPhysicalDeliveryPersonalName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalPhysicalDeliveryPersonalName_PDU);
-}
-static void dissect_PhysicalDeliveryOrganizationName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_PhysicalDeliveryOrganizationName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_PhysicalDeliveryOrganizationName_PDU);
-}
-static void dissect_UniversalPhysicalDeliveryOrganizationName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalPhysicalDeliveryOrganizationName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalPhysicalDeliveryOrganizationName_PDU);
-}
-static void dissect_ExtensionPhysicalDeliveryAddressComponents_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_ExtensionPhysicalDeliveryAddressComponents(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_ExtensionPhysicalDeliveryAddressComponents_PDU);
-}
-static void dissect_UniversalExtensionPhysicalDeliveryAddressComponents_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalExtensionPhysicalDeliveryAddressComponents(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalExtensionPhysicalDeliveryAddressComponents_PDU);
-}
-static void dissect_UnformattedPostalAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UnformattedPostalAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UnformattedPostalAddress_PDU);
-}
-static void dissect_UniversalUnformattedPostalAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalUnformattedPostalAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalUnformattedPostalAddress_PDU);
-}
-static void dissect_StreetAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_StreetAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_StreetAddress_PDU);
-}
-static void dissect_UniversalStreetAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalStreetAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalStreetAddress_PDU);
-}
-static void dissect_PostOfficeBoxAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_PostOfficeBoxAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_PostOfficeBoxAddress_PDU);
-}
-static void dissect_UniversalPostOfficeBoxAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalPostOfficeBoxAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalPostOfficeBoxAddress_PDU);
-}
-static void dissect_PosteRestanteAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_PosteRestanteAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_PosteRestanteAddress_PDU);
-}
-static void dissect_UniversalPosteRestanteAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalPosteRestanteAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalPosteRestanteAddress_PDU);
-}
-static void dissect_UniquePostalName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniquePostalName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniquePostalName_PDU);
-}
-static void dissect_UniversalUniquePostalName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalUniquePostalName(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalUniquePostalName_PDU);
-}
-static void dissect_LocalPostalAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_LocalPostalAttributes(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_LocalPostalAttributes_PDU);
-}
-static void dissect_UniversalLocalPostalAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalLocalPostalAttributes(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalLocalPostalAttributes_PDU);
-}
-static void dissect_ExtendedNetworkAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_ExtendedNetworkAddress(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_ExtendedNetworkAddress_PDU);
-}
-static void dissect_TerminalType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_TerminalType(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_TerminalType_PDU);
-}
-static void dissect_TeletexDomainDefinedAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_TeletexDomainDefinedAttributes(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_TeletexDomainDefinedAttributes_PDU);
-}
-static void dissect_UniversalDomainDefinedAttributes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x411_UniversalDomainDefinedAttributes(FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_UniversalDomainDefinedAttributes_PDU);
-}
 static void dissect_ExtendedEncodedInformationType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -8383,114 +8179,6 @@ void proto_register_x411(void) {
       { "PhysicalDeliveryOfficeName", "x411.PhysicalDeliveryOfficeName",
         FT_NONE, BASE_NONE, NULL, 0,
         "x411.PhysicalDeliveryOfficeName", HFILL }},
-    { &hf_x411_UniversalPhysicalDeliveryOfficeName_PDU,
-      { "UniversalPhysicalDeliveryOfficeName", "x411.UniversalPhysicalDeliveryOfficeName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalPhysicalDeliveryOfficeName", HFILL }},
-    { &hf_x411_PhysicalDeliveryOfficeNumber_PDU,
-      { "PhysicalDeliveryOfficeNumber", "x411.PhysicalDeliveryOfficeNumber",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.PhysicalDeliveryOfficeNumber", HFILL }},
-    { &hf_x411_UniversalPhysicalDeliveryOfficeNumber_PDU,
-      { "UniversalPhysicalDeliveryOfficeNumber", "x411.UniversalPhysicalDeliveryOfficeNumber",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalPhysicalDeliveryOfficeNumber", HFILL }},
-    { &hf_x411_ExtensionORAddressComponents_PDU,
-      { "ExtensionORAddressComponents", "x411.ExtensionORAddressComponents",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.ExtensionORAddressComponents", HFILL }},
-    { &hf_x411_UniversalExtensionORAddressComponents_PDU,
-      { "UniversalExtensionORAddressComponents", "x411.UniversalExtensionORAddressComponents",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalExtensionORAddressComponents", HFILL }},
-    { &hf_x411_PhysicalDeliveryPersonalName_PDU,
-      { "PhysicalDeliveryPersonalName", "x411.PhysicalDeliveryPersonalName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.PhysicalDeliveryPersonalName", HFILL }},
-    { &hf_x411_UniversalPhysicalDeliveryPersonalName_PDU,
-      { "UniversalPhysicalDeliveryPersonalName", "x411.UniversalPhysicalDeliveryPersonalName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalPhysicalDeliveryPersonalName", HFILL }},
-    { &hf_x411_PhysicalDeliveryOrganizationName_PDU,
-      { "PhysicalDeliveryOrganizationName", "x411.PhysicalDeliveryOrganizationName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.PhysicalDeliveryOrganizationName", HFILL }},
-    { &hf_x411_UniversalPhysicalDeliveryOrganizationName_PDU,
-      { "UniversalPhysicalDeliveryOrganizationName", "x411.UniversalPhysicalDeliveryOrganizationName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalPhysicalDeliveryOrganizationName", HFILL }},
-    { &hf_x411_ExtensionPhysicalDeliveryAddressComponents_PDU,
-      { "ExtensionPhysicalDeliveryAddressComponents", "x411.ExtensionPhysicalDeliveryAddressComponents",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.ExtensionPhysicalDeliveryAddressComponents", HFILL }},
-    { &hf_x411_UniversalExtensionPhysicalDeliveryAddressComponents_PDU,
-      { "UniversalExtensionPhysicalDeliveryAddressComponents", "x411.UniversalExtensionPhysicalDeliveryAddressComponents",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalExtensionPhysicalDeliveryAddressComponents", HFILL }},
-    { &hf_x411_UnformattedPostalAddress_PDU,
-      { "UnformattedPostalAddress", "x411.UnformattedPostalAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UnformattedPostalAddress", HFILL }},
-    { &hf_x411_UniversalUnformattedPostalAddress_PDU,
-      { "UniversalUnformattedPostalAddress", "x411.UniversalUnformattedPostalAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalUnformattedPostalAddress", HFILL }},
-    { &hf_x411_StreetAddress_PDU,
-      { "StreetAddress", "x411.StreetAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.StreetAddress", HFILL }},
-    { &hf_x411_UniversalStreetAddress_PDU,
-      { "UniversalStreetAddress", "x411.UniversalStreetAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalStreetAddress", HFILL }},
-    { &hf_x411_PostOfficeBoxAddress_PDU,
-      { "PostOfficeBoxAddress", "x411.PostOfficeBoxAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.PostOfficeBoxAddress", HFILL }},
-    { &hf_x411_UniversalPostOfficeBoxAddress_PDU,
-      { "UniversalPostOfficeBoxAddress", "x411.UniversalPostOfficeBoxAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalPostOfficeBoxAddress", HFILL }},
-    { &hf_x411_PosteRestanteAddress_PDU,
-      { "PosteRestanteAddress", "x411.PosteRestanteAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.PosteRestanteAddress", HFILL }},
-    { &hf_x411_UniversalPosteRestanteAddress_PDU,
-      { "UniversalPosteRestanteAddress", "x411.UniversalPosteRestanteAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalPosteRestanteAddress", HFILL }},
-    { &hf_x411_UniquePostalName_PDU,
-      { "UniquePostalName", "x411.UniquePostalName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniquePostalName", HFILL }},
-    { &hf_x411_UniversalUniquePostalName_PDU,
-      { "UniversalUniquePostalName", "x411.UniversalUniquePostalName",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalUniquePostalName", HFILL }},
-    { &hf_x411_LocalPostalAttributes_PDU,
-      { "LocalPostalAttributes", "x411.LocalPostalAttributes",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.LocalPostalAttributes", HFILL }},
-    { &hf_x411_UniversalLocalPostalAttributes_PDU,
-      { "UniversalLocalPostalAttributes", "x411.UniversalLocalPostalAttributes",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x411.UniversalLocalPostalAttributes", HFILL }},
-    { &hf_x411_ExtendedNetworkAddress_PDU,
-      { "ExtendedNetworkAddress", "x411.ExtendedNetworkAddress",
-        FT_UINT32, BASE_DEC, VALS(x411_ExtendedNetworkAddress_vals), 0,
-        "x411.ExtendedNetworkAddress", HFILL }},
-    { &hf_x411_TerminalType_PDU,
-      { "TerminalType", "x411.TerminalType",
-        FT_INT32, BASE_DEC, VALS(x411_TerminalType_vals), 0,
-        "x411.TerminalType", HFILL }},
-    { &hf_x411_TeletexDomainDefinedAttributes_PDU,
-      { "TeletexDomainDefinedAttributes", "x411.TeletexDomainDefinedAttributes",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "x411.TeletexDomainDefinedAttributes", HFILL }},
-    { &hf_x411_UniversalDomainDefinedAttributes_PDU,
-      { "UniversalDomainDefinedAttributes", "x411.UniversalDomainDefinedAttributes",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "x411.UniversalDomainDefinedAttributes", HFILL }},
     { &hf_x411_ExtendedEncodedInformationType_PDU,
       { "ExtendedEncodedInformationType", "x411.ExtendedEncodedInformationType",
         FT_OID, BASE_NONE, NULL, 0,
@@ -10416,41 +10104,14 @@ void proto_reg_handoff_x411(void) {
   register_ber_oid_dissector("x411.extension-attribute.3", dissect_TeletexOrganizationName_PDU, proto_x411, "teletex-organization-name");
   register_ber_oid_dissector("x411.extension-attribute.4", dissect_TeletexPersonalName_PDU, proto_x411, "teletex-personal-name");
   register_ber_oid_dissector("x411.extension-attribute.5", dissect_TeletexOrganizationalUnitNames_PDU, proto_x411, "teletex-organizational-unit-names");
-  register_ber_oid_dissector("x411.extension-attribute.6", dissect_TeletexDomainDefinedAttributes_PDU, proto_x411, "teletex-domain-defined-attributes");
   register_ber_oid_dissector("x411.extension-attribute.7", dissect_PDSName_PDU, proto_x411, "pds-name");
   register_ber_oid_dissector("x411.extension-attribute.8", dissect_PhysicalDeliveryCountryName_PDU, proto_x411, "physical-delivery-country-name");
   register_ber_oid_dissector("x411.extension-attribute.9", dissect_PostalCode_PDU, proto_x411, "postal-code");
   register_ber_oid_dissector("x411.extension-attribute.10", dissect_PhysicalDeliveryOfficeName_PDU, proto_x411, "physical-delivery-office-name");
-  register_ber_oid_dissector("x411.extension-attribute.11", dissect_PhysicalDeliveryOfficeNumber_PDU, proto_x411, "physical-delivery-office-number");
-  register_ber_oid_dissector("x411.extension-attribute.12", dissect_ExtensionORAddressComponents_PDU, proto_x411, "extension-OR-address-components");
-  register_ber_oid_dissector("x411.extension-attribute.13", dissect_PhysicalDeliveryPersonalName_PDU, proto_x411, "physical-delivery-personal-name");
-  register_ber_oid_dissector("x411.extension-attribute.14", dissect_PhysicalDeliveryOrganizationName_PDU, proto_x411, "physical-delivery-organization-name");
-  register_ber_oid_dissector("x411.extension-attribute.15", dissect_ExtensionPhysicalDeliveryAddressComponents_PDU, proto_x411, "extension-physical-delivery-address-components");
-  register_ber_oid_dissector("x411.extension-attribute.16", dissect_UnformattedPostalAddress_PDU, proto_x411, "unformatted-postal-address");
-  register_ber_oid_dissector("x411.extension-attribute.17", dissect_StreetAddress_PDU, proto_x411, "street-address");
-  register_ber_oid_dissector("x411.extension-attribute.18", dissect_PostOfficeBoxAddress_PDU, proto_x411, "post-office-box-address");
-  register_ber_oid_dissector("x411.extension-attribute.19", dissect_PosteRestanteAddress_PDU, proto_x411, "poste-restante-address");
-  register_ber_oid_dissector("x411.extension-attribute.20", dissect_UniquePostalName_PDU, proto_x411, "unique-postal-name");
-  register_ber_oid_dissector("x411.extension-attribute.21", dissect_LocalPostalAttributes_PDU, proto_x411, "local-postal-attributes");
-  register_ber_oid_dissector("x411.extension-attribute.22", dissect_ExtendedNetworkAddress_PDU, proto_x411, "extended-network-address");
-  register_ber_oid_dissector("x411.extension-attribute.23", dissect_TerminalType_PDU, proto_x411, "terminal-type");
   register_ber_oid_dissector("x411.extension-attribute.24", dissect_UniversalCommonName_PDU, proto_x411, "universal-common-name");
   register_ber_oid_dissector("x411.extension-attribute.25", dissect_UniversalOrganizationName_PDU, proto_x411, "universal-organization-name");
   register_ber_oid_dissector("x411.extension-attribute.26", dissect_UniversalPersonalName_PDU, proto_x411, "universal-personal-name");
   register_ber_oid_dissector("x411.extension-attribute.27", dissect_UniversalOrganizationalUnitNames_PDU, proto_x411, "universal-organizational-unit-names");
-  register_ber_oid_dissector("x411.extension-attribute.28", dissect_UniversalDomainDefinedAttributes_PDU, proto_x411, "universal-domain-defined-attributes");
-  register_ber_oid_dissector("x411.extension-attribute.29", dissect_UniversalPhysicalDeliveryOfficeName_PDU, proto_x411, "universal-physical-delivery-office-name");
-  register_ber_oid_dissector("x411.extension-attribute.30", dissect_UniversalPhysicalDeliveryOfficeNumber_PDU, proto_x411, "universal-physical-delivery-office-number");
-  register_ber_oid_dissector("x411.extension-attribute.31", dissect_UniversalExtensionORAddressComponents_PDU, proto_x411, "universal-extension-OR-address-components");
-  register_ber_oid_dissector("x411.extension-attribute.32", dissect_UniversalPhysicalDeliveryPersonalName_PDU, proto_x411, "universal-physical-delivery-personal-name");
-  register_ber_oid_dissector("x411.extension-attribute.33", dissect_UniversalPhysicalDeliveryOrganizationName_PDU, proto_x411, "universal-physical-delivery-organization-name");
-  register_ber_oid_dissector("x411.extension-attribute.34", dissect_UniversalExtensionPhysicalDeliveryAddressComponents_PDU, proto_x411, "universal-extension-physical-delivery-address-components");
-  register_ber_oid_dissector("x411.extension-attribute.35", dissect_UniversalUnformattedPostalAddress_PDU, proto_x411, "universal-unformatted-postal-address");
-  register_ber_oid_dissector("x411.extension-attribute.36", dissect_UniversalStreetAddress_PDU, proto_x411, "universal-street-address");
-  register_ber_oid_dissector("x411.extension-attribute.37", dissect_UniversalPostOfficeBoxAddress_PDU, proto_x411, "universal-post-office-box-address");
-  register_ber_oid_dissector("x411.extension-attribute.38", dissect_UniversalPosteRestanteAddress_PDU, proto_x411, "universal-poste-restante-address");
-  register_ber_oid_dissector("x411.extension-attribute.39", dissect_UniversalUniquePostalName_PDU, proto_x411, "universal-unique-postal-name");
-  register_ber_oid_dissector("x411.extension-attribute.40", dissect_UniversalLocalPostalAttributes_PDU, proto_x411, "universal-local-postal-attributes");
   register_ber_oid_dissector("2.6.1.4.14", dissect_ReportDeliveryArgument_PDU, proto_x411, "id-et-report");
   register_ber_oid_dissector("2.6.3.6.0", dissect_AsymmetricToken_PDU, proto_x411, "id-tok-asymmetricToken");
   register_ber_oid_dissector("2.6.5.6.0", dissect_MTANameAndOptionalGDI_PDU, proto_x411, "id-on-mtaName");

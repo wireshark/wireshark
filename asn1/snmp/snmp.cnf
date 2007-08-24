@@ -44,7 +44,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -59,7 +59,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -74,7 +74,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -89,7 +89,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -105,7 +105,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -120,7 +120,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -135,7 +135,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -150,7 +150,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
@@ -165,7 +165,7 @@ gint pdu_type;
     * XXX is some conformance file magic to work around that bug
     */
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+    offset = get_ber_length(tvb, offset, &len1, &ind_field);
  }
  offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 

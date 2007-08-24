@@ -401,7 +401,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	
 	/* first have the VarBind's sequence header */
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	offset = get_ber_length(NULL, tvb, offset, &seq_len, &ind);
+	offset = get_ber_length(tvb, offset, &seq_len, &ind);
 	
 	seq_len += offset - seq_offset;
 	
@@ -422,7 +422,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	/* then we have the ObjectName's header */
 	
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	name_offset = offset = get_ber_length(NULL, tvb, offset, &name_len, &ind);
+	name_offset = offset = get_ber_length(tvb, offset, &name_len, &ind);
 	
 	if (! ( !pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_OID) ) {
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"ObjectName must be an OID in primitive encoding");
@@ -443,7 +443,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	
 	/* then we have the  value's header */
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
-	value_offset = offset = get_ber_length(NULL, tvb, offset, &value_len, &ind);
+	value_offset = offset = get_ber_length(tvb, offset, &value_len, &ind);
 	
 	if (! (!pc) ) {
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"the value must be in primitive encoding");
@@ -1323,7 +1323,7 @@ gboolean check_ScopedPdu(tvbuff_t* tvb) {
 	guint32 len;
 
 	offset = get_ber_identifier(tvb, 0, &class, &pc, &tag);
-	offset = get_ber_length(NULL, tvb, offset, NULL, NULL);
+	offset = get_ber_length(tvb, offset, NULL, NULL);
 
 	if ( ! (((class!=BER_CLASS_APP) && (class!=BER_CLASS_PRI) )
 			&& ( (!pc) || (class!=BER_CLASS_UNI) || (tag!=BER_UNI_TAG_ENUMERATED) )
@@ -1335,7 +1335,7 @@ gboolean check_ScopedPdu(tvbuff_t* tvb) {
 	hoffset = offset;
 
 	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset = get_ber_length(NULL, tvb, offset, &len, NULL);
+	offset = get_ber_length(tvb, offset, &len, NULL);
 	eoffset = offset + len;
 
 	if (eoffset <= hoffset) return FALSE;
@@ -1536,7 +1536,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	}
 	/* then comes a length which spans the rest of the tvb */
-	offset = get_ber_length(NULL, tvb, offset, &tmp_length, &tmp_ind);
+	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
 	if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){
 		return 0;
 	}

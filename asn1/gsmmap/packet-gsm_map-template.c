@@ -837,7 +837,7 @@ static int dissect_mc_message(tvbuff_t *tvb,
      * XXX is some conformance file magic to work around that bug
      */
     offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-    offset = get_ber_length(tree, tvb, offset, &bug_len, &bug_ind_field);
+    offset = get_ber_length(tvb, offset, &bug_len, &bug_ind_field);
     if (sequence3 != NULL) {
       offset= (sequence3) (implicit_seq3, tvb, offset, actx, tree, hf_index_seq3);
     } else {

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-mpeg-audio.c                                                      */
+/* ./packet-mpeg-audio.c                                                      */
 /* ../../tools/asn2wrs.py -e -p mpeg-audio -c mpeg-audio.cnf -s packet-mpeg-audio-template mpeg-audio.asn */
 
 /* Input file: packet-mpeg-audio-template.c */
