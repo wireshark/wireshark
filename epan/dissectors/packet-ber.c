@@ -1343,8 +1343,25 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 }
 }
 #endif
+	hoffset = offset;
+	if(!implicit_tag) {
+		offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+		offset = get_ber_length(tvb, offset, &len, NULL);
+	} else {
+		/* was implicit tag so just use the length of the tvb */
+		len=tvb_length_remaining(tvb,offset);
+		end_offset=offset+len;
+	}
+	/* create subtree */
+	if(hf_id >= 0) {
+		if(parent_tree){
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, len + offset - hoffset, FALSE);
+			tree = proto_item_add_subtree(item, ett_id);
+		}
+	}
+	offset = hoffset;
+
 	if(!implicit_tag){
-		hoffset = offset;
 		/* first we must read the sequence header */
 		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -1370,18 +1387,6 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 			  dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
 			}
 			return end_offset;
-		}
-	} else {
-		/* was implicit tag so just use the length of the tvb */
-		len=tvb_length_remaining(tvb,offset);
-		end_offset=offset+len;
-	}
-
-	/* create subtree */
-	if(hf_id >= 0) {
-		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
-			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
 	/* loop over all entries until we reach the end of the sequence */
@@ -1667,8 +1672,25 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
 }
 }
 #endif
+	hoffset = offset;
+	if(!implicit_tag) {
+		offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+		offset = get_ber_length(tvb, offset, &len, NULL);
+	} else {
+		/* was implicit tag so just use the length of the tvb */
+		len=tvb_length_remaining(tvb,offset);
+		end_offset=offset+len;
+	}
+	/* create subtree */
+	if(hf_id >= 0) {
+		if(parent_tree){
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, len + offset - hoffset, FALSE);
+			tree = proto_item_add_subtree(item, ett_id);
+		}
+	}
+	offset = hoffset;
+
 	if(!implicit_tag){
-		hoffset = offset;
 		/* first we must read the sequence header */
 		offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
@@ -1694,18 +1716,6 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
 			  dissect_unknown_ber(actx->pinfo, tvb, hoffset, unknown_tree);
 			}
 			return end_offset;
-		}
-	} else {
-		/* was implicit tag so just use the length of the tvb */
-		len=tvb_length_remaining(tvb,offset);
-		end_offset=offset+len;
-	}
-
-	/* create subtree */
-	if(hf_id >= 0) {
-		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
-			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
 	/* loop over all entries until we reach the end of the sequence */
