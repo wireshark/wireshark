@@ -49,7 +49,10 @@
 
 #include "oids.h"
 
+#ifdef HAVE_SMI
+/* debuglevel is (currently) only used if HAVE_SMI is defined */
 static int debuglevel = 0;
+#endif
 
 static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
 static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_WRONG,       0};
