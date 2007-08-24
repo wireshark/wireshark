@@ -63,6 +63,7 @@ LIBWIRESHARK_SRC = 		\
 	ipv4.c			\
 	next_tvb.c		\
 	nstime.c		\
+        oids.c			\
 	oid_resolv.c		\
 	osi-utils.c		\
 	packet.c		\
@@ -189,6 +190,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	next_tvb.h		\
 	nlpid.h			\
 	nstime.h		\
+        oids.h			\
 	oid_resolv.h		\
 	osi-utils.h		\
 	oui.h			\
