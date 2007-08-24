@@ -403,6 +403,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-gvrp.c		\
 	packet-h1.c		\
 	packet-h221_nonstd.c	\
+        packet-h223.c		\
 	packet-h248_annex_c.c 	\
 	packet-h248_annex_e.c 	\
 	packet-h248_3gpp.c 	\
@@ -870,6 +871,7 @@ DISSECTOR_INCLUDES =	\
 	packet-gsm_map.h	\
 	packet-gsm_sms.h	\
 	packet-gssapi.h	\
+	packet-h223.h	\
 	packet-h225.h	\
 	packet-h235.h	\
 	packet-h245.h	\

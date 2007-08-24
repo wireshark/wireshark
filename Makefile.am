@@ -221,7 +221,6 @@ plugin_ldadd = \
 	-dlopen plugins/giop/cosnaming.la \
 	-dlopen plugins/giop/coseventcomm.la \
 	-dlopen plugins/gryphon/gryphon.la \
-	-dlopen plugins/h223/h223.la \
 	-dlopen plugins/irda/irda.la \
 	-dlopen plugins/lwres/lwres.la \
 	-dlopen plugins/m2m/m2m.la \
@@ -239,7 +238,7 @@ plugin_ldadd = \
 	-dlopen plugins/unistim/unistim.la \
 	-dlopen plugins/v5ua/v5ua.la \
 	-dlopen plugins/wimax/wimax.la
-	
+
 WTAP_PLUGIN_SOURCES = \
        epan/plugins.c \
        epan/report_err.c \

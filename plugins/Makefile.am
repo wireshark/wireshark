@@ -30,7 +30,6 @@ SUBDIRS = \
 	enttec \
 	giop \
 	gryphon \
-	h223 \
 	irda \
 	lwres \
 	m2m \
