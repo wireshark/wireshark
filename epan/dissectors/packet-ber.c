@@ -1320,7 +1320,8 @@ int dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *pa
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
 	proto_item *cause;
-	int end_offset, s_offset;
+	int end_offset = 0;
+	int s_offset;
 	int hoffset;
 	gint length_remaining;
 	tvbuff_t *next_tvb;
@@ -1649,7 +1650,8 @@ int dissect_ber_old_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
 	proto_item *cause;
-	int end_offset, s_offset;
+	int end_offset = 0;
+	int s_offset;
 	int hoffset;
 	gint length_remaining;
 	tvbuff_t *next_tvb;
