@@ -618,6 +618,7 @@ get_datafile_dir(void)
 	return datafile_dir;
 }
 
+#ifdef HAVE_PLUGINS
 /*
  * Find the directory where the plugins are stored.
  *
@@ -687,6 +688,7 @@ init_plugin_dir(void)
 		plugin_dir = PLUGIN_DIR;
 #endif
 }
+#endif /* HAVE_PLUGINS */
 
 /*
  * Get the directory in which the plugins are stored.
@@ -694,8 +696,12 @@ init_plugin_dir(void)
 const char *
 get_plugin_dir(void)
 {
+#ifdef HAVE_PLUGINS
 	if (!plugin_dir) init_plugin_dir();
 	return plugin_dir;
+#else
+        return NULL;
+#endif
 }
 
 /*
