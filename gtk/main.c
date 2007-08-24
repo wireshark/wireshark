@@ -2007,7 +2007,7 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         main_cf_cb_live_capture_fixed_started(data);
         break;
     case(cf_cb_live_capture_fixed_continue):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
         main_cf_cb_live_capture_fixed_continue(data);
         break;
     case(cf_cb_live_capture_fixed_finished):
