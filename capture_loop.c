@@ -939,7 +939,17 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
   }
 }
 
-/* dispatch incoming packets (pcap or capture pipe) */
+/* dispatch incoming packets (pcap or capture pipe)
+ *
+ * Waits for incoming packets to be available, and calls pcap_dispatch()
+ * to cause them to be processed.
+ *
+ * Returns the number of packets which were dispatched.
+ *
+ * Times out (returning zero) after CAP_READ_TIMEOUT ms; this ensures that the
+ * packet-batching behaviour does not cause packets to get held back
+ * indefinitely.
+ */
 int
 capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 		      char *errmsg, int errmsg_len) {
@@ -992,7 +1002,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
 #endif
     if (ld->pcap_fd != -1) {
-      sel_ret = cap_pipe_select(ld->pcap_fd, TRUE);
+      sel_ret = cap_pipe_select(ld->pcap_fd, FALSE);
       if (sel_ret > 0) {
         /*
          * "select()" says we can read from it without blocking; go for
@@ -1404,7 +1414,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       }
     } /* inpkts */
 
-    /* Only update once a second (Win32: 500ms) so as not to overload slow displays */
+    /* Only update once a second (Win32: 500ms) so as not to overload slow
+     * displays. This also prevents too much context-switching between the
+     * dumpcap and wireshark processes */
     cur_time = TIME_GET();
 #ifdef _WIN32
     if ( (cur_time - upd_time) > 500) {
