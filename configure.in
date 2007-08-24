@@ -1443,7 +1443,8 @@ dnl
 dnl check whether plugins should be enabled and, if they should be,
 dnl check for plugins directory - stolen from Amanda's configure.in
 dnl
-plugindir="$libdir/wireshark/plugins/$VERSION"
+dnl we don't wish to expand ${libdir} yet
+plugindir='${libdir}/wireshark/plugins/${VERSION}'
 AC_ARG_WITH(plugins,
   AC_HELP_STRING( [--with-plugins@<:@=DIR@:>@],
                   [support plugins (installed in DIR, if supplied).   @<:@default=yes, if possible@:>@]),
@@ -1461,16 +1462,9 @@ AM_CONDITIONAL(HAVE_PLUGINS, test "x$have_plugins" = "xyes")
 if test x$have_plugins = xyes
 then
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
-  plugindir=`(
-    test "x$prefix" = xNONE && prefix=$ac_default_prefix
-    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    eval echo "$plugindir"
-  )`
-  AC_DEFINE_UNQUOTED(PLUGIN_DIR, "$plugindir", [Plugin installation directory])
-else
-  AC_DEFINE(PLUGIN_DIR, NULL, [Plugin installation directory])
 fi
 AC_SUBST(plugindir)
+CPPFLAGS="$CPPFLAGS '-DPLUGIN_DIR=\"\$(plugindir)\"'"
 
 #
 # The plugin dissectors reside in ./plugins/PROTO/
