@@ -734,7 +734,7 @@ indexing_done:
 		
 
 set_label:
-	proto_item_fill_label(pi_value->finfo, label);
+	if (pi_value) proto_item_fill_label(pi_value->finfo, label);
 	
 	if (oid_info->name) {
 		if (oid_left >= 1) {
