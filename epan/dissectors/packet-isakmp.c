@@ -62,6 +62,7 @@
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509if.h>
+#include <epan/dissectors/packet-x509af.h>
 #include <epan/dissectors/packet-isakmp.h>
 #include <epan/prefs.h>
 
@@ -95,6 +96,7 @@ static int hf_isakmp_protoid         = -1;
 static int hf_isakmp_id_port         = -1;
 static int hf_isakmp_cert_encoding   = -1;
 static int hf_isakmp_certreq_type    = -1;
+static int hf_isakmp_certificate     = -1;
 static int hf_isakmp_notify_msgtype  = -1;
 static int hf_isakmp_num_spis        = -1;
 
@@ -1645,9 +1647,11 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+    packet_info *pinfo, int isakmp_version, int unused _U_)
 {
   guint8		cert_enc;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
   cert_enc = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint_format(tree, hf_isakmp_cert_encoding, tvb, offset, 1,
@@ -1656,7 +1660,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   offset += 1;
   length -= 1;
 
-  proto_tree_add_text(tree, tvb, offset, length, "Certificate Data");
+  dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_certificate);
 }
 
 static void
@@ -3163,6 +3167,10 @@ proto_register_isakmp(void)
     { &hf_isakmp_cert_encoding,
       { "Port", "isakmp.cert.encoding",
         FT_UINT8, BASE_DEC, NULL, 0x0,
+        "ISAKMP Certificate Encoding", HFILL }},
+    { &hf_isakmp_certificate,
+      { "Certificate", "isakmp.certificate",
+        FT_NONE, BASE_NONE, NULL, 0x0,
         "ISAKMP Certificate Encoding", HFILL }},
     { &hf_isakmp_certreq_type,
       { "Port", "isakmp.certreq.type",
