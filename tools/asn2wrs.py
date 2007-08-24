@@ -2732,7 +2732,8 @@ class EthOut:
     out += self.outcomment(fn, comment)
     out += self.outcomment(' '.join(sys.argv), comment)
     out += '\n'
-    return out
+    # Make Windows path separator look like Unix path separator
+    return out.replace('\\', '/')
 
   #--- dbg_print -------------------------------------------------------
   def dbg_print(self):
