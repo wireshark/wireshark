@@ -48,7 +48,7 @@ extern void capture_loop_stop(void);
 
 /*** the following is internal only (should be moved to capture_loop_int.h) ***/
 
-
+#if !defined (__linux__)
 #ifndef HAVE_PCAP_BREAKLOOP
 /*
  * We don't have pcap_breakloop(), which is the only way to ensure that
@@ -92,6 +92,13 @@ extern void capture_loop_stop(void);
 #  define MUST_DO_SELECT
 # endif /* avoid select */
 #endif /* HAVE_PCAP_BREAKLOOP */
+#else /* linux */
+/* whatever the deal with pcap_breakloop, linux doesn't support timeouts
+ * in pcap_dispatch(); on the other hand, select() works just fine there.
+ * Hence we use a select for that come what may.
+ */
+#define MUST_DO_SELECT
+#endif
 
 typedef void (*capture_packet_cb_fct)(u_char *, const struct pcap_pkthdr *, const u_char *);
 
