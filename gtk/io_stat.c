@@ -257,7 +257,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	/* update num_items */
 	if((guint32)idx > git->io->num_items){
 		git->io->num_items=idx;
-		git->io->max_interval=idx*git->io->interval;
+		git->io->max_interval=(idx+1)*git->io->interval;
 	}
 
 	/*
@@ -807,7 +807,7 @@ io_stat_draw(io_stat_t *io)
 		}
 	}
 
-	for(current_interval=last_interval;current_interval>(gint32)first_interval;current_interval=current_interval-io->interval){
+	for(current_interval=last_interval;current_interval>=(gint32)first_interval;current_interval=current_interval-io->interval){
 		int x, xlen;
 
 		/* if pixels_per_tick is <5, only draw every 10 ticks */
@@ -829,7 +829,7 @@ io_stat_draw(io_stat_t *io)
 			io->pixmap_height-bottom_y_border+xlen+1);
 
 		if(xlen==10){
-			int lwidth;
+			int lwidth=10;
 			if(io->interval>=1000){
 				g_snprintf(label_string, 15, "%ds", current_interval/1000);
 			} else if(io->interval>=100){
@@ -840,7 +840,9 @@ io_stat_draw(io_stat_t *io)
 				g_snprintf(label_string, 15, "%d.%03ds", current_interval/1000,current_interval%1000);
 			}
 #if GTK_MAJOR_VERSION < 2
-                        lwidth=gdk_string_width(font, label_string);
+			if (current_interval!=0) {
+				lwidth=gdk_string_width(font, label_string);
+			}
                         gdk_draw_string(io->pixmap,
                                         font,
                                         io->draw_area->style->black_gc,
@@ -848,8 +850,10 @@ io_stat_draw(io_stat_t *io)
                                         io->pixmap_height-bottom_y_border+15+label_height,
                                         label_string);
 #else
-                        pango_layout_set_text(layout, label_string, -1);
-                        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			pango_layout_set_text(layout, label_string, -1);
+			if (current_interval!=0) {
+				pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			}
                         gdk_draw_layout(io->pixmap,
                                         io->draw_area->style->black_gc,
                                         x-1-io->pixels_per_tick/2-lwidth/2,
@@ -869,21 +873,24 @@ io_stat_draw(io_stat_t *io)
 	 * Loop over all graphs and draw them 
 	 */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
-		guint32 interval;
+		guint32 interval, val;
 		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
 
 		if(!io->graphs[i].display){
 			continue;
 		}
 
-		/* initialize prev x/y to the low left corner of the graph */
-		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval+1)+left_x_border;
-		prev_y_pos=draw_height-1+top_y_border;
+		/* initialize prev x/y to the value of the first interval */
+		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval)+left_x_border;
+		val=get_it_value(io, i, first_interval/io->interval);
+		if(val>max_y){
+			prev_y_pos=0;
+		} else {
+			prev_y_pos=draw_height-1-(val*draw_height)/max_y+top_y_border;
+		}
 
-		for(interval=first_interval+io->interval;interval<=last_interval;interval+=io->interval){
-			guint32 val;
-
-			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval+1)+left_x_border;
+		for(interval=first_interval;interval<last_interval;interval+=io->interval){
+			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval)+left_x_border;
 
 			val=get_it_value(io, i, interval/io->interval);
 			if(val>max_y){
