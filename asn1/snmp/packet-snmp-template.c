@@ -534,7 +534,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 				guint key_len = oid_left;
 				oid_info_is_ok = TRUE;
 
-				if (key_start = oid_matched+oid_left && ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
+				if ( key_len == 0 && ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 					/* unSpecified  does not require an instance sub-id add the new value and get off the way! */
 					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
 					goto set_label;
