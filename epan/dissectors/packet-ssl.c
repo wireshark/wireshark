@@ -4051,7 +4051,7 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_certificate,
           { "Certificate", "ssl.handshake.certificate",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             "Certificate", HFILL }
         },
         { &hf_ssl_handshake_certificate_len,
