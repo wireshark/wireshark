@@ -668,6 +668,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-socks.c		\
 	packet-spp.c		\
 	packet-spray.c		\
+        packet-srp.c		\
 	packet-sscf-nni.c	\
 	packet-srvloc.c		\
 	packet-sscop.c		\

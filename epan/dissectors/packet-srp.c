@@ -36,8 +36,6 @@
 #include <epan/reassemble.h>
 #include <epan/crc16.h>
 
-#include "packet-srp.h"
-
 /* Wireshark ID of the protocols */
 static int proto_srp = -1;
 static int proto_ccsrl = -1;

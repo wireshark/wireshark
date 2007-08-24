@@ -28,13 +28,11 @@ PLUGIN_NAME = h223
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-h223.c \
-	packet-srp.c
+	packet-h223.c
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
-	packet-h223.h \
-	packet-srp.h
+	packet-h223.h
 
 # Dissector helpers.  They're included in the source files in this
 # directory, but they're not dissectors themselves, i.e. they're not
