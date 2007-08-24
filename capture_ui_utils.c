@@ -102,6 +102,11 @@ capture_dev_user_descr_find(const gchar *if_name)
  * otherwise use the interface name.
  *
  * The result must be g_free()'d when you're done with it.
+ *
+ * Note: given that this calls get_interface_list(), which attempts to
+ * open all adapters it finds in order to check whether they can be
+ * captured on, this is an expensive routine to call, so don't call it
+ * frequently.
  */
 char *
 get_interface_descriptive_name(const char *if_name)
