@@ -31,36 +31,36 @@ moduleinfo.nmake
 plugin.rc.in
 The source files and header files for your dissector
 
-Examples of these files can be found in plugins/h223.
+Examples of these files can be found in plugins/agentx.
 
 2.1 AUTHORS, COPYING, and ChangeLog
 
-The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project 
+The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project
 files.
 
-2.2 Makefile.am 
+2.2 Makefile.am
 
-For your plugins/xxx/Makefile.am file, see the corresponding file in 
-plugins/h223. Replace all occurrences of "h223" in those files with "xxx".
+For your plugins/xxx/Makefile.am file, see the corresponding file in
+plugins/agentx. Replace all occurrences of "agentx" in those files with "xxx".
 
 2.3 Makefile.common
 
 Your plugins/xxx/Makefile.common should list the source files for your
 dissector in the DISSECTOR_SRC variable, and all supporting source files
 in the DISSECTOR_SUPPORT_SRC variable.
-The header files for your dissector, if any, must be listed in the 
-DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not 
-include moduleinfo.h. 
+The header files for your dissector, if any, must be listed in the
+DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not
+include moduleinfo.h.
 
 2.4 Makefile.nmake
 
-For your plugins/xxx/Makefile.nmake file, see the corresponding file in 
-plugins/h223. No modifications are needed here.
+For your plugins/xxx/Makefile.nmake file, see the corresponding file in
+plugins/agentx. No modifications are needed here.
 
 2.5 moduleinfo.h
 
-Your plugins/xxx/moduleinfo.h file is used to set the version information 
-for the plugin. 
+Your plugins/xxx/moduleinfo.h file is used to set the version information
+for the plugin.
 
 2.6 moduleinfo.nmake
 
@@ -75,13 +75,13 @@ No modifications are needed here.
 
 3. Changes to existing Wireshark files
 
-You will also need to change the plugins/Makefile.am, the 
-plugins/Makefile.nmake, the toplevel Makefile.am file, and the 
+You will also need to change the plugins/Makefile.am, the
+plugins/Makefile.nmake, the toplevel Makefile.am file, and the
 toplevel configure.in file.
 
 3.1  Changes to plugins/Makefile.am
 
-The plugins directory contains a Makefile.am.  You need to change the 
+The plugins directory contains a Makefile.am.  You need to change the
 SUBDIRS directive to reflect the addition of your plugin:
 
 SUBDIRS = \
@@ -106,14 +106,14 @@ xxx:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-and add to the clean rules support for cleaning up after your 
+and add to the clean rules support for cleaning up after your
 plugin:
 
 clean:
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mgcp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd xxx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -124,7 +124,7 @@ distclean: clean
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../mgcp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd xxx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -135,7 +135,7 @@ maintainer-clean: clean
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../mgcp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 	cd xxx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -166,11 +166,11 @@ plugin_ldadd = \
         "-dlopen" self  \
         "-dlopen" plugins/gryphon/gryphon.la \
         "-dlopen" plugins/mgcp/mgcp.la \
-        "-dlopen" plugins/xxx/xxx.la 
+        "-dlopen" plugins/xxx/xxx.la
 
 3.4  Changes to top level configure.in
 
-You need to add your plugins Makefile to the AC_OUTPUT rule in the 
+You need to add your plugins Makefile to the AC_OUTPUT rule in the
 configure.in
 
 AC_OUTPUT(
@@ -226,34 +226,34 @@ Plugins make some aspects of development easier and some harder.
 The first thing is that you'll have to run autogen.sh and configure
 once more to setup your build environment.
 
-The good news is that if you are working on a single plugin 
-then you will find recompiling the plugin MUCH faster than 
+The good news is that if you are working on a single plugin
+then you will find recompiling the plugin MUCH faster than
 recompiling a dissector and then linking it back into Wireshark.
 
-The bad news is that Wireshark will not use the plugins unless the 
+The bad news is that Wireshark will not use the plugins unless the
 plugins are installed in one of the places it expects them to find.
 
 One way of dealing with this problem is to set an environment variable
 when running Wireshark: WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1.
 
-Another way to deal with this problem is to set up a working root for 
+Another way to deal with this problem is to set up a working root for
 wireshark, say in $HOME/build/root and build wireshark to install
 there
 
 ./configure --prefix=${HOME}/build/root;make install
 
-then subsequent rebuilds/installs of your plugin can be accomplished 
-by going to the plugins/xxx directory and running 
+then subsequent rebuilds/installs of your plugin can be accomplished
+by going to the plugins/xxx directory and running
 
 make install
 
 5. Update "old style" plugins
 
-5.1 How to update an "old style" plugin (using plugin_register and 
+5.1 How to update an "old style" plugin (using plugin_register and
     plugin_reg_handoff functions).
 
 The plugin registration has changed with the extension of the build
-scripts. These now generate the additional code needed for plugin 
+scripts. These now generate the additional code needed for plugin
 encapsulation in plugin.c. When using the new style build scripts,
 stips the parts outlined below:
 

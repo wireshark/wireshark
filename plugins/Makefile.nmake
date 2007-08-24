@@ -16,7 +16,6 @@ all: \
 	enttec \
 	giop \
 	gryphon \
-	h223 \
 	irda \
 	lwres \
 	m2m \
@@ -76,11 +75,6 @@ giop::
 
 gryphon::
 	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-h223::
-	cd h223
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
@@ -195,9 +189,6 @@ clean:
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd h223
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -274,9 +265,6 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd h223
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd irda
@@ -357,9 +345,6 @@ maintainer-clean: distclean
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
-	cd h223
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ..
 	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -427,7 +412,6 @@ install-plugins:
 	xcopy enttec\*.dll $(VERSION) /d
 	xcopy giop\*.dll $(VERSION) /d
 	xcopy gryphon\*.dll $(VERSION) /d
-	xcopy h223\*.dll $(VERSION) /d
 	xcopy irda\*.dll $(VERSION) /d
 	xcopy lwres\*.dll $(VERSION) /d
 	xcopy m2m\*.dll $(VERSION) /d

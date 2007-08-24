@@ -138,7 +138,6 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\plugins\giop\parlay.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\giop\tango.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\gryphon\gryphon.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\plugins\h223\h223.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\irda\irda.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\lwres\lwres.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\m2m\m2m.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
