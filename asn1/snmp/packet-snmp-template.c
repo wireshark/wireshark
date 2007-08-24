@@ -498,7 +498,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 		
 		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 		expert_add_info_format(actx->pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "%s",note);
-		return value_offset + value_len;
+		goto set_label;
 	}
 	
 	/* now we'll try to figure out which are the indexing sub-oids and whether the oid we know about is the one oid we have to use */
@@ -512,8 +512,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 			} else if (oid_left  == 0) {
 				if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 					/* unSpecified  does not require an instance sub-id add the new value and get off the way! */
-					proto_tree_add_item(pt_varbind,hf_snmp_null_value,tvb,value_offset,value_len,FALSE);
-					return value_offset + value_len;
+					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
+					goto set_label;
 				} else {
 					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"A scalar should have one instance sub-id this one has none");
 					expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "No instance sub-id in scalar value");
@@ -534,9 +534,15 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 				guint key_len = oid_left;
 				oid_info_is_ok = TRUE;
 
+				if (key_start = oid_matched+oid_left && ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
+					/* unSpecified  does not require an instance sub-id add the new value and get off the way! */
+					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
+					goto set_label;
+				}
+				
 				if (k) {
 					for (;k;k = k->next) {
-						if (key_start > oid_matched+oid_left) {
+						if (key_start >= oid_matched+oid_left) {
 							proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid shorter than expected");
 							expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid shorter than expected");
 							oid_info_is_ok = FALSE;
@@ -627,14 +633,14 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 					}
 					goto indexing_done;
 				} else {
-					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"we do not know how to handle this OID, if you want this implemented please contact the wireshark developpers");
+					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"we do not know how to handle this OID, if you want this implemented please contact the wireshark developers");
 					expert_add_info_format(actx->pinfo, pi, PI_UNDECODED, PI_WARN, "Unimplemented instance index");
 					oid_info_is_ok = FALSE;
 					goto indexing_done;
 				}
 			} else {
-				proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"This is a BUG, the COLUMS's parent is not a ROW");
-				expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "COLUMS's parent is not a ROW");
+				proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"The COLUMS's parent is not a ROW. This is a BUG! please contact the wireshark developers.");
+				expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_ERROR, "COLUMS's parent is not a ROW");
 				oid_info_is_ok = FALSE;
 				goto indexing_done;
 			}
@@ -722,9 +728,12 @@ indexing_done:
 		}
 		
 		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
+		expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
+		oid_info_is_ok = FALSE;
 	} 
 		
 
+set_label:
 	proto_item_fill_label(pi_value->finfo, label);
 	
 	if (oid_info->name) {
@@ -743,7 +752,7 @@ indexing_done:
 	}
 	
 	valstr = strstr(label,": ");
-	valstr = valstr ? valstr+2 : "NULL";
+	valstr = valstr ? valstr+2 : label;
 	
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
 		

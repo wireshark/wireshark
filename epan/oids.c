@@ -240,6 +240,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 		case SMI_NODEKIND_ROW: {
 			SmiElement* sE;
 			oid_key_t* kl = NULL;
+			const oid_value_type_t* typedata = NULL;
 			
 			switch (sN->indexkind) {
 				case SMI_INDEX_INDEX:
@@ -252,11 +253,14 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 					return OID_KIND_UNKNOWN;
 			};
 			
+			
+			
 			for (sE = smiGetFirstElement(sN); sE; sE = smiGetNextElement(sE)) {
 				SmiNode* elNode =  smiGetElementNode(sE) ;
 				SmiType* elType = smiGetNodeType(elNode);
 				oid_key_t* k;
-				const oid_value_type_t* typedata =  get_typedata(elType);
+				
+				typedata =  get_typedata(elType);
 				
 				k = g_malloc(sizeof(oid_key_t));
 				
@@ -270,15 +274,16 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				
 								
 				if (typedata) {
-					k->key_type = elNode->implied ? typedata->keytype_implicit : typedata->keytype;
+					k->key_type = typedata->keytype;
 					k->num_subids = typedata->keysize;
 				} else {
 					if (elType) {
 						switch (elType->basetype) {
 							case SMI_BASETYPE_BITS:
 							case SMI_BASETYPE_OCTETSTRING:
-								k->key_type = elNode->implied ? OID_KEY_TYPE_BYTES : OID_KEY_TYPE_WRONG;
-								k->num_subids = 0;
+								k->key_type = OID_KEY_TYPE_BYTES;
+								/* XXX find out how to fetch k->num_subids */
+								k->num_subids = 0; 
 								break;
 							case SMI_BASETYPE_ENUM:
 							case SMI_BASETYPE_OBJECTIDENTIFIER:
@@ -307,6 +312,15 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				kl = k;
 			}
 			
+			if (sN->implied) {
+				if (typedata) {
+					kl->key_type = typedata->keytype_implicit;
+				} else {
+					/* XXX: what should we do ? */
+					kl->key_type = kl->key_type;
+				}
+			
+			}
 			return OID_KIND_ROW;
 		}
 		case SMI_NODEKIND_NODE: return OID_KIND_NODE;
@@ -441,9 +455,8 @@ void register_mibs(void) {
 										   smiNode->oid);
 			
 			
-			D(4,("\t\tNode: %s name=%s kind=%d",
-				 oid_subid2string(smiNode->oid, smiNode->oidlen), oid_data->name, oid_data->kind
-				 ));
+			D(4,("\t\tNode: kind=%d oid=%s name=%s ",
+				 oid_data->kind, oid_subid2string(smiNode->oid, smiNode->oidlen), oid_data->name ));
 			
 			if ( typedata && oid_data->value_hfid == -2 ) {
 				SmiNamedNumber* smiEnum; 
