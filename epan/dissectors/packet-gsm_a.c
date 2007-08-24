@@ -18392,7 +18392,7 @@ proto_register_gsm_a(void)
 		"FPC_EPC", HFILL }
 	},
 	{ &hf_gsm_a_rr_pow_cmd_powlev,
-		{ "POWER LEVEL","sm_a.rr.pow_cmd_pow",
+		{ "POWER LEVEL","gsm_a.rr.pow_cmd_pow",
 		FT_UINT8,BASE_DEC,  NULL, 0x1f,          
 		"POWER LEVEL", HFILL }
 	},

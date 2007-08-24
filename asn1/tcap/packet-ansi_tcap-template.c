@@ -49,10 +49,6 @@
 
 /* Initialize the protocol and registered fields */
 int proto_ansi_tcap = -1;
-static int hf_ansi_tcap_tag = -1;
-static int hf_ansi_tcap_length = -1;
-static int hf_ansi_tcap_data = -1;
-static int hf_ansi_tcap_tid = -1;
 
 int hf_ansi_tcapsrt_SessionId=-1;
 int hf_ansi_tcapsrt_Duplicate=-1;
@@ -274,54 +270,34 @@ proto_register_ansi_tcap(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
-	{ &hf_ansi_tcap_tag,
-		{ "Tag",           "tcap.msgtype",
-		FT_UINT8, BASE_HEX, NULL, 0,
-		"", HFILL }
-	},
-	{ &hf_ansi_tcap_length,
-		{ "Length", "tcap.len",
-		FT_UINT8, BASE_HEX, NULL, 0,
-		"", HFILL }
-	},
-	{ &hf_ansi_tcap_data,
-		{ "Data", "tcap.data",
-		FT_BYTES, BASE_HEX, NULL, 0,
-		"", HFILL }
-	},
-		{ &hf_ansi_tcap_tid,
-		{ "Transaction Id", "tcap.tid",
-		FT_BYTES, BASE_HEX, NULL, 0,
-		"", HFILL }
-	},
 	/* Tcap Service Response Time */
 	{ &hf_ansi_tcapsrt_SessionId,
 	  { "Session Id",
-	    "tcap.srt.session_id",
+	    "ansi_tcap.srt.session_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_tcapsrt_BeginSession,
 	  { "Begin Session",
-	    "tcap.srt.begin",
+	    "ansi_tcap.srt.begin",
 	    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	    "SRT Begin of Session", HFILL }
 	},
 	{ &hf_ansi_tcapsrt_EndSession,
 	  { "End Session",
-	    "tcap.srt.end",
+	    "ansi_tcap.srt.end",
 	    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	    "SRT End of Session", HFILL }
 	},
 	{ &hf_ansi_tcapsrt_SessionTime,
 	  { "Session duration",
-	    "tcap.srt.sessiontime",
+	    "ansi_tcap.srt.sessiontime",
 	    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 	    "Duration of the TCAP session", HFILL }
 	},
 	{ &hf_ansi_tcapsrt_Duplicate,
 	  { "Request Duplicate",
-	    "tcap.srt.duplicate",
+	    "ansi_tcap.srt.duplicate",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "", HFILL }
 	},
