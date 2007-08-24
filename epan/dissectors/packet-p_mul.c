@@ -532,8 +532,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   if (pdu_length != (offset + data_len)) {
     proto_item_append_text (len_en, " (incorrect, should be: %d)",
                             offset + data_len);
+    expert_add_info_format (pinfo, len_en, PI_MALFORMED, PI_WARN, 
+                            "Incorrect length field");
   } else if ((len = tvb_length_remaining (tvb, pdu_length)) > 0) {
     proto_item_append_text (len_en, " (more data in packet: %d)", len);
+    expert_add_info_format (pinfo, len_en, PI_MALFORMED, PI_WARN, 
+                            "More data in packet");
   }
 }
 
