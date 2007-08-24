@@ -43,8 +43,12 @@
  * misc. bittest macros
  */
 
-#define ISIS_MASK_RESTART_RR(x)            ((x)&0x1)
-#define ISIS_MASK_RESTART_RA(x)            ((x)&0x2)
+#define ISIS_RESTART_RR                 0x01
+#define ISIS_RESTART_RA                 0x02
+#define ISIS_RESTART_SA                 0x04
+#define ISIS_MASK_RESTART_RR(x)            ((x)&ISIS_RESTART_RR)
+#define ISIS_MASK_RESTART_RA(x)            ((x)&ISIS_RESTART_RA)
+#define ISIS_MASK_RESTART_SA(x)            ((x)&ISIS_RESTART_SA)
 
 /*
  * Published API functions.  NOTE, this are "local" API functions and

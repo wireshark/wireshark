@@ -37,6 +37,17 @@
 #include "packet-isis-hello.h"
 #include "epan/addr_resolv.h"
 
+
+#define APPEND_BOOLEAN_FLAG(flag, item, string) \
+    if(flag){                            \
+        if(item)                        \
+            proto_item_append_text(item, string, sep);    \
+        sep = cont_sep;                        \
+    }
+static const char initial_sep[] = " (";
+static const char cont_sep[] = ", ";
+
+
 /* hello packets */
 static int hf_isis_hello_circuit_reserved = -1;
 static int hf_isis_hello_source_id = -1;
@@ -49,6 +60,12 @@ static int hf_isis_hello_clv_ipv4_int_addr = -1;
 static int hf_isis_hello_clv_ipv6_int_addr = -1;
 static int hf_isis_hello_clv_ptp_adj = -1;
 static int hf_isis_hello_clv_mt = -1;
+static int hf_isis_hello_clv_restart_flags = -1;
+static int hf_isis_hello_clv_restart_flags_rr = -1;
+static int hf_isis_hello_clv_restart_flags_ra = -1;
+static int hf_isis_hello_clv_restart_flags_sa = -1;
+static int hf_isis_hello_clv_restart_remain_time = -1;
+static int hf_isis_hello_clv_restart_neighbor = -1;
 
 static gint ett_isis_hello = -1;
 static gint ett_isis_hello_clv_area_addr = -1;
@@ -63,6 +80,7 @@ static gint ett_isis_hello_clv_ipv6_int_addr = -1;
 static gint ett_isis_hello_clv_ptp_adj = -1;
 static gint ett_isis_hello_clv_mt = -1;
 static gint ett_isis_hello_clv_restart = -1;
+static gint ett_isis_hello_clv_restart_flags = -1;
 static gint ett_isis_hello_clv_checksum = -1;
 
 static const value_string isis_hello_circuit_type_vals[] = {
@@ -71,6 +89,11 @@ static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_LEVEL_2,	"Level 2 only"},
 	{ ISIS_HELLO_TYPE_LEVEL_12,	"Level 1 and 2"},
 	{ 0,		NULL} };
+
+static const true_false_string truefalse = {
+    "True",
+    "False"
+};
 
 /*
  * Predclare dissectors for use in clv dissection.
@@ -328,6 +351,38 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 
 
 /*
+ * The Restart CLV is documented in RFC 3847 (Restart Signaling for
+ * Intermediate System to Intermediate System).  The CLV looks like this
+ *
+ *  Type   211
+ *  Length # of octets in the value field (1 to (3 + ID Length))
+ *  Value
+ *
+ *                                    No. of octets
+ *     +-----------------------+
+ *     |   Flags               |     1
+ *     +-----------------------+
+ *     | Remaining Time        |     2
+ *     +-----------------------+
+ *     | Restarting Neighbor ID|     ID Length
+ *     +-----------------------+
+ *
+ *   Flags (1 octet)
+ *
+ *      0  1  2  3  4  5  6  7
+ *     +--+--+--+--+--+--+--+--+
+ *     |  Reserved    |SA|RA|RR|
+ *     +--+--+--+--+--+--+--+--+
+ *
+ *     RR - Restart Request
+ *     RA - Restart Acknowledgement
+ *     SA - Suppress adjacency advertisement
+ *
+ * The Remaining Time and Restarting Neighbor ID fields are only required when
+ * the RA flag is set.  The Flags field is always required.
+ *
+ */
+/*
  * Name: dissect_hello_restart_clv()
  *
  * Description:
@@ -338,27 +393,60 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 
 static void
 dissect_hello_restart_clv(tvbuff_t *tvb,
-		proto_tree *tree, int offset, int id_length _U_, int length)
+		proto_tree *tree, int offset, int id_length, int length)
 {
-	int restart_options;
+	int restart_options=0;
+	proto_tree *flags_tree;
+	proto_item *restart_flags_item;
+	proto_item *hold_time_item;
+	const char *sep;
+	const guint8 *neighbor_id;
 
-	if (length != 3) {
-	    isis_dissect_unknown(tvb, tree, offset,
-				 "malformed TLV (%d vs 3)",
-				 length, 3 );
-	    return;
+	if (length >= 1) {
+	    restart_options = tvb_get_guint8(tvb, offset);
+	    restart_flags_item = proto_tree_add_uint ( tree, hf_isis_hello_clv_restart_flags,
+		    tvb, offset, 1, restart_options);
+	    flags_tree = proto_item_add_subtree(restart_flags_item, ett_isis_hello_clv_restart_flags);
+	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_sa, 
+		    tvb, offset, 1, restart_options );
+	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_ra, 
+		    tvb, offset, 1, restart_options );
+	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_rr, 
+		    tvb, offset, 1, restart_options );
+
+	    /* Append an indication of which flags are set in the restart
+	     * options
+	     */
+	    sep = initial_sep;
+	    APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_SA(restart_options), restart_flags_item, "%sSA");
+	    APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_RA(restart_options), restart_flags_item, "%sRA");
+	    APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_RR(restart_options), restart_flags_item, "%sRR");
+	    if (sep != initial_sep)
+	    {
+		proto_item_append_text (restart_flags_item, ")");
+	    }
+
 	}
 
-	restart_options = tvb_get_guint8(tvb, offset);
+	/* The Remaining Time field should only be present if the RA flag is
+	 * set
+	 */
+	if (length >= 3 && ISIS_MASK_RESTART_RA(restart_options)) {
+	    hold_time_item = proto_tree_add_uint ( tree, hf_isis_hello_clv_restart_remain_time,
+		    tvb, offset+1, 2, tvb_get_ntohs(tvb, offset+1) );
+	    proto_item_append_text( hold_time_item, "s" );
+	}
 
-	proto_tree_add_text ( tree, tvb, offset, 1,
-			      "Restart Request bit %s, "
-			      "Restart Acknowledgement bit %s",
-			      ISIS_MASK_RESTART_RR(restart_options) ? "set" : "clear",
-			      ISIS_MASK_RESTART_RA(restart_options) ? "set" : "clear");
-	proto_tree_add_text ( tree, tvb, offset+1, 2,
-			      "Remaining holding time: %us",
-			      tvb_get_ntohs(tvb, offset+1) );
+	/* The Restarting Neighbor ID should only be present if the RA flag is
+	 * set.
+	 */
+	if (length >= 3 + id_length && ISIS_MASK_RESTART_RA(restart_options)) {
+	    neighbor_id = tvb_get_ptr(tvb, offset+3, id_length);
+	    proto_tree_add_bytes_format( tree,
+		    hf_isis_hello_clv_restart_neighbor, tvb, offset+3,
+		    id_length, neighbor_id, "Restarting Neighbor ID: %s",
+		    print_system_id( neighbor_id, id_length ) );
+	}
 }
 
 /*
@@ -606,7 +694,7 @@ dissect_hello_area_address_clv(tvbuff_t *tvb,
 
 static void
 dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
-		proto_tree *tree, int offset, int id_length _U_, int length)
+		proto_tree *tree, int offset, int id_length, int length)
 {
 	static const value_string adj_state_vals[] = {
 	    { 0, "Up" },
@@ -635,18 +723,21 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
                                   "Adjacency State: %s", adj_state_str );
             proto_tree_add_text ( tree, tvb, offset+1, 4,
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
-            proto_tree_add_text ( tree, tvb, offset+5, 6,
-                                  "Neighbor SystemID: %s", print_system_id( tvb_get_ptr(tvb, offset+5, 6), 6 ) );
+            proto_tree_add_text ( tree, tvb, offset+5, id_length,
+                                  "Neighbor SystemID: %s", 
+				  print_system_id( tvb_get_ptr(tvb, offset+5, id_length), id_length ) );
 	    break;
 	  case 15:
 	    proto_tree_add_text ( tree, tvb, offset, 1,
                                   "Adjacency State: %s", adj_state_str );
             proto_tree_add_text ( tree, tvb, offset+1, 4,
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
-            proto_tree_add_text ( tree, tvb, offset+5, 6,
-                                  "Neighbor SystemID: %s", print_system_id( tvb_get_ptr(tvb, offset+5, 6), 6 ) );
-            proto_tree_add_text ( tree, tvb, offset+11, 4,
-                                  "Neighbor Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+11) );
+            proto_tree_add_text ( tree, tvb, offset+5, id_length,
+                                  "Neighbor SystemID: %s", 
+				  print_system_id( tvb_get_ptr(tvb, offset+5, id_length), id_length ) );
+            proto_tree_add_text ( tree, tvb, offset+5+id_length, 4,
+                                  "Neighbor Extended Local circuit ID: 0x%08x", 
+				  tvb_get_ntohl(tvb, offset+5+id_length) );
 	    break;
 	  default:
 	    isis_dissect_unknown(tvb, tree, offset,
@@ -905,6 +996,35 @@ isis_register_hello(int proto_isis) {
 		{ &hf_isis_hello_clv_mt,
 		{ "MT-ID                     ", "isis.hello.clv_mt",
 			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_isis_hello_clv_restart_flags,
+		{ "Restart Signaling Flags   ", "isis.hello.clv_restart_flags",
+			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_isis_hello_clv_restart_flags_rr,
+		{ "Restart Request", "isis.hello.clv_restart_flags.rr",
+			FT_BOOLEAN, 8, TFS(&truefalse), ISIS_RESTART_RR, 
+			"When set, the router is beginning a graceful restart", HFILL }},
+
+		{ &hf_isis_hello_clv_restart_flags_ra,
+		{ "Restart Acknowledgment", "isis.hello.clv_restart_flags.ra",
+			FT_BOOLEAN, 8, TFS(&truefalse), ISIS_RESTART_RA, 
+			"When set, the router is willing to enter helper mode", HFILL }},
+
+		{ &hf_isis_hello_clv_restart_flags_sa,
+		{ "Suppress Adjacency", "isis.hello.clv_restart_flags.sa",
+			FT_BOOLEAN, 8, TFS(&truefalse), ISIS_RESTART_SA, 
+			"When set, the router is starting as opposed to restarting", HFILL }},
+
+		{ &hf_isis_hello_clv_restart_remain_time,
+		{ "Remaining holding time", "isis.hello.clv_restart.remain_time",
+			FT_UINT16, BASE_DEC, NULL, 0x0, 
+			"How long the helper router will maintain the existing adjacency", HFILL }},
+
+		{ &hf_isis_hello_clv_restart_neighbor,
+		{ "Restarting Neighbor ID", "isis.hello.clv_restart.neighbor",
+			FT_BYTES, BASE_DEC, NULL, 0x0, 
+			"The System ID of the restarting neighbor", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_isis_hello,
@@ -920,6 +1040,7 @@ isis_register_hello(int proto_isis) {
 		&ett_isis_hello_clv_ptp_adj,
 		&ett_isis_hello_clv_mt,
 		&ett_isis_hello_clv_restart,
+		&ett_isis_hello_clv_restart_flags,
 		&ett_isis_hello_clv_checksum
 	};
 
