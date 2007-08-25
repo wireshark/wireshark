@@ -249,9 +249,15 @@ int main(int argc, char** argv) {
 	dprintf(2,"opened dumper file '%s'\n",outfile);
 	
 	signal(SIGINT, sig_int);
+#ifdef SIGQUIT
 	signal(SIGQUIT, sig_int);
+#endif
+#ifdef SIGTERM
 	signal(SIGTERM, sig_int);
+#endif
+#ifdef SIGSTOP
 	signal(SIGSTOP, sig_int);
+#endif
 	
 	keep_going = 1;
 	dumping = 0;
