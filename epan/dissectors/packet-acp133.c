@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-acp133.c                                                          */
-/* ../../tools/asn2wrs.py -b -X -T -e -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
+/* ./packet-acp133.c                                                          */
+/* ../../tools/asn2wrs.py -b -e -X -T -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
 
 /* Input file: packet-acp133-template.c */
 
@@ -38,8 +38,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/oid_resolv.h>
 #include <epan/asn1.h>
+#include <epan/oids.h>
 
 #include <stdio.h>
 #include <string.h>

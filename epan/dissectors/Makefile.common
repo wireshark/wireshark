@@ -765,7 +765,6 @@ DISSECTOR_SRC =	\
 # corresponding headers
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES) 	\
-	format-oid.h	\
 	packet-acn.h	\
 	packet-acp133.h	\
 	packet-acse.h	\

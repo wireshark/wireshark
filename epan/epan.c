@@ -50,7 +50,7 @@
 #include "column-utils.h"
 #include "tap.h"
 #include "addr_resolv.h"
-#include "oid_resolv.h"
+#include "oids.h"
 #include "emem.h"
 #include "expert.h"
 
@@ -88,7 +88,6 @@ epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
 	gcry_check_version(NULL);
 #endif
 	tvbuff_init();
-	oid_resolv_init();
 	tap_init();
 	proto_init(register_all_protocols, register_all_handoffs, cb, client_data);
 	packet_init();
@@ -96,6 +95,7 @@ epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
 	final_registration_all_protocols();
 	host_name_lookup_init();
 	expert_init();
+	oids_init();
 #ifdef HAVE_LUA_5_1
 	wslua_init(NULL);
 #endif

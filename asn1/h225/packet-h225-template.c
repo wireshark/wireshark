@@ -44,7 +44,7 @@
 #include <string.h>
 
 #include <epan/prefs.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/next_tvb.h>
 #include <epan/asn1.h>
 #include "tap.h"

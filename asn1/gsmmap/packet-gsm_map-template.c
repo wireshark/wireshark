@@ -44,7 +44,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include "epan/expert.h"
 
 #include <stdio.h>

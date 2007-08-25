@@ -41,7 +41,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
 

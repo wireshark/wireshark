@@ -49,10 +49,7 @@
 
 #include "oids.h"
 
-#ifdef HAVE_SMI
-/* debuglevel is (currently) only used if HAVE_SMI is defined */
 static int debuglevel = 0;
-#endif
 
 static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
 static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_WRONG,       0};
@@ -72,12 +69,19 @@ static const oid_value_type_t string_type =     { FT_STRING, BASE_NONE, BER_CLAS
 static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY,             0,  -1, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
 
 static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -2, NULL, NULL, NULL};
-static emem_tree_t* oids_by_name = NULL;
 
-static oid_info_t* add_oid(char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
+static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
 	guint i = 0;
 	oid_info_t* c = &oid_root;
+	
+	if (!oid_root.children) {
+		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
 		
+		debuglevel = debug_env ? strtoul(debug_env,NULL,10) : 0;
+				
+		oid_root.children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_root");
+	}
+	
 	oid_len--;
 	
 	do {
@@ -85,10 +89,13 @@ static oid_info_t* add_oid(char* name, oid_kind_t kind, const oid_value_type_t* 
 		
 		if(n) {
 			if (i == oid_len) {
-				if (! n->name) {
-					n->name = g_strdup(name);
+				if (n->name) {
+					D(0,("RENAMING %s -> %s",n->name,name));
+					g_free(n->name);
 				}
 				
+				n->name = g_strdup(name);
+
 				if (! n->value_type) {
 					n->value_type = type;
 				}
@@ -113,7 +120,7 @@ static oid_info_t* add_oid(char* name, oid_kind_t kind, const oid_value_type_t* 
 				n->kind = kind;
 				return n;
 			} else {
-				n->name = g_strdup(name);
+				n->name = NULL;
 				n->value_type = NULL;
 				n->kind = OID_KIND_UNKNOWN;
 			}
@@ -125,8 +132,37 @@ static oid_info_t* add_oid(char* name, oid_kind_t kind, const oid_value_type_t* 
 	return NULL;
 }
 
-extern void oid_add(char* name, guint oid_len, guint32 *subids) {
-	add_oid(name,OID_KIND_UNKNOWN,&unknown_type,NULL,oid_len,subids);
+void oid_add(const char* name, guint oid_len, guint32 *subids) {
+	if (oid_len) {
+		D(3,("\tOid (from subids): %s %s ",name?name:"NULL", oid_subid2string(subids,oid_len)));
+		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
+	} else {
+		D(1,("Failed to add Oid: %s (from subids)",name?name:"NULL"));
+	}
+}
+
+void oid_add_from_string(const char* name, const gchar *oid_str) {
+	guint32* subids;
+	guint oid_len = oid_string2subid(oid_str, &subids); 
+	
+	if (oid_len) {
+		D(3,("\tOid (from string): %s %s ",name?name:"NULL", oid_subid2string(subids,oid_len)));
+		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
+	} else {
+		D(1,("Failed to add Oid: %s %s ",name?name:"NULL", oid_str?oid_str:NULL));
+	}
+}
+
+extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len) {
+	guint32* subids;
+	guint subids_len = oid_encoded2subid(oid, oid_len, &subids);
+
+	if (subids_len) {
+		D(3,("\tOid (from encoded): %s %s ",name, oid_subid2string(subids,subids_len)));
+		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,subids_len,subids);
+	} else {
+		D(1,("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len,bytestring_to_str(oid, oid_len, ':')));
+	}
 }
 
 #ifdef HAVE_SMI
@@ -262,6 +298,14 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				SmiNode* elNode =  smiGetElementNode(sE) ;
 				SmiType* elType = smiGetNodeType(elNode);
 				oid_key_t* k;
+				guint non_implicit_size = 0;
+				
+				if (elType) {
+					non_implicit_size = smiGetMinSize(elType);
+					if (non_implicit_size == smiGetMaxSize(elType)) {
+						non_implicit_size = 0;
+					}
+				}
 				
 				typedata =  get_typedata(elType);
 				
@@ -283,11 +327,11 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 					if (elType) {
 						switch (elType->basetype) {
 							case SMI_BASETYPE_BITS:
-							case SMI_BASETYPE_OCTETSTRING:
+							case SMI_BASETYPE_OCTETSTRING: {
 								k->key_type = OID_KEY_TYPE_BYTES;
-								/* XXX find out how to fetch k->num_subids */
-								k->num_subids = 0; 
+								k->num_subids = non_implicit_size; 
 								break;
+							} 
 							case SMI_BASETYPE_ENUM:
 							case SMI_BASETYPE_OBJECTIDENTIFIER:
 							case SMI_BASETYPE_INTEGER32:
@@ -318,9 +362,17 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 			if (sN->implied) {
 				if (typedata) {
 					kl->key_type = typedata->keytype_implicit;
-				} else {
-					/* XXX: what should we do ? */
-					kl->key_type = kl->key_type;
+				} else switch (kl->key_type) {
+					case OID_KEY_TYPE_BYTES:
+						if (k->num_subids)
+							kl->key_type = OID_KEY_TYPE_FIXED_BYTES;
+						break;
+					case OID_KEY_TYPE_STRING:
+						if (k->num_subids)
+							kl->key_type = OID_KEY_TYPE_FIXED_STRING;
+						break;
+					default:
+						
 				}
 			
 			}
@@ -360,9 +412,6 @@ void register_mibs(void) {
 	};
 	char* smi_load_error = NULL;
 	GString* path_str;
-	char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
-	
-	debuglevel = debug_env ? strtoul(debug_env,NULL,10) : 0;
 	
 	smi_modules_uat = uat_new("SMI Modules",
 							  sizeof(smi_module_t),
@@ -404,13 +453,13 @@ void register_mibs(void) {
 	}
 	
 	path_str = g_string_new(get_datafile_path("mibs"));
-	g_string_sprintfa(path_str,":%s",get_persconffile_path("mibs", FALSE));
+	g_string_sprintfa(path_str,PATH_SEPARATOR "%s",get_persconffile_path("mibs", FALSE));
 
 	for(i=0;i<num_smi_paths;i++) {
 		if (!( smi_paths[i].name && *smi_paths[i].name))
 			continue;
 		
-		g_string_sprintfa(path_str,":%s",smi_paths[i].name);
+		g_string_sprintfa(path_str,PATH_SEPARATOR "%s",smi_paths[i].name);
 	}
 	
 	D(1,("SMI Path: '%s'",path_str->str));
@@ -576,12 +625,11 @@ void register_mibs(void) {
 #endif
 
 
-void oid_init(void) {
-	oid_root.children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_root");
-	oids_by_name = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_names");
-	
+void oids_init(void) {
 #ifdef HAVE_SMI
 	register_mibs();
+#else
+	D(1,("libsmi disabled oid resolution not enabled"));
 #endif
 }
 
@@ -603,10 +651,12 @@ guint check_num_oid(const char* str) {
 	char c = '\0';
 	guint n = 0;
 	
-	if (*r == '.') return 0;
+	D(8,("check_num_oid: '%s'",str));
+	if (*r == '.' || *r == '\0') return 0;
 	
 	do {
-		switch(*r++) {
+		D(9,("\tcheck_num_oid: '%c' %d",*r,n));
+		switch(*r) {
 			case '.':
 				n++;
 				if (c == '.') return 0; 
@@ -614,12 +664,12 @@ guint check_num_oid(const char* str) {
 			case '6' : case '7' : case '8' : case '9' : case '0' :
 				continue;
 			case '\0':
+				n++;
 				break;
 			default:
 				return 0;
 		} 
-		c = *r;
-	} while(1);
+	} while((c = *r++));
 	
 	if (c == '.') return 0;
 	
@@ -631,15 +681,20 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 	guint32* subids;
 	guint n = check_num_oid(str);
 	
+	D(6,("oid_string2subid: str='%s'",str));
+
 	if (!n) {
 		*subids_p = NULL;
 		return 0;
 	}
-	
+
+	D(7,("\toid_string2subid: n=%d",n));
+
 	*subids_p = subids = ep_alloc_array(guint32,n);
 	
 	do switch(*r) {
 		case '.':
+			D(7,("\toid_string2subid: subid: %p %u",subids,*subids));
 			subids++;
 			continue;
 		case '1' : case '2' : case '3' : case '4' : case '5' : 
@@ -651,8 +706,9 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 			break;
 		default:
 			return 0;
-	} while(1);
+	} while(*r++);
 	
+	D(7,("\toid_string2subid: ret %u",n));
 	return n;
 }
 
@@ -726,18 +782,8 @@ oid_info_t* oid_get_from_string(const gchar *oid_str, guint32** subids_p, guint*
 const gchar *oid_resolved_from_encoded(const guint8 *oid, gint oid_len) {
 	guint32 *subid_oid;
 	guint subid_oid_length = oid_encoded2subid(oid, oid_len, &subid_oid);
-	guint matched;
-	guint left;
-	oid_info_t* curr_oid = oid_get(subid_oid_length, subid_oid, &matched, &left);
-		
-		if (matched == subid_oid_length) {
-			return curr_oid->name;
-		} else {
-			return ep_strdup_printf("%s.%s",
-									curr_oid->name,
-									oid_subid2string(&(subid_oid[matched]),left) );
-		}
 	
+	return oid_resolved(subid_oid_length, subid_oid);
 }
 
 
@@ -836,17 +882,10 @@ char* oid2str(oid_info_t* oid, guint32* subids, guint len, guint left) {
 }
 
 const gchar *oid_resolved_from_string(const gchar *oid_str) {
-	guint32* subids;
-	guint num_subids = oid_string2subid(oid_str, &subids);
+	guint32 *subid_oid;
+	guint subid_oid_length = oid_string2subid(oid_str, &subid_oid);
 	
-	if (num_subids) {
-		guint matched;
-		guint left;
-		oid_info_t* oid = oid_get(num_subids, subids, &matched, &left);
-		return oid2str(oid, subids, num_subids, left);
-	} else {
-		return emem_tree_lookup_string(oids_by_name, oid_str);
-	}
+	return oid_resolved(subid_oid_length, subid_oid);
 }
 
 extern char* oid_test_a2b(guint32 num_subids, guint32* subids);
@@ -893,10 +932,29 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	
 	if (left) {
 		return ep_strdup_printf("%s.%s",
-								oid->name,
+								oid->name ? oid->name : oid_subid2string(subids,matched),
 								oid_subid2string(&(subids[matched]),left));
 	} else {
-		return oid->name;
+		return oid->name ? oid->name : oid_subid2string(subids,matched);
 	}
+}
+
+extern void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p) {
+	*resolved_p = (void*)oid_resolved(oid_len,subids);
+	*numeric_p = (void*)oid_subid2string(subids,oid_len);
+}
+
+extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p) {
+	guint32* subids;
+	guint subids_len = oid_encoded2subid(oid, oid_len, &subids);
+	*resolved_p = (void*)oid_resolved(subids_len,subids);
+	*numeric_p = (void*)oid_subid2string(subids,subids_len);
+}
+
+extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p) {
+	guint32* subids;
+	guint subids_len = oid_string2subid(oid_str, &subids);
+	*resolved_p = (void*)oid_resolved(subids_len,subids);
+	*numeric_p = (void*)oid_subid2string(subids,subids_len);
 }
 

@@ -100,7 +100,7 @@ typedef struct _oid_info_t {
 } oid_info_t;
 
 /* init funcion called from epan.h */
-extern void oid_init(void);
+extern void oids_init(void);
 
 /*
  * The objects returned by all these functions are all allocated with a 
@@ -149,9 +149,24 @@ extern oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint32
 extern oid_info_t* oid_get_from_string(const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
 
 /* these are used to add oids to the collection */
- extern void oid_add(char* name, guint oid_len, guint32 *subids);
- extern void oid_add_from_encoded(char* name, const guint8 *oid, gint oid_len);
- extern void oid_add_from_string(char* name, const gchar *oid_str);
+extern void oid_add(const char* name, guint oid_len, guint32 *subids);
+extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len);
+extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
+
+/* macros for legacy oid functions */
+/* from former oid_resolv.h */
+#define add_oid_str_name(oidstr,oidname) oid_add_from_string(oidname, oidstr)
+#define add_oid_name(oid, oid_len, name) oid_add_from_encoded(name,oid,oid_len)
+#define get_oid_str_name(oidstr) oid_resolved_from_string(oidstr)
+#define get_oid_name(encoid, encoid_len) oid_resolved_from_encoded(encoid, encoid_len)
+#define oid_resolv_enabled() (1)
+#define oid_resolv_cleanup() ((void)0)
+
+/* from former dissectors/format_oid.h */
+#define format_oid(oid, oid_length) ((void*)oid_resolved(oid_length,oid))
+#define new_format_oid(oid, oid_length, non_decoded, decoded) oid_both(oid_length, oid, non_decoded, decoded)
+
+#define subid_t guint32
 
 #endif

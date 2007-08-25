@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-rrlp.c                                                            */
+/* ./packet-rrlp.c                                                            */
 /* ../../tools/asn2wrs.py -p rrlp -c rrlp.cnf -s packet-rrlp-template RRLP-Messages.asn RRLP-Components.asn ../gsmmap/MAP-ExtensionDataTypes.asn ../gsmmap/MAP-LCS-DataTypes.asn */
 
 /* Input file: packet-rrlp-template.c */
@@ -2280,11 +2280,6 @@ dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const asn_namedbit GANSSPositioningMethod_bits[] = {
-  {  0, &hf_rrlp_GANSSPositioningMethod_gps, -1, -1, "gps", NULL },
-  {  1, &hf_rrlp_GANSSPositioningMethod_galileo, -1, -1, "galileo", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
-};
 
 static int
 dissect_rrlp_GANSSPositioningMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4202,12 +4197,6 @@ dissect_rrlp_INTEGER_0_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const asn_namedbit PositionData_bits[] = {
-  {  0, &hf_rrlp_PositionData_e_otd, -1, -1, "e-otd", NULL },
-  {  1, &hf_rrlp_PositionData_gps, -1, -1, "gps", NULL },
-  {  2, &hf_rrlp_PositionData_galileo, -1, -1, "galileo", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
-};
 
 static int
 dissect_rrlp_PositionData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {

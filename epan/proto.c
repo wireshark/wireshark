@@ -36,7 +36,7 @@
 #include "ptvcursor.h"
 #include "strutil.h"
 #include "addr_resolv.h"
-#include "oid_resolv.h"
+#include "oids.h"
 #include "plugins.h"
 #include "proto.h"
 #include "epan_dissect.h"

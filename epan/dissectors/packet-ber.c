@@ -74,7 +74,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-ber.h"
@@ -4172,7 +4172,12 @@ proto_reg_handoff_ber(void)
 {
         dissector_handle_t ber_handle;
 
-	add_oid_str_name("2.1.1","joint-iso-itu-t(2) asn1(1) basic-encoding(1)");
+	
+	oid_add_from_string("itu-t","0");
+	oid_add_from_string("iso","1");
+	oid_add_from_string("joint-iso-itu-t","2");
+	oid_add_from_string("asn1","2.1");
+	oid_add_from_string("basic-encoding","2.1.1");
 
 	ber_handle = create_dissector_handle(dissect_ber, proto_ber);
 	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);

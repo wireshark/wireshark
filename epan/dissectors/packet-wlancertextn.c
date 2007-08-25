@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-wlancertextn.c                                                    */
+/* ./packet-wlancertextn.c                                                    */
 /* ../../tools/asn2wrs.py -b -e -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.c */
@@ -38,7 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>

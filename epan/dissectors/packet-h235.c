@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h235.c                                                            */
-/* ../../tools/asn2wrs.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* ./packet-h235.c                                                            */
+/* ../../tools/asn2wrs.py -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -38,7 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>

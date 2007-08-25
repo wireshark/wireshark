@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-acp133.h                                                          */
-/* ../../tools/asn2wrs.py -b -X -T -e -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
+/* ./packet-acp133.h                                                          */
+/* ../../tools/asn2wrs.py -b -e -X -T -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
 
 /* Input file: packet-acp133-template.h */
 

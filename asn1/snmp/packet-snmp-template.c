@@ -14,6 +14,7 @@
  *
  * See RFC 3414 for User-based Security Model for SNMPv3
  * See RFC 3826 for  (AES) Cipher Algorithm in the SNMP USM
+ * See RFC 2578 for Structure of Management Information Version 2 (SMIv2)
  * Copyright (C) 2007 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
  * $Id$
@@ -72,7 +73,6 @@
 #include "packet-ber.h"
 
 #include "packet-snmp.h"
-#include "format-oid.h"
 
 #include <epan/crypt/crypt-sha1.h>
 #include <epan/crypt/crypt-md5.h>
@@ -107,19 +107,6 @@
 /* Initialize the protocol and registered fields */
 static int proto_snmp = -1;
 static int proto_smux = -1;
-
-/* Default MIB modules to load */
-/*
- * XXX - According to Wes Hardaker, we shouldn't do this:
- *       http://www.ethereal.com/lists/ethereal-dev/200412/msg00222.html
- */
-#ifdef _WIN32
-# define DEF_MIB_MODULES "IP-MIB;IF-MIB;TCP-MIB;UDP-MIB;SNMPv2-MIB;RFC1213-MIB;UCD-SNMP-MIB"
-# define IMPORT_SEPARATOR ":"
-#else
-# define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
-# define IMPORT_SEPARATOR ";"
-#endif /* _WIN32 */
 
 static gboolean display_oid = TRUE;
 
@@ -779,16 +766,6 @@ expected_different: {
 		return dissect_unknown_ber(actx->pinfo, tvb, value_start, tree);
 	}
 
-}
-
-
-gchar* format_oid(subid_t *oid, guint oid_length) {
-	return (void*)oid_resolved(oid_length,oid);
-}
-
-void new_format_oid(subid_t *oid, guint oid_length, gchar **non_decoded, gchar **decoded) {
-	*decoded = (void*)oid_resolved(oid_length,oid);
-	*non_decoded = (void*)oid_subid2string(oid,oid_length);
 }
 
 

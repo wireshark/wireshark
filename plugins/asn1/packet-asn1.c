@@ -82,6 +82,7 @@
 #include <epan/report_err.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/oids.h>
 #include <plugins/asn1/asn1.h>
 #include <wiretap/file_util.h>
 

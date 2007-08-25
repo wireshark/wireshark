@@ -54,7 +54,7 @@
 #include <epan/prefs.h>
 #include <epan/t35.h>
 #include <epan/emem.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 #include "tap.h"
 #include "packet-tpkt.h"

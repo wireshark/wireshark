@@ -125,8 +125,6 @@ struct _ASN1_SCK
     int offset;             /* Current offset in tvbuff            */
 };
 
-#include <epan/dissectors/format-oid.h>
-
 extern void asn1_open (ASN1_SCK *asn1, tvbuff_t *tvb, int offset);
 extern void asn1_close (ASN1_SCK *asn1, int *offset);
 extern int asn1_octet_decode (ASN1_SCK *asn1, guchar *ch);

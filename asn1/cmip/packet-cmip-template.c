@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/oid_resolv.h>
+#include <epan/oids.h>
 #include <epan/asn1.h>
 
 #include <stdio.h>
@@ -206,7 +206,7 @@ void proto_register_cmip(void) {
   proto_register_field_array(proto_cmip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 #include "packet-cmip-dis-tab.c"
-    add_oid_str_name("2.9.3.2.7.1","discriminatorId(1) ");
+    add_oid_str_name("2.9.3.2.7.1","discriminatorId(1)");
 
 }
 

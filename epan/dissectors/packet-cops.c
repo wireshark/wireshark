@@ -74,7 +74,7 @@
 # include <net-snmp/config_api.h>
 #endif /* HAVE_NET_SNMP */
 
-#include <epan/dissectors/format-oid.h>
+#include <epan/oids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
@@ -1347,7 +1347,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
   size_t out_len=0;
 
   /*Get the ASN.1 type etc. from the PIB-MIB. If unsuccessful use the type from packet*/
-  subtree = get_tree(variable_oid,variable_oid_length, subtree);
+  subtree = get_tree((void*)variable_oid,variable_oid_length, subtree);
 
   if (subtree->type == 0)
     variable->type= type_from_packet;
@@ -1562,8 +1562,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &ber_tag);
       offset = dissect_ber_length(pinfo, tree, tvb, offset, &vb_length, &ind);
       oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
-      vb_oid = ep_alloc((vb_length+1) * sizeof(gulong));
-      vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
+      vb_oid_length = oid_encoded2subid(oid_buf, vb_length, &vb_oid);
 
       offset = offset + vb_length;
       length = offset - vb_value_start;
