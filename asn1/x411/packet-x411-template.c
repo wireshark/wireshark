@@ -94,9 +94,9 @@ static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
   const char *name = NULL;
-  char extension_oid[MAX_OID_STR_LEN];
+  char* extension_oid;
 
-  sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
+  extension_oid = ep_strdup_printf("%s.%d", base_oid, extension_id);
 
   name = get_oid_str_name(extension_oid);
   proto_item_append_text(tree, " (%s)", name ? name : extension_oid); 
