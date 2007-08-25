@@ -6741,12 +6741,11 @@ void proto_reg_handoff_ftam(void) {
 	register_ber_oid_dissector("1.0.8571.5.1", dissect_ftam_unstructured_text, proto_ftam,"ISO FTAM unstructured text");
 	add_oid_str_name("1.0.8571.5.2","ISO FTAM sequential text");
 	add_oid_str_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
-	add_oid_str_name("1.0.8571.2.4","FTAM sequential text abstract syntax");
 	add_oid_str_name("1.0.8571.2.5","FTAM simple-hierarchy");
 	add_oid_str_name("1.0.8571.3.1","FTAM hierarchical file model");
 	add_oid_str_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
-	/* Unstructured text file document type FTAM-3 */
+	/* Unstructured binary file document type FTAM-3 */
 	register_ber_oid_dissector("1.0.8571.5.3", dissect_ftam_unstructured_binary, proto_ftam,"ISO FTAM unstructured binary");
 	add_oid_str_name("1.0.8571.2.4","FTAM unstructured binary abstract syntax");
 
