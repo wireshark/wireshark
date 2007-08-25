@@ -40,8 +40,12 @@
 /* The MPEG2 TS packet size */
 #define MP2T_PACKET_SIZE 188
 
+static dissector_handle_t pes_handle;
+
 static int proto_mp2t = -1;
 static gint ett_mp2t = -1;
+static gint ett_mp2t_header = -1;
+static gint ett_mp2t_af = -1;
 
 static int hf_mp2t_header = -1;
 static int hf_mp2t_sync_byte = -1;
@@ -204,7 +208,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 
 
 	hi = proto_tree_add_item( mp2t_tree, hf_mp2t_header, tvb, offset, 4, FALSE);
-	mp2t_header_tree = proto_item_add_subtree( hi, ett_mp2t );
+	mp2t_header_tree = proto_item_add_subtree( hi, ett_mp2t_header );
 
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_sync_byte, tvb, offset, 4, FALSE);
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tei, tvb, offset, 4, FALSE);
@@ -233,7 +237,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 		offset += 1;
 
 		hi = proto_tree_add_item( mp2t_tree, hf_mp2t_af, tvb, offset, af_length, FALSE);
-		mp2t_af_tree = proto_item_add_subtree( hi, ett_mp2t );
+		mp2t_af_tree = proto_item_add_subtree( hi, ett_mp2t_af );
 
 		af_flags = tvb_get_guint8(tvb, offset);
 
@@ -399,7 +403,11 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 			proto_tree_add_item( mp2t_tree, hf_mp2t_malformed_payload, tvb, offset, payload_len, FALSE);
 			offset += payload_len;
 		} else {
-			proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, FALSE);
+			if (tvb_get_ntoh24(tvb, offset) == 0x000001) {
+				tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, payload_len, payload_len);
+				call_dissector(pes_handle, next_tvb, pinfo, mp2t_tree);
+			} else
+				proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, FALSE);
 			offset += payload_len;
 		}
 	}
@@ -605,6 +613,8 @@ proto_register_mp2t(void)
 	static gint *ett[] =
 	{
 		&ett_mp2t,
+		&ett_mp2t_header,
+		&ett_mp2t_af,
 	};
 
 	proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
@@ -621,5 +631,7 @@ proto_reg_handoff_mp2t(void)
 
 	mp2t_handle = create_dissector_handle(dissect_mp2t, proto_mp2t);
 	dissector_add("rtp.pt", PT_MP2T, mp2t_handle);
+
+	pes_handle = find_dissector("mpeg-pes");
 }
 

@@ -292,7 +292,7 @@ dissect_mpeg_pes_pack_header(tvbuff_t *tvb, unsigned offset,
 	return offset;
 }
 
-void
+static void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gboolean
@@ -444,7 +444,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static heur_dissector_list_t heur_subdissector_list;
 
-void
+static void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
@@ -553,15 +553,14 @@ proto_register_mpeg_pes(void)
 
 	proto_mpeg = proto_register_protocol(
 			"Moving Picture Experts Group", "MPEG", "mpeg");
+	register_dissector("mpeg", dissect_mpeg, proto_mpeg);
 	register_heur_dissector_list("mpeg", &heur_subdissector_list);
-
-	if (proto_mpeg_pes != -1)
-		return;
 
 	proto_mpeg_pes = proto_register_protocol(
 			"Packetized Elementary Stream", "MPEG PES", "mpeg-pes");
 	proto_register_field_array(proto_mpeg_pes, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("mpeg-pes", dissect_mpeg_pes, proto_mpeg_pes);
 }
 
 void
