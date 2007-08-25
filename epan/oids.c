@@ -282,6 +282,38 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 	return &unknown_type;
 }
 
+static guint get_non_implicit_size(SmiType* sT) {
+    SmiRange *sR;
+    guint size = 0xffffffff;
+    
+    switch (sT->basetype) {
+		case SMI_BASETYPE_OCTETSTRING:
+		case SMI_BASETYPE_OBJECTIDENTIFIER:
+			break;
+		default:
+			return 0;
+    }
+	
+	for ( ; sT; sT = smiGetParentType(sT) ) {
+		for (sR = smiGetFirstRange(sT); sR ; sR = smiGetNextRange(sR)) {
+			if (size == 0xffffffff) {
+				if (sR->minValue.value.unsigned32 == sR->maxValue.value.unsigned32) {
+					size = sR->minValue.value.unsigned32;
+				} else {
+					return 0;
+				}
+			} else {
+				if (sR->minValue.value.unsigned32 != size || sR->maxValue.value.unsigned32 != size) {
+					return 0;
+				}	
+			}
+		}
+	}
+	
+	return size == 0xffffffff ? 0 : size;
+}
+
+
 static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 	*key_p = NULL;
 	
@@ -311,10 +343,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				guint non_implicit_size = 0;
 				
 				if (elType) {
-					non_implicit_size = smiGetMinSize(elType);
-					if (non_implicit_size == smiGetMaxSize(elType)) {
-						non_implicit_size = 0;
-					}
+					non_implicit_size = get_non_implicit_size(elType);
 				}
 				
 				typedata =  get_typedata(elType);
