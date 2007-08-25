@@ -60,7 +60,7 @@ int proto_rtse = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
-static char object_identifier_id[MAX_OID_STR_LEN];
+static char* object_identifier_id;
 static gboolean open_request=FALSE;
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
@@ -303,7 +303,7 @@ static int dissect_open(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_rtse_T_t61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "rtse.cnf"
+#line 145 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             actx, tree, tvb, offset, hf_index,
@@ -324,7 +324,7 @@ static int dissect_t61String(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_rtse_T_octetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 159 "rtse.cnf"
+#line 161 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &string);
@@ -369,7 +369,7 @@ static int dissect_callingSSuserReference(proto_tree *tree _U_, tvbuff_t *tvb _U
 
 static int
 dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "rtse.cnf"
+#line 153 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
                                             actx, tree, tvb, offset, hf_index,
@@ -410,7 +410,7 @@ static const ber_old_sequence_t SessionConnectionIdentifier_sequence[] = {
 
 static int
 dissect_rtse_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "rtse.cnf"
+#line 138 "rtse.cnf"
   if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Recover");
     offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -463,7 +463,7 @@ static const value_string rtse_T_applicationProtocol_vals[] = {
 
 static int
 dissect_rtse_T_applicationProtocol(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 132 "rtse.cnf"
+#line 134 "rtse.cnf"
 
   offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
 
@@ -782,7 +782,9 @@ dissect_rtse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
-    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%s", oid);
+    object_identifier_id = ep_strdup_printf("%s", oid);
+  } else {
+	*object_identifier_id = '\0';
   }
 	
 
@@ -812,7 +814,7 @@ static int dissect_data_value_descriptor(proto_tree *tree _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_rtse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 128 "rtse.cnf"
+#line 130 "rtse.cnf"
   offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
 

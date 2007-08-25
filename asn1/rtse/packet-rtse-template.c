@@ -52,7 +52,7 @@ int proto_rtse = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
-static char object_identifier_id[MAX_OID_STR_LEN];
+static char* object_identifier_id;
 static gboolean open_request=FALSE;
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */

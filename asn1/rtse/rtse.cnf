@@ -120,7 +120,9 @@ EXTERNALt
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
-    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%%s", oid);
+    object_identifier_id = ep_strdup_printf("%%s", oid);
+  } else {
+	*object_identifier_id = '\0';
   }
 	
 

@@ -3080,8 +3080,6 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 /* 8.19 Encoding of an object identifier value.
- * if value_string is non-NULL it must point to a buffer of at least
- * MAX_OID_STR_LEN bytes.
  */
 int dissect_ber_object_identifier(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **value_tvb)
 {
@@ -3091,7 +3089,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, asn1_ctx_t *actx, proto
 	guint32 len;
 	int eoffset;
 	int hoffset;
-	char *str;
+	const char *str;
 	proto_item *cause;
 	header_field_info *hfi;
 	const gchar *name;
@@ -4173,9 +4171,6 @@ proto_reg_handoff_ber(void)
         dissector_handle_t ber_handle;
 
 	
-	oid_add_from_string("itu-t","0");
-	oid_add_from_string("iso","1");
-	oid_add_from_string("joint-iso-itu-t","2");
 	oid_add_from_string("asn1","2.1");
 	oid_add_from_string("basic-encoding","2.1.1");
 

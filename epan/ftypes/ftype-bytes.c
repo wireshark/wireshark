@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
+#include <epan/oids.h>
 
 #ifdef HAVE_LIBPCRE
 #include <pcre.h>
@@ -81,17 +82,40 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 	}
 }
 
+/*
+ * OID_REPR_LEN:
+ *
+ * 5 for the first byte ([0-2].[0-39].)
+ * for each extra byte if the sub-id is:
+ *   1 byte it can be at most "127." (4 bytes we give it 4)
+ *   2 bytes it can be at most "16383." (6 bytes we give it 8)
+ *   3 bytes it can be at most "2097151." (8 bytes we give it 12)
+ *   4 bytes it can be at most "268435456." (10 bytes we give it 16)
+ *   5 bytes it can be at most "34359738368." (12 bytes we give it 20)
+ *   
+ *  a 5 bytes encoded subid can already overflow the guint32 that holds a sub-id,
+ *  making it a completely different issue!
+ */
+#define OID_REPR_LEN(fv) (5 + (4 * ((fv)->value.bytes->len-1)))
+
 static int
 oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 {
-	/* more exact computation will come later */
-	return fv->value.bytes->len * 3 + 16;
+	return OID_REPR_LEN(fv);
 }
 
 static void
 oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	oid_to_str_buf(fv->value.bytes->data, fv->value.bytes->len, buf, oid_repr_len(fv, rtype));
+	const char* oid_str = oid_encoded2string(fv->value.bytes->data,fv->value.bytes->len);
+	/*
+	 * XXX:
+	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
+	 * or else we might have a BO.
+	 * I guess that is why this callback is not passed a length.
+	 *    -- lego
+	 */
+	strncpy(buf,oid_str,OID_REPR_LEN(fv));
 }
 
 static void

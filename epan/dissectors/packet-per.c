@@ -40,6 +40,7 @@ proper helper routines
 #include <string.h>
 #include <math.h>
 
+#include <epan/oids.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
@@ -800,7 +801,7 @@ guint32
 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
   guint length;
-  char *str;
+  const char *str;
   tvbuff_t *val_tvb = NULL;
   proto_item *item = NULL;
   header_field_info *hfi;

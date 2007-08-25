@@ -135,9 +135,9 @@ extern const gchar *oid_resolved_from_encoded(const guint8 *oid, gint len);
 extern const gchar *oid_resolved_from_string(const gchar *oid_str);
 
 /* these yield two formated strings one resolved and one numeric */
- extern void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p);
- extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p);
- extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p);
+extern void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p);
+extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p);
+extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p);
 
 /*
  * These return the info for the best match.
@@ -162,6 +162,9 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
 #define get_oid_name(encoid, encoid_len) oid_resolved_from_encoded(encoid, encoid_len)
 #define oid_resolv_enabled() (1)
 #define oid_resolv_cleanup() ((void)0)
+
+/* from to_str.h */
+#define oid_to_str(encoid, encoid_len) oid_encoded2string(encoid, encoid_len)
 
 /* from former dissectors/format_oid.h */
 #define format_oid(oid, oid_length) ((void*)oid_resolved(oid_length,oid))

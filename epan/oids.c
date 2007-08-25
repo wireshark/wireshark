@@ -76,10 +76,19 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 	
 	if (!oid_root.children) {
 		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
+		guint32 subid;
 		
 		debuglevel = debug_env ? strtoul(debug_env,NULL,10) : 0;
 				
 		oid_root.children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_root");
+		
+		/*
+		 * make sure we got strings at least in the three root-children oids
+		 * that way oid_resolved() will always have a string to print
+		 */
+		subid = 0; oid_add("itu-t",1,&subid);
+		subid = 1; oid_add("iso",1,&subid);
+		subid = 2; oid_add("joint-iso-itu-t",1,&subid);
 	}
 	
 	oid_len--;
@@ -133,6 +142,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 }
 
 void oid_add(const char* name, guint oid_len, guint32 *subids) {
+	g_assert(subids && *subids <= 2);
 	if (oid_len) {
 		D(3,("\tOid (from subids): %s %s ",name?name:"NULL", oid_subid2string(subids,oid_len)));
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
@@ -637,6 +647,8 @@ const char* oid_subid2string(guint32* subids, guint len) {
 	char* s = ep_alloc0(len*11);
 	char* w = s;
 	
+	DISSECTOR_ASSERT(subids);
+
 	do {
 		w += sprintf(w,"%u.",*subids++);
 	} while(--len);
@@ -689,13 +701,10 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 		return 0;
 	}
 
-	D(7,("\toid_string2subid: n=%d",n));
-
 	*subids_p = subids = ep_alloc0(sizeof(guint32)*n);
 	subids_overflow = subids + n;
 	do switch(*r) {
 		case '.':
-			D(7,("\toid_string2subid: subid: %p %u",subids,*subids));
 			subids++;
 			continue;
 		case '1' : case '2' : case '3' : case '4' : case '5' : 
@@ -710,7 +719,6 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 			return 0;
 	} while(*r++);
 	
-	D(7,("\toid_string2subid: ret %u",n));
 	return n;
 }
 
@@ -761,6 +769,8 @@ oid_info_t* oid_get(guint len, guint32* subids, guint* matched, guint* left) {
 	oid_info_t* curr_oid = &oid_root;
 	guint i;
 	
+	DISSECTOR_ASSERT(subids && *subids <= 2);
+
 	for( i=0; i < len; i++) {
 		oid_info_t* next_oid = emem_tree_lookup32(curr_oid->children,subids[i]);
 		if (next_oid) {
@@ -799,6 +809,8 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint8* bytes;
 	guint8* b;
 	
+	DISSECTOR_ASSERT(subids && *subids <= 2);
+
 	if (subids_len < 2) {
 		*bytes_p = NULL;
 		return 0;
@@ -925,7 +937,11 @@ char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	guint matched;
 	guint left;
-	oid_info_t* oid = oid_get(num_subids, subids, &matched, &left);
+	oid_info_t* oid;
+
+	DISSECTOR_ASSERT(subids && *subids <= 2);
+
+	oid = oid_get(num_subids, subids, &matched, &left);
 	
 	while (! oid->name ) {
 		if (!(oid = oid->parent)) {
