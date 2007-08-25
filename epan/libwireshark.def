@@ -14,8 +14,6 @@ abs_time_secs_to_str
 address_to_str
 address_to_str_buf
 add_new_data_source
-add_oid_name
-add_oid_str_name
 AirPDcapDestroyContext
 AirPDcapInitContext
 AdmissionRejectReason_vals      DATA
@@ -427,8 +425,6 @@ get_host_ipaddr
 get_host_ipaddr6
 get_key_string
 get_manuf_name_if_known
-get_oid_name
-get_oid_str_name
 get_persconffile_path
 get_persdatafile_dir
 get_plugin_dir
