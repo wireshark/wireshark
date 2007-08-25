@@ -116,11 +116,22 @@ if test "x$with_gcrypt" = "xyes"; then
                 if test x$libgcrypt_config_prefix != x ; then
 	                AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
                 else
-                        echo echo "libgcrypt not found, disabling ipsec decryption"
+                        echo "libgcrypt not found, disabling ipsec decryption"
                         gcrypt_message="no"
                 fi
         ]
   )
+fi
+
+# libsmi
+libsmi_message="no"
+AC_ARG_WITH([libsmi],
+  AC_HELP_STRING( [--with-libsmi=@<:@yes/no@:>@],
+		  [use smi library @<:@default=yes@:>@]),
+  with_libsmi="$withval", with_libsmi="yes")
+if test "x$with_libsmi" = "xyes"; then
+  AM_PATH_LIBSMI
+  AM_CONDITIONAL(HAVE_SMI, "x$with_libsmi" = "xyes")
 fi
 
 # Check for xsltproc
@@ -1635,6 +1646,7 @@ echo "                   Use zlib library : $zlib_message"
 echo "                   Use pcre library : $pcre_message"
 echo "               Use kerberos library : $krb5_message"
 echo "               Use GNU ADNS library : $adns_message"
+echo "               Use SMI SNMP library : $libsmi"
 echo "             Use GNU crypto library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"
 echo "           Use IPv6 name resolution : $enable_ipv6"

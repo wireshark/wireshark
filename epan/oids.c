@@ -41,7 +41,7 @@
 #include "filesystem.h"
 #include "dissectors/packet-ber.h"
 
-#ifdef HAVE_SMI
+#ifdef HAVE_LIBSMI
 #include <smi.h>
 #endif
 
@@ -175,7 +175,7 @@ extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_l
 	}
 }
 
-#ifdef HAVE_SMI
+#ifdef HAVE_LIBSMI
 typedef struct smi_module_t {
 	char* name;
 } smi_module_t;
@@ -374,15 +374,15 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 					kl->key_type = typedata->keytype_implicit;
 				} else switch (kl->key_type) {
 					case OID_KEY_TYPE_BYTES:
-						if (k->num_subids)
+						if (kl->num_subids)
 							kl->key_type = OID_KEY_TYPE_FIXED_BYTES;
 						break;
 					case OID_KEY_TYPE_STRING:
-						if (k->num_subids)
+						if (kl->num_subids)
 							kl->key_type = OID_KEY_TYPE_FIXED_STRING;
 						break;
 					default:
-						
+						break;
 				}
 			
 			}
@@ -403,6 +403,12 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 #define IS_ENUMABLE(ft) ( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
 						   || (ft == FT_INT8) || (ft == FT_INT16) || (ft == FT_INT24) || (ft == FT_INT32) \
 						   || (ft == FT_UINT64) || (ft == FT_INT64) )
+
+#ifdef WIN32
+#define PATH_SEPARATOR ";"
+#else
+#define PATH_SEPARATOR ":"
+#endif
 
 void register_mibs(void) {
 	SmiModule *smiModule;
@@ -636,7 +642,7 @@ void register_mibs(void) {
 
 
 void oids_init(void) {
-#ifdef HAVE_SMI
+#ifdef HAVE_LIBSMI
 	register_mibs();
 #else
 	D(1,("libsmi disabled oid resolution not enabled"));
