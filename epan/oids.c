@@ -90,7 +90,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		if(n) {
 			if (i == oid_len) {
 				if (n->name) {
-					D(0,("RENAMING %s -> %s",n->name,name));
+					D(2,("Renaming Oid from: %s -> %s, this menas the same oid is registered more than once",n->name,name));
 					g_free(n->name);
 				}
 				
@@ -679,6 +679,7 @@ guint check_num_oid(const char* str) {
 guint oid_string2subid(const char* str, guint32** subids_p) {
 	const char* r = str;
 	guint32* subids;
+	guint32* subids_overflow;
 	guint n = check_num_oid(str);
 	
 	D(6,("oid_string2subid: str='%s'",str));
@@ -690,8 +691,8 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 
 	D(7,("\toid_string2subid: n=%d",n));
 
-	*subids_p = subids = ep_alloc_array(guint32,n);
-	
+	*subids_p = subids = ep_alloc0(sizeof(guint32)*n);
+	subids_overflow = subids + n;
 	do switch(*r) {
 		case '.':
 			D(7,("\toid_string2subid: subid: %p %u",subids,*subids));
@@ -699,6 +700,7 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 			continue;
 		case '1' : case '2' : case '3' : case '4' : case '5' : 
 		case '6' : case '7' : case '8' : case '9' : case '0' :
+			DISSECTOR_ASSERT(subids < subids_overflow);
 			*(subids) *= 10;
 			*(subids) += *r - '0';
 			continue;
@@ -719,10 +721,12 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 	guint32 subid = 0;
 	gboolean is_first = TRUE;
 	guint32* subids;
-	
+	guint32* subid_overflow;
+		
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 	
 	*subids_p = subids = ep_alloc(sizeof(guint32)*n);
+	subid_overflow = subids+n;
 	
 	for (i=0; i<oid_len; i++){
 		guint8 byte = oid_bytes[i];
@@ -745,6 +749,7 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 			is_first = FALSE;
 		}
 		
+		DISSECTOR_ASSERT(subids < subid_overflow);
 		*subids++ = subid;
 		subid = 0;
 	}
