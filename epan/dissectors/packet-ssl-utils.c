@@ -1,9 +1,12 @@
 /* packet-ssl-utils.c
+ * ssl manipulation functions
+ * By Paolo Abeni <paolo.abeni@email.com>
  *
  * $Id$
  *
- * ssl manipulation functions
- * By Paolo Abeni <paolo.abeni@email.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,7 +51,7 @@ const value_string ssl_20_msg_types[] = {
     { SSL2_HND_SERVER_FINISHED,     "Server Finished" },
     { SSL2_HND_REQUEST_CERTIFICATE, "Request Certificate" },
     { SSL2_HND_CLIENT_CERTIFICATE,  "Client Certificate" },
-    { 0x00, NULL },
+    { 0x00, NULL }
 };
 
 const value_string ssl_20_cipher_suites[] = {
@@ -155,7 +158,7 @@ const value_string ssl_20_cipher_suites[] = {
 const value_string ssl_20_certificate_type[] = {
     { 0x00, "N/A" },
     { 0x01, "X.509 Certificate" },
-    { 0x00, NULL },
+    { 0x00, NULL }
 };
 
 const value_string ssl_31_content_type[] = {
@@ -180,7 +183,7 @@ const value_string ssl_versions[] = {
    message. */
 const value_string ssl_31_change_cipher_spec[] = {
     { 1, "Change Cipher Spec" },
-    { 0x00, NULL },
+    { 0x00, NULL }
 };
 #endif
 
@@ -343,6 +346,32 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0087, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0088, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0089, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA" },
+    /* From RFC 4492 */
+    { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
+    { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
+    { 0xc003, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA" },
+    { 0xc004, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA" },
+    { 0xc005, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA" },
+    { 0xc006, "TLS_ECDHE_ECDSA_WITH_NULL_SHA" },
+    { 0xc007, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA" },
+    { 0xc008, "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA" },
+    { 0xc009, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA" },
+    { 0xc00a, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA" },
+    { 0xc00b, "TLS_ECDH_RSA_WITH_NULL_SHA" },
+    { 0xc00c, "TLS_ECDH_RSA_WITH_RC4_128_SHA" },
+    { 0xc00d, "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA" },
+    { 0xc00e, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA" },
+    { 0xc00f, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA" },
+    { 0xc010, "TLS_ECDHE_RSA_WITH_NULL_SHA" },
+    { 0xc011, "TLS_ECDHE_RSA_WITH_RC4_128_SHA" },
+    { 0xc012, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA" },
+    { 0xc013, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA" },
+    { 0xc014, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" },
+    { 0xc015, "TLS_ECDH_anon_WITH_NULL_SHA" },
+    { 0xc016, "TLS_ECDH_anon_WITH_RC4_128_SHA" },
+    { 0xc017, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA" },
+    { 0xc018, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA" },
+    { 0xc019, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA" },
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
@@ -359,7 +388,7 @@ const value_string pct_msg_types[] = {
     { PCT_MSG_CLIENT_MASTER_KEY,    "Client Master Key" },
     { PCT_MSG_SERVER_VERIFY,        "Server Verify" },
     { PCT_MSG_ERROR,                "Error" },
-    { 0x00, NULL },
+    { 0x00, NULL }
 };
 
 const value_string pct_cipher_type[] = {
@@ -369,7 +398,7 @@ const value_string pct_cipher_type[] = {
 	{ PCT_CIPHER_RC4, "RC4" },
 	{ PCT_CIPHER_DES_112, "DES 112 bit" },
 	{ PCT_CIPHER_DES_168, "DES 168 bit" },
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 const value_string pct_hash_type[] = {
@@ -378,21 +407,21 @@ const value_string pct_hash_type[] = {
 	{ PCT_HASH_SHA, "SHA"},
 	{ PCT_HASH_SHA_TRUNC_80, "SHA_TRUNC_80"},
 	{ PCT_HASH_DES_DM, "DES_DM"},
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 const value_string pct_cert_type[] = {
 	{ PCT_CERT_NONE, "None" },
 	{ PCT_CERT_X509, "X.509" },
 	{ PCT_CERT_PKCS7, "PKCS #7" },
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 const value_string pct_sig_type[] = {
 	{ PCT_SIG_NONE, "None" },
 	{ PCT_SIG_RSA_MD5, "MD5" },
 	{ PCT_SIG_RSA_SHA, "RSA SHA" },
 	{ PCT_SIG_DSA_SHA, "DSA SHA" },
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 const value_string pct_exch_type[] = {
@@ -405,7 +434,7 @@ const value_string pct_exch_type[] = {
 	{ PCT_EXCH_DH_PKCS3_TOKEN_DES, "DH PKCS#3 Token DES" },
 	{ PCT_EXCH_DH_PKCS3_TOKEN_DES3, "DH PKCS#3 Token 3DES" },
 	{ PCT_EXCH_FORTEZZA_TOKEN, "Fortezza" },
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 const value_string pct_error_code[] = {
@@ -415,10 +444,10 @@ const value_string pct_error_code[] = {
 	{ PCT_ERR_INTEGRITY_CHECK_FAILED, "PCT_ERR_INTEGRITY_CHECK_FAILED" },
 	{ PCT_ERR_SERVER_AUTH_FAILED, "PCT_ERR_SERVER_AUTH_FAILED" },
 	{ PCT_ERR_SPECS_MISMATCH, "PCT_ERR_SPECS_MISMATCH" },
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
-/* RFC 3546 */
+/* RFC 4366 */
 const value_string tls_hello_extension_types[] = {
 	{ 0, "server_name" },
 	{ 1, "max_fragment_length" },
@@ -426,7 +455,13 @@ const value_string tls_hello_extension_types[] = {
 	{ 3, "trusted_ca_keys" },
 	{ 4, "truncated_hmac" },
 	{ 5, "status_request" },
-	{ 35, "EAP-FAST PAC-Opaque" /* draft-cam-winget-eap-fast-00.txt */ },
+	{ 6, "user_mapping" },
+	{ 7, "Reserved" },
+	{ 8, "Reserved" },
+	{ 9, "cert_type" },
+	{ 10, "elliptic_curves" },
+	{ 11, "ec_point_formats" },
+	{ 35, "SessionTicket TLS" },
 	{ 0, NULL }
 };
 
