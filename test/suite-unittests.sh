@@ -85,7 +85,7 @@ unittests_cleanup_step() {
 unittests_suite() {
 	test_step_set_pre unittests_cleanup_step
 	test_step_set_post unittests_cleanup_step
-	test_step_add "exntest" unittests_step_exntest
-	test_step_add "reassemble_test" unittests_step_reassemble_test
-	test_step_add "tvbtest" unittests_step_tvbtest
+##	test_step_add "exntest" unittests_step_exntest
+##	test_step_add "reassemble_test" unittests_step_reassemble_test
+##	test_step_add "tvbtest" unittests_step_tvbtest
 }
