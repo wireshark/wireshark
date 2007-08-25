@@ -64,12 +64,23 @@ static gint ett_erspan = -1;
 
 static int hf_erspan_unknown1 = -1;
 static int hf_erspan_vlan = -1;
+static int hf_erspan_priority = -1;
 static int hf_erspan_unknown2 = -1;
-static int hf_erspan_spanid = -1;
+static int hf_erspan_direction = -1;
 static int hf_erspan_unknown3 = -1;
+static int hf_erspan_spanid = -1;
+static int hf_erspan_unknown4 = -1;
 
 #define PROTO_SHORT_NAME "ERSPAN"
 #define PROTO_LONG_NAME "ER Switch Packet Analysis"
+
+#define ERSPAN_DIRECTION_INCOMING 0
+#define ERSPAN_DIRECTION_OUTGOING 1
+static const value_string erspan_direction_vals[] = {
+	{ERSPAN_DIRECTION_INCOMING, "Incoming"},
+	{ERSPAN_DIRECTION_OUTGOING, "Outgoing"},
+	{0, NULL},
+};
 
 static dissector_handle_t ethnofcs_handle;
 
@@ -98,14 +109,23 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		offset += 2;
 
+		proto_tree_add_item(erspan_tree, hf_erspan_priority, tvb, offset, 2,
+			FALSE);
+
 		proto_tree_add_item(erspan_tree, hf_erspan_unknown2, tvb, offset, 2,
+			FALSE);
+
+		proto_tree_add_item(erspan_tree, hf_erspan_direction, tvb, offset, 2,
+			FALSE);
+
+		proto_tree_add_item(erspan_tree, hf_erspan_unknown3, tvb, offset, 2,
 			FALSE);
 
 		proto_tree_add_item(erspan_tree, hf_erspan_spanid, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
-		proto_tree_add_item(erspan_tree, hf_erspan_unknown3, tvb, offset, 4,
+		proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb, offset, 4,
 			FALSE);
 		offset += 4;
 
@@ -127,16 +147,28 @@ proto_register_erspan(void)
 		{ "Vlan",	"erspan.vlan", FT_UINT16, BASE_DEC, NULL,
 			0x0fff, "", HFILL }},
 
+		{ &hf_erspan_priority,
+		{ "Priority",	"erspan.priority", FT_UINT16, BASE_DEC, NULL,
+			0xe000, "", HFILL }},
+
 		{ &hf_erspan_unknown2,
-		{ "Unknown2",	"erspan.unknown2", FT_UINT16, BASE_HEX, NULL,
-			0xfc00, "", HFILL }},
+		{ "Unknown2",	"erspan.unknown2", FT_UINT16, BASE_DEC, NULL,
+			0x1000, "", HFILL }},
+
+		{ &hf_erspan_direction,
+		{ "Direction",	"erspan.direction", FT_UINT16, BASE_DEC, VALS(erspan_direction_vals),
+			0x0800, "", HFILL }},
+
+		{ &hf_erspan_unknown3,
+		{ "Unknown3",	"erspan.unknown3", FT_UINT16, BASE_DEC, NULL,
+			0x0400, "", HFILL }},
 
 		{ &hf_erspan_spanid,
 		{ "SpanID",	"erspan.spanid", FT_UINT16, BASE_DEC, NULL,
 			0x03ff, "", HFILL }},
 
-		{ &hf_erspan_unknown3,
-		{ "Unknown3",	"erspan.unknown3", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_erspan_unknown4,
+		{ "Unknown4",	"erspan.unknown4", FT_BYTES, BASE_NONE, NULL,
 			0, "", HFILL }},
 
         };
