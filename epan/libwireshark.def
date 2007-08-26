@@ -513,8 +513,24 @@ num_tap_filters                 DATA
 num_tree_types                  DATA
 offset_from_real_beginning
 oid_has_dissector
-oid_to_str
-oid_to_str_buf
+oid_subid2encoded
+oid_string2encoded
+oid_encoded2subid
+oid_string2subid
+oid_encoded2string
+oid_subid2string
+oid_resolved
+oid_resolved_from_encoded
+oid_resolved_from_string
+oid_both
+oid_both_from_encoded
+oid_both_from_string
+oid_get
+oid_get_from_encoded
+oid_get_from_string
+oid_add
+oid_add_from_encoded
+oid_add_from_string
 other_decode_bitfield_value
 parse_key_string
 plugin_list                     DATA
