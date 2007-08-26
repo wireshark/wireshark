@@ -74,6 +74,10 @@
 #include <lua.h>
 #endif
 
+#ifdef HAVE_LIBSMI
+#include <smi.h>
+#endif
+ 
 #ifdef SVNVERSION
 	const char *wireshark_svnversion = " (" SVNVERSION ")";
 #else
@@ -189,14 +193,14 @@ get_epan_compiled_version_info(GString *str)
 
         /* SNMP */
 	g_string_append(str, ", ");
-#ifdef HAVE_NET_SNMP
-	g_string_append(str, "with Net-SNMP ");
-	g_string_append(str, netsnmp_get_version());
+#ifdef HAVE_LIBSMI
+	g_string_append(str, "with SMI ");
+	g_string_append(str, SMI_VERSION_STRING);
 #else /* no SNMP library */
-	g_string_append(str, "without Net-SNMP");
-#endif /* HAVE_NET_SNMP */
+	g_string_append(str, "without SMI");
+#endif /* _SMI_H */
 
-        /* ADNS */
+	/* ADNS */
 	g_string_append(str, ", ");
 #ifdef HAVE_GNU_ADNS
 	g_string_append(str, "with ADNS");

@@ -175,7 +175,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have Net-SNMP, comment this line out, so that NET_SNMP_DIR
 # isn't defined.
 #
-NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.4
+#NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.4
 
 #
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS 
