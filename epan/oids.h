@@ -1,5 +1,5 @@
 /* oids.h
- * Definitions for OBJECT IDENTIFIER operations
+ * Object IDentifier Support
  *
  * $Id$
  *

@@ -1,5 +1,5 @@
 /* oids.c
- * Routines for OBJECT IDENTIFIER operations
+ * Object IDentifier Support
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
@@ -483,6 +483,8 @@ void register_mibs(void) {
 							  smi_paths_fields);
 	
 	
+	smiInit(NULL);
+
 	uat_load(smi_modules_uat, &smi_load_error);
 	
 	if (smi_load_error) {
@@ -497,8 +499,10 @@ void register_mibs(void) {
 		return;
 	}
 	
-	path_str = g_string_new(get_datafile_path("mibs"));
-	g_string_sprintfa(path_str,PATH_SEPARATOR "%s",get_persconffile_path("mibs", FALSE));
+	path_str = g_string_new(smiGetPath());
+	g_string_sprintfa(path_str, PATH_SEPARATOR "%s" PATH_SEPARATOR "%s",
+					  get_datafile_path("mibs"),
+					  get_persconffile_path("mibs", FALSE));
 
 	for(i=0;i<num_smi_paths;i++) {
 		if (!( smi_paths[i].name && *smi_paths[i].name))
@@ -508,9 +512,7 @@ void register_mibs(void) {
 	}
 	
 	D(1,("SMI Path: '%s'",path_str->str));
-	
-	smiInit(NULL);
-	
+		
 	smiSetPath(path_str->str);
 	
 	g_string_free(path_str,TRUE);
