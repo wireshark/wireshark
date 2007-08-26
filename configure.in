@@ -124,7 +124,8 @@ if test "x$with_gcrypt" = "xyes"; then
 fi
 
 # libsmi
-libsmi_message="no"
+# FIXME: currently the path argument to with-libsmi is being ignored
+libsmi="no"
 AC_ARG_WITH([libsmi],
   AC_HELP_STRING( [--with-libsmi=@<:@yes/no@:>@],
 		  [use smi library @<:@default=yes@:>@]),
