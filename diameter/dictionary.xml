@@ -1615,16 +1615,36 @@
 				<gavp name="Originator"/>
 			</grouped>
 		</avp>
-<avp name="WAG-Address" code="890"><type type-name="Address"/></avp>
-<avp name="WAG-PLMN-Id" code="891"><type type-name="OctetString"/></avp>
-<avp name="WLAN-Radio-Container" code="892"><type type-name="Grouped"/></avp>
-<avp name="WLAN-Technology" code="893"><type type-name="Unsigned32"/></avp>
-<avp name="WLAN-UE-Local-IPAddress" code="894"><type type-name="Address"/></avp>
-<avp name="PDG-Address" code="895"><type type-name="Address"/></avp>
-<avp name="PDG-Charging-Id" code="896"><type type-name="Unsigned32"/></avp>
-<avp name="Address-Data" code="897"><type type-name="UTF8String"/></avp>
-<avp name="Address-Domain" code="898"><type type-name="Grouped"/></avp>
-<avp name="Address-Type" code="899"><type type-name="Enumerated"/></avp>
+		<avp name="WAG-Address" code="890">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="WAG-PLMN-Id" code="891">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="WLAN-Radio-Container" code="892">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="WLAN-Technology" code="893">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="WLAN-UE-Local-IPAddress" code="894">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="PDG-Address" code="895">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="PDG-Charging-Id" code="896">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Address-Data" code="897">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Address-Domain" code="898">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Address-Type" code="899">
+			<type type-name="Enumerated"/>
+		</avp>
 
 		<!-- 3GPP TS 29.061 version 6.5.0 Release 6 -->
 
@@ -1682,65 +1702,149 @@
 		<avp name="MBMS-Session-Identity-Repetition-Number " code="912" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
-<avp name="MBMS-Required-QoS" code="913"><type type-name="UTF8String"/></avp>
-<avp name="MBMS-Counting-Information" code="914"><type type-name="Enumerated"/></avp>
+		<avp name="MBMS-Required-QoS" code="913">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="MBMS-Counting-Information" code="914">
+			<type type-name="Enumerated"/>
+		</avp>
 <!--
 Note: The AVP codes from 915 to 999 are reserved for TS 29.061
 29.210
 -->
-<avp name="Bearer-Usage" code="1000"><type type-name="Enumerated"/></avp>
-<avp name="Charging-Rule-Install" code="1001"><type type-name="Grouped"/></avp>
-<avp name="Charging-Rule-Remove" code="1002"><type type-name="Grouped"/></avp>
-<avp name="Charging-Rule-Definition" code="1003"><type type-name="Grouped"/></avp>
+		<avp name="Bearer-Usage" code="1000">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Charging-Rule-Install" code="1001">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Charging-Rule-Remove" code="1002">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Charging-Rule-Definition" code="1003">
+			<type type-name="Grouped"/>
+		</avp>
 		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
-<avp name="Charging-Rule-Name" code="1005"><type type-name="OctetString"/></avp>
-<avp name="Event-Trigger" code="1006"><type type-name="Enumerated"/></avp>
-<avp name="Metering-Method" code="1007"><type type-name="Enumerated"/></avp>
-<avp name="Offline" code="1008"><type type-name="Enumerated"/></avp>
-<avp name="Online" code="1009"><type type-name="Enumerated"/></avp>
-<avp name="Precedence" code="1010"><type type-name="Unsigned32"/></avp>
-<avp name="Reporting-Level" code="1011"><type type-name="Enumerated"/></avp>
-<avp name="TFT-Filter" code="1012"><type type-name="IPFilterRule"/></avp>
-<avp name="TFT-Packet-Filter-Information" code="1013"><type type-name="Enumerated"/></avp>
-<avp name="ToS-Traffic-Class" code="1014"><type type-name="OctetString"/></avp>
+		<avp name="Charging-Rule-Name" code="1005">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Event-Trigger" code="1006">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Metering-Method" code="1007">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Offline" code="1008">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Online" code="1009">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Precedence" code="1010">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-Level" code="1011">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="TFT-Filter" code="1012">
+			<type type-name="IPFilterRule"/>
+		</avp>
+		<avp name="TFT-Packet-Filter-Information" code="1013">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="ToS-Traffic-Class" code="1014">
+		<type type-name="OctetString"/>
+		</avp>
 <!--
 29.210 [15]
 Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
 -->
 <!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
-<avp name="Served-User-Identity" code="1100"><type type-name="Groupe"/></avp>
-<avp name="VASP-ID" code="1101"><type type-name="UTF8Str"/></avp>
-<avp name="VAS-ID" code="1102"><type type-name="UTF8Str"/></avp>
-<avp name="Trigger-Event" code="1103"><type type-name="Enumer"/></avp>
-<avp name="Sender-Address" code="1104"><type type-name="UTF8Str"/></avp>
-<avp name="Initial-Recipient-Address" code="1105"><type type-name="Groupe"/></avp>
-<avp name="Result-Recipient-Address" code="1106"><type type-name="Groupe"/></avp>
-<avp name="Sequence-Number" code="1107"><type type-name="Unsigne"/></avp>
-<avp name="Recipient-Address" code="1108"><type type-name="UTF8Str"/></avp>
-<avp name="Routeing-Address" code="1109"><type type-name="UTF8Str"/></avp>
-<avp name="Originating-Interface" code="1110"><type type-name="Enumer"/></avp>
-<avp name="Delivery-Report" code="1111"><type type-name="Enumer"/></avp>
-<avp name="Read-Reply" code="1112"><type type-name="Enumer"/></avp>
-<avp name="Sender-Visibility" code="1113"><type type-name="Enumer"/></avp>
-<avp name="Service-Key" code="1114"><type type-name="UTF8Str"/></avp>
-<avp name="Billing-Information" code="1115"><type type-name="UTF8Str"/></avp>
-<avp name="Status" code="1116"><type type-name="Group"/></avp>
-<avp name="Status-Code" code="1117"><type type-name="UTF8Str"/></avp>
-<avp name="Status-Text" code="1118"><type type-name="UTF8Str"/></avp>
+		<avp name="Served-User-Identity" code="1100">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="VASP-ID" code="1101">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="VAS-ID" code="1102">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Trigger-Event" code="1103">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Sender-Address" code="1104">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Initial-Recipient-Address" code="1105">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Result-Recipient-Address" code="1106">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Sequence-Number" code="1107">
+			<type type-name="Unsigned"/>
+		</avp>
+		<avp name="Recipient-Address" code="1108">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Routeing-Address" code="1109">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Originating-Interface" code="1110">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Delivery-Report" code="1111">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Read-Reply" code="1112">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Sender-Visibility" code="1113">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Service-Key" code="1114">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Billing-Information" code="1115">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Status" code="1116">
+			<type type-name="Group"/>
+		</avp>
+		<avp name="Status-Code" code="1117">
+			<type type-name="UTF8Str"/>
+		</avp>
+		<avp name="Status-Text" code="1118">
+			<type type-name="UTF8Str"/>
+		</avp>
 <!--29.140 [16]
 Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 32.299
 -->
-<avp name="Domain-Name" code="1200"><type type-name="UTF8String"/></avp>
-<avp name="Recipient-Address" code="1201"><type type-name="Grouped"/></avp>
-<avp name="Submission-Time" code="1202"><type type-name="Time"/></avp>
-<avp name="MM-Content-Type" code="1203"><type type-name="Grouped"/></avp>
-<avp name="Type-Number" code="1204"><type type-name="Enumerated"/></avp>
-<avp name="Additional-Type-Information" code="1205"><type type-name="UTF8String"/></avp>
-<avp name="Content-Size" code="1206"><type type-name="Unsigned32"/></avp>
+		<avp name="Domain-Name" code="1200">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Recipient-Address" code="1201">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Submission-Time" code="1202">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="MM-Content-Type" code="1203">
+			<type type-name="Grouped"/>
+		</avp>
+		<avp name="Type-Number" code="1204">
+			<type type-name="Enumerated"/>
+		</avp>
+		<avp name="Additional-Type-Information" code="1205">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Content-Size" code="1206">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="Content-Size" code="1205" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -1750,26 +1854,26 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="SGSN-Address" code="1228" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
-<avp name="Priority" code="1209"><type type-name="Enumerated"/></avp>
-<avp name="Message-ID" code="1210"><type type-name="UTF8String"/></avp>
-<avp name="Message-Type" code="1211"><type type-name="Enumerated"/></avp>
-<avp name="Message-Size" code="1212"><type type-name="Unsigned32"/></avp>
-<avp name="Message-Class" code="1213"><type type-name="Grouped"/></avp>
-<avp name="Class-Identifier" code="1214"><type type-name="Enumerated"/></avp>
-<avp name="Token-Text" code="1215"><type type-name="UTF8String"/></avp>
-<avp name="Delivery-Report-Requested" code="1216"><type type-name="Enumerated"/></avp>
-<avp name="Adaptations" code="1217"><type type-name="Enumerated"/></avp>
-<avp name="Applic-ID" code="1218"><type type-name="UTF8String"/></avp>
-<avp name="Aux-Applic-Info" code="1219"><type type-name="UTF8String"/></avp>
-<avp name="Content-Class" code="1220"><type type-name="Enumerated"/></avp>
-<avp name="DRM-Content" code="1221"><type type-name="Enumerated"/></avp>
-<avp name="Read-Reply-Report-Requested" code="1222"><type type-name="Enumerated"/></avp>
-<avp name="Reply-Applic-ID" code="1223"><type type-name="UTF8String"/></avp>
-<avp name="File-Repair-Supported" code="1224"><type type-name="Enumerated"/></avp>
-<avp name="MBMS-User-Service-Type" code="1225"><type type-name="Enumerated"/></avp>
-<avp name="Unit-Quota-Threshold" code="1226"><type type-name="Unsigned32"/></avp>
-<avp name="PDP-Address" code="1227"><type type-name="Address"/></avp>
-<avp name="SGSN-Address" code="1228"><type type-name="Address"/></avp>
+	<avp name="Priority" code="1209"><type type-name="Enumerated"/></avp>
+	<avp name="Message-ID" code="1210"><type type-name="UTF8String"/></avp>
+	<avp name="Message-Type" code="1211"><type type-name="Enumerated"/></avp>
+	<avp name="Message-Size" code="1212"><type type-name="Unsigned32"/></avp>
+	<avp name="Message-Class" code="1213"><type type-name="Grouped"/></avp>
+	<avp name="Class-Identifier" code="1214"><type type-name="Enumerated"/></avp>
+	<avp name="Token-Text" code="1215"><type type-name="UTF8String"/></avp>
+	<avp name="Delivery-Report-Requested" code="1216"><type type-name="Enumerated"/></avp>
+	<avp name="Adaptations" code="1217"><type type-name="Enumerated"/></avp>
+	<avp name="Applic-ID" code="1218"><type type-name="UTF8String"/></avp>
+	<avp name="Aux-Applic-Info" code="1219"><type type-name="UTF8String"/></avp>
+	<avp name="Content-Class" code="1220"><type type-name="Enumerated"/></avp>
+	<avp name="DRM-Content" code="1221"><type type-name="Enumerated"/></avp>
+	<avp name="Read-Reply-Report-Requested" code="1222"><type type-name="Enumerated"/></avp>
+	<avp name="Reply-Applic-ID" code="1223"><type type-name="UTF8String"/></avp>
+	<avp name="File-Repair-Supported" code="1224"><type type-name="Enumerated"/></avp>
+	<avp name="MBMS-User-Service-Type" code="1225"><type type-name="Enumerated"/></avp>
+	<avp name="Unit-Quota-Threshold" code="1226"><type type-name="Unsigned32"/></avp>
+	<avp name="PDP-Address" code="1227"><type type-name="Address"/></avp>
+	<avp name="SGSN-Address" code="1228"><type type-name="Address"/></avp>
 		<avp name="PoC-Session-Id" code="1229" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
