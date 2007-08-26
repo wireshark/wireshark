@@ -23,6 +23,8 @@
  * Added support of MPLS Diffserv-aware TE (RFC 4124); new BC sub-TLV
  *   - (c) 2006 (FF) <francesco.fondelli[AT]gmail.com>
  *
+ * Added support for decoding the TLVs in a grace-LSA
+ *   - (c) 2007 Todd J Martin <todd.martin@acm.org>
  *
  * TOS - support is not fully implemented
  *
@@ -57,6 +59,7 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/emem.h>
+#include <epan/addr_resolv.h>
 #include "packet-rsvp.h"
 
 #define OSPF_VERSION_2 2
@@ -153,7 +156,31 @@ static const value_string auth_vals[] = {
 #define OSPF_DNA_LSA            0x8000
 /* Known opaque LSAs */
 #define OSPF_LSA_MPLS_TE        1
+#define OSPF_LSA_GRACE        3
+#define OSPF_RESTART_REASON_UNKNOWN   0
+#define OSPF_RESTART_REASON_SWRESTART 1
+#define OSPF_RESTART_REASON_SWRELOAD  2
+#define OSPF_RESTART_REASON_SWITCH    3
 
+static const value_string restart_reason_vals[] = {
+    {OSPF_RESTART_REASON_UNKNOWN,     "Unknown"                  },
+    {OSPF_RESTART_REASON_SWRESTART,   "Software Restart"         },
+    {OSPF_RESTART_REASON_SWRELOAD,    "Software Reload/Upgrade"  },
+    {OSPF_RESTART_REASON_SWITCH,      "Processor Switchover"     },
+    {0, NULL}
+};
+
+/* grace-LSA TLV Types */
+#define GRACE_TLV_PERIOD 1
+#define GRACE_TLV_REASON 2
+#define GRACE_TLV_IP 3
+
+static const value_string grace_tlv_type_vals[] = {
+    {GRACE_TLV_PERIOD,     "grace-LSA Grace Period"},
+    {GRACE_TLV_REASON,     "grace-LSA Restart Reason"},
+    {GRACE_TLV_IP,         "grace-LSA Restart IP"},
+    {0, NULL}
+};
 
 static const value_string ls_type_vals[] = {
 	{OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },
@@ -173,7 +200,7 @@ static const value_string ls_type_vals[] = {
 static const value_string ls_opaque_type_vals[] = {
 	{OSPF_LSA_MPLS_TE, "Traffic Engineering LSA"                },
 	{2,                "Sycamore Optical Topology Descriptions" },
-	{3,                "grace-LSA"                              },
+	{OSPF_LSA_GRACE,                "grace-LSA"               },
 	{0,                NULL                                     }
 };
 
@@ -260,6 +287,7 @@ static gint ett_ospf_lsa_mpls_link_stlv = -1;
 static gint ett_ospf_lsa_mpls_link_stlv_admingrp = -1;
 static gint ett_ospf_lsa_oif_tna = -1;
 static gint ett_ospf_lsa_oif_tna_stlv = -1;
+static gint ett_ospf_lsa_grace_tlv = -1;
 
 
 
@@ -483,6 +511,11 @@ enum {
     OSPFF_V3_PREFIX_OPTION_LA,
     OSPFF_V3_PREFIX_OPTION_MC,
     OSPFF_V3_PREFIX_OPTION_P,
+
+    OSPFF_V2_GRACE_TLV,
+    OSPFF_V2_GRACE_PERIOD,
+    OSPFF_V2_GRACE_REASON,
+    OSPFF_V2_GRACE_IP,
 
     OSPFF_MAX
 };
@@ -721,7 +754,21 @@ static hf_register_info ospff_info[] = {
        TFS(&tfs_v3_prefix_options_mc), OSPF_V3_PREFIX_OPTION_MC, "", HFILL }},
     {&ospf_filter[OSPFF_V3_PREFIX_OPTION_P],
      { "P", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
-       TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, "", HFILL }}
+       TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, "", HFILL }},
+
+    /* OSPF Restart TLVs  */
+    {&ospf_filter[OSPFF_V2_GRACE_TLV], {"Grace TLV", "ospf.v2.grace", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL}},
+    {&ospf_filter[OSPFF_V2_GRACE_PERIOD],
+     { "Grace Period", "ospf.v2.grace.period", FT_UINT32, BASE_DEC,
+       NULL, 0x0, 
+       "The number of seconds neighbors should advertise the router as fully adjacent", 
+       HFILL }},
+    {&ospf_filter[OSPFF_V2_GRACE_REASON],
+     { "Restart Reason", "ospf.v2.grace.reason", FT_UINT8, BASE_DEC,
+       VALS(restart_reason_vals), 0x0, "The reason the router is restarting", HFILL }},
+    {&ospf_filter[OSPFF_V2_GRACE_IP],
+     { "Restart IP", "ospf.v2.grace.ip", FT_IPv4, BASE_NONE,
+       NULL, 0x0, "The IP address of the interface originating this LSA", HFILL }}
 };
 
 static guint8 ospf_msg_type_to_filter (guint8 msg_type)
@@ -1512,6 +1559,7 @@ enum {
     MPLS_LINK_BANDWIDTH_CONSTRAINT = 17 /* RFC 4124, OSPF-DSTE */
 };
 
+
 /* OIF TLV types */
 enum {
     OIF_LOCAL_NODE_ID = 32773,
@@ -2052,6 +2100,78 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     }
 }
 
+/* 
+ * Dissect the TLVs within a Grace-LSA as defined by RFC 3623
+ */
+static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset, 
+				    proto_tree *tree, guint32 length)
+{
+    guint16 tlv_type;
+    guint16 tlv_length;
+    int tlv_length_with_pad; /* The total length of the TLV including the type
+				and length fields and any padding */
+    guint32 grace_period;
+    guint8 restart_reason;
+    guint32 restart_ip;
+    proto_tree *tlv_tree;
+    proto_item *tree_item;
+    proto_item *grace_tree_item;
+
+    if (!tree) { return; }
+
+    while (length > 0)
+    {
+	tlv_type = tvb_get_ntohs(tvb, offset);
+	tlv_length = tvb_get_ntohs(tvb, offset + 2);
+	/* The total length of the TLV including the type, length, value and
+	 * pad bytes (TLVs are padded to 4 octet alignment).
+	 */
+	tlv_length_with_pad = tlv_length + 4 + ((4 - (tlv_length % 4)) % 4);
+
+	tree_item = proto_tree_add_item(tree, ospf_filter[OSPFF_V2_GRACE_TLV], tvb, offset,
+		tlv_length_with_pad, FALSE);
+	tlv_tree = proto_item_add_subtree(tree_item, ett_ospf_lsa_grace_tlv);
+	proto_tree_add_text(tlv_tree, tvb, offset, 2, "Type: %s (%u)", 
+		val_to_str(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
+	proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "Length: %u", tlv_length);
+
+	switch (tlv_type) {
+	    case GRACE_TLV_PERIOD:
+		grace_period = tvb_get_ntohl(tvb, offset + 4);
+		grace_tree_item = proto_tree_add_item(tlv_tree, ospf_filter[OSPFF_V2_GRACE_PERIOD], tvb,
+			offset + 4, tlv_length, FALSE);
+		proto_item_append_text(grace_tree_item, " seconds");
+		proto_item_set_text(tree_item, "Grace Period: %u seconds", grace_period);
+		break;
+	    case GRACE_TLV_REASON:
+		restart_reason = tvb_get_guint8(tvb, offset + 4);
+		proto_tree_add_item(tlv_tree, ospf_filter[OSPFF_V2_GRACE_REASON], tvb, offset + 4, 
+			tlv_length, FALSE);
+		proto_item_set_text(tree_item, "Restart Reason: %s (%u)",
+			val_to_str(restart_reason, restart_reason_vals, "Unknown Restart Reason"),
+			restart_reason);
+		break;
+	    case GRACE_TLV_IP:
+		restart_ip = tvb_get_ipv4(tvb, offset + 4);
+		proto_tree_add_item(tlv_tree, ospf_filter[OSPFF_V2_GRACE_IP], tvb, offset + 4,
+			tlv_length, FALSE);
+		proto_item_set_text(tree_item, "Restart IP: %s (%s)", 
+			get_hostname(restart_ip), ip_to_str((guint8 *)&restart_ip));
+		break;
+	    default:
+		proto_item_set_text(tree_item, "Unknown grace-LSA TLV");
+		break;
+	}
+	if (4 + tlv_length < tlv_length_with_pad) {
+	    proto_tree_add_text(tlv_tree, tvb, offset + 4 + tlv_length, 
+		    tlv_length_with_pad - (4 + tlv_length), "Pad Bytes (%u)", 
+		    tlv_length_with_pad - (4 + tlv_length) );
+	}
+	offset += tlv_length_with_pad;
+	length -= tlv_length_with_pad;
+    }
+}
+
 /*
  * Dissect opaque LSAs
  */
@@ -2063,6 +2183,9 @@ dissect_ospf_lsa_opaque(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     case OSPF_LSA_MPLS_TE:
 	dissect_ospf_lsa_mpls(tvb, offset, tree, length);
+	break;
+    case OSPF_LSA_GRACE:
+	dissect_ospf_lsa_grace_tlv(tvb, offset, tree, length);
 	break;
 
     default:
@@ -2153,7 +2276,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb, offset + 8, 4, FALSE);
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
 			tvb_get_ntohl(tvb, offset + 12));
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: %04x",
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: 0x%04x",
 			tvb_get_ntohs(tvb, offset + 16));
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 18, 2, "Length: %u",
@@ -2425,7 +2548,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb, offset + 8, 4, FALSE);
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
 			tvb_get_ntohl(tvb, offset + 12));
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: %04x",
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: 0x%04x",
 			tvb_get_ntohs(tvb, offset + 16));
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 18, 2, "Length: %u",
@@ -2804,6 +2927,7 @@ proto_register_ospf(void)
 	&ett_ospf_lsa_mpls_link_stlv_admingrp,
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
+        &ett_ospf_lsa_grace_tlv,
         &ett_ospf_v2_options,
         &ett_ospf_v3_options,
         &ett_ospf_dbd,
