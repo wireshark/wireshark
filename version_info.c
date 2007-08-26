@@ -75,7 +75,7 @@
 #endif
 
 #ifdef HAVE_LIBSMI
-#include <smi.h>
+#include <include/smi.h>
 #endif
  
 #ifdef SVNVERSION
