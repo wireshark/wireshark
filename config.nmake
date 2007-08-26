@@ -236,17 +236,6 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 # NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
 
 #
-# Optional: libsmi library enables OID and MIB resolution.
-#
-# If you have the libsmi library, set this to the directory in which 
-# the libsmi package is stored.
-#
-# If you don't have libsmi, comment this line out, so that LIBSMI_DIR
-# isn't defined.
-#
-LIBSMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.5
-
-#
 # Optional: the LUA library enables scripting support.
 #
 # If you have the LUA library, set this to the directory in which 
@@ -304,6 +293,12 @@ GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 #
 AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
 
+#
+# Optional: LIBSMI, System Management Interface 
+#
+# Used for oid-name resolution for SNMP and other protocols
+#
+SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.5
 
 
 ##### Tools #####
@@ -792,6 +787,16 @@ HHC_LIBS=htmlhelp.lib
 !ELSE
 HHC_CFLAGS=
 HHC_LIBS=
+!ENDIF
+
+!IFDEF SMI_DIR
+SMI_CONFIG=^#define HAVE_LIBSMI 1
+SMI_CFLAGS=/I$(SMI_DIR)\include
+SMI_LIBS=$(SMI_DIR)\lib\smi.lib
+!ELSE
+SMI_LIBS=
+SMI_CFLAGS=
+SMI_CONFIG=
 !ENDIF
 
 !IFDEF ENABLE_LIBWIRESHARK

@@ -222,6 +222,10 @@
 /* Define  version of of the Portaudio library API */
 @PORTAUDIO_API_1@
 
+/* Define to have SMI */
+@HAVE_SMI@
+
+
 #ifndef WIN32
 #define WIN32			1
 #endif

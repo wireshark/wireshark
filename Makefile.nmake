@@ -106,6 +106,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
+	$(SMI_LIBS) \
 	$(GNUTLS_LIBS)	
 !ENDIF
 
@@ -304,6 +305,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
 	    -e "s/@PORTAUDIO_API_1@/$(PORTAUDIO_API_CONFIG)/" \
 	    -e "s/@HAVE_NET_SNMP@/$(NET_SNMP_CONFIG)/" \
+		-e "s/@HAVE_SMI@/$(SMI_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
@@ -658,10 +660,7 @@ setup: verify_tools clean_setup
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. lua5_1_dll.zip
 !ENDIF
-!IFDEF LIBSMI_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. libsmi-0.4.5.zip
-!ENDIF
+
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. gnutls-1.6.1-1.zip
@@ -669,6 +668,10 @@ setup: verify_tools clean_setup
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. portaudio_v19.zip
+!ENDIF
+!IFDEF SMI_DIR
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+		. libsmi-0.4.5.zip
 !ENDIF
 
 !IFDEF GTK2_DIR
@@ -788,6 +791,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/kfw-2.5
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
+    rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
     rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
@@ -1015,13 +1019,19 @@ install-common-deps:
 	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
 !ENDIF
-!IFDEF NET_SNMP_DIR
+!IFDEF NET_SNMP_DIR_DISABLED_BEFORE_DELETION
 	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
 	if not exist $(INSTALL_DIR)\snmp\mibs mkdir $(INSTALL_DIR)\snmp\mibs
 	xcopy "$(NET_SNMP_DIR)\mibs\*.txt" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
 !IFDEF LUA_DIR
 	xcopy "$(LUA_DIR)\lib\dll\lua5.1.dll" $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF SMI_DIR
+	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
+	if not exist $(INSTALL_DIR)\snmp\mibs mkdir $(INSTALL_DIR)\snmp\mibs
+	xcopy "$(SMI_DIR)\lib\smi.dll" $(INSTALL_DIR) /d
+	xcopy "$(SMI_DIR)\mibs\*" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
 
 clean-deps1:
