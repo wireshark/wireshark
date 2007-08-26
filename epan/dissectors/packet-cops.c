@@ -70,13 +70,6 @@
 #include "packet-ipv6.h"
 #include "packet-tcp.h"
 
-#ifdef DO_HAVE_NET_SNMP
-# include <net-snmp/net-snmp-config.h>
-# include <net-snmp/mib_api.h>
-# include <net-snmp/library/default_store.h>
-# include <net-snmp/config_api.h>
-#endif /* DO_NOT_HAVE_NET_SNMP */
-
 #include <epan/oids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -100,16 +93,6 @@ static gboolean cops_desegment = TRUE;
  */
 
 static guint cops_tcp_port = 0;
-
-#ifdef DO_NOT_HAVE_NET_SNMP
-static  subid_t last_decoded_prid_oid[MAX_OID_LEN]={0};
-static  subid_t last_decoded_prid_oid_length=0;
-extern struct tree *tree_head;
-
-/* Preference: COPS-PR ASN.1 type decoding based on PIB/MIB or data in packet */
-static gboolean cops_typefrommib = FALSE;
-
-#endif /* DO_NOT_HAVE_NET_SNMP */
 
 #define COPS_OBJECT_HDR_SIZE 4
 
@@ -2441,12 +2424,7 @@ void proto_register_cops(void)
                                  "Decode the COPS messages using PacketCable clients. (Select port 2126)",
                                  &cops_packetcable);
 
-#ifdef DO_NOT_HAVE_NET_SNMP /*enable preference only if compiled with NET-SNMP*/
-  prefs_register_bool_preference(cops_module, "typefrommib",
-                                 "Decode COPS-PR ASN.1 types by reading them\nfrom PIBs (converted to MIBs)",
-                                 "Whether the COPS dissector should decode COPS-PR ASN.1 types based on data types read from packet or PIBs (converted to MIBs)",
-                                 &cops_typefrommib);
-#endif /*DO_NOT_HAVE_NET_SNMP*/
+  prefs_register_obsolete_preference(cops_module, "typefrommib");
 }
 
 void proto_reg_handoff_cops(void)
