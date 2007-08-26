@@ -75,11 +75,13 @@ static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 #define PLOT_STYLE_LINE		0
 #define PLOT_STYLE_IMPULSE	1
 #define PLOT_STYLE_FILLED_BAR	2
-#define MAX_PLOT_STYLES		3
+#define PLOT_STYLE_DOT		3
+#define MAX_PLOT_STYLES		4
 static const char *plot_style_name[MAX_PLOT_STYLES] = {
 	"Line",
 	"Impulse",
 	"FBar",
+	"Dot",
 };
 
 
@@ -925,7 +927,16 @@ io_stat_draw(io_stat_t *io)
 						draw_height-1-(val*draw_height)/max_y+top_y_border,
 						io->pixels_per_tick,
 						(val*draw_height)/max_y);
-						
+				}
+				break;
+			case PLOT_STYLE_DOT:
+				if(val){
+				        gdk_draw_rectangle(io->pixmap,
+                        			io->graphs[i].gc, TRUE,
+						x_pos-io->pixels_per_tick/2,
+						draw_height-(val*draw_height)/max_y+top_y_border-io->pixels_per_tick/2,
+						io->pixels_per_tick,
+						io->pixels_per_tick);
 				}
 				break;
 			}
