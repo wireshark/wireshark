@@ -108,6 +108,7 @@ static dissector_handle_t eap_handle = NULL;
 
 /* IKE port number assigned by IANA */
 #define UDP_PORT_ISAKMP	500
+#define UDP_NATT_PORT_ISAKMP 4500
 #define TCP_PORT_ISAKMP 500
 
 /*
@@ -3227,6 +3228,7 @@ proto_reg_handoff_isakmp(void)
 
   isakmp_handle = find_dissector("isakmp");
   eap_handle = find_dissector("eap");
+  dissector_add("udp.port", UDP_NATT_PORT_ISAKMP, isakmp_handle);
   dissector_add("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
   dissector_add("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }
