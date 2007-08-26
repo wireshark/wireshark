@@ -383,7 +383,7 @@
 	</listitem>
 	<listitem>
 	<para>
-	<command>Style:</command> the style of the graph (Line/Impulse/FBar)
+	<command>Style:</command> the style of the graph (Line/Impulse/FBar/Dot)
 	</para>
 	</listitem>
 	</itemizedlist>	
