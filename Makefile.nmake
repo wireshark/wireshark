@@ -658,6 +658,10 @@ setup: verify_tools clean_setup
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. lua5_1_dll.zip
 !ENDIF
+!IFDEF LIBSMI_DIR
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+		. libsmi-0.4.5.zip
+!ENDIF
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. gnutls-1.6.1-1.zip

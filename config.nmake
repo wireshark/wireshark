@@ -236,6 +236,17 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 # NETTLE_DIR=$(WIRESHARK_LIBS)\nettle-1.10
 
 #
+# Optional: libsmi library enables OID and MIB resolution.
+#
+# If you have the libsmi library, set this to the directory in which 
+# the libsmi package is stored.
+#
+# If you don't have libsmi, comment this line out, so that LIBSMI_DIR
+# isn't defined.
+#
+LIBSMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.5
+
+#
 # Optional: the LUA library enables scripting support.
 #
 # If you have the LUA library, set this to the directory in which 
