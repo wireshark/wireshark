@@ -36,6 +36,7 @@
 #include "emem.h"
 #include "uat-int.h"
 #include "prefs.h"
+#include "proto.h"
 #include "packet.h"
 #include "report_err.h"
 #include "filesystem.h"
@@ -51,22 +52,22 @@
 
 static int debuglevel = 0;
 
-static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
-static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_WRONG,       0};
-static const oid_value_type_t oid_type =        { FT_OID,    BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID,         1,  -1, OID_KEY_TYPE_OID,     OID_KEY_TYPE_OID,         0};
-static const oid_value_type_t ipv4_type =       { FT_IPv4,   BASE_NONE, BER_CLASS_APP, 0,                       4,   4, OID_KEY_TYPE_IPADDR,  OID_KEY_TYPE_IPADDR,      4};
-static const oid_value_type_t counter32_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 1,                       1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
-static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 2,                       1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
-static const oid_value_type_t timeticks_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 3,                       1,   4, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
-static const oid_value_type_t opaque_type =     { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 4,                       1,   4, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_WRONG,       0};
-static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       8,   8, OID_KEY_TYPE_NSAP,    OID_KEY_TYPE_NSAP,        0};
-static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_NONE, BER_CLASS_APP, 6,                       8,   8, OID_KEY_TYPE_INTEGER, OID_KEY_TYPE_INTEGER,     1};
-static const oid_value_type_t ipv6_type =       { FT_IPv6,   BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_FIXED_BYTES, 16};
-static const oid_value_type_t float_type =      { FT_FLOAT,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4,   4, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
-static const oid_value_type_t double_type =     { FT_DOUBLE, BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8,   8, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
-static const oid_value_type_t ether_type =      { FT_ETHER,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6,   6, OID_KEY_TYPE_BYTES,   OID_KEY_TYPE_FIXED_BYTES, 6};
-static const oid_value_type_t string_type =     { FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_STRING,  OID_KEY_TYPE_WRONG,       0};
-static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY,             0,  -1, OID_KEY_TYPE_WRONG,   OID_KEY_TYPE_WRONG,       0};
+static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, 1};
+static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   0};
+static const oid_value_type_t oid_type =        { FT_OID,    BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID,         1,  -1, OID_KEY_TYPE_OID,     0};
+static const oid_value_type_t ipv4_type =       { FT_IPv4,   BASE_NONE, BER_CLASS_APP, 0,                       4,   4, OID_KEY_TYPE_IPADDR,  4};
+static const oid_value_type_t counter32_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 1,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
+static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 2,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
+static const oid_value_type_t timeticks_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 3,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
+static const oid_value_type_t opaque_type =     { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 4,                       1,   4, OID_KEY_TYPE_BYTES,   0};
+static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       8,   8, OID_KEY_TYPE_NSAP,    0};
+static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_NONE, BER_CLASS_APP, 6,                       8,   8, OID_KEY_TYPE_INTEGER, 1};
+static const oid_value_type_t ipv6_type =       { FT_IPv6,   BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16, OID_KEY_TYPE_BYTES,   16};
+static const oid_value_type_t float_type =      { FT_FLOAT,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4,   4, OID_KEY_TYPE_WRONG,   0};
+static const oid_value_type_t double_type =     { FT_DOUBLE, BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8,   8, OID_KEY_TYPE_WRONG,   0};
+static const oid_value_type_t ether_type =      { FT_ETHER,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6,   6, OID_KEY_TYPE_BYTES,   6};
+static const oid_value_type_t string_type =     { FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_STRING,  0};
+static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY,             0,  -1, OID_KEY_TYPE_WRONG,   0};
 
 static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -2, NULL, NULL, NULL};
 
@@ -397,7 +398,8 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				
 				kl = k;
 			}
-			
+
+#if 0			
 			if (sN->implied) {
 				if (typedata) {
 					kl->key_type = typedata->keytype_implicit;
@@ -415,6 +417,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				}
 			
 			}
+#endif
 			return OID_KIND_ROW;
 		}
 		case SMI_NODEKIND_NODE: return OID_KIND_NODE;
@@ -435,8 +438,12 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 #ifdef WIN32
 #define PATH_SEPARATOR ";"
+#define DEFAULT_PATH_FMT "%s;%s"
+#define DEFAULT_PATH_ARGS get_datafile_path("snmp\\mibs"), get_persconffile_path("snmp\\mibs", FALSE)
 #else
 #define PATH_SEPARATOR ":"
+#define DEFAULT_PATH_FMT  "%s"
+#define DEFAULT_PATH_ARGS smiGetPath()
 #endif
 
 void register_mibs(void) {
@@ -499,10 +506,8 @@ void register_mibs(void) {
 		return;
 	}
 	
-	path_str = g_string_new(smiGetPath());
-	g_string_sprintfa(path_str, PATH_SEPARATOR "%s" PATH_SEPARATOR "%s",
-					  get_datafile_path("mibs"),
-					  get_persconffile_path("mibs", FALSE));
+	path_str = g_string_new("");
+	g_string_sprintfa(path_str, DEFAULT_PATH_FMT,  DEFAULT_PATH_ARGS);
 
 	for(i=0;i<num_smi_paths;i++) {
 		if (!( smi_paths[i].name && *smi_paths[i].name))
@@ -824,11 +829,13 @@ done:
 
 
 oid_info_t* oid_get_from_encoded(const guint8 *bytes, gint byteslen, guint32** subids_p, guint* matched_p, guint* left_p) {
-	return oid_get(oid_encoded2subid(bytes, byteslen, subids_p), *subids_p, matched_p, left_p);
+	guint subids_len = oid_encoded2subid(bytes, byteslen, subids_p);
+	return oid_get(subids_len, *subids_p, matched_p, left_p);
 }	
 	
 oid_info_t* oid_get_from_string(const gchar *oid_str, guint32** subids_p, guint* matched, guint* left) {
-	return oid_get(oid_string2subid(oid_str, subids_p), *subids_p, matched, left);
+	guint subids_len = oid_string2subid(oid_str, subids_p);
+	return oid_get(subids_len, *subids_p, matched, left);
 }
 
 const gchar *oid_resolved_from_encoded(const guint8 *oid, gint oid_len) {
@@ -942,35 +949,6 @@ const gchar *oid_resolved_from_string(const gchar *oid_str) {
 	return oid_resolved(subid_oid_length, subid_oid);
 }
 
-extern char* oid_test_a2b(guint32 num_subids, guint32* subids);
-char* oid_test_a2b(guint32 num_subids, guint32* subids) {
-	guint8* sub2enc;
-	guint8* str2enc;
-	guint32* enc2sub;
-	guint32* str2sub;
-	const char* sub2str = oid_subid2string(subids, num_subids);
-	guint sub2enc_len = oid_subid2encoded(num_subids, subids,&sub2enc);
-	guint enc2sub_len = oid_encoded2subid(sub2enc, sub2enc_len, &enc2sub);
-	const char* enc2str = oid_encoded2string(sub2enc, sub2enc_len);
-	guint str2enc_len = oid_string2encoded(sub2str,&str2enc);
-	guint str2sub_len = oid_string2subid(sub2str,&str2sub);
-	
-	return ep_strdup_printf(
-							"oid_subid2string=%s \n"
-							"oid_subid2encoded=[%d]%s \n"
-							"oid_encoded2subid=%s \n "
-							"oid_encoded2string=%s \n"
-							"oid_string2encoded=[%d]%s \n"
-							"oid_string2subid=%s \n "
-							,sub2str
-							,sub2enc_len,bytestring_to_str(sub2enc, sub2enc_len, ':')
-							,enc2sub ? oid_subid2string(enc2sub,enc2sub_len) : "-"
-							,enc2str
-							,str2enc_len,bytestring_to_str(str2enc, str2enc_len, ':')
-							,str2sub ? oid_subid2string(str2sub,str2sub_len) : "-"
-							);	
-}
-
 const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	guint matched;
 	guint left;
@@ -1016,3 +994,61 @@ extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char**
 	*numeric_p = (void*)oid_subid2string(subids,subids_len);
 }
 
+#ifdef DEBUG_OIDS
+char* oid_test_a2b(guint32 num_subids, guint32* subids) {
+	guint8* sub2enc;
+	guint8* str2enc;
+	guint32* enc2sub;
+	guint32* str2sub;
+	const char* sub2str = oid_subid2string(subids, num_subids);
+	guint sub2enc_len = oid_subid2encoded(num_subids, subids,&sub2enc);
+	guint enc2sub_len = oid_encoded2subid(sub2enc, sub2enc_len, &enc2sub);
+	const char* enc2str = oid_encoded2string(sub2enc, sub2enc_len);
+	guint str2enc_len = oid_string2encoded(sub2str,&str2enc);
+	guint str2sub_len = oid_string2subid(sub2str,&str2sub);
+	
+	return ep_strdup_printf(
+							"oid_subid2string=%s \n"
+							"oid_subid2encoded=[%d]%s \n"
+							"oid_encoded2subid=%s \n "
+							"oid_encoded2string=%s \n"
+							"oid_string2encoded=[%d]%s \n"
+							"oid_string2subid=%s \n "
+							,sub2str
+							,sub2enc_len,bytestring_to_str(sub2enc, sub2enc_len, ':')
+							,enc2sub ? oid_subid2string(enc2sub,enc2sub_len) : "-"
+							,enc2str
+							,str2enc_len,bytestring_to_str(str2enc, str2enc_len, ':')
+							,str2sub ? oid_subid2string(str2sub,str2sub_len) : "-"
+							);	
+}
+
+void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
+	static const char* oid_kinds[] = { "Unknown", "Node", "Scalar", "Table", "Row", "Column", "Notification", "Group", "Compliance", "Capabilities"};
+	static const char* key_types[] = {"OID_KEY_TYPE_WRONG","OID_KEY_TYPE_INTEGER",
+										"OID_KEY_TYPE_FIXED_STRING","OID_KEY_TYPE_FIXED_BYTES","OID_KEY_TYPE_STRING",
+										"OID_KEY_TYPE_BYTES","OID_KEY_TYPE_NSAP","OID_KEY_TYPE_OID","OID_KEY_TYPE_IPADDR"};
+	proto_item* pi = proto_tree_add_text(tree,NULL,0,0,
+	"OidInfo: Name='%s' sub-id=%u  kind=%s  hfid=%d",
+	oid_info->name ? oid_info->name : "",
+	oid_info->subid,
+	oid_info->kind <= OID_KIND_CAPABILITIES ? oid_kinds[oid_info->kind] : "BROKEN",
+	oid_info->value_hfid);
+	proto_tree* pt = proto_item_add_subtree(pi,0);
+	oid_key_t* key;
+
+	for(key = oid_info->key; key; key = key->next) {
+		proto_tree_add_text(pt,NULL,0,0,
+		"Key: name='%s' num_subids=%d type=%s",
+		key->name,
+		key->key_type <= OID_KEY_TYPE_IPADDR ? key_types[key->key_type] : "BROKEN"
+		);
+	};
+	
+	if (oid_info->parent) {
+		pi = proto_tree_add_text(pt,NULL,0,0,"Parent:");
+		pt = proto_item_add_subtree(pi,0);
+		add_oid_debug_subtree(oid_info->parent, pt);
+	}
+}
+#endif

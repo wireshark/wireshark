@@ -395,6 +395,9 @@ static const value_string smux_types[] = {
 #define SERR_NSI    1
 #define SERR_EOM    2
 
+
+dissector_table_t value_sub_dissectors_table;
+
 /*
  *  dissect_snmp_VarBind
  *  this routine dissects variable bindings, looking for the oid information in our oid reporsitory
@@ -461,6 +464,7 @@ static const value_string smux_types[] = {
 	}
  
  */
+
 extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								tvbuff_t *tvb,
 								int offset,
@@ -485,7 +489,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
-	
+	dissector_handle_t subdissector = NULL;
+	const char* oid_string;
 	seq_offset = offset;
 	
 	/* first have the VarBind's sequence header */
@@ -543,9 +548,6 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 	/* Now, we know where everithing is */
 	
-	/* fetch ObjectName and its relative oid_info */
-	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
-	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
 
 
 	/* we add the varbind tree root with a dummy label we'll fill later on */
@@ -555,6 +557,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	
 	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,FALSE);
 	pt_name = proto_item_add_subtree(pi_name,ett_name);
+	
+	
 	
 	if (ber_class == BER_CLASS_CON) {
 		/* if we have an error value just add it and get out the way ASAP */
@@ -590,6 +594,22 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 		goto set_label;
 	}
 	
+	/* fetch ObjectName and its relative oid_info */
+	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
+	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
+	
+	add_oid_debug_subtree(oid_info,pt_name);
+
+	if (oid_matched+oid_left) {
+		oid_string = oid_subid2string(subids,oid_matched+oid_left);
+		subdissector = dissector_get_string_handle(value_sub_dissectors_table, oid_string);
+	} else {
+		oid_string = ".";
+	}
+	
+
+
+
 	/* now we'll try to figure out which are the indexing sub-oids and whether the oid we know about is the one oid we have to use */
 	switch (oid_info->kind) {
 		case OID_KIND_SCALAR:
@@ -649,7 +669,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								proto_tree_add_int(pt_name,k->hfid,tvb,name_offset,name_len,(guint)subids[key_start]);
 								key_start++;
 								key_len--;
-								continue; /* k->next*/
+								continue; /* k->next */
 							}
 							case OID_KEY_TYPE_OID: {
 								guint suboid_len = subids[key_start++];
@@ -669,7 +689,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								
 								key_start += suboid_len;
 								key_len -= suboid_len + 1;
-								continue; /* k->next*/
+								continue; /* k->next */
 							}
 							default: {
 								guint8* buf;
@@ -741,6 +761,14 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 		}
 	}
 indexing_done:
+	
+	if (value_len > 0 && subdissector) {
+		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
+		
+		call_dissector(subdissector, tvb, actx->pinfo, pt_varbind);
+		
+		return seq_offset + seq_len;
+	}
 	
 	if (oid_info_is_ok) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
@@ -837,7 +865,7 @@ set_label:
 									 oid_subid2string(subids,oid_matched));
 		}
 	} else {
-		repr  = ep_strdup_printf("%s", oid_subid2string(subids,oid_matched+oid_left));			
+		repr  = ep_strdup_printf("%s", oid_string);			
 	}
 	
 	valstr = strstr(label,": ");
@@ -2765,7 +2793,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1330 "packet-snmp-template.c"
+#line 1358 "packet-snmp-template.c"
 
 
 guint
@@ -3541,7 +3569,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1841 "packet-snmp-template.c"
+#line 1869 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3580,7 +3608,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1856 "packet-snmp-template.c"
+#line 1884 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
@@ -3638,6 +3666,8 @@ void proto_register_snmp(void) {
 								assocs_uat);
   
   
+	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
+	
 	register_init_routine(renew_ue_cache);
 }
 

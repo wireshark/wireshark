@@ -60,7 +60,6 @@ typedef struct _oid_value_type_t {
 	int min_len; 
 	int max_len;
 	oid_key_type_t keytype;
-	oid_key_type_t keytype_implicit;
 	int keysize;
 } oid_value_type_t; 
 
@@ -172,4 +171,16 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
 #define subid_t guint32
 
+
+
+#ifdef DEBUG_OIDS
+extern char* oid_test_a2b(guint32 num_subids, guint32* subids);
+extern void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree);
+#else 
+#define add_oid_debug_subtree(a,b) ((void)0)
 #endif
+
+#endif
+
+
+
