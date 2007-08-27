@@ -335,6 +335,9 @@ File "..\..\epan\wslua\init.lua"
 File "..\..\epan\wslua\console.lua"
 File "..\..\epan\wslua\dtd_gen.lua"
 !endif
+!ifdef SMI_DIR
+File "${SMI_DIR}\lib\smi.dll"
+!endif
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"

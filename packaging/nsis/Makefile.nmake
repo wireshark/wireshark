@@ -168,6 +168,9 @@ $(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nm
 !IFDEF LUA_DIR
 	/DLUA_DIR=$(LUA_DIR) \
 !ENDIF
+!IFDEF SMI_DIR
+	/DSMI_DIR=$(SMI_DIR) \
+!ENDIF
 !IFDEF HHC_DIR
 	/DHHC_DIR="$(HHC_DIR)" \
 !ENDIF
