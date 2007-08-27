@@ -12,6 +12,9 @@ include Makefile.common
 CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../wimax /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
+.c.obj::
+	$(CC) $(CFLAGS) -Fd.\ -c $<
+	
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
