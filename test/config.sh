@@ -64,9 +64,12 @@ TRAFFIC_CAPTURE_DURATION=60
 # if you need promiscuous mode, comment this line out
 TRAFFIC_CAPTURE_PROMISC=-p
 
-# only test capturing from a fifo if we have a mkfifo
-# (it's not available on Windows or cygwin)
-if which mkfifo &>/dev/null ; then
+# only test capturing from a fifo if we're not on Windows 
+#  and we have a mkfifo. (Windows cygwin has a mkfifo but 
+#   Windows dumpcap & etc use Windows named pipes which 
+#   are different than the cygwin named pipes). 
+#  
+if [ "$WS_SYSTEM" != "Windows" ] && which mkfifo &>/dev/null ; then
     TEST_FIFO=1
 fi
 
