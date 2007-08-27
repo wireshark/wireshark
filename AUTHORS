@@ -2468,7 +2468,7 @@ Eric Wedel              <ewedel [AT] bluearc.com> {
 	KPASSWD over TCP support
 }
 
-Secfire		<secfire[AT]gmail.com> {
+Secfire			<secfire[AT]gmail.com> {
 	OICQ
 	Juniper NSRP
 }
@@ -2608,59 +2608,59 @@ Julian Cable		<julian_cable [AT] yahoo.com> {
 	DCP ETSI support
 }
 
-Joost Yervante Damad <joost [AT] teluna.org> {
+Joost Yervante Damad	<joost [AT] teluna.org> {
 	Erlang Port Mapper Daemon dissection support
 }
 
-Martin Sustrik <sustrik [AT] imatix.com>  {
+Martin Sustrik		<sustrik [AT] imatix.com>  {
 	AMQP support
 }
 
-Jon Smirl <jonsmirl [AT] gmail.com> {
+Jon Smirl		<jonsmirl [AT] gmail.com> {
 	USB conversations/endpoints list
 }
 
-David Kennedy <sgsguy [AT] gmail.com> {
+David Kennedy		<sgsguy [AT] gmail.com> {
 	Symantec SGS v3 support
 }
 
-Matthijs Mekking <matthijs [AT] mlnetlabs.nl> {
+Matthijs Mekking	<matthijs [AT] mlnetlabs.nl> {
 	Shim6 support
 }
 
-Dustin Johnson <dustin.johnson [AT] cacetech.com> {
+Dustin Johnson		<dustin.johnson [AT] cacetech.com> {
 	802.11n support
 }
 
-Victor Fajardo <vfajardo [AT] tari.toshiba.com> {
+Victor Fajardo		<vfajardo [AT] tari.toshiba.com> {
 	PANA draft 15a support
 }
 
-Tamas Regos <tamas.regos [AT] ericsson.com> {
+Tamas Regos		<tamas.regos [AT] ericsson.com> {
 	Lua Enhancements
 }
 
-Môshe van der Sterre < moshevds [AT] gmail.com > {
+Môshe van der Sterre	<moshevds [AT] gmail.com> {
 	Firebird/Interbase dissection
 }
 
-Rob Casey < rcasey [AT] gmail.com > {
+Rob Casey		<rcasey [AT] gmail.com> {
 	Kingfisher support
 }
 
-Ted Percival <ted[AT]midg3t.net> {
+Ted Percival		<ted [AT] midg3t.net> {
 	Support for PA-S4U2Self Kerberos packet type
 }
 
-Marc Petit-Huguenin <marc [AT] petit-huguenin.org> {
+Marc Petit-Huguenin	<marc [AT] petit-huguenin.org> {
 	Update STUN2 to draft-ietf-behave-rfc3489bis-07
 }
 
-Florent Drouin <florent.drouin [AT] alcatel-lucent.fr> {
+Florent Drouin		<florent.drouin [AT] alcatel-lucent.fr> {
 	TCAP statistics
 }
 
-Karen Feng <kfeng [AT] fas.harvard.edu> {
+Karen Feng		<kfeng [AT] fas.harvard.edu> {
 	802.1ad and 802.1ah support
 }
 
