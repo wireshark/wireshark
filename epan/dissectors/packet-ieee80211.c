@@ -2920,16 +2920,17 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
     guint16 ts_info, msdu_size, surplus_bandwidth;
     const char *direction[] = { "Uplink", "Downlink", "Reserved", "Bi-directional" };
     const value_string fields[] = {
-      {12, "Minimum Service Interval"},
-      {16, "Maximum Service Interval"},
-      {20, "Inactivity Interval"},
-      {24, "Service Start Time"},
-      {28, "Minimum Data Rate"},
-      {32, "Mean Data Rate"},
-      {36, "Maximum Burst Size"},
-      {40, "Minimum PHY Rate"},
-      {44, "Peak Data Rate"},
-      {48, "Delay Bound"},
+      {13, "Minimum Service Interval"},
+      {17, "Maximum Service Interval"},
+      {21, "Inactivity Interval"},
+      {25, "Suspension Interval"},
+      {29, "Service Start Time"},
+      {33, "Minimum Data Rate"},
+      {37, "Mean Data Rate"},
+      {41, "Peak Data Rate"},
+      {45, "Maximum Burst Size"},
+      {49, "Delay Bound"},
+      {53, "Minimum PHY Rate"},
       {0, NULL}
     };
     const char *field;
@@ -2949,9 +2950,9 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
       byte1, qos_tags[byte1], qos_acs[byte1],
       (ts_info & 0x0080) ? "" : "not ",
       direction[(ts_info >> 5) & 0x3]);
-    proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 2,
+    proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 3,
       out_buff);
-    tag_off += 2;
+    tag_off += 3;
 
     msdu_size = tvb_get_letohs(tag_tvb, tag_off);
     g_snprintf(out_buff, SHORT_STR,
@@ -2973,7 +2974,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
       proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
         out_buff);
       tag_off += 4;
-      if (tag_off == 52)
+      if (tag_off == 57)
         break;
     }
 
