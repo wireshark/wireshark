@@ -689,7 +689,8 @@ const char* oid_subid2string(guint32* subids, guint len) {
 	char* s = ep_alloc0(((len)*11)+1);
 	char* w = s;
 
-	DISSECTOR_ASSERT(subids);
+	if(!subids)
+		return "*** Empty OID ***";
 
 	do {
 		w += sprintf(w,"%u.",*subids++);
@@ -759,9 +760,12 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 		case '6' : case '7' : case '8' : case '9' : case '0' :
 			subid *= 10;
 			subid += *r - '0';
-			DISSECTOR_ASSERT(subid <= 0xffffffff);
 			
-			DISSECTOR_ASSERT(subids < subids_overflow);
+			if( subids >= subids_overflow ||  subid > 0xffffffff) {
+				*subids_p=NULL;
+				return 0;
+			}
+
 			*(subids) *= 10;
 			*(subids) += *r - '0';
 			continue;
@@ -813,8 +817,11 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 			is_first = FALSE;
 		}
 		
-		DISSECTOR_ASSERT(subids < subid_overflow);
-		DISSECTOR_ASSERT(subid <= 0xffffffff);
+		if( subids >= subid_overflow || subid > 0xffffffff) {
+			*subids_p=NULL;
+			return 0;
+		}
+		
 		*subids++ = (guint32)subid;
 		subid = 0;
 	}
@@ -826,7 +833,11 @@ oid_info_t* oid_get(guint len, guint32* subids, guint* matched, guint* left) {
 	oid_info_t* curr_oid = &oid_root;
 	guint i;
 	
-	DISSECTOR_ASSERT(subids && *subids <= 2);
+	if(!(subids && *subids <= 2)) {
+		*matched = 0;
+		*left = len;
+		return curr_oid;
+	}
 
 	for( i=0; i < len; i++) {
 		oid_info_t* next_oid = emem_tree_lookup32(curr_oid->children,subids[i]);
@@ -868,9 +879,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint8* bytes;
 	guint8* b;
 	
-	DISSECTOR_ASSERT(subids && *subids <= 2);
-
-	if (subids_len < 2) {
+	if ( !subids || *subids > 2 || subids_len < 2) {
 		*bytes_p = NULL;
 		return 0;
 	}
@@ -909,7 +918,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 		else len = 5;
 		
 		switch(len) {
-			default: DISSECTOR_ASSERT_NOT_REACHED(); break;
+			default: *bytes_p=NULL; return 0;
 			case 5: *(b++) = ((subid & 0xF0000000) << 28) | 0x80;
 			case 4: *(b++) = ((subid & 0x0FE00000 ) >> 21)  | 0x80;
 			case 3: *(b++) = ((subid & 0x001FC000 ) >> 14)  | 0x80;
@@ -969,7 +978,8 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	guint left;
 	oid_info_t* oid;
 
-	DISSECTOR_ASSERT(subids && *subids <= 2);
+	if(! (subids && *subids <= 2 )) 
+		return "*** Malformed OID ***";
 
 	oid = oid_get(num_subids, subids, &matched, &left);
 	
