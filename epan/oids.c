@@ -686,16 +686,16 @@ void oids_init(void) {
 }
 
 const char* oid_subid2string(guint32* subids, guint len) {
-	char* s = ep_alloc0(len*11);
+	char* s = ep_alloc0(((len)*11)+1);
 	char* w = s;
-	
+
 	DISSECTOR_ASSERT(subids);
 
 	do {
 		w += sprintf(w,"%u.",*subids++);
 	} while(--len);
 	
-	if (w!=s) *(w-1) = '\0'; else *(w) = '\0';
+	if (w!=s) *(w-1) = '\0'; else *(s) = '\0';
 	
 	return s;
 }
@@ -735,6 +735,11 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 	guint32* subids;
 	guint32* subids_overflow;
 	guint n = check_num_oid(str);
+	/*
+	 * we cannot handle sub-ids greater than 32bytes
+	 * keep a pilot subid of 64 bytes to check the limit 
+	 */
+	guint64 subid = 0;
 	
 	D(6,("oid_string2subid: str='%s'",str));
 
@@ -747,10 +752,15 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 	subids_overflow = subids + n;
 	do switch(*r) {
 		case '.':
+			subid = 0;
 			subids++;
 			continue;
 		case '1' : case '2' : case '3' : case '4' : case '5' : 
 		case '6' : case '7' : case '8' : case '9' : case '0' :
+			subid *= 10;
+			subid += *r - '0';
+			DISSECTOR_ASSERT(subid <= 0xffffffff);
+			
 			DISSECTOR_ASSERT(subids < subids_overflow);
 			*(subids) *= 10;
 			*(subids) += *r - '0';
@@ -768,11 +778,15 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_p) {
 	gint i;
 	guint n = 1;
-	guint32 subid = 0;
 	gboolean is_first = TRUE;
 	guint32* subids;
 	guint32* subid_overflow;
-		
+	/*
+	 * we cannot handle sub-ids greater than 32bytes
+	 * have the subid in 64 bytes to be able to check the limit 
+	 */
+	guint64 subid = 0;
+	
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 	
 	*subids_p = subids = ep_alloc(sizeof(guint32)*n);
@@ -800,6 +814,7 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 		}
 		
 		DISSECTOR_ASSERT(subids < subid_overflow);
+		DISSECTOR_ASSERT(subid <= 0xffffffff);
 		*subids++ = subid;
 		subid = 0;
 	}
