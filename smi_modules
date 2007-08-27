@@ -1,0 +1,27 @@
+# Default MIB modules to load
+#
+# XXX - According to Wes Hardaker, we shouldn't do this:
+#       http://www.ethereal.com/lists/ethereal-dev/200412/msg00222.html
+#
+"IP-MIB"
+"IF-MIB"
+"TCP-MIB"
+"UDP-MIB"
+"SNMPv2-MIB"
+"RFC1213-MIB"
+"IPV6-ICMP-MIB"
+"IPV6-MIB"
+"SNMP-COMMUNITY-MIB"
+"SNMP-FRAMEWORK-MIB"
+"SNMP-MPD-MIB"
+"SNMP-NOTIFICATION-MIB"
+"SNMP-PROXY-MIB"
+"SNMP-REPEATER-MIB"
+"SNMP-TARGET-MIB"
+"SNMP-USER-BASED-SM-MIB"
+"SNMP-USM-DH-OBJECTS-MIB"
+"SNMP-VIEW-BASED-ACM-MIB"
+"COPS-PR-SPPI"
+"COPS-PR-SPPI-TC"
+"DIFFSERV-PIB"
+"FRAMEWORK-PIB"
