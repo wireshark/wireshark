@@ -1976,7 +1976,25 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 <avp name="PoC-Change-Conditions" code="1261"><type type-name="Enumerated"/></avp>
 <avp name="PoC-Change-Time" code="1262"><type type-name="Time"/></avp>
 <!--
-Note: The AVP codes from 1263 to 1299 are reserved for TS 32.299
+	<avp name="Access-Network-Information" code="1263"><type type-name="OctetString"/></avp>
+	<avp name="Trigger" code="1264"><type type-name="Grouped"/></avp>
+	<avp name="Base-Time-Interval" code="1265"><type type-name="Unsigned32"/></avp>
+	<avp name="Envelope" code="1266"><type type-name="Grouped"/></avp>
+	<avp name="Envelope-End-Time" code="1267"><type type-name="Time"/></avp>
+	<avp name="Envelope-Reporting" code="1268"><type type-name="Enumerated"/></avp>
+	<avp name="Envelope-Start-Time" code="1269"><type type-name="Time"/></avp>
+	<avp name="Time-Quota-Mechanism" code="1270"><type type-name="Grouped"/></avp>	
+	<avp name="Time-Quota-Type" code="1271"><type type-name="Enumerated"/></avp>
+	<avp name="Early-Media-Description" code="1272"><type type-name="Grouped"/></avp>
+	<avp name="SDP-TimeStamps" code="1273"><type type-name="Grouped"/></avp>
+	<avp name="SDP-Offer-Timestamp" code="1274"><type type-name="Time"/></avp>
+	<avp name="SDP-Answer-Timestamp" code="1275"><type type-name="Time"/></avp>
+	<avp name="AF-Correlation-Information" code="1276"><type type-name="Grouped"/></avp>	
+	<avp name="PoC-Session-Initiation-type" code="1277"><type type-name="Enumerated"/></avp>
+	<avp name="Offline-Charging" code="1278"><type type-name="Grouped"/></avp>
+	<avp name="User-Participating-Type" code="1279"><type type-name="Enumerated"/></avp>	
+	<avp name="Alternate-Charged-Party-Address" code="1280"><type type-name="UTF8String"/></avp>
+Note: The AVP codes from 1281 to 1299 are reserved for TS 32.299
 -->
 
 	</base>
