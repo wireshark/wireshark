@@ -815,7 +815,7 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 		
 		DISSECTOR_ASSERT(subids < subid_overflow);
 		DISSECTOR_ASSERT(subid <= 0xffffffff);
-		*subids++ = subid;
+		*subids++ = (guint32)subid;
 		subid = 0;
 	}
 	
