@@ -789,6 +789,17 @@ File "${NET_SNMP_DIR}\mibs\*.txt"
 SectionEnd
 !endif
 
+!ifdef SMI_DIR
+Section "SNMP MIBs" SecMIBs
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR\snmp\mibs
+File "${SMI_DIR}\mibs\*"
+SectionEnd
+!endif
+
 SectionGroupEnd	; "Plugins / Extensions"
 
 
@@ -1073,6 +1084,9 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
 !ifdef NET_SNMP_DIR
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
+!endif
+!ifdef SMI_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
