@@ -882,6 +882,7 @@ install-common-files:
 	xcopy ".\cfilters" $(INSTALL_DIR) /d
 	xcopy ".\colorfilters" $(INSTALL_DIR) /d
 	xcopy ".\dfilters" $(INSTALL_DIR) /d
+	xcopy ".\smi_modules" $(INSTALL_DIR) /d
 	xcopy ".\epan\wslua\init.lua" $(INSTALL_DIR) /d
 	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
     xcopy doc\*.html $(INSTALL_DIR) /d

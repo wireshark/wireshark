@@ -100,7 +100,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 pkgdata_DATA = AUTHORS-SHORT COPYING manuf services wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
-	cfilters colorfilters dfilters
+	cfilters colorfilters dfilters smi_modules
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -669,6 +669,7 @@ EXTRA_DIST = \
 	$(radius_DATA)		\
 	randpkt.c		\
 	rdps.c			\
+	smi_modules \
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\

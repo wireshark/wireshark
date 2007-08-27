@@ -380,6 +380,9 @@ File "..\..\colorfilters"
 ;IfFileExists dfilters dont_overwrite_dfilters
 File "..\..\dfilters"
 ;dont_overwrite_dfilters:
+;IfFileExists dfilters dont_overwrite_smi_modules
+File "..\..\smi_modules"
+;dont_overwrite_smi_modules:
 
 
 ;
@@ -1029,6 +1032,7 @@ Delete "$INSTDIR\dfilters"
 Delete "$INSTDIR\init.lua"
 Delete "$INSTDIR\console.lua"
 Delete "$INSTDIR\dtd_gen.lua"
+Delete "$INSTDIR\smi_modules"
 RMDir "$INSTDIR"
 SectionEnd
 
