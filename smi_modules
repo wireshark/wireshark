@@ -1,8 +1,4 @@
 # Default MIB modules to load
-#
-# XXX - According to Wes Hardaker, we shouldn't do this:
-#       http://www.ethereal.com/lists/ethereal-dev/200412/msg00222.html
-#
 "IP-MIB"
 "IF-MIB"
 "TCP-MIB"
