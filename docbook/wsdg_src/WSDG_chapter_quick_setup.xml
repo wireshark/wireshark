@@ -56,12 +56,6 @@
         <xref linkend="ChToolsMSChain" />!</para>
       </tip>
       <warning>
-        <title>Recent sources required!</title>
-        <para>Support for MSVC compiler versions != 6 has been
-        recently add. If you use an existing "older" source tree
-        than SVN XXX (or release 0.99.5) you must update.</para>
-      </warning>
-      <warning>
         <title>Don't use cygwin's gcc!</title>
         <para>Using cygwin's gcc is not recommended and will
         certainly not work (at least without a lot of advanced
@@ -120,7 +114,8 @@
       <para>Get the python 2.4 installer from: 
       <ulink url="http://python.org/download/" />and install python
       into the default location (currently: C:/Python24).</para>
-	  <para>Beware: python 2.5 won't work without modifications.</para>
+      <para>Beware: python 2.5 won't work without
+      modifications.</para>
       <para>Why this is recommended: Cygwin's python package
       doesn't work on some machines, so the Win32 native package is
       recommended.</para>
@@ -321,10 +316,10 @@
 </programlisting>
       </para>
       <para>If you have problems with all the first three ones,
-      check if you called vcvars32/SetEnv as mentioned in <xref 
-	  linkend="ChSetupPrepareCommandCom" /> (which will "fix" 
-	  your PATH settings). However, the exact text will be slightly 
-	  different depending on the MSVC version used.</para>
+      check if you called vcvars32/SetEnv as mentioned in 
+      <xref linkend="ChSetupPrepareCommandCom" />(which will "fix"
+      your PATH settings). However, the exact text will be slightly
+      different depending on the MSVC version used.</para>
       <para>Unfortunately, the link command is defined both from
       cygwin and from MSVC with completely different purpose,
       you'll need the MSVC link. If your link command looks
@@ -338,13 +333,8 @@
       <title>Install Libraries</title>
       <orderedlist>
         <listitem>
-          <para>If you've closed cmd.exe in the meantime,
-          prepare cmd.exe again</para>
-        </listitem>
-        <listitem>
-          <para>nmake -f Makefile.nmake verify_tools verify
-          installed tools -&gt; check your PATH and tools
-          installations if problems arise</para>
+          <para>If you've closed cmd.exe in the meantime, prepare
+          cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake setup downloads libraries
@@ -366,8 +356,8 @@
       first time! 
       <orderedlist>
         <listitem>
-          <para>If you've closed cmd.exe in the meantime,
-          prepare cmd.exe again</para>
+          <para>If you've closed cmd.exe in the meantime, prepare
+          cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake distclean to cleanup the
@@ -380,8 +370,8 @@
       <para>Now it's time to build Wireshark ... 
       <orderedlist>
         <listitem>
-          <para>If you've closed cmd.exe in the meantime,
-          prepare cmd.exe again</para>
+          <para>If you've closed cmd.exe in the meantime, prepare
+          cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake all to build
@@ -412,10 +402,9 @@
     </section>
     <section>
       <title>Optional: Create User's and Developer's Guide</title>
-      <para>
-      Detailed information to build these guides can be found in the file 
-      docbook/README.txt in the Wireshark sources. 
-      </para>
+      <para>Detailed information to build these guides can be found
+      in the file docbook/README.txt in the Wireshark
+      sources.</para>
     </section>
     <section>
       <title>Optional: Create a Wireshark Installer</title>
@@ -441,8 +430,8 @@
           <superscript>1</superscript></para>
         </listitem>
         <listitem>
-          <para>If you've closed cmd.exe in the meantime,
-          prepare cmd.exe again</para>
+          <para>If you've closed cmd.exe in the meantime, prepare
+          cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake packaging build Wireshark
