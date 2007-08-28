@@ -65,7 +65,6 @@
 /* Do we want to use canaries ? */
 #define DEBUG_USE_CANARIES 1
 
-
 #ifdef WANT_GUARD_PAGES
 /* Add guard pages at each end of our allocated memory */
 #if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
@@ -125,8 +124,8 @@ typedef struct _emem_header_t {
   emem_chunk_t *used_list;
 } emem_header_t;
 
-static emem_header_t ep_packet_mem;
-static emem_header_t se_packet_mem;
+emem_header_t ep_packet_mem;
+emem_header_t se_packet_mem;
 
 #if !defined(SE_DEBUG_FREE)
 #if defined (_WIN32)

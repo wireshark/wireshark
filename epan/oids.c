@@ -34,7 +34,7 @@
 #include <ctype.h>
 
 #include "emem.h"
-#include "uat-int.h"
+#include "uat.h"
 #include "prefs.h"
 #include "proto.h"
 #include "packet.h"
@@ -100,7 +100,9 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		if(n) {
 			if (i == oid_len) {
 				if (n->name) {
-					D(2,("Renaming Oid from: %s -> %s, this menas the same oid is registered more than once",n->name,name));
+					if (!g_str_equal(n->name,name)) {
+						D(2,("Renaming Oid from: %s -> %s, this menas the same oid is registered more than once",n->name,name));
+					}
 					g_free(n->name);
 				}
 				

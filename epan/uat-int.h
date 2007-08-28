@@ -63,6 +63,7 @@ struct _uat_t {
 	gboolean changed;
 	uat_rep_t* rep;
 	uat_rep_free_cb_t free_rep;
+	gboolean loaded;
 };
 
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);
@@ -82,8 +83,6 @@ void uat_destroy(uat_t*);
 void uat_clear(uat_t*);
 
 gboolean uat_save(uat_t* , char** );
-
-gboolean uat_load(uat_t* , char** );
 
 void uat_load_all(void);
 

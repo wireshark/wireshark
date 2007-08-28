@@ -309,7 +309,8 @@ void uat_load_all(void) {
 		uat_t* u = g_ptr_array_index(all_uats,i);
 		err = NULL;
 		
-		uat_load(u, &err);
+		if (!u->loaded)
+			uat_load(u, &err);
 		
 		if (err) {
 			report_failure("Error loading table '%s': %s",u->name,err);

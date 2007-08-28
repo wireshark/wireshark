@@ -103,6 +103,7 @@
 #define TCP_PORT_SNMP		161
 #define TCP_PORT_SNMP_TRAP	162
 #define TCP_PORT_SMUX		199
+#define UDP_PORT_SNMP_PATROL 8161
 
 /* Initialize the protocol and registered fields */
 static int proto_snmp = -1;
@@ -226,6 +227,7 @@ static gint ett_authParameters = -1;
 static gint ett_internet = -1;
 static gint ett_varbind = -1;
 static gint ett_name = -1;
+static gint ett_value = -1;
 static gint ett_decoding_error = -1;
 
 #include "packet-snmp-ett.c"
@@ -381,14 +383,14 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	oid_info_t* oid_info;
 	guint oid_matched, oid_left;
 	proto_item *pi_name, *pi_varbind, *pi_value = NULL;
-	proto_tree *pt, *pt_varbind, *pt_name;
+	proto_tree *pt, *pt_varbind, *pt_name, *pt_value;
 	char label[ITEM_LABEL_LENGTH];
 	char* repr = NULL;
 	char* valstr;
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
-	const char* oid_string;
+	const char* oid_string = NULL;
 	seq_offset = offset;
 	
 	/* first have the VarBind's sequence header */
@@ -498,15 +500,10 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	
 	add_oid_debug_subtree(oid_info,pt_name);
 
-	if (oid_matched+oid_left) {
+	if (subids && oid_matched+oid_left) {
 		oid_string = oid_subid2string(subids,oid_matched+oid_left);
-	} else {
-		oid_string = ".";
-	}
+	} 
 	
-
-
-
 	/* now we'll try to figure out which are the indexing sub-oids and whether the oid we know about is the one oid we have to use */
 	switch (oid_info->kind) {
 		case OID_KIND_SCALAR:
@@ -659,14 +656,6 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	}
 indexing_done:
 	
-	if (value_len > 0 && oid_string) {
-		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
-
-		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_varbind : NULL, value_sub_dissectors_table, oid_string);
-		
-		return seq_offset + seq_len;
-	}
-	
 	if (oid_info_is_ok) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
@@ -745,8 +734,16 @@ indexing_done:
 		expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
 		oid_info_is_ok = FALSE;
 	} 
+	
+	pt_value = proto_item_add_subtree(pi_value,ett_value);
+	
+	if (value_len > 0 && oid_string) {
+		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
 		
-
+		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_value : NULL, value_sub_dissectors_table, oid_string);
+	}
+	
+	
 set_label:
 	if (pi_value) proto_item_fill_label(pi_value->finfo, label);
 	
@@ -1878,6 +1875,7 @@ void proto_register_snmp(void) {
 	  &ett_internet,
 	  &ett_varbind,
 	  &ett_name,
+	  &ett_value,
 	  &ett_decoding_error,
 #include "packet-snmp-ettarr.c"
   };
@@ -1954,6 +1952,7 @@ void proto_reg_handoff_snmp(void) {
 
 	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
+	dissector_add("udp.port", UDP_PORT_SNMP_PATROL, snmp_handle);
 	dissector_add("ethertype", ETHERTYPE_SNMP, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);

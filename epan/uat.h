@@ -242,6 +242,7 @@ uat_t* uat_new(const char* name,
 			   uat_free_cb_t free_cb,
 			   uat_field_t* flds_array);
 
+gboolean uat_load(uat_t* uat_in, char** err);
 
 /*
  * uat_dup()
