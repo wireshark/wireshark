@@ -13,7 +13,6 @@ GetResponse-PDU
 SetRequest-PDU
 GetRequest-PDU
 NotificationName
-SnmpEngineID
 VarBind
 
 #.TYPE_RENAME
@@ -188,6 +187,16 @@ gint pdu_type;
 	 if (usm_p.engine_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
 		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
+	}
+
+#.FN_BODY SnmpEngineID
+	tvbuff_t* param_tvb;
+
+	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &param_tvb);
+	 if (param_tvb) {
+		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
+		dissect_snmp_engineid(engine_tree, param_tvb, 0, tvb_length_remaining(param_tvb,0));
 	}
 
 #.FN_PARS UsmSecurityParameters/msgUserName

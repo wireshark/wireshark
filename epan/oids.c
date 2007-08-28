@@ -239,6 +239,13 @@ static char* alnumerize(const char* name) {
 }
 
 const oid_value_type_t* get_typedata(SmiType* smiType) {
+	/*
+	 * There has to be a better way to know if a given
+	 * OCTETSTRING type is actually human readable text,
+	 * an address of some type or some moe specific FT_
+	 * Until that is found, this is the mappping between
+	 * SNMP Types and our FT_s 
+	 */
 	static const struct _type_mapping_t {
 		char* name;
 		SmiBasetype base;
@@ -253,6 +260,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"Ipv6Address",SMI_BASETYPE_UNKNOWN,&ipv6_type},
 		{"TimeStamp",SMI_BASETYPE_UNKNOWN,&integer_type},
 		{"DisplayString",SMI_BASETYPE_UNKNOWN,&string_type},
+		{"SnmpAdminString",SMI_BASETYPE_UNKNOWN,&string_type},
 		{"DateAndTime",SMI_BASETYPE_UNKNOWN,&string_type},
 		{"Counter",SMI_BASETYPE_UNKNOWN,&counter32_type},
 		{"Counter32",SMI_BASETYPE_UNKNOWN,&counter32_type},
@@ -414,9 +422,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 #if 0			
 			if (sN->implied) {
-				if (typedata) {
-					kl->key_type = typedata->keytype_implicit;
-				} else switch (kl->key_type) {
+				switch (kl->key_type) {
 					case OID_KEY_TYPE_BYTES:
 						if (kl->num_subids)
 							kl->key_type = OID_KEY_TYPE_FIXED_BYTES;
@@ -428,7 +434,6 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 					default:
 						break;
 				}
-			
 			}
 #endif
 			return OID_KIND_ROW;
