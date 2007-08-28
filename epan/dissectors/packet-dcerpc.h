@@ -294,6 +294,7 @@ typedef struct _dcerpc_call_value {
                              * request to the reply.
                              */
     void *private_data;      /* XXX This will later be renamed as ep_data */
+    e_ctx_hnd *pol;	     /* policy handle tracked between request/response*/
 } dcerpc_call_value;
 
 typedef struct _dcerpc_info {
@@ -430,12 +431,40 @@ init_ndr_pointer_list(packet_info *pinfo);
  */
 /* Policy handle tracking. Describes in which function a handle is 
  * opened/closed.  See "winreg.cnf" for example.
+ *
+ * The guint32 param is divided up into multiple fields 
+ *
+ * +--------+--------+--------+--------+
+ * | Flags  | Type   |        |        |
+ * +--------+--------+--------+--------+
  */
+/* Flags : */
 #define PIDL_POLHND_OPEN		0x80000000
 #define PIDL_POLHND_CLOSE		0x40000000
 /* To "save" a pointer to the string in dcv->private_data */
-#define PIDL_STR_SAVE			0x00020000
+#define PIDL_STR_SAVE			0x20000000
 /* To make this value appear on the summary line for the packet */
-#define PIDL_SET_COL_INFO		0x00010000
+#define PIDL_SET_COL_INFO		0x10000000
+
+/* Type */
+#define PIDL_POLHND_TYPE_MASK		0x00ff0000
+#define PIDL_POLHND_TYPE_SAMR_USER	0x00010000
+#define PIDL_POLHND_TYPE_SAMR_CONNECT	0x00020000
+#define PIDL_POLHND_TYPE_SAMR_DOMAIN	0x00030000
+#define PIDL_POLHND_TYPE_SAMR_GROUP	0x00040000
+#define PIDL_POLHND_TYPE_SAMR_ALIAS	0x00050000
+
+
+/* a structure we store for all policy handles we track */
+typedef struct pol_value {
+	struct pol_value *next;          /* Next entry in hash bucket */
+	guint32 open_frame, close_frame; /* Frame numbers for open/close */
+	guint32 first_frame;             /* First frame in which this instance was seen */
+	guint32 last_frame;              /* Last frame in which this instance was seen */
+	char *name;			 /* Name of policy handle */
+	guint32 type;			 /* policy handle type */ 
+} pol_value;
+
+
 
 #endif /* packet-dcerpc.h */

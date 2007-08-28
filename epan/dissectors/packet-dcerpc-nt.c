@@ -400,14 +400,6 @@ typedef struct {
 	guint8 policy_hnd[20];
 } pol_hash_key;
 
-typedef struct pol_value {
-	struct pol_value *next;          /* Next entry in hash bucket */
-	guint32 open_frame, close_frame; /* Frame numbers for open/close */
-	guint32 first_frame;             /* First frame in which this instance was seen */
-	guint32 last_frame;              /* Last frame in which this instance was seen */
-	char *name;			 /* Name of policy handle */
-} pol_value;
-
 typedef struct {
 	pol_value *list;                 /* List of policy handle entries */
 } pol_hash_value;
@@ -612,15 +604,43 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	pol->close_frame = is_close ? pinfo->fd->num : 0;
 	pol->first_frame = pinfo->fd->num;
 	pol->last_frame = pol->close_frame;	/* if 0, unknown; if non-0, known */
-
+	pol->type=0;
 	pol->name = NULL;
 
 	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
 }
 
-/* Store a text string with a policy handle */
+/* Store the type of a policy handle */
+static void dcerpc_store_polhnd_type(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+			       guint32 type)
+{
+	pol_hash_value *value;
+	pol_value *pol;
 
-void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+	/*
+	 * By the time the first pass is done, the policy handle database
+	 * has been completely constructed.  If we've already seen this
+	 * frame, there's nothing to do.
+	 */
+	if (pinfo->fd->flags.visited)
+		return;
+
+	if (is_null_pol(policy_hnd))
+		return;
+
+	/* Look up existing value */
+	pol = find_pol_handle(policy_hnd, pinfo->fd->num, &value);
+
+	if (pol != NULL) {
+		/*
+		 * Update the existing value as appropriate.
+		 */
+		pol->type=type;
+	}
+}
+
+/* Store a text string with a policy handle */
+void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			       const char *name)
 {
 	pol_hash_value *value;
@@ -666,7 +686,7 @@ void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	pol->close_frame = 0;
 	pol->first_frame = pinfo->fd->num;
 	pol->last_frame = 0;
-
+	pol->type = 0;
 	if (name)
 		pol->name = strdup(name);
 	else
@@ -683,7 +703,8 @@ void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
  * close operations?
  */
 
-gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
+gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd, 
+			      char **name, guint32 *type,
 			      guint32 *open_frame, guint32 *close_frame,
 			      guint32 cur_frame)
 {
@@ -695,18 +716,24 @@ gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
 	if (name)
 		*name = NULL;
 
+	if (type)
+		*type = 0;
+
 	if (open_frame)
 		*open_frame = 0;
 
 	if (close_frame)
 		*close_frame = 0;
-
+	
 	/* Look up existing value */
 	pol = find_pol_handle(policy_hnd, cur_frame, &value);
 
 	if (pol) {
 		if (name)
 			*name = pol->name;
+
+		if (type)
+			*type = pol->type;
 
 		if (open_frame)
 			*open_frame = pol->open_frame;
@@ -872,9 +899,8 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	dcerpc_smb_store_pol_pkts(&hnd, pinfo, is_open, is_close);
 
 	/* Insert open/close/name information if known */
-
-	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame,
-	    pinfo->fd->num)) {
+	if (dcerpc_fetch_polhnd_data(&hnd, &name, NULL, &open_frame, 
+			&close_frame, pinfo->fd->num)) {
 
 		if (open_frame) {
 			proto_item *item;
@@ -973,7 +999,19 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			pol_name="<...>";
 		}
 		pol_string=ep_strdup_printf("%s(%s)", pinfo->dcerpc_procedure_name, pol_name);
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_string);
+		dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_string);
+		dcerpc_store_polhnd_type(&policy_hnd, pinfo, param&PIDL_POLHND_TYPE_MASK);
+	}
+
+	/* Track this policy handle for the response */
+	if(!pinfo->fd->flags.visited
+	&& !di->conformant_run){
+		dcerpc_call_value *dcv;
+
+		dcv = (dcerpc_call_value *)di->call_data;
+		if(!dcv->pol){
+			dcv->pol=se_memdup(&policy_hnd, sizeof(e_ctx_hnd));
+		}
 	}
 
 	return offset;

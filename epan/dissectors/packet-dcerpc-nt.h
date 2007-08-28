@@ -162,13 +162,13 @@ dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 /* Store a name with a policy handle */
 
 void
-dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			  const char *name);
 
 /* Fetch details stored with a policy handle */
 
 gboolean
-dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
+dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd, char **name, guint32 *type,
 		     guint32 *open_frame, guint32 *close_frame,
 		     guint32 cur_frame);
 
@@ -236,8 +236,8 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 
 /* Number of levels to go up appending string to pointer item */
 #define CB_STR_ITEM_LEVELS(x)	((x) & 0xFFFF)
-#define CB_STR_COL_INFO 0x10000	/* Append string to COL_INFO */
-#define CB_STR_SAVE     0x20000	/* Save string to dcv->private_data */
+#define CB_STR_SAVE     0x20000000	/* Save string to dcv->private_data */
+#define CB_STR_COL_INFO 0x10000000	/* Append string to COL_INFO */
 
 void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, tvbuff_t *tvb, 
@@ -251,5 +251,6 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 /* Initialise DCERPC over SMB */
 
 void dcerpc_smb_init(int proto_dcerpc);
+
 
 #endif /* packet-dcerpc-nt.h */

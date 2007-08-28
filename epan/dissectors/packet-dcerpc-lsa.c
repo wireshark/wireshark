@@ -604,7 +604,7 @@ lsa_dissect_lsaropenpolicy_reply(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, &status);
 
 	if (status == 0) {
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+		dcerpc_store_polhnd_name(&policy_hnd, pinfo,
 					  "OpenPolicy handle");
 
 		if (hnd_item != NULL)
@@ -671,7 +671,7 @@ lsa_dissect_lsaropenpolicy2_reply(tvbuff_t *tvb, int offset,
 			pol_name = "Unknown OpenPolicy2() handle";
 		}
 		if(!pinfo->fd->flags.visited){
-			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
 		if(hnd_item)

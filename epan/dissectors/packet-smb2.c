@@ -941,7 +941,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			} else {
 				fid_name = se_strdup_printf("File: ");
 			}
-			dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+			dcerpc_store_polhnd_name(&policy_hnd, pinfo,
 						  fid_name);
 		}
 		break;
@@ -957,7 +957,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
 
 	/* put the filename in col_info */
-	if (dcerpc_smb_fetch_pol(&policy_hnd, &fid_name, &open_frame, &close_frame, pinfo->fd->num)) {
+	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
 		if(fid_name){
 			if(hnd_item){
 				proto_item_append_text(hnd_item, " %s", fid_name);

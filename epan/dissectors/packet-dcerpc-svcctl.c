@@ -186,7 +186,7 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 			pol_name = "Unknown OpenSCManagerW() handle";
 		}
 		if(!pinfo->fd->flags.visited){
-			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
 		if(hnd_item)
@@ -272,7 +272,7 @@ svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 			pol_name = "Unknown OpenSCManagerW() handle";
 		}
 		if(!pinfo->fd->flags.visited){
-			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+			dcerpc_store_polhnd_name(&policy_hnd, pinfo, pol_name);
 		}
 
 		if(hnd_item)
@@ -303,7 +303,7 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
 		NULL, FALSE, TRUE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
 			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)

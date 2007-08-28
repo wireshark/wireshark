@@ -164,7 +164,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		return 0;
 	}
 
-	if (!dcerpc_smb_fetch_pol(old_ctx, &pol_name, NULL, NULL, ri->call_data->req_frame)) {
+	if (!dcerpc_fetch_polhnd_data(old_ctx, &pol_name, NULL, NULL, NULL, ri->call_data->req_frame)) {
 		return 0;
 	}
 

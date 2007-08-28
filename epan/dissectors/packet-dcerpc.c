@@ -3358,6 +3358,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value->max_ptr=0;
 				call_value->se_data = NULL;
 				call_value->private_data = NULL;
+				call_value->pol = NULL;
 				g_hash_table_insert (dcerpc_cn_calls, call_key, call_value);
 
 				new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
@@ -4564,6 +4565,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->max_ptr=0;
 	call_value->se_data = NULL;
 	call_value->private_data = NULL;
+	call_value->pol = NULL;
 	g_hash_table_insert (dcerpc_dg_calls, call_key, call_value);
 
 	new_matched_key = se_alloc(sizeof (dcerpc_matched_key));

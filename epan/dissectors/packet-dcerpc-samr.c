@@ -1853,7 +1853,11 @@ static int
 cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 len;
-	dcerpc_info *di;
+	dcerpc_info *di = NULL;
+	e_ctx_hnd *polhnd = NULL;
+	dcerpc_call_value *dcv = NULL;
+	guint32 type=0;
+	struct access_mask_info *ami=NULL;
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -1861,8 +1865,34 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	}
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
-		NULL);
+	if(di){
+		dcv = (dcerpc_call_value *)di->call_data;
+	}
+	if(dcv){
+		polhnd = dcv->pol;
+	}
+	if(polhnd){
+		dcerpc_fetch_polhnd_data(polhnd, NULL, &type, NULL, NULL,
+					pinfo->fd->num);
+	}
+	switch(type){
+	case PIDL_POLHND_TYPE_SAMR_USER:
+		ami=&samr_user_access_mask_info;
+		break;
+	case PIDL_POLHND_TYPE_SAMR_CONNECT:
+		ami=&samr_connect_access_mask_info;
+		break;
+	case PIDL_POLHND_TYPE_SAMR_DOMAIN:
+		ami=&samr_domain_access_mask_info;
+		break;
+	case PIDL_POLHND_TYPE_SAMR_GROUP:
+		ami=&samr_group_access_mask_info;
+		break;
+	case PIDL_POLHND_TYPE_SAMR_ALIAS:
+		ami=&samr_alias_access_mask_info;
+		break;
+	}
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len, ami);
 	offset += len;
 	return offset;
 }
@@ -7547,7 +7577,7 @@ samr_dissect_element_Connect_connect_handle(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 samr_dissect_element_Connect_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
 	return offset;
 }
@@ -8063,7 +8093,7 @@ samr_dissect_element_OpenDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_,
 static int
 samr_dissect_element_OpenDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_domain_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_domain_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_DOMAIN);
 
 	return offset;
 }
@@ -8303,7 +8333,7 @@ samr_dissect_element_CreateDomainGroup_group_handle(tvbuff_t *tvb _U_, int offse
 static int
 samr_dissect_element_CreateDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_group_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_group_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_GROUP);
 
 	return offset;
 }
@@ -8524,7 +8554,7 @@ samr_dissect_element_CreateUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 samr_dissect_element_CreateUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_user_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_user_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_USER);
 
 	return offset;
 }
@@ -8756,7 +8786,7 @@ samr_dissect_element_CreateDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _
 static int
 samr_dissect_element_CreateDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_alias_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_alias_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_ALIAS);
 
 	return offset;
 }
@@ -9261,7 +9291,7 @@ samr_dissect_element_OpenGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 samr_dissect_element_OpenGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_group_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_group_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_GROUP);
 
 	return offset;
 }
@@ -9786,7 +9816,7 @@ samr_dissect_element_OpenAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 samr_dissect_element_OpenAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_alias_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_alias_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_ALIAS);
 
 	return offset;
 }
@@ -10243,7 +10273,7 @@ samr_dissect_element_OpenUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 samr_dissect_element_OpenUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_user_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_user_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_USER);
 
 	return offset;
 }
@@ -11552,7 +11582,7 @@ samr_dissect_element_CreateUser2_user_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 samr_dissect_element_CreateUser2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_user_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_user_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_USER);
 
 	return offset;
 }
@@ -12226,7 +12256,7 @@ samr_dissect_element_Connect2_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 samr_dissect_element_Connect2_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
 	return offset;
 }
@@ -12515,7 +12545,7 @@ samr_dissect_element_Connect3_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 samr_dissect_element_Connect3_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
 	return offset;
 }
@@ -12603,7 +12633,7 @@ samr_dissect_element_Connect4_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 samr_dissect_element_Connect4_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
 	return offset;
 }
@@ -12915,7 +12945,7 @@ samr_dissect_element_Connect5_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 samr_dissect_element_Connect5_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
 	return offset;
 }
