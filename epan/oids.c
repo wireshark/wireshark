@@ -191,7 +191,18 @@ static smi_module_t* smi_modules = NULL;
 static guint num_smi_modules = 0;
 static uat_t* smi_modules_uat = NULL;
 
+static GString* smi_errors;
+
 UAT_CSTRING_CB_DEF(smi_mod,name,smi_module_t)
+
+static void smi_error_handler(char *path, int line, int severity, char *msg, char *tag) {
+		g_string_sprintfa(smi_errors,"%s:%d %d %s %s\n",
+						  path ? path : "-",
+						  line, severity,
+						  tag ? tag : "-",
+						  msg ? msg : "");
+}
+
 
 static void* smi_mod_copy_cb(void* dest, const void* orig, unsigned len _U_) {
 	const smi_module_t* m = orig;
@@ -522,8 +533,11 @@ void register_mibs(void) {
 		
 	smiSetPath(path_str->str);
 	
-	g_string_free(path_str,TRUE);
 	
+	
+	smi_errors = g_string_new("");
+	smiSetErrorHandler(smi_error_handler);
+
 	for(i=0;i<num_smi_modules;i++) {
 		if (!smi_modules[i].name) continue;
 	
@@ -538,7 +552,16 @@ void register_mibs(void) {
 				D(1,("Failed to load: '%s'[%d]",smi_modules[i].name,i));
 		}
 	}
-		
+	
+	if (smi_errors->len) {
+		report_failure("The following errors were found while loading the MIBS:\n%s\n\n"
+					   "The Current Path is: %s\n" , smi_errors->str , path_str->str );
+		D(1,("Errors while loading:\n%s\n",smi_errors->str));
+	}
+	
+	g_string_free(path_str,TRUE);
+	g_string_free(smi_errors,TRUE);
+
 	for (smiModule = smiGetFirstModule();
 		 smiModule;
 		 smiModule = smiGetNextModule(smiModule)) {
