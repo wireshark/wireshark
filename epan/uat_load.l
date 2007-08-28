@@ -269,7 +269,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 	yyrestart(NULL);
 
 	uat->changed = FALSE;
-
+	uat->loaded = TRUE;
 	if (error) {
 		UAT_UPDATE(uat);
 		*err = ep_strdup(error);

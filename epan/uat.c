@@ -84,6 +84,7 @@ uat_t* uat_new(const char* name,
 	uat->fields = flds_array;
 	uat->user_data = g_array_new(FALSE,FALSE,uat->record_size);
 	uat->changed = FALSE;
+	uat->loaded = FALSE;
 	uat->rep = NULL;
 	uat->free_rep = NULL;
 	uat->help = help;
