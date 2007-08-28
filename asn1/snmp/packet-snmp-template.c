@@ -366,6 +366,8 @@ dissector_table_t value_sub_dissectors_table;
  
  */
 
+#define D(args) do{ printf args; printf("\n"); fflush(stdout); } while(0)
+
 extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								tvbuff_t *tvb,
 								int offset,
@@ -571,15 +573,18 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								guint8* suboid_buf;
 								guint suboid_buf_len;
 								
-								if( suboid_len < key_len-1) {
-									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should be longer than remaining oid size");
+								if( key_len-1 < suboid_len ) {
+									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should not be longer than remaining oid size");
 									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid longer than remaining oid size");
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
 								
 								suboid_buf_len = oid_subid2encoded(suboid_len, suboid, &suboid_buf);
-								proto_tree_add_oid(pt_name,k->hfid,tvb,name_offset, suboid_buf_len, suboid_buf);
+								
+								if(suboid_buf_len) {
+									proto_tree_add_oid(pt_name,k->hfid,tvb,name_offset, suboid_buf_len, suboid_buf);
+								}
 								
 								key_start += suboid_len;
 								key_len -= suboid_len + 1;
@@ -594,6 +599,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								if(!buf_len) {
 									buf_len = *suboid;
 									suboid++;
+									key_start++;
+									key_len--;
 								}
 								
 								if( key_len < buf_len ) {
@@ -821,9 +828,7 @@ static const value_string snmp_engineid_format_vals[] = {
  * SNMP Engine ID dissection according to RFC 3411 (SnmpEngineID TC)
  * or historic RFC 1910 (AgentID)
  */
-int
-dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
-{
+int dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
     proto_item *item = NULL;
     guint8 conformance, format;
     guint32 enterpriseid, seconds;
