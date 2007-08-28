@@ -284,16 +284,16 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 }
 
 static guint get_non_implicit_size(SmiType* sT) {
-    SmiRange *sR;
-    guint size = 0xffffffff;
-    
-    switch (sT->basetype) {
+	SmiRange *sR;
+	guint size = 0xffffffff;
+
+	switch (sT->basetype) {
 		case SMI_BASETYPE_OCTETSTRING:
 		case SMI_BASETYPE_OBJECTIDENTIFIER:
 			break;
 		default:
 			return 0;
-    }
+	}
 	
 	for ( ; sT; sT = smiGetParentType(sT) ) {
 		for (sR = smiGetFirstRange(sT); sR ; sR = smiGetNextRange(sR)) {
@@ -448,7 +448,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 void register_mibs(void) {
 	SmiModule *smiModule;
-    SmiNode *smiNode;
+	SmiNode *smiNode;
 	guint i;
 	int proto_mibs = -1;
 	module_t* mibs_module;
@@ -468,7 +468,7 @@ void register_mibs(void) {
 	smi_modules_uat = uat_new("SMI Modules",
 							  sizeof(smi_module_t),
 							  "smi_modules",
-							  (void**)&smi_modules,
+							  (void*)&smi_modules,
 							  &num_smi_modules,
 							  UAT_CAT_GENERAL,
 							  "ChSNMPSMIModules",
@@ -480,7 +480,7 @@ void register_mibs(void) {
 	smi_paths_uat = uat_new("SMI Paths",
 							  sizeof(smi_module_t),
 							  "smi_paths",
-							  (void**)&smi_paths,
+							  (void*)&smi_paths,
 							  &num_smi_paths,
 							  UAT_CAT_GENERAL,
 							  "ChSNMPSMIPaths",
