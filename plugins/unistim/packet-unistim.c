@@ -36,7 +36,7 @@
 #include "header_field.h"
 
 
-static int global_unistim_port = 5000;
+static int global_unistim_port = 0;
 
 void
 proto_register_unistim(void){
