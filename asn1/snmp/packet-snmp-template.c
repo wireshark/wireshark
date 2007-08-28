@@ -366,8 +366,6 @@ dissector_table_t value_sub_dissectors_table;
  
  */
 
-#define D(args) do{ printf args; printf("\n"); fflush(stdout); } while(0)
-
 extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								tvbuff_t *tvb,
 								int offset,
@@ -382,7 +380,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	gboolean ind;
 	guint32* subids;
 	guint8* oid_bytes;
-	oid_info_t* oid_info;
+	oid_info_t* oid_info = NULL;
 	guint oid_matched, oid_left;
 	proto_item *pi_name, *pi_varbind, *pi_value = NULL;
 	proto_tree *pt, *pt_varbind, *pt_name, *pt_value;
@@ -573,6 +571,13 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								guint8* suboid_buf;
 								guint suboid_buf_len;
 								
+								if( suboid_len == 0 ) {
+									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"an index sub-oid OID cannot be 0 bytes long!");
+									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid OID with len=0");
+									oid_info_is_ok = FALSE;
+									goto indexing_done;
+								}
+								
 								if( key_len-1 < suboid_len ) {
 									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should not be longer than remaining oid size");
 									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid longer than remaining oid size");
@@ -582,9 +587,9 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								
 								suboid_buf_len = oid_subid2encoded(suboid_len, suboid, &suboid_buf);
 								
-								if(suboid_buf_len) {
-									proto_tree_add_oid(pt_name,k->hfid,tvb,name_offset, suboid_buf_len, suboid_buf);
-								}
+								DISSECTOR_ASSERT(suboid_buf_len);
+
+								proto_tree_add_oid(pt_name,k->hfid,tvb,name_offset, suboid_buf_len, suboid_buf);
 								
 								key_start += suboid_len;
 								key_len -= suboid_len + 1;
@@ -754,7 +759,7 @@ indexing_done:
 set_label:
 	if (pi_value) proto_item_fill_label(pi_value->finfo, label);
 	
-	if (oid_info->name) {
+	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
 			repr  = ep_strdup_printf("%s.%s (%s)",
 									 oid_info->name,

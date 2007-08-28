@@ -182,11 +182,10 @@ gint pdu_type;
 	VAL_PTR = &usm_p.time
 
 #.FN_BODY UsmSecurityParameters/msgAuthoritativeEngineID
-	tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
-	 if (parameter_tvb) {
+	 if (usm_p.engine_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
 		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
 	}
