@@ -807,7 +807,14 @@ eth.addr == ffff.ffff.ffff</programlisting></para></entry>
 		  </row>
 		  <row>
 		    <entry>IPv4 address</entry>
-		    <entry>ip.addr == 192.168.0.1</entry>
+		    <entry>
+                <para>ip.addr == 192.168.0.1</para>
+                <para>Classless InterDomain Routing (CIDR) notation
+                can be used to test if an IPv4 address is in a
+                certain subnet. For example, this display filter
+                will find all packets in the 129.111 Class-B
+                network:
+                <para></para>ip.addr == 129.111.0.0/16</para></entry>
 		  </row>
 		  <row>
 		    <entry>IPv6 address</entry>
