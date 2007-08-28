@@ -374,6 +374,10 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define	IPOPT_TS_TSANDADDR	1		/* timestamps and addresses */
 #define	IPOPT_TS_PRESPEC	3		/* specified modules only */
 
+/* Return true if the address is in the 224.0.0.0/24 network block */
+#define is_a_local_network_control_block_addr(addr) \
+  ((addr & 0xffffff00) == 0xe0000000) 
+
 /*
  * defragmentation of IPv4
  */
@@ -1192,7 +1196,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint32 		src32, dst32;
   int ttl;
   proto_tree *tree;
-  proto_item *item;
+  proto_item *item, *ttl_item;
   proto_tree *checksum_tree;
 
   tree=parent_tree;
@@ -1325,12 +1329,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
-    item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
+    ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
   } else {
-    item = NULL;
-  }
-  if(ttl < 5) {
-    expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", ttl);
+    ttl_item = NULL;
   }
 
   iph->ip_p = tvb_get_guint8(tvb, offset + 9);
@@ -1405,6 +1406,21 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, dst_addr);
+
+  /* If an IP is destined for a IP address in the Local Network Control Block
+   * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would
+   * be expected to be 1.  (see RFC 3171)  So only flag a low TTL if the
+   * packet is not destined to a 224.0.0.0/24 address.  For packets sent to
+   * 224.0.0.0/24, flag a TTL greater than 1.
+   */
+  if (!is_a_local_network_control_block_addr(dst32)) {
+    if(ttl < 5) {
+      expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", ttl);
+    }
+  } else if(ttl > 1) {
+    expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, 
+	"\"Time To Live\" > 1 for a packet sent to the Local Network Control Block (see RFC 3171)");
+  }
 
   if (tree) {
     memcpy(&addr, iph->ip_dst.data, 4);
