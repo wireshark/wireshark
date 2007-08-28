@@ -26,6 +26,7 @@
  *
  * References:
  * ND1301:2001/03  http://www.nicc.org.uk/nicc-public/Public/interconnectstandards/dpnss/nd1301_2004_11.pdf
+ * http://acacia-net.com/wwwcla/protocol/dass2_l3.htm
  */
 
 #ifdef HAVE_CONFIG_H
@@ -67,6 +68,10 @@ static int hf_dpnss_man_code				= -1;
 static int hf_dpnss_subcode					= -1;
 static int hf_dpnss_maintenance_action		= -1;
 
+/* parameters */
+static int hf_dpnss_a_b_party_addr			= -1;
+static int hf_dpnss_call_idx				= -1;
+
 #define DPNNS_MESSAGE_GROUP_CC			0
 #define DPNNS_MESSAGE_GROUP_E2E			2
 #define DPNNS_MESSAGE_GROUP_LbL			4
@@ -75,8 +80,10 @@ static int hf_dpnss_maintenance_action		= -1;
 #define DPNSS_CC_MSG_ISRM_I				1
 #define DPNSS_CC_MSG_RM_C				2
 #define DPNSS_CC_MSG_RM_I				3
+#define DPNSS_CC_MSG_CS					4
 #define DPNSS_CC_MSG_CCM				5
 #define DPNSS_CC_MSG_NIM				6
+#define DPNSS_CC_MSG_CA					7
 #define DPNSS_CC_MSG_CRM				8
 #define DPNSS_CC_MSG_NAM				9
 #define DPNSS_CC_MSG_RRM				10
@@ -102,8 +109,10 @@ static const value_string dpnss_cc_msg_type_vals[] = {
 	{DPNSS_CC_MSG_ISRM_I,		"INITIAL SERVICE REQUEST Message (INCOMPLETE) - ISRM(I)"}, 
 	{DPNSS_CC_MSG_RM_C,			"RECALL Message (COMPLETE) - RM(C)"},
 	{DPNSS_CC_MSG_RM_I,			"RECALL Message (INCOMPLETE) - RM(I)"},
+	{DPNSS_CC_MSG_CS,			"CHANNEL SEIZED - CS"},
 	{DPNSS_CC_MSG_CCM,			"CALL CONNECTED Message - CCM"},
 	{DPNSS_CC_MSG_NIM,			"NETWORK INDICATION Message - NIM"},
+	{DPNSS_CC_MSG_CA,			"CALL ARRIVAL Message - CA"},
 	{DPNSS_CC_MSG_CRM,			"CLEAR REQUEST Message - CRM/CLEAR INDICATION Message - CIM"}, /* Humm chek 2.1.7/2.1.8 - depends on dir? */
 	{DPNSS_CC_MSG_NAM,			"NUMBER ACKNOWLEDGE Message - NAM"},
 	{DPNSS_CC_MSG_RRM,			"RECALL REJECTION Message - RRM"},
@@ -118,7 +127,9 @@ static const value_string dpnss_cc_msg_short_type_vals[] = {
 	{DPNSS_CC_MSG_ISRM_I,		"ISRM(I)"}, 
 	{DPNSS_CC_MSG_RM_C,			"RM(C)"},
 	{DPNSS_CC_MSG_RM_I,			"RM(I)"},
+	{DPNSS_CC_MSG_CS,			"CS"},
 	{DPNSS_CC_MSG_CCM,			"CCM"},
+	{DPNSS_CC_MSG_CA,			"CA"},
 	{DPNSS_CC_MSG_NIM,			"NIM"},
 	{DPNSS_CC_MSG_CRM,			"CRM/CIM"}, /* Humm chek 2.1.7/2.1.8 - depends on dir? */
 	{DPNSS_CC_MSG_NAM,			"NAM"},
@@ -926,12 +937,22 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
 	case DPNSS_C_PARTY_ADDR:
 	case DPNSS_B_PARTY_ADDR:
 	case DPNSS_SIC:
+	*/
 	case DPNSS_A_B_PARTY_ADDR:
+		proto_tree_add_item(tree, hf_dpnss_a_b_party_addr, tvb, par_start_offset, par_len, FALSE);
+		break;
+
+		/*
 	case DPNSS_DIVERSION_TYPE:
 	case DPNSS_NSI_IDENTIFIER:
 	case DPNSS_USER_DEFINED:
 	case DPNSS_TEXT:
+	*/
 	case DPNSS_CALL_INDEX:
+		proto_tree_add_item(tree, hf_dpnss_call_idx, tvb, par_start_offset, par_len, FALSE);
+		break;
+		/*
+
 	case DPNSS_PASSWORD:
 	case DPNSS_CALL_DIR:
 	case DPNSS_DPNSS_ISDN_TYPE:
@@ -1008,7 +1029,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
 */
 	default:
 		/* Used to print all pars without any special handling */
-		proto_tree_add_text(tree, tvb, par_start_offset, par_len,"Par %s: %s",
+		proto_tree_add_text(tree, tvb, par_start_offset, par_len,"Parameter %s: %s",
 			val_to_str(par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ),
 			tvb_format_text(tvb,par_start_offset, par_len)
 			);
@@ -1327,7 +1348,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	octet = tvb_get_guint8(tvb,offset)&0x0f;
 	offset++;
 	if(check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(octet, dpnss_cc_msg_short_type_vals, "Unknown (%d)" ));
 
 	if(tree){
@@ -1419,6 +1440,9 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_dpnss_sup_info_str(tvb, pinfo, sel_field_tree, offset);
 			}
 			break;
+		case DPNSS_CC_MSG_CS:
+		case DPNSS_CC_MSG_CA:
+			/* DASS2 ?*/
 		default:
 			proto_tree_add_text(tree, tvb, offset, 1, "Unknown or Dissection of this message not supported yet");
 			break;
@@ -1596,6 +1620,16 @@ proto_register_dpnss(void)
 			{ "Maintenance action",           "dpnss.maint_act",
 			FT_UINT8, BASE_DEC, VALS(dpnss_maintenance_actions_vals), 0x0,          
 			"Maintenance action", HFILL }
+		},
+		{ &hf_dpnss_a_b_party_addr,
+			{ "A/B party Address",           "dpnss.a_b_party_addr",
+			FT_STRING, BASE_NONE, NULL, 0x0,          
+			"A/B party Address", HFILL }
+		},
+		{ &hf_dpnss_call_idx,
+			{ "Call Index",           "dpnss.call_idx",
+			FT_STRING, BASE_NONE, NULL, 0x0,          
+			"Call Index", HFILL }
 		},
 	};
 
