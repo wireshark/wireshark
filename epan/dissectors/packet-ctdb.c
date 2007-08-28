@@ -54,9 +54,11 @@ static int hf_ctdb_callid = -1;
 static int hf_ctdb_status = -1;
 static int hf_ctdb_keylen = -1;
 static int hf_ctdb_datalen = -1;
+static int hf_ctdb_errorlen = -1;
 static int hf_ctdb_key = -1;
 static int hf_ctdb_keyhash = -1;
 static int hf_ctdb_data = -1;
+static int hf_ctdb_error = -1;
 static int hf_ctdb_dmaster = -1;
 static int hf_ctdb_request_in = -1;
 static int hf_ctdb_response_in = -1;
@@ -69,6 +71,14 @@ static int hf_ctdb_ctrl_opcode = -1;
 static int hf_ctdb_srvid = -1;
 static int hf_ctdb_clientid = -1;
 static int hf_ctdb_ctrl_flags = -1;
+static int hf_ctdb_recmaster = -1;
+static int hf_ctdb_recmode = -1;
+static int hf_ctdb_num_nodes = -1;
+static int hf_ctdb_vnn = -1;
+static int hf_ctdb_node_flags = -1;
+static int hf_ctdb_node_ip = -1;
+static int hf_ctdb_pid = -1;
+static int hf_ctdb_process_exists = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ctdb = -1;
@@ -83,6 +93,14 @@ typedef struct _ctdb_trans_t {
 	nstime_t req_time;
 } ctdb_trans_t;
 
+/* this tree keeps track of CONTROL request/responses */
+emem_tree_t *ctdb_controls=NULL;
+typedef struct _ctdb_control_t {
+	guint32 opcode;
+	gint32 request_in;
+	gint32 response_in;
+	nstime_t req_time;
+} ctdb_control_t;
 
 #define CTDB_REQ_CALL			0
 #define CTDB_REPLY_CALL			1
@@ -94,15 +112,15 @@ typedef struct _ctdb_trans_t {
 #define CTDB_REPLY_CONTROL		8
 #define CTDB_REQ_KEEPALIVE		9
 static const value_string ctdb_opcodes[] = {
-	{CTDB_REQ_CALL,		"CTDB_REQ_CALL"},
-	{CTDB_REPLY_CALL,		"CTDB_REPLY_CALL"},
-	{CTDB_REQ_DMASTER,		"CTDB_REQ_DMASTER"},
-	{CTDB_REPLY_DMASTER,		"CTDB_REPLY_DMASTER"},
-	{CTDB_REPLY_ERROR,		"CTDB_REPLY_ERROR"},
-	{CTDB_REQ_MESSAGE,		"CTDB_REQ_MESSAGE"},
-	{CTDB_REQ_CONTROL,		"CTDB_REQ_CONTROL"},
-	{CTDB_REPLY_CONTROL,		"CTDB_REPLY_CONTROL"},
-	{CTDB_REQ_KEEPALIVE,		"CTDB_REQ_KEEPALIVE"},
+	{CTDB_REQ_CALL,			"REQ_CALL"},
+	{CTDB_REPLY_CALL,		"REPLY_CALL"},
+	{CTDB_REQ_DMASTER,		"REQ_DMASTER"},
+	{CTDB_REPLY_DMASTER,		"REPLY_DMASTER"},
+	{CTDB_REPLY_ERROR,		"REPLY_ERROR"},
+	{CTDB_REQ_MESSAGE,		"REQ_MESSAGE"},
+	{CTDB_REQ_CONTROL,		"REQ_CONTROL"},
+	{CTDB_REPLY_CONTROL,		"REPLY_CONTROL"},
+	{CTDB_REQ_KEEPALIVE,		"REQ_KEEPALIVE"},
 	{0,NULL}
 };
 
@@ -155,6 +173,15 @@ static const value_string ctdb_opcodes[] = {
 #define CTDB_CONTROL_TCP_ADD			45
 #define CTDB_CONTROL_TCP_REMOVE			46
 #define CTDB_CONTROL_STARTUP			47
+#define CTDB_CONTROL_SET_TUNABLE		48
+#define CTDB_CONTROL_GET_TUNABLE		49
+#define CTDB_CONTROL_LIST_TUNABLES		50
+#define CTDB_CONTROL_GET_PUBLIC_IPS		51
+#define CTDB_CONTROL_MODIFY_FLAGS		52
+#define CTDB_CONTROL_GET_ALL_TUNABLES		53
+#define CTDB_CONTROL_KILL_TCP			54
+#define CTDB_CONTROL_GET_TCP_TICKLE_LIST	55
+#define CTDB_CONTROL_SET_TCP_TICKLE_LIST	56
 
 static const value_string ctrl_opcode_vals[] = {
 	{CTDB_CONTROL_PROCESS_EXISTS,	"PROCESS_EXISTS"},
@@ -205,8 +232,212 @@ static const value_string ctrl_opcode_vals[] = {
 	{CTDB_CONTROL_TCP_ADD,		"TCP_ADD"},
 	{CTDB_CONTROL_TCP_REMOVE,	"TCP_REMOVE"},
 	{CTDB_CONTROL_STARTUP,		"STARTUP"},
+	{CTDB_CONTROL_SET_TUNABLE,	"SET_TUNABLE"},
+	{CTDB_CONTROL_GET_TUNABLE,	"GET_TUNABLE"},
+	{CTDB_CONTROL_LIST_TUNABLES,	"LIST_TUNABLES"},
+	{CTDB_CONTROL_GET_PUBLIC_IPS,	"GET_PUBLIC_IPS"},
+	{CTDB_CONTROL_MODIFY_FLAGS,	"MODIFY_FLAGS"},
+	{CTDB_CONTROL_GET_ALL_TUNABLES,	"GET_ALL_TUNABLES"},
+	{CTDB_CONTROL_KILL_TCP,		"KILL_TCP"},
+	{CTDB_CONTROL_GET_TCP_TICKLE_LIST,	"GET_TCP_TICKLE_LIST"},
+	{CTDB_CONTROL_SET_TCP_TICKLE_LIST,	"SET_TCP_TICKLE_LIST"},
 	{0, NULL}
 };
+
+
+
+static int dissect_control_get_recmaster_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
+{
+	proto_tree_add_uint(tree, hf_ctdb_recmaster, tvb, 0, 0, status);
+
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " RecMaster:%d", status);
+	}
+
+	return offset;
+}
+
+static const value_string recmode_vals[] = {
+	{0,"NORMAL"},
+	{1,"RECOVERY ACTIVE"},
+	{0,NULL}
+};
+
+static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
+{
+	proto_tree_add_uint(tree, hf_ctdb_recmode, tvb, 0, 0, status);
+
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " RecMode:%s",
+			val_to_str(status, recmode_vals, "Unknown:%d"));
+	}
+
+	return offset;
+}
+
+static int dissect_control_get_nodemap_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
+{
+	guint32 num_nodes;
+
+	/* num nodes */
+	proto_tree_add_item(tree, hf_ctdb_num_nodes, tvb, offset, 4, endianess);
+	if(endianess){
+		num_nodes=tvb_get_letohl(tvb, offset);
+	} else {
+		num_nodes=tvb_get_ntohl(tvb, offset);
+	}
+	offset+=4;
+
+	while(num_nodes--){
+		/* vnn */
+		proto_tree_add_item(tree, hf_ctdb_vnn, tvb, offset, 4, endianess);
+		offset+=4;
+
+		/* node flags */
+		proto_tree_add_item(tree, hf_ctdb_node_flags, tvb, offset, 4, endianess);
+		offset+=4;
+
+		/* here comes a sockaddr_in but we only store ipv4 addresses in it */
+		proto_tree_add_item(tree, hf_ctdb_node_ip, tvb, offset+4, 4, FALSE);
+		offset+=16;
+	}
+
+	return offset;
+}
+
+static int dissect_control_process_exist_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status _U_, int endianess)
+{
+	guint32 pid;
+
+	/* pid */
+	proto_tree_add_item(tree, hf_ctdb_pid, tvb, offset, 4, endianess);
+	if(endianess){
+		pid=tvb_get_letohl(tvb, offset);
+	} else {
+		pid=tvb_get_ntohl(tvb, offset);
+	}
+	offset+=4;
+
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		col_append_fstr(pinfo->cinfo, COL_INFO, " pid:%d", pid);
+	}
+
+	return offset;
+}
+
+static const true_false_string process_exists_tfs = {
+  "Process does NOT exist",
+  "Process Exists"
+};
+
+static int dissect_control_process_exist_reply(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess _U_)
+{
+	proto_tree_add_boolean(tree, hf_ctdb_process_exists, tvb, offset, 4, status);
+	return offset;
+}
+
+/* This defines the array of dissectors for request/reply controls */
+typedef int (*control_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 status, int endianess);
+
+typedef struct _control_dissector_array_t {
+	guint32 opcode;
+	control_dissector request_dissector;
+	control_dissector reply_dissector;
+} control_dissector_array_t;
+
+static control_dissector_array_t control_dissectors[] = {
+	{CTDB_CONTROL_GET_RECMASTER,
+		NULL,
+		dissect_control_get_recmaster_reply},
+	{CTDB_CONTROL_GET_RECMODE,
+		NULL,
+		dissect_control_get_recmode_reply},
+	{CTDB_CONTROL_GET_NODEMAP,
+		NULL,
+		dissect_control_get_nodemap_reply},
+	{CTDB_CONTROL_FREEZE,
+		NULL,
+		NULL},
+	{CTDB_CONTROL_THAW,
+		NULL,
+		NULL},
+	{CTDB_CONTROL_PROCESS_EXISTS,
+		dissect_control_process_exist_request,
+		dissect_control_process_exist_reply},
+
+/*CTDB_CONTROL_STATISTICS*/
+/*CTDB_CONTROL_CONFIG*/
+/*CTDB_CONTROL_PING*/
+/*CTDB_CONTROL_GETDBPATH*/
+/*CTDB_CONTROL_GETVNNMAP*/
+/*CTDB_CONTROL_SETVNNMAP*/
+/*CTDB_CONTROL_GET_DEBUG*/
+/*CTDB_CONTROL_SET_DEBUG*/
+/*CTDB_CONTROL_GET_DBMAP*/
+/*CTDB_CONTROL_SET_DMASTER*/
+/*CTDB_CONTROL_CLEAR_DB*/
+/*CTDB_CONTROL_PULL_DB*/
+/*CTDB_CONTROL_PUSH_DB*/
+/*CTDB_CONTROL_SET_RECMODE*/
+/*CTDB_CONTROL_STATISTICS_RESET*/
+/*CTDB_CONTROL_DB_ATTACH*/
+/*CTDB_CONTROL_SET_CALL*/
+/*CTDB_CONTROL_TRAVERSE_START*/
+/*CTDB_CONTROL_TRAVERSE_ALL*/
+/*CTDB_CONTROL_TRAVERSE_DATA*/
+/*CTDB_CONTROL_REGISTER_SRVID*/
+/*CTDB_CONTROL_DEREGISTER_SRVID*/
+/*CTDB_CONTROL_GET_DBNAME*/
+/*CTDB_CONTROL_ENABLE_SEQNUM*/
+/*CTDB_CONTROL_UPDATE_SEQNUM*/
+/*CTDB_CONTROL_SET_SEQNUM_FREQUENCY*/
+/*CTDB_CONTROL_DUMP_MEMORY*/
+/*CTDB_CONTROL_GET_PID*/
+/*CTDB_CONTROL_SET_RECMASTER*/
+/*CTDB_CONTROL_GET_VNN*/
+/*CTDB_CONTROL_SHUTDOWN*/
+/*CTDB_CONTROL_GET_MONMODE*/
+/*CTDB_CONTROL_SET_MONMODE*/
+/*CTDB_CONTROL_MAX_RSN*/
+/*CTDB_CONTROL_SET_RSN_NONEMPTY*/
+/*CTDB_CONTROL_DELETE_LOW_RSN*/
+/*CTDB_CONTROL_TAKEOVER_IP*/
+/*CTDB_CONTROL_RELEASE_IP*/
+/*CTDB_CONTROL_TCP_CLIENT*/
+/*CTDB_CONTROL_TCP_ADD*/
+/*CTDB_CONTROL_TCP_REMOVE*/
+/*CTDB_CONTROL_STARTUP*/
+/*CTDB_CONTROL_SET_TUNABLE*/
+/*CTDB_CONTROL_GET_TUNABLE*/
+/*CTDB_CONTROL_LIST_TUNABLES*/
+/*CTDB_CONTROL_GET_PUBLIC_IPS*/
+/*CTDB_CONTROL_MODIFY_FLAGS*/
+/*CTDB_CONTROL_GET_ALL_TUNABLES*/
+/*CTDB_CONTROL_KILL_TCP*/
+/*CTDB_CONTROL_GET_TCP_TICKLE_LIST*/
+/*CTDB_CONTROL_SET_TCP_TICKLE_LIST*/
+	{0, NULL, NULL}
+};
+
+static control_dissector find_control_dissector(guint32 opcode, gboolean is_request)
+{
+	control_dissector_array_t *cd=control_dissectors;
+
+	while(cd){
+		if((!cd->opcode)&&(!cd->request_dissector)&&(!cd->reply_dissector)){
+			break;
+		}
+		if(opcode==cd->opcode){
+			if(is_request){
+				return cd->request_dissector;
+			} else {
+				return cd->reply_dissector;
+			}
+		}
+		cd++;
+	}
+	return NULL;
+}
 
 static const value_string ctdb_dbid_vals[] = {
 	{0x435d3410, 		"notify.tdb"},
@@ -240,6 +471,34 @@ ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_tra
 		nstime_t ns;
 
 		nstime_delta(&ns, &pinfo->fd->abs_ts, &ctdb_trans->req_time);
+		item=proto_tree_add_time(tree, hf_ctdb_time, tvb, 0, 0, &ns);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+}
+
+static void
+ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_control_t *ctdb_control)
+{
+	proto_item *item;
+
+	item=proto_tree_add_uint(tree, hf_ctdb_xid, tvb, 0, 0, (int)ctdb_control);
+	PROTO_ITEM_SET_GENERATED(item);
+
+	if(ctdb_control->request_in!=(gint32)pinfo->fd->num){
+		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_control->request_in);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+	if( (ctdb_control->response_in!=-1)
+	  &&(ctdb_control->response_in!=(gint32)pinfo->fd->num) ){
+		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_control->response_in);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+
+	if((gint32)pinfo->fd->num==ctdb_control->response_in){
+		nstime_t ns;
+
+		nstime_delta(&ns, &pinfo->fd->abs_ts, &ctdb_control->req_time);
 		item=proto_tree_add_time(tree, hf_ctdb_time, tvb, 0, 0, &ns);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
@@ -435,10 +694,13 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 
 static int
-dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid _U_, int endianess)
+dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
 {
 	guint32 datalen;
 	guint32 opcode;
+	ctdb_control_t *ctdb_control;
+	control_dissector cd;
+	int data_offset;
 
 	/* ctrl opcode */
 	proto_tree_add_item(tree, hf_ctdb_ctrl_opcode, tvb, offset, 4, endianess);
@@ -450,8 +712,9 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	offset+=4;
 
 	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
-			val_to_str(opcode, ctrl_opcode_vals, "Unknown:%d"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request %d->%d",
+			val_to_str(opcode, ctrl_opcode_vals, "Unknown:%d"),
+			src, dst);
 	}
 
 	/* srvid */
@@ -477,9 +740,142 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	offset+=4;
 
 	/* data */
-	proto_tree_add_item(tree, hf_ctdb_data, tvb, offset, datalen, endianess);
-	offset+=datalen;
+	data_offset=offset;
+	if (datalen) {
+		proto_tree_add_item(tree, hf_ctdb_data, tvb, offset, datalen, endianess);
+		offset+=datalen;
+	}
+
+	/* setup request/response matching */
+	if(!pinfo->fd->flags.visited){
+		emem_tree_key_t tkey[4];
+
+		ctdb_control=se_alloc(sizeof(ctdb_control_t));
+		ctdb_control->opcode=opcode;
+		ctdb_control->request_in=pinfo->fd->num;
+		ctdb_control->response_in=-1;
+		ctdb_control->req_time=pinfo->fd->abs_ts;
+		tkey[0].length=1;
+		tkey[0].key=&reqid;
+		tkey[1].length=1;
+		tkey[1].key=&src;
+		tkey[2].length=1;
+		tkey[2].key=&dst;
+		tkey[3].length=0;
+
+		se_tree_insert32_array(ctdb_controls, &tkey[0], ctdb_control);
+	} else {
+		emem_tree_key_t tkey[4];
+
+		tkey[0].length=1;
+		tkey[0].key=&reqid;
+		tkey[1].length=1;
+		tkey[1].key=&src;
+		tkey[2].length=1;
+		tkey[2].key=&dst;
+		tkey[3].length=0;
+		ctdb_control=se_tree_lookup32_array(ctdb_controls, &tkey[0]);
+	}
+
+
+	cd=find_control_dissector(ctdb_control->opcode, TRUE);
+	if (cd) {
+		cd(pinfo, tree, tvb, data_offset, 0, endianess);
+	}
+
+	if(ctdb_control){
+		ctdb_display_control(pinfo, tree, tvb, ctdb_control);
+	}
 	
+	return offset;
+}
+
+static int
+dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
+{
+	ctdb_control_t *ctdb_control;
+	emem_tree_key_t tkey[4];
+	proto_item *item;
+	guint32 datalen, errorlen, status;
+	int data_offset;
+	control_dissector cd;
+
+	tkey[0].length=1;
+	tkey[0].key=&reqid;
+	tkey[1].length=1;
+	tkey[1].key=&dst;
+	tkey[2].length=1;
+	tkey[2].key=&src;
+	tkey[3].length=0;
+	ctdb_control=se_tree_lookup32_array(ctdb_controls, &tkey[0]);
+
+	if(!ctdb_control){
+		return offset;
+	}
+
+	if(!pinfo->fd->flags.visited){
+		ctdb_control->response_in = pinfo->fd->num;
+	}
+
+	/* ctrl opcode */
+	item=proto_tree_add_uint(tree, hf_ctdb_ctrl_opcode, tvb, 0, 0, ctdb_control->opcode);
+	PROTO_ITEM_SET_GENERATED(item);
+
+	if(check_col(pinfo->cinfo, COL_INFO)){
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply %d->%d",
+			val_to_str(ctdb_control->opcode, ctrl_opcode_vals, "Unknown:%d"),
+			src, dst);
+	}
+
+
+	/* status */
+	proto_tree_add_item(tree, hf_ctdb_status, tvb, offset, 4, endianess);
+	if(endianess){
+		status=tvb_get_letohl(tvb, offset);
+	} else {
+		status=tvb_get_ntohl(tvb, offset);
+	}
+	offset+=4;
+
+	/* datalen */
+	proto_tree_add_item(tree, hf_ctdb_datalen, tvb, offset, 4, endianess);
+	if(endianess){
+		datalen=tvb_get_letohl(tvb, offset);
+	} else {
+		datalen=tvb_get_ntohl(tvb, offset);
+	}
+	offset+=4;
+
+	/* errorlen */
+	proto_tree_add_item(tree, hf_ctdb_errorlen, tvb, offset, 4, endianess);
+	if(endianess){
+		errorlen=tvb_get_letohl(tvb, offset);
+	} else {
+		errorlen=tvb_get_ntohl(tvb, offset);
+	}
+	offset+=4;
+
+	/* data */
+	data_offset=offset;
+	if (datalen) {
+		proto_tree_add_item(tree, hf_ctdb_data, tvb, offset, datalen, endianess);
+		offset+=datalen;
+	}
+
+
+	/* error */
+	if (errorlen) {
+		proto_tree_add_item(tree, hf_ctdb_error, tvb, offset, errorlen, endianess);
+		offset+=datalen;
+	}
+	
+
+	cd=find_control_dissector(ctdb_control->opcode, FALSE);
+	if (cd) {
+		cd(pinfo, tree, tvb, data_offset, status, endianess);
+	}
+
+	ctdb_display_control(pinfo, tree, tvb, ctdb_control);
 	return offset;
 }
 
@@ -695,9 +1091,10 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case CTDB_REQ_MESSAGE:
 		break;
 	case CTDB_REQ_CONTROL:
-		offset=dissect_ctdb_req_control(tvb, offset, pinfo, tree, reqid, endianess);
+		offset=dissect_ctdb_req_control(tvb, offset, pinfo, tree, reqid, src, dst, endianess);
 		break;
 	case CTDB_REPLY_CONTROL:
+		offset=dissect_ctdb_reply_control(tvb, offset, pinfo, tree, reqid, src, dst, endianess);
 		break;
 	};
 
@@ -742,6 +1139,9 @@ proto_register_ctdb(void)
 	{ &hf_ctdb_datalen, { 
 	  "Data Length", "ctdb.datalen", FT_UINT32, BASE_DEC, 
 	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_errorlen, { 
+	  "Error Length", "ctdb.errorlen", FT_UINT32, BASE_DEC, 
+	  NULL, 0x0, "", HFILL }},
 	{ &hf_ctdb_keylen, { 
 	  "Key Length", "ctdb.keylen", FT_UINT32, BASE_DEC, 
 	  NULL, 0x0, "", HFILL }},
@@ -765,6 +1165,9 @@ proto_register_ctdb(void)
 	  NULL, 0x0, "", HFILL }},
 	{ &hf_ctdb_data, { 
 	  "Data", "ctdb.data", FT_BYTES, BASE_HEX, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_error, { 
+	  "Error", "ctdb.error", FT_BYTES, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
 	{ &hf_ctdb_request_in, { 
 	  "Request In", "ctdb.request_in", FT_FRAMENUM, BASE_NONE, 
@@ -796,6 +1199,30 @@ proto_register_ctdb(void)
 	{ &hf_ctdb_ctrl_flags, { 
 	  "CTRL Flags", "ctdb.ctrl_flags", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_recmaster, { 
+	  "Recovery Master", "ctdb.recmaster", FT_UINT32, BASE_DEC, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_recmode, { 
+	  "Recovery Mode", "ctdb.recmode", FT_UINT32, BASE_DEC, 
+	  VALS(recmode_vals), 0x0, "", HFILL }},
+	{ &hf_ctdb_num_nodes, { 
+	  "Num Nodes", "ctdb.num_nodes", FT_UINT32, BASE_DEC, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_vnn, { 
+	  "VNN", "ctdb.vnn", FT_UINT32, BASE_DEC, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_node_flags, { 
+	  "Node Flags", "ctdb.node_flags", FT_UINT32, BASE_HEX, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_node_ip, { 
+	  "Node IP", "ctdb.node_ip", FT_IPv4, BASE_NONE, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_pid, { 
+	  "PID", "ctdb.pid", FT_UINT32, BASE_DEC, 
+	  NULL, 0x0, "", HFILL }},
+	{ &hf_ctdb_process_exists, { 
+	  "Process Exists", "ctdb.process_exists", FT_BOOLEAN, 32, 
+	  TFS(&process_exists_tfs), 0x01, "", HFILL }},
 	};
 
 	/* Setup protocol subtree array */
@@ -824,4 +1251,5 @@ proto_reg_handoff_ctdb(void)
 	heur_dissector_add("tcp", dissect_ctdb, proto_ctdb);
 
 	ctdb_transactions=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "CTDB transactions tree");
+	ctdb_controls=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "CTDB controls tree");
 }
