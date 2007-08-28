@@ -134,7 +134,9 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "CFile              : 0x%p", capture_opts->cf);
     g_log(log_domain, log_level, "Filter             : %s", capture_opts->cfilter);
     g_log(log_domain, log_level, "Interface          : %s", capture_opts->iface);
-    g_log(log_domain, log_level, "Interface Descr    : %s", capture_opts->iface_descr);
+    /* iface_descr may not been filled in and some C Libraries hate a null ptr for %s */
+    g_log(log_domain, log_level, "Interface Descr    : %s", 
+	  capture_opts->iface_descr ? capture_opts->iface_descr : "<null>");
 #ifdef _WIN32
     g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
 #endif
