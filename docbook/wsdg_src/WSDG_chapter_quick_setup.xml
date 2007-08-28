@@ -411,6 +411,13 @@
       Studio debugging</para>
     </section>
     <section>
+      <title>Optional: Create User's and Developer's Guide</title>
+      <para>
+      Detailed information to build these guides can be found in the file 
+      docbook/README.txt in the Wireshark sources. 
+      </para>
+    </section>
+    <section>
       <title>Optional: Create a Wireshark Installer</title>
       <para>Note: You should have successfully build Wireshark
       before doing the following!</para>
@@ -451,13 +458,6 @@
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
       above!</para>
-    </section>
-    <section>
-      <title>Optional: Create User's and Developer's Guide</title>
-      <para>
-      Detailed information to build these guides can be found in the file 
-      docbook/README.txt in the Wireshark sources. 
-      </para>
     </section>
   </section>
 </chapter>
