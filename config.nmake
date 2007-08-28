@@ -157,13 +157,7 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
 #
-# ZLIB must be recompiled on none MSVC 6 compilers, otherwise C runtime 
-# lib (msvcr)version conflicts appear.
-!IF "$(MSVC_VARIANT)" == "MSVC6" 
-ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
-!ELSE
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
-!ENDIF
 
 #
 # Optional: The Net-SNMP library enables SNMP OID to name resolvings

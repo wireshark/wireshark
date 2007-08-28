@@ -402,11 +402,9 @@ clean: clean_gtk2.tmp clean-deps
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
 distclean: clean
-!IF "$(MSVC_VARIANT)" != "MSVC6" 
 	rm -f $(ZLIB_DIR)\zlib1.dll $(ZLIB_DIR)\zlib1.dll.manifest \
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
 		$(ZLIB_DIR)\lib\zdll.lib 
-!ENDIF
 	rm -f config.h $(BUILT_SOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -476,7 +474,6 @@ image::
 # To avoid path problems, copy the zlib sources to a temp dir,
 # compile and copy the resulting files back to (source) ZLIB_DIR
 $(ZLIB_DIR)\zlib1.dll:
-!IF "$(MSVC_VARIANT)" != "MSVC6" 
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
 	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE" 
@@ -492,7 +489,6 @@ $(ZLIB_DIR)\zlib1.dll:
 	copy zlib.h $(ZLIB_DIR)\include
 	cd ..
     rm -r -f zlib.tmp
-!ENDIF
 
 wiretap::
 	cd wiretap
@@ -648,13 +644,8 @@ setup: verify_tools clean_setup
 		pcre-6.4 pcre-6.4-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
-!IF "$(MSVC_VARIANT)" == "MSVC6" 
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		zlib123-dll zlib123-dll.zip
-!ELSE
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		zlib123 zlib123.zip
-!ENDIF
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
