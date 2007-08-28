@@ -117,6 +117,7 @@ static int proto_snmp = -1;
 static int proto_smux = -1;
 
 static gboolean display_oid = TRUE;
+static gboolean snmp_var_in_tree = TRUE; 
 
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
@@ -287,7 +288,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 213 "packet-snmp-template.c"
+#line 214 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -329,7 +330,7 @@ static gint ett_snmp_SimpleOpen = -1;
 static gint ett_snmp_RReqPDU = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 231 "packet-snmp-template.c"
+#line 232 "packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -489,7 +490,6 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
-	dissector_handle_t subdissector = NULL;
 	const char* oid_string;
 	seq_offset = offset;
 	
@@ -602,7 +602,6 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 	if (oid_matched+oid_left) {
 		oid_string = oid_subid2string(subids,oid_matched+oid_left);
-		subdissector = dissector_get_string_handle(value_sub_dissectors_table, oid_string);
 	} else {
 		oid_string = ".";
 	}
@@ -762,10 +761,10 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	}
 indexing_done:
 	
-	if (value_len > 0 && subdissector) {
+	if (value_len > 0 && oid_string) {
 		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
-		
-		call_dissector(subdissector, tvb, actx->pinfo, pt_varbind);
+
+		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_varbind : NULL, value_sub_dissectors_table, oid_string);
 		
 		return seq_offset + seq_len;
 	}
@@ -2793,7 +2792,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1358 "packet-snmp-template.c"
+#line 1357 "packet-snmp-template.c"
 
 
 guint
@@ -3569,7 +3568,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1869 "packet-snmp-template.c"
+#line 1868 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3608,7 +3607,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1884 "packet-snmp-template.c"
+#line 1883 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
@@ -3650,7 +3649,6 @@ void proto_register_snmp(void) {
 		&display_oid);
 
 	prefs_register_obsolete_preference(snmp_module, "mib_modules");
-	prefs_register_obsolete_preference(snmp_module, "var_in_tree");
 	prefs_register_obsolete_preference(snmp_module, "users_file");
 
 	prefs_register_bool_preference(snmp_module, "desegment",
@@ -3659,6 +3657,10 @@ void proto_register_snmp(void) {
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &snmp_desegment);
 
+  prefs_register_bool_preference(snmp_module, "var_in_tree",
+		"Display dissected variables inside SNMP tree",
+		"ON - display dissected variables inside SNMP tree, OFF - display dissected variables in root tree after SNMP",
+		&snmp_var_in_tree); 
 
   prefs_register_uat_preference(snmp_module, "users_table",
 								"Users Table",

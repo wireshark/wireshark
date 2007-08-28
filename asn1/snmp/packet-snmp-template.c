@@ -109,6 +109,7 @@ static int proto_snmp = -1;
 static int proto_smux = -1;
 
 static gboolean display_oid = TRUE;
+static gboolean snmp_var_in_tree = TRUE; 
 
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
@@ -387,7 +388,6 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
-	dissector_handle_t subdissector = NULL;
 	const char* oid_string;
 	seq_offset = offset;
 	
@@ -500,7 +500,6 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 	if (oid_matched+oid_left) {
 		oid_string = oid_subid2string(subids,oid_matched+oid_left);
-		subdissector = dissector_get_string_handle(value_sub_dissectors_table, oid_string);
 	} else {
 		oid_string = ".";
 	}
@@ -660,10 +659,10 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	}
 indexing_done:
 	
-	if (value_len > 0 && subdissector) {
+	if (value_len > 0 && oid_string) {
 		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
-		
-		call_dissector(subdissector, tvb, actx->pinfo, pt_varbind);
+
+		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_varbind : NULL, value_sub_dissectors_table, oid_string);
 		
 		return seq_offset + seq_len;
 	}
@@ -1922,7 +1921,6 @@ void proto_register_snmp(void) {
 		&display_oid);
 
 	prefs_register_obsolete_preference(snmp_module, "mib_modules");
-	prefs_register_obsolete_preference(snmp_module, "var_in_tree");
 	prefs_register_obsolete_preference(snmp_module, "users_file");
 
 	prefs_register_bool_preference(snmp_module, "desegment",
@@ -1931,6 +1929,10 @@ void proto_register_snmp(void) {
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &snmp_desegment);
 
+  prefs_register_bool_preference(snmp_module, "var_in_tree",
+		"Display dissected variables inside SNMP tree",
+		"ON - display dissected variables inside SNMP tree, OFF - display dissected variables in root tree after SNMP",
+		&snmp_var_in_tree); 
 
   prefs_register_uat_preference(snmp_module, "users_table",
 								"Users Table",
