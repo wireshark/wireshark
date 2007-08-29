@@ -1046,8 +1046,11 @@ class EthCtx:
     #--- values -> named values -------------------
     t_for_update = {}
     for v in self.value_ord:
-      if (self.value[v]['type'].type == 'Type_Ref'):
-        tnm = self.value[v]['type'].val
+      if (self.value[v]['type'].type == 'Type_Ref') or self.conform.check_item('ASSIGN_VALUE_TO_TYPE', v):
+        if self.conform.check_item('ASSIGN_VALUE_TO_TYPE', v):
+          tnm = self.conform.use_item('ASSIGN_VALUE_TO_TYPE', v)
+        else:
+          tnm = self.value[v]['type'].val
         if self.type.has_key(tnm) \
            and not self.type[tnm]['import'] \
            and (self.type[tnm]['val'].type == 'IntegerType'):
@@ -2033,7 +2036,7 @@ class EthCnf:
     self.tblcfg['FIELD_ATTR']      = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['EFIELD_ATTR']     = { 'val_nm' : 'attr',     'val_dflt' : {},    'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['ASSIGNED_ID']     = { 'val_nm' : 'ids',      'val_dflt' : {},    'chk_dup' : False,'chk_use' : False }
-
+    self.tblcfg['ASSIGN_VALUE_TO_TYPE'] = { 'val_nm' : 'name', 'val_dflt' : None, 'chk_dup' : True, 'chk_use' : True }
 
     for k in self.tblcfg.keys() :
       self.table[k] = {}
@@ -2204,7 +2207,7 @@ class EthCnf:
       return par
 
     f = open(fn, "r")
-    directive = re.compile(r'^\s*#\.(?P<name>[A-Z_][A-Z_0-9]*)\s+')
+    directive = re.compile(r'^\s*#\.(?P<name>[A-Z_][A-Z_0-9]*)(\s+|$)')
     report = re.compile(r'^TABLE(?P<num>\d*)_(?P<type>HDR|BODY|FTR)$')
     comment = re.compile(r'^\s*#[^.]')
     empty = re.compile(r'^\s*$')
@@ -2243,7 +2246,7 @@ class EthCnf:
         elif result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
                                     'MODULE', 'MODULE_IMPORT', 
                                     'OMIT_ASSIGNMENT', 'NO_OMIT_ASSGN', 
-                                    'VIRTUAL_ASSGN', 'SET_TYPE',
+                                    'VIRTUAL_ASSGN', 'SET_TYPE', 'ASSIGN_VALUE_TO_TYPE',
                                     'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
@@ -2476,6 +2479,11 @@ class EthCnf:
         if not par[1][0].isupper():
           warnings.warn_explicit("Set type should have uppercase name (%s)" % (par[1]),
                                   UserWarning, fn, lineno)
+      elif ctx == 'ASSIGN_VALUE_TO_TYPE':
+        if empty.match(line): continue
+        par = get_par(line, 2, 2, fn=fn, lineno=lineno)
+        if not par: continue
+        self.add_item(ctx, par[0], name=par[1], fn=fn, lineno=lineno)
       elif ctx == 'TYPE_RENAME':
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
