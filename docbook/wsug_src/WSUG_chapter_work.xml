@@ -814,7 +814,7 @@ eth.addr == ffff.ffff.ffff</programlisting></para></entry>
                 certain subnet. For example, this display filter
                 will find all packets in the 129.111 Class-B
                 network:
-                <para></para>ip.addr == 129.111.0.0/16</para></entry>
+                </para><para>ip.addr == 129.111.0.0/16</para></entry>
 		  </row>
 		  <row>
 		    <entry>IPv6 address</entry>
