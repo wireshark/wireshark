@@ -1756,8 +1756,56 @@ SupplementaryInformation ::=
 --}
 
 ExtensionType ::= CHOICE {
-  standard-extension  [0]  INTEGER --(0..ub-extension-types)--,
+  standard-extension  [0]  StandardExtension --(0..ub-extension-types)--,
   private-extension   [3]  OBJECT IDENTIFIER
+}
+
+StandardExtension ::= INTEGER {
+  recipient-reassignment-prohibited (1),
+  originator-requested-alternate-recipient (2),
+  dl-expansion-prohibited (3),
+  conversion-with-loss-prohibited (4),
+  latest-delivery-time (5),
+  requested-delivery-method (6),
+  physical-forwarding-prohibited (7),
+  physical-forwarding-address-request (8),
+  physical-delivery-modes (9),
+  registered-mail-type (10),
+  recipient-number-for-advice (11),
+  physical-rendition-attributes (12),
+  originator-return-address (13),
+  physical-delivery-report-request (14),
+  originator-certificate (15),
+  message-token (16),
+  content-confidentiality-algorithm-identifier (17),
+  content-integrity-check (18),
+  message-origin-authentication-check (19),
+  message-security-label (20),
+  proof-of-submission-request (21),
+  proof-of-delivery-request (22),
+  content-correlator (23),
+  probe-origin-authentication-check (24),
+  redirection-history (25),
+  dl-expansion-history (26),
+  physical-forwarding-address (27),
+  recipient-certificate (28),
+  proof-of-delivery (29),
+  originator-and-DL-expansion-history (30),
+  reporting-DL-name (31),
+  reporting-MTA-certificate (32),
+  report-origin-authentication-check (33),
+  originating-MTA-certificate (34),
+  proof-of-submission (35),
+  forwarding-request (36),
+  trace-information (37),
+  internal-trace-information (38),
+  reporting-MTA-name (39),
+  multiple-originator-certificates (40),
+  blind-copy-recipients (41),
+  dl-exempted-recipients (42),
+  body-part-encryption-token (43),
+  forwarded-content-token (44),
+  certificate-selectors (45)
 }
 
 Criticality ::= BIT STRING {for-submission(0), for-transfer(1), for-delivery(2)
@@ -2364,10 +2412,55 @@ ExtensionAttributes ::=
 
 ExtensionAttribute ::= SEQUENCE {
   extension-attribute-type
-    [0]  INTEGER --EXTENSION-ATTRIBUTE.&id({ExtensionAttributeTable}) --,
+    [0]  ExtensionAttributeType --EXTENSION-ATTRIBUTE.&id({ExtensionAttributeTable}) --,
   extension-attribute-value
     [1]  ANY --EXTENSION-ATTRIBUTE.&Type
 --           ({ExtensionAttributeTable}{@extension-attribute-type})
+}
+
+
+
+ExtensionAttributeType ::= INTEGER {
+  common-name (1),
+  teletex-common-name (2),
+  teletex-organization-name (3),
+  teletex-personal-name (4),
+  teletex-organizational-unit-names (5),
+  teletex-domain-defined-attributes (6),
+  pds-name (7),
+  physical-delivery-country-name (8),
+  postal-code (9),
+  physical-delivery-office-name (10),
+  physical-delivery-office-number (11),
+  extension-OR-address-components (12),
+  physical-delivery-personal-name (13),
+  physical-delivery-organization-name (14),
+  extension-physical-delivery-address-components (15),
+  unformatted-postal-address (16),
+  street-address (17),
+  post-office-box-address (18),
+  poste-restante-address (19),
+  unique-postal-name (20),
+  local-postal-attributes (21),
+  extended-network-address (22),
+  terminal-type (23),
+  universal-common-name (24),
+  universal-organization-name (25),
+  universal-personal-name (26),
+  universal-organizational-unit-names (27),
+  universal-domain-defined-attributes (28),
+  universal-physical-delivery-office-name (29),
+  universal-physical-delivery-office-number (30),
+  universal-extension-OR-address-components (31),
+  universal-physical-delivery-personal-name (32),
+  universal-physical-delivery-organization-name (33),
+  universal-extension-physical-delivery-address-components (34),
+  universal-unformatted-postal-address (35),
+  universal-street-address (36),
+  universal-post-office-box-address (37),
+  universal-poste-restante-address (38),
+  universal-unique-postal-name (39),
+  universal-local-postal-attributes (40)
 }
 
 --EXTENSION-ATTRIBUTE ::= CLASS {
@@ -2857,8 +2950,15 @@ AsymmetricToken ::= SEQUENCE {
 }
 
 TokenData ::= SEQUENCE {
-  type   [0]  INTEGER -- TOKEN-DATA.&id({TokenDataTable}) --,
+  type   [0]  TokenDataType -- TOKEN-DATA.&id({TokenDataTable}) --,
   value  [1]  ANY -- TOKEN-DATA.&Type({TokenDataTable}{@type})
+}
+
+TokenDataType ::= INTEGER {
+  bind-token-signed-data (1),
+  message-token-signed-data (2),
+  message-token-encrypted-data (3),
+  bind-token-encrypted-data (4)
 }
 
 --TOKEN-DATA ::= CLASS {&id    INTEGER UNIQUE,

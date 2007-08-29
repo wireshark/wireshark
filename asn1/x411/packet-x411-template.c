@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -76,9 +77,6 @@ static proto_item *address_item;
 
 static proto_tree *top_tree=NULL;
 
-static int
-call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-
 #include "packet-x411-hf.c"
 
 /* Initialize the subtree pointers */
@@ -86,24 +84,17 @@ static gint ett_x411 = -1;
 static gint ett_x411_content_unknown = -1;
 static gint ett_x411_bilateral_information = -1;
 static gint ett_x411_additional_information = -1;
+static gint ett_x411_unknown_standard_extension = -1;
+static gint ett_x411_unknown_extension_attribute_type = -1;
+static gint ett_x411_unknown_tokendata_type = -1;
 #include "packet-x411-ett.c"
 
+/* Dissector tables */
+static dissector_table_t x411_extension_dissector_table;
+static dissector_table_t x411_extension_attribute_dissector_table;
+static dissector_table_t x411_tokendata_dissector_table;
+
 #include "packet-x411-fn.c"
-
-static int
-call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-  const char *name = NULL;
-  char* extension_oid;
-
-  extension_oid = ep_strdup_printf("%s.%d", base_oid, extension_id);
-
-  name = get_oid_str_name(extension_oid);
-  proto_item_append_text(tree, " (%s)", name ? name : extension_oid); 
-
-  return call_ber_oid_callback(extension_oid, tvb, offset, pinfo, tree);
-
-}
 
 
 /*
@@ -228,6 +219,9 @@ void proto_register_x411(void) {
     &ett_x411_content_unknown,
     &ett_x411_bilateral_information,
     &ett_x411_additional_information,
+    &ett_x411_unknown_standard_extension,
+    &ett_x411_unknown_extension_attribute_type,
+    &ett_x411_unknown_tokendata_type,
 #include "packet-x411-ettarr.c"
   };
 
@@ -239,6 +233,10 @@ void proto_register_x411(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x411, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  x411_extension_dissector_table = register_dissector_table("x411.extension", "X411-EXTENSION", FT_UINT32, BASE_DEC);
+  x411_extension_attribute_dissector_table = register_dissector_table("x411.extension-attribute", "X411-EXTENSION-ATTRIBUTE", FT_UINT32, BASE_DEC);
+  x411_tokendata_dissector_table = register_dissector_table("x411.tokendata", "X411-TOKENDATA", FT_UINT32, BASE_DEC);
 
   /* Register our configuration options for X411, particularly our port */
 

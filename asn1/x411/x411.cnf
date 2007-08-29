@@ -146,76 +146,76 @@ MTABindError
 MTS-APDU
 
 #.REGISTER
-RecipientReassignmentProhibited				B "x411.extension.1" "recipient-reassignment-prohibited"
-MTSOriginatorRequestedAlternateRecipient	B "x411.extension.2" "originator-requested-alternate-recipient"
-DLExpansionProhibited						B "x411.extension.3" "dl-expansion-prohibited"
-ConversionWithLossProhibited				B "x411.extension.4" "conversion-with-loss-prohibited"
-LatestDeliveryTime							B "x411.extension.5" "latest-delivery-time"
-RequestedDeliveryMethod B "x411.extension.6" "requested-delivery-method"
-PhysicalForwardingProhibited B "x411.extension.7" "physical-forwarding-prohibited"
-PhysicalForwardingAddressRequest B "x411.extension.8" "physical-forwarding-address-request"
-PhysicalDeliveryModes B "x411.extension.9" "physical-delivery-modes"
-RegisteredMailType B "x411.extension.10" "registered-mail-type"
-RecipientNumberForAdvice B "x411.extension.11" "recipient-number-for-advice"
-PhysicalRenditionAttributes B "x411.extension.12" "physical-rendition-attributes"
-OriginatorReturnAddress B "x411.extension.13" "originator-return-address"
-PhysicalDeliveryReportRequest B "x411.extension.14" "physical-delivery-report-request"
-OriginatorCertificate B "x411.extension.15" "originator-certificate"
-MessageToken B "x411.extension.16" "message-token"
-ContentConfidentialityAlgorithmIdentifier B "x411.extension.17" "content-confidentiality-algorithm-identifier"
-ContentIntegrityCheck B "x411.extension.18" "content-integrity-check"
-MessageOriginAuthenticationCheck B "x411.extension.19" "message-origin-authentication-check"
-MessageSecurityLabel B "x411.extension.20" "message-security-label"
-ProofOfSubmissionRequest B "x411.extension.21" "proof-of-submission-request"
-ProofOfDeliveryRequest B "x411.extension.22" "proof-of-delivery-request"
-ContentCorrelator B "x411.extension.23" "content-correlator"
-ProbeOriginAuthenticationCheck B "x411.extension.24" "probe-origin-authentication-check"
-RedirectionHistory B "x411.extension.25" "redirection-history"
-DLExpansionHistory B "x411.extension.26" "dl-expansion-history"
-PhysicalForwardingAddress B "x411.extension.27" "physical-forwarding-address"
-RecipientCertificate B "x411.extension.28" "recipient-certificate"
-ProofOfDelivery B "x411.extension.29" "proof-of-delivery"
-OriginatorAndDLExpansionHistory B "x411.extension.30" "originator-and-DL-expansion-history"
-ReportingDLName B "x411.extension.31" "reporting-DL-name"
-ReportingMTACertificate B "x411.extension.32" "reporting-MTA-certificate"
-ReportOriginAuthenticationCheck B "x411.extension.33" "report-origin-authentication-check"
-ProofOfSubmission	B "x411.extension.35" "proof-of-submission"
+RecipientReassignmentProhibited N x411.extension 1
+MTSOriginatorRequestedAlternateRecipient N x411.extension 2
+DLExpansionProhibited N x411.extension 3
+ConversionWithLossProhibited N x411.extension 4
+LatestDeliveryTime N x411.extension 5
+RequestedDeliveryMethod N x411.extension 6
+PhysicalForwardingProhibited N x411.extension 7
+PhysicalForwardingAddressRequest N x411.extension 8
+PhysicalDeliveryModes N x411.extension 9
+RegisteredMailType N x411.extension 10
+RecipientNumberForAdvice N x411.extension 11
+PhysicalRenditionAttributes N x411.extension 12
+OriginatorReturnAddress N x411.extension 13
+PhysicalDeliveryReportRequest N x411.extension 14
+OriginatorCertificate N x411.extension 15
+MessageToken N x411.extension 16
+ContentConfidentialityAlgorithmIdentifier N x411.extension 17
+ContentIntegrityCheck N x411.extension 18
+MessageOriginAuthenticationCheck N x411.extension 19
+MessageSecurityLabel N x411.extension 20
+ProofOfSubmissionRequest N x411.extension 21
+ProofOfDeliveryRequest N x411.extension 22
+ContentCorrelator N x411.extension 23
+ProbeOriginAuthenticationCheck N x411.extension 24
+RedirectionHistory N x411.extension 25
+DLExpansionHistory N x411.extension 26
+PhysicalForwardingAddress N x411.extension 27
+RecipientCertificate N x411.extension 28
+ProofOfDelivery N x411.extension 29
+OriginatorAndDLExpansionHistory N x411.extension 30
+ReportingDLName N x411.extension 31
+ReportingMTACertificate N x411.extension 32
+ReportOriginAuthenticationCheck N x411.extension 33
+ProofOfSubmission N x411.extension 35
 
-TraceInformation B "x411.extension.37" "trace-information"
-InternalTraceInformation B "x411.extension.38" "internal-trace-information"
-ReportingMTAName B "x411.extension.39" "reporting-MTA-name"
-ExtendedCertificates B "x411.extension.40" "multiple-originator-certificates"
+TraceInformation N x411.extension 37
+InternalTraceInformation N x411.extension 38
+ReportingMTAName N x411.extension 39
+ExtendedCertificates N x411.extension 40
 
-DLExemptedRecipients B "x411.extension.42" "dl-exempted-recipients"
+DLExemptedRecipients N x411.extension 42
 
-CertificateSelectors B "x411.extension.45" "certificate-selectors"
+CertificateSelectors N x411.extension 45
 
-CommonName B "x411.extension-attribute.1" "common-name"
-TeletexCommonName B "x411.extension-attribute.2" "teletex-common-name"
-TeletexOrganizationName B "x411.extension-attribute.3" "teletex-organization-name"
-TeletexPersonalName B "x411.extension-attribute.4" "teletex-personal-name"
-TeletexOrganizationalUnitNames B "x411.extension-attribute.5" "teletex-organizational-unit-names"
+CommonName N x411.extension-attribute 1
+TeletexCommonName N x411.extension-attribute 2
+TeletexOrganizationName N x411.extension-attribute 3
+TeletexPersonalName N x411.extension-attribute 4
+TeletexOrganizationalUnitNames N x411.extension-attribute 5
 
-PDSName B "x411.extension-attribute.7" "pds-name"
-PhysicalDeliveryCountryName B "x411.extension-attribute.8" "physical-delivery-country-name"
-PostalCode B "x411.extension-attribute.9" "postal-code"
-PhysicalDeliveryOfficeName B "x411.extension-attribute.10" "physical-delivery-office-name"
+PDSName N x411.extension-attribute 7
+PhysicalDeliveryCountryName N x411.extension-attribute 8
+PostalCode N x411.extension-attribute 9
+PhysicalDeliveryOfficeName N x411.extension-attribute 10
 
-UniversalCommonName B "x411.extension-attribute.24" "universal-common-name"
-UniversalOrganizationName B "x411.extension-attribute.25" "universal-organization-name"
-UniversalPersonalName B "x411.extension-attribute.26" "universal-personal-name"
-UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-organizational-unit-names"
+UniversalCommonName N x411.extension-attribute 24
+UniversalOrganizationName N x411.extension-attribute 25
+UniversalPersonalName N x411.extension-attribute 26
+UniversalOrganizationalUnitNames N x411.extension-attribute 27
 
 ReportDeliveryArgument	B	"2.6.1.4.14"	"id-et-report"
 
 AsymmetricToken		B	"2.6.3.6.0"	"id-tok-asymmetricToken"
 MTANameAndOptionalGDI	B	"2.6.5.6.0"	"id-on-mtaName"
 
-BindTokenSignedData	B	"x411.tokendata.1"	"bind-token-signed-data"
-MessageTokenSignedData	B	"x411.tokendata.2"	"message-token-signed-data"
+BindTokenSignedData	N	x411.tokendata 1
+MessageTokenSignedData	N	x411.tokendata 2
 # the next two are unlikely to ever be seen (unless in a bad encoding)
-MessageTokenEncryptedData B	"x411.tokendata.3"	"message-token-encrypted-data"
-BindTokenEncryptedData	B	"x411.tokendata.4"	"bind-token-encrypted-data"
+MessageTokenEncryptedData N	x411.tokendata 3
+BindTokenEncryptedData	N	x411.tokendata 4
 
 # X402 - see master list in acp133.cnf
 
@@ -256,9 +256,21 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 #.FN_BODY ExtensionField/value
 	const char *name;
 
-	if(extension_id != -1) 
-		offset=call_x411_oid_callback("x411.extension", tvb, offset, actx->pinfo, tree);
-	else if(object_identifier_id) {
+	if(extension_id != -1) {
+		proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, x411_StandardExtension_vals, "standard-extension %%d")); 
+  		if (dissector_try_port(x411_extension_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+			offset = tvb_length(tvb);
+		} else {
+			proto_item *item = NULL;
+			proto_tree *next_tree = NULL;
+
+			item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
+				"Dissector for standard-extension %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
+			next_tree = proto_item_add_subtree(item, ett_x411_unknown_standard_extension);
+			offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
+			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown standard-extension");
+		}
+	} else if (object_identifier_id) {
 		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 		name = get_oid_str_name(object_identifier_id);
 		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
@@ -269,12 +281,25 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
-#.FN_PARS ExtensionAttribute/extension-attribute-type
+#.FN_PARS ExtensionAttributeType
 	VAL_PTR = &extension_id
 
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
-	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, actx->pinfo, tree);
+	proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, x411_ExtensionAttributeType_vals, "extension-attribute-type %%d")); 
+	if (dissector_try_port(x411_extension_attribute_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+		offset =tvb_length(tvb);
+	} else {
+		proto_item *item = NULL;
+		proto_tree *next_tree = NULL;
+
+		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
+			"Dissector for extension-attribute-type %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
+		next_tree = proto_item_add_subtree(item, ett_x411_unknown_extension_attribute_type);
+		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
+		expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown extension-attribute-type");
+	}
+
 
 #.FN_BODY RefusedOperation/refused-argument/refused-extension
 /*XXX not implemented yet */
@@ -340,12 +365,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
                                          actx, tree, tvb, offset, hf_index,
                                          NULL);
 
-
-#.FN_PARS ExtensionType/standard-extension
+#.FN_PARS StandardExtension
 	VAL_PTR = &extension_id
-
-
-	
 
 #.FN_BODY ExtensionType/private-extension  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
@@ -403,6 +424,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
       proto_tree *next_tree = NULL;
 
       item = proto_tree_add_text(top_tree ? top_tree : tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "X.411 Unknown Content (unknown built-in content-type)");
+      expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown built-in content-type");
       if (item) {
         next_tree=proto_item_add_subtree(item, ett_x411_content_unknown);
       }
@@ -773,9 +795,24 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
   }
 
+#.FN_PARS TokenDataType
+	VAL_PTR = &extension_id
+
 #.FN_BODY TokenData/value
 
-	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, actx->pinfo, tree);
+	proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, x411_TokenDataType_vals, "tokendata-type %%d")); 
+	if (dissector_try_port(x411_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+		offset = tvb_length(tvb);
+	} else {
+		proto_item *item = NULL;
+		proto_tree *next_tree = NULL;
+
+		item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), 
+			"Dissector for tokendata-type %%d not implemented.  Contact Wireshark developers if you want this supported", extension_id);
+		next_tree = proto_item_add_subtree(item, ett_x411_unknown_tokendata_type);
+		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
+		expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown tokendata-type");
+	}
 
 #.FN_BODY PerDomainBilateralInformation/bilateral-information
 	proto_item *item = NULL;
