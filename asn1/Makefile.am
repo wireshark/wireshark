@@ -43,6 +43,22 @@ EXTRA_DIST = \
 	ansi_map/packet-ansi_map-template.c	\
 	ansi_map/packet-ansi_map-template.h	\
 	camel/camel.asn	\
+	camel/CAP-classes.asn	\
+	camel/CAP-datatypes.asn	\
+	camel/CAP-errorcodes.asn	\
+	camel/CAP-errortypes.asn	\
+	camel/CAP-GPRS-ReferenceNumber.asn	\
+	camel/CAP-gprsSSF-gsmSCF-ops-args.asn	\
+	camel/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.asn	\
+	camel/CAP-gsmSCF-gsmSRF-ops-args.asn	\
+	camel/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.asn	\
+	camel/CAP-gsmSSF-gsmSCF-ops-args.asn	\
+	camel/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.asn	\
+	camel/CAP-object-identifiers.asn	\
+	camel/CAP-operationcodes.asn	\
+	camel/CAP-SMS-ops-args.asn	\
+	camel/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.asn	\
+	camel/CAP-U-ABORT-Data.asn		\
 	camel/camel.cnf	\
 	camel/Makefile	\
 	camel/Makefile.nmake	\
@@ -118,8 +134,31 @@ EXTRA_DIST = \
 	gnm/packet-gnm-template.c	\
 	gnm/packet-gnm-template.h	\
 	gsmmap/GSMMAP.asn	\
+	gsmmap/MAP-ApplicationContexts.asn	\
+	gsmmap/MAP-BS-Code.asn	\
+	gsmmap/MAP-CallHandlingOperations.asn	\
+	gsmmap/MAP-CH-DataTypes.asn	\
+	gsmmap/MAP-CommonDataTypes.asn	\
+	gsmmap/MAP-DialogueInformation.asn	\
+	gsmmap/MAP-ER-DataTypes.asn	\
+	gsmmap/MAP-Errors.asn	\
 	gsmmap/MAP-ExtensionDataTypes.asn	\
+	gsmmap/MAP-GR-DataTypes.asn	\
+	gsmmap/MAP-Group-Call-Operations.asn	\
 	gsmmap/MAP-LCS-DataTypes.asn	\
+	gsmmap/MAP-LocationServiceOperations.asn	\
+	gsmmap/MAP-MobileServiceOperations.asn	\
+	gsmmap/MAP-MS-DataTypes.asn	\
+	gsmmap/MAP-OM-DataTypes.asn	\
+	gsmmap/MAP-OperationAndMaintenanceOperations.asn	\
+	gsmmap/MAP-Protocol.asn	\
+	gsmmap/MAP-ShortMessageServiceOperations.asn	\
+	gsmmap/MAP-SM-DataTypes.asn	\
+	gsmmap/MAP-SS-Code.asn	\
+	gsmmap/MAP-SS-DataTypes.asn	\
+	gsmmap/MAP-SupplementaryServiceOperations.asn	\
+	gsmmap/MAP-TS-Code.asn	\
+	gsmmap/MobileDomainDefinitions.asn	\
 	gsmmap/gsmmap.cnf	\
 	gsmmap/gsm_map-exp.cnf	\
 	gsmmap/Makefile	\
@@ -179,6 +218,18 @@ EXTRA_DIST = \
 	h450/packet-h450-ros-template.c	\
 	h450/packet-h450-ros-template.h	\
 	inap/inap.asn	\
+	inap/IN-common-classes.asn	\
+	inap/IN-common-datatypes.asn	\
+	inap/IN-errorcodes.asn	\
+	inap/IN-errortypes.asn	\
+	inap/IN-object-identifiers.asn	\
+	inap/IN-operationcodes.asn	\	
+	inap/IN-SCF-SRF-Classes.asn	\
+	inap/IN-SCF-SRF-datatypes.asn	\
+	inap/IN-SCF-SRF-ops-args.asn	\
+	inap/IN-SSF-SCF-Classes.asn	\
+	inap/IN-SSF-SCF-datatypes.asn	\
+	inap/IN-SSF-SCF-ops-args.asn	\
 	inap/inap.cnf	\
 	inap/Makefile	\
 	inap/Makefile.nmake	\
@@ -380,6 +431,9 @@ EXTRA_DIST = \
 	ros/packet-ros-template.c	\
 	ros/packet-ros-template.h	\
 	ros/ros.asn	\
+	ros/Remote-Operations-Generic-ROS-PDUs.asn	\
+	ros/Remote-Operations-Information-Objects.asn	\
+	ros/Remote-Operations-Useful-Definitions.asn	\
 	ros/ros.cnf	\
 	ros/ros-exp.cnf	\
 	rrc/Makefile	\
@@ -440,6 +494,11 @@ EXTRA_DIST = \
 	tcap/packet-tcap-template.c	\
 	tcap/packet-tcap-template.h	\
 	tcap/tcap.asn	\
+	tcap/DialoguePDUs.asn	\
+	tcap/TCAP-Remote-Operations-Information-Objects.asn	\
+	tcap/TCAPMessages.asn	\
+	tcap/TCAPPackage.asn	\
+	tcap/UnidialoguePDUs.asn	\
 	tcap/tcap.cnf	\
 	ulp/Makefile	\
 	ulp/Makefile.nmake	\
