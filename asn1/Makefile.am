@@ -49,11 +49,8 @@ EXTRA_DIST = \
 	camel/CAP-errortypes.asn	\
 	camel/CAP-GPRS-ReferenceNumber.asn	\
 	camel/CAP-gprsSSF-gsmSCF-ops-args.asn	\
-	camel/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.asn	\
 	camel/CAP-gsmSCF-gsmSRF-ops-args.asn	\
-	camel/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.asn	\
 	camel/CAP-gsmSSF-gsmSCF-ops-args.asn	\
-	camel/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.asn	\
 	camel/CAP-object-identifiers.asn	\
 	camel/CAP-operationcodes.asn	\
 	camel/CAP-SMS-ops-args.asn	\
