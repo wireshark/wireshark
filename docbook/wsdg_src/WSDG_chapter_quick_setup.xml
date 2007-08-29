@@ -50,9 +50,8 @@
       <tip>
         <title>Other Microsoft C compiler variants
         possible!</title>
-        <para>It's possible to compile compile Wireshark with a
-        wide range of Microsoft C compiler variants, for details
-        see 
+        <para>It's possible to compile Wireshark with a wide range
+        of Microsoft C compiler variants, for details see 
         <xref linkend="ChToolsMSChain" />!</para>
       </tip>
       <warning>
@@ -196,9 +195,9 @@
               </listitem>
               <listitem>
                 <para>if the download fails you may be behind a
-                restrictive firewall, see - XXX add link -
-                Obtaining Sources Section for alternative download
-                methods</para>
+                restrictive firewall, see 
+                <xref linkend="ChSrcObtain" />for alternative
+                download methods</para>
               </listitem>
             </orderedlist>
           </para>
@@ -231,7 +230,8 @@
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
-      above!</para>
+      at 
+      <xref linkend="ChToolsMSChain" />!</para>
       <para>
       <superscript>2</superscript>International Windows might use
       different values here, e.g. a german version uses
@@ -265,7 +265,8 @@
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
-      above!</para>
+      at 
+      <xref linkend="ChToolsMSChain" />!</para>
       <para>
       <superscript>2</superscript>International Windows might use
       different values here, e.g. a german version uses
@@ -427,7 +428,14 @@
           Download</ulink>the C-Runtime redistributable for Visual
           C++ 2005 Express Edition (vcredist_x86.exe) and copy it
           into C:\wireshark-win32-libs 
-          <superscript>1</superscript></para>
+          <superscript>1</superscript>
+          <warning>
+            <title>Beware of Visual Studio Service Packs!</title>
+            <para>If you have installed the Visual Studio Service
+            Pack 1, you need a different vcredist_x86.exe version!
+            See 
+            <xref linkend="ChToolsMSChain" />for details!</para>
+          </warning></para>
         </listitem>
         <listitem>
           <para>If you've closed cmd.exe in the meantime, prepare
@@ -440,13 +448,15 @@
         <listitem>
           <para>run
           C:\wireshark\packaging\nsis\wireshark-setup-&lt;version&gt;.exe
-          and test it</para>
+          and test it - it's a good idea to test also on a
+          different than the developer machine.</para>
         </listitem>
       </orderedlist>
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
-      above!</para>
+      at 
+      <xref linkend="ChToolsMSChain" />!</para>
     </section>
   </section>
 </chapter>

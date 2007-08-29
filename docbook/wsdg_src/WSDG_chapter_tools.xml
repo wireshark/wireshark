@@ -25,10 +25,9 @@
     <warning>
       <title>Warning!</title>
       <para>
-        <command>Unless you know exactly what you are doing, you
-        should strictly follow the recommendations given in </command>
-        <xref linkend="ChapterSetup" />!
-      </para>
+      <command>Unless you know exactly what you are doing, you
+      should strictly follow the recommendations given in</command>
+      <xref linkend="ChapterSetup" />!</para>
     </warning>
     <para>The following sections give a very brief description of
     what a particular tool is doing, how it is used in the
@@ -143,7 +142,7 @@
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
+        <![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
 Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
@@ -168,7 +167,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
+        <![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
 Copyright 2003 Free Software Foundation, Inc.
 GDB is free software, covered by the GNU General Public License, and you are
 welcome to change it and/or distribute copies of it under certain conditions.
@@ -209,7 +208,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[GNU Make 3.81
+        <![CDATA[GNU Make 3.81
 Copyright (C) 2006  Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
@@ -415,13 +414,14 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Visual Studio Code Name "Orcas"</para>
+                <para>Visual Studio 2008</para>
+                <para>(Code Name "Orcas")</para>
               </entry>
               <entry>
                 <para>Yes</para>
               </entry>
               <entry>
-                <para>Technology Preview 
+                <para>Beta 
                 <superscript>6</superscript></para>
               </entry>
               <entry>
@@ -437,7 +437,35 @@ PARTICULAR PURPOSE.]]>
                 9.0\VC\bin\vcvars32.bat</para>
               </entry>
               <entry>
-                <para>preview only</para>
+                <para>beta only</para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <para>Visual Studio 2008 Express Edition</para>
+                <para>(Code Name "Orcas")</para>
+              </entry>
+              <entry>
+                <para>Yes</para>
+              </entry>
+              <entry>
+                <para>Beta 
+                <superscript>6</superscript></para>
+              </entry>
+              <entry>
+                <para>No 
+                <superscript>2</superscript></para>
+              </entry>
+              <entry>
+                <para>-</para>
+                <para>(not yet implemented!)</para>
+              </entry>
+              <entry>
+                <para>Microsoft Visual Studio
+                9.0\VC\bin\vcvars32.bat</para>
+              </entry>
+              <entry>
+                <para>beta only</para>
               </entry>
             </row>
             <row>
@@ -596,8 +624,8 @@ PARTICULAR PURPOSE.]]>
       compiler to work - or is this only needed to compile / run
       .NET programs?!?</para>
       <para>
-      <superscript>6</superscript>"community technology preview"
-      (CTP), not suitable for production use!</para>
+      <superscript>6</superscript>beta version, not suitable for
+      production use!</para>
       <note>
         <title>Note!</title>
         <para>The "Visual C++ Toolkit 2003" should NOT be used to
@@ -634,7 +662,7 @@ PARTICULAR PURPOSE.]]>
           with the Windows operating system. This is also a
           wrongful interpretation, and the&#160; 
           <ulink url="http://www.gnu.org/licenses/gpl-faq.xml#WindowsRuntimeAndGPL">
-          GPL FAQ</ulink> explicitly addresses this issue.</para>
+          GPL FAQ</ulink>explicitly addresses this issue.</para>
         </listitem>
       </orderedlist>Similar applies to Visual Studio 2005 and
       alike.</para>
@@ -753,16 +781,23 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Visual Studio Code Name "Orcas"</para>
+                <para>Visual Studio 2008</para>
+                <para>(Code Name "Orcas")</para>
               </entry>
-              <entry align="center">
+              <entry align="center" morerows="2" valign="middle">
                 <para>9.0</para>
               </entry>
-              <entry align="center">
+              <entry align="center" morerows="2" valign="middle">
                 <para>1500</para>
               </entry>
-              <entry align="center">
+              <entry align="center" morerows="2" valign="middle">
                 <para>msvcr90.dll</para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <para>Visual Studio 2008 Express Edition</para>
+                <para>(Code Name "Orcas")</para>
               </entry>
             </row>
           </tbody>
@@ -776,7 +811,7 @@ PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+        <![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
 Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
 
 usage: cl [ option... ] filename... [ /link linkoption... ]]>
@@ -786,7 +821,7 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]>
       <title>nmake.exe (Make)</title>
       <para>nmake is part of the toolchain packages described
       above.</para>
-      <para>Instead of using the the workspace (.dsw) and projects
+      <para>Instead of using the workspace (.dsw) and projects
       (.dsp) files, the traditional nmake makefiles are used. This
       has one main reason: it makes it much easier to maintain
       changes simultaneous with the GCC toolchain makefile.am files
@@ -802,17 +837,15 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
+        <![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
 Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
 
 NMAKE : fatal error U1064: MAKEFILE not found and no target specified
 Stop.]]>
 </programlisting>However, the version string may vary.</para>
-      <para>
-	Documenation on nmake ca be found at <ulink
-	url="http://msdn2.microsoft.com/en-us/library/dd9y37ha(VS.71).aspx">
-	Microsoft MSDN</ulink>
-      </para>
+      <para>Documentation on nmake can be found at 
+      <ulink url="http://msdn2.microsoft.com/en-us/library/dd9y37ha(VS.71).aspx">
+      Microsoft MSDN</ulink></para>
     </section>
     <section>
       <title>link.exe (Linker)</title>
@@ -902,12 +935,13 @@ Stop.]]>
         <para>
         <orderedlist>
           <listitem>
-            <para>"Redistributable Merge Modules" (XXX - anyone
-            with further information about this?)</para>
+            <para>"Redistributable Merge Modules" (kind of loadable
+            modules for building msi installers - not suitable for
+            Wireshark's NSIS based installer)</para>
           </listitem>
           <listitem>
-            <para>copy the folder Microsoft.VC80.CRT (or only it's
-            content) to the target directory (e.g. "C:\program
+            <para>copy the folder content of Microsoft.VC80.CRT to
+            the target directory (e.g. "C:\program
             files\Wireshark")</para>
           </listitem>
           <listitem>
@@ -919,12 +953,34 @@ Stop.]]>
         content of Microsoft.VC80.CRT (method 2 - this is the
         smallest package). As MSVC2005EE and DOTNET20 doesn't
         provide the folder "Microsoft.VC80.CRT" they use method 3.
-        You'll have to 
-        <ulink url="#">download vcredist_x86.exe</ulink>from
-        Microsoft.</para>
+        You'll have to download a vcredist_x86.exe from Microsoft
+        that matches your compiler version. The best way to
+        determine this version is to open one of the generated
+        manifest files (e.g. wireshark.exe.manifest) and look for
+        the version of the Microsoft.VC80.CRT entry.</para>
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+              <command>8.0.50608.0</command>, from: "Microsoft
+              Visual C++ 2005" (and probably the Express Edition as
+              well): 
+              <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&amp;displaylang=en" /></para>
+            </listitem>
+            <listitem>
+              <para>
+              <command>8.0.50727.762</command>, from: "Microsoft
+              Visual C++ 2005 Express Edition - ENU Service Pack 1
+              (KB926748)": 
+              <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647&amp;displaylang=en" /></para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <para>Please report to the developer mailing list, if you
+        find a different version number!</para>
       </section>
       <section>
-        <title>msvcr90.dll - Version 9.0</title>
+        <title>msvcr90.dll - Version 9.0 (2008)</title>
         <para>As the corresponding C compiler is preliminary, it's
         too early to say!</para>
       </section>
@@ -1050,7 +1106,7 @@ Stop.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
+        <![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
 Copyright (C) 2005 Free Software Foundation, Inc.]]>
 </programlisting>However, the version string may vary.</para>
     </section>
@@ -1102,7 +1158,7 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[Python 2.5]]>
+        <![CDATA[Python 2.5]]>
 </programlisting>However, the version string may vary.</para>
     </section>
   </section>
@@ -1129,7 +1185,7 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
+        <![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
 (with 1 registered patch, see perl -V for more detail)
 
 Copyright 1987-2005, Larry Wall
@@ -1155,7 +1211,7 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+        <![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
 (with 1 registered patch, see perl -V for more detail)
 
 Copyright 1987-2002, Larry Wall
@@ -1189,7 +1245,7 @@ Built 18:08:02 Feb  4 2003
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[GNU sed version 4.1.5
+        <![CDATA[GNU sed version 4.1.5
 Copyright (C) 2003 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
@@ -1222,7 +1278,7 @@ to the extent permitted by law.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[bison (GNU Bison) 2.3
+        <![CDATA[bison (GNU Bison) 2.3
 Written by Robert Corbett and Richard Stallman.
 
 Copyright (C) 2006 Free Software Foundation, Inc.
@@ -1256,7 +1312,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[flex version 2.5.4]]>
+        <![CDATA[flex version 2.5.4]]>
 </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Lexx">
@@ -1299,7 +1355,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[svn, version 1.0.5 (r9954)
+        <![CDATA[svn, version 1.0.5 (r9954)
    compiled Jun 20 2004, 23:28:30
 
 Copyright (C) 2000-2004 CollabNet.
@@ -1324,7 +1380,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[svn, Version 1.4.0 (r21228)
+        <![CDATA[svn, Version 1.4.0 (r21228)
 
 Copyright (C) 2000-2006 CollabNet.
 ...]]>
@@ -1344,11 +1400,12 @@ Copyright (C) 2000-2006 CollabNet.
     </warning>
     <section id="ChToolsUnixSVNGUI">
       <title>UNIX or Win32 Cygwin: rapidSVN, subcommander</title>
-      <para>RapidSVN is a cross platform subversion frontend based on wxWidgets.
-      It can be found at: <ulink url="http://rapidsvn.tigris.org/" />. 
-      Subcommander is another cross platform subversion frontend. It can
-      be found at: <ulink url="http://subcommander.tigris.org/" />.
-      </para>
+      <para>RapidSVN is a cross platform subversion frontend based
+      on wxWidgets. It can be found at: 
+      <ulink url="http://rapidsvn.tigris.org/" />. Subcommander is
+      another cross platform subversion frontend. It can be found
+      at: 
+      <ulink url="http://subcommander.tigris.org/" />.</para>
       <para>Cygwin don't provide any GUI client for
       subversion.</para>
     </section>
@@ -1390,7 +1447,7 @@ Copyright (C) 2000-2006 CollabNet.
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[diff (GNU diffutils) 2.8.7
+        <![CDATA[diff (GNU diffutils) 2.8.7
 Written by Paul Eggert, Mike Haertel, David Hayes,
 Richard Stallman, and Len Tower.
 
@@ -1443,7 +1500,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like: 
       <programlisting>
-<![CDATA[patch 2.5.8
+        <![CDATA[patch 2.5.8
 Copyright (C) 1988 Larry Wall
 Copyright (C) 2002 Free Software Foundation, Inc.
 
@@ -1489,7 +1546,8 @@ written by Larry Wall and Paul Eggert]]>
     behind proxy.com which is listening on port 8080, you have to
     set it to something like:</para>
     <para>
-      <programlisting>set HTTP_PROXY=http://proxy.com:8080/</programlisting>
+      <programlisting>set
+      HTTP_PROXY=http://proxy.com:8080/</programlisting>
     </para>
     <para>If you are unsure about the settings, you might ask your
     system administrator.</para>
