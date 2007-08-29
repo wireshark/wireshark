@@ -896,6 +896,10 @@
 			<enum name="Ericsson Mm" code="16777233"/>
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
+
+			<enum name="3GPP Rx" code="16777236"/>
+			<enum name="3GPP2 Ty" code="16777237"/>
+			<enum name="3GPP Gx" code="16777238"/>
 		</avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -983,6 +987,7 @@
 			<enum name="DIAMETER_INVALID_MESSAGE_LENGTH" code="5015"/>
 			<enum name="DIAMETER_INVALID_AVP_BIT_COMBO" code="5016"/>
 			<enum name="DIAMETER_NO_COMMON_SECURITY" code="5017"/>
+			<enum name="DIAMETER_RADIUS_AVP_UNTRANSLATABLE" code="5018"/>
 			<enum name="DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE" code="5024"/>
 			<enum name="DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION" code="5025"/>
 			<enum name="DIAMETER_USER_UNKNOWN" code="5030"/>
@@ -1075,7 +1080,7 @@
 		<avp name="Accounting-Sub-Session-Id" code="287" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned64"/>
 		</avp>
-<!-- 286 & 288-290    Unallocated http://www.iana.org/assignments/aaa-parameters (last updated 20 September 2005)?? -->
+<!-- 288-290    Unallocated http://www.iana.org/assignments/aaa-parameters (last updated 20 September 2005)?? -->
 		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Integer32"/>
 		</avp>
@@ -1305,25 +1310,11 @@ Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 634 Wildcarded-PSI UTF8String
 29.229 [2]
 Note: The AVP codes from 634 to 699 are reserved for TS 29.229.
-700 User-Identity Grouped
--->
-		<!-- Definition from SH specs -->
-		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="mustnot" may-encrypt="yes" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-<!--
-702 User-Data OctetString
-703 Data-Reference Enumerated
-704 Service-Indication OctetString
-705 Subs-Req-Type Enumerated
-706 Requested-Domain Enumerated
-707 Current-Location Enumerated
-708 Identity-Set Enumerated
-709 Expiry-Time Time
-710 Send-Data-Indication Enumerated
-711 DSAI-Tag OctetString
-29.329 [4]
-Note: The AVP codes from 711 to799 are reserved for TS 29.329.
+
+ ************************** 3GPP Sh AVPS        **************************
+ ************************** NOTE see TGPPSh.xml **************************
+ ************************** 3GPP TS 29.329      **************************
+ **************************	  700 - 709         **************************
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
