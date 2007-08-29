@@ -40,6 +40,35 @@ typedef enum {
   CB_DISSECTOR_HANDLE
 } asn1_cb_variant;
 
+typedef enum {
+  ASN1_PAR_IRR, /* irrelevant parameter */
+  /* value */
+  ASN1_PAR_INTEGER,
+  /* type */
+  ASN1_PAR_TYPE
+} asn1_par_type;
+
+typedef struct _asn1_par_def_t {
+  const gchar *name;
+  asn1_par_type ptype;
+} asn1_par_def_t;
+
+typedef struct _asn1_par_t {
+  const gchar *name;
+  asn1_par_type ptype;
+  union {
+    gint32 v_integer;
+    void *v_type;
+  } value;
+  struct _asn1_par_t *next;
+} asn1_par_t;
+
+typedef struct _asn1_stack_frame_t {
+  const gchar *name;
+  struct _asn1_par_t *par;
+  struct _asn1_stack_frame_t *next;
+} asn1_stack_frame_t;
+
 #define ASN1_CTX_SIGNATURE 0x41435458  /* "ACTX" */
 
 typedef struct _asn1_ctx_t {
@@ -48,6 +77,7 @@ typedef struct _asn1_ctx_t {
   gboolean aligned;
   packet_info *pinfo;
   proto_item *created_item;
+  struct _asn1_stack_frame_t *stack;
   void *value_ptr;
   void *private_data;
   struct {
@@ -136,6 +166,13 @@ extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligne
 extern gboolean asn1_ctx_check_signature(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
+
+extern void asn1_stack_frame_push(asn1_ctx_t *actx, const gchar *name);
+extern void asn1_stack_frame_pop(asn1_ctx_t *actx, const gchar *name);
+extern void asn1_stack_frame_check(asn1_ctx_t *actx, const gchar *name, const asn1_par_def_t *par_def);
+
+extern void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value);
+extern gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name);
 
 extern void rose_ctx_init(rose_ctx_t *rctx);
 extern gboolean rose_ctx_check_signature(rose_ctx_t *rctx);

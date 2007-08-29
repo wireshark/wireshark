@@ -61,6 +61,89 @@ void asn1_ctx_clean_epdv(asn1_ctx_t *actx) {
   actx->embedded_pdv.identification = -1;
 }
 
+
+/*--- stack/parameters ---*/
+
+void asn1_stack_frame_push(asn1_ctx_t *actx, const gchar *name) {
+  asn1_stack_frame_t *frame;
+
+  frame = ep_alloc0(sizeof(asn1_stack_frame_t));
+  frame->name = name;
+  frame->next = actx->stack;
+  actx->stack = frame;
+}
+
+void asn1_stack_frame_pop(asn1_ctx_t *actx, const gchar *name) {
+  DISSECTOR_ASSERT(actx->stack);
+  DISSECTOR_ASSERT(!strcmp(actx->stack->name, name));
+  actx->stack = actx->stack->next;
+}
+
+void asn1_stack_frame_check(asn1_ctx_t *actx, const gchar *name, const asn1_par_def_t *par_def) {
+  const asn1_par_def_t *pd = par_def;
+  asn1_par_t *par;
+
+  DISSECTOR_ASSERT(actx->stack);
+  DISSECTOR_ASSERT(!strcmp(actx->stack->name, name));
+
+  par = actx->stack->par;
+  while (pd->name) {
+    DISSECTOR_ASSERT(par);
+    DISSECTOR_ASSERT((pd->ptype == ASN1_PAR_IRR) || (par->ptype == pd->ptype));
+    par->name = pd->name;
+    pd++;
+    par = par->next;
+  }
+  DISSECTOR_ASSERT(!par);
+}
+
+static asn1_par_t *get_par_by_name(asn1_ctx_t *actx, const gchar *name) {
+  asn1_par_t *par = NULL;
+
+  DISSECTOR_ASSERT(actx->stack);
+  par = actx->stack->par;
+  while (par) {
+    if (!strcmp(par->name, name))
+      return par;
+    par = par->next;
+  }
+  return par;
+}
+
+static asn1_par_t *push_new_par(asn1_ctx_t *actx) {
+  asn1_par_t *par, **pp;
+
+  DISSECTOR_ASSERT(actx->stack);
+
+  par = ep_alloc0(sizeof(asn1_par_t));
+
+  pp = &(actx->stack->par);
+  while (*pp)
+    pp = &((*pp)->next);
+  *pp = par;
+
+  return par;
+}
+
+void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value) {
+  asn1_par_t *par;
+
+  par = push_new_par(actx);
+  par->ptype = ASN1_PAR_INTEGER;
+  par->value.v_integer = value;
+}
+
+gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name) {
+  asn1_par_t *par = NULL;
+
+  par = get_par_by_name(actx, name);
+  DISSECTOR_ASSERT(par);
+  return par->value.v_integer;
+}
+
+
+/*--- ROSE ---*/
+
 void rose_ctx_init(rose_ctx_t *rctx) {
   memset(rctx, '\0', sizeof(*rctx));
   rctx->signature = ROSE_CTX_SIGNATURE;
