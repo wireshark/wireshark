@@ -112,29 +112,17 @@ VelocityEstimate
 #.REGISTER
 MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
-#.TABLE_HDR
-/* jdlajla */
+# This table creates the value_sting to name GSM MAP operation codes and errors
+# in file packet-camel-table.c which is included in the template file
+#
 #.TABLE_BODY OPERATION
-/* %(_name)s */ %(_ident)s  %(&operationCode)s,
-#.TABLE_FTR
-/* jdlajla */
+	{ %(&operationCode)s, "%(_ident)s" },
 #.END
 
-#.TABLE_HDR
-/* jdlajla */
-#.TABLE_BODY ERROR
-/* %(_name)s */ %(_ident)s  %(&errorCode)s,
-#.TABLE_FTR
-/* jdlajla */
+#.TABLE2_BODY ERROR
+	{ %(&errorCode)s, "%(_ident)s" },  
 #.END
 
-#.TABLE2_BODY OPERATION
-/* %(_name)-20s */ %(_ident)-20s  %(&operationCode)3s,
-#.END
-
-#.TABLE1_BODY ERROR
-/* %(_name)-20s */ %(_ident)-20s  %(&errorCode)3s,
-#.END
 
 # Conformance for ROS stuff
 

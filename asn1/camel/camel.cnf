@@ -33,7 +33,6 @@ Priority
 #.END
 
 #.PDU_NEW
-# This list is "created" by TABLEx (manual copy paste from the created file)
 ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType
@@ -160,7 +159,32 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   return offset;
 }
 #.END
+# Create a table of opcode and corresponding args and res
+#.TABLE11_HDR
+typedef struct _camel_op_t {
+  gint32 opcode;
+  new_dissector_t arg_pdu;
+  new_dissector_t res_pdu;
+} camel_op_t;
 
+static const camel_op_t camel_op_tab[] = {
+#.TABLE11_BODY OPERATION
+  /* %(_name)-31s */ { %(&operationCode)-40s, %(_argument_pdu)-45s, %(_result_pdu)s },
+#.TABLE11_FTR
+};
+#.END
+#.TABLE21_HDR
+typedef struct _camel_err_t {
+  gint32 errcode;
+  new_dissector_t err_pdu;
+} camel_err_t;
+
+static const camel_err_t camel_err_tab[] = {
+#.TABLE21_BODY ERROR
+  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#.TABLE21_FTR
+};
+#.END
 # ROS stuff here XXX change when TCAP is redone.
 
 #.FN_BODY Code/local  VAL_PTR = &opcode

@@ -72,6 +72,8 @@ int camel_tap = -1;
 static guint32 opcode=0;
 static guint32 errorCode=0;
 
+/* ROSE context */
+static rose_ctx_t camel_rose_ctx;
 
 static int hf_digit = -1; 
 static int hf_camel_extension_code_local = -1;
@@ -300,7 +302,8 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 
 #include "packet-camel-table2.c"
 
-
+#include "packet-camel-table11.c"
+#include "packet-camel-table21.c"
 
 static guint8 camel_pdu_type = 0;
 static guint8 camel_pdu_size = 0;
@@ -343,6 +346,78 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
   offset = dissect_camel_ROS(TRUE, tvb, offset, actx, tree, hf_index);
 
   return offset;
+}
+
+/*--- dissect_camel_arg ------------------------------------------------------*/
+static int   
+dissect_camel_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  int offset;
+  rose_ctx_t *rctx;
+  gint32 opcode;
+  /*
+  const camel_op_t *op_ptr;
+  const gchar *p;
+  proto_item *ti, *ti_tmp;
+  proto_tree *camel_tree;
+*/
+  offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 1)  /* invoke */
+    return offset; 
+  if (rctx->d.code != 0)  /* local */
+    return offset; 
+  opcode = rctx->d.code_local;
+
+  return offset;
+}
+
+/*--- dissect_camel_res -------------------------------------------------------*/
+static int
+dissect_camel_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  gint offset;
+  rose_ctx_t *rctx;
+  gint32 opcode;
+  /*
+  const camel_op_t *op_ptr;
+  const gchar *p;
+  proto_item *ti, *ti_tmp;
+  proto_tree *camel_tree;
+*/
+  offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 2)  /* returnResult */
+    return offset; 
+  if (rctx->d.code != 0)  /* local */
+    return offset; 
+  opcode = rctx->d.code_local;
+
+  return offset;
+}
+/*--- dissect_camel_err ------------------------------------------------------*/
+static int   
+dissect_camel_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  int offset;
+  rose_ctx_t *rctx;
+  gint32 errcode;
+  /*
+  const camel_err_t *err_ptr;
+  const gchar *p;
+  proto_item *ti;
+  proto_tree *camel_tree;
+*/
+  offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 3)  /* returnError */
+    return offset; 
+  if (rctx->d.code != 0)  /* local */
+    return offset; 
+  errcode = rctx->d.code_local;
+
+  return offset;
+
 }
 
 static void
@@ -397,18 +472,37 @@ static void range_add_callback(guint32 ssn)
 }
 
 void proto_reg_handoff_camel(void) {
+  int i;
+  dissector_handle_t camel_arg_handle;
+  dissector_handle_t camel_res_handle;
+  dissector_handle_t camel_err_handle;
 
   static int camel_prefs_initialized = FALSE;
   if (!camel_prefs_initialized) {
     camel_prefs_initialized = TRUE;
     camel_handle = create_dissector_handle(dissect_camel, proto_camel);
 
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version1(0)" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version2(1)" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-CAP-gprsSSF-gsmSCF-AC(50)" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) cAP3OE(21) ac(3) id-ac-cap3-sms-AC(61)" );
+	camel_arg_handle = new_create_dissector_handle(dissect_camel_arg, proto_camel);
+	camel_res_handle = new_create_dissector_handle(dissect_camel_res, proto_camel);
+
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.50.0",camel_handle, proto_camel, "CAP-v1-gsmSSF-to-gsmSCF-AC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.50.1",camel_handle, proto_camel, "CAP-v2-gsmSSF-to-gsmSCF-AC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.51.1",camel_handle, proto_camel, "CAP-v2-assist-gsmSSF-to-gsmSCF-AC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.52.1",camel_handle, proto_camel, "CAP-v2-gsmSRF-to-gsmSCF-AC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.50",camel_handle, proto_camel, "cap3-gprssf-scfAC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.51",camel_handle, proto_camel, "cap3-gsmscf-gprsssfAC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "cap3-sms-AC" );
+	register_ber_oid_dissector_handle("0.4.0.0.1.23.3.4",camel_handle, proto_camel, "capssf-scfGenericAC" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.23.3.61",camel_handle, proto_camel, "cap4-sms-AC" );
+	
+	for (i=0; i<(int)array_length(camel_op_tab); i++) {
+		dissector_add("camel.ros.local.arg", camel_op_tab[i].opcode, camel_arg_handle);
+		dissector_add("camel.ros.local.res", camel_op_tab[i].opcode, camel_res_handle);
+	}
+	camel_err_handle = new_create_dissector_handle(dissect_camel_err, proto_camel);
+	for (i=0; i<(int)array_length(camel_err_tab); i++) {
+		dissector_add("camel.ros.local.err", camel_err_tab[i].errcode, camel_err_handle);
+	}
 
 #include "packet-camel-dis-tab.c"
   } else {
@@ -605,6 +699,13 @@ void proto_register_camel(void) {
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  rose_ctx_init(&camel_rose_ctx);
+
+  /* Register dissector tables */
+  camel_rose_ctx.arg_local_dissector_table = register_dissector_table("camel.ros.local.arg", "CAMEL Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
+  camel_rose_ctx.res_local_dissector_table = register_dissector_table("camel.ros.local.res", "CAMEL Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
+  camel_rose_ctx.err_local_dissector_table = register_dissector_table("camel.ros.local.err", "CAMEL Error (local opcode)", FT_UINT32, BASE_HEX); 
 
   /* Register our configuration options, particularly our ssn:s */
   /* Set default SSNs */
