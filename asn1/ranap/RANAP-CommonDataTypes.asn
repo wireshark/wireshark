@@ -1,4 +1,13 @@
---9.3.5	Common Definitions
+-- RANAP-CommonDataTypes.asn
+--
+-- Taken from 3GPP TS 25.413 V7.6.0 (2007-06)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-760.zip/25413-760.DOC
+--
+-- 9.3.5	Common Definitions
+--
+-- $Id$
+--
+
 -- **************************************************************
 --
 -- Common definitions

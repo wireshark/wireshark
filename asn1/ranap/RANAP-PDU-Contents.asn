@@ -1,5 +1,13 @@
--- $Id$
+-- RANAP-PDU-Contents.asn
+--
+-- Taken from 3GPP TS 25.413 V7.6.0 (2007-06)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-760.zip/25413-760.DOC
+--
 -- 9.3.3	PDU Definitions
+--
+-- $Id$
+--
+
 -- **************************************************************
 --
 -- PDU definitions for RANAP.
@@ -43,6 +51,7 @@ IMPORTS
 	DeltaRAListofIdleModeUEs,
 	DRX-CycleLengthCoefficient,
 	EncryptionInformation,
+	ExtendedRNC-ID,
 	FrequenceLayerConvergenceFlag,
 	GERAN-BSC-Container,
 	GERAN-Classmark,
@@ -100,6 +109,7 @@ IMPORTS
 	RedirectionCompleted,
 	RejectCauseValue,
 	RelocationType,
+	RequestedGANSSAssistanceData,
 	RequestType, 
 	Requested-RAB-Parameter-Values,
 	ResponseTime,
@@ -179,6 +189,7 @@ FROM RANAP-Containers
 	id-DirectTransferInformationList-RANAP-RelocInf,
 	id-DL-GTP-PDU-SequenceNumber,
 	id-EncryptionInformation,
+	id-ExtendedRNC-ID,
 	id-FrequenceLayerConvergenceFlag,
 	id-GERAN-BSC-Container,
 	id-GERAN-Classmark,
@@ -280,6 +291,7 @@ FROM RANAP-Containers
 	id-RedirectionIndication,
 	id-RejectCauseValue,
 	id-RelocationType,
+	id-RequestedGANSSAssistanceData,
 	id-RequestType,
 	id-ResponseTime,
 	id-SAI,
@@ -1099,7 +1111,9 @@ ResetIEs RANAP-PROTOCOL-IES ::= {
 
 ResetExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 --
-	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional},
+	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional}|
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -1124,7 +1138,9 @@ ResetAcknowledgeIEs RANAP-PROTOCOL-IES ::= {
 
 ResetAcknowledgeExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 --
-	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional},
+	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional}|
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -1173,7 +1189,9 @@ ResetResourceItem-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 ResetResourceExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 --
-	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional},
+	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional}|
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID			CRITICALITY reject		EXTENSION ExtendedRNC-ID			PRESENCE optional	},
 	...
 }
 
@@ -1215,7 +1233,9 @@ ResetResourceAckItem-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 ResetResourceAcknowledgeExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 --
-	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional},
+	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional}|
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional},
 	...
 }
 
@@ -1597,7 +1617,9 @@ InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to enable rerouting in MOCN configuration for network sharing non-supporting UEs --
 	{ ID id-NAS-SequenceNumber				CRITICALITY ignore	EXTENSION NAS-SequenceNumber		PRESENCE optional	} |
 -- Extension for Release 6 to indicate rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag		PRESENCE optional	} ,
+	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag		PRESENCE optional	}|
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional	} ,
 	...
 }
 
@@ -1674,7 +1696,9 @@ OverloadExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 99 to enable the indication to the RNC which CN domain is suffering the signalling traffic overload --
 	{ ID id-CN-DomainIndicator			CRITICALITY ignore	EXTENSION CN-DomainIndicator	PRESENCE optional	} |
 -- Extension for Release 5 to enable NNSF --
-	{ ID id-GlobalCN-ID					CRITICALITY ignore	EXTENSION GlobalCN-ID			PRESENCE optional	} ,
+	{ ID id-GlobalCN-ID					CRITICALITY ignore	EXTENSION GlobalCN-ID			PRESENCE optional	} |
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -1706,7 +1730,9 @@ ErrorIndicationIEs RANAP-PROTOCOL-IES ::= {
 
 ErrorIndicationExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 --
-	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional},
+	{ ID id-GlobalCN-ID				CRITICALITY ignore		EXTENSION GlobalCN-ID				PRESENCE optional}|
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID			CRITICALITY reject		EXTENSION ExtendedRNC-ID			PRESENCE optional	},
 	...
 }
 
@@ -2117,14 +2143,16 @@ LocationRelatedDataRequest ::= SEQUENCE {
 
 LocationRelatedDataRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-LocationRelatedDataRequestType		CRITICALITY reject	TYPE LocationRelatedDataRequestType		PRESENCE optional	},
-	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode –-
+	-- This IE is mandatory for UTRAN, optional for GERAN Iu Mode --
 	...
 }
 
 LocationRelatedDataRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable LCS support for GERAN Iu mode --
-	{ ID id-LocationRelatedDataRequestTypeSpecificToGERANIuMode		CRITICALITY reject	EXTENSION LocationRelatedDataRequestTypeSpecificToGERANIuMode		PRESENCE optional	},
-	-- This extension is optional for GERAN Iu Mode only, not applicable for UTRAN --
+	{ ID id-LocationRelatedDataRequestTypeSpecificToGERANIuMode		CRITICALITY reject	EXTENSION LocationRelatedDataRequestTypeSpecificToGERANIuMode		PRESENCE optional	}|
+	-- The previous extension is optional for GERAN Iu Mode only, not applicable for UTRAN --
+	-- Extension for Release 7 to request GANSS Assistance Data. This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GANSS' --
+	{ ID id-RequestedGANSSAssistanceData							CRITICALITY reject	EXTENSION RequestedGANSSAssistanceData							PRESENCE conditional	},
 	...
 }
 
@@ -2225,6 +2253,8 @@ InformationTransferConfirmationIEs RANAP-PROTOCOL-IES ::= {
 }
 
 InformationTransferConfirmationExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -2250,6 +2280,8 @@ InformationTransferFailureIEs RANAP-PROTOCOL-IES ::= {
 }
 
 InformationTransferFailureExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -2307,6 +2339,8 @@ DirectInformationTransferIEs RANAP-PROTOCOL-IES ::= {
 }
 
 DirectInformationTransferExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID			CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -2341,6 +2375,8 @@ UplinkInformationExchangeRequestIEs RANAP-PROTOCOL-IES ::= {
 }
 
 UplinkInformationExchangeRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -2707,6 +2743,8 @@ MBMSRegistrationRequestIEs RANAP-PROTOCOL-IES ::= {
 }
 
 MBMSRegistrationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -2806,6 +2844,8 @@ MBMSCNDe-RegistrationResponseIEs RANAP-PROTOCOL-IES ::= {
 }
 
 MBMSCNDe-RegistrationResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 

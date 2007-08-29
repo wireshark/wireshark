@@ -357,7 +357,12 @@ EXTRA_DIST = \
 	ranap/Makefile.nmake	\
 	ranap/packet-ranap-template.c	\
 	ranap/packet-ranap-template.h	\
-	ranap/ranap.asn	\
+	ranap/RANAP-CommonDataTypes.asn \
+	ranap/RANAP-Constants.asn \
+	ranap/RANAP-Containers.asn \
+	ranap/RANAP-IEs.asn \
+	ranap/RANAP-PDU-Contents.asn \
+	ranap/RANAP-PDU-Descriptions.asn \
 	ranap/ranap.cnf	\
 	ranap/ranap-exp.cnf	\
 	rnsap/Makefile	\

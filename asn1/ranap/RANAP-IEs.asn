@@ -1,5 +1,13 @@
--- $Id$
+-- RANAP-IEs.asn
+--
+-- Taken from 3GPP TS 25.413 V7.6.0 (2007-06)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-760.zip/25413-760.DOC
+--
 -- 9.3.4	Information Element Definitions
+--
+-- $Id$
+--
+
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -37,6 +45,7 @@ IMPORTS
 	maxMBMSRA,
 	maxnoofMulticastServicesPerUE,
 	maxNrOfEDCHMACdFlows-1,
+	maxGANSSSet,
 
 	id-CN-DomainIndicator,
 	id-MessageStructure,
@@ -62,7 +71,9 @@ IMPORTS
 	id-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList,
 	id-LAofIdleModeUEs,
 	id-newLAListofIdleModeUEs,
-	id-LAListwithNoIdleModeUEsAnyMore
+	id-LAListwithNoIdleModeUEsAnyMore,
+	id-ExtendedRNC-ID,
+	id-GANSS-PositioningDataSet
 
 
 FROM RANAP-Constants
@@ -577,6 +588,7 @@ ExtendedGuaranteedBitrate			::= INTEGER (16000001..256000000)
 ExtendedMaxBitrate			::= INTEGER (16000001..256000000)
 -- Unit is bits per sec
 
+ExtendedRNC-ID					::= INTEGER (4096..65535)
 
 -- F
 
@@ -586,6 +598,10 @@ FrequenceLayerConvergenceFlag ::= ENUMERATED {
 }
 
 -- G
+
+GANSS-PositioningDataSet ::= SEQUENCE(SIZE(1..maxGANSSSet)) OF GANSS-PositioningMethodAndUsage
+
+GANSS-PositioningMethodAndUsage ::= OCTET STRING (SIZE(1))
 
 GeographicalArea ::= CHOICE {
 	point				GA-Point,
@@ -919,7 +935,7 @@ LoadValue	::= INTEGER (0..100)
 LocationRelatedDataRequestType	::= SEQUENCE {
 	requestedLocationRelatedDataType			RequestedLocationRelatedDataType,
 	requestedGPSAssistanceData					RequestedGPSAssistanceData	OPTIONAL,
-	-- This IE shall be present if the Requested Location Related Data Type IE is set to ‘Dedicated Assistance Data for Assisted GPS’ –-
+	-- This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GPS' --
 	...
 }
 
@@ -1105,6 +1121,7 @@ PositionData ::= SEQUENCE {
 }
 
 PositionData-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-GANSS-PositioningDataSet			CRITICALITY ignore	EXTENSION GANSS-PositioningDataSet				PRESENCE optional },
 	...
 }
 
@@ -1297,12 +1314,18 @@ ReportArea ::= ENUMERATED {
 RequestedGPSAssistanceData 	::= OCTET STRING (SIZE (1 .. 38 ))
         -- gpsAssistanceData as defined in 24.080 --
 
+RequestedGANSSAssistanceData 	::= OCTET STRING (SIZE (1 .. 201 ))
+        -- ganssAssistanceData as defined in 24.080 --
+
 RequestedLocationRelatedDataType ::= ENUMERATED { 
 	decipheringKeysUEBasedOTDOA,
 	decipheringKeysAssistedGPS,
 	dedicatedAssistanceDataUEBasedOTDOA,
 	dedicatedAssistanceDataAssistedGPS, 
-	... 
+	..., 
+-- Release 7 extension elements --
+	decipheringKeysAssistedGANSS,
+	dedicatedAssistanceDataAssistedGANSS
 }
 
 RequestedMBMSIPMulticastAddressandAPNRequest ::= SEQUENCE (SIZE (1..maxnoofMulticastServicesPerRNC)) OF
@@ -1529,6 +1552,8 @@ SourceRNC-ID ::= SEQUENCE {
 }
 
 SourceRNC-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
@@ -1623,6 +1648,8 @@ TargetRNC-ID ::= SEQUENCE {
 }
 
 TargetRNC-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 7 to indicate extended RNC-ID --
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
 	...
 }
 
