@@ -1657,6 +1657,7 @@ DestNameSpace 			= val_string8("dest_name_space", "Destination Name Space", [
 ])
 DestPathComponentCount		= uint8("dest_component_count", "Destination Path Component Count")
 DestPath			= nstring8("dest_path", "Destination Path")
+DestPath16          = nstring16("dest_path_16", "Destination Path")
 DetachDuringProcessing 		= uint16("detach_during_processing", "Detach During Processing")
 DetachForBadConnectionNumber 	= uint16("detach_for_bad_connection_number", "Detach For Bad Connection Number")
 DirHandle			= uint8("dir_handle", "Directory Handle")
@@ -3038,7 +3039,6 @@ NSSOVerb                        = val_string8("nsso_verb", "SecretStore Verb", [
 NSSpecificInfo			= fw_string("ns_specific_info", "Name Space Specific Info", 512)
 NumberOfActiveTasks		= uint8("num_of_active_tasks", "Number of Active Tasks")
 NumberOfAllocs			= uint32("num_of_allocs", "Number of Allocations")
-NumberOfAttributes		= uint32("number_of_attributes", "Number of Attributes")
 NumberOfCPUs			= uint32("number_of_cpus", "Number of CPU's")
 NumberOfDataStreams 		= uint16("number_of_data_streams", "Number of Data Streams")
 NumberOfDataStreamsLong     = uint32("number_of_data_streams_long", "Number of Data Streams")
@@ -3221,7 +3221,7 @@ originalSize            = uint32("original_size", "Original Size")
 OSLanguageID			= uint8("os_language_id", "OS Language ID")
 OSMajorVersion			= uint8("os_major_version", "OS Major Version")
 OSMinorVersion			= uint8("os_minor_version", "OS Minor Version")
-OSRevision			= uint8("os_revision", "OS Revision")
+OSRevision			    = uint32("os_revision", "OS Revision")
 OtherFileForkSize		= uint32("other_file_fork_size", "Other File Fork Size")
 OtherFileForkFAT		= uint32("other_file_fork_fat", "Other File Fork FAT Entry")
 OutgoingPacketDiscardedNoTurboBuffer = uint16("outgoing_packet_discarded_no_turbo_buffer", "Outgoing Packet Discarded No Turbo Buffer")
@@ -4381,7 +4381,7 @@ DOSFileEntryStruct              = struct("dos_file_entry_struct", [
         Reserved36,
         InheritedRightsMask,
         LastAccessedDate,
-        Reserved28,
+        Reserved20,
         PrimaryEntry,
         NameList,
 ], "DOS File Information")
@@ -4654,6 +4654,20 @@ KnownRoutes                     = struct("known_routes", [
         NetStatus,
         TimeToNet,
 ], "Known Routes")
+SrcEnhNWHandlePathS1                 = struct("source_nwhandle", [
+		DirectoryBase,
+		VolumeNumber,
+		HandleFlag,
+        DataTypeFlag,
+        Reserved5,
+], "Source Information")
+DstEnhNWHandlePathS1                 = struct("destination_nwhandle", [
+		DirectoryBase,
+		VolumeNumber,
+		HandleFlag,
+        DataTypeFlag,
+        Reserved5,
+], "Destination Information")
 KnownServStruc                  = struct("known_server_struct", [
         ServerAddress,
         HopsToNet,
@@ -5035,6 +5049,11 @@ ScanInfoFileName                = struct("scan_info_file_name", [
 ScanInfoFileNoName              = struct("scan_info_file_no_name", [
         SalvageableFileEntryNumber,
 ])
+SeachSequenceStruct             = struct("search_seq", [
+        VolumeNumber,
+        DirectoryEntryNumber,
+        SequenceNumber,
+], "Search Sequence")        
 Segments                        = struct("segments", [
         uint32("volume_segment_dev_num", "Volume Segment Device Number"),
         uint32("volume_segment_offset", "Volume Segment Offset"),
@@ -5425,6 +5444,8 @@ def define_errors():
 
         errors[0xaa00] = "Invalid Data Type Flag"
 
+        errors[0xac00] = "Packet Signature Required"
+
     	errors[0xbe00] = "Invalid Data Stream"
     	errors[0xbf00] = "Requests for this name space are not valid on this volume"
 
@@ -5644,6 +5665,7 @@ def define_errors():
     	errors[0xff1f] = "Bindery Failure"
         errors[0xff20] = "NCP Extension Not Found"
         errors[0xff21] = "Audit Property Not Found"
+        errors[0xff22] = "Server Set Parameter Not Found"
 
 ##############################################################################
 # Produce C code
@@ -6146,7 +6168,8 @@ static int hf_bit14pingvflags1 = -1;
 static int hf_bit15pingvflags1 = -1;
 static int hf_bit16pingvflags1 = -1;
 static int hf_nds_letter_ver = -1;
-static int hf_nds_os_ver = -1;
+static int hf_nds_os_majver = -1;
+static int hf_nds_os_minver = -1;
 static int hf_nds_lic_flags = -1;
 static int hf_nds_ds_time = -1;
 static int hf_nds_ping_version = -1;
@@ -6178,6 +6201,66 @@ static int hf_nds_segment_error = -1;
 static int hf_nds_verb2b_req_flags = -1;
 static int hf_ncp_ip_address = -1;
 static int hf_ncp_copyright = -1;
+static int hf_ndsprot1flag = -1;
+static int hf_ndsprot2flag = -1;
+static int hf_ndsprot3flag = -1;
+static int hf_ndsprot4flag = -1;
+static int hf_ndsprot5flag = -1;
+static int hf_ndsprot6flag = -1;
+static int hf_ndsprot7flag = -1;
+static int hf_ndsprot8flag = -1;
+static int hf_ndsprot9flag = -1;
+static int hf_ndsprot10flag = -1;
+static int hf_ndsprot11flag = -1;
+static int hf_ndsprot12flag = -1;
+static int hf_ndsprot13flag = -1;
+static int hf_ndsprot14flag = -1;
+static int hf_ndsprot15flag = -1;
+static int hf_ndsprot16flag = -1;
+static int hf_nds_svr_dst_name = -1;
+static int hf_nds_tune_mark = -1;
+static int hf_nds_create_time = -1;
+static int hf_srvr_param_number = -1;
+static int hf_srvr_param_boolean = -1;
+static int hf_srvr_param_string = -1;
+static int hf_nds_svr_time = -1;
+static int hf_nds_crt_time = -1;
+static int hf_nds_number_of_items = -1;
+static int hf_nds_compare_attributes = -1;
+static int hf_nds_read_attribute = -1;
+static int hf_nds_write_add_delete_attribute = -1;
+static int hf_nds_add_delete_self = -1;
+static int hf_nds_privilege_not_defined = -1;
+static int hf_nds_supervisor = -1;
+static int hf_nds_inheritance_control = -1;
+static int hf_nds_browse_entry = -1;
+static int hf_nds_add_entry = -1;
+static int hf_nds_delete_entry = -1;
+static int hf_nds_rename_entry = -1;
+static int hf_nds_supervisor_entry = -1;
+static int hf_nds_entry_privilege_not_defined = -1;
+static int hf_nds_iterator = -1;
+static int hf_ncp_nds_iterverb = -1;
+static int hf_iter_completion_code = -1;
+static int hf_nds_iterobj = -1;
+static int hf_iter_verb_completion_code = -1;
+static int hf_iter_ans = -1;
+static int hf_positionable = -1;
+static int hf_num_skipped = -1;
+static int hf_num_to_skip = -1;
+static int hf_timelimit = -1;
+static int hf_iter_index = -1;
+static int hf_num_to_get = -1;
+static int hf_ret_info_type = -1;
+static int hf_data_size = -1;
+static int hf_this_count = -1;
+static int hf_max_entries = -1;
+static int hf_move_position = -1;
+static int hf_iter_copy = -1;
+static int hf_iter_position = -1;
+static int hf_iter_search = -1;
+static int hf_iter_other = -1;
+static int hf_nds_oid = -1;
 
 static proto_item *expert_item = NULL;
 
@@ -6554,11 +6637,11 @@ static const value_string ncp_nds_verb_vals[] = {
 	{ 44, "Release Moved Entry" },
 	{ 45, "Backup Entry" },
 	{ 46, "Restore Entry" },
-	{ 47, "Save DIB" },
+	{ 47, "Save DIB (Obsolete)" },
 	{ 48, "Control" },
 	{ 49, "Remove Backlink" },
 	{ 50, "Close Iteration" },
-	{ 51, "Unused" },
+	{ 51, "Mutate Entry" },
 	{ 52, "Audit Skulking" },
 	{ 53, "Get Server Address" },
 	{ 54, "Set Keys" },
@@ -6569,22 +6652,71 @@ static const value_string ncp_nds_verb_vals[] = {
 	{ 59, "Begin Authentication" },
 	{ 60, "Finish Authentication" },
 	{ 61, "Logout" },
-	{ 62, "Repair Ring" },
+	{ 62, "Repair Ring (Obsolete)" },
 	{ 63, "Repair Timestamps" },
 	{ 64, "Create Back Link" },
 	{ 65, "Delete External Reference" },
 	{ 66, "Rename External Reference" },
-	{ 67, "Create Directory Entry" },
-	{ 68, "Remove Directory Entry" },
-	{ 69, "Designate New Master" },
+	{ 67, "Create Queue Entry Directory" },
+	{ 68, "Remove Queue Entry Directory" },
+	{ 69, "Merge Entries" },
 	{ 70, "Change Tree Name" },
 	{ 71, "Partition Entry Count" },
 	{ 72, "Check Login Restrictions" },
 	{ 73, "Start Join" },
 	{ 74, "Low Level Split" },
 	{ 75, "Low Level Join" },
-	{ 76, "Abort Low Level Join" },
+	{ 76, "Abort Partition Operation" },
 	{ 77, "Get All Servers" },
+	{ 78, "Partition Function" },
+	{ 79, "Read References" },
+	{ 80, "Inspect Entry" },
+	{ 81, "Get Remote Entry ID" },
+	{ 82, "Change Security" },
+	{ 83, "Check Console Operator" },
+	{ 84, "Start Move Tree" },
+	{ 85, "Move Tree" },
+	{ 86, "End Move Tree" },
+	{ 87, "Low Level Abort Join" },
+	{ 88, "Check Security Equivalence" },
+	{ 89, "Merge Tree" },
+	{ 90, "Sync External Reference" },
+	{ 91, "Resend Entry" },
+    { 92, "New Schema Epoch" },
+    { 93, "Statistics" },
+    { 94, "Ping" },
+    { 95, "Get Bindery Contexts" },
+    { 96, "Monitor Connection" },
+    { 97, "Get DS Statistics" },
+    { 98, "Reset DS Counters" },
+    { 99, "Console" },
+    { 100, "Read Stream" },
+    { 101, "Write Stream" },
+    { 102, "Create Orphan Partition" },
+    { 103, "Remove Orphan Partition" },
+    { 104, "Link Orphan Partition" },
+    { 105, "Set Distributed Reference Link (DRL)" },
+    { 106, "Available" },
+    { 107, "Available" },
+    { 108, "Verify Distributed Reference Link (DRL)" },
+    { 109, "Verify Partition" },
+    { 110, "Iterator" },
+    { 111, "Available" },
+    { 112, "Close Stream" },
+    { 113, "Available" },
+    { 114, "Read Status" },
+    { 115, "Partition Sync Status" },
+    { 116, "Read Reference Data" },
+    { 117, "Write Reference Data" },
+    { 118, "Resource Event" },
+    { 119, "DIB Request (obsolete)" },
+    { 120, "Set Replication Filter" },
+    { 121, "Get Replication Filter" },
+    { 122, "Change Attribute Definition" },
+    { 123, "Schema in Use" },
+    { 124, "Remove Keys" },
+    { 125, "Clone" },
+    { 126, "Multiple Operations Transaction" },
     { 240, "Ping" },
 	{ 255, "EDirectory Call" },
 	{ 0,  NULL }
@@ -6671,7 +6803,7 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_req_frame_num,
 	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_FRAMENUM, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
-
+                                           
 	{ &hf_ncp_req_frame_time,
 	{ "Time from Request", "ncp.time", FT_RELATIVE_TIME, BASE_NONE,
 		NULL, 0x0, "Time between request and response in seconds", HFILL }},
@@ -7224,31 +7356,31 @@ proto_register_ncp2222(void)
         { "Not Defined", "ncp.bit16vflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
 
         { &hf_bit1cflags,
-        { "Ambiguous Containment", "ncp.bit1cflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+        { "Container", "ncp.bit1cflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
 
         { &hf_bit2cflags,
-        { "Ambiguous Naming", "ncp.bit2cflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Effective", "ncp.bit2cflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
 
         { &hf_bit3cflags,
         { "Class Definition Cannot be Removed", "ncp.bit3cflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
 
         { &hf_bit4cflags,
-        { "Effective Class", "ncp.bit4cflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Ambiguous Naming", "ncp.bit4cflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
 
         { &hf_bit5cflags,
-        { "Container Class", "ncp.bit5cflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Ambiguous Containment", "ncp.bit5cflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
 
         { &hf_bit6cflags,
-        { "Not Defined", "ncp.bit6cflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        { "Auxiliary", "ncp.bit6cflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
 
         { &hf_bit7cflags,
-        { "Not Defined", "ncp.bit7cflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        { "Operational", "ncp.bit7cflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
 
         { &hf_bit8cflags,
-        { "Not Defined", "ncp.bit8cflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Sparse Required", "ncp.bit8cflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
 
         { &hf_bit9cflags,
-        { "Not Defined", "ncp.bit9cflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "Sparse Operational", "ncp.bit9cflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
 
         { &hf_bit10cflags,
         { "Not Defined", "ncp.bit10cflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
@@ -7393,7 +7525,10 @@ proto_register_ncp2222(void)
 	{ "Tree Walker Transport", "ncp.nds_tree_trans", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
  	{ &hf_nds_iteration,
-	{ "Iteration Handle", "ncp.nds_iteration", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Iteration Handle", "ncp.nds_iteration", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_iterator,
+	{ "Iterator", "ncp.nds_iterator", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_file_handle,
 	{ "File Handle", "ncp.nds_file_handle", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
@@ -7406,7 +7541,7 @@ proto_register_ncp2222(void)
 
     { &hf_nds_depth,
 	{ "Distance object is from Root", "ncp.nds_depth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-
+                               
  	{ &hf_nds_info_type,
 	{ "Info Type", "ncp.nds_info_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
@@ -7429,7 +7564,7 @@ proto_register_ncp2222(void)
 	{ "Classes", "ncp.nds_classes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
  	{ &hf_nds_crc,
-	{ "CRC", "ncp.nds_crc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "CRC", "ncp.nds_crc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
  	{ &hf_nds_referrals,
 	{ "Referrals", "ncp.nds_referrals", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -7504,7 +7639,7 @@ proto_register_ncp2222(void)
 	{ "Replica Number", "ncp.nds_replica_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_es_seconds,
-	{ "Seconds", "ncp.nds_es_seconds", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Seconds", "ncp.nds_es_seconds", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_event_num,
 	{ "Event Number", "ncp.nds_event_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -7531,7 +7666,7 @@ proto_register_ncp2222(void)
 	{ "Replicas", "ncp.nds_replicas", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_purge,
-	{ "Purge Time", "ncp.nds_purge", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ "Purge Time", "ncp.nds_purge", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_local_partition,
 	{ "Local Partition ID", "ncp.nds_local_partition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
@@ -7571,9 +7706,48 @@ proto_register_ncp2222(void)
 
     { &hf_nds_entry_info,
     { "Entry Information", "ncp.nds_entry_info", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-
+    
     { &hf_nds_privileges,
     { "Privileges", "ncp.nds_privileges", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_compare_attributes,
+    { "Compare Attributes?", "ncp.nds_compare_attributes", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+    
+    { &hf_nds_read_attribute,
+    { "Read Attribute?", "ncp.nds_read_attribute", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+    
+    { &hf_nds_write_add_delete_attribute,
+    { "Write, Add, Delete Attribute?", "ncp.nds_write_add_delete_attribute", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+    
+    { &hf_nds_add_delete_self,
+    { "Add/Delete Self?", "ncp.nds_add_delete_self", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+    
+    { &hf_nds_privilege_not_defined,
+    { "Privilege Not defined", "ncp.nds_privilege_not_defined", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+    
+    { &hf_nds_supervisor,
+    { "Supervisor?", "ncp.nds_supervisor", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+    
+    { &hf_nds_inheritance_control,
+    { "Inheritance?", "ncp.nds_inheritance_control", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+
+    { &hf_nds_browse_entry,
+    { "Browse Entry?", "ncp.nds_browse_entry", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+    { &hf_nds_add_entry,
+    { "Add Entry?", "ncp.nds_add_entry", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+
+    { &hf_nds_delete_entry,
+    { "Delete Entry?", "ncp.nds_delete_entry", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+
+    { &hf_nds_rename_entry,
+    { "Rename Entry?", "ncp.nds_rename_entry", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+
+    { &hf_nds_supervisor_entry,
+    { "Supervisor?", "ncp.nds_supervisor_entry", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+    
+    { &hf_nds_entry_privilege_not_defined,
+    { "Privilege Not Defined", "ncp.nds_entry_privilege_not_defined", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
 
     { &hf_nds_vflags,
     { "Value Flags", "ncp.nds_vflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
@@ -7646,7 +7820,7 @@ proto_register_ncp2222(void)
         { "Depth", "ncp.bit2pingflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
 
         { &hf_bit3pingflags1,
-        { "Revision", "ncp.bit3pingflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Build Number", "ncp.bit3pingflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
 
         { &hf_bit4pingflags1,
         { "Flags", "ncp.bit4pingflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
@@ -7661,19 +7835,19 @@ proto_register_ncp2222(void)
         { "OS Version", "ncp.bit7pingflags1", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
 
         { &hf_bit8pingflags1,
-        { "License Flags", "ncp.bit8pingflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        { "Not Defined", "ncp.bit8pingflags1", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
 
         { &hf_bit9pingflags1,
-        { "DS Time", "ncp.bit9pingflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        { "License Flags", "ncp.bit9pingflags1", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
 
         { &hf_bit10pingflags1,
-        { "Not Defined", "ncp.bit10pingflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        { "DS Time", "ncp.bit10pingflags1", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
 
         { &hf_bit11pingflags1,
-        { "Not Defined", "ncp.bit11pingflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        { "Server Time", "ncp.bit11pingflags1", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
 
         { &hf_bit12pingflags1,
-        { "Not Defined", "ncp.bit12pingflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        { "Create Time", "ncp.bit12pingflags1", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
 
         { &hf_bit13pingflags1,
         { "Not Defined", "ncp.bit13pingflags1", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
@@ -7739,16 +7913,16 @@ proto_register_ncp2222(void)
         { "Root Most Master Replica", "ncp.bit1pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
 
         { &hf_bit2pingpflags1,
-        { "Time Synchronized", "ncp.bit2pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+        { "Is Time Synchronized?", "ncp.bit2pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
 
         { &hf_bit3pingpflags1,
-        { "Not Defined", "ncp.bit3pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        { "Is Time Valid?", "ncp.bit3pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
 
         { &hf_bit4pingpflags1,
-        { "Not Defined", "ncp.bit4pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        { "Is DS Time Synchronized?", "ncp.bit4pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
 
         { &hf_bit5pingpflags1,
-        { "Not Defined", "ncp.bit5pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        { "Does Agent Have All Replicas?", "ncp.bit5pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
 
         { &hf_bit6pingpflags1,
         { "Not Defined", "ncp.bit6pingpflags1", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
@@ -7834,14 +8008,23 @@ proto_register_ncp2222(void)
     { &hf_nds_letter_ver,
 	{ "Letter Version", "ncp.nds_letter_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
-    { &hf_nds_os_ver,
-	{ "OS Version", "ncp.nds_os_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_nds_os_majver,
+	{ "OS Major Version", "ncp.nds_os_majver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_os_minver,
+	{ "OS Minor Version", "ncp.nds_os_minver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_lic_flags,
 	{ "License Flags", "ncp.nds_lic_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_ds_time,
-	{ "DS Time", "ncp.nds_ds_time", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ "DS Time", "ncp.nds_ds_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_svr_time,
+	{ "Server Time", "ncp.nds_svr_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_crt_time,
+	{ "Agent Create Time", "ncp.nds_crt_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_nds_ping_version,
 	{ "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -7939,6 +8122,142 @@ proto_register_ncp2222(void)
 
 	{ &hf_ncp_copyright,
 	{ "Copyright", "ncp.copyright", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+
+        { &hf_ndsprot1flag,
+        { "Not Defined", "ncp.nds_prot_bit1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_ndsprot2flag,
+        { "Not Defined", "ncp.nds_prot_bit2", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+
+        { &hf_ndsprot3flag,
+        { "Not Defined", "ncp.nds_prot_bit3", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+
+        { &hf_ndsprot4flag,
+        { "Not Defined", "ncp.nds_prot_bit4", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+
+        { &hf_ndsprot5flag,
+        { "Not Defined", "ncp.nds_prot_bit5", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+
+        { &hf_ndsprot6flag,
+        { "Not Defined", "ncp.nds_prot_bit6", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+
+        { &hf_ndsprot7flag,
+        { "Not Defined", "ncp.nds_prot_bit7", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+
+        { &hf_ndsprot8flag,
+        { "Not Defined", "ncp.nds_prot_bit8", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+
+        { &hf_ndsprot9flag,
+        { "Not Defined", "ncp.nds_prot_bit9", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+
+        { &hf_ndsprot10flag,
+        { "Not Defined", "ncp.nds_prot_bit10", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+
+        { &hf_ndsprot11flag,
+        { "Not Defined", "ncp.nds_prot_bit11", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+
+        { &hf_ndsprot12flag,
+        { "Not Defined", "ncp.nds_prot_bit12", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+
+        { &hf_ndsprot13flag,
+        { "Not Defined", "ncp.nds_prot_bit13", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+
+        { &hf_ndsprot14flag,
+        { "Not Defined", "ncp.nds_prot_bit14", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+
+        { &hf_ndsprot15flag,
+        { "Include CRC in NDS Header", "ncp.nds_prot_bit15", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+
+        { &hf_ndsprot16flag,
+        { "Client is a Server", "ncp.nds_prot_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+    { &hf_nds_svr_dst_name,
+	{ "Server Distiguished Name", "ncp.nds_svr_dist_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_tune_mark,
+        { "Tune Mark",	"ncp.ndstunemark", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_create_time,
+        { "NDS Creation Time",	"ncp.ndscreatetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+        
+    { &hf_srvr_param_string,
+	{ "Set Parameter Value", "ncp.srvr_param_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        
+    { &hf_srvr_param_number,
+    { "Set Parameter Value", "ncp.srvr_param_string", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_srvr_param_boolean,
+    { "Set Parameter Value", "ncp.srvr_param_boolean", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_number_of_items,
+    { "Number of Items", "ncp.ndsitems", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_nds_iterverb,
+	{ "NDS Iteration Verb", "ncp.ndsiterverb", FT_UINT32, BASE_HEX, NULL /*VALS(iterator_subverbs)*/, 0x0, "", HFILL }},
+
+   	{ &hf_iter_completion_code,
+	{ "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_iterobj,
+	{ "Iterator Object", "ncp.ndsiterobj", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+   	{ &hf_iter_verb_completion_code,
+	{ "Completion Code", "ncp.iter_verb_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_iter_ans,
+    { "Iterator Answer", "ncp.iter_answer", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+
+	{ &hf_positionable,
+	{ "Positionable", "ncp.iterpositionable", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+	
+    { &hf_num_skipped,
+	{ "Number Skipped", "ncp.iternumskipped", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	
+    { &hf_num_to_skip,
+	{ "Number to Skip", "ncp.iternumtoskip", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	
+    { &hf_timelimit,
+	{ "Time Limit", "ncp.itertimelimit", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_iter_index,
+	{ "Iterator Index", "ncp.iterindex", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_num_to_get,
+	{ "Number to Get", "ncp.iternumtoget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ret_info_type,
+	{ "Return Information Type", "ncp.iterretinfotype", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_data_size,
+	{ "Data Size", "ncp.iterdatasize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_this_count,
+	{ "Number of Items", "ncp.itercount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_max_entries,
+	{ "Maximum Entries", "ncp.itermaxentries", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_move_position,
+	{ "Move Position", "ncp.itermoveposition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_iter_copy,
+	{ "Iterator Copy", "ncp.itercopy", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    	
+    { &hf_iter_position,
+	{ "Iteration Position", "ncp.iterposition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_iter_search,
+	{ "Search Filter", "ncp.iter_search", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_iter_other,
+	{ "Other Iteration", "ncp.iterother", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_oid,
+	{ "Object ID", "ncp.nds_oid", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    
+
 
  """
 	# Print the registration code for the hf variables
@@ -8921,7 +9240,7 @@ def define_ncp2222():
 	pkt = NCP(0x1629, "Get Object Disk Usage and Restrictions", 'file')
 	pkt.Request(15, [
 		rec( 10, 1, VolumeNumber ),
-		rec( 11, 4, ObjectID, BE ),
+		rec( 11, 4, ObjectID, LE ),
 	])
 	pkt.Reply(16, [
 		rec( 8, 4, Restriction ),
@@ -10205,7 +10524,7 @@ def define_ncp2222():
 	pkt.Request(24, [
 		rec( 10, 4, QueueID ),
 		rec( 14, 4, QueueStartPosition ),
-		rec( 18, 4, FormTypeCnt, var="x" ),
+		rec( 18, 4, FormTypeCnt, LE, var="x" ),
 		rec( 22, 2, FormType, repeat="x" ),
 	])
 	pkt.Reply(20, [
@@ -10219,7 +10538,7 @@ def define_ncp2222():
 	pkt.Request(24, [
 		rec( 10, 4, QueueID ),
 		rec( 14, 4, QueueStartPosition ),
-		rec( 18, 4, FormTypeCnt, var= "x" ),
+		rec( 18, 4, FormTypeCnt, LE, var= "x" ),
 		rec( 22, 2, FormType, repeat="x" ),
 	])
 	pkt.Reply(94, [
@@ -11568,6 +11887,14 @@ def define_ncp2222():
 	], info_str=(FileHandle, "Commit File - 0x%s", ", %s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9804, 0xff00])
+	# 2222/3D, 61
+	pkt = NCP(0x3D, "Commit File", 'file', has_length=0 )
+	pkt.Request(14, [
+		rec( 7, 1, Reserved ),
+		rec( 8, 6, FileHandle ),
+	], info_str=(FileHandle, "Commit File - 0x%s", ", %s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x8800, 0x9804, 0xff00])
 	# 2222/3E, 62
 	pkt = NCP(0x3E, "File Search Initialize", 'file', has_length=0 )
 	pkt.Request((9, 263), [
@@ -12049,11 +12376,11 @@ def define_ncp2222():
 		rec( 10, 2, SearchAttributesLow ),
 		rec( 12, 2, ReturnInfoMask ),
 		rec( 14, 2, ExtendedInfo ),
-		rec( 16, 9, SearchSequence ),
+		rec( 16, 9, SeachSequenceStruct ),
 		rec( 25, (1,255), SearchPattern ),
 	], info_str=(SearchPattern, "Search for: %s", "/%s"))
 	pkt.Reply( NO_LENGTH_CHECK, [
-		rec( 8, 9, SearchSequence ),
+		rec( 8, 9, SeachSequenceStruct ),
 		rec( 17, 1, Reserved ),
                 srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
                 srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
@@ -12122,7 +12449,7 @@ def define_ncp2222():
 		rec( 24, 1, HandleFlag ),
 		rec( 25, 1, PathCount, var="y" ),
 		rec( 26, (1, 255), Path, repeat="x" ),
-		rec( -1, (1,255), Path, repeat="y" ),
+		rec( -1, (1,255), DestPath, repeat="y" ),
 	], info_str=(Path, "Rename or Move: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
@@ -12468,7 +12795,7 @@ def define_ncp2222():
 		rec( 12, 2, ReturnInfoMask ),
 		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 2, ReturnInfoCount ),
-		rec( 18, 9, SearchSequence ),
+		rec( 18, 9, SeachSequenceStruct ),
 		rec( 27, (1,255), SearchPattern ),
 	])
     # The reply packet is dissected in packet-ncp2222.inc
@@ -13016,11 +13343,11 @@ def define_ncp2222():
 		rec( 12, 2, ReturnInfoMask ),
 		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 2, ReturnInfoCount ),
-		rec( 18, 9, SearchSequence ),
+		rec( 18, 9, SeachSequenceStruct ),
 		rec( 27, (1,255), SearchPattern ),
 	], info_str=(SearchPattern, "Search for: %s", ", %s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
-		rec( 8, 9, SearchSequence ),
+		rec( 8, 9, SeachSequenceStruct ),
 		rec( 17, 1, MoreFlag ),
 		rec( 18, 2, InfoCount ),
                 srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
@@ -13497,12 +13824,12 @@ def define_ncp2222():
 		rec( 10, 2, SearchAttributesLow ),
 		rec( 12, 2, ReturnInfoMask ),
 		rec( 14, 2, ExtendedInfo ),
-		rec( 16, 9, SearchSequence ),
+		rec( 16, 9, SeachSequenceStruct ),
         rec( 25, 1, DataTypeFlag ),
 		rec( 26, (2,255), SearchPattern16 ),
 	], info_str=(SearchPattern16, "Search for: %s", "/%s"))
 	pkt.Reply( NO_LENGTH_CHECK, [
-		rec( 8, 9, SearchSequence ),
+		rec( 8, 9, SeachSequenceStruct ),
 		rec( 17, 1, Reserved ),
                 srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
                 srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
@@ -13563,20 +13890,12 @@ def define_ncp2222():
 		rec( 8, 1, NameSpace  ),
 		rec( 9, 1, RenameFlag ),
 		rec( 10, 2, SearchAttributesLow ),
-		rec( 12, 4, DirectoryBase ),
-		rec( 16, 1, VolumeNumber ),
-		rec( 17, 1, HandleFlag ),
-        rec( 18, 1, DataTypeFlag ),
-        rec( 19, 5, Reserved5 ),
+        rec( 12, 12, SrcEnhNWHandlePathS1 ),
 		rec( 24, 1, PathCount, var="x" ),
-		rec( 25, 4, DirectoryBase ),
-		rec( 29, 1, VolumeNumber ),
-		rec( 30, 1, HandleFlag ),
-        rec( 31, 1, DataTypeFlag ),
-        rec( 32, 5, Reserved5 ),
+		rec( 25, 12, DstEnhNWHandlePathS1 ),
 		rec( 37, 1, PathCount, var="y" ),
 		rec( 38, (2, 255), Path16, repeat="x" ),
-		rec( -1, (2,255), Path16, repeat="y" ),
+		rec( -1, (2,255), DestPath16, repeat="y" ),
 	], info_str=(Path16, "Rename or Move: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
@@ -13607,7 +13926,7 @@ def define_ncp2222():
 			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5906, 89/06
 	pkt = NCP(0x5906, "Obtain File or SubDirectory Information", 'enhanced', has_length=0)
-	pkt.Request((31,284), [
+	pkt.Request((22), [
 		rec( 8, 1, SrcNameSpace ),
 		rec( 9, 1, DestNameSpace ),
 		rec( 10, 2, SearchAttributesLow ),
@@ -13616,10 +13935,15 @@ def define_ncp2222():
 		rec( 16, 4, DirectoryBase ),
 		rec( 20, 1, VolumeNumber ),
 		rec( 21, 1, HandleFlag ),
-        rec( 22, 1, DataTypeFlag ),
-        rec( 23, 5, Reserved5 ),
-		rec( 28, 1, PathCount, var="x" ),
-		rec( 29, (2,255), Path16, repeat="x",),
+        #
+        # Move to packet-ncp2222.inc
+        # The datatype flag indicates if the path is represented as ASCII or UTF8
+        # ASCII has a 1 byte count field whereas UTF8 has a two byte count field.
+        #
+        #rec( 22, 1, DataTypeFlag ),
+        #rec( 23, 5, Reserved5 ),
+		#rec( 28, 1, PathCount, var="x" ),
+		#rec( 29, (2,255), Path16, repeat="x",),
 	], info_str=(Path16, "Obtain Info for: %s", "/%s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
             srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
@@ -13927,7 +14251,7 @@ def define_ncp2222():
 		rec( 12, 2, ReturnInfoMask ),
 		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 2, ReturnInfoCount ),
-		rec( 18, 9, SearchSequence ),
+		rec( 18, 9, SeachSequenceStruct ),
         rec( 27, 1, DataTypeFlag ),
 		rec( 28, (2,255), SearchPattern16 ),
 	])
@@ -14338,12 +14662,12 @@ def define_ncp2222():
 		rec( 12, 2, ReturnInfoMask ),
 		rec( 14, 2, ExtendedInfo ),
 		rec( 16, 2, ReturnInfoCount ),
-		rec( 18, 9, SearchSequence ),
+		rec( 18, 9, SeachSequenceStruct ),
         rec( 27, 1, DataTypeFlag ),
 		rec( 28, (2,255), SearchPattern16 ),
 	], info_str=(SearchPattern16, "Search for: %s", ", %s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
-		rec( 8, 9, SearchSequence ),
+		rec( 8, 9, SeachSequenceStruct ),
 		rec( 17, 1, MoreFlag ),
 		rec( 18, 2, InfoCount ),
                 srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
@@ -14831,17 +15155,13 @@ def define_ncp2222():
 	# XXX - if FraggerHandle is not 0xffffffff, this is not the
 	# first fragment, so we can only dissect this by reassembling;
 	# the fields after "Fragment Handle" are bogus for non-0xffffffff
-	# fragments, so we shouldn't dissect them.
-	#
-	# XXX - are there TotalRequest requests in the packet, and
-	# does each of them have NDSFlags and NDSVerb fields, or
-	# does only the first one have it?
+	# fragments, so we shouldn't dissect them. This is all handled in packet-ncp2222.inc.
 	#
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
         pkt.ReqCondSizeVariable()
-	pkt.CompletionCodes([0x0000, 0xfd01])
+	pkt.CompletionCodes([0x0000, 0xac00, 0xfd01])
  	# 2222/6803, 104/03
 	pkt = NCP(0x6803, "Fragment Close", "nds", has_length=0)
 	pkt.Request(12, [
@@ -15925,9 +16245,10 @@ def define_ncp2222():
         rec(32, 1, SetCmdFlags ),
         rec(33, 3, Reserved3 ),
         rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
+        # The value of the set command is decoded in packet-ncp2222.inc
         ])                
         pkt.ReqCondSizeVariable()
-        pkt.CompletionCodes([0x0000, 0x7e01, 0xc600, 0xfb06, 0xff00])
+        pkt.CompletionCodes([0x0000, 0x7e01, 0xc600, 0xfb06, 0xff22])
 	# 2222/7B46, 123/70
 	pkt = NCP(0x7B46, "Get Current Compressing File", 'stats')
 	pkt.Request(14, [

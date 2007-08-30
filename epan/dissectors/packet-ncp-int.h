@@ -121,6 +121,7 @@ typedef struct {
 	nstime_t		req_frame_time;
     guint16         length;
 	guint32			req_nds_flags;
+	guint32			req_nds_prot_flags;
 	guint8			nds_request_verb;
 	guint8			nds_version;
 	char			object_name[256];
@@ -129,6 +130,7 @@ typedef struct {
     guint32         nds_frag_num;
     guint16         req_mask;
     guint16         req_mask_ext;
+    guint32         nds_frag_flags;
 } ncp_req_hash_value;
 
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint32,
