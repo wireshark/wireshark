@@ -1764,14 +1764,12 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 
   fcf = pletohs (&pd[offset]);
 
-  if (IS_PROTECTED(FCF_FLAGS(fcf)) && wlan_ignore_wep == WLAN_IGNORE_WEP_NO)
-    {
-      ld->other++;
-      return;
-    }
+  if (IS_PROTECTED(FCF_FLAGS(fcf)) && wlan_ignore_wep == WLAN_IGNORE_WEP_NO) {
+    ld->other++;
+    return;
+  }
 
-  switch (COMPOSE_FRAME_TYPE (fcf))
-    {
+  switch (COMPOSE_FRAME_TYPE (fcf)) {
 
     case DATA:          /* We got a data frame */
     case DATA_CF_ACK:   /* Data with ACK */
@@ -1807,11 +1805,11 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
         capture_llc (pd, offset + hdr_length, len, ld);
       }
       break;
+    }
 
     default:
       ld->other++;
       break;
-    }
   }
 }
 
