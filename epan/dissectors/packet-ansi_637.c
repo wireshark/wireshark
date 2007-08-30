@@ -168,9 +168,9 @@ static unsigned char air_digits[] = {
 /* Initialize the protocol and registered fields */
 static int proto_ansi_637_tele = -1;
 static int proto_ansi_637_trans = -1;
-static int hf_ansi_637_none = -1;
-static int hf_ansi_637_length = -1;
-static int hf_ansi_637_bin_addr = -1;
+static int hf_ansi_637_tele_length = -1;
+static int hf_ansi_637_trans_length = -1;
+static int hf_ansi_637_trans_bin_addr = -1;
 static int hf_ansi_637_tele_msg_type = -1;
 static int hf_ansi_637_tele_msg_id = -1;
 static int hf_ansi_637_tele_msg_rsvd = -1;
@@ -1123,7 +1123,7 @@ trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 	    }
 	    else
 	    {
-		proto_tree_add_bytes(tree, hf_ansi_637_bin_addr, tvb, offset, num_fields - 1,
+		proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset, num_fields - 1,
 		    (guint8*)ansi_637_bigbuf);
 	    }
 
@@ -1371,7 +1371,7 @@ trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
     }
     ansi_637_bigbuf[i] = '\0';
 
-    proto_tree_add_bytes(tree, hf_ansi_637_bin_addr, tvb, offset, num_fields - 1,
+    proto_tree_add_bytes(tree, hf_ansi_637_trans_bin_addr, tvb, offset, num_fields - 1,
 	(guint8*)ansi_637_bigbuf);
 
     offset += (num_fields - 1);
@@ -1574,7 +1574,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 
     proto_item_set_len(item, (curr_offset - *offset) + len + 1);
 
-    proto_tree_add_uint(subtree, hf_ansi_637_length,
+    proto_tree_add_uint(subtree, hf_ansi_637_tele_length,
 	tvb, curr_offset, 1, len);
 
     curr_offset++;
@@ -1763,7 +1763,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 
     proto_item_set_len(item, (curr_offset - *offset) + len + 1);
 
-    proto_tree_add_uint(subtree, hf_ansi_637_length,
+    proto_tree_add_uint(subtree, hf_ansi_637_trans_length,
 	tvb, curr_offset, 1, len);
 
     curr_offset++;
@@ -1890,53 +1890,51 @@ proto_register_ansi_637(void)
     guint		i;
 
     /* Setup list of header fields */
-    static hf_register_info hf[] =
+    static hf_register_info hf_trans[] =
     {
 	{ &hf_ansi_637_trans_msg_type,
 	  { "Message Type",
-	    "ansi_637.trans_msg_type",
+	    "ansi_637_trans.msg_type",
 	    FT_UINT24, BASE_DEC, VALS(ansi_trans_msg_type_strings), 0xf00000,
 	    "", HFILL }},
+	{ &hf_ansi_637_trans_param_id,
+	    { "Transport Param ID", "ansi_637_trans.param_id",
+	    FT_UINT8, BASE_DEC, VALS(ansi_trans_param_strings), 0,
+	    "", HFILL }},
+	{ &hf_ansi_637_trans_length,
+	    { "Length", "ansi_637_trans.len",
+	    FT_UINT8, BASE_DEC, NULL, 0,
+	    "", HFILL }},
+	{ &hf_ansi_637_trans_bin_addr,
+	    { "Binary Address", "ansi_637_trans.bin_addr",
+	    FT_BYTES, BASE_HEX, 0, 0,
+	    "", HFILL }},
+	};
+	static hf_register_info hf_tele[] =
+	{
 	{ &hf_ansi_637_tele_msg_type,
 	  { "Message Type",
-	    "ansi_637.tele_msg_type",
+	    "ansi_637_tele.msg_type",
 	    FT_UINT24, BASE_DEC, VALS(ansi_tele_msg_type_strings), 0xf00000,
 	    "", HFILL }},
 	{ &hf_ansi_637_tele_msg_id,
 	  { "Message ID",
-	    "ansi_637.tele_msg_id",
+	    "ansi_637_tele.msg_id",
 	    FT_UINT24, BASE_DEC, NULL, 0x0ffff0,
 	    "", HFILL }},
 	{ &hf_ansi_637_tele_msg_rsvd,
 	  { "Reserved",
-	    "ansi_637.tele_msg_rsvd",
+	    "ansi_637_tele.msg_rsvd",
 	    FT_UINT24, BASE_DEC, NULL, 0x00000f,
 	    "", HFILL }},
-	{ &hf_ansi_637_length,
-	    { "Length",		"ansi_637.len",
+	{ &hf_ansi_637_tele_length,
+	    { "Length", "ansi_637_tele.len",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_637_none,
-	    { "Sub tree",	"ansi_637.none",
-	    FT_NONE, 0, 0, 0,
-	    "", HFILL }
-	},
+	    "", HFILL }},
 	{ &hf_ansi_637_tele_subparam_id,
-	    { "Teleservice Subparam ID",	"ansi_637.tele_subparam_id",
+	    { "Teleservice Subparam ID", "ansi_637_tele.subparam_id",
 	    FT_UINT8, BASE_DEC, VALS(ansi_tele_param_strings), 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_637_trans_param_id,
-	    { "Transport Param ID",	"ansi_637.trans_param_id",
-	    FT_UINT8, BASE_DEC, VALS(ansi_trans_param_strings), 0,
-	    "", HFILL }
-	},
-	{ &hf_ansi_637_bin_addr,
-	    { "Binary Address",	"ansi_637.bin_addr",
-	    FT_BYTES, BASE_HEX, 0, 0,
-	    "", HFILL }
-	},
+	    "", HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -1975,7 +1973,8 @@ proto_register_ansi_637(void)
 	proto_register_protocol(ansi_proto_name_trans, "ANSI IS-637-A Transport", "ansi_637_trans");
 
     /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_ansi_637_tele, hf, array_length(hf));
+    proto_register_field_array(proto_ansi_637_tele, hf_tele, array_length(hf_tele));
+    proto_register_field_array(proto_ansi_637_trans, hf_trans, array_length(hf_trans));
     proto_register_subtree_array(ett, array_length(ett));
 
     tele_dissector_table =
