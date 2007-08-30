@@ -97,7 +97,6 @@ EXTRA_DIST = \
 	netscreen2dump.py				\
 	pkt-from-core.py				\
 	runlex.sh					\
-	setuid-root.pl.in				\
 	unix2dos.pl					\
 	win32-setup.sh					\
 	wireshark_be.py					\
@@ -110,7 +109,7 @@ setuid-root.pl: setuid-root.pl.in Makefile
 		-e 's,@BIN_PREFIX\@,$(bindir),' \
 		-e 's,@TSHARK_BIN\@,$(tshark_bin)$(EEXT),' \
 		-e 's,@DUMPCAP_BIN\@,$(dumpcap_bin)$(EEXT),' \
-		< setuid-root.pl.in > setuid-root.pl
+		< $(srcdir)/setuid-root.pl.in > setuid-root.pl
 	chmod +x setuid-root.pl
 
 MAINTAINERCLEANFILES = \
