@@ -176,6 +176,8 @@ static int hf_pn_io_control_command_prmend = -1;
 static int hf_pn_io_control_command_applready = -1;
 static int hf_pn_io_control_command_release = -1;
 static int hf_pn_io_control_command_done = -1;
+static int hf_pn_io_control_command_ready_for_companion = -1;
+static int hf_pn_io_control_command_ready_for_rt_class3 = -1;
 static int hf_pn_io_control_block_properties = -1;
 static int hf_pn_io_control_block_properties_applready = -1;
 static int hf_pn_io_control_block_properties_applready0 = -1;
@@ -277,6 +279,11 @@ static int hf_pn_io_sync_send_factor = -1;
 static int hf_pn_io_sync_properties = -1;
 static int hf_pn_io_sync_frame_address = -1;
 static int hf_pn_io_ptcp_timeout_factor = -1;
+static int hf_pn_io_ptcp_takeover_timeout_factor = -1;
+static int hf_pn_io_ptcp_master_priority_1 = -1;
+static int hf_pn_io_ptcp_master_priority_2 = -1;
+static int hf_pn_io_ptcp_length_subdomain_name = -1;
+static int hf_pn_io_ptcp_subdomain_name = -1;
 
 static int hf_pn_io_domain_boundary = -1;
 static int hf_pn_io_multicast_boundary = -1;
@@ -525,6 +532,10 @@ static const value_string pn_io_block_type[] = {
 	{ 0x8114, "ReleaseBlockRes"},
 	{ 0x0115, "ARRPCServerBlockReq"},
 	{ 0x8115, "ARRPCServerBlockRes"},
+	{ 0x0116, "IOXBlockReq"},
+	{ 0x8116, "IOXBlockRes"},
+	{ 0x0117, "IOXBlockReq"},
+	{ 0x8117, "IOXBlockRes"},
 	{ 0x0200, "PDPortDataCheck"},
 	{ 0x0201, "PDevData"},
 	{ 0x0202, "PDPortDataAdjust"},
@@ -2556,8 +2567,12 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_control_command_applready, &u16Command);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_release, &u16Command);
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_done, &u16Command);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_ready_for_companion, &u16Command);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_ready_for_rt_class3, &u16Command);
 
     if(u16Command & 0x0002) {
         /* ApplicationReady: special decode */
@@ -3485,7 +3500,7 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
 /* dissect the PDSyncData block */
 static int
 dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionLow)
 {
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
@@ -3497,51 +3512,108 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
     guint16 u16SendClockFactor;
     guint16 u16SyncProperties;
     guint16 u16SyncFrameAddress;
+    guint16 u16PTCPTakeoverTimeoutFactor;
     guint16 u16PTCPTimeoutFactor;
+    guint8 u8MasterPriority1;
+    guint8 u8MasterPriority2;
+    guint8 u8LengthSubdomainName;
+    char *pSubdomainName;
 
 
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* SlotNumber */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_slot_nr, &u16SlotNr);
-    /* Subslotnumber */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_subslot_nr, &u16SubslotNr);
-    /* PTCPSubdomainID */
-    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ptcp_subdomain_id, &uuid);
-    /* IRDataID */
-    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ir_data_id, &uuid);
-    /* ReservedIntervalBegin */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_reserved_interval_begin, &u32ReservedIntervalBegin);
-    /* ReservedIntervalEnd */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_reserved_interval_end, &u32ReservedIntervalEnd);
-    /* PLLWindow enum */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_pllwindow, &u32PLLWindow);
-    /* SyncSendFactor 32 enum */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_sync_send_factor, &u32SyncSendFactor);
-    /* SendClockFactor 16 */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_send_clock_factor, &u16SendClockFactor);
-    /* SyncProperties 16 bitfield */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_sync_properties, &u16SyncProperties);
-    /* SyncFrameAddress 16 bitfield */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_sync_frame_address, &u16SyncFrameAddress);
-    /* PTCPTimeoutFactor 16 enum */
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ptcp_timeout_factor, &u16PTCPTimeoutFactor);
+    if(u8BlockVersionLow == 2) {
+        /* PTCPSubdomainID */
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_subdomain_id, &uuid);
+        /* ReservedIntervalBegin */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_reserved_interval_begin, &u32ReservedIntervalBegin);
+        /* ReservedIntervalEnd */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_reserved_interval_end, &u32ReservedIntervalEnd);
+        /* PLLWindow enum */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_pllwindow, &u32PLLWindow);
+        /* SyncSendFactor 32 enum */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_sync_send_factor, &u32SyncSendFactor);
+        /* SendClockFactor 16 */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_send_clock_factor, &u16SendClockFactor);
+        /* PTCPTimeoutFactor 16 enum */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_timeout_factor, &u16PTCPTimeoutFactor);
+        /* PTCPTakeoverTimeoutFactor 16 */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_takeover_timeout_factor, &u16PTCPTakeoverTimeoutFactor);
+        /* SyncProperties 16 bitfield */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_sync_properties, &u16SyncProperties);
+        /* PTCP_MasterPriority1 */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_master_priority_1, &u8MasterPriority1);
+        /* PTCP_MasterPriority2 */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_master_priority_2, &u8MasterPriority2);
+        /* PTCPLengthSubdomainName */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_length_subdomain_name, &u8LengthSubdomainName);
+        /* PTCPSubdomainName */
+        pSubdomainName = ep_alloc(u8LengthSubdomainName+1);
+        tvb_memcpy(tvb, (guint8 *) pSubdomainName, offset, u8LengthSubdomainName);
+        pSubdomainName[u8LengthSubdomainName] = '\0';
+        proto_tree_add_string (tree, hf_pn_io_ptcp_subdomain_name, tvb, offset, u8LengthSubdomainName, pSubdomainName);
+        offset += u8LengthSubdomainName;
 
-    proto_item_append_text(item, ": Slot:0x%x/0x%x, Interval:%u-%u, PLLWin:%u, Send:%u, Clock:%u",
-        u16SlotNr, u16SubslotNr, u32ReservedIntervalBegin, u32ReservedIntervalEnd,
-        u32PLLWindow, u32SyncSendFactor, u16SendClockFactor);
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+        proto_item_append_text(item, ": Interval:%u-%u, PLLWin:%u, Send:%u, Clock:%u",
+            u32ReservedIntervalBegin, u32ReservedIntervalEnd,
+            u32PLLWindow, u32SyncSendFactor, u16SendClockFactor);
+    } else { /* u8BlockVersionLow == 0 ? */
+        /* SlotNumber */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_slot_nr, &u16SlotNr);
+        /* Subslotnumber */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_subslot_nr, &u16SubslotNr);
+        /* PTCPSubdomainID */
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_subdomain_id, &uuid);
+        /* IRDataID */
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ir_data_id, &uuid);
+        /* ReservedIntervalBegin */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_reserved_interval_begin, &u32ReservedIntervalBegin);
+        /* ReservedIntervalEnd */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_reserved_interval_end, &u32ReservedIntervalEnd);
+        /* PLLWindow enum */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_pllwindow, &u32PLLWindow);
+        /* SyncSendFactor 32 enum */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_sync_send_factor, &u32SyncSendFactor);
+        /* SendClockFactor 16 */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_send_clock_factor, &u16SendClockFactor);
+        /* SyncProperties 16 bitfield */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_sync_properties, &u16SyncProperties);
+        /* SyncFrameAddress 16 bitfield */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_sync_frame_address, &u16SyncFrameAddress);
+        /* PTCPTimeoutFactor 16 enum */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_timeout_factor, &u16PTCPTimeoutFactor);
+
+        proto_item_append_text(item, ": Slot:0x%x/0x%x, Interval:%u-%u, PLLWin:%u, Send:%u, Clock:%u",
+            u16SlotNr, u16SubslotNr, u32ReservedIntervalBegin, u32ReservedIntervalEnd,
+            u32PLLWindow, u32SyncSendFactor, u16SendClockFactor);
+    }
 
     return offset;
 }
@@ -5054,6 +5126,8 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0112):
     case(0x0113):
     case(0x0114):
+    case(0x0116):
+    case(0x0117):
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, ar);
         break;
     case(0x0200):
@@ -5066,7 +5140,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0203):
-        dissect_PDSyncData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_PDSyncData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionLow);
         break;
     case(0x0204):
         dissect_IsochronousModeData(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -5204,6 +5278,8 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8112):
     case(0x8113):
     case(0x8114):
+    case(0x8116):
+    case(0x8117):
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, ar);
         break;
     default:
@@ -6199,6 +6275,10 @@ proto_register_pn_io (void)
       { "Release", "pn_io.control_command.release", FT_UINT16, BASE_DEC, NULL, 0x0004, "", HFILL }},
     { &hf_pn_io_control_command_done,
       { "Done", "pn_io.control_command.done", FT_UINT16, BASE_DEC, NULL, 0x0008, "", HFILL }},
+    { &hf_pn_io_control_command_ready_for_companion,
+      { "ReadyForCompanion", "pn_io.control_command.ready_for_companion", FT_UINT16, BASE_DEC, NULL, 0x0010, "", HFILL }},
+    { &hf_pn_io_control_command_ready_for_rt_class3,
+      { "ReadyForRT Class 3", "pn_io.control_command.ready_for_rt_class3", FT_UINT16, BASE_DEC, NULL, 0x0020, "", HFILL }},
 
     { &hf_pn_io_control_block_properties,
       { "ControlBlockProperties", "pn_io.control_block_properties", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_vals), 0x0, "", HFILL }},
@@ -6395,6 +6475,16 @@ proto_register_pn_io (void)
       { "SyncFrameAddress", "pn_io.sync_frame_address", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ptcp_timeout_factor,
       { "PTCPTimeoutFactor", "pn_io.ptcp_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ptcp_takeover_timeout_factor,
+      { "PTCPTakeoverTimeoutFactor", "pn_io.ptcp_takeover_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ptcp_master_priority_1,
+      { "PTCP_MasterPriority1", "pn_io.ptcp_master_priority_1", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ptcp_master_priority_2,
+      { "PTCP_MasterPriority2", "pn_io.ptcp_master_priority_2", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ptcp_length_subdomain_name,
+      { "PTCPLengthSubdomainName", "pn_io.ptcp_length_subdomain_name", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ptcp_subdomain_name,
+      { "PTCPSubdomainName", "pn_io.ptcp_subdomain_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_domain_boundary,
       { "DomainBoundary", "pn_io.domain_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
