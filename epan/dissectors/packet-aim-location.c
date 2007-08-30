@@ -193,16 +193,16 @@ proto_register_aim_location(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_buddyname_len,
-			{ "Buddyname len", "aim.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+			{ "Buddyname len", "aim_location.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_aim_buddyname,
-			{ "Buddy Name", "aim.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+			{ "Buddy Name", "aim_location.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
 		},
 		{ &hf_aim_userinfo_warninglevel,
-			{ "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+			{ "Warning Level", "aim_location.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 		},
 		{ &hf_aim_snac_location_request_user_info_infotype,
-			{ "Infotype", "aim.snac.location.request_user_info.infotype", FT_UINT16, BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,
+			{ "Infotype", "aim_location.snac.request_user_info.infotype", FT_UINT16, BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,
 				"", HFILL }
 		},
 	};

@@ -75,7 +75,7 @@ proto_register_aim_userlookup(void)
 /* Setup list of header fields */
   static hf_register_info hf[] = {
 	  { &hf_aim_userlookup_email,
-		  { "Email address looked for", "aim.userlookup.email", FT_STRING, BASE_NONE, NULL, 0, "Email address", HFILL }
+		  { "Email address looked for", "aim_lookup.email", FT_STRING, BASE_NONE, NULL, 0, "Email address", HFILL }
 	  },
   };
 
