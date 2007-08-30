@@ -60,6 +60,7 @@ capture_radiotap
 capture_raw
 capture_sll
 capture_tr
+capture_wlancap
 check_col
 circuit_add_proto_data
 circuit_get_proto_data
