@@ -54,7 +54,6 @@ EXTRA_DIST = \
 	camel/CAP-object-identifiers.asn	\
 	camel/CAP-operationcodes.asn	\
 	camel/CAP-SMS-ops-args.asn	\
-	camel/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.asn	\
 	camel/CAP-U-ABORT-Data.asn		\
 	camel/camel.cnf	\
 	camel/Makefile	\
