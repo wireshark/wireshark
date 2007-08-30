@@ -198,25 +198,18 @@ update_if(if_dlg_data_t *if_dlg_data, if_stat_cache_t *sc)
   guint diff;
 
 
-  /* pcap_stats() stats values differ on libpcap and winpcap!
-   * libpcap: returns the number of packets since pcap_open_live
-   * winpcap: returns the number of packets since the last pcap_stats call
-   * XXX - if that's true, that's a bug, and should be fixed; "pcap_stats()"
-   * is supposed to work the same way on all platforms, including Windows.
-   * Note that the WinPcap 3.0 documentation says "The values represent
-   * packet statistics from the start of the run to the time of the call."
-   * (Note also that some versions of libpcap, on some versions of UN*X,
-   * have the same bug.)
+  /*
+   * Note that some versions of libpcap, on some versions of UN*X,
+   * pcap_stats() returns the number of packets since the last 
+   * pcap_stats call.
+   *
+   * That's a bug, and should be fixed; "pcap_stats()" is supposed 
+   * to work the same way on all platforms.
    */
   if (sc) {
     if(capture_stats(sc, if_dlg_data->device, &stats)) {
-#ifdef _WIN32
       diff = stats.ps_recv - if_dlg_data->last_packets;
       if_dlg_data->last_packets = stats.ps_recv;
-#else
-      diff = stats.ps_recv;
-      if_dlg_data->last_packets = stats.ps_recv + if_dlg_data->last_packets;
-#endif
 
       str = g_strdup_printf("%u", if_dlg_data->last_packets);
       gtk_label_set_text(GTK_LABEL(if_dlg_data->curr_lb), str);
