@@ -97,6 +97,7 @@ EXTRA_DIST = \
 	netscreen2dump.py				\
 	pkt-from-core.py				\
 	runlex.sh					\
+	setuid-root.pl.in				\
 	unix2dos.pl					\
 	win32-setup.sh					\
 	wireshark_be.py					\
