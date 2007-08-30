@@ -301,6 +301,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
     case WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP:
       capture_radiotap(pd, 0, caplen, counts);
       break;
+    case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
+      capture_wlancap(pd, 0, caplen, counts);
+      break;
     case WTAP_ENCAP_CHDLC:
       capture_chdlc(pd, 0, caplen, counts);
       break;
