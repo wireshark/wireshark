@@ -112,6 +112,9 @@ setuid-root.pl: setuid-root.pl.in Makefile
 		< $(srcdir)/setuid-root.pl.in > setuid-root.pl
 	chmod +x setuid-root.pl
 
+DISTCLEANFILES = \
+	setuid-root.pl
+
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
