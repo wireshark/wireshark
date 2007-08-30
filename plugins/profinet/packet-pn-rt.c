@@ -114,11 +114,26 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean  bCyclic;
 
 
-  /* Initialize variables */
-  tvb_len = tvb_length(tvb) - 
-	  /* subtract (optional) Ethernet FCS or trailer len */
+  /* The PN-RT protocol uses status values at the end of the Ethernet frame.
+   * Unfortunately it doesn't contain a length field in the PN-RT protocol itself,
+   * so we must depend on the tvb length. This is sometimes is a bit confusing
+   * wether the length of the tvb contains the optional FCS at the end or not
+   * therefore the following heuristic ... */
+
+  if(pinfo->fd->lnk_t == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+    /* 802.11: at least when using AiroPeek to capture,
+     * the 802.11 dissector already has stripped the FCS from the tvb.
+     * XXX - we might need to add other 802.11 encaps here as well */
+    tvb_len = tvb_length(tvb);
+  } else {
+	/* Ethernet: subtract (optional) FCS or trailer len
+     * (fcs_len -1 means we don't know if FCS is appended, we assume it's not) */
+    tvb_len = tvb_length(tvb) -
 	  ((pinfo->pseudo_header->eth.fcs_len != -1) ? pinfo->pseudo_header->eth.fcs_len : 0);
+  }
   tvb_set_reported_length(tvb, tvb_len);
+
+  /* Initialize variables */
   pn_rt_tree = NULL;
   ds_tree = NULL;
   ti = NULL;
