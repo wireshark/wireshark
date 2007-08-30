@@ -1621,12 +1621,18 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.10 if length is fixed and less than to 64kbits*/
 	if((min_len==max_len)&&(min_len<65536)){
-		/* align to byte */
-		BYTE_ALIGN_OFFSET(offset);
+		/* (octet-aligned in the ALIGNED variant) 
+		 * align to byte 
+		 */
+		if (actx->aligned){
+			/* TODO the displayed value will be wrong for the unaligned variant */
+			BYTE_ALIGN_OFFSET(offset);
+		}
 		val_start = offset>>3;
 		val_length = (min_len+7)/8;
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, (min_len+7)/8, FALSE);
+			/*proto_item_append_text(actx->created_item,"[bit offset %u, bit length %u]",offset&0x7,max_len);*/
 		}
 		offset+=min_len;
 		return offset;
@@ -1643,7 +1649,9 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	}
 	if(length){
 		/* align to byte */
-		BYTE_ALIGN_OFFSET(offset);
+		if (actx->aligned){
+			BYTE_ALIGN_OFFSET(offset);
+		}
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, (length+7)/8, FALSE);
 		}
