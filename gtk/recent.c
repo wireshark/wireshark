@@ -51,8 +51,8 @@
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
-#define RECENT_KEY_AIRPCAP_TOOLBAR_SHOW      "gui.airpcap_toolbar_show"
-#define RECENT_KEY_DRIVER_CHECK_SHOW		"gui.airpcap_driver_check_show"
+#define RECENT_KEY_AIRPCAP_TOOLBAR_SHOW     "gui.airpcap_toolbar_show"
+#define RECENT_KEY_DRIVER_CHECK_SHOW        "gui.airpcap_driver_check_show"
 #define RECENT_KEY_PACKET_LIST_SHOW         "gui.packet_list_show"
 #define RECENT_KEY_TREE_VIEW_SHOW           "gui.tree_view_show"
 #define RECENT_KEY_BYTE_VIEW_SHOW           "gui.byte_view_show"
@@ -70,7 +70,8 @@
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
 #define RECENT_GUI_GEOMETRY_STATUS_PANE     "gui.geometry_status_pane"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
-#define RECENT_GUI_GEOMETRY "gui.geom."
+#define RECENT_GUI_GEOMETRY                 "gui.geom."
+#define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
 
 #define RECENT_FILE_NAME "recent"
 
@@ -257,6 +258,11 @@ write_recent(void)
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
 		  recent.gui_geometry_status_pane);
   }
+
+  fprintf(rf, "\n# Warn if running with elevated permissions (e.g. as root).\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_ELEVATED ": %s\n",
+		  recent.privs_warn_if_elevated == TRUE ? "TRUE" : "FALSE");
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
@@ -452,6 +458,13 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       sub_key++;
       window_geom_recent_read_pair(win, sub_key, value);
     }
+  } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_ELEVATED) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+        recent.privs_warn_if_elevated = TRUE;
+    }
+    else {
+        recent.privs_warn_if_elevated = FALSE;
+    }
   }
 
   return PREFS_SET_OK;
@@ -563,6 +576,8 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.has_gui_geometry_main_lower_pane = FALSE;
   recent.has_gui_geometry_status_pane = FALSE;
 #endif
+
+  recent.privs_warn_if_elevated = TRUE;
 
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);

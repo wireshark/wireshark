@@ -26,6 +26,10 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #include <gtk/gtk.h>
 
 #include "globals.h"
@@ -82,7 +86,7 @@ dnd_uri2filename(gchar *cf_name)
      *
      * On UNIX (at least GNOME Nautilus 2.8.2), this prefix looks like:
      * file:///dir1/dir2/capture-file.cap
-     */ 
+     */
     if (strncmp("file:", cf_name, 5) == 0) {
         /* now becoming: /dir1/dir2/capture-file.cap or ///dir1/dir2/capture-file.cap */
         cf_name += 5;
@@ -91,14 +95,14 @@ dnd_uri2filename(gchar *cf_name)
     }
 #endif
 
-    /* 
+    /*
      * unescape the escaped URI characters (spaces, ...)
      *
-     * we have to replace escaped chars to their equivalents, 
+     * we have to replace escaped chars to their equivalents,
      * e.g. %20 (always a two digit hexstring) -> ' '
      * the percent character '%' is escaped be a double one "%%"
      *
-     * we do this conversation "in place" as the result is always 
+     * we do this conversation "in place" as the result is always
      * equal or smaller in size.
      */
     src = cf_name;
@@ -202,10 +206,10 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     int       files_work;
     char      **in_filenames;
 
-    
+
     /* DND_TARGET_URL on Win32:
      * The cf_name_freeme is a single string, containing one or more URI's,
-     * seperated by CR/NL chars. The length of the whole field can be found 
+     * seperated by CR/NL chars. The length of the whole field can be found
      * in the selection_data->length field. If it contains one file, simply open it,
      * If it contains more than one file, ask to merge these files. */
 
@@ -253,7 +257,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     default:
         /* build and show the info dialog */
         dialog_text = g_string_sized_new(200);
-        g_string_append(dialog_text, PRIMARY_TEXT_START 
+        g_string_append(dialog_text, PRIMARY_TEXT_START
             "Merging the following files:" PRIMARY_TEXT_END "\n\n");
         for(files_work = 0; files_work < in_files; files_work++) {
             g_string_append(dialog_text, in_filenames[files_work]);
@@ -274,7 +278,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
 }
 
 /* ask the user to save current unsaved file, before opening the dnd file */
-static void 
+static void
 dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
@@ -296,17 +300,17 @@ dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 
 /* we have received some drag and drop data */
 /* (as we only registered to "text/uri-list", we will only get a file list here) */
-static void 
-dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_, 
+static void
+dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_,
 GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 {
     gpointer  dialog;
 	gchar *cf_names_freeme;
 
     if (info == DND_TARGET_URL) {
-        /* Usually we block incoming events by disabling the corresponding menu/toolbar items. 
-         * This is the only place where an incoming event won't be blocked in such a way, 
-         * so we have to take care of NOT loading a new file while a different process 
+        /* Usually we block incoming events by disabling the corresponding menu/toolbar items.
+         * This is the only place where an incoming event won't be blocked in such a way,
+         * so we have to take care of NOT loading a new file while a different process
          * (e.g. capture/load/...) is still in progress. */
 
 #ifdef HAVE_LIBPCAP
@@ -351,7 +355,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 }
 
 /* init the drag and drop functionality */
-void 
+void
 dnd_init(GtkWidget *w)
 {
     /* we are only interested in the URI list containing filenames */

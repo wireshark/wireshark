@@ -207,6 +207,7 @@ static GtkWidget   *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
 static GtkWidget   *main_first_pane, *main_second_pane;
 static GtkWidget   *status_pane;
 static GtkWidget   *menubar, *main_vbox, *main_tb, *stat_hbox, *filter_tb;
+static GtkWidget   *priv_warning_dialog;
 
 #ifdef HAVE_AIRPCAP
 GtkWidget *airpcap_tb;
@@ -214,7 +215,7 @@ static GtkWidget *driver_warning_dialog;
 static int    airpcap_dll_ret_val = -1;
 #endif
 
-static GtkWidget	*info_bar;
+static GtkWidget    *info_bar;
 static GtkWidget    *packets_bar = NULL;
 static GtkWidget    *welcome_pane;
 static guint		main_ctx, file_ctx, help_ctx;
@@ -1469,6 +1470,12 @@ set_display_filename(capture_file *cf)
 GtkWidget           *close_dlg = NULL;
 
 static void
+priv_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
+{
+    recent.privs_warn_if_elevated = !simple_dialog_check_get(dialog);
+}
+
+static void
 main_cf_cb_file_closing(capture_file *cf)
 {
 
@@ -2135,6 +2142,7 @@ main(int argc, char *argv[])
   guint                go_to_packet = 0;
   int                  optind_initial;
   int                  status;
+  gchar               *cur_user, *cur_group;
 
 #ifdef HAVE_AIRPCAP
   char			*err_str;
@@ -2152,16 +2160,13 @@ main(int argc, char *argv[])
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
 
-#ifdef	HAVE_AIRPDCAP
-  /*	Davide Schiera (2006-11-18): init AirPDcap context								*/
-  AirPDcapInitContext(&airpdcap_ctx);
-  /* Davide Schiera (2006-11-18) -------------------------------------------	*/
-#endif
-
   /*
-   * Get credential information for later use.
+   * Get credential information for later use, and drop privileges
+   * before doing anything else.
+   * Let the user know if anything happened.
    */
   get_credential_info();
+  relinquish_special_privs_perm();
 
   /*
    * Attempt to get the pathname of the executable file.
@@ -2170,6 +2175,12 @@ main(int argc, char *argv[])
 
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
+
+#ifdef	HAVE_AIRPDCAP
+  /*	Davide Schiera (2006-11-18): init AirPDcap context								*/
+  AirPDcapInitContext(&airpdcap_ctx);
+  /* Davide Schiera (2006-11-18) -------------------------------------------	*/
+#endif
 
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
@@ -2910,6 +2921,19 @@ main(int argc, char *argv[])
 
   /* the window can be sized only, if it's not already shown, so do it now! */
   main_load_window_geometry(top_level);
+
+  /* Tell the user not to run as root. */
+  if (running_with_special_privs() && recent.privs_warn_if_elevated) {
+    cur_user = get_cur_username();
+    cur_group = get_cur_groupname();
+    priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      "Running as user \"%s\" and group \"%s\".\n"
+      "This could be dangerous.", cur_user, cur_group);
+    g_free(cur_user);
+    g_free(cur_group);
+    simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
+    simple_dialog_set_cb(priv_warning_dialog, priv_warning_dialog_cb, NULL);
+  }
 
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
@@ -4822,7 +4846,7 @@ show_main_window(gboolean doing_work)
 			"does not support driver-level decryption.  Please\n"
 			"download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
       simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
-      simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, (gpointer) driver_warning_dialog);
+      simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, NULL);
     }
     break;
 

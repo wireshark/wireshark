@@ -26,6 +26,10 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -191,10 +195,10 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* elapsed seconds */
   elapsed_time = (unsigned int)summary.elapsed_time;
   if(elapsed_time/86400) {
-      g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u", 
+      g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u",
         elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
   } else {
-      g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u", 
+      g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u",
         elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
   }
   add_string_to_table(table, &row, "Elapsed:", string_buff);
@@ -254,7 +258,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
         str_work = g_strdup(&str_dup[offset]);
         snip++;
     }
-    
+
     add_string_to_table(table, &row, (snip == 0) ? "Display filter:" : "", str_work);
     g_free(str_work);
     g_free(str_dup);
@@ -351,7 +355,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     strcpy(string_buff, "");
   }
   if (summary.dfilter && disp_seconds > 0){
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", 
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f",
           /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
           ((gint64) summary.filtered_bytes) * 8.0 / (disp_seconds * 1000.0 * 1000.0));
   } else {
@@ -359,7 +363,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   }
   add_string_to_list(list, "Avg. MBit/sec", string_buff, string_buff2);
 
-  
+
   /* Button row. */
   if(topic_available(HELP_STATS_SUMMARY_DIALOG)) {
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);

@@ -31,6 +31,10 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
 #include <gtk/gtk.h>
 #include <string.h>
 
@@ -216,7 +220,7 @@ mtp3_sum_draw(
 	entries[1] = g_strdup_printf("%u", num_msus);
 
 	entries[2] = (seconds) ? g_strdup_printf("%.2f", num_msus/seconds) : "N/A";
-	
+
 	entries[3] = g_strdup_printf("%.0f", num_bytes);
 
 	entries[4] = (num_msus) ? g_strdup_printf("%.2f", num_bytes/num_msus) : "N/A";

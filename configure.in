@@ -193,7 +193,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 		#Temporarily put cast-align here waiting eradication of 'cast
 		#increases required alignment of target type' on the Solaris
-		#slave. 
+		#slave.
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 	fi
 ],)
@@ -216,13 +216,13 @@ else
 fi
 
 #
-# If we're running gcc, will enable a barrier "stop on warning". 
+# If we're running gcc, will enable a barrier "stop on warning".
 # This barrier is set for a very large part of the code. However, it is
 # typically not set for "generated" code  (lex, ans2wrs, idl2wrs, ...)
 #
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
-  AC_HELP_STRING( [--enable-warnings-as-errors], 
+  AC_HELP_STRING( [--enable-warnings-as-errors],
 		  [Treat warnings as errors (only for gcc). @<:@default=yes@:>@]),
 [
   if test "x$GCC" = "xyes" -a "x$enableval" == "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
@@ -453,7 +453,7 @@ if test "$HAVE_GNU_SED" = no ; then
 		AC_MSG_CHECKING(whether one of /usr/bin/sed or /bin/sed or /usr/ucb/sed will be used)
 		case `which sed` in
 			/bin/sed|/usr/bin/sed|/usr/ucb/sed)
-			AC_MSG_RESULT(yes)		
+			AC_MSG_RESULT(yes)
 			AC_MSG_ERROR([change your path to search /usr/xpg4/bin or directory containing GNU sed before /usr/bin (and /bin and /usr/ucb)])
 			;;
 
@@ -1045,10 +1045,10 @@ fi
 dnl Check if wireshark should be installed setuid
 AC_ARG_ENABLE(setuid-install,
   AC_HELP_STRING( [--enable-setuid-install],
-                  [install wireshark as setuid. DANGEROUS!!! @<:@default=no@:>@]),
+                  [install tshark and dumpcap as setuid @<:@default=no@:>@]),
     enable_setuid_install=$enableval,enable_setuid_install=no)
 
-AC_MSG_CHECKING(whether to install wireshark setuid)
+AC_MSG_CHECKING(whether to install tshark and dumpcap setuid)
 if test "x$enable_setuid_install" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
@@ -1063,7 +1063,7 @@ AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(direct.h dirent.h fcntl.h netdb.h stdarg.h stddef.h unistd.h)
+AC_CHECK_HEADERS(direct.h dirent.h fcntl.h grp.h netdb.h pwd.h stdarg.h stddef.h unistd.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sys/time.h sys/types.h sys/utsname.h sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
@@ -1465,7 +1465,7 @@ AC_ARG_WITH(plugins,
     have_plugins=no
   elif test "x$have_plugins" = "xno"; then
       AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
-      if test "x$withval" != "xyes"; then 
+      if test "x$withval" != "xyes"; then
 	plugindir="$withval"
       fi
   fi
@@ -1562,12 +1562,13 @@ AC_OUTPUT(
   tools/idl2wrs.sh
   tools/lemon/Makefile
   ,)
+dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 
 
 # Pretty messages
 
 if test "x$enable_setuid_install" = "xyes" ; then
-	setuid_message="yes (DANGEROUS!!!)"
+	setuid_message="yes"
 else
 	setuid_message="no"
 fi

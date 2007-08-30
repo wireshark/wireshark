@@ -124,6 +124,10 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 #endif
   capture_opts->state                   = CAPTURE_STOPPED;
   capture_opts->output_to_pipe          = FALSE;
+#ifndef _WIN32
+  capture_opts->owner                   = getuid();
+  capture_opts->group                   = getgid();
+#endif
 }
 
 

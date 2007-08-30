@@ -669,6 +669,25 @@ output_file_description(const char *fname)
   return save_file_string;
 }
 
+static void
+print_current_user() {
+  gchar *cur_user, *cur_group;
+  if (started_with_special_privs()) {
+    cur_user = get_cur_username();
+    cur_group = get_cur_groupname();
+    fprintf(stderr, "Running as user \"%s\" and group \"%s\".",
+      cur_user, cur_group);
+    g_free(cur_user);
+    g_free(cur_group);
+    if (running_with_special_privs()) {
+      fprintf(stderr, " This could be dangerous.");
+    }
+    fprintf(stderr, "\n");
+  }
+}
+
+
+
 int
 main(int argc, char *argv[])
 {
@@ -1452,6 +1471,7 @@ main(int argc, char *argv[])
      * can't open.
      */
     relinquish_special_privs_perm();
+    print_current_user();
 
     if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
       epan_cleanup();
@@ -1631,6 +1651,7 @@ capture(void)
    * not special privileges.
    */
   relinquish_special_privs_perm();
+  print_current_user();
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
   switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts.iface, capture_opts.cfilter)) {

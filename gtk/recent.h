@@ -43,8 +43,8 @@
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
     gboolean    filter_toolbar_show;
-	gboolean	airpcap_toolbar_show;
-	gboolean    airpcap_driver_check_show;
+    gboolean	airpcap_toolbar_show;
+    gboolean    airpcap_driver_check_show;
     gboolean    packet_list_show;
     gboolean    tree_view_show;
     gboolean    byte_view_show;
@@ -67,6 +67,7 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_main_lower_pane;       /* this is autodetected in GTK2 only */
     gboolean    has_gui_geometry_status_pane;       /* gui_geometry_status_pane is valid */
     gint        gui_geometry_status_pane;           /* this is autodetected in GTK2 only */
+    gboolean    privs_warn_if_elevated;
 } recent_settings_t;
 
 /** Global recent settings. */

@@ -679,6 +679,7 @@ EXTRA_DIST = \
 	packaging/u3/win32/u3util.c		\
 	services			\
 	tools/idl2wrs.sh.in			\
+	tools/setuid-root.in			\
 	wka.tmpl
 
 if SETUID_INSTALL

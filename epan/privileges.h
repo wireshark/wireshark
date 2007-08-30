@@ -22,18 +22,42 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/*
+/**
  * Called when the program starts, to save whatever credential information
  * we'll need later.
  */
 extern void get_credential_info(void);
 
-/*
+/**
  * Was this program started with special privileges?
+ * @return TRUE if the program was started with special privileges,
+ * FALSE otherwise.
  */
 extern gboolean started_with_special_privs(void);
 
-/*
+/**
+ * Is this program running with special privileges?
+ * @return TRUE if the program is running with special privileges,
+ * FALSE otherwise.
+ */
+extern gboolean running_with_special_privs(void);
+
+/**
  * Permanently relinquish special privileges.
  */
 extern void relinquish_special_privs_perm(void);
+
+/**
+ * Get the current username.  String must be g_free()d after use.
+ * @return A freshly g_alloc()ed string containing the username,
+ * or "UNKNOWN" on failure.
+ */
+extern gchar *get_cur_username(void);
+
+/**
+ * Get the current group.  String must be g_free()d after use.
+ * @return A freshly g_alloc()ed string containing the group,
+ * or "UNKNOWN" on failure.
+ */
+extern gchar *get_cur_groupname(void);
+

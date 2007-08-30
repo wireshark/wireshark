@@ -64,6 +64,23 @@ Wireshark Info
       The following features are new (or have been significantly updated)
       since the last release:
 
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            Most of the capture code has been moved out of the GUI, which
+            means that Wireshark no longer needs to be run as root.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can now filter directly on SNMP OIDs.
+          </para>
+        </listitem>
+
+      </itemizedlist>
+
     </para>
     </section>
 

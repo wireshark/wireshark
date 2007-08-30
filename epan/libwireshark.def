@@ -412,6 +412,8 @@ get_column_longest_string
 get_column_title
 get_column_width_string
 get_credential_info
+get_cur_groupname
+get_cur_username
 get_datafile_path
 get_datafile_dir
 get_dirname
@@ -734,6 +736,7 @@ rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
 running_in_build_directory
+running_with_special_privs
 rval_to_str
 sccp_message_type_acro_values		DATA
 scsi_mmc_vals					DATA

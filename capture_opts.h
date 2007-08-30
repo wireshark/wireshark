@@ -104,6 +104,10 @@ typedef struct capture_options_tag {
 #endif
     capture_state state;            /**< current state of the capture engine */
     gboolean output_to_pipe;        /**< save_file is a pipe (named or stdout) */
+#ifndef _WIN32
+    uid_t owner;                    /**< owner of the cfile */
+    gid_t group;                    /**< group of the cfile */
+#endif
 } capture_options;
 
 /* initialize the capture_options with some reasonable values */

@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include "privileges.h"
+#include "emem.h"
 
 #ifdef _WIN32
 
@@ -54,11 +55,43 @@ started_with_special_privs(void)
 }
 
 /*
+ * For now, we say the program isn't running with special privileges.
+ * There are ways of running programs with credentials other than those
+ * for the session in which it's run, but I don't know whether that'd be
+ * done with Wireshark/TShark or not.
+ */
+gboolean
+running_with_special_privs(void)
+{
+	return FALSE;
+}
+
+/*
  * For now, we don't do anything when asked to relinquish special privileges.
  */
 void
 relinquish_special_privs_perm(void)
 {
+}
+
+/*
+ * Get the current username.  String must be g_free()d after use.
+ */
+gchar *
+get_cur_username(void) {
+	gchar *username;
+	username = g_strdup("UNKNOWN");
+	return username;
+}
+
+/*
+ * Get the current group.  String must be g_free()d after use.
+ */
+gchar *
+get_cur_groupname(void) {
+	gchar *groupname;
+	groupname = g_strdup("UNKNOWN");
+	return groupname;
 }
 
 #else /* _WIN32 */
@@ -70,6 +103,18 @@ relinquish_special_privs_perm(void)
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
+
+#ifdef HAVE_GRP_H
+#include <grp.h>
+#endif
+
+#include <glib.h>
+#include <string.h>
+#include <errno.h>
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
@@ -89,7 +134,8 @@ get_credential_info(void)
 }
 
 /*
- * "Started with special privileges" means "started out set-UID or set-GID".
+ * "Started with special privileges" means "started out set-UID or set-GID",
+ * or run as the root user or group.
  */
 gboolean
 started_with_special_privs(void)
@@ -97,8 +143,41 @@ started_with_special_privs(void)
 #ifdef HAVE_ISSETUGID
 	return issetugid();
 #else
-	return (ruid != euid || rgid != egid);
+	return (ruid != euid || rgid != egid || ruid == 0 || rgid == 0);
 #endif
+}
+
+/*
+ * Return TRUE if the real, effective, or saved (if we can check it) user
+ * ID or group are 0.
+ */
+gboolean
+running_with_special_privs(void)
+{
+#ifdef HAVE_SETRESUID
+	uid_t ru, eu, su;
+#endif
+#ifdef HAVE_SETRESGID
+	gid_t rg, eg, sg;
+#endif
+
+#ifdef HAVE_SETRESUID
+	getresuid(&ru, &eu, &su);
+	if (ru == 0 || eu == 0 || su == 0)
+		return TRUE;
+#else
+	if (getuid() == 0 || geteuid() == 0)
+		return TRUE;
+#endif
+#ifdef HAVE_SETRESGID
+	getresgid(&rg, &eg, &sg);
+	if (rg == 0 || eg == 0 || sg == 0)
+		return TRUE;
+#else
+	if (getgid() == 0 || getegid() == 0)
+		return TRUE;
+#endif
+	return FALSE;
 }
 
 /*
@@ -106,11 +185,59 @@ started_with_special_privs(void)
  * Ignore errors for now - if we have the privileges, we should
  * be able to relinquish them.
  */
+
 void
 relinquish_special_privs_perm(void)
 {
-	setuid(ruid);
+	/* If we're running setuid, switch to the calling user */
+#ifdef HAVE_SETRESGID
+	setresgid(rgid, rgid, rgid);
+#else
 	setgid(rgid);
+	setegid(rgid);
+#endif
+
+#ifdef HAVE_SETRESUID
+	setresuid(ruid, ruid, ruid);
+#else
+	setuid(ruid);
+	seteuid(ruid);
+#endif
+
+}
+
+/*
+ * Get the current username.  String must be g_free()d after use.
+ */
+gchar *
+get_cur_username(void) {
+	gchar *username;
+	struct passwd *pw = getpwuid(getuid());
+
+	if (pw) {
+		username = g_strdup(pw->pw_name);
+	} else {
+		username = g_strdup("UNKNOWN");
+	}
+	endpwent();
+	return username;
+}
+
+/*
+ * Get the current group.  String must be g_free()d after use.
+ */
+gchar *
+get_cur_groupname(void) {
+	gchar *groupname;
+	struct group *gr = getgrgid(getgid());
+
+	if (gr) {
+		groupname = g_strdup(gr->gr_name);
+	} else {
+		groupname = g_strdup("UNKNOWN");
+	}
+	endgrent();
+	return groupname;
 }
 
 #endif /* _WIN32 */
