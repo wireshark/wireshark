@@ -220,7 +220,7 @@ EXTRA_DIST = \
 	inap/IN-errorcodes.asn	\
 	inap/IN-errortypes.asn	\
 	inap/IN-object-identifiers.asn	\
-	inap/IN-operationcodes.asn	\	
+	inap/IN-operationcodes.asn	\
 	inap/IN-SCF-SRF-Classes.asn	\
 	inap/IN-SCF-SRF-datatypes.asn	\
 	inap/IN-SCF-SRF-ops-args.asn	\
