@@ -703,7 +703,7 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 	set_buttons(uat,row);
 }
 
-static void uat_cancel_cb(GtkButton *button _U_, gpointer u) {
+static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 	uat_t* uat = u;
 	gchar* err = NULL;
 	
@@ -942,8 +942,6 @@ static GtkWidget* uat_window(void* u) {
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
 #endif
 	
-	rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
-	
 #if (GLIB_MAJOR_VERSION >= 2)
 	if(uat->help) {
 		GtkWidget* help_btn;
@@ -957,51 +955,32 @@ static GtkWidget* uat_window(void* u) {
 	}	
 #endif
 	
-	gtk_widget_show(rep->bbox);
-
     move_hbox = gtk_vbutton_box_new();
     gtk_box_pack_start(GTK_BOX(vbox), move_hbox, TRUE, FALSE, 0);
-    gtk_widget_show(move_hbox);
 
 	edit_hbox = gtk_vbutton_box_new();
     gtk_box_pack_end(GTK_BOX(vbox), edit_hbox, TRUE, FALSE, 0);
-    gtk_widget_show(edit_hbox);	
 	
 	
 	rep->bt_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
-    gtk_widget_show(rep->bt_down);
-	
 	rep->bt_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
-    gtk_widget_show(rep->bt_up);
-	
+
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_up, TRUE, FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_down, TRUE, FALSE, 5);
 	
-	rep->bt_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
-    gtk_widget_show(rep->bt_new);
-	
-	rep->bt_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
-    gtk_widget_show(rep->bt_edit);
 
+	rep->bt_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+	rep->bt_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
 	rep->bt_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
-    gtk_widget_show(rep->bt_delete);
 
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_new, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_edit, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_delete, TRUE, FALSE, 5);
 
-	rep->bt_apply = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_APPLY);
-    gtk_widget_show(rep->bt_apply);
-	
-	rep->bt_cancel = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_CANCEL);
-    gtk_widget_show(rep->bt_cancel);
 
+	rep->bt_apply = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_APPLY);
+	rep->bt_cancel = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_CANCEL);
 	rep->bt_ok = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_OK);
-    gtk_widget_show(rep->bt_ok);
-	
-	
-	gtk_widget_show(move_hbox);
-    gtk_widget_show(edit_hbox);
 
 	gtk_box_pack_end(GTK_BOX(rep->vbox), rep->bbox, FALSE, FALSE, 0);
 
@@ -1028,6 +1007,8 @@ static GtkWidget* uat_window(void* u) {
 	SIGNAL_CONNECT(rep->bt_apply, "clicked", uat_apply_cb, uat);
 	SIGNAL_CONNECT(rep->bt_cancel, "clicked", uat_cancel_cb, uat);
 	SIGNAL_CONNECT(rep->bt_ok, "clicked", uat_ok_cb, uat);
+
+    window_set_cancel_button(rep->window, rep->bt_cancel, uat_cancel_cb);  /* set esc to activate cancel button */
 
 	if (uat->changed) {
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", unsaved_dialog, uat);
