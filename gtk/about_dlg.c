@@ -422,8 +422,12 @@ void
 about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 {
   GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
+  GtkWidget   *page_lb, *about_page, *folders_page;
 
-  GtkWidget   *page_lb, *about_page, *folders_page, *plugins_page;
+#ifdef HAVE_PLUGINS
+  GtkWidget   *plugins_page;
+#endif
+
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   GtkWidget   *authors_page, *license_page;
 #endif

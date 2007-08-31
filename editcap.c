@@ -385,9 +385,9 @@ int main(int argc, char *argv[])
   int split_packet_count = 0;
   int written_count = 0;
   char *filename;
+  gboolean check_ts;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
-  gboolean check_ts;
   
   /* Register wiretap plugins */
   if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
