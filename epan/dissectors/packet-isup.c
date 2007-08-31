@@ -7611,7 +7611,7 @@ proto_register_isup(void)
 
 		{ &hf_isup_event_ind,
 			{ "Event indicator",  "isup.event_ind",
-			  FT_UINT8, 8, VALS(isup_event_ind_value), GFEDCBA_8BIT_MASK,
+			  FT_UINT8, BASE_DEC, VALS(isup_event_ind_value), GFEDCBA_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_event_presentation_restricted_ind,
