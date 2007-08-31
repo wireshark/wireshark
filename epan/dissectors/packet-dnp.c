@@ -1070,7 +1070,7 @@ dnp3_al_obj_procindex(tvbuff_t *tvb, int offset, guint8 al_objq_index, guint32 *
   {
     case AL_OBJQL_IDX_NI:        /* No Index */
       indexbytes = 0;
-      index_item = proto_tree_add_text(item_tree, tvb, offset, 0, "Point Index: %d", *al_ptaddr);
+      index_item = proto_tree_add_text(item_tree, tvb, offset, 0, "Point Index: %u", *al_ptaddr);
       PROTO_ITEM_SET_GENERATED(index_item);
       break;
     case AL_OBJQL_IDX_1O:
@@ -1355,8 +1355,8 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
       break;
   }
   if (num_items)
-    proto_item_append_text(object_item, ", %d point%s", num_items, plurality(num_items, "", "s"));
-  proto_item_append_text(range_item, "%d", num_items);
+    proto_item_append_text(object_item, ", %u point%s", num_items, plurality(num_items, "", "s"));
+  proto_item_append_text(range_item, "%u", num_items);
 
   offset += rangebytes;
 
@@ -1373,7 +1373,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
 
       data_pos = offset;
       indexbytes = dnp3_al_obj_procindex(tvb, offset, al_objq_index, &al_ptaddr, point_tree);
-      proto_item_append_text(point_item, " %d", al_ptaddr);
+      proto_item_append_text(point_item, " %u", al_ptaddr);
       data_pos += indexbytes;
 
       if (!header_only) {
@@ -1405,7 +1405,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             al_bi_val = tvb_get_guint8(tvb, offset);
             al_bit = (al_bi_val & (1 << bitindex)) > 0;
 
-            proto_item_append_text(point_item, ", Value: %d", al_bit);
+            proto_item_append_text(point_item, ", Value: %u", al_bit);
             proto_tree_add_boolean(point_tree, hf_dnp3_al_bit, tvb, offset, 1, al_bit);
             proto_item_set_len(point_item, indexbytes + 1);
 
@@ -1429,7 +1429,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             al_bi_val = tvb_get_guint8(tvb, offset);
             al_2bit = ((al_bi_val >> (bitindex << 1)) & 3);
 
-            proto_item_append_text(point_item, ", Value: %d", al_2bit);
+            proto_item_append_text(point_item, ", Value: %u", al_2bit);
             proto_tree_add_uint(point_tree, hf_dnp3_al_2bit, tvb, offset, 1, al_2bit);
             proto_item_set_len(point_item, indexbytes + 1);
 
@@ -1461,7 +1461,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             data_pos += 1;
 
             al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) > 0;
-            proto_item_append_text(point_item, ", Value: %d", al_bit);
+            proto_item_append_text(point_item, ", Value: %u", al_bit);
 
             proto_item_set_len(point_item, data_pos - offset);
 
@@ -1477,7 +1477,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             data_pos += 1;
 
             al_2bit = (al_ptflags >> 6) & 3;
-            proto_item_append_text(point_item, ", Value: %d", al_2bit);
+            proto_item_append_text(point_item, ", Value: %u", al_2bit);
             proto_item_set_len(point_item, data_pos - offset);
 
             offset = data_pos;
@@ -1497,7 +1497,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             data_pos += 6;
 
             al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
-            proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
+            proto_item_append_text(point_item, ", Value: %u, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
             proto_item_set_len(point_item, data_pos - offset);
 
             offset = data_pos;
@@ -1517,7 +1517,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             data_pos += 6;
 
             al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
-            proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_2bit, abs_time_to_str(&al_abstime));
+            proto_item_append_text(point_item, ", Value: %u, Timestamp: %s", al_2bit, abs_time_to_str(&al_abstime));
             proto_item_set_len(point_item, data_pos - offset);
 
             offset = data_pos;
@@ -1540,7 +1540,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             data_pos += 2;
 
             al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
-            proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
+            proto_item_append_text(point_item, ", Value: %u, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
             proto_item_set_len(point_item, data_pos - offset);
 
             offset = data_pos;
@@ -1584,7 +1584,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
                  ctl_code_str, ctl_misc_str, ctl_tc_str, al_ctlobj_code);
 
             proto_tree_add_text(point_tree, tvb, data_pos - 11, 11,
-               "  [Count: %d] [On-Time: %d] [Off-Time: %d] [Status: %s (0x%02x)]",
+               "  [Count: %u] [On-Time: %u] [Off-Time: %u] [Status: %s (0x%02x)]",
                    al_ctlobj_count, al_ctlobj_on, al_ctlobj_off, ctl_status_str, al_ctlobj_stat);
 
             proto_item_set_len(point_item, data_pos - offset);
@@ -1601,13 +1601,13 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
             {
               case AL_OBJ_AO_32OPB:
                 al_val32 = tvb_get_letohl(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %d", al_val32);
+                proto_item_append_text(point_item, ", Value: %u", al_val32);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
                 data_pos += 4;
                 break;
               case AL_OBJ_AO_16OPB:
                 al_val32 = tvb_get_letohs(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %d", al_val32);
+                proto_item_append_text(point_item, ", Value: %u", al_val32);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, TRUE);
                 data_pos += 2;
                 break;
@@ -1717,7 +1717,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               case AL_OBJ_FDCTRC_32T:
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
-                proto_item_append_text(point_item, ", Count: %d", al_val32);
+                proto_item_append_text(point_item, ", Count: %u", al_val32);
                 proto_tree_add_item(point_tree, hf_dnp3_al_cnt32, tvb, data_pos, 4, TRUE);
                 data_pos += 4;
                 break;
@@ -1742,7 +1742,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               case AL_OBJ_FDCTRC_16T:
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
-                proto_item_append_text(point_item, ", Count: %d", al_val16);
+                proto_item_append_text(point_item, ", Count: %u", al_val16);
                 proto_tree_add_item(point_tree, hf_dnp3_al_cnt16, tvb, data_pos, 2, TRUE);
                 data_pos += 2;
                 break;
@@ -1818,7 +1818,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               case AL_OBJ_AIC_32T:
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %d", al_val32);
+                proto_item_append_text(point_item, ", Value: %u", al_val32);
                 proto_tree_add_item(point_tree, hf_dnp3_al_ana32, tvb, data_pos, 4, TRUE);
                 data_pos += 4;
                 break;
@@ -1829,7 +1829,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               case AL_OBJ_AIC_16T:
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %d", al_val16);
+                proto_item_append_text(point_item, ", Value: %u", al_val16);
                 proto_tree_add_item(point_tree, hf_dnp3_al_ana16, tvb, data_pos, 2, TRUE);
                 data_pos += 2;
                 break;
@@ -1897,7 +1897,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               case AL_OBJ_AO_32:     /* 32-Bit Analog Output Status (Obj:40, Var:01) */
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %d", al_val32);
+                proto_item_append_text(point_item, ", Value: %u", al_val32);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
                 data_pos += 4;
                 break;
@@ -1905,7 +1905,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               case AL_OBJ_AO_16:     /* 16-Bit Analog Output Status (Obj:40, Var:02) */
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %d", al_val16);
+                proto_item_append_text(point_item, ", Value: %u", al_val16);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, TRUE);
                 data_pos += 2;
                 break;
@@ -1946,7 +1946,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           case AL_OBJ_TDELAYF: /* Time Delay - Fine (Obj:52, Var:02) */
 
             al_val16 = tvb_get_letohs(tvb, data_pos);
-            proto_tree_add_text(object_tree, tvb, data_pos, 2, "Time Delay: %d ms", al_val16);
+            proto_tree_add_text(object_tree, tvb, data_pos, 2, "Time Delay: %u ms", al_val16);
             data_pos += 2;
             proto_item_set_len(point_item, data_pos - offset);
 
@@ -1965,7 +1965,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           case AL_OBJ_IIN:     /* IIN Data Object */
 
             /* Single byte of data here */
-            proto_tree_add_text(object_tree, tvb, data_pos, 1, "Value: %d", tvb_get_guint8(tvb, data_pos));
+            proto_tree_add_text(object_tree, tvb, data_pos, 1, "Value: %u", tvb_get_guint8(tvb, data_pos));
             data_pos += 1;
             proto_item_set_len(point_item, data_pos - offset);
 
@@ -1975,7 +1975,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           default:             /* In case of unknown object */
 
             proto_tree_add_text(object_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-              "Unknown Data Chunk, %d Bytes", tvb_reported_length_remaining(tvb, offset));
+              "Unknown Data Chunk, %u Bytes", tvb_reported_length_remaining(tvb, offset));
             offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
             break;
         }
@@ -2026,7 +2026,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(ti, "FIR, ");
   if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(ti, "FIN, ");
   if (al_ctl & DNP3_AL_CON)  proto_item_append_text(ti, "CON, ");
-  proto_item_append_text(ti, "Sequence %d, %s)", al_seq, func_code_str);
+  proto_item_append_text(ti, "Sequence %u, %s)", al_seq, func_code_str);
 
   /* Add the al tree branch */
   al_tree = proto_item_add_subtree(ti, ett_dnp3_al);
@@ -2037,7 +2037,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(tc, "FIR, ");
   if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(tc, "FIN, ");
   if (al_ctl & DNP3_AL_CON)  proto_item_append_text(tc, "CON, ");
-  proto_item_append_text(tc, "Sequence %d)", al_seq);
+  proto_item_append_text(tc, "Sequence %u)", al_seq);
 
   field_tree = proto_item_add_subtree(tc, ett_dnp3_al_ctl);
   proto_tree_add_boolean(field_tree, hf_dnp3_al_fir, tvb, offset, 1, al_ctl);
@@ -2089,7 +2089,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
     for (i = 0; i < 4; i++) {
       if (al_class & (1 << i)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%d", i);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
       }
     }
   }
@@ -2257,7 +2257,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            "Unknown function (0x%02x)");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "len=%d, from %d to %d, %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "len=%u, from %u to %u, %s",
             dl_len, dl_src, dl_dst, func_code_str);
 
   /* create display subtree for the protocol */
@@ -2266,7 +2266,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Create Subtree for Data Link Layer */
   tdl = proto_tree_add_text(dnp3_tree, tvb, offset, DNP_HDR_LEN,
-        "Data Link Layer, Len: %d, From: %d, To: %d, ", dl_len, dl_src, dl_dst);
+        "Data Link Layer, Len: %u, From: %u, To: %u, ", dl_len, dl_src, dl_dst);
   if (dl_prm) {
     if (dl_ctl & DNP3_CTL_DIR) proto_item_append_text(tdl, "DIR, ");
     if (dl_ctl & DNP3_CTL_PRM) proto_item_append_text(tdl, "PRM, ");
@@ -2365,7 +2365,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             "Transport Layer: 0x%02x (", tr_ctl);
     if (tr_fir) proto_item_append_text(tc, "FIR, ");
     if (tr_fin) proto_item_append_text(tc, "FIN, ");
-    proto_item_append_text(tc, "Sequence %d)", tr_seq);
+    proto_item_append_text(tc, "Sequence %u)", tr_seq);
 
     tr_tree = proto_item_add_subtree(tc, ett_dnp3_tr_ctl);
     proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fin, tvb, offset, 1, tr_ctl);
@@ -2402,14 +2402,14 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (crc_OK)
       {
 	  	proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
-			  "Application Chunk %d Len: %d CRC 0x%04x",
+			  "Application Chunk %u Len: %u CRC 0x%04x",
 			  i, chk_size, act_crc);
         data_len -= chk_size;
       }
       else
       {
         proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
-                "Application Chunk %d Len: %d Bad CRC got 0x%04x expected 0x%04x",
+                "Application Chunk %u Len: %u Bad CRC got 0x%04x expected 0x%04x",
                 i, chk_size, act_crc, calc_crc);
         data_len = 0;
         break;
@@ -2501,7 +2501,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
       /* CRC error - throw away the data. */
       next_tvb = NULL;
-      proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %d chunks", i);
+      proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %u chunks", i);
     }
 
     if (next_tvb)
