@@ -99,6 +99,7 @@ static int hf_tcp_analysis_rto_frame = -1;
 static int hf_tcp_analysis_retransmission = -1;
 static int hf_tcp_analysis_fast_retransmission = -1;
 static int hf_tcp_analysis_out_of_order = -1;
+static int hf_tcp_analysis_reused_ports = -1;
 static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_window_update = -1;
@@ -205,6 +206,7 @@ static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
 #define TCP_A_FAST_RETRANSMISSION	0x0400
 #define TCP_A_WINDOW_UPDATE		0x0800
 #define TCP_A_WINDOW_FULL		0x1000
+#define TCP_A_REUSED_PORTS		0x2000
 
 
 static void
@@ -528,13 +530,21 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	}
 
 
-	/* LOST PACKET
+	/* LOST PACKET / REUSED PORTS
 	 * If this segment is beyond the last seen nextseq we must
 	 * have missed some previous segment
 	 *
 	 * We only check for this if we have actually seen segments prior to this
 	 * one.
 	 * RST packets are not checked for this.
+	 *
+	 * If the packet is a SYN, then it's not a lost packet, then the tcp ports
+	 * are reused. This is seen often in load-balanced environments where 
+	 * client ports are preserved on the server-side. We only want to report
+	 * port reusage once, so the SYN/ACK is excluded from analysis.
+	 *
+	 * XXX The port reusage routine might better be handled by cleaning up
+	 * the conversation when a SYN is received and setting the TA_FLAG then.
 	 */
 	if( tcpd->fwd->nextseq
 	&&  GT_SEQ(seq, tcpd->fwd->nextseq)
@@ -542,7 +552,10 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 		if(!tcpd->ta){
 			tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
 		}
-		tcpd->ta->flags|=TCP_A_LOST_PACKET;
+		if ((flags&(TH_SYN|TH_ACK))==TH_SYN)
+			tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+		else if ((flags&(TH_SYN|TH_ACK))!=(TH_SYN|TH_ACK))
+			tcpd->ta->flags|=TCP_A_LOST_PACKET;
 	}
 
 
@@ -916,6 +929,34 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
   }
 }
 
+/* Prints results of the sequence number analysis concerning reused ports */ 
+static void 
+tcp_sequence_number_analysis_print_reused(packet_info * pinfo, 
+					  tvbuff_t * tvb, 
+					  proto_tree * flags_tree, 
+					  struct tcp_acked *ta
+					  )
+{
+  proto_item * flags_item;
+
+  /* TCP Ports Reused */
+  if (ta->flags & TCP_A_REUSED_PORTS) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_reused_ports, 
+					  tvb, 0, 0, 
+					  "A new tcp session is started with the same"
+					  "ports as an earlier session in this trace"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+			    "TCP Port numbers reused for new session");
+    if(check_col(pinfo->cinfo, COL_INFO)){
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, 
+					    "[TCP Port numbers reused] ");
+    }
+  }
+}
+
 /* Prints results of the sequence number analysis concerning lost tcp segments */ 
 static void 
 tcp_sequence_number_analysis_print_lost(packet_info * pinfo, 
@@ -1178,6 +1219,9 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
 		PROTO_ITEM_SET_GENERATED(item);
 		flags_tree=proto_item_add_subtree(item, ett_tcp_analysis);
+
+		/* print results for reused tcp ports */
+		tcp_sequence_number_analysis_print_reused(pinfo, tvb, flags_tree, ta);
 
 		/* print results for retransmission and out-of-order segments */
 		tcp_sequence_number_analysis_print_retransmission(pinfo, tvb, flags_tree, ta);
@@ -3059,6 +3103,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_out_of_order,
 		{ "Out Of Order",		"tcp.analysis.out_of_order", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame is a suspected Out-Of-Order segment", HFILL }},
+
+		{ &hf_tcp_analysis_reused_ports,
+		{ "TCP Port numbers reused",		"tcp.analysis.reused_ports", FT_NONE, BASE_NONE, NULL, 0x0,
+			"A new tcp session has started with previously used port numbers", HFILL }},
 
 		{ &hf_tcp_analysis_lost_packet,
 		{ "Previous Segment Lost",		"tcp.analysis.lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
