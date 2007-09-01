@@ -312,7 +312,7 @@ parse_netscreen_rec_hdr(wtap *wth, const char *line, char *cap_int, gboolean *ca
 	int	dsec, pkt_len;
 	char	direction[2];
 
-	if (sscanf(line, "%d.%d: %[a-z0-9](%[io]) len=%d:",
+	if (sscanf(line, "%d.%d: %[a-z0-9/](%[io]) len=%d:",
 		   &sec, &dsec, cap_int, direction, &pkt_len) != 5) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("netscreen: Can't parse packet-header");
@@ -339,15 +339,15 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 	int	n, i = 0, offset = 0;
 
 	while(1) {
+
+		/* The last packet is not delimited by an empty line, but by EOF
+		 * So accept EOF as a valid delimiter too
+		 */
 		if (file_gets(line, NETSCREEN_LINE_LENGTH, fh) == NULL) {
-			*err = file_error(fh);
-			if (*err == 0) {
-				*err = WTAP_ERR_SHORT_READ;
-			}
-			return -1;
+			break;
 		}
 
-		/* packeta are delimited with empty lines */
+		/* packets are delimited with empty lines */
 		if (empty_line(line)) {
 			break;
 		}
