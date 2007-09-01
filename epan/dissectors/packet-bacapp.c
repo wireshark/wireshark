@@ -3115,6 +3115,9 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
         	lastoffset = offset;
 			switch (fTagNo(tvb, offset)) {
 			case 0: /* "command-value: " */
+				/* from BACnet Table 13-3,
+					Standard Object Property Values Returned in Notifications */
+				propertyIdentifier = 85; /* PRESENT_VALUE */ 
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, subtree, offset);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -3123,6 +3126,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				offset = fBitStringTagVS (tvb, subtree, offset,
 					"status-flags: ", BACnetStatusFlags);
 			case 2: /* "feedback-value: " */
+				propertyIdentifier = 40; /* FEEDBACK_VALUE */
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, subtree, offset);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
