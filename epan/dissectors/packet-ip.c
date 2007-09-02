@@ -1347,38 +1347,38 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    */
   if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen)) {
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
-  if (tree) {
-		if (ipsum == 0) {
-			item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-					  "Header checksum: 0x%04x [correct]", iph->ip_sum);
-			checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
-		} else {
-			item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-				  "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
-			in_cksum_shouldbe(iph->ip_sum, ipsum));
-			checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
-		}
+    if (tree) {
+      if (ipsum == 0) {
+        item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+                                          "Header checksum: 0x%04x [correct]", iph->ip_sum);
+        checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, TRUE);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
+        PROTO_ITEM_SET_GENERATED(item);
+      } else {
+        item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+                                          "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
+        in_cksum_shouldbe(iph->ip_sum, ipsum));
+        checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+        PROTO_ITEM_SET_GENERATED(item);
+      }
     }
-	} else {
+  } else {
     ipsum = 0;
     if (tree) {
-		item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-			"Header checksum: 0x%04x [%s]", iph->ip_sum,
-			ip_check_checksum ? "not all data available" : "validation disabled");
-		checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-		item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
-		PROTO_ITEM_SET_GENERATED(item);
-		item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+      item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+                                        "Header checksum: 0x%04x [%s]", iph->ip_sum,
+                                        ip_check_checksum ? "not all data available" : "validation disabled");
+      checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(item);
+      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(item);
+    }
   }
   src_addr = tvb_get_ptr(tvb, offset + IPH_SRC, 4);
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
