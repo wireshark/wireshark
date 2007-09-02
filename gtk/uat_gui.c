@@ -1008,7 +1008,7 @@ static GtkWidget* uat_window(void* u) {
 	SIGNAL_CONNECT(rep->bt_cancel, "clicked", uat_cancel_cb, uat);
 	SIGNAL_CONNECT(rep->bt_ok, "clicked", uat_ok_cb, uat);
 
-    window_set_cancel_button(rep->window, rep->bt_cancel, uat_cancel_cb);  /* set esc to activate cancel button */
+    window_set_cancel_button(rep->window, rep->bt_cancel, NULL);  /* set esc to activate cancel button */
 
 	if (uat->changed) {
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", unsaved_dialog, uat);
