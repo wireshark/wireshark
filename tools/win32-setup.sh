@@ -21,7 +21,8 @@ err_exit () {
 usage () {
 	echo "Usage:"
 	echo "	$0 --appverify <appname> [<appname>] ..."
-	echo "	$0 --download <destination> <subdirectory> <package>"
+	echo "  $0 --libverify <destination> <subdirectory> <package>"
+	echo "	$0 --download  <destination> <subdirectory> <package>"
 	echo ""
 	exit 1
 }
@@ -49,6 +50,17 @@ case "$1" in
 		echo "	$APP: $APP_LOC $res"
 	done
 	;;
+--libverify)
+	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
+		usage
+	fi
+	DEST_PATH=`cygpath --dos "$2"`
+	PACKAGE_PATH=$4
+	PACKAGE=`basename "$PACKAGE_PATH"`
+	if [ ! -e $DEST_PATH/$PACKAGE ] ; then 
+	    err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'make setup' required ?"
+	fi
+        ;;  
 --download)
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
@@ -57,6 +69,7 @@ case "$1" in
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
+	echo ""
 	echo "****** $PACKAGE ******"
 	if [ -z "$http_proxy" -a -z "$HTTP_PROXY" ] ; then
 		echo "No HTTP proxy specified (http_proxy and HTTP_PROXY are empty)."

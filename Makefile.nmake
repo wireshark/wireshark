@@ -122,7 +122,9 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
-all: config.h tools image codecs $(ZLIB_DIR)\zlib1.dll wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
+LIBS_CHECK=_libs_check_
+
+all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DIR)\zlib1.dll wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
 
 packaging: all
 	cd packaging
@@ -186,7 +188,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DIR)\zlib1.dll wiretap
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
 !ELSE
-wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
@@ -199,7 +201,7 @@ wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.
 !IFNDEF GTK2_DIR
 wireshark-gtk2.exe	: 
 !ELSE
-wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
+wireshark-gtk2.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
@@ -209,7 +211,7 @@ wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_
 !ENDIF
 !ENDIF
 
-tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj inet_ntop.obj image\tshark.res
@@ -218,7 +220,7 @@ tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj ep
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
-capinfos.exe	: config.h capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+capinfos.exe	: $(LIBS_CHECK) config.h capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(capinfos_LIBS) image\capinfos.res
@@ -227,7 +229,7 @@ capinfos.exe	: config.h capinfos.obj getopt.obj epan/unicode-utils.obj epan/plug
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
 !ENDIF
 
-editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+editcap.exe	: $(LIBS_CHECK) config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan/unicode-utils.obj epan\crypt\crypt-md5.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(editcap_LIBS) image\editcap.res
@@ -236,7 +238,7 @@ editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
 !ENDIF
 
-mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
@@ -245,7 +247,7 @@ mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\w
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
+text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
@@ -272,7 +274,7 @@ randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
+dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj image\dumpcap.res
@@ -368,7 +370,7 @@ clean: clean_gtk2.tmp clean-deps
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
-		AUTHORS-SHORT-FORMAT \
+		AUTHORS-SHORT-FORMAT $(LIBS_CHECK) \
 		dftest.obj dftest.exe randpkt.obj randpkt.ext dumpcap.obj \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll
@@ -576,192 +578,217 @@ REQUIRED_TOOLS=\
 verify_tools:
 	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
-# Download and install all the required libraries into WIRESHARK_LIBS.
+# Targets and etc used to verify or download libraries
+
+!IFNDEF WIN32_SETUP_OPT
+WIN32_SETUP_OPT=--download
+!ENDIF
+
+# Verify that the required library 'package' (zip) files have been downloaded. 
+# (It seems reasonable to assume that if the files have been downloaded 
+#  then they have been installed). 
+check_libs:
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN32_SETUP_OPT=--libverify process_libs
+
+# Verify library packages only if Makefile.nmake has been updated
+#  (or dummy file doesn't exists because of 'make clean' or whatever)
+# (To disable library verification when Makefile.nmake changes,
+#  comment out the commands for the following target).
+$(LIBS_CHECK): Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN32_SETUP_OPT=--libverify process_libs
+	@touch --reference=Makefile.nmake $@ ## only if libverify succeeds
+
+# Download (if needed) and install all the required libraries into WIRESHARK_LIBS.
 # A clean_setup is done first to ensure that the target dirs don't 
 # contain old files remaining from a previous setup run.
-setup: verify_tools clean_setup
+setup: verify_tools clean_setup process_libs
+
+
+# The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
+# (The choice is determined by the value of the macro WIN32_SETUP_OPT).
+process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.10"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.13.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-dev-2.12.13.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.8/glib-2.12.12.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.8/glib-dev-2.12.12.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.6/glib-2.6.6.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.6/glib-dev-2.6.6.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.4/glib-2.4.7.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.4/glib-dev-2.4.7.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib glib-2.2.3-20040116.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib glib-dev-2.2.3-20040116.zip
 !ENDIF
 !IFDEF GTK1_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk+ gtk+-1.3.0-20030717.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk+ gtk+-dev-1.3.0-20030115.zip
 !ENDIF
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gettext-0.14.5 gettext-0.14.5.zip
 !IFDEF NET_SNMP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. net-snmp-5.4.zip
 !ENDIF
 !IFDEF KFW_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		kfw-2.5 kfw-2.5.zip
 !ENDIF
 !IFDEF PCAP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. WpdPack_3_1.zip
 !ENDIF
 !IFDEF AIRPCAP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		AirPcap_Devpack_1_0_0_594 AirPcap_Devpack_1_0_0_594.zip
 !ENDIF
 !IFDEF ADNS_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. adns-1.0-win32-05.zip
 !ENDIF
 !IFDEF PCRE_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		pcre-6.4 pcre-6.4-bin.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		pcre-6.4 pcre-6.4-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		zlib123 zlib123.zip
 !ENDIF
 !IFDEF LUA_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. lua5_1_dll.zip
 !ENDIF
 
 !IFDEF GNUTLS_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. gnutls-1.6.1-1.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. portaudio_v19.zip
 !ENDIF
 !IFDEF SMI_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. libsmi-0.4.5.zip
 !ENDIF
 
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.10"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/gtk+-2.10.14.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/gtk+-dev-2.10.14.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/cairo-1.4.8.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/cairo-dev-1.4.8.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/atk-1.18.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/atk-dev-1.18.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/libpng-1.2.8-bin.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/gtk+-2.8.20.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/gtk+-dev-2.8.20.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/cairo-1.2.6.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/cairo-dev-1.2.6.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/atk-1.10.3.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/atk-dev-1.10.3.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/libpng-1.2.8-bin.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/gtk+-2.6.9.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/gtk+-dev-2.6.9.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/atk-1.9.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/atk-dev-1.9.0.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/gtk+-2.4.14.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/gtk+-dev-2.4.14.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/atk-1.6.1.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/atk-dev-1.6.1.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/gtk+-2.2.4-20040124.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/gtk+-dev-2.2.4-20040124.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/atk-1.4.0.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/atk-dev-1.4.0.zip
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.16"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-1.16.4.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-dev-1.16.4.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.14"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-1.14.10.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-dev-1.14.10.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.10"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/pango-1.10.1.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.8/pango-dev-1.10.1.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/pango-1.8.2.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.6/pango-dev-1.8.2.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.4"
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/pango-1.4.1.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/pango-dev-1.4.1.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/pango-1.2.5-20040124.zip
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/pango-dev-1.2.5-20040124.zip
 !ENDIF
 !ENDIF
 !IFDEF GTK_WIMP_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk-wimp gtk-wimp/gtk-wimp-0.7.0-bin.zip
 !ENDIF
 !IFDEF HHC_DIR
-	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		user-guide user-guide-20494.zip
 !ENDIF
 	@echo.
