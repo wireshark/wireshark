@@ -32,6 +32,7 @@
 #include <epan/strutil.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 static int proto_pppoed = -1;
 
@@ -425,7 +426,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint    length, reported_length;
 
 	proto_tree  *pppoe_tree;
-	proto_item  *ti;
+	proto_item  *ti = NULL;
 	tvbuff_t    *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -448,7 +449,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pppoe_session_id = tvb_get_ntohs(tvb, 2);
 	reported_payload_length = tvb_get_ntohs(tvb, 4);
-	actual_payload_length = tvb_length_remaining(tvb, 6);
+	actual_payload_length = tvb_reported_length_remaining(tvb, 6);
 
 	if (tree)
 	{
@@ -460,15 +461,32 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
 		ti = proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
-		if(reported_payload_length != actual_payload_length)
-			proto_item_append_text(ti, " [incorrect, should be %u]",
-					       actual_payload_length);
 	}
 
-	/* dissect_ppp is apparently done as a 'top level' dissector,
-	 * so this doesn't work:
-	 * dissect_ppp(pd,offset+6,pinfo->fd,tree);
-	 * Im gonna try fudging it.
+	/*
+	 * The only reason why the payload length from the header
+	 * should differ from the remaining data in the packet
+	 * would be if the total packet length, including Ethernet
+	 * CRC, were < 64 bytes, so that padding was required.
+	 *
+	 * That means that you have 14 bytes of Ethernet header,
+	 * 4 bytes of FCS, and fewer than 46 bytes of PPPoE packet.
+	 *
+	 * If that's not the case, we report a difference between
+	 * the payload length in the packet, and the amount of
+	 * data following the PPPoE header, as an error.
+	 */
+	if (tvb_reported_length(tvb) >= 46 &&
+	    reported_payload_length != actual_payload_length) {
+		proto_item_append_text(ti, " [incorrect, should be %u]",
+				       actual_payload_length);
+		expert_add_info_format(pinfo, ti, PI_MALFORMED,
+		    PI_WARN, "Possible bad payload length %u != %u",
+		    reported_payload_length, actual_payload_length);
+	}
+
+	/*
+	 * Construct a tvbuff containing the PPP packet.
 	 */
 	length = tvb_length_remaining(tvb, 6);
 	reported_length = tvb_reported_length_remaining(tvb, 6);
