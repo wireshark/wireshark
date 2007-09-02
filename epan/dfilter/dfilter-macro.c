@@ -506,6 +506,11 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, const char** error) {
 	guint i;
 
+	if (name_len == 0) {
+		*error = "invalid name";
+		return FALSE;
+	}
+
 	for (i=0; i < name_len; i++) {
 		if (!(in_name[i] == '_' || isalnum((guchar)in_name[i]) ) ) {
 			*error = "invalid char in name";
@@ -513,7 +518,7 @@ static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_l
 		}
 	}
 
-	return i > 0 ? TRUE : FALSE;
+	return TRUE;
 }
 
 UAT_CSTRING_CB_DEF(macro,name,dfilter_macro_t)
