@@ -92,8 +92,8 @@
  * Standard secondary message for unexpected errors.
  */
 static const char please_report[] =
-    "Please report this to the Wireshark developers.  (This is not a crash;\n"
-    "please do not report it as such.)";
+    "Please report this to the Wireshark developers.\n"
+    "(This is not a crash; please do not report it as such.)";
 
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
@@ -1502,12 +1502,35 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* did we had a pcap (input) error? */
   if (ld.pcap_err) {
-    g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
-      pcap_geterr(ld.pcap_h));
-    report_capture_error(errmsg, please_report);
+    /* On Linux, if an interface goes down while you're capturing on it,
+       you'll get a "recvfrom: Network is down" error (ENETDOWN).
+       (At least you will if strerror() doesn't show a local translation
+       of the error.)
+
+       On FreeBSD and OS X, if a network adapter disappears while
+       you're capturing on it, you'll get a "read: Device not configured"
+       error (ENXIO).  (See previous parenthetical note.)
+
+       On OpenBSD, you get "read: I/O error" (EIO) in the same case.
+
+       These should *not* be reported to the Wireshark developers. */
+    char *cap_err_str;
+
+    cap_err_str = pcap_geterr(ld.pcap_h);
+    if (strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
+        strcmp(cap_err_str, "read: Device not configured") == 0 ||
+        strcmp(cap_err_str, "read: I/O error") == 0) {
+      report_capture_error("The network adapter on which the capture was being done "
+                           "is no longer running; the capture has stopped.",
+                           "");
+    } else {
+      g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
+        cap_err_str);
+      report_capture_error(errmsg, please_report);
+    }
   }
-    else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
-      report_capture_error(errmsg, "");
+  else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
+    report_capture_error(errmsg, "");
 
   /* did we had an error while capturing? */
   if (ld.err == 0) {
