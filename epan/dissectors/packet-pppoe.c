@@ -422,7 +422,8 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8  pppoe_code;
 	guint16 pppoe_session_id;
-	guint16 reported_payload_length, actual_payload_length;
+	guint16 reported_payload_length;
+	gint    actual_payload_length;
 	gint    length, reported_length;
 
 	proto_tree  *pppoe_tree;
