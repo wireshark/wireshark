@@ -2872,6 +2872,7 @@ decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 static void
 decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
+  proto_tree *tf;
 
   guint32 tlli;
   tlli = tvb_get_ntohl(bi->tvb, bi->offset);
@@ -2879,17 +2880,20 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %#04x", tlli);
-
     /* By Stefan Boman LN/Ericsson 2006-07-14 --
 	 * Commented the following four lines. Preventing redundant data
 	 */
 	/*
 	ti = bssgp_proto_tree_add_ie(ie, bi, bi->offset);
+	*/
+	/* If we want to keep the posibillity to filter on ie:s without a Tag and the ie "content"
+	 * this is how it has to be done.
+	 */
     tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
 
     proto_tree_add_item(tf, hf_bssgp_tlli,
 			       bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
-	*/
+
   }
   bi->offset += 4;
 
