@@ -4843,6 +4843,8 @@ decode_gtp_imeisv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 	guint16		length;
 	proto_tree	*ext_imeisv;
 	proto_item	*te;
+	tvbuff_t	*next_tvb;
+	char		*digit_str;
 
 	length = tvb_get_ntohs(tvb, offset+1);
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_IMEISV, gtp_val, "Unknown"));
@@ -4858,7 +4860,9 @@ decode_gtp_imeisv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 	 * then the IMEI shall be placed in the IMEI(SV) field and the last semi-octet of octet 11 shall be
 	 * set to '1111'. Both IMEI and IMEISV are BCD encoded.
 	 */
-	proto_tree_add_item(ext_imeisv, hf_gtp_ext_imeisv, tvb, offset, length, FALSE);
+	next_tvb = tvb_new_subset(tvb, offset, length, length);
+	digit_str = unpack_digits(next_tvb, 0);
+	proto_tree_add_string(tree, hf_gtp_ext_imeisv, next_tvb, 0, -1, digit_str);
 	
 	return 3 + length;
 }
@@ -6071,7 +6075,7 @@ proto_register_gtp(void)
 		},
 		{ &hf_gtp_ext_imeisv,
 			{ "IMEI(SV)", "gtp.ext_imeisv",
-			FT_BYTES, BASE_NONE, NULL, 0x0,
+			FT_STRING, BASE_NONE, NULL, 0x0,
 			"IMEI(SV)", HFILL }
 		},
 		{ &hf_gtp_targetid,
