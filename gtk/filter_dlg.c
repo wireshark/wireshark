@@ -649,7 +649,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
     gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel the changes"), NULL);
     SIGNAL_CONNECT(cancel_bt, "clicked", filter_dlg_cancel_cb, filter_list_type_p);
-    window_set_cancel_button(main_w, cancel_bt, window_cancel_button_cb);
+    window_set_cancel_button(main_w, cancel_bt, NULL);
 
     help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
     if (list_type == CFILTER_EDITED_LIST) {
