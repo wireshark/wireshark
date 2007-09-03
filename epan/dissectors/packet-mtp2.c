@@ -149,22 +149,24 @@ static const value_string status_field_vals[] = {
 static void
 dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "LSSU ");
+  guint8 sf = 0xFF;
   
-  if (mtp2_tree) {
-    if (use_extended_sequence_numbers) {
-      if ((tvb_get_letohs(su_tvb, EXTENDED_LI_OFFSET) & EXTENDED_LI_MASK) == 1)
-        proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, EXTENDED_SF_OFFSET, SF_LENGTH,      LITTLE_ENDIAN_BYTE_ORDER);
-      else
-        proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, EXTENDED_SF_OFFSET, LONG_SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
-    } else {
-      if ((tvb_get_guint8(su_tvb, LI_OFFSET) & LI_MASK) == 1)
-        proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, SF_OFFSET,          SF_LENGTH,      LITTLE_ENDIAN_BYTE_ORDER);
-      else
-        proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, SF_OFFSET,          LONG_SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
-    }
+  if (use_extended_sequence_numbers) {
+    if ((tvb_get_letohs(su_tvb, EXTENDED_LI_OFFSET) & EXTENDED_LI_MASK) == 1) {
+      proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, EXTENDED_SF_OFFSET, SF_LENGTH,      LITTLE_ENDIAN_BYTE_ORDER);
+      sf = tvb_get_guint8(su_tvb, EXTENDED_SF_OFFSET);
+    } else
+      proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, EXTENDED_SF_OFFSET, LONG_SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
+  } else {
+    if ((tvb_get_guint8(su_tvb, LI_OFFSET) & LI_MASK) == 1) {
+      proto_tree_add_item(mtp2_tree, hf_mtp2_sf,      su_tvb, SF_OFFSET,          SF_LENGTH,      LITTLE_ENDIAN_BYTE_ORDER);
+      sf = tvb_get_guint8(su_tvb, SF_OFFSET);
+    } else
+      proto_tree_add_item(mtp2_tree, hf_mtp2_long_sf, su_tvb, SF_OFFSET,          LONG_SF_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
   }
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "LSSU: %s", val_to_str(sf, status_field_vals, "Unknown"));
 }
 
 static void
