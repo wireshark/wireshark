@@ -49,6 +49,7 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-gsm_map.h"
 #include "packet-ranap.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
@@ -324,13 +325,14 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
-#line 60 "packet-ranap-template.c"
+#line 61 "packet-ranap-template.c"
 
 static dissector_handle_t ranap_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_ranap = -1;
 
+static int hf_ranap_imsi_digits = -1;
 
 /*--- Included file: packet-ranap-hf.c ---*/
 #line 1 "packet-ranap-hf.c"
@@ -892,7 +894,7 @@ static int hf_ranap_value_02 = -1;                /* T_value_02 */
 static int hf_ranap_value_03 = -1;                /* T_value_03 */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 67 "packet-ranap-template.c"
+#line 69 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -1168,7 +1170,7 @@ static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 72 "packet-ranap-template.c"
+#line 74 "packet-ranap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -2172,7 +2174,7 @@ dissect_ranap_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 185 "ranap.cnf"
+#line 191 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3821,9 +3823,13 @@ static int
 dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 155 "ranap.cnf"
   tvbuff_t* imsi_tvb;
+  char		*digit_str;
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, &imsi_tvb);
   
+	if(!imsi_tvb)
+		return offset;
 	if ( actx->pinfo->sccp_info
 		 && actx->pinfo->sccp_info->data.co.assoc
 		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
@@ -3834,6 +3840,8 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
 			se_strdup_printf("IMSI: %s", bytes_to_str(bytes, len) );
 	}
+	digit_str = unpack_digits(imsi_tvb, 0);
+	proto_tree_add_string(tree, hf_ranap_imsi_digits, imsi_tvb, 0, -1, digit_str);
 
 
   return offset;
@@ -4624,7 +4632,7 @@ dissect_ranap_MBMSSessionRepetitionNumber(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 172 "ranap.cnf"
+#line 178 "ranap.cnf"
   tvbuff_t *nas_pdu_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -10410,7 +10418,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 99 "packet-ranap-template.c"
+#line 101 "packet-ranap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -10486,6 +10494,11 @@ void proto_register_ranap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+	{ &hf_ranap_imsi_digits,
+      { "IMSI digits", "ranap.imsi_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IMSI digits", HFILL }},
+
 
 /*--- Included file: packet-ranap-hfarr.c ---*/
 #line 1 "packet-ranap-hfarr.c"
@@ -12715,7 +12728,7 @@ void proto_register_ranap(void) {
         "ranap.T_value_03", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 175 "packet-ranap-template.c"
+#line 182 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -12992,7 +13005,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 181 "packet-ranap-template.c"
+#line 188 "packet-ranap-template.c"
   };
 
 
@@ -13285,7 +13298,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 217 "packet-ranap-template.c"
+#line 224 "packet-ranap-template.c"
 }
 
 

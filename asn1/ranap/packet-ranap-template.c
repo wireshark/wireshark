@@ -41,6 +41,7 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-gsm_map.h"
 #include "packet-ranap.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
@@ -63,6 +64,7 @@ static dissector_handle_t ranap_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_ranap = -1;
 
+static int hf_ranap_imsi_digits = -1;
 #include "packet-ranap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -171,6 +173,11 @@ void proto_register_ranap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+	{ &hf_ranap_imsi_digits,
+      { "IMSI digits", "ranap.imsi_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IMSI digits", HFILL }},
+
 #include "packet-ranap-hfarr.c"
   };
 

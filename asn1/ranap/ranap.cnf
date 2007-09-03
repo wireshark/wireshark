@@ -153,9 +153,13 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 #.FN_BODY IMSI
   tvbuff_t* imsi_tvb;
+  char		*digit_str;
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, &imsi_tvb);
   
+	if(!imsi_tvb)
+		return offset;
 	if ( actx->pinfo->sccp_info
 		 && actx->pinfo->sccp_info->data.co.assoc
 		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
@@ -166,6 +170,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
 			se_strdup_printf("IMSI: %%s", bytes_to_str(bytes, len) );
 	}
+	digit_str = unpack_digits(imsi_tvb, 0);
+	proto_tree_add_string(tree, hf_ranap_imsi_digits, imsi_tvb, 0, -1, digit_str);
 #.END
 
 #.FN_BODY NAS-PDU  VAL_PTR = &nas_pdu_tvb
