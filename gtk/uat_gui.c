@@ -413,7 +413,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	tooltips = gtk_tooltips_new();
 	
     dd->entries = g_ptr_array_new();
-    dd->win = dlg_window_new(uat->name);
+    dd->win = dlg_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
     dd->uat = uat;
 	dd->rec = row < 0 ? g_malloc0(uat->record_size) : UAT_INDEX_PTR(uat,row);
 	dd->is_new = row < 0 ? TRUE : FALSE;
@@ -453,8 +453,6 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1, colnum+1, colnum + 2);
 		gtk_container_add(GTK_CONTAINER(event_box), label);
-		gtk_widget_show(event_box);
-        gtk_widget_show(label);
 		
 		
 		switch(f[colnum].mode) {
@@ -463,7 +461,6 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				entry = gtk_entry_new();
 				g_ptr_array_add(dd->entries,entry);
 				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
-				gtk_widget_show(entry);
 				if (! dd->is_new) {
 					gtk_entry_set_text(GTK_ENTRY(entry),text);
 				}
@@ -492,7 +489,6 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 						*((char const**)valptr) = str;
 					}
 					
-					gtk_widget_show(menu_item);
 					SIGNAL_CONNECT(menu_item, "activate", fld_menu_item_cb, md);
 					SIGNAL_CONNECT(menu_item, "destroy", fld_menu_item_destroy_cb, md);
 				}
@@ -503,7 +499,6 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				/* Create the option menu from the menu */
 				option_menu = gtk_option_menu_new();
 				gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-				gtk_widget_show(option_menu);
 
 				/* Set its current value to the variable's current value */
 				if (menu_index != -1)
@@ -524,15 +519,12 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
     
     bt_ok = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(bt_ok, "clicked", uat_dlg_cb, dd);
-    gtk_widget_grab_default(bt_ok);
     
     bt_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(bt_cancel, "clicked", uat_cancel_dlg_cb, dd);
-    gtk_widget_grab_default(bt_cancel);
+    window_set_cancel_button(win, bt_cancel, NULL);
     
-    gtk_widget_show(main_tb);
-    gtk_widget_show(main_vb);
-    gtk_widget_show(win);
+    gtk_widget_show_all(win);
 }
 
 struct _uat_del {
@@ -578,8 +570,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 
 	ud->uat = uat;
 	ud->idx = idx;
-    ud->win = win = dlg_window_new(ep_strdup_printf("Confirm Delete"));
-	
+    ud->win = win = dlg_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
 	
 #if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
@@ -606,12 +597,10 @@ static void uat_del_dlg(uat_t* uat, int idx) {
         label = gtk_label_new(f[colnum].name);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
-        gtk_widget_show(label);
 		
         label = gtk_label_new(text);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, colnum+1, colnum + 2);
-        gtk_widget_show(label);
 	}
 	
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_DELETE, NULL);
@@ -619,15 +608,12 @@ static void uat_del_dlg(uat_t* uat, int idx) {
     
     bt_ok = OBJECT_GET_DATA(bbox,GTK_STOCK_DELETE);
     SIGNAL_CONNECT(bt_ok, "clicked", uat_del_cb, ud);
-    gtk_widget_grab_default(bt_ok);
     
     bt_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(bt_cancel, "clicked", uat_cancel_del_cb, ud);
-    gtk_widget_grab_default(bt_cancel);
-    
-    gtk_widget_show(main_tb);
-    gtk_widget_show(main_vb);
-    gtk_widget_show(win);
+    window_set_cancel_button( win, bt_cancel, NULL);    
+
+    gtk_widget_show_all(win);
 }
 
 static void uat_new_cb(GtkButton *button _U_, gpointer u) {
@@ -838,7 +824,6 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 								"Do you want to save '%s'?", uat->name, uat->name);
 	
 	label = gtk_label_new(message);
-	gtk_widget_show(label);
 
 	bbox = dlg_button_row_new(GTK_STOCK_YES,GTK_STOCK_NO, NULL);
 	
