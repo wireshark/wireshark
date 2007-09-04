@@ -358,7 +358,7 @@ get_if_name(const char *if_text)
 const char *
 get_iface_description(capture_options *capture_opts)
 {
-	if (!capture_opts->iface_descr)
+	if (!capture_opts->iface_descr && capture_opts->iface)
 		capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
 
 	return(capture_opts->iface_descr);
