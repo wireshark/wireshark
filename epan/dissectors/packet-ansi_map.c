@@ -11173,7 +11173,7 @@ static const ber_sequence_t ServiceRequest_set[] = {
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_senderIdentificationNumber, BER_CLASS_CON, 103, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SenderIdentificationNumber },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
   { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
   { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
@@ -11280,7 +11280,7 @@ static const ber_sequence_t AnalyzedInformation_set[] = {
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
   { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
   { &hf_ansi_map_timeDateOffset, BER_CLASS_CON, 275, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeDateOffset },
   { &hf_ansi_map_timeOfDay  , BER_CLASS_CON, 309, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TimeOfDay },
@@ -11414,7 +11414,7 @@ static const ber_sequence_t FacilitySelectedAndAvailable_set[] = {
   { &hf_ansi_map_redirectingPartyName, BER_CLASS_CON, 245, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingPartyName },
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
   { NULL, 0, 0, 0, NULL }
 };
@@ -11859,7 +11859,7 @@ static const ber_sequence_t TBusy_set[] = {
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
   { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
   { NULL, 0, 0, 0, NULL }
 };
@@ -11932,7 +11932,7 @@ static const ber_sequence_t TNoAnswer_set[] = {
   { &hf_ansi_map_redirectingSubaddress, BER_CLASS_CON, 102, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectingSubaddress },
   { &hf_ansi_map_redirectionReason, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RedirectionReason },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
   { NULL, 0, 0, 0, NULL }
 };
@@ -12316,7 +12316,7 @@ static const ber_sequence_t TAnswer_set[] = {
   { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
   { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { &hf_ansi_map_terminationAccessType, BER_CLASS_CON, 119, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TerminationAccessType },
   { NULL, 0, 0, 0, NULL }
 };

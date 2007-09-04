@@ -3093,7 +3093,7 @@ ServiceRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.116 k
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 c
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- O 6.5.2.147 l
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL,
 	-- O 6.5.2.155 c
@@ -3234,7 +3234,7 @@ AnalyzedInformation ::= [PRIVATE 18] SET {
 	-- O 6.5.2.114 n, u
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 h, v
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- O 6.5.2.147
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL,
 	-- O 6.5.2.155 l
@@ -3365,7 +3365,7 @@ FacilitySelectedAndAvailable ::= [PRIVATE 18] SET {
 	-- O 6.5.2.109 c
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 c
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- O 6.5.2.147
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
 	-- O 6.5.2.155 h
@@ -3531,7 +3531,7 @@ TBusy ::= [PRIVATE 18] SET {
 	--: TBusy O 6.5.2.110 f
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 g
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- O 6.5.2.147
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
 	-- O 6.5.2.155 f
@@ -3636,7 +3636,7 @@ TNoAnswer ::= [PRIVATE 18] SET {
 	--:TNoAnswer O 6.5.2.110 f
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 g
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- O 6.5.2.147
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
 	-- O 6.5.2.155 f
@@ -3962,7 +3962,7 @@ TAnswer ::= [PRIVATE 18] SET {
 	-- O 6.5.2.83 k
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 g, l
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode,
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- O 6.5.2.147
 	terminationAccessType					[119] IMPLICIT TerminationAccessType OPTIONAL
 	-- O 6.5.2.155 m
