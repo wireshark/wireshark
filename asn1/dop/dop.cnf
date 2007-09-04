@@ -71,17 +71,17 @@ SupplierInformation 		B "2.5.12.5" "id-doa-supplierKnowledge"
 ConsumerInformation 		B "2.5.12.6" "id-doa-consumerKnowledge"
 SupplierAndConsumers 		B "2.5.12.7" "id-doa-secondaryShadows"
 
-HierarchicalAgreement			B "dop.agreement.2.5.19.2" 	"hierarchical-agreement"
-SuperiorToSubordinate			B "dop.establish.rolea.2.5.19.2" "hierarchical-establish-rolea"
-SuperiorToSubordinateModification	B "dop.modify.rolea.2.5.19.2" "hierarchical-modify-rolea"
-SubordinateToSuperior			B "dop.establish.roleb.2.5.19.2" "hierarchical-establish-roleb"
-SubordinateToSuperior			B "dop.modify.roleb.2.5.19.2"  "hierarchical-modify-roleb"
+HierarchicalAgreement			S dop.oid	"agreement.2.5.19.2"
+SuperiorToSubordinate			S dop.oid	"establish.rolea.2.5.19.2"
+SuperiorToSubordinateModification	S dop.oid	"modify.rolea.2.5.19.2"
+SubordinateToSuperior			S dop.oid	"establish.roleb.2.5.19.2"
+SubordinateToSuperior			S dop.oid	"modify.roleb.2.5.19.2"
 
-NonSpecificHierarchicalAgreement	B "dop.agreement.2.5.19.3" 	"non-specific-hierarchical-agreement"
-NHOBSuperiorToSubordinate		B "dop.establish.rolea.2.5.19.3"	"non-specific-hierarchical-establish-rolea"
-NHOBSuperiorToSubordinate		B "dop.modify.rolea.2.5.19.3" "non-specific-hierarchical-modify-rolea"
-NHOBSubordinateToSuperior		B "dop.establish.roleb.2.5.19.3" "non-specific-hierarchical-establish-roleb"
-NHOBSubordinateToSuperior		B "dop.modify.roleb.2.5.19.3"  "non-specific-hierarchical-modify-roleb"
+NonSpecificHierarchicalAgreement	S dop.oid	"agreement.2.5.19.3"
+NHOBSuperiorToSubordinate		S dop.oid	"establish.rolea.2.5.19.3"
+NHOBSuperiorToSubordinate		S dop.oid	"modify.rolea.2.5.19.3"
+NHOBSubordinateToSuperior		S dop.oid	"establish.roleb.2.5.19.3"
+NHOBSubordinateToSuperior		S dop.oid	"modify.roleb.2.5.19.3"
 
 ACIItem		B	"2.5.24.4" "id-aca-prescriptiveACI"
 ACIItem		B	"2.5.24.5" "id-aca-entryACI"
@@ -106,67 +106,67 @@ OpBindingErrorParam/bindingType  BindingType
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/initiator/symmetric
 
-  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/initiator/roleA-initiates
 
-  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/initiator/roleB-initiates
 
-  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/initiator/symmetric
 
-  offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("modify.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/initiator/roleA-initiates
 
-  offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("modify.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/initiator/roleB-initiates
 
-  offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("modify.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	TerminateOperationalBindingArgumentData/initiator/symmetric
 
-  offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("terminate.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
 
 #.FN_BODY	TerminateOperationalBindingArgumentData/initiator/roleA-initiates
 
-  offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("terminate.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	TerminateOperationalBindingArgumentData/initiator/roleB-initiates
 
-  offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("terminate.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	EstablishOperationalBindingArgumentData/agreement
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	EstablishOperationalBindingResult/initiator/symmetric
 
-  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric"); 
+  offset = call_dop_oid_callback("establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric"); 
 
 #.FN_BODY	EstablishOperationalBindingResult/initiator/roleA-replies
 
-  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	EstablishOperationalBindingResult/initiator/roleB-replies
 
-  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	OpBindingErrorParam/agreementProposal
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	ModifyOperationalBindingResultData/newAgreement
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	ModifyOperationalBindingArgumentData/newAgreement
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
+  offset = call_dop_oid_callback("agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 
 #.FN_BODY OperationalBindingID/identifier  VAL_PTR	= &value

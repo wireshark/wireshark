@@ -26,11 +26,11 @@ Information/signedInformation/information	information-data
 
 #.REGISTER
 
-ShadowingAgreementInfo	B "dop.agreement.2.5.19.1" 	"shadow-agreement"
-EstablishParameter	B "dop.establish.rolea.2.5.19.1" 	"shadow-establish-rolea"
-EstablishParameter	B "dop.establish.roleb.2.5.19.1" 	"shadow-establish-roleb"
-ModificationParameter 	B "dop.modify.rolea.2.5.19.1" 	"shadow-modify-rolea"
-ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
+ShadowingAgreementInfo	S dop.oid	"agreement.2.5.19.1"
+EstablishParameter	S dop.oid	"establish.rolea.2.5.19.1"
+EstablishParameter	S dop.oid	"establish.roleb.2.5.19.1"
+ModificationParameter 	S dop.oid	"modify.rolea.2.5.19.1"
+ModificationParameter 	S dop.oid	"modify.roleb.2.5.19.1"
 
 
 

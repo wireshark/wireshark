@@ -66,13 +66,17 @@ int proto_dop = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *binding_type = NULL; /* binding_type */
 
-static int call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info);
+static int call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info);
 
 #include "packet-dop-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dop = -1;
+static gint ett_dop_unknown = -1;
 #include "packet-dop-ett.c"
+
+/* Dissector table */
+static dissector_table_t dop_dissector_table;
 
 static void append_oid(packet_info *pinfo, const char *oid)
 {
@@ -87,16 +91,30 @@ static void append_oid(packet_info *pinfo, const char *oid)
 #include "packet-dop-fn.c"
 
 static int
-call_dop_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
+call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
 {
   char* binding_param;
 
-  binding_param = ep_strdup_printf("%s.%s", base_oid, binding_type ? binding_type : "");
+  binding_param = ep_strdup_printf("%s.%s", base_string, binding_type ? binding_type : "");
 
   if (col_info && (check_col(pinfo->cinfo, COL_INFO))) 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
-  return call_ber_oid_callback(binding_param, tvb, offset, pinfo, tree);
+  if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree)) {
+     offset += tvb_length_remaining (tvb, offset);
+  } else {
+     proto_item *item=NULL;
+     proto_tree *next_tree=NULL;
+
+     item = proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "Dissector for parameter %s OID:%s not implemented. Contact Wireshark developers if you want this supported", base_string, binding_type ? binding_type : "<empty>");
+     if (item) {
+        next_tree = proto_item_add_subtree(item, ett_dop_unknown);
+     }
+     offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+     expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Unknown binding-parameter");
+   }
+
+   return offset;
 }
 
 
@@ -236,6 +254,7 @@ void proto_register_dop(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_dop,
+    &ett_dop_unknown,
 #include "packet-dop-ettarr.c"
   };
 
@@ -245,6 +264,8 @@ void proto_register_dop(void) {
   proto_dop = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   register_dissector("dop", dissect_dop, proto_dop);
+
+  dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", FT_STRING, BASE_NONE);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dop, hf, array_length(hf));

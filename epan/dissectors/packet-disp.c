@@ -2490,11 +2490,11 @@ void proto_reg_handoff_disp(void) {
 
 /*--- Included file: packet-disp-dis-tab.c ---*/
 #line 1 "packet-disp-dis-tab.c"
-  register_ber_oid_dissector("dop.agreement.2.5.19.1", dissect_ShadowingAgreementInfo_PDU, proto_disp, "shadow-agreement");
-  register_ber_oid_dissector("dop.establish.rolea.2.5.19.1", dissect_EstablishParameter_PDU, proto_disp, "shadow-establish-rolea");
-  register_ber_oid_dissector("dop.establish.roleb.2.5.19.1", dissect_EstablishParameter_PDU, proto_disp, "shadow-establish-roleb");
-  register_ber_oid_dissector("dop.modify.rolea.2.5.19.1", dissect_ModificationParameter_PDU, proto_disp, "shadow-modify-rolea");
-  register_ber_oid_dissector("dop.modify.roleb.2.5.19.1", dissect_ModificationParameter_PDU, proto_disp, "shadow-modify-roleb");
+  dissector_add_string("dop.oid", "agreement.2.5.19.1", create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
