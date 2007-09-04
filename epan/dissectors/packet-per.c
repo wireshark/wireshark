@@ -1655,7 +1655,6 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	if((min_len==max_len)&&(max_len<=16)){
 		static guint8 bytes[4];
 		int i;
-		guint32 old_offset=offset;
 		gboolean bit;
 
 		bytes[0]=bytes[1]=bytes[2]=0;
@@ -1781,7 +1780,7 @@ guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset,
 guint32
 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
 {
-	gint val_start, val_length;
+	gint val_start = 0, val_length;
 	guint32 length;
 	header_field_info *hfi;
 	tvbuff_t *out_tvb = NULL;
