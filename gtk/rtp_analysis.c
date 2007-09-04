@@ -274,6 +274,7 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"MP4V-ES",	90000},			/* [RFC3016] */
 	{"pointer",	90000},			/* [RFC2862] */
 	{"raw",		90000},			/* [RFC4175] */
+	{"telephone-event", 8000},              /* [RFC4733] */
 };
 
 #define NUM_DYN_CLOCK_VALUES	(sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
@@ -285,7 +286,7 @@ get_dyn_pt_clock_rate(gchar *payload_type_str)
 
 	for (i = 0; i < NUM_DYN_CLOCK_VALUES; i++) {
 		if (strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
-			return clock_map[i].value;
+			return mimetype_and_clock_map[i].value;
 	}
 
 	return 1;

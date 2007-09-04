@@ -285,7 +285,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     transport_info.media_port[n]=NULL;
     transport_info.media_proto[n]=NULL;
     transport_info.media[n].pt_count = 0;
-    transport_info.media[n].rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
+    transport_info.media[n].rtp_dyn_payload = g_hash_table_new_full( g_int_hash, 
+	g_int_equal, g_free, g_free);
   }
   transport_info.media_count = 0;
 
@@ -1438,13 +1439,13 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
 			  if (n==0)
 				  g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                                    key, transport_info->encoding_name);
+                                    key, g_strdup(transport_info->encoding_name));
 			  else {    /* we create a new key and encoding_name to assign to the other hash tables */
 				  gint *key2;
 				  key2=g_malloc( sizeof(gint) );
 				  *key2=atol((char*)payload_type);
 				  g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-					  key2, transport_info->encoding_name);
+					  key2, g_strdup(transport_info->encoding_name));
 			  }
 		  }
 		  return;
@@ -1453,10 +1454,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
 		  if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
 			  g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
-					key, transport_info->encoding_name);
+					key, g_strdup(transport_info->encoding_name));
 		  else
 			  g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
-					key, transport_info->encoding_name);
+					key, g_strdup(transport_info->encoding_name));
    	  return;
 	  break;
   case SDP_FMTP:
