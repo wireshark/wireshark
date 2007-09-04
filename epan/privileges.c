@@ -29,9 +29,9 @@
 #include <glib.h>
 
 #include "privileges.h"
-#include "emem.h"
 
 #ifdef _WIN32
+#include "emem.h"
 
 /*
  * Called when the program starts, to save whatever credential information
@@ -115,6 +115,7 @@ get_cur_groupname(void) {
 #include <glib.h>
 #include <string.h>
 #include <errno.h>
+#include "emem.h"
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
