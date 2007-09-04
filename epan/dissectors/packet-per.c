@@ -1675,8 +1675,12 @@ DEBUG_ENTRY("dissect_per_bit_string");
 				bytes[1]=(bytes[1]<<1)|bit;
 			}
 		}
+		out_tvb = tvb_new_real_data(bytes, max_len, max_len);
+		tvb_set_child_real_data_tvbuff(tvb, out_tvb);
+
 		if (hfi) {
-			actx->created_item = proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, (min_len+7)/8, bytes);
+			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
+			proto_item_append_text(actx->created_item,"[bit length %u]",max_len);
 		}
 		return offset;
 	}
@@ -1725,7 +1729,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	offset+=length;
 
 	if (value_tvb)
-		*value_tvb = tvb_new_subset(tvb, val_start, val_length, val_length);
+		*value_tvb = out_tvb;
 
 	return offset;
 }
@@ -1780,8 +1784,6 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 	gint val_start, val_length;
 	guint32 length;
 	header_field_info *hfi;
-	static guint8 bytes[4];
-	guint8 *pbytes = NULL;
 	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
