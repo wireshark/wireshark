@@ -285,8 +285,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     transport_info.media_port[n]=NULL;
     transport_info.media_proto[n]=NULL;
     transport_info.media[n].pt_count = 0;
+#if GLIB_MAJOR_VERSION < 2
+    transport_info.media[n].rtp_dyn_payload = g_hash_table_new( g_int_hash, 
+	g_int_equal);
+#else
     transport_info.media[n].rtp_dyn_payload = g_hash_table_new_full( g_int_hash, 
 	g_int_equal, g_free, g_free);
+#endif
   }
   transport_info.media_count = 0;
 
