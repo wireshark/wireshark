@@ -141,6 +141,68 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32
   return sub_tvb;
 }
 
+static const guint16 bit_mask16[] = {
+    0xffff,
+    0x7fff,
+    0x3fff,
+    0x1fff,
+    0x0fff,
+    0x07ff,
+    0x03ff,
+    0x01ff
+};
+
+/* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
+ * (add proceeding zeros).
+ */
+static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, guint32 no_of_bits)
+{
+  tvbuff_t *sub_tvb = NULL;
+  guint32 boffset = offset >> 3;
+  unsigned int i, shift0, shift1;
+  guint8 octet0, octet1, *buf;
+  guint16	word;
+
+  guint32	length;
+  guint32	remainder;
+
+  /* Calculate the size reqired */
+
+  length = no_of_bits/8;
+  remainder = no_of_bits % 8;
+  if(remainder){
+	  length++;
+  }else{
+	  /* Number of bits = even number of octets */
+	return new_octet_aligned_subset(tvb, offset, length);
+  }
+  buf = ep_alloc(length);
+
+  /* get the 'odd' bits */
+  shift1 = offset & 0x07;
+  word = tvb_get_ntohs(tvb,boffset) & bit_mask16[offset & 0x07];
+  word = word >> (16-(shift1+remainder));
+  buf[0] = word & 0x00ff;
+
+  offset = offset + remainder;
+  boffset = offset >> 3;
+  if (length >1){
+    shift1 = offset & 0x07;
+    shift0 = 8 - shift1;
+    octet0 = tvb_get_guint8(tvb, boffset);
+    for (i=1; i<length; i++) {
+      octet1 = octet0;
+      octet0 = tvb_get_guint8(tvb, boffset + i);
+      buf[i] = (octet1 << shift1) | (octet0 >> shift0);
+    }
+  }
+  sub_tvb = tvb_new_real_data(buf, length, length);
+  tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
+  
+  return sub_tvb;
+}
+
+
 /* 10 Encoding procedures -------------------------------------------------- */
 
 /* 10.2 Open type fields --------------------------------------------------- */
@@ -1575,6 +1637,7 @@ dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	gint val_start, val_length;
 	guint32 length;
 	header_field_info *hfi;
+	tvbuff_t *out_tvb = NULL;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -1628,11 +1691,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			/* TODO the displayed value will be wrong for the unaligned variant */
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		val_start = offset>>3;
-		val_length = (min_len+7)/8;
+		out_tvb = new_octet_aligned_subset_bits(tvb, offset, min_len);
 		if (hfi) {
-			actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, (min_len+7)/8, FALSE);
-			/*proto_item_append_text(actx->created_item,"[bit offset %u, bit length %u]",offset&0x7,max_len);*/
+			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
+			proto_item_append_text(actx->created_item,"[bit length %u]",max_len);
 		}
 		offset+=min_len;
 		return offset;
@@ -1652,8 +1714,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		if (actx->aligned){
 			BYTE_ALIGN_OFFSET(offset);
 		}
+		out_tvb = new_octet_aligned_subset_bits(tvb, offset, length);
 		if (hfi) {
-			actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, (length+7)/8, FALSE);
+			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
+			proto_item_append_text(actx->created_item,"[bit length %u]",length);
 		}
 	}
 	val_start = offset>>3;
@@ -1731,68 +1795,32 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		val_start = offset>>3; 
 		val_length = 0;
 
-	} else if((min_len==max_len)&&(max_len<=2)) {  /* 16.6 if length is fixed and less than or equal to two bytes*/
-		guint32 i, old_offset=offset;
-		gboolean bit;
+	} else if((min_len==max_len)&&(max_len<=2)) {  
+		/* 16.6 if length is fixed and less than or equal to two bytes*/
+		val_start = offset>>3; 
+		val_length = min_len;
+		out_tvb = new_octet_aligned_subset(tvb, offset, val_length);
+		offset+=min_len*8;
 
-		for(i=0;i<8;i++){
-			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-			bytes[0]=(bytes[0]<<1)|bit;
-		}
-		if(min_len==2){
-			for(i=0;i<8;i++){
-				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-				bytes[1]=(bytes[1]<<1)|bit;
-			}
-		}
-		bytes[min_len]=0;
-		pbytes = bytes;
-		val_start = old_offset>>3; 
-		val_length = min_len+((offset&0x07)?1:0);
-
-	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
+	} else if ((min_len==max_len)&&(min_len<65536)) {  
+		/* 16.7 if length is fixed and less than to 64k*/
 
 		/* align to byte */
 		if (actx->aligned){
-			BYTE_ALIGN_OFFSET(offset);			 
-			val_start = offset>>3;
-			val_length = min_len;
-			offset+=min_len*8;
-		}else{
-			guint8 *buff;
-			guint32 i = 0;
-			guint32 j = 0;
-			gboolean bit;
-
-			val_start = offset>>3;
-			val_length = min_len;
-			buff = ep_alloc(min_len);
-
-			if (display_internal_per_fields)
-				proto_tree_add_text(tree, tvb, val_start, min_len, "min=max=%u",min_len);
-			while (j < (guint32)min_len){
-				for(i=0;i<8;i++){
-					offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-					buff[j]=(buff[j]<<1)|bit;
-				}
-				j = j+1;
-			}
-			pbytes = buff;
-			out_tvb = tvb_new_real_data(buff,min_len,min_len);
-			/* Arrange that the allocated packet data copy be freed when the
-			 * tvbuff is freed. 
-			 */
-			tvb_set_free_cb(out_tvb, g_free );
-			tvb_set_child_real_data_tvbuff(tvb,out_tvb);
-			add_new_data_source(actx->pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
+			BYTE_ALIGN_OFFSET(offset);
 		}
+		val_start = offset>>3;
+		val_length = min_len;
+		out_tvb = new_octet_aligned_subset(tvb, offset, val_length);
+		offset+=min_len*8;
 
 	} else {  /* 16.8 */
 		if(max_len>0) {  
 			offset = dissect_per_constrained_integer(tvb, offset, actx, tree,
-				hf_per_octet_string_length, min_len, max_len,
-				&length, FALSE);
-				if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+				hf_per_octet_string_length, min_len, max_len, &length, FALSE);
+
+				if (!display_internal_per_fields) 
+					PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		} else {
 			offset = dissect_per_length_determinant(tvb, offset, actx, tree, 
 				hf_per_octet_string_length, &length);
@@ -1802,65 +1830,31 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			/* align to byte */
 			if (actx->aligned){
 				BYTE_ALIGN_OFFSET(offset);
-				val_start = offset>>3; 
-				offset+=length*8;
-			}else{
-				guint8 *buff;
-				guint32 i = 0;
-				guint32 j = 0;
-				gboolean bit;
-
-				val_start = offset>>3;
-				buff = g_malloc(length);
-				while (j < length){
-					for(i=0;i<8;i++){
-						offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-						buff[j]=(buff[j]<<1)|bit;
-					}
-				j = j+1;
-				}
-				pbytes = buff;
-				out_tvb = tvb_new_real_data(buff,length,length);
-				/* Arrange that the allocated packet data copy be freed when the
-				 * tvbuff is freed. 
-				 */
-				tvb_set_free_cb(out_tvb, g_free );
-				tvb_set_child_real_data_tvbuff(tvb,out_tvb);
-				add_new_data_source(actx->pinfo, out_tvb, "PER unaligned decoded OCTET STRING");
 			}
+			out_tvb = new_octet_aligned_subset(tvb, offset, length);
 		} else {
 			val_start = offset>>3; 
 		}
 		val_length = length;
+		offset+=length*8;
 	}
 
 	if (hfi) {
 		if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
+			/* If the type has been converted to FT_UINT or FT_INT in the .cnf file
+			 * display the length of this octet string instead of the octetstring itself
+			 */
 			if (IS_FT_UINT(hfi->type))
-				actx->created_item = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val_length);
+				actx->created_item = proto_tree_add_uint(tree, hf_index, out_tvb, 0, val_length, val_length);
 			else
-				actx->created_item = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val_length);
-			proto_item_append_text(actx->created_item, plurality(val_length, " octet", " octets"));
+				actx->created_item = proto_tree_add_int(tree, hf_index, out_tvb, 0, val_length, val_length);
 		} else {
-			if (pbytes) {
-				if(IS_FT_STRING(hfi->type)){
-					actx->created_item = proto_tree_add_string(tree, hf_index, tvb, val_start, val_length, (char*)pbytes);
-				} else if (hfi->type==FT_BYTES) {
-					actx->created_item = proto_tree_add_bytes(tree, hf_index, tvb, val_start, val_length, pbytes);
-				} else if (hfi->type==FT_IPv4) {
-					guint32 ipa;
-
-					/*  Not sure if pbytes is aligned enough to reference it as a guint32 */
-					memcpy(&ipa, pbytes, 4);
-					actx->created_item = proto_tree_add_ipv4(tree, hf_index, tvb, val_start, val_length, ipa);
-				} else if (hfi->type==FT_IPv6) {
-					actx->created_item = proto_tree_add_ipv6(tree, hf_index, tvb, val_start, val_length, pbytes);
-				} else {
-					if (display_internal_per_fields)
-						proto_tree_add_text(tree, tvb, val_start, min_len, "hf field is not FT_STRING, FT_BYTES or FT_IPv4/6 %s",hfi->name);
-					THROW(ReportedBoundsError);
-				}
-			} else {
+			if(out_tvb){
+				proto_tree_add_text(tree, out_tvb, 0, val_length, "hf name: %s",hfi->name);
+				actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, val_length, FALSE);
+			}else{
+				/* Length = 0 */
+				proto_tree_add_text(tree, tvb, val_start, val_length, "hf name: %s",hfi->name);
 				actx->created_item = proto_tree_add_item(tree, hf_index, tvb, val_start, val_length, FALSE);
 			}
 		}
