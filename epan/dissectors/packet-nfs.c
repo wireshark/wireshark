@@ -6387,18 +6387,12 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		"%s", "attrmask");
 	offset += 4;
 
-	if (fitem == NULL) return offset;
-
 	newftree = proto_item_add_subtree(fitem, ett_nfs_bitmap4);
-
-	if (newftree == NULL) return offset;
 
 	attr_vals_offset = offset + 4 + bitmap_len * 4;
 
 	if(bitmap_len)
 		bitmap = ep_alloc(bitmap_len * sizeof(guint32));
-
-	if (bitmap == NULL) return offset;
 
 	for (i = 0; i < bitmap_len; i++)
 	{
@@ -6417,11 +6411,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					(fattr < FATTR4_ACL)? hf_nfs_mand_attr: hf_nfs_recc_attr,
 					tvb, offset, 4, fattr);
 
-				if (attr_fitem == NULL) break;
-
 				attr_newftree = proto_item_add_subtree(attr_fitem, ett_nfs_bitmap4);
-
-				if (attr_newftree == NULL) break;
 
 				if (type == FATTR4_FULL_DISSECT)
 				{
@@ -6724,11 +6714,7 @@ dissect_nfs_fattr4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 4, "obj_attributes");
 
-	if (fitem == NULL) return offset;
-
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fattr4);
-
-	if (newftree == NULL) return offset;
 
 	offset = dissect_nfs_attributes(tvb, offset, pinfo, newftree,
 		FATTR4_FULL_DISSECT);
@@ -7411,15 +7397,19 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		"Operations (count: %u)", ops);
 	offset += 4;
 
-	if (fitem == NULL) return offset;
-
-	ftree = proto_item_add_subtree(fitem, ett_nfs_argop4);
-
-	if (ftree == NULL) return offset;
+	if (fitem) {
+		ftree = proto_item_add_subtree(fitem, ett_nfs_argop4);
+	}
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", 
+				ops_counter==0?' ':';',
+				val_to_str(opcode, names_nfsv4_operation, "Unknown"));
+		}
+		
 
 		fitem = proto_tree_add_uint(ftree, hf_nfs_argop4, tvb, offset, 4,
 			opcode);
@@ -7430,16 +7420,13 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
-		if (fitem == NULL)	break;
-
 		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
-		if (opcode == NFS4_OP_ILLEGAL)
+		if (opcode == NFS4_OP_ILLEGAL) {
 			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
-		else
+		} else {
 			newftree = proto_item_add_subtree(fitem,
 				*nfsv4_operation_ett[opcode - 3]);
-
-		if (newftree == NULL)	break;
+		}
 
 		switch(opcode)
 		{
@@ -7707,7 +7694,13 @@ static int
 dissect_nfs4_compound_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
-	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, NULL);
+	char *tag=NULL;
+
+	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, &tag);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
+	}
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_minorversion, offset);
 	offset = dissect_nfs_argop4(tvb, offset, pinfo, tree);
 
@@ -7762,11 +7755,9 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		"Operations (count: %u)", ops);
 	offset += 4;
 
-	if (fitem == NULL)	return offset;
-
-	ftree = proto_item_add_subtree(fitem, ett_nfs_resop4);
-
-	if (ftree == NULL)	return offset;		/* error adding new subtree */
+	if (fitem) {
+		ftree = proto_item_add_subtree(fitem, ett_nfs_resop4);
+	}
 
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
@@ -7777,21 +7768,23 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", 
+				ops_counter==0?' ':';',
+				val_to_str(opcode, names_nfsv4_operation, "Unknown"));
+		}
+
 		fitem = proto_tree_add_uint(ftree, hf_nfs_resop4, tvb, offset, 4,
 			opcode);
 		offset += 4;
 
-		if (fitem == NULL)	break;		/* error adding new item to tree */
-
 		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
-		if (opcode == NFS4_OP_ILLEGAL)
+		if (opcode == NFS4_OP_ILLEGAL) {
 			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
-		else
+		} else {
 			newftree = proto_item_add_subtree(fitem,
 				*nfsv4_operation_ett[opcode - 3]);
-
-		if (newftree == NULL)
-			break;		/* error adding new subtree to operation item */
+		}
 
 		offset = dissect_nfs_nfsstat4(tvb, offset, newftree, &status);
 
@@ -7940,9 +7933,14 @@ dissect_nfs4_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
 	guint32 status;
+	char *tag=NULL;
 
 	offset = dissect_nfs_nfsstat4(tvb, offset, tree, &status);
-	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, NULL);
+	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_tag4, &tag);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO," %s", tag);
+	}
+
 	offset = dissect_nfs_resop4(tvb, offset, pinfo, tree);
 
 	return offset;
