@@ -121,13 +121,14 @@ EXTERNALt
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
     object_identifier_id = ep_strdup_printf("%%s", oid);
-  } else {
+  } else if (object_identifier_id) {
 	*object_identifier_id = '\0';
   }
 	
 
 #.FN_BODY EXTERNALt/encoding/single-ASN1-type
-  offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
+  if (object_identifier_id) 
+    offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
 
 #.FN_BODY RTORQapdu/applicationProtocol
