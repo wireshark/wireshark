@@ -1,11 +1,16 @@
 /*
  ** packet-netflow.c
  **
- *****************************************************************************
+ ** $Id$
+ **
  ** (c) 2002 bill fumerola <fumerola@yahoo-inc.com>
  ** (C) 2005-06 Luca Deri <deri@ntop.org>
  **
  ** All rights reserved.
+ **
+ ** Wireshark - Network traffic analyzer
+ ** By Gerald Combs <gerald@wireshark.org>
+ ** Copyright 1998 Gerald Combs
  **
  ** This program is free software; you can redistribute it and/or
  ** modify it under the terms of the GNU General Public License
@@ -53,7 +58,6 @@
  ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id$
  */
 
 #ifdef HAVE_CONFIG_H
@@ -260,7 +264,9 @@ static int      hf_cflow_tcpflags = -1;
 static int      hf_cflow_dstas = -1;
 static int      hf_cflow_srcas = -1;
 static int      hf_cflow_dstmask = -1;
+static int      hf_cflow_dstmask_v6 = -1;
 static int      hf_cflow_srcmask = -1;
+static int      hf_cflow_srcmask_v6 = -1;
 static int      hf_cflow_routersc = -1;
 static int      hf_cflow_mulpackets = -1;
 static int      hf_cflow_muloctets = -1;
@@ -320,7 +326,6 @@ const value_string special_mpls_top_label_type[] = {
 	{3,	"VPN"},
 	{4,	"BGP"},
 	{5,	"LDP"},
-
 	{0,	NULL }
 };
 
@@ -1371,6 +1376,26 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 				      tvb, offset, length, FALSE);
 		  break;
 
+		case 27: /* IPv6 src addr */
+		  proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 28: /* IPv6 dst addr */
+		  proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 29: /* IPv6 src addr mask */
+		  proto_tree_add_item(pdutree, hf_cflow_srcmask_v6,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 30: /* IPv6 dst addr mask */
+		  proto_tree_add_item(pdutree, hf_cflow_dstmask_v6,
+				      tvb, offset, length, FALSE);
+		  break;
+
 		case 32: /* ICMP_TYPE */
 			proto_tree_add_item(pdutree, hf_cflow_icmp_type,
 			    tvb, offset, length, FALSE);
@@ -1503,6 +1528,11 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		case 61: /* DIRECTION   */
 			proto_tree_add_item(pdutree, hf_cflow_direction,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 62: /* IPv6 BGP nexthop  */
+			proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
 			    tvb, offset, length, FALSE);
 			break;
 
@@ -1935,7 +1965,7 @@ static value_string v9_template_types[] = {
 	{ 208, "TPC_OPTION_MAP" },
 	{ 313, "IP_SECTION HEADER" },
 	{ 314, "IP_SECTION PAYLOAD" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static value_string v9_scope_field_types[] = {
@@ -1944,7 +1974,7 @@ static value_string v9_scope_field_types[] = {
 	{ 3, "Line Card" },
 	{ 4, "NetFlow Cache" },
 	{ 5, "Template" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static const char *
@@ -1957,19 +1987,19 @@ static value_string v9_sampler_mode[] = {
 	{ 0, "Determinist" },
 	{ 1, "Unknown" },
 	{ 2, "Random" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 static value_string v9_direction[] = {
 	{ 0, "Ingress" },
 	{ 1, "Egress" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 static value_string v9_forwarding_status[] = {
 	{ 0, "Unknown"},  /* Observed on IOS-XR 3.2 */
-        { 1, "Forward"}, /* Observed on 7200 12.4(9)T */
+	{ 1, "Forward"},  /* Observed on 7200 12.4(9)T */
 	{ 2, "Drop"},     /* Observed on 7200 12.4(9)T */
 	{ 3, "Consume"},  /* Observed on 7200 12.4(9)T */
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static int
@@ -2545,10 +2575,20 @@ proto_register_netflow(void)
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		  "Source Prefix Mask", HFILL}
 		 },
+		{&hf_cflow_srcmask_v6,
+		 {"SrcMask", "cflow.srcmaskv6",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPv6 Source Prefix Mask", HFILL}
+		 },
 		{&hf_cflow_dstmask,
 		 {"DstMask", "cflow.dstmask",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		  "Destination Prefix Mask", HFILL}
+		 },
+		{&hf_cflow_dstmask_v6,
+		 {"DstMask", "cflow.dstmaskv6",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPv6 Destination Prefix Mask", HFILL}
 		 },
 		{&hf_cflow_routersc,
 		 {"Router Shortcut", "cflow.routersc",
@@ -2807,7 +2847,7 @@ proto_register_netflow(void)
 		 {"Scope Unknown", "cflow.scope",
 		  FT_BYTES, BASE_HEX, NULL, 0x0,
 		  "Option Scope Unknown", HFILL}
-		 },
+		 }
 	};
 
 	static gint    *ett[] = {
