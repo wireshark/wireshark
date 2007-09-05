@@ -44,38 +44,38 @@ PROGRAM_FILES=C:/Program Files
 # only one of the following MSVC_VARIANT settings should be used
 # BTW: The "Microsoft Visual C++ Toolkit 2003" DOESN'T WORK for WS!
 
-# "Microsoft Visual Studio 6.0" - RECOMMENDED
+# "Microsoft Visual Studio 6.0"
 # Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
 MSVC_VARIANT=MSVC6
 
-# "Microsoft Visual Studio .NET (2002)" - WORKS
+# "Microsoft Visual Studio .NET (2002)"
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
 #MSVC_VARIANT=MSVC2002
 
-# "Microsoft .Net Framework SDK Version 1.0" - WORKS
+# "Microsoft .Net Framework SDK Version 1.0"
 # needs additional Platform SDK installation
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
 #MSVC_VARIANT=DOTNET10
 
-# "Microsoft Visual Studio .NET 2003" - WORKS
+# "Microsoft Visual Studio .NET 2003"
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=MSVC2003
 
-# "Microsoft .Net Framework SDK Version 1.1" - WORKS
+# "Microsoft .Net Framework SDK Version 1.1"
 # needs additional Platform SDK installation
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=DOTNET11
 
-# "Microsoft Visual Studio 2005" - WORKS
+# "Microsoft Visual Studio 2005"
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=MSVC2005
 
-# "Microsoft Visual C++ 2005 Express Edition" - WORKS
+# "Microsoft Visual C++ 2005 Express Edition"
 # needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=MSVC2005EE
 
-# "Microsoft .Net Framework 2.0 SDK" - WORKS
+# "Microsoft .Net Framework 2.0 SDK"
 # needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=DOTNET20
