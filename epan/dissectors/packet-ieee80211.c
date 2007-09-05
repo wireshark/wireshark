@@ -10087,21 +10087,21 @@ proto_register_ieee80211 (void)
      * we build them using g_string_sprintf and just leave them
      * allocated. */
 #ifdef HAVE_AIRPDCAP
-  g_string_sprintf(key_name, "wep_key%d", i + 1);
-  g_string_sprintf(key_title, "Key #%d", i + 1);
-  /* Davide Schiera (2006-11-26): modified keys input tooltip          */
-  g_string_sprintf(key_desc,
+    g_string_sprintf(key_name, "wep_key%d", i + 1);
+    g_string_sprintf(key_title, "Key #%d", i + 1);
+    /* Davide Schiera (2006-11-26): modified keys input tooltip          */
+    g_string_sprintf(key_desc,
       "Key #%d string can be:"
       "   <wep hexadecimal key>;"
       "   wep:<wep hexadecimal key>;"
       "   wpa-pwd:<passphrase>[:<ssid>];"
       "   wpa-psk:<wpa hexadecimal key>", i + 1);
 #else
-    g_string_sprintf(key_name, "wep_key%d", i + 1);
-    g_string_sprintf(key_title, "WEP key #%d", i + 1);
-    g_string_sprintf(key_desc, "WEP key #%d can be:"
-      "   <wep hexadecimal key>;"
-      "   wep:<wep hexadecimal key>", i + 1);
+      g_string_sprintf(key_name, "wep_key%d", i + 1);
+      g_string_sprintf(key_title, "WEP key #%d", i + 1);
+      g_string_sprintf(key_desc, "WEP key #%d can be:"
+        "   <wep hexadecimal key>;"
+        "   wep:<wep hexadecimal key>", i + 1);
 #endif
 
     prefs_register_string_preference(wlan_module, key_name->str,
