@@ -157,11 +157,11 @@ packaging_u3: all
 # use (info-)zip from cygwin to pack things
 packaging_zip1: all
 !IFDEF MSVCR_DLL
-	xcopy $(MSVCR_DLL) $(INSTALL1_DIR)
+	xcopy "$(MSVCR_DLL)" $(INSTALL1_DIR)
 !ENDIF
 !IFDEF VCREDIST_EXE
 	@echo Including vcredist_x86.exe -- your recipient may need to run it!
-	xcopy $(MSVCR_DLL) $(INSTALL1_DIR)
+	xcopy "$(VCREDIST_EXE)" $(INSTALL1_DIR)
 !ENDIF
 	rm -f wireshark-gtk1.zip
 	zip -r -9 wireshark-gtk1.zip $(INSTALL1_DIR)/
@@ -169,11 +169,11 @@ packaging_zip1: all
 # use (info-)zip from cygwin to pack things
 packaging_zip2: all
 !IFDEF MSVCR_DLL
-	xcopy $(MSVCR_DLL) $(INSTALL2_DIR)
+	xcopy "$(MSVCR_DLL)" $(INSTALL2_DIR)
 !ENDIF
 !IFDEF VCREDIST_EXE
 	@echo Including vcredist_x86.exe -- your recipient may need to run it!
-	xcopy $(VCREDIST_EXE) $(INSTALL2_DIR)
+	xcopy "$(VCREDIST_EXE)" $(INSTALL2_DIR)
 !ENDIF
 	rm -f wireshark-gtk2.zip
 	zip -r -9 wireshark-gtk2.zip $(INSTALL2_DIR)/
@@ -368,6 +368,7 @@ clean: clean_gtk2.tmp clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
+		nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
 		AUTHORS-SHORT-FORMAT $(LIBS_CHECK) \
@@ -519,7 +520,7 @@ gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: $(RESOURCES) $(BUILT_SOURCES) doxygen
+epan:: $(RESOURCES) $(ZLIB_DIR)\zlib1.dll wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
@@ -846,7 +847,7 @@ debug-dumpcap: dumpcap.exe
 
 install-deps: install-deps1 install-deps2 install-files1 install-files2
 
-# install Wireshark GTK2 and other generated files
+# install Wireshark GTK1 and other generated files
 install-files1:
 !IFDEF GTK1_DIR
 	set copycmd=/y
