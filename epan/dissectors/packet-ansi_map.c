@@ -711,14 +711,12 @@ static int hf_ansi_map_ModificationResultList_item = -1;  /* ModificationResult 
 static int hf_ansi_map_ServiceDataAccessElementList_item = -1;  /* ServiceDataAccessElement */
 static int hf_ansi_map_dataUpdateResultList = -1;  /* DataUpdateResultList */
 static int hf_ansi_map_ServiceDataResultList_item = -1;  /* ServiceDataResult */
-static int hf_ansi_map_TriggerAddressList_item = -1;  /* TriggerAddressList_item */
 static int hf_ansi_map_triggerList = -1;          /* TriggerList */
 static int hf_ansi_map_triggerListOpt = -1;       /* TriggerList */
 static int hf_ansi_map_wIN_TriggerList = -1;      /* WIN_TriggerList */
 static int hf_ansi_map_triggerCapability = -1;    /* TriggerCapability */
 static int hf_ansi_map_wINOperationsCapability = -1;  /* WINOperationsCapability */
 static int hf_ansi_map_detectionPointType = -1;   /* DetectionPointType */
-static int hf_ansi_map_WIN_TriggerList_item = -1;  /* WIN_Trigger */
 static int hf_ansi_map_CallRecoveryIDList_item = -1;  /* CallRecoveryID */
 static int hf_ansi_map_generalizedTime = -1;      /* GeneralizedTime */
 static int hf_ansi_map_geographicPosition = -1;   /* GeographicPosition */
@@ -1135,11 +1133,9 @@ static gint ett_ansi_map_ServiceDataAccessElementList = -1;
 static gint ett_ansi_map_ServiceDataResult = -1;
 static gint ett_ansi_map_ServiceDataResultList = -1;
 static gint ett_ansi_map_TriggerAddressList = -1;
-static gint ett_ansi_map_TriggerAddressList_item = -1;
 static gint ett_ansi_map_TriggerList = -1;
 static gint ett_ansi_map_WINCapability = -1;
 static gint ett_ansi_map_WIN_Trigger = -1;
-static gint ett_ansi_map_WIN_TriggerList = -1;
 static gint ett_ansi_map_CallRecoveryID = -1;
 static gint ett_ansi_map_CallRecoveryIDList = -1;
 static gint ett_ansi_map_PositionInformation = -1;
@@ -7604,122 +7600,18 @@ dissect_ansi_map_DestinationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const value_string ansi_map_TriggerType_vals[] = {
-  {   1, "all-Calls" },
-  {   2, "double-Introducing-Star" },
-  {   3, "single-Introducing-Star" },
-  {   4, "reserved-for-Home-System-Feature-Code" },
-  {   5, "double-Introducing-Pound" },
-  {   6, "single-Introducing-Pound" },
-  {   7, "revertive-Call" },
-  {   8, "a0-Digit" },
-  {   9, "a1-Digit" },
-  {  10, "a2-Digit" },
-  {  11, "a3-Digit" },
-  {  12, "a4-Digit" },
-  {  13, "a5-Digit" },
-  {  14, "a6-Digit" },
-  {  15, "a7-Digit" },
-  {  16, "a8-Digit" },
-  {  17, "a9-Digit" },
-  {  18, "a10-Digit" },
-  {  19, "a11-Digit" },
-  {  20, "a12-Digit" },
-  {  21, "a13-Digit" },
-  {  22, "a14-Digit" },
-  {  23, "a15-Digit" },
-  {  24, "local-Call" },
-  {  25, "intra-LATA-Toll-Call" },
-  {  26, "inter-LATA-Toll-Call" },
-  {  27, "world-Zone-Call" },
-  {  28, "international-Call" },
-  {  29, "unrecognized-Number" },
-  {  30, "prior-Agreement" },
-  {  31, "specific-Called-Party-Digit-String" },
-  {  32, "mobile-Termination" },
-  {  33, "advanced-Termination" },
-  {  34, "location" },
-  {  35, "locally-Allowed-Specific-Digit-String" },
-  {  36, "origination-Attempt-Authorized" },
-  {  37, "calling-Routing-Address-Available" },
-  {  38, "initial-Termination" },
-  {  39, "called-Routing-Address-Available" },
-  {  40, "o-Answer" },
-  {  41, "o-Disconnect" },
-  {  42, "o-Called-Party-Busy" },
-  {  43, "o-No-Answer" },
-  {  64, "terminating-Resource-Available" },
-  {  65, "t-Busy" },
-  {  66, "t-No-Answer" },
-  {  67, "t-No-Page-Response" },
-  {  68, "t-Routable" },
-  {  69, "t-Answer" },
-  {  70, "t-Disconnect" },
-  { 220, "reserved-for-TDP-R-DP-Type-value" },
-  { 221, "reserved-for-TDP-N-DP-Type-value" },
-  { 222, "reserved-for-EDP-R-DP-Type-value" },
-  { 223, "reserved-for-EDP-N-DP-Type-value" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ansi_map_TriggerType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string ansi_map_DetectionPointType_vals[] = {
-  {   1, "tDP-R" },
-  {   2, "tDP-N" },
-  {   3, "eDP-R" },
-  {   4, "eDP-N" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_ansi_map_DetectionPointType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t WIN_Trigger_sequence[] = {
-  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
-  { &hf_ansi_map_detectionPointType, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DetectionPointType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ansi_map_WIN_Trigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   WIN_Trigger_sequence, hf_index, ett_ansi_map_WIN_Trigger);
-
-  return offset;
-}
-
-
-static const ber_sequence_t WIN_TriggerList_set_of[1] = {
-  { &hf_ansi_map_WIN_TriggerList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ansi_map_WIN_Trigger },
-};
 
 static int
 dissect_ansi_map_WIN_TriggerList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 WIN_TriggerList_set_of, hf_index, ett_ansi_map_WIN_TriggerList);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
 
   return offset;
 }
 
 
 static const ber_sequence_t TriggerList_set[] = {
-  { &hf_ansi_map_destinationAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_DestinationAddress },
+  { &hf_ansi_map_destinationAddress, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ansi_map_DestinationAddress },
   { &hf_ansi_map_wIN_TriggerList, BER_CLASS_CON, 283, BER_FLAGS_IMPLTAG, dissect_ansi_map_WIN_TriggerList },
   { NULL, 0, 0, 0, NULL }
 };
@@ -7733,29 +7625,16 @@ dissect_ansi_map_TriggerList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t TriggerAddressList_item_set[] = {
+static const ber_sequence_t TriggerAddressList_set[] = {
   { &hf_ansi_map_triggerList, BER_CLASS_CON, 278, BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerList },
   { &hf_ansi_map_triggerListOpt, BER_CLASS_CON, 278, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerList },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_ansi_map_TriggerAddressList_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              TriggerAddressList_item_set, hf_index, ett_ansi_map_TriggerAddressList_item);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TriggerAddressList_set_of[1] = {
-  { &hf_ansi_map_TriggerAddressList_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TriggerAddressList_item },
-};
-
-static int
 dissect_ansi_map_TriggerAddressList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 TriggerAddressList_set_of, hf_index, ett_ansi_map_TriggerAddressList);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TriggerAddressList_set, hf_index, ett_ansi_map_TriggerAddressList);
 
   return offset;
 }
@@ -8923,6 +8802,74 @@ static int
 dissect_ansi_map_TerminationAccessType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_TriggerType_vals[] = {
+  {   1, "all-Calls" },
+  {   2, "double-Introducing-Star" },
+  {   3, "single-Introducing-Star" },
+  {   4, "reserved-for-Home-System-Feature-Code" },
+  {   5, "double-Introducing-Pound" },
+  {   6, "single-Introducing-Pound" },
+  {   7, "revertive-Call" },
+  {   8, "a0-Digit" },
+  {   9, "a1-Digit" },
+  {  10, "a2-Digit" },
+  {  11, "a3-Digit" },
+  {  12, "a4-Digit" },
+  {  13, "a5-Digit" },
+  {  14, "a6-Digit" },
+  {  15, "a7-Digit" },
+  {  16, "a8-Digit" },
+  {  17, "a9-Digit" },
+  {  18, "a10-Digit" },
+  {  19, "a11-Digit" },
+  {  20, "a12-Digit" },
+  {  21, "a13-Digit" },
+  {  22, "a14-Digit" },
+  {  23, "a15-Digit" },
+  {  24, "local-Call" },
+  {  25, "intra-LATA-Toll-Call" },
+  {  26, "inter-LATA-Toll-Call" },
+  {  27, "world-Zone-Call" },
+  {  28, "international-Call" },
+  {  29, "unrecognized-Number" },
+  {  30, "prior-Agreement" },
+  {  31, "specific-Called-Party-Digit-String" },
+  {  32, "mobile-Termination" },
+  {  33, "advanced-Termination" },
+  {  34, "location" },
+  {  35, "locally-Allowed-Specific-Digit-String" },
+  {  36, "origination-Attempt-Authorized" },
+  {  37, "calling-Routing-Address-Available" },
+  {  38, "initial-Termination" },
+  {  39, "called-Routing-Address-Available" },
+  {  40, "o-Answer" },
+  {  41, "o-Disconnect" },
+  {  42, "o-Called-Party-Busy" },
+  {  43, "o-No-Answer" },
+  {  64, "terminating-Resource-Available" },
+  {  65, "t-Busy" },
+  {  66, "t-No-Answer" },
+  {  67, "t-No-Page-Response" },
+  {  68, "t-Routable" },
+  {  69, "t-Answer" },
+  {  70, "t-Disconnect" },
+  { 220, "reserved-for-TDP-R-DP-Type-value" },
+  { 221, "reserved-for-TDP-N-DP-Type-value" },
+  { 222, "reserved-for-EDP-R-DP-Type-value" },
+  { 223, "reserved-for-EDP-N-DP-Type-value" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_TriggerType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12184,7 +12131,7 @@ static const ber_sequence_t OAnswer_set[] = {
   { &hf_ansi_map_featureIndicator, BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_FeatureIndicator },
   { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12230,7 +12177,7 @@ static const ber_sequence_t ODisconnect_set[] = {
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
   { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12345,7 +12292,7 @@ static const ber_sequence_t TDisconnect_set[] = {
   { &hf_ansi_map_mSCIdentificationNumber, BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MSCIdentificationNumber },
   { &hf_ansi_map_releaseCause, BER_CLASS_CON, 308, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ReleaseCause },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
+  { &hf_ansi_map_systemMyTypeCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SystemMyTypeCode },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -13642,6 +13589,39 @@ static int
 dissect_ansi_map_StatusRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               StatusRequestRes_set, hf_index, ett_ansi_map_StatusRequestRes);
+
+  return offset;
+}
+
+
+static const value_string ansi_map_DetectionPointType_vals[] = {
+  {   1, "tDP-R" },
+  {   2, "tDP-N" },
+  {   3, "eDP-R" },
+  {   4, "eDP-N" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ansi_map_DetectionPointType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t WIN_Trigger_sequence[] = {
+  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
+  { &hf_ansi_map_detectionPointType, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DetectionPointType },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_WIN_Trigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   WIN_Trigger_sequence, hf_index, ett_ansi_map_WIN_Trigger);
 
   return offset;
 }
@@ -15269,13 +15249,13 @@ void proto_register_ansi_map(void) {
         FT_BOOLEAN, 8, TFS(&ansi_map_winoperationscapability_conn_bool_val),0x01,
         "ConnectResource (CONN)", HFILL }},
 	{ &hf_ansi_map_winoperationscapability_ccdir,
-      { "ConnectResource (CONN)", "ansi_map.winoperationscapability.ccdir",
+      { "CallControlDirective(CCDIR)", "ansi_map.winoperationscapability.ccdir",
         FT_BOOLEAN, 8, TFS(&ansi_map_winoperationscapability_ccdir_bool_val),0x02,
-        "ConnectResource (CONN)", HFILL }},
+        "CallControlDirective(CCDIR)", HFILL }},
 	{ &hf_ansi_map_winoperationscapability_pos,
-      { "ConnectResource (CONN)", "ansi_map.winoperationscapability.pos",
+      { "PositionRequest (POS)", "ansi_map.winoperationscapability.pos",
         FT_BOOLEAN, 8, TFS(&ansi_map_winoperationscapability_pos_bool_val),0x04,
-        "ConnectResource (CONN)", HFILL }},
+        "PositionRequest (POS)", HFILL }},
 	{ &hf_ansi_map_pacaindicator_pa,
       { "Permanent Activation (PA)", "ansi_map.pacaindicator_pa",
         FT_BOOLEAN, 8, TFS(&ansi_map_pacaindicator_pa_bool_val),0x01,
@@ -15922,7 +15902,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.TerminationTriggers", HFILL }},
     { &hf_ansi_map_triggerAddressList,
       { "triggerAddressList", "ansi_map.triggerAddressList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.TriggerAddressList", HFILL }},
     { &hf_ansi_map_emergencyServicesRoutingDigits,
       { "emergencyServicesRoutingDigits", "ansi_map.emergencyServicesRoutingDigits",
@@ -16804,10 +16784,6 @@ void proto_register_ansi_map(void) {
       { "Item", "ansi_map.ServiceDataResultList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.ServiceDataResult", HFILL }},
-    { &hf_ansi_map_TriggerAddressList_item,
-      { "Item", "ansi_map.TriggerAddressList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ansi_map.TriggerAddressList_item", HFILL }},
     { &hf_ansi_map_triggerList,
       { "triggerList", "ansi_map.triggerList",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -16818,7 +16794,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.TriggerList", HFILL }},
     { &hf_ansi_map_wIN_TriggerList,
       { "wIN-TriggerList", "ansi_map.wIN_TriggerList",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.WIN_TriggerList", HFILL }},
     { &hf_ansi_map_triggerCapability,
       { "triggerCapability", "ansi_map.triggerCapability",
@@ -16832,10 +16808,6 @@ void proto_register_ansi_map(void) {
       { "detectionPointType", "ansi_map.detectionPointType",
         FT_UINT32, BASE_DEC, VALS(ansi_map_DetectionPointType_vals), 0,
         "ansi_map.DetectionPointType", HFILL }},
-    { &hf_ansi_map_WIN_TriggerList_item,
-      { "Item", "ansi_map.WIN_TriggerList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ansi_map.WIN_Trigger", HFILL }},
     { &hf_ansi_map_CallRecoveryIDList_item,
       { "Item", "ansi_map.CallRecoveryIDList_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -17766,11 +17738,9 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ServiceDataResult,
     &ett_ansi_map_ServiceDataResultList,
     &ett_ansi_map_TriggerAddressList,
-    &ett_ansi_map_TriggerAddressList_item,
     &ett_ansi_map_TriggerList,
     &ett_ansi_map_WINCapability,
     &ett_ansi_map_WIN_Trigger,
-    &ett_ansi_map_WIN_TriggerList,
     &ett_ansi_map_CallRecoveryID,
     &ett_ansi_map_CallRecoveryIDList,
     &ett_ansi_map_PositionInformation,

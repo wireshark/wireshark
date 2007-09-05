@@ -3875,7 +3875,7 @@ OAnswer ::= [PRIVATE 18] SET {
 	-- O 6.5.2.83 l
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 h, m
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL
 	-- O 6.5.2.147
 	}
 
@@ -3910,7 +3910,7 @@ ODisconnect ::= [PRIVATE 18] SET {
 	-- O 6.5.2.83 l
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 i, m
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL
 	-- O 6.5.2.147
 }
 
@@ -3997,7 +3997,7 @@ TDisconnect ::= [PRIVATE 18] SET {
 	-- O 6.5.2.el l
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 h, m
-	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode
+	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL
 	-- O 6.5.2.147
 	}
 
@@ -6926,10 +6926,10 @@ SpecializedResource ::= OCTET STRING
 TimeDateOffset ::= OCTET STRING
 
 -- 6.5.2.de
--- 1 0 1 1 1 1 1 1 (0x9f)
+-- 1 0 1 1 1 1 1 1 (0xbf)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 1 0 1 0 0 (0x14)(276)
-TriggerAddressList ::= SET OF SET{
+TriggerAddressList ::= SET{
 	triggerList			[278] IMPLICIT TriggerList,
 --	M 6.5.2.dg
 	triggerListOpt		[278] IMPLICIT TriggerList OPTIONAL
@@ -6944,14 +6944,19 @@ TriggerCapability ::= OCTET STRING
 --see 6.5.2.gg for encoding
 
 -- 6.5.2.dg
--- 1 0 1 1 1 1 1 1 (0x9f) (0xbf)
+-- 1 0 1 1 1 1 1 1 (0xbf) (0xbf)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 1 0 1 1 0 (0x16)(278)
+-- 6.5.2.ck DestinationAddress N.S0013-0 v 1.0
+--DestinationAddress ::= CHOICE {
+--	globalTitle	[261] IMPLICIT GlobalTitle, 
+--	pC-SSN		[32] IMPLICIT PC-SSN
+--	}
+
 TriggerList ::= SET{
-	destinationAddress		DestinationAddress OPTIONAL,
---	M 6.5.2.ck a
+	destinationAddress		DestinationAddress,
 	wIN-TriggerList			[283] IMPLICIT WIN-TriggerList
---	M 6.5.2.dk
+	--	M 6.5.2.dk
 }
 
 -- 6.5.2.dh
@@ -7041,11 +7046,12 @@ WIN-Trigger ::= SEQUENCE {
 	detectionPointType	DetectionPointType
 	}
 
---6.5.2.dk
+--6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 1 1 0 1 1 (0x1b)(283)
-WIN-TriggerList ::= SET OF WIN-Trigger
+-- WIN-TriggerList ::= SET OF WIN-Trigger
+WIN-TriggerList ::= OCTET STRING
 
 -- 6.5.2.do
 -- 1 0 0 1 1 1 1 1 (0x9f)
