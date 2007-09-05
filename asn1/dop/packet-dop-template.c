@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>

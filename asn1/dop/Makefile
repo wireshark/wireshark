@@ -9,10 +9,10 @@ generate_dissector: $(DISSECTOR_FILES)
 ASN_EXPORTS=		
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py dop.asn packet-dop-template.c packet-dop-template.h dop.cnf $(ASN_EXPORTS)
-	python ../../tools/asn2wrs.py -b -e -p dop -c dop.cnf -s packet-dop-template  dop.asn
+	python ../../tools/asn2wrs.py -b -X -T -e -p dop -c dop.cnf -s packet-dop-template  dop.asn
 
 clean:
-	rm -f parsetab.py $(DISSECTOR_FILES) *~
+	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES) *~
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) ../../epan/dissectors

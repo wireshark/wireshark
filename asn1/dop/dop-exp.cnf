@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # ./dop-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn
+# ../../tools/asn2wrs.py -b -X -T -e -p dop -c dop.cnf -s packet-dop-template dop.asn
 
 #.MODULE
 DSAOperationalAttributeTypes  dop
