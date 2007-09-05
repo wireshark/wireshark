@@ -1440,8 +1440,10 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	 * through file->open, make the latest dialog modal also so that it
 	 * takes over "control" from the other modal dialogs.  Also set
 	 * the transient property of the new dialog so the user doesn't try
-	 * to interact with the previous window when they can't. */
-	if(gtk_window_get_modal(GTK_WINDOW(main_w))) {
+	 * to interact with the previous window when they can't. 
+         * XXX: containing widget might be the Filter Toolbar */
+
+	if ( GTK_IS_WINDOW(main_w) && gtk_window_get_modal(GTK_WINDOW(main_w))) {
 		gtk_window_set_modal(GTK_WINDOW(dfilter_w), TRUE);
 		gtk_window_set_transient_for(GTK_WINDOW(dfilter_w),
 					     GTK_WINDOW(main_w));
