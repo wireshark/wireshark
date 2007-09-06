@@ -117,6 +117,7 @@ static int hf_sack_chunk_gap_block_start = -1;
 static int hf_sack_chunk_gap_block_end = -1;
 static int hf_sack_chunk_gap_block_start_tsn = -1;
 static int hf_sack_chunk_gap_block_end_tsn = -1;
+static int hf_sack_chunk_number_tsns_gap_acked = -1;
 static int hf_sack_chunk_duplicate_tsn = -1;
 
 static int hf_shutdown_chunk_cumulative_tsn_ack = -1;
@@ -2858,64 +2859,82 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   proto_item *block_item;
   proto_tree *block_tree;
   proto_tree *flags_tree;
-  proto_item* ctsa_item;
+  proto_item *ctsa_item;
   proto_tree *acks_tree;
+  guint32 tsns_gap_acked = 0;
 
-	flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_sack_chunk_flags);
-	proto_tree_add_item(flags_tree, hf_sack_chunk_ns,                    chunk_tvb, CHUNK_FLAGS_OFFSET,                      CHUNK_FLAGS_LENGTH,                      NETWORK_BYTE_ORDER);
-	ctsa_item = proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack,    chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET,    SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,    NETWORK_BYTE_ORDER);
-	proto_tree_add_item(chunk_tree, hf_sack_chunk_adv_rec_window_credit, chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, NETWORK_BYTE_ORDER);
-	proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_gap_blocks,  chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH,  NETWORK_BYTE_ORDER);
-	proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_dup_tsns,    chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET,    SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH,    NETWORK_BYTE_ORDER);
+  flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_sack_chunk_flags);
+  proto_tree_add_item(flags_tree, hf_sack_chunk_ns,                    chunk_tvb, CHUNK_FLAGS_OFFSET,                      CHUNK_FLAGS_LENGTH,                      NETWORK_BYTE_ORDER);
+  ctsa_item = proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack,    chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET,    SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,    NETWORK_BYTE_ORDER);
+  proto_tree_add_item(chunk_tree, hf_sack_chunk_adv_rec_window_credit, chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_gap_blocks,  chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH,  NETWORK_BYTE_ORDER);
+  proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_dup_tsns,    chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET,    SACK_CHUNK_NUMBER_OF_DUP_TSNS_LENGTH,    NETWORK_BYTE_ORDER);
 
-	/* handle the gap acknowledgement blocks */
-	number_of_gap_blocks = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET);
-	gap_block_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET;
-	cum_tsn_ack          = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
+  /* handle the gap acknowledgement blocks */
+  number_of_gap_blocks = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET);
+  gap_block_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET;
+  cum_tsn_ack          = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
 
-	acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
-	sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
+  acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
+  sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
 
-	for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
-		proto_item* pi;
-		proto_tree* pt;
-		guint32 tsn_start;
-	  start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
-	  end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
-          tsn_start = cum_tsn_ack + start;
+  for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
+    proto_item *pi;
+    proto_tree *pt;
+    guint32 tsn_start;
 
-	  block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
-	  block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
+    start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
+    end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
+    tsn_start = cum_tsn_ack + start;
 
-	  pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
-	  pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_start);
-	  pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_start_tsn,
-		chunk_tvb, gap_block_offset,SACK_CHUNK_GAP_BLOCK_START_LENGTH,cum_tsn_ack + start);
-	  PROTO_ITEM_SET_GENERATED(pi);
+    block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
+    block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
 
-	  pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_end,   chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
-	  pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_end);
-	  pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_end_tsn,   chunk_tvb,
-		gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   cum_tsn_ack + end);
-	  PROTO_ITEM_SET_GENERATED(pi);
+    pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
+    pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_start);
+    pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_start_tsn,
+			     chunk_tvb, gap_block_offset,SACK_CHUNK_GAP_BLOCK_START_LENGTH, cum_tsn_ack + start);
+    PROTO_ITEM_SET_GENERATED(pi);
+
+    pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_end, chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
+    pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_end);
+    pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_end_tsn, chunk_tvb,
+			     gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
+    PROTO_ITEM_SET_GENERATED(pi);
+
+    sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
+    gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
+
+    tsns_gap_acked += (end - start);
+  }
+
+  if (tsns_gap_acked) {
+    proto_item *pi;
+
+    pi = proto_tree_add_uint(chunk_tree, hf_sack_chunk_number_tsns_gap_acked, chunk_tvb, 0, 0, tsns_gap_acked);
+    PROTO_ITEM_SET_GENERATED(pi);
+
+    /*  If there are a huge number of GAP ACKs, warn the user.  100 is a random
+     *  number: it could be tuned.
+     */
+    if (tsns_gap_acked > 100)
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "More than 100 TSNs were gap-acknowledged in this SACK");
+
+  }
 
 
-	  sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
-	  gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
-	}
+  /* handle the duplicate TSNs */
+  number_of_dup_tsns = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET);
+  dup_tsn_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * SACK_CHUNK_GAP_BLOCK_LENGTH;
+  for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
+    proto_tree_add_item(chunk_tree, hf_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, SACK_CHUNK_DUP_TSN_LENGTH, NETWORK_BYTE_ORDER);
+    dup_tsn_offset += SACK_CHUNK_DUP_TSN_LENGTH;
+  }
 
-	/* handle the duplicate TSNs */
-	number_of_dup_tsns = tvb_get_ntohs(chunk_tvb, SACK_CHUNK_NUMBER_OF_DUP_TSNS_OFFSET);
-	dup_tsn_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET + number_of_gap_blocks * SACK_CHUNK_GAP_BLOCK_LENGTH;
-	for(dup_tsn_number = 1; dup_tsn_number <= number_of_dup_tsns; dup_tsn_number++) {
-	  proto_tree_add_item(chunk_tree, hf_sack_chunk_duplicate_tsn, chunk_tvb, dup_tsn_offset, SACK_CHUNK_DUP_TSN_LENGTH, NETWORK_BYTE_ORDER);
-	  dup_tsn_offset += SACK_CHUNK_DUP_TSN_LENGTH;
-	}
-
-	proto_item_append_text(chunk_item, " (Cumulative TSN: %u, a_rwnd: %u, gaps: %u, duplicate TSNs: %u)",
-					 tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
-					 tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET),
-					 number_of_gap_blocks, number_of_dup_tsns);
+  proto_item_append_text(chunk_item, " (Cumulative TSN: %u, a_rwnd: %u, gaps: %u, duplicate TSNs: %u)",
+			 tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET),
+			 tvb_get_ntohl(chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET),
+			 number_of_gap_blocks, number_of_dup_tsns);
 }
 
 #define HEARTBEAT_CHUNK_INFO_OFFSET CHUNK_VALUE_OFFSET
@@ -3667,12 +3686,13 @@ proto_register_sctp(void)
     { &hf_sack_chunk_ns,                            { "Nounce sum",                                  "sctp.sack_nounce_sum",                                 FT_UINT8,   BASE_DEC,  NULL,                                           SCTP_SACK_CHUNK_NS_BIT,             "", HFILL } },
     { &hf_sack_chunk_cumulative_tsn_ack,            { "Cumulative TSN ACK",                          "sctp.sack_cumulative_tsn_ack",                         FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_adv_rec_window_credit,         { "Advertised receiver window credit (a_rwnd)",  "sctp.sack_a_rwnd",                                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_sack_chunk_number_of_gap_blocks,          { "Number of gap acknowledgement blocks ",       "sctp.sack_number_of_gap_blocks",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sack_chunk_number_of_gap_blocks,          { "Number of gap acknowledgement blocks",        "sctp.sack_number_of_gap_blocks",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_number_of_dup_tsns,            { "Number of duplicated TSNs",                   "sctp.sack_number_of_duplicated_tsns",                  FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_gap_block_start,               { "Start",                                       "sctp.sack_gap_block_start",                            FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_sack_chunk_gap_block_start_tsn,               { "Start TSN",                                       "sctp.sack_gap_block_start_tsn",                            FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sack_chunk_gap_block_start_tsn,           { "Start TSN",                                   "sctp.sack_gap_block_start_tsn",                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_gap_block_end,                 { "End",                                         "sctp.sack_gap_block_end",                              FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_sack_chunk_gap_block_end_tsn,                 { "End TSN",                                         "sctp.sack_gap_block_end_tsn",                              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sack_chunk_gap_block_end_tsn,             { "End TSN",                                     "sctp.sack_gap_block_end_tsn",                          FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sack_chunk_number_tsns_gap_acked,         { "Number of TSNs in gap acknowledgement blocks","sctp.sack_number_of_tsns_gap_acked",                   FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_duplicate_tsn,                 { "Duplicate TSN",                               "sctp.sack_duplicate_tsn",                              FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_shutdown_chunk_cumulative_tsn_ack,        { "Cumulative TSN Ack",                          "sctp.shutdown_cumulative_tsn_ack",                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_ecne_chunk_lowest_tsn,                    { "Lowest TSN",                                  "sctp.ecne_lowest_tsn",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
