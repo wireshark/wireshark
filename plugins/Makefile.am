@@ -46,7 +46,8 @@ SUBDIRS = \
 	stats_tree \
 	unistim \
 	v5ua \
-	wimax
+	wimax \
+	wimaxasncp
 
 
 plugindir = @plugindir@

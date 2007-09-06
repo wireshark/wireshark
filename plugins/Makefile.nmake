@@ -32,7 +32,8 @@ all: \
 	stats_tree \
 	unistim \
 	v5ua \
-	wimax
+	wimax \
+        wimaxasncp
 
 
 agentx:: 
@@ -163,6 +164,11 @@ wimax::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+wimaxasncp::
+        cd wimaxasncp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 clean:
 	rm -rf $(VERSION)
 	cd agentx
@@ -238,6 +244,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd wimax
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd wimaxasncp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
@@ -318,6 +327,9 @@ distclean: clean
 	cd wimax
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
+	cd wimaxasncp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
 
 maintainer-clean: distclean
@@ -393,6 +405,9 @@ maintainer-clean: distclean
 	cd wimax
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	cd wimaxasncp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake maintainer-clean
 
 ################################################################################
@@ -429,6 +444,7 @@ install-plugins:
 	xcopy unistim\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
 	xcopy wimax\*.dll $(VERSION) /d
+	xcopy wimaxasncp\*.dll $(VERSION) /d
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
 

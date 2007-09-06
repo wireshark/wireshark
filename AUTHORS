@@ -2664,6 +2664,10 @@ Karen Feng		<kfeng [AT] fas.harvard.edu> {
 	802.1ad and 802.1ah support
 }
 
+Stephen Croll <croll@mobilemetrics.net> {
+	WiMAX ASN Control Plane dissection
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

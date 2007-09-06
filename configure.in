@@ -1558,6 +1558,7 @@ AC_OUTPUT(
   plugins/unistim/Makefile
   plugins/v5ua/Makefile
   plugins/wimax/Makefile
+  plugins/wimaxasncp/Makefile
   tools/Makefile
   tools/idl2wrs.sh
   tools/lemon/Makefile
