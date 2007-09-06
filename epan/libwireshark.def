@@ -482,6 +482,7 @@ init_progfile_dir
 ip6_to_str
 ipv4_get_net_order_addr
 ip_to_str
+ipprotostr
 isup_message_type_value         DATA
 isup_message_type_value_acro    DATA
 is_big_endian
