@@ -1849,13 +1849,12 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				actx->created_item = proto_tree_add_uint(tree, hf_index, out_tvb, 0, val_length, val_length);
 			else
 				actx->created_item = proto_tree_add_int(tree, hf_index, out_tvb, 0, val_length, val_length);
+			proto_item_append_text(actx->created_item, plurality(val_length, " octet", " octets"));
 		} else {
 			if(out_tvb){
-				proto_tree_add_text(tree, out_tvb, 0, val_length, "hf name: %s",hfi->name);
 				actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, val_length, FALSE);
 			}else{
 				/* Length = 0 */
-				proto_tree_add_text(tree, tvb, val_start, val_length, "hf name: %s",hfi->name);
 				actx->created_item = proto_tree_add_item(tree, hf_index, tvb, val_start, val_length, FALSE);
 			}
 		}
