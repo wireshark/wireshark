@@ -221,18 +221,24 @@ static const value_string a11_reply_codes[]= {
   {137, "Reg Deny (HA)- Requested Reverse Tunnel Unavailable"},
   {138, "Reg Deny (HA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
   {139, "Reg Deny (HA)- Requested Encapsulation Unavailable"},
+  {140, "Registration Denied - no CID available"},
   {141, "Reg Deny (HA)- unsupported Vendor ID / Application Type in CVSE"},
+  {142, "Registration Denied - nonexistent A10 or IP flow"},
   {0, NULL},
 };
 
 
 static const value_string a11_ack_status[]= {
   {0, "Update Accepted"},
+  {1, "Partial QoS updated"},
   {128, "Update Deny - Unspecified"},
   {131, "Update Deny - Sending Node Failed Authentication"},
   {133, "Update Deny - Registration ID Mismatch"},
   {134, "Update Deny - Poorly Formed Request"},
-  {201, "Update Deny - Session Parameter Not Updated"},
+  {193, "Update Deny - Session Parameter Not Updated"},
+  {253, "Update Denied - QoS profileID not supported"},
+  {254, "Update Denied - insufficient resources"},
+  {255, "Update Denied - handoff in progress"},
   {0, NULL},
 };
 
@@ -321,14 +327,16 @@ static const value_string a11_ext_app[]= {
   {0x0901, "Service Option (Service Option Value)"},
   {0x0A01, "PDSN Enabled Features (Flow Control Enabled)"},
   {0x0A02, "PDSN Enabled Features (Packet Boundary Enabled)"},
+  {0x0A03, "PDSN Enabled Features (GRE Segmentation Enabled)"},
   {0x0B01, "PCF Enabled Features (Short Data Indication Supported)"},
   {0x0B02, "PCF Enabled Features (GRE Segmentation Enabled)"},
   {0x0C01, "Additional Session Info"},
-  {0x0D01, "Forward QoS Information"},
-  {0x0D02, "Reverse QoS Information"},
-  {0x0D03, "Subscriber QoS Profile"},
-  {0x0DFE, "Forward QoS Update Information"},
-  {0x0DFF, "Reverse QoS Update Information"},
+  {0x0D01, "QoS Information (Forward QoS Information)"},
+  {0x0D02, "QoS Information (Reverse QoS Information)"},
+  {0x0D03, "QoS Information (Subscriber QoS Profile)"},
+  {0x0DFE, "QoS Information (Forward QoS Update Information)"},
+  {0x0DFF, "QoS Information (Reverse QoS Update Information)"},
+  {0x0E01, "Header Compression (ROHC Configuration Parameters)"},
   {0, NULL},
 };
 
@@ -391,6 +399,11 @@ static const struct radius_attribute attrs[]={
   {"SDB Octet Count (Term.)", 26, 31,  4, ATTR_TYPE_INT},
   {"SDB Octet Count (Orig.)", 26, 32,  4, ATTR_TYPE_INT},
   {"ESN (Integer)",           26, 48,  4, ATTR_TYPE_INT},
+  {"Sublink",	              26, 108,  4, ATTR_TYPE_STR},
+  {"Reverse PDCH RC",	      26, 114,  2, ATTR_TYPE_INT},
+  {"Flow ID Parameter",       26, 144,  4, ATTR_TYPE_INT},
+  {"Granted QoS Parameters",  26, 132,  4, ATTR_TYPE_INT},
+  {"Flow Status",			  26, 145,  4, ATTR_TYPE_INT},
   {"Unknown",                 -1, -1, -1, ATTR_TYPE_NULL},
 };
 #define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))

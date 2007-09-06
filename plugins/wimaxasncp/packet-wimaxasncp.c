@@ -4148,7 +4148,7 @@ proto_register_wimaxasncp(void)
                     "wimaxasncp.tlv_value_vendor_id",
                     FT_UINT24,
                     BASE_DEC,
-                    VALS(sminmpec_values),
+                    NULL,
                     0x0,
                     "",
                     HFILL
