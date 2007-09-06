@@ -13811,7 +13811,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	int offset = 0;
 	int end_offset = 0;
-	int j;
+	int j = 0;
 	proto_tree *subtree;
 	guint8 octet;
 
