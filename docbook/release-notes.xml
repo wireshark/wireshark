@@ -47,6 +47,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+	    Beyond Security discovered that Wireshark could loop
+	    excessively while reading a malformed DNP packet.
+            <!-- Fixed in r22811 -->
+          </para>
+          <para>Versions affected: 0.10.12 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
