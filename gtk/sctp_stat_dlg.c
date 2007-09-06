@@ -381,7 +381,7 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 
 
 static void
-sctp_stat_on_close (GtkButton *button _U_, gpointer user_data _U_)
+sctp_stat_on_close (GtkWidget *button _U_, gpointer user_data _U_)
 {
 	gtk_grab_remove(sctp_stat_dlg);
 	gtk_widget_destroy(sctp_stat_dlg);
@@ -592,6 +592,9 @@ gtk_sctpstat_dlg(void)
 
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
+	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+	window_set_cancel_button( sctp_stat_dlg_w, bt_close, sctp_stat_on_close);
+	gtk_widget_grab_focus(bt_close);
 	gtk_widget_show (bt_close);
 
 	SIGNAL_CONNECT(sctp_stat_dlg_w, "destroy", dlg_destroy, NULL);
@@ -600,7 +603,6 @@ gtk_sctpstat_dlg(void)
 	SIGNAL_CONNECT(bt_filter, "clicked", sctp_stat_on_filter, NULL);
 	SIGNAL_CONNECT(bt_afilter, "clicked", sctp_stat_on_apply_filter, NULL);
 	SIGNAL_CONNECT(bt_analyse, "clicked", sctp_stat_on_analyse, NULL);
-	SIGNAL_CONNECT(bt_close, "clicked", sctp_stat_on_close, NULL);
 
 	sctp_stat_dlg = sctp_stat_dlg_w;
 	cf_retap_packets(&cfile, FALSE);
