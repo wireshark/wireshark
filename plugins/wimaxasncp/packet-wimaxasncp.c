@@ -2638,7 +2638,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             proto_tree *protocol_list_tree;
             proto_item *item;
-            const gint max_protocols_in_tlv_item = 8; /* arbitrary */
+            const guint max_protocols_in_tlv_item = 8; /* arbitrary */
 
             item = proto_tree_add_text(
                 tree, tvb, offset, length,
@@ -2691,7 +2691,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             proto_tree *port_range_list_tree;
             proto_item *item;
-            const gint max_port_ranges_in_tlv_item = 3; /* arbitrary */
+            const guint max_port_ranges_in_tlv_item = 3; /* arbitrary */
 
             item = proto_tree_add_text(
                 tree, tvb, offset, length,
