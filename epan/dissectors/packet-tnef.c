@@ -304,7 +304,7 @@ static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pin
 }
 
 
-static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *item;
 	gint offset;

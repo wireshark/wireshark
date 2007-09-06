@@ -103,7 +103,6 @@ ASN_DISSECTOR_SRC = \
 	packet-h248.c \
 	packet-h450.c \
 	packet-h450-ros.c \
-	packet-imf.c \
 	packet-inap.c \
 	packet-ldap.c \
 	packet-logotypecertextn.c \
@@ -136,7 +135,6 @@ ASN_DISSECTOR_SRC = \
 	packet-snmp.c \
 	packet-spnego.c \
 	packet-tcap.c \
-	packet-tnef.c \
 	packet-ulp.c \
 	packet-wlancertextn.c \
 	packet-x411.c \
@@ -440,6 +438,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-image-jfif.c	\
 	packet-image-png.c	\
 	packet-imap.c		\
+	packet-imf.c		\
 	packet-ip.c		\
 	packet-ipdc.c		\
 	packet-ipfc.c		\
@@ -700,6 +699,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-time.c		\
 	packet-tipc.c		\
 	packet-tivoconnect.c	\
+	packet-tnef.c		\
 	packet-tns.c		\
 	packet-tpkt.c		\
 	packet-tr.c		\
