@@ -44,8 +44,7 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 
-/* IF PROTO exposes code to other dissectors, then it must be exported
-   in a header file. If not, a header file is not needed at all. */
+/* TODO: delete?. */
 #include "packet-wimaxasncp.h"
 
 /* Forward declaration we need below */
@@ -129,9 +128,6 @@ static gint ett_wimaxasncp_tlv_vendor_specific_information_field = -1;
 #define WIMAXASNCP_FLAGS_T  WIMAXASNCP_BIT8(6)
 #define WIMAXASNCP_FLAGS_R  WIMAXASNCP_BIT8(7)
 
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) (x) = (x)
-#endif
 
 /* ------------------------------------------------------------------------- */
 /* generic
@@ -154,8 +150,8 @@ static const value_string wimaxasncp_flag_vals[] =
     { WIMAXASNCP_BIT8(3), "Reserved" },
     { WIMAXASNCP_BIT8(4), "Reserved" },
     { WIMAXASNCP_BIT8(5), "Reserved" },
-    { WIMAXASNCP_FLAGS_T, "T - SourceÂ andÂ DestinationÂ IdentifierÂ TLVs"},
-    { WIMAXASNCP_FLAGS_R, "R - ResetÂ NextÂ ExpectedÂ TransactionÂ ID"},
+    { WIMAXASNCP_FLAGS_T, "T - Source and Destination Identifier TLVs"},
+    { WIMAXASNCP_FLAGS_R, "R - Reset Next Expected Transaction ID"},
     { 0,                  NULL}
 };
 
@@ -2073,7 +2069,7 @@ static void wimaxasncp_proto_treee_add_tlv_ipv6_value(
 
 static void wimaxasncp_dissect_tlv_value(
     tvbuff_t *tvb,
-    packet_info *pinfo,
+    packet_info *pinfo _U_,
     proto_tree *tree,
     proto_item *tlv_item,
     const wimaxasncp_tlv_info_t *tlv_info)
@@ -2081,8 +2077,6 @@ static void wimaxasncp_dissect_tlv_value(
     guint offset = 0;
     guint length;
     const gchar *s;
-
-    UNREFERENCED_PARAMETER(pinfo);
 
     length = tvb_reported_length(tvb);
 
@@ -3267,7 +3261,7 @@ dissect_wimaxasncp(
     /* Should we check a minimum size?  If so, uncomment out the following
      * code. */
     /*
-    if (tvb_length(tvb) < WIMAXASNCP_HEADER_SIZE)
+    if (tvb_reported_length(tvb) < WIMAXASNCP_HEADER_SIZE)
     {
         return 0;
     }
@@ -3495,7 +3489,7 @@ dissect_wimaxasncp(
             packet_item, MAX(WIMAXASNCP_HEADER_LENGTH_END, length));
 
         item = proto_tree_add_uint(
-            item = wimaxasncp_tree, hf_wimaxasncp_length,
+            wimaxasncp_tree, hf_wimaxasncp_length,
             tvb, offset, 2, length);
     }
 
@@ -3549,13 +3543,13 @@ dissect_wimaxasncp(
 void
 proto_register_wimaxasncp(void)
 {
-	module_t *wimaxasncp_module;
+    module_t *wimaxasncp_module;
 
         /* --------------------------------------------------------------------
          * List of header fields
          * --------------------------------------------------------------------
          */
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
             {
                 &hf_wimaxasncp_version,      /* ID */
                 {
@@ -4157,7 +4151,7 @@ proto_register_wimaxasncp(void)
         };
 
         /* Protocol subtree array */
-	static gint *ett[] = {
+    static gint *ett[] = {
             &ett_wimaxasncp,
             &ett_wimaxasncp_flags,
             &ett_wimaxasncp_tlv,
@@ -4168,30 +4162,30 @@ proto_register_wimaxasncp(void)
             &ett_wimaxasncp_tlv_ip_address_mask_list,
             &ett_wimaxasncp_tlv_ip_address_mask,
             &ett_wimaxasncp_tlv_vendor_specific_information_field
-	};
+    };
 
         /* Register the protocol name and description */
-	proto_wimaxasncp = proto_register_protocol(
+    proto_wimaxasncp = proto_register_protocol(
             "WiMAX ASN Control Plane Protocol",
-	    "WiMAX ASN CP",
+            "WiMAX ASN CP",
             "wimaxasncp");
 
         /* Required function calls to register the header fields and subtrees
          * used */
-	proto_register_field_array(proto_wimaxasncp, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_wimaxasncp, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	    /* Register this dissector by name */
-	new_register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
-    
+        /* Register this dissector by name */
+    new_register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
+
         /* Register preferences module (See Section 2.6 for more on
          * preferences) */
-	wimaxasncp_module = prefs_register_protocol(
+    wimaxasncp_module = prefs_register_protocol(
             proto_wimaxasncp,
-	    proto_reg_handoff_wimaxasncp);
+            proto_reg_handoff_wimaxasncp);
 
         /* Register preferences */
-	prefs_register_bool_preference(
+    prefs_register_bool_preference(
             wimaxasncp_module,
             "show_transaction_id_d_bit",
             "Show transaction ID direction bit",
@@ -4199,7 +4193,7 @@ proto_register_wimaxasncp(void)
             "the transaction ID field.",
             &show_transaction_id_d_bit);
 
-	prefs_register_bool_preference(
+    prefs_register_bool_preference(
             wimaxasncp_module,
             "debug_enabled",
             "Enable debug output",
@@ -4219,43 +4213,23 @@ proto_register_wimaxasncp(void)
 void
 proto_reg_handoff_wimaxasncp(void)
 {
-	static gboolean inited = FALSE;
+    static gboolean inited = FALSE;
 
-	if ( ! inited)
-        {
-	    dissector_handle_t wimaxasncp_handle;
+    if ( ! inited)
+    {
+        dissector_handle_t wimaxasncp_handle;
 
         /*  Use new_create_dissector_handle() to indicate that
          *  dissect_wimaxasncp() returns the number of bytes it dissected (or
-         *  0 if it * thinks the packet does not belong to WiMAX ASN Control
+         *  0 if it thinks the packet does not belong to WiMAX ASN Control
          *  Plane).
          */
-	    wimaxasncp_handle = new_create_dissector_handle(
-                dissect_wimaxasncp,
-	        proto_wimaxasncp);
+        wimaxasncp_handle = new_create_dissector_handle(
+             dissect_wimaxasncp,
+             proto_wimaxasncp);
 
-	    dissector_add("udp.port", 2231, wimaxasncp_handle);
+         dissector_add("udp.port", 2231, wimaxasncp_handle);
 
-	    inited = TRUE;
-	}
-
-        /*
-          If you perform registration functions which are dependant upon
-          prefs the you should de-register everything which was associated
-          with the previous settings and re-register using the new prefs
-	  settings here. In general this means you need to keep track of what
-	  value the preference had at the time you registered using a local
-	  static in this function. ie.
-
-          static int currentPort = -1;
-
-          if (currentPort != -1) {
-              dissector_delete("tcp.port", currentPort, wimaxasncp_handle);
-          }
-
-          currentPort = gPortPref;
-
-          dissector_add("tcp.port", currentPort, wimaxasncp_handle);
-
-        */
+         inited = TRUE;
+    }
 }
