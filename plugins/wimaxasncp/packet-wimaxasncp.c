@@ -150,8 +150,8 @@ static const value_string wimaxasncp_flag_vals[] =
     { WIMAXASNCP_BIT8(3), "Reserved" },
     { WIMAXASNCP_BIT8(4), "Reserved" },
     { WIMAXASNCP_BIT8(5), "Reserved" },
-    { WIMAXASNCP_FLAGS_T, "T - Source and Destination Identifier TLVs"},
-    { WIMAXASNCP_FLAGS_R, "R - Reset Next Expected Transaction ID"},
+    { WIMAXASNCP_FLAGS_T, "T - Source and Destination Identifier TLVs"},
+    { WIMAXASNCP_FLAGS_R, "R - Reset Next Expected Transaction ID"},
     { 0,                  NULL}
 };
 
