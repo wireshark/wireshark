@@ -674,7 +674,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-sscop.c		\
 	packet-ssh.c		\
 	packet-ssl.c		\
-	packet-ssl-utils.c	\
 	packet-starteam.c	\
 	packet-stat-notify.c	\
 	packet-stat.c		\
@@ -760,6 +759,7 @@ DISSECTOR_SRC =	\
 	packet-sccp.c		\
 	packet-scsi-osd.c	\
 	packet-sctp.c		\
+	packet-ssl-utils.c	\
 	packet-user_encap.c
 
 # corresponding headers
