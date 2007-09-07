@@ -2916,6 +2916,7 @@ static void wimaxasncp_dissect_tlv_value(
             proto_tree *vsif_tree;
             proto_item *item;
             guint32 vendorId;
+            const gchar *vendorName;
 
             item = proto_tree_add_text(
                 tree, tvb, offset, length,
@@ -2931,14 +2932,13 @@ static void wimaxasncp_dissect_tlv_value(
 
             vendorId = tvb_get_ntoh24(tvb, offset);
 
-            proto_tree_add_uint(
+            vendorName = val_to_str(vendorId, sminmpec_values, "Unknown");
+            proto_tree_add_uint_format(
                 vsif_tree, hf_wimaxasncp_tlv_value_vendor_id,
-                tvb, offset, 3, vendorId);
+                tvb, offset, 3, vendorId,
+                "Vendor ID: %s (%u)", vendorName, vendorId);
 
-            proto_item_append_text(
-                tlv_item,
-                " - %s",
-                val_to_str(vendorId, sminmpec_values, "Unknown"));
+            proto_item_append_text(tlv_item, " - %s", vendorName);
 
             offset += 3;
 
@@ -4148,7 +4148,7 @@ proto_register_wimaxasncp(void)
                     "wimaxasncp.tlv_value_vendor_id",
                     FT_UINT24,
                     BASE_DEC,
-                    VALS(sminmpec_values),
+                    NULL,
                     0x0,
                     "",
                     HFILL
