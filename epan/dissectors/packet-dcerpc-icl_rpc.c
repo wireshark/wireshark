@@ -1,5 +1,5 @@
 /* packet-dcerpc-icl_rpc.c
- * Routines for icl_rpc dissection
+ * Routines for DCE DFS Scout dissection
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz icl_rpc.idl
@@ -73,7 +73,7 @@ proto_register_icl_rpc (void)
 	static gint *ett[] = {
 		&ett_icl_rpc,
 	};
-	proto_icl_rpc = proto_register_protocol ("DCE/RPC ICL RPC", "ICL_RPC", "icl_rpc");
+	proto_icl_rpc = proto_register_protocol ("DCE DFS ICL RPC", "ICL_RPC", "icl_rpc");
 	proto_register_field_array (proto_icl_rpc, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

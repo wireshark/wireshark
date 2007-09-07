@@ -1,6 +1,6 @@
 /* packet-dcerpc-bossvr.c
  *
- * Routines for dcerpc bossvr dissection
+ * Routines for DCE DFS Basic Overseer Server dissection
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/bosserver/bbos_ncs_interface.idl
@@ -103,7 +103,7 @@ proto_register_bossvr (void)
 	static gint *ett[] = {
 		&ett_bossvr,
 	};
-	proto_bossvr = proto_register_protocol ("DCE/RPC BOS Server", "BOSSVR", "bossvr");
+	proto_bossvr = proto_register_protocol ("DCE DFS Basic Overseer Server", "BOSSVR", "bossvr");
 	proto_register_field_array (proto_bossvr, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

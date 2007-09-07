@@ -80,7 +80,7 @@ proto_register_rep_proc (void)
 	static gint *ett[] = {
 		&ett_rep_proc,
 	};
-	proto_rep_proc = proto_register_protocol ("AFS (4.0) Replication Server call declarations", "REP_PROC", "rep_proc");
+	proto_rep_proc = proto_register_protocol ("DCE DFS Replication Server", "REP_PROC", "rep_proc");
 	proto_register_field_array (proto_rep_proc, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

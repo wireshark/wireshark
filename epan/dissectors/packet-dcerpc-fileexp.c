@@ -1,6 +1,6 @@
-/* packet-dcerpc-afs4int.c
+/* packet-dcerpc-fileexp.c
  *
- * Routines for dcerpc Afs4Int dissection
+ * Routines for DCE DFS File Exporter dissection
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com> 
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/afs4int.idl
@@ -24,7 +24,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * test
  */
 
 #ifdef HAVE_CONFIG_H
@@ -113,204 +112,204 @@
 #define AFS_FLAG_FORCEVOLQUIESCE      0x10000
 #define AFS_FLAG_FORCEREVOCATIONDOWN  0x20000
 
-static int hf_afs4int_opnum = -1;
+static int hf_fileexp_opnum = -1;
 
 
-static int hf_afs4int_afsFid_cell_high = -1;
-static int hf_afs4int_afsuuid_uuid = -1;
-static int hf_afs4int_fetchdata_pipe_t_size = -1;
-static int hf_afs4int_afsNameString_t_principalName_string = -1;
-static int hf_afs4int_afsFid_cell_low = -1;
-static int hf_afs4int_afsFid_volume_high = -1;
-static int hf_afs4int_afsFid_volume_low = -1;
-static int hf_afs4int_afsFid_Vnode = -1;
-static int hf_afs4int_afsFid_Unique = -1;
-static int hf_afs4int_volume_high = -1;
-static int hf_afs4int_volume_low = -1;
-static int hf_afs4int_vnode = -1;
-static int hf_afs4int_unique = -1;
-static int hf_afs4int_interfaceversion = -1;
-static int hf_afs4int_filetype = -1;
-static int hf_afs4int_linkcount = -1;
-static int hf_afs4int_length_high = -1;
-static int hf_afs4int_length_low = -1;
-static int hf_afs4int_dataversion_high = -1;
-static int hf_afs4int_dataversion_low = -1;
-static int hf_afs4int_author = -1;
-static int hf_afs4int_owner = -1;
-static int hf_afs4int_group = -1;
-static int hf_afs4int_calleraccess = -1;
-static int hf_afs4int_anonymousaccess = -1;
-static int hf_afs4int_aclexpirationtime = -1;
-static int hf_afs4int_mode = -1;
-static int hf_afs4int_parentvnode = -1;
-static int hf_afs4int_parentunique = -1;
-static int hf_afs4int_modtime_sec = -1;
-static int hf_afs4int_modtime_msec = -1;
-static int hf_afs4int_changetime_sec = -1;
-static int hf_afs4int_changetime_msec = -1;
-static int hf_afs4int_accesstime_sec = -1;
-static int hf_afs4int_accesstime_msec = -1;
-static int hf_afs4int_servermodtime_sec = -1;
-static int hf_afs4int_servermodtime_msec = -1;
-static int hf_afs4int_typeuuid = -1;
-static int hf_afs4int_objectuuid = -1;
-static int hf_afs4int_devicenumber = -1;
-static int hf_afs4int_blocksused = -1;
-static int hf_afs4int_clientspare1 = -1;
-static int hf_afs4int_devicenumberhighbits = -1;
-static int hf_afs4int_agtypeunique = -1;
-static int hf_afs4int_himaxspare = -1;
-static int hf_afs4int_lomaxspare = -1;
-static int hf_afs4int_pathconfspare = -1;
-static int hf_afs4int_spare4 = -1;
-static int hf_afs4int_spare5 = -1;
-static int hf_afs4int_spare6 = -1;
-static int hf_afs4int_volid_hi = -1;
-static int hf_afs4int_volid_low = -1;
-static int hf_afs4int_vvage = -1;
-static int hf_afs4int_vv_hi = -1;
-static int hf_afs4int_vv_low = -1;
-static int hf_afs4int_vvpingage = -1;
-static int hf_afs4int_vvspare1 = -1;
-static int hf_afs4int_vvspare2 = -1;
-static int hf_afs4int_beginrange = -1;
-static int hf_afs4int_beginrangeext = -1;
-static int hf_afs4int_endrange = -1;
-static int hf_afs4int_endrangeext = -1;
-static int hf_afs4int_expirationtime = -1;
-static int hf_afs4int_tokenid_hi = -1;
-static int hf_afs4int_tokenid_low = -1;
-static int hf_afs4int_type_hi = -1;
-static int hf_afs4int_type_low = -1;
-static int hf_afs4int_tn_length = -1;
-static int hf_afs4int_storestatus_accesstime_sec = -1;
-static int hf_afs4int_storestatus_accesstime_usec = -1;
-static int hf_afs4int_storestatus_changetime_sec = -1;
-static int hf_afs4int_storestatus_changetime_usec = -1;
-static int hf_afs4int_storestatus_clientspare1 = -1;
-static int hf_afs4int_storestatus_cmask = -1;
-static int hf_afs4int_storestatus_devicenumber = -1;
-static int hf_afs4int_storestatus_devicenumberhighbits = -1;
-static int hf_afs4int_storestatus_devicetype = -1;
-static int hf_afs4int_storestatus_group = -1;
-static int hf_afs4int_storestatus_length_high = -1;
-static int hf_afs4int_storestatus_length_low = -1;
-static int hf_afs4int_storestatus_mask = -1;
-static int hf_afs4int_storestatus_mode = -1;
-static int hf_afs4int_storestatus_modtime_sec = -1;
-static int hf_afs4int_storestatus_modtime_usec = -1;
-static int hf_afs4int_storestatus_owner = -1;
-static int hf_afs4int_storestatus_spare1 = -1;
-static int hf_afs4int_storestatus_spare2 = -1;
-static int hf_afs4int_storestatus_spare3 = -1;
-static int hf_afs4int_storestatus_spare4 = -1;
-static int hf_afs4int_storestatus_spare5 = -1;
-static int hf_afs4int_storestatus_spare6 = -1;
-static int hf_afs4int_storestatus_trunc_high = -1;
+static int hf_fileexp_afsFid_cell_high = -1;
+static int hf_fileexp_afsuuid_uuid = -1;
+static int hf_fileexp_fetchdata_pipe_t_size = -1;
+static int hf_fileexp_afsNameString_t_principalName_string = -1;
+static int hf_fileexp_afsFid_cell_low = -1;
+static int hf_fileexp_afsFid_volume_high = -1;
+static int hf_fileexp_afsFid_volume_low = -1;
+static int hf_fileexp_afsFid_Vnode = -1;
+static int hf_fileexp_afsFid_Unique = -1;
+static int hf_fileexp_volume_high = -1;
+static int hf_fileexp_volume_low = -1;
+static int hf_fileexp_vnode = -1;
+static int hf_fileexp_unique = -1;
+static int hf_fileexp_interfaceversion = -1;
+static int hf_fileexp_filetype = -1;
+static int hf_fileexp_linkcount = -1;
+static int hf_fileexp_length_high = -1;
+static int hf_fileexp_length_low = -1;
+static int hf_fileexp_dataversion_high = -1;
+static int hf_fileexp_dataversion_low = -1;
+static int hf_fileexp_author = -1;
+static int hf_fileexp_owner = -1;
+static int hf_fileexp_group = -1;
+static int hf_fileexp_calleraccess = -1;
+static int hf_fileexp_anonymousaccess = -1;
+static int hf_fileexp_aclexpirationtime = -1;
+static int hf_fileexp_mode = -1;
+static int hf_fileexp_parentvnode = -1;
+static int hf_fileexp_parentunique = -1;
+static int hf_fileexp_modtime_sec = -1;
+static int hf_fileexp_modtime_msec = -1;
+static int hf_fileexp_changetime_sec = -1;
+static int hf_fileexp_changetime_msec = -1;
+static int hf_fileexp_accesstime_sec = -1;
+static int hf_fileexp_accesstime_msec = -1;
+static int hf_fileexp_servermodtime_sec = -1;
+static int hf_fileexp_servermodtime_msec = -1;
+static int hf_fileexp_typeuuid = -1;
+static int hf_fileexp_objectuuid = -1;
+static int hf_fileexp_devicenumber = -1;
+static int hf_fileexp_blocksused = -1;
+static int hf_fileexp_clientspare1 = -1;
+static int hf_fileexp_devicenumberhighbits = -1;
+static int hf_fileexp_agtypeunique = -1;
+static int hf_fileexp_himaxspare = -1;
+static int hf_fileexp_lomaxspare = -1;
+static int hf_fileexp_pathconfspare = -1;
+static int hf_fileexp_spare4 = -1;
+static int hf_fileexp_spare5 = -1;
+static int hf_fileexp_spare6 = -1;
+static int hf_fileexp_volid_hi = -1;
+static int hf_fileexp_volid_low = -1;
+static int hf_fileexp_vvage = -1;
+static int hf_fileexp_vv_hi = -1;
+static int hf_fileexp_vv_low = -1;
+static int hf_fileexp_vvpingage = -1;
+static int hf_fileexp_vvspare1 = -1;
+static int hf_fileexp_vvspare2 = -1;
+static int hf_fileexp_beginrange = -1;
+static int hf_fileexp_beginrangeext = -1;
+static int hf_fileexp_endrange = -1;
+static int hf_fileexp_endrangeext = -1;
+static int hf_fileexp_expirationtime = -1;
+static int hf_fileexp_tokenid_hi = -1;
+static int hf_fileexp_tokenid_low = -1;
+static int hf_fileexp_type_hi = -1;
+static int hf_fileexp_type_low = -1;
+static int hf_fileexp_tn_length = -1;
+static int hf_fileexp_storestatus_accesstime_sec = -1;
+static int hf_fileexp_storestatus_accesstime_usec = -1;
+static int hf_fileexp_storestatus_changetime_sec = -1;
+static int hf_fileexp_storestatus_changetime_usec = -1;
+static int hf_fileexp_storestatus_clientspare1 = -1;
+static int hf_fileexp_storestatus_cmask = -1;
+static int hf_fileexp_storestatus_devicenumber = -1;
+static int hf_fileexp_storestatus_devicenumberhighbits = -1;
+static int hf_fileexp_storestatus_devicetype = -1;
+static int hf_fileexp_storestatus_group = -1;
+static int hf_fileexp_storestatus_length_high = -1;
+static int hf_fileexp_storestatus_length_low = -1;
+static int hf_fileexp_storestatus_mask = -1;
+static int hf_fileexp_storestatus_mode = -1;
+static int hf_fileexp_storestatus_modtime_sec = -1;
+static int hf_fileexp_storestatus_modtime_usec = -1;
+static int hf_fileexp_storestatus_owner = -1;
+static int hf_fileexp_storestatus_spare1 = -1;
+static int hf_fileexp_storestatus_spare2 = -1;
+static int hf_fileexp_storestatus_spare3 = -1;
+static int hf_fileexp_storestatus_spare4 = -1;
+static int hf_fileexp_storestatus_spare5 = -1;
+static int hf_fileexp_storestatus_spare6 = -1;
+static int hf_fileexp_storestatus_trunc_high = -1;
 static int hf_afsconnparams_mask = -1;
-static int hf_afs4int_storestatus_trunc_low = -1;
-static int hf_afs4int_storestatus_typeuuid = -1;
-static int hf_afs4int_l_end_pos = -1;
-static int hf_afs4int_l_end_pos_ext = -1;
-static int hf_afs4int_l_fstype = -1;
-static int hf_afs4int_l_pid = -1;
-static int hf_afs4int_l_start_pos = -1;
-static int hf_afs4int_l_start_pos_ext = -1;
-static int hf_afs4int_l_sysid = -1;
-static int hf_afs4int_l_type = -1;
-static int hf_afs4int_l_whence = -1;
-static int hf_afs4int_acl_len = -1;
-static int hf_afs4int_st = -1;
-static int hf_afs4int_uint = -1;
-static int hf_afs4int_setcontext_rqst_epochtime = -1;
-static int hf_afs4int_setcontext_rqst_secobjectid = -1;
-static int hf_afs4int_setcontext_rqst_clientsizesattrs = -1;
-static int hf_afs4int_setcontext_rqst_parm7 = -1;
-static int hf_afs4int_afsNetAddr_type = -1;
-static int hf_afs4int_afsNetAddr_data = -1;
-static int hf_afs4int_returntokenidp_high = -1;
-static int hf_afs4int_minvvp_low = -1;
-static int hf_afs4int_position_high = -1;
-static int hf_afs4int_position_low = -1;
-static int hf_afs4int_offsetp_high = -1;
-static int hf_afs4int_nextoffsetp_low = -1;
-static int hf_afs4int_cellidp_high = -1;
+static int hf_fileexp_storestatus_trunc_low = -1;
+static int hf_fileexp_storestatus_typeuuid = -1;
+static int hf_fileexp_l_end_pos = -1;
+static int hf_fileexp_l_end_pos_ext = -1;
+static int hf_fileexp_l_fstype = -1;
+static int hf_fileexp_l_pid = -1;
+static int hf_fileexp_l_start_pos = -1;
+static int hf_fileexp_l_start_pos_ext = -1;
+static int hf_fileexp_l_sysid = -1;
+static int hf_fileexp_l_type = -1;
+static int hf_fileexp_l_whence = -1;
+static int hf_fileexp_acl_len = -1;
+static int hf_fileexp_st = -1;
+static int hf_fileexp_uint = -1;
+static int hf_fileexp_setcontext_rqst_epochtime = -1;
+static int hf_fileexp_setcontext_rqst_secobjectid = -1;
+static int hf_fileexp_setcontext_rqst_clientsizesattrs = -1;
+static int hf_fileexp_setcontext_rqst_parm7 = -1;
+static int hf_fileexp_afsNetAddr_type = -1;
+static int hf_fileexp_afsNetAddr_data = -1;
+static int hf_fileexp_returntokenidp_high = -1;
+static int hf_fileexp_minvvp_low = -1;
+static int hf_fileexp_position_high = -1;
+static int hf_fileexp_position_low = -1;
+static int hf_fileexp_offsetp_high = -1;
+static int hf_fileexp_nextoffsetp_low = -1;
+static int hf_fileexp_cellidp_high = -1;
 static int hf_afserrorstatus_st = -1;
-static int hf_afs4int_length = -1;
+static int hf_fileexp_length = -1;
 static int hf_afsconnparams_values = -1;
-static int hf_afs4int_acltype = -1;
-static int hf_afs4int_afsTaggedPath_tp_chars = -1;
-static int hf_afs4int_afsTaggedPath_tp_tag = -1;
-static int hf_afs4int_afsacl_uuid1 = -1;
-static int hf_afs4int_bulkfetchstatus_size = -1;
-static int hf_afs4int_flags = -1;
-static int hf_afs4int_afsreturndesc_tokenid_high = -1;
-static int hf_afs4int_afsreturndesc_tokenid_low = -1;
-static int hf_afs4int_afsreturndesc_type_high = -1;
-static int hf_afs4int_afsreturndesc_type_low = -1;
-static int hf_afs4int_returntokenidp_low = -1;
-static int hf_afs4int_minvvp_high = -1;
-static int hf_afs4int_offsetp_low = -1;
-static int hf_afs4int_nextoffsetp_high = -1;
-static int hf_afs4int_cellidp_low = -1;
-static int hf_afs4int_tn_tag = -1;
-static int hf_afs4int_tn_size = -1;
-static int hf_afs4int_tn_string = -1;
-static int hf_afs4int_bulkfetchvv_numvols = -1;
-static int hf_afs4int_bulkfetchvv_spare1 = -1;
-static int hf_afs4int_bulkfetchvv_spare2 = -1;
-static int hf_afs4int_bulkkeepalive_numexecfids = -1;
-static int hf_afs4int_bulkkeepalive_spare4 = -1;
-static int hf_afs4int_bulkkeepalive_spare2 = -1;
-static int hf_afs4int_bulkkeepalive_spare1 = -1;
-static int hf_afs4int_afsacl_defaultcell_uuid = -1;
-static int hf_afs4int_gettime_syncdispersion = -1;
-static int hf_afs4int_gettime_syncdistance = -1;
-static int hf_afs4int_gettime_usecondsp = -1;
-static int hf_afs4int_readdir_size = -1;
-static int hf_afs4int_afsNameString_t_principalName_size = -1;
-static int hf_afs4int_afsNameString_t_principalName_size2 = -1;
-static int hf_afs4int_afsTaggedPath_tp_length = -1;
-static int hf_afs4int_fstype = -1;
-static int hf_afs4int_gettime_secondsp = -1;
+static int hf_fileexp_acltype = -1;
+static int hf_fileexp_afsTaggedPath_tp_chars = -1;
+static int hf_fileexp_afsTaggedPath_tp_tag = -1;
+static int hf_fileexp_afsacl_uuid1 = -1;
+static int hf_fileexp_bulkfetchstatus_size = -1;
+static int hf_fileexp_flags = -1;
+static int hf_fileexp_afsreturndesc_tokenid_high = -1;
+static int hf_fileexp_afsreturndesc_tokenid_low = -1;
+static int hf_fileexp_afsreturndesc_type_high = -1;
+static int hf_fileexp_afsreturndesc_type_low = -1;
+static int hf_fileexp_returntokenidp_low = -1;
+static int hf_fileexp_minvvp_high = -1;
+static int hf_fileexp_offsetp_low = -1;
+static int hf_fileexp_nextoffsetp_high = -1;
+static int hf_fileexp_cellidp_low = -1;
+static int hf_fileexp_tn_tag = -1;
+static int hf_fileexp_tn_size = -1;
+static int hf_fileexp_tn_string = -1;
+static int hf_fileexp_bulkfetchvv_numvols = -1;
+static int hf_fileexp_bulkfetchvv_spare1 = -1;
+static int hf_fileexp_bulkfetchvv_spare2 = -1;
+static int hf_fileexp_bulkkeepalive_numexecfids = -1;
+static int hf_fileexp_bulkkeepalive_spare4 = -1;
+static int hf_fileexp_bulkkeepalive_spare2 = -1;
+static int hf_fileexp_bulkkeepalive_spare1 = -1;
+static int hf_fileexp_afsacl_defaultcell_uuid = -1;
+static int hf_fileexp_gettime_syncdispersion = -1;
+static int hf_fileexp_gettime_syncdistance = -1;
+static int hf_fileexp_gettime_usecondsp = -1;
+static int hf_fileexp_readdir_size = -1;
+static int hf_fileexp_afsNameString_t_principalName_size = -1;
+static int hf_fileexp_afsNameString_t_principalName_size2 = -1;
+static int hf_fileexp_afsTaggedPath_tp_length = -1;
+static int hf_fileexp_fstype = -1;
+static int hf_fileexp_gettime_secondsp = -1;
 
-static int proto_afs4int = -1;
+static int proto_fileexp = -1;
 
-static gint ett_afs4int = -1;
-static gint ett_afs4int_afsFid = -1;
-static gint ett_afs4int_afsReturnDesc = -1;
-static gint ett_afs4int_afsNetAddr = -1;
-static gint ett_afs4int_fetchstatus = -1;
-static gint ett_afs4int_afsflags = -1;
-static gint ett_afs4int_volsync = -1;
-static gint ett_afs4int_minvvp = -1;
-static gint ett_afs4int_afsfidtaggedname = -1;
-static gint ett_afs4int_afstaggedname = -1;
-static gint ett_afs4int_afstoken = -1;
-static gint ett_afs4int_afsstorestatus = -1;
-static gint ett_afs4int_afsRecordLock = -1;
-static gint ett_afs4int_afsAcl = -1;
-static gint ett_afs4int_afsNameString_t = -1;
-static gint ett_afs4int_afsConnParams = -1;
-static gint ett_afs4int_afsErrorStatus = -1;
-static gint ett_afs4int_afsNetData = -1;
-static gint ett_afs4int_afsTaggedPath = -1;
-static gint ett_afs4int_afsBulkStat = -1;
-static gint ett_afs4int_afsuuid = -1;
-static gint ett_afs4int_offsetp = -1;
-static gint ett_afs4int_returntokenidp = -1;
-static gint ett_afs4int_afsbundled_stat = -1;
+static gint ett_fileexp = -1;
+static gint ett_fileexp_afsFid = -1;
+static gint ett_fileexp_afsReturnDesc = -1;
+static gint ett_fileexp_afsNetAddr = -1;
+static gint ett_fileexp_fetchstatus = -1;
+static gint ett_fileexp_afsflags = -1;
+static gint ett_fileexp_volsync = -1;
+static gint ett_fileexp_minvvp = -1;
+static gint ett_fileexp_afsfidtaggedname = -1;
+static gint ett_fileexp_afstaggedname = -1;
+static gint ett_fileexp_afstoken = -1;
+static gint ett_fileexp_afsstorestatus = -1;
+static gint ett_fileexp_afsRecordLock = -1;
+static gint ett_fileexp_afsAcl = -1;
+static gint ett_fileexp_afsNameString_t = -1;
+static gint ett_fileexp_afsConnParams = -1;
+static gint ett_fileexp_afsErrorStatus = -1;
+static gint ett_fileexp_afsNetData = -1;
+static gint ett_fileexp_afsTaggedPath = -1;
+static gint ett_fileexp_afsBulkStat = -1;
+static gint ett_fileexp_afsuuid = -1;
+static gint ett_fileexp_offsetp = -1;
+static gint ett_fileexp_returntokenidp = -1;
+static gint ett_fileexp_afsbundled_stat = -1;
 
 
 /* vars for our macro(s) */
 static int hf_error_st = -1;
 
-static e_uuid_t uuid_afs4int =
+static e_uuid_t uuid_fileexp =
   { 0x4d37f2dd, 0xed93, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00,
 				 0x00}
 };
-static guint16 ver_afs4int = 4;
+static guint16 ver_fileexp = 4;
 
 /* XXX the only macro that I could not find the right way to convert easily.
 The reason is because we reset col_info if st is non zero for many rpcs.
@@ -367,27 +366,27 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsFid:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsFid);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsFid);
     }
 
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsFid_cell_high, NULL);
+			       hf_fileexp_afsFid_cell_high, NULL);
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsFid_cell_low, NULL);
+			       hf_fileexp_afsFid_cell_low, NULL);
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsFid_volume_high, NULL);
+			       hf_fileexp_afsFid_volume_high, NULL);
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsFid_volume_low, &volume_low);
+			       hf_fileexp_afsFid_volume_low, &volume_low);
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsFid_Vnode, &vnode);
+			       hf_fileexp_afsFid_Vnode, &vnode);
 
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsFid_Unique, &unique);
+			       hf_fileexp_afsFid_Unique, &unique);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " :FSID:%u ", volume_low);
@@ -437,7 +436,7 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
       item =
 	proto_tree_add_text (parent_tree, tvb, offset, -1,
 			     "afsConnParams_t:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsConnParams);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsConnParams);
     }
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -608,12 +607,12 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
       item =
 	proto_tree_add_text (parent_tree, tvb, offset, -1,
 			     "afsNameString_t:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsNameString_t);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsNameString_t);
     }
 
  offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsNameString_t_principalName_size,
+			hf_fileexp_afsNameString_t_principalName_size,
 			&string_size);
       if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
@@ -621,7 +620,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
-      proto_tree_add_string (tree, hf_afs4int_afsNameString_t_principalName_string, tvb, offset, string_size, tvb_get_ptr (tvb, offset, string_size));
+      proto_tree_add_string (tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, tvb_get_ptr (tvb, offset, string_size));
       namestring = tvb_get_ptr (tvb, offset, string_size);
       offset += string_size;
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -667,13 +666,13 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "afsNetAddr:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsNetAddr);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsNetAddr);
     }
 
 
   offset =
     dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsNetAddr_type, &type);
+			hf_fileexp_afsNetAddr_type, &type);
 
   if (type)
     {
@@ -686,7 +685,7 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
 
 	  offset =
 	    dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
-			       hf_afs4int_afsNetAddr_data, &data);
+			       hf_fileexp_afsNetAddr_data, &data);
 
 
 	  switch (i)
@@ -755,7 +754,7 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
     {
       item =
 	proto_tree_add_text (parent_tree, tvb, offset, -1, "afsNetData:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsNetData);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsNetData);
     }
 
 
@@ -799,18 +798,18 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
     {
       item =
 	proto_tree_add_text (parent_tree, tvb, offset, -1, "afsTaggedPath");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsTaggedPath);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsTaggedPath);
     }
 
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsTaggedPath_tp_tag, &tp_tag);
+			hf_fileexp_afsTaggedPath_tp_tag, &tp_tag);
   offset =
     dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsTaggedPath_tp_length, &tp_length);
-  proto_tree_add_string (tree, hf_afs4int_afsTaggedPath_tp_chars, tvb, offset,
-			 hf_afs4int_afsTaggedPath_tp_length, tvb_get_ptr (tvb,
+			hf_fileexp_afsTaggedPath_tp_length, &tp_length);
+  proto_tree_add_string (tree, hf_fileexp_afsTaggedPath_tp_chars, tvb, offset,
+			 hf_fileexp_afsTaggedPath_tp_length, tvb_get_ptr (tvb,
 									  offset,
 									  tp_length));
   tp_chars = tvb_get_ptr (tvb, offset, 1025);
@@ -852,17 +851,17 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsAcl");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsAcl);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsAcl);
     }
 
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_acl_len,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_acl_len,
 			&acl_len);
   offset += 8;			/* bypass spare and duplicate acl_len */
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsacl_uuid1, &uuid1);
+			hf_fileexp_afsacl_uuid1, &uuid1);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
 		     " - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -873,7 +872,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
 
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsacl_defaultcell_uuid, &defaultcell);
+			hf_fileexp_afsacl_defaultcell_uuid, &defaultcell);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
 		     "  %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -915,7 +914,7 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "afsErrorStatus");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsErrorStatus);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsErrorStatus);
     }
 
   offset =
@@ -965,36 +964,36 @@ dissect_afsRecordLock (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "afsRecordLock:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsRecordLock);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsRecordLock);
     }
 
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_afs4int_l_type,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_type,
 			&l_type);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_afs4int_l_whence,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_whence,
 			&l_whence);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_l_start_pos, &l_start_pos);
+			hf_fileexp_l_start_pos, &l_start_pos);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_l_end_pos,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_end_pos,
 			&l_end_pos);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_l_pid,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_pid,
 			&l_pid);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_l_sysid,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_sysid,
 			&l_sysid);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_l_fstype,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_l_fstype,
 			&l_fstype);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_l_start_pos_ext, &l_start_pos_ext);
+			hf_fileexp_l_start_pos_ext, &l_start_pos_ext);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_l_end_pos_ext, &l_end_pos_ext);
+			hf_fileexp_l_end_pos_ext, &l_end_pos_ext);
 
 
   proto_item_set_len (item, offset - old_offset);
@@ -1052,92 +1051,92 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "afsStoreStatus:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsstorestatus);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsstorestatus);
     }
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_mask, &mask);
+			hf_fileexp_storestatus_mask, &mask);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_modtime_sec, &modtime_sec);
+			hf_fileexp_storestatus_modtime_sec, &modtime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_modtime_usec, &modtime_usec);
+			hf_fileexp_storestatus_modtime_usec, &modtime_usec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_accesstime_sec,
+			hf_fileexp_storestatus_accesstime_sec,
 			&accesstime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_accesstime_usec,
+			hf_fileexp_storestatus_accesstime_usec,
 			&accesstime_usec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_changetime_sec,
+			hf_fileexp_storestatus_changetime_sec,
 			&changetime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_changetime_usec,
+			hf_fileexp_storestatus_changetime_usec,
 			&changetime_usec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_owner, &owner);
+			hf_fileexp_storestatus_owner, &owner);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_group, &group);
+			hf_fileexp_storestatus_group, &group);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_mode, &mode);
+			hf_fileexp_storestatus_mode, &mode);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_trunc_high, &trunc_high);
+			hf_fileexp_storestatus_trunc_high, &trunc_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_trunc_low, &trunc_low);
+			hf_fileexp_storestatus_trunc_low, &trunc_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_length_high, &length_high);
+			hf_fileexp_storestatus_length_high, &length_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_length_low, &length_low);
+			hf_fileexp_storestatus_length_low, &length_low);
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_typeuuid, &typeuuid);
+			hf_fileexp_storestatus_typeuuid, &typeuuid);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_devicetype, &devicetype);
+			hf_fileexp_storestatus_devicetype, &devicetype);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_devicenumber, &devicenumber);
+			hf_fileexp_storestatus_devicenumber, &devicenumber);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_cmask, &cmask);
+			hf_fileexp_storestatus_cmask, &cmask);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_clientspare1, &clientspare1);
+			hf_fileexp_storestatus_clientspare1, &clientspare1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_devicenumberhighbits,
+			hf_fileexp_storestatus_devicenumberhighbits,
 			&devicenumberhighbits);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_spare1, &spare1);
+			hf_fileexp_storestatus_spare1, &spare1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_spare2, &spare2);
+			hf_fileexp_storestatus_spare2, &spare2);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_spare3, &spare3);
+			hf_fileexp_storestatus_spare3, &spare3);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_spare4, &spare4);
+			hf_fileexp_storestatus_spare4, &spare4);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_spare5, &spare5);
+			hf_fileexp_storestatus_spare5, &spare5);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_storestatus_spare6, &spare6);
+			hf_fileexp_storestatus_spare6, &spare6);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Mask=");
@@ -1240,36 +1239,36 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsToken:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afstoken);
+      tree = proto_item_add_subtree (item, ett_fileexp_afstoken);
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_tokenid_hi,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_tokenid_hi,
 			&tokenid_hi);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_tokenid_low, &tokenid_low);
+			hf_fileexp_tokenid_low, &tokenid_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_expirationtime, &expirationtime);
+			hf_fileexp_expirationtime, &expirationtime);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_type_hi,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_type_hi,
 			&type_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_type_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_type_low,
 			&type_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_beginrange,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_beginrange,
 			&beginrange);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_endrange,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_endrange,
 			&endrange);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_beginrangeext, &beginrangeext);
+			hf_fileexp_beginrangeext, &beginrangeext);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_endrangeext, &endrangeext);
+			hf_fileexp_endrangeext, &endrangeext);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
 		     "  :Tokenid:%u/%u ExpirationTime:%u beginrange:%u endrange:%u beginrangeext:%u endrangeext:%u",
@@ -1406,19 +1405,19 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "afsTaggedName:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afstaggedname);
+      tree = proto_item_add_subtree (item, ett_fileexp_afstaggedname);
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_tn_tag,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_tn_tag,
 			&tn_tag);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_afs4int_tn_length,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_tn_length,
 			&tn_length);
   if (tn_length < 254)
     {
-      proto_tree_add_string (tree, hf_afs4int_tn_string, tvb, offset,
-			     hf_afs4int_tn_size, tvb_get_ptr (tvb, offset,
+      proto_tree_add_string (tree, hf_fileexp_tn_string, tvb, offset,
+			     hf_fileexp_tn_size, tvb_get_ptr (tvb, offset,
 							      tn_length));
       tn_string = tvb_get_ptr (tvb, offset, 257);
       offset += 257;
@@ -1462,7 +1461,7 @@ dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "FidTaggedName:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsfidtaggedname);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsfidtaggedname);
     }
   offset = dissect_afsFid (tvb, offset, pinfo, tree, drep);
   offset = dissect_afstaggedname (tvb, offset, pinfo, tree, drep);
@@ -1497,13 +1496,13 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "minVVp:");
-      tree = proto_item_add_subtree (item, ett_afs4int_minvvp);
+      tree = proto_item_add_subtree (item, ett_fileexp_minvvp);
     }
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_minvvp_high, &minvvp_high);
+			hf_fileexp_minvvp_high, &minvvp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_minvvp_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_minvvp_low,
 			&minvvp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1542,10 +1541,10 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsUUID:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsuuid);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsuuid);
     }
 
-  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_afs4int_afsuuid_uuid, &uuid1);
+  offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_afsuuid_uuid, &uuid1);
 
 
 if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO, ":%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0], uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3], uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6], uuid1.Data4[7]);
@@ -1580,13 +1579,13 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "minVVp:");
-      tree = proto_item_add_subtree (item, ett_afs4int_offsetp);
+      tree = proto_item_add_subtree (item, ett_fileexp_offsetp);
     }
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                        hf_afs4int_offsetp_high, &offsetp_high);
+                        hf_fileexp_offsetp_high, &offsetp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_offsetp_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_offsetp_low,
                         &offsetp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1624,13 +1623,13 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "returnTokenIDp:");
-      tree = proto_item_add_subtree (item, ett_afs4int_returntokenidp);
+      tree = proto_item_add_subtree (item, ett_fileexp_returntokenidp);
     }
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                        hf_afs4int_returntokenidp_high, &returntokenidp_high);
+                        hf_fileexp_returntokenidp_high, &returntokenidp_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_returntokenidp_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_returntokenidp_low,
                         &returntokenidp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1676,32 +1675,32 @@ dissect_volsync (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "AfsVolSync:");
-      tree = proto_item_add_subtree (item, ett_afs4int_volsync);
+      tree = proto_item_add_subtree (item, ett_fileexp_volsync);
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_volid_hi,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_volid_hi,
 			&volid_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_volid_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_volid_low,
 			&volid_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_vv_hi,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vv_hi,
 			&vv_hi);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_vv_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vv_low,
 			&vv_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_vvage,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvage,
 			&vvage);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_vvpingage,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvpingage,
 			&vvpingage);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_vvspare1,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvspare1,
 			&vvspare1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_vvspare2,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_vvspare2,
 			&vvspare2);
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1742,11 +1741,11 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "AfsFlags:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsflags);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsflags);
     }
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_flags,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_flags,
 			&flags);
 
   if (flags)
@@ -1922,120 +1921,120 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "FetchStatus:");
-      tree = proto_item_add_subtree (item, ett_afs4int_fetchstatus);
+      tree = proto_item_add_subtree (item, ett_fileexp_fetchstatus);
     }
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_interfaceversion, &interfaceversion);
+			hf_fileexp_interfaceversion, &interfaceversion);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_filetype,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_filetype,
 			&filetype);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_linkcount,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_linkcount,
 			&linkcount);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_length_high, &length_high);
+			hf_fileexp_length_high, &length_high);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_length_low,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_length_low,
 			&length_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_dataversion_high, &dataversion_high);
+			hf_fileexp_dataversion_high, &dataversion_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_dataversion_low, &dataversion_low);
+			hf_fileexp_dataversion_low, &dataversion_low);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_author,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_author,
 			&author);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_owner,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_owner,
 			&owner);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_group,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_group,
 			&group);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_calleraccess, &calleraccess);
+			hf_fileexp_calleraccess, &calleraccess);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_anonymousaccess, &anonymousaccess);
+			hf_fileexp_anonymousaccess, &anonymousaccess);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_aclexpirationtime, &aclexpirationtime);
+			hf_fileexp_aclexpirationtime, &aclexpirationtime);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_mode,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_mode,
 			&mode);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_parentvnode, &parentvnode);
+			hf_fileexp_parentvnode, &parentvnode);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_parentunique, &parentunique);
+			hf_fileexp_parentunique, &parentunique);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_modtime_sec, &modtime_sec);
+			hf_fileexp_modtime_sec, &modtime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_modtime_msec, &modtime_msec);
+			hf_fileexp_modtime_msec, &modtime_msec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_changetime_sec, &changetime_sec);
+			hf_fileexp_changetime_sec, &changetime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_changetime_msec, &changetime_msec);
+			hf_fileexp_changetime_msec, &changetime_msec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_accesstime_sec, &accesstime_sec);
+			hf_fileexp_accesstime_sec, &accesstime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_accesstime_msec, &accesstime_msec);
+			hf_fileexp_accesstime_msec, &accesstime_msec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_servermodtime_sec, &servermodtime_sec);
+			hf_fileexp_servermodtime_sec, &servermodtime_sec);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_servermodtime_msec, &servermodtime_msec);
+			hf_fileexp_servermodtime_msec, &servermodtime_msec);
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_afs4int_typeuuid,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_typeuuid,
 			&typeuuid);
   offset =
-    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_afs4int_objectuuid,
+    dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep, hf_fileexp_objectuuid,
 			&objectuuid);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_devicenumber, &devicenumber);
+			hf_fileexp_devicenumber, &devicenumber);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_blocksused,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_blocksused,
 			&blocksused);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_clientspare1, &clientspare1);
+			hf_fileexp_clientspare1, &clientspare1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_devicenumberhighbits,
+			hf_fileexp_devicenumberhighbits,
 			&devicenumberhighbits);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_agtypeunique, &agtypeunique);
+			hf_fileexp_agtypeunique, &agtypeunique);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_himaxspare,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_himaxspare,
 			&himaxspare);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_lomaxspare,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_lomaxspare,
 			&lomaxspare);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_pathconfspare, &pathconfspare);
+			hf_fileexp_pathconfspare, &pathconfspare);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_spare4,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_spare4,
 			&spare4);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_spare5,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_spare5,
 			&spare5);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_spare6,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_spare6,
 			&spare6);
 
 
@@ -2084,23 +2083,23 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1,
 				  "afsReturnDesc:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsReturnDesc);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsReturnDesc);
     }
 
 
   offset = dissect_afsFid ( tvb, offset, pinfo, tree, drep);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsreturndesc_tokenid_high, &tokenid_high);
+			hf_fileexp_afsreturndesc_tokenid_high, &tokenid_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsreturndesc_tokenid_low, &tokenid_low);
+			hf_fileexp_afsreturndesc_tokenid_low, &tokenid_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsreturndesc_type_high, &type_high);
+			hf_fileexp_afsreturndesc_type_high, &type_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_afsreturndesc_type_low, &type_low);
+			hf_fileexp_afsreturndesc_type_low, &type_low);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " TokenId:%u/%u Type:%u/%u",
 		     tokenid_high, tokenid_low, type_high, type_low);
@@ -2164,7 +2163,7 @@ dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item = proto_tree_add_text (parent_tree, tvb, offset, -1, "afsbundled_stat:");
-      tree = proto_item_add_subtree (item, ett_afs4int_afsbundled_stat);
+      tree = proto_item_add_subtree (item, ett_fileexp_afsbundled_stat);
     }
 
 /*  bundled_stat
@@ -2220,7 +2219,7 @@ dissect_afsBulkStat (tvbuff_t * tvb _U_, int offset,
 
 
 static int
-afs4int_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
 				 guint8 *drep)
 {
@@ -2266,7 +2265,7 @@ afs4int_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
 				guint8 *drep)
 {
@@ -2300,14 +2299,14 @@ afs4int_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
 			 "afsStoreStatus:", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_position_high, &position_high);
+			hf_fileexp_position_high, &position_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_position_low, &position_low);
+			hf_fileexp_position_low, &position_low);
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_length, &length);
+			hf_fileexp_length, &length);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
@@ -2327,7 +2326,7 @@ afs4int_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
 			       guint8 *drep)
 {
@@ -2367,7 +2366,7 @@ afs4int_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 static int
-afs4int_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
+fileexp_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
 			       guint8 *drep)
 {
@@ -2408,7 +2407,7 @@ afs4int_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
 				 guint8 *drep)
 {
@@ -2443,7 +2442,7 @@ afs4int_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
 				guint8 *drep)
 {
@@ -2473,13 +2472,13 @@ afs4int_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
 			 NDR_POINTER_REF, "MinVVp:", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_position_high, &position_high);
+			hf_fileexp_position_high, &position_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_position_low, &position_low);
+			hf_fileexp_position_low, &position_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_length, &length);
+			hf_fileexp_length, &length);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Position:%u/%u Length:%u",
 		     position_high, position_low, length);
@@ -2492,7 +2491,7 @@ afs4int_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
 			       guint8 *drep)
 {
@@ -2520,7 +2519,7 @@ afs4int_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
 			 NDR_POINTER_REF, "afsFid: ", -1);
 
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_acltype,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_acltype,
 			&acltype);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
@@ -2541,7 +2540,7 @@ afs4int_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 static int
-afs4int_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
 				  guint8 *drep)
 {
@@ -2573,7 +2572,7 @@ afs4int_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 static int
-afs4int_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
 			       packet_info * pinfo, proto_tree * tree,
 			       guint8 *drep)
 {
@@ -2603,7 +2602,7 @@ afs4int_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsAcl,
 			 NDR_POINTER_REF, "afsAcl: ", -1);
   offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_afs4int_acltype,
+    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_fileexp_acltype,
 			&acltype);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFid,
@@ -2622,7 +2621,7 @@ afs4int_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
 				  packet_info * pinfo, proto_tree * tree,
 				  guint8 *drep)
 {
@@ -2661,7 +2660,7 @@ afs4int_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
 				 guint8 *drep)
 {
@@ -2704,7 +2703,7 @@ afs4int_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_rename_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
 		     guint8 *drep)
 {
@@ -2761,7 +2760,7 @@ afs4int_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
 			      packet_info * pinfo, proto_tree * tree,
 			      guint8 *drep)
 {
@@ -2809,7 +2808,7 @@ afs4int_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
 			      packet_info * pinfo, proto_tree * tree,
 			      guint8 *drep)
 {
@@ -2838,7 +2837,7 @@ afs4int_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
 			 NDR_POINTER_REF, "Offsetp: ", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_readdir_size, &size);
+			hf_fileexp_readdir_size, &size);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Size:%u", size);
@@ -2852,7 +2851,7 @@ afs4int_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
 			      packet_info * pinfo, proto_tree * tree,
 			      guint8 *drep)
 {
@@ -2893,7 +2892,7 @@ afs4int_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
 				packet_info * pinfo, proto_tree * tree,
 				guint8 *drep)
 {
@@ -2923,10 +2922,10 @@ afs4int_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
 			 "afsFidTaggedName: ", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_returntokenidp_high, &returntokenidp_high);
+			hf_fileexp_returntokenidp_high, &returntokenidp_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_returntokenidp_low, &returntokenidp_low);
+			hf_fileexp_returntokenidp_low, &returntokenidp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " returnTokenIDp:%u/%u",
@@ -2940,7 +2939,7 @@ afs4int_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_lookup_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_lookup_rqst (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
 			     guint8 *drep)
 {
@@ -2975,7 +2974,7 @@ afs4int_dissect_lookup_rqst (tvbuff_t * tvb, int offset,
   return offset;
 }
 static int
-afs4int_dissect_lookup_resp (tvbuff_t * tvb, int offset,
+fileexp_dissect_lookup_resp (tvbuff_t * tvb, int offset,
 			     packet_info * pinfo, proto_tree * tree,
 			     guint8 *drep)
 {
@@ -3019,7 +3018,7 @@ afs4int_dissect_lookup_resp (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 				     packet_info * pinfo, proto_tree * tree,
 				     guint8 *drep)
 {
@@ -3058,7 +3057,7 @@ afs4int_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 			 dissect_afstaggedname, NDR_POINTER_REF,
 			 "afsTaggedName: ", -1);
   offset =
-    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_afs4int_fstype,
+    dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_fileexp_fstype,
 			&type);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
@@ -3082,7 +3081,7 @@ afs4int_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
 }
 
 static int
-afs4int_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
+fileexp_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
 				 guint8 *drep)
 {
@@ -3108,7 +3107,7 @@ afs4int_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
 
   offset =
     dissect_dcerpc_time_t (tvb, offset, pinfo, tree, drep,
-			   hf_afs4int_setcontext_rqst_epochtime, &epochtime);
+			   hf_fileexp_setcontext_rqst_epochtime, &epochtime);
 
   offset =  dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsNetData,
 			 NDR_POINTER_REF, "afsNetData:", -1);
@@ -3121,11 +3120,11 @@ if (check_col (pinfo->cinfo, COL_INFO)) col_append_str (pinfo->cinfo, COL_INFO, 
 			 NDR_POINTER_REF, "afsUUID:", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_setcontext_rqst_clientsizesattrs,
+			hf_fileexp_setcontext_rqst_clientsizesattrs,
 			&clientsizesattrs);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_setcontext_rqst_parm7, &parm7);
+			hf_fileexp_setcontext_rqst_parm7, &parm7);
 
 if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO, " epochTime:%u clientSizesAttrs:%u parm7:%u", epochtime, clientsizesattrs, parm7);
 
@@ -3133,7 +3132,7 @@ if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO,
 }
 
 static int
-afs4int_dissect_setcontext_resp (tvbuff_t * tvb, int offset,
+fileexp_dissect_setcontext_resp (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
 				 guint8 *drep)
 {
@@ -3153,7 +3152,7 @@ afs4int_dissect_setcontext_resp (tvbuff_t * tvb, int offset,
 }
 
 static int
-  afs4int_dissect_lookuproot_resp
+  fileexp_dissect_lookuproot_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3190,7 +3189,7 @@ static int
 }
 
 static int
-  afs4int_dissect_fetchdata_resp
+  fileexp_dissect_fetchdata_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3215,13 +3214,13 @@ There is also not sign of the afsVolSync structure... Just size, and data string
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_fetchdata_pipe_t_size, &pipe_t_size);
+			hf_fileexp_fetchdata_pipe_t_size, &pipe_t_size);
 
   return offset;
 }
 
 static int
-  afs4int_dissect_fetchacl_resp
+  fileexp_dissect_fetchacl_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3254,7 +3253,7 @@ static int
 }
 
 static int
-  afs4int_dissect_fetchstatus_resp
+  fileexp_dissect_fetchstatus_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3287,7 +3286,7 @@ static int
 }
 
 static int
-  afs4int_dissect_storedata_resp
+  fileexp_dissect_storedata_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3316,7 +3315,7 @@ static int
 }
 
 static int
-  afs4int_dissect_storeacl_resp
+  fileexp_dissect_storeacl_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3345,7 +3344,7 @@ static int
 }
 
 static int
-  afs4int_dissect_storestatus_resp
+  fileexp_dissect_storestatus_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3374,7 +3373,7 @@ static int
 }
 
 static int
-  afs4int_dissect_removefile_resp
+  fileexp_dissect_removefile_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3410,7 +3409,7 @@ static int
 }
 
 static int
-  afs4int_dissect_createfile_resp
+  fileexp_dissect_createfile_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3453,7 +3452,7 @@ static int
   return offset;
 }
 static int
-  afs4int_dissect_rename_resp
+  fileexp_dissect_rename_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3503,7 +3502,7 @@ static int
 }
 
 static int
-  afs4int_dissect_symlink_resp
+  fileexp_dissect_symlink_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3544,7 +3543,7 @@ static int
 }
 
 static int
-  afs4int_dissect_hardlink_resp
+  fileexp_dissect_hardlink_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3577,7 +3576,7 @@ static int
   return offset;
 }
 static int
-  afs4int_dissect_hardlink_rqst
+  fileexp_dissect_hardlink_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3621,7 +3620,7 @@ static int
 }
 
 static int
-  afs4int_dissect_makedir_resp
+  fileexp_dissect_makedir_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3662,7 +3661,7 @@ static int
 }
 
 static int
-  afs4int_dissect_removedir_resp
+  fileexp_dissect_removedir_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3700,7 +3699,7 @@ static int
 }
 
 static int
-  afs4int_dissect_readdir_resp
+  fileexp_dissect_readdir_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3725,10 +3724,10 @@ static int
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_nextoffsetp_high, &nextoffsetp_high);
+			hf_fileexp_nextoffsetp_high, &nextoffsetp_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_nextoffsetp_low, &nextoffsetp_low);
+			hf_fileexp_nextoffsetp_low, &nextoffsetp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
@@ -3745,7 +3744,7 @@ static int
 }
 
 static int
-  afs4int_dissect_releasetokens_resp
+  fileexp_dissect_releasetokens_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3763,7 +3762,7 @@ static int
 }
 
 static int
-  afs4int_dissect_releasetokens_rqst
+  fileexp_dissect_releasetokens_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3790,7 +3789,7 @@ static int
 }
 
 static int
-  afs4int_dissect_gettime_resp
+  fileexp_dissect_gettime_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3813,16 +3812,16 @@ static int
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_gettime_secondsp, &secondsp);
+			hf_fileexp_gettime_secondsp, &secondsp);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_gettime_usecondsp, &usecondsp);
+			hf_fileexp_gettime_usecondsp, &usecondsp);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_gettime_syncdistance, &syncdistance);
+			hf_fileexp_gettime_syncdistance, &syncdistance);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_gettime_syncdispersion, &syncdispersion);
+			hf_fileexp_gettime_syncdispersion, &syncdispersion);
 
   if (check_col (pinfo->cinfo, COL_INFO)) col_append_fstr (pinfo->cinfo, COL_INFO, " Secondsp:%u  Usecondsp:%u SyncDistance:/%u SyncDispersion:%u", secondsp, usecondsp, syncdistance, syncdispersion);
 
@@ -3833,7 +3832,7 @@ static int
 }
 
 static int
-  afs4int_dissect_gettime_rqst
+  fileexp_dissect_gettime_rqst
   (tvbuff_t *
    tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
@@ -3851,7 +3850,7 @@ static int
 }
 
 static int
-  afs4int_dissect_processquota_resp
+  fileexp_dissect_processquota_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3883,7 +3882,7 @@ static int
 }
 
 static int
-  afs4int_dissect_processquota_rqst
+  fileexp_dissect_processquota_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3916,7 +3915,7 @@ static int
 }
 
 static int
-  afs4int_dissect_getserverinterfaces_rqst
+  fileexp_dissect_getserverinterfaces_rqst
   (tvbuff_t *
    tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
@@ -3936,7 +3935,7 @@ static int
 }
 
 static int
-  afs4int_dissect_getserverinterfaces_resp
+  fileexp_dissect_getserverinterfaces_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3958,7 +3957,7 @@ static int
 }
 
 static int
-  afs4int_dissect_setparams_rqst
+  fileexp_dissect_setparams_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -3983,7 +3982,7 @@ static int
 }
 
 static int
-  afs4int_dissect_setparams_resp
+  fileexp_dissect_setparams_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4008,7 +4007,7 @@ static int
 }
 
 static int
-  afs4int_dissect_makemountpoint_resp
+  fileexp_dissect_makemountpoint_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4045,7 +4044,7 @@ static int
 }
 
 static int
-  afs4int_dissect_getstatistics_rqst
+  fileexp_dissect_getstatistics_rqst
   (tvbuff_t *
    tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
@@ -4062,7 +4061,7 @@ static int
 }
 
 static int
-  afs4int_dissect_getstatistics_resp
+  fileexp_dissect_getstatistics_resp
   (tvbuff_t *
    tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
@@ -4082,7 +4081,7 @@ static int
 }
 
 static int
-  afs4int_dissect_bulkfetchvv_rqst
+  fileexp_dissect_bulkfetchvv_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4106,10 +4105,10 @@ static int
 */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_cellidp_high, &cellidp_high);
+			hf_fileexp_cellidp_high, &cellidp_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_cellidp_low, &cellidp_low);
+			hf_fileexp_cellidp_low, &cellidp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " CellIDp:%u/%u", cellidp_high,
@@ -4118,20 +4117,20 @@ static int
   /* XXX figure out the afsBulkVolIDS */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkfetchvv_numvols, &numvols);
+			hf_fileexp_bulkfetchvv_numvols, &numvols);
 
   offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkfetchvv_spare1, &spare1);
+			hf_fileexp_bulkfetchvv_spare1, &spare1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkfetchvv_spare2, &spare2);
+			hf_fileexp_bulkfetchvv_spare2, &spare2);
   return offset;
 }
 
 static int
-  afs4int_dissect_bulkfetchvv_resp
+  fileexp_dissect_bulkfetchvv_resp
   (tvbuff_t *
    tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
@@ -4152,7 +4151,7 @@ static int
 }
 
 static int
-  afs4int_dissect_bulkkeepalive_resp
+  fileexp_dissect_bulkkeepalive_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4171,13 +4170,13 @@ static int
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkkeepalive_spare4, &spare4);
+			hf_fileexp_bulkkeepalive_spare4, &spare4);
   MACRO_ST_CLEAR ("BulkKeepAlive reply");
   return offset;
 }
 
 static int
-  afs4int_dissect_bulkkeepalive_rqst
+  fileexp_dissect_bulkkeepalive_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4200,21 +4199,21 @@ static int
   /* XXX figure out afsBulkFEX */
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkkeepalive_numexecfids, &numexecfids);
+			hf_fileexp_bulkkeepalive_numexecfids, &numexecfids);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsFlags,
 			 NDR_POINTER_REF, "afsFlags:", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkkeepalive_spare1, &spare1);
+			hf_fileexp_bulkkeepalive_spare1, &spare1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkkeepalive_spare2, &spare2);
+			hf_fileexp_bulkkeepalive_spare2, &spare2);
   return offset;
 }
 
 static int
-  afs4int_dissect_bulkfetchstatus_rqst
+  fileexp_dissect_bulkfetchstatus_rqst
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4241,17 +4240,17 @@ static int
 			 NDR_POINTER_REF, "afsFid: ", -1);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_offsetp_high, &offsetp_high);
+			hf_fileexp_offsetp_high, &offsetp_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_offsetp_low, &offsetp_low);
+			hf_fileexp_offsetp_low, &offsetp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Offsetp:%u/%u", offsetp_high,
 		     offsetp_low);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_bulkfetchstatus_size, &size);
+			hf_fileexp_bulkfetchstatus_size, &size);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_minvvp,
 			 NDR_POINTER_REF, "MinVVp:", -1);
@@ -4261,7 +4260,7 @@ static int
 }
 
 static int
-  afs4int_dissect_bulkfetchstatus_resp
+  fileexp_dissect_bulkfetchstatus_resp
   (tvbuff_t *
    tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
 {
@@ -4291,10 +4290,10 @@ static int
 /*
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_nextoffsetp_high, &nextoffsetp_high);
+			hf_fileexp_nextoffsetp_high, &nextoffsetp_high);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afs4int_nextoffsetp_low, &nextoffsetp_low);
+			hf_fileexp_nextoffsetp_low, &nextoffsetp_low);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " NextOffsetp:%u/%u",
@@ -4314,350 +4313,350 @@ static int
   return offset;
 }
 
-static dcerpc_sub_dissector afs4int_dissectors[] = {
-  { 0, "SetContext", afs4int_dissect_setcontext_rqst, afs4int_dissect_setcontext_resp} ,
-  { 1, "LookupRoot", afs4int_dissect_lookuproot_rqst, afs4int_dissect_lookuproot_resp} ,
-  { 2, "FetchData", afs4int_dissect_fetchdata_rqst, afs4int_dissect_fetchdata_resp} ,
-  { 3, "FetchAcl", afs4int_dissect_fetchacl_rqst, afs4int_dissect_fetchacl_resp} ,
-  { 4, "FetchStatus", afs4int_dissect_fetchstatus_rqst, afs4int_dissect_fetchstatus_resp} ,
-  { 5, "StoreData", afs4int_dissect_storedata_rqst, afs4int_dissect_storedata_resp} ,
-  { 6, "StoreAcl", afs4int_dissect_storeacl_rqst, afs4int_dissect_storeacl_resp} ,
-  { 7, "StoreStatus", afs4int_dissect_storestatus_rqst, afs4int_dissect_storestatus_resp} ,
-  { 8, "RemoveFile", afs4int_dissect_removefile_rqst, afs4int_dissect_removefile_resp} ,
-  { 9, "CreateFile", afs4int_dissect_createfile_rqst, afs4int_dissect_createfile_resp} ,
-  { 10, "Rename", afs4int_dissect_rename_rqst, afs4int_dissect_rename_resp} ,
-  { 11, "Symlink", afs4int_dissect_symlink_rqst, afs4int_dissect_symlink_resp} ,
-  { 12, "HardLink", afs4int_dissect_hardlink_rqst, afs4int_dissect_hardlink_resp} ,
-  { 13, "MakeDir", afs4int_dissect_makedir_rqst, afs4int_dissect_makedir_resp} ,
-  { 14, "RemoveDir", afs4int_dissect_removedir_rqst, afs4int_dissect_removedir_resp} ,
-  { 15, "Readdir", afs4int_dissect_readdir_rqst, afs4int_dissect_readdir_resp} ,
-  { 16, "Lookup", afs4int_dissect_lookup_rqst, afs4int_dissect_lookup_resp} ,
-  { 17, "GetToken", afs4int_dissect_gettoken_rqst, afs4int_dissect_gettoken_resp} ,
-  { 18, "ReleaseTokens", afs4int_dissect_releasetokens_rqst, afs4int_dissect_releasetokens_resp} ,
-  { 19, "GetTime", afs4int_dissect_gettime_rqst, afs4int_dissect_gettime_resp} ,
-  { 20, "MakeMountPoint", afs4int_dissect_makemountpoint_rqst, afs4int_dissect_makemountpoint_resp} ,
-  { 21, "GetStatistics", afs4int_dissect_getstatistics_rqst, afs4int_dissect_getstatistics_resp} ,
-  { 22, "BulkFetchVV", afs4int_dissect_bulkfetchvv_rqst, afs4int_dissect_bulkfetchvv_resp} ,
-  { 23, "BulkKeepAlive", afs4int_dissect_bulkkeepalive_rqst, afs4int_dissect_bulkkeepalive_resp} ,
-  { 24, "ProcessQuota", afs4int_dissect_processquota_rqst, afs4int_dissect_processquota_resp} ,
-  { 25, "GetServerInterfaces", afs4int_dissect_getserverinterfaces_rqst, afs4int_dissect_getserverinterfaces_resp} ,
-  { 26, "SetParams", afs4int_dissect_setparams_rqst, afs4int_dissect_setparams_resp} ,
-  { 27, "BulkFetchStatus", afs4int_dissect_bulkfetchstatus_rqst, afs4int_dissect_bulkfetchstatus_resp} ,
+static dcerpc_sub_dissector fileexp_dissectors[] = {
+  { 0, "SetContext", fileexp_dissect_setcontext_rqst, fileexp_dissect_setcontext_resp} ,
+  { 1, "LookupRoot", fileexp_dissect_lookuproot_rqst, fileexp_dissect_lookuproot_resp} ,
+  { 2, "FetchData", fileexp_dissect_fetchdata_rqst, fileexp_dissect_fetchdata_resp} ,
+  { 3, "FetchAcl", fileexp_dissect_fetchacl_rqst, fileexp_dissect_fetchacl_resp} ,
+  { 4, "FetchStatus", fileexp_dissect_fetchstatus_rqst, fileexp_dissect_fetchstatus_resp} ,
+  { 5, "StoreData", fileexp_dissect_storedata_rqst, fileexp_dissect_storedata_resp} ,
+  { 6, "StoreAcl", fileexp_dissect_storeacl_rqst, fileexp_dissect_storeacl_resp} ,
+  { 7, "StoreStatus", fileexp_dissect_storestatus_rqst, fileexp_dissect_storestatus_resp} ,
+  { 8, "RemoveFile", fileexp_dissect_removefile_rqst, fileexp_dissect_removefile_resp} ,
+  { 9, "CreateFile", fileexp_dissect_createfile_rqst, fileexp_dissect_createfile_resp} ,
+  { 10, "Rename", fileexp_dissect_rename_rqst, fileexp_dissect_rename_resp} ,
+  { 11, "Symlink", fileexp_dissect_symlink_rqst, fileexp_dissect_symlink_resp} ,
+  { 12, "HardLink", fileexp_dissect_hardlink_rqst, fileexp_dissect_hardlink_resp} ,
+  { 13, "MakeDir", fileexp_dissect_makedir_rqst, fileexp_dissect_makedir_resp} ,
+  { 14, "RemoveDir", fileexp_dissect_removedir_rqst, fileexp_dissect_removedir_resp} ,
+  { 15, "Readdir", fileexp_dissect_readdir_rqst, fileexp_dissect_readdir_resp} ,
+  { 16, "Lookup", fileexp_dissect_lookup_rqst, fileexp_dissect_lookup_resp} ,
+  { 17, "GetToken", fileexp_dissect_gettoken_rqst, fileexp_dissect_gettoken_resp} ,
+  { 18, "ReleaseTokens", fileexp_dissect_releasetokens_rqst, fileexp_dissect_releasetokens_resp} ,
+  { 19, "GetTime", fileexp_dissect_gettime_rqst, fileexp_dissect_gettime_resp} ,
+  { 20, "MakeMountPoint", fileexp_dissect_makemountpoint_rqst, fileexp_dissect_makemountpoint_resp} ,
+  { 21, "GetStatistics", fileexp_dissect_getstatistics_rqst, fileexp_dissect_getstatistics_resp} ,
+  { 22, "BulkFetchVV", fileexp_dissect_bulkfetchvv_rqst, fileexp_dissect_bulkfetchvv_resp} ,
+  { 23, "BulkKeepAlive", fileexp_dissect_bulkkeepalive_rqst, fileexp_dissect_bulkkeepalive_resp} ,
+  { 24, "ProcessQuota", fileexp_dissect_processquota_rqst, fileexp_dissect_processquota_resp} ,
+  { 25, "GetServerInterfaces", fileexp_dissect_getserverinterfaces_rqst, fileexp_dissect_getserverinterfaces_resp} ,
+  { 26, "SetParams", fileexp_dissect_setparams_rqst, fileexp_dissect_setparams_resp} ,
+  { 27, "BulkFetchStatus", fileexp_dissect_bulkfetchstatus_rqst, fileexp_dissect_bulkfetchstatus_resp} ,
   { 0, NULL, NULL, NULL}
   ,
 };
 void
-proto_register_afs4int (void)
+proto_register_fileexp (void)
 {
 
 
   static hf_register_info hf[] = {
-    { &hf_error_st, {"AFS4Int Error Status Code", "afs4int.st", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_flags, {"DFS Flags", "afs4int.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_tn_string, {"String ", "afs4int.string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_tn_size, {"String Size", "afs4int.tn_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_opnum, {"Operation", "afs4int.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL}},
-    { &hf_afs4int_setcontext_rqst_epochtime, {"EpochTime:", "afs4int.setcontext_rqst_epochtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_setcontext_rqst_secobjectid, { "SetObjectid:", "afs4int.setcontext_secobjextid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_afs4int_setcontext_rqst_clientsizesattrs, { "ClientSizeAttrs:", "afs4int.setcontext_clientsizesattrs", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_setcontext_rqst_parm7, { "Parm7:", "afs4int.setcontext.parm7", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_acl_len, {"Acl Length", "afs4int.acl_len", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_acltype, {"afs4int.acltype", "afs4int.acltype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_minvvp_high, {"afs4int.minvvp_high", "afs4int.minvvp_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_minvvp_low, {"afs4int.minvvp_low", "afs4int.minvvp_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_volume_low, { "afs4int.volume_low", "afs4int.volume_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_volume_high, { "afs4int.volume_high", "afs4int.volume_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vnode, { "afs4int.vnode", "afs4int.vnode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_unique, { "afs4int.unique", "afs4int.unique", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_accesstime_msec, { "afs4int.accesstime_msec", "afs4int.accesstime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_accesstime_sec, { "afs4int.accesstime_sec", "afs4int.accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_aclexpirationtime, { "afs4int.aclexpirationtime", "afs4int.aclexpirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_agtypeunique, { "afs4int.agtypeunique", "afs4int.agtypeunique", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_anonymousaccess, { "afs4int.anonymousaccess", "afs4int.anonymousaccess", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_author, { "afs4int.author", "afs4int.author", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_blocksused, { "afs4int.blocksused", "afs4int.blocksused", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} },
-    { &hf_afs4int_calleraccess, { "afs4int.calleraccess", "afs4int.calleraccess", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_changetime_msec, { "afs4int.changetime_msec", "afs4int.changetime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_changetime_sec, { "afs4int.changetime_sec", "afs4int.changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_clientspare1, { "afs4int.clientspare1", "afs4int.clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_dataversion_high, { "afs4int.dataversion_high", "afs4int.dataversion_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_dataversion_low, { "afs4int.dataversion_low", "afs4int.dataversion_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_devicenumber, { "afs4int.devicenumber", "afs4int.devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_devicenumberhighbits, { "afs4int.devicenumberhighbits", "afs4int.devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_filetype, { "afs4int.filetype", "afs4int.filetype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_group, { "afs4int.group", "afs4int.group", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_himaxspare, { "afs4int.himaxspare", "afs4int.himaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_interfaceversion, { "afs4int.interfaceversion", "afs4int.interfaceversion", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_length_high, { "afs4int.length_high", "afs4int.length_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_length_low, { "afs4int.length_low", "afs4int.length_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } , 
-    { &hf_afs4int_linkcount, { "afs4int.linkcount", "afs4int.linkcount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_lomaxspare, { "afs4int.lomaxspare", "afs4int.lomaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_mode, { "afs4int.mode", "afs4int.mode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_modtime_msec, { "afs4int.modtime_msec", "afs4int.modtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_modtime_sec, { "afs4int.modtime_sec", "afs4int.modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_objectuuid, { "afs4int.objectuuid", "afs4int.objectuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_afs4int_owner, { "afs4int.owner", "afs4int.owner", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_parentunique, { "afs4int.parentunique", "afs4int.parentunique", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_parentvnode, { "afs4int.parentvnode", "afs4int.parentvnode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_pathconfspare, { "afs4int.pathconfspare", "afs4int.pathconfspare", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_servermodtime_msec, { "afs4int.servermodtime_msec", "afs4int.servermodtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_servermodtime_sec, { "afs4int.servermodtime_sec", "afs4int.servermodtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_spare4, { "afs4int.spare4", "afs4int.spare4", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_spare5, { "afs4int.spare5", "afs4int.spare5", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_spare6, { "afs4int.spare6", "afs4int.spare6", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_typeuuid, { "afs4int.typeuuid", "afs4int.typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_afs4int_volid_hi, { "afs4int.volid_hi", "afs4int.volid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_volid_low, { "afs4int.volid_low", "afs4int.volid_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vvage, { "afs4int.vvage", "afs4int.vvage", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vv_hi, { "afs4int.vv_hi", "afs4int.vv_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vv_low, { "afs4int.vv_low", "afs4int.vv_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vvpingage, { "afs4int.vvpingage", "afs4int.vvpingage", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vvspare1, { "afs4int.vvspare1", "afs4int.vvspare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_vvspare2, { "afs4int.vvspare2", "afs4int.vvspare2", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_beginrange, { "afs4int.beginrange", "afs4int.beginrange", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_beginrangeext, { "afs4int.beginrangeext", "afs4int.beginrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_endrange, { "afs4int.endrange", "afs4int.endrange", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_endrangeext, { "afs4int.endrangeext", "afs4int.endrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_expirationtime, { "afs4int.expirationtime", "afs4int.expirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_tokenid_hi, { "afs4int.tokenid_hi", "afs4int.tokenid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_tokenid_low, { "afs4int.tokenid_low", "afs4int.tokenid_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_type_hi, { "afs4int.type_hi", "afs4int.type_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_type_low, { "afs4int.type_low", "afs4int.type_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_tn_length, { "afs4int.tn_length", "afs4int.tn_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL} } , 
-    { &hf_afs4int_tn_tag, { "afs4int.tn_tag", "afs4int.tn_tag", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_accesstime_sec, { "afs4int.storestatus_accesstime_sec", "afs4int.storestatus_accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_accesstime_usec, { "afs4int.storestatus_accesstime_usec", "afs4int.storestatus_accesstime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_changetime_sec, { "afs4int.storestatus_changetime_sec", "afs4int.storestatus_changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_changetime_usec, { "afs4int.storestatus_changetime_usec", "afs4int.storestatus_changetime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_clientspare1, { "afs4int.storestatus_clientspare1", "afs4int.storestatus_clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_cmask, { "afs4int.storestatus_cmask", "afs4int.storestatus_cmask", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_devicenumber, { "afs4int.storestatus_devicenumber", "afs4int.storestatus_devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_devicenumberhighbits, { "afs4int.storestatus_devicenumberhighbits", "afs4int.storestatus_devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_devicetype, { "afs4int.storestatus_devicetype", "afs4int.storestatus_devicetype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_group, { "afs4int.storestatus_group", "afs4int.storestatus_group", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_length_high, { "afs4int.storestatus_length_high", "afs4int.storestatus_length_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_length_low, { "afs4int.storestatus_length_low", "afs4int.storestatus_length_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_mask, { "afs4int.storestatus_mask", "afs4int.storestatus_mask", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_mode, { "afs4int.storestatus_mode", "afs4int.storestatus_mode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_modtime_sec, { "afs4int.storestatus_modtime_sec", "afs4int.storestatus_modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_modtime_usec, { "afs4int.storestatus_modtime_usec", "afs4int.storestatus_modtime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_owner, { "afs4int.storestatus_owner", "afs4int.storestatus_owner", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_spare1, { "afs4int.storestatus_spare1", "afs4int.storestatus_spare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_spare2, { "afs4int.storestatus_spare2", "afs4int.storestatus_spare2", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_spare3, { "afs4int.storestatus_spare3", "afs4int.storestatus_spare3", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_spare4, { "afs4int.storestatus_spare4", "afs4int.storestatus_spare4", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_spare5, { "afs4int.storestatus_spare5", "afs4int.storestatus_spare5", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_spare6, { "afs4int.storestatus_spare6", "afs4int.storestatus_spare6", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_trunc_high, { "afs4int.storestatus_trunc_high", "afs4int.storestatus_trunc_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_trunc_low, { "afs4int.storestatus_trunc_low", "afs4int.storestatus_trunc_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_storestatus_typeuuid, { "afs4int.storestatus_typeuuid", "afs4int.storestatus_typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_afs4int_st, { "afs4int.st", "afs4int.st", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_uint, {"afs4int.uint", "afs4int.uint", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    { &hf_afs4int_l_end_pos, { "afs4int.l_end_pos", "afs4int.l_end_pos", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_end_pos_ext, { "afs4int.l_end_pos_ext", "afs4int.l_end_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_fstype, { "afs4int.l_fstype", "afs4int.l_fstype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_pid, { "afs4int.l_pid", "afs4int.l_pid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_start_pos, { "afs4int.l_start_pos", "afs4int.l_start_pos", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_start_pos_ext, { "afs4int.l_start_pos_ext", "afs4int.l_start_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_sysid, { "afs4int.l_sysid", "afs4int.l_sysid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_type, { "afs4int.l_type", "afs4int.l_type", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
-    { &hf_afs4int_l_whence, { "afs4int.l_whence", "afs4int.l_whence", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_error_st, {"AFS4Int Error Status Code", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_flags, {"DFS Flags", "fileexp.flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_tn_string, {"String ", "fileexp.string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_tn_size, {"String Size", "fileexp.tn_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_opnum, {"Operation", "fileexp.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Operation", HFILL}},
+    { &hf_fileexp_setcontext_rqst_epochtime, {"EpochTime:", "fileexp.setcontext_rqst_epochtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_setcontext_rqst_secobjectid, { "SetObjectid:", "fileexp.setcontext_secobjextid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_setcontext_rqst_clientsizesattrs, { "ClientSizeAttrs:", "fileexp.setcontext_clientsizesattrs", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_setcontext_rqst_parm7, { "Parm7:", "fileexp.setcontext.parm7", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_acl_len, {"Acl Length", "fileexp.acl_len", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_acltype, {"fileexp.acltype", "fileexp.acltype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_minvvp_high, {"fileexp.minvvp_high", "fileexp.minvvp_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_minvvp_low, {"fileexp.minvvp_low", "fileexp.minvvp_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_volume_low, { "fileexp.volume_low", "fileexp.volume_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_volume_high, { "fileexp.volume_high", "fileexp.volume_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vnode, { "fileexp.vnode", "fileexp.vnode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_unique, { "fileexp.unique", "fileexp.unique", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_accesstime_msec, { "fileexp.accesstime_msec", "fileexp.accesstime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_accesstime_sec, { "fileexp.accesstime_sec", "fileexp.accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_aclexpirationtime, { "fileexp.aclexpirationtime", "fileexp.aclexpirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_agtypeunique, { "fileexp.agtypeunique", "fileexp.agtypeunique", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_anonymousaccess, { "fileexp.anonymousaccess", "fileexp.anonymousaccess", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_author, { "fileexp.author", "fileexp.author", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_blocksused, { "fileexp.blocksused", "fileexp.blocksused", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} },
+    { &hf_fileexp_calleraccess, { "fileexp.calleraccess", "fileexp.calleraccess", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_changetime_msec, { "fileexp.changetime_msec", "fileexp.changetime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_changetime_sec, { "fileexp.changetime_sec", "fileexp.changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_clientspare1, { "fileexp.clientspare1", "fileexp.clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_dataversion_high, { "fileexp.dataversion_high", "fileexp.dataversion_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_dataversion_low, { "fileexp.dataversion_low", "fileexp.dataversion_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_devicenumber, { "fileexp.devicenumber", "fileexp.devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_devicenumberhighbits, { "fileexp.devicenumberhighbits", "fileexp.devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_filetype, { "fileexp.filetype", "fileexp.filetype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_group, { "fileexp.group", "fileexp.group", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_himaxspare, { "fileexp.himaxspare", "fileexp.himaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_interfaceversion, { "fileexp.interfaceversion", "fileexp.interfaceversion", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_length_high, { "fileexp.length_high", "fileexp.length_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_length_low, { "fileexp.length_low", "fileexp.length_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } , 
+    { &hf_fileexp_linkcount, { "fileexp.linkcount", "fileexp.linkcount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_lomaxspare, { "fileexp.lomaxspare", "fileexp.lomaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_mode, { "fileexp.mode", "fileexp.mode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_modtime_msec, { "fileexp.modtime_msec", "fileexp.modtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_modtime_sec, { "fileexp.modtime_sec", "fileexp.modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_objectuuid, { "fileexp.objectuuid", "fileexp.objectuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_owner, { "fileexp.owner", "fileexp.owner", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_parentunique, { "fileexp.parentunique", "fileexp.parentunique", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_parentvnode, { "fileexp.parentvnode", "fileexp.parentvnode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_pathconfspare, { "fileexp.pathconfspare", "fileexp.pathconfspare", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_servermodtime_msec, { "fileexp.servermodtime_msec", "fileexp.servermodtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_servermodtime_sec, { "fileexp.servermodtime_sec", "fileexp.servermodtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_spare4, { "fileexp.spare4", "fileexp.spare4", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_spare5, { "fileexp.spare5", "fileexp.spare5", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_spare6, { "fileexp.spare6", "fileexp.spare6", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_typeuuid, { "fileexp.typeuuid", "fileexp.typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_volid_hi, { "fileexp.volid_hi", "fileexp.volid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_volid_low, { "fileexp.volid_low", "fileexp.volid_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vvage, { "fileexp.vvage", "fileexp.vvage", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vv_hi, { "fileexp.vv_hi", "fileexp.vv_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vv_low, { "fileexp.vv_low", "fileexp.vv_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vvpingage, { "fileexp.vvpingage", "fileexp.vvpingage", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vvspare1, { "fileexp.vvspare1", "fileexp.vvspare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_vvspare2, { "fileexp.vvspare2", "fileexp.vvspare2", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_beginrange, { "fileexp.beginrange", "fileexp.beginrange", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_beginrangeext, { "fileexp.beginrangeext", "fileexp.beginrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_endrange, { "fileexp.endrange", "fileexp.endrange", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_endrangeext, { "fileexp.endrangeext", "fileexp.endrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_expirationtime, { "fileexp.expirationtime", "fileexp.expirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_tokenid_hi, { "fileexp.tokenid_hi", "fileexp.tokenid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_tokenid_low, { "fileexp.tokenid_low", "fileexp.tokenid_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_type_hi, { "fileexp.type_hi", "fileexp.type_hi", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_type_low, { "fileexp.type_low", "fileexp.type_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_tn_length, { "fileexp.tn_length", "fileexp.tn_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL} } , 
+    { &hf_fileexp_tn_tag, { "fileexp.tn_tag", "fileexp.tn_tag", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_accesstime_sec, { "fileexp.storestatus_accesstime_sec", "fileexp.storestatus_accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_accesstime_usec, { "fileexp.storestatus_accesstime_usec", "fileexp.storestatus_accesstime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_changetime_sec, { "fileexp.storestatus_changetime_sec", "fileexp.storestatus_changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_changetime_usec, { "fileexp.storestatus_changetime_usec", "fileexp.storestatus_changetime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_clientspare1, { "fileexp.storestatus_clientspare1", "fileexp.storestatus_clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_cmask, { "fileexp.storestatus_cmask", "fileexp.storestatus_cmask", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_devicenumber, { "fileexp.storestatus_devicenumber", "fileexp.storestatus_devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_devicenumberhighbits, { "fileexp.storestatus_devicenumberhighbits", "fileexp.storestatus_devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_devicetype, { "fileexp.storestatus_devicetype", "fileexp.storestatus_devicetype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_group, { "fileexp.storestatus_group", "fileexp.storestatus_group", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_length_high, { "fileexp.storestatus_length_high", "fileexp.storestatus_length_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_length_low, { "fileexp.storestatus_length_low", "fileexp.storestatus_length_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_mask, { "fileexp.storestatus_mask", "fileexp.storestatus_mask", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_mode, { "fileexp.storestatus_mode", "fileexp.storestatus_mode", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_modtime_sec, { "fileexp.storestatus_modtime_sec", "fileexp.storestatus_modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_modtime_usec, { "fileexp.storestatus_modtime_usec", "fileexp.storestatus_modtime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_owner, { "fileexp.storestatus_owner", "fileexp.storestatus_owner", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_spare1, { "fileexp.storestatus_spare1", "fileexp.storestatus_spare1", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_spare2, { "fileexp.storestatus_spare2", "fileexp.storestatus_spare2", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_spare3, { "fileexp.storestatus_spare3", "fileexp.storestatus_spare3", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_spare4, { "fileexp.storestatus_spare4", "fileexp.storestatus_spare4", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_spare5, { "fileexp.storestatus_spare5", "fileexp.storestatus_spare5", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_spare6, { "fileexp.storestatus_spare6", "fileexp.storestatus_spare6", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_trunc_high, { "fileexp.storestatus_trunc_high", "fileexp.storestatus_trunc_high", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_trunc_low, { "fileexp.storestatus_trunc_low", "fileexp.storestatus_trunc_low", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_storestatus_typeuuid, { "fileexp.storestatus_typeuuid", "fileexp.storestatus_typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_st, { "fileexp.st", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_uint, {"fileexp.uint", "fileexp.uint", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_fileexp_l_end_pos, { "fileexp.l_end_pos", "fileexp.l_end_pos", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_end_pos_ext, { "fileexp.l_end_pos_ext", "fileexp.l_end_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_fstype, { "fileexp.l_fstype", "fileexp.l_fstype", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_pid, { "fileexp.l_pid", "fileexp.l_pid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_start_pos, { "fileexp.l_start_pos", "fileexp.l_start_pos", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_start_pos_ext, { "fileexp.l_start_pos_ext", "fileexp.l_start_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_sysid, { "fileexp.l_sysid", "fileexp.l_sysid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_type, { "fileexp.l_type", "fileexp.l_type", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
+    { &hf_fileexp_l_whence, { "fileexp.l_whence", "fileexp.l_whence", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL} } ,
     {&hf_afsconnparams_mask,
      {"hf_afsconnparams_mask", "hf_afsconnparams_mask",
       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
     {&hf_afsconnparams_values,
      {"hf_afsconnparams_values", "hf_afsconnparams_values",
       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsFid_cell_high,
-     {"Cell High", "afs4int.afsFid.cell_high", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_afsFid_cell_high,
+     {"Cell High", "fileexp.afsFid.cell_high", FT_UINT32, BASE_HEX, NULL, 0x0,
       "afsFid Cell High", HFILL}},
-    {&hf_afs4int_afsFid_cell_low,
-     {"Cell Low", "afs4int.afsFid.cell_low", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_afsFid_cell_low,
+     {"Cell Low", "fileexp.afsFid.cell_low", FT_UINT32, BASE_HEX, NULL, 0x0,
       "afsFid Cell Low", HFILL}},
-    {&hf_afs4int_afsFid_volume_high,
-     {"Volume High", "afs4int.afsFid.volume_high", FT_UINT32, BASE_HEX, NULL,
+    {&hf_fileexp_afsFid_volume_high,
+     {"Volume High", "fileexp.afsFid.volume_high", FT_UINT32, BASE_HEX, NULL,
       0x0, "afsFid Volume High", HFILL}},
-    {&hf_afs4int_afsFid_volume_low,
-     {"Volume Low", "afs4int.afsFid.volume_low", FT_UINT32, BASE_HEX, NULL,
+    {&hf_fileexp_afsFid_volume_low,
+     {"Volume Low", "fileexp.afsFid.volume_low", FT_UINT32, BASE_HEX, NULL,
       0x0, "afsFid Volume Low", HFILL}},
-    {&hf_afs4int_afsFid_Vnode,
-     {"Vnode", "afs4int.afsFid.Vnode", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_afsFid_Vnode,
+     {"Vnode", "fileexp.afsFid.Vnode", FT_UINT32, BASE_HEX, NULL, 0x0,
       "afsFid Vnode", HFILL}},
-    {&hf_afs4int_afsFid_Unique,
-     {"Unique", "afs4int.afsFid.Unique", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_afsFid_Unique,
+     {"Unique", "fileexp.afsFid.Unique", FT_UINT32, BASE_HEX, NULL, 0x0,
       "afsFid Unique", HFILL}},
-    {&hf_afs4int_afsNetAddr_type,
+    {&hf_fileexp_afsNetAddr_type,
      {"Type", "afsNetAddr.type", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsNetAddr_data,
+    {&hf_fileexp_afsNetAddr_data,
      {"IP Data", "afsNetAddr.data", FT_UINT8, BASE_DEC, NULL, 0x0, "",
       HFILL}},
-    {&hf_afs4int_position_high,
-     {"Position High", "afs4int.position_high", FT_UINT32, BASE_HEX, NULL,
+    {&hf_fileexp_position_high,
+     {"Position High", "fileexp.position_high", FT_UINT32, BASE_HEX, NULL,
       0x0, "", HFILL}},
-    {&hf_afs4int_position_low,
-     {"Position Low", "afs4int.position_low", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_position_low,
+     {"Position Low", "fileexp.position_low", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
-    {&hf_afs4int_afsreturndesc_tokenid_high,
-     {"Tokenid High", "afs4int.afsreturndesc_tokenid_high", FT_UINT32,
+    {&hf_fileexp_afsreturndesc_tokenid_high,
+     {"Tokenid High", "fileexp.afsreturndesc_tokenid_high", FT_UINT32,
       BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsreturndesc_tokenid_low,
-     {"Tokenid low", "afs4int.afsreturndesc_tokenid_low", FT_UINT32, BASE_HEX,
+    {&hf_fileexp_afsreturndesc_tokenid_low,
+     {"Tokenid low", "fileexp.afsreturndesc_tokenid_low", FT_UINT32, BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsreturndesc_type_high,
-     {"Type high", "afs4int.type_high", FT_UINT32, BASE_HEX, NULL, 0x0, "",
+    {&hf_fileexp_afsreturndesc_type_high,
+     {"Type high", "fileexp.type_high", FT_UINT32, BASE_HEX, NULL, 0x0, "",
       HFILL}},
-    {&hf_afs4int_afsreturndesc_type_low,
-     {"Type low", "afs4int.type_low", FT_UINT32, BASE_HEX, NULL, 0x0, "",
+    {&hf_fileexp_afsreturndesc_type_low,
+     {"Type low", "fileexp.type_low", FT_UINT32, BASE_HEX, NULL, 0x0, "",
       HFILL}},
-    {&hf_afs4int_offsetp_high,
-     {"offset high", "afs4int.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_offsetp_high,
+     {"offset high", "fileexp.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
-    {&hf_afs4int_offsetp_low,
-     {"offset high", "afs4int.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_offsetp_low,
+     {"offset high", "fileexp.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
-    {&hf_afs4int_nextoffsetp_high,
-     {"next offset high", "afs4int.nextoffset_high", FT_UINT32, BASE_HEX,
+    {&hf_fileexp_nextoffsetp_high,
+     {"next offset high", "fileexp.nextoffset_high", FT_UINT32, BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_nextoffsetp_low,
-     {"next offset low", "afs4int.nextoffset_low", FT_UINT32, BASE_HEX, NULL,
+    {&hf_fileexp_nextoffsetp_low,
+     {"next offset low", "fileexp.nextoffset_low", FT_UINT32, BASE_HEX, NULL,
       0x0, "", HFILL}},
-    {&hf_afs4int_returntokenidp_high,
-     {"return token idp high", "afs4int.returntokenidp_high", FT_UINT32,
+    {&hf_fileexp_returntokenidp_high,
+     {"return token idp high", "fileexp.returntokenidp_high", FT_UINT32,
       BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_returntokenidp_low,
-     {"return token idp low", "afs4int.returntokenidp_low", FT_UINT32,
+    {&hf_fileexp_returntokenidp_low,
+     {"return token idp low", "fileexp.returntokenidp_low", FT_UINT32,
       BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_cellidp_high,
-     {"cellidp high", "afs4int.cellidp_high", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_cellidp_high,
+     {"cellidp high", "fileexp.cellidp_high", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
-    {&hf_afs4int_cellidp_low,
-     {"cellidp low", "afs4int.cellidp_low", FT_UINT32, BASE_HEX, NULL, 0x0,
+    {&hf_fileexp_cellidp_low,
+     {"cellidp low", "fileexp.cellidp_low", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
     {&hf_afserrorstatus_st,
-     {"AFS Error Code", "afs4int.afserrortstatus_st", FT_UINT32, BASE_HEX,
+     {"AFS Error Code", "fileexp.afserrortstatus_st", FT_UINT32, BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_length,
-     {"Length", "afs4int.length", FT_UINT32, BASE_HEX,
+    {&hf_fileexp_length,
+     {"Length", "fileexp.length", FT_UINT32, BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsTaggedPath_tp_chars,
-     {"AFS Tagged Path", "afs4int.TaggedPath_tp_chars", FT_STRING, BASE_NONE,
+    {&hf_fileexp_afsTaggedPath_tp_chars,
+     {"AFS Tagged Path", "fileexp.TaggedPath_tp_chars", FT_STRING, BASE_NONE,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsTaggedPath_tp_tag,
-     {"AFS Tagged Path Name", "afs4int.TaggedPath_tp_tag", FT_UINT32,
+    {&hf_fileexp_afsTaggedPath_tp_tag,
+     {"AFS Tagged Path Name", "fileexp.TaggedPath_tp_tag", FT_UINT32,
       BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsacl_uuid1,
-     {"AFS ACL UUID1", "afs4int.afsacl_uuid1", FT_GUID, BASE_NONE,
+    {&hf_fileexp_afsacl_uuid1,
+     {"AFS ACL UUID1", "fileexp.afsacl_uuid1", FT_GUID, BASE_NONE,
       NULL, 0x0, "UUID", HFILL}},
-    {&hf_afs4int_bulkfetchstatus_size,
-     {"BulkFetchStatus Size", "afs4int.bulkfetchstatus_size", FT_UINT32,
+    {&hf_fileexp_bulkfetchstatus_size,
+     {"BulkFetchStatus Size", "fileexp.bulkfetchstatus_size", FT_UINT32,
       BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkfetchvv_numvols,
-     {"afs4int.bulkfetchvv_numvols", "afs4int.bulkfetchvv_numvols",
+    {&hf_fileexp_bulkfetchvv_numvols,
+     {"fileexp.bulkfetchvv_numvols", "fileexp.bulkfetchvv_numvols",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkfetchvv_spare1,
-     {"afs4int.bulkfetchvv_spare1", "afs4int.bulkfetchvv_spare1",
+    {&hf_fileexp_bulkfetchvv_spare1,
+     {"fileexp.bulkfetchvv_spare1", "fileexp.bulkfetchvv_spare1",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkfetchvv_spare2,
-     {"afs4int.bulkfetchvv_spare2", "afs4int.bulkfetchvv_spare2",
+    {&hf_fileexp_bulkfetchvv_spare2,
+     {"fileexp.bulkfetchvv_spare2", "fileexp.bulkfetchvv_spare2",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkkeepalive_numexecfids, {"BulkKeepAlive numexecfids", "afs4int.bulkkeepalive_numexecfids", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkkeepalive_spare4,
-     {"BulkKeepAlive spare4", "afs4int.bulkfetchkeepalive_spare2",
+    {&hf_fileexp_bulkkeepalive_numexecfids, {"BulkKeepAlive numexecfids", "fileexp.bulkkeepalive_numexecfids", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
+    {&hf_fileexp_bulkkeepalive_spare4,
+     {"BulkKeepAlive spare4", "fileexp.bulkfetchkeepalive_spare2",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkkeepalive_spare2,
-     {"BulkKeepAlive spare2", "afs4int.bulkfetchkeepalive_spare2",
+    {&hf_fileexp_bulkkeepalive_spare2,
+     {"BulkKeepAlive spare2", "fileexp.bulkfetchkeepalive_spare2",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_bulkkeepalive_spare1,
-     {"BulkFetch KeepAlive spare1", "afs4int.bulkfetchkeepalive_spare1",
+    {&hf_fileexp_bulkkeepalive_spare1,
+     {"BulkFetch KeepAlive spare1", "fileexp.bulkfetchkeepalive_spare1",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsacl_defaultcell_uuid,
+    {&hf_fileexp_afsacl_defaultcell_uuid,
      {"Default Cell UUID",
-      "afs4int.defaultcell_uuid", FT_GUID, BASE_NONE, NULL, 0x0,
+      "fileexp.defaultcell_uuid", FT_GUID, BASE_NONE, NULL, 0x0,
       "UUID", HFILL}},
-    {&hf_afs4int_afsuuid_uuid,
+    {&hf_fileexp_afsuuid_uuid,
      {"AFS UUID",
-      "afs4int.uuid", FT_GUID, BASE_NONE, NULL, 0x0,
+      "fileexp.uuid", FT_GUID, BASE_NONE, NULL, 0x0,
       "UUID", HFILL}},
-    {&hf_afs4int_gettime_syncdispersion,
+    {&hf_fileexp_gettime_syncdispersion,
      {"GetTime Syncdispersion",
-      "afs4int.gettime_syncdispersion", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "fileexp.gettime_syncdispersion", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
-    {&hf_afs4int_gettime_syncdistance,
-     {"SyncDistance", "afs4int.gettime.syncdistance",
+    {&hf_fileexp_gettime_syncdistance,
+     {"SyncDistance", "fileexp.gettime.syncdistance",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_gettime_usecondsp,
-     {"GetTime usecondsp", "afs4int.gettime_usecondsp",
+    {&hf_fileexp_gettime_usecondsp,
+     {"GetTime usecondsp", "fileexp.gettime_usecondsp",
       FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_readdir_size,
-     {"Readdir Size", "afs4int.readdir.size", FT_UINT32,
+    {&hf_fileexp_readdir_size,
+     {"Readdir Size", "fileexp.readdir.size", FT_UINT32,
       BASE_HEX, NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsNameString_t_principalName_size,
+    {&hf_fileexp_afsNameString_t_principalName_size,
      {"Principal Name Size",
-      "afs4int.principalName_size", FT_UINT32, BASE_HEX,
+      "fileexp.principalName_size", FT_UINT32, BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsNameString_t_principalName_size2,
+    {&hf_fileexp_afsNameString_t_principalName_size2,
      {"Principal Name Size2",
-      "afs4int.principalName_size2", FT_UINT32, BASE_HEX,
+      "fileexp.principalName_size2", FT_UINT32, BASE_HEX,
       NULL, 0x0, "", HFILL}},
-    {&hf_afs4int_afsTaggedPath_tp_length,
+    {&hf_fileexp_afsTaggedPath_tp_length,
      {"Tagged Path Length",
-      "afs4int.afsTaggedPath_length", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "fileexp.afsTaggedPath_length", FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL}},
-    {&hf_afs4int_fstype,
-     {"Filetype", "afs4int.fstype", FT_UINT32, BASE_HEX, NULL,
+    {&hf_fileexp_fstype,
+     {"Filetype", "fileexp.fstype", FT_UINT32, BASE_HEX, NULL,
       0x0, "", HFILL}},
-    {&hf_afs4int_gettime_secondsp,
-     {"GetTime secondsp", "afs4int.gettime_secondsp", FT_UINT32,
+    {&hf_fileexp_gettime_secondsp,
+     {"GetTime secondsp", "fileexp.gettime_secondsp", FT_UINT32,
       BASE_HEX, NULL,
       0x0, "", HFILL}},
-    {&hf_afs4int_afsNameString_t_principalName_string,
-     {"Principal Name", "afs4int.NameString_principal", FT_STRING,
+    {&hf_fileexp_afsNameString_t_principalName_string,
+     {"Principal Name", "fileexp.NameString_principal", FT_STRING,
       BASE_NONE, NULL,
       0x0, "", HFILL}},
-    {&hf_afs4int_fetchdata_pipe_t_size,
-     {"FetchData Pipe_t size", "afs4int.fetchdata_pipe_t_size", FT_STRING,
+    {&hf_fileexp_fetchdata_pipe_t_size,
+     {"FetchData Pipe_t size", "fileexp.fetchdata_pipe_t_size", FT_STRING,
       BASE_NONE, NULL,
       0x0, "", HFILL}},
   };
   static gint *ett[] = {
-    &ett_afs4int,
-    &ett_afs4int_afsReturnDesc,
-    &ett_afs4int_afsFid,
-    &ett_afs4int_afsNetAddr,
-    &ett_afs4int_fetchstatus,
-    &ett_afs4int_afsflags,
-    &ett_afs4int_volsync,
-    &ett_afs4int_minvvp,
-    &ett_afs4int_afsfidtaggedname,
-    &ett_afs4int_afstaggedname,
-    &ett_afs4int_afstoken,
-    &ett_afs4int_afsstorestatus,
-    &ett_afs4int_afsRecordLock,
-    &ett_afs4int_afsAcl,
-    &ett_afs4int_afsNameString_t,
-    &ett_afs4int_afsConnParams,
-    &ett_afs4int_afsErrorStatus,
-    &ett_afs4int_afsTaggedPath,
-    &ett_afs4int_afsNetData,
-    &ett_afs4int_afsBulkStat,
-    &ett_afs4int_afsuuid,
-    &ett_afs4int_offsetp,
-    &ett_afs4int_returntokenidp,
-    &ett_afs4int_afsbundled_stat,
+    &ett_fileexp,
+    &ett_fileexp_afsReturnDesc,
+    &ett_fileexp_afsFid,
+    &ett_fileexp_afsNetAddr,
+    &ett_fileexp_fetchstatus,
+    &ett_fileexp_afsflags,
+    &ett_fileexp_volsync,
+    &ett_fileexp_minvvp,
+    &ett_fileexp_afsfidtaggedname,
+    &ett_fileexp_afstaggedname,
+    &ett_fileexp_afstoken,
+    &ett_fileexp_afsstorestatus,
+    &ett_fileexp_afsRecordLock,
+    &ett_fileexp_afsAcl,
+    &ett_fileexp_afsNameString_t,
+    &ett_fileexp_afsConnParams,
+    &ett_fileexp_afsErrorStatus,
+    &ett_fileexp_afsTaggedPath,
+    &ett_fileexp_afsNetData,
+    &ett_fileexp_afsBulkStat,
+    &ett_fileexp_afsuuid,
+    &ett_fileexp_offsetp,
+    &ett_fileexp_returntokenidp,
+    &ett_fileexp_afsbundled_stat,
   };
-  proto_afs4int = proto_register_protocol ("DFS Calls", "DCE_DFS", "dce_dfs");
-  proto_register_field_array (proto_afs4int, hf, array_length (hf));
+  proto_fileexp = proto_register_protocol ("DCE DFS File Exporter", "FILEEXP", "fileexp");
+  proto_register_field_array (proto_fileexp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }
 
 void
-proto_reg_handoff_afs4int (void)
+proto_reg_handoff_fileexp (void)
 {
   /*
    * Register the protocol as dcerpc 
    */
-  dcerpc_init_uuid (proto_afs4int, ett_afs4int, &uuid_afs4int, ver_afs4int,
-		    afs4int_dissectors, hf_afs4int_opnum);
+  dcerpc_init_uuid (proto_fileexp, ett_fileexp, &uuid_fileexp, ver_fileexp,
+		    fileexp_dissectors, hf_fileexp_opnum);
 }

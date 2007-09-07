@@ -1,6 +1,6 @@
 /* packet-dcerpc-ubikdisk.c
  *
- * Routines for dcerpc UBIK Disk routines
+ * Routines for DCE DFS UBIK Disk routines
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/ncsubik/ubikdisk_proc.idl
@@ -82,7 +82,7 @@ proto_register_ubikdisk (void)
 	static gint *ett[] = {
 		&ett_ubikdisk,
 	};
-	proto_ubikdisk = proto_register_protocol ("DCE/RPC FLDB UBIK TRANSFER", "UBIKDISK", "ubikdisk");
+	proto_ubikdisk = proto_register_protocol ("DCE DFS FLDB UBIK TRANSFER", "UBIKDISK", "ubikdisk");
 	proto_register_field_array (proto_ubikdisk, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

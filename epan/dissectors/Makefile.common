@@ -251,7 +251,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-data.c		\
 	packet-daytime.c 	\
 	packet-dccp.c		\
-	packet-dcerpc-afs4int.c		\
 	packet-dcerpc-bossvr.c		\
 	packet-dcerpc-browser.c		\
 	packet-dcerpc-cds_clerkserver.c	\
@@ -263,6 +262,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dcerpc-dtsprovider.c 	\
 	packet-dcerpc-dtsstime_req.c 	\
 	packet-dcerpc-epm.c		\
+	packet-dcerpc-fileexp.c		\
 	packet-dcerpc-fldb.c		\
 	packet-dcerpc-frsapi.c		\
 	packet-dcerpc-frsrpc.c		\

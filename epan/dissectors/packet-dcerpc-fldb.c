@@ -1,6 +1,6 @@
 /* packet-dcerpc-fldb.c
  *
- * Routines for dcerpc FLDB Calls
+ * Routines for DCE DFS Fileset Location Server Calls
  * Copyright 2004, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/flserver/fldb_proc.idl
@@ -2128,7 +2128,7 @@ proto_register_fldb (void)
     &ett_fldb_afsNameString_t,
   };
 
-  proto_fldb = proto_register_protocol ("DCE/RPC FLDB", "FLDB", "fldb");
+  proto_fldb = proto_register_protocol ("DCE DFS Fileset Location Server", "FLDB", "fldb");
   proto_register_field_array (proto_fldb, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }

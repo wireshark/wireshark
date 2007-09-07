@@ -1,6 +1,6 @@
 /* packet-dcerpc-ubikvote.c
  *
- * Routines for dcerpc Ubik Voting  routines.
+ * Routines for DCE DFS Ubik Voting  routines.
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/ncsubik/ubikvote_proc.idl
@@ -77,7 +77,7 @@ proto_register_ubikvote (void)
 	static gint *ett[] = {
 		&ett_ubikvote,
 	};
-	proto_ubikvote = proto_register_protocol ("DCE/RPC FLDB UBIKVOTE", "UBIKVOTE", "ubikvote");
+	proto_ubikvote = proto_register_protocol ("DCE DFS FLDB UBIKVOTE", "UBIKVOTE", "ubikvote");
 	proto_register_field_array (proto_ubikvote, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }
