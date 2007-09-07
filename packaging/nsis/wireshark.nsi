@@ -763,6 +763,7 @@ File "..\..\plugins\sbus\sbus.dll"
 File "..\..\plugins\unistim\unistim.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
 File "..\..\plugins\wimax\wimax.dll"
+File "..\..\plugins\wimaxasncp\wimaxasncp.dll"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
