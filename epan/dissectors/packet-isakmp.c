@@ -100,6 +100,10 @@ static int hf_isakmp_certificate     = -1;
 static int hf_isakmp_notify_msgtype  = -1;
 static int hf_isakmp_num_spis        = -1;
 
+static int hf_ike_cisco_frag_packetid      = -1;
+static int hf_ike_cisco_frag_seq     = -1;
+static int hf_ike_cisco_frag_last    = -1;
+
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
@@ -133,6 +137,12 @@ static dissector_handle_t eap_handle = NULL;
  */
 #define IKEV2_TS_IPV4_ADDR_RANGE	7
 #define IKEV2_TS_IPV6_ADDR_RANGE	8
+
+static const value_string frag_last_vals[] = {
+  { 0,	"More fragments" },
+  { 1,	"Last fragment" },
+  { 0,  NULL },
+};
 
 static const value_string vs_proto[] = {
   { 0,	"RESERVED" },
@@ -507,6 +517,8 @@ static void dissect_enc(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int, int);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int, int);
+static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int, int);
 
 static void
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
@@ -562,6 +574,7 @@ static struct payload_func v1_plfunc[] = {
   { 21, "NAT-OA (RFC 3947)",	dissect_nat_original_address },
   { 130, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)",		dissect_nat_discovery },
   { 131, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)",	dissect_nat_original_address },
+  { 132, "Cisco-Fragmentation",	dissect_cisco_fragmentation },
 };
 
 static struct payload_func v2_plfunc[] = {
@@ -590,6 +603,10 @@ static struct payload_func * getpayload_func(guint8, int);
 
 #define VID_LEN 16
 #define VID_MS_LEN 20
+#define VID_CISCO_FRAG_LEN 20
+
+static const guint8 VID_CISCO_FRAG[VID_CISCO_FRAG_LEN] = {0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85, 0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3, 0x80, 0x00, 0x00, 0x00};
+
 static const guint8 VID_MS_W2K_WXP[VID_MS_LEN] = {0x1E, 0x2B, 0x51, 0x69, 0x5, 0x99, 0x1C, 0x7D, 0x7C, 0x96, 0xFC, 0xBF, 0xB5, 0x87, 0xE4, 0x61, 0x0, 0x0, 0x0, 0x2}; /* according to http://www.microsoft.com/technet/treeview/default.asp?url=/technet/columns/cableguy/cg0602.asp */
 
 #define VID_CP_LEN 20
@@ -693,6 +710,8 @@ static const guint8 VID_GSSAPI[VID_LEN]= {0x62, 0x1B, 0x04, 0xBB, 0x09, 0x88, 0x
 static const guint8 VID_MS_NT5_ISAKMPOAKLEY[VID_LEN]= {0x1E, 0x2B, 0x51, 0x69, 0x05, 0x99, 0x1C, 0x7D, 0x7C, 0x96, 0xFC, 0xBF, 0xB5, 0x87, 0xE4, 0x61}; /* MS NT5 ISAKMPOAKLEY */
 
 static const guint8 VID_CISCO_UNITY[VID_LEN]= {0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x71, 0x68, 0xA9, 0x70, 0x2D, 0x9F, 0xE2, 0x74, 0xCC, 0x02, 0xD4}; /* CISCO-UNITY */
+
+static const guint8 VID_CISCO_UNITY_10[VID_LEN]= {0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x71, 0x68, 0xA9, 0x70, 0x2D, 0x9F, 0xE2, 0x74, 0xCC, 0x01, 0x00}; /* CISCO-UNITY 1.0 */
 
 #define VID_LEN_8 8
 static const guint8 VID_draft_ietf_ipsec_antireplay_00[VID_LEN_8]= {0x32, 0x5D, 0xF2, 0x9A, 0x23, 0x19, 0xF2, 0xDD}; /* draft-ietf-ipsec-antireplay-00.txt */
@@ -1739,6 +1758,23 @@ dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 }
 
 static void
+dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+{
+  /* XXX uint16: id, uint8: seq, uint8: flags (01=last frag) */
+  if (length >= 4) {
+    proto_tree_add_item(tree, hf_ike_cisco_frag_packetid, tvb, offset, 2, FALSE);
+    offset += 2;
+    proto_tree_add_item(tree, hf_ike_cisco_frag_seq, tvb, offset, 1, FALSE);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ike_cisco_frag_last, tvb, offset, 1, FALSE);
+    offset += 1;
+    length-=4;
+  }
+  proto_tree_add_text(tree, tvb, offset, length, "Fragment Data");
+}
+
+static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
 {
@@ -1886,7 +1922,12 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   proto_tree * ntree;
   pVID = tvb_get_ptr(tvb, offset, length);
   pt = proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: ");
-  if (memcmp(pVID, VID_MS_W2K_WXP, isakmp_min(VID_MS_LEN, length)) == 0)
+  if (length == VID_CISCO_FRAG_LEN
+	&& memcmp(pVID, VID_CISCO_FRAG, length) == 0)
+	proto_item_append_text(pt, "Cisco Fragmentation");
+  else
+  if (length == VID_MS_LEN
+	&& memcmp(pVID, VID_MS_W2K_WXP, length) == 0)
 	proto_item_append_text(pt, "Microsoft Win2K/WinXP");
   else
   if (memcmp(pVID, VID_CP, isakmp_min(VID_CP_LEN, length)) == 0)
@@ -2076,6 +2117,9 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   else
   if (memcmp(pVID,  VID_MS_NT5_ISAKMPOAKLEY, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "MS NT5 ISAKMPOAKLEY");
+  else
+  if (memcmp(pVID,  VID_CISCO_UNITY_10, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "CISCO-UNITY-1.0");
   else
   if (memcmp(pVID,  VID_CISCO_UNITY, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "CISCO-UNITY");
@@ -3184,6 +3228,18 @@ proto_register_isakmp(void)
       { "Port", "isakmp.spinum",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "ISAKMP Number of SPIs", HFILL }},
+    { &hf_ike_cisco_frag_packetid,
+      { "Frag ID", "isakmp.frag.packetid",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "ISAKMP fragment packet-id", HFILL }},
+    { &hf_ike_cisco_frag_seq,
+      { "Frag seq", "isakmp.frag.packetid",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "ISAKMP fragment number", HFILL }},
+    { &hf_ike_cisco_frag_last,
+      { "Frag last", "isakmp.frag.last",
+        FT_UINT8, BASE_DEC, VALS(frag_last_vals), 0x0,
+        "ISAKMP last fragment", HFILL }},
 
     { &hf_ike_certificate_authority,
       { "Certificate Authority Distinguished Name", "ike.cert_authority_dn", FT_UINT32, BASE_DEC, NULL, 0x0, "Certificate Authority Distinguished Name", HFILL }
