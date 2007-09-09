@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="8,00"
+	Name="wireshark-gtk1"
+	ProjectGUID="{684AC70D-E5DC-4E42-B70A-DF512A43335C}"
+	RootNamespace="wireshark"
+	Keyword="MakeFileProj"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="0"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="nmake -f Makefile.nmake debug-gtk1"
+				ReBuildCommandLine=""
+				CleanCommandLine="nmake -f Makefile.nmake distclean"
+				Output="wireshark-gtk1\wireshark.exe"
+				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_CONFIG_H"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Quelldateien"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
+			<File
+				RelativePath=".\capture.c"
+				>
+			</File>
+			<File
+				RelativePath=".\capture_info.c"
+				>
+			</File>
+			<File
+				RelativePath=".\cfile.c"
+				>
+			</File>
+			<File
+				RelativePath=".\file.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Headerdateien"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+			<File
+				RelativePath=".\simple_dialog.h"
+				>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
