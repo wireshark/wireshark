@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+# Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALL", "all.vcproj", "{6B137D16-7235-4BB7-9AE3-8842FB238DD1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libwireshark", "epan\libwireshark.vcproj", "{78DC3973-9100-4C4E-B135-822B623A2EAF}"
@@ -24,6 +24,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "doc", "doc\doc.vcproj", "{527CC23A-32CD-438C-AF42-DF1D9A96EE4D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "plugins", "plugins\plugins.vcproj", "{42C8C754-3ACA-4C5A-A2EA-7488C990A2F5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dissectors", "epan\dissectors\dissectors.vcproj", "{7D31A4A1-6663-4935-B28D-E179D0D14023}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -143,6 +145,15 @@ Global
 		{42C8C754-3ACA-4C5A-A2EA-7488C990A2F5}.zip_gtk1|Win32.Build.0 = Release|Win32
 		{42C8C754-3ACA-4C5A-A2EA-7488C990A2F5}.zip_gtk2|Win32.ActiveCfg = Release|Win32
 		{42C8C754-3ACA-4C5A-A2EA-7488C990A2F5}.zip_gtk2|Win32.Build.0 = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.Release|Win32.ActiveCfg = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.Release|Win32.Build.0 = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.wsdg|Win32.ActiveCfg = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.wsdg|Win32.Build.0 = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.zip_gtk1|Win32.ActiveCfg = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.zip_gtk1|Win32.Build.0 = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.zip_gtk2|Win32.ActiveCfg = Release|Win32
+		{7D31A4A1-6663-4935-B28D-E179D0D14023}.zip_gtk2|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
