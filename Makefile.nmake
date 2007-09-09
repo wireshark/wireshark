@@ -595,9 +595,10 @@ check_libs:
 #  (or dummy file doesn't exists because of 'make clean' or whatever)
 # (To disable library verification when Makefile.nmake changes,
 #  comment out the commands for the following target).
+# touch is only called if libverify succeeds
 $(LIBS_CHECK): Makefile.nmake
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN32_SETUP_OPT=--libverify process_libs
-	@touch --reference=Makefile.nmake $@ ## only if libverify succeeds
+	@touch --reference=Makefile.nmake $@
 
 # Download (if needed) and install all the required libraries into WIRESHARK_LIBS.
 # A clean_setup is done first to ensure that the target dirs don't 
