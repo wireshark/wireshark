@@ -60,7 +60,7 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Headerdateien"
+			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
@@ -70,14 +70,6 @@
 			>
 			<File
 				RelativePath=".\Makefile.nmake"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="dissectors"
-			>
-			<File
-				RelativePath=".\dissectors\Makefile.nmake"
 				>
 			</File>
 		</Filter>

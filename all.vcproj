@@ -40,7 +40,7 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Headerdateien"
+			Name="Header Files"
 			>
 			<File
 				RelativePath=".\config.h.win32"
