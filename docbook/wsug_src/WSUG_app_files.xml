@@ -555,7 +555,7 @@ c0-a8-1c-00      CEO
 	you are currently working on, but on the domain server.
 	</para>
 	<para>
-	As Wireshark is using the correct places to store it's profile data,
+	As Wireshark is using the correct places to store its profile data,
 	your settings will travel with you, if you logon to a different computer 
 	the next time.
 	</para>

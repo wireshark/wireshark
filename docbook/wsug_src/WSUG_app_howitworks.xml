@@ -52,7 +52,7 @@
 
   <section><title>Protocol dissectors</title>
   <para>
-  Each protocol has it's own protocol dissector. A dissector is called from 
+  Each protocol has its own protocol dissector. A dissector is called from 
   Wireshark, if the packet data seems to be of that corresponding protocol. The 
   dissector  will then process the packet data and call back Wireshark if it 
   couldn't dissect all the data in that packet to do any further dissections.
@@ -97,7 +97,7 @@
   is just unknown to Wireshark.
   </para>
   <para>
-  You can control the way how Wireshark calls it's dissectors, see <xref 
+  You can control the way Wireshark calls its dissectors, see <xref 
   linkend="ChAdvProtocolDissectionSection"/> for details.
   </para>
   </section>

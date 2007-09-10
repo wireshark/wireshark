@@ -964,7 +964,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	  <para>
 	    To write the C code to stdout.
 	    <programlisting>idl2wrs  &lt;your file.idl&gt;</programlisting>
-	    eg: <programlisting>idl2wrs echo.idl</programlisting>
+	    e.g.: <programlisting>idl2wrs echo.idl</programlisting>
 	  </para>
 	</listitem>
 	<listitem>
@@ -983,7 +983,7 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	<listitem>
 	  <para>To write the C code to stdout.
 	    <programlisting>Usage: omniidl  -p ./ -b wireshark_be &lt;your file.idl&gt;</programlisting>
-	    eg:
+	    e.g.:
 	    <programlisting>omniidl  -p ./ -b wireshark_be echo.idl</programlisting>
 	  </para>
 	</listitem>
@@ -1060,7 +1060,7 @@ edit Makefile.nmake
 	<listitem>
 	  <para>
 	    If it complains about being unable to find some modules
-	    (eg tempfile.py),
+	    (e.g. Tempfile.Py),
 	    you may want to check if PYTHONPATH is set correctly.
 	    On my Linux box, it is  PYTHONPATH=/usr/lib/python2.4/
 	  </para>

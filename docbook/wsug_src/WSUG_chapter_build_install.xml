@@ -209,7 +209,7 @@ make install
       Under RedHat 6.x and beyond (and distributions based on it, like 
       Mandrake) you can simply install each of the packages you need from 
       RPMs. Most Linux systems will install GTK+ and GLib in any case, 
-      however, you will probably need to install the devel versions of 
+      however you will probably need to install the devel versions of 
       each of these packages. The commands shown in <xref linkend="Ch02Ex4"/> 
 	will install all the needed RPMs if they are not already installed.
 	<example id="Ch02Ex4">
@@ -263,7 +263,7 @@ tar zxvf wireshark-&WiresharkCurrentVersion;-tar.gz
 	    </programlisting>
 	  </para>
 	  <para>
-	    For other versions of UNIX, You will want to use the following 
+	    For other versions of UNIX, you will want to use the following 
 	    commands:
 	    <programlisting>
 gzip -d wireshark-&WiresharkCurrentVersion;-tar.gz
@@ -728,7 +728,7 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
     </para>
 	<warning><title>Warning!</title>
 	<para>
-	If you have an older version of WinPcap installed, you must un-install it 
+	If you have an older version of WinPcap installed, you must uninstall it 
 	before installing the current version. Recent versions of the WinPcap 
 	installer will take care of this.
 	</para>
@@ -743,8 +743,8 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	start the uninstallation procedure.
     </para>
     <para>
-	The Wireshark uninstaller will provide several options which things to be 
-	uninstalled, the default is to remove the core components but keep the personal 
+	The Wireshark uninstaller will provide several options as to which things are to be 
+	uninstalled; the default is to remove the core components but keep the personal 
 	settings, WinPcap and alike.
     </para>
     <para>

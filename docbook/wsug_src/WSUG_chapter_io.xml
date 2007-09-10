@@ -501,7 +501,7 @@
   <section id="ChIOOutputFormatsSection">
     <title>Output File Formats</title>
     <para>
-	Wireshark can save the packet data in it's "native" file format (libpcap) 
+	Wireshark can save the packet data in its "native" file format (libpcap) 
 	and in the file formats of some other protocol analyzers, so other tools 
 	can read the capture data.
     </para>
@@ -706,7 +706,7 @@
 	  pattern (prefix and suffix) than the currently loaded file. 
     </para>
     <para>
-	  This simple mechanism usually works well, but has it's drawbacks. If several 
+	  This simple mechanism usually works well, but has its drawbacks. If several 
 	  file sets were captured with the same prefix and suffix, Wireshark will detect 
 	  them as a single file set. If files were renamed or spread over several 
 	  directories the mechanism will fail to find all files of a set.

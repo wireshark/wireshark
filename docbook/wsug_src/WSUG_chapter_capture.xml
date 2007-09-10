@@ -23,7 +23,7 @@
 	captured time, captured number of packets.
 	</para></listitem>
 	<listitem><para>
-	Simultaneously show decoded packets while keep on capturing.
+	Simultaneously show decoded packets while Wireshark keeps on capturing.
 	</para></listitem>
 	<listitem><para>
 	Filter packets, reducing the amount of data to be captured, see <xref 
@@ -529,8 +529,8 @@ wireshark -i eth0 -k
 	    </term>
 	    <listitem>
 	      <para>
-		If this option is checked, the following capture info dialog will be 
-		hidden.
+		If this option is checked, the capture info dialog described in 
+                <xref linkend="ChCapRunningSection"/> will be hidden.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -1071,7 +1071,7 @@ tcp port 23 and not src host 10.0.0.5
 	<section id="ChCapRestartSection"><title>Restart a running capture</title>
     <para>
       A running capture session can be restarted with the same capture options 
-	  than the last time, this will remove all packets previously captured.
+	  as the last time, this will remove all packets previously captured.
 	  This can be useful, if some uninteresting packets are captured and 
 	  there's no need to keep them.
     </para>

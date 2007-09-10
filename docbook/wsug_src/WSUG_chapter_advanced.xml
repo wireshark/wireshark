@@ -305,7 +305,7 @@
       <section id="ChAdvExpertDialogDetails">
         <title>Details tab</title>
         <para>The Details tab provides the expert infos in a "log
-        like" view, each entry in it's own line (much like the
+        like" view, each entry in its own line (much like the
         packet list). As the amount of expert infos of a capture
         file can easily become very large, getting an idea of the
         interesting infos with this view can take quite a while.
@@ -752,7 +752,7 @@
       <title>Name Resolution drawbacks</title>
       <para>Name resolution can be invaluable while working with
       Wireshark and may even save you hours of work. Unfortunately,
-      it also has it's drawbacks.</para>
+      it also has its drawbacks.</para>
       <itemizedlist>
         <listitem>
           <para>
@@ -788,7 +788,7 @@
           performance. However, if the name resolution information
           should change while Wireshark is running, Wireshark won't
           notice a change to the name resolution information once
-          it's get cached. If this information changes while
+          it gets cached. If this information changes while
           Wireshark is running, e.g. a new DHCP lease takes effect,
           Wireshark won't notice it. XXX - is this true for all or
           only for DNS info?</para>

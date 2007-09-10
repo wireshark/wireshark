@@ -22,7 +22,7 @@
 		<command>Wrong dissector</command>
 	    Wireshark erroneously has chosen the wrong protocol dissector for 
 		this packet. This will happen e.g. if you are using a protocol  
-		not on it's well known TCP or UDP port. You may try Analyze|Decode As 
+		not on its well known TCP or UDP port. You may try Analyze|Decode As 
 		to circumvent this problem.
 	  </para>
 	</listitem>

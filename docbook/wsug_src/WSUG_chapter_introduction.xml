@@ -115,7 +115,7 @@
 	<title>Live capture from many different network media</title>
 	<para>
 	  Wireshark can capture traffic from many different network media types 
-	  - and despite it's name including wireless LAN as well.
+	  - and despite its name - including wireless LAN as well.
 	  Which media types are supported, depends on many things like the 
 	  operating system you are using.
 	  An overview of the supported media types can be found at: 
@@ -198,7 +198,7 @@
 	for details and workarounds</para></listitem>
 	<listitem><para>Wireshark won't benefit much from Multiprocessor/Hyperthread 
 	systems as time consuming tasks like filtering packets are single threaded.
-	No rule without exception: during an "Update list of packets in real 
+	No rule is without exception: during an "Update list of packets in real 
 	time" capture, capturing traffic runs in one process and dissecting and 
 	displaying packets runs in another process - which should benefit from two 
 	processors.</para></listitem>
@@ -247,7 +247,7 @@
 	three reasons: 
 	None of the developers actively use those systems any longer which 
 	makes support difficult.
-	The libraries Wireshark depends on (GTK, WinPCap, ...) also dropping support 
+	The libraries Wireshark depends on (GTK, WinPCap, ...) are also dropping support 
 	for these systems.
 	Microsoft also dropped support for these systems.
 	</para></listitem>

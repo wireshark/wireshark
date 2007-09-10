@@ -62,8 +62,8 @@
 
   <section id="ChUseMainWindowSection"><title>The Main window</title>
 	<para>
-      Lets look at Wireshark's user interface. <xref linkend="ChUseFig01"/> shows
-	Wireshark as you would usually see it after some packets captured or loaded
+      Let's look at Wireshark's user interface. <xref linkend="ChUseFig01"/> shows
+	Wireshark as you would usually see it after some packets are captured or loaded
 	(how to do this will be described later).
 	<figure id="ChUseFig01">
 	  <title>The Main window</title>
@@ -71,7 +71,7 @@
 	</figure>
     </para>
     <para>
-      Wireshark's main window consist of parts that are commonly known from many
+      Wireshark's main window consists of parts that are commonly known from many
 	  other GUI programs.
       <orderedlist>
 	<listitem>
@@ -279,8 +279,8 @@
 	<varlistentry><term><command>View</command></term>
 	  <listitem>
 	    <para>This menu controls the display of the captured data,
-		including the colorization of packets, zooming the font,
-		show a packet in a separate window, expand and collapse trees in packet details, ....
+		including colorization of packets, zooming the font,
+		showing a packet in a separate window, expanding and collapsing trees in packet details, ....
 		See <xref linkend="ChUseViewMenuSection"/>.
 		</para>
 	  </listitem>
@@ -312,7 +312,7 @@
 	<varlistentry><term><command>Statistics</command></term>
 	  <listitem>
 	    <para>
-	      This menu contains menu-items to display various statistic windows,
+	      This menu contains items to display various statistic windows,
 		  including a summary of the packets that have been captured,
 		  display protocol hierarchy statistics and much more.
 		  See <xref linkend="ChUseStatisticsMenuSection"/>.
@@ -480,7 +480,7 @@
 		<entry><command>Export > as "Plain Text" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export all, or some, of the packets in
+		    This menu item allows you to export all (or some) of the packets in
 		    the capture file to a plain ASCII text file.
 			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPlainDialog"/>).
@@ -490,7 +490,7 @@
 		<entry><command>Export > as "PostScript" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in
+		    This menu item allows you to export all (or some) of the packets in
 		    the capture file to a PostScript file.
 			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPSDialog"/>).
@@ -500,7 +500,7 @@
 		<entry><command>Export > as "CSV" (Comma Separated Values packet summary) file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packet summaries in
+		    This menu item allows you to export all (or some) of the packet summaries in
 		    the capture file to a .csv file (e.g. used by spreadsheet programs).
 			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportCSVDialog"/>).
@@ -510,7 +510,7 @@
 		<entry><command>Export > as "PSML" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in
+		    This menu item allows you to export all (or some) of the packets in
 		    the capture file to a PSML (packet summary markup language) XML file.
 			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPSMLDialog"/>).
@@ -520,7 +520,7 @@
 		<entry><command>Export > as "PDML" file...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows you to export the (or some) of the packets in
+		    This menu item allows you to export all (or some) of the packets in
 		    the capture file to a PDML (packet details markup language) XML file.
 			It pops up the Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportPDMLDialog"/>).
@@ -545,7 +545,7 @@
 		<entry><command>Print...</command></entry>
 		<entry>Ctrl+P</entry>
 		<entry><para>
-		    This menu item allows you to print all (or some of) the packets in
+		    This menu item allows you to print all (or some) of the packets in
 		    the capture file. It pops up the Wireshark Print dialog
 		    box (which is discussed further in
 		    <xref linkend="ChIOPrintSection"/>).
