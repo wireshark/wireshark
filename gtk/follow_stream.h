@@ -106,6 +106,10 @@ void follow_stream_om_client(GtkWidget * w, gpointer data);
 void follow_stream_om_server(GtkWidget * w, gpointer data);
 void remember_follow_info(follow_info_t *follow_info);
 void forget_follow_info(follow_info_t *follow_info);
+void follow_stream(gchar *title, follow_info_t *follow_info,
+		   gchar *both_directions_string,
+		   gchar *server_to_client_string,
+		   gchar *client_to_server_string);
 
 frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 frs_return_t follow_read_ssl_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);

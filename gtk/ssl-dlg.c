@@ -2,6 +2,10 @@
  *
  * $Id$
  *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -14,7 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ * USA.
  */
 
 #include "config.h"
@@ -64,8 +69,6 @@
 #include "ssl-dlg.h"
 
 #include "follow_stream.h"
-
-static void follow_destroy_cb(GtkWidget * win, gpointer data);
 
 typedef struct {
     gboolean is_server;
@@ -138,20 +141,18 @@ packet_is_ssl(epan_dissect_t* edt);
 void
 ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 {
-    GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text, *filter_te;
-    GtkWidget	*hbox, *button_hbox, *button, *radio_bt;
-    GtkWidget   *stream_fr, *stream_vb;
-    GtkWidget	*stream_om, *stream_menu, *stream_mi;
-    GtkTooltips *tooltips;
-    gchar		*follow_filter;
+    GtkWidget	*filter_te;
+    gchar	*follow_filter;
     const gchar	*previous_filter;
-    int		    filter_out_filter_len, previus_filter_len;
+    int		filter_out_filter_len, previous_filter_len;
     const char	*hostname0, *hostname1;
-    char		*port0, *port1;
-    char		string[128];
+    char	*port0, *port1;
+    gchar	*server_to_client_string = NULL;
+    gchar       *client_to_server_string = NULL;
+    gchar	*both_directions_string = NULL;
     follow_tcp_stats_t stats;
-    follow_info_t	*follow_info;
-    GString* msg;
+    follow_info_t *follow_info;
+    GString*    msg;
 
     /* we got ssl so we can follow */
     if (!packet_is_ssl(cfile.edt)) {
@@ -188,12 +189,12 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 
     /* allocate our new filter. API claims g_malloc terminates program on failure */
     /* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
-    previus_filter_len = previous_filter?strlen(previous_filter):0;
-    filter_out_filter_len = strlen(follow_filter) + previus_filter_len + 16;
+    previous_filter_len = previous_filter?strlen(previous_filter):0;
+    filter_out_filter_len = strlen(follow_filter) + previous_filter_len + 16;
     follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
 
     /* append the negation */
-    if(previus_filter_len) {
+    if(previous_filter_len) {
         g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
         "%s and !(%s)", previous_filter, follow_filter);
     } else {
@@ -219,245 +220,49 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     /* Free the filter string, as we're done with it. */
     g_free(follow_filter);
 
-    /* The data_out_file should now be full of the streams information */
     remove_tap_listener(follow_info);
-
-    /* The data_out_filename file now has all the text that was in the session */
-    streamwindow = dlg_window_new("Follow SSL Stream");
-
-    /* needed in follow_filter_out_stream(), is there a better way? */
-    follow_info->streamwindow = streamwindow;
-
-    gtk_widget_set_name(streamwindow, "SSL stream window");
-    gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
-    gtk_container_border_width(GTK_CONTAINER(streamwindow), 6);
-
-    /* setup the container */
-    tooltips = gtk_tooltips_new ();
-
-    vbox = gtk_vbox_new(FALSE, 6);
-    gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
-
-    /* content frame */
-    if (incomplete_tcp_stream) {
-            stream_fr = gtk_frame_new("Stream Content (incomplete)");
-    } else {
-            stream_fr = gtk_frame_new("Stream Content");
-    }
-    gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
-    gtk_widget_show(stream_fr);
-
-    stream_vb = gtk_vbox_new(FALSE, 6);
-    gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 6);
-    gtk_container_add(GTK_CONTAINER(stream_fr), stream_vb);
-
-    /* create a scrolled window for the text */
-    txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
-                                        GTK_SHADOW_IN);
-#endif
-    gtk_box_pack_start(GTK_BOX(stream_vb), txt_scrollw, TRUE, TRUE, 0);
-
-    /* create a text box */
-#if GTK_MAJOR_VERSION < 2
-    text = gtk_text_new(NULL, NULL);
-    gtk_text_set_editable(GTK_TEXT(text), FALSE);
-#else
-    text = gtk_text_view_new();
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
-#endif
-    gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
-    follow_info->text = text;
-
-
-    /* stream hbox */
-    hbox = gtk_hbox_new(FALSE, 1);
-    gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
-
-#if GTK_CHECK_VERSION(2,4,0)
-	/* Create Find Button */
-	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_FIND);
-	SIGNAL_CONNECT(button, "clicked", follow_find_cb, follow_info);
-	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-#endif
-
-    /* Create Save As Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
-    SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
-    gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed ", NULL);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
     /* Stream to show */
     follow_tcp_stats(&stats);
 
     if (stats.is_ipv6) {
-      struct e_in6_addr ipaddr;
-      memcpy(&ipaddr, stats.ip_address[0], 16);
-      hostname0 = get_hostname6(&ipaddr);
-      memcpy(&ipaddr, stats.ip_address[0], 16);
-      hostname1 = get_hostname6(&ipaddr);
+	    struct e_in6_addr ipaddr;
+	    memcpy(&ipaddr, stats.ip_address[0], 16);
+	    hostname0 = get_hostname6(&ipaddr);
+	    memcpy(&ipaddr, stats.ip_address[0], 16);
+	    hostname1 = get_hostname6(&ipaddr);
     } else {
-      guint32 ipaddr;
-      memcpy(&ipaddr, stats.ip_address[0], 4);
-      hostname0 = get_hostname(ipaddr);
-      memcpy(&ipaddr, stats.ip_address[1], 4);
-      hostname1 = get_hostname(ipaddr);
+	    guint32 ipaddr;
+	    memcpy(&ipaddr, stats.ip_address[0], 4);
+	    hostname0 = get_hostname(ipaddr);
+	    memcpy(&ipaddr, stats.ip_address[1], 4);
+	    hostname1 = get_hostname(ipaddr);
     }
-
+    
     port0 = get_tcp_port(stats.tcp_port[0]);
     port1 = get_tcp_port(stats.tcp_port[1]);
-
+    
     follow_info->is_ipv6 = stats.is_ipv6;
 
-    stream_om = gtk_option_menu_new();
-    stream_menu = gtk_menu_new();
-
-    /* Both Stream Directions */
-    g_snprintf(string, sizeof(string),
-             "Entire conversation (%u bytes)",
-             follow_info->bytes_written[0] + follow_info->bytes_written[1]);
-    stream_mi = gtk_menu_item_new_with_label(string);
-    SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_both,
-                   follow_info);
-    gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
-    gtk_widget_show(stream_mi);
-    follow_info->show_stream = BOTH_HOSTS;
-
+   /* Both Stream Directions */
+    both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
+    
     /* Host 0 --> Host 1 */
-    g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
-             hostname0, port0, hostname1, port1,
-             follow_info->bytes_written[0]);
-    stream_mi = gtk_menu_item_new_with_label(string);
-    SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_client,
-                   follow_info);
-    gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
-    gtk_widget_show(stream_mi);
+    server_to_client_string =
+	    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+			    hostname0, port0,
+			    hostname1, port1,
+			    follow_info->bytes_written[0]);
 
     /* Host 1 --> Host 0 */
-    g_snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
-             hostname1, port1, hostname0, port0,
-             follow_info->bytes_written[1]);
-    stream_mi = gtk_menu_item_new_with_label(string);
-    SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_server,
-                   follow_info);
-    gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
-    gtk_widget_show(stream_mi);
+    client_to_server_string =
+	    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+			    hostname1, port1,
+			    hostname0, port0,
+			    follow_info->bytes_written[1]);
 
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(stream_om), stream_menu);
-    /* Set history to 0th item, i.e., the first item. */
-    gtk_option_menu_set_history(GTK_OPTION_MENU(stream_om), 0);
-    gtk_tooltips_set_tip (tooltips, stream_om,
-        "Select the stream direction to display", NULL);
-    gtk_box_pack_start(GTK_BOX(hbox), stream_om, FALSE, FALSE, 0);
-
-    /* ASCII radio button */
-    radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
-    gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"ASCII\" format", NULL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), TRUE);
-    gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-    SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
-                   follow_info);
-    follow_info->ascii_bt = radio_bt;
-    follow_info->show_type = SHOW_ASCII;
-
-    /* HEX DUMP radio button */
-    radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
-                                        (GTK_RADIO_BUTTON(radio_bt)),
-                                        "Hex Dump");
-    gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Hexdump\" format", NULL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
-    gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-    SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
-                   follow_info);
-    follow_info->hexdump_bt = radio_bt;
-
-    /* C Array radio button */
-    radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
-                                        (GTK_RADIO_BUTTON(radio_bt)),
-                                        "C Arrays");
-    gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"C Array\" format", NULL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
-    gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-    SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
-                   follow_info);
-    follow_info->carray_bt = radio_bt;
-
-    /* Raw radio button */
-    radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
-                                        (GTK_RADIO_BUTTON(radio_bt)),
-                                        "Raw");
-    gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Raw\" (binary) format. "
-    "As this contains non printable characters, the screen output will be in ASCII format", NULL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
-    gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-    SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
-                   follow_info);
-    follow_info->raw_bt = radio_bt;
-
-    /* button hbox */
-    button_hbox = gtk_hbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
-
-    /* Create exclude stream button */
-    button = gtk_button_new_with_label("Filter Out This Stream");
-    SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
-    gtk_tooltips_set_tip (tooltips, button,
-    "Build a display filter which cuts this stream from the capture", NULL);
-    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
-
-    /* Create Close Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-    gtk_tooltips_set_tip (tooltips, button,
-        "Close the dialog and keep the current display filter", NULL);
-    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
-    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-
-    window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
-
-    /* Tuck away the follow_info object into the window */
-    OBJECT_SET_DATA(streamwindow, E_FOLLOW_INFO_KEY, follow_info);
-
-    follow_load_text(follow_info);
-    remember_follow_info(follow_info);
-
-    SIGNAL_CONNECT(streamwindow, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
-
-    /* Make sure this widget gets destroyed if we quit the main loop,
-       so that if we exit, we clean up any temporary files we have
-       for "Follow SSL Stream" windows. */
-    gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(streamwindow));
-
-    gtk_widget_show_all(streamwindow);
-    window_present(streamwindow);
-}
-
-/* The destroy call back has the responsibility of
- * unlinking the temporary file
- * and freeing the filter_out_filter */
-static void
-follow_destroy_cb(GtkWidget *w, gpointer data _U_)
-{
-    GList* cur;
-    follow_info_t	*follow_info;
-
-    follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
-    g_free(follow_info->filter_out_filter);
-    forget_follow_info(follow_info);
-
-    /* free decrypted data list*/
-    for (cur = follow_info->ssl_decrypted_data; cur; cur = g_list_next(cur))
-        if (cur->data)
-        {
-            g_free(cur->data);
-            cur->data = NULL;
-        }
-    g_list_free (follow_info->ssl_decrypted_data);
-    g_free(follow_info);
+    follow_stream("Follow SSL Stream", follow_info, both_directions_string,
+		  server_to_client_string, client_to_server_string);
 }
 
 #define FLT_BUF_SIZE 1024
