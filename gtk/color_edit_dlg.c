@@ -484,7 +484,10 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   color_sel_cancel = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->cancel_button;
   OBJECT_SET_DATA(color_sel_win, "color_sel_cancel", color_sel_cancel);
   GTK_WIDGET_SET_FLAGS (color_sel_cancel, GTK_CAN_DEFAULT);
-
+  window_set_cancel_button(color_sel_win, color_sel_cancel, NULL); /* ensure esc does req'd local cxl action.    */
+                                                                   /* esc as handled by the                      */
+                                                                   /* gtk_color_selection_dialog widget          */
+                                                                   /*  doesn't result in this happening.         */
 
   color_sel_help = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->help_button;
   OBJECT_SET_DATA(color_sel_win, "color_sel_help", color_sel_help);
