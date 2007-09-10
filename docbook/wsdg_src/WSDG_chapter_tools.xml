@@ -38,7 +38,7 @@
     specific tool, you should find lot's of useful information on
     the web, as these tools are commonly used. You can also try to
     get help for the UNIX based tools with 
-    <userinput>toolname --help</userinput>or read the manpage 
+    <userinput>toolname --help</userinput> or read the manpage 
     <userinput>man toolname</userinput>.</para>
     <para>You will find explanations of the tool usage for some of
     the specific development tasks in 
@@ -61,7 +61,7 @@
       least a basic installation of cygwin is required in any
       case.</para>
     </note>
-    <para>Although Cygwin consists of several seperate packages,
+    <para>Although Cygwin consists of several separate packages,
     the installation and update is done through a single setup.exe,
     which acts similar to other web based installers. All tools
     will be installed into one base folder, the default is 
@@ -71,7 +71,7 @@
     "Install Cygwin now" appearances to download the 
     <filename>setup.exe</filename>. After the download completed,
     start this 
-    <filename>setup.exe</filename>on your machine.</para>
+    <filename>setup.exe</filename> on your machine.</para>
     <para>The setup will ask you for some settings, the defaults
     should usually work well for a first start. At the "Select
     Packages" page, you'll need to select some additional packages,
@@ -125,17 +125,17 @@
         <para>Using Cygwin gcc to compile Wireshark is "EXPERT
         ONLY" and therefore NOT recommended. If you really want to
         try it anyway, see: 
-        <ulink url="http://wiki.wireshark.org/Development/CygwinGCC" />for
+        <ulink url="http://wiki.wireshark.org/Development/CygwinGCC" /> for
         some details!</para>
       </warning>
       <para>The GCC C compiler is available for most of the
       UNIX-like platforms and as the Devel/gcc package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GCC isn't already installed and also not available
+      <para>If GCC isn't already installed or available
       as a package for your platform, you can get it at: 
       <ulink url="http://gcc.gnu.org/" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>gcc --version</userinput>
@@ -157,7 +157,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       <para>If you don't like debugging using the command line,
       there are some GUI frontends for it available, most notably
       GNU DDD.</para>
-      <para>If gdb isn't already installed and also not available
+      <para>If gdb isn't already installed or available
       as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/gdb/gdb.html" />.</para>
       <para>After correct installation:</para>
@@ -183,7 +183,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
       have to install GDB first. It is available for many UNIX-like
       platforms and as the ddd package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GNU DDD isn't already installed and also not
+      <para>If GNU DDD isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/ddd/" />.</para>
     </section>
@@ -198,7 +198,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
       <para>GNU Make is available for most of the UNIX-like
       platforms and also as the Devel/make package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GNU Make isn't already installed and also not
+      <para>If GNU Make isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/make/" />.</para>
       <para>After correct installation:</para>
@@ -608,7 +608,7 @@ PARTICULAR PURPOSE.]]>
       <para>
       <superscript>2</superscript>as the Platform SDK is already
       integrated in the package, you obviously don't need to
-      install it and don't even need to call a seperate environment
+      install it and don't even need to call a separate environment
       setting batch file for the Platform SDK!</para>
       <para>
       <superscript>3</superscript>vcredist_x86.exe (3MB free
@@ -634,12 +634,12 @@ PARTICULAR PURPOSE.]]>
     </section>
     <section>
       <title>Legal issues with MSVC &gt; V6?</title>
-      <para>Please note: The following is no legal advise - ask
+      <para>Please note: The following is not legal advice - ask
       your preferred lawyer instead! It's the authors view, but
       this view might be wrong!</para>
       <para>The myriad of&#160; 
       <ulink url="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/">
-      Win32 support lib</ulink>port projects all seem to believe
+      Win32 support lib</ulink> port projects all seem to believe
       there are legal issues involved in using newer versions of
       Visual Studio. This FUD essentially stems from two
       misconceptions:</para>
@@ -662,7 +662,7 @@ PARTICULAR PURPOSE.]]>
           with the Windows operating system. This is also a
           wrongful interpretation, and the&#160; 
           <ulink url="http://www.gnu.org/licenses/gpl-faq.xml#WindowsRuntimeAndGPL">
-          GPL FAQ</ulink>explicitly addresses this issue.</para>
+          GPL FAQ</ulink> explicitly addresses this issue.</para>
         </listitem>
       </orderedlist>Similar applies to Visual Studio 2005 and
       alike.</para>
@@ -804,7 +804,7 @@ PARTICULAR PURPOSE.]]>
         </tgroup>
       </informaltable>
       <para>After correct installation of the toolchain, typing
-      inside the command line (cmd.exe):</para>
+      at the command line prompt (cmd.exe):</para>
       <para>
         <prompt>&gt;</prompt>
         <userinput>cl</userinput>
@@ -824,13 +824,13 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]>
       <para>Instead of using the workspace (.dsw) and projects
       (.dsp) files, the traditional nmake makefiles are used. This
       has one main reason: it makes it much easier to maintain
-      changes simultaneous with the GCC toolchain makefile.am files
+      changes simultaneously with the GCC toolchain makefile.am files
       as both file formats are similar. However, as no Visual
       Studio workspace/project files are available, this makes it
       hard to use the Visual Studio IDE e.g. for using the
       integrated debugging feature.</para>
-      <para>After correct installation, typing inside the command
-      line (cmd.exe):</para>
+      <para>After correct installation, typing at the command
+      line prompt (cmd.exe):</para>
       <para>
         <prompt>&gt;</prompt>
         <userinput>nmake</userinput>
@@ -853,7 +853,7 @@ Stop.]]>
     </section>
     <section>
       <title>C-Runtime "Redistributable" files</title>
-      <para>Please note: The following is no legal advise - ask
+      <para>Please note: The following is not legal advice - ask
       your preferred lawyer instead! It's the authors view, but
       this view might be wrong!</para>
       <para>Depending on the Microsoft compiler version you use,
@@ -886,23 +886,29 @@ Stop.]]>
       <para>
         <itemizedlist>
           <listitem>
-            <para>"Redistributing Visual C++ Files"
-            http://msdn2.microsoft.com/en-us/library/ms235299(VS.80).aspx</para>
+            <para>
+            <ulink url="http://msdn2.microsoft.com/en-us/library/ms235299(VS.80).aspx">
+            "Redistributing Visual C++ Files"</ulink>
+            </para>
           </listitem>
           <listitem>
-            <para>"How to: Deploy using XCopy"
-            http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx&#160;</para>
+            <para>
+            <ulink url="http://msdn2.microsoft.com/en-us/library/ms235291(VS.80).aspx">
+            "How to: Deploy using XCopy"</ulink>
+            </para>
           </listitem>
           <listitem>
-            <para>"Redistribution of the shared C runtime component
-            in Visual C++ 2005 and in Visual C++ .NET"
-            http://support.microsoft.com/?scid=kb%3Ben-us%3B326922&amp;x=10&amp;y=13</para>
+            <para>
+            <ulink url="http://support.microsoft.com/?scid=kb%3Ben-us%3B326922&amp;x=10&amp;y=13">
+            "Redistribution of the shared C runtime component
+            in Visual C++ 2005 and in Visual C++ .NET"</ulink>
+            </para>
           </listitem>
         </itemizedlist>
       </para>
       <section>
         <title>msvcrt.dll - Version 6.0</title>
-        <para>Redistributables wasn't an issue with MSVC 6, as any
+        <para>Redistributables weren't an issue with MSVC 6, as any
         realistic installer target system (&gt;= Win95) already
         contains the corresponding msvcrt.dll.</para>
       </section>
@@ -994,7 +1000,7 @@ Stop.]]>
       include new and updated API's.</para>
       <para>When you purchase a commercial Visual Studio, it will
       include a PSDK. The free (as in beer) downloadable C compiler
-      versions (VC++ 2005 Express, .NET Framework, ...) doesn't
+      versions (VC++ 2005 Express, .NET Framework, ...) do not
       contain a PSDK - you'll need to download a PSDK in order to
       have the required C header files and libraries.</para>
       <para>Older Versions of the Platform SDK should also work.
@@ -1038,13 +1044,13 @@ Stop.]]>
         PSDK or MSVC since 2002). If you still use MSVC 6, you
         can&#160;get them from the "HTML Help Workshop" mentioned
         above.</para>
-        <para>The related settings in config.nmake depends on the
+        <para>The related settings in config.nmake depend on the
         MSVC variant you use:</para>
         <para>
           <itemizedlist>
             <listitem>
               <para>MSVC 6: if the "HTML Help Workshop" is
-              installed, set HHC_DIR to it's directory</para>
+              installed, set HHC_DIR to its directory</para>
             </listitem>
             <listitem>
               <para>&gt; MSVC 6: set HHC_DIR to use it (the actual
@@ -1072,15 +1078,15 @@ Stop.]]>
       </section>
       <section id="ChToolsMSDebuggingTools">
         <title>Debugging Tools for Windows</title>
-        <para>You could also use the Microsoft debugging tools,
-        which is a standalone GUI debugger. As it's not that
-        comfortable compared to debug with the Visual Studio
+        <para>You could also use the Microsoft debugging tool,
+        which is a standalone GUI debugger. Although it's not that
+        comfortable compared to debugging with the Visual Studio
         integrated debugger, it can be helpful if you have to debug
         on a machine where an integrated debugger is not
         available.</para>
         <para>You can get it free of charge at: 
-        <ulink url="http://www.microsoft.com/whdc/devtools/debugging/default.mspx" />(as
-        links to microsoft pages changes from time to time, search
+        <ulink url="http://www.microsoft.com/whdc/devtools/debugging/default.mspx" /> (as
+        links to microsoft pages change from time to time, search
         for "Debugging Tools" at their page if this link should be
         outdated).</para>
       </section>
@@ -1092,14 +1098,13 @@ Stop.]]>
     scripts.</para>
     <section id="ChToolsGNUBash">
       <title>UNIX or Win32 Cygwin: GNU bash</title>
-      <para>The bash is available for most of the UNIX-like
+      <para>The bash shell is available for most of the UNIX-like
       platforms and as the bash package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If the bash isn't already installed and also not
+      <para>If bash isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/bash/bash.html" />.</para>
-      <para>After correct installation, typing inside any
-      shell:</para>
+      <para>After correct installation, typing at the bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>bash --version</userinput>
@@ -1128,11 +1133,11 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       <para>Python is available for most of the UNIX-like platforms
       and as the python package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link></para>
-      <para>If Python isn't already installed and also not
+      <para>If Python isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.python.org/" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <userinput>$ python -V</userinput>
       </para>
@@ -1148,9 +1153,9 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       <ulink url="http://python.org/download/" />to download the
       latest stable release. You can download a setup there, which
       will install the python system typically into 
-      <filename>C:\Python25</filename>or similiar.</para>
-      <para>After correct installation, typing inside the command
-      line (cmd.exe) - this must be entered in the Python
+      <filename>C:\Python25</filename> or similiar.</para>
+      <para>After correct installation, typing at the command
+      line prompt (cmd.exe) - this must be entered in the Python
       directory, the installer won't set the PATH:</para>
       <para>
         <prompt>C:\Python25&gt;</prompt>
@@ -1174,11 +1179,11 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       <para>Perl is available for most of the UNIX-like platforms
       and as the perl package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If perl isn't already installed and also not available
+      <para>If perl isn't already installed or available
       as a package for your platform, you can get it at: 
       <ulink url="http://www.perl.com/" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>perl --version</userinput>
@@ -1203,8 +1208,8 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
       <para>A native Win32 perl package can be obtained from 
       <ulink url="http://www.ActiveState.com" />. The installation
       should be straightforward.</para>
-      <para>After correct installation, typing inside the command
-      line (cmd.exe):</para>
+      <para>After correct installation, typing at the command
+      line prompt (cmd.exe):</para>
       <para>
         <prompt>&gt;</prompt>
         <userinput>perl -v</userinput>
@@ -1234,11 +1239,11 @@ Built 18:08:02 Feb  4 2003
       <para>Sed is available for most of the UNIX-like platforms
       and as the sed package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If sed isn't already installed and also not available
+      <para>If sed isn't already installed or available
       as a package for your platform, you can get it at: 
       <ulink url="http://directory.fsf.org/GNU/sed.html" /></para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>sed --version</userinput>
@@ -1267,11 +1272,11 @@ to the extent permitted by law.]]>
       <para>Bison is available for most of the UNIX-like platforms
       and as the bison package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GNU Bison isn't already installed and also not
+      <para>If GNU Bison isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/bison/bison.html" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>bison --version</userinput>
@@ -1301,11 +1306,11 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       <para>Flex is available for most of the UNIX-like platforms
       and as the flex package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GNU flex isn't already installed and also not
+      <para>If GNU flex isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/flex/" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>flex --version</userinput>
@@ -1324,31 +1329,31 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
   </section>
   <section id="ChToolsSubversion">
     <title>Subversion (SVN) client (optional)</title>
-    <para>The Wireshark project uses it's own subversion (or short
+    <para>The Wireshark project uses its own Subversion (or short
     SVN) server to keep track of all the changes done to the source
-    code. Details about the usage of subversion in the Wireshark
+    code. Details about the usage of Subversion in the Wireshark
     project can be found in 
     <xref linkend="ChSrcSVNServer" />.</para>
-    <para>If you want to work with the source code and planning to
+    <para>If you want to work with the source code and are planning to
     commit your changes back to the Wireshark community, it is
     recommended to use a SVN client to get the latest source files.
     For detailed information about the different ways to obtain the
     Wireshark sources, see 
     <xref linkend="ChSrcObtain" />.</para>
     <para>You will find more instructions in 
-    <xref linkend="ChSrcAnon" />how to use the subversion
+    <xref linkend="ChSrcAnon" /> on how to use the Subversion
     client.</para>
     <section id="ChToolsUnixSVN">
       <title>UNIX or Win32 Cygwin: svn</title>
       <para>SVN is available for most of the UNIX-like platforms
-      and as the subversion package from the 
+      and as the Subversion package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link></para>
-      <para>If Subversion isn't already installed and also not
+      <para>If Subversion isn't already installed or
       available as a package for your platform, you can get it at: 
-      <ulink url="http://subversion.tigris.org/" />(together with
+      <ulink url="http://subversion.tigris.org/" /> (together with
       the server software).</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>svn --version</userinput>
@@ -1367,13 +1372,13 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
     </section>
     <section id="ChToolsWin32SVN">
       <title>Win32 native: svn</title>
-      <para>The subversion command line tools for Win32 can be
+      <para>The Subversion command line tools for Win32 can be
       found at: 
       <ulink url="http://subversion.tigris.org/" />. This will come
       with both client and server software - only the client
       software will be used.</para>
-      <para>After correct installation, typing inside the command
-      line (cmd.exe):</para>
+      <para>After correct installation, typing at the command
+      line prompt (cmd.exe):</para>
       <para>
         <prompt>&gt;</prompt>
         <userinput>svn --version</userinput>
@@ -1393,25 +1398,25 @@ Copyright (C) 2000-2006 CollabNet.
     GUI clients are available for a number of platforms, see 
     <ulink url="http://subversion.tigris.org/project_links.html" />.</para>
     <warning>
-      <title>Keep subversion program versions in sync!</title>
+      <title>Keep Subversion program versions in sync!</title>
       <para>If you are working with both command line and GUI
-      clients, keep the subversion program versions in sync, at
+      clients, keep the Subversion program versions in sync, at
       least the major/minor versions (e.g. 1.4).</para>
     </warning>
     <section id="ChToolsUnixSVNGUI">
       <title>UNIX or Win32 Cygwin: rapidSVN, subcommander</title>
-      <para>RapidSVN is a cross platform subversion frontend based
+      <para>RapidSVN is a cross platform Subversion frontend based
       on wxWidgets. It can be found at: 
       <ulink url="http://rapidsvn.tigris.org/" />. Subcommander is
-      another cross platform subversion frontend. It can be found
+      another cross platform Subversion frontend. It can be found
       at: 
       <ulink url="http://subcommander.tigris.org/" />.</para>
-      <para>Cygwin don't provide any GUI client for
-      subversion.</para>
+      <para>Cygwin doesn't provide any GUI client for
+      Subversion.</para>
     </section>
     <section id="ChToolsTortoiseSVN">
       <title>Win32 native: TortoiseSVN</title>
-      <para>A good subversion client for Win32 can be found at: 
+      <para>A good Subversion client for Win32 can be found at: 
       <ulink url="http://tortoisesvn.tigris.org/" />. It will
       nicely integrate into the Windows Explorer window.</para>
     </section>
@@ -1426,21 +1431,21 @@ Copyright (C) 2000-2006 CollabNet.
     <note>
       <title>Note!</title>
       <para>The recommended way to build patches is using the
-      subversion client, see 
-      <xref linkend="ChToolsSubversion" />for details.</para>
+      Subversion client, see 
+      <xref linkend="ChToolsSubversion" /> for details.</para>
     </note>
     <para>You will find more instructions in 
-    <xref linkend="ChSrcDiff" />how to use the diff tool.</para>
+    <xref linkend="ChSrcDiff" /> on how to use the diff tool.</para>
     <section id="ChToolsGNUDiff">
       <title>UNIX or Win32 Cygwin: GNU diff</title>
       <para>Diff is available for most of the UNIX-like platforms
       and as the diffutils package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GNU diff isn't already installed and also not
+      <para>If GNU diff isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/diffutils/diffutils.html" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>diff --version</userinput>
@@ -1461,11 +1466,12 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       <para>A native Win32 diff package can be obtained from 
       <ulink url="http://gnuwin32.sourceforge.net/" />. The
       installation should be straightforward.</para>
-      <para>The subversion client TortoiseSVN has a build in diff
+      <para>The Subversion client TortoiseSVN has a built-in diff
       feature, see 
-      <xref linkend="ChToolsTortoiseSVN" />. If this can be used to
+      <xref linkend="ChToolsTortoiseSVN" />. It is currently unknown 
+      if this tool can be used to
       create diff files in the required format, so other persons
-      can use them, is currently unknown.</para>
+      can use them.</para>
     </section>
   </section>
   <section id="ChToolsPatch">
@@ -1482,18 +1488,18 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       tool installed.</para>
     </tip>
     <para>You will find more instructions in 
-    <xref linkend="ChSrcPatchApply" />how to use the patch
+    <xref linkend="ChSrcPatchApply" /> on how to use the patch
     tool.</para>
     <section id="ChToolsUnixPatch">
       <title>UNIX or Win32 Cygwin: patch</title>
       <para>Patch is available for most of the UNIX-like platforms
       and as the patch package from the 
       <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
-      <para>If GNU patch isn't already installed and also not
+      <para>If GNU patch isn't already installed or
       available as a package for your platform, you can get it at: 
       <ulink url="http://www.gnu.org/software/patch/patch.html" />.</para>
-      <para>After correct installation, typing inside the
-      bash:</para>
+      <para>After correct installation, typing at the
+      bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
         <userinput>patch --version</userinput>
@@ -1517,7 +1523,7 @@ written by Larry Wall and Paul Eggert]]>
       <para>A native Win32 patch package can be obtained from 
       <ulink url="http://gnuwin32.sourceforge.net/" />. The
       installation should be straightforward.</para>
-      <para>The subversion client TortoiseSVN has a build in patch
+      <para>The Subversion client TortoiseSVN has a built-in patch
       feature, see 
       <xref linkend="ChToolsTortoiseSVN" />. The last time tested
       (Version 1.1.0), this feature failed to apply patches known
@@ -1533,14 +1539,14 @@ written by Larry Wall and Paul Eggert]]>
     <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
     <para>You will only need wget, if you want to use the Win32
     automated library download, see 
-    <xref linkend="ChLibsSetup" />for details.</para>
-    <para>If GNU wget isn't already installed and also not
+    <xref linkend="ChLibsSetup" /> for details.</para>
+    <para>If GNU wget isn't already installed or
     available as a package for your platform (well, for Win32 it is
     available as a Cygwin package), you can get it at: 
     <ulink url="http://www.gnu.org/software/wget/wget.html" />.</para>
     <para>If wget is trying to download files but fails to do so,
     your Internet connection might use a HTTP proxy. Some Internet
-    providers using such a proxy and it is common for company
+    providers use such a proxy and it is common for company
     networks today. In this case, you must set the environment
     variable HTTP_PROXY before using wget. For example, if you are
     behind proxy.com which is listening on port 8080, you have to
@@ -1556,13 +1562,13 @@ written by Larry Wall and Paul Eggert]]>
     <title>Win32: GNU unzip (optional)</title>
     <para>GNU unzip is used to, well, unzip the zip files
     downloaded using the wget tool.</para>
-    <para>GNU wget is available for most of the UNIX-like platforms
+    <para>GNU unzip is available for most of the UNIX-like platforms
     and as the unzip package from the 
     <link linkend="ChToolsCygwin">Cygwin setup</link>.</para>
     <para>You will only need unzip, if you want to use the Win32
     automated library download, see 
-    <xref linkend="ChLibsSetup" />for details.</para>
-    <para>If GNU unzip isn't already installed and also not
+    <xref linkend="ChLibsSetup" /> for details.</para>
+    <para>If GNU unzip isn't already installed or
     available as a package for your platform (well, for Win32 it is
     available as a Cygwin package), you can get it at: 
     <ulink url="http://gnuwin32.sourceforge.net/packages/unzip.htm" />.</para>
@@ -1575,11 +1581,11 @@ written by Larry Wall and Paul Eggert]]>
     such.</para>
     <para>To install it, simply download the latest released
     version (currently: 2.28) from 
-    <ulink url="http://nsis.sourceforge.net" />and start the
+    <ulink url="http://nsis.sourceforge.net" /> and start the
     downloaded installer. You will need NSIS version 2 final or
     higher.</para>
     <para>You will find more instructions in 
-    <xref linkend="ChSrcNSIS" />how to use the NSIS tool.</para>
+    <xref linkend="ChSrcNSIS" /> on how to use the NSIS tool.</para>
   </section>
 </chapter>
 <!-- End of WSDG Chapter Tools -->

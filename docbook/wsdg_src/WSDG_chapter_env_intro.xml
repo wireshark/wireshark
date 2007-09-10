@@ -31,9 +31,9 @@
 	  order to run.
     </para>
     <para>
-	As Wireshark is developed in a platform independant way and uses libraries 
-	which are available for a lot of different platforms (such as the GTK+ 
-	GUI library), it's available on a such a wide variety of platforms.
+	As Wireshark is developed in a platform independent way and uses libraries 
+	(such as the GTK+ GUI library) which are available for a lot of different platforms,
+        it's thus available on a wide variety of platforms.
     </para>
     <para>
       If a binary package is not available for your platform, you should 
@@ -115,9 +115,9 @@
     </para>
     <para>
 	The 
-	communication between the developers is usually done trough the developer 
+	communication between the developers is usually done through the developer 
 	mailing list, which can be joined by anyone interested in the development 
-	process. At the time writing of this document, more than 500 persons are 
+	process. At the time this document was written, more than 500 persons were 
 	subscribed to this mailing list! 
     </para>
     <para>
@@ -146,8 +146,8 @@
     <para>
 	Beside the usual tools for developing a program in C (compiler, make, ...), 
 	the build process uses some additional helper tools (Perl, Python, Sed, 
-	...), which are needed for the build process and in the case Wireshark 
-	should be installed from the released source packages. If Wireshark is 
+	...), which are needed for the build process when Wireshark 
+	is to be installed from the released source packages. If Wireshark is 
 	installed from a binary package, none of these helper tools are needed on 
 	the target system.
 	</para>
@@ -214,13 +214,13 @@
     <title>Releases and distributions</title>
     <para>
 	The officially released files can be found at: <ulink 
-	url="&WiresharkDownloadPage;"/>. A new Wireshark version is released, after 
-	significant changes compared to the last release were completed or a 
-	serious security issue was encountered. The typical release schedule is
+	url="&WiresharkDownloadPage;"/>.  A new Wireshark version is released after 
+	significant changes compared to the last release are completed or a 
+	serious security issue is encountered. The typical release schedule is
 	about every 4-8 weeks (although this may vary).
     </para>
     <para>
-	There are two kinds of distributions: binary and source, both have their 
+	There are two kinds of distributions: binary and source; both have their 
 	advantages and disadvantages. 
     </para>
 
@@ -233,8 +233,8 @@
 	<itemizedlist>
 	<listitem>
     <para>
-	Win32 (.exe file). The typical Windows end user is used to get a setup.exe 
-	file, which will install all the required things for him.
+	Win32 (.exe file). The typical Windows end user method is used to get a setup.exe 
+	file which will install all the required things for him.
     </para>
 	</listitem>
 	<listitem>
@@ -245,26 +245,26 @@
 	<listitem>
     <para>
 	Debian (.deb file). A user of a Debian Package Manager (DPKG) based system 
-	is used to get a .deb file from which the package manager checks the 
-	dependancies and installs the software.
+	obtains a .deb file from which the package manager checks the 
+	dependencies and installs the software.
     </para>
 	</listitem>
 	<listitem>
     <para>
 	RedHat (.rpm file). A user of a RedHat Package Manager (RPM) based system
-	is used to get a .rpm file from which the package manager checks the 
-	dependancies and installs the software.
+	obtains an .rpm file from which the package manager checks the 
+	dependencies and installs the software.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	Solaris. A Solaris user is used to get a file from which the package manager 
-	(PKG) checks the dependancies and installs the software.
+	Solaris. A Solaris user obtains a file from which the package manager 
+	(PKG) checks the dependencies and installs the software.
     </para>
 	</listitem>
 	</itemizedlist>
 	However, if you want to start developing with Wireshark, the binary
-	distributions won't be much helpful, as you need the source files, of
+	distributions won't be too helpful, as you need the source files, of
 	course.
     </para>
     <para>
@@ -304,7 +304,7 @@
 	The Wireshark Buildbot automatically rebuilds Wireshark on every 
 	change of the source code repository and indicates problematic changes.
 	This frees the developers from repeating (and annoying) work, so time can 
-	be spend on more interesting tasks.
+	be spent on more interesting tasks.
     </para>
 	<section>
 	<title>Advantages</title>
@@ -329,7 +329,7 @@
 	by installing a recent build.
 	</para></listitem>
 	<listitem><para>
-	Automated regression tests. Especially the fuzz tests often indicate 
+	Automated regression tests. In particular, the fuzz tests often indicate 
 	"real life" problems that are otherwise hard to find.
 	</para></listitem>
 	</itemizedlist>
@@ -361,8 +361,8 @@
 	console logfile, to get additional information.
     </para>
     <para>
-	The Buildbot runs on a patform collection that represents the different 
-	"platform specialties" pretty good:
+	The Buildbot runs on a platform collection that represents the different 
+	"platform specialties" quite well:
 	<itemizedlist>
 	<listitem><para>
 	Windows XP x86 (Win32, little endian, MSVC)
@@ -445,14 +445,14 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-    see the file <filename>doc/README.developer</filename> and 
+    the file <filename>doc/README.developer</filename> and 
 	all the other README.xxx files in the source code - these are various 
 	documentation files on different topics
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-    have a look at the Wireshark source code
+    the Wireshark source code
 	</para>
 	</listitem>
 	<listitem>
@@ -463,7 +463,7 @@
 	</listitem>
 	<listitem>
 	<para>
-    the different mailing lists <xref linkend="ChIntroMailingLists"/>
+    the different mailing lists: see <xref linkend="ChIntroMailingLists"/>
 	</para>
 	</listitem>
 	<listitem>
@@ -477,7 +477,7 @@
 
 	<section id="ChIntroMailingLists"><title>Mailing Lists</title>
     <para>
-      There are several mailing lists of specific Wireshark topics available:
+      There are several mailing lists available on specific Wireshark topics:
       <variablelist>
 	<varlistentry><term><command>wireshark-announce</command></term>
 	  <listitem>
@@ -535,8 +535,8 @@
       as well.
 	<tip><title>Tip!</title>
 	<para>
-	You can search in the list archives to see if someone asked the same 
-	question some time before and maybe already got an answer. That way you 
+	You can search in the list archives to see if someone previously asked the same 
+	question and maybe already got an answer. That way you 
 	don't have to wait until someone answers your question.
 	</para>
 	</tip>
@@ -548,7 +548,7 @@
 	The Wireshark community collects bug reports in a Bugzilla database at
 	<ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
 	This database is filled with manually filed bug reports, usually after some 
-	discussion on wireshark-dev, and bug reports from the QA build tooling.
+	discussion on wireshark-dev, and bug reports from the QA build tools.
 	</para>
 	</section>
 		
@@ -563,8 +563,8 @@
 	If you report problems, provide as much 
 	information as possible. In general, just think about what 
 	you would need to find that problem, if someone else sends you such a 
-	problem report. Also keep in mind, that people use a lot of different 
-	platforms to compile/run Wireshark on. 
+	problem report. Also keep in mind that people compile/run Wireshark on a lot of different 
+	platforms. 
     </para>
     <para>
       When reporting problems with Wireshark, it is helpful if you supply the 
@@ -573,7 +573,7 @@
 	<listitem>
 	  <para>
 	    The version number of Wireshark and the dependent libraries linked with 
-		it, eg GTK+, etc. You can obtain this with the command 
+		it, e.g. GTK+, etc. You can obtain this with the command 
 	    <command>wireshark -v</command>.
 	  </para>
 	</listitem>

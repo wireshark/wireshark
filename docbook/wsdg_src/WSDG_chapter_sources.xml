@@ -60,7 +60,7 @@
 	Using Wireshark's Subversion repository you can:
 	<itemizedlist>
 	<listitem><para>
-	keep your private sources uptodate with very little effort
+	keep your private sources up to date with very little effort
 	</para></listitem>
 	<listitem><para>
 	get a mail notification if someone changes the latest sources
@@ -81,11 +81,11 @@
 	</itemizedlist>
 	</para>
 	<para>
-	Subversion is parted into a client and a server part.
+	Subversion is divided into a client and a server part.
 	Thanks to Gerald Combs (the maintainer of the Subversion server),
 	no user has to deal with the maintenance of the Subversion server.
-	You will only need a Subversion client, which are available as
-	command-line and GUI tools for many different platforms.
+	You will only need a Subversion client, which is available as
+	both a command-line and a GUI tool for many different platforms.
 	</para>
 	<para>
 	For further reference about Subversion, have a look at the homepage of the
@@ -145,7 +145,7 @@
 	</para>
 	<tip><title>Anonymous Subversion access is recommended!</title>
 	<para>
-	It can make your life much easier, compared to update your source tree by
+	It can make your life much easier, compared to updating your source tree by
 	using any of the zip file methods mentioned below.
 	Subversion handles merging of changes into your personal source tree in a
 	very comfortable and quick way. So you can update your source tree several
@@ -155,14 +155,14 @@
 	<note><title>Keep your sources "up to date"!</title>
 	<para>
 	The following ways to retrieve the Wireshark sources are sorted in
-	decreasing actuality.
+	decreasing source timeliness.
 	If you plan to commit changes you've made to the sources,
-	it's a good idea to keep your private source tree as actual as possible.
+	it's a good idea to keep your private source tree as current as possible.
 	</para>
 	</note>
 	<para>
-	The age mentioned in the following sections will indicate, how old the
-	most recent change in that sources will be.
+	The age mentioned in the following sections indicates the age of the
+	most recent change in that set of the sources.
 	</para>
 
 	<section id="ChSrcAnon">
@@ -180,7 +180,7 @@
 	<ulink url="http://anonsvn.wireshark.org/wireshark/trunk/"/>.
 	</para>
 	<para>
-	See <xref linkend="ChToolsSubversion"/> how to install a Subversion client.
+	See <xref linkend="ChToolsSubversion"/> on how to install a Subversion client.
 	</para>
 	<para>
 	For example, to check out using the command-line Subversion client, you
@@ -193,7 +193,7 @@
 	<para>
 	The checkout has to be only done once. This will copy all the sources of
 	the latest version (including directories) from the server to your machine.
-	This will take some time, depending on the speed of your internet line.
+	This will take some time, depending on the speed of your internet connection.
 	</para>
 	</section>
 
@@ -223,18 +223,18 @@
 	possible (e.g. because of a restrictive firewall).
 	</para>
 	<para>
-	Age: a few minutes (a bit older than the anonymous Subversion access).
+	Age: some number of minutes (a bit older than the anonymous Subversion access).
 	</para>
 	<para>
 	The buildbot server will automatically start to generate a snapshot of
-	Wireshark's sourcetree after a source code change committed.
+	Wireshark's source tree after a source code change is committed.
 	These snapshots can be found at: <ulink
 	url="&WiresharkDownloadPage;automated/src/"/>.
 	</para>
 	<para>
 	If anonymous Subversion access isn't possible, e.g. if the connection to
 	the server isn't possible because of a corporate firewall, the sources
-	can be obtained by downloading this buildbot snapshots. However, if you are
+	can be obtained by downloading the buildbot snapshots. However, if you are
 	going to maintain your sources in parallel to the "official" sources
 	for some time, it's recommended to use the anonymous Subversion access if
 	possible (believe it, it will save you a lot of time).
@@ -258,7 +258,7 @@
 	</para>
 	<para>
 	The differences between the released sources and the sources stored at
-	the Subversion repository are keep on growing until the next release is
+	the Subversion repository will keep on growing until the next release is
 	done (at the release time, the released and latest Subversion repository
 	versions are then identical again :-).
 	</para>
@@ -269,7 +269,7 @@
   <section id="ChSrcUpdating">
 	<title>Update the Wireshark sources</title>
 	<para>
-	After you obtained the Wireshark sources for the first time, you
+	After you've obtained the Wireshark sources for the first time, you
 	might want to keep them in sync with the sources at the Subversion
 	repository.
 	</para>
@@ -293,18 +293,18 @@
 	<userinput>svn update</userinput>
 	</para>
 	<para>
-	This will only take a few seconds, even on a slow internet line. It will
+	This will only take a few seconds, even on a slow internet connection. It will
 	replace old file versions by new ones. If you and someone else have
 	changed the same file since the last update, Subversion will try to merge
-	the changes into your private file (this is working remarkably well).
+	the changes into your private file (this works remarkably well).
 	</para>
 	</section>
 
 	<section id="ChSrcZipUpdate">
 	<title>... from zip files</title>
 	<para>
-	Independant of the way you retrieve the zip file of the Wireshark sources
-	(as <xref linkend="ChSrcObtain"/> is providing several ways), the way to
+	Independent of the way you retrieve the zip file of the Wireshark sources
+	(as described in <xref linkend="ChSrcObtain"/> ), the way to
 	bring the changes from the official sources into your personal source tree
 	is identical.
 	</para>
@@ -313,11 +313,11 @@
 	the way you did it the first time.
 	</para>
 	<para>
-	If you didn't changed anything in the sources, you could simply throw
+	If you haven't changed anything in the sources, you could simply throw
 	away your old sources and reinstall everything just like the first time.
-	But be sure, that you really didn't changed anything. It might be a good
+	But be sure, that you really haven't changed anything. It might be a good
 	idea to simply rename the "old" dir to have it around, just in case you
-	remember later that you really did changed something before.
+	remember later that you really did change something before.
 	</para>
 	<para>
 	Well, if you did change something in your source tree, you have to merge
@@ -334,7 +334,7 @@
   <section id="ChSrcBuildFirstTime">
 	<title>Build Wireshark</title>
 	<para>
-	The sources contains several documentation files, it's a good idea to
+	The sources contain several documentation files, it's a good idea to
 	look at these files first.
 	</para>
 	<para>
@@ -351,7 +351,7 @@
 	</para>
 	</tip>
 	<para>
-	The following steps for the first time generation differs on the two
+	The following steps for the first time generation differ on the two
 	major platforms.
 	</para>
 
@@ -378,8 +378,8 @@ make
 	<section>
 	<title>Win32 native</title>
 	<para>
-	The first thing to do will be checking the file
-	<filename>config.nmake</filename> if it reflects your configuration.
+	The first thing to do will be to check the file
+	<filename>config.nmake</filename> to determine if it reflects your configuration.
 	The settings in this file are well documented, so please have a look at
 	that file.
 	However, if you've installed the libraries and tools as recommended there
@@ -400,14 +400,14 @@ make
 	which Visual Studio was installed.
 	</para>
 	<para>
-	Then you should cleanup any intermediate files, which are shipped for
-	convenience of Unix users, by typing inside the command line (cmd.exe):
+	You should then cleanup any intermediate files, which are shipped for
+	convenience of Unix users, by typing at the command line prompt (cmd.exe):
 	</para>
 	<para>
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake distclean</userinput>
 	</para>
 	<para>
-	After doing this, typing inside the command line (cmd.exe):
+	After doing this, typing at the command line prompt (cmd.exe):
 	</para>
 	<para>
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake all</userinput>
@@ -416,7 +416,7 @@ make
 	will start the whole Wireshark build process.
 	</para>
 	<para>
-	After the build process successfully finished, you should find an
+	After the build process has successfully finished, you should find a
 	<filename>wireshark.exe</filename> and some other files
 	in the root directory.
 	</para>
@@ -459,7 +459,7 @@ make
   <section id="ChSrcChange">
 	<title>Make changes to the Wireshark sources</title>
 	<para>
-	As the Wireshark developers working on many different platforms, a lot of
+	As the Wireshark developers are working on many different platforms, a lot of
 	editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
 	and many many others). There's no "standard" or "default" development
 	environment.
@@ -484,8 +484,8 @@ make
 	contact the developer mailing list
 	(see <xref linkend="ChIntroMailingLists"/>)
 	and explain your idea. Someone else might already be working on the same
-	topic, so double effort can be reduced, or can give you some tips what
-	should be thought about too (like side effects that are sometimes very
+	topic, so double effort can be reduced, or someone can give you some tips that
+	should be thought about (like side effects that are sometimes very
 	hard to see).
 	</para>
 	</tip>
@@ -505,9 +505,9 @@ make
 	you.
 	</para></listitem>
 	<listitem><para>
-	You get free enhancements. By making you code public, other developers
+	You get free enhancements. By making your code public, other developers
 	have a chance to make improvements, as there's always room for
-	improvements. Or someone may implement advanced features on top of
+	improvements. In addition someone may implement advanced features on top of
 	your code, which can be useful for yourself too.
 	</para></listitem>
 	<listitem><para>
@@ -618,7 +618,7 @@ Index: file.h
 	If you use TortoiseSVN:
 	</para>
 	<para>
-	TortoiseSVN (to be precise subversion) keeps track of the files you have
+	TortoiseSVN (to be precise Subversion) keeps track of the files you have
 	changed in the directories it controls, and will generate for you a
 	unified diff file compiling the differences. To do so - after updating
 	your sources from the SVN repository if needed - just right-click on the
@@ -714,7 +714,7 @@ Index: file.h
 	</table>
 	</para>
 	<para>
-	The diff tool has a lot options, you will get a list with:
+	The diff tool has a lot options; they can be listed with:
 	</para>
 	<para>
 	<userinput>diff --help</userinput>
@@ -758,7 +758,7 @@ Index: file.h
 	  <listitem><para>
 	  <command>Don't put unrelated things into one large patch.
 	  </command> A few smaller patches are usually easier to apply (but also
-	  don't put every changed line into a seperate patch :-).
+	  don't put every changed line into a separate patch :-).
 	  </para></listitem>
 	  <listitem><para>
 	  <command>Remove any parts of the patch not related to the
@@ -780,7 +780,7 @@ Index: file.h
 	<section id="ChSrcCodeRequirements">
 	<title>Code Requirements</title>
 	<para>
-	The core maintainers have a lot of work fixing bugs and making code
+	The core maintainers have done a lot of work fixing bugs and making code
 	compile on the various platforms Wireshark supports.
 	</para>
 	<para>
@@ -807,8 +807,8 @@ Index: file.h
 	  <command>Fuzz test your changes!</command> Fuzz testing is a very
 	  effective way to automatically find a lot of dissector related bugs.
 	  You'll take a capture file containing packets affecting your dissector
-	  and the fuzz test randomly change bytes in this file, so unconditional
-	  code paths in your dissector are passed. There are tools available to
+	  and the fuzz test will randomly change bytes in this file, so that unusual
+	  code paths in your dissector are checked. There are tools available to
 	  automatically do this on any number of input files, see:
 	  <ulink url="&WiresharkWikiSite;/FuzzTesting"/> for details.
 	  </para>
@@ -837,7 +837,8 @@ Index: file.h
 	  testing, please say so in the description.
 	  </para></listitem>
 	  <listitem><para>
-	  Once the bug has been created, select <guibutton>Create a New Attachment</guibutton> and upload your patch or patches.  Set the <command>review_for_checkin</command> flag to <command>?</command>.
+	  Once the bug has been created, select <guibutton>Create a New Attachment</guibutton> 
+	  and upload your patch or patches.  Set the <command>review_for_checkin</command> flag to <command>?</command>.
 	  </para></listitem>
 	  <listitem><para>
 	  If possible and applicable, attach a capture file that demonstrates
@@ -928,7 +929,7 @@ Index: file.h
 	well.
 	</para>
 	<para>
-	At which position in the filesystem has the patch tool to be called?
+	At which position in the filesystem should the patch tool be called?
 	</para>
 	<para>
 	If the pathnames are relative to the top-level source directory, or to a
@@ -1118,7 +1119,7 @@ $Id&#36;
 	<title>Win32: NSIS .exe installer</title>
 	<para>
 	The "Nullsoft Install System" is a free installer generator for Win32
-	based systems, instructions how to install it can be found in <xref
+	based systems; instructions how to install it can be found in <xref
 	linkend="ChToolsNSIS"/>.
 	NSIS is script based, you will find the Wireshark installer
 	generation script at: <filename>packaging/nsis/wireshark.nsi</filename>.

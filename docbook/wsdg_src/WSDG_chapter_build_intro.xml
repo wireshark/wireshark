@@ -28,7 +28,7 @@
 	Beside this, some other minor parts and additional helpers exist.
 	</para>
 	<para>
-	Currently there's no clean seperation of the modules in the code. 
+	Currently there's no clean separation of the modules in the code. 
 	However, as the development team switched from CVS to SVN some time ago, 
 	directory cleanup is much easier now. So there's a chance that
 	the directory structure will become clean in the future.
@@ -58,7 +58,7 @@
 	Public License (GNU LGPL).</quote>
 	</para>
 	<para>
-	GLib contains lot's of useful things for platform independant development.
+	GLib contains lot's of useful things for platform independent development.
 	See <ulink url="http://developer.gnome.org/doc/API/2.0/glib/index.html"/> 
 	for details about GLib.
 	</para>

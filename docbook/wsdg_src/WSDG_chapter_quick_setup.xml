@@ -74,7 +74,7 @@
       <title>Install Cygwin</title>
       <para>
       <ulink url="http://www.cygwin.com/setup.exe">
-      Download</ulink>the cygwin installer and start it.</para>
+      Download</ulink> the cygwin installer and start it.</para>
       <para>At the "Select Packages" page, you'll need to select
       some additional packages, which are not installed by default.
       Navigate to the required Category/Package row and click on
@@ -111,7 +111,7 @@
     <section id="ChSetupPython">
       <title>Install Python</title>
       <para>Get the python 2.4 installer from: 
-      <ulink url="http://python.org/download/" />and install python
+      <ulink url="http://python.org/download/" /> and install python
       into the default location (currently: C:/Python24).</para>
       <para>Beware: python 2.5 won't work without
       modifications.</para>
@@ -125,37 +125,40 @@
       Wireshark, but can be quite helpful when working with the
       sources.</para>
       <para>Why this is recommended: updating a personal source
-      tree is significantly easier to do with subversion than
+      tree is significantly easier to do with Subversion than
       downloading a zip file and merging new sources into a
       personal source tree "by hand".</para>
       <section>
         <title>Subversion</title>
-        <para>If you want to work with the Wireshark subversion
+        <para>If you want to work with the Wireshark Subversion
         source repositories (which is highly recommended, see 
         <xref linkend="ChSrcObtain" />), it's recommended to
         install Subversion. This makes the first time setup easy
         and enables the Wireshark build process to determine your
         current source code revision. You can download the setup
         from 
-        <ulink url="http://subversion.tigris.org/" />and simply
+        <ulink url="http://subversion.tigris.org/" /> and simply
         install it.</para>
       </section>
       <section>
         <title>TortoiseSVN</title>
-        <para>If you want to work with the Wireshark subversion
+        <para>If you want to work with the Wireshark Subversion
         source repositories (which is highly recommended, see 
         <xref linkend="ChSrcObtain" />), it's recommended to use
         TortoiseSVN for your everyday work. You can download the
         setup from 
-        <ulink url="http://tortoisesvn.tigris.org/" />and simply
+        <ulink url="http://tortoisesvn.tigris.org/" /> and simply
         install it.</para>
       </section>
     </section>
     <section>
       <title>Install and Prepare Sources</title>
-      <para>Tip: It's a good idea to successfully compile and run
+      <para>
+      <tip> <title>Tip</title>
+      <para>It's a good idea to successfully compile and run
       Wireshark at least once before you start hacking the
-      Wireshark sources for your own project! 
+      Wireshark sources for your own project! </para>
+      </tip> 
       <orderedlist>
         <listitem>
           <para>Download sources : Download Wireshark sources into:
@@ -203,7 +206,7 @@
           </para>
         </listitem>
         <listitem>
-          <para>edit config.nmake: edit the settings in
+          <para>Edit config.nmake: edit the settings in
           C:\wireshark\config.nmake, especially:</para>
           <para>
             <orderedlist>
@@ -249,13 +252,13 @@
           <para>call "C:\Program Files\Microsoft Platform SDK for
           Windows Server 2003 R2\SetEnv.Cmd" to set environment
           variables of Platform SDK Server 2003 R2 
-          <superscript>12</superscript></para>
+          <superscript>1,2</superscript></para>
         </listitem>
         <listitem>
           <para>call "C:\Program Files\Microsoft Visual Studio
           8\VC\bin\vcvars32.bat" to set environment variables of
           Visual C++ 2005 Express Edition 
-          <superscript>12</superscript></para>
+          <superscript>1,2</superscript></para>
         </listitem>
         <listitem>
           <para>cd C:\wireshark to jump into the source
@@ -280,7 +283,7 @@
       <xref linkend="ChSrcObtain" />), you can check the correct
       installation of all tools by using the verify_tools target of
       the 
-      <filename>Makefile.nmake</filename>from the source
+      <filename>Makefile.nmake</filename> from the source
       package.</para>
       <warning>
         <title>Warning!</title>
@@ -316,17 +319,17 @@
         wget: /usr/bin/wget]]>
 </programlisting>
       </para>
-      <para>If you have problems with all the first three ones,
+      <para>If you have problems with all the first three items (cl, link, nmake),
       check if you called vcvars32/SetEnv as mentioned in 
-      <xref linkend="ChSetupPrepareCommandCom" />(which will "fix"
+      <xref linkend="ChSetupPrepareCommandCom" /> (which will "fix"
       your PATH settings). However, the exact text will be slightly
       different depending on the MSVC version used.</para>
-      <para>Unfortunately, the link command is defined both from
-      cygwin and from MSVC with completely different purpose,
+      <para>Unfortunately, the link command is defined both in
+      cygwin and in MSVC each with completely different functionality;
       you'll need the MSVC link. If your link command looks
       something like: /usr/bin/link, the link command of cygwin
       takes precedence over the MSVC one. To fix this, you can
-      change your PATH environment setting or simply renaming the
+      change your PATH environment setting or simply rename the
       link.exe in cygwin. If you rename it, make sure to remember
       that a cygwin update may provide a new version of it.</para>
     </section>
@@ -343,7 +346,7 @@
           ...</para>
         </listitem>
         <listitem>
-          <para>if the download fails you may be behind a
+          <para>If the download fails you may be behind a
           restrictive firewall, see the wget manual for ways to use
           a proxy</para>
         </listitem>
@@ -409,7 +412,7 @@
     </section>
     <section>
       <title>Optional: Create a Wireshark Installer</title>
-      <para>Note: You should have successfully build Wireshark
+      <para>Note: You should have successfully built Wireshark
       before doing the following!</para>
       <para>If you want to build your own wireshark-setup.exe,
       you'll need NSIS. 
@@ -417,15 +420,15 @@
         <listitem>
           <para>NSIS: 
           <ulink url="http://nsis.sourceforge.net">
-          Download</ulink>and install NSIS</para>
+          Download</ulink> and install NSIS</para>
           <para>You may check the MAKENSIS setting in the file 
-          <filename>config.nmake</filename>of the Wireshark
+          <filename>config.nmake</filename> of the Wireshark
           sources.</para>
         </listitem>
         <listitem>
           <para>vcredist_x86.exe : 
           <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&amp;displaylang=en">
-          Download</ulink>the C-Runtime redistributable for Visual
+          Download</ulink> the C-Runtime redistributable for Visual
           C++ 2005 Express Edition (vcredist_x86.exe) and copy it
           into C:\wireshark-win32-libs 
           <superscript>1</superscript>
@@ -449,7 +452,7 @@
           <para>run
           C:\wireshark\packaging\nsis\wireshark-setup-&lt;version&gt;.exe
           and test it - it's a good idea to test also on a
-          different than the developer machine.</para>
+          different machine than the developer machine.</para>
         </listitem>
       </orderedlist>
       <superscript>1</superscript>Compiler dependent: This step

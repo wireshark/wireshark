@@ -7,9 +7,9 @@
   <section id="ChUIIntro">
 	<title>Introduction</title>
 	<para>
-	Wireshark can be "logically" seperated into the backend (dissecting of
+	Wireshark can be "logically" separated into the backend (dissecting of
 	protocols, file load/save, capturing, ...) and the frontend (the user
-	interface). However, there's currently no clear seperation between
+	interface). However, there's currently no clear separation between
 	these two parts (no clear API definition), but this might change in the
 	future.
 	</para>
@@ -27,7 +27,7 @@
 	  TShark, console based
 	  </para></listitem>
 	</itemizedlist>
-	There are other Wireshark frontends existing, not developped nor
+	There exist other Wireshark frontends, not developed nor
 	maintained by the Wireshark development team:
 	<itemizedlist>
 	  <listitem><para>
@@ -51,18 +51,16 @@
 	Wireshark is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
 	for
 	details. GTK is designed to hide the details of the underlying GUI in
-	a platform independant way. As this is appreciated for a
+	a platform independent way. As this is appreciated for a
 	multiplatform tool, this has some drawbacks, as it will result in a
-	somewhat "non native" look and feel. For example: on Win32, the "File
-	open" dialog of Wireshark looks very different compared to the native
-	Win32 dialog the Win32 users are used to see.
+	somewhat "non native" look and feel.
 	</para>
 	<para>
 	GTK is available for a lot of different platforms including, but not
-	limited, to: Unix/Linux, Mac OS X and Win32. It's the foundation of
+	limited to: Unix/Linux, Mac OS X and Win32. It's the foundation of
 	the famous GNOME desktop, so the future development of GTK should be
 	certain.
-	GTK is implemented in plain C (as Wireshark itself), and available under
+	GTK is implemented in plain C (as is Wireshark itself), and available under
 	the LGPL (Lesser General Public License), being free to used by
 	commercial and noncommercial applications.
 	</para>
@@ -98,7 +96,7 @@
 	Disadvantages:
 	<itemizedlist>
 	  <listitem><para>
-	  the look and feel is a bit oldfashioned
+	  the look and feel is a bit old-fashioned
 	  </para></listitem>
 	  <listitem><para>
 	  not recommended for future developments
@@ -208,11 +206,11 @@
 	</para>
 	<para>
 	Most of them (the more simple ones) are collected in
-	gtk/compat_macros.h and can be used in an version independant manner.
+	gtk/compat_macros.h and can be used in an version independent manner.
 	</para>
 	<para>
 	However, there are major differences between the two versions, making
-	it necessary to distinct between them, like:
+	it necessary to distinguish between them, like:
 	<programlisting>
 <![CDATA[
 #if GTK_MAJOR_VERSION >= 2
@@ -238,10 +236,10 @@
 	<para>
 	Several mailing lists are available about GTK development, see <ulink 
 	url="http://gtk.org/mailinglists.html"/>, the gtk-app-devel-list
-	may be you friend.
+	may be your friend.
 	</para>
 	<para>
-	Theres no Win32 specific GTK mailing list. If you want to post 
+	There's no Win32 specific GTK mailing list. If you want to post 
 	a Win32 specific problem (e.g. a problem in the GtkFileChooser dialog)
 	and you are sure that it's really Win32 specific, you 
 	could send it to GIMPwin-users at <ulink 
@@ -250,8 +248,8 @@
 	<para>
 	As it's often done wrong: You should post a mail to *help* the developers 
 	there instead of only complaining. Posting such a thing like "I don't like 
-	your dialog, it looks ugly" won't be much helpful. You might think about 
-	what you dislike and describe why you dislike it and a suggestion for a 
+	your dialog, it looks ugly" won't be of much help. You might think about 
+	what you dislike and describe why you dislike it and provide a suggestion for a 
 	better way.
 	</para>
 	</section>
@@ -261,7 +259,7 @@
 	<section id="ChUIGUIDocs">
 	<title>GUI Reference documents</title>
 	<para>
-	Although the GUI development of Wireshark is platform independant, the 
+	Although the GUI development of Wireshark is platform independent, the 
 	Wireshark development team tries to
 	follow the GNOME Human Interface Guidelines (HIG) where appropriate. 
 	This is the case, because both GNOME and Wireshark are based on the GTK+ 
@@ -298,8 +296,8 @@
   <section id="ChUIGTKWidgetNamings">
 	<title>Widget naming</title>
 	<para>
-	It seems to become common sense, to name the widgets with some
-	descriptive trailing, like:
+	It seems to be common sense to name the widgets with some
+	descriptive trailing characters, like:
 	<itemizedlist>
 	  <listitem><para>
 	  xy_lb = gtk_label_new();
@@ -332,7 +330,7 @@
 	It isn't necessary to do this for each and every widget created. A call
 	to
 	gtk_widget_show_all() on the parent of all the widgets in question
-	(e.g. a dialog window) can be done, so all of it's child widgets will
+	(e.g. a dialog window) can be done, so all of its child widgets will
 	be shown too.
 	</para>
 	</section>

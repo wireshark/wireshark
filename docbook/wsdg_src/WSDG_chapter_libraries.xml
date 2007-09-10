@@ -8,7 +8,7 @@
 	<title>Introduction</title>
 	<para>
 	Several libraries are needed to build / run Wireshark. Most of the
-	libraries are splitted into three packages:
+	libraries are split into three packages:
 	<orderedlist>
 	<listitem>
 	<para>
@@ -43,7 +43,7 @@
     <title>Binary library formats</title>
 	<para>
 	Binary libraries are available in different formats, depending on the C 
-	compiler used to build it and of course the platform they were build for.
+	compiler used to build it and of course the platform they were built for.
 	</para>
 	
 	<section id="ChLibsFormatUnix">
@@ -52,7 +52,7 @@
 	If you have installed unix binary libraries on your system, they will 
 	match the C compiler. If not already installed, the libraries should be
 	available as a package from the platform installer, or you can download
-	and compile the source and install that binaries then.
+	and compile the source and then install the binaries.
 	</para>
 	</section>
 
@@ -67,7 +67,7 @@
 	<section id="ChLibsFormatWin32Cygwin">
 	<title>Win32: cygwin gcc</title>
 	<para>
-	Cygwin provides most of the required libraries (with file extension .a/.lib) 
+	Cygwin provides most of the required libraries (with file extension .a or .lib) 
 	for Wireshark suitable for cygwin's gcc compiler.
 	</para>
 	</section>
@@ -75,6 +75,9 @@
 	
   <section id="ChLibsSetup">
 	<title>Win32: Automated library download</title>
+	<section id="ChLibsSetupInitial">
+	<title>Initial download</title>
+
 	<para>
 	You can download/install all required libraries by using the setup target 
 	of the <filename>Makefile.nmake</filename> from the source package.
@@ -122,7 +125,7 @@
 	to the internet through a proxy/firewall. 
 	In this case see the wget proxy comment in <xref linkend="ChToolsWget"/>.
 	</para>
-
+        </section>
 	<section id="ChLibsSetupUpdate">
 	<title>Update of a previous download</title>
 	<para>
@@ -131,7 +134,7 @@
 	</para>
 	<para>
 	You could simply remove everything in the WIRESHARK_LIBS dir and call the 
-	setup target again, but that would require to download every file again, 
+	<userinput>setup</userinput> target again, but that would require a download of every file again, 
 	which isn't necessary.
 	</para>
 	<para>
@@ -142,28 +145,30 @@
 	<para>
 	Update your Wireshark sources to the latest SVN files (see <xref 
 	linkend="ChSrcObtain"/>), so the zip filenames in the setup target 
-	of Makefile.nmake is in sync with the library zip files on the server.
+	of Makefile.nmake are in sync with the library zip files on the server.
 	</para>
-	</listitem>
+        </listitem>
 	<listitem>
+          <para>
+            Execute the library setup command as described above.
+	  </para>
+          <para>
+	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
+	</para>
 	<para>	
-	Remove all files previously unzipped from the downloaded files in your 
+	Note that this command will automatically do a <userinput>clean-setup</userinput> which will
+        remove all files previously unzipped from the downloaded files in your 
 	WIRESHARK_LIBS library path (all the subdirs, e.g. 
 	<filename>c:\wireshark-win32-libs\gtk+</filename>), 
 	except for the zip files located at the toplevel, which are the files 
-	downloaded the last time(s). You could do this, by entering at the command line:
+	downloaded the last time(s).
 	</para>
 	<para>
-	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake clean_setup</userinput>
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-	Start the setup target described above. As wget will download only the 
-	missing files, existing zip files in the WIRESHARK_LIBS dir won't be 
+	Also note that as wget will download only the 
+	missing (updated) files, existing zip files in the WIRESHARK_LIBS dir won't be 
 	downloaded again. Remaining (outdated) zip files shouldn't do any harm.
 	</para>
-	</listitem>
+        </listitem>
 	</itemizedlist>
 	</section>
 	
@@ -177,19 +182,19 @@
 	description about GLib, see <xref linkend="ChCodeGLib"/>.
 	</para>
 	<para>
-	The GTK and it's dependant libraries are used to build Wireshark's GUI. 
+	The GTK and its dependent libraries are used to build Wireshark's GUI. 
 	For a detailed description of the GTK libraries, see <xref 
 	linkend="ChUIGTK"/>.
 	</para>
 	<para>
-	All other libraries are dependant on the two libraries mentioned above, 
+	All other libraries are dependent on the two libraries mentioned above, 
 	you will typically not come in touch with these while doing Wireshark 
 	development. 
 	</para>
 	<para>
-	As the requirements for the GLib/GTK libraries increased in the past, it 
-	depends on the GLib/GTK versions you have, which additional libraries are 
-	required. The 1.x versions only needed GLib/GDK/GTK+, while the 2.x 
+	As the requirements for the GLib/GTK libraries have increased in the past, 
+        the required additional libraries depend on the GLib/GTK versions you have. 
+	The 1.x versions only needed GLib/GDK/GTK+, while the 2.x 
 	versions require all mentioned libs.
 	</para>
 
@@ -200,7 +205,7 @@
 	cygwin.
 	</para>
 	<para>
-	If these libraries aren't already installed and also not available as a 
+	If these libraries aren't already installed and also aren't available as a 
 	package for your platform, you can get them at: 
 	<ulink url="http://www.gtk.org"/>.
 	</para>
@@ -224,7 +229,7 @@
 	<section id="ChLibsUnixSNMP">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
 	</para>
@@ -235,7 +240,7 @@
 	<para>
 	Wireshark uses the source Net-SNMP distribution at 
 	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
-	Then libsnmp is compiled with the "libsnmp - Win32 Release" project 
+	libsnmp is compiled with the "libsnmp - Win32 Release" project 
 	using MSVC++ 6.0. A file called "README.wireshark" has been placed in the 
 	net-snmp zip archive at <ulink 
 	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
@@ -256,7 +261,7 @@ utilities."
 	<section id="ChLibsUnixADNS">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.gnu.org/software/adns/"/>.
 	</para>
@@ -282,7 +287,7 @@ utilities."
 	<section id="ChLibsUnixPCRE">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.pcre.org/"/>.
 	</para>
@@ -312,7 +317,7 @@ utilities."
 	<section id="ChLibsUnixZlib">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.gzip.org/zlib/"/>.
 	</para>
@@ -342,7 +347,7 @@ utilities."
 	<section id="ChLibsLibpcap">
 	<title>Unix: libpcap</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.tcpdump.org/"/>.
 	</para>
@@ -369,7 +374,7 @@ utilities."
 	<section id="ChLibsUnixGNUTLS">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.gnu.org/software/gnutls/download.html"/>.
 	</para>
@@ -395,7 +400,7 @@ utilities."
 	<section id="ChLibsUnixGcrypt">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://directory.fsf.org/security/libgcrypt.html"/>.
 	</para>
@@ -420,7 +425,7 @@ utilities."
 	<section id="ChLibsUnixKerberos">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://web.mit.edu/Kerberos/dist/"/>.
 	</para>
@@ -448,7 +453,7 @@ utilities."
 	<section id="ChLibsUnixLua">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.lua.org/download.html"/>.
 	</para>
@@ -473,7 +478,7 @@ utilities."
 	<section id="ChLibsUnixPortAudio">
 	<title>Unix</title>
 	<para>
-	If this library isn't already installed and also not available as a 
+	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
 	<ulink url="http://www.portaudio.com/download.html"/>.
 	</para>
@@ -512,7 +517,7 @@ utilities."
 	<para>
 	Since GTK version 2.8 the GTK Wimp is included in the GTK releases where 
 	it's called "GTK MS Windows Engine" now, so no need to download/install 
-	it seperately if these versions used.
+	it separately if these versions used.
 	</para>
 
   </section>

@@ -7,7 +7,7 @@
   <section id="ChWorksIntro">
 	<title>Introduction</title>
 	<para>
-	This chapter will give you a short overview, how Wireshark is working.
+	This chapter will give you a short overview of how Wireshark works.
 	</para>
   </section>
 
@@ -36,7 +36,7 @@
 	  <varlistentry><term><command>Core</command></term>
 	    <listitem>
 	      <para>
-		  Main "glue code" that holds the other blocks together, source 
+		  Main "glue code" that holds the other blocks together. Source 
 		  code can be found in the root directory.
 	      </para>
 	    </listitem>
@@ -45,7 +45,7 @@
 	    <listitem>
 	      <para>
 		  Ethereal Packet ANalyzer (XXX - is this correct?) the packet 
-		  analyzing engine, source code can be found in the 
+		  analyzing engine. Source code can be found in the 
 		  <filename>epan</filename> directory.
 	      </para>
 	  <itemizedlist>
@@ -62,8 +62,8 @@
 	    </listitem>
 	    <listitem>
 	      <para>
-		  Plugins - Some of the protocol dissectors are implemented as plugins, source 
-		  code at <filename>plugins</filename>.
+		  Plugins - Some of the protocol dissectors are implemented as plugins. Source 
+		  code can be found at <filename>plugins</filename>.
 	      </para>
 	    </listitem>
 	    <listitem>
@@ -86,7 +86,7 @@
 	    <listitem>
 	      <para>
 		  The wiretap library is used to read/write capture files in libpcap 
-		  and a lot of other file formats, the source code is in the
+		  and a lot of other file formats. Source code in the
 		  <filename>wiretap</filename> directory.
 	      </para>
 	    </listitem>
@@ -95,9 +95,9 @@
 	  <term><command>Win-/libpcap (not part of the Wireshark package)</command></term>
 	    <listitem>
 	      <para>
-		  The platform dependant packet capture library, including the capture 
+		  The platform dependent packet capture library, including the capture 
 		  filter engine. That's the reason why we still have different display 
-		  and capture filter syntax, as two different filtering engines used.
+		  and capture filter syntax, as two different filtering engines are used.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -112,7 +112,7 @@
 	on your harddisk. 
 	</para>
 	<para>
-	To hide all the lowlevel machine dependant details from 
+	To hide all the lowlevel machine dependent details from 
 	Wireshark, the libpcap/WinPcap (see <xref linkend="ChLibsPcap"/>) library 
 	is used. This library provides a general purpose interface to capture 
 	packets from a lot of different network interface types (Ethernet, 
@@ -123,9 +123,9 @@
 	<section id="ChWorksCaptureFiles">
 	<title>Capture Files</title>
 	<para>
-	Wireshark can read and write capture files in it's natural file format, the 
+	Wireshark can read and write capture files in its natural file format, the 
 	libpcap format, which is used by many other network capturing tools, 
-	e.g. tcpdump. In addition to this, as one of it's strengths,
+	e.g. tcpdump. In addition to this, as one of its strengths,
 	Wireshark can read/write files in many different file formats of other 
 	network capturing tools. The wiretap library, developed together with 
 	Wireshark, provides a general purpose interface to read/write all the file 
@@ -138,15 +138,15 @@
 	<title>Dissect packets</title>
 	<para>
 	While Wireshark is loading packets from a file, each packet is dissected. 
-	Wireshark tries to detect what kind of packet it is and getting as much 
-	information from it as possible. In this run, only the information showed 
-	in the packet list pane is needed though. 
+	Wireshark tries to detect the packet type and gets as much 
+	information from the packet as possible. In this run though, only the information shown 
+	in the packet list pane is needed. 
 	</para>
 	<para>
 	As the user selects a specific packet in the packet list pane, this packet
 	will be dissected again. This time, Wireshark tries to 
 	get every single piece of information and put it into 
-	the packet details pane then.
+	the packet details pane.
 	</para>
 	</section>
 
