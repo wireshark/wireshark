@@ -592,7 +592,7 @@ check_libs:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake WIN32_SETUP_OPT=--libverify process_libs
 
 # Verify library packages only if Makefile.nmake has been updated
-#  (or dummy file doesn't exists because of 'make clean' or whatever)
+#  (or dummy file doesn't exist because of 'make clean' or whatever)
 # (To disable library verification when Makefile.nmake changes,
 #  comment out the commands for the following target).
 # touch is only called if libverify succeeds
