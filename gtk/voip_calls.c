@@ -62,6 +62,7 @@
 #include <epan/dissectors/packet-t30.h>
 #include <epan/dissectors/packet-h248.h>
 #include <epan/dissectors/packet-sccp.h>
+#include <plugins/unistim/packet-unistim.h>
 #include <epan/conversation.h>
 #include <epan/rtp_pt.h>
 #include <epan/ws_strsplit.h>
@@ -98,7 +99,8 @@ const char *voip_protocol_name[]={
 	"H.248",
 	"SCCP",
 	"BSSMAP",
-	"RANAP"
+	"RANAP",
+	"UNISTIM"
 };
 
 typedef struct {
@@ -119,7 +121,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -3071,6 +3073,430 @@ remove_tap_listener_sccp_calls(void)
 	have_sua_tap_listener=FALSE;
 }
 
+
+/****************************************************************************/
+/****************************TAP for UNISTIM ********************************/
+/****************************************************************************/
+
+static int 
+unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *unistim_info)
+{
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	voip_calls_info_t *tmp_listinfo;
+	voip_calls_info_t *strinfo = NULL;
+	unistim_info_t *tmp_unistim_info = NULL;
+	GList *list = NULL;
+	GString *g_tmp = NULL;
+	gchar *frame_label = NULL;
+	gchar *comment = NULL;
+	
+	/* Fetch specific packet infos */
+	const unistim_info_t *pi = unistim_info;
+
+	/* Init gstring */
+	g_tmp = g_string_new(NULL);
+
+	/* Check to see if this is a dup */
+	list = g_list_first(tapinfo->strinfo_list);
+
+	while(list)
+	{
+		tmp_listinfo = list->data;
+
+		if(tmp_listinfo->protocol == VOIP_UNISTIM){
+
+			tmp_unistim_info = tmp_listinfo->prot_info;
+
+			/* Search by termid if possible, otherwise use ni/it ip + port.. */
+			if(pi->termid != 0){
+				if(tmp_unistim_info->termid == pi->termid){
+					/* If the call has ended, then we can reuse it.. */
+					if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN){
+						/* Do nothing */
+					} else {
+						strinfo = (voip_calls_info_t*)(list->data);
+						break;
+					}
+				}
+			} else {
+				/* If no term id use ips / port to find entry */
+				if(ADDRESSES_EQUAL(&tmp_unistim_info->it_ip, &pinfo->dst) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->src) && (tmp_unistim_info->it_port == pinfo->destport)){
+					if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN){
+						/* Do nothing previous call */
+					} else {
+						strinfo = (voip_calls_info_t*)(list->data);
+						break;
+					}
+				} 
+				else if(ADDRESSES_EQUAL(&tmp_unistim_info->it_ip, &pinfo->src) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->dst) && (tmp_unistim_info->it_port == pinfo->srcport)) {
+					if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN){
+						/* Do nothing, it ain't our call.. */
+					} else {
+						strinfo = (voip_calls_info_t*)(list->data);
+						break;
+					}
+				}
+			}
+		}
+		
+		/* Otherwise, go to the next one.. */
+		list = g_list_next(list);
+	}
+
+	if(pi->payload_type == 2 || pi->payload_type == 1){
+
+		if(pi->key_state == 1 || pi->hook_state == 1){
+
+			/* If the user hits a button, 
+			   Session will be SETUP */
+
+			/* If new add to list */
+			if (strinfo==NULL){
+
+				strinfo = g_malloc(sizeof(voip_calls_info_t));
+				strinfo->call_active_state = VOIP_ACTIVE;
+				strinfo->call_state = VOIP_CALL_SETUP;
+				strinfo->from_identity=g_strdup_printf("%x",pi->termid);
+				strinfo->to_identity=g_strdup_printf("UNKNOWN");
+				COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
+				strinfo->first_frame_num=pinfo->fd->num;
+				strinfo->selected=FALSE;
+				
+				/* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
+				/* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
+				strinfo->start_sec=(gint32) (pinfo->fd->rel_ts.secs);
+				strinfo->start_usec=pinfo->fd->rel_ts.nsecs/1000;
+						
+				strinfo->protocol=VOIP_UNISTIM;
+				strinfo->prot_info=g_malloc(sizeof(unistim_info_t));
+				
+				tmp_unistim_info = strinfo->prot_info;
+				
+				/* Clear tap struct */
+				tmp_unistim_info->rudp_type = 0;
+				tmp_unistim_info->payload_type = 0;
+				tmp_unistim_info->sequence = pi->sequence;
+				tmp_unistim_info->termid = pi->termid;
+				tmp_unistim_info->key_val = -1;
+				tmp_unistim_info->key_state = -1;
+				tmp_unistim_info->hook_state = -1;
+				tmp_unistim_info->stream_connect = -1;
+				tmp_unistim_info->trans_connect = -1;
+				tmp_unistim_info->set_termid = -1;
+				tmp_unistim_info->string_data = NULL;
+				tmp_unistim_info->key_buffer = NULL;
+				
+				COPY_ADDRESS(&(tmp_unistim_info->it_ip),&(pi->it_ip));
+				COPY_ADDRESS(&(tmp_unistim_info->ni_ip),&(pi->ni_ip));
+				tmp_unistim_info->it_port = pi->it_port;
+
+				strinfo->free_prot_info = g_free;
+				strinfo->npackets = 0;
+				strinfo->call_num = tapinfo->ncalls++;
+				tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+
+			} else {
+
+				/* Set up call wide info struct */
+				tmp_unistim_info = strinfo->prot_info;
+				tmp_unistim_info->sequence = pi->sequence;
+			}
+
+			/* Each packet COULD BE OUR LAST!!!! */
+			strinfo->stop_sec=(gint32)(pinfo->fd->rel_ts.secs);
+			strinfo->stop_usec=pinfo->fd->rel_ts.nsecs/1000;
+			strinfo->last_frame_num=pinfo->fd->num;
+
+			/* This is a valid packet so increment counter */
+			++(strinfo->npackets);
+			
+			/* increment the packets counter of all calls */
+			++(tapinfo->npackets);
+		
+			/* Key was depressed.. update key buffer.. */
+			if(pi->key_val >= 0 && pi->key_val <= 11){
+
+				if(tmp_unistim_info->key_buffer != NULL){
+
+					/* assign to temp variable */
+					g_string_assign(g_tmp,tmp_unistim_info->key_buffer);
+
+					/* Manipulate the data */
+					if(pi->key_val == 10) {
+						tmp_unistim_info->key_buffer = g_strdup_printf("%s*",g_tmp->str);
+					} else if(pi->key_val == 11) {
+						tmp_unistim_info->key_buffer = g_strdup_printf("%s#",g_tmp->str);
+					} else {
+						tmp_unistim_info->key_buffer = g_strdup_printf("%s%d",g_tmp->str,pi->key_val);
+					}
+
+				} else {
+
+					/* Create new string */
+					if(pi->key_val == 10) {
+						tmp_unistim_info->key_buffer = g_strdup_printf("*");
+					} else if(pi->key_val == 11) {
+						tmp_unistim_info->key_buffer = g_strdup_printf("#");
+					} else {
+						tmp_unistim_info->key_buffer = g_strdup_printf("%d",pi->key_val);
+					}
+
+				}
+
+				/* Select for non-digit characters */
+				if(pi->key_val == 10) {
+					comment = g_strdup_printf("Key Input Sent: * (%d)", pi->sequence);
+				} else if(pi->key_val == 11) {
+					comment = g_strdup_printf("Key Input Sent: # (%d)", pi->sequence);
+				} else {
+					comment = g_strdup_printf("Key Input Sent: %d (%d)",pi->key_val, pi->sequence);
+				}
+			} else if(pi->key_val == 12) {
+				/* Set label and comment for graph */
+				comment = g_strdup_printf("Key Input Sent: UP (%d)", pi->sequence);
+			} else if(pi->key_val == 13) {
+				/* Set label and comment for graph */
+				comment = g_strdup_printf("Key Input Sent: DOWN (%d)", pi->sequence);
+			} else if(pi->key_val == 14) {
+				/* Set label and comment for graph */
+				comment = g_strdup_printf("Key Input Sent: RIGHT (%d)", pi->sequence);
+			} else if(pi->key_val == 15) {
+				if(pi->key_buffer != NULL){
+					/* Get data */
+					g_string_assign(g_tmp,pi->key_buffer);
+
+					/* Manipulate the data */
+					g_string_truncate(g_tmp,g_tmp->len-1);
+					
+					/* Insert new data */
+					tmp_unistim_info->key_buffer = g_strdup_printf("%s",g_tmp->str);
+				}
+
+				/* Set label and comment for graph */
+				comment = g_strdup_printf("Key Input Sent: LEFT (%d)", pi->sequence);
+			} else if(pi->key_val == 20) {
+				/* User pressed the soft key 0 probably dial */
+				comment = g_strdup_printf("Key Input Sent: S0 (%d)", pi->sequence);
+			} else if(pi->key_val == 21) {
+				/* User pressed the soft key 1 */
+				comment = g_strdup_printf("Key Input Sent: S1 (%d)", pi->sequence);
+			} else if(pi->key_val == 22) {
+				/* User pressed the soft key 2 */
+				/* On cs2k phones, soft key 2 is backspace. */
+				if(pi->key_buffer != NULL) {
+					
+					/* Get data */
+					g_string_assign(g_tmp,pi->key_buffer);
+
+					/* Manipulate the data */
+					g_string_truncate(g_tmp,g_tmp->len-1);
+					
+					/* Insert new data */
+					tmp_unistim_info->key_buffer = g_strdup_printf("%s",g_tmp->str);
+				}
+				
+				/* add label and comment */
+				comment = g_strdup_printf("Key Input Sent: S2 (%d)", pi->sequence);
+			} else if(pi->key_val == 28) {
+				/* User pressed something */
+				comment = g_strdup_printf("Key Input Sent: Release (%d)", pi->sequence);
+			} else if(pi->key_val == 23) {
+				/* User pressed the soft key 3 */
+				/* Cancel on cs2k so clear buffer */
+				/* On mcs its config which will clear the buffer too */
+				tmp_unistim_info->key_buffer = g_strdup_printf("\n");
+
+				/* User pressed something, set labels*/
+				comment = g_strdup_printf("Key Input Sent: S3 (%d)", pi->sequence);
+			} else if(pi->key_val == 27) {
+				/* User pressed something */
+				comment = g_strdup_printf("Key Input Sent: Hold (%d)", pi->sequence);
+			} else if(pi->key_val == 29) {
+				/* User pressed something */
+				comment = g_strdup_printf("Key Input Sent: Mute (%d)", pi->sequence);
+			} else if(pi->key_val == 30) {
+				/* User pressed something */
+				comment = g_strdup_printf("Key Input Sent: Headset (%d)", pi->sequence);
+			} else if(pi->key_val == 31) {
+				/* Handsfree button */
+				comment = g_strdup_printf("Key Input Sent: Handsfree (%d)", pi->sequence);
+			} else if(pi->key_val >= 32 && pi->key_val <= 56) {
+				/* Prog. Key X */
+				comment = g_strdup_printf("Key Input Sent: Prog%d (%d)", (pi->key_val & 31), pi->sequence);
+			}
+
+			if(pi->key_val != -1) {
+
+				frame_label = g_strdup_printf("KEY INPUT");
+
+				if (comment == NULL)
+					/* Ouch! What do you do!? */
+					/* User pressed something */
+					comment = g_strdup_printf("Key Input Sent: UNKNOWN - %d (%d)", pi->key_val, pi->sequence);
+
+				/* add to the graph */
+				add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+			}
+
+			if(pi->hook_state == 1) {
+
+				/* Phone is off hook */
+				frame_label = g_strdup_printf("OFF HOOK");
+				comment = g_strdup_printf("Off Hook (%d)", pi->sequence);
+
+				/* add to the graph */
+				add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);  
+			} else if(pi->hook_state == 0) {
+
+				/* Phone is on hook */
+				frame_label = g_strdup_printf("ON HOOK");
+				comment = g_strdup_printf("On Hook (%d)", pi->sequence);
+
+				/* add to the graph */
+				add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);  
+			}
+
+		}
+
+		/* Open stream was sent from server */
+		if(pi->stream_connect == 1 && strinfo != NULL) {
+
+			/* Open stream */	
+			/* Signifies the start of the call so set start_sec & start_usec */
+			strinfo->start_sec=(gint32) (pinfo->fd->rel_ts.secs);
+			strinfo->start_usec=pinfo->fd->rel_ts.nsecs/1000;
+			
+			/* Local packets too */
+			++(strinfo->npackets);
+
+			/* increment the packets counter of all calls */
+			++(tapinfo->npackets);
+
+			/* ?? means we're not quite sure if this is accurate. Since Unistim isn't a true
+			   Call control protocol, we can only guess at the destination by messing with 
+			   key buffers. */
+			if(tmp_unistim_info->key_buffer != NULL){
+				strinfo->to_identity = g_strdup_printf("?? %s",tmp_unistim_info->key_buffer);
+			}
+
+			/* change sequence number for ACK detection */
+			tmp_unistim_info->sequence = pi->sequence;
+	
+			/* State changes too */
+			strinfo->call_active_state = VOIP_ACTIVE;
+			strinfo->call_state = VOIP_IN_CALL;
+
+			/* Add graph data */
+			frame_label = g_strdup_printf("STREAM OPENED");
+			comment = g_strdup_printf("Stream Opened (%d)",pi->sequence);
+
+			/* add to the graph */
+			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);  
+
+			/* Redraw the scree */
+			tapinfo->redraw = TRUE;
+			return 1;
+
+		} else if(pi->stream_connect == 0 && strinfo != NULL) {
+			/* Close Stream */
+			
+			/* Set stop seconds + usec */
+			strinfo->stop_sec=(gint32) (pinfo->fd->rel_ts.secs);
+			strinfo->stop_usec=pinfo->fd->rel_ts.nsecs/1000;
+			strinfo->last_frame_num=pinfo->fd->num;
+			
+			tmp_unistim_info->sequence = pi->sequence;
+			
+			if(strinfo->call_state == VOIP_IN_CALL){
+				strinfo->call_active_state = VOIP_INACTIVE;
+				strinfo->call_state = VOIP_COMPLETED;
+			} else {
+				strinfo->call_state = VOIP_UNKNOWN;
+				strinfo->call_active_state = VOIP_INACTIVE;
+			}
+				
+			frame_label = g_strdup_printf("STREAM CLOSED");
+			comment = g_strdup_printf("Stream Closed (%d)",pi->sequence);
+
+			/* add to the graph */
+			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+		}
+
+	} else if(pi->rudp_type == 1 && strinfo != NULL) {
+		/* ACK */
+		/* Only show acks for processed seq #s */
+		if(tmp_unistim_info->sequence == pi->sequence) {
+
+			frame_label = g_strdup_printf("ACK");
+			comment = g_strdup_printf("ACK for sequence %d",pi->sequence);
+
+			/* add to the graph */
+			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+		}
+
+	} else if(pi->rudp_type == 0 && strinfo != NULL) {
+		
+		/* NAK */
+		frame_label = g_strdup_printf("NAK");
+		comment = g_strdup_printf("NAK for sequence %d",pi->sequence);
+
+		/* add to the graph */
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+	}
+	
+	/* free dataz */
+	g_free(frame_label);
+	g_free(comment);
+	
+	tapinfo->redraw = TRUE;
+
+	return 1;
+}
+
+/****************************************************************************/
+/* TAP INTERFACE */
+/****************************************************************************/
+static gboolean have_unistim_tap_listener=FALSE;
+/****************************************************************************/
+void
+unistim_calls_init_tap(void){
+
+	GString *error_string;
+
+	if(have_unistim_tap_listener==FALSE) {
+
+		error_string = register_tap_listener("unistim", &(the_tapinfo_struct.unistim_dummy),
+			NULL,
+			voip_calls_dlg_reset,
+			unistim_calls_packet, 
+			voip_calls_dlg_draw
+			);
+
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+
+		have_unistim_tap_listener=TRUE;
+	}
+}
+
+/****************************************************************************/
+void
+remove_tap_listener_unistim_calls(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&(the_tapinfo_struct.unistim_dummy));
+	unprotect_thread_critical_region();
+
+	have_unistim_tap_listener=FALSE;
+}
 
 /****************************************************************************/
 /* ***************************TAP for OTHER PROTOCOL **********************************/

@@ -72,7 +72,8 @@ typedef enum _voip_protocol {
 		TEL_H248,
 		TEL_SCCP,
 		TEL_BSSMAP,
-		TEL_RANAP
+		TEL_RANAP,
+		VOIP_UNISTIM
 } voip_protocol;
 
 extern const char *voip_protocol_name[];
@@ -188,6 +189,7 @@ typedef struct _voip_calls_tapinfo {
 	int sccp_dummy;
 	int sua_dummy;
 	int megaco_dummy;
+	int unistim_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -246,6 +248,7 @@ void actrace_calls_init_tap(void);
 void t38_init_tap(void);
 void h248_calls_init_tap(void);
 void sccp_calls_init_tap(void);
+void unistim_calls_init_tap(void);
 
 /*
 * Removes the voip_calls tap listener (if not already done)
@@ -265,6 +268,7 @@ void remove_tap_listener_actrace_calls(void);
 void remove_tap_listener_t38(void);
 void remove_tap_listener_h248_calls(void);
 void remove_tap_listener_sccp_calls(void);
+void remove_tap_listener_unistim_calls(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.

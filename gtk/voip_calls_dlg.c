@@ -212,6 +212,9 @@ static void voip_calls_remove_tap_listener(void)
 	remove_tap_listener_sccp_calls();
 	remove_tap_listener_sdp_calls();
 	remove_tap_listener_rtp();
+	if (find_tap_id("unistim")) {
+		remove_tap_listener_unistim_calls();
+	}
 	remove_tap_listener_rtp_event();
 	if (find_tap_id("mgcp")) {
 		remove_tap_listener_mgcp_calls();
@@ -371,6 +374,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 			case MEDIA_T38:
  		        case TEL_BSSMAP:
 		        case TEL_RANAP:
+			case VOIP_UNISTIM:
 				/* XXX - not supported */
 				break;
 		}
@@ -835,6 +839,10 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	h248_calls_init_tap();
 	sccp_calls_init_tap();
 	sdp_calls_init_tap();
+	/* We don't register this tap, if we don't have the unistim plugin loaded.*/
+	if (find_tap_id("unistim")) {
+		unistim_calls_init_tap();
+	}
 	rtp_init_tap();
 	rtp_event_init_tap();
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/

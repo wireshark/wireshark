@@ -30,13 +30,128 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/tap.h>
 #include <epan/emem.h>
 #include <string.h>
 #include "packet-unistim.h"
+#include "defines.h"
+#include "audio.h"
+#include "basic.h"
+#include "display.h"
+#include "network.h"
+#include "key.h"
+#include "broadcast.h"
+
+static int global_unistim_port = 5000;
+
+static unistim_info_t *uinfo;
+static int unistim_tap = -1;
+
+static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);
+static void dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static dissector_handle_t unistim_handle;
+
+static void dissect_broadcast_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                     tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_display_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_key_indicator_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_basic_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_network_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_broadcast_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_audio_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_display_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_key_indicator_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_basic_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_network_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+                                   tvbuff_t *tvb,gint offset,guint msg_len);
+static void dissect_message(proto_tree *unistim_tree, tvbuff_t *tvb,gint offset);
+static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
+                           gint offset,guint msg_len);
+static void set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, 
+                                     gint offset,guint msg_len, char *label);
+
+
+static int proto_unistim = -1;
+static int hf_unistim_seq_nu = -1;
+static int hf_unistim_packet_type = -1;
+static int hf_unistim_payload = -1;
+static int hf_unistim_cmd_add = -1;
+static int hf_unistim_len =-1;
+static int hf_terminal_id=-1;
+static int hf_basic_bit_field=-1;
+static const true_false_string basic_bit_yn={
+   "For Following Byte",
+   "For Following Byte"
+};
+
+static int hf_basic_switch_cmd=-1;
+static int hf_basic_phone_cmd=-1;
+static int hf_broadcast_switch_cmd=-1;
+static int hf_broadcast_phone_cmd=-1;
+static int hf_audio_switch_cmd=-1;
+static int hf_audio_phone_cmd=-1;
+static int hf_display_switch_cmd=-1;
+static int hf_display_phone_cmd=-1;
+static int hf_key_switch_cmd=-1;
+static int hf_key_phone_cmd=-1;
+static int hf_network_switch_cmd=-1;
+static int hf_network_phone_cmd=-1;
+
+
+static int hf_generic_data=-1;
+static int hf_generic_string=-1;
+
+static gint ett_unistim = -1;
+
+static const value_string packet_names[]={
+   {0,"NAK"},
+   {1,"ACK"},
+   {2,"Payload"},
+   {0,NULL}
+};
+
+static const value_string payload_names[]={
+   {0x00,"NULL Protocol"},
+   {0x01,"Aggregate Unistim"},
+   {0x02,"Aggregate Unistim with Terminal ID"},
+   {0xff,"Free Form Protocol"},
+   {0,NULL}
+};
+
+static const range_string sequence_numbers[]={
+ {0x00,0xFFFFFFFE,"Normal Sequence Number"},
+ {0xFFFFFFFF,0xFFFFFFFF, "RESET Sequence Number"},
+ {0,0,NULL}
+};
+
+static const value_string command_address[]={
+   {0x11,"Broadcast Manager Switch"},
+   {0x16,"Audio Manager Switch"},
+   {0x17,"Display Manager Switch"},
+   {0x19,"Key/Indicator Manager Switch"},
+   {0x1a,"Basic Manager Switch"},
+   {0x1e,"Network Manager Switch"},
+   {0x91,"Broadcast Manager Phone"},
+   {0x96,"Audio Manager Phone"},
+   {0x97,"Display Manager Phone"},
+   {0x99,"Key/Indicator Manager Phone"},
+   {0x9a,"Basic Manager Phone"},
+   {0x9e,"Network Manager Phone"},
+   {0,NULL}
+};
+
 #include "header_field.h"
-
-
-static int global_unistim_port = 0;
 
 void
 proto_register_unistim(void){
@@ -56,6 +171,8 @@ proto_register_unistim(void){
 
    proto_register_subtree_array(ett,array_length(ett));
    proto_register_field_array(proto_unistim,hf,array_length(hf));
+
+   unistim_tap = register_tap("unistim");
 }
 
 void 
@@ -86,10 +203,33 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
     overall_unistim_tree = proto_item_add_subtree(ti,ett_unistim);
     ti1=proto_tree_add_text(overall_unistim_tree,tvb,offset,5,"Reliable UDP");
     rudpm_tree=proto_item_add_subtree(ti1,ett_unistim);
-    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,FALSE);
-    offset+=4;
 
+    proto_tree_add_item(rudpm_tree,hf_unistim_seq_nu,tvb,offset,4,FALSE);
+
+    /* Allocate new mem for queueing */
+    uinfo = se_alloc(sizeof(unistim_info_t));
+
+    /* Clear tap struct */
+    uinfo->rudp_type = 0;
+    uinfo->payload_type = 0;
+    uinfo->sequence = tvb_get_ntohl(tvb,offset);
+    uinfo->termid = 0;
+    uinfo->key_val = -1;
+    uinfo->key_state = -1;
+    uinfo->hook_state = -1;
+    uinfo->stream_connect = -1;
+    uinfo->trans_connect = -1;
+    uinfo->set_termid = -1;
+    uinfo->string_data = NULL;
+    uinfo->key_buffer = NULL;
+    SET_ADDRESS(&uinfo->it_ip, AT_NONE, 0, NULL);
+    SET_ADDRESS(&uinfo->ni_ip, AT_NONE, 0, NULL);
+    uinfo->it_port = 0;
+
+    offset+=4;
     proto_tree_add_item(rudpm_tree,hf_unistim_packet_type,tvb,offset,1,FALSE);
+    uinfo->rudp_type = tvb_get_guint8(tvb,offset);
+
     switch(tvb_get_guint8(tvb,offset)) {
           case 0x00:
               /*NAK*/
@@ -107,10 +247,8 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
               if (check_col(pinfo->cinfo, COL_INFO))
                      col_add_fstr(pinfo->cinfo, COL_INFO, "Payload seq -   0x%X",
                                    tvb_get_ntohl(tvb, offset-4));
-              if(tree){ /*we are being asked for details*/
-                     offset+=1;
-                     dissect_payload(overall_unistim_tree,tvb,offset);
-              }
+              offset+=1;
+              dissect_payload(overall_unistim_tree,tvb,offset,pinfo);
               break;
           default:
               if (check_col(pinfo->cinfo, COL_INFO))
@@ -118,26 +256,45 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
                                    tvb_get_ntohl(tvb, offset-4));
               break;
     }
+
+    /* Queue packet for tap */
+    tap_queue_packet(unistim_tap, pinfo, uinfo);
 }
 
 static void
-dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset){
+dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, packet_info *pinfo){
       proto_item *ti;
       proto_tree *unistim_tree;
       guint payload_proto=tvb_get_guint8(tvb,offset);
+
+      /* Payload type for tap */
+      uinfo->payload_type = payload_proto;
+
       ti=proto_tree_add_item(overall_unistim_tree,hf_unistim_payload,
                              tvb,offset,1,FALSE);
       offset+=1;
       unistim_tree=proto_item_add_subtree(ti,ett_unistim);
+
       switch(payload_proto){
          case 0x00:
    /*NULL PROTO - NOTHING LEFT TO DO*/
             return;
          case 0x01:
    /*UNISTIM only so no term id but further payload work*/
+            /* Collect info for tap */
+            /* If no term id then packet sourced from NI */
+            COPY_ADDRESS(&(uinfo->ni_ip), &(pinfo->src));
+            COPY_ADDRESS(&(uinfo->it_ip), &(pinfo->dst));
+            uinfo->it_port = pinfo->destport;
             break;
          case 0x02:
    /*UNISTIM with term id*/
+            /* Termid packs are always sourced from the it, so collect relevant infos */
+            COPY_ADDRESS(&(uinfo->ni_ip),&(pinfo->dst));
+            COPY_ADDRESS(&(uinfo->it_ip),&(pinfo->src));
+            uinfo->it_port = pinfo->srcport;
+            uinfo->termid = tvb_get_ntohl(tvb,offset);
+
             proto_tree_add_item(unistim_tree,hf_terminal_id,tvb,offset,4,FALSE);
             offset+=4;
             break;
@@ -145,6 +302,7 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset){
    /*TODO flesh this out probably only for init*/
             break;
       }
+
 
    dissect_message(unistim_tree,tvb,offset);
 }
@@ -158,13 +316,19 @@ dissect_message(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset){
    proto_tree *msg_tree;
 
    ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"Unistim CMD");
+   
    msg_tree = proto_item_add_subtree(ti,ett_unistim);
+   
    address=tvb_get_guint8(tvb,offset);
+
    proto_tree_add_item(msg_tree,hf_unistim_cmd_add,tvb,offset,1,FALSE);
+      
    offset+=1;
    msg_len=tvb_get_guint8(tvb,offset);
+   
    proto_item_set_len(ti, msg_len);
    proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
+   
    offset+=1;
    /*from switch*/
    switch(address){
@@ -222,6 +386,7 @@ dissect_message(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset){
       default:
    /*See some undocumented messages.  Don't want to miss the ones we understand*/
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len-2,FALSE);
+
          offset+=(msg_len-2);
          if (tvb_length_remaining(tvb,offset) > 0){
            next_byte=tvb_get_guint8(tvb,offset);
@@ -241,7 +406,9 @@ dissect_basic_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
    proto_item *ti;
 
    basic_cmd=tvb_get_guint8(tvb,offset);
+
    ti=proto_tree_add_item(msg_tree,hf_basic_phone_cmd,tvb,offset,1,FALSE);
+   
    offset+=1;msg_len-=1;
    switch(basic_cmd){
 
@@ -366,6 +533,9 @@ dissect_basic_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
          break;
       case 0x07:
    /*Assign Terminal ID*/
+         /* Set tap info */
+         uinfo->set_termid = 1;
+
          proto_tree_add_item(msg_tree,hf_basic_switch_terminal_id,
                              tvb,offset,msg_len,FALSE);
          offset+=msg_len;
@@ -766,8 +936,12 @@ dissect_display_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
                                 tvb,offset,1,FALSE);
             offset+=1;msg_len-=1;
          }
-         if(msg_len>0)
+         if(msg_len>0){
+            /* I'm guessing this will work flakily at best */
+            uinfo->string_data = tvb_get_string(tvb,offset,msg_len);
             set_ascii_item(msg_tree,tvb,offset,msg_len);
+         }
+
          offset+=msg_len;
          break;
       case 0x1a:
@@ -1342,6 +1516,12 @@ dissect_key_indicator_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
 
       case 0x00:
    /*Key Event*/
+         /* Set the tap info */
+         uinfo->key_state = tvb_get_guint8(tvb,offset);
+         uinfo->key_state >>= 6;
+         /* Extract the key code */
+         uinfo->key_val = (tvb_get_guint8(tvb,offset) & 0x3F);
+
          proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_key_code,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_key_command,tvb,offset,1,FALSE);
@@ -1354,9 +1534,15 @@ dissect_key_indicator_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
          break;
       case 0x03:
    /*On Hook length = 3*/
+         /* Set tap info.. */
+         uinfo->hook_state = 0;
+
          break;
       case 0x04:
    /*Off Hook length = 3*/
+         /* Set tap info.. */
+         uinfo->hook_state = 1;
+
          break;
       case 0x05:
    /*User Activity Timer Expired length = 3*/
@@ -1895,6 +2081,9 @@ dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree,
          break;
       case 0x30:
    /*Open Audio Stream*/
+         /* Set the tap info */
+         uinfo->stream_connect = 1;
+
          proto_tree_add_item(msg_tree,hf_audio_rx_stream_id,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_tx_stream_id,tvb,offset,1,FALSE);
@@ -1934,6 +2123,9 @@ dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree,
          break;
       case 0x31:
    /*Close Audio Stream*/
+         /* Set the tap info */
+         uinfo->stream_connect = 0;
+
          proto_tree_add_item(msg_tree,hf_audio_rx_stream_id,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_tx_stream_id,tvb,offset,1,FALSE);
@@ -1941,6 +2133,9 @@ dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree,
          break;
       case 0x32:
    /*Connect Transducer*/
+         /* Tap info again */
+         uinfo->trans_connect = 1;
+
          proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE); 
          proto_tree_add_item(msg_tree,hf_audio_transducer_pair,tvb,offset,1,FALSE);
          proto_tree_add_item(msg_tree,hf_audio_rx_enable,tvb,offset,1,FALSE);
@@ -2084,21 +2279,33 @@ dissect_audio_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
    switch(audio_cmd){
       case 0x00:
    /*Handset Connected length =3*/
+         /* Set the tap info */
+         uinfo->hook_state = 1;
          break;
       case 0x01:
    /*Handset Disconnected length =3*/
+         /* Set the tap info */
+         uinfo->hook_state = 0;
          break;
       case 0x02:
    /*Headset Connected length =3*/
+         /* Set the tap info */
+         uinfo->hook_state = 1;
          break;
       case 0x03:
    /*Headset Disconnected length =3*/
+         /* Set the tap info */
+         uinfo->hook_state = 0;
          break;
       case 0x04:
    /*Supervisor Headset Connected length =3*/
+         /* Set the tap info */
+         uinfo->hook_state = 1;
          break;
       case 0x05:
    /*Supervisor Headset Disconnected length =3*/
+         /* Set the tap info */
+         uinfo->hook_state = 0;
          break;
       case 0x07:
    /*Audio Manager Attributes Info*/
