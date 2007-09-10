@@ -1078,7 +1078,7 @@ Stop.]]>
       </section>
       <section id="ChToolsMSDebuggingTools">
         <title>Debugging Tools for Windows</title>
-        <para>You could also use the Microsoft debugging tool,
+        <para>You could also use the Microsoft Debugging Tools for Windows toolkit,
         which is a standalone GUI debugger. Although it's not that
         comfortable compared to debugging with the Visual Studio
         integrated debugger, it can be helpful if you have to debug
