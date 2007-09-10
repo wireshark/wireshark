@@ -1060,7 +1060,7 @@ edit Makefile.nmake
 	<listitem>
 	  <para>
 	    If it complains about being unable to find some modules
-	    (e.g. Tempfile.Py),
+	    (e.g. tempfile.py),
 	    you may want to check if PYTHONPATH is set correctly.
 	    On my Linux box, it is  PYTHONPATH=/usr/lib/python2.4/
 	  </para>
