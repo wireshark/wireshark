@@ -35,7 +35,7 @@
     <para>
       In addition, you can view individual packets in a separate window as 
       shown in <xref linkend="ChWorkPacketSepView"/>. Do this by selecting the 
-	packet you are interested in the packet list pane, and then 
+	packet in which you are interested in the packet list pane, and then 
 	select "Show Packet in New Windows" from the Display menu. This 
 	allows you to easily compare two or even more packets.
 	<figure id="ChWorkPacketSepView">
@@ -446,7 +446,6 @@
 	    <para>
 	      Prepare and apply a display filter based on the currently 
 			selected item. 
-	      name.
 	    </para>
 		</entry>
 	      </row>
@@ -581,8 +580,8 @@
       </itemizedlist>
     </para>
     <para>
-      To select packets based on protocol type, simply type the protocol you 
-      are interested in in the <command>Filter:</command> field in the filter 
+      To select packets based on protocol type, simply type the protocol in which you 
+      are interested in the <command>Filter:</command> field in the filter 
 	  toolbar of the Wireshark window and press enter to initiate 
       the filter. <xref linkend="ChWorkTCPFilter"/> shows an example of what 
 	happens when you type <command>tcp</command> in the filter field.
@@ -636,8 +635,8 @@
     <section id="ChWorkBuildDisplayFilterSection">
       <title>Building display filter expressions</title>
       <para>
-	Wireshark provides a simple but powerful display filter language that you 
-	can build quite complex filter expressions with.  You can compare 
+	Wireshark provides a simple but powerful display filter language that allows you 
+	to build quite complex filter expressions.  You can compare 
 	values in packets as well as combine expressions into more 
 	specific expressions.  The following sections provide more 
 	information on doing this.
@@ -997,7 +996,9 @@ eth.src[1-2] == 00:83
 	  <para>
 	    Select a protocol field from the protocol field tree.  
 	    Every protocol with filterable fields is listed at the 
-	    top level.  By clicking on the "+" next to a protocol name 
+	    top level.  (You can search for a particular protocol
+            entry by entering the first few letters of the protocol name).
+            By clicking on the "+" next to a protocol name 
 	    you can get a list of the field names available for filtering 
 	    for that protocol.
 	  </para>
@@ -1125,7 +1126,7 @@ eth.src[1-2] == 00:83
 	  <listitem>
 	    <para>
 		You can select a filter from this list (which will fill in the 
-		filter name and filter string in the fields down the bottom of the 
+		filter name and filter string in the fields down at the bottom of the 
 		dialog box).
 	    </para>
 	  </listitem>
@@ -1252,12 +1253,12 @@ eth.src[1-2] == 00:83
 	</itemizedlist>
     </para>
     <para>
-	The value to be found will by syntax checked while you type it in. If the 
-	syntax check of your value succeeded, the background of the entry field 
+	The value to be found will be syntax checked while you type it in. If the 
+	syntax check of your value succeeds, the background of the entry field 
 	will turn green, if it fails, it will turn red.
 	</para>
     <para>
-	You can choose the direction to be searched for:
+	You can choose the search direction:
 	<itemizedlist>
 		<listitem>
     		<para><command>Up</command></para>
@@ -1274,8 +1275,8 @@ eth.src[1-2] == 00:83
   </section>
   <section><title>The "Find Next" command</title>
     <para>
-	"Find Next" will continue searching with the same options like in the last 
-	"Find Packet" run.
+	"Find Next" will continue searching with the same options used in the last 
+	"Find Packet".
 	</para>
   </section>
   <section><title>The "Find Previous" command</title>
