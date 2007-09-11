@@ -130,13 +130,13 @@ splash_new(const char *message)
     OBJECT_SET_DATA(win, "protocol_label", main_lb);
 
     percentage_hb = gtk_hbox_new(FALSE, 1);
-    gtk_box_pack_start(GTK_BOX(main_vb), percentage_hb, FALSE, TRUE, 3);
+    gtk_box_pack_start(GTK_BOX(main_vb), percentage_hb, TRUE, TRUE, 3);
 
     prog_bar = gtk_progress_bar_new();
 #if GTK_MAJOR_VERSION < 2
     gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
 #endif
-    gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, FALSE, TRUE, 3);
+    gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, TRUE, TRUE, 3);
     OBJECT_SET_DATA(win, "progress_bar", prog_bar);
 
     percentage_lb = gtk_label_new("  0%");
