@@ -50,29 +50,29 @@
       <orderedlist>
         <listitem>
           <para>
-          <command>Save As</command>Save the stream data in the
+          <command>Save As</command>: Save the stream data in the
           currently selected format.</para>
         </listitem>
         <listitem>
           <para>
-          <command>Print</command>Print the stream data in the
+          <command>Print</command>: Print the stream data in the
           currently selected format.</para>
         </listitem>
         <listitem>
           <para>
-          <command>Direction</command>Choose the stream direction
+          <command>Direction</command>: Choose the stream direction
           to be displayed ("Entire conversation", "data from A to B
           only" or "data from B to A only").</para>
         </listitem>
         <listitem>
           <para>
-          <command>Filter out this stream</command>Apply a display
+          <command>Filter out this stream</command>: Apply a display
           filter removing the current TCP stream data from the
           display.</para>
         </listitem>
         <listitem>
           <para>
-          <command>Close</command>Close this dialog box, leaving
+          <command>Close</command>: Close this dialog box, leaving
           the current display filter in effect.</para>
         </listitem>
       </orderedlist></para>
@@ -81,29 +81,29 @@
       <orderedlist>
         <listitem>
           <para>
-          <command>ASCII</command>. In this view you see the data
+          <command>ASCII</command>: In this view you see the data
           from each direction in ASCII. Obviously best for ASCII
           based protocols, e.g. HTTP.</para>
         </listitem>
         <listitem>
           <para>
-          <command>EBCDIC</command>. For the big-iron freaks out
+          <command>EBCDIC</command>: For the big-iron freaks out
           there.</para>
         </listitem>
         <listitem>
           <para>
-          <command>HEX Dump</command>. This allows you to see all
+          <command>HEX Dump</command>: This allows you to see all
           the data. This will require a lot of screen space and is
           best used with binary protocols.</para>
         </listitem>
         <listitem>
           <para>
-          <command>C Arrays</command>. This allows you to import
+          <command>C Arrays</command>: This allows you to import
           the stream data into your own C program.</para>
         </listitem>
         <listitem>
           <para>
-          <command>Raw</command>. This allows you to load the
+          <command>Raw</command>: This allows you to load the
           unaltered stream data into a different program for
           further examination. The display will look the same as
           the ASCII setting, but "Save As" will result in a binary
@@ -192,25 +192,25 @@
         <itemizedlist>
           <listitem>
             <para>
-            <command>Chat (gray)</command>information about usual
+            <command>Chat (gray)</command>: information about usual
             workflow, e.g. a TCP packet with the SYN flag
             set</para>
           </listitem>
           <listitem>
             <para>
-            <command>Note (cyan)</command>notable things, e.g. an
+            <command>Note (cyan)</command>: notable things, e.g. an
             application returned an "usual" error code like HTTP
             404</para>
           </listitem>
           <listitem>
             <para>
-            <command>Warn (yellow)</command>warning, e.g.
+            <command>Warn (yellow)</command>: warning, e.g.
             application returned an "unusual" error code like a
             connection problem</para>
           </listitem>
           <listitem>
             <para>
-            <command>Error (red)</command>serious problem, e.g.
+            <command>Error (red)</command>: serious problem, e.g.
             [Malformed Packet]</para>
           </listitem>
         </itemizedlist></para>
@@ -222,46 +222,46 @@
         <itemizedlist>
           <listitem>
             <para>
-            <command>Checksum</command>a checksum was
+            <command>Checksum</command>: a checksum was
             invalid</para>
           </listitem>
           <listitem>
             <para>
-            <command>Sequence</command>protocol sequence
+            <command>Sequence</command>: protocol sequence
             suspicious, e.g. sequence wasn't continuous or a
             retransmission was detected or ...</para>
           </listitem>
           <listitem>
             <para>
-            <command>Response Code</command>problem with
+            <command>Response Code</command>: problem with
             application response code, e.g. HTTP 404 page not
             found</para>
           </listitem>
           <listitem>
             <para>
-            <command>Request Code</command>an application request
+            <command>Request Code</command>: an application request
             (e.g. File Handle == x), usually Chat level</para>
           </listitem>
           <listitem>
             <para>
-            <command>Undecoded</command>dissector incomplete or
+            <command>Undecoded</command>: dissector incomplete or
             data can't be decoded for other reasons</para>
           </listitem>
           <listitem>
             <para>
-            <command>Reassemble</command>problems while
+            <command>Reassemble</command>: problems while
             reassembling, e.g. not all fragments were available or
             an exception happened while reassembling</para>
           </listitem>
           <listitem>
             <para>
-            <command>Malformed</command>malformed packet or
+            <command>Malformed</command>: malformed packet or
             dissector has a bug, dissection of this packet
             aborted</para>
           </listitem>
           <listitem>
             <para>
-            <command>Debug</command>debugging (should not occur in
+            <command>Debug</command>: debugging (should not occur in
             release versions)</para>
           </listitem>
         </itemizedlist>It's possible that more such group values
@@ -282,7 +282,7 @@
       <title>"Expert Info Composite" dialog</title>
       <para>From the main menu you can open the expert info dialog,
       using: "Analyze/Expert Info Composite"</para>
-      <para>XXX - "Analyze/Expert Info" is also existing but is
+      <para>XXX - "Analyze/Expert Info" also exists but is
       subject to removal and therefore not explained here.</para>
       <para>XXX - add explanation of the dialogs context
       menu.</para>
@@ -291,22 +291,22 @@
       <section id="ChAdvExpertDialogTabs">
         <title>Errors / Warnings / Notes / Chats tabs</title>
         <para>An easy and quick way to find the most interesting
-        infos than using the Details tab, is to have a look at the
-        seperate tabs for each severity level. As the tab label
+        infos (rather than using the Details tab), is to have a look at the
+        separate tabs for each severity level. As the tab label
         also contains the number of existing entries, it's easy to
         find the tab with the most important entries.</para>
         <para>There are usually a lot of identical expert infos
         only differing in the packet number. These identical infos
         will be combined into a single line - with a count column
-        how often they appeared in the capture file. Clicking on
+        showing how often they appeared in the capture file. Clicking on
         the plus sign shows the individual packet numbers in a tree
         view.</para>
       </section>
       <section id="ChAdvExpertDialogDetails">
         <title>Details tab</title>
         <para>The Details tab provides the expert infos in a "log
-        like" view, each entry in its own line (much like the
-        packet list). As the amount of expert infos of a capture
+        like" view, each entry on its own line (much like the
+        packet list). As the amount of expert infos for a capture
         file can easily become very large, getting an idea of the
         interesting infos with this view can take quite a while.
         The advantage of this tab is to have all entries in the
@@ -363,7 +363,7 @@
       midnight). You can adjust the way Wireshark displays the time
       stamp data in the packet list, see the "Time Display Format"
       item in the 
-      <xref linkend="ChUseViewMenuSection" />for details.</para>
+      <xref linkend="ChUseViewMenuSection" /> for details.</para>
       <para>While reading or writing capture files, Wireshark
       converts the time stamp data between the capture file format
       and the internal format as required.</para>
@@ -374,12 +374,12 @@
     </section>
     <section>
       <title>Capture file formats</title>
-      <para>Every capture file format that Wireshark knows support
+      <para>Every capture file format that Wireshark knows supports
       time stamps. The time stamp precision supported by a specific
       capture file format differs widely and varies from one second
       "0" to one nanosecond "0.123456789". Most file formats store
       the time stamps with a fixed precision (e.g. microseconds),
-      while some file formats are even capable to store the time
+      while some file formats are even capable of storing the time
       stamp precision itself (whatever the benefit may be).</para>
       <para>The common libpcap capture file format that is used by
       Wireshark (and a lot of other tools) supports a fixed
@@ -415,7 +415,7 @@
         inaccurate.</para>
         <para>Conclusion: don't use USB connected NIC's when you
         need precise time stamp accuracy! (XXX - are there any such
-        NIC's that stamps already on the USB hardware?)</para>
+        NIC's that generate time stamps on the USB hardware?)</para>
       </note></para>
     </section>
   </section>
@@ -437,7 +437,7 @@
         <para>You don't get capture files from different time zones
         than your own, so there are simply no time zone problems.
         For example: everyone in your team is working in the same
-        time zone than yourself.</para>
+        time zone as yourself.</para>
       </listitem>
     </itemizedlist></para>
     <sidebar>
@@ -467,7 +467,7 @@
       UTC+05:30)!</para>
       <para>Further information can be found at: 
       <ulink url="&amp;WikipediaTimezone;">
-      &amp;WikipediaTimezone;</ulink>and 
+      &amp;WikipediaTimezone;</ulink> and 
       <ulink url="&amp;WikipediaUTC;">
       &amp;WikipediaUTC;</ulink>.</para>
     </sidebar>
@@ -475,7 +475,7 @@
       <title>What is daylight saving time (DST)?</title>
       <para>Daylight Saving Time (DST), also known as Summer Time,
       is intended to "save" some daylight during the summer months.
-      To do this, a lot of countries (but not all!) add an DST hour
+      To do this, a lot of countries (but not all!) add a DST hour
       to the already existing UTC offset. So you may need to take
       another hour (or in very rare cases even two hours!)
       difference into your "time zone calculations".</para>
@@ -492,11 +492,11 @@
     </sidebar>
     <para>Further time zone and DST information can be found at: 
     <ulink url="&amp;TimezoneGMTSite;">
-    &amp;TimezoneGMTSite;</ulink>and 
+    &amp;TimezoneGMTSite;</ulink> and 
     <ulink url="&amp;TimezoneWorldClockSite;">
     &amp;TimezoneWorldClockSite;</ulink>.</para>
     <section>
-      <title>Set your computer's time correct!</title>
+      <title>Set your computer's time correctly!</title>
       <para>If you work with people around the world, it's very
       helpful to set your computer's time and time zone
       right.</para>
@@ -658,15 +658,15 @@
     <section>
       <title>What is it?</title>
       <para>Network protocols often need to transport large chunks
-      of data, which are complete in itself, e.g. when transferring
+      of data, which are complete in themselves, e.g. when transferring
       a file. The underlying protocol might not be able to handle
       that chunk size (e.g. limitation of the network packet size),
       or is stream-based like TCP, which doesn't know data chunks
       at all.</para>
-      <para>In that case the network protocol has to handle that
-      chunk boundaries itself and (if required) spreading the data
+      <para>In that case the network protocol has to handle the
+      chunk boundaries itself and (if required) spread the data
       over multiple packets. It obviously also needs a mechanism to
-      find back the chunk boundaries on the receiving side.</para>
+      determine the chunk boundaries on the receiving side.</para>
       <tip>
         <title>Tip!</title>
         <para>Wireshark calls this mechanism reassembling, although
@@ -704,8 +704,8 @@
         of the chunk.</para>
       </note>
       <para>An example: In a 
-      <command>HTTP</command>GET response, the requested data (e.g.
-      a HTML page) is returned. Wireshark will show the hex dump of
+      <command>HTTP</command> GET response, the requested data (e.g.
+      an HTML page) is returned. Wireshark will show the hex dump of
       the data in a new tab "Uncompressed entity body" in the
       "Packet Bytes" pane.</para>
       <para>Reassembling is enabled in the preferences by default.
@@ -730,8 +730,8 @@
         </listitem>
       </orderedlist></para>
       <para>The tooltip of the higher level protocol setting will
-      notify you if and which lower level protocol setting has to
-      be considered too.</para>
+      notify you if and which lower level protocol setting also has to
+      be considered.</para>
     </section>
   </section>
   <section id="ChAdvNameResolutionSection">
@@ -756,7 +756,7 @@
       <itemizedlist>
         <listitem>
           <para>
-          <command>Name resolution will often fail.</command>The
+          <command>Name resolution will often fail.</command> The
           name to be resolved might simply be unknown by the name
           servers asked or the servers are just not available and
           the name is also not found in Wireshark's configuration
@@ -765,7 +765,7 @@
         <listitem>
           <para>
           <command>The resolved names are not stored in the capture
-          file or somewhere else.</command>So the resolved names
+          file or somewhere else.</command> So the resolved names
           might not be available if you open the capture file later
           or on a different machine. Each time you open a capture
           file it may look "slightly different", maybe simply
@@ -775,7 +775,7 @@
         <listitem>
           <para>
           <command>DNS may add additional packets to your capture
-          file.</command>You may see packets to/from your machine
+          file.</command> You may see packets to/from your machine
           in your capture file, which are caused by name resolution
           network services of the machine Wireshark captures from.
           XXX - are there any other such packets than DNS
@@ -784,7 +784,7 @@
         <listitem>
           <para>
           <command>Resolved DNS names are cached by
-          Wireshark.</command>This is required for acceptable
+          Wireshark.</command> This is required for acceptable
           performance. However, if the name resolution information
           should change while Wireshark is running, Wireshark won't
           notice a change to the name resolution information once
@@ -811,18 +811,18 @@
       00:09:5b:01:02:03) to something more "human readable".</para>
       <para>
       <command>ARP name resolution (system
-      service)</command>Wireshark will ask the operating system to
+      service)</command>: Wireshark will ask the operating system to
       convert an Ethernet address to the corresponding IP address
       (e.g. 00:09:5b:01:02:03 -&gt; 192.168.0.1).</para>
       <para>
-      <command>Ethernet codes (ethers file)</command>If the ARP
+      <command>Ethernet codes (ethers file)</command>: If the ARP
       name resolution failed, Wireshark tries to convert the
       Ethernet address to a known device name, which has been
       assigned by the user using an ethers file (e.g.
       00:09:5b:01:02:03 -&gt; homerouter).</para>
       <para>
-      <command>Ethernet manufacturer codes (manuf file)</command>If
-      both ARP and ethers didn't returned a result, Wireshark tries
+      <command>Ethernet manufacturer codes (manuf file)</command>: If
+      neither ARP or ethers returns a result, Wireshark tries
       to convert the first 3 bytes of an ethernet address to an
       abbreviated manufacturer name, which has been assigned by the
       IEEE (e.g. 00:09:5b:01:02:03 -&gt; Netgear_01:02:03).</para>
@@ -833,7 +833,7 @@
       something more "human readable".</para>
       <para>
       <command>DNS/ADNS name resolution (system/library
-      service)</command>Wireshark will ask the operating system (or
+      service)</command>: Wireshark will ask the operating system (or
       the ADNS library), to convert an IP address to the hostname
       associated with it (e.g. 216.239.37.99 -&gt;
       www.1.google.com). The DNS service is using synchronous calls
@@ -849,7 +849,7 @@
         out. Use ADNS in that case.</para>
       </warning>
       <para>
-      <command>DNS vs. ADNS</command>here's a short comparison:
+      <command>DNS vs. ADNS</command>: here's a short comparison:
       Both mechanisms are used to convert an IP address to some
       human readable (domain) name. The usual DNS call
       gethostname() will try to convert the address to a name. To
@@ -869,7 +869,7 @@
       above, the values get cached, so you can use View/Reload to
       "update" these fields to show the resolved values.</para>
       <para>
-      <command>hosts name resolution (hosts file)</command>If DNS
+      <command>hosts name resolution (hosts file)</command>: If DNS
       name resolution failed, Wireshark will try to convert an IP
       address to the hostname associated with it, using a hosts
       file provided by the user (e.g. 216.239.37.99 -&gt;
@@ -878,7 +878,7 @@
     <section>
       <title>IPX name resolution (network layer)</title>
       <para>
-      <command>ipxnet name resolution (ipxnets file)</command>XXX -
+      <command>ipxnet name resolution (ipxnets file)</command>: XXX -
       add ipxnets name resolution explanation.</para>
     </section>
     <section>
@@ -887,7 +887,7 @@
       more "human readable".</para>
       <para>
       <command>TCP/UDP port conversion (system
-      service)</command>Wireshark will ask the operating system to
+      service)</command>: Wireshark will ask the operating system to
       convert a TCP or UDP port to its well known name (e.g. 80
       -&gt; http).</para>
       <para>XXX - mention the role of the /etc/services file (but
@@ -901,7 +901,7 @@
     <tip>
       <title>Tip!</title>
       <para>Applying checksums as described here is also known as 
-      <command>redundancy check</command>.</para>
+      <command>redundancy checking</command>.</para>
     </tip>
     <sidebar>
       <title>What are checksums for?</title>
@@ -934,7 +934,7 @@
       very small number of transmission errors may remain
       undetected.</para>
       <para>There are several different kinds of checksum
-      algorithms, an example of an often used checksum algorithm is
+      algorithms; an example of an often used checksum algorithm is
       CRC32. The checksum algorithm actually chosen for a specific
       network protocol will depend on the expected error rate of
       the network medium, the importance of error detection, the
@@ -974,7 +974,7 @@
       <para>Recent network hardware can perform advanced features
       such as IP checksum calculation, also known as checksum
       offloading. The network driver won't calculate the checksum
-      itself but simply hand over an empty (zero or garbage filled)
+      itself but will simply hand over an empty (zero or garbage filled)
       checksum field to the hardware.</para>
       <note>
         <title>Note!</title>
