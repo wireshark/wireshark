@@ -612,6 +612,7 @@ static const struct {
 	{ 1,		WTAP_ENCAP_NETTL_ETHERNET },
 	{ 6,		WTAP_ENCAP_NETTL_TOKEN_RING },
 	{ 10,		WTAP_ENCAP_NETTL_FDDI },
+	{ 70,		WTAP_ENCAP_RAW_IP },
 	{ 101,		WTAP_ENCAP_NETTL_RAW_IP },
 
 	/*
