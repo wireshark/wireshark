@@ -40,6 +40,7 @@
  * http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/isdn.htm
  * http://www.ece.wpi.edu/courses/ee535/hwk11cd95/agrebe/agrebe.html
  * http://www.acacia-net.com/Clarinet/Protocol/q9213o84.htm
+ * http://www.itu.int/rec/T-REC-Q.921/en
  */
 
 static int proto_lapd = -1;
@@ -84,10 +85,10 @@ static dissector_handle_t tei_handle;
 #define	LAPD_EA2	0x0001	/* Second Address Extension bit */
 
 static const value_string lapd_sapi_vals[] = {
-	{ LAPD_SAPI_Q931,	"Q.931 Call control procedure" },
+	{ LAPD_SAPI_Q931,		"Q.931 Call control procedure" },
 	{ LAPD_SAPI_PM_Q931,	"Packet mode Q.931 Call control procedure" },
-	{ LAPD_SAPI_X25,	"X.25 Level 3 procedures" },
-	{ LAPD_SAPI_L2,		"Layer 2 management procedures" },
+	{ LAPD_SAPI_X25,		"X.25 Level 3 procedures" },
+	{ LAPD_SAPI_L2,			"Layer 2 management procedures" },
 	{ 0,			NULL }
 };
 

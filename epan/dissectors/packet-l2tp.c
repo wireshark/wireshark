@@ -32,6 +32,9 @@
  * RFC 2661 for L2TPv2
  * I-D draft-ietf-l2tpext-l2tp-base for L2TPv3
  *
+ * L2TPv3
+ * http://www.ietf.org/rfc/rfc3931.txt
+ *
  * Layer Two Tunneling Protocol "L2TP" number assignments:
  *	http://www.iana.org/assignments/l2tp-parameters
  */
@@ -168,35 +171,35 @@ static gint l2tpv3_l2_specific = L2TPv3_L2_SPECIFIC_DEFAULT;
 
 #define NUM_CONTROL_CALL_TYPES  27
 static const char *calltypestr[NUM_CONTROL_CALL_TYPES+1] = {
-  "Unknown Call Type           ",
-  "Start_Control_Request       ",
-  "Start_Control_Reply         ",
-  "Start_Control_Connected     ",
-  "Stop_Control_Notification   ",
-  "Reserved                    ", /* 5*/
-  "Hello                       ",
-  "Outgoing_Call_Request       ",
-  "Outgoing_Call_Reply         ",
-  "Outgoing_Call_Connected     ",
-  "Incoming_Call_Request       ", /* 10 */
-  "Incoming_Call_Reply         ",
-  "Incoming_Call_Connected     ",
-  "Reserved                    ",
+  "Unknown Call Type",
+  "Start_Control_Request",
+  "Start_Control_Reply",
+  "Start_Control_Connected",
+  "Stop_Control_Notification",
+  "Reserved",							/* 5*/
+  "Hello",
+  "Outgoing_Call_Request",
+  "Outgoing_Call_Reply",
+  "Outgoing_Call_Connected",
+  "Incoming_Call_Request",				/* 10 */
+  "Incoming_Call_Reply",
+  "Incoming_Call_Connected",
+  "Reserved",							/* 13 */
   "Call_Disconnect_Notification",
-  "WAN_Error_Notify            ", /* 15 */
-  "Set_Link_Info               ",
-  "Modem_Status                ",
-  "Service_Relay_Request_Msg   ",
-  "Service_Relay_Reply_Message ",
-  "Explicit_Acknowledgement    ", /* 20 */
-  "Failover_Session_Query_Message",			/* [draft-ietf-l2tpext-failover-04.txt] */
-  "Failover_Session_Response_Message",		/* [draft-ietf-l2tpext-failover-04.txt] */
+  "WAN_Error_Notify",					/* 15 */
+  "Set_Link_Info",
+  "Modem_Status",
+  "Service_Relay_Request_Msg",
+  "Service_Relay_Reply_Message",
+  "Explicit_Acknowledgement",			/* 20 */
+  "Failover_Session_Query_Message",		/* 21 [RFC4951] */
+  "Failover_Session_Response_Message",	/* 22 [RFC4951] */
   /* Multicast Management */
-  "Multicast-Session-Request   ",			/*[RFC4045]*/
-  "Multicast-Session-Response  ",			/*[RFC4045]*/
-  "Multicast-Session-Establishment", /* 25 */ /*[RFC4045]*/
-  "Multicast-Session-Information",			/*[RFC4045]*/
-  "Multicast-Session-End-Notify",			/*[RFC4045]*/
+  "Multicast-Session-Request",			/* 23 [RFC4045]*/
+  "Multicast-Session-Response ",		/* 24 [RFC4045]*/
+  "Multicast-Session-Establishment",	/* 25 [RFC4045]*/
+  "Multicast-Session-Information",		/* 26 [RFC4045]*/
+  "Multicast-Session-End-Notify",		/* 27 [RFC4045]*/
 
 };
 
@@ -297,7 +300,7 @@ static const value_string result_code_stopccn_vals[] = {
   { 5, "The protocol version of the requester is not supported", },
   { 6, "Requester is being shut down", },
   { 7, "Finite state machine error or timeout", },
-  { 8, "Control connection due to mismatching CCDS value", },
+  { 8, "Control connection due to mismatching CCDS value", }, /* [RFC3308] */
   { 0, NULL }
 };
 
@@ -468,10 +471,10 @@ static const value_string avp_type_vals[] = {
   { CTL_MSG_AUTH_NONCE,        "Control Message Authentication Nonce" },
   { TX_CONNECT_SPEED_V3,       "Tx Connect Speed Version 3" },
   { RX_CONNECT_SPEED_V3,       "Rx Connect Speed Version 3" },
-  { 76,							"Failover Capability" },							/*[draft-ietf-l2tpext-failover-04.txt] */
-  { 77,							"Tunnel Recovery" },								/*[draft-ietf-l2tpext-failover-04.txt] */
-  { 78,							"Suggested Control Sequence" },						/*[draft-ietf-l2tpext-failover-04.txt] */
-  { 79,							"Failover Session State" },							/*[draft-ietf-l2tpext-failover-04.txt] */
+  { 76,							"Failover Capability" },							/*[RFC4951] */
+  { 77,							"Tunnel Recovery" },								/*[RFC4951] */
+  { 78,							"Suggested Control Sequence" },						/*[RFC4951] */
+  { 79,							"Failover Session State" },							/*[RFC4951] */
   { 80,							"Multicast Capability" },							/*[RFC4045] */
   { 81,							"New Outgoing Sessions" },							/*[RFC4045] */
   { 82,							"New Outgoing Sessions Acknowledgement" },			/*[RFC4045] */
