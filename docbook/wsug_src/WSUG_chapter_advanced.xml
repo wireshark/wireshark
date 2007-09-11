@@ -466,10 +466,10 @@
       zones with even hour offsets (e.g. New Delhi uses
       UTC+05:30)!</para>
       <para>Further information can be found at: 
-      <ulink url="&amp;WikipediaTimezone;">
-      &amp;WikipediaTimezone;</ulink> and 
-      <ulink url="&amp;WikipediaUTC;">
-      &amp;WikipediaUTC;</ulink>.</para>
+      <ulink url="&WikipediaTimezone;">
+        &WikipediaTimezone;</ulink> and 
+      <ulink url="&WikipediaUTC;">
+      &WikipediaUTC;</ulink>.</para>
     </sidebar>
     <sidebar>
       <title>What is daylight saving time (DST)?</title>
@@ -487,14 +487,14 @@
       <para>Keep in mind: UTC remains the same all year around,
       regardless of DST!</para>
       <para>Further information can be found at: 
-      <ulink url="&amp;WikipediaDaylightSaving;">
-      &amp;WikipediaDaylightSaving;</ulink>.</para>
+      <ulink url="&WikipediaDaylightSaving;">
+      &WikipediaDaylightSaving;</ulink>.</para>
     </sidebar>
     <para>Further time zone and DST information can be found at: 
-    <ulink url="&amp;TimezoneGMTSite;">
-    &amp;TimezoneGMTSite;</ulink> and 
-    <ulink url="&amp;TimezoneWorldClockSite;">
-    &amp;TimezoneWorldClockSite;</ulink>.</para>
+    <ulink url="&TimezoneGMTSite;">
+    &TimezoneGMTSite;</ulink> and 
+    <ulink url="&TimezoneWorldClockSite;">
+    &TimezoneWorldClockSite;</ulink>.</para>
     <section>
       <title>Set your computer's time correctly!</title>
       <para>If you work with people around the world, it's very
@@ -527,7 +527,7 @@
         synchronizing it to Internet NTP clock servers. NTP clients
         are available for all operating systems that Wireshark
         supports (and for a lot more), for examples see: 
-        <ulink url="&amp;NTPSite;">&amp;NTPSite;</ulink>.</para>
+        <ulink url="&NTPSite;">&NTPSite;</ulink>.</para>
       </tip></para>
     </section>
     <section>
@@ -941,7 +941,7 @@
       processor load to perform the calculation, the performance
       needed and many other things.</para>
       <para>Further information about checksums can be found at: 
-      <ulink url="&amp;WikipediaWebsite;/wiki/Checksum" />.</para>
+      <ulink url="&WikipediaWebsite;/wiki/Checksum" />.</para>
     </sidebar>
     <section>
       <title>Wireshark checksum validation</title>
