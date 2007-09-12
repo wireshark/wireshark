@@ -51,8 +51,8 @@ do
                 [8] = "nbap"
         }
 
-        local f_proto = ProtoField.uint8("multi.protocol","Protocol",BASE_DEC,vs_protos)
-        local f_dir = ProtoField.uint8("multi.direction","Direction",BASE_DEC,{ [1] = "incoming", [0] = "outgoing"})
+        local f_proto = ProtoField.uint8("multi.protocol","Protocol",base.DEC,vs_protos)
+        local f_dir = ProtoField.uint8("multi.direction","Direction",base.DEC,{ [1] = "incoming", [0] = "outgoing"})
         local f_text = ProtoField.string("multi.text","Text")
 
 	p_multi.fields = { f_proto, f_dir, f_text }
