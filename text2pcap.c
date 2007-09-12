@@ -754,8 +754,11 @@ parse_preamble (void)
 		if (subsecs != NULL) {
 			/* Get the long time from the tm structure */
 			ts_sec  = (gint32)mktime( &timecode );
-		} else
+		} else {
+			fprintf (stderr, "Failed to parse '%s' using time format '%s'; using 00:00:00 (midnight) as default\n",
+					packet_preamble, ts_fmt);
 			ts_sec = -1;	/* we failed to parse it */
+                }
 
 		/* This will ensure incorrectly parsed dates get set to zero */
 		if ( -1 == ts_sec )
