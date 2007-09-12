@@ -155,9 +155,20 @@ Tip: The actual DTD version of Gentoo is 4.4, but wireshark docs still use 4.2.
      See into the Gentoo handbook howto unmask old versions.
 
 
-Packages for Fedora Core
-------------------------
-TODO
+Packages for Fedora 7
+---------------------
+Tool/File           Package                 Opt./Mand.  Comments
+---------           -------                 ----------  --------
+xsltproc:           libxslt                 M
+xmllint:            libxml2                 M
+xsl stylesheets:    docbook-style-xsl       M           docbook.xsl and chunk.xsl
+docbookx.dtd:       docbook-dtds            M           provides v4.1, v4.2, v4.3, v4.4 DTDs
+
+fop:                fop                     O           See above
+jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
+
+Note: There are required dependencies (such as xml-common and sgml-common); 
+      yum is your friend for doing package installs including required  dependencies.
 
 
 Packages for Debian
