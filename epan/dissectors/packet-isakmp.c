@@ -1759,19 +1759,28 @@ dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
+    packet_info *pinfo, int isakmp_version _U_, int unused _U_)
 {
-  /* XXX uint16: id, uint8: seq, uint8: flags (01=last frag) */
   if (length >= 4) {
+    guint8 seq;
+    tvbuff_t *defrag_ike_tvb;
+
     proto_tree_add_item(tree, hf_ike_cisco_frag_packetid, tvb, offset, 2, FALSE);
     offset += 2;
+    seq = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_ike_cisco_frag_seq, tvb, offset, 1, FALSE);
     offset += 1;
     proto_tree_add_item(tree, hf_ike_cisco_frag_last, tvb, offset, 1, FALSE);
     offset += 1;
     length-=4;
+    if (seq == 1) { /* FIXME: properly reassemble the fragments, currently only decode first fragment */
+      defrag_ike_tvb = tvb_new_subset(tvb, offset, length, length);
+      dissect_isakmp(defrag_ike_tvb, pinfo, tree);
+    } else {
+      proto_tree_add_text(tree, tvb, offset, length, "Fragment Data");
+    }
   }
-  proto_tree_add_text(tree, tvb, offset, length, "Fragment Data");
+
 }
 
 static void
