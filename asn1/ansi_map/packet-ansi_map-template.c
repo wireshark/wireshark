@@ -104,6 +104,7 @@
 #include "packet-ansi_a.h"
 #include "packet-gsm_map.h"
 #include "packet-tcap.h"
+#include "packet-ansi_tcap.h"
 
 #define PNAME  "ANSI Mobile Application Part"
 #define PSNAME "ANSI MAP"
@@ -370,7 +371,7 @@ static guint32 OperationCode;
 static guint8 ServiceIndicator;
 
 
-struct amsi_map_invokedata_t {
+struct ansi_map_invokedata_t {
   guint32 opcode;
   guint8 ServiceIndicator;
 };
@@ -384,7 +385,7 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-	struct amsi_map_invokedata_t *ansi_map_saved_invokedata = value;
+	struct ansi_map_invokedata_t *ansi_map_saved_invokedata = value;
 	gchar *TransactionId_str = key;
 
 	if ( TransactionId_str ){
@@ -417,9 +418,9 @@ ansi_map_init_protocol(void)
 
 /* Store Invoke information needed for the corresponding reply */
 static void
-update_saved_invokedata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb){
-  struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
-  struct tcap_private_t *p_private_tcap;
+update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
+  struct ansi_map_invokedata_t *ansi_map_saved_invokedata;
+  struct ansi_tcap_private_t *p_private_tcap;
   address* src = &(pinfo->src);
   address* dst = &(pinfo->dst);
   guint8 *src_str;
@@ -434,12 +435,12 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb){
   /* Data from the TCAP dissector */
   if (pinfo->private_data != NULL){
 	  p_private_tcap=pinfo->private_data;
-	  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
-	  ansi_map_saved_invokedata->opcode = OperationCode;
-	  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
-		  buf = p_private_tcap->TransactionID_str;
+		  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
+		  ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
+		  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
+		  strcpy(buf,p_private_tcap->TransactionID_str);
 	  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 		  strcat(buf,src_str);
 		  strcat(buf,dst_str);
@@ -447,7 +448,9 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb){
 		  g_hash_table_insert(TransactionId_table, 
 				g_strdup(buf),
 				ansi_map_saved_invokedata);
-		  proto_tree_add_text(tree, tvb, 0, 1, "HAsh string %s",buf);
+		  /*
+		  g_warning("Invoke Hash string %s",buf);
+		  */
 	  }	
   }
 
@@ -757,7 +760,10 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	case 2:/* Telephony Numbering (ITU-T Rec. E.164,E.163). */
 	case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
 	case 7:/* Private Numbering Plan */
+		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+		if(octet == 0)
+			return;
 		offset++;
 		switch ((octet&0xf)){
 		case 1:
@@ -3617,7 +3623,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	int offset = 0;
 	int end_offset = 0;
-	int j = 0;
+	int j;
 	proto_tree *subtree;
 	guint8 octet;
 
@@ -3651,6 +3657,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		offset++;
 	}
 }
+
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
 
@@ -4043,6 +4050,10 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
    case  25: /*Handoff To Third*/
 	   offset = dissect_ansi_map_HandoffToThirdRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_handoffToThirdRes);
 	   break;
+   case  26: /*Flash Request*/
+	   /* No data */
+	   proto_tree_add_text(tree, tvb, offset, -1, "No Data");
+	   break;
    case  27: /*Authentication Directive*/
 	   offset = dissect_ansi_map_AuthenticationDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_authenticationDirectiveRes);
 	   break;
@@ -4228,12 +4239,54 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 
  }
 
+static int
+find_saved_invokedata(asn1_ctx_t *actx){
+   struct ansi_map_invokedata_t *ansi_map_saved_invokedata;
+  struct ansi_tcap_private_t *p_private_tcap;
+  address* src = &(actx->pinfo->src);
+  address* dst = &(actx->pinfo->dst);
+  guint8 *src_str;
+  guint8 *dst_str;
+  char *buf;
+
+  buf=ep_alloc(1024);
+  src_str = address_to_str(src);
+  dst_str = address_to_str(dst);
+
+  /* Data from the TCAP dissector */
+  if (actx->pinfo->private_data != NULL){
+	  p_private_tcap=actx->pinfo->private_data;
+	  /* The hash string needs to contain src and dest to distiguish differnt flows */
+	  src_str = address_to_str(src);
+	  dst_str = address_to_str(dst);
+	  strcpy(buf, p_private_tcap->TransactionID_str);
+	  /* Reverse order to invoke */
+	  strcat(buf,dst_str);
+	  strcat(buf,src_str);
+	  strcat(buf,"\0");
+	  /*
+	  g_warning("Find Hash string %s",buf);
+	  */
+	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
+	  if(ansi_map_saved_invokedata){
+		  OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
+		  ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
+	  }else{
+		  OperationCode = OperationCode & 0x00ff;
+	  }
+  }else{
+	  OperationCode = OperationCode & 0x00ff;
+  }
+  return OperationCode;
+}
+
 static void
 dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ansi_map_item;
     proto_tree *ansi_map_tree = NULL;
     int        offset = 0;
+	struct ansi_tcap_private_t *p_private_tcap;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -4248,6 +4301,12 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
     }
 
+	/* Data from the TCAP dissector */
+	if (pinfo->private_data == NULL){
+		proto_tree_add_text(tree, tvb, 0, -1, "Dissector ERROR this dissector relays on private data");
+		return;
+	}
+
 	/*
 	 * create the ansi_map protocol tree
 	 */
@@ -4256,8 +4315,54 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ansi_map_is_invoke = FALSE;
 	is683_ota = FALSE;
 	is801_pld = FALSE;
-	dissect_ansi_map_ComponentPDU(FALSE, tvb, offset, &asn1_ctx, ansi_map_tree, -1);
+	ServiceIndicator = 0;
 
+	p_private_tcap=pinfo->private_data;
+	
+	switch(p_private_tcap->d.pdu){
+      /* 
+         1 : invoke, 
+         2 : returnResult, 
+         3 : returnError,
+         4 : reject
+      */
+	case 1:
+		OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
+		ansi_map_is_invoke = TRUE;
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+		}
+		proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+		offset = dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
+		update_saved_invokedata(pinfo, ansi_map_tree, tvb);
+		break;
+	case 2:
+		OperationCode = find_saved_invokedata(&asn1_ctx);
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+		}
+		proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+		offset = dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
+		break;
+	case 3:
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+		}
+		break;
+	case 4:
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+		}
+		break;
+	default:
+		/* Must be Invoke ReturnResult ReturnError or Reject */
+		DISSECTOR_ASSERT_NOT_REACHED();
+		break;
+	}
 }
 
 static void range_delete_callback(guint32 ssn)

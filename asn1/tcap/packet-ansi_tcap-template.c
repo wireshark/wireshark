@@ -105,7 +105,7 @@ struct ansi_tcap_private_t ansi_tcap_private;
 static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
   memset(a_tcap_ctx, '\0', sizeof(*a_tcap_ctx));
   a_tcap_ctx->signature = ANSI_TCAP_CTX_SIGNATURE;
-  ansi_tcap_private.oid_is_present = FALSE;
+  a_tcap_ctx->oid_is_present = FALSE;
 }
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
@@ -125,6 +125,124 @@ dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
 }
 */
 
+/* Transaction tracking */
+/* Transaction table */
+struct ansi_tcap_invokedata_t {
+    gint OperationCode;  
+      /* 
+         0 : national, 
+         1 : private 
+      */
+    gint32 OperationCode_private;
+    gint32 OperationCode_national;
+};
+
+static GHashTable *TransactionId_table=NULL;
+
+static void
+TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
+
+	struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = value;
+	gchar *TransactionId_str = key;
+
+	if ( TransactionId_str ){
+		g_free(TransactionId_str);
+	}
+	if (ansi_tcap_saved_invokedata){
+		g_free(ansi_tcap_saved_invokedata);
+	}
+
+}
+
+void
+ansi_tcap_init_transaction_table(void){
+
+	/* Destroy any existing memory chunks / hashes. */
+	if (TransactionId_table){
+		g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
+		g_hash_table_destroy(TransactionId_table);
+		TransactionId_table = NULL;
+	}
+
+	TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
+
+}
+
+static void
+ansi_tcap_init_protocol(void)
+{
+	ansi_tcap_init_transaction_table();
+} 
+
+/* Store Invoke information needed for the corresponding reply */
+static void
+save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
+  struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
+  address* src = &(pinfo->src);
+  address* dst = &(pinfo->dst);
+  guint8 *src_str;
+  guint8 *dst_str;
+  char *buf;
+
+  buf=ep_alloc(1024);
+
+  src_str = address_to_str(src);
+  dst_str = address_to_str(dst);
+
+  
+  if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
+	  /* Only do this once XXX I hope its the right thing to do */
+	  ansi_tcap_saved_invokedata = g_malloc(sizeof(ansi_tcap_saved_invokedata));
+	  ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
+	  
+	  ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
+	  ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
+
+	  strcpy(buf, ansi_tcap_private.TransactionID_str);
+  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
+	  strcat(buf,src_str);
+	  strcat(buf,dst_str);
+	  strcat(buf,"\0");
+	  g_hash_table_insert(TransactionId_table, 
+			g_strdup(buf),
+			ansi_tcap_saved_invokedata);
+	  /*
+	  g_warning("Tcap Invoke Hash string %s",buf);
+	  */
+  }	
+}
+
+static gboolean
+find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
+  struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
+  address* src = &(pinfo->src);
+  address* dst = &(pinfo->dst);
+  guint8 *src_str;
+  guint8 *dst_str;
+  char *buf;
+
+  buf=ep_alloc(1024);
+  src_str = address_to_str(src);
+  dst_str = address_to_str(dst);
+
+  /* The hash string needs to contain src and dest to distiguish differnt flows */
+  src_str = address_to_str(src);
+  dst_str = address_to_str(dst);
+  strcpy(buf, ansi_tcap_private.TransactionID_str);
+  /* Reverse order to invoke */
+  strcat(buf,dst_str);
+  strcat(buf,src_str);
+  strcat(buf,"\0");
+  ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
+  if(ansi_tcap_saved_invokedata){
+	  ansi_tcap_private.d.OperationCode			 = ansi_tcap_saved_invokedata->OperationCode;
+	  ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
+	  ansi_tcap_private.d.OperationCode_private  = ansi_tcap_saved_invokedata->OperationCode_private;
+	  return TRUE;
+  }
+  return FALSE;
+}
+
 /* As currently ANSI MAP is the only possible sub dissector this function
  *  must be improved to handle general cases.
  *
@@ -143,6 +261,7 @@ dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
  */
 static gboolean
 find_tcap_subdisector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
+	proto_item *item;
 
 	/* If "DialoguePortion objectApplicationId ObjectIDApplicationContext
 	 * points to the subdissector this code can be used.
@@ -152,18 +271,36 @@ find_tcap_subdisector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 		return TRUE;
 	}
 	*/
+	if(ansi_tcap_private.d.pdu == 1){
+		/* Save Invoke data for this transaction */
+		save_invoke_data(actx->pinfo, tree, tvb);
+	}else{
+		/* Get saved data for this transaction */
+		if(find_saved_invokedata(actx->pinfo, tree, tvb)){
+			if(ansi_tcap_private.d.OperationCode == 0){
+				/* national */
+				item = proto_tree_add_int(tree, hf_ansi_tcap_national, tvb, 0, 0, ansi_tcap_private.d.OperationCode_national);
+			}else{
+				item = proto_tree_add_int(tree, hf_ansi_tcap_private, tvb, 0, 0, ansi_tcap_private.d.OperationCode_private);
+			}
+			PROTO_ITEM_SET_GENERATED(item);
+			ansi_tcap_private.d.OperationCode_item = item;
+		}
+	}
 	if(ansi_tcap_private.d.OperationCode == 0){
 		/* national */
-		proto_tree_add_text(tree, tvb, 0, -1, 
+		item = proto_tree_add_text(tree, tvb, 0, -1, 
 			"Dissector for ANSI TCAP NATIONAL code:%u not implemented. Contact Wireshark developers if you want this supported",
 			ansi_tcap_private.d.OperationCode_national);
+		PROTO_ITEM_SET_GENERATED(item);
 		return FALSE;
 	}else if(ansi_tcap_private.d.OperationCode == 1){
 		/* private */
 		if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
-			proto_tree_add_text(tree, tvb, 0, -1,
+			item = proto_tree_add_text(tree, tvb, 0, -1,
 				"Dissector for ANSI TCAP PRIVATE code:%u not implemented. Contact Wireshark developers if you want this supported",
 				ansi_tcap_private.d.OperationCode_private);
+			PROTO_ITEM_SET_GENERATED(item);
 			return FALSE;
 		}
 	}
@@ -176,10 +313,9 @@ find_tcap_subdisector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 	 * Operation Family is coded as decimal 9. Bit H of the Operation Family is always
 	 * coded as 0.
 	 */
+	call_dissector(ansi_map_handle, tvb, actx->pinfo, tcap_top_tree);
 
-	call_dissector(ansi_map_handle, tvb, actx->pinfo, tree);
-
-	return FALSE;
+	return TRUE;
 }
 
 #include "packet-ansi_tcap-fn.c"
@@ -195,8 +331,10 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*stat_item=NULL;
     proto_tree		*stat_tree=NULL;
 	gint			offset = 0;
+#if 0
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
+#endif
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -224,6 +362,8 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     gp_tcap_context=NULL;
     dissect_ansi_tcap_PackageType(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 
+#if 0 /* Skipp this part for now it will be rewritten */
+
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
 		if (gtcap_DisplaySRT && tree) {
 			stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
@@ -250,6 +390,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			(p_tcap_context->callback)(tvb, pinfo, stat_tree, p_tcap_context);
 		}
 	}
+#endif
 }
 
 
@@ -330,6 +471,7 @@ proto_register_ansi_tcap(void)
     proto_register_subtree_array(ett, array_length(ett));
 
 
+	register_init_routine(&ansi_tcap_init_protocol);
 }
 
 

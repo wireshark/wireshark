@@ -24,9 +24,9 @@ tvbuff_t	*parameter_tvb;
   if(!parameter_tvb)
     return offset;
   
-  find_tcap_subdisector(parameter_tvb, actx, tcap_top_tree);
+  find_tcap_subdisector(parameter_tvb, actx, tree);
 
-#.FN_FTR Invoke
+#.FN_HDR Invoke
   ansi_tcap_private.d.pdu = 1;
 
 #--- RETURN RESULT ---
@@ -43,9 +43,9 @@ tvbuff_t	*parameter_tvb;
   if(!parameter_tvb)
     return offset;
   
-  find_tcap_subdisector(parameter_tvb, actx, tcap_top_tree);
+  find_tcap_subdisector(parameter_tvb, actx, tree);
 
-#.FN_FTR ReturnResult
+#.FN_HDR ReturnResult
   ansi_tcap_private.d.pdu = 2;
 
 
@@ -62,9 +62,9 @@ tvbuff_t	*parameter_tvb;
   if(!parameter_tvb)
     return offset;
   
-  find_tcap_subdisector(parameter_tvb, actx, tcap_top_tree);
+  find_tcap_subdisector(parameter_tvb, actx, tree);
 
-#.FN_FTR ReturnError
+#.FN_HDR ReturnError
   ansi_tcap_private.d.pdu = 3;
 
 #--- ObjectIDApplicationContext --

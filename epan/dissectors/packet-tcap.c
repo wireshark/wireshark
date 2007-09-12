@@ -2518,7 +2518,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * 
 	 */
 	get_ber_identifier(tvb, 0, &class, &pc, &tag);
-#if 0
+
 	if(class == BER_CLASS_PRI){
 		switch(tag){
 		case 1:
@@ -2535,7 +2535,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			return;
 		}
 	}
-#endif
+
 	/* ITU TCAP */
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 

@@ -8,7 +8,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py ansi_map.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h ansi_map.cnf
-	python ../../tools/asn2wrs.py -b -X -e -p $(PROTOCOL_NAME) -c ansi_map.cnf -s packet-$(PROTOCOL_NAME)-template ansi_map.asn
+	python ../../tools/asn2wrs.py -b -X -T -e -p $(PROTOCOL_NAME) -c ansi_map.cnf -s packet-$(PROTOCOL_NAME)-template ansi_map.asn
 
 clean:
 	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)

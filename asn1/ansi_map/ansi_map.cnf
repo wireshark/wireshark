@@ -13,78 +13,7 @@
 
 #.FIELD_RENAME
 
-#.FN_BODY InvokeParameters
 
-  ServiceIndicator = 0;
-  OperationCode = OperationCode&0x00ff;
-
-  ansi_map_is_invoke = TRUE;	
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-	  col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-  }
-  /* No Data */
-  if(tvb_length_remaining(tvb, offset)<=0){
-		update_saved_invokedata(actx->pinfo, tree, tvb);
-	  return offset;
-
-  }
-
-	offset = dissect_invokeData(tree, tvb, offset, actx);
-	update_saved_invokedata(actx->pinfo, tree, tvb);
-
-#.FN_BODY ReturnParameters
-  struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
-  struct tcap_private_t *p_private_tcap;
-  proto_item *item;
-  address* src = &(actx->pinfo->src);
-  address* dst = &(actx->pinfo->dst);
-  guint8 *src_str;
-  guint8 *dst_str;
-  char *buf;
-
-  buf=ep_alloc(1024);
-  src_str = address_to_str(src);
-  dst_str = address_to_str(dst);
-
-  /* Data from the TCAP dissector */
-  if (actx->pinfo->private_data != NULL){
-	  p_private_tcap=actx->pinfo->private_data;
-	  /* The hash string needs to contain src and dest to distiguish differnt flows */
-	  src_str = address_to_str(src);
-	  dst_str = address_to_str(dst);
-		  buf = p_private_tcap->TransactionID_str;
-		  /* Reverse order to invoke */
-		  strcat(buf,dst_str);
-		  strcat(buf,src_str);
-		  strcat(buf,"\0");
-	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
-	  if(ansi_map_saved_invokedata){
-		  OperationCode = ansi_map_saved_invokedata->opcode;
-		  ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
-	  }else{
-		  OperationCode = OperationCode & 0x00ff;
-	  }
-  }else{
-	  OperationCode = OperationCode & 0x00ff;
-  }
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-	  col_clear(actx->pinfo->cinfo, COL_INFO);
-	  col_add_fstr(actx->pinfo->cinfo, COL_INFO,"%s Response", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-  }
-  /* No Data */
-  if(tvb_length_remaining(tvb, offset)<=0){
-	  return offset;
-  }
-
-  item = proto_tree_add_text(tree, tvb, 0, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
-  PROTO_ITEM_SET_GENERATED(item);
-
-  ansi_map_is_invoke = FALSE;
-  offset = dissect_returnData(tree, tvb, offset, actx);
-
-#.FN_BODY ErrorParameters
-
-#.FN_BODY RejectParameters
 
 # N.S0005-0 v 1.0 TCAP Formats and Procedures 5-16 Application Services
 # 6.3.2 Component Portion
@@ -92,10 +21,6 @@
 # Specifier associated with each Operation Family member. For TIA/EIA-41 the
 # Operation Family is coded as decimal 9. Bit H of the Operation Family is always
 # coded as 0.
-#.FN_BODY PrivateOperationCode VAL_PTR = &OperationCode
- %(DEFAULT_BODY)s
- proto_tree_add_item(tree, hf_ansi_map_op_code_fam, tvb, offset-2,1,FALSE);
- proto_tree_add_item(tree, hf_ansi_map_op_code, tvb, offset-1,1,FALSE);
 
 #.FN_BODY MINType VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;

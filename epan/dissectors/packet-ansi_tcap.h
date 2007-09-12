@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ansi_tcap.h                                                       */
+/* ./packet-ansi_tcap.h                                                       */
 /* ../../tools/asn2wrs.py -b -X -T -e -p ansi_tcap -c ansi_tcap.cnf -s packet-ansi_tcap-template TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
 
 /* Input file: packet-ansi_tcap-template.h */
