@@ -146,6 +146,8 @@
 #define ACN_PREF_DMX_DISPLAY_DEC  1
 #define ACN_PREF_DMX_DISPLAY_PER  2
 
+#define ACN_PREF_DMX_DISPLAY_20PL 0
+#define ACN_PREF_DMX_DISPLAY_16PL 1
 
 typedef struct 
 {
