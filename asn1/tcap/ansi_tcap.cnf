@@ -73,7 +73,7 @@ tvbuff_t	*parameter_tvb;
  static const char * oid_str;
 
  %(DEFAULT_BODY)s
- 	ansi_tcap_private.objectApplicationId_oid= (void*) cur_oid;
+ 	ansi_tcap_private.objectApplicationId_oid= (void*) oid_str;
 	ansi_tcap_private.oid_is_present=TRUE;
 
 #.FN_HDR PackageType/unidirectional

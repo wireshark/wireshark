@@ -186,10 +186,6 @@ static proto_item * tcap_stat_item=NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t ansi_map_handle;
 
-static dissector_table_t sccp_ssn_table;
-
-static GHashTable* ansi_sub_dissectors = NULL;
-static GHashTable* itu_sub_dissectors = NULL;
 
 struct ansi_tcap_private_t ansi_tcap_private;
 
@@ -201,7 +197,12 @@ static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 /*
-extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
+static dissector_table_t sccp_ssn_table;
+
+static GHashTable* ansi_sub_dissectors = NULL;
+static GHashTable* itu_sub_dissectors = NULL;
+
+  extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
     g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
     dissector_add("sccp.ssn",ssn,tcap_handle);
 }
@@ -606,7 +607,7 @@ dissect_ansi_tcap_ObjectIDApplicationContext(gboolean implicit_tag _U_, tvbuff_t
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 28, TRUE, dissect_ansi_tcap_OBJECT_IDENTIFIER);
 
- 	ansi_tcap_private.objectApplicationId_oid= (void*) cur_oid;
+ 	ansi_tcap_private.objectApplicationId_oid= (void*) oid_str;
 	ansi_tcap_private.oid_is_present=TRUE;
 
 
@@ -1320,7 +1321,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 322 "packet-ansi_tcap-template.c"
+#line 323 "packet-ansi_tcap-template.c"
 
 
 
@@ -1330,10 +1331,10 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
+#if 0
     proto_item		*stat_item=NULL;
     proto_tree		*stat_tree=NULL;
 	gint			offset = 0;
-#if 0
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 #endif
@@ -1653,7 +1654,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 446 "packet-ansi_tcap-template.c"
+#line 447 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1690,7 +1691,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 456 "packet-ansi_tcap-template.c"
+#line 457 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

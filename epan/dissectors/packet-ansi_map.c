@@ -698,7 +698,6 @@ static int hf_ansi_map_triggerListOpt = -1;       /* TriggerList */
 static int hf_ansi_map_wIN_TriggerList = -1;      /* WIN_TriggerList */
 static int hf_ansi_map_triggerCapability = -1;    /* TriggerCapability */
 static int hf_ansi_map_wINOperationsCapability = -1;  /* WINOperationsCapability */
-static int hf_ansi_map_detectionPointType = -1;   /* DetectionPointType */
 static int hf_ansi_map_CallRecoveryIDList_item = -1;  /* CallRecoveryID */
 static int hf_ansi_map_generalizedTime = -1;      /* GeneralizedTime */
 static int hf_ansi_map_geographicPosition = -1;   /* GeographicPosition */
@@ -1111,7 +1110,6 @@ static gint ett_ansi_map_ServiceDataResultList = -1;
 static gint ett_ansi_map_TriggerAddressList = -1;
 static gint ett_ansi_map_TriggerList = -1;
 static gint ett_ansi_map_WINCapability = -1;
-static gint ett_ansi_map_WIN_Trigger = -1;
 static gint ett_ansi_map_CallRecoveryID = -1;
 static gint ett_ansi_map_CallRecoveryIDList = -1;
 static gint ett_ansi_map_PositionInformation = -1;
@@ -14862,21 +14860,6 @@ dissect_ansi_map_DetectionPointType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t WIN_Trigger_sequence[] = {
-  { &hf_ansi_map_triggerType, BER_CLASS_CON, 279, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TriggerType },
-  { &hf_ansi_map_detectionPointType, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_ansi_map_DetectionPointType },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_ansi_map_WIN_Trigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   WIN_Trigger_sequence, hf_index, ett_ansi_map_WIN_Trigger);
-
-  return offset;
-}
-
-
 static const ber_sequence_t InvokeData_sequence[] = {
   { &hf_ansi_map_handoffMeasurementRequest, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_HandoffMeasurementRequest },
   { &hf_ansi_map_facilitiesDirective, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitiesDirective },
@@ -15073,7 +15056,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	int offset = 0;
 	int end_offset = 0;
-	int j;
+	int j = 0;
 	proto_tree *subtree;
 	guint8 octet;
 
@@ -18120,10 +18103,6 @@ void proto_register_ansi_map(void) {
       { "wINOperationsCapability", "ansi_map.wINOperationsCapability",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.WINOperationsCapability", HFILL }},
-    { &hf_ansi_map_detectionPointType,
-      { "detectionPointType", "ansi_map.detectionPointType",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_DetectionPointType_vals), 0,
-        "ansi_map.DetectionPointType", HFILL }},
     { &hf_ansi_map_CallRecoveryIDList_item,
       { "Item", "ansi_map.CallRecoveryIDList_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19050,7 +19029,6 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_TriggerAddressList,
     &ett_ansi_map_TriggerList,
     &ett_ansi_map_WINCapability,
-    &ett_ansi_map_WIN_Trigger,
     &ett_ansi_map_CallRecoveryID,
     &ett_ansi_map_CallRecoveryIDList,
     &ett_ansi_map_PositionInformation,

@@ -6977,10 +6977,10 @@ WINCapability ::= SET {
 WINOperationsCapability ::= OCTET STRING
 --see 6.5.2.kk for encoding
 
-WIN-Trigger ::= SEQUENCE {
-	triggerType			[279] IMPLICIT TriggerType OPTIONAL,
-	detectionPointType	DetectionPointType
-	}
+--WIN-Trigger ::= SEQUENCE {
+--	triggerType			[279] IMPLICIT TriggerType OPTIONAL,
+--	detectionPointType	DetectionPointType
+--	}
 
 --6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
 -- 1 0 0 1 1 1 1 1 (0x9f)

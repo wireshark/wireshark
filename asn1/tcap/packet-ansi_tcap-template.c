@@ -95,10 +95,6 @@ static proto_item * tcap_stat_item=NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t ansi_map_handle;
 
-static dissector_table_t sccp_ssn_table;
-
-static GHashTable* ansi_sub_dissectors = NULL;
-static GHashTable* itu_sub_dissectors = NULL;
 
 struct ansi_tcap_private_t ansi_tcap_private;
 
@@ -110,7 +106,12 @@ static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 /*
-extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
+static dissector_table_t sccp_ssn_table;
+
+static GHashTable* ansi_sub_dissectors = NULL;
+static GHashTable* itu_sub_dissectors = NULL;
+
+  extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
     g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
     dissector_add("sccp.ssn",ssn,tcap_handle);
 }
@@ -328,10 +329,10 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
+#if 0
     proto_item		*stat_item=NULL;
     proto_tree		*stat_tree=NULL;
 	gint			offset = 0;
-#if 0
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 #endif
