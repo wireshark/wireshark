@@ -1,9 +1,9 @@
 
- * Replace the recursion to dissect_message by a while loop.
-   This requires returning the offset from the detailed dissectors.
+ * Add RTP conversation
 
- * Add address decoding to the Info column (requires previous point)
+ * Add address decoding to the Info column
 
  * Handle msg_len consistently
 
  * Split up ett_unistim for various purposes
+

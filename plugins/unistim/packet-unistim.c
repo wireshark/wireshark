@@ -51,31 +51,31 @@ static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, 
 static void dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static dissector_handle_t unistim_handle;
 
-static void dissect_broadcast_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_broadcast_switch(proto_tree *msg_tree,
                                      tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_audio_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_display_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_display_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_key_indicator_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_key_indicator_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_basic_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_basic_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_network_switch(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_network_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_broadcast_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
+static gint dissect_broadcast_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_audio_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_audio_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_display_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_display_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_key_indicator_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_key_indicator_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_basic_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_basic_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_network_phone(proto_tree *msg_tree,proto_tree *unistim_tree, 
+static gint dissect_network_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static void dissect_message(proto_tree *unistim_tree, tvbuff_t *tvb,gint offset);
+static gint dissect_message(proto_tree *unistim_tree, tvbuff_t *tvb,gint offset);
 static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
                            gint offset,guint msg_len);
 static void set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, 
@@ -303,32 +303,31 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
             break;
       }
 
-
-   dissect_message(unistim_tree,tvb,offset);
+      while (tvb_length_remaining(tvb, offset) > 0)
+         offset = dissect_message(unistim_tree,tvb,offset);
 }
 
-static void
+static gint
 dissect_message(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset){
    guint address;
-   guint next_byte;
    guint msg_len;
    proto_item *ti;
    proto_tree *msg_tree;
 
    ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"Unistim CMD");
-   
+
    msg_tree = proto_item_add_subtree(ti,ett_unistim);
-   
+
    address=tvb_get_guint8(tvb,offset);
 
    proto_tree_add_item(msg_tree,hf_unistim_cmd_add,tvb,offset,1,FALSE);
-      
+
    offset+=1;
    msg_len=tvb_get_guint8(tvb,offset);
-   
+
    proto_item_set_len(ti, msg_len);
    proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
-   
+
    offset+=1;
    /*from switch*/
    switch(address){
@@ -337,78 +336,74 @@ dissect_message(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset){
          break;
       case 0x11:
    /*Broadcast Manager Switch*/
-         dissect_broadcast_switch(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_broadcast_switch(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x16:
    /*Audio Manager Switch*/
-         dissect_audio_switch(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_audio_switch(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x17:
    /*Display Manager Switch*/
-         dissect_display_switch(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_display_switch(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x19:
    /*Key Indicator Manager Switch*/
-         dissect_key_indicator_switch(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_key_indicator_switch(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x1a:
    /*Basic Manager Switch*/
-         dissect_basic_switch(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_basic_switch(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x1e:
    /*Network Manager Switch*/
-         dissect_network_switch(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_network_switch(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x91:
    /*Broadcast Manager phone*/
-         dissect_broadcast_phone(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_broadcast_phone(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x96:
    /*Audio Manager phone*/
-         dissect_audio_phone(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_audio_phone(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x97:
    /*Display Manager phone*/
-         dissect_display_phone(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_display_phone(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x99:
    /*Key/Indicator Manager phone*/
-         dissect_key_indicator_phone(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_key_indicator_phone(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x9a:
    /*Basic Manager phone*/
-         dissect_basic_phone(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_basic_phone(msg_tree,tvb,offset,msg_len-2);
          break;
       case 0x9e:
    /*Network Manager Switch*/
-         dissect_network_phone(msg_tree,unistim_tree,tvb,offset,msg_len-2);
+         offset = dissect_network_phone(msg_tree,tvb,offset,msg_len-2);
          break;
       default:
    /*See some undocumented messages.  Don't want to miss the ones we understand*/
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len-2,FALSE);
 
          offset+=(msg_len-2);
-         if (tvb_length_remaining(tvb,offset) > 0){
-           next_byte=tvb_get_guint8(tvb,offset);
-           if(next_byte>0)
-             dissect_message(unistim_tree,tvb,offset);
-         }
    }
+
+   return offset;
 }
 
 
    /*DONE*/
-static void
-dissect_basic_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
+static gint
+dissect_basic_phone(proto_tree *msg_tree,
                     tvbuff_t *tvb,gint offset, guint msg_len){
    guint basic_cmd;
-   guint next_byte;
    proto_item *ti;
 
    basic_cmd=tvb_get_guint8(tvb,offset);
 
    ti=proto_tree_add_item(msg_tree,hf_basic_phone_cmd,tvb,offset,1,FALSE);
-   
+
    offset+=1;msg_len-=1;
    switch(basic_cmd){
 
@@ -481,18 +476,14 @@ dissect_basic_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
          offset+=msg_len;
    }
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+
+   return offset;
 }
    /*DONE*/
-static void
-dissect_basic_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
+static gint
+dissect_basic_switch(proto_tree *msg_tree,
                      tvbuff_t *tvb,gint offset,guint msg_len){
    guint basic_cmd;
-   guint next_byte;
    basic_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_basic_switch_cmd,tvb,offset,1,FALSE);
    offset+=1;msg_len-=1;
@@ -557,20 +548,16 @@ dissect_basic_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
          offset+=msg_len;
 
    }
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+
+   return offset;
 }
 
 
    /*DONE*/
-static void
-dissect_broadcast_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
+static gint
+dissect_broadcast_switch(proto_tree *msg_tree,
                          tvbuff_t *tvb,gint offset, guint msg_len){
    guint bcast_cmd;
-   guint next_byte;
    guint year,month,day,hour,minute,second;
    proto_item *date_label;
    proto_item *time_label;
@@ -633,30 +620,28 @@ dissect_broadcast_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
          offset+=msg_len;
    }
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+
+   return offset;
 }
    /*DONE Haven't seen any phone broadcasts, wouldn't expect to*/
-static void
-dissect_broadcast_phone(proto_tree *msg_tree, proto_tree *unistim_tree _U_,
+static gint
+dissect_broadcast_phone(proto_tree *msg_tree,
                         tvbuff_t *tvb, gint offset,guint msg_len){
 
    proto_tree_add_item(msg_tree,hf_generic_data, tvb,offset,msg_len,FALSE);
    offset+=msg_len;
+
+   return offset;
 }
 
    /*DONE*/
-static void
-dissect_display_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
+static gint
+dissect_display_switch(proto_tree *msg_tree,
                        tvbuff_t *tvb, gint offset,guint msg_len){
    guint clear_mask;
    guint highlight_cmd;
    guint time_date_mask;
    guint display_cmd;
-   guint next_byte;
    guint address_byte;
    guint movement_byte;
    proto_tree *address_tree;
@@ -1266,21 +1251,16 @@ dissect_display_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,
                              tvb,offset,msg_len,FALSE);
          offset+=msg_len;
+   }
 
-      }
-      if (tvb_length_remaining(tvb,offset) > 0){
-         next_byte=tvb_get_guint8(tvb,offset);
-            if(next_byte>0)
-               dissect_message(unistim_tree,tvb,offset);
-      }
+   return offset;
 }
    /*DONE*/
-static void
-dissect_display_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
+static gint
+dissect_display_phone(proto_tree *msg_tree,
                       tvbuff_t *tvb,gint offset,guint msg_len){
    guint display_cmd;
    guint highlight_cmd;
-   guint next_byte;
    display_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_display_phone_cmd,tvb,offset,1,FALSE);
    offset+=1;
@@ -1312,7 +1292,7 @@ dissect_display_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
       case 0x01:
    /*Contrast Level Report*/
 	 proto_tree_add_item(msg_tree,hf_display_contrast,tvb,offset,1,FALSE);
-
+         offset+=1;msg_len-=1;
          break;
       case 0x02:
    /*Cursor Location Report*/
@@ -1377,21 +1357,16 @@ dissect_display_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
       default:
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
          offset+=msg_len;
+   }
 
-      }
-      if (tvb_length_remaining(tvb,offset) > 0){
-         next_byte=tvb_get_guint8(tvb,offset);
-            if(next_byte>0)
-               dissect_message(unistim_tree,tvb,offset);
-      }
+   return offset;
 }
 
 
-static void
-dissect_key_indicator_switch(proto_tree *msg_tree, proto_tree *unistim_tree, 
+static gint
+dissect_key_indicator_switch(proto_tree *msg_tree, 
                              tvbuff_t *tvb, gint offset,guint msg_len){
    guint key_cmd;
-   guint next_byte;
    key_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_key_switch_cmd,tvb,offset,1,FALSE);
    offset+=1;msg_len-=1;
@@ -1496,24 +1471,19 @@ dissect_key_indicator_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
          offset+=msg_len;
    }
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+
+   return offset;
 }
 
 /*DONE*/
-static void
-dissect_key_indicator_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
+static gint
+dissect_key_indicator_phone(proto_tree *msg_tree,
                             tvbuff_t *tvb,gint offset, guint msg_len){
    guint key_cmd;
-   guint next_byte;
    key_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_key_phone_cmd,tvb,offset,1,FALSE);
    offset+=1;msg_len-=1;
    switch(key_cmd){
-
       case 0x00:
    /*Key Event*/
          /* Set the tap info */
@@ -1591,20 +1561,15 @@ dissect_key_indicator_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
          offset+=msg_len;
    }
 
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+   return offset;
 }
 
 
 /*Done*/
-static void
-dissect_network_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
+static gint
+dissect_network_switch(proto_tree *msg_tree,
                        tvbuff_t *tvb,gint offset, guint msg_len){
    guint network_cmd; 
-   guint next_byte;
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_switch_cmd,tvb,offset,1,FALSE);
    offset+=1;msg_len-=1;
@@ -1728,28 +1693,22 @@ dissect_network_switch(proto_tree *msg_tree, proto_tree *unistim_tree,
          offset+=msg_len;
 
    }
-   if (tvb_length_remaining(tvb,offset) > 0){
-         next_byte=tvb_get_guint8(tvb,offset);
-            if(next_byte>0)
-               dissect_message(unistim_tree,tvb,offset);
-   }
+
+   return offset;
 }
 
 /*DONE*/
-static void
-dissect_network_phone(proto_tree *msg_tree, proto_tree *unistim_tree, 
+static gint
+dissect_network_phone(proto_tree *msg_tree, 
                       tvbuff_t *tvb,gint offset, guint msg_len){
    guint network_cmd;
-   guint next_byte;
    proto_tree *server_tree;
    proto_item *server;
    guint i;
-   guint16 port_num;
    network_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_network_phone_cmd,tvb,offset,1,FALSE);
    offset+=1;
    switch(network_cmd){
-
       case 0x00:
    /*Soft Reset Ack done length = 3*/
          break;
@@ -1807,10 +1766,11 @@ dissect_network_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
          offset+=1;msg_len-=1;
          for (i=1; msg_len>8; i++){ 
    /*if less than 9 not full report so punt*/
+/*          guint16 port_num;
             port_num=tvb_get_ntohs(tvb,offset);
             if(port_num<1064)
                break;
-
+*/
             server=proto_tree_add_text(msg_tree,tvb,offset,9,
                                        "Server (S%d) Server ID: %X",i,i-1);
             server_tree=proto_item_add_subtree(server,ett_unistim);
@@ -1842,22 +1802,18 @@ dissect_network_phone(proto_tree *msg_tree, proto_tree *unistim_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
          offset+=msg_len;
    }
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+
+   return offset;
 }
 /*DONE*/
-static void
-dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree,
+static gint
+dissect_audio_switch(proto_tree *msg_tree,
                                     tvbuff_t *tvb,gint offset,guint msg_len){
    proto_tree *param_tree;
    proto_item *param;
    guint audio_cmd;
    guint apb_op_code;
    guint apb_data_len;
-   guint next_byte;
    guint vocoder_param;
    audio_cmd=tvb_get_guint8(tvb,offset);
    proto_tree_add_item(msg_tree,hf_audio_switch_cmd,tvb,offset,1,FALSE);
@@ -2256,21 +2212,16 @@ dissect_audio_switch(proto_tree *msg_tree,proto_tree *unistim_tree,
          offset+=msg_len;
    }
 
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+   return offset;
 }
 
 /*DONE*/
-static void
-dissect_audio_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
+static gint
+dissect_audio_phone(proto_tree *msg_tree,
                                  tvbuff_t *tvb,gint offset,guint msg_len){
    guint audio_cmd;
    guint apb_op_code;
    guint apb_data_len;
-   guint next_byte;
    guint stream_dir;
    guint stream_state;
    audio_cmd=tvb_get_guint8(tvb,offset);
@@ -2480,11 +2431,7 @@ dissect_audio_phone(proto_tree *msg_tree,proto_tree *unistim_tree,
          offset+=msg_len;
    }
 
-   if (tvb_length_remaining(tvb,offset) > 0){
-      next_byte=tvb_get_guint8(tvb,offset);
-      if(next_byte>0)
-         dissect_message(unistim_tree,tvb,offset);
-   }
+   return offset;
 }
 
 static void
