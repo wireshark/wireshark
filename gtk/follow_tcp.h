@@ -1,11 +1,11 @@
-/* ssl-dlg.h
- * Decode ssl-enrypted conversations, given a keyfile.
+/* follow_tcp.h
+ * TCP specific routines for following traffic streams
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
+ * By Gerald Combs <gerald@zing.org>
+ * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,15 +19,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation,  Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
  */
 
-#ifndef SSL_DLG_H_INCLUDED
-#define SSL_DLG_H_INCLUDED
+#ifndef __FOLLOW_TCP_H__
+#define __FOLLOW_TCP_H__
 
-/* Follow the TCP stream, if any, to which the last packet that we called
-   a dissection routine on belongs (this might be the most recently
-   selected packet, or it might be the last packet in the file). */
-void ssl_stream_cb(GtkWidget * w, gpointer data _U_);
+/** @file
+ *  "Follow TCP Stream" dialog box.
+ *  @ingroup dialog_group
+ */
 
-#endif /* SSL_DLG_H_INCLUDED */
+/** User requested the "Follow TCP Stream" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void follow_tcp_stream_cb( GtkWidget *widget, gpointer data);
+
+/** Redraw the text in all "Follow TCP Stream" windows. */
+extern void follow_tcp_redraw_all(void);
+
+#endif /* __FOLLOW_TCP_H__ */

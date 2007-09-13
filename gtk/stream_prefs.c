@@ -36,7 +36,7 @@
 #include "print.h"
 #include <epan/prefs.h>
 #include "compat_macros.h"
-#include "follow_dlg.h"
+#include "follow_tcp.h"
 #include "packet_list.h"
 
 #define SAMPLE_MARKED_TEXT "Sample marked packet text\n"
@@ -264,7 +264,7 @@ stream_prefs_fetch(GtkWidget *w _U_)
 void
 stream_prefs_apply(GtkWidget *w _U_)
 {
-	follow_redraw_all();
+	follow_tcp_redraw_all();
 
 	packet_list_update_marked_frames();
 }

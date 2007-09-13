@@ -52,7 +52,7 @@
 
 #include "packet_list.h"
 #include "proto_draw.h"
-#include "follow_dlg.h"
+#include "follow_tcp.h"
 
 
 
@@ -551,7 +551,7 @@ user_font_apply(void) {
     redraw_hex_dump_all();
 
     /* Redraw the "Follow TCP Stream" windows. */
-    follow_redraw_all();
+    follow_tcp_redraw_all();
 
     /* We're no longer using the old fonts; unreference them. */
 #if GTK_MAJOR_VERSION < 2

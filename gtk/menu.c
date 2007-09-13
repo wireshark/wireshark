@@ -55,7 +55,7 @@
 #include "prefs_dlg.h"
 #include "packet_win.h"
 #include "print.h"
-#include "follow_dlg.h"
+#include "follow_tcp.h"
 #include "decode_as_dlg.h"
 #include "help_dlg.h"
 #include "supported_protos_dlg.h"
@@ -79,7 +79,7 @@
 #include "simple_dialog.h"
 #include "packet_history.h"
 #include "color_filters.h"
-#include "ssl-dlg.h"
+#include "follow_ssl.h"
 #include "sctp_stat.h"
 #include "firewall_dlg.h"
 #include "u3.h"
@@ -621,9 +621,9 @@ static GtkItemFactoryEntry menu_items[] =
                        decode_show_cb, 0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
-                       follow_stream_cb, 0, NULL, NULL),
+                       follow_tcp_stream_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow SSL Stream", NULL,
-                       ssl_stream_cb, 0, NULL, NULL),
+                       follow_ssl_stream_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Statistics", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Statistics/_Summary", NULL, summary_open_cb, 0, GTK_STOCK_PROPERTIES),
     ITEM_FACTORY_ENTRY("/Statistics/_Protocol Hierarchy", NULL,
@@ -719,9 +719,9 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/SCTP/Prepare Filter for this Association", NULL, sctp_set_assoc_filter,
                        0, NULL,NULL),
 
-    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
+    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_tcp_stream_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, ssl_stream_cb,
+    ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, follow_ssl_stream_cb,
                        0, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -790,9 +790,9 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
 
-    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
+    ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_tcp_stream_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, ssl_stream_cb,
+    ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, follow_ssl_stream_cb,
                        0, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),

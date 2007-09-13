@@ -144,7 +144,7 @@
 #include "find_dlg.h"
 #include "packet_list.h"
 #include "recent.h"
-#include "follow_dlg.h"
+#include "follow_tcp.h"
 #include "font_utils.h"
 #include "about_dlg.h"
 #include "help_dlg.h"

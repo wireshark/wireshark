@@ -70,8 +70,9 @@ WIRESHARK_GTK_SRC = \
 	filter_dlg.c	\
 	find_dlg.c	\
 	firewall_dlg.c	\
-	follow_dlg.c	\
+	follow_ssl.c	\
 	follow_stream.c	\
+	follow_tcp.c	\
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \
@@ -109,7 +110,6 @@ WIRESHARK_GTK_SRC = \
 	sctp_error_dlg.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\
-	ssl-dlg.c	\
 	stream_prefs.c	\
 	summary_dlg.c	\
 	supported_protos_dlg.c	\

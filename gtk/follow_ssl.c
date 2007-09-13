@@ -1,4 +1,5 @@
-/* ssl_dlg.c
+/* follow_ssl.c
+ * SSL specific routines for following traffic streams
  *
  * $Id$
  *
@@ -65,7 +66,7 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
-#include "ssl-dlg.h"
+#include "follow_ssl.h"
 
 #include "follow_stream.h"
 
@@ -138,7 +139,7 @@ packet_is_ssl(epan_dissect_t* edt);
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
-ssl_stream_cb(GtkWidget * w, gpointer data _U_)
+follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 {
     GtkWidget	*filter_te;
     gchar	*follow_filter;

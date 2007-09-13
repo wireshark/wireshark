@@ -1,4 +1,5 @@
-/* follow_dlg.c
+/* follow_tcp.c
+ * TCP specific routines for following traffic streams
  *
  * $Id$
  *
@@ -44,7 +45,7 @@
 #include "color.h"
 #include "colors.h"
 #include "file.h"
-#include "follow_dlg.h"
+#include "follow_tcp.h"
 #include <epan/follow.h>
 #include "dlg_utils.h"
 #include "file_dlg.h"
@@ -89,7 +90,7 @@ follow_redraw(gpointer data, gpointer user_data _U_)
 
 /* Redraw the text in all "Follow TCP Stream" windows. */
 void
-follow_redraw_all(void)
+follow_tcp_redraw_all(void)
 {
 	g_list_foreach(follow_infos, follow_redraw, NULL);
 }
@@ -98,7 +99,7 @@ follow_redraw_all(void)
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
-follow_stream_cb(GtkWidget * w, gpointer data _U_)
+follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 {
 	GtkWidget	*filter_te;
 	int		tmp_fd;

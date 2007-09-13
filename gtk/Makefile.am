@@ -68,8 +68,9 @@ noinst_HEADERS = \
 	filter_dlg.h	\
 	find_dlg.h	\
 	firewall_dlg.h	\
-	follow_dlg.h	\
+	follow_ssl.h	\
 	follow_stream.h	\
+	follow_tcp.h	\
 	font_utils.h	\
 	goto_dlg.h	\
 	graph_analysis.h \
@@ -111,7 +112,6 @@ noinst_HEADERS = \
 	sctp_stat.h	\
 	service_response_time_table.h	\
 	gui_stat_menu.h	\
-	ssl-dlg.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
