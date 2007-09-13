@@ -116,7 +116,9 @@ static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mtacap_len = -1;
 static int hf_bootp_docsis_cmcap_len = -1;
 static int hf_bootp_hw_ether_addr = -1;
-static int hf_bootp_alcatel_vid = -1;
+static int hf_bootp_alu_vid = -1;
+static int hf_bootp_alu_tftp1 = -1;
+static int hf_bootp_alu_tftp2 = -1;
 static int hf_bootp_client_identifier_uuid = -1;
 static int hf_bootp_client_network_id_major_ver = -1;
 static int hf_bootp_client_network_id_minor_ver = -1;
@@ -822,25 +824,65 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	case 43:	/* Vendor-Specific Info */
 		s_option = tvb_get_guint8(tvb, optoff);
 
+		/* Alcatel-Lucent AVA */
 		if (optlen == 5 && s_option == 58)
 		{
-				proto_item_append_text(vti, " (Alcatel AVA)");
+				proto_item_append_text(vti, " (Alcatel-Lucent AVA)");
 				ava_vid =  tvb_get_ntohs(tvb, optoff + 2);
+				proto_tree_add_text (v_tree, tvb, optoff + 2,
+					2, "Opcode: 58");
 
-				proto_tree_add_uint (v_tree, hf_bootp_alcatel_vid, tvb, optoff + 2,
+				proto_tree_add_uint (v_tree, hf_bootp_alu_vid, tvb, optoff + 2,
 					2, ava_vid);
 
 				if (ava_vid == 65535)
 				{
 					proto_tree_add_text (v_tree, tvb, optoff + 2,
-						2, "Type: Request from TSC IP Phone");
+						2, "Type: Request from ALU IP Phone");
 				} else {
 					proto_tree_add_text (v_tree, tvb, optoff + 2,
-						2, "Type: Response from Server");
+						2, "Type: Response from DHCP Server");
 				}
 
 				break;
 		}
+
+		/* Alcatel-Lucent DHCP Extensions for Spatial Redundancy */
+
+		if ((optlen == 12 && s_option == 64) ||
+			(optlen == 6  && s_option == 64) ||
+			(optlen == 6  && s_option == 65))
+		{
+			if (optlen == 6 && s_option == 64)
+			{
+				proto_item_append_text(vti, " (Alcatel-Lucent TFTP Options)");
+				proto_tree_add_text (v_tree, tvb, optoff + 2,
+					2, "Opcode: 64");
+				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp1 ,tvb,optoff+2, 4,
+					tvb_get_ipv4(tvb,optoff+2));
+			}
+			if (optlen == 6 && s_option == 65)
+			{
+				proto_item_append_text(vti, " (Alcatel-Lucent TFTP Options)");
+					proto_tree_add_text (v_tree, tvb, optoff + 2,
+					2, "Opcode: 65");
+				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp2 ,tvb,optoff+2 ,4,
+					tvb_get_ipv4(tvb,optoff+2));
+			}
+			if (optlen == 12 && s_option == 64)
+			{
+				proto_item_append_text(vti, " (Alcatel-Lucent TFTP Options)");
+				proto_tree_add_text (v_tree, tvb, optoff + 2,
+					2, "Opcode: 64 and 65");
+				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp1 ,tvb,optoff+2 ,4,
+					tvb_get_ipv4(tvb,optoff+2));
+				proto_tree_add_ipv4(v_tree,hf_bootp_alu_tftp2 ,tvb,optoff+8 ,4,
+					tvb_get_ipv4(tvb,optoff+8));
+			}
+			break;
+		}
+
+
 
 		/* PXE protocol 2.1 as described in the intel specs */
 		if (*vendor_class_id_p != NULL &&
@@ -3465,10 +3507,20 @@ proto_register_bootp(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
 
-    { &hf_bootp_alcatel_vid,
-      { "Voice VLAN ID",	"bootp.vendor.alcatel.vid",
+    { &hf_bootp_alu_vid,
+      { "Voice VLAN ID",	"bootp.vendor.alu.vid",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Alcatel VLAN ID to define Voice VLAN", HFILL }},
+        "Alcatel-Lucent VLAN ID to define Voice VLAN", HFILL }},
+
+	{ &hf_bootp_alu_tftp1,
+      { "Spatial Redundancy TFTP1",    "bootp.vendor.alu.tftp1" ,FT_IPv4,
+        BASE_NONE,			NULL,		  0x0,
+      	"", HFILL }},
+
+	{ &hf_bootp_alu_tftp2,
+      { "Spatial Redundancy TFTP2",    "bootp.vendor.alu.tftp2" ,FT_IPv4,
+        BASE_NONE,			NULL,		  0x0,
+      	"", HFILL }},
 
     { &hf_bootp_client_identifier_uuid,
       { "Client Identifier (UUID)",    "bootp.client_id_uuid",
