@@ -6,7 +6,8 @@
   <section id="ChStatIntroduction">
   <title>Introduction</title>
     <para>
-    Wireshark provides a wide range of network statistics. 
+    Wireshark provides a wide range of network statistics which can be accessed via the
+    <command>Statistics</command> menu. 
     </para>
     <para>
 	These statistics range
@@ -74,24 +75,24 @@
 	</figure>
 	<itemizedlist>
 	<listitem>
-	<para><command>File</command> general information about the capture file.
+	<para><command>File</command>: general information about the capture file.
 	</para>
 	</listitem>
 	<listitem>
-	<para><command>Time</command> the timestamps when the first and the 
-	last packet were capturing (and the time between them).</para>
+	<para><command>Time</command>: the timestamps when the first and the 
+	last packet were captured (and the time between them).</para>
 	</listitem>
 	<listitem>
-	<para><command>Capture</command> information from the time when the 
+	<para><command>Capture</command>: information from the time when the 
 	capture was done (only available if the packet data was captured from the 
 	network and not loaded from a file).</para>
 	</listitem>
 	<listitem>
-	<para><command>Display</command> some display related information.</para>
+	<para><command>Display</command>: some display related information.</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>Traffic</command> some statistics of the network traffic seen. 
+	<command>Traffic</command>: some statistics of the network traffic seen. 
 	If a display filter is set, you will see values in both columns. The 
 	values in the <command>Captured</command> column will remain the same as 
 	before, while the values in the <command>Displayed</command> column will 
@@ -119,40 +120,40 @@
 	The following columns containing the statistical values are available:
 	<itemizedlist>
 	<listitem>
-	<para><command>Protocol</command> this protocol's name</para>
+	<para><command>Protocol</command>: this protocol's name</para>
 	</listitem>
 	<listitem>
-	<para><command>% Packets</command> the percentage of protocol packets, 
+	<para><command>% Packets</command>: the percentage of protocol packets, 
 	relative to all packets in the capture</para>
 	</listitem>
 	<listitem>
-	<para><command>Packets</command> the absolute number of packets of this 
+	<para><command>Packets</command>: the absolute number of packets of this 
 	protocol</para>
 	</listitem>
 	<listitem>
-	<para><command>Bytes</command> the absolute number of bytes of this 
+	<para><command>Bytes</command>: the absolute number of bytes of this 
 	protocol</para>
 	</listitem>
 	<listitem>
-	<para><command>MBit/s</command> the bandwidth of this protocol, relative 
+	<para><command>MBit/s</command>: the bandwidth of this protocol, relative 
 	to the capture time</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End Packets</command> the absolute number of packets of this 
-	protocol (where this protocol were the highest protocol to decode)
+	<command>End Packets</command>: the absolute number of packets of this 
+	protocol (where this protocol was the highest protocol to decode)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End Bytes</command> the absolute number of bytes of this protocol 
-	(where this protocol were the highest protocol to decode)
+	<command>End Bytes</command>: the absolute number of bytes of this protocol 
+	(where this protocol was the highest protocol to decode)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End MBit/s</command> the bandwidth of this protocol, relative to 
-	the capture time (where this protocol were the highest protocol to decode)
+	<command>End MBit/s</command>: the bandwidth of this protocol, relative to 
+	the capture time (where this protocol was the highest protocol to decode)
 	</para>
 	</listitem>
 	</itemizedlist>
@@ -205,47 +206,47 @@
 	<itemizedlist>
 	<listitem>
     <para>
-	<command>Ethernet</command> an Ethernet endpoint is identical to the 
+	<command>Ethernet</command>: an Ethernet endpoint is identical to the 
 	Ethernet's MAC address.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>Fibre Channel</command> XXX - insert info here.
+	<command>Fibre Channel</command>: XXX - insert info here.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>FDDI</command> a FDDI endpoint is identical to the FDDI MAC 
+	<command>FDDI</command>: a FDDI endpoint is identical to the FDDI MAC 
 	address.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>IPv4</command> an IP endpoint is identical to its IP address.
+	<command>IPv4</command>: an IP endpoint is identical to its IP address.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>IPX</command> XXX - insert info here.
+	<command>IPX</command>: XXX - insert info here.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>TCP</command> a TCP endpoint is a combination of the IP address 
+	<command>TCP</command>: a TCP endpoint is a combination of the IP address 
 	and the TCP port used, so different TCP ports on the same IP address are
 	different TCP endpoints.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>Token Ring</command> a Token Ring endpoint is identical to the 
+	<command>Token Ring</command>: a Token Ring endpoint is identical to the 
 	Token Ring MAC address.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>UDP</command> a UDP endpoint is a combination of the IP address 
+	<command>UDP</command>: a UDP endpoint is a combination of the IP address 
 	and the UDP port used, so different UDP ports on the same IP address are
 	different UDP endpoints.
     </para>
@@ -270,11 +271,10 @@
 	</figure>
 	<para>
 	For each supported protocol, a tab is shown in this window.
-	The tab labels shows the number of endpoints captured (e.g. the 
+	Each tab label shows the number of endpoints captured (e.g. the 
 	tab label "Ethernet: 5" tells you that five ethernet endpoints have been 
 	captured). If no endpoints of a specific protocol were captured, the tab 
-	label will be 
-	grayed out (although the related page can still be selected).
+	label will be greyed out (although the related page can still be selected).
 	</para>
 	<para>
 	Each row in the list shows the statistical values for exactly one endpoint.
@@ -286,7 +286,7 @@
 	row has a name 
 	resolution of the first three bytes "Netgear", the second row's address was
 	resolved to an IP address (using ARP) and the third was resolved 
-	to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff), the last two 
+	to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff); the last two 
 	Ethernet addresses remain unresolved.
 	</para>
 	<tip><title>Tip!</title>
@@ -300,9 +300,9 @@
     <title>The protocol specific "Endpoint List" windows</title>
 	<para>
 	Before the combined window described above was available, each of its 
-	pages were shown as separate windows. Even though the combined window is 
+	pages was shown as a separate window. Even though the combined window is 
 	much more convenient to use, these separate windows are still 
-	available. The main reason is, they might process faster for 
+	available. The main reason is that they might process faster for 
 	very large capture files. However, as the functionality is exactly the 
 	same as in the combined window, they won't be discussed in detail here.
 	</para>	
@@ -324,8 +324,8 @@
 	</section>
 	<section id="ChStatConversationsWindow"><title>The "Conversations" window</title>
     <para>
-	Beside the list content, the conversations window work the same way as the 
-	endpoint ones, see <xref linkend="ChStatEndpointsWindow"/> for a 
+	Other than the list content, the conversations window works the same way as the 
+	endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a 
 	description how it works.
 	<figure><title>The "Conversations" window</title>
 	  <graphic entityref="WiresharkStatsConversations" format="PNG"/>
@@ -336,9 +336,9 @@
 	<title>The protocol specific "Conversation List" windows</title>
     <para>
 	Before the combined window described above was available, each of its 
-	pages were shown as separate windows. Even though the combined window is 
+	pages was shown as a separate window. Even though the combined window is 
 	much more convenient to use, these separate windows are still 
-	available. The main reason is, they might process faster for 
+	available. The main reason is that they might process faster for 
 	very large capture files. However, as the functionality is exactly the 
 	same as in the combined window, they won't be discussed in detail here.
     </para>
@@ -366,19 +366,19 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-	<command>Graph 1-5</command> enable the graph 1-5 (only graph 1 is enabled 
+	<command>Graph 1-5</command>: enable the specific graph 1-5 (only graph 1 is enabled 
 	by default)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>Color</command> the color of the graph (cannot be changed)
+	<command>Color</command>: the color of the graph (cannot be changed)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
 	<command>Filter:</command> a display filter for this graph (only the 
-	packets that pass this filter will be taken into account for that graph)
+	packets that pass this filter will be taken into account for this graph)
 	</para>
 	</listitem>
 	<listitem>
@@ -395,13 +395,13 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-	<command>Tick interval</command> an interval in x direction lasts 
+	<command>Tick interval</command>: an interval in x direction lasts 
 	(10/1/0.1/0.01/0.001 seconds)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>Pixels per tick</command> use 10/5/2/1 pixels per tick interval
+	<command>Pixels per tick</command>: use 10/5/2/1 pixels per tick interval
 	</para>
 	</listitem>
 	</itemizedlist>
@@ -413,14 +413,14 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-	<command>Unit</command> the unit for the y direction (Packets/Tick, 
+	<command>Unit</command>: the unit for the y direction (Packets/Tick, 
 	Bytes/Tick, Bits/Tick, Advanced...)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>Scale</command> the scale for the y unit 
-	(10,20,50,100,200,500,...)
+	<command>Scale</command>: the scale for the y unit 
+	(10,20,50,100,200,500,...) [XXX - describe the Advanced feature.]
 	</para>
 	</listitem>
 	</itemizedlist>	
@@ -433,8 +433,6 @@
 	only available when using GTK version 2.6 or higher (the
 	latest Windows versions comply with this requirement) and
 	Wireshark version 0.99.7 or higher.
-	
-	XXX - describe the Advanced feature.
 	</para>
   </section>
   

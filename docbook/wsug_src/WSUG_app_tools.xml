@@ -7,7 +7,7 @@
   <section id="AppToolsIntroduction">
     <title>Introduction</title>
     <para>
-	Beside the Wireshark GUI application, there are some command line tools,
+	Besides the Wireshark GUI application, there are some command line tools
 	which can be helpful for doing some more specialized things. These tools
 	will be described in this chapter.
 	</para>
@@ -38,7 +38,7 @@
     <para>
       However, the default <command>tcpdump</command> parameters result in a
       capture file where each packet is truncated, because
-      <command>tcpdump</command>, by default, does only capture the first 68
+      <command>tcpdump</command>, by default, only captures the first 68
 	  bytes of each packet.
     </para>
     <para>
@@ -65,14 +65,14 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
 	with Wireshark</title>
     <para>
 	<application>Dumpcap</application> is a network traffic dump tool.
-	It lets you capture packet data from a live network and write the
+	It captures packet data from a live network and writes the
 	packets to a file.
 	Dumpcap's native capture file format is libpcap format, which is also
 	the format used by Wireshark, tcpdump and various other tools.
     </para>
     <para>
 	Without any options set it will use the pcap library to capture traffic
-	from the first available network interface and writes the received raw
+	from the first available network interface and write the received raw
 	packet data, along with the packets' time stamps into a libpcap file.
     </para>
     <para>
@@ -167,7 +167,7 @@ Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
       <command>editcap</command>, which is a command-line utility for
       working with capture files.  Its main function is to remove
       packets from capture files, but it can also be used to convert
-      capture files from one format to another, as well as print
+      capture files from one format to another, as well as to print
       information about capture files.
     </para>
     <para>
@@ -218,7 +218,7 @@ editcap: The available capture file types for "F":
     nseclibpcap - Wireshark - nanosecond libpcap
     modlibpcap - Modified tcpdump - libpcap
     nokialibpcap - Nokia tcpdump - libpcap
-    rh6_1libpcap - RedHat 6.1 tcpdump - libpcap
+    rh6_1libpcap - Red Hat 6.1 tcpdump - libpcap
     suse6_3libpcap - SuSE 6.3 tcpdump - libpcap
     5views - Accellent 5Views capture
     dct2000 - Catapult DCT2000 trace (.out format)
@@ -568,7 +568,7 @@ Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
              default is the same as the first input file
         -F &lt;capture type&gt; capture file type to write:
              libpcap - libpcap (tcpdump, Wireshark, etc.)
-             rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
+             rh6_1libpcap - Red Hat Linux 6.1 libpcap (tcpdump)
              suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
              modlibpcap - modified libpcap (tcpdump)
              nokialibpcap - Nokia libpcap (tcpdump)

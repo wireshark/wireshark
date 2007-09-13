@@ -155,7 +155,7 @@ Miscellaneous:
 	<varlistentry><term><command>-b &lt;capture ring buffer option></command></term>
 	  <listitem>
 	    <para>
-		If a maximum capture file size was specified, cause Wireshark to run
+		If a maximum capture file size was specified, this option causes Wireshark to run
 		in "ring buffer" mode, with the specified number of files. In "ring
 		buffer" mode, Wireshark will write to several capture files. Their
 		name is based on the number of the file and on the creation date and
@@ -169,7 +169,7 @@ Miscellaneous:
 		that file and so on.
 	    </para>
 	    <para>
-		If the optional duration is specified, Wireshark will switch also to
+		If the optional duration is specified, Wireshark will also switch to
 		the next file when the specified number of seconds has elapsed even
 		if the current file is not completely fills up.
 	    </para>
@@ -545,7 +545,7 @@ standard libpcap format.
         be:
         </para>
         <para>
-        <command>lua_script</command>:lua_script_filename Tell Wireshark to load the given script in addition to the default Lua scripts.
+        <command>lua_script</command>:lua_script_filename; Tells Wireshark to load the given script in addition to the default Lua scripts.
         </para>
 	  </listitem>
 	</varlistentry>
@@ -578,8 +578,8 @@ standard libpcap format.
       </para>
     </tip>
     <para>
-      To colorize packets, select the Coloring Rules... menu item from
-      the View menu, Wireshark will pop up the "Coloring Rules"
+      To colorize packets, select the <command>Coloring Rules...</command> menu item from
+      the <command>View</command> menu; Wireshark will pop up the "Coloring Rules"
       dialog box as shown in <xref linkend="ChCustColoringRulesDialog"/>.
     </para>
     <figure id="ChCustColoringRulesDialog">
@@ -593,12 +593,12 @@ standard libpcap format.
     </para>
     <note><title>Note!</title>
 	<para>
-      You will need to carefully select the order the coloring rules are listed
-      (and thus applied) as they are applied in order from top to bottom.
+          You will need to carefully select the order the coloring rules are listed
+          as they are applied in order from top to bottom.
 	  So, more specific rules need to be listed before more general rules.
 	  For example, if you have a color rule for UDP before the one for DNS,
 	  the color rule for DNS will never be applied (as DNS uses UDP, so the
-	  UDP rule will be matching first).
+	  UDP rule will match first).
 	</para>
     </note>
     <para>
@@ -679,7 +679,7 @@ standard libpcap format.
 	box</title>
 	<para>
 		The Enabled Protocols dialog box lets you enable or
-		disable specific protocols, all protocols are enabled by default.
+		disable specific protocols; all protocols are enabled by default.
 		When a protocol is disabled, Wireshark stops processing a packet
 		whenever that protocol is encountered.
 	</para>
@@ -695,6 +695,11 @@ standard libpcap format.
 		the other protocols from being displayed.
 		</para>
 	</note>
+        <para>
+          To enable/disable protocols select the <command>Enabled Protocols...</command>
+          item from the <command>Analyze</command> menu; Wireshark will pop up the "Enabled Protocols"
+          dialog box as shown in <xref linkend="ChAdvEnabledProtocolsFig"/>.
+        </para>
     <figure id="ChAdvEnabledProtocolsFig">
       <title>The "Enabled Protocols" dialog box</title>
       <graphic entityref="WiresharkEnabledProtocols" format="PNG"/>
@@ -702,6 +707,10 @@ standard libpcap format.
 	<para>
 		To disable or enable a protocol, simply click on it using the
 		mouse or press the space bar when the protocol is highlighted.
+                Note that typing the first few letters
+                of the protocol name when the Enabled Protocols dialog box is active
+                will temporarily open a search text box and
+                automatically select the first matching protocol name (if it exists).
 	</para>
 	<warning><title>Warning!</title>
 		<para>
@@ -715,40 +724,40 @@ standard libpcap format.
       <orderedlist>
 	<listitem>
 	  <para>
-	    <command>Enable All</command> Enable all protocols in the list.
+	    <command>Enable All</command>: Enable all protocols in the list.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Disable All</command> Disable all protocols in the list.
+	    <command>Disable All</command>: Disable all protocols in the list.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Invert</command> Toggle the state of all protocols in the
+	    <command>Invert</command>: Toggle the state of all protocols in the
 		list.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>OK</command> Apply the changes and close the dialog box.
+	    <command>OK</command>: Apply the changes and close the dialog box.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Apply</command> Apply the changes and keep the dialog box
+	    <command>Apply</command>: Apply the changes and keep the dialog box
 		open.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Save</command> Save the settings to the disabled_protos, see
+	    <command>Save</command>: Save the settings to the disabled_protos, see
 		<xref linkend="AppFiles"/> for details.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Cancel</command> Cancel the changes and close the dialog box.
+	    <command>Cancel</command>: Cancel the changes and close the dialog box.
 	  </para>
 	</listitem>
       </orderedlist>
@@ -761,6 +770,11 @@ standard libpcap format.
 		protocol dissections. This might be useful for example, if you do some
 		uncommon experiments on your network.
 	</para>
+        <para>
+          Decode As is accessed by selecting the <command>Decode As...</command> item from
+          the <command>Analyze</command> menu; Wireshark will pop up the "Decode As"
+          dialog box as shown in <xref linkend="ChAdvDecodeAsFig"/>.
+        </para>
     <para>
     <figure id="ChAdvDecodeAsFig">
       <title>The "Decode As" dialog box</title>
@@ -777,44 +791,44 @@ standard libpcap format.
       <orderedlist>
 	<listitem>
 	  <para>
-	    <command>Decode</command> Decode packets the selected way.
+	    <command>Decode</command>: Decode packets the selected way.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Do not decode</command> Do not decode packets the selected
+	    <command>Do not decode</command>: Do not decode packets the selected
 		way.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Link/Network/Transport</command> Specify the network layer
+	    <command>Link/Network/Transport</command>: Specify the network layer
 		at which "Decode As" should take place. Which of these pages are
-		available, depends on the content of the selected packet when this
-		dialog box was opened.
+		available depends on the content of the selected packet when this
+		dialog box is opened.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Show Current</command> Open a dialog box showing the
+	    <command>Show Current</command>: Open a dialog box showing the
 		current list of user specified decodes.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>OK</command> Apply the currently selected decode and close
+	    <command>OK</command>: Apply the currently selected decode and close
 		the dialog box.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Apply</command> Apply the currently selected decode and keep
+	    <command>Apply</command>: Apply the currently selected decode and keep
 		the dialog box open.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Cancel</command> Cancel the changes and close the dialog box.
+	    <command>Cancel</command>: Cancel the changes and close the dialog box.
 	  </para>
 	</listitem>
       </orderedlist>
@@ -831,12 +845,12 @@ standard libpcap format.
       <orderedlist>
 	<listitem>
 	  <para>
-	    <command>OK</command> Close this dialog box.
+	    <command>OK</command>: Close this dialog box.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Clear</command> Removes all user specified decodes.
+	    <command>Clear</command>: Removes all user specified decodes.
 	  </para>
 	</listitem>
       </orderedlist>
@@ -847,7 +861,8 @@ standard libpcap format.
   <section id="ChCustPreferencesSection"><title>Preferences</title>
     <para>
       There are a number of preferences you can set. Simply
-      select the Preferences... menu item from the Edit menu, and Wireshark
+      select the <command>Preferences...</command> menu item from 
+      the <command>Edit</command> menu; and Wireshark
       will pop up the Preferences dialog box as shown in
       <xref linkend="ChCustGUIPrefPage"/>, with the "User Interface" page as
 	  default. On the left side is a tree where you can select the page to be
@@ -901,7 +916,7 @@ standard libpcap format.
   </section>
   <section id="ChUserTable"><title>User Table</title>
     <para>
-      The User Table editor is used for managing various tables in wireshark. It's main dialog works
+      The User Table editor is used for managing various tables in wireshark. Its main dialog works
       very similarly to that of <xref linkend="ChCustColorizationSection"/>.
       </para>
   </section>
@@ -909,7 +924,7 @@ standard libpcap format.
 
   <section id="ChDisplayFilterMacrosSection"><title>Display Filter Macros</title>
     <para>
-	Display Filter Macos are a mechanism to create shortcuts for complex filters. For example defining a
+	Display Filter Macros are a mechanism to create shortcuts for complex filters. For example defining a
 	display filter macro named <command>tcp_conv</command> whose text is
 	<command> ( (ip.src == $1 and ip.dst == $2 and tcp.srcport == $3 and tcp.dstport == $4) or
 	(ip.src == $2 and ip.dst == $1 and tcp.srcport == $4 and tcp.dstport == $3) ) </command>
@@ -917,7 +932,7 @@ standard libpcap format.
 	instead of typing the whole filter.
       </para>
     <para>
-	Display Filter Macos can be managed with a <xref linkend="ChUserTable"/> selecting
+	Display Filter Macros can be managed with a <xref linkend="ChUserTable"/> by selecting
 	the <command>Display Filter Macros</command> menu item from the <command>View</command> Menu.
 	The User Table has  the following fields
       </para>
@@ -925,14 +940,14 @@ standard libpcap format.
 	  <varlistentry><term><command>name</command></term>
 	  <listitem>
 		<para>
-			the name of the macro.
+			The name of the macro.
 		</para>
 	  </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>text</command></term>
 	  <listitem>
 		<para>
-			the replacement text for the macro it uses $1, $2, $3, ... as the input arguments.
+			The replacement text for the macro it uses $1, $2, $3, ... as the input arguments.
 		</para>
 	  </listitem>
 	  </varlistentry>
@@ -954,7 +969,7 @@ standard libpcap format.
 	  <varlistentry><term><command>match</command></term>
 	  <listitem>
 		<para>
-		   a partial match for an stk filename, the first match wins, so if you have a specific case and a
+		   A partial match for an stk filename, the first match wins, so if you have a specific case and a
 		   general one the specific one must appear first in the list.
 		</para>
 	  </listitem>
@@ -983,7 +998,7 @@ standard libpcap format.
 	  <varlistentry><term><command>encap</command></term>
 	  <listitem>
 		<para>
-			one of the user dlts.
+			One of the user dlts.
 		</para>
 	  </listitem>
 	  </varlistentry>
@@ -997,7 +1012,7 @@ standard libpcap format.
 	  <varlistentry><term><command>header_size</command></term>
 	  <listitem>
 		<para>
-			if there is a header protocol (before the payload protocol) this tells which size this header is. A value of 0 disables the header protocol.
+			If there is a header protocol (before the payload protocol) this tells which size this header is. A value of 0 disables the header protocol.
 		</para>
 	  </listitem>
 	  </varlistentry>
@@ -1011,7 +1026,7 @@ standard libpcap format.
 	  	  <varlistentry><term><command>trailer_size</command></term>
 	  <listitem>
 		<para>
-			if there is a trailer protocol (after the payload protocol) this tells which size this trailer is. A value of 0 disables the trailer protocol.
+			If there is a trailer protocol (after the payload protocol) this tells which size this trailer is. A value of 0 disables the trailer protocol.
 		</para>
 	  </listitem>
 	  </varlistentry>

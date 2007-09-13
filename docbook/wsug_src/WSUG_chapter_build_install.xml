@@ -206,7 +206,7 @@ make install
       </para>
     </note>
     <para>
-      Under RedHat 6.x and beyond (and distributions based on it, like 
+      Under Red Hat 6.x and beyond (and distributions based on it, like 
       Mandrake) you can simply install each of the packages you need from 
       RPMs. Most Linux systems will install GTK+ and GLib in any case, 
       however you will probably need to install the devel versions of 
@@ -214,7 +214,7 @@ make install
 	will install all the needed RPMs if they are not already installed.
 	<example id="Ch02Ex4">
 	  <title>
-	    Installing required RPMs under RedHat Linux 6.2 and beyond
+	    Installing required RPMs under Red Hat Linux 6.2 and beyond
 	  </title>
 	  <programlisting>
 cd /mnt/cdrom/RedHat/RPMS
@@ -228,7 +228,7 @@ rpm -ivh libpcap-0.4-19.i386.rpm
     </para>
     <note>
       <para>
-	If you are using a version of RedHat later than 6.2, the required 
+	If you are using a version of Red Hat later than 6.2, the required 
 	RPMs have most likely changed. Simply use the correct RPMs from your 
 	distribution.
       </para>
@@ -344,7 +344,7 @@ make install
     </para>
   
   <section>
-    <title>Installing from rpm's under RedHat and alike</title>
+    <title>Installing from rpm's under Red Hat and alike</title>
     <para>
       Use the following command to install the Wireshark RPM that you have 
       downloaded from the Wireshark web site:
@@ -587,7 +587,7 @@ pkg_add -r wireshark
 	</para></listitem>
 	<listitem><para>
 	<command>Install WinPcap x.x</command> - if the currently installed 
-	version is older than the one coming with the Wireshark installer 
+	version is older than the one which comes with the Wireshark installer 
 	(or WinPcap is not installed at all), this will be selected by default.
 	</para></listitem>
 	<listitem><para>

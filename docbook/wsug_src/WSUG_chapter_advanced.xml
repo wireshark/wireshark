@@ -192,7 +192,7 @@
         <itemizedlist>
           <listitem>
             <para>
-            <command>Chat (gray)</command>: information about usual
+            <command>Chat (grey)</command>: information about usual
             workflow, e.g. a TCP packet with the SYN flag
             set</para>
           </listitem>

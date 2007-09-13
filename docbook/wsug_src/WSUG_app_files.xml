@@ -12,15 +12,15 @@
     </para>
     <para>
 	Wireshark uses the libpcap file format as the default format to save 
-	captured packets, this format exists for a long time and it's pretty simple.
+	captured packets; this format has existed for a long time and it's pretty simple.
 	However, it has some drawbacks: it's not extensible and lacks some 
 	information that would be really helpful (e.g. being able to add a comment
-	to a packet "the problems start here" would be really nice).
+	to a packet such as "the problems start here" would be really nice).
     </para>
     <para>
 	In addition to the libpcap format, Wireshark supports several different 
 	capture file formats. However, the problems described above also applies 
-	for these formats too.
+	for these formats.
     </para>
     <para>
 	A new capture file format "PCAP Next Generation Dump File Format"
@@ -65,7 +65,7 @@
   </section>
   <section id="ChIOFileNotContentSection"><title>Not Saved in the Capture File</title>
     <para>
-	Probably even more interesting for the everyday Wireshark usage is to know
+	Probably even more interesting for everyday Wireshark usage is to know
 	the things that are <command>not saved</command> in the capture file:
 	<itemizedlist>
 	<listitem>
@@ -79,8 +79,8 @@
 		linkend="ChAdvNameResolutionSection"/> for details
 		<warning><title>Warning!</title>
 		<para>
-		The name resolution information is rebuild each time Wireshark is 
-		restarted so this information even might change when the capture file 
+		The name resolution information is rebuilt each time Wireshark is 
+		restarted so this information might even change when the capture file 
 		is reopened on the same machine later!
 		</para>
 		</warning>
@@ -125,14 +125,14 @@
     </para>
 	<tip><title>Tip</title>
 	<para>A list of the folders Wireshark actually uses can be found under the 
-	<command>Folders</command> tab in the dialog box coming up, when you select 
+	<command>Folders</command> tab in the dialog box shown when you select 
 	<command>About Wireshark</command> from the <command>Help</command> menu.
 	</para>
 	</tip>
     <para>
 	The content format of the configuration files is the same on all platforms.
-	However, to match the different policies for Unix and windows platforms, 
-	different folders for these files are used.
+	However, to match the different policies for Unix and Windows platforms, 
+	different folders are used for these files.
     </para>
     <table id="AppFilesTabFolders" frame="none">
 	<title>Configuration files and folders overview</title>
@@ -404,7 +404,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 		  to translate IPv4 and IPv6 addresses into names.
 	    </para>
 	    <para>
-		  This file has the same format as the usual /etc/hosts file in Unix systems.
+		  This file has the same format as the usual /etc/hosts file on Unix systems.
 	    </para>
 	    <para>
 	      An example is:
@@ -456,7 +456,7 @@ c0-a8-1c-00      CEO
 	  <listitem>
 	    <para>
 	      If you start a new capture and don't specify a filename for it, 
-		  Wireshark uses this directory to place that file in, see
+		  Wireshark uses this directory to store that file; see
 		  <xref linkend="ChCapCaptureFiles"/>.
 	    </para>
 	  </listitem>
@@ -477,14 +477,14 @@ c0-a8-1c-00      CEO
 	
 	<section id="ChWindowsProfiles"><title>Windows profiles</title>
 	<para>
-	Windows uses some special directories to store user configuration files 
-	in, named the user profile. This can be confusing, as the default directory location
-	changed from version to version and might also be different for English 
-	and internationalized versions of windows. 
+	Windows uses some special directories to store user configuration files
+        which define the "user profile". This can be confusing, as the default directory location
+	changed from Windows version to version and might also be different for English 
+	and internationalized versions of Windows. 
 	</para>
 	<note><title>Note!</title>
 	<para>
-	If you upgraded to a new windows version, your profile might 
+	If you've upgraded to a new Windows version, your profile might 
 	be kept in the former location, so the defaults mentioned here might not 
 	apply.
 	</para>
@@ -572,7 +572,7 @@ c0-a8-1c-00      CEO
 	<title>Windows temporary folder</title>
 	<para>
 	Wireshark uses the folder which is set by the TMPDIR or TEMP environment 
-	variable. This variable will be set by the windows installer.
+	variable. This variable will be set by the Windows installer.
 	</para>
 	<para>
       <variablelist>

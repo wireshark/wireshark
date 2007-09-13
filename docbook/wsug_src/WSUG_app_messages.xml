@@ -14,12 +14,12 @@
     </para>
   <section><title>[Malformed Packet]</title>
     <para>
-	Malformed packet means that the protocol dissector can't work out the 
-	contents of the packet any further. This can have various reasons:
+	Malformed packet means that the protocol dissector can't dissect the 
+	contents of the packet any further. There can be various reasons:
       <itemizedlist>
 	<listitem>
 	  <para>
-		<command>Wrong dissector</command>
+		<command>Wrong dissector</command>:
 	    Wireshark erroneously has chosen the wrong protocol dissector for 
 		this packet. This will happen e.g. if you are using a protocol  
 		not on its well known TCP or UDP port. You may try Analyze|Decode As 
@@ -28,14 +28,14 @@
 	</listitem>
 	<listitem>
 	  <para>
-		<command>Packet not reassembled</command>
+		<command>Packet not reassembled</command>:
 		The packet is longer than a single frame and it is not reassembled,
 		see	<xref linkend="ChAdvReassemblySection"/> for further details.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-		<command>Packet is malformed</command>
+		<command>Packet is malformed</command>:
 	    The packet is actually wrong (malformed), meaning that a part of the 
 		packet is just not as expected (not following the protocol 
 		specifications).
@@ -43,7 +43,7 @@
 	</listitem>
 	<listitem>
 	  <para>
-		<command>Dissector is buggy</command>
+		<command>Dissector is buggy</command>:
 	    The corresponding protocol dissector is simply buggy or still
 		incomplete.
 	  </para>
@@ -52,7 +52,7 @@
     </para>
     <para>
 	Any of the above is possible. You'll have to look into the specific 
-	situation to determine what it is. 
+	situation to determine the reason. 
 	You could disable the dissector by disabling the
 	protocol on the Analyze menu and check how Wireshark displays the packet
 	then. You could (if it's TCP) enable reassembly for TCP and the specific
