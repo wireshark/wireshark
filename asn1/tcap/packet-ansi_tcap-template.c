@@ -194,7 +194,6 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
 	  /* Only do this once XXX I hope its the right thing to do */
-	  g_warning("Trans id=%s",ansi_tcap_private.TransactionID_str);
 	  strcpy(buf, ansi_tcap_private.TransactionID_str);
   	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 	  strcat(buf,src_str);

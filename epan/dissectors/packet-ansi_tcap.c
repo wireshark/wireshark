@@ -285,7 +285,6 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
 	  /* Only do this once XXX I hope its the right thing to do */
-	  g_warning("Trans id=%s",ansi_tcap_private.TransactionID_str);
 	  strcpy(buf, ansi_tcap_private.TransactionID_str);
   	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 	  strcat(buf,src_str);
@@ -1329,7 +1328,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 330 "packet-ansi_tcap-template.c"
+#line 329 "packet-ansi_tcap-template.c"
 
 
 
@@ -1662,7 +1661,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 454 "packet-ansi_tcap-template.c"
+#line 453 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1699,7 +1698,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 464 "packet-ansi_tcap-template.c"
+#line 463 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
