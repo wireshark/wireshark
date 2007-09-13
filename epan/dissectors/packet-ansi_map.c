@@ -1206,14 +1206,20 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 	  p_private_tcap=pinfo->private_data;
 	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
-		  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
-		  ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
-		  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 		  strcpy(buf,p_private_tcap->TransactionID_str);
 	  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 		  strcat(buf,src_str);
 		  strcat(buf,dst_str);
 		  strcat(buf,"\0");
+		  /* If the entry allready exists don't owervrite it */
+		  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
+		  if(ansi_map_saved_invokedata)
+			  return;
+
+		  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
+		  ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
+		  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
+
 		  g_hash_table_insert(TransactionId_table, 
 				g_strdup(buf),
 				ansi_map_saved_invokedata);
@@ -15046,7 +15052,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3617 "packet-ansi_map-template.c"
+#line 3623 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -18789,7 +18795,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5211 "packet-ansi_map-template.c"
+#line 5217 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19042,7 +19048,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5244 "packet-ansi_map-template.c"
+#line 5250 "packet-ansi_map-template.c"
   };
 
 

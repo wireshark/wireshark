@@ -193,6 +193,7 @@ static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
   memset(a_tcap_ctx, '\0', sizeof(*a_tcap_ctx));
   a_tcap_ctx->signature = ANSI_TCAP_CTX_SIGNATURE;
   a_tcap_ctx->oid_is_present = FALSE;
+  a_tcap_ctx->TransactionID_str = NULL;
 }
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
@@ -284,17 +285,23 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
 	  /* Only do this once XXX I hope its the right thing to do */
-	  ansi_tcap_saved_invokedata = g_malloc(sizeof(ansi_tcap_saved_invokedata));
-	  ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
-	  
-	  ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
-	  ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
-
+	  g_warning("Trans id=%s",ansi_tcap_private.TransactionID_str);
 	  strcpy(buf, ansi_tcap_private.TransactionID_str);
   	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 	  strcat(buf,src_str);
 	  strcat(buf,dst_str);
 	  strcat(buf,"\0");
+
+	  /* If the entry allready exists don't owervrite it */
+	  ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
+	  if(ansi_tcap_saved_invokedata)
+		  return;
+
+	  ansi_tcap_saved_invokedata = g_malloc(sizeof(ansi_tcap_saved_invokedata));
+	  ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
+	  ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
+	  ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
+
 	  g_hash_table_insert(TransactionId_table, 
 			g_strdup(buf),
 			ansi_tcap_saved_invokedata);
@@ -524,7 +531,8 @@ guint8 len;
 
 
 if(next_tvb) {
-	ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
+	if(tvb_length(next_tvb) !=0)
+		ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
 	len = tvb_length_remaining(next_tvb, 0);
 	switch(len) {
 	case 1:
@@ -1321,7 +1329,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 323 "packet-ansi_tcap-template.c"
+#line 330 "packet-ansi_tcap-template.c"
 
 
 
@@ -1654,7 +1662,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 447 "packet-ansi_tcap-template.c"
+#line 454 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1691,7 +1699,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 457 "packet-ansi_tcap-template.c"
+#line 464 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

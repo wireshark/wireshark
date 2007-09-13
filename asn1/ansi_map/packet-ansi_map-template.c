@@ -437,14 +437,20 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 	  p_private_tcap=pinfo->private_data;
 	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
-		  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
-		  ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
-		  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 		  strcpy(buf,p_private_tcap->TransactionID_str);
 	  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 		  strcat(buf,src_str);
 		  strcat(buf,dst_str);
 		  strcat(buf,"\0");
+		  /* If the entry allready exists don't owervrite it */
+		  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
+		  if(ansi_map_saved_invokedata)
+			  return;
+
+		  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
+		  ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
+		  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
+
 		  g_hash_table_insert(TransactionId_table, 
 				g_strdup(buf),
 				ansi_map_saved_invokedata);

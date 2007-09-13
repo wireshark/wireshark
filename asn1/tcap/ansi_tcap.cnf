@@ -119,7 +119,8 @@ guint8 len;
 %(DEFAULT_BODY)s
 
 if(next_tvb) {
-	ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
+	if(tvb_length(next_tvb) !=0)
+		ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
 	len = tvb_length_remaining(next_tvb, 0);
 	switch(len) {
 	case 1:
