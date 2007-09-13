@@ -60,8 +60,8 @@ static const oid_value_type_t counter32_type =  { FT_UINT32, BASE_DEC,  BER_CLAS
 static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 2,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t timeticks_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 3,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t opaque_type =     { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 4,                       1,   4, OID_KEY_TYPE_BYTES,   0};
-static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       8,   8, OID_KEY_TYPE_NSAP,    0};
-static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_NONE, BER_CLASS_APP, 6,                       8,   8, OID_KEY_TYPE_INTEGER, 1};
+static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       0,  -1, OID_KEY_TYPE_NSAP,    0};
+static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 6,                       1,   8, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t ipv6_type =       { FT_IPv6,   BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 16, 16, OID_KEY_TYPE_BYTES,   16};
 static const oid_value_type_t float_type =      { FT_FLOAT,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 4,   4, OID_KEY_TYPE_WRONG,   0};
 static const oid_value_type_t double_type =     { FT_DOUBLE, BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8,   8, OID_KEY_TYPE_WRONG,   0};
@@ -344,6 +344,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 			SmiElement* sE;
 			oid_key_t* kl = NULL;
 			const oid_value_type_t* typedata = NULL;
+			gboolean implied;
 			
 			switch (sN->indexkind) {
 				case SMI_INDEX_INDEX:
@@ -351,12 +352,14 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				case SMI_INDEX_AUGMENT:
 				case SMI_INDEX_REORDER:
 				case SMI_INDEX_SPARSE:
-				case SMI_INDEX_UNKNOWN:
 				case SMI_INDEX_EXPAND:
+					sN = smiGetRelatedNode(sN);
+					break;
+				case SMI_INDEX_UNKNOWN:
 					return OID_KIND_UNKNOWN;
 			};
 			
-			
+			implied = sN->implied;
 			
 			for (sE = smiGetFirstElement(sN); sE; sE = smiGetNextElement(sE)) {
 				SmiNode* elNode =  smiGetElementNode(sE) ;
@@ -420,22 +423,15 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				kl = k;
 			}
 
-#if 0			
-			if (sN->implied) {
+			if (implied) {
 				switch (kl->key_type) {
-					case OID_KEY_TYPE_BYTES:
-						if (kl->num_subids)
-							kl->key_type = OID_KEY_TYPE_FIXED_BYTES;
-						break;
-					case OID_KEY_TYPE_STRING:
-						if (kl->num_subids)
-							kl->key_type = OID_KEY_TYPE_FIXED_STRING;
-						break;
-					default:
-						break;
+					case OID_KEY_TYPE_BYTES:  kl->key_type = OID_KEY_TYPE_IMPLIED_BYTES; break;
+					case OID_KEY_TYPE_STRING: kl->key_type = OID_KEY_TYPE_IMPLIED_STRING; break;
+					case OID_KEY_TYPE_OID:    kl->key_type = OID_KEY_TYPE_IMPLIED_OID; break;
+					default: break;
 				}
 			}
-#endif
+
 			return OID_KIND_ROW;
 		}
 		case SMI_NODEKIND_NODE: return OID_KIND_NODE;
@@ -909,7 +905,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint8* bytes;
 	guint8* b;
 	
-	if ( !subids || *subids > 2 || subids_len < 2) {
+	if ( !subids || subids_len <= 0) {
 		*bytes_p = NULL;
 		return 0;
 	}

@@ -1470,9 +1470,9 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 		  
 		  /*
 		   * XXX: LAZYNESS WARNING:
-		   * We are assuming that for of the first element in the sequence
-		   * that describes an entry subid==1 and the subsequent elements
-		   * use ++subid; this is true for all IETF's PIBs (and good sense
+		   * We are assuming that for the first element in the sequence
+		   * that describes an entry subid==1, and, that the subsequent elements
+		   * use ++subid; This is true for all IETF's PIBs (and good sense
 		   * indicates it should be this way) but AFAIK there's nothing in
 		   * SMIv2 that imposes this restriction.  -- a lazy lego
 		   */

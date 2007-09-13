@@ -391,6 +391,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
 	const char* oid_string = NULL;
+	enum { NO_ERROR, WRONG_LENGTH, WRONG_TAG} format_error = NO_ERROR;
+
 	seq_offset = offset;
 	
 	/* first have the VarBind's sequence header */
@@ -465,8 +467,10 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 		proto_item* pi;
 		const char* note;
 		
-		if (value_len != 0)
-			goto expected_other_size; 
+		if (value_len != 0) { 
+			min_len = max_len = 0;
+			format_error = WRONG_LENGTH;
+		}
 		
 		switch (tag) {
 			case SERR_NSO:
@@ -485,7 +489,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 				pi = proto_tree_add_text(pt_varbind,tvb,0,0,"Wrong tag for Error Value: expected 0, 1, or 2 but got: %d",tag);
 				pt = proto_item_add_subtree(pi,ett_decoding_error);
 				expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong tag for SNMP VarBind error value");
-				return dissect_unknown_ber(actx->pinfo, tvb, value_start, tree);
+				return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 			}				
 		}
 		
@@ -545,6 +549,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 				
 				if (k) {
 					for (;k;k = k->next) {
+						guint suboid_len;
+						
 						if (key_start >= oid_matched+oid_left) {
 							proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid shorter than expected");
 							expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid shorter than expected");
@@ -552,7 +558,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 							goto indexing_done;
 						}
 						
-						switch(k->key_type) {
+						switch(k->key_type) {							
 							case OID_KEY_TYPE_WRONG: {
 								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developpers");
 								expert_add_info_format(actx->pinfo, pi, PI_UNDECODED, PI_WARN, "Unimplemented instance index");
@@ -565,12 +571,22 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								key_len--;
 								continue; /* k->next */
 							}
+							case OID_KEY_TYPE_IMPLIED_OID:
+								suboid_len = key_len;
+
+								goto show_oid_index;
+								
 							case OID_KEY_TYPE_OID: {
-								guint suboid_len = subids[key_start++];
-								guint32* suboid = &(subids[key_start]);
 								guint8* suboid_buf;
 								guint suboid_buf_len;
+								guint32* suboid;
+
+								suboid_len = subids[key_start++];
+								key_len--;
 								
+show_oid_index:
+								suboid = &(subids[key_start]);
+
 								if( suboid_len == 0 ) {
 									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"an index sub-oid OID cannot be 0 bytes long!");
 									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid OID with len=0");
@@ -578,7 +594,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 									goto indexing_done;
 								}
 								
-								if( key_len-1 < suboid_len ) {
+								if( key_len < suboid_len ) {
 									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should not be longer than remaining oid size");
 									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid longer than remaining oid size");
 									oid_info_is_ok = FALSE;
@@ -597,20 +613,36 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 							}
 							default: {
 								guint8* buf;
-								guint buf_len = k->num_subids;
-								guint32* suboid = &(subids[key_start]);
+								guint buf_len;
+								guint32* suboid;
 								guint i;
 								
-								if(!buf_len) {
-									buf_len = *suboid;
-									suboid++;
-									key_start++;
-									key_len--;
-								}
+								
+								switch (k->key_type) {
+									case OID_KEY_TYPE_IPADDR:
+										suboid = &(subids[key_start]);
+										buf_len = 4;
+										break;
+									case OID_KEY_TYPE_IMPLIED_STRING:
+									case OID_KEY_TYPE_IMPLIED_BYTES:
+										suboid = &(subids[key_start]);
+										buf_len = key_len;
+										break;
+									default:
+										buf_len = k->num_subids;
+										suboid = &(subids[key_start]);
+										
+										if(!buf_len) {
+											buf_len = *suboid++;
+											key_len--;
+											key_start++;
+										}
+										break;
+								} 
 								
 								if( key_len < buf_len ) {
-									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should not be longer than remaining oid size");
-									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid longer than remaining oid size");
+									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index string should not be longer than remaining oid size");
+									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index string longer than remaining oid size");
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
@@ -622,12 +654,12 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								
 								switch(k->key_type) {
 									case OID_KEY_TYPE_STRING:
-									case OID_KEY_TYPE_FIXED_STRING:
+									case OID_KEY_TYPE_IMPLIED_STRING:
 										proto_tree_add_string(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
 										break;
 									case OID_KEY_TYPE_BYTES:
 									case OID_KEY_TYPE_NSAP:
-									case OID_KEY_TYPE_FIXED_BYTES: 
+									case OID_KEY_TYPE_IMPLIED_BYTES: 
 										proto_tree_add_bytes(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
 										break;
 									case OID_KEY_TYPE_IPADDR: {
@@ -648,7 +680,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 					}
 					goto indexing_done;
 				} else {
-					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"we do not know how to handle this OID, if you want this implemented please contact the wireshark developers");
+					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"We do not know how to handle this OID, if you want this implemented please contact the wireshark developers");
 					expert_add_info_format(actx->pinfo, pi, PI_UNDECODED, PI_WARN, "Unimplemented instance index");
 					oid_info_is_ok = FALSE;
 					goto indexing_done;
@@ -674,18 +706,17 @@ indexing_done:
 		}  else {
 			if ((oid_info->value_type->ber_class != BER_CLASS_ANY) &&
 				(ber_class != oid_info->value_type->ber_class))
-				goto expected_different;
+				format_error = WRONG_TAG;
 			
 			if ((oid_info->value_type->ber_tag != BER_TAG_ANY) &&
 				(tag != oid_info->value_type->ber_tag))
-				goto expected_different;
+				format_error = WRONG_TAG;
 			
 			max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
 			min_len  = oid_info->value_type->min_len;
 			
 			if ((int)value_len < min_len || (int)value_len > max_len)
-				goto expected_other_size;
-			
+				format_error = WRONG_LENGTH;
 			
 			pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
 		}
@@ -693,20 +724,20 @@ indexing_done:
 		switch(ber_class|(tag<<4)) {
 			case BER_CLASS_UNI|(BER_UNI_TAG_INTEGER<<4):
 				max_len = 4; min_len = 1;
-				if (value_len > (guint)max_len && value_len < (guint)min_len) goto expected_other_size; 
+				if (value_len > (guint)max_len && value_len < (guint)min_len) format_error = WRONG_LENGTH; 
 				hfid = hf_snmp_integer32_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
 				hfid = hf_snmp_octestring_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OID<<4):
-				max_len = -1; min_len = 2;
-				if (value_len < (guint)min_len) goto expected_other_size; 
+				max_len = -1; min_len = 1;
+				if (value_len < (guint)min_len) format_error = WRONG_LENGTH; 
 				hfid = hf_snmp_oid_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_NULL<<4):
 				max_len = 0; min_len = 0;
-				if (value_len != 0) goto expected_other_size; 
+				if (value_len != 0) format_error = WRONG_LENGTH; 
 				hfid = hf_snmp_null_value;
 				break;
 			case BER_CLASS_APP: /* | (SNMP_IPA<<4)*/
@@ -778,30 +809,34 @@ set_label:
 	valstr = valstr ? valstr+2 : label;
 	
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
-		
+	
+	switch (format_error) {
+		case WRONG_LENGTH: {
+			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
+			proto_item* pi = proto_tree_add_text(pt,tvb,0,0,"Wrong value length: %u  expecting: %u <= len <= %u",
+												 value_len,
+												 min_len,
+												 max_len == -1 ? 0xFFFFFF : max_len);
+			pt = proto_item_add_subtree(pi,ett_decoding_error);
+			expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for SNMP VarBind/value");
+			return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
+		}
+		case WRONG_TAG: {
+			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
+			proto_item* pi = proto_tree_add_text(pt,tvb,0,0,"Wrong class/tag for Value expected: %d,%d got: %d,%d",
+												 oid_info->value_type->ber_class,
+												 oid_info->value_type->ber_tag,
+												 ber_class,
+												 tag);
+			pt = proto_item_add_subtree(pi,ett_decoding_error);
+			expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong class/tag for SNMP VarBind/value");
+			return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
+		}
+		default:
+			break;
+	}
+	
 	return seq_offset + seq_len;
-
-expected_other_size: {
-		proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Wrong value length: %u  expecting: %u <= len <= %u",
-											 value_len,
-											 min_len,
-											 max_len == -1 ? 0xFFFFFF : max_len);
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
-		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for SNMP VarBind/value");
-		return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
-	}
-
-expected_different: {
-		proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Wrong class/tag for Value expected: %d,%d got: %d,%d",
-											 oid_info->value_type->ber_class,
-											 oid_info->value_type->ber_tag,
-											 ber_class,
-											 tag);
-		pt = proto_item_add_subtree(pi,ett_decoding_error);
-		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong class/tag for SNMP VarBind/value");
-		return dissect_unknown_ber(actx->pinfo, tvb, value_start, tree);
-	}
-
 }
 
 
