@@ -32,6 +32,9 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/address.h>
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/dissectors/packet-rtcp.h>
 #include <string.h>
 #include "packet-unistim.h"
 #include "defines.h"
@@ -53,7 +56,7 @@ static dissector_handle_t unistim_handle;
 
 static gint dissect_broadcast_switch(proto_tree *msg_tree,
                                      tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_audio_switch(proto_tree *msg_tree,
+static gint dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_display_switch(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
@@ -75,7 +78,9 @@ static gint dissect_basic_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_network_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_message(proto_tree *unistim_tree, tvbuff_t *tvb,gint offset);
+static gint dissect_message(proto_tree *unistim_tree, packet_info *pinfo, 
+                                   tvbuff_t *tvb,gint offset);
+
 static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
                            gint offset,guint msg_len);
 static void set_ascii_null_term_item(proto_tree *msg_tree,tvbuff_t *tvb, 
@@ -304,11 +309,11 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
       }
 
       while (tvb_length_remaining(tvb, offset) > 0)
-         offset = dissect_message(unistim_tree,tvb,offset);
+         offset = dissect_message(unistim_tree,pinfo,tvb,offset);
 }
 
 static gint
-dissect_message(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset){
+dissect_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tvb,gint offset){
    guint address;
    guint msg_len;
    proto_item *ti;
@@ -340,7 +345,7 @@ dissect_message(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset){
          break;
       case 0x16:
    /*Audio Manager Switch*/
-         offset = dissect_audio_switch(msg_tree,tvb,offset,msg_len-2);
+         offset = dissect_audio_switch(msg_tree,pinfo,tvb,offset,msg_len-2);
          break;
       case 0x17:
    /*Display Manager Switch*/
@@ -1807,7 +1812,7 @@ dissect_network_phone(proto_tree *msg_tree,
 }
 /*DONE*/
 static gint
-dissect_audio_switch(proto_tree *msg_tree,
+dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                                     tvbuff_t *tvb,gint offset,guint msg_len){
    proto_tree *param_tree;
    proto_item *param;
@@ -2076,6 +2081,20 @@ dissect_audio_switch(proto_tree *msg_tree,
                   proto_tree_add_item(msg_tree,hf_audio_far_ip_add,
                                       tvb,offset,4,FALSE);
          offset+=4;msg_len-=4;
+         {
+            guint32 far_ip_addr;
+            address far_addr;
+            guint16 far_port;
+
+            far_ip_addr = tvb_get_ipv4(tvb, offset-4);
+            SET_ADDRESS(&far_addr, AT_IPv4, 4, &far_ip_addr);
+
+            far_port = tvb_get_ntohs(tvb, offset-8);
+            rtp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num, NULL);
+
+            far_port = tvb_get_ntohs(tvb, offset-6);
+            rtcp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num);
+         }
          break;
       case 0x31:
    /*Close Audio Stream*/

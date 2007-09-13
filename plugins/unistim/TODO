@@ -1,7 +1,5 @@
 
- * Add RTP conversation
-
- * Add address decoding to the Info column
+ * Add addr/cmd decoding to the summary line and info column
 
  * Handle msg_len consistently
 
