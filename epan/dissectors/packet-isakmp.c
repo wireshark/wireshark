@@ -61,6 +61,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
+#include <epan/reassemble.h>
 #include <epan/dissectors/packet-x509if.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/dissectors/packet-isakmp.h>
@@ -71,9 +72,9 @@
 #define ARLEN(a) (sizeof(a)/sizeof(a[0]))
 
 static int proto_isakmp = -1;
-static int hf_ike_certificate_authority = -1;
-static int hf_ike_v2_certificate_authority = -1;
-static int hf_ike_nat_keepalive = -1;
+static int hf_isakmp_certificate_authority = -1;
+static int hf_isakmp_v2_certificate_authority = -1;
+static int hf_isakmp_nat_keepalive = -1;
 
 static int hf_isakmp_icookie         = -1;
 static int hf_isakmp_rcookie         = -1;
@@ -100,16 +101,47 @@ static int hf_isakmp_certificate     = -1;
 static int hf_isakmp_notify_msgtype  = -1;
 static int hf_isakmp_num_spis        = -1;
 
-static int hf_ike_cisco_frag_packetid      = -1;
-static int hf_ike_cisco_frag_seq     = -1;
-static int hf_ike_cisco_frag_last    = -1;
+static int hf_isakmp_fragments = -1;
+static int hf_isakmp_fragment = -1;
+static int hf_isakmp_fragment_overlap = -1;
+static int hf_isakmp_fragment_overlap_conflicts = -1;
+static int hf_isakmp_fragment_multiple_tails = -1;
+static int hf_isakmp_fragment_too_long_fragment = -1;
+static int hf_isakmp_fragment_error = -1;
+static int hf_isakmp_reassembled_in = -1;
+
+static int hf_isakmp_cisco_frag_packetid      = -1;
+static int hf_isakmp_cisco_frag_seq     = -1;
+static int hf_isakmp_cisco_frag_last    = -1;
 
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
+static gint ett_isakmp_fragment = -1;
+static gint ett_isakmp_fragments = -1;
 
 static dissector_handle_t eap_handle = NULL;
 
+static GHashTable *isakmp_fragment_table = NULL;
+static GHashTable *isakmp_reassembled_table = NULL;
+
+static const fragment_items isakmp_frag_items = {
+        /* Fragment subtrees */
+        &ett_isakmp_fragment,
+        &ett_isakmp_fragments,
+        /* Fragment fields */
+        &hf_isakmp_fragments,
+        &hf_isakmp_fragment,
+        &hf_isakmp_fragment_overlap,
+        &hf_isakmp_fragment_overlap_conflicts,
+        &hf_isakmp_fragment_multiple_tails,
+        &hf_isakmp_fragment_too_long_fragment,
+        &hf_isakmp_fragment_error,
+        /* Reassembled in field */
+        &hf_isakmp_reassembled_in,
+        /* Tag */
+        "Message fragments"
+};
 /* IKE port number assigned by IANA */
 #define UDP_PORT_ISAKMP	500
 #define TCP_PORT_ISAKMP 500
@@ -842,7 +874,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO)){
       col_add_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
     }
-    proto_tree_add_item(isakmp_tree, hf_ike_nat_keepalive, tvb, offset, 1, FALSE);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_nat_keepalive, tvb, offset, 1, FALSE);
     return;
   }
 
@@ -1656,7 +1688,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       break;
     case IKE_ID_DER_ASN1_DN:
       dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree,
-			  hf_ike_certificate_authority);
+			  hf_isakmp_certificate_authority);
       break;
     default:
       proto_tree_add_text(tree, tvb, offset, length, "Identification Data");
@@ -1699,7 +1731,7 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   if (length) {
     if (cert_type == 4){
-      dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_ike_certificate_authority);
+      dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_certificate_authority);
     } else {
       proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority");
     }
@@ -1723,7 +1755,7 @@ dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   /* this is a list of 20 byte SHA-1 hashes */
   while (length > 0) {
-    proto_tree_add_item(tree, hf_ike_v2_certificate_authority, tvb, offset, 20, FALSE);
+    proto_tree_add_item(tree, hf_isakmp_v2_certificate_authority, tvb, offset, 20, FALSE);
     length-=20;
   }
 }
@@ -1761,25 +1793,62 @@ static void
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo, int isakmp_version _U_, int unused _U_)
 {
-  if (length >= 4) {
-    guint8 seq;
-    tvbuff_t *defrag_ike_tvb;
 
-    proto_tree_add_item(tree, hf_ike_cisco_frag_packetid, tvb, offset, 2, FALSE);
-    offset += 2;
-    seq = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_ike_cisco_frag_seq, tvb, offset, 1, FALSE);
-    offset += 1;
-    proto_tree_add_item(tree, hf_ike_cisco_frag_last, tvb, offset, 1, FALSE);
-    offset += 1;
-    length-=4;
-    if (seq == 1) { /* FIXME: properly reassemble the fragments, currently only decode first fragment */
-      defrag_ike_tvb = tvb_new_subset(tvb, offset, length, length);
-      dissect_isakmp(defrag_ike_tvb, pinfo, tree);
-    } else {
-      proto_tree_add_text(tree, tvb, offset, length, "Fragment Data");
-    }
+  guint8 seq; /* Packet sequence number, starting from 1 */
+  guint8 last;
+  tvbuff_t *defrag_isakmp_tvb;
+
+  if (length < 4)
+    return;
+
+  proto_tree_add_item(tree, hf_isakmp_cisco_frag_packetid, tvb, offset, 2, FALSE);
+  offset += 2;
+  seq = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_isakmp_cisco_frag_seq, tvb, offset, 1, FALSE);
+  offset += 1;
+  last = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_isakmp_cisco_frag_last, tvb, offset, 1, FALSE);
+  offset += 1;
+  length-=4;
+
+  /* Start Reassembly stuff for Cisco IKE fragmentation */
+  {
+        gboolean save_fragmented;
+        tvbuff_t* new_tvb = NULL;
+        fragment_data *frag_msg = NULL;
+
+	save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+        frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
+                12345, /*FIXME:  Fragmented packet id, guint16, somehow get CKY here */
+                isakmp_fragment_table, /* list of message fragments */
+                isakmp_reassembled_table, /* list of reassembled messages */
+                seq-1, /* fragment sequence number, starting from 0 */
+                tvb_length_remaining(tvb, offset), /* fragment length - to the end */
+                last); /* More fragments? */
+        new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                "Reassembled Message", frag_msg, &isakmp_frag_items,
+                NULL, tree);
+
+        if (frag_msg) { /* Reassembled */
+                if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_str(pinfo->cinfo, COL_INFO,
+                        " (Message Reassembled)");
+        } else { /* Not last packet of reassembled Short Message */
+                if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        " (Message fragment %u%s)", seq, (last ? " - last" : ""));
+        }
+
+        if (new_tvb) { /* take it all */
+                defrag_isakmp_tvb = new_tvb;
+                dissect_isakmp(defrag_isakmp_tvb, pinfo, tree);
+        } else { /* make a new subset */
+                defrag_isakmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        }
+        pinfo->fragmented = save_fragmented;
   }
+  /* End Reassembly stuff for Cisco IKE fragmentation */
 
 }
 
@@ -3104,6 +3173,10 @@ isakmp_equal_func(gconstpointer ic1, gconstpointer ic2) {
 
 static void
 isakmp_init_protocol(void) {
+
+  fragment_table_init (&isakmp_fragment_table);
+  reassembled_table_init(&isakmp_reassembled_table);
+
 #ifdef HAVE_LIBNETTLE
   if (isakmp_hash) {
     g_hash_table_destroy(isakmp_hash);
@@ -3237,26 +3310,51 @@ proto_register_isakmp(void)
       { "Port", "isakmp.spinum",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "ISAKMP Number of SPIs", HFILL }},
-    { &hf_ike_cisco_frag_packetid,
+    { &hf_isakmp_cisco_frag_packetid,
       { "Frag ID", "isakmp.frag.packetid",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         "ISAKMP fragment packet-id", HFILL }},
-    { &hf_ike_cisco_frag_seq,
+    { &hf_isakmp_cisco_frag_seq,
       { "Frag seq", "isakmp.frag.packetid",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "ISAKMP fragment number", HFILL }},
-    { &hf_ike_cisco_frag_last,
+    { &hf_isakmp_cisco_frag_last,
       { "Frag last", "isakmp.frag.last",
         FT_UINT8, BASE_DEC, VALS(frag_last_vals), 0x0,
         "ISAKMP last fragment", HFILL }},
-
-    { &hf_ike_certificate_authority,
+    { &hf_isakmp_fragments,
+            {"Message fragments", "msg.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_fragment,
+            {"Message fragment", "msg.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_fragment_overlap,
+            {"Message fragment overlap", "msg.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_fragment_overlap_conflicts,
+            {"Message fragment overlapping with conflicting data",
+            "msg.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_fragment_multiple_tails,
+            {"Message has multiple tail fragments",
+            "msg.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_fragment_too_long_fragment,
+            {"Message fragment too long", "msg.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_fragment_error,
+            {"Message defragmentation error", "msg.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_reassembled_in,
+            {"Reassembled in", "msg.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_isakmp_certificate_authority,
       { "Certificate Authority Distinguished Name", "ike.cert_authority_dn", FT_UINT32, BASE_DEC, NULL, 0x0, "Certificate Authority Distinguished Name", HFILL }
     },
-    { &hf_ike_v2_certificate_authority,
+    { &hf_isakmp_v2_certificate_authority,
       { "Certificate Authority", "ike.cert_authority", FT_BYTES, BASE_HEX, NULL, 0x0, "SHA-1 hash of the Certificate Authority", HFILL }
     },
-    { &hf_ike_nat_keepalive,
+    { &hf_isakmp_nat_keepalive,
       { "NAT Keepalive", "ike.nat_keepalive", FT_NONE, BASE_HEX, NULL, 0x0, "NAT Keepalive packet", HFILL }
     },
   };
@@ -3266,6 +3364,8 @@ proto_register_isakmp(void)
     &ett_isakmp,
     &ett_isakmp_flags,
     &ett_isakmp_payload,
+    &ett_isakmp_fragment,
+    &ett_isakmp_fragments
   };
 
   proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol",
