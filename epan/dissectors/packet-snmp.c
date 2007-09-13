@@ -493,7 +493,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
 	const char* oid_string = NULL;
-	enum { NO_ERROR, WRONG_LENGTH, WRONG_TAG} format_error = NO_ERROR;
+	enum _error_state { NO_ERROR, WRONG_LENGTH, WRONG_TAG};
+	enum _error_state format_error = NO_ERROR;
 
 	seq_offset = offset;
 	
@@ -2851,7 +2852,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1399 "packet-snmp-template.c"
+#line 1400 "packet-snmp-template.c"
 
 
 guint
@@ -3627,7 +3628,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1910 "packet-snmp-template.c"
+#line 1911 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3667,7 +3668,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1926 "packet-snmp-template.c"
+#line 1927 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {

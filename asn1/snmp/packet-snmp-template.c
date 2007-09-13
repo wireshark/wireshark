@@ -391,7 +391,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
 	const char* oid_string = NULL;
-	enum { NO_ERROR, WRONG_LENGTH, WRONG_TAG} format_error = NO_ERROR;
+	enum _error_state { NO_ERROR, WRONG_LENGTH, WRONG_TAG};
+	enum _error_state format_error = NO_ERROR;
 
 	seq_offset = offset;
 	
