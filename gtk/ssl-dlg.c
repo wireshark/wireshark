@@ -49,7 +49,6 @@
 #include <epan/dissectors/packet-ipv6.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
-#include <epan/charsets.h>
 #include <util.h>
 #include <gtk/gui_utils.h>
 #include <epan/epan_dissect.h>
@@ -290,14 +289,11 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 		       void *arg)
 {
     int			iplen;
-    guint32		current_pos, global_client_pos = 0, global_server_pos = 0;
+    guint32		global_client_pos = 0, global_server_pos = 0;
     guint32		*global_pos;
     gboolean		skip;
-    gchar               initbuf[256];
-    guint32             server_packet_count = 0;
-    guint32             client_packet_count = 0;
-    static const gchar	hexchars[16] = "0123456789abcdef";
     GList* cur;
+    frs_return_t        frs_return;
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
     
@@ -319,125 +315,15 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 
         if (!skip) {
             size_t nchars = rec->data.data_len;
-            char* buffer = (char*) rec->data.data;
+            gchar *buffer = g_strndup(rec->data.data, nchars);
             
-            switch (follow_info->show_type) {
-    
-	    case SHOW_EBCDIC:
-		    /* Not yet implemented in show SSL stream */
-		    break;
-
-            case SHOW_ASCII:
-                /* If our native arch is EBCDIC, call:
-                 * ASCII_TO_EBCDIC(buffer, nchars);
-                 */
-                if (!(*print_line) (buffer, nchars, rec->is_server, arg))
-                    goto print_error;
-                break;
-    
-            case SHOW_RAW:
-                /* Don't translate, no matter what the native arch
-                 * is.
-                 */
-                if (!(*print_line) (buffer, nchars, rec->is_server, arg))
-                    goto print_error;
-                break;
-    
-            case SHOW_HEXDUMP:
-                current_pos = 0;
-                while (current_pos < nchars) {
-                    gchar hexbuf[256];
-                    int i;
-                    gchar *cur = hexbuf, *ascii_start;
-    
-                    /* is_server indentation : put 78 spaces at the
-                     * beginning of the string */
-                    if (rec->is_server && follow_info->show_stream == BOTH_HOSTS) {
-                        memset(cur, ' ', 78);
-                        cur += 78;
-                    }
-                    cur += g_snprintf(cur, 20, "%08X  ", *global_pos);
-                    /* 49 is space consumed by hex chars */
-                    ascii_start = cur + 49;
-                    for (i = 0; i < 16 && current_pos + i < nchars; i++) {
-                        *cur++ =
-                            hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
-                        *cur++ =
-                            hexchars[buffer[current_pos + i] & 0x0f];
-                        *cur++ = ' ';
-                        if (i == 7)
-                            *cur++ = ' ';
-                    }
-                    /* Fill it up if column isn't complete */
-                    while (cur < ascii_start)  
-                        *cur++ = ' ';
-    
-                    /* Now dump bytes as text */
-                    for (i = 0; i < 16 && current_pos + i < nchars; i++) {
-                        *cur++ =
-                            (isprint((guchar)buffer[current_pos + i]) ?
-                            buffer[current_pos + i] : '.' );
-                        if (i == 7) {
-                            *cur++ = ' ';
-                        }
-                    }
-                    current_pos += i;
-                    (*global_pos) += i;
-                    *cur++ = '\n';
-                    *cur = 0;
-                    if (!(*print_line) (hexbuf, strlen(hexbuf), rec->is_server, arg))
-                        goto print_error;
-                }
-                break;
-    
-            case SHOW_CARRAY:
-                current_pos = 0;
-                g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n", 
-                        rec->is_server ? 1 : 0, 
-                        rec->is_server ? server_packet_count++ : client_packet_count++);
-                if (!(*print_line) (initbuf, strlen(initbuf), rec->is_server, arg))
-                    goto print_error;
-                while (current_pos < nchars) {
-                    gchar hexbuf[256];
-                    int i, cur;
-    
-                    cur = 0;
-                    for (i = 0; i < 8 && current_pos + i < nchars; i++) {
-                      /* Prepend entries with "0x" */
-                      hexbuf[cur++] = '0';
-                      hexbuf[cur++] = 'x';
-                        hexbuf[cur++] =
-                            hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
-                        hexbuf[cur++] =
-                            hexchars[buffer[current_pos + i] & 0x0f];
-    
-                        /* Delimit array entries with a comma */
-                        if (current_pos + i + 1 < nchars)
-                          hexbuf[cur++] = ',';
-    
-                        hexbuf[cur++] = ' ';
-                    }
-    
-                    /* Terminate the array if we are at the end */
-                    if (current_pos + i == nchars) {
-                        hexbuf[cur++] = '}';
-                        hexbuf[cur++] = ';';
-                    }
-    
-                    current_pos += i;
-                    (*global_pos) += i;
-                    hexbuf[cur++] = '\n';
-                    hexbuf[cur] = 0;
-                    if (!(*print_line) (hexbuf, strlen(hexbuf), rec->is_server, arg))
-                        goto print_error;
-                }
-                break;
-            }
-        }
+	    frs_return = follow_show(follow_info, print_line, buffer, nchars,
+				     rec->is_server, arg, global_pos);
+	    g_free(buffer);
+	    if(frs_return == FRS_PRINT_ERROR)
+		    return frs_return;
+	}
     }
+
     return FRS_OK;
-
-print_error:
-    return FRS_PRINT_ERROR;
 }
-

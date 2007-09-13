@@ -49,6 +49,7 @@
 #include <gtk/help_dlg.h>
 #include <simple_dialog.h>
 #include <wiretap/file_util.h>
+#include <epan/charsets.h>
 
 #include "main.h"
 #include "print_mswin.h"
@@ -819,7 +820,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	stream_mi = gtk_menu_item_new_with_label(server_to_client_string);
 	SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_client,
                        follow_info)
-;
+		;
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 
@@ -833,7 +834,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	/* Set history to 0th item, i.e., the first item. */
 	gtk_option_menu_set_history(GTK_OPTION_MENU(stream_om), 0);
 	gtk_tooltips_set_tip (tooltips, stream_om,
-	    "Select the stream direction to display", NULL);
+			      "Select the stream direction to display", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), stream_om, FALSE, FALSE, 0);
 
 	/* ASCII radio button */
@@ -978,3 +979,134 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	g_free(follow_info);
 }
 
+frs_return_t
+follow_show(follow_info_t *follow_info, 
+	    gboolean (*print_line)(char *, size_t, gboolean, void *),
+	    char *buffer, size_t nchars, gboolean is_server, void *arg,
+	    guint32 *global_pos)
+{
+	guint32 server_packet_count = 0;
+	guint32 client_packet_count = 0;
+	gchar initbuf[256];
+	guint32 current_pos;
+	static const gchar hexchars[16] = "0123456789abcdef";
+
+	switch (follow_info->show_type) {
+
+	case SHOW_EBCDIC:
+		/* If our native arch is ASCII, call: */
+		EBCDIC_to_ASCII(buffer, nchars);
+		if (!(*print_line) (buffer, nchars, is_server, arg))
+			return FRS_PRINT_ERROR;
+		break;
+
+	case SHOW_ASCII:
+                /* If our native arch is EBCDIC, call:
+                 * ASCII_TO_EBCDIC(buffer, nchars);
+                 */
+                if (!(*print_line) (buffer, nchars, is_server, arg))
+			return FRS_PRINT_ERROR;
+                break;
+    
+	case SHOW_RAW:
+                /* Don't translate, no matter what the native arch
+                 * is.
+                 */
+                if (!(*print_line) (buffer, nchars, is_server, arg))
+			return FRS_PRINT_ERROR;
+                break;
+    
+	case SHOW_HEXDUMP:
+                current_pos = 0;
+                while (current_pos < nchars) {
+			gchar hexbuf[256];
+			int i;
+			gchar *cur = hexbuf, *ascii_start;
+    
+			/* is_server indentation : put 78 spaces at the
+			 * beginning of the string */
+			if (is_server && follow_info->show_stream == BOTH_HOSTS) {
+				memset(cur, ' ', 78);
+				cur += 78;
+			}
+			cur += g_snprintf(cur, 20, "%08X  ", *global_pos);
+			/* 49 is space consumed by hex chars */
+			ascii_start = cur + 49;
+			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
+				*cur++ =
+					hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
+				*cur++ =
+					hexchars[buffer[current_pos + i] & 0x0f];
+				*cur++ = ' ';
+				if (i == 7)
+					*cur++ = ' ';
+			}
+			/* Fill it up if column isn't complete */
+			while (cur < ascii_start)  
+				*cur++ = ' ';
+    
+			/* Now dump bytes as text */
+			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
+				*cur++ =
+					(isprint((guchar)buffer[current_pos + i]) ?
+					 buffer[current_pos + i] : '.' );
+				if (i == 7) {
+					*cur++ = ' ';
+				}
+			}
+			current_pos += i;
+			(*global_pos) += i;
+			*cur++ = '\n';
+			*cur = 0;
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+				return FRS_PRINT_ERROR;
+                }
+                break;
+    
+	case SHOW_CARRAY:
+                current_pos = 0;
+                g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n", 
+			   is_server ? 1 : 0, 
+			   is_server ? server_packet_count++ : client_packet_count++);
+                if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
+			return FRS_PRINT_ERROR;
+
+                while (current_pos < nchars) {
+			gchar hexbuf[256];
+			int i, cur;
+    
+			cur = 0;
+			for (i = 0; i < 8 && current_pos + i < nchars; i++) {
+				/* Prepend entries with "0x" */
+				hexbuf[cur++] = '0';
+				hexbuf[cur++] = 'x';
+				hexbuf[cur++] =
+					hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
+				hexbuf[cur++] =
+					hexchars[buffer[current_pos + i] & 0x0f];
+    
+				/* Delimit array entries with a comma */
+				if (current_pos + i + 1 < nchars)
+					hexbuf[cur++] = ',';
+    
+				hexbuf[cur++] = ' ';
+			}
+    
+			/* Terminate the array if we are at the end */
+			if (current_pos + i == nchars) {
+				hexbuf[cur++] = '}';
+				hexbuf[cur++] = ';';
+			}
+    
+			current_pos += i;
+			(*global_pos) += i;
+			hexbuf[cur++] = '\n';
+			hexbuf[cur] = 0;
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+				return FRS_PRINT_ERROR;
+                }
+                break;
+	}
+
+	return FRS_OK;
+}

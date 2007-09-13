@@ -110,6 +110,11 @@ void follow_stream(gchar *title, follow_info_t *follow_info,
 		   gchar *both_directions_string,
 		   gchar *server_to_client_string,
 		   gchar *client_to_server_string);
+frs_return_t follow_show(follow_info_t *follow_info, 
+			 gboolean (*print_line)(char *, size_t, gboolean,
+						void *),
+			 char *buffer, size_t nchars, gboolean is_server,
+			 void *arg, guint32 *global_pos);
 
 frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 frs_return_t follow_read_ssl_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
