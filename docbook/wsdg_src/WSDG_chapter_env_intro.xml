@@ -251,7 +251,7 @@
 	</listitem>
 	<listitem>
     <para>
-	RedHat (.rpm file). A user of a RedHat Package Manager (RPM) based system
+	Red Hat (.rpm file). A user of a Red Hat Package Manager (RPM) based system
 	obtains an .rpm file from which the package manager checks the 
 	dependencies and installs the software.
     </para>
