@@ -493,8 +493,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	int min_len = 0, max_len = 0;
 	gboolean oid_info_is_ok;
 	const char* oid_string = NULL;
-	enum _error_state { NO_ERROR, WRONG_LENGTH, WRONG_TAG};
-	enum _error_state format_error = NO_ERROR;
+	enum {BER_NO_ERROR, BER_WRONG_LENGTH, BER_WRONG_TAG} format_error = BER_NO_ERROR;
 
 	seq_offset = offset;
 	
@@ -572,7 +571,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 		
 		if (value_len != 0) { 
 			min_len = max_len = 0;
-			format_error = WRONG_LENGTH;
+			format_error = BER_WRONG_LENGTH;
 		}
 		
 		switch (tag) {
@@ -809,17 +808,17 @@ indexing_done:
 		}  else {
 			if ((oid_info->value_type->ber_class != BER_CLASS_ANY) &&
 				(ber_class != oid_info->value_type->ber_class))
-				format_error = WRONG_TAG;
+				format_error = BER_WRONG_TAG;
 			
 			if ((oid_info->value_type->ber_tag != BER_TAG_ANY) &&
 				(tag != oid_info->value_type->ber_tag))
-				format_error = WRONG_TAG;
+				format_error = BER_WRONG_TAG;
 			
 			max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
 			min_len  = oid_info->value_type->min_len;
 			
 			if ((int)value_len < min_len || (int)value_len > max_len)
-				format_error = WRONG_LENGTH;
+				format_error = BER_WRONG_LENGTH;
 			
 			pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
 		}
@@ -827,7 +826,7 @@ indexing_done:
 		switch(ber_class|(tag<<4)) {
 			case BER_CLASS_UNI|(BER_UNI_TAG_INTEGER<<4):
 				max_len = 4; min_len = 1;
-				if (value_len > (guint)max_len && value_len < (guint)min_len) format_error = WRONG_LENGTH; 
+				if (value_len > (guint)max_len && value_len < (guint)min_len) format_error = BER_WRONG_LENGTH; 
 				hfid = hf_snmp_integer32_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
@@ -835,12 +834,12 @@ indexing_done:
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OID<<4):
 				max_len = -1; min_len = 1;
-				if (value_len < (guint)min_len) format_error = WRONG_LENGTH; 
+				if (value_len < (guint)min_len) format_error = BER_WRONG_LENGTH; 
 				hfid = hf_snmp_oid_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_NULL<<4):
 				max_len = 0; min_len = 0;
-				if (value_len != 0) format_error = WRONG_LENGTH; 
+				if (value_len != 0) format_error = BER_WRONG_LENGTH; 
 				hfid = hf_snmp_null_value;
 				break;
 			case BER_CLASS_APP: /* | (SNMP_IPA<<4)*/
@@ -914,7 +913,7 @@ set_label:
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
 	
 	switch (format_error) {
-		case WRONG_LENGTH: {
+		case BER_WRONG_LENGTH: {
 			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
 			proto_item* pi = proto_tree_add_text(pt,tvb,0,0,"Wrong value length: %u  expecting: %u <= len <= %u",
 												 value_len,
@@ -924,7 +923,7 @@ set_label:
 			expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for SNMP VarBind/value");
 			return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 		}
-		case WRONG_TAG: {
+		case BER_WRONG_TAG: {
 			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
 			proto_item* pi = proto_tree_add_text(pt,tvb,0,0,"Wrong class/tag for Value expected: %d,%d got: %d,%d",
 												 oid_info->value_type->ber_class,
@@ -2852,7 +2851,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1400 "packet-snmp-template.c"
+#line 1399 "packet-snmp-template.c"
 
 
 guint
@@ -3628,7 +3627,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1911 "packet-snmp-template.c"
+#line 1910 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3668,7 +3667,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1927 "packet-snmp-template.c"
+#line 1926 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
