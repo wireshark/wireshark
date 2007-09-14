@@ -1804,11 +1804,11 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 #define RESTART_WITH_NEW_ADDRESSES                 0x0b
 #define USER_INITIATED_ABORT                       0x0c
 #define PROTOCOL_VIOLATION                         0x0d
-#define REQUEST_TO_DELETE_LAST_ADDRESS             0x0100
-#define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0101
-#define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0102
-#define ABORT_DUE_TO_ILLEGAL_ASCONF                0x0103
-#define REQUEST_REFUSED                            0x0104
+#define REQUEST_TO_DELETE_LAST_ADDRESS             0x00a0
+#define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0x00a1
+#define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x00a2
+#define ABORT_DUE_TO_ILLEGAL_ASCONF                0x00a3
+#define REQUEST_REFUSED                            0x00a4
 #define UNSUPPORTED_HMAC_ID                        0x0105
 
 static const value_string cause_code_values[] = {
