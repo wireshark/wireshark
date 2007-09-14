@@ -1796,7 +1796,6 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
   guint8 seq; /* Packet sequence number, starting from 1 */
   guint8 last;
-  tvbuff_t *defrag_isakmp_tvb;
 
   if (length < 4)
     return;
@@ -1814,7 +1813,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
   /* Start Reassembly stuff for Cisco IKE fragmentation */
   {
         gboolean save_fragmented;
-        tvbuff_t* new_tvb = NULL;
+        tvbuff_t *defrag_isakmp_tvb = NULL;
         fragment_data *frag_msg = NULL;
 
 	save_fragmented = pinfo->fragmented;
@@ -1826,26 +1825,18 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
                 seq-1, /* fragment sequence number, starting from 0 */
                 tvb_length_remaining(tvb, offset), /* fragment length - to the end */
                 last); /* More fragments? */
-        new_tvb = process_reassembled_data(tvb, offset, pinfo,
+        defrag_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
                 "Reassembled Message", frag_msg, &isakmp_frag_items,
                 NULL, tree);
 
-        if (frag_msg) { /* Reassembled */
-                if (check_col(pinfo->cinfo, COL_INFO))
-                        col_append_str(pinfo->cinfo, COL_INFO,
-                        " (Message Reassembled)");
-        } else { /* Not last packet of reassembled Short Message */
-                if (check_col(pinfo->cinfo, COL_INFO))
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " (Message fragment %u%s)", seq, (last ? " - last" : ""));
-        }
-
-        if (new_tvb) { /* take it all */
-                defrag_isakmp_tvb = new_tvb;
+        if (defrag_isakmp_tvb) { /* take it all */
                 dissect_isakmp(defrag_isakmp_tvb, pinfo, tree);
-        } else { /* make a new subset */
-                defrag_isakmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
         }
+        if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                       " (%sMessage fragment %u%s)",
+			(frag_msg ? "Reassembled + " : ""),
+			seq, (last ? " - last" : ""));
         pinfo->fragmented = save_fragmented;
   }
   /* End Reassembly stuff for Cisco IKE fragmentation */
