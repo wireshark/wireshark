@@ -95,6 +95,13 @@
 	The time between the request and the response packets.
     </para>
   </section>
+  <section><title>[Stream setup by PROTOCOL (frame 123)]</title>
+    <para>
+	The session control protocol (SDP, H225, etc) message which signaled 
+	the creation of this session. You can directly jump to the 
+	corresponding packet just by double clicking on this message.
+    </para>
+  </section>
   </section>
 
 </appendix>
