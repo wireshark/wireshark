@@ -65,6 +65,13 @@ void get_runtime_version_info(GString *str,
  */
 const char *get_copyright_info(void);
 
+#if defined(_WIN32)
+/*
+ * Get the major OS version.
+ */
+guint32 get_os_major_version();
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

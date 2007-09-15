@@ -506,3 +506,33 @@ get_copyright_info(void)
 "This is free software; see the source for copying conditions. There is NO\n"
 "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 }
+
+#if defined(_WIN32)
+/*
+ * Get the major OS version.
+ */
+/* XXX - Should this return the minor version as well, e.g. 0x00050002? */
+guint32
+get_os_major_version()
+{
+	OSVERSIONINFO info;
+	info.dwOSVersionInfoSize = sizeof info;
+	if (GetVersionEx(&info)) {
+		return info.dwMajorVersion;
+	}
+	return 0;
+}
+#endif
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -72,6 +72,7 @@
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
+#define RECENT_KEY_PRIVS_WARN_IF_NO_NPF     "privs.warn_if_no_npf"
 
 #define RECENT_FILE_NAME "recent"
 
@@ -263,6 +264,11 @@ write_recent(void)
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_ELEVATED ": %s\n",
 		  recent.privs_warn_if_elevated == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(rf, "\n# Warn if npf.sys isn't loaded on Windows >= 6.0.\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_NO_NPF ": %s\n",
+		  recent.privs_warn_if_no_npf == TRUE ? "TRUE" : "FALSE");
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
@@ -465,6 +471,13 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     else {
         recent.privs_warn_if_elevated = FALSE;
     }
+  } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+        recent.privs_warn_if_no_npf = TRUE;
+    }
+    else {
+        recent.privs_warn_if_no_npf = FALSE;
+    }
   }
 
   return PREFS_SET_OK;
@@ -578,6 +591,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 #endif
 
   recent.privs_warn_if_elevated = TRUE;
+  recent.privs_warn_if_no_npf = TRUE;
 
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);

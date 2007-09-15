@@ -504,6 +504,7 @@ mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
 new_register_dissector
+npf_sys_is_running
 nstime_delta
 nstime_is_unset
 nstime_is_zero

@@ -61,3 +61,11 @@ extern gchar *get_cur_username(void);
  */
 extern gchar *get_cur_groupname(void);
 
+#ifdef _WIN32
+/**
+ * Check to see if npf.sys is running.
+ * @return TRUE if npf.sys is running, FALSE if it's not or if there was
+ * an error checking its status.
+ */
+extern gboolean npf_sys_is_running();
+#endif

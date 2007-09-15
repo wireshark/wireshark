@@ -32,6 +32,9 @@
 
 #ifdef _WIN32
 #include "emem.h"
+#include <windows.h>
+#include <wchar.h>
+#include <tchar.h>
 
 /*
  * Called when the program starts, to save whatever credential information
@@ -40,6 +43,7 @@
 void
 get_credential_info(void)
 {
+npf_sys_is_running();
 }
 
 /*
@@ -93,6 +97,30 @@ get_cur_groupname(void) {
 	groupname = g_strdup("UNKNOWN");
 	return groupname;
 }
+
+/*
+ * If npf.sys is running, return TRUE.
+ */
+gboolean
+npf_sys_is_running() {
+	SC_HANDLE h_scm, h_serv;
+	SERVICE_STATUS ss;
+
+	h_scm = OpenSCManager(NULL, NULL, 0);
+	if (!h_scm)
+		return FALSE;
+
+	h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+	if (!h_serv)
+		return FALSE;
+
+	if (QueryServiceStatus(h_serv, &ss)) {
+		if (ss.dwCurrentState & SERVICE_RUNNING)
+			return TRUE;
+	}
+	return FALSE;
+}
+
 
 #else /* _WIN32 */
 
@@ -242,3 +270,16 @@ get_cur_groupname(void) {
 }
 
 #endif /* _WIN32 */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

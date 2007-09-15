@@ -686,6 +686,17 @@ print_current_user() {
   }
 }
 
+static void
+check_npf_sys() {
+#ifdef _WIN32
+  /* Warn the user if npf.sys isn't loaded. */
+  if (!npf_sys_is_running() && get_os_major_version() >= 6) {
+    fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
+      "capturing or\nlisting interfaces.\n");
+  }
+#endif
+}
+
 
 
 int
@@ -966,6 +977,7 @@ main(int argc, char *argv[])
         break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
+        check_npf_sys();
         status = capture_opts_list_interfaces(FALSE);
         exit(status);
 #else
@@ -1542,6 +1554,7 @@ main(int argc, char *argv[])
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
+        check_npf_sys();
         status = capture_opts_list_link_layer_types(&capture_opts, FALSE);
         exit(status);
     }
@@ -1631,6 +1644,8 @@ capture(void)
   ld.pdh            = NULL;
   ld.packet_cb      = capture_pcap_cb;
 
+
+  check_npf_sys();
 
   /* open the "input file" from network interface or capture pipe */
   if (!capture_loop_open_input(&capture_opts, &ld, errmsg, sizeof(errmsg),

@@ -1475,6 +1475,14 @@ priv_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
     recent.privs_warn_if_elevated = !simple_dialog_check_get(dialog);
 }
 
+#ifdef _WIN32
+static void
+npf_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
+{
+    recent.privs_warn_if_no_npf = !simple_dialog_check_get(dialog);
+}
+#endif
+
 static void
 main_cf_cb_file_closing(capture_file *cf)
 {
@@ -2934,6 +2942,17 @@ main(int argc, char *argv[])
     simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
     simple_dialog_set_cb(priv_warning_dialog, priv_warning_dialog_cb, NULL);
   }
+
+#ifdef _WIN32
+  /* Warn the user if npf.sys isn't loaded. */
+  if (!npf_sys_is_running() && recent.privs_warn_if_no_npf && get_os_major_version() >= 6) {
+    priv_warning_dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+      "The NPF driver isn't running.  You may have trouble\n"
+      "capturing or listing interfaces.");
+    simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");
+    simple_dialog_set_cb(priv_warning_dialog, npf_warning_dialog_cb, NULL);
+  }
+#endif
 
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
