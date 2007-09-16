@@ -2581,12 +2581,14 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    if(tcph->th_flags&TH_ACK){
-      col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u Ack=%u Win=%u",
-        flags, tcph->th_seq, tcph->th_ack, tcph->th_win);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags, tcph->th_seq);
+    if (tcph->th_flags&TH_ACK) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, " Ack=%u", tcph->th_ack);
+    }
+    if (tcph->th_flags&TH_SYN) {   /* SYNs are never scaled */
+      col_append_fstr(pinfo->cinfo, COL_INFO, " Win=%u", real_window);
     } else {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u",
-        flags, tcph->th_seq);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " Win=%u", tcph->th_win);
     }
   }
 
