@@ -59,6 +59,17 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Stefan Esser discovered a buffer overflow in the SSL dissector.
+            <!-- Fixed in r22883 -->
+          </para>
+          <para>Versions affected: 0.99.0 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

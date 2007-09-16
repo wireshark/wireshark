@@ -428,7 +428,7 @@ static gint dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo,
                                SslDecryptSession* ssl);
 
 /* client hello dissector */
-static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
+static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                                           proto_tree *tree,
                                           guint32 offset,
                                           SslDecryptSession* ssl);
@@ -2687,7 +2687,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* dissect the message (only handle client hello right now) */
         switch (msg_type) {
         case SSL2_HND_CLIENT_HELLO:
-            dissect_ssl2_hnd_client_hello(tvb, ssl_record_tree, offset, ssl);
+            dissect_ssl2_hnd_client_hello(tvb, pinfo, ssl_record_tree, offset, ssl);
             break;
 
         case SSL2_HND_CLIENT_MASTER_KEY:
@@ -2739,7 +2739,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
+dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree, guint32 offset,
                               SslDecryptSession* ssl)
 {
@@ -2791,6 +2791,15 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
         if (tree)
             proto_tree_add_item(tree, hf_ssl2_handshake_session_id_len,
                             tvb, offset, 2, FALSE);
+        if (session_id_length > SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES) {
+                proto_tree_add_text(tree, tvb, offset, 2,
+                    "Invalid session ID length: %d", session_id_length);
+                expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                    "Session ID length (%u) must be less than %u.",
+                    session_id_length, SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES);
+                offset = tvb_length(tvb);
+                return;
+        }
         offset += 2;
 
         challenge_length = tvb_get_ntohs(tvb, offset);

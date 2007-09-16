@@ -190,7 +190,7 @@ typedef struct _StringInfo {
 #define SSL_CLIENT_RANDOM       1
 #define SSL_SERVER_RANDOM       2
 #define SSL_CIPHER              4
-#define SSL_HAVE_SESSION_KEY    8    
+#define SSL_HAVE_SESSION_KEY    8
 #define SSL_VERSION             0x10
 #define SSL_MASTER_SECRET       0x20
 
@@ -198,6 +198,8 @@ typedef struct _StringInfo {
 #define SSL_CIPHER_MODE_CBC     1
 
 #define SSL_DEBUG_USE_STDERR "-"
+
+#define SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES 16
 
 typedef struct _SslCipherSuite {
      gint number;
@@ -271,7 +273,7 @@ typedef struct _SslDataInfo {
 
 typedef struct {
     SslDataInfo *appl_data;
-    SslRecordInfo* handshake_data; 
+    SslRecordInfo* handshake_data;
 } SslPacketInfo;
 
 typedef struct _SslDecryptSession {
@@ -288,7 +290,7 @@ typedef struct _SslDecryptSession {
     StringInfo server_data_for_iv;
     guchar _client_data_for_iv[24];
     StringInfo client_data_for_iv;
-    
+
     gint cipher;
     gint compression;
     gint state;
@@ -299,9 +301,9 @@ typedef struct _SslDecryptSession {
     SslDecoder *client_new;
     SSL_PRIVATE_KEY* private_key;
     guint32 version;
-    guint16 version_netorder;  
-    StringInfo app_data_segment; 
-  
+    guint16 version_netorder;
+    StringInfo app_data_segment;
+
 } SslDecryptSession;
 
 typedef struct _SslAssociation {
@@ -319,20 +321,20 @@ typedef struct _SslService {
 
 
 /** Initialize decryption engine/ssl layer. To be called once per execution */
-extern void 
+extern void
 ssl_lib_init(void);
 
 /** Initialize an ssl session struct
  @param ssl pointer to ssl session struct to be initialized */
-extern void 
+extern void
 ssl_session_init(SslDecryptSession* ssl);
 
 /** set the data and len for the stringInfo buffer. buf should be big enough to
  * contain the provided data
  @param buf the buffer to update
- @param src the data source 
+ @param src the data source
  @param len the source data len */
-extern void 
+extern void
 ssl_data_set(StringInfo* buf, const guchar* src, guint len);
 
 extern gint
@@ -341,29 +343,29 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 /** Load an RSA private key from specified file
  @param fp the file that contain the key data
  @return a pointer to the loaded key on success, or NULL */
-extern SSL_PRIVATE_KEY* 
+extern SSL_PRIVATE_KEY*
 ssl_load_key(FILE* fp);
 
-/** Deallocate the memory used for specified key 
+/** Deallocate the memory used for specified key
  @param pointer to the key to be freed */
-extern void 
+extern void
 ssl_free_key(SSL_PRIVATE_KEY* key);
 
-/* Search for the specified cipher souite id 
- @param num the id of the cipher suite to be searched 
- @param cs pointer to the cipher suite struct to be filled 
+/* Search for the specified cipher souite id
+ @param num the id of the cipher suite to be searched
+ @param cs pointer to the cipher suite struct to be filled
  @return 0 if the cipher suite is found, -1 elsewhere */
-extern gint 
+extern gint
 ssl_find_cipher(int num,SslCipherSuite* cs);
 
-/* Expand the pre_master_secret to generate all the session information 
+/* Expand the pre_master_secret to generate all the session information
  * (master secret, session keys, ivs)
  @param ssl_session the store for all the session data
  @return 0 on success */
-extern gint 
+extern gint
 ssl_generate_keyring_material(SslDecryptSession*ssl_session);
 
-extern void 
+extern void
 ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 
 /* Try to decrypt in place the encrypted pre_master_secret
@@ -371,8 +373,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
  @param entrypted_pre_master the rsa encrypted pre_master_secret
  @param pk the private key to be used for decryption
  @return 0 on success */
-extern gint 
-ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session, 
+extern gint
+ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk);
 
 /* Try to decrypt an ssl record
@@ -382,49 +384,49 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
  @param in a pinter to the ssl record to be decrypted
  @param inl the record lenght
  @param out a pointer to the store for the decrypted data
- @param outl the decrypted data len 
+ @param outl the decrypted data len
  @return 0 on success */
-extern gint 
-ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct, 
+extern gint
+ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl);
 
 
 /* Common part bitween SSL and DTLS dissectors */
 /* Hash Functions for TLS/DTLS sessions table and private keys table */
-extern gint  
+extern gint
 ssl_equal (gconstpointer v, gconstpointer v2);
 
-extern guint 
+extern guint
 ssl_hash  (gconstpointer v);
 
-extern gint 
+extern gint
 ssl_private_key_equal (gconstpointer v, gconstpointer v2);
 
-extern guint 
+extern guint
 ssl_private_key_hash  (gconstpointer v);
 
 /* private key table entries have a scope 'larger' then packet capture,
  * so we can't relay on se_alloc** function */
-extern void 
+extern void
 ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_);
 
 /* handling of association between tls/dtls ports and clear text protocol */
-extern void 
+extern void
 ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, const gchar *protocol, gboolean tcp, gboolean from_key_list);
 
-extern void 
+extern void
 ssl_association_remove(GTree* associations, SslAssociation *assoc);
 
-extern gint 
+extern gint
 ssl_association_cmp(gconstpointer a, gconstpointer b);
 
-extern SslAssociation* 
+extern SslAssociation*
 ssl_association_find(GTree * associations, guint port, gboolean tcp);
 
-extern gint 
+extern gint
 ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data);
 
-extern gint 
+extern gint
 ssl_packet_from_server(GTree* associations, guint port, gboolean tcp);
 
 /* add to packet data a newly allocated tvb with the specified real data*/
@@ -432,50 +434,50 @@ extern void
 ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id);
 
 /* search in packet data the tvbuff associated to the specified id */
-extern tvbuff_t* 
+extern tvbuff_t*
 ssl_get_record_info(gint proto, packet_info *pinfo, gint record_id);
 
 void
 ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow);
 
-SslDataInfo* 
+SslDataInfo*
 ssl_get_data_info(int proto, packet_info *pinfo, gint key);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
-extern void 
+extern void
 ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInfo *compressed_data);
 
 /* parse ssl related preferences (private keys and ports association strings) */
-extern void 
+extern void
 ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp);
 
 /* store master secret into session data cache */
-extern void 
+extern void
 ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
-extern void 
+extern void
 ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
 extern gint
 ssl_is_valid_content_type(guint8 type);
 
 #ifdef SSL_DECRYPT_DEBUG
-extern void 
+extern void
 ssl_debug_printf(const gchar* fmt,...) GNUC_FORMAT_CHECK(printf,1,2);
-extern void 
+extern void
 ssl_print_data(const gchar* name, const guchar* data, gint len);
-extern void 
+extern void
 ssl_print_string(const gchar* name, const StringInfo* data);
-extern void 
+extern void
 ssl_print_text_data(const gchar* name, const guchar* data, gint len);
-extern void 
+extern void
 ssl_set_debug(gchar* name);
 #else
 
 /* No debug: nullify debug operation*/
 static inline void GNUC_FORMAT_CHECK(printf,1,2)
 ssl_debug_printf(const gchar* fmt _U_,...)
-{ 
+{
 }
 #define ssl_print_data(a, b, c)
 #define ssl_print_string(a, b)
