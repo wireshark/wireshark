@@ -57,7 +57,7 @@
 #include <epan/emem.h>
 
 #define FC_HEADER_SIZE         24
-#define FC_RCTL_EISL           0x50
+#define FC_RCTL_VFT            0x50
 #define MDSHDR_TRAILER_SIZE    6 
 
 /* Size of various fields in FC header in bytes */
@@ -107,8 +107,16 @@ static int hf_fc_rxid = -1;
 static int hf_fc_param = -1;
 static int hf_fc_ftype = -1;    /* Derived field, non-existent in FC hdr */
 static int hf_fc_reassembled = -1;
-static int hf_fc_eisl = -1;
 static int hf_fc_relative_offset = -1;
+
+/* VFT fields */
+static int hf_fc_vft = -1;
+static int hf_fc_vft_rctl = -1;
+static int hf_fc_vft_ver = -1;
+static int hf_fc_vft_type = -1;
+static int hf_fc_vft_pri = -1;
+static int hf_fc_vft_vf_id = -1;
+static int hf_fc_vft_hop_ct = -1;
 
 /* Network_Header fields */
 static int hf_fc_nh_da = -1;
@@ -130,6 +138,7 @@ static int hf_fc_bls_vendor = -1;
 static gint ett_fc = -1;
 static gint ett_fctl = -1;
 static gint ett_fcbls = -1;
+static gint ett_fc_vft = -1;
 
 static dissector_table_t fcftype_dissector_table;
 static dissector_handle_t data_handle;
@@ -203,7 +212,7 @@ const value_string fc_fc4_val[] = {
     {FC_TYPE_SNMP,       "SNMP"},
     {FC_TYPE_SB_FROM_CU, "SB-3(CU->Channel)"},
     {FC_TYPE_SB_TO_CU,   "SB-3(Channel->CU)"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_ftype_vals [] = {
@@ -219,7 +228,7 @@ static const value_string fc_ftype_vals [] = {
     {FC_FTYPE_LINKCTL,   "Link Ctl"},
     {FC_FTYPE_SBCCS,     "SBCCS"},
     {FC_FTYPE_OHMS,      "OHMS(Cisco MDS)"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_wka_vals[] _U_ = {
@@ -234,7 +243,7 @@ static const value_string fc_wka_vals[] _U_ = {
     {FC_WKA_FABRIC_CTRLR, "Fabric Ctlr"},
     {FC_WKA_FPORT,        "F_Port Server"},
     {FC_WKA_BCAST,        "Broadcast ID"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_routing_val[] = {
@@ -244,7 +253,7 @@ static const value_string fc_routing_val[] = {
     {FC_RCTL_VIDEO,     "Video_Data"},
     {FC_RCTL_BLS,       "Basic Link Services"},
     {FC_RCTL_LINK_CTL,  "Link_Control Frame"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_iu_val[] = {
@@ -256,7 +265,7 @@ static const value_string fc_iu_val[] = {
     {FC_IU_DATA_DESCRIPTOR , "Data Descriptor"},
     {FC_IU_UNSOLICITED_CMD , "Unsolicited Command"},
     {FC_IU_CMD_STATUS      , "Command Status"},
-    {0, NULL},
+    {0, NULL}
 };
 
 
@@ -444,8 +453,45 @@ static const true_false_string tfs_fc_fctl_rel_offset = {
 	"rel offset NOT set"
 };
 
+/*
+ * Dissect the VFT header.
+ */
+static void
+dissect_fc_vft(proto_tree *parent_tree,
+                tvbuff_t *tvb, int offset)
+{
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
+    guint8 rctl;
+    guint8 ver;
+    guint8 type;
+    guint8 pri;
+    guint16 vf_id;
+    guint8 hop_ct;
 
+    rctl = tvb_get_guint8(tvb, offset);
+    type = tvb_get_guint8(tvb, offset + 1);
+    ver = (type >> 6) & 3;
+    type = (type >> 2) & 0xf;
+    vf_id = tvb_get_ntohs(tvb, offset + 2);
+    pri = (vf_id >> 13) & 7;
+    vf_id = (vf_id >> 1) & 0xfff;
+    hop_ct = tvb_get_guint8(tvb, offset + 4);
 
+    if (parent_tree) {
+        item = proto_tree_add_uint_format(parent_tree, hf_fc_vft, tvb, offset,
+                                    8, vf_id, "VFT Header: " 
+                                    "VF_ID %d Pri %d Hop Count %d",
+                                    vf_id, pri, hop_ct);
+        tree = proto_item_add_subtree(item, ett_fc_vft);
+    }
+    proto_tree_add_uint(tree, hf_fc_vft_rctl, tvb, offset, 1, rctl);
+    proto_tree_add_uint(tree, hf_fc_vft_ver, tvb, offset + 1, 1, ver);
+    proto_tree_add_uint(tree, hf_fc_vft_type, tvb, offset + 1, 1, type);
+    proto_tree_add_uint(tree, hf_fc_vft_pri, tvb, offset + 2, 1, pri);
+    proto_tree_add_uint(tree, hf_fc_vft_vf_id, tvb, offset + 2, 2, vf_id);
+    proto_tree_add_uint(tree, hf_fc_vft_hop_ct, tvb, offset + 4, 1, hop_ct);
+}
 
 /* code to dissect the  F_CTL bitmask */
 static void
@@ -563,14 +609,14 @@ static const value_string fc_bls_proto_val[] = {
     {FC_BLS_BAACC  , "BA_ACC"},
     {FC_BLS_BARJT  , "BA_RJT"},
     {FC_BLS_PRMT   , "PRMT"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_proto_val[] = {
     {0x01    , "Solicited Data"},
     {0x02    , "Request"},
     {0x03    , "Reply"},
-    {0, NULL},
+    {0, NULL}
 };
 
 /* Code to actually dissect the packets */
@@ -581,7 +627,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     proto_item *ti=NULL;
     proto_tree *fc_tree = NULL;
     tvbuff_t *next_tvb;
-    int offset = 0, next_offset, eisl_offset = -1;
+    int offset = 0, next_offset;
+    int vft_offset = -1;
     gboolean is_lastframe_inseq, is_1frame_inseq, is_valid_frame;
     gboolean is_exchg_resp = 0;
     fragment_data *fcfrag_head;
@@ -611,11 +658,16 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
 
-    /* If the R_CTL is the EISL field, skip the first 8 bytes to retrieve the
-     * real FC header. EISL is Cisco-proprietary and is not decoded.
+    /*
+     * If the frame contains a VFT (virtual fabric tag), decode it
+     * as a separate header before the FC frame header.
+     *
+     * This used to be called the Cisco-proprietary EISL field, but is now
+     * standardized in FC-FS-2.  See section 10.2.4.
      */
-    if (fchdr.r_ctl == FC_RCTL_EISL) {
-        eisl_offset = offset;
+    if (fchdr.r_ctl == FC_RCTL_VFT) {
+        pinfo->vsan = (tvb_get_ntohs(tvb, offset + 2) >> 1) & 0xfff;
+        vft_offset = offset;
         offset += 8;
         fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
     }
@@ -710,7 +762,6 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         fc_tree = proto_item_add_subtree (ti, ett_fc);
     }
 
-
     /* put some nice exchange data in the tree */
     if(!(fchdr.fctl&FC_FCTL_EXCHANGE_FIRST)){
         proto_item *it;
@@ -759,13 +810,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                           fc_lctl_proto_val,
                                           "LCTL 0x%x"));
     }
-    
-    /* Highlight EISL header, if present */
-    if (eisl_offset != -1) {
-        proto_tree_add_item (fc_tree, hf_fc_eisl, tvb, eisl_offset, 8, 0);
+
+    if (vft_offset >= 0) {
+        dissect_fc_vft(fc_tree, tvb, vft_offset);
     }
-
-
     switch (fchdr.r_ctl & 0xF0) {
 
     case FC_RCTL_DEV_DATA:
@@ -1284,17 +1332,37 @@ proto_register_fc(void)
         { &hf_fc_time,
           { "Time from Exchange First", "fc.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
            0, "Time since the first frame of the Exchange", HFILL }},
-        { &hf_fc_eisl,
-          {"EISL Header", "fc.eisl", FT_BYTES, BASE_HEX, NULL, 0, "EISL Header", HFILL}},
         { &hf_fc_relative_offset,
           {"Relative Offset", "fc.relative_offset", FT_UINT32, BASE_DEC, NULL,
            0, "Relative offset of data", HFILL}},
+        { &hf_fc_vft,
+          {"VFT Header", "fc.vft", FT_UINT16, BASE_DEC, NULL,
+           0, "VFT Header", HFILL}},
+        { &hf_fc_vft_rctl,
+          {"R_CTL", "fc.vft.rctl", FT_UINT8, BASE_HEX, NULL,
+           0, "R_CTL", HFILL}},
+        { &hf_fc_vft_ver,
+          {"Version", "fc.vft.ver", FT_UINT8, BASE_DEC, NULL,
+           0, "Version of VFT header", HFILL}},
+        { &hf_fc_vft_type,
+          {"Type", "fc.vft.type", FT_UINT8, BASE_DEC, NULL,
+           0, "Type of tagged frame", HFILL}},
+        { &hf_fc_vft_pri,
+          {"Priority", "fc.vft.type", FT_UINT8, BASE_DEC, NULL,
+           0, "QoS Priority", HFILL}},
+        { &hf_fc_vft_vf_id,
+          {"VF_ID", "fc.vft.vf_id", FT_UINT16, BASE_DEC, NULL,
+           0, "Virtual Fabric ID", HFILL}},
+        { &hf_fc_vft_hop_ct,
+          {"HopCT", "fc.vft.hop_ct", FT_UINT8, BASE_DEC, NULL,
+           0, "Hop Count", HFILL}},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fc,
         &ett_fcbls,
+        &ett_fc_vft,
 	&ett_fctl
     };
 
