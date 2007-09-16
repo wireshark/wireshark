@@ -263,6 +263,10 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 
     follow_stream("Follow SSL Stream", follow_info, both_directions_string,
 		  server_to_client_string, client_to_server_string);
+
+    g_free(both_directions_string);
+    g_free(server_to_client_string);
+    g_free(client_to_server_string);
 }
 
 #define FLT_BUF_SIZE 1024
