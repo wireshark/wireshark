@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -27,14 +27,18 @@
 #define __PACKET_FCELS_H_
 
 #define FC_ELS_LSRJT         0x01
-#define FC_ELS_ACC           0x02  
+#define FC_ELS_ACC           0x02
 #define FC_ELS_PLOGI         0x03
 #define FC_ELS_FLOGI	     0x04
 #define FC_ELS_LOGOUT        0x05
 #define FC_ELS_ABTX          0x06
 #define FC_ELS_RSI           0x0A
+#define FC_ELS_RTV           0x0E
+#define FC_ELS_RLS           0x0F
+#define FC_ELS_ECHO          0x10
 #define FC_ELS_TEST          0x11
 #define FC_ELS_RRQ           0x12
+#define FC_ELS_REC           0x13
 #define FC_ELS_PRLI          0x20
 #define FC_ELS_PRLO          0x21
 #define FC_ELS_TPRLO         0x24
@@ -56,6 +60,7 @@
 #define FC_ELS_LIRR          0x7A
 #define FC_ELS_SRL           0x7B
 #define FC_ELS_RPSC          0x7D
+#define FC_ELS_LKA           0x80
 #define FC_ELS_AUTH          0x90
 #define FC_ELS_CBIND         0xE0
 #define FC_ELS_UNBIND        0xE4
@@ -68,8 +73,12 @@ static const value_string fc_els_proto_val[] = {
     {FC_ELS_LOGOUT       , "LOGO"},
     {FC_ELS_ABTX         , "ABTX"},
     {FC_ELS_RSI          , "RSI"},
+    {FC_ELS_RTV          , "RTV"},
+    {FC_ELS_RLS          , "RLS"},
+    {FC_ELS_ECHO         , "ECHO"},
     {FC_ELS_TEST         , "TEST"},
     {FC_ELS_RRQ          , "RRQ"},
+    {FC_ELS_REC          , "REC"},
     {FC_ELS_PRLI         , "PRLI"},
     {FC_ELS_PRLO         , "PRLO"},
     {FC_ELS_TPRLO        , "TPRLO"},
@@ -91,10 +100,11 @@ static const value_string fc_els_proto_val[] = {
     {FC_ELS_LIRR         , "LIRR"},
     {FC_ELS_SRL          , "SRL"},
     {FC_ELS_RPSC         , "RPSC"},
+    {FC_ELS_LKA          , "LKA"},
     {FC_ELS_AUTH         , "AUTH"},
     {FC_ELS_CBIND        , "CBIND"},
     {FC_ELS_UNBIND       , "UNBIND"},
-    {0, NULL},
+    {0, NULL}
 };
 
 /* Reject Reason Codes */
@@ -118,7 +128,7 @@ static const value_string fc_els_rjt_val[] = {
     {FC_ELS_RJT_GENFAIL2  , "Unable to Perform Cmd"},
     {FC_ELS_RJT_CMDINPROG , "Command in Progress Already"},
     {FC_ELS_RJT_VENDOR    , "Vendor Unique Error"},
-    {0, NULL},
+    {0, NULL}
 };
 
 #define FC_ELS_RJT_DET_NODET             0x00
@@ -201,13 +211,13 @@ static const value_string fc_els_rjt_det_val[] = {
     {FC_ELS_RJT_DET_OORSRC_C4        , "No Resources to Support Class 4 Conn"},
     {FC_ELS_RJT_DET_INV_PNNAME       , "Invalid Port/Node Name"},
     {FC_ELS_RJT_DET_AUTH_REQD        , "Authentication Required"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_flacompliance_val[] = {
     {1, "FC-FLA Level 1"},
     {2, "FC-FLA Level 2"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_loopstate_val[] = {
@@ -215,7 +225,7 @@ static const value_string fc_els_loopstate_val[] = {
     {2, "Loop Failure"},
     {3, "Initialization Failure"},
     {4, "Initializing"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_scr_reg_val[] = {
@@ -223,7 +233,7 @@ static const value_string fc_els_scr_reg_val[] = {
     {2, "N_Port Detected Regn"},
     {3, "Full Regn"},
     {255, "Clear All Regn"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_farp_respaction_val[] = {
@@ -231,7 +241,7 @@ static const value_string fc_els_farp_respaction_val[] = {
     {1, "Login Using Requesting Port ID"},
     {2, "Respond with FARP-REPLY"},
     {3, "Login & send FARP-REPLY"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_portstatus_val[] = {
@@ -246,7 +256,7 @@ static const value_string fc_els_portstatus_val[] = {
     {0x04, "Loss of Signal"},
     {0x02, "Loss of Synchronization"},
     {0x01, "Link Reset Protocol in Progress"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_portspeed_val[] = {
@@ -263,7 +273,7 @@ static const value_string fc_els_lirr_regfunc_val[] = {
     {0x1, "Set Reg: Conditionally Receive"},
     {0x2, "Set Reg: Always Receive"},
     {0xFF, "Clear Reg"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_rscn_evqual_val[] = {
@@ -272,7 +282,7 @@ static const value_string fc_els_rscn_evqual_val[] = {
     {0x02, "Changed Port Attribute"},
     {0x03, "Changed Service Object"},
     {0x04, "Changed Switch Config"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_rscn_addrfmt_val[] = {
@@ -280,7 +290,7 @@ static const value_string fc_els_rscn_addrfmt_val[] = {
     {1, "Area Addr Group (area of E/L/N Port addresses)"},
     {2, "Domain Addr Group"},
     {3, "Fabric Addr Group"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_nodeid_val[] = {
@@ -292,7 +302,7 @@ static const value_string fc_els_nodeid_val[] = {
     {0x23, "AL Specific Data"},
     {0x24, "SNMP Specific Data"},
     {0xDF, "Common ID Data + General Topology Discovery Format"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_rnid_asstype_val[] = {
@@ -309,7 +319,7 @@ static const value_string fc_els_rnid_asstype_val[] = {
     {0xB, "Storage Subsystem"},
     {0xE, "Storage Access Device"},
     {0x11, "NAS Device"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_rnid_mgmt_val[] = {
@@ -317,14 +327,14 @@ static const value_string fc_els_rnid_mgmt_val[] = {
     {1, "IP/TCP/Telnet"},
     {2, "IP/TCP/HTTP"},
     {3, "IP/TCP/HTTPS"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string fc_els_rnid_ipvers_val[] = {
     {0, "None"},
     {1, "IPv4"},
     {2, "IPv6"},
-    {0, NULL},
+    {0, NULL}
 };
 
 #endif
