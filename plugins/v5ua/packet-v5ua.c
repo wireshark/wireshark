@@ -63,7 +63,7 @@ static int hf_msg_length            = -1;
 static int hf_link_id               = -1;
 static int hf_chnl_id               = -1;
 static int hf_adaptation_layer_id   = -1;
-static int hf_text_if_id     = -1;
+static int hf_text_if_id            = -1;
 static int hf_scn_protocol_id       = -1;
 static int hf_info_string           = -1;
 static int hf_dlci_zero_bit         = -1;
@@ -191,7 +191,7 @@ static int msg_length  = -1;
 #define INT_IF_ID_LINK_LENGTH 4
 #define INT_IF_ID_CHNL_OFFSET INT_IF_ID_LINK_OFFSET
 #define INT_IF_ID_CHNL_LENGTH 1
-	
+
 static void
 dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
@@ -200,7 +200,7 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
   proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, INT_IF_ID_LINK_OFFSET, INT_IF_ID_LINK_LENGTH, FALSE);
   identifier = tvb_get_ntohl(parameter_tvb,INT_IF_ID_LINK_OFFSET)>>5;
   proto_item_append_text(parameter_item, "  Link: %d ",identifier);
-  
+
   proto_tree_add_item(parameter_tree, hf_chnl_id, parameter_tvb, INT_IF_ID_CHNL_OFFSET+3, INT_IF_ID_CHNL_LENGTH, FALSE);
   identifier = tvb_get_guint8(parameter_tvb,INT_IF_ID_CHNL_OFFSET+3)&0x1f;
   proto_item_append_text(parameter_item, " Chnl: %d ", identifier);
@@ -214,6 +214,7 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
 #define TEXT_IF_ID_LENGTH_OFFSET PARAMETER_LENGTH_OFFSET
 #define TEXT_IF_ID_VALUE_OFFSET  PARAMETER_VALUE_OFFSET
 #define TEXT_IF_ID_HEADER_LENGTH PARAMETER_HEADER_LENGTH
+
 static void
 dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
@@ -275,13 +276,13 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 	  /* Reserved values. For the "value_string"-function value must set to 8191 */
 	  else if ((efa >= 8181) && (efa < 8191)) efa = 8191;
 	  proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-								"Envelope function address: %s (%u)", val_to_str(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
+		"Envelope function address: %s (%u)", val_to_str(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
 	  proto_item_append_text(parameter_item, " (EFA: %s )",val_to_str(efa, efa_values, "unknown EFA-value"));
   }
   /* if SAPI & TEI set to ZERO, EFA also shall be set to ZERO and didn't comply with value for ISDN protocol */
   else{
 	  proto_tree_add_uint_format(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-								"Envelope function address: 0");
+		"Envelope function address: 0");
 	  proto_item_append_text(parameter_item, " (EFA: 0 )");
   }
 
@@ -472,7 +473,7 @@ dissect_draft_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   if(tvb_length_remaining(parameter_tvb, offset) > 0 ){
 	  proto_tree_add_item(parameter_tree, hf_tei_draft_status, parameter_tvb, offset, TEI_STATUS_LENGTH, FALSE);
 	  proto_item_append_text(parameter_item, " (%s)",
-								val_to_str(tvb_get_ntohl(parameter_tvb, offset), tei_draft_status_values, "Unknown TEI Status"));
+		val_to_str(tvb_get_ntohl(parameter_tvb, offset), tei_draft_status_values, "Unknown TEI Status"));
   }
 }
 /*----------------------TEI Status (Draft)-------------------------------------*/
@@ -983,7 +984,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 	  msg_type_offset      = MSG_TYPE_OFFSET + PARAMETER_HEADER_LENGTH;
 	  info_element_offset  = INFO_ELEMENT_OFFSET + PARAMETER_HEADER_LENGTH;
   }
-  
+
 
   if(tvb_get_guint8(layer3_data_tvb, discriminator_offset) == 0x48){
 	  layer3_header_item   = proto_tree_add_text(v5ua_tree, layer3_data_tvb, discriminator_offset, MSG_HEADER_LENGTH,"Layer3 header");
@@ -994,7 +995,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 	  proto_tree_add_item(layer3_header_tree, hf_l3_low_adress, layer3_data_tvb, low_address_offset, LOW_ADDRESS_LENGTH, FALSE);
 	  proto_tree_add_item(layer3_header_tree, hf_l3_msg_type, layer3_data_tvb, msg_type_offset, MSG_TYPE_LENGTH, FALSE);
 	  proto_item_append_text(layer3_header_item, "  Msg Type: %s",
-						  val_to_str(tvb_get_guint8(layer3_data_tvb, msg_type_offset), l3_msg_type_values, "Unknown layer3 msg type"));
+		  val_to_str(tvb_get_guint8(layer3_data_tvb, msg_type_offset), l3_msg_type_values, "Unknown layer3 msg type"));
 
 	  if(tvb_length_remaining(layer3_data_tvb,info_element_offset)){
 		  layer3_item   = proto_tree_add_text(v5ua_tree, layer3_data_tvb, info_element_offset, tvb_length(layer3_data_tvb)-MSG_HEADER_LENGTH,"Layer3 message");
@@ -1033,7 +1034,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
 					  proto_tree_add_item(layer3_tree,hf_l3_steady_signal,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
 					  proto_item_append_text(layer3_item, "  Steady Signal: %s",
-											val_to_str(tvb_get_guint8(layer3_data_tvb, info_element_offset+2), l3_steady_signal_values, "Unknown Signal"));
+						val_to_str(tvb_get_guint8(layer3_data_tvb, info_element_offset+2), l3_steady_signal_values, "Unknown Signal"));
 					  info_element_offset +=info_element_length+2;
 					  break;
 				  case DIGIT_SIGNAL:
@@ -1041,7 +1042,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 					  buffer = tvb_get_guint8(layer3_data_tvb, info_element_offset+2)>>6;
 					  buffer = buffer&0x01;
 					  proto_tree_add_uint_format(layer3_tree, hf_l3_digit_ack,layer3_data_tvb,info_element_offset+2,1,buffer,
-													"Digit ack request indication: %s",val_to_str(buffer,l3_digit_ack_values,"unknown"));
+						"Digit ack request indication: %s",val_to_str(buffer,l3_digit_ack_values,"unknown"));
 					  proto_tree_add_item(layer3_tree,hf_l3_digit_info,layer3_data_tvb,info_element_offset+2,info_element_length,FALSE);
 					  info_element_offset +=info_element_length+2;
 					  break;
@@ -1097,7 +1098,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 					  proto_tree_add_item(layer3_tree,hf_l3_cause_type,layer3_data_tvb,info_element_offset+2,1,FALSE);
 		  			  if(tvb_length_remaining(layer3_data_tvb, info_element_offset+3))
 					  proto_tree_add_uint_format(layer3_tree, hf_l3_msg_type,layer3_data_tvb, info_element_offset+3,1,tvb_get_guint8(layer3_data_tvb,info_element_offset+3),
-												"Diagnostic: %s",val_to_str(tvb_get_guint8(layer3_data_tvb,info_element_offset+3),l3_msg_type_values,"unknown"));
+						"Diagnostic: %s",val_to_str(tvb_get_guint8(layer3_data_tvb,info_element_offset+3),l3_msg_type_values,"unknown"));
 					  info_element_offset +=info_element_length+2;
 					  break;
 				  case RESOURCE_UNAVAILABLE:
@@ -1323,7 +1324,7 @@ dissect_release_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_tree_add_item(parameter_tree, hf_release_reason, parameter_tvb, offset, RELEASE_REASON_LENGTH, FALSE);
   if(iua_version != DRAFT)
 	  proto_item_append_text(parameter_item, " (%s)",
-				                val_to_str(tvb_get_ntohl(parameter_tvb, offset), release_reason_values, "Unknown release reason"));
+		val_to_str(tvb_get_ntohl(parameter_tvb, offset), release_reason_values, "Unknown release reason"));
 }
 /*----------------------Release Indication,Request (Draft,RFC)-----------------*/
 
@@ -1352,7 +1353,7 @@ dissect_link_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 {
   proto_tree_add_item(parameter_tree, hf_link_status, parameter_tvb, LINK_STATUS_OFFSET, LINK_STATUS_LENGTH, FALSE);
   proto_item_append_text(parameter_item, " (%s)",
-					  val_to_str(tvb_get_ntohl(parameter_tvb, LINK_STATUS_OFFSET),link_status_values, "Unknown Link status"));
+	  val_to_str(tvb_get_ntohl(parameter_tvb, LINK_STATUS_OFFSET),link_status_values, "Unknown Link status"));
 }
 /*----------------------Link Status Indication (Draft,RFC)---------------------*/
 
@@ -1380,8 +1381,8 @@ dissect_sa_bit_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_tree_add_item(parameter_tree, hf_sa_bit_id, parameter_tvb, SA_BIT_ID_OFFSET, SA_BIT_ID_LENGTH, FALSE);
   proto_tree_add_item(parameter_tree, hf_sa_bit_value, parameter_tvb, SA_BIT_VALUE_OFFSET, SA_BIT_VALUE_LENGTH, FALSE);
   proto_item_append_text(parameter_item, " (%s %s)",
-					  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_ID_OFFSET), sa_bit_values, "unknown"),
-					  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_VALUE_OFFSET), sa_bit_values, "unknown Bit"));
+	  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_ID_OFFSET), sa_bit_values, "unknown"),
+	  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_VALUE_OFFSET), sa_bit_values, "unknown Bit"));
 
 }
 /*----------------------Sa-Bit (Draft,RFC)-------------------------------------*/
@@ -1402,7 +1403,7 @@ dissect_error_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 {
   proto_tree_add_item(parameter_tree, hf_error_reason, parameter_tvb, ERROR_REASON_OFFSET, ERROR_REASON_LENGTH, FALSE);
   proto_item_append_text(parameter_item, " (%s)",
-					  val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_REASON_OFFSET), error_reason_values, "unknown"));
+	  val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_REASON_OFFSET), error_reason_values, "unknown"));
 }
 /*----------------------Error Indication (RFC)---------------------------------*/
 
@@ -1419,7 +1420,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 	info_string_length -= PARAMETER_HEADER_LENGTH;
 	proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, FALSE);
 	proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
-		                     (const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
+		(const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
   }
 }
 
@@ -1432,7 +1433,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
   if (parameter_value_length > 0)
     proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, FALSE);
   proto_item_append_text(parameter_item, " with tag %u and %u byte%s value",
-                         tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
+	  tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
 
@@ -1514,23 +1515,23 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
   switch(iua_version){
   case RFC:
 	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
-			                                   val_to_str(tag, parameter_tag_values, "Unknown parameter"));
-      parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
+		val_to_str(tag, parameter_tag_values, "Unknown parameter"));
+	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 
 	  /* add tag to the v5ua tree */
-      proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
+	  proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
 	  break;
 
   case DRAFT:
   default:
-  	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
-			                                   val_to_str(tag, parameter_tag_draft_values, "Unknown parameter"));
-      parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
+	  parameter_item   = proto_tree_add_text(v5ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
+		val_to_str(tag, parameter_tag_draft_values, "Unknown parameter"));
+	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 
 	  /* add tag to the v5ua tree */
-	 proto_tree_add_item(parameter_tree, hf_parameter_tag_draft, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
+	  proto_tree_add_item(parameter_tree, hf_parameter_tag_draft, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
 	  break;
-  
+
   };
 
   /* add length to the v5ua tree */
@@ -1538,42 +1539,39 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 
   switch(tag) {
   case INT_INTERFACE_IDENTIFIER_PARAMETER_TAG:
-    if(iua_version == RFC )
-		dissect_int_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+	if(iua_version == RFC) dissect_int_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
 	if(iua_version == DRAFT){
 		dissect_int_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
-
 		dissect_dlci_parameter(parameter_tvb, parameter_tree, parameter_item);
 
 		/* for the following parameters no tag- and length-informations available. Parameters must be dissect with info from common msg header */
 		if(msg_class==0 && msg_type==0)    dissect_draft_error_code_parameter(parameter_tvb, parameter_tree);
 		if(msg_class==1)                   dissect_draft_tei_status_parameter(parameter_tvb, parameter_tree, parameter_item);
 		if(msg_class==9){
-          if(msg_type==1||msg_type==2||msg_type==3||msg_type==4){
-	         guint16 length, offset;
-	         tvbuff_t *layer3_data_tvb;
-	         offset = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) + 8;
-	         length = msg_length - offset;
-
-             if(length > 0){
-               if(tvb_get_guint8(parameter_tvb, offset) == 0x48){
-			      layer3_data_tvb = tvb_new_subset(parameter_tvb, offset, length, length);
-			      dissect_layer3_message(layer3_data_tvb, v5ua_tree, parameter_item, pinfo);
-			   }
-			 }
-		  }
-		  else if(msg_type==8||msg_type==10) dissect_release_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
+			if(msg_type==1||msg_type==2||msg_type==3||msg_type==4){
+				guint16 length, offset;
+				tvbuff_t *layer3_data_tvb;
+				offset = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) + 8;
+				length = msg_length - offset;
+				if(length > 0){
+					if(tvb_get_guint8(parameter_tvb, offset) == 0x48){
+						layer3_data_tvb = tvb_new_subset(parameter_tvb, offset, length, length);
+						dissect_layer3_message(layer3_data_tvb, v5ua_tree, parameter_item, pinfo);
+					}
+				}
+			}
+			else if(msg_type==8||msg_type==10) dissect_release_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
 		}
 	}
     break;
   case ASP_MSG_PARAMETER_TAG:
-	dissect_asp_msg_parameter(parameter_tvb, parameter_tree, parameter_item);
-	break;
+    dissect_asp_msg_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
   case TEXT_INTERFACE_IDENTIFIER_PARAMETER_TAG:
     if(iua_version == RFC)
-		dissect_text_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
-	if(iua_version == DRAFT)
-		dissect_scn_protocol_id_parameter(parameter_tvb, parameter_tree, parameter_item);
+      dissect_text_interface_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
+    if(iua_version == DRAFT)
+      dissect_scn_protocol_id_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case INFO_PARAMETER_TAG:
     dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1603,11 +1601,11 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
     dissect_status_type_identification_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_PARAMETER_TAG:
-	dissect_layer3_message(parameter_tvb, v5ua_tree, parameter_item, pinfo);
-	break;
+    dissect_layer3_message(parameter_tvb, v5ua_tree, parameter_item, pinfo);
+    break;
   case RELEASE_REASON_PARAMETER_TAG:
-	dissect_release_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
-	break;
+    dissect_release_reason_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
   case TEI_STATUS_PARAMETER_TAG:
     dissect_tei_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
@@ -1615,11 +1613,11 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
     dissect_link_status_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SA_BIT_STATUS_PARAMETER_TAG:
-	dissect_sa_bit_status_parameter(parameter_tvb, parameter_tree, parameter_item);
-	break;
+    dissect_sa_bit_status_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
   case ERROR_INDICATION_PARAMETER_TAG:
-	dissect_error_indication_parameter( parameter_tvb, parameter_tree, parameter_item);
-	break;
+    dissect_error_indication_parameter( parameter_tvb, parameter_tree, parameter_item);
+    break;
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
@@ -1658,7 +1656,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 	dissect_parameter(parameter_tvb, pinfo, v5ua_tree);
 	/* get rid of the handled parameter */
 	offset += total_length;
-	}	
+	}
 }
 
 
@@ -1666,12 +1664,12 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 	/* define the common header fields of V5UA MSG */
 #define COMMON_HEADER_VERSION_LENGTH        1
 #define COMMON_HEADER_RESERVED_LENGTH       1
-#define COMMON_HEADER_MSG_CLASS_LENGTH  1
-#define COMMON_HEADER_MSG_TYPE_LENGTH   1
-#define COMMON_HEADER_MSG_LENGTH_LENGTH 4
+#define COMMON_HEADER_MSG_CLASS_LENGTH      1
+#define COMMON_HEADER_MSG_TYPE_LENGTH       1
+#define COMMON_HEADER_MSG_LENGTH_LENGTH     4
 #define COMMON_HEADER_LENGTH                (COMMON_HEADER_VERSION_LENGTH + COMMON_HEADER_RESERVED_LENGTH +\
-											 COMMON_HEADER_MSG_CLASS_LENGTH + COMMON_HEADER_MSG_TYPE_LENGTH +\
-											 COMMON_HEADER_MSG_LENGTH_LENGTH)
+                                             COMMON_HEADER_MSG_CLASS_LENGTH + COMMON_HEADER_MSG_TYPE_LENGTH +\
+                                             COMMON_HEADER_MSG_LENGTH_LENGTH)
 
 	/* define the offsets of common header */
 #define COMMON_HEADER_OFFSET            0
@@ -1683,24 +1681,26 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 #define COMMON_HEADER_PARAMETERS_OFFSET (COMMON_HEADER_OFFSET               + COMMON_HEADER_LENGTH)
 
 	/* version of V5UA protocol */
-#define V5UA_PROTOCOL_VERSION_RELEASE_1     1	
+#define V5UA_PROTOCOL_VERSION_RELEASE_1     1
 
 static const value_string v5ua_protocol_version_values[] = {
   { V5UA_PROTOCOL_VERSION_RELEASE_1,  "Release 1" },
   { 0,                                NULL } };
 
 	/* define V5UA MSGs */
-#define MSG_CLASS_MGMT_MSG       0
-#define MSG_CLASS_MGMT_MSG_DRAFT 1
-#define MSG_CLASS_ASPSM_MSG      3
-#define MSG_CLASS_ASPTM_MSG      4
-#define MSG_CLASS_V5PTM_MSG      9
+#define MSG_CLASS_MGMT_MSG        0
+#define MSG_CLASS_MGMT_MSG_DRAFT  1
+#define MSG_CLASS_ASPSM_MSG       3
+#define MSG_CLASS_ASPTM_MSG       4
+#define MSG_CLASS_V5PTM_MSG_DRAFT 9
+#define MSG_CLASS_V5PTM_MSG      14
 
 static const value_string msg_class_values[] = {
 	{ MSG_CLASS_MGMT_MSG,  "Management Messages" },
 	{ MSG_CLASS_MGMT_MSG_DRAFT,"Management Messages"},
 	{ MSG_CLASS_ASPSM_MSG, "ASP state maintenance message" },
 	{ MSG_CLASS_ASPTM_MSG, "ASP traffic maintenance message" },
+	{ MSG_CLASS_V5PTM_MSG_DRAFT, "V5 Boundary Primitives Transport Message" },
 	{ MSG_CLASS_V5PTM_MSG, "V5 Boundary Primitives Transport Message" },
 	{ 0,                           NULL } }; 
 
@@ -1756,19 +1756,42 @@ static const value_string msg_class_type_values[] = {
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_REQ,              "TEI status request" },
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_CON,              "TEI status confirmation" },
   { MSG_CLASS_MGMT_MSG  * 256 + MGMT_MSG_TYPE_TEI_STATUS_IND,              "TEI status indication" },
+
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_REQ,   "TEI status request" },
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_CON,   "TEI status confimation" },
   { MSG_CLASS_MGMT_MSG_DRAFT * 256 + MGMT_MSG_DRAFT_TYPE_TEI_STATUS_IND,   "TEI status indication" },
+
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_UP,                         "ASP up" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_DOWN,                       "ASP down" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_BEAT,                       "Heartbeat" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_UP_ACK,                     "ASP up ack" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_DOWN_ACK,                   "ASP down ack" },
   { MSG_CLASS_ASPSM_MSG * 256 + ASPSM_MSG_TYPE_BEAT_ACK,                   "Heartbeat ack" },
+
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_ACTIVE ,                    "ASP active" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_INACTIVE ,                  "ASP inactive" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_ACTIVE_ACK ,                "ASP active ack" },
   { MSG_CLASS_ASPTM_MSG * 256 + ASPTM_MSG_TYPE_INACTIVE_ACK ,              "ASP inactive ack" },
+
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_DATA_REQUEST,               "Data request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_DATA_INDICATION,            "Data indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_UNIT_DATA_REQUEST,          "Unit data request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_UNIT_DATA_INDICATION,       "Unit data indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ESTABLISH_REQUEST,          "Establish request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ESTABLISH_CONFIRM,          "Establish confirmation" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ESTABLISH_INDICATION,       "Establish indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_RELEASE_REQUEST,            "Release request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_RELEASE_CONFIRM,            "Release confirmation" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_RELEASE_INDICATION,         "Release indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_LINK_STATUS_START_REPORTING,"Link status start reporting" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_LINK_STATUS_STOP_REPORTING, "Link status stop reporting" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_LINK_STATUS_INDICATION,     "Link status indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_SET_REQUEST,         "Sa-Bit set request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_SET_CONFIRM,         "Sa-Bit set confirm" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_REQUEST,      "Sa-Bit status request" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_INDICATION,   "Sa-Bit status indication" },
+  { MSG_CLASS_V5PTM_MSG_DRAFT * 256 + V5PTM_MSG_TYPE_ERROR_INDICATION,           "Error indication" },
+
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_DATA_REQUEST,               "Data request" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_DATA_INDICATION,            "Data indication" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_UNIT_DATA_REQUEST,          "Unit data request" },
@@ -1787,8 +1810,9 @@ static const value_string msg_class_type_values[] = {
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_REQUEST,      "Sa-Bit status request" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_SA_BIT_STATUS_INDICATION,   "Sa-Bit status indication" },
   { MSG_CLASS_V5PTM_MSG * 256 + V5PTM_MSG_TYPE_ERROR_INDICATION,           "Error indication" },
+
   { 0,                                                                                  NULL } };
-  
+
 
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *v5ua_tree)
@@ -1813,7 +1837,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     common_header_item   = proto_tree_add_text(v5ua_tree, common_header_tvb, COMMON_HEADER_OFFSET, tvb_length(common_header_tvb),"Common Msg-Header");
     common_header_tree   = proto_item_add_subtree(common_header_item, ett_v5ua_common_header);
 
-    /* add the components of the common header to the protocol tree */
+	  /* add the components of the common header to the protocol tree */
     proto_tree_add_item(common_header_tree, hf_version, common_header_tvb, COMMON_HEADER_VERSION_OFFSET, COMMON_HEADER_VERSION_LENGTH, FALSE);
     proto_tree_add_item(common_header_tree, hf_reserved, common_header_tvb, COMMON_HEADER_RESERVED_OFFSET, COMMON_HEADER_RESERVED_LENGTH, FALSE);
     proto_tree_add_item(common_header_tree, hf_msg_class, common_header_tvb, COMMON_HEADER_MSG_CLASS_OFFSET, COMMON_HEADER_MSG_CLASS_LENGTH, FALSE);
@@ -1824,13 +1848,13 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     proto_tree_add_uint(common_header_tree, hf_msg_type_id, common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET, COMMON_HEADER_MSG_TYPE_LENGTH,
                               message_class * 256 + message_type);
     proto_tree_add_item(common_header_tree, hf_msg_length, common_header_tvb, COMMON_HEADER_MSG_LENGTH_OFFSET, COMMON_HEADER_MSG_LENGTH_LENGTH, FALSE);
-    
+
 	/* Add message type to the Common Msg-Header line */
-	proto_item_append_text(common_header_item, " (%s)",val_to_str(message_class * 256 + message_type, msg_class_type_values, "Unknown Msg-Type"));
+    proto_item_append_text(common_header_item, " (%s)",val_to_str(message_class * 256 + message_type, msg_class_type_values, "Unknown Msg-Type"));
   }
-  
-  /* the following info are required to dissect IUA-Draft messages.
-		In the DRAFT-Specification V5UA-Parameters are not separated by Tag-Length-Header (as defined in RFC-Spec) */
+
+	/* the following info are required to dissect IUA-Draft messages.
+	In the DRAFT-Specification V5UA-Parameters are not separated by Tag-Length-Header (as defined in RFC-Spec) */
   if (iua_version == DRAFT){
 	  msg_class = message_class;
 	  msg_type  = message_type;
@@ -1866,38 +1890,18 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5UA");
-    
-/* This field shows up as the "Info" column in the display; you should make
-   it, if possible, summarize what's in the packet, so that a user looking
-   at the list of packets can tell what type of packet it is. See section 1.5
-   for more information. */
-
 
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
 
-   
-/* In the interest of speed, if "tree" is NULL, don't do any work not
-   necessary to generate protocol tree items. */
 	if (tree) {
-
-/* NOTE: The offset and length values in the call to
-   "proto_tree_add_item()" define what data bytes to highlight in the hex
-   display window when the line in the protocol tree display
-   corresponding to that item is selected.
-
-   Supplying a length of -1 is the way to highlight all data from the
-   offset to the end of the packet. */
-
 /* create display subtree for the protocol */
 		ti = proto_tree_add_item(tree, proto_v5ua, tvb, 0, -1, FALSE);
 		v5ua_tree = proto_item_add_subtree(ti, ett_v5ua);
-
 	}
 	else {
-	v5ua_tree=NULL;
+		v5ua_tree=NULL;
 	};
-
 
 	/* detect version of IUA */
    iua_version = RFC;
@@ -1973,7 +1977,7 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_v5ua(void)
-{                 
+{
 
 /* Setup list of header fields  */
 	static hf_register_info hf[] = {
@@ -1984,335 +1988,333 @@ proto_register_v5ua(void)
 		{ &hf_reserved,
 			{ "Reserved",               "v5ua.reserved",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_msg_class,
 			{ "Message class",          "v5ua.msg_class",
 			   FT_UINT8,    BASE_DEC, VALS(msg_class_values),           0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_msg_type,
 			{ "Message Type",           "v5ua.msg_type",
 			   FT_UINT8,    BASE_DEC, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_msg_type_id,
 			{ "Message Type ID",        "v5ua.msg_type_id",
 			   FT_UINT8,    BASE_DEC, VALS(msg_class_type_values),      0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_msg_length,
 			{ "Message length",         "v5ua.msg_length",
-               FT_UINT32,   BASE_DEC, NULL,                             0x0,
-			   "", HFILL } },
+			   FT_UINT32,   BASE_DEC, NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_link_id,
 			{ "Link Identifier",        "v5ua.link_id",
-			   FT_UINT32,   BASE_DEC, NULL,								~0x1f,
-			   "", HFILL } },
+			   FT_UINT32,   BASE_DEC, NULL,                           ~0x1f,
+			   NULL, HFILL } },
 		{ &hf_chnl_id,
 			{ "Channel Identifier",     "v5ua.channel_id",
-			   FT_UINT8,    BASE_DEC, NULL,								0x1f,
-			   "", HFILL } },
+			   FT_UINT8,    BASE_DEC, NULL,                            0x1f,
+			   NULL, HFILL } },
 		{ &hf_adaptation_layer_id,
-			{ "Adaptation Layer ID",      "v5ua.adaptation_layer_id",
-			   FT_STRING,   BASE_NONE,NULL,								0x0,
-			   "", HFILL } },
+			{ "Adaptation Layer ID",    "v5ua.adaptation_layer_id",
+			   FT_STRING,   BASE_NONE,NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_text_if_id,
 			{ "Text interface identifier","v5ua.text_interface_id",
-			   FT_STRING,   BASE_NONE,NULL,								0x0,
-			   "", HFILL } },
+			   FT_STRING,   BASE_NONE,NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_scn_protocol_id,
 			{ "SCN Protocol Identifier","v5ua.scn_protocol_id",
-			   FT_STRING,   BASE_NONE,NULL,								0x0,
-			   "", HFILL } },
+			   FT_STRING,   BASE_NONE,NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_info_string,
 			{ "Info String",            "v5ua.info_string",
 			   FT_STRING,   BASE_NONE,NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_dlci_zero_bit,
 			{ "Zero bit",               "v5ua.dlci_zero_bit",
 			   FT_BOOLEAN,	8,        NULL,                             0x01,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_dlci_spare_bit,
 			{ "Spare bit",              "v5ua.dlci_spare_bit",
-               FT_BOOLEAN,	8,        NULL,                             0x02,
-			   "", HFILL } },
+			   FT_BOOLEAN,	8,        NULL,                             0x02,
+			   NULL, HFILL } },
 		{ &hf_dlci_sapi,
 			{ "SAPI",                   "v5ua.dlci_sapi",
 			   FT_UINT8,	BASE_HEX, NULL,                             0xfc,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_dlci_one_bit,
 			{ "One bit",                "v5ua.dlci_one_bit",
 			   FT_BOOLEAN,  8,        NULL,                             0x01,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_dlci_tei,
 			{ "TEI",                    "v5ua.dlci_tei",
 			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_efa,
 			{ "Envelope Function Address","v5ua.efa",
 			   FT_UINT16,   BASE_DEC, VALS(efa_values),                 0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_spare_efa,
 			{ "Envelope Function Address (spare)","v5ua.efa",
-			   FT_UINT16,   BASE_DEC, NULL,                             ~7,
-			   "", HFILL } },
+			   FT_UINT16,   BASE_DEC, NULL,                              ~7,
+			   NULL, HFILL } },
 		{ &hf_asp_reason,
 			{ "Reason",                 "v5ua.asp_reason",
 			   FT_UINT32,   BASE_HEX, VALS(asp_reason_values),          0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_release_reason,
 			{ "Release Reason",         "v5ua.release_reason",
 			   FT_UINT32,   BASE_HEX, VALS(release_reason_values),      0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_tei_status,
 			{ "TEI status",             "v5ua.tei_status",
 			   FT_UINT32,   BASE_HEX, VALS(tei_status_values),          0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_tei_draft_status,
 			{ "TEI status",             "v5ua.tei_draft_status",
 			   FT_UINT32,   BASE_HEX, VALS(tei_draft_status_values),    0x0,
-			   "", HFILL } },
-        { &hf_link_status,
+			   NULL, HFILL } },
+		{ &hf_link_status,
 			{ "Link Status",            "v5ua.link_status",
 			   FT_UINT32,   BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_sa_bit_id,
 			{ "BIT ID",                 "v5ua.sa_bit_id",
 			   FT_UINT16,   BASE_HEX, VALS(sa_bit_values),              0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_sa_bit_value,
 			{ "Bit Value",              "v5ua.sa_bit_value",
 			   FT_UINT16,   BASE_HEX, VALS(sa_bit_values),              0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_parameter_tag,
 			{ "Parameter Tag",          "v5ua.parameter_tag",
 			   FT_UINT16,   BASE_HEX, VALS(parameter_tag_values),       0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_parameter_tag_draft,
 			{ "Parameter Tag",          "v5ua.parameter_tag",
 			   FT_UINT16,   BASE_HEX, VALS(parameter_tag_draft_values), 0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_parameter_length, 
 			{ "Parameter length",       "v5ua.parameter_length",
 			   FT_UINT16,   BASE_DEC, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_parameter_value,
 			{ "Parameter value",        "v5ua.parameter_value",
 			   FT_BYTES,    BASE_NONE,NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_parameter_padding,
 			{ "Parameter padding",      "v5ua.parameter_padding",
 			   FT_BYTES,    BASE_NONE,NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_diagnostic_info,
 			{ "Diagnostic Information", "v5ua.diagnostic_info",
-			   FT_BYTES,    BASE_NONE,NULL,						    	0x0,
-			   "", HFILL } },
+			   FT_BYTES,    BASE_NONE,NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_if_range_start,
 			{ "Interface range Start",  "v5ua.interface_range_start",
 			   FT_UINT32,   BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_if_range_end,
 			{ "Interface range End",    "v5ua.interface_range_end",
 			   FT_UINT32,   BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_heartbeat_data,
 			{ "Heartbeat data",         "v5ua.heartbeat_data",
-               FT_BYTES,    BASE_NONE,NULL,                             0x0,
-			   "", HFILL } },
+			   FT_BYTES,    BASE_NONE,NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_traffic_mode_type,
 			{ "Traffic mode type",      "v5ua.traffic_mode_type",
 			   FT_UINT32,   BASE_HEX, VALS(traffic_mode_type_values),   0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_error_code,
-            { "Error code",             "v5ua.error_code",
+			{ "Error code",             "v5ua.error_code",
 			   FT_UINT32,   BASE_HEX, VALS(error_code_values),          0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_draft_error_code,
 			{ "Error code (draft)",     "v5ua.draft_error_code",
 			   FT_UINT32,   BASE_HEX, VALS(draft_error_code_values),    0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_status_type,
 			{ "Status type",            "v5ua.status_type",
 			   FT_UINT16,   BASE_DEC, VALS(status_type_values),         0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_status_id,
 			{ "Status identification",  "v5ua.status_id",
 			   FT_UINT16,   BASE_DEC, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_error_reason,
 			{ "Error Reason",           "v5ua.error_reason",
 			   FT_UINT32,   BASE_HEX, VALS(error_reason_values),        0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 
-			   
 		/* header fields for layer 3 content*/
 		{ &hf_l3_protocol_discriminator,
 			{ "Protocol Discriminator", "v5ua.l3_protocol_disc",
-               FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
+			   NULL, HFILL } },
 		{ &hf_l3_adress,
 			{ "Layer3 address",        "v5ua.l3_address",
 			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{ &hf_l3_low_adress,
 			{ "Layer3 low address",    "v5ua.l3_low_address",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_msg_type,
 			{ "Layer3 message type",   "v5ua.l3_msg_type",
 			   FT_UINT8,    BASE_HEX, VALS(l3_msg_type_values),         0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_info_element,
 			{ "Layer3 information element",   "v5ua.l3_info_element",
 			   FT_UINT8,    BASE_HEX, VALS(l3_info_element_values),     0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_line_info,
 			{ "Line_Information",      "v5ua.l3_line_info",
 			   FT_UINT8,    BASE_HEX, VALS(l3_line_info_values),        0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_cad_ringing,
 			{"Cadenced ringing type",  "v5ua.l3_cad_ringing",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_pulse_type,
 			{ "Pulse Type",            "v5ua.l3_pulse_type",
 			   FT_UINT8,    BASE_HEX, VALS(l3_pulse_type_values),       0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_suppression_indicator,
 			{ "Suppression indicator",  "v5ua.l3_suppression_indicator",
 			   FT_UINT8,    BASE_HEX, VALS(l3_suppression_indication_values),0x60,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_pulse_duration,
 			{ "Pulse duration type",   "v5ua.l3_pulse_duration",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x1f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_ack_request_indicator,
 			{ "Ack request indicator",    "v5ua.l3_ack_request_indicator",
 			   FT_UINT8,    BASE_HEX, VALS(l3_ack_request_indication_values),0x60,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_number_of_pulses,
 			{ "Number of pulses",      "v5ua.l3_number_of_pulses",
 			   FT_UINT8,    BASE_DEC, NULL,                             0x1f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_steady_signal,
 			{ "Steady Signal",         "v5ua.l3_steady_signal",
 			   FT_UINT8,    BASE_HEX, VALS(l3_steady_signal_values),    0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_auto_signalling_sequence,
 			{ "Autonomous signalling sequence","v5ua.l3_auto_signalling_sequence",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_sequence_number,
 			{ "Sequence number",    "v5ua.l3_sequence_number",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_pulse_notify,
 			{ "Pulse notification",    "v5ua.l3_pulse_notification",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_sequence_response,
 			{ "Sequence response",    "v5ua.l3_sequence_response",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_digit_ack,
 			{ "Digit ack request indication","v5ua.l3_digit_ack",
 			   FT_UINT8,    BASE_HEX, VALS(l3_digit_ack_values),        0x40,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_digit_info,
 			{ "Digit information",    "v5ua.l3_digit_info",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_res_unavailable,
 			{ "Resource unavailable", "v5ua.l3_res_unavailable",
 			   FT_STRING,   BASE_NONE,NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_state,
 			{ "PSTN FSM state",       "v5ua.l3_state",
 			   FT_UINT8,    BASE_HEX, VALS(l3_state_values),            0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_cause_type,
 			{ "Cause type",           "v5ua.l3_cause_type",
 			   FT_UINT8,    BASE_HEX, VALS(l3_cause_type_values),       0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_link_control_function,
 			{ "Link control function","v5ua.l3_link_control_function",
 			   FT_UINT8,    BASE_HEX, VALS(l3_link_control_function_values),0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_pstn_user_port_id,
 			{ "PSTN User Port identification Value","v5ua.l3_pstn_user_port_id",
 			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_pstn_user_port_id_lower,
 			{ "PSTN User Port Identification Value (lower)","v5ua.l3_pstn_user_port_id_lower",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_isdn_user_port_id,
 			{ "ISDN User Port Identification Value","v5ua.l3_isdn_user_port_id",
 			   FT_UINT8,    BASE_HEX, NULL,                             0xfc,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_isdn_user_port_id_lower,
 			{ "ISDN User Port Identification Value (lower)","v5ua.l3_user_port_id_lower",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0fe,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_isdn_user_port_ts_num,
 			{ "ISDN user port time slot number","v5ua.l3_isdn_user_port_ts_num",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x1f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_override,
-			{ "Override",    "v5ua.l3_override", 
+			{ "Override",    "v5ua.l3_override",
 			   FT_BOOLEAN,  8,        NULL,                             0x20,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_v5_link_id,
 			{ "V5 2048 kbit/s Link Identifier",    "v5ua.l3_link_id",
 			   FT_UINT8,    BASE_HEX, NULL,                             0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_v5_time_slot,
 			{ "V5 Time Slot Number",    "v5ua.l3_v5_time_slot",
 			   FT_UINT8,    BASE_DEC, NULL,                             0x1f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_reject_cause_type,
 			{ "Reject cause type",    "v5ua.l3_reject_cause_type",
 			   FT_UINT8,    BASE_HEX, VALS(l3_reject_cause_type_values),0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_bcc_protocol_error_cause,
 			{ "BCC Protocol error cause type",    "v5ua.l3_bcc_protocol_cause",
 			   FT_UINT8,    BASE_HEX, VALS(l3_bcc_protocol_error_cause_type_values),0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_connection_incomplete_reason,
 			{ "Reason",    "v5ua.l3_connection_incomplete_reason",
 			   FT_UINT8,    BASE_HEX, VALS(l3_connection_incomplete_reason_values), 0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_control_function_element,
 			{ "Control function element",    "v5ua.l3_control_function_element",
 			   FT_UINT8,    BASE_HEX, VALS(l3_control_function_element_values),     0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_control_function_id,
 			{ "Control function ID",    "v5ua.l3_control_function",
 			   FT_UINT8,    BASE_HEX, VALS(l3_control_function_id_values),          0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_variant,
 			{ "Variant",    "v5ua.l3_variant",
 			   FT_UINT8,    BASE_DEC, NULL,                                         0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_if_id,
 			{ "Interface ID",    "v5ua.l3_interface_id",
 			   FT_UINT32,   BASE_HEX, NULL,                                         0x0,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_performance_grading,
 			{ "Performance grading",    "v5ua.l3_performance_grading",
 			   FT_UINT8,    BASE_HEX, VALS(l3_performance_grading_values),          0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_cp_rejection_cause,
 			{ "Rejection cause",    "v5ua.l3_cp_rejection_cause",
 			   FT_UINT8,    BASE_HEX, VALS(l3_cp_rejection_cause_values),           0x0f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_pstn_sequence_number,
 			{ "Sequence number",    "v5ua.l3_pstn_sequence_number",
 			   FT_UINT8,    BASE_HEX, NULL,                                         0x7f,
-			   "", HFILL } },
+			   NULL, HFILL } },
 		{&hf_l3_duration_type,
 			{ "Duration Type",    "v5ua.l3_duration_type",
 			   FT_UINT8,    BASE_HEX, NULL,                                         0x3f,
-			   "", HFILL } },
-
+			   NULL, HFILL } }
 		};
 
 /* Setup protocol subtree array */
@@ -2320,11 +2322,10 @@ proto_register_v5ua(void)
 		&ett_v5ua,
 		&ett_v5ua_common_header,
 		&ett_v5ua_parameter,
-		&ett_v5ua_layer3,
+		&ett_v5ua_layer3
 	};
 
 /* Register the protocol name and description */
-
 	proto_v5ua = proto_register_protocol("V5.2-User Adaptation Layer", "V5UA", "v5ua");
 
 /* Required function calls to register the header fields and subtrees used */
@@ -2334,9 +2335,8 @@ proto_register_v5ua(void)
 
 
 /* In RFC specification the SCTP registered User Port Number Assignment for V5UA is 5675 */
-/* #define SCTP_PORT_V5UA      5675 */
-
-#define SCTP_PORT_V5UA      10001
+#define SCTP_PORT_V5UA_RFC         5675
+#define SCTP_PORT_V5UA_DRAFT      10001
 
 void
 proto_reg_handoff_v5ua(void)
@@ -2344,8 +2344,9 @@ proto_reg_handoff_v5ua(void)
 	dissector_handle_t v5ua_handle;
 
 	v5ua_handle = create_dissector_handle(dissect_v5ua, proto_v5ua);
-    q931_handle = find_dissector("q931");
+	q931_handle = find_dissector("q931");
 
-	dissector_add("sctp.port", SCTP_PORT_V5UA, v5ua_handle);
+	dissector_add("sctp.port", SCTP_PORT_V5UA_DRAFT, v5ua_handle);
+	dissector_add("sctp.port", SCTP_PORT_V5UA_RFC, v5ua_handle);
 	dissector_add("sctp.ppi",  V5UA_PAYLOAD_PROTOCOL_ID, v5ua_handle);
 }
