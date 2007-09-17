@@ -1290,10 +1290,13 @@ lbl_winpcap_done:
 	StrCmp $R0 '95' lbl_npf_disable
 	StrCmp $R0 '98' lbl_npf_disable
 	StrCmp $R0 'ME' lbl_npf_disable
+	; Enable NPF by default under Vista.
+	StrCmp $R0 'Vista' lbl_npf_enable
 	ReadRegDWORD $NPF_START HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start"
 	; (Winpcap may not be installed already, so no regKey is no error here)
 	IfErrors lbl_npf_done ;RegKey not available, so do not set it
 	IntCmp $NPF_START 2 0 lbl_npf_done lbl_npf_done
+lbl_npf_enable:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "1"
 	Goto lbl_npf_done
 	;disable
