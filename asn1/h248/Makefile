@@ -10,7 +10,7 @@ $(DISSECTOR_FILES): ../../tools/asn2wrs.py h248v3.asn packet-h248-template.c pac
 	python ../../tools/asn2wrs.py -b -e -p h248 -c h248.cnf -s packet-h248-template h248v3.asn
 
 clean:
-	rm -f parsetab.py $(DISSECTOR_FILES) *-fn.c *-ett.c *-hf.c
+	rm -f parsetab.py $(DISSECTOR_FILES) *-fn.c *-ett.c *-hf.c copy_files
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) ../../epan/dissectors

@@ -1,5 +1,6 @@
 # $Id$
 
+PROTOCOL_NAME=h450
 H450_FILES=packet-$(PROTOCOL_NAME).c
 H450_ROS_FILES=packet-$(PROTOCOL_NAME)-ros.c packet-$(PROTOCOL_NAME)-ros.h
 DISSECTOR_FILES=$(H450_FILES) $(H450_ROS_FILES)
@@ -11,7 +12,7 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(H450_FILES): ../../tools/asn2wrs.py $(H450_ASN) $(H450_OP_ASN) packet-h450-template.c packet-h450-template.h h450.cnf
+$(H450_FILES): ../../tools/asn2wrs.py $(H450_ASN) $(H450_OP_ASN) packet-h450-template.c h450.cnf
 	python ../../tools/asn2wrs.py -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(H450_ASN) $(H450_OP_ASN)
 
 $(H450_ROS_FILES): ../../tools/asn2wrs.py $(H450_ROS_ASN) packet-$(PROTOCOL_NAME)-ros-template.c $(PROTOCOL_NAME)-ros.cnf

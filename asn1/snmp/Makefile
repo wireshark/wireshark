@@ -11,7 +11,7 @@ $(DISSECTOR_FILES): ../../tools/asn2wrs.py snmp.asn packet-snmp-template.c packe
 	python ../../tools/asn2wrs.py -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn
 
 clean:
-	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)
+	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES) copy_files generate_dissector test_compile
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) ../../epan/dissectors
