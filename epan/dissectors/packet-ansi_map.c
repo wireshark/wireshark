@@ -1216,7 +1216,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 		  if(ansi_map_saved_invokedata)
 			  return;
 
-		  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
+		  ansi_map_saved_invokedata = g_malloc(sizeof(struct ansi_map_invokedata_t));
 		  ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
 		  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
