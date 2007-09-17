@@ -1,4 +1,4 @@
-# $Id: Makefile 22490 2007-08-13 11:15:39Z kukosa $
+# $Id$
 
 DISSECTOR_FILES=packet-sabp.c
 
