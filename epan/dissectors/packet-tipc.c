@@ -6,7 +6,7 @@
  * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  * 
  * TIPCv2 protocol updates
- * Copyright 2006-2007, Martin Peylo <martin.peylo@nsn.com>
+ * Copyright 2006-2007, Martin Peylo <wireshark@izac.de>
  * 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -126,6 +126,8 @@ static int hf_tipcv2_orig_node = -1;
 static int hf_tipcv2_dest_node = -1;
 static int hf_tipcv2_port_name_type = -1;
 static int hf_tipcv2_port_name_instance = -1;
+static int hf_tipcv2_multicast_lower = -1;
+static int hf_tipcv2_multicast_upper = -1;
 
 static int hf_tipcv2_bcast_seq_gap = -1;
 static int hf_tipcv2_sequence_gap = -1;
@@ -164,6 +166,7 @@ static gint ett_tipc_data = -1;
 
 static gboolean tipc_defragment = TRUE;
 static gboolean dissect_tipc_data = TRUE;
+static gboolean try_heuristic_first = FALSE;
 
 static gboolean extra_ethertype = FALSE;
 
@@ -174,6 +177,8 @@ static dissector_handle_t ip_handle;
 /* this is used to find encapsulated protocols */
 static dissector_table_t tipc_user_dissector;
 static dissector_table_t tipc_type_dissector;
+
+static heur_dissector_list_t tipc_heur_subdissector_list;
 
 static dissector_handle_t data_handle;
 
@@ -246,6 +251,10 @@ const value_string tipc_user_values[] = {
 #define TIPCv2_NAME_DISTRIBUTOR    11
 #define TIPCv2_MSG_FRAGMENTER      12
 #define TIPCv2_NEIGHBOUR_DISCOVERY  13
+
+#define TIPCv2_USER_FIRST_FRAGMENT	0
+#define TIPCv2_USER_FRAGMENT		1
+#define TIPCv2_USER_LAST_FRAGMENT	2
 
 const value_string tipcv2_user_values[] = {
 	{ TIPCv2_DATA_LOW,            "Low Priority Payload Data"},
@@ -715,7 +724,6 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user,guint8 msg_type){
 static void
 dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 orig_hdr_size)
 {
-
 	guint32 dword;
 	gchar *addr_str_ptr;
 	tvbuff_t *data_tvb;
@@ -723,6 +731,13 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 	guint16 message_count;
 	guint msg_no = 0;
 	guint32 msg_in_bundle_size;
+
+	/* for fragmented messages */
+	gint len, reported_len;
+	gboolean   save_fragmented;
+	guint32 frag_no, frag_msg_no;
+	tvbuff_t* new_tvb = NULL;
+	fragment_data *frag_msg = NULL;
 
 	dword = tvb_get_ntohl(tipc_tvb,offset+8);
 	addr_str_ptr = tipc_addr_to_str(dword);
@@ -857,7 +872,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			proto_tree_add_item(tipc_tree, hf_tipcv2_lookup_scope, tipc_tvb, offset, 4, FALSE);
 
 			/* Options Position: 3 bits */
-			/* is this not used by this user according to Jon Maloy in tipc-discussion mailing list 
+			/* this is not used by this user according to Jon Maloy in tipc-discussion mailing list 
 			opt_p = tvb_get_guint8(tipc_tvb, offset+1) & 0x7;
 			proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p , tipc_tvb, offset, 4, FALSE);
 			if (opt_p != 0){
@@ -902,7 +917,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			proto_tree_add_item(tipc_tree, hf_tipcv2_transport_seq_no, tipc_tvb, offset, 4, FALSE);
 			offset = offset + 4;
 
-			/* is this not used here according to Jon Maloy in tipc-discussion mailing list 
+			/* this is not used here according to Jon Maloy in tipc-discussion mailing list 
 			 * Options
 
 			if (opt_p != 0){
@@ -1054,14 +1069,71 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			proto_tree_add_string(tipc_tree, hf_tipcv2_prev_node, tipc_tvb, offset, 4, addr_str_ptr);
 			offset = offset + 4;
 			/* W4 */
+			dword = tvb_get_ntohl(tipc_tvb,offset);
 			/* Fragment Number: 16 Bits. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_fragment_number, tipc_tvb, offset, 4, FALSE);
+			frag_no = (dword >> 16) & 0x0000ffff;
 			/* Fragment msg Number: 16 bits */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_fragment_msg_number, tipc_tvb, offset, 4, FALSE);
+			frag_msg_no = dword & 0x0000ffff;
 			offset = offset + 4;
 			/* W5-W9 */
 			proto_tree_add_text(tipc_tree, tipc_tvb, offset, 20,"Words 5-9 Unused for this user");
 			offset = offset + 20;
+
+			len = (msg_size - (orig_hdr_size<<2));
+			reported_len = tvb_reported_length_remaining(tipc_tvb, offset);
+
+			if (tipc_defragment){
+				/* reassemble fragmented packages */
+				save_fragmented = pinfo->fragmented;
+				pinfo->fragmented = TRUE;
+
+				frag_msg = fragment_add_seq_check(tipc_tvb, offset, pinfo,
+						frag_msg_no,			/* ID for fragments belonging together */
+										/* TODO: make sure that fragments are on the same LINK */
+						tipc_msg_fragment_table,	/* list of message fragments */
+						tipc_msg_reassembled_table,	/* list of reassembled messages */
+						/* TIPC starts with "1" but we * need "0" */
+						(frag_no-1),			/* number of the fragment */
+						len,	/* fragment length - to the end of the data */
+						(message_type != TIPCv2_USER_LAST_FRAGMENT));		/* More fragments? */
+
+				new_tvb = process_reassembled_data(tipc_tvb, offset, pinfo,
+						"Reassembled Message", frag_msg, &tipc_msg_frag_items,
+						NULL, tipc_tree);
+
+				if (frag_msg) { /* Reassembled */
+					if (check_col(pinfo->cinfo, COL_INFO))
+						col_append_str(pinfo->cinfo, COL_INFO, 
+								" (Message Reassembled)");
+				} else { /* Not last packet of reassembled Short Message */
+					if (check_col(pinfo->cinfo, COL_INFO))
+						col_append_fstr(pinfo->cinfo, COL_INFO,
+								" (Message fragment %u)", frag_no);
+				}
+				if (new_tvb) { /* take it all */
+					data_tvb = new_tvb;
+
+					/* the info column shall not be deleted by the
+					 * encapsulated messages */
+					if (check_col(pinfo->cinfo, COL_INFO)) {
+						col_append_str(pinfo->cinfo, COL_INFO, " | ");
+						col_set_fence(pinfo->cinfo, COL_INFO);
+					}
+					dissect_tipc( new_tvb, pinfo, top_tree);
+				} else { /* make a new subset */
+					data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
+					call_dissector(data_handle, data_tvb, pinfo, top_tree);
+				}
+
+				pinfo->fragmented = save_fragmented;
+			} else {
+				/* don't reassemble is set in the "preferences" */
+				data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
+				call_dissector(data_handle, data_tvb, pinfo, top_tree);
+			}
+
 			break;
 		case TIPCv2_NEIGHBOUR_DISCOVERY:
 /*
@@ -1171,6 +1243,76 @@ wA:|                    multicast upper bound                      |
 
   */
 
+/* this function tries to call subdissectors for encapsulated data
+ * @name_type pointer to the used port name type, NULL if not available
+ * @user      guint8 holding the used TIPC user, is allways available
+ */
+static void
+call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 *name_type_p, guint8 user)
+{
+	if( dissect_tipc_data) {
+		/* dissection of TIPC data is set in preferences */
+
+		/* check for heuristic dissectors if specified in the
+		 * preferences to try them first */
+		if (try_heuristic_first) {
+			if (dissector_try_heuristic(tipc_heur_subdissector_list, data_tvb, pinfo, top_tree))
+				return;
+		}
+		/* This triggers if a dissectors if
+		 * tipc.user is just set to a TIPC user holding data */
+		if( dissector_try_port(tipc_user_dissector, user, data_tvb, pinfo, top_tree))
+			return;
+		/* The Name Type is not always explicitly set in a TIPC Data
+		 * Message. 
+		 *
+		 * On the tipc-discussion mailinglist, Allan Stephens described 
+		 * where the Port Name is not set with the following words:
+		 *
+		 * <cite>
+		 * The "named" and "mcast" message types have info in the TIPC header to
+		 * specify the message's destination (a port name and port name sequence,
+		 * respectively); these message types typically occur when an application
+		 * sends connectionless traffic.  The "conn" type is used to carry
+		 * connection-oriented traffic over an already established connection;
+		 * since the sending socket/port already knows the port ID of the other end
+		 * of the connection, there is no need for any port name information to be
+		 * present in the TIPC header.
+		 * 
+		 * The "direct" type is used to carry connectionless traffic to a
+		 * destination that was specified using a port ID, rather than a port name;
+		 * again, no port name info is present in the TIPC header because it is not
+		 * required.  Situations where this sort of message might be generated
+		 * include: a) an application obtains a port ID as part of a subscription
+		 * event generated by TIPC's topology server and then sends a message to
+		 * that port ID (using sendto() or sendmsg()), and b) a server obtains a
+		 * client's port ID when it receives a message from the client (using
+		 * recvfrom() or recvmsg()) and then sends a reply back to that client port
+		 * ID (using sendto() or sendmsg()).
+		 * </cite>
+		 *
+		 * TODO: it should be determined by
+		 * some kind of static function which port name type a message
+		 * is going to, if it is not specified explicitly in a message */
+		if( name_type_p)
+			if( dissector_try_port(tipc_type_dissector, *name_type_p, data_tvb, pinfo, top_tree))
+				return;
+		/* check for heuristic dissectors if specified in the
+		 * preferences not to try them first */
+		if (!try_heuristic_first) {
+			if (dissector_try_heuristic(tipc_heur_subdissector_list, data_tvb, pinfo, top_tree))
+				return;
+		}
+	}
+
+	/* dissection of TIPC data is not set in preferences or no subdissector
+	 * found */
+
+	call_dissector(data_handle, data_tvb, pinfo, top_tree);
+	return;
+}
+
+
 static void
 dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, int offset, guint8 user, guint32 msg_size, guint8 hdr_size, gboolean datatype_hdr)
 {
@@ -1181,7 +1323,8 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 	/* The unit used is 32 bit words */
 	guint8 orig_hdr_size;
 
-	guint32 type=0;
+	guint32 name_type=0;
+	guint32 *name_type_p=NULL;
 	tvbuff_t *data_tvb;
 	gint len, reported_len;
 
@@ -1273,19 +1416,26 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 			/* Transport Level Sequence Number: 32 bits */
 			/* Port Name Type: 32 bits */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_type, tipc_tvb, offset, 4, FALSE);
-			type = tvb_get_ntohl(tipc_tvb, offset);
+			name_type = tvb_get_ntohl(tipc_tvb, offset);
+			name_type_p = &name_type;
 			offset = offset + 4;
 			
 			if (hdr_size > 9 ){
 				/* W9 name instance/multicast lower bound  */
-				/*  Port Name Instance: 32 bits */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_instance, tipc_tvb, offset, 4, FALSE);
-				/*  Port Name Sequence Lower: 32 bits */
+				if (hdr_size < 11)
+					/* no multicast */
+					/* Port Name Instance: 32 bits */
+					proto_tree_add_item(tipc_tree, hf_tipcv2_port_name_instance, tipc_tvb, offset, 4, FALSE);
+				else
+					/* multicast */
+					/* Port Name Sequence Lower: 32 bits */
+					proto_tree_add_item(tipc_tree, hf_tipcv2_multicast_lower, tipc_tvb, offset, 4, FALSE);
 				offset = offset + 4;
 				if (hdr_size > 10 ){
 
 					/* W10 multicast upper bound */
 					/* Port Name Sequence Upper: 32 bits */
+					proto_tree_add_item(tipc_tree, hf_tipcv2_multicast_upper, tipc_tvb, offset, 4, FALSE);
 					offset = offset + 4;
 				}						
 			}
@@ -1300,18 +1450,8 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 	len = (msg_size - (orig_hdr_size<<2));
 	reported_len = tvb_reported_length_remaining(tipc_tvb, offset);
 	data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
-	if( dissect_tipc_data) {
-		/* This e.g. triggers if a dissectors if the 
-		 * tipc.user is just set to TIPC data */
-		if( dissector_try_port(tipc_user_dissector, user, data_tvb, pinfo, top_tree))
-			return;
-		/* XXX To make this work, it actually should be determined by
-		 * some kind of momory function which port name type a message
-		 * is going to if it is not specified explicitly in a message */
-		if( dissector_try_port(tipc_type_dissector, type, data_tvb, pinfo, top_tree))
-			return;
-	}
-	call_dissector(data_handle, data_tvb, pinfo, top_tree);
+
+	call_tipc_v2_data_subdissectors( data_tvb, pinfo, name_type_p, user);
 }
 
 /*  From message.h (http://cvs.sourceforge.net/viewcvs.py/tipc/source/stable_ericsson/TIPC_SCC/src/Message.h?rev=1.2&view=markup)
@@ -1497,7 +1637,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						TRUE);								/* More fragments? */
 				if (msg_type == TIPC_FIRST_SEGMENT ){
 					reassembled_msg_length = tvb_get_ntohl(tvb,offset) & 0x1ffff;
-					/* The number of segments needed fot he complete message (Including header) will be
+					/* The number of segments needed for he complete message (Including header) will be
 					 * The size of the data section of the first message, divided by the complete message size
 					 * + one segment for the remainder (if any).
 					 */
@@ -2234,6 +2374,16 @@ proto_register_tipc(void)
 			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
 			"Port name instance", HFILL }
 		},
+		{ &hf_tipcv2_multicast_lower,
+			{ "Multicast lower bound", "tipcv2.multicast_lower",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
+			"Multicast port name instance lower bound", HFILL }
+		},
+		{ &hf_tipcv2_multicast_upper,
+			{ "Multicast upper bound", "tipcv2.multicast_upper",
+			FT_UINT32, BASE_DEC, NULL, 0xffffffff,          
+			"Multicast port name instance upper bound", HFILL }
+		},
 		{ &hf_tipcv2_bcast_seq_gap,
 			{ "Broadcast Sequence Gap", "tipcv2.bcast_seq_gap",
 			FT_UINT32, BASE_DEC, NULL, 0x1F000000,          
@@ -2396,6 +2546,9 @@ proto_register_tipc(void)
 	tipc_type_dissector = register_dissector_table("tipcv2.port_name_type",
 	    "TIPC port name type", FT_UINT32, BASE_DEC);
 
+	/* make heuristic dissectors possible */
+	register_heur_dissector_list("tipc", &tipc_heur_subdissector_list);
+
 	register_init_routine(tipc_defragment_init);
 
 	/* Register configuration options */
@@ -2410,6 +2563,11 @@ proto_register_tipc(void)
  		"Dissect TIPC data",
  		"Whether to try to dissect TIPC data or not",
  		&dissect_tipc_data);
+
+	prefs_register_bool_preference(tipc_module, "try_heuristic_first",
+		"Try heuristic sub-dissectors first",
+		"Try to decode a TIPCv2 packet using an heuristic sub-dissector before using a registered sub-dissector",
+		&try_heuristic_first);
 }
 
 void
