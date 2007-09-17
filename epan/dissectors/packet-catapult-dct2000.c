@@ -53,6 +53,8 @@ static int hf_catapult_dct2000_outhdr = -1;
 static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
+static int hf_catapult_dct2000_tty = -1;
+static int hf_catapult_dct2000_tty_line = -1;
 static int hf_catapult_dct2000_dissected_length = -1;
 
 static int hf_catapult_dct2000_ipprim_addresses = -1;
@@ -75,6 +77,7 @@ gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
 static int ett_catapult_dct2000_ipprim = -1;
+static int ett_catapult_dct2000_tty = -1;
 
 static const value_string direction_vals[] = {
     { 0,   "Sent" },
@@ -422,7 +425,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
         return find_dissector("rtcp");
     }
     else
-    if (strcmp(protocol_name, "diameter_r6") == 0)
+    if (strncmp(protocol_name, "diameter", strlen("diameter")) == 0)
     {
         return find_dissector("diameter");
     }
@@ -473,6 +476,11 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     if (strcmp(protocol_name, "wimax") == 0)
     {
         return find_dissector("wimaxasncp");
+    }
+    else
+    if (strncmp(protocol_name, "sabp", strlen("sabp")) == 0)
+    {
+        return find_dissector("sabp");
     }
 
 
@@ -674,6 +682,49 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
 }
 
+
+/* Attempt to show tty (raw character messages) as text lines. */
+void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    gint        next_offset;
+    proto_tree  *tty_tree;
+    proto_item  *ti;
+    int         lines = 0;
+
+    /* Create tty tree. */
+    ti = proto_tree_add_item(tree, hf_catapult_dct2000_tty, tvb, offset, -1, FALSE);
+    tty_tree = proto_item_add_subtree(ti, ett_catapult_dct2000);
+
+    /* Show the tty lines one at a time. */
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
+    {
+        /* Find the end of the line. */
+        int linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
+
+        /* Extract & add the string. */
+        char *string = (char*)tvb_get_ephemeral_string(tvb, offset, linelen);
+        proto_tree_add_string_format(tty_tree, hf_catapult_dct2000_tty_line,
+                                     tvb, offset,
+                                     linelen, string,
+                                     "%s", string);
+        lines++;
+
+        /* Show first line in info column */
+        if (lines == 1 && check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "tty (%s", string);
+        }
+
+        /* Move onto next line. */
+        offset = next_offset;
+    }
+
+    /* Close off summary of tty message in info column */
+    if (lines != 0) {
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_str(pinfo->cinfo, COL_INFO, (lines > 1) ? "...)" : ")");
+        }
+    }
+}
 
 
 /*****************************************/
@@ -879,12 +930,20 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             */
             protocol_handle = 0;
 
+            
             /* Work with generic XML protocol.
                This is a bit of a hack, but xml isn't really a proper
                encapsulation type... */
             if (strcmp(protocol_name, "xml") == 0)
             {
                 protocol_handle = find_dissector("xml");
+            }
+            else
+            /* Attempt to show tty messages as raw text */
+            if (strcmp(protocol_name, "tty") == 0)
+            {
+                dissect_tty_lines(tvb, pinfo, dct2000_tree, offset);
+                return;
             }
 
             /* Try IP Prim heuristic if configured to */
@@ -1252,13 +1311,26 @@ void proto_register_catapult_dct2000(void)
               "dct2000.ipprim.conn-id", FT_UINT16, BASE_DEC, NULL, 0x0,
               "IPPrim Connection ID", HFILL
             }
-        }
+        },
+        { &hf_catapult_dct2000_tty,
+            { "tty contents",
+              "dct2000.tty", FT_NONE, BASE_NONE, NULL, 0x0,
+              "tty contents", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_tty_line,
+            { "tty line",
+              "dct2000.tty-line", FT_STRING, BASE_NONE, NULL, 0x0,
+              "tty line", HFILL
+            }
+        },
     };
 
     static gint *ett[] =
     {
         &ett_catapult_dct2000,
-        &ett_catapult_dct2000_ipprim
+        &ett_catapult_dct2000_ipprim,
+        &ett_catapult_dct2000_tty
     };
 
     module_t *catapult_dct2000_module;
