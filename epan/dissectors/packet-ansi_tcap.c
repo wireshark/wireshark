@@ -296,7 +296,7 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 	  if(ansi_tcap_saved_invokedata)
 		  return;
 
-	  ansi_tcap_saved_invokedata = g_malloc(sizeof(ansi_tcap_saved_invokedata));
+	  ansi_tcap_saved_invokedata = g_malloc(sizeof(struct ansi_tcap_invokedata_t));
 	  ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
 	  ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
 	  ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
