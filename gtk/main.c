@@ -767,6 +767,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     guint         length = 0, byte_len;
     GtkWidget    *byte_view;
     const guint8 *byte_data;
+    gint          finfo_length;
 #if GTK_MAJOR_VERSION >= 2
     GtkTreeModel *model;
     GtkTreeIter   iter;
@@ -817,12 +818,13 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         } else {
             length = strlen(finfo->hfinfo->name);
         }
-        if (finfo->length == 0) {
+        finfo_length = finfo->length + finfo->appendix_length;
+        if (finfo_length == 0) {
             len_str[0] = '\0';
-        } else if (finfo->length == 1) {
+        } else if (finfo_length == 1) {
             strcpy (len_str, ", 1 byte");
         } else {
-            g_snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
+            g_snprintf (len_str, sizeof len_str, ", %d bytes", finfo_length);
         }
         statusbar_pop_field_msg();	/* get rid of current help msg */
         if (length) {

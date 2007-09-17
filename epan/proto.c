@@ -3069,6 +3069,9 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	/* add the data source tvbuff */
 	fi->ds_tvb=tvb?TVB_GET_DS_TVB(tvb):NULL;
 
+	fi->appendix_start = 0;
+	fi->appendix_length = 0;
+
 	return fi;
 }
 
@@ -3412,6 +3415,22 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_
     }
 }
 
+void
+proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
+{
+	field_info *fi;
+
+	if (tree == NULL)
+		return;
+
+	fi = tree->finfo;
+	start += TVB_RAW_OFFSET(tvb);
+	DISSECTOR_ASSERT(start >= 0);
+	DISSECTOR_ASSERT(length >= 0);
+
+	fi->appendix_start = start;
+	fi->appendix_length = length;
+}
 
 int
 proto_register_protocol(const char *name, const char *short_name, const char *filter_name)

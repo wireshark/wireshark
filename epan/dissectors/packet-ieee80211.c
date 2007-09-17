@@ -6081,6 +6081,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
                 sent_fcs, fcs);
 
+          proto_tree_set_appendix(hdr_tree, tvb, hdr_len + len, 4);
+
           fcs_tree = proto_item_add_subtree(fcs_item, ett_fcs);
 
           fcs_item = proto_tree_add_boolean(fcs_tree,
@@ -6327,6 +6329,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 #ifdef HAVE_AIRPDCAP
         }
 #endif
+        proto_item_set_len (ti, hdr_len + 8);
 
         wep_tree = proto_item_add_subtree (extiv_fields, ett_wep_parameters);
 

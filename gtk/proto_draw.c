@@ -90,6 +90,8 @@
 #define E_BYTE_VIEW_TVBUFF_KEY    "byte_view_tvbuff"
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
+#define E_BYTE_VIEW_APP_START_KEY "byte_view_app_start"
+#define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
 
 
@@ -1151,7 +1153,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
  */
 static void
 packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
-			int bend, int encoding)
+			int bend, int astart, int aend, int encoding)
 {
   int            i = 0, j, k, cur;
   guchar         line[MAX_LINE_LEN + 1];
@@ -1288,7 +1290,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     if (prefs.gui_hex_dump_highlight_style) {
       gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, -1);
       /* Do we start in reverse? */
-      reverse = i >= bstart && i < bend;
+      reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       fg = reverse ? &WHITE : &BLACK;
       bg = reverse ? &BLACK : &WHITE;
       j   = i;
@@ -1303,7 +1305,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	  line[cur++] = ' '; line[cur++] = ' ';
 	}
 	i++;
-	newreverse = i >= bstart && i < bend;
+	newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
 	/* Have we gone from reverse to plain? */
 	if (reverse && (reverse != newreverse)) {
 	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
@@ -1339,7 +1341,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       /* Print the ASCII bit */
       i = j;
       /* Do we start in reverse? */
-      reverse = i >= bstart && i < bend;
+      reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       fg = reverse ? &WHITE : &BLACK;
       bg = reverse ? &BLACK : &WHITE;
       while (i < k) {
@@ -1358,7 +1360,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	  line[cur++] = ' ';
 	}
 	i++;
-	newreverse = i >= bstart && i < bend;
+	newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
 	/* Have we gone from reverse to plain? */
 	if (reverse && (reverse != newreverse)) {
 	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
@@ -1391,7 +1393,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     else {
       gtk_text_insert(bv_text, user_font_get_regular(), NULL, NULL, line, -1);
       /* Do we start in bold? */
-      cur_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
+      cur_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
       j   = i;
       k   = i + BYTE_VIEW_WIDTH;
       cur = 0;
@@ -1408,7 +1410,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	/* insert a space every BYTE_VIEW_SEP bytes */
 	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
 	/* Did we cross a bold/plain boundary? */
-	new_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
+	new_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
 	if (cur_font != new_font) {
 	  gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
 	  cur_font = new_font;
@@ -1421,7 +1423,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       cur = 0;
       i = j;
       /* Print the ASCII bit */
-      cur_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
+      cur_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
       while (i < k) {
 	if (i < len) {
 	  if (encoding == CHAR_ASCII) {
@@ -1441,7 +1443,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	/* insert a space every BYTE_VIEW_SEP bytes */
 	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
 	/* Did we cross a bold/plain boundary? */
-	new_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
+	new_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
 	if (cur_font != new_font) {
 	  gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
 	  cur_font = new_font;
@@ -1461,7 +1463,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, -1,
 					     "plain", NULL);
     /* Do we start in reverse? */
-    reverse = i >= bstart && i < bend;
+    reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
     j   = i;
     k   = i + BYTE_VIEW_WIDTH;
     cur = 0;
@@ -1474,7 +1476,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
         line[cur++] = ' '; line[cur++] = ' ';
       }
       i++;
-      newreverse = i >= bstart && i < bend;
+      newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       /* Have we gone from reverse to plain? */
       if (reverse && (reverse != newreverse)) {
 	gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
@@ -1512,7 +1514,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     /* Print the ASCII bit */
     i = j;
     /* Do we start in reverse? */
-    reverse = i >= bstart && i < bend;
+    reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
     while (i < k) {
       if (i < len) {
         if (encoding == CHAR_ASCII) {
@@ -1529,7 +1531,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
         line[cur++] = ' ';
       }
       i++;
-      newreverse = i >= bstart && i < bend;
+      newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       /* Have we gone from reverse to plain? */
       if (reverse && (reverse != newreverse)) {
 	convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
@@ -1600,27 +1602,32 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
   /* do the initial printing and save the information needed 	*/
   /* to redraw the display if preferences change.		*/
 
-  int bstart, bend = -1, blen;
+  int bstart = -1, bend = -1, blen = -1;
+  int astart = -1, aend = -1, alen = -1;
 
   if (finfo != NULL) {
     bstart = finfo->start;
     blen = finfo->length;
-  } else {
-    bstart = -1;
-    blen = -1;
+    astart = finfo->appendix_start;
+    alen = finfo->appendix_length;
   }
   if (bstart >= 0 && blen >= 0) {
     bend = bstart + blen;
+  }
+  if (astart >= 0 && alen >= 0) {
+    aend = astart + alen;
   }
 
   /* save the information needed to redraw the text */
   /* should we save the fd & finfo pointers instead ?? */
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
+  OBJECT_SET_DATA(bv, E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(aend));
+  OBJECT_SET_DATA(bv, E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(astart));
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY,
                   GUINT_TO_POINTER((guint)fd->flags.encoding));
 
-  packet_hex_print_common(bv, pd, len, bstart, bend, fd->flags.encoding);
+  packet_hex_print_common(bv, pd, len, bstart, bend, astart, aend, fd->flags.encoding);
 }
 
 /*
@@ -1631,16 +1638,19 @@ void
 packet_hex_reprint(GtkWidget *bv)
 {
   int start, end, encoding;
+  int astart, aend;
   const guint8 *data;
   guint len;
 
   start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
   end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+  astart = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_APP_START_KEY));
+  aend = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_APP_END_KEY));
   data = get_byte_view_data_and_length(bv, &len);
   g_assert(data != NULL);
   encoding = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY));
 
-  packet_hex_print_common(bv, data, len, start, end, encoding);
+  packet_hex_print_common(bv, data, len, start, end, astart, aend, encoding);
 }
 
 /* List of all protocol tree widgets, so we can globally set the selection

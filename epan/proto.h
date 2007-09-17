@@ -213,6 +213,8 @@ typedef struct field_info {
 	header_field_info	*hfinfo;    /**< pointer to registered field information */
 	gint			start;      /**< current start of data in field_info.ds_tvb */
 	gint			length;     /**< current data length of item in field_info.ds_tvb */
+	gint			appendix_start;  /**< start of appendix data */
+	gint			appendix_length; /**< length of appendix data */
 	gint			tree_type;  /**< one of ETT_ or -1 */
 	item_label_t		*rep;       /**< string for GUI tree */
 	int			flags;      /**< bitfield like FI_GENERATED, ... */
@@ -467,6 +469,12 @@ extern proto_tree* proto_tree_get_root(proto_tree *tree);
  @param item_to_move the item which will be moved */
 extern void proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move);
 
+
+/** Set start and length of an appendix for a proto_tree.
+  @param tree the tree to set the appendix start and length
+  @param start the start offset of the appendix
+  @param length the length of the appendix */
+extern void proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
 
 
 /** Add an item to a proto_tree, using the text label registered to that item.
