@@ -132,7 +132,7 @@ AC_ARG_WITH([libsmi],
   with_libsmi="$withval", with_libsmi="yes")
 if test "x$with_libsmi" = "xyes"; then
   AM_PATH_LIBSMI
-  AM_CONDITIONAL(HAVE_SMI, "x$with_libsmi" = "xyes")
+  AM_CONDITIONAL(HAVE_SMI, test "x$with_libsmi" = "xyes")
 fi
 
 # Check for xsltproc
