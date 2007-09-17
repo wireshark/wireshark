@@ -141,8 +141,25 @@ PumoArg/extension  pumoaextension
 NameData TYPE = FT_STRING  DISPLAY = BASE_NONE
 #.END
 
+#.FN_HDR Extension
+  extension_oid = NULL;
+#.FN_PARS Extension/extensionId  FN_VARIANT = _str  VAL_PTR = &extension_oid
 #.FN_BODY Extension/extensionArgument
+    tvbuff_t *next_tvb;
 
+    next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    if (!dissector_try_string(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree)) {
+        proto_item *item=NULL;
+        proto_tree *next_tree=NULL;
+
+        item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "QSIG: Dissector for extension with OID:%%s not implemented.", extension_oid);
+        if(item){
+            next_tree=proto_item_add_subtree(item, ett_qsig_unknown_extension);
+        }
+        dissect_unknown_ber(actx->pinfo, next_tvb, offset, next_tree);
+    }
+
+    offset+=tvb_length_remaining(tvb, offset);
 #.END
 
 #.FN_BODY AuthAlgorithm/param

@@ -307,6 +307,7 @@ static int *hf_qsig_ie_type_arr[] = {
 /* Initialize the subtree pointers */
 static gint ett_qsig = -1;
 static gint ett_qsig_ie = -1;
+static gint ett_qsig_unknown_extension = -1;
 #include "packet-qsig-ett.c"
 
 /* Preferences */
@@ -315,7 +316,10 @@ static gint ett_qsig_ie = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
+static const char *extension_oid = NULL;
 
+/* Dissector tables */
+static dissector_table_t extension_dissector_table;
 
 #include "packet-qsig-fn.c"
 
@@ -617,6 +621,7 @@ void proto_register_qsig(void) {
   static gint *ett[] = {
     &ett_qsig,
     &ett_qsig_ie,
+    &ett_qsig_unknown_extension,
 #include "packet-qsig-ettarr.c"
   };
 
@@ -627,6 +632,8 @@ void proto_register_qsig(void) {
   proto_register_field_array(proto_qsig, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Register dissector tables */
+  extension_dissector_table = register_dissector_table("qsig.ext", "QSIG Extension", FT_STRING, BASE_NONE);
 }
 
 

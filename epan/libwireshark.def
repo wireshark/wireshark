@@ -168,6 +168,7 @@ dissect_ber_sequence
 dissect_ber_sequence_of
 dissect_ber_set_of
 dissect_ber_tagged_type
+dissect_unknown_ber
 dissect_dcerpc_uint8
 dissect_dcerpc_uint16
 dissect_dcerpc_uint32
