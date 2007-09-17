@@ -67,6 +67,7 @@ per: \
 	rnsap	\
 	rrc		\
 	rrlp	\
+	sabp	\
 	t38		\
 	ulp
 	
@@ -213,6 +214,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd s4406
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd sabp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd smrse
@@ -495,6 +499,11 @@ rtse::
 
 s4406::
 	cd s4406
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+sabp::
+	cd sabp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

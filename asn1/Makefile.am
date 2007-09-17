@@ -460,6 +460,16 @@ EXTRA_DIST = \
 	s4406/packet-s4406-template.h	\
 	s4406/s4406.asn	\
 	s4406/s4406.cnf	\
+	sabp/Makefile	\
+	sabp/Makefile.nmake	\
+	sabp/SABP-CommonDataTypes.asn \
+	sabp/SABP-Constants.asn \
+	sabp/SABP-Containers.asn \
+	sabp/SABP-IEs.asn \
+	sabp/SABP-PDU-Contents.asn \
+	sabp/SABP-PDU-Descriptions.asn \
+	sabp/sabp.cnf	\
+	sabp/packet-sabp-template.c	\
 	smrse/Makefile	\
 	smrse/Makefile.nmake	\
 	smrse/packet-smrse-template.c	\
