@@ -227,7 +227,6 @@ EXTRA_DIST = \
 	inap/IN-SSF-SCF-datatypes.asn	\
 	inap/IN-SSF-SCF-ops-args.asn	\
 	inap/inap.cnf	\
-	inap/inap-exp.cnf	\
 	inap/Makefile	\
 	inap/Makefile.nmake	\
 	inap/packet-inap-template.c	\
