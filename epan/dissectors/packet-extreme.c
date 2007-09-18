@@ -224,7 +224,9 @@ static int hf_edp_eaps_helloseq = -1;
 static int hf_edp_eaps_reserved2 = -1;
 /* ELSM (Extreme Link Status Monitoring) */
 static int hf_edp_elsm = -1;
-static int hf_edp_elsm_unknown = -1;
+static int hf_edp_elsm_type = -1;
+static int hf_edp_elsm_subtype = -1;
+static int hf_edp_elsm_magic = -1;
 /* ELRP (Extreme Loop Recognition Protocol)*/
 static int hf_edp_elrp = -1;
 static int hf_edp_elrp_unknown = -1;
@@ -322,6 +324,19 @@ static const value_string eaps_state_vals[] = {
 	{ 5,	"Pre Forwarding" },
 
 	{ 0,	NULL }
+};
+
+static const value_string elsm_type_vals[] = {
+	{ 0x01,	"Hello" },
+
+	{ 0,		NULL }
+};
+
+static const value_string elsm_subtype_vals[] = {
+	{ 0x00,	"-" },
+	{ 0x01,	"+" },
+
+	{ 0,		NULL }
 };
 
 static void
@@ -693,13 +708,27 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 }
 
 static void
-dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
+	proto_tree *tree, guint16 seqno)
 {
 	proto_item	*elsm_item;
 	proto_tree	*elsm_tree;
+	guint8		type, subtype;
+
+	type = tvb_get_guint8(tvb, offset + 4);
+	subtype = tvb_get_guint8(tvb, offset + 4 + 1);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s%s (#%d)",
+			val_to_str(type, elsm_type_vals, "Unknown (0x%02x)"),
+			val_to_str(subtype, elsm_subtype_vals, " Unknown (0x%02x)"),
+			seqno);
 
 	elsm_item = proto_tree_add_protocol_format(tree, hf_edp_elsm,
-		tvb, offset, length, "ELSM");
+		tvb, offset, length, "ELSM %s%s(#%d)",
+			val_to_str(type, elsm_type_vals, "Unknown (0x%02x)"),
+			val_to_str(subtype, elsm_subtype_vals, " Unknown (0x%02x)"),
+			seqno);
 
 	elsm_tree = proto_item_add_subtree(elsm_item, ett_edp_elsm);
 
@@ -707,9 +736,21 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 4;
 	length -= 4;
 
-	proto_tree_add_item(elsm_tree, hf_edp_elsm_unknown, tvb, offset, length,
+	/* The rest is actually guesswork */
+	proto_tree_add_item(elsm_tree, hf_edp_elsm_type, tvb, offset, 1,
 		FALSE);
-	offset += 4;
+	offset += 1;
+	length -= 1;
+
+	proto_tree_add_item(elsm_tree, hf_edp_elsm_subtype, tvb, offset, 1,
+		FALSE);
+	offset += 1;
+	length -= 1;
+
+	proto_tree_add_item(elsm_tree, hf_edp_elsm_magic, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
 }
 
 static void
@@ -768,6 +809,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 tlv_type;
 	guint16 tlv_length;
 	guint16 data_length;
+	guint16 seqno;
         vec_t cksum_vec[1];
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -830,6 +872,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		PROTO_ITEM_SET_GENERATED(checksum_item);
 		offset += 2;
 
+		seqno = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(edp_tree, hf_edp_seqno, tvb, offset, 2,
 			FALSE);
 		offset += 2;
@@ -887,7 +930,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_eaps_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			case EDP_TYPE_ELSM: /* Extreme Link Status Monitoring */
-				dissect_elsm_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+				dissect_elsm_tlv(tvb, pinfo, offset, tlv_length, edp_tree, seqno);
 				break;
 			case EDP_TYPE_ELRP: /* Extreme Loop Recognition Protocol */
 				dissect_elrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
@@ -1147,8 +1190,16 @@ proto_register_edp(void)
 		{ "ELSM",	"edp.elsm", FT_PROTOCOL, BASE_NONE, NULL,
 			0x0, "Extreme Link Status Monitoring element", HFILL }},
 
-		{ &hf_edp_elsm_unknown,
-		{ "Unknown",	"edp.elsm.unknown", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_edp_elsm_type,
+		{ "Type",	"edp.elsm.type", FT_UINT8, BASE_DEC, VALS(elsm_type_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_edp_elsm_subtype,
+		{ "Subtype",	"edp.elsm.unknown", FT_UINT8, BASE_DEC, VALS(elsm_subtype_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_edp_elsm_magic,
+		{ "Magic",	"edp.elsm.unknown", FT_BYTES, BASE_NONE, NULL,
 			0x0, "", HFILL }},
 
 	/* ELRP element */
