@@ -701,12 +701,20 @@ append_to_preamble(char *str)
             return;	/* no room to add the token to the preamble */
         strcpy(&packet_preamble[packet_preamble_len], str);
         packet_preamble_len += toklen;
+	if (debug >= 2) {
+		char *c;
+		char xs[PACKET_PREAMBLE_MAX_LEN];
+		strcpy(xs, packet_preamble);
+		while ((c = strchr(xs, '\r')) != NULL) *c=' ';
+		fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs); 
+	}
     }
 }
 
 /*----------------------------------------------------------------------
  * Parse the preamble to get the timecode.
  */
+
 static void
 parse_preamble (void)
 {
@@ -723,7 +731,21 @@ parse_preamble (void)
 	if (ts_fmt == NULL)
 	    return;
 
-	ts_sec  = 0;
+	/*
+	 * Initialize to the Epoch, just in case not all fields
+	 * of the date and time are specified
+	 * (or date & time is not parsed or fails to parse below).
+	 */
+	timecode.tm_sec   = 0;
+	timecode.tm_min   = 0;
+	timecode.tm_hour  = 0;
+	timecode.tm_mday  = 1;
+	timecode.tm_mon   = 0;
+	timecode.tm_year  = 70;
+	timecode.tm_wday  = 0;
+	timecode.tm_yday  = 0;
+	timecode.tm_isdst = -1;
+	ts_sec  = (gint32)mktime( &timecode );
 	ts_usec = 0;
 
 	/*
@@ -735,39 +757,13 @@ parse_preamble (void)
 	 * This should cover line breaks etc that get counted.
 	 */
 	if ( strlen(packet_preamble) > 2 ) {
-		/*
-		 * Initialize to the Epoch, just in case not all fields
-		 * of the date and time are specified.
-		 */
-		timecode.tm_sec = 0;
-		timecode.tm_min = 0;
-		timecode.tm_hour = 0;
-		timecode.tm_mday = 1;
-		timecode.tm_mon = 0;
-		timecode.tm_year = 70;
-		timecode.tm_wday = 0;
-		timecode.tm_yday = 0;
-		timecode.tm_isdst = -1;
-
 		/* Get Time leaving subseconds */
 		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
 		if (subsecs != NULL) {
 			/* Get the long time from the tm structure */
 			ts_sec  = (gint32)mktime( &timecode );
-		} else {
-			fprintf (stderr, "Failed to parse '%s' using time format '%s'; using 00:00:00 (midnight) as default\n",
-					packet_preamble, ts_fmt);
-			ts_sec = -1;	/* we failed to parse it */
-                }
 
-		/* This will ensure incorrectly parsed dates get set to zero */
-		if ( -1 == ts_sec )
-		{
-			ts_sec  = 0;
-			ts_usec = 0;
-		}
-		else
-		{
+			/* Get subsecs only if strptime succeeded above  */
 			/* Parse subseconds */
 			ts_usec = strtol(subsecs, &p, 10);
 			if (subsecs == p) {
@@ -796,11 +792,21 @@ parse_preamble (void)
 						ts_usec *= 10;
 				}
 			}
+                } else { /* subsecs == NULL: strptime failed to parse */
+			/* Sanitize - remove all '\r' */
+			char *c;
+			while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+			fprintf (stderr, "Failure parsing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00)\n",
+				 packet_preamble, ts_fmt);
 		}
 	}
+	if (debug >= 2) {
+		char *c;
+		while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+		fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble); 
+		fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, ts_sec, ts_usec);
+	}
 
-
-	/*printf("Format(%s), time(%u), subsecs(%u)\n\n", ts_fmt, ts_sec, ts_usec);*/
 
 	/* Clear Preamble */
 	packet_preamble_len = 0;
