@@ -109,14 +109,19 @@ static int proto_sabp = -1;
 
 /*--- Included file: packet-sabp-hf.c ---*/
 #line 1 "packet-sabp-hf.c"
+static int hf_sabp_Broadcast_Message_Content_PDU = -1;  /* Broadcast_Message_Content */
 static int hf_sabp_Category_PDU = -1;             /* Category */
 static int hf_sabp_Cause_PDU = -1;                /* Cause */
+static int hf_sabp_Criticality_Diagnostics_PDU = -1;  /* Criticality_Diagnostics */
 static int hf_sabp_MessageStructure_PDU = -1;     /* MessageStructure */
 static int hf_sabp_Data_Coding_Scheme_PDU = -1;   /* Data_Coding_Scheme */
 static int hf_sabp_Failure_List_PDU = -1;         /* Failure_List */
 static int hf_sabp_Message_Identifier_PDU = -1;   /* Message_Identifier */
 static int hf_sabp_New_Serial_Number_PDU = -1;    /* New_Serial_Number */
+static int hf_sabp_Number_of_Broadcasts_Completed_List_PDU = -1;  /* Number_of_Broadcasts_Completed_List */
+static int hf_sabp_Number_of_Broadcasts_Requested_PDU = -1;  /* Number_of_Broadcasts_Requested */
 static int hf_sabp_Old_Serial_Number_PDU = -1;    /* Old_Serial_Number */
+static int hf_sabp_Radio_Resource_Loading_List_PDU = -1;  /* Radio_Resource_Loading_List */
 static int hf_sabp_Recovery_Indication_PDU = -1;  /* Recovery_Indication */
 static int hf_sabp_Repetition_Period_PDU = -1;    /* Repetition_Period */
 static int hf_sabp_Serial_Number_PDU = -1;        /* Serial_Number */
@@ -1156,7 +1161,7 @@ dissect_sabp_Error_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_sabp_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
   return offset;
 }
@@ -1181,7 +1186,7 @@ dissect_sabp_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_sabp_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
   return offset;
 }
@@ -1206,7 +1211,7 @@ dissect_sabp_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_sabp_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
   return offset;
 }
@@ -1253,6 +1258,14 @@ dissect_sabp_SABP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 /*--- PDUs ---*/
 
+static int dissect_Broadcast_Message_Content_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sabp_Broadcast_Message_Content(tvb, offset, &asn1_ctx, tree, hf_sabp_Broadcast_Message_Content_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Category_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1266,6 +1279,14 @@ static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_sabp_Cause(tvb, offset, &asn1_ctx, tree, hf_sabp_Cause_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Criticality_Diagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sabp_Criticality_Diagnostics(tvb, offset, &asn1_ctx, tree, hf_sabp_Criticality_Diagnostics_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -1309,11 +1330,35 @@ static int dissect_New_Serial_Number_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Number_of_Broadcasts_Completed_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sabp_Number_of_Broadcasts_Completed_List(tvb, offset, &asn1_ctx, tree, hf_sabp_Number_of_Broadcasts_Completed_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Number_of_Broadcasts_Requested_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sabp_Number_of_Broadcasts_Requested(tvb, offset, &asn1_ctx, tree, hf_sabp_Number_of_Broadcasts_Requested_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Old_Serial_Number_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_sabp_Old_Serial_Number(tvb, offset, &asn1_ctx, tree, hf_sabp_Old_Serial_Number_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Radio_Resource_Loading_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sabp_Radio_Resource_Loading_List(tvb, offset, &asn1_ctx, tree, hf_sabp_Radio_Resource_Loading_List_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -1565,6 +1610,10 @@ void proto_register_sabp(void) {
 
 /*--- Included file: packet-sabp-hfarr.c ---*/
 #line 1 "packet-sabp-hfarr.c"
+    { &hf_sabp_Broadcast_Message_Content_PDU,
+      { "Broadcast-Message-Content", "sabp.Broadcast_Message_Content",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "sabp.Broadcast_Message_Content", HFILL }},
     { &hf_sabp_Category_PDU,
       { "Category", "sabp.Category",
         FT_UINT32, BASE_DEC, VALS(sabp_Category_vals), 0,
@@ -1573,6 +1622,10 @@ void proto_register_sabp(void) {
       { "Cause", "sabp.Cause",
         FT_UINT32, BASE_DEC, VALS(sabp_Cause_vals), 0,
         "sabp.Cause", HFILL }},
+    { &hf_sabp_Criticality_Diagnostics_PDU,
+      { "Criticality-Diagnostics", "sabp.Criticality_Diagnostics",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "sabp.Criticality_Diagnostics", HFILL }},
     { &hf_sabp_MessageStructure_PDU,
       { "MessageStructure", "sabp.MessageStructure",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1593,10 +1646,22 @@ void proto_register_sabp(void) {
       { "New-Serial-Number", "sabp.New_Serial_Number",
         FT_BYTES, BASE_HEX, NULL, 0,
         "sabp.New_Serial_Number", HFILL }},
+    { &hf_sabp_Number_of_Broadcasts_Completed_List_PDU,
+      { "Number-of-Broadcasts-Completed-List", "sabp.Number_of_Broadcasts_Completed_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "sabp.Number_of_Broadcasts_Completed_List", HFILL }},
+    { &hf_sabp_Number_of_Broadcasts_Requested_PDU,
+      { "Number-of-Broadcasts-Requested", "sabp.Number_of_Broadcasts_Requested",
+        FT_UINT32, BASE_DEC, VALS(sabp_Number_of_Broadcasts_Requested_vals), 0,
+        "sabp.Number_of_Broadcasts_Requested", HFILL }},
     { &hf_sabp_Old_Serial_Number_PDU,
       { "Old-Serial-Number", "sabp.Old_Serial_Number",
         FT_BYTES, BASE_HEX, NULL, 0,
         "sabp.Old_Serial_Number", HFILL }},
+    { &hf_sabp_Radio_Resource_Loading_List_PDU,
+      { "Radio-Resource-Loading-List", "sabp.Radio_Resource_Loading_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "sabp.Radio_Resource_Loading_List", HFILL }},
     { &hf_sabp_Recovery_Indication_PDU,
       { "Recovery-Indication", "sabp.Recovery_Indication",
         FT_UINT32, BASE_DEC, VALS(sabp_Recovery_Indication_vals), 0,
@@ -1936,8 +2001,13 @@ proto_reg_handoff_sabp(void)
   dissector_add("sabp.ies", id_Service_Areas_List, new_create_dissector_handle(dissect_Service_Areas_List_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Category, new_create_dissector_handle(dissect_Category_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Repetition_Period, new_create_dissector_handle(dissect_Repetition_Period_PDU, proto_sabp));
+  dissector_add("sabp.ies", id_Number_of_Broadcasts_Requested, new_create_dissector_handle(dissect_Number_of_Broadcasts_Requested_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Data_Coding_Scheme, new_create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sabp));
+  dissector_add("sabp.ies", id_Broadcast_Message_Content, new_create_dissector_handle(dissect_Broadcast_Message_Content_PDU, proto_sabp));
+  dissector_add("sabp.ies", id_Number_of_Broadcasts_Completed_List, new_create_dissector_handle(dissect_Number_of_Broadcasts_Completed_List_PDU, proto_sabp));
+  dissector_add("sabp.ies", id_Criticality_Diagnostics, new_create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Failure_List, new_create_dissector_handle(dissect_Failure_List_PDU, proto_sabp));
+  dissector_add("sabp.ies", id_Radio_Resource_Loading_List, new_create_dissector_handle(dissect_Radio_Resource_Loading_List_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Recovery_Indication, new_create_dissector_handle(dissect_Recovery_Indication_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Serial_Number, new_create_dissector_handle(dissect_Serial_Number_PDU, proto_sabp));
   dissector_add("sabp.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_sabp));

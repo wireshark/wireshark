@@ -54,6 +54,12 @@ MessageStructure/_item/repetitionNumber repetitionNumber1
                               "unknown message"));
 #.END
 
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
 
 #.ASSIGN_VALUE_TO_TYPE  # SABP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -97,8 +103,13 @@ Old-Serial-Number                  N sabp.ies id-Old-Serial-Number
 Service-Areas-List                 N sabp.ies id-Service-Areas-List
 Category                           N sabp.ies id-Category
 Repetition-Period                  N sabp.ies id-Repetition-Period
+Number-of-Broadcasts-Requested     N sabp.ies id-Number-of-Broadcasts-Requested
 Data-Coding-Scheme                 N sabp.ies id-Data-Coding-Scheme
+Broadcast-Message-Content          N sabp.ies id-Broadcast-Message-Content
+Number-of-Broadcasts-Completed-List N sabp.ies id-Number-of-Broadcasts-Completed-List
+Criticality-Diagnostics            N sabp.ies id-Criticality-Diagnostics
 Failure-List                       N sabp.ies id-Failure-List
+Radio-Resource-Loading-List        N sabp.ies id-Radio-Resource-Loading-List
 Recovery-Indication                N sabp.ies id-Recovery-Indication
 Serial-Number                      N sabp.ies id-Serial-Number
 Cause                              N sabp.ies id-Cause

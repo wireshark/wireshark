@@ -1652,35 +1652,13 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	}
 
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
-	if((min_len==max_len)&&(max_len<=16)){
-		static guint8 bytes[4];
-		int i;
-		gboolean bit;
-
-		bytes[0]=bytes[1]=bytes[2]=0;
-		if(min_len<=8){
-			for(i=0;i<min_len;i++){
-				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-				bytes[0]=(bytes[0]<<1)|bit;
-			}
-		}
-		if(min_len>8){
-			for(i=0;i<8;i++){
-				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-				bytes[0]=(bytes[0]<<1)|bit;
-			}
-			for(i=8;i<min_len;i++){
-				offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
-				bytes[1]=(bytes[1]<<1)|bit;
-			}
-		}
-		out_tvb = tvb_new_real_data(bytes, max_len, max_len);
-		tvb_set_child_real_data_tvbuff(tvb, out_tvb);
-
+	if ((min_len==max_len) && (max_len<=16)) {
+		out_tvb = new_octet_aligned_subset_bits(tvb, offset, min_len);
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item,"[bit length %u]",max_len);
+			proto_item_append_text(actx->created_item, " [bit length %u]", max_len);
 		}
+		offset+=min_len;
 		return offset;
 	}
 
@@ -1697,7 +1675,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		out_tvb = new_octet_aligned_subset_bits(tvb, offset, min_len);
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item,"[bit length %u]",max_len);
+			proto_item_append_text(actx->created_item, " [bit length %u]",max_len);
 		}
 		offset+=min_len;
 		return offset;
