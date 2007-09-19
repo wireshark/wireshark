@@ -1755,7 +1755,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 */
 	        g_assert(data_handle != NULL);
 		g_assert(data_handle->protocol != NULL);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_dissector_only(data_handle, tvb, pinfo, tree);
 		return tvb_length(tvb);
 	}
 	return ret;
