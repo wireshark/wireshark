@@ -1929,7 +1929,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_tree_add_double_format (tree, ff_beacon_interval, tvb, offset, 2,
           temp_double,"Beacon Interval: %f [Seconds]", temp_double);
         if (check_col (g_pinfo->cinfo, COL_INFO)) {
-          col_append_fstr(g_pinfo->cinfo, COL_INFO, ",BI=%d", capability);
+          col_append_fstr(g_pinfo->cinfo, COL_INFO, ", BI=%d", capability);
         }
         length += 2;
         break;
@@ -3915,10 +3915,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                                tag_len, (char *) ssid);
         if (check_col (pinfo->cinfo, COL_INFO)) {
           if (tag_len > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=\"%s\"",
                             format_text(ssid, tag_len));
           } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
           }
         }
         if (tag_len > 0) {
@@ -4386,7 +4386,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
            /* Total number off associated clients and repeater access points */
            tvb_get_guint8(tvb, offset + 28));
       if (check_col (pinfo->cinfo, COL_INFO)) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", Name: \"%s\"", out_buff);
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", Name=\"%s\"", out_buff);
       }
       break;
 
@@ -5436,6 +5436,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   char *addr1_str = NULL;
   int addr1_hf = -1;
   guint offset;
+  const gchar *fts_str;
+  gchar flag_str[] = "opmPRMFTC";
+  gint i;
 
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
@@ -5475,13 +5478,20 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   if (datapad)
     hdr_len = roundup2(hdr_len, 4);
 
+  fts_str = val_to_str(frame_type_subtype, frame_type_subtype_vals,
+              "Unrecognized (Reserved frame)");
   if (check_col (pinfo->cinfo, COL_INFO))
-      col_set_str (pinfo->cinfo, COL_INFO,
-          val_to_str(frame_type_subtype, frame_type_subtype_vals,
-              "Unrecognized (Reserved frame)"));
+      col_set_str (pinfo->cinfo, COL_INFO, fts_str);
+
 
   flags = FCF_FLAGS (fcf);
   more_frags = HAVE_FRAGMENTS (flags);
+
+  for (i = 0; i < 8; i++) {
+    if (! (flags & 0x80 >> i)) {
+      flag_str[i] = '.';
+    }
+  }
 
   if (is_ht && IS_STRICTLY_ORDERED(flags) &&
     ((FCF_FRAME_TYPE(fcf) == MGT_FRAME) || (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
@@ -5493,7 +5503,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
-          "IEEE 802.11");
+          "IEEE 802.11 %s", fts_str);
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
       if (has_radio_information) {
@@ -5562,10 +5572,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (check_col (pinfo->cinfo, COL_INFO))
       {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-            ",SN=%d", seq_number);
+            ", SN=%d", seq_number);
 
         col_append_fstr(pinfo->cinfo, COL_INFO,
-            ",FN=%d",frag_number);
+            ", FN=%d",frag_number);
       }
 
       if (tree)
@@ -5918,10 +5928,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (check_col (pinfo->cinfo, COL_INFO))
       {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-            ",SN=%d", seq_number);
+            ", SN=%d", seq_number);
 
         col_append_fstr(pinfo->cinfo, COL_INFO,
-            ",FN=%d",frag_number);
+            ", FN=%d",frag_number);
       }
 
       /* Now if we have a tree we start adding stuff */
@@ -6071,15 +6081,17 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             fcs_bad = TRUE;
           }
 
-          if(fcs_good)
+          if(fcs_good) {
             fcs_item = proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
                 hdr_len + len, 4, sent_fcs,
                 "Frame check sequence: 0x%08x [correct]", sent_fcs);
-          else
+          } else {
             fcs_item = proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
                 hdr_len + len, 4, sent_fcs,
                 "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
                 sent_fcs, fcs);
+            flag_str[8] = '.';
+          }
 
           proto_tree_set_appendix(hdr_tree, tvb, hdr_len + len, 4);
 
@@ -6098,8 +6110,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           PROTO_ITEM_SET_GENERATED(fcs_item);
         }
       }
+    } else {
+      flag_str[8] = '\0';
     }
 
+    proto_item_append_text(ti, ", Flags: %s", flag_str);
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Flags=%s", flag_str);
 
 
   /*
