@@ -52,6 +52,7 @@ static int hf_basic_ether_address=-1;
 static const value_string it_types[]={
  {0x02,"i2004"},
  {0x03,"i2002 Basic Etherset"},
+ {0x04,"Nortel Conference phone 2033 (polycom)"},
  {0x10,"Juniper 7308"},
  {0x11,"i2050 Softphone"},
  {0x30,"Meridian M6350"},
