@@ -2748,11 +2748,14 @@ proto_register_smpp(void)
     DebugLog(("Registering SMPP dissector\n"));
     /* Register the protocol name and description */
     proto_smpp = proto_register_protocol("Short Message Peer to Peer",
-    					 "SMPP", "smpp");
+                                         "SMPP", "smpp");
 
     /* Required function calls to register header fields and subtrees used */
     proto_register_field_array(proto_smpp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Allow other dissectors to find this one by name. */
+    register_dissector("smpp", dissect_smpp, proto_smpp);
 
     /* Preferences */
     smpp_module = prefs_register_protocol (proto_smpp, NULL);
