@@ -70,6 +70,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The ANSI MAP dissector could be susceptible to a buffer overflow on some platforms.
+            <!-- Fixed in r22892 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1844">1844</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.5 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
