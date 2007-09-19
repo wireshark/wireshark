@@ -823,10 +823,10 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		gchar *buff;
 
 		tvb_ensure_bytes_exist(tvb, offset+2, 8);
-		buff=ntp_fmt_ts(tvb_get_ptr( tvb, offset+2, 8 ));
+		buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset+2, 8));
 
-		if(tree)
-			proto_tree_add_string_format( tree, hf_mikey[POS_TS_NTP], tvb, offset+2, 8, ( const char* ) buff, "NTP timestamp: %s", buff );
+		if (tree)
+			proto_tree_add_string_format(tree, hf_mikey[POS_TS_NTP], tvb, offset+2, 8, (const char*)buff, "NTP timestamp: %s", buff);
 
 		len = 10;
 		break;
@@ -960,7 +960,6 @@ dissect_payload_sp_param(enum sp_prot_t proto, tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	if (tree) {
-	/* 	param_ti = proto_tree_add_item(tree, hfindex, tvb, 0, 2+length, FALSE); */
 		param_ti = proto_tree_add_item(tree, hfindex, tvb, 2, length, FALSE);
 		param_tree = proto_item_add_subtree(param_ti, ett_mikey_sp_param);
 
@@ -1074,7 +1073,7 @@ static const struct mikey_dissector_entry payload_map[] = {
 	{ PL_SP, dissect_payload_sp },
 	{ PL_RAND, dissect_payload_rand },
 	{ PL_KEY_DATA, dissect_payload_keydata },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static int
@@ -1131,9 +1130,6 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		len = tvb_length_remaining(tvb, offset);
 		subtvb = tvb_new_subset(tvb, offset, len, len);
 
-/* 			sub_ti = proto_tree_add_string(mikey_tree, hf_mikey[POS_PAYLOAD_STR], subtvb, */
-/* 						       0, -1, val_to_str(payload, payload_vals, "Unassigned")); */
-
 		if (mikey_tree) {
 			int hf = payload;
 
@@ -1143,13 +1139,9 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (hf == -1)
 				hf = 0;
 
-/* 			sub_ti = proto_tree_add_string_format(mikey_tree, hf_mikey[POS_PAYLOAD_STR], subtvb, */
-/* 							      0, -1, "TODO", "%s", val_to_str(payload, payload_vals, "Unassigned")); */
-
 			sub_ti = proto_tree_add_item(mikey_tree, hf_mikey_pl[hf], subtvb, 0, -1, FALSE);
 
-			mikey_payload_tree = proto_item_add_subtree(sub_ti,
-								    ett_mikey_payload);
+			mikey_payload_tree = proto_item_add_subtree(sub_ti, ett_mikey_payload);
 			if (payload != PL_HDR && payload != PL_SIGN)
 				add_next_payload(tvb, mikey_payload_tree, next_payload_offset);
 		}
@@ -1181,433 +1173,398 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Mikey: %s", val_to_str(mikey->type, data_type_vals, "Unknown"));
 
-/* Return the amount of data this dissector was able to dissect */
+	/* Return the amount of data this dissector was able to dissect */
 	return tvb_length(tvb);
 }
 
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_mikey(void)
-{                 
+{
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
+	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		/* Payload types */
 		{ &hf_mikey_pl[PL_HDR+1],
 		  { PL_HDR_TEXT, "mikey.hdr",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_HDR_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_KEMAC],
 		  { PL_KEMAC_TEXT, "mikey.kemac",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_KEMAC_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_PKE],
 		  { PL_PKE_TEXT, "mikey.",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_PKE_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_DH],
 		  { PL_DH_TEXT, "mikey.dh",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_DH_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_SIGN],
 		  { PL_SIGN_TEXT, "mikey.sign",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_SIGN_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_T],
 		  { PL_T_TEXT, "mikey.t",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_T_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_ID],
 		  { PL_ID_TEXT, "mikey.id",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_ID_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_CERT],
 		  { PL_CERT_TEXT, "mikey.cert",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_CERT_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_CHASH],
 		  { PL_CHASH_TEXT, "mikey.chash",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_CHASH_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_V],
 		  { PL_V_TEXT, "mikey.v",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_V_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_SP],
 		  { PL_SP_TEXT, "mikey.sp",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_SP_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_RAND],
 		  { PL_RAND_TEXT, "mikey.rand",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_RAND_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_ERR],
 		  { PL_ERR_TEXT, "mikey.err",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_ERR_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_KEY_DATA],
 		  { PL_KEY_DATA_TEXT, "mikey.key_data",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_KEY_DATA_TEXT, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_GENERAL_EXT],
 		  { PL_GENERAL_EXT_TEXT, "mikey.general_ext",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    PL_GENERAL_EXT_TEXT, HFILL }},
+		    NULL, HFILL }},
 
 		/* Common Header payload (HDR) */
 		{ &hf_mikey[POS_HDR_VERSION],
 		  { "Version", "mikey.version",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Version", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_DATA_TYPE],
 		  { "Data Type", "mikey.type",
 		    FT_UINT8, BASE_DEC, VALS(data_type_vals), 0x0,
-		    "Data Type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_NEXT_PAYLOAD],
-		  { "Next Payload", "",
+		  { "Next Payload", "mikey.next_payload",
 		    FT_UINT8, BASE_DEC, VALS(payload_vals), 0x0,
-		    "Next Payload", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_V],
 		  { "V", "mikey.v",
 		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
-		    "V", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_PRF_FUNC],
 		  { "PRF func", "mikey.prf_func",
 		    FT_UINT8, BASE_DEC, VALS(prf_func_vals), 0x7f,
-		    "PRF func", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_CSB_ID],
 		  { "CSB ID", "mikey.csb_id",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "CSB ID", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_CS_COUNT],
 		  { "#CS", "mikey.cs_count",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "#CS", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_CS_ID_MAP_TYPE],
 		  { "CS ID map type", "mikey.cs_id_map_type",
 		    FT_UINT8, BASE_DEC, VALS(cs_id_map_vals), 0x0,
-		    "CS ID map type", HFILL }},
+		    NULL, HFILL }},
 
 		/* SRTP ID */
 		{ &hf_mikey[POS_ID_SRTP],
 		  { "SRTP ID", "mikey.srtp_id",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    "SRTP ID", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_ID_SRTP_NO],
 		  { "Policy No", "mikey.srtp_id.policy_no",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Policy No", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_ID_SRTP_SSRC],
 		  { "SSRC", "mikey.srtp_id.ssrc",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "SSRC", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_ID_SRTP_ROC],
 		  { "ROC", "mikey.srtp_id.roc",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "ROC", HFILL }},
+		    NULL, HFILL }},
 
 		/* Key Data Transport payload (KEMAC) */
 		{ &hf_mikey[POS_KEMAC_ENCR_ALG],
 		  { "Encr alg", "mikey.kemac.encr_alg",
 		    FT_UINT8, BASE_DEC, VALS(encr_alg_vals), 0x0,
-		    "Encr alg", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_ENCR_DATA_LEN],
 		  { "Encr data len", "mikey.kemac.encr_data_len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Encr data len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_ENCR_DATA],
 		  { "Encr data", "mikey.kemac.encr_data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Encr data", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_MAC_ALG],
 		  { "Mac alg", "mikey.kemac.mac_alg",
 		    FT_UINT8, BASE_DEC, VALS(mac_alg_vals), 0x0,
-		    "Mac alg", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_MAC],
 		  { "MAC", "mikey.kemac.mac",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "MAC", HFILL }},
+		    NULL, HFILL }},
 
 		/* Envelope Data payload (PKE) */
 		{ &hf_mikey[POS_PKE_C],
 		  { "C", "mikey.pke.c",
 		    FT_UINT16, BASE_DEC, VALS(pke_c_vals), 0xc000,
-		    "C", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_PKE_DATA_LEN],
 		  { "Data len", "mikey.pke.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x3fff,
-		    "Data len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_PKE_DATA],
 		  { "Data", "mikey.pke.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Data", HFILL }},
+		    NULL, HFILL }},
 
 		/* DH data payload (DH) */
 		{ &hf_mikey[POS_DH_GROUP],
 		  { "DH-Group", "mikey.dh.group",
 		    FT_UINT8, BASE_DEC, VALS(oakley_vals), 0x0,
-		    "DH-Group", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_DH_VALUE],
 		  { "DH-Value", "mikey.dh.value",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "DH-Value", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_DH_RESERV],
 		  { "Reserv", "mikey.dh.reserv",
 		    FT_UINT8, BASE_HEX, NULL, 0xf0,
-		    "Reserv", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_DH_KV],
 		  { "KV", "mikey.dh.kv",
 		    FT_UINT8, BASE_DEC, VALS(kv_vals), 0x0f,
-		    "KV", HFILL }},
+		    NULL, HFILL }},
 
 		/* Signature payload (SIGN) */
 		{ &hf_mikey[POS_SIGN_S_TYPE],
 		  { "Signature type", "mikey.sign.type",
 		    FT_UINT16, BASE_DEC, VALS(sign_s_vals), 0xf000,
-		    "Signature type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SIGNATURE_LEN],
 		  { "Signature len", "mikey.sign.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0fff,
-		    "Signature len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SIGNATURE],
 		  { "Signature", "mikey.sign.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Signature", HFILL }},
+		    NULL, HFILL }},
 
 		/* Timestamp payload (T) */
 		{ &hf_mikey[POS_TS_TYPE],
 		  { "TS type", "mikey.t.ts_type",
 		    FT_UINT8, BASE_DEC, VALS(ts_type_vals), 0x0,
-		    "TS type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_TS_NTP],
 		  { "NTP timestamp", "mikey.t.ntp",
 		    FT_STRING, BASE_HEX, NULL, 0x0,
-		    "NTP", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_mikey[POS_PAYLOAD_STR],
 		  { "Payload", "mikey.payload",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Payload", HFILL }},
+		    NULL, HFILL }},
 
 		/* ID payload (ID) */
 		{ &hf_mikey[POS_ID_TYPE],
 		  { "ID type", "mikey.id.type",
 		    FT_UINT8, BASE_DEC, VALS(id_type_vals), 0x0,
-		    "ID type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_ID_LEN],
 		  { "ID len", "mikey.id.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "ID len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_ID],
 		  { "ID", "mikey.id.data",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
-		    "ID", HFILL }},
+		    NULL, HFILL }},
 
 		/* Certificate payload (CERT) */
 		{ &hf_mikey[POS_CERT_LEN],
 		  { "Certificate len", "mikey.cert.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Certificate len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_CERT_TYPE],
 		  { "Certificate type", "mikey.cert.type",
 		    FT_UINT8, BASE_DEC, VALS(cert_type_vals), 0x0,
-		    "Certificate type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_CERTIFICATE],
 		  { "Certificate", "mikey.cert.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Certificate", HFILL }},
+		    NULL, HFILL }},
 
 		/* Ver msg payload (V) */
 		{ &hf_mikey[POS_V_AUTH_ALG],
 		  { "Auth alg", "mikey.v.auth_alg",
 		    FT_UINT8, BASE_DEC, VALS(mac_alg_vals), 0x0,
-		    "Auth alg", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_V_DATA],
 		  { "Ver data", "mikey.v.ver_data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Ver data", HFILL }},
+		    NULL, HFILL }},
 
 		/* Security Policy payload (SP) */
 		{ &hf_mikey[POS_SP_NO],
 		  { "Policy No", "mikey.sp.no",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Policy No", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SP_TYPE],
 		  { "Protocol type", "mikey.sp.proto_type",
 		    FT_UINT8, BASE_DEC, VALS(sp_prot_type_vals), 0x0,
-		    "Protocol type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SP_PARAM_LEN],
 		  { "Policy param length", "mikey.sp.param_len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Policy param length", HFILL }},
+		    NULL, HFILL }},
 
 		/* Security Policy param */
 		{ &hf_mikey[POS_SP_PARAM_F],
 		  { "Policy param", "mikey.sp.param",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Policy param", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SP_PARAM_F_TYPE],
 		  { "Type", "mikey.sp.param.type",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SP_PARAM_F_LEN],
 		  { "Length", "mikey.sp.param.len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Length", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_SP_PARAM_F_VALUE],
 		  { "Value", "mikey.sp.patam.value",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Value", HFILL }},
+		    NULL, HFILL }},
 
 		/* SRTP policy param */
 		{ &hf_mikey_sp_param[SP_ENCR_ALG],
 		  { SP_TEXT_ENCR_ALG, "mikey.sp.encr_alg",
 		    FT_UINT8, BASE_DEC, VALS(sp_encr_alg_vals), 0x0,
-		    SP_TEXT_ENCR_ALG, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_ENCR_LEN],
 		  { SP_TEXT_ENCR_LEN, "mikey.sp.encr_len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    SP_TEXT_ENCR_LEN, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_AUTH_ALG],
 		  { SP_TEXT_AUTH_ALG, "mikey.sp.auth_alg",
 		    FT_UINT8, BASE_DEC, VALS(sp_auth_alg_vals), 0x0,
-		    SP_TEXT_AUTH_ALG, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_AUTH_KEY_LEN],
 		  { SP_TEXT_AUTH_KEY_LEN, "mikey.sp.auth_key_len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    SP_TEXT_AUTH_KEY_LEN, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_SALT_LEN],
 		  { SP_TEXT_SALT_LEN, "mikey.sp.salt_len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    SP_TEXT_SALT_LEN, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_PRF],
 		  { SP_TEXT_PRF, "mikey.sp.prf",
 		    FT_UINT8, BASE_DEC, VALS(sp_prf_vals), 0x0,
-		    SP_TEXT_PRF, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_KD_RATE],
 		  { SP_TEXT_KD_RATE, "mikey.sp.kd_rate",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    SP_TEXT_KD_RATE, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_SRTP_ENCR],
 		  { SP_TEXT_SRTP_ENCR, "mikey.sp.srtp_encr",
 		    FT_UINT8, BASE_DEC, VALS(on_off_vals), 0x0,
-		    SP_TEXT_SRTP_ENCR, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_SRTCP_ENCR],
 		  { SP_TEXT_SRTCP_ENCR, "mikey.sp.srtcp_encr",
 		    FT_UINT8, BASE_DEC, VALS(on_off_vals), 0x0,
-		    SP_TEXT_SRTCP_ENCR, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_FEC],
 		  { SP_TEXT_FEC, "mikey.sp.fec",
 		    FT_UINT8, BASE_DEC, VALS(sp_fec_vals), 0x0,
-		    SP_TEXT_FEC, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_SRTP_AUTH],
 		  { SP_TEXT_SRTP_AUTH, "mikey.sp.srtp_auth",
 		    FT_UINT8, BASE_DEC, VALS(on_off_vals), 0x0,
-		    SP_TEXT_SRTP_AUTH, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_AUTH_TAG_LEN],
 		  { SP_TEXT_AUTH_TAG_LEN, "mikey.sp.auth_tag_len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    SP_TEXT_AUTH_TAG_LEN, HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey_sp_param[SP_SRTP_PREFIX],
 		  { SP_TEXT_SRTP_PREFIX, "mikey.sp.srtp_prefix",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    SP_TEXT_SRTP_PREFIX, HFILL }},
+		    NULL, HFILL }},
 
 		/* RAND payload (RAND) */
 		{ &hf_mikey[POS_RAND_LEN],
 		  { "RAND len", "mikey.rand.len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "RAND len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_RAND],
 		  { "RAND", "mikey.rand.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "RAND", HFILL }},
+		    NULL, HFILL }},
 
 		/* Key data sub-payload */
 		{ &hf_mikey[POS_KEY_DATA_TYPE],
 		  { "Type", "mikey.key_data.type",
 		    FT_UINT8, BASE_DEC, VALS(kd_vals), 0xf0,
-		    "Type", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEY_DATA_KV],
 		  { "KV", "mikey.key_data.kv",
 		    FT_UINT8, BASE_DEC, VALS(kv_vals), 0x0f,
-		    "KV", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEY_DATA_LEN],
 		  { "Key data len", "mikey.key_data.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "Key data len", HFILL }},
+		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEY_DATA],
 		  { "Key data", "mikey.key_data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Key data", HFILL }},
-
+		    NULL, HFILL }},
 
 /*
 		{ &hf_mikey[POS_SP_PARAM],
 		  { "Policy param", "",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "Policy param", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_mikey[POS_PAYLOAD],
 		  { "Payload", "",
 		    FT_BYTES, BASE_HEX, NULL, 0x0,
-		    "Payload", HFILL }},
-
-		{ &hf_mikey[POS_],
-		  { "", "",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "", HFILL }},
-		{ &hf_mikey[POS_],
-		  { "", "",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "", HFILL }},
-		{ &hf_mikey[POS_],
-		  { "", "",
-		    FT_UINT24, BASE_DEC, NULL, 0x0,
-		    "", HFILL }},
-		{ &hf_mikey[POS_],
-		  { "", "",
-		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "", HFILL }},
-		{ &hf_mikey[POS_],
-		  { "", "",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "", HFILL }},
+		    NULL, HFILL }},
 */
 	};
 
-/* Setup protocol subtree array */
+	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_mikey,
 		&ett_mikey_payload,
 		&ett_mikey_sp_param,
-		&ett_mikey_hdr_id,
+		&ett_mikey_hdr_id
 	};
 
-/* Register the protocol name and description */
+	/* Register the protocol name and description */
 	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
 	    "MIKEY", "mikey");
 	new_register_dissector("mikey", dissect_mikey, proto_mikey);
 
-/* Required function calls to register the header fields and subtrees used */
+	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mikey, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-        
-/* Register preferences module (See Section 2.6 for more on preferences) */
-/* 	mikey_module = prefs_register_protocol(proto_mikey,  */
-/* 	    proto_reg_handoff_mikey); */
-     
-/* Register a sample preference */
-/* 	prefs_register_bool_preference(mikey_module, "showHex",  */
-/* 	     "Display numbers in Hex", */
-/* 	     "Enable to display numerical values in hexadecimal.", */
-/* 	     &gPREF_HEX); */
+
 }
 
 
@@ -1616,40 +1573,13 @@ proto_reg_handoff_mikey(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t mikey_handle;
-        
-	if (!inited) {
 
-/*  Use new_create_dissector_handle() to indicate that dissect_mikey()
- *  returns the number of bytes it dissected (or 0 if it thinks the packet
- *  does not belong to Multimedia Internet KEYing).
- */
-	    mikey_handle = new_create_dissector_handle(dissect_mikey,
-	        proto_mikey);
+	if (!inited) {
+	    mikey_handle = new_create_dissector_handle(dissect_mikey, proto_mikey);
 	    inited = TRUE;
 	} else {
 	    dissector_delete_string("key_mgmt", "mikey", mikey_handle);
 	}
 
-/* 	    media_type_subdissector_table = */
 	dissector_add_string("key_mgmt", "mikey", mikey_handle);
-        
-        /* 
-          If you perform registration functions which are dependant upon
-          prefs the you should de-register everything which was associated
-          with the previous settings and re-register using the new prefs
-	  settings here. In general this means you need to keep track of what
-	  value the preference had at the time you registered using a local
-	  static in this function. ie.
-
-          static int currentPort = -1;
-
-          if (currentPort != -1) {
-              dissector_delete("tcp.port", currentPort, mikey_handle);
-          }
-
-          currentPort = gPortPref;
-
-          dissector_add("tcp.port", currentPort, mikey_handle);
-            
-        */
 }
