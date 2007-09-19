@@ -64,6 +64,14 @@
 
 #include "packet-mikey.h"
 
+#define PORT_MIKEY 2269 
+static guint global_mikey_tcp_port = PORT_MIKEY;
+static guint mikey_tcp_port;
+
+static guint global_mikey_udp_port = PORT_MIKEY;
+static guint mikey_udp_port;
+
+
 static const value_string on_off_vals[] = {
 	{ 0, "Off" },
 	{ 1, "On" },
@@ -1120,7 +1128,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mikey_tree = proto_item_add_subtree(ti, ett_mikey);
 	}
 
-	while( payload != 0 ) {
+	while (payload != 0) {
 		int len;
 		proto_item *sub_ti = NULL;
 		proto_tree *mikey_payload_tree = NULL;
@@ -1556,6 +1564,8 @@ proto_register_mikey(void)
 		&ett_mikey_hdr_id
 	};
 
+	module_t *mikey_module;
+
 	/* Register the protocol name and description */
 	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
 	    "MIKEY", "mikey");
@@ -1564,6 +1574,17 @@ proto_register_mikey(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mikey, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register our configuration options */
+	mikey_module = prefs_register_protocol(proto_mikey, proto_reg_handoff_mikey);
+
+	prefs_register_uint_preference(mikey_module, "udp.port", "MIKEY UDP Port",
+		"Set the port for MIKEY messages (if other than the default of 2269)",
+		10, &global_mikey_udp_port);
+
+	prefs_register_uint_preference(mikey_module, "tcp.port", "MIKEY TCP Port",
+		"Set the port for MIKEY messages (if other than the default of 2269)",
+		10, &global_mikey_tcp_port);
 
 }
 
@@ -1579,7 +1600,14 @@ proto_reg_handoff_mikey(void)
 	    inited = TRUE;
 	} else {
 	    dissector_delete_string("key_mgmt", "mikey", mikey_handle);
+	    dissector_delete("udp.port", mikey_udp_port, mikey_handle);
+	    dissector_delete("tcp.port", mikey_tcp_port, mikey_handle);
 	}
 
 	dissector_add_string("key_mgmt", "mikey", mikey_handle);
+	dissector_add("udp.port", global_mikey_udp_port, mikey_handle);
+	dissector_add("tcp.port", global_mikey_tcp_port, mikey_handle);
+
+	mikey_udp_port = global_mikey_udp_port;
+	mikey_tcp_port = global_mikey_tcp_port;
 }
