@@ -32,7 +32,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/xdlc.h>
-
+#include <epan/prefs.h>
 #include <epan/lapd_sapi.h>
 
 /* ISDN/LAPD references:
@@ -41,11 +41,14 @@
  * http://www.ece.wpi.edu/courses/ee535/hwk11cd95/agrebe/agrebe.html
  * http://www.acacia-net.com/Clarinet/Protocol/q9213o84.htm
  * http://www.itu.int/rec/T-REC-Q.921/en
+ * Base Station Controller - Base Transceiver Station (BSC - BTS) interface; Layer 2 specification
+ * http://www.3gpp.org/ftp/Specs/html-info/48056.htm 
  */
 
 static int proto_lapd = -1;
 static int hf_lapd_address = -1;
 static int hf_lapd_sapi = -1;
+static int hf_lapd_gsm_sapi = -1;
 static int hf_lapd_cr = -1;
 static int hf_lapd_ea1 = -1;
 static int hf_lapd_tei = -1;
@@ -69,6 +72,10 @@ static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
 
 static dissector_table_t lapd_sapi_dissector_table;
+static dissector_table_t lapd_gsm_sapi_dissector_table;
+
+/* Wether to use GSM SAPI vals or not */
+static gboolean global_lapd_gsm_sapis = FALSE;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t tei_handle;
@@ -76,19 +83,33 @@ static dissector_handle_t tei_handle;
 /*
  * Bits in the address field.
  */
-#define	LAPD_SAPI	0xfc00	/* Service Access Point Identifier */
+#define	LAPD_SAPI		0xfc00	/* Service Access Point Identifier */
 #define	LAPD_SAPI_SHIFT	10
-#define	LAPD_CR		0x0200	/* Command/Response bit */
-#define	LAPD_EA1	0x0100	/* First Address Extension bit */
-#define	LAPD_TEI	0x00fe	/* Terminal Endpoint Identifier */
+#define	LAPD_CR			0x0200	/* Command/Response bit */
+#define	LAPD_EA1		0x0100	/* First Address Extension bit */
+#define	LAPD_TEI		0x00fe	/* Terminal Endpoint Identifier */
 #define LAPD_TEI_SHIFT	1
-#define	LAPD_EA2	0x0001	/* Second Address Extension bit */
+#define	LAPD_EA2		0x0001	/* Second Address Extension bit */
 
 static const value_string lapd_sapi_vals[] = {
 	{ LAPD_SAPI_Q931,		"Q.931 Call control procedure" },
 	{ LAPD_SAPI_PM_Q931,	"Packet mode Q.931 Call control procedure" },
 	{ LAPD_SAPI_X25,		"X.25 Level 3 procedures" },
 	{ LAPD_SAPI_L2,			"Layer 2 management procedures" },
+	{ 0,			NULL }
+};
+
+#define LAPD_GSM_SAPI_RA_SIG_PROC	0
+#define LAPD_GSM_SAPI_NOT_USED_1	1
+#define LAPD_GSM_SAPI_NOT_USED_16	16
+#define LAPD_GSM_SAPI_OM_PROC		62
+
+static const value_string lapd_gsm_sapi_vals[] = {
+	{ LAPD_GSM_SAPI_RA_SIG_PROC,		"Radio signalling procedures" },
+	{ LAPD_GSM_SAPI_NOT_USED_1,			"(Not used in GSM PLMN)" },
+	{ LAPD_GSM_SAPI_NOT_USED_16,		"(Not used in GSM PLMN)" },
+	{ LAPD_GSM_SAPI_OM_PROC,			"Operation and maintenance procedure" },
+	{ LAPD_SAPI_L2,						"Layer 2 management procedures" },
 	{ 0,			NULL }
 };
 
@@ -202,7 +223,11 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    0, 2, address);
 		addr_tree = proto_item_add_subtree(addr_ti, ett_lapd_address);
 
-		proto_tree_add_uint(addr_tree, hf_lapd_sapi,tvb, 0, 1, address);
+		if(global_lapd_gsm_sapis){
+			proto_tree_add_uint(addr_tree, hf_lapd_gsm_sapi,tvb, 0, 1, address);
+		}else{
+			proto_tree_add_uint(addr_tree, hf_lapd_sapi,tvb, 0, 1, address);
+		}
 		proto_tree_add_uint(addr_tree, hf_lapd_cr,  tvb, 0, 1, address);
 		proto_tree_add_uint(addr_tree, hf_lapd_ea1, tvb, 0, 1, address);
 		proto_tree_add_uint(addr_tree, hf_lapd_tei, tvb, 1, 1, address);
@@ -224,11 +249,30 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset(tvb, lapd_header_len, -1, -1);
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */
-		if (!dissector_try_port(lapd_sapi_dissector_table, sapi,
-		    next_tvb, pinfo, tree))
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+		if(global_lapd_gsm_sapis){
+			if (!dissector_try_port(lapd_gsm_sapi_dissector_table, sapi,
+				next_tvb, pinfo, tree))
+				call_dissector(data_handle,next_tvb, pinfo, tree);
+		}else{
+			if (!dissector_try_port(lapd_sapi_dissector_table, sapi,
+				next_tvb, pinfo, tree))
+				call_dissector(data_handle,next_tvb, pinfo, tree);
+		}
 	} else
 		call_dissector(data_handle,next_tvb, pinfo, tree);
+}
+
+void
+proto_reg_handoff_lapd(void)
+{
+	dissector_handle_t lapd_handle;
+
+	data_handle = find_dissector("data");
+	tei_handle = find_dissector("tei");
+
+
+	lapd_handle = create_dissector_handle(dissect_lapd, proto_lapd);
+	dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 }
 
 void
@@ -241,6 +285,10 @@ proto_register_lapd(void)
 
 	{ &hf_lapd_sapi,
 	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,
+	  	"Service Access Point Identifier", HFILL }},
+
+	{ &hf_lapd_gsm_sapi,
+	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_gsm_sapi_vals), LAPD_SAPI,
 	  	"Service Access Point Identifier", HFILL }},
 
 	{ &hf_lapd_cr,
@@ -317,6 +365,8 @@ proto_register_lapd(void)
         &ett_lapd_control,
     };
 
+	module_t *lapd_module;
+
     proto_lapd = proto_register_protocol("Link Access Procedure, Channel D (LAPD)",
 					 "LAPD", "lapd");
     proto_register_field_array (proto_lapd, hf, array_length(hf));
@@ -326,17 +376,16 @@ proto_register_lapd(void)
 
     lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
 	    "LAPD SAPI", FT_UINT16, BASE_DEC);
+
+    lapd_gsm_sapi_dissector_table = register_dissector_table("lapd.gsm.sapi",
+	    "LAPD GSM SAPI", FT_UINT16, BASE_DEC);
+
+	lapd_module = prefs_register_protocol(proto_lapd, proto_reg_handoff_lapd);
+
+	prefs_register_bool_preference(lapd_module, "use_gsm_sapi_values",
+		"Use GSM SAPI values",
+		"Use SAPI values as specified in TS 48 056",
+		&global_lapd_gsm_sapis);
+
 }
 
-void
-proto_reg_handoff_lapd(void)
-{
-	dissector_handle_t lapd_handle;
-
-	data_handle = find_dissector("data");
-	tei_handle = find_dissector("tei");
-
-
-	lapd_handle = create_dissector_handle(dissect_lapd, proto_lapd);
-	dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
-}
