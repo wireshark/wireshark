@@ -113,6 +113,8 @@ static gint hf_sip_auth_stale            = -1;
 static gint hf_sip_auth_auts             = -1;
 static gint hf_sip_auth_rspauth          = -1;
 static gint hf_sip_auth_nextnonce        = -1;
+static gint hf_sip_auth_ik               = -1;
+static gint hf_sip_auth_ck               = -1;
 
 static gint hf_sip_cseq_seq_no           = -1;
 static gint hf_sip_cseq_method           = -1;
@@ -496,7 +498,9 @@ static header_parameter_t auth_parameters_hf_array[] =
 	{"stale",           &hf_sip_auth_stale},
 	{"auts",            &hf_sip_auth_auts},
 	{"rspauth",         &hf_sip_auth_rspauth},
-	{"nextnonce",       &hf_sip_auth_nextnonce}
+	{"nextnonce",       &hf_sip_auth_nextnonce},
+	{"ik",              &hf_sip_auth_ik},
+	{"ck",              &hf_sip_auth_ck}
 };
 
 static header_parameter_t via_parameters_hf_array[] =
@@ -3553,6 +3557,16 @@ void proto_register_sip(void)
 			{ "Next Nonce",  "sip.auth.nextnonce",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 		    	"SIP Next Nonce", HFILL}
+		},
+		{ &hf_sip_auth_ik,
+			{ "Integrity Key",  "sip.auth.ik",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Integrity Key", HFILL}
+		},
+		{ &hf_sip_auth_ck,
+			{ "Cyphering Key",  "sip.auth.ck",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Cyphering Key", HFILL}
 		},
 		{ &hf_sip_cseq_seq_no,
 			{ "Sequence Number",  "sip.CSeq.seq",
