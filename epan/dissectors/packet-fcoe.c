@@ -1,4 +1,3 @@
-
 /*
  * packet-fcoe.c
  * Routines for FCoE dissection - Fibre Channel over Ethernet
@@ -47,7 +46,8 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 
-#define FCOE_ENCAP_HEADER_LEN   2
+#define FCOE_HEADER_LEN   14        /* header: version, SOF, and padding */
+#define FCOE_TRAILER_LEN  8         /* trailer: CRC, EOF, and padding */
 
 typedef enum {
     FCOE_EOFn    = 0x41,
@@ -61,14 +61,14 @@ typedef enum {
 } fcoe_eof_t;
 
 typedef enum {
-    FCOE_SOFf    = 0x8,
-    FCOE_SOFi4   = 0x9,
-    FCOE_SOFi2   = 0xD,
-    FCOE_SOFi3   = 0xE,
-    FCOE_SOFn4   = 0x1,
-    FCOE_SOFn2   = 0x5,
-    FCOE_SOFn3   = 0x6,
-    FCOE_SOFc4   = 0x9
+    FCOE_SOFf    = 0x28,
+    FCOE_SOFi4   = 0x29,
+    FCOE_SOFi2   = 0x2D,
+    FCOE_SOFi3   = 0x2E,
+    FCOE_SOFn4   = 0x31,
+    FCOE_SOFn2   = 0x35,
+    FCOE_SOFn3   = 0x36,
+    FCOE_SOFc4   = 0x39
 } fcoe_sof_t;
 
 static const value_string fcoe_eof_vals[] = {
@@ -113,8 +113,10 @@ static dissector_handle_t fc_handle;
 static void
 dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint eof_offset = 0;
+    gint crc_offset;
+    gint eof_offset;
     gint frame_len = 0;
+    gint header_len = FCOE_HEADER_LEN;
     guint version;
     char *ver;
     guint16  len_sof;
@@ -123,6 +125,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 eof = 0;
     const char *eof_str;
     char *crc_msg;
+    char *len_msg;
     proto_item *ti;
     proto_item *item;
     proto_tree *fcoe_tree = NULL;
@@ -131,33 +134,51 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean crc_exists;
     guint32 crc_computed = 0;
     guint32 crc = 0;
-    
-    if (bytes_remaining < FCOE_ENCAP_HEADER_LEN) {
-        return;
-    }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCOE");
-
-    len_sof = tvb_get_ntohs(tvb, 0);
-    frame_len = (len_sof & 0x3ff0) >> 2;
-    sof = len_sof & 0xf;
-    version = len_sof >> 14;
-    next_tvb = tvb_new_subset(tvb, FCOE_ENCAP_HEADER_LEN, -1, frame_len - 4);
-    
-    if (tree) {
+    /*
+     * For now, handle both the version defined before and after August 2007.
+     * In the newer version, byte 1 is reserved and always zero.  In the old
+     * version, it'll never be zero.
+     */
+    if (tvb_get_guint8(tvb, 1)) {
+        header_len = 2;
+        len_sof = tvb_get_ntohs(tvb, 0);
+        frame_len = ((len_sof & 0x3ff0) >> 2) - 4;
+        sof = len_sof & 0xf;
+        sof |= (sof < 8) ? 0x30 : 0x20;
+        version = len_sof >> 14;
+        ver = "pre-T11 ";
+        if (version != 0) {
+            int ver_buf_len = 24;
+            ver = ep_alloc(ver_buf_len);
+            g_snprintf(ver, ver_buf_len, "pre-T11 ver %d ", version);
+        }
+    } else {
+        frame_len = bytes_remaining - FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
+        sof = tvb_get_guint8(tvb, FCOE_HEADER_LEN - 1);
 
         /*
          * Only version 0 is defined at this point.
          * Don't print the version in the short summary if it is zero.
          */
         ver = "";
+        version = tvb_get_guint8(tvb, 0) >> 4;
         if (version != 0) {
             int ver_buf_len = 16;
             ver = ep_alloc(ver_buf_len);
             g_snprintf(ver, ver_buf_len, "ver %d ", version);
         }
-        eof_offset = FCOE_ENCAP_HEADER_LEN + frame_len;
+    }
+    if (frame_len < 0)
+        return;
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
+    crc_offset = header_len + frame_len;
+    eof_offset = crc_offset + 4;
+    next_tvb = tvb_new_subset(tvb, header_len, frame_len, frame_len);
+    
+    if (tree) {
+
         eof_str = "none";
         if (tvb_bytes_exist(tvb, eof_offset, 1)) {
             eof = tvb_get_guint8(tvb, eof_offset);
@@ -168,28 +189,36 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Check the CRC.
          */
         crc_msg = "";
-        crc_exists = tvb_bytes_exist(tvb, eof_offset - 4, 4);
+        crc_exists = tvb_bytes_exist(tvb, crc_offset, 4);
         if (crc_exists) {
-            crc = tvb_get_ntohl(tvb, eof_offset - 4);
-            crc_computed = crc32_802_tvb(next_tvb, frame_len - 4);
+            crc = tvb_get_ntohl(tvb, crc_offset);
+            crc_computed = crc32_802_tvb(next_tvb, frame_len);
             if (crc != crc_computed) {
                 crc_msg = " [bad FC CRC]";
             }
         }
+        len_msg = "";
+        if ((frame_len % 4) != 0 || frame_len < 24) {
+            len_msg = " [invalid length]";
+        }
 
         ti = proto_tree_add_protocol_format(tree, proto_fcoe, tvb, 0,
-                                            FCOE_ENCAP_HEADER_LEN,
-                                            "FCoE %s(%s/%s) %d bytes%s", ver,
+                                            header_len,
+                                            "FCoE %s(%s/%s) %d bytes%s%s", ver,
                                             val_to_str(sof, fcoe_sof_vals,
                                                        "0x%x"),
-                                            eof_str, frame_len, crc_msg);
+                                            eof_str, frame_len, crc_msg,
+                                            len_msg);
 
         /* Dissect the FCoE header */
 
         fcoe_tree = proto_item_add_subtree(ti, ett_fcoe);
-        proto_tree_add_uint(fcoe_tree, hf_fcoe_sof, tvb, 1, 1, sof);
         proto_tree_add_uint(fcoe_tree, hf_fcoe_ver, tvb, 0, 1, version);
-        proto_tree_add_uint(fcoe_tree, hf_fcoe_len, tvb, 0, 2, frame_len);
+        if (tvb_get_guint8(tvb, 1)) {
+            proto_tree_add_uint(fcoe_tree, hf_fcoe_len, tvb, 0, 2, frame_len);
+        }
+        proto_tree_add_uint(fcoe_tree, hf_fcoe_sof, tvb,
+          header_len - 1, 1, sof);
 
         /*
          * Create the CRC information.
@@ -198,11 +227,11 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (crc_exists) {
             if (crc == crc_computed) {
                 item = proto_tree_add_uint_format(fcoe_tree, hf_fcoe_crc, tvb,
-                                           eof_offset - 4, 4, crc,
+                                           crc_offset, 4, crc,
                                            "CRC: %8.8x [valid]", crc);
             } else {
                 item = proto_tree_add_uint_format(fcoe_tree, hf_fcoe_crc, tvb,
-                                           eof_offset - 4, 4, crc,
+                                           crc_offset, 4, crc,
                                            "CRC: %8.8x "
                                            "[error: should be %8.8x]",
                                            crc, crc_computed);
@@ -213,11 +242,11 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         crc_tree = proto_item_add_subtree(item, ett_fcoe_crc);
         ti = proto_tree_add_boolean(crc_tree, hf_fcoe_crc_bad, tvb,
-                                    eof_offset - 4, 4,
+                                    crc_offset, 4,
                                     crc_exists && crc != crc_computed);
         PROTO_ITEM_SET_GENERATED(ti);
         ti = proto_tree_add_boolean(crc_tree, hf_fcoe_crc_good, tvb,
-                                    eof_offset - 4, 4,
+                                    crc_offset, 4,
                                     crc_exists && crc == crc_computed);
         PROTO_ITEM_SET_GENERATED(ti);
 
@@ -266,7 +295,7 @@ proto_register_fcoe(void)
         { &hf_fcoe_ver,
           {"Version", "fcoe.ver", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL}},
         { &hf_fcoe_len,
-          {"Frame length", "fcoe.len", FT_UINT32, 
+          {"Frame length", "fcoe.len", FT_UINT32,
             BASE_DEC, NULL, 0, "", HFILL}},
         { &hf_fcoe_crc,
           {"CRC", "fcoe.crc", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL}},
