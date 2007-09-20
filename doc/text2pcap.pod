@@ -191,6 +191,9 @@ B<NOTE:> The subsecond component delimiter must be specified (.) but no
 pattern is required; the remaining number is assumed to be fractions of
 a second.
 
+B<NOTE:> Date/time fields from the current date/time are
+used as the default for unspecified fields.
+
 =back
 
 =head1 SEE ALSO

@@ -177,6 +177,7 @@ static unsigned long num_packets_written = 0;
 static gint32 ts_sec  = 0;
 static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
+static struct tm timecode_default;
 
 /* Input file */
 static const char *input_filename;
@@ -732,20 +733,11 @@ parse_preamble (void)
 	    return;
 
 	/*
-	 * Initialize to the Epoch, just in case not all fields
-	 * of the date and time are specified
-	 * (or date & time is not parsed or fails to parse below).
+	 * Initialize to today localtime, just in case not all fields
+	 * of the date and time are specified.
 	 */
-	timecode.tm_sec   = 0;
-	timecode.tm_min   = 0;
-	timecode.tm_hour  = 0;
-	timecode.tm_mday  = 1;
-	timecode.tm_mon   = 0;
-	timecode.tm_year  = 70;
-	timecode.tm_wday  = 0;
-	timecode.tm_yday  = 0;
-	timecode.tm_isdst = -1;
-	ts_sec  = (gint32)mktime( &timecode );
+
+	timecode = timecode_default;
 	ts_usec = 0;
 
 	/*
@@ -761,9 +753,29 @@ parse_preamble (void)
 		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
 		if (subsecs != NULL) {
 			/* Get the long time from the tm structure */
+                        /*  (will return -1 if failure)            */
 			ts_sec  = (gint32)mktime( &timecode );
+		} else
+			ts_sec = -1;	/* we failed to parse it */
 
-			/* Get subsecs only if strptime succeeded above  */
+		/* This will ensure incorrectly parsed dates get set to zero */
+		if ( -1 == ts_sec )
+		{
+			/* Sanitize - remove all '\r' */
+			char *c;
+			while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+			fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
+				 packet_preamble, ts_fmt);
+			if (debug >= 2) {
+				fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n", 
+					timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
+					timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
+			}
+			ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
+			ts_usec = 0;
+		}
+		else
+		{
 			/* Parse subseconds */
 			ts_usec = strtol(subsecs, &p, 10);
 			if (subsecs == p) {
@@ -792,12 +804,6 @@ parse_preamble (void)
 						ts_usec *= 10;
 				}
 			}
-                } else { /* subsecs == NULL: strptime failed to parse */
-			/* Sanitize - remove all '\r' */
-			char *c;
-			while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-			fprintf (stderr, "Failure parsing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00)\n",
-				 packet_preamble, ts_fmt);
 		}
 	}
 	if (debug >= 2) {
@@ -1023,6 +1029,8 @@ usage (void)
             "                         NOTE: The subsecond component delimiter must be given\n"
             "                          (.) but no pattern is required; the remaining number\n"
             "                          is assumed to be fractions of a second.\n"
+            "                         NOTE: Date/time fields from the current date/time are\n"
+            "                         used as the default for unspecified fields.\n" 
             "\n"
             "Output:\n"
             "  -l <typenum>           link-layer type number. Default is 1 (Ethernet). \n"
@@ -1289,6 +1297,7 @@ parse_options (int argc, char *argv[])
     }
 
     ts_sec = (gint32) time(0);		/* initialize to current time */
+    timecode_default = *localtime((time_t *)&ts_sec);
 
     /* Display summary of our state */
     if (!quiet) {
