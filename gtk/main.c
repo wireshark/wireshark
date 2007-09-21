@@ -987,10 +987,10 @@ void packets_bar_update(void)
         /* do we have any packets? */
         if(cfile.count) {
             if(cfile.drops_known) {
-                packets_str = g_strdup_printf(" P: %u D: %u M: %u Drops: %u",
+                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
             } else {
-                packets_str = g_strdup_printf(" P: %u D: %u M: %u",
+                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count);
             }
         } else {
@@ -1811,7 +1811,7 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 				  (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
-    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " P: 0");
+    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");
 
     g_free(capture_msg);
 
@@ -1827,7 +1827,7 @@ main_cf_cb_live_capture_fixed_continue(capture_file *cf)
 
 	gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
 
-    capture_msg = g_strdup_printf(" P: %u",
+    capture_msg = g_strdup_printf(" Packets: %u",
         cf_get_packet_count(cf));
 
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, capture_msg);
