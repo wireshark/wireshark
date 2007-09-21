@@ -188,7 +188,7 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x4b,	"Uplink Reject Command" },
     { 0x4c,	"Uplink Release Command" },
     { 0x4d,	"Uplink Seized Command" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_mm_strings[] = {
@@ -215,7 +215,7 @@ const value_string gsm_a_dtap_msg_mm_strings[] = {
     { 0x30,	"MM Null" },
     { 0x31,	"MM Status" },
     { 0x32,	"MM Information" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_rr_strings[] = {
@@ -320,7 +320,7 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
 
     { 0x38,	"Application Information" },
 
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_cc_strings[] = {
@@ -359,7 +359,7 @@ const value_string gsm_a_dtap_msg_cc_strings[] = {
     { 0x36,	"Start DTMF Acknowledge" },
     { 0x37,	"Start DTMF Reject" },
     { 0x3a,	"Facility" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_gmm_strings[] = {
@@ -386,14 +386,14 @@ const value_string gsm_a_dtap_msg_gmm_strings[] = {
     { 0x16,	"Identity Response" },
     { 0x20,	"GMM Status" },
     { 0x21,	"GMM Information" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_sms_strings[] = {
     { 0x01,	"CP-DATA" },
     { 0x04,	"CP-ACK" },
     { 0x10,	"CP-ERROR" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_sm_strings[] = {
@@ -423,14 +423,14 @@ const value_string gsm_a_dtap_msg_sm_strings[] = {
     { 0x58,	"Activate MBMS Context Reject" },
     { 0x59,	"Request MBMS Context Activation" },
     { 0x5a,	"Request MBMS Context Activation Reject" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const value_string gsm_a_dtap_msg_ss_strings[] = {
     { 0x2a,	"Release Complete" },
     { 0x3a,	"Facility" },
     { 0x3b,	"Register" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string gsm_rp_msg_strings[] = {
@@ -441,7 +441,7 @@ static const value_string gsm_rp_msg_strings[] = {
     { 0x04,	"RP-ERROR (MS to Network)" },
     { 0x05,	"RP-ERROR (Network to MS)" },
     { 0x06,	"RP-SMMA (MS to Network)" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string gsm_bssmap_elem_strings[] = {
@@ -521,7 +521,7 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { 0x4d,	"Return Error Request" },
     { 0x4e,	"Return Error Cause" },
     { 0x4f,	"Segmentation" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string gsm_dtap_elem_strings[] = {
@@ -606,7 +606,7 @@ static const value_string gsm_dtap_elem_strings[] = {
  * [3] 10.5.2.24 P2 Rest Octets
  * [3] 10.5.2.25 P3 Rest Octets */
 	{ 0x00, "Packet Channel Description" },		/* [3] 10.5.2.25a	*/
-	{ 0x00, "Dedicated mode or TBF" },			/* [3] 10.5.2.25b 
+	{ 0x00, "Dedicated mode or TBF" },			/* [3] 10.5.2.25b */
  /* [3] 10.5.2.25c RR Packet Uplink Assignment
  * [3] 10.5.2.25d RR Packet Downlink Assignment */
 	{ 0x00, "Page Mode" },						/* [3] 10.5.2.26  */
@@ -786,7 +786,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00, "Radio Priority 2"},
 	{ 0x00,	"MBMS context status"},
     { 0x00, "Spare Nibble"},
-    { 0, NULL },
+    { 0, NULL }
 };
 
 const gchar *gsm_a_pd_str[] = {
@@ -6294,7 +6294,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	case 0x01: str = "V.110, I.460/X.30 rate adaptation"; break;
 	case 0x02: str = "ITU-T X.31 flag stuffing"; break;
 	default:
-	    str = "Other rate adaption (see octet 5a)"; break;
+	    str = "Other rate adaption (see octet 5a)";
 	    break;
 	}
 
@@ -6314,7 +6314,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	case 0x05: str = "Reserved: was allocated in earlier phases of the protocol"; break;
 	case 0x06: str = "Reserved: was allocated in earlier phases of the protocol"; break;
 	default:
-	    str = "Reserved"; break;
+	    str = "Reserved";
 	    break;
 	}
 
@@ -11274,7 +11274,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     {
     	case 0x00: str="ETSI allocated address"; break;
     	case 0x01: str="IETF allocated address"; break;
-    	case 0x0f: str="Empty PDP type";
+    	case 0x0f: str="Empty PDP type"; break;
     	default: str="reserved";
     }
 
@@ -15183,7 +15183,7 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Dedicated mode or TBF		10.5.2.25b	M V 1/2 */
 	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_DED_MOD_OR_TBF);
 	curr_offset++;
-	if(oct&0x07 == 0){
+	if((oct&0x07) == 0){
 	/* Channel Description			10.5.2.5	C V 3
 	 * If the Dedicated mode or TBF IE indicates that the message assigns a dedicated mode resource,
 	 * the mobile station shall consider this information element present in the message.
@@ -15197,7 +15197,7 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 * assignment of an uplink or downlink TBF, the mobile station shall ignore the contents 
 	 * of this information element and regard it as an unnecessary IE.
 	 */
-		if(oct&0x04 == 0){
+		if((oct&0x04) == 0){
 			ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_PACKET_CH_DESC);
 		}
 	}
