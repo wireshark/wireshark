@@ -621,6 +621,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-rpl.c		\
 	packet-rquota.c		\
 	packet-rsh.c		\
+	packet-rsl.c		\
 	packet-rstat.c		\
 	packet-rsvp.c		\
 	packet-rsync.c		\
