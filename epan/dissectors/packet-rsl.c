@@ -25,9 +25,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * REF: 3GPP TS 48.058 version 6.1.0 Release 6 
+ * REF: 3GPP TS 48.058 version 6.1.0 Release 6
  * http://www.3gpp.org/ftp/Specs/html-info/48058.htm
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -247,15 +247,15 @@ static const value_string rsl_ie_type_vals[] = {
 	{  0x3d,	"TFO transparent container" },	/*  9.3.59 */
 	/*
 			0 0 1 1 1 1 1 0
-			to 
+			to
 			1 1 1 0 1 1 1 1
 			Reserved for future use
-			
+
 			1 1 1 1 0 0 0 0
-			to 
+			to
 			1 1 1 1 1 1 1 1
 			Not used
-			
+
 	*/
 	{ 0,			NULL }
 };
@@ -294,7 +294,7 @@ static const value_string rsl_ch_no_Cbits_vals[] = {
 };
 /* 9.3.1 Channel number			9.3.1	M TV 2 */
 static int
-dissect_rsl_ie_ch_no(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_rsl_ie_ch_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -333,7 +333,7 @@ static const value_string rsl_prio_vals[] = {
  * 9.3.2 Link Identifier M TV 2
  */
 static int
-dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -348,7 +348,7 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	octet = tvb_get_guint8(tvb,offset);
 
-	if(octet&0x20 == 0x20){
+	if((octet&0x20) == 0x20){
 		/* Not applicable */
 		proto_tree_add_item(ie_tree, hf_rsl_na, tvb, offset, 1, FALSE);
 		return offset++;
@@ -359,7 +359,7 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	proto_tree_add_item(ie_tree, hf_rsl_na, tvb, offset, 1, FALSE);
 	/* Priority */
 	proto_tree_add_item(ie_tree, hf_rsl_prio, tvb, offset, 1, FALSE);
-	/* SAPI 	 
+	/* SAPI
 	 * The SAPI field contains the SAPI value as defined in 3GPP TS 44.005.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_sapi, tvb, offset, 1, FALSE);
@@ -372,7 +372,7 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  * 9.3.11 L3 Information			9.3.11	M TLV >=3
  *
  * This element contains a link layer service data unit (L3 message).
- * It is used to forward a complete L3 message as specified in 
+ * It is used to forward a complete L3 message as specified in
  * 3GPP TS 24.008 or 3GPP TS 44.018 between BTS and BSC.
  */
 static int
@@ -413,7 +413,7 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
  * 9.3.16 Physical Context TLV
  */
 static int
-dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -433,7 +433,7 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	/*
 	 * Physical Context Information:
-	 *	The Physical Context Information field is not specified. 
+	 *	The Physical Context Information field is not specified.
 	 *	This information should not be analysed by BSC, but merely
 	 *	forwarded from one TRX/channel to another.
 	 */
@@ -443,10 +443,10 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	return offset;
 }
 /*
- * 9.3.17 Access Delay M TV 2 
+ * 9.3.17 Access Delay M TV 2
  */
 static int
-dissect_rsl_ie_access_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_rsl_ie_access_delay(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -462,10 +462,10 @@ dissect_rsl_ie_access_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 /*
- * 9.3.19 Request Reference M TV 4 
+ * 9.3.19 Request Reference M TV 4
  */
 static int
-dissect_rsl_ie_req_ref(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_rsl_ie_req_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -495,7 +495,8 @@ static const value_string rel_mode_vals[] = {
 /*
  * 9.3.20 Release Mode				9.3.20	M TV 2
  */
-dissect_rsl_ie_rel_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static int
+dissect_rsl_ie_rel_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -537,10 +538,11 @@ static const value_string rsl_cause_vals[] = {
 };
 
 
-/* 
- * 9.3.22 RLM Cause				9.3.22	M TLV 2-4	
+/*
+ * 9.3.22 RLM Cause				9.3.22	M TLV 2-4
  */
-dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static int
+dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -559,7 +561,7 @@ dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
 
-	/* The Cause Value is a one octet field if the extension bit is set to 0. 
+	/* The Cause Value is a one octet field if the extension bit is set to 0.
 	 * If the extension bit is set to 1, the Cause Value is a two octet field.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_cause, tvb, offset, 1, FALSE);
@@ -593,7 +595,7 @@ dissect_rsl_ie_full_imm_ass_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
 	offset++;
-	/*	The Full Immediate Assign Info field (octets 3-25) 
+	/*	The Full Immediate Assign Info field (octets 3-25)
 	 * contains a complete immediate assign message (IMMEDIATE ASSIGNMENT or
 	 * IMMEDIATE ASSIGNMENT EXTENDED or IMMEDIATE ASSIGNMENT REJECT)
 	 * as defined in 3GPP TS 44.018.
@@ -706,7 +708,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset);
 		break;
 
-/* Common Channel Management/TRX Management messages: */ 
+/* Common Channel Management/TRX Management messages: */
 	/* 8.5.3 */
 	case RSL_MSG_CHANRQD:
 		/* Channel number			9.3.1	M TV 2 */
@@ -757,7 +759,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(rsl_tree, hf_rsl_T_bit, tvb, offset, 1, FALSE);
 		offset++;
 		offset = dissct_rsl_msg(tvb, pinfo, rsl_tree, offset );
-		
+
 	/*}*/
 
 }
@@ -782,97 +784,97 @@ void proto_register_rsl(void)
 	static hf_register_info hf[] = {
 		{ &hf_rsl_msg_dsc,
 			{ "Message discriminator",           "rsl.msg_dsc",
-			FT_UINT8, BASE_DEC, VALS(rsl_msg_disc_vals), 0xfe,          
+			FT_UINT8, BASE_DEC, VALS(rsl_msg_disc_vals), 0xfe,
 			"Message discriminator", HFILL }
 		},
 		{ &hf_rsl_T_bit,
 			{ "T bit",           "rsl.T_bit",
-			FT_BOOLEAN, 8, TFS(&rsl_t_bit_vals), 0x01,          
+			FT_BOOLEAN, 8, TFS(&rsl_t_bit_vals), 0x01,
 			"T bit", HFILL }
 		},
 		{ &hf_rsl_msg_type,
 			{ "Message type",           "rsl.msg_type",
-			FT_UINT8, BASE_HEX_DEC, VALS(rsl_msg_type_vals), 0x7f,          
+			FT_UINT8, BASE_HEX_DEC, VALS(rsl_msg_type_vals), 0x7f,
 			"Message type", HFILL }
 		},
 		{ &hf_rsl_ie_id,
 			{ "Element identifier",           "rsl.ie_id",
-			FT_UINT8, BASE_HEX_DEC, VALS(rsl_ie_type_vals), 0x0,          
+			FT_UINT8, BASE_HEX_DEC, VALS(rsl_ie_type_vals), 0x0,
 			"Element identifier", HFILL }
 		},
 		{ &hf_rsl_ie_length,
 			{ "Length",           "rsl.ie_length",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Length", HFILL }
 		},
 		{ &hf_rsl_ch_no_Cbits,
 			{ "C-bits",           "rsl.ch_no_Cbits",
-			FT_UINT8, BASE_DEC, VALS(rsl_ch_no_Cbits_vals), 0xf8,          
+			FT_UINT8, BASE_DEC, VALS(rsl_ch_no_Cbits_vals), 0xf8,
 			"C-bits", HFILL }
 		},
 		{ &hf_rsl_ch_no_TN,
 			{ "Time slot number (TN)",  "rsl.ch_no_TN",
-			FT_UINT8, BASE_DEC, NULL, 0x03,          
+			FT_UINT8, BASE_DEC, NULL, 0x03,
 			"Time slot number (TN)", HFILL }
 		},
 		{ &hf_rsl_req_ref_ra,
 			{ "Random Access Information (RA)", "rsl.req_ref_ra",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Random Access Information (RA)", HFILL }
 		},
 		{ &hf_rsl_req_ref_T1prim,
 			{ "T1'",           "rsl.req_ref_T1prim",
-			FT_UINT8, BASE_DEC, NULL, 0xf8,          
+			FT_UINT8, BASE_DEC, NULL, 0xf8,
 			"T1'", HFILL }
 		},
 		{ &hf_rsl_req_ref_T3,
 			{ "T3",           "rsl.req_ref_T3",
-			FT_UINT16, BASE_DEC, NULL, 0x07e0,          
+			FT_UINT16, BASE_DEC, NULL, 0x07e0,
 			"T3", HFILL }
 		},
 		{ &hf_rsl_req_ref_T2,
 			{ "T2",           "rsl.req_ref_T2",
-			FT_UINT8, BASE_DEC, NULL, 0x1f,          
+			FT_UINT8, BASE_DEC, NULL, 0x1f,
 			"T2", HFILL }
 		},
 		{ &hf_rsl_acc_delay,
 			{ "Access Delay",           "rsl.acc_del",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Access Delay", HFILL }
 		},
 		{ &hf_rsl_phy_ctx,
 			{ "Physical Context",           "rsl.phy_ctx",
-			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"Physical Context", HFILL }
 		},
 		{ &hf_rsl_na,
 			{ "Not applicable (NA)",           "rsl.na",
-			FT_BOOLEAN, 8, TFS(&rsl_na_vals), 0x20,          
+			FT_BOOLEAN, 8, TFS(&rsl_na_vals), 0x20,
 			"Not applicable (NA)", HFILL }
 		},
 		{ &hf_rsl_ch_type,
 			{ "channel type",           "rsl.ch_type",
-			FT_UINT8, BASE_DEC, VALS(rsl_ch_type_vals), 0xc0,          
+			FT_UINT8, BASE_DEC, VALS(rsl_ch_type_vals), 0xc0,
 			"channel type", HFILL }
 		},
 		{ &hf_rsl_prio,
 			{ "Priority",           "rsl.prio",
-			FT_UINT8, BASE_DEC, VALS(rsl_prio_vals), 0x18,          
+			FT_UINT8, BASE_DEC, VALS(rsl_prio_vals), 0x18,
 			"Priority", HFILL }
 		},
 		{ &hf_rsl_sapi,
 			{ "SAPI",           "rsl.sapi",
-			FT_UINT8, BASE_DEC, NULL, 0x07,          
+			FT_UINT8, BASE_DEC, NULL, 0x07,
 			"SAPI", HFILL }
 		},
 		{ &hf_rsl_cause,
 			{ "Cause",           "rsl.cause",
-			FT_UINT8, BASE_DEC, VALS(rsl_cause_vals), 0x7f,          
+			FT_UINT8, BASE_DEC, VALS(rsl_cause_vals), 0x7f,
 			"Cause", HFILL }
 		},
 		{ &hf_rsl_rel_mode,
 			{ "Release Mode",           "rsl.rel_mode",
-			FT_UINT8, BASE_DEC, VALS(rel_mode_vals), 0x01,          
+			FT_UINT8, BASE_DEC, VALS(rel_mode_vals), 0x01,
 			"Relese Mode", HFILL }
 		},
 
