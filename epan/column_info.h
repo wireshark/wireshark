@@ -109,7 +109,7 @@ enum {
   COL_DSCP_VALUE,     /* IP DSCP Value */
   COL_COS_VALUE,      /* L2 COS Value */
   COL_TEI,            /* Q.921 TEI */
-  COL_FR_DLCI,	      /* Frame Relay DLCI */
+  COL_FR_DLCI,        /* Frame Relay DLCI */
   COL_BSSGP_TLLI,     /* GPRS BSSGP IE TLLI */
   COL_EXPERT,         /* Expert Info */
   COL_FREQ_CHAN,      /* IEEE 802.11 (and WiMax?) - Channel */

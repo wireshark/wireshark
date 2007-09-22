@@ -104,7 +104,7 @@ col_format_to_string(gint fmt) {
     "%l",
     "%a",
     "%F"
-};
+  };
 
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
@@ -600,21 +600,6 @@ get_column_char_width(gint format)
   return strlen(get_column_longest_string(format));
 }
 
-#define TIME_DEF      0
-#define TIME_REL      1
-#define TIME_ABS      2
-#define DATE_TIME_ABS 3
-#define TIME_DEL      4
-#define TIME_DEL_DIS  5
-
-#define RES_DEF  0
-#define RES_DO   1
-#define RES_DONT 2
-
-#define ADDR_DEF 0
-#define ADDR_DL  3
-#define ADDR_NET 6
-
 gint
 get_column_format(gint col) {
   GList    *clp = g_list_nth(prefs.col_list, col);
@@ -627,142 +612,11 @@ get_column_format(gint col) {
 
 gint
 get_column_format_from_str(gchar *str) {
-  gchar *cptr = str;
-  gint      res_off = RES_DEF, addr_off = ADDR_DEF, time_off = TIME_DEF;
-  gint      prev_code = -1;
+  gint i;
 
-  /* To do: Make this parse %-formatted strings "for real" */
-  while (*cptr != '\0') {
-    switch (*cptr) {
-      case 't':  /* To do: fix for absolute and delta */
-        return COL_CLS_TIME + time_off;
-        break;
-      case 'm':
-        return COL_NUMBER;
-        break;
-      case 's':
-        if (prev_code == COL_OXID) {
-          return COL_SRCIDX;
-        }
-        else {
-          return COL_DEF_SRC + res_off + addr_off;
-        }
-        break;
-      case 'd':
-        if (prev_code == COL_OXID) {
-          return COL_DSTIDX;
-        }
-        else {
-          return COL_DEF_DST + res_off + addr_off;
-        }
-        break;
-      case 'S':
-        return COL_DEF_SRC_PORT + res_off;
-        break;
-      case 'D':
-        return COL_DEF_DST_PORT + res_off;
-        break;
-      case 'p':
-        return COL_PROTOCOL;
-        break;
-      case 'i':
-        return COL_INFO;
-        break;
-      case 'r':
-        res_off = RES_DO;
-        break;
-      case 'u':
-        res_off = RES_DONT;
-        break;
-      case 'h':
-        addr_off = ADDR_DL;
-        break;
-      case 'n':
-        addr_off = ADDR_NET;
-        break;
-      case 'R':
-        if (prev_code == COL_OXID) {
-            return COL_RXID;
-        }
-        else {
-            time_off = TIME_REL;
-        }
-        break;
-      case 'A':
-        time_off = TIME_ABS;
-        break;
-      case 'Y':
-        time_off = DATE_TIME_ABS;
-        break;
-      case 'T':
-        time_off = TIME_DEL;
-        break;
-      case 'G': /* Todo: use a better letter for time since last displayed packet */
-        time_off = TIME_DEL_DIS;
-        break;
-      case 'L':
-        return COL_PACKET_LENGTH;
-        break;
-      case 'B':
-        return COL_CUMULATIVE_BYTES;
-        break;
-      case 'X':
-        prev_code = COL_OXID;
-        break;
-      case 'O':
-        return COL_OXID;
-        break;
-      case 'I':
-        return COL_IF_DIR;
-        break;
-      case 'c':
-        return COL_CIRCUIT_ID;
-        break;
-      case 'V':
-        return COL_VSAN;
-        break;
-      case 'x':
-        return COL_TX_RATE;
-        break;
-      case 'e':
-        return COL_RSSI;
-        break;
-      case 'H':
-	return COL_HPUX_SUBSYS;
-	break;
-      case 'P':
-	return COL_HPUX_DEVID;
-	break;
-      case 'y':
-	return COL_DCE_CALL;
-	break;
-      case 'z':
-	return COL_DCE_CTX;
-	break;
-      case 'q':
-	return COL_8021Q_VLAN_ID;
-	break;
-      case 'f':
-        return COL_DSCP_VALUE;
-        break;
-      case 'U':
-        return COL_COS_VALUE;
-        break;
-      case 'E':
-	return COL_TEI;
-      case 'C':
-	return COL_FR_DLCI;
-      case 'l':
-	return COL_BSSGP_TLLI;
-	break;
-      case 'a':
-	return COL_EXPERT;
-	break;
-      case 'F':
-	return COL_FREQ_CHAN;
-	break;
-    }
-    cptr++;
+  for (i = 0; i < NUM_COL_FMTS; i++) {
+    if (strcmp(str, col_format_to_string(i)) == 0)
+      return i;
   }
   return -1;	/* illegal */
 }
