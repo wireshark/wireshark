@@ -109,8 +109,8 @@ static const true_false_string rsl_na_vals = {
 };
 
 static const true_false_string rsl_extension_bit_value = {
-  "Extension"
-  "No Extension",
+  "Extension",
+  "No Extension"
 };
 
 /*
