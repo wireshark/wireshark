@@ -6,6 +6,9 @@
  * Refactored for wireshark checkin
  *   Ronnie Sahlberg 2006
  *
+ * Updated to HCI specification 2.1 + EDR
+ *   Allan M. Madsen 2007
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -32,10 +35,12 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
 
 #include <epan/packet.h>
 #include <etypes.h>
 #include <packet-hci_h4.h>
+#include <addr_resolv.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_cmd = -1;
@@ -55,6 +60,12 @@ static int hf_bthci_cmd_packet_type_dm5 = -1;
 static int hf_bthci_cmd_packet_type_dh1 = -1;
 static int hf_bthci_cmd_packet_type_dh3 = -1;
 static int hf_bthci_cmd_packet_type_dh5 = -1;
+static int hf_bthci_cmd_packet_type_2dh1 = -1;
+static int hf_bthci_cmd_packet_type_3dh1 = -1;
+static int hf_bthci_cmd_packet_type_2dh3 = -1;
+static int hf_bthci_cmd_packet_type_3dh3 = -1;
+static int hf_bthci_cmd_packet_type_2dh5 = -1;
+static int hf_bthci_cmd_packet_type_3dh5 = -1;
 static int hf_bthci_cmd_clock_offset = -1;
 static int hf_bthci_cmd_clock_offset_valid = -1;
 static int hf_bthci_cmd_allow_role_switch = -1;
@@ -88,6 +99,7 @@ static int hf_bthci_cmd_min_interval_beacon = -1;
 static int hf_bthci_cmd_flags = -1;
 static int hf_bthci_cmd_service_type = -1;
 static int hf_bthci_cmd_token_rate = -1;
+static int hf_bthci_cmd_token_bucket_size = -1;
 static int hf_bthci_cmd_peak_bandwidth = -1;
 static int hf_bthci_cmd_latency = -1;
 static int hf_bthci_cmd_delay_variation = -1;
@@ -116,9 +128,10 @@ static int hf_bthci_cmd_hold_mode_act_periodic = -1;
 static int hf_bthci_cmd_scan_enable = -1;
 static int hf_bthci_cmd_interval = -1;
 static int hf_bthci_cmd_window = -1;
-static int hf_bthci_cmd_local_name = -1;
+static int hf_bthci_cmd_device_name = -1;
 static int hf_bthci_cmd_num_curr_iac = -1;
 static int hf_bthci_cmd_iac_lap = -1;
+static int hf_bthci_cmd_evt_mask_00 = -1;
 static int hf_bthci_cmd_evt_mask_01 = -1;
 static int hf_bthci_cmd_evt_mask_02 = -1;
 static int hf_bthci_cmd_evt_mask_03 = -1;
@@ -126,31 +139,45 @@ static int hf_bthci_cmd_evt_mask_04 = -1;
 static int hf_bthci_cmd_evt_mask_05 = -1;
 static int hf_bthci_cmd_evt_mask_06 = -1;
 static int hf_bthci_cmd_evt_mask_07 = -1;
-static int hf_bthci_cmd_evt_mask_08 = -1;
-static int hf_bthci_cmd_evt_mask_09 = -1;
-static int hf_bthci_cmd_evt_mask_0a = -1;
-static int hf_bthci_cmd_evt_mask_0b = -1;
-static int hf_bthci_cmd_evt_mask_0c = -1;
-static int hf_bthci_cmd_evt_mask_0d = -1;
-static int hf_bthci_cmd_evt_mask_0e = -1;
-static int hf_bthci_cmd_evt_mask_0f = -1;
 static int hf_bthci_cmd_evt_mask_10 = -1;
 static int hf_bthci_cmd_evt_mask_11 = -1;
 static int hf_bthci_cmd_evt_mask_12 = -1;
 static int hf_bthci_cmd_evt_mask_13 = -1;
 static int hf_bthci_cmd_evt_mask_14 = -1;
-static int hf_bthci_cmd_evt_mask_15 = -1;
-static int hf_bthci_cmd_evt_mask_16 = -1;
 static int hf_bthci_cmd_evt_mask_17 = -1;
-static int hf_bthci_cmd_evt_mask_18 = -1;
-static int hf_bthci_cmd_evt_mask_19 = -1;
-static int hf_bthci_cmd_evt_mask_1a = -1;
-static int hf_bthci_cmd_evt_mask_1b = -1;
-static int hf_bthci_cmd_evt_mask_1c = -1;
-static int hf_bthci_cmd_evt_mask_1d = -1;
-static int hf_bthci_cmd_evt_mask_1e = -1;
-static int hf_bthci_cmd_evt_mask_1f = -1;
 static int hf_bthci_cmd_evt_mask_20 = -1;
+static int hf_bthci_cmd_evt_mask_21 = -1;
+static int hf_bthci_cmd_evt_mask_23 = -1;
+static int hf_bthci_cmd_evt_mask_24 = -1;
+static int hf_bthci_cmd_evt_mask_25 = -1;
+static int hf_bthci_cmd_evt_mask_26 = -1;
+static int hf_bthci_cmd_evt_mask_27 = -1;
+static int hf_bthci_cmd_evt_mask_30 = -1;
+static int hf_bthci_cmd_evt_mask_31 = -1;
+static int hf_bthci_cmd_evt_mask_32 = -1;
+static int hf_bthci_cmd_evt_mask_33 = -1;
+static int hf_bthci_cmd_evt_mask_34 = -1;
+static int hf_bthci_cmd_evt_mask_35 = -1;
+static int hf_bthci_cmd_evt_mask_36 = -1;
+static int hf_bthci_cmd_evt_mask_37 = -1;
+static int hf_bthci_cmd_evt_mask_40 = -1;
+static int hf_bthci_cmd_evt_mask_41 = -1;
+static int hf_bthci_cmd_evt_mask_42 = -1;
+static int hf_bthci_cmd_evt_mask_53 = -1;
+static int hf_bthci_cmd_evt_mask_54 = -1;
+static int hf_bthci_cmd_evt_mask_55 = -1;
+static int hf_bthci_cmd_evt_mask_56 = -1;
+static int hf_bthci_cmd_evt_mask_57 = -1;
+static int hf_bthci_cmd_evt_mask_60 = -1;
+static int hf_bthci_cmd_evt_mask_61 = -1;
+static int hf_bthci_cmd_evt_mask_62 = -1;
+static int hf_bthci_cmd_evt_mask_63 = -1;
+static int hf_bthci_cmd_evt_mask_64 = -1;
+static int hf_bthci_cmd_evt_mask_65 = -1;
+static int hf_bthci_cmd_evt_mask_67 = -1;
+static int hf_bthci_cmd_evt_mask_70 = -1;
+static int hf_bthci_cmd_evt_mask_72 = -1;
+static int hf_bthci_cmd_evt_mask_73 = -1;
 static int hf_bthci_cmd_sco_flow_control = -1;
 static int hf_bthci_cmd_num_handles = -1;
 static int hf_bthci_cmd_num_compl_packets = -1;
@@ -161,11 +188,54 @@ static int hf_bthci_cmd_host_total_num_acl_data_packets = -1;
 static int hf_bthci_cmd_host_total_num_sco_data_packets = -1;
 static int hf_bthci_cmd_power_level_type = -1;
 static int hf_bthci_cmd_loopback_mode = -1;
+static int hf_bthci_cmd_page_number = -1;
+static int hf_bthci_cmd_transmit_bandwidth = -1;
+static int hf_bthci_cmd_receive_bandwidth = -1;
+static int hf_bthci_cmd_max_latency_ms = -1;
+static int hf_bthci_cmd_max_latency = -1;
+static int hf_bthci_cmd_retransmission_effort = -1;
+static int hf_bthci_cmd_scan_type = -1;
+static int hf_bthci_cmd_inq_mode = -1;
+static int hf_bthci_cmd_fec_required = -1;
+static int hf_bthci_cmd_err_data_reporting = -1;
+static int hf_bthci_cmd_tx_power = -1;
+static int hf_bthci_cmd_sco_packet_type_hv1 = -1;
+static int hf_bthci_cmd_sco_packet_type_hv2 = -1;
+static int hf_bthci_cmd_sco_packet_type_hv3 = -1;
+static int hf_bthci_cmd_sco_packet_type_ev3 = -1;
+static int hf_bthci_cmd_sco_packet_type_ev4 = -1;
+static int hf_bthci_cmd_sco_packet_type_ev5 = -1;
+static int hf_bthci_cmd_sco_packet_type_2ev3 = -1;
+static int hf_bthci_cmd_sco_packet_type_3ev3 = -1;
+static int hf_bthci_cmd_sco_packet_type_2ev5 = -1;
+static int hf_bthci_cmd_sco_packet_type_3ev5 = -1;
+static int hf_bthci_cmd_min_remote_timeout = -1;
+static int hf_bthci_cmd_min_local_timeout = -1;
+static int hf_bthci_cmd_flush_packet_type = -1;
+static int hf_bthci_cmd_afh_ch_assessment_mode = -1;
+static int hf_bthci_cmd_afh_ch_classification = -1;
+static int hf_bthci_cmd_which_clock = -1;
+static int hf_bthci_cmd_io_capability = -1;
+static int hf_bthci_cmd_oob_data_present = -1;
+static int hf_bthci_cmd_auth_requirements = -1;
+static int hf_bthci_cmd_passkey = -1;
+static int hf_bthci_cmd_randomizer_r = -1;
+static int hf_bthci_cmd_hash_c = -1;
+static int hf_bthci_cmd_simple_pairing_mode = -1;
+static int hf_bthci_cmd_simple_pairing_debug_mode = -1;
+static int hf_bthci_cmd_notification_type = -1;
+static int hf_bthci_cmd_eir_data = -1;
+static int hf_bthci_cmd_eir_struct_length = -1;
+static int hf_bthci_cmd_eir_struct_type = -1;
+static int hf_bthci_cmd_sc_uuid16 = -1;
+static int hf_bthci_cmd_sc_uuid32 = -1;
+static int hf_bthci_cmd_sc_uuid128 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_cmd = -1;
 static gint ett_opcode = -1;
-
+static gint ett_eir_subtree = -1;
+static gint ett_eir_struct_subtree = -1;
 
 const value_string bthci_cmd_opcode_vals[] = {
 	{0x0000, "No Operation"},
@@ -176,6 +246,7 @@ const value_string bthci_cmd_opcode_vals[] = {
 	{0x0405, "Create Connection"},
 	{0x0406, "Disconnect"},
 	{0x0407, "Add SCO Connection"},
+	{0x0408, "Create Connection Cancel"},
 	{0x0409, "Accept Connection Request"},
 	{0x040a, "Reject Connection Request"},
 	{0x040b, "Link Key Request Reply"},
@@ -188,9 +259,22 @@ const value_string bthci_cmd_opcode_vals[] = {
 	{0x0415, "Change Connection Link Key"},
 	{0x0417, "Master Link Key"},
 	{0x0419, "Remote Name Request"},
+	{0x041a, "Remote Name Request Cancel"},
 	{0x041b, "Read Remote Supported Features"},
+	{0x041c, "Read Remote Extended Features"},
 	{0x041d, "Read Remote Version Information"},
 	{0x041f, "Read Clock offset"},
+	{0x0420, "Read LMP Handle"},
+	{0x0428, "Setup Synchronous Connection"},
+	{0x0429, "Accept Synchronous Connection Request"},
+	{0x042a, "Reject Synchronous Connection Request"},
+	{0x042b, "IO Capability Response"},
+	{0x042c, "User Confirmation Request Reply"},
+	{0x042d, "User Confirmation Request Negative Reply"},
+	{0x042e, "User Passkey Request Reply"},
+	{0x042f, "User Passkey Request Negative Reply"},
+	{0x0430, "Remote OOB Data Request Reply"},
+	{0x0433, "Remote OOB Data Request Negative Reply"},
 	{0x0801, "Hold Mode"},
 	{0x0803, "Sniff Mode"},
 	{0x0804, "Exit Sniff Mode"},
@@ -201,6 +285,10 @@ const value_string bthci_cmd_opcode_vals[] = {
 	{0x080b, "Switch Role"},
 	{0x080c, "Read Link Policy Settings"},
 	{0x080d, "Write Link Policy Settings"},
+	{0x080e, "Read Default Link Policy Settings"},
+	{0x080f, "Write Default Link Policy Settings"},
+	{0x0810, "Flow Specification"},
+	{0x0811, "Sniff Subrating"},
 	{0x0c01, "Set Event Mask"},
 	{0x0c03, "Reset"},
 	{0x0c05, "Set Event Filter"},
@@ -237,7 +325,7 @@ const value_string bthci_cmd_opcode_vals[] = {
 	{0x0c2a, "Write Num Broadcast Retransmissions"},
 	{0x0c2b, "Read Hold Mode Activity "},
 	{0x0c2c, "Write Hold Mode Activity"},
-	{0x0c2d, "Read Transmit Power Level"},
+	{0x0c2d, "Read Tx Power Level"},
 	{0x0c2e, "Read SCO Flow Control Enable"},
 	{0x0c2f, "Write SCO Flow Control Enable"},
 	{0x0c31, "Set Host Controller To Host Flow Control"},
@@ -252,23 +340,62 @@ const value_string bthci_cmd_opcode_vals[] = {
 	{0x0c3c, "Write Page Scan Period Mode"},
 	{0x0c3d, "Read Page Scan Mode"},
 	{0x0c3e, "Write Page Scan Mode"},
+	{0x0c3f, "Set AFH Host Channel Classification"},
+	{0x0c42, "Read Inquiry Scan Type"},
+	{0x0c43, "Write Inquiry Scan Type"},
+	{0x0c44, "Read Inquiry Mode"},
+	{0x0c45, "Write Inquiry Mode"},
+	{0x0c46, "Read Page Scan Type"},
+	{0x0c47, "Write Page Scan Type"},
+	{0x0c48, "Read AFH Channel Assessment Mode"},
+	{0x0c49, "Write AFH Channel Assessment Mode"},
+	{0x0c51, "Read Extended Inquiry Response"},
+	{0x0c52, "Write Extended Inquiry Response"},
+	{0x0c53, "Refresh Encryption Key"},
+	{0x0c55, "Read Simple Pairing Mode"},
+	{0x0c56, "Write Simple Pairing Mode"},
+	{0x0c57, "Read Local OOB Data"},
+	{0x0c58, "Read Inquiry Response Tx Power Level"},
+	{0x0c59, "Write Inquiry Tx Power Level"},
+	{0x0c5a, "Read Default Erroneous Data Reporting"},
+	{0x0c5b, "Write Default Erroneous Data Reporting"},
+	{0x0c5f, "Enhanced Flush"},
+	{0x0c60, "Send Keypress Notification"},
 	{0x1001, "Read Local Version Information"},
+	{0x1002, "Read Local Supported Commands"},
 	{0x1003, "Read Local Supported Features"},
+	{0x1004, "Read Local Extended Features"},
 	{0x1005, "Read Buffer Size"},
 	{0x1007, "Read Country Code"},
 	{0x1009, "Read BD ADDR"},
 	{0x1401, "Read Failed Contact Counter"},
 	{0x1402, "Reset Failed Contact Counter"},
-	{0x1403, "Get Link Quality"},
+	{0x1403, "Read Link Quality"},
 	{0x1405, "Read RSSI"},
+	{0x1406, "Read AFH Channel Map"},
+	{0x1407, "Read Clock"},
 	{0x1801, "Read Loopback Mode"},
 	{0x1802, "Write Loopback Mode"},
 	{0x1803, "Enable Device Under Test Mode"},
+	{0x1804, "Write Simple Pairing Debug Mode"},
+	{0xfc00, "Vendor-Specific"},
 	{0, NULL}
 };
 
-static const value_string cmd_status_vals[] = {
-	{0x00, "Command Succeeded"},
+const value_string bthci_ogf_vals[] = {
+	{ HCI_OGF_LINK_CONTROL,	"Link Control Commands" },
+	{ HCI_OGF_LINK_POLICY,	"Link Policy Commands" },
+	{ HCI_OGF_HOST_CONTROLLER,"Host Controller & Baseband Commands" },
+	{ HCI_OGF_INFORMATIONAL,"Informational Parameters" },
+	{ HCI_OGF_STATUS,	"Status Parameters" },
+	{ HCI_OGF_TESTING,	"Testing Commands" },
+	{ HCI_OGF_LOGO_TESTING,	"Bluetooth Logo Testing Commands" },
+	{ HCI_OGF_VENDOR_SPECIFIC,	"Vendor-Specific Commands" },
+	{ 0, NULL }
+};
+
+const value_string bthci_cmd_status_vals[] = {
+	{0x00, "Success"},
 	{0x01, "Unknown HCI Command"},
 	{0x02, "No Connection"},
 	{0x03, "Hardware Failure"},
@@ -310,7 +437,142 @@ static const value_string cmd_status_vals[] = {
 	{0x27, "QoS is Not Supported"},
 	{0x28, "Instant Passed"},
 	{0x29, "Pairing with Unit Key Not Supported"},
+	{0x2A, "Different Transaction Collision"},
+	{0x2C, "QoS Unacceptable Parameter"},
+	{0x2D, "QoS Rejected"},
+	{0x2E, "Channel Classification Not Supported"},
+	{0x2F, "Insufficient Security"},
+	{0x30, "Parameter Out Of Mandatory Range"},
+	{0x32, "Role Switch Pending"},
+	{0x34, "Reserved Slot Violation"},
+	{0x35, "Role Switch Failed"}, 
+	{0x36, "Extended Inquiry Response Too Large"}, 
+	{0x37, "Secure Simple Pairing Not Supported By Host"},
+	{0x38, "Host Busy - Pairing"},
 	{0, NULL }
+};
+
+const value_string bthci_cmd_major_dev_class_vals[] = {
+	{0x00, "Miscellaneous"},
+	{0x01, "Computer"},
+	{0x02, "Phone"},
+	{0x03, "LAN/Network Access Point"},
+	{0x04, "Audio/Video"},
+	{0x05, "Peripheral (HID)"},
+	{0x06, "Imaging"},
+	{0x07, "Wearable"},
+	{0x08, "Toy"},
+	{0, NULL }
+};
+
+const value_string bthci_cmd_service_class_type_vals[] = {
+	{0x1000, "Service Discovery Server Service"},
+	{0x1001, "Browse Group Descriptor Service"},
+	{0x1002, "Public Browse Group"},
+	{0x1101, "Serial Port"},
+	{0x1102, "LAN Access Using PPP"},
+	{0x1103, "Dialup Networking"},
+	{0x1104, "IrMC Sync"},
+	{0x1105, "OBEX Object Push"},
+	{0x1106, "OBEX File Transfer"},
+	{0x1107, "IrMC Sync Command"},
+	{0x1108, "Headset"},
+	{0x1109, "Cordless Telephony"},
+	{0x110A, "Audio Source"},
+	{0x110B, "Audio Sink"},
+	{0x110C, "A/V Remote Control Target"},
+	{0x110D, "Advanced Audio Distribution"},
+	{0x110E, "A/V Remote Control"},
+	{0x110F, "Video Conferencing"},
+	{0x1110, "Intercom"},
+	{0x1111, "Fax"},
+	{0x1112, "Headset Audio Gateway"},
+	{0x1113, "WAP"},
+	{0x1114, "WAP Client"},
+	{0x1115, "PANU"},
+	{0x1116, "NAP"},
+	{0x1117, "GN"},
+	{0x1118, "Direct Printing"},
+	{0x1119, "Reference Printing"},
+	{0x111A, "Imaging"},
+	{0x111B, "Imaging Responder"},
+	{0x111C, "Imaging Automatic Archive"},
+	{0x111D, "Imaging Referenced Objects"},
+	{0x111E, "Handsfree"},
+	{0x111F, "Handsfree Audio Gateway"},
+	{0x1120, "Direct Printing Reference Objects Service"},
+	{0x1121, "Reflected UI"},
+	{0x1122, "Basic Printing"},
+	{0x1123, "Printing Status"},
+	{0x1124, "Human Interface Device Service"},
+	{0x1125, "Hardcopy Cable Replacement"},
+	{0x1126, "HCR Print"},
+	{0x1127, "HCR Scan"},
+	{0x1128, "Common ISDN Access"},
+	{0x1129, "Video Conferencing GW"},
+	{0x112A, "UDI_MT"},
+	{0x112B, "UDI_TA"},
+	{0x112C, "Audio/Video"},
+	{0x112D, "SIM Access"},
+	{0x112E, "Phonebook Access - PCE"},
+	{0x112F, "Phonebook Access - PSE"},
+	{0x1130, "Phonebook Access"},
+	{0x1200, "PnP Information"},
+	{0x1201, "Generic Networking"},
+	{0x1202, "Generic File Transfer"},
+	{0x1203, "Generic Audio"},
+	{0x1204, "Generic Telephony"},
+	{0x1205, "UPNP Service"},
+	{0x1206, "UPNP IP Service"},
+	{0x1300, "ESDP_UPNP_IP_PAN"},
+	{0x1301, "ESDP_UPNP_IP_LAP"},
+	{0x1302, "ESDP_UPNP_L2CAP"},
+	{0x1303, "Video Source"},
+	{0x1304, "Video Sink"},
+	{0x1305, "Video Distribution"},
+	{0, NULL}
+};
+
+const value_string bthci_cmd_eir_data_type_vals[] = {
+  {0x01, "Flags" },
+  {0x02, "16-bit Service Class UUIDs (incomplete)" },
+  {0x03, "16-bit Service Class UUIDs" },
+  {0x04, "32-bit Service Class UUIDs (incomplete)" },
+  {0x05, "32-bit Service Class UUIDs" },
+  {0x06, "128-bit Service Class UUIDs (incomplete)" },
+  {0x07, "128-bit Service Class UUIDs" },
+  {0x08, "Device Name (shortened)" },
+  {0x09, "Device Name" },
+  {0x0A, "Tx Power Level" },
+  {0x0B, "OOB Optional Data Length" },
+  {0x0C, "BD_ADDR" },
+  {0x0D, "Class Of Device" },
+  {0x0E, "Simple Pairing Hash C" },
+  {0x0F, "Simple Pairing Randomizer R" },
+  {0xFF, "Manufacturer Specific" },
+  {   0, NULL }
+};
+
+const value_string bthci_cmd_io_capability_vals[] = {
+  {0x00, "Display Only" },
+  {0x01, "Display Yes/No" },
+  {0x02, "Keyboard Only" },
+  {0x03, "No Input, No Output" },
+  {   0, NULL }
+};
+
+const value_string bthci_cmd_oob_data_present_vals[] = {
+  {0x00, "OOB Authentication Data Not Present" },
+  {0x01, "OOB Authentication Data From Remote Device Present" },
+  {   0, NULL }
+};
+
+const value_string bthci_cmd_auth_req_vals[] = {
+  {0x00, "MITM Protection Not Required - Single Profile. Numeric Comparison, Automatic Accept Allowed" },
+  {0x01, "MITM Protection Required - Single Profile. Use IO Capabilty To Determine Procedure" },
+  {0x02, "MITM Protection Not Required - All Profiles. Numeric Comparison, Automatic Accept Allowed" },
+  {0x03, "MITM Protection Required - All Profiles. Use IO Capabilty To Determine Procedure" },
+  {   0, NULL }
 };
 
 static const value_string cmd_role_vals[] = {
@@ -452,18 +714,6 @@ static const value_string cmd_loopback_modes[] = {
 	{0, NULL }
 };
 
-
-const value_string bthci_ogf_vals[] = {
-	{ HCI_OGF_LINK_CONTROL,	"Link Control Commands" },
-	{ HCI_OGF_LINK_POLICY,	"Link Policy Commands" },
-	{ HCI_OGF_HOST_CONTROLLER,"Host Controller & Baseband Commands" },
-	{ HCI_OGF_INFORMATIONAL,"Informational Parameters" },
-	{ HCI_OGF_STATUS,	"Status Parameters" },
-	{ HCI_OGF_TESTING,	"Testing Commands" },
-	{ 0, NULL }
-};
-
-
 static const value_string encrypt_mode_vals[] = {
 	{ 0x00,	"Encryption Disabled" },
 	{ 0x01,	"Encryption only for Point-To-Point Packets" },
@@ -471,13 +721,11 @@ static const value_string encrypt_mode_vals[] = {
 	{ 0, NULL }
 };
 
-
 static const value_string cmd_boolean[] = {
 	{0, "false" },
 	{1, "true" },
 	{0, NULL }
 };
-
 
 static const value_string cmd_page_scan_modes[] = {
 	{0, "Mandatory Page Scan Mode"},
@@ -507,6 +755,188 @@ static const value_string cmd_role_switch_modes[] = {
 	{0, NULL }
 };
 
+static const value_string cmd_rtx_effort[] = {
+  {0x00, "No Retransmission" },
+  {0x01, "At least 1 retransmission, optimize for consumption" },
+  {0x02, "At least 1 retransmission, optimize for link quality" },
+  {0xFF, "Don't Care" },
+  {   0, NULL }
+};
+
+static const value_string cmd_scan_types[] = {
+  {0x00, "Standard Scan" },
+  {0x01, "Interlaced Scan" },
+  {   0, NULL }
+};
+
+static const value_string cmd_inq_modes[] = {
+  {0x00, "Standard Results" },
+  {0x01, "Results With RSSI" },
+  {0x02, "Results With RSSI or Extended Results" },
+  {   0, NULL }
+};
+
+static const value_string cmd_flush_pkt_type[] = {
+  {0x00, "Automatically Flushable Only" },
+  {   0, NULL }
+};
+
+static const value_string cmd_which_clock[] = {
+  {0x00, "Local" },
+  {0x01, "Piconet" },
+  {   0, NULL }
+};
+
+static const value_string cmd_notification_types[] = {
+  {0x00, "Passkey Entry Started" },
+  {0x01, "Passkey Digit Entered" },
+  {0x02, "Passkey Digit Erased" },
+  {0x03, "Passkey Cleared" },
+  {0x04, "Passkey Entry Completed" },
+  {   0, NULL }
+};
+
+
+static int 
+dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 i, bd_addr[6];
+	proto_item *item;
+
+	for(i=6; i; i--)
+		bd_addr[6-i] = tvb_get_guint8(tvb, offset+i-1);
+
+	item = proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
+	proto_item_append_text(item, "%02x%02x:%02x:%02x%02x%02x (%s)",
+							bd_addr[0], bd_addr[1], bd_addr[2], bd_addr[3], bd_addr[4], bd_addr[5],
+							get_ether_name(bd_addr));
+	
+	offset+=6;
+
+	return offset;
+}
+
+static int 
+dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 cod1, cod2;
+	proto_item *item;
+
+	item = proto_tree_add_item(tree, type, tvb, offset, 3, TRUE);
+
+	cod1 = tvb_get_guint8(tvb, offset+1);
+	cod2 = tvb_get_guint8(tvb, offset+2);
+
+	if( (cod2 != 0) || (cod1 & 0x20) )
+	{
+		char buf[128];
+
+		buf[0] = '\0';
+
+		proto_item_append_text(item, " (%s - services:", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
+		if (cod2 & 0x80) strcat(buf, " Information,");
+		if (cod2 & 0x40) strcat(buf, " Telephony,");
+		if (cod2 & 0x20) strcat(buf, " Audio,");
+		if (cod2 & 0x10) strcat(buf, " Object transfer,");
+		if (cod2 & 0x08) strcat(buf, " Capturing,");
+		if (cod2 & 0x04) strcat(buf, " Rendering,");
+		if (cod2 & 0x02) strcat(buf, " Networking,");
+		if (cod2 & 0x01) strcat(buf, " Positioning,");
+		if (cod1 & 0x20) strcat(buf, " Limited discoverable mode,");
+
+		buf[strlen(buf)-1] = '\0'; /* skip last comma */
+
+		strcat(buf, ")");
+
+		proto_item_append_text(item, buf);
+	}
+	else
+	{
+		proto_item_append_text(item, " (%s - no major services)", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
+	}
+
+	return offset+3;
+}
+
+static int 
+dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 i, j, length, type;
+	proto_item *ti_eir=NULL;
+	proto_tree *ti_eir_subtree=NULL;
+
+	if(tree){
+		ti_eir=proto_tree_add_text(tree, tvb, offset, 240, "Extended Inquiry Response Data");
+		ti_eir_subtree=proto_item_add_subtree(ti_eir, ett_eir_subtree);
+	}
+	
+	i=0;
+	while(i<240){
+		length = tvb_get_guint8(tvb, offset+i);
+		if( length != 0 ){
+
+			proto_item *ti_eir_struct=NULL;
+			proto_tree *ti_eir_struct_subtree=NULL;
+
+			ti_eir_struct = proto_tree_add_text(ti_eir_subtree, tvb, offset+i, length+1, "%s", "");
+			ti_eir_struct_subtree = proto_item_add_subtree(ti_eir_struct, ett_eir_struct_subtree);
+
+			type = tvb_get_guint8(tvb, offset+i+1);
+			
+			proto_item_append_text(ti_eir_struct,"%s", val_to_str(type, bthci_cmd_eir_data_type_vals, "Unknown"));
+
+			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset+i, 1, TRUE);
+			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset+i+1, 1, TRUE);
+
+			switch(type) {
+				case 0x02: /* 16-bit Service Class UUIDs, incomplete list */
+				case 0x03: /* 16-bit Service Class UUIDs, complete list */
+					j=0;
+					while(j<(length-1))
+					{
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid16, tvb, offset+i+j+2, 2, TRUE);
+						j+=2;
+					}
+					break;
+				case 0x04: /* 32-bit Service Class UUIDs, incomplete list */
+				case 0x05: /* 32-bit Service Class UUIDs, complete list */
+					j=0;
+					while(j<(length-1))
+					{
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid32, tvb, offset+i+j+2, 4, TRUE);
+						j+=4;
+					}
+					break;
+				case 0x06: /* 128-bit Service Class UUIDs, incomplete list */
+				case 0x07: /* 128-bit Service Class UUIDs, complete list */
+					j=0;
+					while(j<(length-1))
+					{
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid128, tvb, offset+i+j+2, 16, TRUE);
+						j+=16;
+					}
+					break;
+				case 0x08: /* Device Name, shortened */
+				case 0x09: /* Device Name, full */
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_device_name, tvb, offset+i+2, length-1, TRUE);
+					proto_item_append_text(ti_eir_struct,": %s", tvb_format_text(tvb,offset+i+2,length-1));
+					break;
+				case 0x0A: /* Tx Power Level */
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_tx_power, tvb, offset+i+2, 1, TRUE);
+
+				default:
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, TRUE);
+					break;
+			}
+			i += length+1;
+		}
+		else {
+			break;
+		}
+	}
+
+	return offset+240;
+}
 
 static void
 dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
@@ -546,13 +976,18 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		case 0x0005: /* Create Connection */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, TRUE); 
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh3, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm3, tvb, offset, 2, TRUE); 
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh3, tvb, offset, 2, TRUE); 
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh5, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm5, tvb, offset, 2, TRUE); 
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh5, tvb, offset, 2, TRUE); 
 			offset+=2;
@@ -589,35 +1024,38 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			offset+=2;
 			break;
 
+		case 0x0008: /* Create Connection Cancel Request */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+			break;
+
 		case 0x0009: /* Accept Connection Request */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, TRUE);
 			offset++;
 			break;
 
 		case 0x000a: /* Reject Connection Request */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, TRUE);
 			offset++;
 			break;
 
 		case 0x000b: /* Link Key Request Reply */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, TRUE);
 			offset+=16;
 			break; 
 
 		case 0x000c: /* Link Key Request Negative Reply */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 			break;
 
 		case 0x000d: /* PIN Code Request Reply */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_pin_code_length ,tvb, offset, 1, TRUE);
 			offset++;
 			proto_tree_add_item(tree, hf_bthci_cmd_pin_code ,tvb, offset, 16, TRUE);
@@ -625,22 +1063,24 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		case 0x000e: /* PIN Code Request Negative Reply */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 			break;
 
 		case 0x000f: /* Change Connection Packet Type */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, TRUE); 
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh3, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm3, tvb, offset, 2, TRUE); 
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh3, tvb, offset, 2, TRUE); 
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh5, tvb, offset, 2, TRUE);
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm5, tvb, offset, 2, TRUE); 
 			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh5, tvb, offset, 2, TRUE); 
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv1, tvb, offset, 2, TRUE); 
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv2, tvb, offset, 2, TRUE); 
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv3, tvb, offset, 2, TRUE); 
 			offset+=2;
 			break;
 
@@ -662,8 +1102,8 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		case 0x0019: /* Remote Name Request */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_repetition_mode, tvb, offset, 1, TRUE);
 			offset++;
 
@@ -677,11 +1117,98 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			offset+=2;
 			break;
 
+		case 0x001a: /* Remote Name Request Cancel */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+			break;
+
+		case 0x001c: /* Read Remote Extended Features */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_page_number, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0028: /* Setup Synchronous Connection */
+		case 0x0029: /* Accept Synchronous Connection Request */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_transmit_bandwidth, tvb, offset, 4, TRUE);
+			offset+=4;
+			proto_tree_add_item(tree, hf_bthci_cmd_receive_bandwidth, tvb, offset, 4, TRUE);
+			offset+=4;
+			proto_tree_add_item(tree, hf_bthci_cmd_max_latency_ms, tvb, offset, 2, TRUE);
+			offset+=2;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_input_coding, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_input_data_format, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_input_sample_size, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_linear_pcm_bit_pos, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format, tvb, offset, 2, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_retransmission_effort, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv1, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv2, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev4, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_2ev3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_2ev5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev5, tvb, offset, 2, TRUE);
+			offset+=2;
+			break;
+
+		case 0x002a: /* Reject Synchronous Connection Request */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
+			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
 		case 0x0015: /* Change Connection Link Key */
 		case 0x001b: /* Read Remote Supported Features */
 		case 0x001d: /* Read Remote Version Information */
 		case 0x001f: /* Read Clock Offset*/
+		case 0x0020: /* Read LMP Handle */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			break;
+
+		case 0x002b: /* IO Capability Response */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
+			proto_tree_add_item(tree, hf_bthci_cmd_io_capability, tvb, offset, 1, TRUE);
+			offset++;
+			proto_tree_add_item(tree, hf_bthci_cmd_oob_data_present, tvb, offset, 1, TRUE);
+			offset++;
+			proto_tree_add_item(tree, hf_bthci_cmd_auth_requirements, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x002c: /* User Confirmation Request Reply */
+		case 0x002d: /* User Confirmation Request Negative Reply */
+		case 0x002f: /* User Passkey Request Negative Reply */
+		case 0x0033: /* Remote OOB Data Request Negative Reply */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+			break;
+
+		case 0x002e: /* User Passkey Request Reply */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
+			proto_tree_add_item(tree, hf_bthci_cmd_passkey, tvb, offset, 4, TRUE);
+			offset+=4;
+			break;
+
+		case 0x0030: /* Remote OOB Data Request Reply */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
+			proto_tree_add_item(tree, hf_bthci_cmd_hash_c, tvb, offset, 2, TRUE);
+			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_randomizer_r, tvb, offset, 2, TRUE);
 			offset+=2;
 			break;
 
@@ -703,37 +1230,48 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 		case 0x0001: /* Hold Mode */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_max_interval_hold, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_hold, tvb, offset, 2, TRUE);
+			timeout = tvb_get_letohs(tvb, offset);
+			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_min_interval_hold, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_hold, tvb, offset, 2, TRUE);
+			timeout = tvb_get_letohs(tvb, offset);
+			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
 			break;
 
 		case 0x0003: /* sniff mode */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_max_interval_sniff, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_sniff, tvb, offset, 2, TRUE);
+			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);			
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_min_interval_sniff, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_sniff, tvb, offset, 2, TRUE);
+			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_sniff_attempt, tvb, offset, 2, TRUE);
-			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, TRUE);
-			timeout = tvb_get_letohs(tvb, 11);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_sniff_attempt, tvb, offset, 2, TRUE);
+			timeout = tvb_get_letohs(tvb, offset);
 			if(timeout>0){
 				proto_item_append_text(item, " (%g msec)", (2*timeout-1)*0.625);
 			} else {
 				proto_item_append_text(item, " (0 msec)");
 			}
 			offset+=2;
+			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, TRUE);
+			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
+			offset+=2;
 			break;
 
 		case 0x0005: /* Park Mode */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_max_interval_beacon, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_beacon, tvb, offset, 2, TRUE);
+			timeout = tvb_get_letohs(tvb, offset);
+			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_min_interval_beacon, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_beacon, tvb, offset, 2, TRUE);
+			timeout = tvb_get_letohs(tvb, offset);
+			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
 			break;
 
@@ -755,13 +1293,22 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 			break;
 
 		case 0x000b: /* Switch Role */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, TRUE);
 			offset++;
 			break;
 
+		case 0x0004: /* Exit Sniff Mode */
+		case 0x0006: /* Exit Park Mode */
+		case 0x0009: /* Role Discovery */
+		case 0x000c: /* Read Link Policy Settings */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			break;
+
 		case 0x000d: /* Write Link Policy Settings */
+		case 0x000f: /* Write Default Link Policy Settings */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
 			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_switch, tvb, offset, 2, TRUE);
@@ -771,11 +1318,37 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 			offset+=2;
 			break;
 
-		case 0x0004: /* Exit Sniff Mode */
-		case 0x0006: /* Exit Park Mode */
-		case 0x0009: /* Role Discovery */
-		case 0x000c: /* Read Link Policy Settings */
+		case 0x0010: /* Flow Specification */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_flags, tvb, offset, 1, TRUE);
+			offset++;
+			proto_tree_add_item(tree, hf_bthci_cmd_service_type, tvb, offset, 1, TRUE);
+			offset++;
+			proto_tree_add_item(tree, hf_bthci_cmd_token_rate, tvb, offset, 4, TRUE);
+			offset+=4;
+			proto_tree_add_item(tree, hf_bthci_cmd_token_bucket_size, tvb, offset, 4, TRUE);
+			offset+=4;
+			proto_tree_add_item(tree, hf_bthci_cmd_peak_bandwidth, tvb, offset, 4, TRUE);
+			offset+=4;
+			proto_tree_add_item(tree, hf_bthci_cmd_latency, tvb, offset, 4, TRUE);
+			offset+=4;
+			break;
+
+		case 0x0011: /* Sniff Subrating */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_latency, tvb, offset, 2, TRUE);
+			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+			offset+=2;
+
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_remote_timeout, tvb, offset, 2, TRUE);
+			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
+			offset+=2;
+
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_local_timeout, tvb, offset, 2, TRUE);
+			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
 			break;
 
@@ -799,39 +1372,68 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 	switch(cmd_ocf) {
 
 		case 0x0001: /* Set Event Mask */
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_01, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_02, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_03, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_04, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_05, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_06, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_07, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_08, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_09, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_0a, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_0b, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_0c, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_0d, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_0e, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_0f, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_10, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_11, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_12, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_13, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_14, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_15, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_16, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_17, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_18, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_19, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_1a, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_1b, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_1c, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_1d, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_1e, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_1f, tvb, offset, 4, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_20, tvb, offset, 4, TRUE);
-			offset+=4;
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_00, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_01, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_02, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_03, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_04, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_05, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_06, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_07, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_10, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_11, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_12, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_13, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_14, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_17, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_20, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_21, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_23, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_24, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_25, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_26, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_27, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_30, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_31, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_32, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_33, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_34, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_35, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_36, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_37, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_40, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_41, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_42, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_53, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_54, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_55, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_56, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_57, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_60, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_61, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_62, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_63, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_64, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_65, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_67, tvb, offset, 1, TRUE);
+			offset++;
+
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_70, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_72, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_73, tvb, offset, 1, TRUE);
+			offset++;
 			break;
 
 		case 0x0005: /* Set Event Filter */
@@ -847,15 +1449,12 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 					offset++;
 					switch (filter_condition_type) {
 						case 0x01:
-							proto_tree_add_item(tree, hf_bthci_cmd_class_of_device, tvb, offset, 3, TRUE);
-							offset+=3;
-							proto_tree_add_item(tree, hf_bthci_cmd_class_of_device_mask, tvb, offset, 3, TRUE);
-							offset+=3;
+							offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
+							offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device_mask, tvb, offset, pinfo, tree);
 							break;
 
 						case 0x02:
-							proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-							offset+=6;
+							offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 							break;
 
 						default:
@@ -876,17 +1475,16 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 							break;
 
 						case 0x01:
-							proto_tree_add_item(tree, hf_bthci_cmd_class_of_device, tvb, offset, 3, TRUE);
-							offset+=3;
-							proto_tree_add_item(tree, hf_bthci_cmd_class_of_device_mask, tvb, offset, 3, TRUE);
-							offset+=3;
+							offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
+							offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device_mask, tvb, offset, pinfo, tree);
+
 							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, TRUE);
 							offset++;
 							break;
 
 						case 0x02:
-							proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-							offset+=6;
+							offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, TRUE);
 							offset++;
 							break;
@@ -909,8 +1507,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 		case 0x000d: /* Read Stored Link Key */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_read_all_flag, tvb, offset, 1, TRUE);
 			offset++;
 			break;
@@ -920,20 +1518,20 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			num8 = tvb_get_guint8(tvb, offset);
 			offset++;
 			for (i=0; i<num8; i++) {
-				proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset+(i*22), 6, TRUE);
+				dissect_bthci_cmd_bd_addr(tvb, offset+(i*22), pinfo, tree);
 				proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset+6+(i*22), 16, TRUE);
 			}
 			break;
 
 		case 0x0012: /* Delete Stored Link Key */
-			proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
-			offset+=6;
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
 			proto_tree_add_item(tree, hf_bthci_cmd_delete_all_flag, tvb, offset, 1, TRUE);
 			offset++;
 			break;
 
 		case 0x0013: /* Change Local Name */
-			proto_tree_add_item(tree, hf_bthci_cmd_local_name, 
+			proto_tree_add_item(tree, hf_bthci_cmd_device_name, 
 					tvb, offset, 248, FALSE);
 			offset+=248;
 			break;
@@ -956,7 +1554,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			offset+=2;
 			break;
 
-		case 0x001a: /* Write Scan Anable */
+		case 0x001a: /* Write Scan Enable */
 			proto_tree_add_item(tree, hf_bthci_cmd_scan_enable, 
 					tvb, offset, 1, TRUE);
 			offset++;
@@ -974,9 +1572,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 		case 0x0024: /* Write Class of Device */
-			proto_tree_add_item(tree, hf_bthci_cmd_class_of_device,
-					tvb, offset, 3, TRUE);
-			offset+=3;
+			offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
 			break;
 
 		case 0x0026: /* Write Voice Setting */
@@ -1106,6 +1702,11 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 					tvb, 3, 1, TRUE);
 			break;
 
+		case 0x003f: /* Set AFH Host Channel Classification */
+			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_classification, tvb, offset, 10, TRUE);
+			offset+=10;
+			break;
+
 		case 0x0008: /* Flush */
 		case 0x0027: /* Read Automatic Flush Timeout */
 		case 0x0036: /* Read Link Supervision Timeout */
@@ -1123,6 +1724,67 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			offset+=2;
 			break;
 
+
+		case 0x0043: /* Write Inquiry Scan Type */
+			proto_tree_add_item(tree, hf_bthci_cmd_scan_type, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0045: /* Write Inquiry Mode */
+			proto_tree_add_item(tree, hf_bthci_cmd_inq_mode, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0047: /* Write Page Scan Type */
+			proto_tree_add_item(tree, hf_bthci_cmd_scan_type, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0049: /* Write AFH Channel Assessment Mode */
+			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_assessment_mode, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0052: /* Write Extended Inquiry Response */
+			proto_tree_add_item(tree, hf_bthci_cmd_fec_required, tvb, offset, 1, TRUE);
+			offset++;
+			offset=dissect_bthci_ext_inquiry_response(tvb, offset, pinfo, tree);
+			break;
+
+		case 0x0053: /* Refresh Encryption Key */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			break;
+
+		case 0x0056: /* Write Simple Pairing Mode */
+			proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_mode, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0059: /* Write Inquiry Tx Response Power Level */
+			proto_tree_add_item(tree, hf_bthci_cmd_tx_power, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x005b: /* Write Default Erroneous Data Reporting */
+			proto_tree_add_item(tree, hf_bthci_cmd_err_data_reporting, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x005f: /* Enhanced Flush */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_flush_packet_type, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0060: /* Send Keypress Notification */
+			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
+
+			proto_tree_add_item(tree, hf_bthci_cmd_notification_type, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
 		default:
 			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
 			offset+=tvb_length_remaining(tvb, offset);
@@ -1137,7 +1799,10 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 {
 	switch(cmd_ocf) {
 
-		/* There should be no command parameters to dissect */
+		case 0x0004: /* Read Local Extended Features */
+			proto_tree_add_item(tree, hf_bthci_cmd_page_number, tvb, offset, 1, TRUE);
+			offset++;
+			break;
 
 		default:
 			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
@@ -1157,8 +1822,16 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		case 0x0002: /* Reset Failed Contact Counter */
 		case 0x0003: /* Get Link Quality */
 		case 0x0005: /* Read RSSI */
+		case 0x0006: /* Read AFH Channel Map */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
+			break;
+
+		case 0x0007: /* Read Clock */
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			offset+=2;
+			proto_tree_add_item(tree, hf_bthci_cmd_which_clock, tvb, offset, 1, TRUE);
+			offset++;
 			break;
 
 		default:
@@ -1176,6 +1849,11 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 		case 0x0002: /* Write Loopback Mode */
 			proto_tree_add_item(tree, hf_bthci_cmd_loopback_mode, tvb, offset, 1, TRUE);
+			offset++;
+			break;
+
+		case 0x0004: /* Write Simple Pairing Debug Mode */
+			proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_debug_mode, tvb, offset, 1, TRUE);
 			offset++;
 			break;
 
@@ -1257,10 +1935,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_testing_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
 				break;
 
-				/*    case 0x0c22:*/ /* Write Encryption Mode */
-				/*      proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_encrypt_mode, tvb, 3, 1, TRUE);
-					break;
-					*/
 			default:
 				proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_params, tvb, 3, -1, TRUE);
 				break;
@@ -1325,9 +1999,19 @@ proto_register_bthci_cmd(void)
 				"Encryption Mode", HFILL }
 		},
 		{ &hf_bthci_cmd_bd_addr,
-			{ "BD_ADDR",          "bthci_cmd.bd_addr",
-				FT_ETHER, BASE_HEX, NULL, 0x0,
+			{ "BD_ADDR: ",          "bthci_cmd.bd_addr",
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Bluetooth Device Address", HFILL}
+		},
+		{ &hf_bthci_cmd_packet_type_2dh1,
+			{ "Packet Type 2-DH1",        "bthci_cmd.packet_type_2dh1",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0002,
+				"Packet Type 2-DH1", HFILL }
+		},
+		{ &hf_bthci_cmd_packet_type_3dh1,
+			{ "Packet Type 3-DH1",        "bthci_cmd.packet_type_3dh1",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0004,
+				"Packet Type 3-DH1", HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dm1,
 			{ "Packet Type DM1",        "bthci_cmd.packet_type_dm1",
@@ -1339,6 +2023,16 @@ proto_register_bthci_cmd(void)
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0010,
 				"Packet Type DH1", HFILL }
 		},
+		{ &hf_bthci_cmd_packet_type_2dh3,
+			{ "Packet Type 2-DH3",        "bthci_cmd.packet_type_2dh3",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0100,
+				"Packet Type 2-DH3", HFILL }
+		},
+		{ &hf_bthci_cmd_packet_type_3dh3,
+			{ "Packet Type 3-DH3",        "bthci_cmd.packet_type_3dh3",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0200,
+				"Packet Type 3-DH3", HFILL }
+		},
 		{ &hf_bthci_cmd_packet_type_dm3,
 			{ "Packet Type DM3",        "bthci_cmd.packet_type_dm3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0400,
@@ -1348,6 +2042,16 @@ proto_register_bthci_cmd(void)
 			{ "Packet Type DH3",        "bthci_cmd.packet_type_dh3",
 				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0800,
 				"Packet Type DH3", HFILL }
+		},
+		{ &hf_bthci_cmd_packet_type_2dh5,
+			{ "Packet Type 2-DH5",        "bthci_cmd.packet_type_2dh5",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x1000,
+				"Packet Type 2-DH5", HFILL }
+		},
+		{ &hf_bthci_cmd_packet_type_3dh5,
+			{ "Packet Type 3-DH5",        "bthci_cmd.packet_type_3dh5",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x2000,
+				"Packet Type 3-DH5", HFILL }
 		},
 		{ &hf_bthci_cmd_packet_type_dm5,
 			{ "Packet Type DM5",        "bthci_cmd.packet_type_dm5",
@@ -1391,7 +2095,7 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_status,
 			{ "Status",           "bthci_cmd.status",
-				FT_UINT8, BASE_HEX, VALS(cmd_status_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
 				"Status", HFILL }
 		},
 
@@ -1412,7 +2116,7 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_reason,
 			{ "Reason",           "bthci_cmd.reason",
-				FT_UINT8, BASE_HEX, VALS(cmd_status_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
 				"Reason", HFILL }
 		},
 		{ &hf_bthci_cmd_num_link_keys,
@@ -1525,6 +2229,11 @@ proto_register_bthci_cmd(void)
 				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Token Rate, in bytes per second", HFILL }
 		},
+		{ &hf_bthci_cmd_token_bucket_size,
+			{ "Available Token Bucket Size",        "bthci_cmd.token_bucket_size",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"Token Bucket Size in bytes", HFILL }
+		},
 		{ &hf_bthci_cmd_peak_bandwidth,
 			{ "Peak Bandwidth",        "bthci_cmd.peak_bandwidth",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1582,7 +2291,7 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_class_of_device_mask,
 			{ "Class of Device Mask", "bthci_cmd.class_of_device_mask",
-				FT_UINT24, BASE_DEC, NULL, 0x0,
+				FT_UINT24, BASE_HEX, NULL, 0x0,
 				"Bit Mask used to determine which bits of the Class of Device parameter are of interest.", HFILL }
 		},
 		{ &hf_bthci_cmd_auto_acc_flag,
@@ -1665,8 +2374,8 @@ proto_register_bthci_cmd(void)
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Window", HFILL }
 		},
-		{ &hf_bthci_cmd_local_name,
-			{ "Remote Name",           "bthci_cmd.local_name",
+		{ &hf_bthci_cmd_device_name,
+			{ "Device Name",           "bthci_cmd.device_name",
 				FT_STRINGZ, BASE_NONE, NULL, 0x0,          
 				"Userfriendly descriptive name for the device", HFILL }
 		},
@@ -1680,166 +2389,241 @@ proto_register_bthci_cmd(void)
 				FT_UINT24, BASE_HEX, NULL, 0x0,
 				"LAP(s)used to create IAC", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_01,
-			{ "Inquiry Complete                   ", "bthci_cmd.evt_mask_01",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000001,
+		{ &hf_bthci_cmd_evt_mask_00,
+			{ "Inquiry Complete                   ", "bthci_cmd.evt_mask_00",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Inquiry Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_02,
-			{ "Inquiry Result                     ", "bthci_cmd.evt_mask_02",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000002,
+		{ &hf_bthci_cmd_evt_mask_01,
+			{ "Inquiry Result                     ", "bthci_cmd.evt_mask_01",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Inquiry Result Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_03,
-			{ "Connect Complete                   ", "bthci_cmd.evt_mask_03",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000004,
+		{ &hf_bthci_cmd_evt_mask_02,
+			{ "Connect Complete                   ", "bthci_cmd.evt_mask_02",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Connection Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_04,
-			{ "Connect Request                    ", "bthci_cmd.evt_mask_04",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000008,
+		{ &hf_bthci_cmd_evt_mask_03,
+			{ "Connect Request                    ", "bthci_cmd.evt_mask_03",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Connect Request Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_05,
-			{ "Disconnect Complete                   ", "bthci_cmd.evt_mask_05",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000010,
+		{ &hf_bthci_cmd_evt_mask_04,
+			{ "Disconnect Complete                ", "bthci_cmd.evt_mask_04",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Disconnect Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_06,
-			{ "Auth Complete                      ", "bthci_cmd.evt_mask_06",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000020,
+		{ &hf_bthci_cmd_evt_mask_05,
+			{ "Auth Complete                      ", "bthci_cmd.evt_mask_05",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"Auth Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_07,
-			{ "Remote Name Req Complete           ", "bthci_cmd.evt_mask_07",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000040,
+		{ &hf_bthci_cmd_evt_mask_06,
+			{ "Remote Name Req Complete           ", "bthci_cmd.evt_mask_06",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Remote Name Req Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_08,
-			{ "Encrypt Change                     ", "bthci_cmd.evt_mask_08",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000080,
+		{ &hf_bthci_cmd_evt_mask_07,
+			{ "Encrypt Change                     ", "bthci_cmd.evt_mask_07",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Encrypt Change Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_09,
-			{ "Change Connection Link Key Complete", "bthci_cmd.evt_mask_09",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000100,
+		{ &hf_bthci_cmd_evt_mask_10,
+			{ "Change Connection Link Key Complete", "bthci_cmd.evt_mask_10",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Change Connection Link Key Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_0a,
-			{ "Master Link Key Complete           ", "bthci_cmd.evt_mask_0a",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000200,
+		{ &hf_bthci_cmd_evt_mask_11,
+			{ "Master Link Key Complete           ", "bthci_cmd.evt_mask_11",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Master Link Key Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_0b,
-			{ "Read Remote Supported Features     ", "bthci_cmd.evt_mask_0b",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000400,
+		{ &hf_bthci_cmd_evt_mask_12,
+			{ "Read Remote Supported Features     ", "bthci_cmd.evt_mask_12",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Read Remote Supported Features Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_0c,
-			{ "Read Remote Ver Info Complete      ", "bthci_cmd.evt_mask_0c",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00000800,
+		{ &hf_bthci_cmd_evt_mask_13,
+			{ "Read Remote Ver Info Complete      ", "bthci_cmd.evt_mask_13",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Read Remote Ver Info Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_0d,
-			{ "QoS Setup Complete                 ", "bthci_cmd.evt_mask_0d",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00001000,
+		{ &hf_bthci_cmd_evt_mask_14,
+			{ "QoS Setup Complete                 ", "bthci_cmd.evt_mask_14",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"QoS Setup Complete Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_0e,
-			{ "Command Complete                   ", "bthci_cmd.evt_mask_0e",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00002000,
-				"Command Complete Bit", HFILL }
-		},
-		{ &hf_bthci_cmd_evt_mask_0f,
-			{ "Command Status                     ", "bthci_cmd.evt_mask_0f",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00004000,
-				"Command Status Bit", HFILL }
-		},
-		{ &hf_bthci_cmd_evt_mask_10,
-			{ "Hardware Error                     ", "bthci_cmd.evt_mask_10",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00008000,
+		{ &hf_bthci_cmd_evt_mask_17,
+			{ "Hardware Error                     ", "bthci_cmd.evt_mask_17",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Hardware Error Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_11,
-			{ "Flush Occurred                     ", "bthci_cmd.evt_mask_11",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00010000,
+		{ &hf_bthci_cmd_evt_mask_20,
+			{ "Flush Occurred                     ", "bthci_cmd.evt_mask_20",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Flush Occurred Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_12,
-			{ "Role Change                        ", "bthci_cmd.evt_mask_12",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00020000,
+		{ &hf_bthci_cmd_evt_mask_21,
+			{ "Role Change                        ", "bthci_cmd.evt_mask_21",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Role Change Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_13,
-			{ "Number of Completed Packets        ", "bthci_cmd.evt_mask_13",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00040000,
-				"Number of Completed Packets Bit", HFILL }
-		},
-		{ &hf_bthci_cmd_evt_mask_14,
-			{ "Mode Change                        ", "bthci_cmd.evt_mask_14",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00080000,
+		{ &hf_bthci_cmd_evt_mask_23,
+			{ "Mode Change                        ", "bthci_cmd.evt_mask_23",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Mode Change Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_15,
-			{ "Return Link Keys                   ", "bthci_cmd.evt_mask_15",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00100000,
+		{ &hf_bthci_cmd_evt_mask_24,
+			{ "Return Link Keys                   ", "bthci_cmd.evt_mask_24",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Return Link Keys Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_16,
-			{ "PIN Code Request                   ", "bthci_cmd.evt_mask_16",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00200000,
+		{ &hf_bthci_cmd_evt_mask_25,
+			{ "PIN Code Request                   ", "bthci_cmd.evt_mask_25",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"PIN Code Request Bit", HFILL }
 		},
-		{ &hf_bthci_cmd_evt_mask_17,
-			{ "Link Key Request                   ", "bthci_cmd.evt_mask_17",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00400000,
+		{ &hf_bthci_cmd_evt_mask_26,
+			{ "Link Key Request                   ", "bthci_cmd.evt_mask_26",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Link Key Request Bit", HFILL }
 		},  
-		{ &hf_bthci_cmd_evt_mask_18,
-			{ "Link Key Notification              ", "bthci_cmd.evt_mask_18",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x00800000,
+		{ &hf_bthci_cmd_evt_mask_27,
+			{ "Link Key Notification              ", "bthci_cmd.evt_mask_27",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Link Key Notification Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_19,
-			{ "Loopback Command                   ", "bthci_cmd.evt_mask_19",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x01000000,
+		{ &hf_bthci_cmd_evt_mask_30,
+			{ "Loopback Command                   ", "bthci_cmd.evt_mask_30",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
 				"Loopback Command Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_1a,
-			{"Data Buffer Overflow               " , "bthci_cmd.evt_mask_1a",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x02000000,
+		{ &hf_bthci_cmd_evt_mask_31,
+			{ "Data Buffer Overflow               " , "bthci_cmd.evt_mask_31",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
 				"Data Buffer Overflow Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_1b,
-			{ "Max Slots Change                   ", "bthci_cmd.evt_mask_1b",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x04000000,
+		{ &hf_bthci_cmd_evt_mask_32,
+			{ "Max Slots Change                   ", "bthci_cmd.evt_mask_32",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
 				"Max Slots Change Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_1c,
-			{ "Read Clock Offset Complete         ", "bthci_cmd.evt_mask_1c",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x08000000,
+		{ &hf_bthci_cmd_evt_mask_33,
+			{ "Read Clock Offset Complete         ", "bthci_cmd.evt_mask_33",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
 				"Read Clock Offset Complete Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_1d,
-			{ "Connection Packet Type Changed     ", "bthci_cmd.evt_mask_1d",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x10000000,
+		{ &hf_bthci_cmd_evt_mask_34,
+			{ "Connection Packet Type Changed     ", "bthci_cmd.evt_mask_34",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
 				"Connection Packet Type Changed Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_1e,
-			{ "QoS Violation                      ", "bthci_cmd.evt_mask_1e",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x20000000,
+		{ &hf_bthci_cmd_evt_mask_35,
+			{ "QoS Violation                      ", "bthci_cmd.evt_mask_35",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
 				"QoS Violation Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_1f,
-			{ "Page Scan Mode Change              ", "bthci_cmd.evt_mask_1f",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x40000000,
+		{ &hf_bthci_cmd_evt_mask_36,
+			{ "Page Scan Mode Change              ", "bthci_cmd.evt_mask_36",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
 				"Page Scan Mode Change Bit", HFILL }
 		}, 
-		{ &hf_bthci_cmd_evt_mask_20,
-			{ "Page Scan Repetition Mode Change   ", "bthci_cmd.evt_mask_20",
-				FT_UINT32, BASE_HEX, VALS(cmd_boolean), 0x80000000,
+		{ &hf_bthci_cmd_evt_mask_37,
+			{ "Page Scan Repetition Mode Change   ", "bthci_cmd.evt_mask_37",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
 				"Page Scan Repetition Mode Change Bit", HFILL }
-		}, 
+		},
+		{ &hf_bthci_cmd_evt_mask_40,
+			{ "Flow Specification Complete        ", "bthci_cmd.evt_mask_40",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
+				"Flow Specification Complete Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_41,
+			{ "Inquiry Result With RSSI           ", "bthci_cmd.evt_mask_41",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
+				"Inquiry Result With RSSI Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_42,
+			{ "Read Remote Ext. Features Complete ", "bthci_cmd.evt_mask_42",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
+				"Read Remote Ext. Features Complete Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_53,
+			{ "Synchronous Connection Complete    ", "bthci_cmd.evt_mask_53",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
+				"Synchronous Connection Complete Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_54,
+			{ "Synchronous Connection Changed     ", "bthci_cmd.evt_mask_54",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
+				"Synchronous Connection Changed Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_55,
+			{ "Sniff Subrate                      ", "bthci_cmd.evt_mask_55",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
+				"Sniff Subrate Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_56,
+			{ "Extended Inquiry Result            ", "bthci_cmd.evt_mask_56",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x40,
+				"Extended Inquiry Result Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_57,
+			{ "Encryption Key Refresh Complete    ", "bthci_cmd.evt_mask_57",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
+				"Encryption Key Refresh Complete Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_60,
+			{ "IO Capability Request              ", "bthci_cmd.evt_mask_60",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
+				"IO Capability Request Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_61,
+			{ "IO Capability Response             ", "bthci_cmd.evt_mask_61",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
+				"IO Capability Response Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_62,
+			{ "User Confirmation Request          ", "bthci_cmd.evt_mask_62",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
+				"User Confirmation Request Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_63,
+			{ "User Passkey Request               ", "bthci_cmd.evt_mask_63",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
+				"User Passkey Request Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_64,
+			{ "Remote OOB Data Request            ", "bthci_cmd.evt_mask_64",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x10,
+				"Remote OOB Data Request Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_65,
+			{ "Simple Pairing Complete            ", "bthci_cmd.evt_mask_65",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x20,
+				"Simple Pairing Complete Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_67,
+			{ "Link Supervision Timeout Changed   ", "bthci_cmd.evt_mask_67",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x80,
+				"Link Supervision Timeout Changed Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_70,
+			{ "Enhanced Flush Complete            ", "bthci_cmd.evt_mask_70",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x01,
+				"Enhanced Flush Complete Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_72,
+			{ "User Passkey Notification          ", "bthci_cmd.evt_mask_72",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x04,
+				"User Passkey Notification Bit", HFILL }
+		},
+		{ &hf_bthci_cmd_evt_mask_73,
+			{ "Keypress Notification              ", "bthci_cmd.evt_mask_73",
+				FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x08,
+				"Keypress Notification Bit", HFILL }
+		},
 		{ &hf_bthci_cmd_sco_flow_control,
 			{ "SCO Flow Control","bthci_cmd.flow_control",
 				FT_UINT8, BASE_HEX, VALS(cmd_en_disabled), 0x0,
@@ -1891,12 +2675,224 @@ proto_register_bthci_cmd(void)
 				FT_UINT8, BASE_HEX, VALS(cmd_loopback_modes), 0x0,
 				"Loopback Mode", HFILL}
 		},
+		{ &hf_bthci_cmd_page_number,
+			{"Page Number", "bthci_cmd.page_number",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Page Number", HFILL}
+		},
+		{ &hf_bthci_cmd_transmit_bandwidth,
+			{"Tx Bandwidth (bytes/s)", "bthci_cmd.tx_bandwidth",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"Tx Bandwidth", HFILL}
+		},
+		{ &hf_bthci_cmd_receive_bandwidth,
+			{"Rx Bandwidth (bytes/s)", "bthci_cmd.rx_bandwidth",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"Rx Bandwidth", HFILL}
+		},
+		{ &hf_bthci_cmd_max_latency_ms,
+			{"Max. Latency (ms)", "bthci_cmd.max_latency_ms",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Max. Latency (ms)", HFILL}
+		},
+		{ &hf_bthci_cmd_max_latency,
+			{"Max. Latency", "bthci_cmd.max_latency",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Max. Latency in baseband slots", HFILL}
+		},
+		{ &hf_bthci_cmd_retransmission_effort,
+			{"Retransmission Effort", "bthci_cmd.retransmission_effort",
+				FT_UINT8, BASE_DEC, VALS(cmd_rtx_effort), 0x0,
+				"Retransmission Effort", HFILL}
+		},
+		{ &hf_bthci_cmd_scan_type,
+			{"Scan Type", "bthci_cmd.inq_scan_type",
+				FT_UINT8, BASE_DEC, VALS(cmd_scan_types), 0x0,
+				"Scan Type", HFILL}
+		},
+		{ &hf_bthci_cmd_inq_mode,
+			{"Inquiry Mode", "bthci_cmd.inq_scan_type",
+				FT_UINT8, BASE_DEC, VALS(cmd_inq_modes), 0x0,
+				"Inquiry Mode", HFILL}
+		},	
+		{ &hf_bthci_cmd_fec_required,
+			{"FEC Required", "bthci_cmd.fec_required",
+				FT_UINT8, BASE_DEC, VALS(cmd_boolean), 0x0,
+				"FEC Required", HFILL}
+		},
+		{ &hf_bthci_cmd_err_data_reporting,
+			{"Erroneous Data Reporting", "bthci_cmd.err_data_reporting",
+				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
+				"Erroneous Data Reporting", HFILL}
+		},	
+		{ &hf_bthci_cmd_tx_power,
+			{"Power Level (dBm)", "bthci_cmd.power_level",
+				FT_INT8, BASE_DEC, NULL, 0x0,
+				"Power Level (dBm)", HFILL}
+		},
+		{ &hf_bthci_cmd_sco_packet_type_hv1,
+			{ "Packet Type HV1",        "bthci_cmd.sco_packet_type_hv1",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0001,
+				"Packet Type HV1", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_hv2,
+			{ "Packet Type HV2",        "bthci_cmd.sco_packet_type_hv2",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0002,
+				"Packet Type HV2", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_hv3,
+			{ "Packet Type HV3",        "bthci_cmd.sco_packet_type_hv3",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0004,
+				"Packet Type HV3", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_ev3,
+			{ "Packet Type EV3",        "bthci_cmd.sco_packet_type_ev3",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0008,
+				"Packet Type EV3", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_ev4,
+			{ "Packet Type EV4",        "bthci_cmd.sco_packet_type_ev4",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0010,
+				"Packet Type EV4", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_ev5,
+			{ "Packet Type EV5",        "bthci_cmd.sco_packet_type_ev5",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0020,
+				"Packet Type EV5", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_2ev3,
+			{ "Packet Type 2-EV3",        "bthci_cmd.sco_packet_type_2ev3",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0040,
+				"Packet Type 2-EV3", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_3ev3,
+			{ "Packet Type 3-EV3",        "bthci_cmd.sco_packet_type_3ev3",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0080,
+				"Packet Type 3-EV3", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_2ev5,
+			{ "Packet Type 2-EV5",        "bthci_cmd.sco_packet_type_2ev5",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0100,
+				"Packet Type 2-EV5", HFILL }
+		},
+		{ &hf_bthci_cmd_sco_packet_type_3ev5,
+			{ "Packet Type 3-EV5",        "bthci_cmd.sco_packet_type_3ev5",
+				FT_UINT16, BASE_DEC, VALS(cmd_boolean), 0x0200,
+				"Packet Type 3-EV5", HFILL }
+		},
+		{ &hf_bthci_cmd_min_remote_timeout,
+			{"Min. Remote Timeout", "bthci_cmd.min_remote_timeout",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Min. Remote Timeout in baseband slots", HFILL}
+		},
+		{ &hf_bthci_cmd_min_local_timeout,
+			{"Min. Local Timeout", "bthci_cmd.min_local_timeout",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Min. Local Timeout in baseband slots", HFILL}
+		},
+		{ &hf_bthci_cmd_flush_packet_type,
+			{"Packet Type", "bthci_cmd.flush_packet_type",
+				FT_UINT8, BASE_DEC, VALS(cmd_flush_pkt_type), 0x0,
+				"Packet Type", HFILL}
+		},
+		{ &hf_bthci_cmd_afh_ch_assessment_mode,
+			{"AFH Channel Assessment Mode", "bthci_cmd.afh_ch_assessment_mode",
+				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
+				"AFH Channel Assessment Mode", HFILL}
+		},
+		{ &hf_bthci_cmd_afh_ch_classification,
+			{ "Channel Classification",           "bthci_cmd.afh_ch_classification",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Channel Classification", HFILL }
+		},
+		{ &hf_bthci_cmd_which_clock,
+			{"Which Clock", "bthci_cmd.which_clock",
+				FT_UINT8, BASE_DEC, VALS(cmd_which_clock), 0x0,
+				"Which Clock", HFILL}
+		},
+		{ &hf_bthci_cmd_io_capability,
+			{"IO Capability", "bthci_cmd.io_capability",
+				FT_UINT8, BASE_DEC, VALS(bthci_cmd_io_capability_vals), 0x0,
+				"IO Capability", HFILL}
+		},
+		{ &hf_bthci_cmd_oob_data_present,
+			{"OOB Data Present", "bthci_cmd.oob_data_present",
+				FT_UINT8, BASE_DEC, VALS(bthci_cmd_oob_data_present_vals), 0x0,
+				"OOB Data Present", HFILL}
+		},
+		{ &hf_bthci_cmd_auth_requirements,
+			{"Authentication Requirements", "bthci_cmd.auth_requirements",
+				FT_UINT8, BASE_DEC, VALS(bthci_cmd_auth_req_vals), 0x0,
+				"Authentication Requirements", HFILL}
+		},
+		{ &hf_bthci_cmd_passkey,
+			{"Passkey", "bthci_cmd.passkey",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				"Passkey", HFILL}
+		},
+		{ &hf_bthci_cmd_hash_c,
+			{"Hash C", "bthci_cmd.hash_c",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Hash C", HFILL}
+		},
+		{ &hf_bthci_cmd_randomizer_r,
+			{"Randomizer R", "bthci_cmd.randomizer_r",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Randomizer R", HFILL}
+		},
+		{ &hf_bthci_cmd_simple_pairing_mode,
+			{"Simple Pairing Mode", "bthci_cmd.simple_pairing_mode",
+				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
+				"Simple Pairing Mode", HFILL}
+		},
+		{ &hf_bthci_cmd_simple_pairing_debug_mode,
+			{"Simple Pairing Debug Mode", "bthci_cmd.simple_pairing_debug_mode",
+				FT_UINT8, BASE_DEC, VALS(cmd_en_disabled), 0x0,
+				"Simple Pairing Debug Mode", HFILL}
+		},
+		{ &hf_bthci_cmd_notification_type,
+			{"Notification Type", "bthci_cmd.notification_type",
+				FT_UINT8, BASE_DEC, VALS(cmd_notification_types), 0x0,
+				"Notification Type", HFILL}
+		},
+		{ &hf_bthci_cmd_eir_data,
+			{"Data", "bthci_cmd.eir_data",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"EIR Data", HFILL}
+		},
+		{ &hf_bthci_cmd_eir_struct_length,
+			{ "Length",           "bthci_cmd.eir_struct_length",
+				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				"Structure Length", HFILL }
+		},
+		{ &hf_bthci_cmd_eir_struct_type,
+			{ "Type",           "bthci_cmd.eir_data_type",
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_eir_data_type_vals), 0x0,          
+				"Data Type", HFILL }
+		},
+		{ &hf_bthci_cmd_sc_uuid16,
+			{ "UUID",           "bthci_cmd.service_class_uuid16",
+				FT_UINT16, BASE_HEX, VALS(bthci_cmd_service_class_type_vals), 0x0,          
+				"16-bit Service Class UUID", HFILL }
+		},
+		{ &hf_bthci_cmd_sc_uuid32,
+			{ "UUID",           "bthci_cmd.service_class_uuid32",
+				FT_UINT32, BASE_HEX, NULL, 0x0,          
+				"32-bit Service Class UUID", HFILL }
+		},
+		{ &hf_bthci_cmd_sc_uuid128,
+			{ "UUID",           "bthci_cmd.service_class_uuid128",
+				FT_BYTES, BASE_HEX, NULL, 0x0,          
+				"128-bit Service Class UUID", HFILL }
+		}
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_bthci_cmd,
 		&ett_opcode,
+		&ett_eir_subtree,
+		&ett_eir_struct_subtree
 	};
 
 	/* Register the protocol name and description */

@@ -37,6 +37,16 @@ extern const value_string bthci_cmd_opcode_vals[];
 #define HCI_OGF_INFORMATIONAL		0x04
 #define HCI_OGF_STATUS		        0x05
 #define HCI_OGF_TESTING		        0x06
+#define HCI_OGF_LOGO_TESTING		0x3e
+#define HCI_OGF_VENDOR_SPECIFIC		0x3f
 extern const value_string bthci_ogf_vals[];
+
+extern const value_string bthci_cmd_status_vals[];
+extern const value_string bthci_cmd_service_class_type_vals[];
+extern const value_string bthci_cmd_major_dev_class_vals[];
+extern const value_string bthci_cmd_eir_data_type_vals[];
+extern const value_string bthci_cmd_io_capability_vals[];
+extern const value_string bthci_cmd_oob_data_present_vals[];
+extern const value_string bthci_cmd_auth_req_vals[];
 
 #endif
