@@ -43,6 +43,8 @@
 #include <epan/proto.h>
 #include <epan/lapd_sapi.h>
 
+#include "packet-gsm_a.h"
+
 /* Initialize the protocol and registered fields */
 static int proto_rsl		= -1;
 
@@ -66,14 +68,31 @@ static int hf_rsl_prio				= -1;
 static int hf_rsl_sapi				= -1;
 static int hf_rsl_cause				= -1;
 static int hf_rsl_rel_mode			= -1;
+static int hf_rsl_meas_res_no		= -1;
+static int hf_rsl_extension_bit		= -1;
+static int hf_rsl_class				= -1;
+static int hf_rsl_paging_grp		= -1;
+static int hf_rsl_ch_needed			= -1;
+static int hf_rsl_emlpp_prio		= -1;
 
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
+static int ett_ie_link_id;
 static int ett_ie_ch_no = -1;
+static int ett_ie_frame_no = -1;
+static int ett_ie_L3_inf = -1;
+static int ett_ie_ms_id = -1;
 static int ett_ie_phy_ctx = -1;
+static int ett_ie_paging_grp = -1;
 static int ett_ie_access_delay = -1;
 static int ett_ie_req_ref = -1;
+static int ett_ie_rel_mode = -1;
+static int ett_ie_rlm_cause	=-1;
 static int ett_ie_full_imm_ass_inf = -1;
+static int ett_ie_ch_needed = -1;
+static int ett_ie_emlpp_prio = -1;
+static int ett_ie_cause = -1;
+static int ett_ie_meas_res_no = -1;
 
 proto_tree *top_tree;
 dissector_handle_t gsm_a_ccch_handle = NULL;
@@ -89,6 +108,10 @@ static const true_false_string rsl_na_vals = {
   "Not Applicable"
 };
 
+static const true_false_string rsl_extension_bit_value = {
+  "Extension"
+  "No Extension",
+};
 
 /*
  * 9.1 Message discriminator
@@ -105,19 +128,31 @@ static const value_string rsl_msg_disc_vals[] = {
 /*
  * 9.2 MESSAGE TYPE
  */
-#define RSL_MSG_TYPE_DATA_REQ	1
-#define RSL_MSG_TYPE_DATA_IND	2
-#define RSL_MSG_TYPE_ERROR_IND	3
-#define RSL_MSG_TYPE_EST_REQ	4
-#define RSL_MSG_TYPE_EST_CONF	5
-#define RSL_MSG_EST_IND			6
-#define RSL_MSG_REL_REQ			7
-#define RSL_MSG_REL_CONF		8
-#define RSL_MSG_REL_IND			9
-#define RSL_MSG_UNIT_DATA_REQ	10
+#define RSL_MSG_TYPE_DATA_REQ		1
+#define RSL_MSG_TYPE_DATA_IND		2
+#define RSL_MSG_TYPE_ERROR_IND		3
+#define RSL_MSG_TYPE_EST_REQ		4
+#define RSL_MSG_TYPE_EST_CONF		5
+#define RSL_MSG_EST_IND				6
+#define RSL_MSG_REL_REQ				7
+#define RSL_MSG_REL_CONF			8
+#define RSL_MSG_REL_IND				9
+#define RSL_MSG_UNIT_DATA_REQ		10
+/* Common Channel Management/TRX Management messages */
+#define RSL_MSG_BCCH_INFO			17
+#define RSL_MSG_CCCH_LOAD_IND		18
+#define RSL_MSG_CHANRQD				19
+#define RSL_MSG_DELETE_IND			20
+#define RSL_MSG_PAGING_CMD			21
+#define RSL_MSG_IMM_ASS_CMD			22
 
-#define RSL_MSG_CHANRQD			19
-#define RSL_MSG_IMM_ASS_CMD		22
+#define RSL_MSG_CHAN_ACTIV			33
+#define RSL_MSG_CHAN_ACTIV_ACK		34
+#define RSL_MSG_CHAN_ACTIV_N_ACK	35
+#define RSL_MSG_CONN_FAIL			36
+#define RSL_MSG_DEACTIVATE_SACCH	37
+ 
+#define RSL_MSG_MEAS_RES			40
 static const value_string rsl_msg_type_vals[] = {
 	  /* 	0 0 0 0 - - - - Radio Link Layer Management messages: */
 	{  0x01,	"DATA REQuest" },								/* 8.3.1 */
@@ -340,7 +375,7 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint8 octet;
 
 	ti = proto_tree_add_text(tree, tvb,offset,2,"Link Identifier IE ");
-	ie_tree = proto_item_add_subtree(ti, ett_ie_phy_ctx);
+	ie_tree = proto_item_add_subtree(ti, ett_ie_link_id);
 
 	/* Element identifier */
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
@@ -368,6 +403,32 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	return offset;
 }
 
+ /*
+ * 9.3.8 Frame Number
+ */
+static int
+dissect_rsl_ie_frame_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Frame Number");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_frame_no);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	proto_tree_add_item(ie_tree, hf_rsl_req_ref_T1prim, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_rsl_req_ref_T3, tvb, offset, 2, FALSE);
+	offset++;
+	proto_tree_add_item(ie_tree, hf_rsl_req_ref_T2, tvb, offset, 1, FALSE);
+	offset++;
+
+	return offset;
+}
+
+
 /*
  * 9.3.11 L3 Information			9.3.11	M TLV >=3
  *
@@ -384,7 +445,7 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	guint16 length;
 
 	ti = proto_tree_add_text(tree, tvb,offset,0,"L3 Information ");
-	ie_tree = proto_item_add_subtree(ti, ett_ie_phy_ctx);
+	ie_tree = proto_item_add_subtree(ti, ett_ie_L3_inf);
 
 	/* Element identifier */
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
@@ -408,7 +469,60 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	return offset;
  }
 
+/*
+ * 9.3.12 MS Identity
+ */
+static int
+dissect_rsl_ie_ms_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint length;
 
+	ti = proto_tree_add_text(tree, tvb,offset,0,"MS Identity");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_ms_id);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Length */
+	length = tvb_get_guint8(tvb,offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+	offset++;
+
+	de_mid(tvb, ie_tree, offset, length, NULL, 0);
+
+	offset = offset + length;
+
+	return offset;
+
+
+}
+/*
+ * 9.3.14 Paging Group M TV 2 2
+ */
+static int
+dissect_rsl_ie_paging_grp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Paging Group");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_paging_grp);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* The Paging Group field (octet 2) contains the binary representation of the paging 
+	 * group as defined in 3GPP TS 45.002.
+	 */
+	proto_tree_add_item(ie_tree, hf_rsl_paging_grp, tvb, offset, 1, FALSE);
+
+	return offset;
+
+}
 /*
  * 9.3.16 Physical Context TLV
  */
@@ -502,7 +616,7 @@ dissect_rsl_ie_rel_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree *ie_tree;
 
 	ti = proto_tree_add_text(tree, tvb,offset,4,"Release Mode IE ");
-	ie_tree = proto_item_add_subtree(ti, ett_ie_req_ref);
+	ie_tree = proto_item_add_subtree(ti, ett_ie_rel_mode);
 
 	/* Element identifier */
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
@@ -518,7 +632,7 @@ dissect_rsl_ie_rel_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
-static const value_string rsl_cause_vals[] = {
+static const value_string rsl_rlm_cause_vals[] = {
 	{  0x00,	"reserved" },
 	{  0x01,	"timer T200 expired (N200+1) times" },
 	{  0x02,	"re-establishment request" },
@@ -550,7 +664,7 @@ dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint		length;
 
 	ti = proto_tree_add_text(tree, tvb,offset,0,"RLM Cause IE ");
-	ie_tree = proto_item_add_subtree(ti, ett_ie_full_imm_ass_inf);
+	ie_tree = proto_item_add_subtree(ti, ett_ie_rlm_cause);
 
 	/* Element identifier */
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
@@ -568,6 +682,95 @@ dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	offset++;
 	offset = offset + length;
 
+	return offset;
+}
+
+static const value_string rsl_class_vals[] = {
+	{  0x00,	"Normal event" },
+	{  0x01,	"Normal event" },
+	{  0x02,	"Resource unavailable" },
+	{  0x03,	"Service or option not available" },
+	{  0x04,	"Service or option not implemented" },
+	{  0x05,	"Invalid message (e.g. parameter out of range)" },
+	{  0x06,	"Protocol error" },
+	{  0x07,	"Interworking" },
+	{ 0,			NULL }
+};
+	
+ /*
+  * 9.3.26 Cause
+  */
+static int
+dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint		length;
+	guint8		octet;
+	int			ie_offset;
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Cause IE ");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_cause);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Length */
+	length = tvb_get_guint8(tvb,offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+	offset++;
+	ie_offset = offset;
+	
+	/* Cause Value */
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_item(tree, hf_rsl_extension_bit, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_rsl_class, tvb, offset, 1, FALSE);
+	if ((octet & 0x80) == 80)
+		offset++;
+	
+	/* Cause Extension*/
+	/* Diagnostic(s) if any */
+	return ie_offset+length;
+}
+/*
+ * 9.3.27 Measurement result number
+ */
+static int
+dissect_rsl_ie_meas_res_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Measurement result number IE ");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_meas_res_no);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Measurement result number */
+	proto_tree_add_item(ie_tree, hf_rsl_meas_res_no, tvb, offset, 1, FALSE);
+	offset++;
+
+	return offset;
+}
+/*
+ * 9.3.28 Message Identifier
+ */
+static int
+dissect_rsl_ie_message_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Measurement result number IE ");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_meas_res_no);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Message Type */
+	proto_tree_add_item(tree, hf_rsl_msg_type, tvb, offset, 1, FALSE);
+	offset++;
 	return offset;
 }
 
@@ -608,6 +811,78 @@ dissect_rsl_ie_full_imm_ass_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	return offset;
 }
+
+/*
+ * 9.3.40 Channel Needed
+ */
+static const value_string rsl_ch_needed_vals[] = {
+	{  0x00,	"Any Channel" },
+	{  0x01,	"SDCCH" },
+	{  0x02,	"TCH/F (Full rate)" },
+	{  0x03,	"TCH/F or TCH/H (Dual rate)" },
+	{ 0,		NULL }
+};
+
+static int
+dissect_rsl_ie_ch_needed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Channel Needed");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_ch_needed);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* Channel */
+	proto_tree_add_item(ie_tree, hf_rsl_ch_needed, tvb, offset, 1, FALSE);
+	offset++;
+	
+	return offset;
+}
+
+/*
+ * 9.3.49 eMLPP Priority
+ */
+static const value_string rsl_emlpp_prio_vals[] = {
+	{  0x00,	"no priority applied" },
+	{  0x01,	"call priority level 4" },
+	{  0x02,	"call priority level 3" },
+	{  0x03,	"call priority level 2" },
+	{  0x04,	"call priority level 1" },
+	{  0x05,	"call priority level 0" },
+	{  0x06,	"call priority level B" },
+	{  0x07,	"call priority level A" },
+	{ 0,			NULL }
+};
+
+static int
+dissect_rsl_ie_emlpp_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"eMLPP Priority");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_emlpp_prio);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* The call priority field (bit 3 to 1 of octet 2) is coded in the same way
+	 * as the call priority field (bit 3 to 1 of octet 5) in the 
+	 * Descriptive group or broadcast call reference information element
+	 * as defined in 3GPP TS 24.008. 
+	 */
+	proto_tree_add_item(ie_tree, hf_rsl_emlpp_prio, tvb, offset, 1, FALSE);
+	offset++;
+
+	return offset;
+}
+
 static int
 dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
@@ -710,7 +985,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 /* Common Channel Management/TRX Management messages: */
 	/* 8.5.3 */
-	case RSL_MSG_CHANRQD:
+	case RSL_MSG_CHANRQD: /* 19 */
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
 		/* Request Reference		9.3.19	M TV 4 */
@@ -721,6 +996,28 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_phy_ctx(tvb, pinfo, tree, offset);
 		break;
+	/* 8.5.4 DELETE INDICATION */
+	case RSL_MSG_DELETE_IND: /* 20 */
+		/* Channel number			9.3.1	M TV 2 */
+		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
+		/* Full Imm. Assign Info	9.3.35	M TLV 25 */
+		offset = dissect_rsl_ie_full_imm_ass_inf(tvb, pinfo, tree, offset);
+		break;
+	case RSL_MSG_PAGING_CMD: /* 21 */
+		/* Channel number			9.3.1	M TV 2 */
+		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
+		/* Paging Group				9.3.14	M TV 2 2 */
+		offset = dissect_rsl_ie_paging_grp(tvb, pinfo, tree, offset);
+		/* MS Identity				9.3.12	M TLV 2-10 2 */
+		offset = dissect_rsl_ie_ms_id(tvb, pinfo, tree, offset);
+		/* Channel Needed			9.3.40	O 1) TV 2 2 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_ch_needed(tvb, pinfo, tree, offset);
+		/* eMLPP Priority			9.3.49	O 2) TV 2 2 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_emlpp_prio(tvb, pinfo, tree, offset);
+		break;
+	/* 8.5.6 */
 	case RSL_MSG_IMM_ASS_CMD:
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
@@ -728,6 +1025,72 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		offset = dissect_rsl_ie_full_imm_ass_inf(tvb, pinfo, tree, offset);
 		break;
 /* Dedicated Channel Management messages: */
+	/* 8.4.1 CHANNEL ACTIVATION 33*/
+	case RSL_MSG_CHAN_ACTIV:
+		break;
+		/* Channel number			9.3.1	M TV 2			*/
+		/* Activation Type			9.3.3	M TV 2			*/
+		/* Channel Mode				9.3.6	M TLV 8-9		*/
+		/* Channel Identification	9.3.5	O 7) TLV 8		*/
+		/* Encryption information	9.3.7	O 1) TLV >=3	*/
+		/* Handover Reference		9.3.9	C 2) TV 2		*/
+		/* BS Power					9.3.4	O 3) TV 2		*/
+		/* MS Power					9.3.13	O 3) TV 2		*/
+		/* Timing Advance			9.3.24	C 3) 4) TV 2	*/
+		/* BS Power Parameters		9.3.32	O 5) TLV >=2	*/
+		/* MS Power Parameters		9.3.31	O 5) TLV >=2	*/
+		/* Physical Context			9.3.16	O 6) TLV >=2	*/
+		/* SACCH Information		9.3.29	O 8) TLV >=3	*/
+		/* UIC						9.3.50	O 9) TLV 3		*/
+		/* Main channel reference	9.3.51	O 10) TV 2		*/
+		/* MultiRate configuration	9.3.52	O 11) TLV >=4	*/
+		/* MultiRate Control		9.3.53	O 12) TV 2		*/
+		/* Supported Codec Types	9.3.54	O 12) TLV >=5	*/
+		/* TFO transparent container 9.3.59 O 12) TLV >=3	*/
+
+	/* 8.4.2 CHANNEL ACTIVATION ACKNOWLEDGE	34*/
+	case RSL_MSG_CHAN_ACTIV_ACK:
+		/* Channel number			9.3.1	M TV 2			*/
+		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
+		/* Frame number				9.3.8	M TV 3			*/
+		offset = dissect_rsl_ie_frame_no(tvb, pinfo, tree, offset);
+		break;
+	case RSL_MSG_CHAN_ACTIV_N_ACK:
+	/* 8.4.3 CHANNEL ACTIVATION NEGATIVE ACKNOWLEDGE */
+		/* Channel number			9.3.1	M TV 2			*/
+		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
+		/* Cause					9.3.26	M TLV >=3		*/
+		offset = dissect_rsl_ie_cause(tvb, pinfo, tree, offset);
+		break;
+	/* 8.4.4 CONNECTION FAILURE INDICATION */
+	case RSL_MSG_CONN_FAIL:
+		/* Channel number			9.3.1	M TV 2			*/
+		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
+		/* Cause					9.3.26	M TLV >=3		*/
+		offset = dissect_rsl_ie_cause(tvb, pinfo, tree, offset);
+		break;
+	/* 8.4.5 DEACTIVATE SACCH */
+	case RSL_MSG_DEACTIVATE_SACCH:
+		/* Channel number			9.3.1	M TV 2			*/
+		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset);
+		break;
+	/* 8.4.6 ENCRYPTION COMMAND */
+		/* Encryption information	9.3.7	M TLV >=3		*/
+		/* Link Identifier			9.3.2	M TV 2			*/
+		/* L3 Info (CIPH MOD CMD)	9.3.11	M TLV 6			*/
+	/* 8.4.7 HANDOVER DETECTION */
+		/* Channel number			9.3.1	M TV 2			*/
+		/* Access Delay				9.3.17 O 1) TV 2		*/
+	/* 8.4.8 MEASUREMENT RESULT 40 */
+	case RSL_MSG_MEAS_RES:
+		/* Channel number			9.3.1	M TV 2			*/
+		/* Measurement result number 9.3.27 M TV 2			*/
+		/* Uplink Measurements		9.3.25	M TLV >=5		*/
+		/* BS Power					9.3.4	M TV 2			*/
+		/* L1 Information			9.3.10 O 1) TV 3		*/
+		/* L3 Info (MEAS REP, EXT MEAS REP or ENH MEAS REP) 9.3.11 O 1) TLV 21*/
+		/* MS Timing Offset			9.3.37 O 2) TV 2		*/
+		break;
 	default:
 		break;
 	}
@@ -869,7 +1232,7 @@ void proto_register_rsl(void)
 		},
 		{ &hf_rsl_cause,
 			{ "Cause",           "rsl.cause",
-			FT_UINT8, BASE_DEC, VALS(rsl_cause_vals), 0x7f,
+			FT_UINT8, BASE_DEC, VALS(rsl_rlm_cause_vals), 0x7f,
 			"Cause", HFILL }
 		},
 		{ &hf_rsl_rel_mode,
@@ -877,15 +1240,54 @@ void proto_register_rsl(void)
 			FT_UINT8, BASE_DEC, VALS(rel_mode_vals), 0x01,
 			"Relese Mode", HFILL }
 		},
-
+		{ &hf_rsl_meas_res_no,
+			{ "Measurement result number",           "rsl.meas_res_no",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Measurement result number", HFILL }
+		},
+		{ &hf_rsl_extension_bit,
+			{ "Extension", "rsl.extension_bit",
+			FT_BOOLEAN, 8, TFS(&rsl_extension_bit_value), 0x80,
+			"Extension", HFILL }},
+		{ &hf_rsl_class,
+			{ "Class",           "rsl.class",
+			FT_UINT8, BASE_DEC, VALS(rsl_class_vals), 0x70,
+			"Class", HFILL }
+		},
+		{ &hf_rsl_paging_grp,
+			{ "Paging Group",           "rsl.paging_grp",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Paging Group", HFILL }
+		},
+		{ &hf_rsl_ch_needed,
+			{ "Channel Needed",           "rsl.class",
+			FT_UINT8, BASE_DEC, VALS(rsl_ch_needed_vals), 0x03,
+			"Channel Needed", HFILL }
+		},
+		{ &hf_rsl_emlpp_prio,
+			{ "eMLPP Priority",           "rsl.class",
+			FT_UINT8, BASE_DEC, VALS(rsl_emlpp_prio_vals), 0x03,
+			"eMLPP Priority", HFILL }
+		},
 	};
 	static gint *ett[] = {
 		&ett_rsl,
+		&ett_ie_link_id,
 		&ett_ie_ch_no,
+		&ett_ie_frame_no,
+		&ett_ie_L3_inf,
+		&ett_ie_ms_id,
 		&ett_ie_phy_ctx,
+		&ett_ie_paging_grp,
 		&ett_ie_access_delay,
 		&ett_ie_req_ref,
+		&ett_ie_rel_mode,
+		&ett_ie_rlm_cause,
 		&ett_ie_full_imm_ass_inf,
+		&ett_ie_ch_needed,
+		&ett_ie_emlpp_prio,
+		&ett_ie_cause,
+		&ett_ie_meas_res_no,
 	};
 
 	/* Register the protocol name and description */

@@ -665,9 +665,21 @@ static const value_string gsm_dtap_elem_strings[] = {
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell */
+ { 0x00,	"Service Support" },					/* [3] 10.5.2.57	*
+ /* 10.5.2.58 MBMS p-t-m Channel Description */
 	{ 0x00,	"Dedicated Service Information" },		/* [3] 10.5.2.59	*/
-
-
+/*
+ * 10.5.2.60 MPRACH Description
+ * 10.5.2.61 Restriction Timer
+ * 10.5.2.62 MBMS Session Identity
+ * 10.5.2.63 Reduced group or broadcast call reference
+ * 10.5.2.64 Talker Priority status
+ * 10.5.2.65 Talker Identity
+ * 10.5.2.66 Token
+ * 10.5.2.67 PS Cause
+ * 10.5.2.68 VGCS AMR Configuration
+ * 10.5.2.69 Carrier Indication
+ */
     /* Mobility Management Information Elements 10.5.3 */
     { 0x00,	"Authentication Parameter RAND" },
     { 0x00,	"Authentication Parameter AUTN (UMTS authentication challenge only)" },
@@ -1119,7 +1131,8 @@ static int hf_gsm_a_A5_2_algorithm_sup = -1;
 
 static int hf_gsm_a_odd_even_ind = -1;
 static int hf_gsm_a_mobile_identity_type = -1;
-static int hf_gsm_a_L3_protocol_discriminator = -1; 
+static int hf_gsm_a_L3_protocol_discriminator = -1;
+static int hf_gsm_a_call_prio = -1;
 static int hf_gsm_a_skip_ind = -1; 
 
 static int hf_gsm_a_bcc				= -1;
@@ -1152,6 +1165,8 @@ static int hf_gsm_a_rr_time_diff = -1;
 static int hf_gsm_a_rr_tlli = -1;
 static int hf_gsm_a_rr_target_mode = -1;
 static int hf_gsm_a_rr_group_cipher_key_number = -1;
+static int hf_gsm_a_rr_MBMS_multicast = -1;
+static int hf_gsm_a_rr_MBMS_broadcast = -1;
 static int hf_gsm_a_rr_last_segment = -1;
 static int hf_gsm_a_gmm_split_on_ccch = -1;
 static int hf_gsm_a_gmm_non_drx_timer = -1;
@@ -3306,8 +3321,24 @@ typedef enum
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell */
+	DE_RR_SERV_SUP,					/* 10.5.2.57 Service Support						*/
+/* 10.5.2.58 MBMS p-t-m Channel Description 
+ */
+
 	DE_RR_DED_SERV_INF,				/* [3] 10.5.2.59	Dedicated Service Information */
 
+/*
+ * 10.5.2.60 MPRACH Description
+ * 10.5.2.61 Restriction Timer
+ * 10.5.2.62 MBMS Session Identity
+ * 10.5.2.63 Reduced group or broadcast call reference
+ * 10.5.2.64 Talker Priority status
+ * 10.5.2.65 Talker Identity
+ * 10.5.2.66 Token
+ * 10.5.2.67 PS Cause
+ * 10.5.2.68 VGCS AMR Configuration
+ * 10.5.2.69 Carrier Indication
+ */
 
     /* Mobility Management Information Elements 10.5.3 */
     DE_AUTH_PARAM_RAND,				/* Authentication Parameter RAND */
@@ -3931,45 +3962,28 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.11
  */
 
+static const value_string gsm_a_call_prio_vals[] = {
+	{  0x00,	"no priority applied" },
+	{  0x01,	"call priority level 4" },
+	{  0x02,	"call priority level 3" },
+	{  0x03,	"call priority level 2" },
+	{  0x04,	"call priority level 1" },
+	{  0x05,	"call priority level 0" },
+	{  0x06,	"call priority level B" },
+	{  0x07,	"call priority level A" },
+	{ 0,			NULL }
+};
+
 static guint8
 de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
     guint32	curr_offset;
-    const gchar *str;
 
     len = len;
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
-
-    switch (oct & 0x07)
-    {
-    case 1: str = "Call priority level 4"; break;
-    case 2: str = "Call priority level 3"; break;
-    case 3: str = "Call priority level 2"; break;
-    case 4: str = "Call priority level 1"; break;
-    case 5: str = "Call priority level 0"; break;
-    case 6: str = "Call priority level B"; break;
-    case 7: str = "Call priority level A"; break;
-    default:
-	str = "No priority applied";
-	break;
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  %s",
-	a_bigbuf,
-	str);
-
+    proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_call_prio, tvb, curr_offset, 1, FALSE);
     curr_offset++;
 
     /* no length check possible */
@@ -4954,19 +4968,27 @@ de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [3] 10.5.2.25 P3 Rest Octets
  */
 /*
- * [3] 10.5.2.25a Packet Channel Description
+ * [3] 10.5.2.25a Packet Channel Description C V 3
  */
 static guint8
 de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+    proto_tree	*subtree;
+    proto_item	*item;
     guint32	curr_offset;
 
     len = len;
     curr_offset = offset;
 
-	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+	item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    gsm_dtap_elem_strings[DE_RR_PACKET_CH_DESC].strptr);
 
-	curr_offset = curr_offset + 4;
+    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_PACKET_CH_DESC]);
+	proto_tree_add_text(tree,tvb, curr_offset, 3 ,"Data(Not decoded)");
+
+	curr_offset = curr_offset + 3;
     return(curr_offset - offset);
 
 }
@@ -5156,7 +5178,7 @@ de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * [3] 10.5.2.29 RACH Control Parameters
  */
 /*
- * [3] 10.5.2.30 Request Reference
+ * [3] 10.5.2.30 Request Reference M V 3
  */
 guint8
 de_rr_req_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -5428,7 +5450,41 @@ de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell
-*/
+ */
+/*
+ * 10.5.2.57 Service Support
+ */
+static const true_false_string gsm_a_rr_MBMS_multicast_value  = {
+  "mobile station requires notification of multicast MBMS services",
+  "mobile station does not require notification of multicast MBMS services"
+};
+static const true_false_string gsm_a_rr_MBMS_broadcast_value  = {
+  "mobile station requires notification of broadcast MBMS services",
+  "mobile station does not require notification of broadcast MBMS services"
+};
+static guint8
+de_rr_serv_sup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+
+    len = len;
+    curr_offset = offset;
+	/* bit 1
+	 * 0 mobile station does not require notification of broadcast MBMS services
+	 * 1 mobile station requires notification of broadcast MBMS services
+	 * bit 2
+	 * 0 mobile station does not require notification of multicast MBMS services
+	 * 1 mobile station requires notification of multicast MBMS services
+	 */
+	/* MBMS Multicast */
+	proto_tree_add_item(tree, hf_gsm_a_rr_MBMS_multicast, tvb, curr_offset, 1, FALSE);
+
+	/* MBMS Broadcast */
+	proto_tree_add_item(tree, hf_gsm_a_rr_MBMS_broadcast, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+	return(curr_offset - offset);
+}
+
 /* 
  * [3] 10.5.2.59	Dedicated Service Information 
  */
@@ -12612,8 +12668,24 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell
-*/
+ * 10.5.2.57 Service Support */
+	de_rr_serv_sup,						/* 10.5.2.57		Service Support				*/
+/*
+ * 10.5.2.58 MBMS p-t-m Channel Description 
+ */
 	de_rr_ded_serv_inf,					/* [3] 10.5.2.59	Dedicated Service Information */
+/*
+ * 10.5.2.60 MPRACH Description
+ * 10.5.2.61 Restriction Timer
+ * 10.5.2.62 MBMS Session Identity
+ * 10.5.2.63 Reduced group or broadcast call reference
+ * 10.5.2.64 Talker Priority status
+ * 10.5.2.65 Talker Identity
+ * 10.5.2.66 Token
+ * 10.5.2.67 PS Cause
+ * 10.5.2.68 VGCS AMR Configuration
+ * 10.5.2.69 Carrier Indication
+ */
 
 	/* Mobility Management Information Elements 10.5.3 */
     de_auth_param_rand,	/* Authentication Parameter RAND */
@@ -12690,8 +12762,8 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_gmm_rec_npdu_lst,	/* Receive N-PDU Numbers List */
     de_gmm_ms_net_cap,	/* MS Network Capability */
     de_gmm_ms_radio_acc_cap,	/* MS Radio Access Capability */
-    de_gmm_cause,	/* GMM Cause */
-    de_gmm_rai,	/* Routing Area Identification */
+    de_gmm_cause,				/* GMM Cause */
+    de_gmm_rai,					/* Routing Area Identification */
     de_gmm_update_res,	/* Update Result */
     de_gmm_update_type,	/* Update Type */
     de_gmm_ac_ref_nr,	/* A&C Reference Number */
@@ -14963,6 +15035,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
+
 /*
  * [4] 9.1.15a
  */
@@ -15033,6 +15106,188 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * 9.1.2 Assignment command
+ */
+void
+dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+	/* Channel Description 2	10.5.2.5a	M V 3 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC2);
+
+	/* Power Command			10.5.2.28	M V 1 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_POW_CMD);	
+
+	/* 05 Frequency List		10.5.2.13	C TLV 4-132 */
+	ELEM_OPT_TLV(0x05, BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_LIST, " - Frequency List, after time"); 
+
+	/* 62 Cell Channel Description	10.5.2.1b	O TV 17 */
+	ELEM_OPT_TLV(0x62, BSSAP_PDU_TYPE_DTAP, DE_RR_CELL_CH_DSC, "");
+
+	/* 10 Multislot Allocation		10.5.2.21b	C TLV 3-12 */
+	ELEM_OPT_TLV(0x10,BSSAP_PDU_TYPE_DTAP, DE_RR_MULT_ALL, " - Description of the multislot configuration");
+	
+	/* 63 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x63,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of the First Channel(Channel Set 1)");
+
+	/* 11 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x11,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 2");
+
+	/* 13 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x13,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 3");
+
+	/* 14 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x14,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 4");
+
+	/* 15 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x15,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 5");
+
+	/* 16 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x16,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 6");
+
+	/* 17 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x17,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 7");
+
+	/* 18 Channel Mode				10.5.2.6	O TV 2 */
+	ELEM_OPT_TV(0x18,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 8");
+
+	/* 64 Channel Description		10.5.2.5	O TV 4 */	
+	ELEM_OPT_TV(0x64,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC, "Description of the Second Channel, after time");
+
+	/* 66  Channe l Mode 2			10.5.2.7	O TV 2 */
+	/* Mode of the Second Channel */
+
+	/* 72 Mobile Allocation			10.5.2.21	C TLV 3-10 */
+	ELEM_OPT_TLV(0x72,BSSAP_PDU_TYPE_DTAP, DE_RR_MOB_ALL, " - Mobile Allocation, after time");
+
+	/* 7C Starting Time				10.5.2.38	O TV 3 */
+	ELEM_OPT_TV(0x7C,BSSAP_PDU_TYPE_DTAP, DE_RR_STARTING_TIME, "");
+
+	/* 19 Frequency List			10.5.2.13	C TLV 4-132 */
+	ELEM_OPT_TLV(0x19, BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_LIST, " - Frequency List, before time");
+
+	/* 1C Channel Description 2		10.5.2.5a	O TV 4 */
+	ELEM_OPT_TV(0x1c,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC2, " - Description of the First Channel, before time");
+
+	/* 1D Channel Description		10.5.2.5	O TV 4 */
+	ELEM_OPT_TV(0x1d,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC, " - Description of the Second Channel, before time");
+
+	/* 1E Frequency channel sequence 10.5.2.12	C TV 10 */
+	ELEM_OPT_TV(0x1e,BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_CH_SEQ, " - Frequency channel sequence before time");
+
+	/* 21 Mobile Allocation			10.5.2.21	C TLV 3-10 */
+	ELEM_OPT_TLV(0x72,BSSAP_PDU_TYPE_DTAP, DE_RR_MOB_ALL, " - Mobile Allocation, before time");
+
+	/* 9- Cipher Mode Setting		10.5.2.9	O TV 1 */
+	ELEM_OPT_TV_SHORT(0x90,BSSAP_PDU_TYPE_DTAP, DE_RR_CIP_MODE_SET, "");
+	/* 01 VGCS target mode Indication VGCS target mode Indication 10.5.2.42a O TLV 3 */
+	ELEM_OPT_TLV(0x01,BSSAP_PDU_TYPE_DTAP, DE_RR_VGCS_TAR_MODE_IND, "");
+
+	/* 03 Multi-Rate configuration,	MultiRate configuration 10.5.2.21aa	O TLV 4-8 */
+	ELEM_OPT_TLV(0x03,BSSAP_PDU_TYPE_DTAP, DE_RR_MULTIRATE_CONF, "");
+
+	/* 04 VGCS Ciphering Parameters VGCS Ciphering Parameters 10.5.2.42b O TLV 3-15	*/
+	ELEM_OPT_TLV(0x04,BSSAP_PDU_TYPE_DTAP, DE_RR_VGCS_CIP_PAR, "");
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+}
+
+/* 
+ * 9.1.3 Assignment complete
+ */
+void
+dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+	/* RR Cause RR Cause 10.5.2.31 M V 1 */ 
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CAUSE); 
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+}
+
+/*
+ * 9.1.4 Assignment failure
+ */
+void
+dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+	/* RR Cause RR Cause 10.5.2.31 M V 1 */ 
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CAUSE); 
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+}
+/*
+ * 9.1.11 Classmark change
+ */
+void
+dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+	/* Mobile Station Classmark 2		10.5.1.6	M LV 4 */ 
+	ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MS_CM_2, ""); 
+	/* 20 Mobile Station Classmark 3	10.5.1.7	C TLV 3-34 */
+	ELEM_OPT_TLV(0x20, BSSAP_PDU_TYPE_DTAP, DE_MS_CM_3, "");
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+}
+
+/*
+ * 9.1.13b GPRS suspension request
+ */
+void
+dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    curr_offset = offset;
+    curr_len = len;
+
+	/* TLLI								10.5.2.41a	M V 4 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_TLLI);
+	
+	/* Routeing Area Identification		10.5.5.15	M V 6 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAI);
+	/* Suspension cause					10.5.2.47	M V 1 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_SUS_CAU);
+
+	/* 01 Service Support					10.5.2.57	O TV 2 */
+	ELEM_OPT_TV_SHORT(0x01,BSSAP_PDU_TYPE_DTAP, DE_RR_SERV_SUP,""); 
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
 }
 /* 3GPP TS 24.008 version 4.7.0 Release 4
  * [3] 9.1.15
@@ -15214,7 +15469,6 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	if(tvb_length_remaining(tvb,curr_offset) > 0)
 		ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_IA_REST_OCT);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
  * [4] 9.1.25
@@ -17567,9 +17821,9 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* Configuration Change Ack. */
     NULL,	/* Configuration Change Reject */
 
-    NULL,	/* Assignment Command */
-    NULL,	/* Assignment Complete */
-    NULL,	/* Assignment Failure */
+    dtap_rr_ass_cmd,	/* 9.1.2 Assignment Command */
+    dtap_rr_ass_comp,	/* Assignment Complete */
+    dtap_rr_ass_fail,	/* Assignment Failure */
     dtap_rr_ho_cmd,	/* Handover Command */
     NULL,	/* Handover Complete */
     NULL,	/* Handover Failure */
@@ -17628,11 +17882,11 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* Channel Mode Modify Acknowledge */
     NULL,	/* Frequency Redefinition */
     NULL,	/* Measurement Report */
-    NULL,	/* Classmark Change */
+    dtap_rr_mm_cm_change,	/* 9.1.11 Classmark Change */
     NULL,	/* Classmark Enquiry */
     NULL,	/* Extended Measurement Report */
     NULL,	/* Extended Measurement Order */
-    NULL,	/* GPRS Suspension Request */
+    dtap_rr_gprs_sus_req,	/* 9.1.13b GPRS Suspension Request */
 
     NULL,	/* VGCS Uplink Grant */
     NULL,	/* Uplink Release */
@@ -18843,6 +19097,11 @@ proto_register_gsm_a(void)
 		FT_UINT8,BASE_DEC,  VALS(protocol_discriminator_vals), 0x0f,          
 		"Protocol discriminator", HFILL }
 	},
+	{ &hf_gsm_a_call_prio,
+		{ "Call priority",           "gsm_a.call_prio",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_call_prio_vals), 0x07,          
+		"Call priority", HFILL }
+	},
 	{ &hf_gsm_a_skip_ind,
 		{ "Skip Indicator",           "gsm_a.skip.ind",
 		FT_UINT8, BASE_DEC, NULL, 0xf0,          
@@ -18999,6 +19258,16 @@ proto_register_gsm_a(void)
 		{ "Group cipher key number","gsm_a.rr.Group_cipher_key_number",
 		FT_UINT8,BASE_DEC,  NULL, 0x3c,          
 		"Group cipher key number", HFILL }
+	},
+	{ &hf_gsm_a_rr_MBMS_broadcast,
+		{ "MBMS Broadcast","gsm_a.rr.MBMS_broadcast",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_MBMS_broadcast_value), 0x01,          
+		"MBMS Broadcast", HFILL }
+	},
+	{ &hf_gsm_a_rr_MBMS_multicast,
+		{ "MBMS Multicast","gsm_a.rr.MBMS_multicast",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_MBMS_multicast_value), 0x02,          
+		"MBMS Multicast", HFILL }
 	},
 	{ &hf_gsm_a_rr_last_segment,
 		{ "Last Segment","gsm_a.rr.last_segment",
