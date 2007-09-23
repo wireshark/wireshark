@@ -665,7 +665,7 @@ static const value_string gsm_dtap_elem_strings[] = {
  * [3] 10.5.2.54 (void)
  * [3] 10.5.2.55 (void)
  * [3] 10.5.2.56 3G Target Cell */
- { 0x00,	"Service Support" },					/* [3] 10.5.2.57	*
+ { 0x00,	"Service Support" },					/* [3] 10.5.2.57	*/
  /* 10.5.2.58 MBMS p-t-m Channel Description */
 	{ 0x00,	"Dedicated Service Information" },		/* [3] 10.5.2.59	*/
 /*
