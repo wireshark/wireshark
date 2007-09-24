@@ -736,6 +736,7 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 /*
  * 9.3.27 Measurement result number
  */
+#if 0
 static int
 dissect_rsl_ie_meas_res_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
@@ -754,9 +755,11 @@ dissect_rsl_ie_meas_res_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	return offset;
 }
+#endif
 /*
  * 9.3.28 Message Identifier
  */
+#if 0 
 static int
 dissect_rsl_ie_message_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
@@ -773,7 +776,7 @@ dissect_rsl_ie_message_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset++;
 	return offset;
 }
-
+#endif
 /*
  * 9.3.35 Full Immediate Assign Info TLV 25
  */
