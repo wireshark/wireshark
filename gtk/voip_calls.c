@@ -3428,7 +3428,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			tmp_unistim_info->rudp_type = 0;
 			tmp_unistim_info->payload_type = 0;
 			tmp_unistim_info->sequence = pi->sequence;
-			tmp_unistim_info->termid = NULL; /* pi->termid; */
+			tmp_unistim_info->termid = 0;
 			tmp_unistim_info->key_val = -1;
 			tmp_unistim_info->key_state = -1;
 			tmp_unistim_info->hook_state = -1;
