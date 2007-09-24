@@ -8,6 +8,7 @@ all: lemon
 clean:
 	cd lemon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	rm -f *.pyc
 	cd ..
 
 distclean: clean
