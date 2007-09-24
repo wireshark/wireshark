@@ -76,8 +76,6 @@
 #  define WS_VAR_IMPORT extern
 #endif
 
-@HAVE_NET_SNMP@
-
 /* Define if you have the gethostbyname2 function.  */
 /* #undef HAVE_GETHOSTBYNAME2 */
 
