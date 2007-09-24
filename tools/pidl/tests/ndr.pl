@@ -4,12 +4,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 34;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
-use Parse::Pidl::NDR qw(GetElementLevelTable ParseElement align_type mapToScalar ParseType);
+use Parse::Pidl::NDR qw(GetElementLevelTable ParseElement align_type mapToScalar ParseType can_contain_deferred);
 
 # Case 1
 
@@ -225,5 +225,46 @@ is(mapToScalar({TYPE => "BITMAP", PROPERTIES => { bitmap64bit => 1 } }),
 	"hyper");
 is(mapToScalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM", PARENT => { PROPERTIES => { enum8bit => 1 } } }}), "uint8");
 
-is_deeply(ParseType({TYPE => "STRUCT", NAME => "foo" }, "ref"), 
-	{TYPE => "STRUCT", NAME => "foo" });
+my $t;
+$t = {
+	TYPE => "STRUCT",
+	NAME => "foo",
+	SURROUNDING_ELEMENT => undef,
+	ELEMENTS => undef,
+	PROPERTIES => undef,
+	ORIGINAL => {
+		TYPE => "STRUCT",
+		NAME => "foo"
+	},
+	ALIGN => undef
+};
+is_deeply(ParseType($t->{ORIGINAL}, "ref"), $t); 
+
+$t = {
+	TYPE => "UNION",
+	NAME => "foo",
+	SWITCH_TYPE => "uint32",
+	ELEMENTS => undef,
+	PROPERTIES => undef,
+	HAS_DEFAULT => 0,
+	ORIGINAL => {
+		TYPE => "UNION",
+		NAME => "foo"
+	}
+};
+is_deeply(ParseType($t->{ORIGINAL}, "ref"), $t); 
+
+ok(not can_contain_deferred("uint32"));
+ok(can_contain_deferred("some_unknown_type"));
+ok(can_contain_deferred({ TYPE => "STRUCT", 
+		ELEMENTS => [ { TYPE => "uint32", POINTERS => 40 } ]}));
+ok(can_contain_deferred({ TYPE => "TYPEDEF", 
+			DATA => { TYPE => "STRUCT", 
+		ELEMENTS => [ { TYPE => "uint32", POINTERS => 40 } ]}}));
+ok(not can_contain_deferred({ TYPE => "STRUCT", 
+		ELEMENTS => [ { TYPE => "uint32" } ]}));
+ok(not can_contain_deferred({ TYPE => "TYPEDEF",
+			DATA => { TYPE => "STRUCT", 
+		ELEMENTS => [ { TYPE => "uint32" } ]}}));
+ok(can_contain_deferred({ TYPE => "STRUCT", 
+		ELEMENTS => [ { TYPE => "someunknowntype" } ]}));

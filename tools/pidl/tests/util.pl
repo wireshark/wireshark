@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 70;
+use Test::More tests => 72;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -32,6 +32,9 @@ is("\"bla\"", make_str("\"bla\""));
 is("\"\"bla\"\"", make_str("\"\"bla\"\""));
 is("\"bla\"\"", make_str("bla\""));
 is("\"foo\"bar\"", make_str("foo\"bar"));
+
+is("bla", unmake_str("\"bla\""));
+is("\"bla\"", unmake_str("\"\"bla\"\""));
 
 # print_uuid()
 is(undef, print_uuid("invalid"));

@@ -174,8 +174,18 @@ sub enum_type_fn($)
 {
 	my $enum = shift;
 	$enum->{TYPE} eq "ENUM" or die("not an enum");
-	if (has_property($enum->{PARENT}, "enum8bit")) {
+
+	# for typedef enum { } we need to check $enum->{PARENT}
+	if (has_property($enum, "enum8bit")) {
 		return "uint8";
+	} elsif (has_property($enum, "enum16bit")) {
+		return "uint16";
+	} elsif (has_property($enum, "v1_enum")) {
+		return "uint32";
+	} elsif (has_property($enum->{PARENT}, "enum8bit")) {
+		return "uint8";
+	} elsif (has_property($enum->{PARENT}, "enum16bit")) {
+		return "uint16";
 	} elsif (has_property($enum->{PARENT}, "v1_enum")) {
 		return "uint32";
 	}

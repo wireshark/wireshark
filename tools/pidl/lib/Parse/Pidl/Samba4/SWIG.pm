@@ -52,7 +52,7 @@ sub ParseInterface($$)
 	pidl "struct $if->{NAME} *ret = talloc(mem_ctx, struct $if->{NAME});";
 	pidl "NTSTATUS status;";
 	pidl "";
-	pidl "status = dcerpc_pipe_connect(mem_ctx, &ret->pipe, binding, &dcerpc_table_$if->{NAME}, cred, event);";
+	pidl "status = dcerpc_pipe_connect(mem_ctx, &ret->pipe, binding, &ndr_table_$if->{NAME}, cred, event);";
 	pidl "if (NT_STATUS_IS_ERR(status)) {";
 	pidl "\tntstatus_exception(status);";
 	pidl "\treturn NULL;";

@@ -6,7 +6,7 @@ package Parse::Pidl::Util;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str print_uuid MyDumper);
+@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str unmake_str print_uuid MyDumper);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -102,6 +102,19 @@ sub make_str($)
 		return $str;
 	}
 	return "\"$str\"";
+}
+
+=item B<unmake_str>
+unquote a "" quoted string
+
+=cut
+sub unmake_str($)
+{
+	my $str = shift;
+	
+	$str =~ s/^\"(.*)\"$/$1/;
+
+	return $str;
 }
 
 =item B<print_uuid>

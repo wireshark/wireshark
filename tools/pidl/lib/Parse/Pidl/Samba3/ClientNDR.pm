@@ -16,6 +16,7 @@ use Parse::Pidl::Typelist qw(hasType getType mapTypeName scalar_is_reference);
 use Parse::Pidl::Util qw(has_property is_constant ParseExpr);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
 use Parse::Pidl::Samba4 qw(DeclLong);
+use Parse::Pidl::Samba4::NDR::Parser qw(GenerateFunctionInEnv);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -33,27 +34,14 @@ sub new($)
 	bless($self, $class);
 }
 
-sub GenerateFunctionInEnv($)
-{
-	my $fn = shift;
-	my %env;
-
-	foreach my $e (@{$fn->{ELEMENTS}}) {
-		if (grep (/in/, @{$e->{DIRECTION}})) {
-			$env{$e->{NAME}} = "r.in.$e->{NAME}";
-		}
-	}
-
-	return \%env;
-}
-
 sub ParseFunction($$$)
 {
-	my ($self, $uif, $fn) = @_;
+	my ($self, $if, $fn) = @_;
 
 	my $inargs = "";
 	my $defargs = "";
-	my $ufn = "DCERPC_".uc($fn->{NAME});
+	my $uif = uc($if);
+	my $ufn = "NDR_".uc($fn->{NAME});
 
 	foreach (@{$fn->{ELEMENTS}}) {
 		$defargs .= ", " . DeclLong($_);
@@ -76,7 +64,7 @@ sub ParseFunction($$$)
 	$self->pidl("if (DEBUGLEVEL >= 10)");
 	$self->pidl("\tNDR_PRINT_IN_DEBUG($fn->{NAME}, &r);");
 	$self->pidl("");
-	$self->pidl("status = cli_do_rpc_ndr(cli, mem_ctx, PI_$uif, $ufn, &r, (ndr_pull_flags_fn_t)ndr_pull_$fn->{NAME}, (ndr_push_flags_fn_t)ndr_push_$fn->{NAME});");
+	$self->pidl("status = cli_do_rpc_ndr(cli, mem_ctx, PI_$uif, &ndr_table_$if, $ufn, &r);");
 	$self->pidl("");
 
 	$self->pidl("if (!NT_STATUS_IS_OK(status)) {");
@@ -96,31 +84,35 @@ sub ParseFunction($$$)
 	$self->pidl("/* Return variables */");
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
+		my $level = 0;
 
-		fatal($e, "[out] argument is not a pointer or array") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY");
+		fatal($e->{ORIGINAL}, "[out] argument is not a pointer or array") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY");
 
-		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") and
-			 ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") ) {
-			$self->pidl("if ( $e->{NAME} ) {");
-			$self->indent;
+		if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
+			$level = 1;
+			if ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") {
+				$self->pidl("if ( $e->{NAME} ) {");
+				$self->indent;
+			}
 		}
 
-		if ($e->{LEVELS}[0]->{TYPE} eq "ARRAY") {
+		if ($e->{LEVELS}[$level]->{TYPE} eq "ARRAY") {
 			# This is a call to GenerateFunctionInEnv intentionally. 
 			# Since the data is being copied into a user-provided data 
 			# structure, the user should be able to know the size beforehand 
 			# to allocate a structure of the right size.
-			my $env = GenerateFunctionInEnv($fn);
-			my $size_is = ParseExpr($e->{LEVELS}[0]->{SIZE_IS}, $env, $e);
+			my $env = GenerateFunctionInEnv($fn, "r.");
+			my $size_is = ParseExpr($e->{LEVELS}[$level]->{SIZE_IS}, $env, $e->{ORIGINAL});
 			$self->pidl("memcpy($e->{NAME}, r.out.$e->{NAME}, $size_is);");
 		} else {
 			$self->pidl("*$e->{NAME} = *r.out.$e->{NAME};");
 		}
 
-		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") and
-			 ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") ) {
-			$self->deindent;
-			$self->pidl("}");
+		if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
+			if ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") {
+				$self->deindent;
+				$self->pidl("}");
+			}
 		}
 	}
 
@@ -150,7 +142,7 @@ sub ParseInterface($$)
 
 	$self->pidl_hdr("#ifndef __CLI_$uif\__");
 	$self->pidl_hdr("#define __CLI_$uif\__");
-	$self->ParseFunction(uc($if->{NAME}), $_) foreach (@{$if->{FUNCTIONS}});
+	$self->ParseFunction($if->{NAME}, $_) foreach (@{$if->{FUNCTIONS}});
 	$self->pidl_hdr("#endif /* __CLI_$uif\__ */");
 }
 

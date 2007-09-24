@@ -35,7 +35,7 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsString);
-@EXPORT_OK = qw(GetElementLevelTable ParseElement ValidElement align_type mapToScalar ParseType);
+@EXPORT_OK = qw(GetElementLevelTable ParseElement ValidElement align_type mapToScalar ParseType can_contain_deferred);
 
 use strict;
 use Parse::Pidl qw(warning fatal);
@@ -113,6 +113,8 @@ sub GetElementLevelTable($)
 		my $is_varying = 0;
 		my $is_conformant = 0;
 		my $is_string = 0;
+		my $is_fixed = 0;
+		my $is_inline = 0;
 
 		if ($d eq "*") {
 			$is_conformant = 1;
@@ -136,17 +138,20 @@ sub GetElementLevelTable($)
 			}
 		}
 
+		$is_fixed = 1 if (not $is_conformant and Parse::Pidl::Util::is_constant($size));
+		$is_inline = 1 if (not $is_conformant and not Parse::Pidl::Util::is_constant($size));
+
 		push (@$order, {
 			TYPE => "ARRAY",
 			SIZE_IS => $size,
 			LENGTH_IS => $length,
-			IS_DEFERRED => "$is_deferred",
-			IS_SURROUNDING => "$is_surrounding",
-			IS_ZERO_TERMINATED => "$is_string",
-			IS_VARYING => "$is_varying",
-			IS_CONFORMANT => "$is_conformant",
-			IS_FIXED => (not $is_conformant and Parse::Pidl::Util::is_constant($size)),
-			IS_INLINE => (not $is_conformant and not Parse::Pidl::Util::is_constant($size))
+			IS_DEFERRED => $is_deferred,
+			IS_SURROUNDING => $is_surrounding,
+			IS_ZERO_TERMINATED => $is_string,
+			IS_VARYING => $is_varying,
+			IS_CONFORMANT => $is_conformant,
+			IS_FIXED => $is_fixed,
+			IS_INLINE => $is_inline
 		});
 	}
 
@@ -204,15 +209,15 @@ sub GetElementLevelTable($)
 		if ($array_size or $is_string) {
 			push (@$order, {
 				TYPE => "ARRAY",
-				IS_ZERO_TERMINATED => "$is_string",
 				SIZE_IS => $array_size,
 				LENGTH_IS => $array_length,
-				IS_DEFERRED => "$is_deferred",
+				IS_DEFERRED => $is_deferred,
 				IS_SURROUNDING => 0,
-				IS_VARYING => "$is_varying",
-				IS_CONFORMANT => "$is_conformant",
+				IS_ZERO_TERMINATED => $is_string,
+				IS_VARYING => $is_varying,
+				IS_CONFORMANT => $is_conformant,
 				IS_FIXED => 0,
-				IS_INLINE => 0,
+				IS_INLINE => 0
 			});
 
 			$is_deferred = 0;
@@ -244,22 +249,22 @@ sub GetElementLevelTable($)
 	}
 
 	if (scalar(@size_is) > 0) {
-		warning($e, "size_is() on non-array element");
+		fatal($e, "size_is() on non-array element");
 	}
 
 	if (scalar(@length_is) > 0) {
-		warning($e, "length_is() on non-array element");
+		fatal($e, "length_is() on non-array element");
 	}
 
 	if (has_property($e, "string")) {
-		warning($e, "string() attribute on non-array element");
+		fatal($e, "string() attribute on non-array element");
 	}
 
 	push (@$order, {
 		TYPE => "DATA",
 		DATA_TYPE => $e->{TYPE},
 		IS_DEFERRED => $is_deferred,
-		CONTAINS_DEFERRED => can_contain_deferred($e),
+		CONTAINS_DEFERRED => can_contain_deferred($e->{TYPE}),
 		IS_SURROUNDING => 0 #FIXME
 	});
 
@@ -274,18 +279,23 @@ sub GetElementLevelTable($)
 sub can_contain_deferred($)
 {
 	sub can_contain_deferred($);
-	my $e = shift;
+	my ($type) = @_;
 
-	return 0 if (Parse::Pidl::Typelist::is_scalar($e->{TYPE}));
-	return 1 unless (hasType($e->{TYPE})); # assume the worst
+	return 1 unless (hasType($type)); # assume the worst
 
-	my $type = getType($e->{TYPE});
+	$type = getType($type);
+
+	return 0 if (Parse::Pidl::Typelist::is_scalar($type));
 
 	return 1 if ($type->{TYPE} eq "DECLARE"); # assume the worst
 
-	foreach my $x (@{$type->{DATA}->{ELEMENTS}}) {
-		return 1 if ($x->{POINTERS});
-		return 1 if (can_contain_deferred ($x));
+	return can_contain_deferred($type->{DATA}) if ($type->{TYPE} eq "TYPEDEF");
+
+	return 0 unless defined($type->{ELEMENTS});
+
+	foreach (@{$type->{ELEMENTS}}) {
+		return 1 if ($_->{POINTERS});
+		return 1 if (can_contain_deferred ($_->{TYPE}));
 	}
 	
 	return 0;
@@ -392,6 +402,18 @@ sub ParseStruct($$)
 	my @elements = ();
 	my $surrounding = undef;
 
+	return {
+		TYPE => "STRUCT",
+		NAME => $struct->{NAME},
+		SURROUNDING_ELEMENT => undef,
+		ELEMENTS => undef,
+		PROPERTIES => $struct->{PROPERTIES},
+		ORIGINAL => $struct,
+		ALIGN => undef
+	} unless defined($struct->{ELEMENTS});
+
+	CheckPointerTypes($struct, $pointer_default);
+
 	foreach my $x (@{$struct->{ELEMENTS}}) 
 	{
 		my $e = ParseElement($x, $pointer_default);
@@ -433,12 +455,23 @@ sub ParseUnion($$)
 {
 	my ($e, $pointer_default) = @_;
 	my @elements = ();
+	my $hasdefault = 0;
 	my $switch_type = has_property($e, "switch_type");
 	unless (defined($switch_type)) { $switch_type = "uint32"; }
-
 	if (has_property($e, "nodiscriminant")) { $switch_type = undef; }
-	
-	my $hasdefault = 0;
+
+	return {
+		TYPE => "UNION",
+		NAME => $e->{NAME},
+		SWITCH_TYPE => $switch_type,
+		ELEMENTS => undef,
+		PROPERTIES => $e->{PROPERTIES},
+		HAS_DEFAULT => $hasdefault,
+		ORIGINAL => $e
+	} unless defined($e->{ELEMENTS});
+
+	CheckPointerTypes($e, $pointer_default);
+
 	foreach my $x (@{$e->{ELEMENTS}}) 
 	{
 		my $t;
@@ -500,11 +533,6 @@ sub ParseBitmap($$)
 sub ParseType($$)
 {
 	my ($d, $pointer_default) = @_;
-
-	if ($d->{TYPE} eq "STRUCT" or $d->{TYPE} eq "UNION") {
-		return $d if (not defined($d->{ELEMENTS}));
-		CheckPointerTypes($d, $pointer_default);
-	}
 
 	my $data = {
 		STRUCT => \&ParseStruct,
@@ -589,6 +617,8 @@ sub CheckPointerTypes($$)
 {
 	my ($s,$default) = @_;
 
+	return unless defined($s->{ELEMENTS});
+
 	foreach my $e (@{$s->{ELEMENTS}}) {
 		if ($e->{POINTERS} and not defined(pointer_type($e))) {
 			$e->{PROPERTIES}->{$default} = 1;
@@ -602,6 +632,8 @@ sub FindNestedTypes($$)
 	my ($l, $t) = @_;
 
 	return if not defined($t->{ELEMENTS});
+	return if ($t->{TYPE} eq "ENUM");
+	return if ($t->{TYPE} eq "BITMAP");
 
 	foreach (@{$t->{ELEMENTS}}) {
 		if (ref($_->{TYPE}) eq "HASH") {
@@ -688,6 +720,7 @@ sub Parse($)
 	my @ndr = ();
 
 	foreach (@{$idl}) {
+		($_->{TYPE} eq "CPP_QUOTE") && push(@ndr, $_);
 		($_->{TYPE} eq "INTERFACE") && push(@ndr, ParseInterface($_));
 		($_->{TYPE} eq "IMPORT") && push(@ndr, $_);
 	}
@@ -1003,6 +1036,8 @@ sub ValidStruct($)
 
 	ValidProperties($struct, "STRUCT");
 
+	return unless defined($struct->{ELEMENTS});
+
 	foreach my $e (@{$struct->{ELEMENTS}}) {
 		$e->{PARENT} = $struct;
 		ValidElement($e);
@@ -1020,7 +1055,9 @@ sub ValidUnion($)
 	if (has_property($union->{PARENT}, "nodiscriminant") and has_property($union->{PARENT}, "switch_type")) {
 		fatal($union->{PARENT}, $union->{PARENT}->{NAME} . ": switch_type() on union without discriminant");
 	}
-	
+
+	return unless defined($union->{ELEMENTS});
+
 	foreach my $e (@{$union->{ELEMENTS}}) {
 		$e->{PARENT} = $union;
 
@@ -1127,7 +1164,7 @@ sub ValidInterface($)
 		 $d->{TYPE} eq "STRUCT" or
 	 	 $d->{TYPE} eq "UNION" or 
 	 	 $d->{TYPE} eq "ENUM" or
-	     $d->{TYPE} eq "BITMAP") && ValidType($d);
+		 $d->{TYPE} eq "BITMAP") && ValidType($d);
 	}
 
 }
@@ -1142,7 +1179,7 @@ sub Validate($)
 		($x->{TYPE} eq "INTERFACE") && 
 		    ValidInterface($x);
 		($x->{TYPE} eq "IMPORTLIB") &&
-			warning($x, "importlib() not supported");
+			fatal($x, "importlib() not supported");
 	}
 }
 

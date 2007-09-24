@@ -194,8 +194,8 @@ sub ParserBitmap($$$$)
 sub ParserEnum($$$$)
 {
 	my ($self,$e,$t,$p) = @_;
-	my $bt = ($e->{PROPERTIES}->{base_type} or "uint8");
-	
+	my $bt = Parse::Pidl::Typelist::enum_type_fn($e);
+
 	$self->fn_declare($p, "NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", enum $e->{NAME} *v)");
 	$self->pidl("{");
 	if ($t eq "pull") {

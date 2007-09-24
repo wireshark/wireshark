@@ -689,8 +689,8 @@ sub EjsFunction($$$)
 {
 	my ($self, $d, $iface) = @_;
 	my $name = $d->{NAME};
-	my $callnum = uc("DCERPC_$name");
-	my $table = "&dcerpc_table_$iface";
+	my $callnum = uc("NDR_$name");
+	my $table = "&ndr_table_$iface";
 
 	$self->pidl("static int ejs_$name(int eid, int argc, struct MprVar **argv)");
 	$self->pidl("{");

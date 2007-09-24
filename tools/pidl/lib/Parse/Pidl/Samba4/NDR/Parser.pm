@@ -243,30 +243,34 @@ sub EnvSubstituteValue($$)
 	return $env;
 }
 
-sub GenerateFunctionInEnv($)
+sub GenerateFunctionInEnv($;$)
 {
-	my $fn = shift;
+	my ($fn, $base) = @_;
 	my %env;
+
+	$base = "r->" unless defined($base);
 
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		if (grep (/in/, @{$e->{DIRECTION}})) {
-			$env{$e->{NAME}} = "r->in.$e->{NAME}";
+			$env{$e->{NAME}} = $base."in.$e->{NAME}";
 		}
 	}
 
 	return \%env;
 }
 
-sub GenerateFunctionOutEnv($)
+sub GenerateFunctionOutEnv($;$)
 {
-	my $fn = shift;
+	my ($fn, $base) = @_;
 	my %env;
+
+	$base = "r->" unless defined($base);
 
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		if (grep (/out/, @{$e->{DIRECTION}})) {
-			$env{$e->{NAME}} = "r->out.$e->{NAME}";
+			$env{$e->{NAME}} = $base."out.$e->{NAME}";
 		} elsif (grep (/in/, @{$e->{DIRECTION}})) {
-			$env{$e->{NAME}} = "r->in.$e->{NAME}";
+			$env{$e->{NAME}} = $base."in.$e->{NAME}";
 		}
 	}
 
@@ -2277,7 +2281,7 @@ sub FunctionTable($$)
 	return if ($#{$interface->{FUNCTIONS}}+1 == 0);
 	return unless defined ($interface->{PROPERTIES}->{uuid});
 
-	$self->pidl("static const struct dcerpc_interface_call $interface->{NAME}\_calls[] = {");
+	$self->pidl("static const struct ndr_interface_call $interface->{NAME}\_calls[] = {");
 	foreach my $d (@{$interface->{FUNCTIONS}}) {
 		next if not defined($d->{OPNUM});
 		$self->pidl("\t{");
@@ -2286,11 +2290,11 @@ sub FunctionTable($$)
 		$self->pidl("\t\t(ndr_push_flags_fn_t) ndr_push_$d->{NAME},");
 		$self->pidl("\t\t(ndr_pull_flags_fn_t) ndr_pull_$d->{NAME},");
 		$self->pidl("\t\t(ndr_print_function_t) ndr_print_$d->{NAME},");
-		$self->pidl("\t\t".($d->{ASYNC}?"True":"False").",");
+		$self->pidl("\t\t".($d->{ASYNC}?"true":"false").",");
 		$self->pidl("\t},");
 		$count++;
 	}
-	$self->pidl("\t{ NULL, 0, NULL, NULL, NULL, False }");
+	$self->pidl("\t{ NULL, 0, NULL, NULL, NULL, false }");
 	$self->pidl("};");
 	$self->pidl("");
 
@@ -2303,7 +2307,7 @@ sub FunctionTable($$)
 	$self->pidl("};");
 	$self->pidl("");
 
-	$self->pidl("static const struct dcerpc_endpoint_list $interface->{NAME}\_endpoints = {");
+	$self->pidl("static const struct ndr_interface_string_array $interface->{NAME}\_endpoints = {");
 	$self->pidl("\t.count\t= $endpoint_count,");
 	$self->pidl("\t.names\t= $interface->{NAME}\_endpoint_strings");
 	$self->pidl("};");
@@ -2323,19 +2327,19 @@ sub FunctionTable($$)
 	$self->pidl("};");
 	$self->pidl("");
 
-	$self->pidl("static const struct dcerpc_authservice_list $interface->{NAME}\_authservices = {");
+	$self->pidl("static const struct ndr_interface_string_array $interface->{NAME}\_authservices = {");
 	$self->pidl("\t.count\t= $endpoint_count,");
 	$self->pidl("\t.names\t= $interface->{NAME}\_authservice_strings");
 	$self->pidl("};");
 	$self->pidl("");
 
-	$self->pidl("\nconst struct dcerpc_interface_table dcerpc_table_$interface->{NAME} = {");
+	$self->pidl("\nconst struct ndr_interface_table ndr_table_$interface->{NAME} = {");
 	$self->pidl("\t.name\t\t= \"$interface->{NAME}\",");
 	$self->pidl("\t.syntax_id\t= {");
 	$self->pidl("\t\t" . print_uuid($interface->{UUID}) .",");
-	$self->pidl("\t\tDCERPC_$uname\_VERSION");
+	$self->pidl("\t\tNDR_$uname\_VERSION");
 	$self->pidl("\t},");
-	$self->pidl("\t.helpstring\t= DCERPC_$uname\_HELPSTRING,");
+	$self->pidl("\t.helpstring\t= NDR_$uname\_HELPSTRING,");
 	$self->pidl("\t.num_calls\t= $count,");
 	$self->pidl("\t.calls\t\t= $interface->{NAME}\_calls,");
 	$self->pidl("\t.endpoints\t= &$interface->{NAME}\_endpoints,");
@@ -2391,19 +2395,18 @@ sub HeaderInterface($$)
 
 	if (defined $interface->{PROPERTIES}->{uuid}) {
 		my $name = uc $interface->{NAME};
-		$self->pidl_hdr("#define DCERPC_$name\_UUID " . 
+		$self->pidl_hdr("#define NDR_$name\_UUID " . 
 		Parse::Pidl::Util::make_str(lc($interface->{PROPERTIES}->{uuid})));
 
 		if(!defined $interface->{PROPERTIES}->{version}) { $interface->{PROPERTIES}->{version} = "0.0"; }
-		$self->pidl_hdr("#define DCERPC_$name\_VERSION $interface->{PROPERTIES}->{version}");
+		$self->pidl_hdr("#define NDR_$name\_VERSION $interface->{PROPERTIES}->{version}");
 
-		$self->pidl_hdr("#define DCERPC_$name\_NAME \"$interface->{NAME}\"");
+		$self->pidl_hdr("#define NDR_$name\_NAME \"$interface->{NAME}\"");
 
 		if(!defined $interface->{PROPERTIES}->{helpstring}) { $interface->{PROPERTIES}->{helpstring} = "NULL"; }
-		$self->pidl_hdr("#define DCERPC_$name\_HELPSTRING $interface->{PROPERTIES}->{helpstring}");
+		$self->pidl_hdr("#define NDR_$name\_HELPSTRING $interface->{PROPERTIES}->{helpstring}");
 
-		$self->pidl_hdr("extern const struct dcerpc_interface_table dcerpc_table_$interface->{NAME};");
-		$self->pidl_hdr("NTSTATUS dcerpc_server_$interface->{NAME}_init(void);");
+		$self->pidl_hdr("extern const struct ndr_interface_table ndr_table_$interface->{NAME};");
 	}
 
 	foreach (@{$interface->{FUNCTIONS}}) {
@@ -2413,10 +2416,10 @@ sub HeaderInterface($$)
 	
 		my $val = sprintf("0x%02x", $count);
 		if (defined($interface->{BASE})) {
-			$val .= " + DCERPC_" . uc $interface->{BASE} . "_CALL_COUNT";
+			$val .= " + NDR_" . uc $interface->{BASE} . "_CALL_COUNT";
 		}
 		
-		$self->pidl_hdr("#define DCERPC_$u_name ($val)");
+		$self->pidl_hdr("#define NDR_$u_name ($val)");
 
 		$self->pidl_hdr("");
 		$count++;
@@ -2425,10 +2428,10 @@ sub HeaderInterface($$)
 	my $val = $count;
 
 	if (defined($interface->{BASE})) {
-		$val .= " + DCERPC_" . uc $interface->{BASE} . "_CALL_COUNT";
+		$val .= " + NDR_" . uc $interface->{BASE} . "_CALL_COUNT";
 	}
 
-	$self->pidl_hdr("#define DCERPC_" . uc $interface->{NAME} . "_CALL_COUNT ($val)");
+	$self->pidl_hdr("#define NDR_" . uc $interface->{NAME} . "_CALL_COUNT ($val)");
 
 }
 
@@ -2596,8 +2599,6 @@ sub GenerateIncludes($)
 	if (is_intree() != 3) {
 		$self->pidl(choose_header("libcli/util/nterr.h", "core/nterr.h"));
 		$self->pidl(choose_header("librpc/gen_ndr/ndr_misc.h", "gen_ndr/ndr_misc.h"));
-		$self->pidl(choose_header("librpc/gen_ndr/ndr_dcerpc.h", "gen_ndr/ndr_dcerpc.h"));
-		$self->pidl(choose_header("librpc/rpc/dcerpc.h", "dcerpc.h")); #FIXME: This shouldn't be here!
 	}
 }
 

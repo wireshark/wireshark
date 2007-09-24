@@ -4,7 +4,7 @@
 # Published under the GNU General Public License
 use strict;
 
-use Test::More tests => 64 * 2 + 2;
+use Test::More tests => 65 * 2 + 3;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util qw(test_errors);
@@ -109,6 +109,7 @@ testok "import-multiple", "import \"foo.idl\", \"bar.idl\";";
 testok "include-multiple", "include \"foo.idl\", \"bar.idl\";";
 testok "empty-struct", "interface test { struct foo { }; }";
 testok "typedef-double", "interface test { typedef struct foo { } foo; }";
+testok "cpp-quote", "cpp_quote(\"bla\")";
 
 my $x = Parse::Pidl::IDL::parse_string("interface foo { struct x {}; }", "<foo>");
 
@@ -122,3 +123,10 @@ is_deeply($x,
 	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
 		 { 'NAME' => 'x', 'TYPE' => 'STRUCT' } ], 
 		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+
+$x = Parse::Pidl::IDL::parse_string("cpp_quote(\"foobar\")", "<quote>");
+is_deeply($x, 
+	 [ { 'FILE' => '<quote>', 'DATA' => '"foobar"',
+		 'TYPE' => 'CPP_QUOTE', 'LINE' => 0 } ]); 
+
+

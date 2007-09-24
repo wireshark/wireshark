@@ -21,6 +21,7 @@ idl:
 	| idl import { push(@{$_[1]}, $_[2]); $_[1] }
 	| idl include { push(@{$_[1]}, $_[2]); $_[1] }
 	| idl importlib { push(@{$_[1]}, $_[2]); $_[1] }
+	| idl cpp_quote { push(@{$_[1]}, $_[2]); $_[1] }
 ;
 
 import: 'import' commalist ';' {{
@@ -75,6 +76,15 @@ interface: property_list 'interface' identifier '{' definitions '}' optional_sem
 		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
+;
+
+cpp_quote: 'cpp_quote' '(' text ')'
+	{{
+		 "TYPE" => "CPP_QUOTE",
+		 "FILE" => $_[0]->YYData->{FILE},
+		 "LINE" => $_[0]->YYData->{LINE},
+		 "DATA" => $_[3]
+	}}
 ;
 
 definitions: 
@@ -466,7 +476,7 @@ again:
 		if (s/^([\w_]+)//) {
 			$parser->YYData->{LAST_TOKEN} = $1;
 			if ($1 =~ 
-			    /^(coclass|interface|const|typedef|declare|union
+			    /^(coclass|interface|const|typedef|declare|union|cpp_quote
 			      |struct|enum|bitmap|void|unsigned|signed|import|include
 				  |importlib)$/x) {
 				return $1;

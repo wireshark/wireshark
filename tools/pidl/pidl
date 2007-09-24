@@ -273,7 +273,7 @@ Datagram support (ncadg_*)
 in, out, ref, length_is, switch_is, size_is, uuid, case, default, string, 
 unique, ptr, pointer_default, v1_enum, object, helpstring, range, local, 
 call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as, 
-transmit_as, import, include.
+transmit_as, import, include, cpp_quote.
 
 =head2 PIDL Specific properties
 
@@ -347,7 +347,7 @@ to the host format. Commonly used values are UCS2, DOS and UTF8.
 
 =head2 Unsupported MIDL properties or statements
 
-aggregatable, appobject, async_uuid, bindable, control, cpp_quote, 
+aggregatable, appobject, async_uuid, bindable, control, 
 defaultbind, defaultcollelem, defaultvalue, defaultvtable, dispinterface, 
 displaybind, dual, entry, first_is, helpcontext, helpfile, helpstringcontext, 
 helpstringdll, hidden, idl_module, idl_quote, id, immediatebind, importlib, 
@@ -601,12 +601,18 @@ sub process_file($)
 	}
 
 	if (defined($opt_ws_parser) or 
-	    defined($opt_client) or defined($opt_server) or 
-	    defined($opt_ndr_parser) or defined($opt_ejs) or 
-		defined($opt_dump_ndr_tree) or defined($opt_samba3_header) or 
-	    defined($opt_samba3_parser) or defined($opt_samba3_server) or 
-		defined($opt_swig) or defined($opt_samba3_ndr_client) or
-		defined($opt_samba3_ndr_server)) {
+	    defined($opt_client) or
+	    defined($opt_server) or 
+	    defined($opt_header) or
+	    defined($opt_ndr_parser) or
+	    defined($opt_ejs) or 
+	    defined($opt_dump_ndr_tree) or
+	    defined($opt_samba3_header) or 
+	    defined($opt_samba3_parser) or 
+	    defined($opt_samba3_server) or 
+	    defined($opt_swig) or
+	    defined($opt_samba3_ndr_client) or
+	    defined($opt_samba3_ndr_server)) {
 		require Parse::Pidl::NDR;
 		$ndr = Parse::Pidl::NDR::Parse($pidl);
 	}
@@ -619,7 +625,7 @@ sub process_file($)
 	my $gen_header = ($opt_header or "$outputdir/$basename.h");
 	if (defined($opt_header)) {
 		require Parse::Pidl::Samba4::Header;
-		FileSave($gen_header, Parse::Pidl::Samba4::Header::Parse($pidl));
+		FileSave($gen_header, Parse::Pidl::Samba4::Header::Parse($ndr));
 	}
 
 	my $h_filename = "$outputdir/ndr_$basename.h";

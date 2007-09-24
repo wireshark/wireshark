@@ -7,9 +7,10 @@
 package Parse::Pidl::Samba4::Header;
 
 use strict;
+use Parse::Pidl qw(fatal);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
-use Parse::Pidl::Util qw(has_property is_constant);
-use Parse::Pidl::Samba4 qw(is_intree);
+use Parse::Pidl::Util qw(has_property is_constant unmake_str);
+use Parse::Pidl::Samba4 qw(is_intree ElementStars ArrayBrackets);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -30,10 +31,10 @@ sub tabs()
 # parse a properties list
 sub HeaderProperties($$)
 {
-    my($props,$ignores) = @_;
+	my($props,$ignores) = @_;
 	my $ret = "";
 
-    foreach my $d (keys %{$props}) {
+	foreach my $d (keys %{$props}) {
 		next if (grep(/^$d$/, @$ignores));
 		if($props->{$d} ne "1") {
 			$ret.= "$d($props->{$d}),";
@@ -62,25 +63,10 @@ sub HeaderElement($)
 		} else {
 			HeaderType($element, $element->{TYPE}, "");
 		}
-		pidl " ";
-		my $numstar = $element->{POINTERS};
-		if ($numstar >= 1) {
-			$numstar-- if (scalar_is_reference($element->{TYPE}));
-		}
-		foreach (@{$element->{ARRAY_LEN}})
-		{
-			next if is_constant($_) and 
-				not has_property($element, "charset");
-			$numstar++;
-		}
-		pidl "*" foreach (1..$numstar);
+		pidl " ".ElementStars($element);
 	}
 	pidl $element->{NAME};
-	foreach (@{$element->{ARRAY_LEN}}) {
-		next unless (is_constant($_) and 
-			not has_property($element, "charset"));
-		pidl "[$_]";
-	}
+	pidl ArrayBrackets($element);
 
 	pidl ";";
 	if (defined $element->{PROPERTIES}) {
@@ -93,22 +79,22 @@ sub HeaderElement($)
 # parse a struct
 sub HeaderStruct($$)
 {
-    my($struct,$name) = @_;
+	my($struct,$name) = @_;
 	pidl "struct $name";
-    return if (not defined($struct->{ELEMENTS}));
+	return if (not defined($struct->{ELEMENTS}));
 	pidl " {\n";
-    $tab_depth++;
-    my $el_count=0;
+	$tab_depth++;
+	my $el_count=0;
 	foreach (@{$struct->{ELEMENTS}}) {
 		HeaderElement($_);
 		$el_count++;
-    }
-    if ($el_count == 0) {
-	    # some compilers can't handle empty structures
-	    pidl tabs()."char _empty_;\n";
-    }
-    $tab_depth--;
-    pidl tabs()."}";
+	}
+	if ($el_count == 0) {
+		# some compilers can't handle empty structures
+		pidl tabs()."char _empty_;\n";
+	}
+	$tab_depth--;
+	pidl tabs()."}";
 	if (defined $struct->{PROPERTIES}) {
 		HeaderProperties($struct->{PROPERTIES}, []);
 	}
@@ -118,17 +104,19 @@ sub HeaderStruct($$)
 # parse a enum
 sub HeaderEnum($$)
 {
-    my($enum,$name) = @_;
-    my $first = 1;
+	my($enum,$name) = @_;
+	my $first = 1;
 
 	pidl "#ifndef USE_UINT_ENUMS\n";
 	pidl "enum $name {\n";
 	$tab_depth++;
-	foreach my $e (@{$enum->{ELEMENTS}}) {
- 	    unless ($first) { pidl ",\n"; }
-	    $first = 0;
-	    pidl tabs();
-	    pidl $e;
+	if (defined($enum->{ELEMENTS})) {
+		foreach my $e (@{$enum->{ELEMENTS}}) {
+			unless ($first) { pidl ",\n"; }
+			$first = 0;
+			pidl tabs();
+			pidl $e;
+		}
 	}
 	pidl "\n";
 	$tab_depth--;
@@ -138,24 +126,26 @@ sub HeaderEnum($$)
 	pidl "enum $name { __donnot_use_enum_$name=0x7FFFFFFF}\n";
 	my $with_val = 0;
 	my $without_val = 0;
-	foreach my $e (@{$enum->{ELEMENTS}}) {
-	    my $t = "$e";
-	    my $name;
-	    my $value;
-	    if ($t =~ /(.*)=(.*)/) {
-	    	$name = $1;
-	    	$value = $2;
-		$with_val = 1;
-		die ("you can't mix enum member with values and without values when using --uint-enums!")
-			unless ($without_val == 0);
-	    } else {
-	    	$name = $t;
-	    	$value = $count++;
-		$without_val = 1;
-		die ("you can't mix enum member with values and without values when using --uint-enums!")
-			unless ($with_val == 0);
-	    }
-	    pidl "#define $name ( $value )\n";
+	if (defined($enum->{ELEMENTS})) {
+		foreach my $e (@{$enum->{ELEMENTS}}) {
+			my $t = "$e";
+			my $name;
+			my $value;
+			if ($t =~ /(.*)=(.*)/) {
+				$name = $1;
+				$value = $2;
+				$with_val = 1;
+				fatal($e->{ORIGINAL}, "you can't mix enum member with values and without values!")
+					unless ($without_val == 0);
+			} else {
+				$name = $t;
+				$value = $count++;
+				$without_val = 1;
+				fatal($e->{ORIGINAL}, "you can't mix enum member with values and without values!")
+					unless ($with_val == 0);
+			}
+			pidl "#define $name ( $value )\n";
+		}
 	}
 	pidl "#endif\n";
 }
@@ -164,11 +154,13 @@ sub HeaderEnum($$)
 # parse a bitmap
 sub HeaderBitmap($$)
 {
-    my($bitmap,$name) = @_;
+	my($bitmap,$name) = @_;
 
-    pidl "/* bitmap $name */\n";
-    pidl "#define $_\n" foreach (@{$bitmap->{ELEMENTS}});
-    pidl "\n";
+	return unless defined($bitmap->{ELEMENTS});
+
+	pidl "/* bitmap $name */\n";
+	pidl "#define $_\n" foreach (@{$bitmap->{ELEMENTS}});
+	pidl "\n";
 }
 
 #####################################################################
@@ -222,20 +214,20 @@ sub HeaderType($$$)
 # parse a typedef
 sub HeaderTypedef($)
 {
-    my($typedef) = shift;
-    HeaderType($typedef, $typedef->{DATA}, $typedef->{NAME});
+	my($typedef) = shift;
+	HeaderType($typedef, $typedef->{DATA}, $typedef->{NAME});
 }
 
 #####################################################################
 # parse a const
 sub HeaderConst($)
 {
-    my($const) = shift;
-    if (!defined($const->{ARRAY_LEN}[0])) {
-    	pidl "#define $const->{NAME}\t( $const->{VALUE} )\n";
-    } else {
-    	pidl "#define $const->{NAME}\t $const->{VALUE}\n";
-    }
+	my($const) = shift;
+	if (!defined($const->{ARRAY_LEN}[0])) {
+		pidl "#define $const->{NAME}\t( $const->{VALUE} )\n";
+	} else {
+		pidl "#define $const->{NAME}\t $const->{VALUE}\n";
+	}
 }
 
 sub ElementDirection($)
@@ -252,10 +244,12 @@ sub ElementDirection($)
 # parse a function
 sub HeaderFunctionInOut($$)
 {
-    my($fn,$prop) = @_;
+	my($fn,$prop) = @_;
 
-	foreach (@{$fn->{ELEMENTS}}) {
-		HeaderElement($_) if (ElementDirection($_) eq $prop);
+	return unless defined($fn->{ELEMENTS});
+
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		HeaderElement($e) if (ElementDirection($e) eq $prop);
 	}
 }
 
@@ -263,15 +257,17 @@ sub HeaderFunctionInOut($$)
 # determine if we need an "in" or "out" section
 sub HeaderFunctionInOut_needed($$)
 {
-    my($fn,$prop) = @_;
+	my($fn,$prop) = @_;
 
-    return 1 if ($prop eq "out" && $fn->{RETURN_TYPE} ne "void");
+	return 1 if ($prop eq "out" && defined($fn->{RETURN_TYPE}));
 
-	foreach (@{$fn->{ELEMENTS}}) {
-		return 1 if (ElementDirection($_) eq $prop);
-    }
+	return undef unless defined($fn->{ELEMENTS});
 
-    return undef;
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		return 1 if (ElementDirection($e) eq $prop);
+	}
+
+	return undef;
 }
 
 my %headerstructs;
@@ -280,48 +276,48 @@ my %headerstructs;
 # parse a function
 sub HeaderFunction($)
 {
-    my($fn) = shift;
+	my($fn) = shift;
 
-    return if ($headerstructs{$fn->{NAME}});
+	return if ($headerstructs{$fn->{NAME}});
 
-    $headerstructs{$fn->{NAME}} = 1;
+	$headerstructs{$fn->{NAME}} = 1;
 
-    pidl "\nstruct $fn->{NAME} {\n";
-    $tab_depth++;
-    my $needed = 0;
+	pidl "\nstruct $fn->{NAME} {\n";
+	$tab_depth++;
+	my $needed = 0;
 
-    if (HeaderFunctionInOut_needed($fn, "in") or
+	if (HeaderFunctionInOut_needed($fn, "in") or
 	    HeaderFunctionInOut_needed($fn, "inout")) {
-	    pidl tabs()."struct {\n";
-	    $tab_depth++;
-	    HeaderFunctionInOut($fn, "in");
-	    HeaderFunctionInOut($fn, "inout");
-	    $tab_depth--;
-	    pidl tabs()."} in;\n\n";
-	    $needed++;
-    }
+		pidl tabs()."struct {\n";
+		$tab_depth++;
+		HeaderFunctionInOut($fn, "in");
+		HeaderFunctionInOut($fn, "inout");
+		$tab_depth--;
+		pidl tabs()."} in;\n\n";
+		$needed++;
+	}
 
-    if (HeaderFunctionInOut_needed($fn, "out") or
+	if (HeaderFunctionInOut_needed($fn, "out") or
 	    HeaderFunctionInOut_needed($fn, "inout")) {
-	    pidl tabs()."struct {\n";
-	    $tab_depth++;
-	    HeaderFunctionInOut($fn, "out");
-	    HeaderFunctionInOut($fn, "inout");
-	    if ($fn->{RETURN_TYPE} ne "void") {
-		    pidl tabs().mapTypeName($fn->{RETURN_TYPE}) . " result;\n";
-	    }
-	    $tab_depth--;
-	    pidl tabs()."} out;\n\n";
-	    $needed++;
-    }
+		pidl tabs()."struct {\n";
+		$tab_depth++;
+		HeaderFunctionInOut($fn, "out");
+		HeaderFunctionInOut($fn, "inout");
+		if (defined($fn->{RETURN_TYPE})) {
+			pidl tabs().mapTypeName($fn->{RETURN_TYPE}) . " result;\n";
+		}
+		$tab_depth--;
+		pidl tabs()."} out;\n\n";
+		$needed++;
+	}
 
-    if (!$needed) {
-	    # sigh - some compilers don't like empty structures
-	    pidl tabs()."int _dummy_element;\n";
-    }
+	if (!$needed) {
+		# sigh - some compilers don't like empty structures
+		pidl tabs()."int _dummy_element;\n";
+	}
 
-    $tab_depth--;
-    pidl "};\n\n";
+	$tab_depth--;
+	pidl "};\n\n";
 }
 
 sub HeaderImport
@@ -351,55 +347,62 @@ sub HeaderInterface($)
 	pidl "#ifndef _HEADER_$interface->{NAME}\n";
 	pidl "#define _HEADER_$interface->{NAME}\n\n";
 
-	foreach my $d (@{$interface->{DATA}}) {
-		next if ($d->{TYPE} ne "CONST");
-		HeaderConst($d);
+	foreach my $c (@{$interface->{CONSTS}}) {
+		HeaderConst($c);
 	}
 
-	foreach my $d (@{$interface->{DATA}}) {
-		HeaderTypedef($d) if ($d->{TYPE} eq "TYPEDEF");
-		HeaderStruct($d, $d->{NAME}) if ($d->{TYPE} eq "STRUCT");
-		HeaderUnion($d, $d->{NAME}) if ($d->{TYPE} eq "UNION");
-		HeaderEnum($d, $d->{NAME}) if ($d->{TYPE} eq "ENUM");
-		HeaderBitmap($d, $d->{NAME}) if ($d->{TYPE} eq "BITMAP");
-		pidl ";\n\n" if ($d->{TYPE} eq "BITMAP" or 
-			             $d->{TYPE} eq "STRUCT" or 
-						 $d->{TYPE} eq "TYPEDEF" or 
-						 $d->{TYPE} eq "UNION" or 
-						 $d->{TYPE} eq "ENUM");
+	foreach my $t (@{$interface->{TYPES}}) {
+		HeaderTypedef($t) if ($t->{TYPE} eq "TYPEDEF");
+		HeaderStruct($t, $t->{NAME}) if ($t->{TYPE} eq "STRUCT");
+		HeaderUnion($t, $t->{NAME}) if ($t->{TYPE} eq "UNION");
+		HeaderEnum($t, $t->{NAME}) if ($t->{TYPE} eq "ENUM");
+		HeaderBitmap($t, $t->{NAME}) if ($t->{TYPE} eq "BITMAP");
+		pidl ";\n\n" if ($t->{TYPE} eq "BITMAP" or 
+				 $t->{TYPE} eq "STRUCT" or 
+				 $t->{TYPE} eq "TYPEDEF" or 
+				 $t->{TYPE} eq "UNION" or 
+				 $t->{TYPE} eq "ENUM");
 	}
 
-	foreach my $d (@{$interface->{DATA}}) {
-		next if ($d->{TYPE} ne "FUNCTION");
-
-		HeaderFunction($d);
+	foreach my $fn (@{$interface->{FUNCTIONS}}) {
+		HeaderFunction($fn);
 	}
 
 	pidl "#endif /* _HEADER_$interface->{NAME} */\n";
+}
+
+sub HeaderQuote($)
+{
+	my($quote) = shift;
+
+	pidl unmake_str($quote->{DATA}) . "\n";
 }
 
 #####################################################################
 # parse a parsed IDL into a C header
 sub Parse($)
 {
-    my($idl) = shift;
-    $tab_depth = 0;
+	my($ndr) = shift;
+	$tab_depth = 0;
 
 	$res = "";
 	%headerstructs = ();
-    pidl "/* header auto-generated by pidl */\n\n";
+	pidl "/* header auto-generated by pidl */\n\n";
 	if (!is_intree()) {
-		pidl "#include <core.h>\n";
+		pidl "#include <util/data_blob.h>\n";
+		pidl "#include <gen_ndr/misc.h>\n";
 	}
 	pidl "#include <stdint.h>\n";
 	pidl "\n";
-	
-    foreach (@{$idl}) {
-	    ($_->{TYPE} eq "INTERFACE") && HeaderInterface($_);
-	    ($_->{TYPE} eq "IMPORT") && HeaderImport(@{$_->{PATHS}});
-	    ($_->{TYPE} eq "INCLUDE") && HeaderInclude(@{$_->{PATHS}});
-    }
-    return $res;
+
+	foreach (@{$ndr}) {
+		($_->{TYPE} eq "CPP_QUOTE") && HeaderQuote($_);
+		($_->{TYPE} eq "INTERFACE") && HeaderInterface($_);
+		($_->{TYPE} eq "IMPORT") && HeaderImport(@{$_->{PATHS}});
+		($_->{TYPE} eq "INCLUDE") && HeaderInclude(@{$_->{PATHS}});
+	}
+
+	return $res;
 }
 
 1;
