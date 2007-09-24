@@ -536,7 +536,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 {
   GdkColor new_color; /* Color from color selection dialog */
 #if GTK_MAJOR_VERSION < 2
-  gdouble new_colors[3];
+  gdouble new_colors[4];  /* red, green, blue, "opacity" */
 #endif
   GtkWidget *color_dialog;
   GtkStyle  *style;
