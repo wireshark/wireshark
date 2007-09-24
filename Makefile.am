@@ -285,7 +285,7 @@ wireshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	@INET_PTON_LO@			\
-	@SNMP_LIBS@ @SSL_LIBS@ 		\
+	@SSL_LIBS@ 			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ @FRAMEWORKS@ \
@@ -306,7 +306,7 @@ tshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	@INET_PTON_LO@			\
-	@SNMP_LIBS@ @SSL_LIBS@		\
+	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
@@ -350,7 +350,7 @@ dftest_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
-	@SNMP_LIBS@ @SSL_LIBS@		\
+	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\

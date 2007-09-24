@@ -237,20 +237,6 @@ static const true_false_string auth_flags = {
 	"Failed"
 };
 
-/* defined in net-SNMP; include/net-snmp/library/snmp.h */
-#undef SNMP_MSG_GET
-#undef SNMP_MSG_SET
-#undef SNMP_MSG_GETNEXT
-#undef SNMP_MSG_RESPONSE
-#undef SNMP_MSG_TRAP
-#undef SNMP_MSG_GETBULK
-#undef SNMP_MSG_INFORM
-#undef SNMP_MSG_TRAP2
-#undef SNMP_MSG_REPORT
-#undef SNMP_NOSUCHOBJECT
-#undef SNMP_NOSUCHINSTANCE
-#undef SNMP_ENDOFMIBVIEW
-
 /* Security Models */
 
 #define SNMP_SEC_ANY			0

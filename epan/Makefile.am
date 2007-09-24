@@ -113,7 +113,7 @@ MAINTAINERCLEANFILES = \
 #
 # Add the object files for missing routines, if any.
 #
-libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib) @ADNS_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SNMP_LIBS@ @SSL_LIBS@ -lm
+libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib) @ADNS_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SSL_LIBS@ -lm
 libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib)
 
 #EXTRA_PROGRAMS = reassemble_test

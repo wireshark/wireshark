@@ -160,18 +160,6 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 
 #
-# Optional: The Net-SNMP library enables SNMP OID to name resolvings
-# for the MIBs available.
-#
-# If you have Net-SNMP, set this to the pathname of the directory in
-# which the Net-SNMP headers and .lib file are stored.
-#
-# If you don't have Net-SNMP, comment this line out, so that NET_SNMP_DIR
-# isn't defined.
-#
-#NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.4
-
-#
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS 
 # name resolvings.
 #
@@ -664,17 +652,6 @@ ZLIB_CONFIG=^#define HAVE_LIBZ 1
 ZLIB_CFLAGS=
 ZLIB_LIBS=
 ZLIB_CONFIG=
-!ENDIF
-
-!IFDEF NET_SNMP_DIR
-NET_SNMP_CFLAGS=/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32
-NET_SNMP_LIBS=$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
-# Nmake uses carets to escape special characters
-NET_SNMP_CONFIG=^#define HAVE_NET_SNMP 1
-!else
-NET_SNMP_CFLAGS=
-NET_SNMP_LIBS=
-NET_SNMP_CONFIG=
 !ENDIF
 
 !IFDEF ADNS_DIR

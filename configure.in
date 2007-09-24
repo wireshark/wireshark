@@ -1104,53 +1104,6 @@ else
 fi
 AC_SUBST(SSL_LIBS)
 
-dnl Net-SNMP Check
-SNMP_LIBS=''
-
-AC_ARG_WITH(net-snmp,
-  AC_HELP_STRING( [--with-net-snmp@<:@=PATH@:>@],
-                  [use Net-SNMP library (with PATH as the location of the net-snmp-config shell script that comes with the net-snmp package, if supplied)  @<:@default=yes, if available@:>@]),
-[
-	if test $withval = no
-	then
-		want_netsnmp=no
-	elif test $withval = yes
-	then
-		want_netsnmp=yes
-	else
-		want_netsnmp=yes
-		netsnmpconfig="$withval"
-	fi
-],[
-	#
-	# Set "want_netsnmp" to "ifavailable" to make the default "use it
-	# if you find it, otherwise don't".
-	#
-	want_netsnmp=ifavailable
-])
-
-#
-# Try Net-SNMP
-#
-AC_MSG_CHECKING(whether to use Net-SNMP library)
-if test "x$want_netsnmp" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
-	if test "x$want_netsnmp" = "xifavailable" ; then
-		AC_MSG_RESULT([yes, if available])
-	else
-		AC_MSG_RESULT(yes)
-	fi
-	AC_WIRESHARK_NETSNMP_CHECK
-fi
-
-if test "x$have_net_snmp" = "xyes"; then
-	AC_DEFINE(HAVE_NET_SNMP, 1, [Define to 1 if Net-SNMP support is to be used])
-fi
-
-AC_SUBST(SNMP_LIBS)
-
-
 dnl kerberos check
 AC_MSG_CHECKING(whether to use kerberos)
 
@@ -1616,12 +1569,6 @@ else
 	adns_message="no"
 fi
 
-if test "x$have_net_snmp" = "xyes" ; then
-	snmp_libs_message="yes"
-else
-	snmp_libs_message="no"
-fi
-
 echo ""
 echo "The Wireshark package has been configured with the following options."
 echo "                    Build wireshark : $enable_wireshark"
@@ -1653,5 +1600,4 @@ echo "               Use SMI SNMP library : $libsmi"
 echo "             Use GNU crypto library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"
 echo "           Use IPv6 name resolution : $enable_ipv6"
-echo "               Use Net-SNMP library : $snmp_libs_message"
 echo "                 Use gnutls library : $tls_message"

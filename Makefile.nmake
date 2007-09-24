@@ -15,7 +15,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
 CFLAGS=-WX -DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include \
-	$(NET_SNMP_CFLAGS) $(AIRPCAP_CFLAGS) \
+	$(AIRPCAP_CFLAGS) \
 	$(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) $(LUA_CFLAGS) $(SMI_CFLAGS) \
 	-D_U_="" -D_NEED_VAR_IMPORT_
 
@@ -43,7 +43,6 @@ EXTRA_OBJECTS = \
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib comctl32.lib \
-	$(NET_SNMP_LIBS) \
 	$(HHC_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
@@ -62,7 +61,6 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -96,7 +94,6 @@ dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
 	epan\libwireshark.lib \
 !ELSE
@@ -112,8 +109,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
-	$(GLIB_LIBS) \
-	$(NET_SNMP_LIBS)
+	$(GLIB_LIBS)
 
 EXECUTABLES=wireshark.exe wireshark-gtk2.exe tshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
@@ -306,8 +302,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_AIRPDCAP@/$(AIRPDCAP_CONFIG)/" \
 	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
 	    -e "s/@PORTAUDIO_API_1@/$(PORTAUDIO_API_CONFIG)/" \
-	    -e "s/@HAVE_NET_SNMP@/$(NET_SNMP_CONFIG)/" \
-		-e "s/@HAVE_SMI@/$(SMI_CONFIG)/" \
+	    -e "s/@HAVE_SMI@/$(SMI_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps
@@ -646,10 +641,6 @@ process_libs:
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gettext-0.14.5 gettext-0.14.5.zip
-!IFDEF NET_SNMP_DIR
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. net-snmp-5.4.zip
-!ENDIF
 !IFDEF KFW_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		kfw-2.5 kfw-2.5.zip
@@ -812,7 +803,6 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
-    rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
@@ -1039,11 +1029,6 @@ install-common-deps:
 	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-13.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NET_SNMP_DIR_DISABLED_BEFORE_DELETION
-	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
-	if not exist $(INSTALL_DIR)\snmp\mibs mkdir $(INSTALL_DIR)\snmp\mibs
-	xcopy "$(NET_SNMP_DIR)\mibs\*.txt" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
 !IFDEF LUA_DIR
 	xcopy "$(LUA_DIR)\lib\dll\lua5.1.dll" $(INSTALL_DIR) /d

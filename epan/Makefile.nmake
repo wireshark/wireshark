@@ -34,7 +34,6 @@ libwireshark_LIBS = \
 	$(NETTLE_LIBS) \
 	$(ZLIB_LIBS) \
 	$(GNUTLS_LIBS) \
-	$(NET_SNMP_LIBS) \
 	$(LUA_LIBS) \
 	$(SMI_LIBS) \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
