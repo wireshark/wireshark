@@ -692,7 +692,7 @@ dissect_rsl_ie_bs_power(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  * 9.3.5 Channel Identification
  */
 static int
-dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -738,7 +738,7 @@ static const true_false_string rsl_dtx_vals = {
 };
 
 static int
-dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -799,7 +799,7 @@ static const value_string rsl_algorithm_id_vals[] = {
 };
 
 static int
-dissect_rsl_ie_enc_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_enc_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
@@ -1994,9 +1994,9 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* SACCH Information		9.3.29	O 8) TLV >=3	*/
 		/* UIC						9.3.50	O 9) TLV 3		*/
 		/* Main channel reference	9.3.51	O 10) TV 2		*
-		offset = dissect_rsl_ie_main_ch_ref(tvb, pinfo, tree, offset, FALSE);
+		offset = dissect_rsl_ie_main_ch_ref(tvb, pinfo, tree, offset, FALSE); */
 		/* MultiRate configuration	9.3.52	O 11) TLV >=4	*
-		offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);
+		offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);*/
 		/* MultiRate Control		9.3.53	O 12) TV 2		*/
 		/* Supported Codec Types	9.3.54	O 12) TLV >=5	*/
 		/* TFO transparent container 9.3.59 O 12) TLV >=3	*/
