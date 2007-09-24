@@ -81,7 +81,7 @@ ascend-scanner_lex.h : ascend-scanner.c
 
 k12text_lex.h : k12text.c
 
-ascend-grammar.c : ascend-grammar.y
+ascend-grammar.c ascend-grammar.h: ascend-grammar.y
 	@if [ -z "$(YACC)" ]; then \
 		echo "Neither bison nor byacc has been found"; \
 		exit 1; \
