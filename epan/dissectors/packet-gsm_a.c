@@ -4176,7 +4176,7 @@ de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [3] 10.5.2.4a MAC Mode and Channel Coding Requested 
  * [3] 10.5.2.5 Channel Description
  */
-static guint8
+guint8
 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
@@ -4818,6 +4818,22 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 }
 /*
  * [3] 10.5.2.20 Measurement Results
+ */
+
+	/* BA-USED (octet 2), the value of the BA_IND field of the neighbour cell description
+	 * information element or elements defining the BCCH allocation used for the coding of
+	 * BCCH-FREQ-NCELL fields. Range 0 to 1.
+	 */
+
+	/* DTX-USED (octet 2) This bit indicates whether or not the mobile station used DTX during
+	 *	the previous measurement period.
+	 * Bit 7
+	 * 0 DTX was not used
+	 * 1 DTX was used
+	 */
+
+	
+/*
  * [3] 10.5.2.20a GPRS Measurement Results
  */
 /*
@@ -15470,6 +15486,12 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_IA_REST_OCT);
 
 }
+
+/*
+ * 9.1.21 Measurement report
+ */
+
+	/* Measurement Results 10.5.2.20 M V 16 */
 /*
  * [4] 9.1.25
  */
@@ -17881,7 +17903,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     dtap_rr_rr_status,	/* RR Status */
     NULL,	/* Channel Mode Modify Acknowledge */
     NULL,	/* Frequency Redefinition */
-    NULL,	/* Measurement Report */
+    NULL,	/* 9.1.21 Measurement report */
     dtap_rr_mm_cm_change,	/* 9.1.11 Classmark Change */
     NULL,	/* Classmark Enquiry */
     NULL,	/* Extended Measurement Report */
