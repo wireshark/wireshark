@@ -3398,6 +3398,92 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			tapinfo->redraw = TRUE;
 			return 1;
 
+		} else if(pi->stream_connect == 1 && strinfo == NULL) {
+		
+			/* Research indicates some nortel products initiate stream first
+			 * without keypresses. therefore creating this solely on a keypress is 
+			 * ineffective.
+			 * Sometimes calls start immediately with open stream.
+			 */
+			strinfo = g_malloc(sizeof(voip_calls_info_t));
+			strinfo->call_active_state = VOIP_ACTIVE;
+			strinfo->call_state = VOIP_CALL_SETUP;
+			strinfo->from_identity=g_strdup_printf("UNKNOWN");
+			strinfo->to_identity=g_strdup_printf("UNKNOWN");
+			COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
+			strinfo->first_frame_num=pinfo->fd->num;
+			strinfo->selected=FALSE;
+				
+			/* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
+			/* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
+			strinfo->start_sec=(gint32) (pinfo->fd->rel_ts.secs);
+			strinfo->start_usec=pinfo->fd->rel_ts.nsecs/1000;
+					
+			strinfo->protocol=VOIP_UNISTIM;
+			strinfo->prot_info=g_malloc(sizeof(unistim_info_t));
+			
+			tmp_unistim_info = strinfo->prot_info;
+				
+			/* Clear tap struct */
+			tmp_unistim_info->rudp_type = 0;
+			tmp_unistim_info->payload_type = 0;
+			tmp_unistim_info->sequence = pi->sequence;
+			tmp_unistim_info->termid = NULL; /* pi->termid; */
+			tmp_unistim_info->key_val = -1;
+			tmp_unistim_info->key_state = -1;
+			tmp_unistim_info->hook_state = -1;
+			tmp_unistim_info->stream_connect = -1;
+			tmp_unistim_info->trans_connect = -1;
+			tmp_unistim_info->set_termid = -1;
+			tmp_unistim_info->string_data = NULL;
+			tmp_unistim_info->key_buffer = NULL;
+				
+			COPY_ADDRESS(&(tmp_unistim_info->it_ip),&(pi->it_ip));
+			COPY_ADDRESS(&(tmp_unistim_info->ni_ip),&(pi->ni_ip));
+			tmp_unistim_info->it_port = pi->it_port;
+
+			strinfo->free_prot_info = g_free;
+			strinfo->npackets = 0;
+			strinfo->call_num = tapinfo->ncalls++;
+			tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+
+				/* Open stream */	
+			/* Signifies the start of the call so set start_sec & start_usec */
+			strinfo->start_sec=(gint32) (pinfo->fd->rel_ts.secs);
+			strinfo->start_usec=pinfo->fd->rel_ts.nsecs/1000;
+			
+			/* Local packets too */
+			++(strinfo->npackets);
+
+			/* increment the packets counter of all calls */
+			++(tapinfo->npackets);
+
+			/* ?? means we're not quite sure if this is accurate. Since Unistim isn't a true
+			   Call control protocol, we can only guess at the destination by messing with 
+			   key buffers. */
+			if(tmp_unistim_info->key_buffer != NULL){
+				strinfo->to_identity = g_strdup_printf("?? %s",tmp_unistim_info->key_buffer);
+			}
+
+			/* change sequence number for ACK detection */
+			tmp_unistim_info->sequence = pi->sequence;
+	
+			/* State changes too */
+			strinfo->call_active_state = VOIP_ACTIVE;
+			strinfo->call_state = VOIP_IN_CALL;
+
+			/* Add graph data */
+			frame_label = g_strdup_printf("STREAM OPENED");
+			comment = g_strdup_printf("Stream Opened (%d)",pi->sequence);
+
+			/* add to the graph */
+			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+
+			/* Redraw the scree */
+			tapinfo->redraw = TRUE;
+			return 1;
+
+
 		} else if(pi->stream_connect == 0 && strinfo != NULL) {
 			/* Close Stream */
 			

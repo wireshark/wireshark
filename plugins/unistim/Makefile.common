@@ -40,4 +40,5 @@ DISSECTOR_INCLUDES =   \
 	header_field.h \
 	key.h          \
 	network.h      \
+	uftp.h         \
 	packet-unistim.h

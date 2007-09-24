@@ -44,6 +44,7 @@
 #include "network.h"
 #include "key.h"
 #include "broadcast.h"
+#include "uftp.h"
 
 static int global_unistim_port = 5000;
 
@@ -78,8 +79,11 @@ static gint dissect_basic_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
 static gint dissect_network_phone(proto_tree *msg_tree,
                                    tvbuff_t *tvb,gint offset,guint msg_len);
-static gint dissect_message(proto_tree *unistim_tree, packet_info *pinfo, 
+static gint dissect_unistim_message(proto_tree *unistim_tree, packet_info *pinfo, 
                                    tvbuff_t *tvb,gint offset);
+static gint dissect_uftp_message(proto_tree *unistim_tree, packet_info *pinfo, 
+                                   tvbuff_t *tvb,gint offset);
+
 
 static void set_ascii_item(proto_tree *unistim_tree, tvbuff_t *tvb,
                            gint offset,guint msg_len);
@@ -113,7 +117,6 @@ static int hf_key_phone_cmd=-1;
 static int hf_network_switch_cmd=-1;
 static int hf_network_phone_cmd=-1;
 
-
 static int hf_generic_data=-1;
 static int hf_generic_string=-1;
 
@@ -130,6 +133,7 @@ static const value_string payload_names[]={
    {0x00,"NULL Protocol"},
    {0x01,"Aggregate Unistim"},
    {0x02,"Aggregate Unistim with Terminal ID"},
+   {0x03,"UFTP"},
    {0xff,"Free Form Protocol"},
    {0,NULL}
 };
@@ -141,19 +145,19 @@ static const range_string sequence_numbers[]={
 };
 
 static const value_string command_address[]={
-   {0x11,"Broadcast Manager Switch"},
-   {0x16,"Audio Manager Switch"},
-   {0x17,"Display Manager Switch"},
-   {0x19,"Key/Indicator Manager Switch"},
-   {0x1a,"Basic Manager Switch"},
-   {0x1e,"Network Manager Switch"},
-   {0x91,"Broadcast Manager Phone"},
-   {0x96,"Audio Manager Phone"},
-   {0x97,"Display Manager Phone"},
-   {0x99,"Key/Indicator Manager Phone"},
-   {0x9a,"Basic Manager Phone"},
-   {0x9e,"Network Manager Phone"},
-   {0,NULL}
+	{0x11,"Broadcast Manager Switch"},
+	{0x16,"Audio Manager Switch"},
+	{0x17,"Display Manager Switch"},
+	{0x19,"Key/Indicator Manager Switch"},
+	{0x1a,"Basic Manager Switch"},
+	{0x1e,"Network Manager Switch"},
+	{0x91,"Broadcast Manager Phone"},
+	{0x96,"Audio Manager Phone"},
+	{0x97,"Display Manager Phone"},
+	{0x99,"Key/Indicator Manager Phone"},
+	{0x9a,"Basic Manager Phone"},
+	{0x9e,"Network Manager Phone"},
+	{0,NULL}
 };
 
 #include "header_field.h"
@@ -303,17 +307,93 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
             proto_tree_add_item(unistim_tree,hf_terminal_id,tvb,offset,4,FALSE);
             offset+=4;
             break;
+         case 0x03:
+   /* UFTP */
+            offset = dissect_uftp_message(unistim_tree,pinfo,tvb,offset);
+            break;
          case 0xff:
    /*TODO flesh this out probably only for init*/
             break;
       }
 
-      while (tvb_length_remaining(tvb, offset) > 0)
-         offset = dissect_message(unistim_tree,pinfo,tvb,offset);
+   /* Handle UFTP seperately because it is significantly different 
+      than standard UNISTIM */
+   while (tvb_length_remaining(tvb, offset) > 0)
+      offset = dissect_unistim_message(unistim_tree,pinfo,tvb,offset);
+
 }
 
 static gint
-dissect_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tvb,gint offset){
+dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *tvb,gint offset){
+
+	guint command;
+	guint str_len;
+	guint dat_len;
+	proto_item *ti;
+	proto_tree *msg_tree;
+
+	ti = proto_tree_add_text(unistim_tree,tvb,offset,-1,"UFTP CMD");
+
+	msg_tree = proto_item_add_subtree(ti,ett_unistim);
+
+	command=tvb_get_guint8(tvb,offset);
+
+	proto_tree_add_item(msg_tree,hf_uftp_command,tvb,offset,1,FALSE);
+
+	offset += 1;
+
+	switch(command)
+	{
+		case 0x80:
+			/* Connection request */
+			/* Nothing to do */
+			break;
+		
+		case 0x81:
+			/* Connection Details */
+			/* Get datablock size */
+			proto_tree_add_item(msg_tree,hf_uftp_datablock_size,tvb,offset,2,FALSE);
+			offset+=2;
+			/* Get datablock limit b4 flow control */
+			proto_tree_add_item(msg_tree,hf_uftp_datablock_limit,tvb,offset,1,FALSE);
+			offset+=1;
+			/* Get filename */
+			str_len = tvb_length_remaining(tvb, offset);
+			proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,FALSE);
+			offset += str_len;
+			break;
+
+		case 0x82:
+			/* Flow Control off */
+			/* Nothing to do */
+			break;
+		
+		case 0x00:
+			/* Connection Granted */
+			/* Nothing to do */
+			break;
+
+		case 0x01:
+			/* Connection Denied */
+			/* Nothing to do */
+			break;
+
+		case 0x02:
+			/* File Data Block */
+			/* Raw Data.. */
+			dat_len = tvb_length_remaining(tvb, offset);
+			proto_tree_add_item(msg_tree,hf_uftp_datablock,tvb,offset,dat_len,FALSE);
+			offset += dat_len;
+			break;
+	}
+
+	return offset;
+	
+}
+
+
+static gint
+dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tvb,gint offset){
    guint address;
    guint msg_len;
    proto_item *ti;
@@ -2078,22 +2158,27 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          proto_tree_add_item(msg_tree,hf_audio_far_rtcp_port,
                              tvb,offset,2,FALSE);
          offset+=2;msg_len-=2;
-                  proto_tree_add_item(msg_tree,hf_audio_far_ip_add,
-                                      tvb,offset,4,FALSE);
-         offset+=4;msg_len-=4;
-         {
-            guint32 far_ip_addr;
-            address far_addr;
-            guint16 far_port;
 
-            far_ip_addr = tvb_get_ipv4(tvb, offset-4);
-            SET_ADDRESS(&far_addr, AT_IPv4, 4, &far_ip_addr);
+         /* Sometimes the open stream does not specify an endpoint */
+         /* In this circumstance the packet is truncated at the far end */
+         /* rtp port */
+         if(msg_len > 0){
+            proto_tree_add_item(msg_tree,hf_audio_far_ip_add,tvb,offset,4,FALSE);
+            offset+=4;msg_len-=4;
+            {
+               guint32 far_ip_addr;
+               address far_addr;
+               guint16 far_port;
 
-            far_port = tvb_get_ntohs(tvb, offset-8);
-            rtp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num, NULL);
+               far_ip_addr = tvb_get_ipv4(tvb, offset-4);
+               SET_ADDRESS(&far_addr, AT_IPv4, 4, &far_ip_addr);
 
-            far_port = tvb_get_ntohs(tvb, offset-6);
-            rtcp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num);
+               far_port = tvb_get_ntohs(tvb, offset-8);
+               rtp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num, NULL);
+
+               far_port = tvb_get_ntohs(tvb, offset-6);
+               rtcp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num);
+            }
          }
          break;
       case 0x31:

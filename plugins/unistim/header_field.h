@@ -37,6 +37,26 @@ static hf_register_info hf[] = {
          { "UNISTIM CMD Address","unistim.add",FT_UINT8, 
             BASE_HEX,VALS(command_address),0x0,NULL,HFILL}
       },
+      { &hf_uftp_command,
+         { "UFTP CMD","uftp.cmd",FT_UINT8,
+            BASE_HEX,VALS(uftp_commands),0x0,NULL,HFILL}
+      },
+      { &hf_uftp_datablock_size,
+         { "UFTP Datablock Size","uftp.blocksize",FT_UINT32,
+            BASE_DEC,NULL,0x0,NULL,HFILL}
+      },
+      { &hf_uftp_datablock_limit,
+         { "UFTP Datablock Limit","uftp.limit",FT_UINT8,
+            BASE_DEC,NULL,0x0,NULL,HFILL}
+      },
+      { &hf_uftp_filename,
+         { "UFTP Filename","uftp.filename",FT_STRINGZ,
+            BASE_DEC,NULL,0x0,NULL,HFILL}
+      },
+      { &hf_uftp_datablock,
+         { "UFTP Data Block","uftp.datablock",FT_BYTES,
+            BASE_DEC,NULL,0x0,NULL,HFILL}
+      },
       { &hf_unistim_packet_type,
          { "RUDP Pkt type","unistim.type",FT_UINT8, 
             BASE_DEC, VALS(packet_names),0x0,NULL,HFILL} 
