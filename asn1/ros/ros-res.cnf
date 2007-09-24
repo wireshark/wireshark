@@ -1,0 +1,44 @@
+# ros-res.cnf
+# ROS ReturnResult common code
+# Copyright 2007 Tomas Kukosa
+# $Id$
+
+#.FN_HDR ReturnResult
+  dissector_handle_t res_handle = NULL;
+  const gchar *descr = "";
+
+  res_next_tvb = NULL;
+#.FN_FTR ReturnResult
+  actx->rose_ctx->d.pdu = 2;
+
+  if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->res_local_dissector_table) {
+    res_handle = dissector_get_port_handle(actx->rose_ctx->res_local_dissector_table, actx->rose_ctx->d.code_local);
+  } else if ((actx->rose_ctx->d.code == 1) && actx->rose_ctx->res_global_dissector_table) {
+    res_handle = dissector_get_string_handle(actx->rose_ctx->res_global_dissector_table, actx->rose_ctx->d.code_global);
+  } else {
+    res_handle = NULL;
+  }
+
+  if (!res_handle || 
+      !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
+    if (actx->rose_ctx->d.code == 0)
+      descr = ep_strdup_printf("RES: %d", actx->rose_ctx->d.code_local);
+    else if (actx->rose_ctx->d.code == 1)
+      descr = ep_strdup_printf("RES: %s", actx->rose_ctx->d.code_global);
+  } else {
+    descr = ep_strdup_printf("RES:");
+  }
+
+  if (actx->rose_ctx->apdu_depth >= 0)
+    proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  %s", descr);
+  if (actx->rose_ctx->fillin_info && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
+  if (actx->rose_ctx->fillin_ptr)
+    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+
+  if (!res_next_tvb) {  /* empty result */
+    res_next_tvb = tvb_new_subset(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
+  }
+  actx->pinfo->private_data = actx->rose_ctx;
+  call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+#.END

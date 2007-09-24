@@ -7505,7 +7505,7 @@ void proto_register_h225(void) {
         "h225.T_h4501SupplementaryService", HFILL }},
     { &hf_h225_h4501SupplementaryService_item,
       { "Item", "h225.h4501SupplementaryService_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "h225.T_h4501SupplementaryService_item", HFILL }},
     { &hf_h225_h245Tunneling,
       { "h245Tunneling", "h225.h245Tunneling",

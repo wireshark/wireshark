@@ -1,0 +1,19 @@
+# ros-rej.cnf
+# ROS Reject common code
+# Copyright 2007 Tomas Kukosa
+# $Id$
+
+#.FN_HDR Reject
+  const gchar *descr = "";
+
+  problem_str[0] = '\0';
+#.FN_FTR Reject
+  descr = ep_strdup_printf("REJ: %s", problem_str);
+
+  if (actx->rose_ctx->apdu_depth >= 0)
+    proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), actx->rose_ctx->apdu_depth), "  %s", descr);
+  if (actx->rose_ctx->fillin_info && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
+  if (actx->rose_ctx->fillin_ptr)
+    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+#.END

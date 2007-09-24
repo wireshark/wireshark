@@ -15,8 +15,8 @@ generate_dissector: $(DISSECTOR_FILES)
 $(H450_FILES): ../../tools/asn2wrs.py $(H450_ASN) $(H450_OP_ASN) packet-h450-template.c h450.cnf
 	python ../../tools/asn2wrs.py -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(H450_ASN) $(H450_OP_ASN)
 
-$(H450_ROS_FILES): ../../tools/asn2wrs.py $(H450_ROS_ASN) packet-$(PROTOCOL_NAME)-ros-template.c $(PROTOCOL_NAME)-ros.cnf
-	python ../../tools/asn2wrs.py -e -p $(PROTOCOL_NAME).ros -c $(PROTOCOL_NAME)-ros.cnf -o $(PROTOCOL_NAME)-ros -s packet-$(PROTOCOL_NAME)-ros-template $(H450_ROS_ASN)
+$(H450_ROS_FILES): ../../tools/asn2wrs.py $(H450_ROS_ASN) packet-$(PROTOCOL_NAME)-ros-template.c $(PROTOCOL_NAME)-ros.cnf  ../ros/ros-inv.cnf ../ros/ros-res.cnf ../ros/ros-err.cnf ../ros/ros-rej.cnf
+	python ../../tools/asn2wrs.py -e -p $(PROTOCOL_NAME).ros -I ../ros -c $(PROTOCOL_NAME)-ros.cnf -o $(PROTOCOL_NAME)-ros -s packet-$(PROTOCOL_NAME)-ros-template $(H450_ROS_ASN)
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
 

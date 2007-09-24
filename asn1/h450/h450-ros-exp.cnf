@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# .\h450-ros-exp.cnf
-# ../../tools/asn2wrs.py -e -p h450.ros -c h450-ros.cnf -o h450-ros -s packet-h450-ros-template ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn
+# ./h450-ros-exp.cnf
+# ../../tools/asn2wrs.py -e -p h450.ros -I ../ros -c h450-ros.cnf -o h450-ros -s packet-h450-ros-template ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn
 
 #.MODULE
 Remote-Operations-Information-Objects  h450.ros

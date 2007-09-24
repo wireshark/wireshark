@@ -141,7 +141,11 @@ typedef struct _rose_ctx_t {
   dissector_table_t res_local_dissector_table; 
   dissector_table_t err_global_dissector_table;
   dissector_table_t err_local_dissector_table; 
+  /* filling in description into tree, info column, any buffer */
   int apdu_depth;
+  gboolean fillin_info;
+  gchar *fillin_ptr;
+  gsize fillin_buf_size;
   struct {  /* "dynamic" data */
     gint pdu;
       /* 

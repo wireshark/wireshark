@@ -725,6 +725,7 @@ report_open_failure
 report_read_failure
 reset_tap_listeners
 reset_tcp_reassembly
+rose_ctx_clean_data
 rose_ctx_init
 rpc_init_proc_table
 rpc_init_prog
