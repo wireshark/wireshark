@@ -39,7 +39,8 @@ static const value_string uftp_commands[]={
 	{0x02,"File Data Block"},
 	{0x80,"Connection Request"},
 	{0x81,"Connection Details"},
-	{0x82,"Flow Control Off"}
+	{0x82,"Flow Control Off"},
+        {0,NULL}
 };
 
 #endif

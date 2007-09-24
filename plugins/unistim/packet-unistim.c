@@ -694,7 +694,8 @@ dissect_broadcast_switch(proto_tree *msg_tree,
          offset+=1;
          break;
       case 0x03:
-   /*Set Default Character Table Config *//* UGLY may work may not*/
+   /*Set Default Character Table Config */
+         /* UGLY may work may not*/
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,FALSE);
          offset+=msg_len;
          break;
@@ -1920,7 +1921,8 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
       offset+=1;
       break;
    case 0x01:
-   /*Query Supervisor Headset Status*//*done*/
+   /*Query Supervisor Headset Status*/
+      /*done*/
       break;
    case 0x02:
    /*Audio Manager Options*/
