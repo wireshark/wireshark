@@ -82,6 +82,9 @@ static gboolean favor_icmp_mpls_ext = FALSE;
 /* Perform IP checksum */
 static gboolean ip_check_checksum = TRUE;
 
+/* Assume TSO and correct zero-length IP packets */
+static gboolean ip_tso_supported = FALSE;
+
 static int proto_ip = -1;
 static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
@@ -1290,6 +1293,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      dissector we call know that, as it might want to avoid
      doing its checksumming. */
   iph->ip_len = tvb_get_ntohs(tvb, offset + 2);
+
+  /* Correct for zero-length TSO packets
+   * If ip_len is zero, assume TSO and use the reported length instead.  Note
+   * that we need to use the frame/reported length instead of the
+   * actually-available length, just in case a snaplen was used on capture. */
+  if (ip_tso_supported && !iph->ip_len) 
+	  iph->ip_len = tvb_reported_length(tvb);
 
   /* Adjust the length of this tvbuff to include only the IP datagram. */
   set_actual_length(tvb, iph->ip_len);
@@ -2515,6 +2525,10 @@ proto_register_ip(void)
 		  "Validate the IP checksum if possible",
 		  "Whether to validate the IP checksum",
 		  &ip_check_checksum);
+	prefs_register_bool_preference(ip_module, "tso_support" ,
+		  "Support packet-capture from IP TSO-enabled hardware",
+		  "Whether to correct for TSO-enabled hardware captures, such as spoofing the IP packet length",
+		  &ip_tso_supported);
 
 	register_dissector("ip", dissect_ip, proto_ip);
 	register_init_routine(ip_defragment_init);
