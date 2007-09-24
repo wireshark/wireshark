@@ -551,6 +551,7 @@ class EthCtx:
     self.default_containing_variant = '_pdu_new'
     self.default_embedded_pdv_cb = None
     self.default_external_type_cb = None
+    self.srcdir = '.'
     self.emitted_pdu = {}
     self.module = {}
     self.module_ord = []
@@ -7354,35 +7355,38 @@ from PyZ3950 import asn1""" % (fn, time_str)
 # Wireshark compiler
 def eth_usage():
   print """
-asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
-  -h|?          : usage
+asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
+  -h|?          : Usage
   -b            : BER (default is PER)
-  -u            : unaligned (default is aligned)
-  -p proto      : protocol name (implies -S)
-                  default is module-name from input_file (renamed by #.MODULE if present)
-  -F            : create 'field functions'
-  -T            : tagged type support (experimental)
-  -o name       : output files name core (default is <proto>)
-  -O dir        : output directory
-  -c conform_file : conformation file
-  -I path       : path for conformance file includes
-  -e            : create conformation file for exported types
-  -S            : single output for multiple modules
-  -s template   : single file output (template is input file without .c/.h extension)
-  -k            : keep intermediate files though single file output is used
-  -L            : suppress #line directive from .cnf file
-  input_file(s) : input ASN.1 file(s)
+  -u            : Unaligned (default is aligned)
+  -p proto      : Protocol name (implies -S). Default is module-name
+                  from input_file (renamed by #.MODULE if present)
+  -F            : Create 'field functions'
+  -T            : Tagged type support (experimental)
+  -o name       : Output files name core (default is <proto>)
+  -O dir        : Output directory
+  -c cnf_file   : Conformance file
+  -I path       : Path for conformance file includes
+  -e            : Create conformance file for exported types
+  -S            : Single output for multiple modules
+  -s template   : Single file output (template is input file
+                  without .c/.h extension)
+  -k            : Keep intermediate files though single file output is used
+  -L            : Suppress #line directive from .cnf file
+  -D dir        : Directory for input_file(s) (default: '.')
+  
+  input_file(s) : Input ASN.1 file(s)
 
-  -d dbg     : debug output, dbg = [l][y][p][s][a][t][c][m][o]
-               l - lex 
-               y - yacc
-               p - parsing
-               s - internal ASN.1 structure
-               a - list of assignments
-               t - tables
-               c - conformance values
-               m - list of compiled modules with dependency
-               o - list of output files
+  -d dbg        : Debug output, dbg = [l][y][p][s][a][t][c][m][o]
+                  l - lex 
+                  y - yacc
+                  p - parsing
+                  s - internal ASN.1 structure
+                  a - list of assignments
+                  t - tables
+                  c - conformance values
+                  m - list of compiled modules with dependency
+                  o - list of output files
 """
 
 def eth_main():
@@ -7391,7 +7395,7 @@ def eth_main():
   global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:I:eSs:kL");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eSs:kL");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
@@ -7423,6 +7427,8 @@ def eth_main():
       conf_to_read = a
     if o in ("-I",):
       ectx.conform.include_path.append(a)
+    if o in ("-D",):
+      ectx.srcdir = a
     #if o in ("-X",):
     #    warnings.warn("Command line option -X is obsolete and can be removed")
 
@@ -7430,7 +7436,7 @@ def eth_main():
     ectx.conform.read(conf_to_read)
 
   for o, a in opts:
-    if o in ("-h", "-?", "-c", "-I"):
+    if o in ("-h", "-?", "-c", "-I", "-D"):
       pass  # already processed
     else:
       par = []
@@ -7448,7 +7454,7 @@ def eth_main():
   for fn in args:
     input_file = fn
     lexer.lineno = 1
-    f = open (fn, "r")
+    f = open (ectx.srcdir + '/' + fn, "r")
     ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
     f.close ()
   ectx.eth_clean()
