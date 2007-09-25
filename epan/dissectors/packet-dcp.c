@@ -118,6 +118,14 @@ static const value_string dcp_reset_code_vals[] = {
         {0, NULL}
 };
 
+static const value_string dcp_feature_options_vals[] = {
+        {0x20, "Change L"},
+	{0x21, "Confirm L"},
+	{0x22, "Change R"},
+	{0x23, "Confirm R"},
+        {0, NULL}
+};
+
 static const value_string dcp_feature_numbers_vals[] = {
         {0x01, "CCID"},
         {0x02, "Allow Short Seqnos"},
@@ -128,6 +136,7 @@ static const value_string dcp_feature_numbers_vals[] = {
         {0x07, "Send NDP Count"},
 	{0x08, "Minimum Checksum Coverage"},
 	{0x09, "Check Data Checksum"},
+	{0xC0, "Send Loss Event Rate"},		/* CCID3, RFC 4342, 8.5 */
         {0, NULL}
 };
 
@@ -263,6 +272,83 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
+/*
+ *	Auxiliary functions to dissect DCCP options
+ */
+/* decode a variable-length number of nbytes starting at offset. Based on a concept by Arnaldo de Melo */
+static guint64 tvb_get_ntoh_var(tvbuff_t *tvb, gint offset, guint8 nbytes)
+{
+	const guint8* ptr;
+	guint64 value = 0;
+
+        ptr = tvb_get_ptr(tvb, offset, nbytes);
+	if (nbytes > 5)
+                value += ((guint64)*ptr++) << 40;
+	if (nbytes > 4)
+                value += ((guint64)*ptr++) << 32;
+	if (nbytes > 3)
+                value += ((guint64)*ptr++) << 24;
+	if (nbytes > 2)
+                value += ((guint64)*ptr++) << 16;
+	if (nbytes > 1)
+                value += ((guint64)*ptr++) << 8;
+	if (nbytes > 0)
+                value += *ptr;
+
+        return value;
+}
+
+static void dissect_feature_options(proto_tree *dcp_options_tree, tvbuff_t *tvb, int offset, guint8 option_len, 
+				    guint8 option_type)
+{
+	guint8 feature_number = tvb_get_guint8(tvb, offset + 2);
+	proto_item *dcp_item;
+	int i;
+	
+	proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
+
+	dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "%s(",
+				       val_to_str(option_type, dcp_feature_options_vals, "Unknown Type"));
+		
+	/* decode the feature according to whether it is server-priority (list) or NN (single number) */
+	switch (feature_number) {
+	/*		Server Priority features (RFC 4340, 6.3.1)		*/
+	case 1:			/* Congestion Control ID (CCID); fall through	*/
+	case 2:			/* Allow Short Seqnos; fall through		*/
+	case 4:			/* ECN Incapable; fall through			*/
+	case 6:			/* Send Ack Vector; fall through		*/
+	case 7:			/* Send NDP Count; fall through			*/
+	case 8:			/* Minimum Checksum Coverage; fall through	*/
+	case 9:			/* Check Data Checksum; fall through		*/
+	case 192:		/* Send Loss Event Rate, RFC 4342, section 8.4	*/
+		proto_item_append_text(dcp_item, "%s", 
+				       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
+		for (i = 0; i < option_len - 3; i++) 
+			proto_item_append_text(dcp_item, "%s %d", i? "," : "", tvb_get_guint8(tvb, offset + 3 + i));
+		break;
+	/*	 Non-negotiable features (RFC 4340, 6.3.2)	 */
+	case 3:			/* Sequence Window; fall through */
+	case 5: 		/* Ack Ratio			 */
+		proto_item_append_text(dcp_item, "%s", 
+				       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
+
+		if (option_len > 3)	/* could be empty Confirm */
+			proto_item_append_text(dcp_item, " %" G_GINT64_MODIFIER "u", tvb_get_ntoh_var(tvb, offset + 3, option_len - 3));
+		break;
+	/* Reserved, specific, or unknown features */		
+	case 0:			/* fall through */
+	case 10 ... 127:
+		proto_item_append_text(dcp_item, "Reserved feature number %d", feature_number);
+		break;
+	case 193 ... 255:
+		proto_item_append_text(dcp_item, "CCID-specific feature number %d", feature_number);
+		break;
+	default:
+		proto_item_append_text(dcp_item, "Unknown feature number %d", feature_number);
+		break;
+	}
+	proto_item_append_text(dcp_item, ")");
+}
 
 /*
  * This function dissects DCCP options
@@ -274,9 +360,9 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 	/* if here I'm sure there is at least offset_end - offset_start bytes in tvb and it should be options */
 	int offset=offset_start;
 	guint8 option_type = 0;
-	guint8 option_len = 0;
-	guint8 feature_number = 0;
+	guint8 option_len  = 0;
 	int i;
+	guint32 p;
 	proto_item *dcp_item = NULL;
 
 	while( offset < offset_end ) {
@@ -327,104 +413,8 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Slow Receiver");
 			break;
 
-		case 32:
-			feature_number = tvb_get_guint8(tvb, offset + 2);
-			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-
-			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							       "Change L(%s",
-							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) {
-					if(i==0)
-						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
-					else
-						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
-				}
-				proto_item_append_text(dcp_item, ")");
-			} else {
-				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Change L(Reserved feature number)");
-				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Change L(CCID-specific features)");
-			}
-			break;
-
-		case 33:
-			feature_number = tvb_get_guint8(tvb, offset + 2);
-			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-
-			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							       "Confirm L(%s",
-							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) {
-					if(i==0)
-						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
-					else
-						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
-				}
-				proto_item_append_text(dcp_item, ")");
-			} else {
-				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Confirm L(Reserved feature number)");
-				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Confirm L(CCID-specific features)");
-			}
-			break;
-
-		case 34:
-			feature_number = tvb_get_guint8(tvb, offset + 2);
-			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-
-			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							       "Change R(%s",
-							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) {
-					if(i==0)
-						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
-					else
-						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
-				}
-				proto_item_append_text(dcp_item, ")");
-			} else {
-				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Change R(Reserved feature number)");
-				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Change R(CCID-specific features)");
-			}
-			break;
-
-		case 35:
-			feature_number = tvb_get_guint8(tvb, offset + 2);
-			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-
-			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							       "Confirm R(%s",
-							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) {
-					if(i==0)
-						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
-					else
-						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
-				}
-				proto_item_append_text(dcp_item, ")");
-			} else {
-				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Confirm R(Reserved feature number)");
-				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
-							    "Confirm R(CCID-specific features)");
-			}
+		case 32 ... 35:
+			dissect_feature_options(dcp_options_tree, tvb, offset, option_len, option_type);
 			break;
 
 		case 36:
@@ -439,51 +429,30 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			break;
 
 		case 37:
-			if(option_len==3)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 1,
-						    tvb_get_guint8(tvb, offset + 2));
-			else if (option_len==4)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 2,
-						    tvb_get_ntohs(tvb, offset + 2));
-			else if (option_len==5)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 3,
-						    tvb_get_ntoh24(tvb, offset + 2));
+			if (option_len > 8)
+				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "NDP Count too long (max 6 bytes)");
 			else
-				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "NDP Count too long (max 3 bytes)");
-
+				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "NDP Count: %" G_GINT64_MODIFIER "u",
+						    tvb_get_ntoh_var(tvb, offset + 2, option_len - 2));
 			break;
 
 		case 38:
-			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector0(");
-			for (i = 0; i < option_len - 2; i++) {
-				if(i==0)
-					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
-				else
-					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
-			}
-			proto_item_append_text(dcp_item, ")");
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector [Nonce 0]:");
+			for (i = 0; i < option_len - 2; i++) 
+				proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
 			break;
 
 		case 39:
-			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector1(");
-			for (i = 0; i < option_len - 2; i++) {
-				if(i==0)
-					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
-				else
-					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
-			}
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector [Nonce 1]:");
+			for (i = 0; i < option_len - 2; i++)
+				proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
 			proto_item_append_text(dcp_item, ")");
 			break;
 
 		case 40:
-			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Data Dropped(");
-			for (i = 0; i < option_len - 2; i++) {
-				if(i==0)
-					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
-				else
-					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
-			}
-			proto_item_append_text(dcp_item, ")");
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Data Dropped:");
+			for (i = 0; i < option_len - 2; i++) 
+				proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
 			break;
 
 		case 41:
@@ -533,7 +502,28 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			} else
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong Data checksum length");
 			break;
-
+		case 192:	/* RFC 4342, 8.5 */
+			if(option_len == 6) {
+				p = tvb_get_ntohl(tvb, offset + 2);
+				/* According to the comment in section 8.5 of RFC 4342, 0xffffffff can mean zero */
+				if (p == 0xFFFFFFFF)
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "CCID3 Loss Event Rate: 0 (or max)");
+				else
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "CCID3 Loss Event Rate: %u", p);
+			} else
+				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong CCID3 Loss Event Rate length");
+			break;
+		case 193:	/* RFC 4342, 8.6 */
+			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "CCID3 Loss Intervals");
+				/* FIXME: not implemented and apparently not used by any implementation so far */
+			break;
+		case 194:	/* RFC 4342, 8.3 */
+			if(option_len == 6)
+				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "CCID3 Receive Rate: %u bytes/sec",
+						    tvb_get_ntohl(tvb, offset + 2));
+			else
+				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong CCID3 Receive Rate length");
+			break;
 		default :
 			if(((option_type >= 45) && (option_type <= 127)) ||
 			   ((option_type >=  3) && (option_type <=  31))) {
@@ -1082,7 +1072,7 @@ void proto_register_dcp(void)
 		  "", HFILL }},
 
 		{ &hf_dcp_ndp_count,
-		{ "NDP Count",   "dcp.ndp_count", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "NDP Count",   "dcp.ndp_count", FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "", HFILL }},
 
 		{ &hf_dcp_timestamp,
