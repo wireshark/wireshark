@@ -27,7 +27,7 @@ SUBDIRS = \
 	nbap	\
 	ranap	\
 	rnsap	\
-	sabp	\
+	sabp
 
 EXTRA_DIST = \
 	Makefile.nmake	\
