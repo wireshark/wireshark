@@ -238,7 +238,7 @@
 00:00:B9	McdonnellD             # MCDONNELL DOUGLAS COMPUTER SYS
 00:00:BA	Siig                   # SIIG, INC.
 00:00:BB	Tri-Data
-00:00:BC	Allen-Brad             # ALLEN-BRADLEY CO. INC.
+00:00:BC	RockwellAu             # Rockwell Automation
 00:00:BD	Mitsubishi             # MITSUBISHI CABLE COMPANY
 00:00:BE	NtiGroup               # THE NTI GROUP
 00:00:BF	SymmetricC             # SYMMETRIC COMPUTER SYSTEMS
@@ -749,7 +749,7 @@
 00:02:B8	WhiKonsult             # WHI KONSULT AB
 00:02:B9	Cisco                  # Cisco Systems, Inc.
 00:02:BA	Cisco                  # Cisco Systems, Inc.
-00:02:BB	Continuous             # Continuous Computing
+00:02:BB	Continuous             # Continuous Computing Corp
 00:02:BC	Lvl7                   # LVL 7 Systems, Inc.
 00:02:BD	Bionet                 # Bionet Co., Ltd.
 00:02:BE	TotsuEngin             # Totsu Engineering, Inc.
@@ -1004,7 +1004,7 @@
 00:03:B7	Zaccess                # ZACCESS Systems
 00:03:B8	NetkitSolu             # NetKit Solutions, LLC
 00:03:B9	HualongTel             # Hualong Telecom Co., Ltd.
-00:03:BA	SunMicrosy             # Sun Microsystems
+00:03:BA	SunMicrosy             # Sun Microsystems Inc.
 00:03:BB	SignalComm             # Signal Communications Limited
 00:03:BC	Cot                    # COT GmbH
 00:03:BD	Omnicluste             # OmniCluster Technologies, Inc.
@@ -1558,7 +1558,7 @@
 00:05:E1	TrellisPho             # Trellis Photonics, Ltd.
 00:05:E2	CreativNet             # Creativ Network Technologies
 00:05:E3	LightsandC             # LightSand Communications, Inc.
-00:05:E4	RedLionCon             # Red Lion Controls L.P.
+00:05:E4	RedLionCon             # Red Lion Controls Inc.
 00:05:E5	Renishaw               # Renishaw PLC
 00:05:E6	Egenera                # Egenera, Inc.
 00:05:E7	Netrake                # Netrake Corp.
@@ -1575,7 +1575,7 @@
 00:05:F2	PowerR                 # Power R, Inc.
 00:05:F3	Weboyn
 00:05:F4	SystemBase             # System Base Co., Ltd.
-00:05:F5	OyoGeospac             # OYO Geospace Corp.
+00:05:F5	OyoGeospac             # OYO Geospace
 00:05:F6	YoungChang             # Young Chang Co. Ltd.
 00:05:F7	AnalogDevi             # Analog Devices, Inc.
 00:05:F8	RealTimeAc             # Real Time Access, Inc.
@@ -1637,7 +1637,7 @@
 00:06:30	AdtranzSwe             # Adtranz Sweden
 00:06:31	OpticalSol             # Optical Solutions, Inc.
 00:06:32	MescoEngin             # Mesco Engineering GmbH
-00:06:33	SmithsHeim             # Smiths Heimann Biometric Systems
+00:06:33	CrossMatch             # Cross Match Technologies GmbH
 00:06:34	GteAirfone             # GTE Airfone Inc.
 00:06:35	PacketairN             # PacketAir Networks, Inc.
 00:06:36	JedaiBroad             # Jedai Broadband Networks
@@ -1654,7 +1654,7 @@
 00:06:41	Itcn
 00:06:42	Genetel                # Genetel Systems Inc.
 00:06:43	SonoComput             # SONO Computer Co., Ltd.
-00:06:44	Neix                   # NEIX Inc.
+00:06:44	DigitalTec             # Digital Technologies Corporation
 00:06:45	MeiseiElec             # Meisei Electric Co. Ltd.
 00:06:46	ShenzhenXu             # ShenZhen XunBao Network Technology Co Ltd
 00:06:47	EtraliSA               # Etrali S.A.
@@ -1756,7 +1756,7 @@
 00:06:A7	Primarion
 00:06:A8	KcTechnolo             # KC Technology, Inc.
 00:06:A9	UniversalI             # Universal Instruments Corp.
-00:06:AA	Miltope                # Miltope Corporation
+00:06:AA	VtMiltope              # VT Miltope
 00:06:AB	W-Link                 # W-Link Systems, Inc.
 00:06:AC	Intersoft              # Intersoft Co.
 00:06:AD	KbElectron             # KB Electronics Ltd.
@@ -1781,7 +1781,7 @@
 00:06:C0	UnitedInte             # United Internetworks, Inc.
 00:06:C1	Cisco                  # CISCO SYSTEMS, INC.
 00:06:C2	Smartmatic             # Smartmatic Corporation
-00:06:C3	SchindlerE             # Schindler Elevators Ltd.
+00:06:C3	SchindlerE             # Schindler Elevator Ltd.
 00:06:C4	Piolink                # Piolink Inc.
 00:06:C5	InnoviTech             # INNOVI Technologies Limited
 00:06:C6	Lesswire               # lesswire AG
@@ -1903,7 +1903,7 @@
 00:07:3F	WoojyunSys             # Woojyun Systec Co., Ltd.
 00:07:40	Melco                  # Melco Inc.
 00:07:41	SierraAuto             # Sierra Automated Systems
-00:07:42	CurrentTec             # Current Technologies
+00:07:42	CurrentTec             # Current Technologies, LLC
 00:07:43	ChelsioCom             # Chelsio Communications
 00:07:44	Unico                  # Unico, Inc.
 00:07:45	RadlanComp             # Radlan Computer Communications Ltd.
@@ -1918,7 +1918,7 @@
 00:07:4E	NaughtyBoy             # Naughty boy co., Ltd.
 00:07:4F	Cisco                  # Cisco Systems, Inc.
 00:07:50	Cisco                  # Cisco Systems, Inc.
-00:07:51	MUT-                   # m.u.t. - GmbH
+00:07:51	M·U·T                  # m·u·t AG
 00:07:52	RhythmWatc             # Rhythm Watch Co., Ltd.
 00:07:53	BeijingQxc             # Beijing Qxcomm Technology Co., Ltd.
 00:07:54	XyterraCom             # Xyterra Computing, Inc.
@@ -1966,7 +1966,7 @@
 00:07:7F	JCommunica             # J Communications Co., Ltd.
 00:07:80	BluegigaTe             # Bluegiga Technologies OY
 00:07:81	Itron                  # Itron Inc.
-00:07:82	NauticusNe             # Nauticus Networks, Inc.
+00:07:82	SunMicrosy             # Sun Microsystems, Inc.
 00:07:83	SyncomNetw             # SynCom Network, Inc.
 00:07:84	Cisco                  # Cisco Systems Inc.
 00:07:85	Cisco                  # Cisco Systems Inc.
@@ -2259,7 +2259,7 @@
 00:08:C4	Hikari                 # Hikari Co.,Ltd.
 00:08:C5	Liontech               # Liontech Co., Ltd.
 00:08:C6	PhilipsCon             # Philips Consumer Communications
-00:08:C7	CompaqComp             # COMPAQ COMPUTER CORPORATION
+00:08:C7	HewlettPac             # Hewlett Packard
 00:08:C8	Soneticom              # Soneticom, Inc.
 00:08:C9	TechnisatD             # TechniSat Digital GmbH
 00:08:CA	TwinhanTec             # TwinHan Technology Co.,Ltd
@@ -2414,7 +2414,7 @@
 00:09:5F	Telebyte               # Telebyte, Inc.
 00:09:60	Yozan                  # YOZAN Inc.
 00:09:61	Switchgear             # Switchgear and Instrumentation Ltd
-00:09:62	FiletracAs             # Filetrac AS
+00:09:62	SonitorTec             # Sonitor Technologies AS
 00:09:63	DominionLa             # Dominion Lasercom Inc.
 00:09:64	Hi-Techniq             # Hi-Techniques
 00:09:65	Private
@@ -2905,7 +2905,7 @@
 00:0B:4B	VisiowaveS             # VISIOWAVE SA
 00:0B:4C	ClarionMSd             # Clarion (M) Sdn Bhd
 00:0B:4D	Emuzed
-00:0B:4E	VertexrsiA             # VertexRSI Antenna Products Division
+00:0B:4E	VertexrsiG             # VertexRSI, General Dynamics SatCOM Technologies, Inc.
 00:0B:4F	Verifone               # Verifone, INC.
 00:0B:50	Oxygnet
 00:0B:51	MicetekInt             # Micetek International Inc.
@@ -2971,10 +2971,10 @@
 00:0B:8D	AvvioNetwo             # Avvio Networks
 00:0B:8E	Ascent                 # Ascent Corporation
 00:0B:8F	AkitaElect             # AKITA ELECTRONICS SYSTEMS CO.,LTD.
-00:0B:90	CovaroNetw             # Covaro Networks, Inc.
+00:0B:90	AdvaOptica             # Adva Optical Networking Inc.
 00:0B:91	AglaiaGese             # Aglaia Gesellschaft für Bildverarbeitung und Kommunikation m
 00:0B:92	AscomDanma             # Ascom Danmark A/S
-00:0B:93	BarmagElec             # Barmag Electronic
+00:0B:93	RitterElek             # Ritter Elektronik
 00:0B:94	DigitalMon             # Digital Monitoring Products, Inc.
 00:0B:95	EbetGaming             # eBet Gaming Systems Pty Ltd
 00:0B:96	InnotracDi             # Innotrac Diagnostics Oy
@@ -3148,7 +3148,7 @@
 00:0C:3E	CrestAudio             # Crest Audio
 00:0C:3F	CogentDefe             # Cogent Defence & Security Networks,
 00:0C:40	AltechCont             # Altech Controls
-00:0C:41	LinksysGro             # The Linksys Group, Inc.
+00:0C:41	Cisco-Link             # Cisco-Linksys
 00:0C:42	Routerboar             # Routerboard.com
 00:0C:43	RalinkTech             # Ralink Technology, Corp.
 00:0C:44	AutomatedI             # Automated Interfaces, Inc.
@@ -3273,11 +3273,11 @@
 00:0C:BB	Iskraemeco
 00:0C:BC	Iscutum
 00:0C:BD	InterfaceM             # Interface Masters, Inc
-00:0C:BE	Private
+00:0C:BE	Innominate             # Innominate Security Technologies AG
 00:0C:BF	HolyStoneE             # Holy Stone Ent. Co., Ltd.
 00:0C:C0	GeneraOy               # Genera Oy
 00:0C:C1	CooperIndu             # Cooper Industries Inc.
-00:0C:C2	Private
+00:0C:C2	Controlnet             # ControlNet (India) Private Limited
 00:0C:C3	Bewan                  # BeWAN systems
 00:0C:C4	Tiptel                 # Tiptel AG
 00:0C:C5	Nextlink               # Nextlink Co., Ltd.
@@ -3363,7 +3363,7 @@
 00:0D:15	VoipacSRO              # Voipac s.r.o.
 00:0D:16	UhsPty                 # UHS Systems Pty Ltd
 00:0D:17	TurboNetwo             # Turbo Networks Co.Ltd
-00:0D:18	SunitecEnt             # Sunitec Enterprise Co., Ltd.
+00:0D:18	Mega-Trend             # Mega-Trend Electronics CO., LTD.
 00:0D:19	RobeShowLi             # ROBE Show lighting
 00:0D:1A	MustekSyst             # Mustek System Inc.
 00:0D:1B	KyotoElect             # Kyoto Electronics Manufacturing Co., Ltd.
@@ -3591,7 +3591,7 @@
 00:0D:F9	Nds                    # NDS Limited
 00:0D:FA	MicroContr             # Micro Control Systems Ltd.
 00:0D:FB	Komax                  # Komax AG
-00:0D:FC	ItforResar             # ITFOR Inc. resarch and development
+00:0D:FC	Itfor                  # ITFOR Inc.
 00:0D:FD	HugesHi-Te             # Huges Hi-Tech Inc.,
 00:0D:FE	HauppaugeC             # Hauppauge Computer Works, Inc.
 00:0D:FF	ChenmingMo             # CHENMING MOLD INDUSTRY CORP.
@@ -3644,7 +3644,7 @@
 00:0E:2E	EdimaxTech             # Edimax Technology Co., Ltd.
 00:0E:2F	Disetronic             # Disetronic Medical Systems AG
 00:0E:30	AerasNetwo             # AERAS Networks, Inc.
-00:0E:31	OlympusBio             # Olympus BioSystems GmbH
+00:0E:31	OlympusSof             # Olympus Soft Imaging Solutions GmbH
 00:0E:32	KontronMed             # Kontron Medical
 00:0E:33	ShukoElect             # Shuko Electronics Co.,Ltd
 00:0E:34	NexgenCity             # NexGen City, LP
@@ -3762,7 +3762,7 @@
 00:0E:A4	Certance               # Certance Inc.
 00:0E:A5	Blip                   # BLIP Systems
 00:0E:A6	AsustekCom             # ASUSTEK COMPUTER INC.
-00:0E:A7	Endace                 # Endace Inc Ltd.
+00:0E:A7	EndaceTech             # Endace Technology
 00:0E:A8	UnitedTech             # United Technologists Europe Limited
 00:0E:A9	ShanghaiXu             # Shanghai Xun Shi Communications Equipment Ltd. Co.
 00:0E:AA	Scalent                # Scalent Systems, Inc.
@@ -3783,7 +3783,7 @@
 00:0E:B9	HashimotoE             # HASHIMOTO Electronics Industry Co.,Ltd.
 00:0E:BA	HanmiSemic             # HANMI SEMICONDUCTOR CO., LTD.
 00:0E:BB	EverbeeNet             # Everbee Networks
-00:0E:BC	Cullmann               # Cullmann GmbH
+00:0E:BC	ParagonFid             # Paragon Fidelity GmbH
 00:0E:BD	BurdickAQu             # Burdick, a Quinton Compny
 00:0E:BE	B&BElectro             # B&B Electronics Manufacturing Co.
 00:0E:BF	Remsdaq                # Remsdaq Limited
@@ -3869,7 +3869,7 @@
 00:0F:0F	RealIdTech             # Real ID Technology Co., Ltd.
 00:0F:10	Rdm                    # RDM Corporation
 00:0F:11	ProdriveBV             # Prodrive B.V.
-00:0F:12	PanasonicA             # Panasonic AVC Networks Germany GmbH
+00:0F:12	PanasonicE             # Panasonic Europe Ltd.
 00:0F:13	Nisca                  # Nisca corporation
 00:0F:14	Mindray                # Mindray Co., Ltd.
 00:0F:15	Kjaerulff1             # Kjaerulff1 A/S
@@ -4038,7 +4038,7 @@
 00:0F:B8	Callurl                # CallURL Inc.
 00:0F:B9	AdaptiveIn             # Adaptive Instruments
 00:0F:BA	Tevebox                # Tevebox AB
-00:0F:BB	SiemensNet             # Siemens Networks GmbH & Co. KG
+00:0F:BB	NokiaSieme             # Nokia Siemens Networks GmbH & Co. KG
 00:0F:BC	OnkeyTechn             # Onkey Technologies, Inc.
 00:0F:BD	MrvCommuni             # MRV Communications (Networks) LTD
 00:0F:BE	E-W/You                # e-w/you Inc.
@@ -4077,7 +4077,7 @@
 00:0F:DF	SolomonTec             # SOLOMON Technology Corp.
 00:0F:E0	Ncomputing             # NComputing Co.,Ltd.
 00:0F:E1	IdDigital              # ID DIGITAL CORPORATION
-00:0F:E2	HangzhouHu             # Hangzhou Huawei-3Com Tech. Co., Ltd.
+00:0F:E2	HangzhouH3             # Hangzhou H3C Technologies Co., Ltd.
 00:0F:E3	DammCellul             # Damm Cellular Systems A/S
 00:0F:E4	Pantech                # Pantech Co.,Ltd
 00:0F:E5	MercurySec             # MERCURY SECURITY CORPORATION
@@ -4091,7 +4091,7 @@
 00:0F:ED	AnamElectr             # Anam Electronics Co., Ltd
 00:0F:EE	Xtec                   # XTec, Incorporated
 00:0F:EF	ThalesE-Tr             # Thales e-Transactions GmbH
-00:0F:F0	SunrayEnte             # Sunray Enterprise
+00:0F:F0	Sunray                 # Sunray Co. Ltd.
 00:0F:F1	Nex-GPte               # nex-G Systems Pte.Ltd
 00:0F:F2	LoudTechno             # Loud Technologies Inc.
 00:0F:F3	JungMyoung             # Jung Myoung Communications&Technology
@@ -4108,7 +4108,7 @@
 00:0F:FE	G-ProCompu             # G-PRO COMPUTER
 00:0F:FF	Control4
 00:10:00	CableTelev             # CABLE TELEVISION LABORATORIES, INC.
-00:10:01	MckCommuni             # MCK COMMUNICATIONS
+00:10:01	Citel                  # Citel plc
 00:10:02	Actia
 00:10:03	Imatron                # IMATRON, INC.
 00:10:04	BrantleyCo             # THE BRANTLEY COILE COMPANY,INC
@@ -4139,7 +4139,7 @@
 00:10:1D	WinbondEle             # WINBOND ELECTRONICS CORP.
 00:10:1E	Matsushita             # MATSUSHITA ELECTRONIC INSTRUMENTS CORP.
 00:10:1F	Cisco                  # CISCO SYSTEMS, INC.
-00:10:20	WelchAllyn             # WELCH ALLYN, DATA COLLECTION
+00:10:20	HandHeldPr             # Hand Held Products Inc
 00:10:21	EncantoNet             # ENCANTO NETWORKS, INC.
 00:10:22	SatcomMedi             # SatCom Media Corporation
 00:10:23	NetworkEqu             # Network Equipment Technologies
@@ -4180,13 +4180,13 @@
 00:10:46	AlcornMcbr             # ALCORN MCBRIDE INC.
 00:10:47	EchoEletri             # ECHO ELETRIC CO. LTD.
 00:10:48	HtrcAutoma             # HTRC AUTOMATION, INC.
-00:10:49	ShorelineT             # SHORELINE TELEWORKS, INC.
+00:10:49	Shoretel               # ShoreTel, Inc
 00:10:4A	Parvuc                 # THE PARVUC CORPORATION
 00:10:4B	3com                   # 3COM CORPORATION
-00:10:4C	ComputerAc             # COMPUTER ACCESS TECHNOLOGY
+00:10:4C	Lecroy                 # LeCroy Corporation
 00:10:4D	SurtecIndu             # SURTEC INDUSTRIES, INC.
 00:10:4E	Ceologic
-00:10:4F	StorageTec             # STORAGE TECHNOLOGY CORPORATION
+00:10:4F	SunMicrosy             # Sun Microsystems, Inc.
 00:10:50	Rion                   # RION CO., LTD.
 00:10:51	Cmicro                 # CMICRO CORPORATION
 00:10:52	Mettler-To             # METTLER-TOLEDO (ALBSTADT) GMBH
@@ -4331,7 +4331,7 @@
 00:10:DD	EnableSemi             # ENABLE SEMICONDUCTOR, INC.
 00:10:DE	Internatio             # INTERNATIONAL DATACASTING CORPORATION
 00:10:DF	RiseComput             # RISE COMPUTER INC.
-00:10:E0	CobaltMicr             # COBALT MICROSERVER, INC.
+00:10:E0	SunMicrosy             # Sun Microsystems, Inc.
 00:10:E1	SITech                 # S.I. TECH, INC.
 00:10:E2	Arraycomm              # ArrayComm, Inc.
 00:10:E3	CompaqComp             # COMPAQ COMPUTER CORPORATION
@@ -4501,7 +4501,7 @@
 00:11:88	Enterasys
 00:11:89	Aerotech               # Aerotech Inc
 00:11:8A	ViewtranTe             # Viewtran Technology Limited
-00:11:8B	Netdevices             # NetDevices Inc.
+00:11:8B	Alcatel-Lu             # Alcatel-Lucent, Enterprise Business Group
 00:11:8C	MissouriDe             # Missouri Department of Transportation
 00:11:8D	HanchangSy             # Hanchang System Corp.
 00:11:8E	HalytechMa             # Halytech Mace
@@ -4720,7 +4720,7 @@
 00:12:63	DataVoiceT             # Data Voice Technologies GmbH
 00:12:64	DaumElectr             # daum electronic gmbh
 00:12:65	EnerdyneTe             # Enerdyne Technologies, Inc.
-00:12:66	Private
+00:12:66	Swisscom-E             # Swisscom-Eurospot
 00:12:67	Matsushita             # Matsushita Electronic Components Co., Ltd.
 00:12:68	IpsDOO                 # IPS d.o.o.
 00:12:69	ValueElect             # Value Electronics
@@ -4990,7 +4990,7 @@
 00:13:71	MotorolaCh             # Motorola CHS
 00:13:72	Dell                   # Dell Inc.
 00:13:73	BlwaveElec             # BLwave Electronics Co., Ltd
-00:13:74	AttansicTe             # Attansic Technology Corp.
+00:13:74	AtherosCom             # Atheros Communications, Inc.
 00:13:75	AmericanSe             # American Security Products Co.
 00:13:76	TaborElect             # Tabor Electronics Ltd.
 00:13:77	SamsungEle             # Samsung Electronics CO., LTD
@@ -5099,7 +5099,7 @@
 00:13:DE	Adapt4
 00:13:DF	Ryvor                  # Ryvor Corp.
 00:13:E0	MurataManu             # Murata Manufacturing Co., Ltd.
-00:13:E1	Iprobe
+00:13:E1	Iprobe                 # Iprobe AB
 00:13:E2	Geovision              # GeoVision Inc.
 00:13:E3	CoviTechno             # CoVi Technologies, Inc.
 00:13:E4	Yangjae                # YANGJAE SYSTEMS CORP.
@@ -5290,7 +5290,7 @@
 00:14:9D	SoundId                # Sound ID Inc.
 00:14:9E	Ubone                  # UbONE Co., Ltd
 00:14:9F	SystemAndC             # System and Chips, Inc.
-00:14:A0	RfidAssetT             # RFID Asset Track, Inc.
+00:14:A0	Accsense               # Accsense, Inc.
 00:14:A1	Synchronou             # Synchronous Communication Corp
 00:14:A2	CoreMicro              # Core Micro Systems Inc.
 00:14:A3	VitelecBv              # Vitelec BV
@@ -5311,11 +5311,11 @@
 00:14:B2	Mcubelogic             # mCubelogics Corporation
 00:14:B3	CorestarIn             # CoreStar International Corp
 00:14:B4	GeneralDyn             # General Dynamics United Kingdom Ltd
-00:14:B5	Private
+00:14:B5	Physiometr             # PHYSIOMETRIX,INC
 00:14:B6	EnswerTech             # Enswer Technology Inc.
 00:14:B7	ArInfotek              # AR Infotek Inc.
 00:14:B8	Hill-Rom
-00:14:B9	Stepmind
+00:14:B9	MstarSemic             # MSTAR SEMICONDUCTOR
 00:14:BA	CarversSaD             # Carvers SA de CV
 00:14:BB	OpenInterf             # Open Interface North America
 00:14:BC	SynecticTe             # SYNECTIC TELECOM EXPORTS PVT. LTD.
@@ -5385,7 +5385,7 @@
 00:14:FC	Extandon               # Extandon, Inc.
 00:14:FD	ThecusTech             # Thecus Technology Corp.
 00:14:FE	ArtechElec             # Artech Electronics
-00:14:FF	PreciseAut             # Precise Automation, LLC
+00:14:FF	PreciseAut             # Precise Automation, Inc.
 00:15:00	IntelCorpo             # Intel Corporate
 00:15:01	Lexbox
 00:15:02	BetaTech               # BETA tech
@@ -5595,7 +5595,7 @@
 00:15:CE	ArrisInter             # ARRIS International
 00:15:CF	ArrisInter             # ARRIS International
 00:15:D0	ArrisInter             # ARRIS International
-00:15:D1	ArrisInter             # ARRIS International
+00:15:D1	ArrisGroup             # ARRIS Group, Inc.
 00:15:D2	Xantech                # Xantech Corporation
 00:15:D3	Pantech&Cu             # Pantech&Curitel Communications, Inc.
 00:15:D4	Emitor                 # Emitor AB
@@ -6143,7 +6143,7 @@
 00:17:F2	AppleCompu             # Apple Computer
 00:17:F3	M/A-ComWir             # M/A-COM Wireless Systems
 00:17:F4	ZeronAllia             # ZERON ALLIANCE
-00:17:F5	Neoptek
+00:17:F5	LigNeoptek             # LIG NEOPTEK
 00:17:F6	PyramidMer             # Pyramid Meriden Inc.
 00:17:F7	CemSolutio             # CEM Solutions Pvt Ltd
 00:17:F8	MotechIndu             # Motech Industries Inc.
@@ -6324,7 +6324,7 @@
 00:18:A7	YoggieSecu             # Yoggie Security Systems LTD.
 00:18:A8	AnnealTech             # AnNeal Technology Inc.
 00:18:A9	EthernetDi             # Ethernet Direct Corporation
-00:18:AA	Private
+00:18:AA	ProtecFire             # Protec Fire Detection plc
 00:18:AB	BeijingLhw             # BEIJING LHWT MICROELECTRONICS INC.
 00:18:AC	ShanghaiJi             # Shanghai Jiao Da HISYS Technology Co. Ltd.
 00:18:AD	NidecSanky             # NIDEC SANKYO CORPORATION
@@ -6720,7 +6720,7 @@
 00:1A:33	AsiCommuni             # ASI Communications, Inc.
 00:1A:34	KonkaGroup             # Konka Group Co., Ltd.
 00:1A:35	Bartec                 # BARTEC GmbH
-00:1A:36	Actimon                # Actimon GmbH & Co. KG
+00:1A:36	Aipermon               # Aipermon GmbH & Co. KG
 00:1A:37	Lear                   # Lear Corporation
 00:1A:38	SciTechnol             # SCI Technology
 00:1A:39	MertenGmbh             # Merten GmbH&CoKG
@@ -6764,7 +6764,7 @@
 00:1A:5F	KitworksFi             # KitWorks.fi Ltd.
 00:1A:60	WaveElectr             # Wave Electronics Co.,Ltd.
 00:1A:61	Pacstar                # PacStar Corp.
-00:1A:62	TrustedDat             # trusted data
+00:1A:62	DataRoboti             # Data Robotics, Incorporated
 00:1A:63	ElsterElec             # Elster Electricity, LLC
 00:1A:64	Ibm                    # IBM Corp.
 00:1A:65	Seluxit
@@ -7382,6 +7382,387 @@
 00:1C:C9	KaiseElect             # Kaise Electronic Technology Co., Ltd.
 00:1C:CA	ShanghaiGa             # Shanghai Gaozhi Science & Technology Development Co.
 00:1C:CB	ForthPubli             # Forth Corporation Public Company Limited
+00:1C:CC	ResearchIn             # Research In Motion Limited
+00:1C:CD	Alektrona              # Alektrona Corporation
+00:1C:CE	ByTechdesi             # By Techdesign
+00:1C:CF	Limetek
+00:1C:D0	Circleone              # Circleone Co.,Ltd.
+00:1C:D1	WavesAudio             # Waves Audio LTD
+00:1C:D2	KingChampi             # King Champion (Hong Kong) Limited
+00:1C:D3	ZpEngineer             # ZP Engineering srl
+00:1C:D4	NokiaDanma             # Nokia Danmark A/S
+00:1C:D5	ZazzleTech             # Zazzle Technologies, Inc.
+00:1C:D6	NokiaDanma             # Nokia Danmark A/S
+00:1C:D7	Harman/Bec             # Harman/Becker Automotive Systems GmbH
+00:1C:D8	BlueantWir             # BlueAnt Wireless
+00:1C:D9	GlobaltopT             # GlobalTop Technology Inc.
+00:1C:DA	ExeginTech             # Exegin Technologies Limited
+00:1C:DB	Carpoint               # CARPOINT CO.,LTD
+00:1C:DC	CustomComp             # Custom Computer Services, Inc.
+00:1C:DD	CowbellEng             # COWBELL ENGINEERING CO., LTD.
+00:1C:DE	Interactiv             # Interactive Multimedia eXchange Inc.
+00:1C:DF	BelkinInte             # Belkin International Inc.
+00:1C:E0	DasanTps               # DASAN TPS
+00:1C:E1	IndraSiste             # INDRA SISTEMAS, S.A.
+00:1C:E2	AtteroTech             # Attero Tech, LLC.
+00:1C:E3	Optimedica             # Optimedical Systems
+00:1C:E4	ElesyJsc               # EleSy JSC
+00:1C:E5	MbsElectro             # MBS Electronic Systems GmbH
+00:1C:E6	Innes
+00:1C:E7	RoconResea             # Rocon PLC Research Centre
+00:1C:E8	Cummins                # Cummins Inc
+00:1C:E9	GalaxyTech             # Galaxy Technology Limited
+00:1C:EA	Scientific             # Scientific-Atlanta, Inc
+00:1C:EB	Nortel
+00:1C:EC	Mobilesoft             # Mobilesoft (Aust.) Pty Ltd
+00:1C:ED	Environnem             # ENVIRONNEMENT SA
+00:1C:EE	Sharp                  # SHARP Corporation
+00:1C:EF	PrimaxElec             # Primax Electronics LTD
+00:1C:F0	D-Link                 # D-Link Corporation
+00:1C:F1	SupoxTechn             # SUPoX Technology Co. , LTD.
+00:1C:F2	TenlonTech             # Tenlon Technology Co.,Ltd.
+00:1C:F3	EvsBroadca             # EVS BROADCAST EQUIPMENT
+00:1C:F4	MediaTechn             # Media Technology Systems Inc
+00:1C:F5	WiseblueTe             # Wiseblue Technology Limited
+00:1C:F6	Cisco                  # Cisco Systems
+00:1C:F7	Audioscien             # AudioScience
+00:1C:F8	ParadeTech             # Parade Technologies, Ltd.
+00:1C:F9	Cisco                  # Cisco Systems
+00:1C:FA	Private
+00:1C:FB	MotorolaCh             # Motorola CHS
+00:1C:FC	SuminetCom             # Suminet Communication Technologies (Shanghai) Co., Ltd.
+00:1C:FD	UniversalE             # Universal Electronics
+00:1C:FE	Quartics               # Quartics Inc
+00:1C:FF	AltusNetwo             # Altus Networks
+00:1D:00	BrivoLlc               # Brivo Systems, LLC
+00:1D:01	NeptuneDig             # Neptune Digital
+00:1D:02	CybertechT             # Cybertech Telecom Development
+00:1D:03	DesignSolu             # Design Solutions Inc.
+00:1D:04	ZipitWirel             # Zipit Wireless, Inc.
+00:1D:05	Ilight
+00:1D:06	HmElectron             # HM Electronics, Inc.
+00:1D:07	ShenzhenSa             # Shenzhen Sang Fei Consumer Communications Co.,Ltd
+00:1D:08	JiangsuYin             # JIANGSU YINHE ELECTRONICS CO., LTD
+00:1D:09	Dell                   # Dell Inc
+00:1D:0A	DavisInstr             # Davis Instruments, Inc.
+00:1D:0B	PowerStand             # Power Standards Lab
+00:1D:0C	Mobilecomp             # MobileCompia
+00:1D:0D	SonyComput             # Sony Computer Entertainment inc.
+00:1D:0E	AgaphaTech             # Agapha Technology co., Ltd.
+00:1D:0F	Tp-LinkTec             # TP-LINK Technologies Co., Ltd.
+00:1D:10	LighthausL             # LightHaus Logic, Inc.
+00:1D:11	AnalogueMi             # Analogue & Micro Ltd
+00:1D:12	Rohm                   # ROHM CO., LTD.
+00:1D:13	Nextgtv
+00:1D:14	Speradtone             # SPERADTONE INFORMATION TECHNOLOGY LIMITED
+00:1D:15	ShenzhenDo             # Shenzhen Dolphin Electronic Co., Ltd
+00:1D:16	Efixo
+00:1D:17	DigitalSky             # Digital Sky Corporation
+00:1D:18	PowerInnov             # Power Innovation GmbH
+00:1D:19	ArcadyanTe             # Arcadyan Technology Corporation
+00:1D:1A	OvislinkSA             # OvisLink S.A.
+00:1D:1B	SangeanEle             # Sangean Electronics Inc.
+00:1D:1C	GennetSA               # Gennet s.a.
+00:1D:1D	Inter-M                # Inter-M Corporation
+00:1D:1E	KyushuTen              # KYUSHU TEN CO.,LTD
+00:1D:1F	SiauliuTau             # Siauliu Tauro Televizoriai, JSC
+00:1D:20	Comtrend               # COMTREND CO.
+00:1D:21	AlcadSA                # Alcad S.A.
+00:1D:22	FossAnalyt             # Foss Analytical A/S
+00:1D:23	SensusMete             # SENSUS METERING SYSTEMS
+00:1D:24	Dcsi
+00:1D:25	SamsungEle             # Samsung Electronics Co.,Ltd
+00:1D:26	Rockridges             # Rockridgesound Technology Co.
+00:1D:27	Nac-Interc             # NAC-INTERCOM
+00:1D:28	SonyEricss             # Sony Ericsson Mobile Communications AB
+00:1D:29	Doro                   # Doro AB
+00:1D:2A	TidewayEle             # Tideway Electronic LTD
+00:1D:2B	WuhanPontT             # Wuhan Pont Technology CO. , LTD
+00:1D:2C	WavetrendT             # Wavetrend Technologies (Pty) Limited
+00:1D:2D	Pylone                 # Pylone, Inc.
+00:1D:2E	RuckusWire             # Ruckus Wireless
+00:1D:2F	Quantumvis             # QuantumVision Corporation
+00:1D:30	YxWireless             # YX Wireless S.A.
+00:1D:31	HighproInt             # HIGHPRO INTERNATIONAL R&D CO,.LTD.
+00:1D:32	LongkayCom             # Longkay Communication & Technology (Shanghai) Co. Ltd
+00:1D:33	Maverick               # Maverick Systems Inc.
+00:1D:34	SyrisTechn             # SYRIS Technology Corp
+00:1D:35	ViconicsEl             # Viconics Electronics Inc.
+00:1D:36	Electronic             # ELECTRONICS CORPORATION OF INDIA LIMITED
+00:1D:37	Thales-Pan             # Thales-Panda Transportation System
+00:1D:38	SeagateTec             # Seagate Technology
+00:1D:39	Moohadigit             # MOOHADIGITAL CO., LTD
+00:1D:3A	MhAcoustic             # mh acoustics LLC
+00:1D:3B	NokiaDanma             # Nokia Danmark A/S
+00:1D:3C	Muscle                 # Muscle Corporation
+00:1D:3D	Avidyne                # Avidyne Corporation
+00:1D:3E	SakaTechno             # SAKA TECHNO SCIENCE CO.,LTD
+00:1D:3F	MitronPty              # Mitron Pty Ltd
+00:1D:40	LivingInde             # Living Independently Group, Inc.
+00:1D:41	HardyInstr             # Hardy Instruments
+00:1D:42	Nortel
+00:1D:43	ShenzhenG-             # Shenzhen G-link Digital Technology Co., Ltd.
+00:1D:44	Krohne
+00:1D:45	Cisco                  # Cisco Systems
+00:1D:46	Cisco                  # Cisco Systems
+00:1D:47	Covote                 # Covote GmbH & Co KG
+00:1D:48	Sensor-Tec             # Sensor-Technik Wiedemann GmbH
+00:1D:49	Innovation             # Innovation Wireless Inc.
+00:1D:4A	Carestream             # Carestream Health, Inc.
+00:1D:4B	GridConnec             # Grid Connect Inc.
+00:1D:4C	Alcatel-Lu             # Alcatel-Lucent
+00:1D:4D	AdaptiveRe             # Adaptive Recognition Hungary, Inc
+00:1D:4E	TcmMobileL             # TCM Mobile LLC
+00:1D:4F	Apple                  # Apple Inc
+00:1D:50	SpinetixSa             # SPINETIX SA
+00:1D:51	GeEnergy               # GE Energy
+00:1D:52	DefzoneBV              # Defzone B.V.
+00:1D:53	Sharp-Roxy             # SHARP-ROXY CORP.(M) SDN. BHD.
+00:1D:54	SunnicTech             # Sunnic Technology & Merchandise INC.
+00:1D:55	Zantaz                 # ZANTAZ, Inc
+00:1D:56	KramerElec             # Kramer Electronics Ltd.
+00:1D:57	CaetecMess             # CAETEC Messtechnik
+00:1D:58	Cq                     # CQ Inc
+00:1D:59	CherokeeIn             # CHEROKEE INTERNATIONAL
+00:1D:5A	2wire                  # 2Wire Inc.
+00:1D:5B	TecvanInfo             # Tecvan Informatica Ltda
+00:1D:5C	TomCommuni             # Tom Communication Industrial Co.,Ltd.
+00:1D:5D	ControlDyn             # Control Dynamics Pty. Ltd.
+00:1D:5E	ComingMedi             # COMING MEDIA CORP.
+00:1D:5F	OverspeedS             # OverSpeed SARL
+00:1D:60	AsustekCom             # ASUSTek COMPUTER INC.
+00:1D:61	Bij                    # BIJ Corporation
+00:1D:62	InphaseTec             # InPhase Technologies
+00:1D:63	MieleCie               # Miele & Cie. KG
+00:1D:64	AdamCommun             # Adam Communications Systems Int Ltd
+00:1D:65	MicrowaveR             # Microwave Radio Communications
+00:1D:66	HyundaiTel             # Hyundai Telecom
+00:1D:67	Amec
+00:1D:68	ThomsonTel             # Thomson Telecom Belgium
+00:1D:69	Knorr-Brem             # Knorr-Bremse AG
+00:1D:6A	AlphaNetwo             # Alpha Networks Inc.
+00:1D:6B	MotorolaFo             # Motorola (formerly Netopia, Inc
+00:1D:6C	ClariphyCo             # ClariPhy Communications, Inc.
+00:1D:6D	ConfidantI             # Confidant International LLC
+00:1D:6E	NokiaDanma             # Nokia Danmark A/S
+00:1D:6F	ChainzoneT             # Chainzone Technology Co., Ltd
+00:1D:70	Cisco                  # Cisco Systems
+00:1D:71	Cisco                  # Cisco Systems
+00:1D:72	Wistron                # Wistron Corporation
+00:1D:73	Buffalo                # Buffalo Inc.
+00:1D:74	TianjinChi             # Tianjin China-Silicon Microelectronics Co., Ltd.
+00:1D:75	Radioscape             # Radioscape PLC
+00:1D:76	Eyeheight              # Eyeheight Ltd.
+00:1D:77	Nsgate
+00:1D:78	InvengoInf             # Invengo Information Technology Co.,Ltd
+00:1D:79	SignamaxLl             # SIGNAMAX LLC
+00:1D:7A	WidebandSe             # Wideband Semiconductor, Inc.
+00:1D:7B	IceEnergy              # Ice Energy, Inc.
+00:1D:7C	AbeElettro             # ABE Elettronica S.p.A.
+00:1D:7D	GigabyteTe             # GIGABYTE TECHNOLOGY CO.,LTD.
+00:1D:7E	Cisco-Link             # Cisco-Linksys, LLC
+00:1D:7F	TekronInte             # Tekron International Ltd
+00:1D:80	BeijingHua             # Beijing Huahuan Eletronics Co.,Ltd
+00:1D:81	GuangzhouG             # GUANGZHOU GATEWAY ELECTRONICS CO., LTD
+00:1D:82	GnGnNetcom             # GN A/S (GN Netcom A/S)
+00:1D:83	Emitech                # Emitech Corporation
+00:1D:84	Gateway                # Gateway, Inc.
+00:1D:85	CallDirect             # Call Direct Cellular Solutions
+00:1D:86	ShinwaIndu             # Shinwa Industries(China) Ltd.
+00:1D:87	VigtechLab             # VigTech Labs Sdn Bhd
+00:1D:88	Clearwire
+00:1D:89	Vaultstor              # VaultStor Corporation
+00:1D:8A	Techtrex               # TechTrex Inc
+00:1D:8B	PirelliBro             # PIRELLI BROADBAND SOLUTIONS
+00:1D:8C	LaCrosseTe             # La Crosse Technology LTD
+00:1D:8D	Raytek                 # Raytek GmbH
+00:1D:8E	Alereon                # Alereon, Inc.
+00:1D:8F	PurewaveNe             # PureWave Networks
+00:1D:90	EmcoFlow               # EMCO Flow Systems
+00:1D:91	Digitize               # Digitize, Inc
+00:1D:92	Micro-Star             # MICRO-STAR INT'L CO.,LTD.
+00:1D:93	Modacom
+00:1D:94	ClimaxTech             # Climax Technology Co., Ltd
+00:1D:95	Flash                  # Flash, Inc.
+00:1D:96	Watchguard             # WatchGuard Video
+00:1D:97	AlertusTec             # Alertus Technologies LLC
+00:1D:98	NokiaDanma             # Nokia Danmark A/S
+00:1D:99	CyanOptic              # Cyan Optic, Inc.
+00:1D:9A	GodexInter             # GODEX INTERNATIONAL CO., LTD
+00:1D:9B	HokuyoAuto             # Hokuyo Automatic Co., Ltd.
+00:1D:9C	RockwellAu             # Rockwell Automation
+00:1D:9D	ArtjoyInte             # ARTJOY INTERNATIONAL LIMITED
+00:1D:9E	AxionTechn             # AXION TECHNOLOGIES
+00:1D:9F	MattRPTrac             # MATT   R.P.Traczynscy Sp.J.
+00:1D:A0	HengYuElec             # Heng Yu Electronic Manufacturing Company Limited
+00:1D:A1	Cisco                  # Cisco Systems
+00:1D:A2	Cisco                  # Cisco Systems
+00:1D:A3	Sabioso
+00:1D:A4	HangzhouSy             # Hangzhou System Technology CO., LTD
+00:1D:A5	WbElectron             # WB Electronics
+00:1D:A6	MediaNumer             # Media Numerics Limited
+00:1D:A7	SeamlessIn             # Seamless Internet
+00:1D:A8	TakahataEl             # Takahata Electronics Co.,Ltd
+00:1D:A9	CastlesTec             # Castles Technology, Co., LTD
+00:1D:AA	Draytek                # DrayTek Corp.
+00:1D:AB	Swissqual
+00:1D:AC	GigamonLlc             # Gigamon Systems LLC
+00:1D:AD	SinotechEn             # Sinotech Engineering Consultants, Inc.  Geotechnical Enginee
+00:1D:AE	ChangTseng             # CHANG TSENG TECHNOLOGY CO., LTD
+00:1D:AF	Nortel
+00:1D:B0	FujianHeng             # FuJian HengTong Information Technology Co.,Ltd
+00:1D:B1	CrescendoN             # Crescendo Networks
+00:1D:B2	HokkaidoEl             # HOKKAIDO ELECTRIC ENGINEERING CO.,LTD.
+00:1D:B3	ProcurveNe             # ProCurve Networking by HP
+00:1D:B4	KumhoEng               # KUMHO ENG CO.,LTD
+00:1D:B5	JuniperNet             # Juniper networks
+00:1D:B6	BestcommNe             # BestComm Networks, Inc.
+00:1D:B7	TendrilNet             # Tendril Networks, Inc.
+00:1D:B8	Intoto                 # Intoto Inc.
+00:1D:B9	Wellspring             # Wellspring Wireless
+00:1D:BA	Sony                   # Sony Corporation
+00:1D:BB	DynamicSys             # Dynamic System Electronics Corp.
+00:1D:BC	Nintendo               # Nintendo Co., Ltd.
+00:1D:BD	Versamed               # Versamed Inc.
+00:1D:BE	MotorolaMo             # Motorola Mobile Devices
+00:1D:BF	RadiientTe             # Radiient Technologies, Inc.
+00:1D:C0	EnphaseEne             # Enphase Energy
+00:1D:C1	Audinate
+00:1D:C2	XortecOy               # XORTEC OY
+00:1D:C3	RikorTv                # RIKOR TV, Ltd
+00:1D:C4	Aioi                   # AIOI Systems Co., Ltd.
+00:1D:C5	BeijingJia             # Beijing Jiaxun Feihong Electricial Co., Ltd.
+00:1D:C6	Snr                    # SNR Inc.
+00:1D:C7	L-3Communi             # L-3 Communications Geneva Aerospace
+00:1D:C8	Scadametrc             # ScadaMetrcs, LLC.
+00:1D:C9	Gainspan               # GainSpan Corp.
+00:1D:CA	PavElectro             # PAV Electronics Limited
+00:1D:CB	ExéNsDevel             # Exéns Development Oy
+00:1D:CC	HetraSecur             # Hetra Secure Solutions
+00:1D:CD	ArrisGroup             # ARRIS Group, Inc.
+00:1D:CE	ArrisGroup             # ARRIS Group, Inc.
+00:1D:CF	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D0	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D1	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D2	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D3	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D4	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D5	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D6	ArrisGroup             # ARRIS Group, Inc.
+00:1D:D7	Algolith
+00:1D:D8	Microsoft              # Microsoft Corporation
+00:1D:D9	HonHaiPrec             # Hon Hai Precision Ind.Co.,Ltd.
+00:1D:DA	Mikroelekt             # Mikroelektronika Ltd.
+00:1D:DB	C-Bel                  # C-BEL Corporation
+00:1D:DC	HangzhouDe             # HangZhou DeChangLong Tech&Info Co.,Ltd
+00:1D:DD	DatHK                  # DAT H.K. LIMITED
+00:1D:DE	ZhejiangBr             # Zhejiang Broadcast&Television Technology Co.,Ltd.
+00:1D:DF	SunitecEnt             # Sunitec Enterprise Co., Ltd.
+00:1D:E0	IntelCorpo             # Intel Corporate
+00:1D:E1	IntelCorpo             # Intel Corporate
+00:1D:E2	RadionorCo             # Radionor Communications
+00:1D:E3	Intuicom
+00:1D:E4	Visioneere             # Visioneered Image Systems
+00:1D:E5	Cisco                  # Cisco Systems
+00:1D:E6	Cisco                  # Cisco Systems
+00:1D:E7	MarineSoni             # Marine Sonic Technology, Ltd.
+00:1D:E8	NikkoDenki             # Nikko Denki Tshusin Company(NDTC)
+00:1D:E9	NokiaDanma             # Nokia Danmark A/S
+00:1D:EA	CommtestIn             # Commtest Instruments Ltd
+00:1D:EB	DinecInter             # DINEC International
+00:1D:EC	Marusys
+00:1D:ED	GridNet                # Grid Net, Inc.
+00:1D:EE	Nextvision             # NEXTVISION SISTEMAS DIGITAIS DE TELEVISÃO LTDA.
+00:1D:EF	Trimm                  # TRIMM, INC.
+00:1D:F0	Vidient                # Vidient Systems, Inc.
+00:1D:F1	Intego                 # Intego Systems, Inc.
+00:1D:F2	Netflix                # Netflix, Inc.
+00:1D:F3	SbsScience             # SBS Science & Technology Co., Ltd
+00:1D:F4	MagellanTe             # Magellan Technology Pty Limited
+00:1D:F5	Sunshine               # Sunshine Co,LTD
+00:1D:F6	SamsungEle             # Samsung Electronics Co.,Ltd
+00:1D:F7	RStahlScha             # R. STAHL Schaltgeräte GmbH
+00:1D:F8	WebproVisi             # Webpro Vision Technology Corporation
+00:1D:F9	Cybiotroni             # Cybiotronics (Far East) Limited
+00:1D:FA	FujianLand             # Fujian LANDI Commercial Equipment Co.,Ltd
+00:1D:FB	Netcleus               # NETCLEUS Systems Corporation
+00:1D:FC	Ksic
+00:1D:FD	NokiaDanma             # Nokia Danmark A/S
+00:1D:FE	Palm                   # Palm, Inc
+00:1D:FF	NetworkCri             # Network Critical Solutions Ltd
+00:1E:00	ShantouIns             # Shantou Institute of Ultrasonic Instruments
+00:1E:01	RenesasTec             # Renesas Technology Sales Co., Ltd.
+00:1E:02	SougouKeik             # Sougou Keikaku Kougyou Co.,Ltd.
+00:1E:03	Licomm                 # LiComm Co., Ltd.
+00:1E:04	HansonRese             # Hanson Research Corporation
+00:1E:05	XseedTechn             # Xseed Technologies & Computing
+00:1E:06	Wibrain
+00:1E:07	WinyTechno             # Winy Technology Co., Ltd.
+00:1E:08	CentecNetw             # Centec Networks Inc
+00:1E:09	Zefatek                # ZEFATEK Co.,LTD
+00:1E:0A	SybaTech               # Syba Tech Limited
+00:1E:0B	HewlettPac             # Hewlett Packard
+00:1E:0C	SherwoodIn             # Sherwood Information Partners, Inc.
+00:1E:0D	Micran                 # Micran Ltd.
+00:1E:0E	MaxiViewHo             # MAXI VIEW HOLDINGS LIMITED
+00:1E:0F	BriotInter             # Briot International
+00:1E:10	ShenzhenHu             # ShenZhen Huawei Communication Technologies Co.,Ltd.
+00:1E:11	EleluxInte             # ELELUX INTERNATIONAL LTD
+00:1E:12	Ecolab
+00:1E:13	Cisco                  # Cisco Systems
+00:1E:14	Cisco                  # Cisco Systems
+00:1E:15	BeechHillE             # Beech Hill Electronics
+00:1E:16	Keytronix
+00:1E:17	StnBv                  # STN BV
+00:1E:18	RadioActiv             # Radio Activity srl
+00:1E:19	Gtri
+00:1E:1A	BestSource             # Best Source Taiwan Inc.
+00:1E:1B	DigitalStr             # Digital Stream Technology, Inc.
+00:1E:1C	SwsAustral             # SWS Australia Pty Limited
+00:1E:1D	EastCoastD             # East Coast Datacom, Inc.
+00:1E:1E	HoneywellL             # Honeywell Life Safety
+00:1E:1F	Nortel
+00:1E:20	Intertain              # Intertain Inc.
+00:1E:21	Qisda                  # Qisda Co.
+00:1E:22	ArvooImagi             # ARVOO Imaging Products BV
+00:1E:23	Electronic             # Electronic Educational Devices, Inc
+00:1E:24	ZhejiangBe             # Zhejiang Bell Technology Co.,ltd
+00:1E:25	IntekDigit             # Intek Digital Inc
+00:1E:26	Digifriend             # Digifriends Co. Ltd
+00:1E:27	SbnTech                # SBN TECH Co.,Ltd.
+00:1E:28	Lumexis                # Lumexis Corporation
+00:1E:29	Hypertherm             # Hypertherm Inc
+00:1E:2A	Netgear                # Netgear Inc.
+00:1E:2B	RadioDesig             # Radio Systems Design, Inc.
+00:1E:2C	Cyverse                # CyVerse Corporation
+00:1E:2D	Stim
+00:1E:2E	SirtiSPA               # SIRTI S.p.A.
+00:1E:2F	DimotoPty              # DiMoto Pty Ltd
+00:1E:30	Shireen                # Shireen Inc
+00:1E:31	Infomark               # INFOMARK CO.,LTD.
+00:1E:32	Zensys
+00:1E:33	Inventec               # Inventec Corporation
+00:1E:34	Cryptometr             # CryptoMetrics
+00:1E:35	Nintendo               # Nintendo Co., Ltd.
+00:1E:36	Ipte
+00:1E:37	Usi
+00:1E:38	BluecardSo             # Bluecard Software Technology Co., Ltd.
+00:1E:39	ComsysComm             # Comsys Communication Ltd.
+00:1E:3A	NokiaDanma             # Nokia Danmark A/S
+00:1E:3B	NokiaDanma             # Nokia Danmark A/S
+00:1E:3C	LyngboxMed             # Lyngbox Media AB
+00:1E:3D	AlpsElectr             # Alps Electric Co., Ltd
+00:1E:3E	Kmw                    # KMW Inc.
+00:1E:3F	Private
+00:1E:40	ShanghaiDa             # Shanghai DareGlobal Technologies  Co.,Ltd.
+00:1E:41	MicrowaveC             # Microwave Communication & Component, Inc.
+00:1E:42	Teltonika
+00:1E:43	AisinAw                # AISIN AW CO.,LTD.
+00:1E:44	Santec
+00:1E:45	SonyEricss             # Sony Ericsson Mobile Communications AB
+00:1E:46	MotorolaCh             # Motorola CHS
+00:1E:47	PtHariffDa             # PT. Hariff Daya Tunggal Engineering
+00:1E:48	Wi-Links
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
 00:20:01	DspSolutio             # DSP SOLUTIONS, INC.
 00:20:02	SeritechEn             # SERITECH ENTERPRISE CO., LTD.
@@ -7466,7 +7847,7 @@
 00:20:51	Verilink               # Verilink Corporation
 00:20:52	Ragula                 # RAGULA SYSTEMS
 00:20:53	Huntsville             # HUNTSVILLE MICROSYSTEMS, INC.
-00:20:54	EasternRes             # EASTERN RESEARCH, INC.
+00:20:54	SycamoreNe             # Sycamore Networks
 00:20:55	Altech                 # ALTECH CO., LTD.
 00:20:56	Neoproduct             # NEOPRODUCTS
 00:20:57	TitzeDaten             # TITZE DATENTECHNIK GmbH
@@ -7479,7 +7860,7 @@
 00:20:5E	CastleRock             # CASTLE ROCK, INC.
 00:20:5F	GammadataC             # GAMMADATA COMPUTER GMBH
 00:20:60	AlcatelIta             # ALCATEL ITALIA S.p.A.
-00:20:61	DynatechCo             # DYNATECH COMMUNICATIONS, INC.
+00:20:61	Garrettcom             # GarrettCom, Inc.
 00:20:62	ScorpionLo             # SCORPION LOGIC, LTD.
 00:20:63	WiproInfot             # WIPRO INFOTECH LTD.
 00:20:64	ProtecMicr             # PROTEC MICROSYSTEMS, INC.
@@ -7724,7 +8105,7 @@
 00:30:52	ElasticNet             # ELASTIC NETWORKS
 00:30:53	Basler                 # Basler AG
 00:30:54	CastlenetT             # CASTLENET TECHNOLOGY, INC.
-00:30:55	HitachiSem             # Hitachi Semiconductor America,
+00:30:55	RenesasTec             # Renesas Technology America, Inc.
 00:30:56	BeckIpc                # Beck IPC GmbH
 00:30:57	Qtelnet                # QTelNet, Inc.
 00:30:58	ApiMotion              # API MOTION
@@ -7753,7 +8134,7 @@
 00:30:6F	SeyeonTech             # SEYEON TECH. CO., LTD.
 00:30:70	1net                   # 1Net Corporation
 00:30:71	Cisco                  # Cisco Systems, Inc.
-00:30:72	Intellibyt             # INTELLIBYTE INC.
+00:30:72	Intellibyt             # Intellibyte Inc.
 00:30:73	Internatio             # International Microsystems, In
 00:30:74	Equiinet               # EQUIINET LTD.
 00:30:75	Adtech
@@ -7927,7 +8308,7 @@
 00:40:1D	InvisibleS             # INVISIBLE SOFTWARE, INC.
 00:40:1E	Icc
 00:40:1F	Colorgraph             # COLORGRAPH LTD
-00:40:20	PinaclComm             # PINACL COMMUNICATION
+00:40:20	TycoElectr             # Tyco Electronics (UK) Ltd
 00:40:21	RasterGrap             # RASTER GRAPHICS
 00:40:22	KleverComp             # KLEVER COMPUTERS, INC.
 00:40:23	Logic                  # LOGIC CORPORATION
@@ -8501,7 +8882,7 @@
 00:60:66	LacroixTec             # LACROIX TECHNOLGIE
 00:60:67	AcerNetxus             # ACER NETXUS INC.
 00:60:68	EiconTechn             # EICON TECHNOLOGY CORPORATION
-00:60:69	BrocadeCom             # BROCADE COMMUNICATIONS SYSTEMS, Inc.
+00:60:69	BrocadeCom             # Brocade Communications Systems, Inc.
 00:60:6A	Mitsubishi             # MITSUBISHI WIRELESS COMMUNICATIONS. INC.
 00:60:6B	Synclayer              # Synclayer Inc.
 00:60:6C	Arescom
@@ -8940,7 +9321,7 @@
 00:90:1B	DigitalCon             # DIGITAL CONTROLS
 00:90:1C	MpsSoftwar             # mps Software Gmbh
 00:90:1D	PecNz                  # PEC (NZ) LTD.
-00:90:1E	SelestaIng             # SELESTA INGEGNE RIA S.P.A.
+00:90:1E	SelestaIng             # Selesta Ingegneria S.p.A.
 00:90:1F	AdtecProdu             # ADTEC PRODUCTIONS, INC.
 00:90:20	PhilipsAna             # PHILIPS ANALYTICAL X-RAY B.V.
 00:90:21	Cisco                  # CISCO SYSTEMS, INC.
@@ -9061,7 +9442,7 @@
 00:90:94	OspreyTech             # OSPREY TECHNOLOGIES, INC.
 00:90:95	UniversalA             # UNIVERSAL AVIONICS
 00:90:96	AskeyCompu             # ASKEY COMPUTER CORP.
-00:90:97	SycamoreNe             # SYCAMORE NETWORKS
+00:90:97	SycamoreNe             # Sycamore Networks
 00:90:98	SbcDesigns             # SBC DESIGNS, INC.
 00:90:99	AlliedTele             # ALLIED TELESIS, K.K.
 00:90:9A	OneWorld               # ONE WORLD SYSTEMS, INC.
@@ -9549,7 +9930,7 @@
 00:C0:50	ToyoDenkiS             # TOYO DENKI SEIZO K.K.
 00:C0:51	AdvancedIn             # ADVANCED INTEGRATION RESEARCH
 00:C0:52	Burr-Brown
-00:C0:53	ConcertoSo             # Concerto Software
+00:C0:53	AspectSoft             # Aspect Software Inc.
 00:C0:54	NetworkPer             # NETWORK PERIPHERALS, LTD.
 00:C0:55	ModularCom             # MODULAR COMPUTING TECHNOLOGIES
 00:C0:56	Somelec
@@ -9622,7 +10003,7 @@
 00:C0:99	YoshikiInd             # YOSHIKI INDUSTRIAL CO.,LTD.
 00:C0:9A	Photonics              # PHOTONICS CORPORATION
 00:C0:9B	RelianceCo             # RELIANCE COMM/TEC, R-TEC
-00:C0:9C	ToaElectro             # TOA ELECTRONIC LTD.
+00:C0:9C	HiokiEE                # HIOKI E.E. CORPORATION
 00:C0:9D	Distribute             # DISTRIBUTED SYSTEMS INT'L, INC
 00:C0:9E	CacheCompu             # CACHE COMPUTERS, INC.
 00:C0:9F	QuantaComp             # QUANTA COMPUTER, INC.
@@ -9820,7 +10201,7 @@
 00:D0:5D	Intelliwor             # INTELLIWORXX, INC.
 00:D0:5E	Stratabeam             # STRATABEAM TECHNOLOGY, INC.
 00:D0:5F	Valcom                 # VALCOM, INC.
-00:D0:60	PanasonicE             # PANASONIC EUROPEAN
+00:D0:60	PanasonicE             # Panasonic Europe Ltd.
 00:D0:61	TremonEnte             # TREMON ENTERPRISES CO., LTD.
 00:D0:62	Digigram
 00:D0:63	Cisco                  # CISCO SYSTEMS, INC.
@@ -9853,7 +10234,7 @@
 00:D0:7E	Keycorp                # KEYCORP LTD.
 00:D0:7F	StrategyTe             # STRATEGY & TECHNOLOGY, LIMITED
 00:D0:80	Exabyte                # EXABYTE CORPORATION
-00:D0:81	RealTimeDe             # REAL TIME DEVICES USA, INC.
+00:D0:81	RtdEmbedde             # RTD Embedded Technologies, Inc.
 00:D0:82	Iowave                 # IOWAVE INC.
 00:D0:83	Invertex               # INVERTEX, INC.
 00:D0:84	Nexcomm                # NEXCOMM SYSTEMS, INC.
@@ -9873,7 +10254,7 @@
 00:D0:92	GlenayreWe             # GLENAYRE WESTERN MULTIPLEX
 00:D0:93	Tq-Compone             # TQ - COMPONENTS GMBH
 00:D0:94	TimelineVi             # TIMELINE VISTA, INC.
-00:D0:95	AlcatelNor             # Alcatel North America ESD
+00:D0:95	Alcatel-Lu             # Alcatel-Lucent, Enterprise Business Group
 00:D0:96	3comEurope             # 3COM EUROPE LTD.
 00:D0:97	Cisco                  # CISCO SYSTEMS, INC.
 00:D0:98	PhotonDyna             # Photon Dynamics Canada Inc.
@@ -9926,14 +10307,14 @@
 00:D0:C7	Pathway                # PATHWAY, INC.
 00:D0:C8	I/OConsult             # I/O CONSULTING A/S
 00:D0:C9	Advantech              # ADVANTECH CO., LTD.
-00:D0:CA	IntrinsycS             # INTRINSYC SOFTWARE INC.
+00:D0:CA	IntrinsycS             # Intrinsyc Software int'l, Inc.
 00:D0:CB	Dasan                  # DASAN CO., LTD.
 00:D0:CC	Technologi             # TECHNOLOGIES LYRE INC.
 00:D0:CD	AtanTechno             # ATAN TECHNOLOGY INC.
 00:D0:CE	AsystElect             # ASYST ELECTRONIC
 00:D0:CF	MoretonBay             # MORETON BAY
 00:D0:D0	ZhongxingT             # ZHONGXING TELECOM LTD.
-00:D0:D1	Sirocco                # SIROCCO SYSTEMS, INC.
+00:D0:D1	SycamoreNe             # Sycamore Networks
 00:D0:D2	Epilog                 # EPILOG CORPORATION
 00:D0:D3	Cisco                  # CISCO SYSTEMS, INC.
 00:D0:D4	V-Bits                 # V-BITS, INC.
@@ -9957,7 +10338,7 @@
 00:D0:E6	Ibond                  # IBOND INC.
 00:D0:E7	VconTeleco             # VCON TELECOMMUNICATION LTD.
 00:D0:E8	MacSystem              # MAC SYSTEM CO., LTD.
-00:D0:E9	AdvantageC             # ADVANTAGE CENTURY
+00:D0:E9	AdvantageC             # Advantage Century Telecommunication Corp.
 00:D0:EA	NextoneCom             # NEXTONE COMMUNICATIONS, INC.
 00:D0:EB	LighteraNe             # LIGHTERA NETWORKS, INC.
 00:D0:EC	NakayoTele             # NAKAYO TELECOMMUNICATIONS, INC
@@ -10173,7 +10554,7 @@
 00:E0:AE	Xaqti                  # XAQTI CORPORATION
 00:E0:AF	GeneralDyn             # GENERAL DYNAMICS INFORMATION SYSTEMS
 00:E0:B0	Cisco                  # CISCO SYSTEMS, INC.
-00:E0:B1	AlcatelNor             # Alcatel North America ESD
+00:E0:B1	Alcatel-Lu             # Alcatel-Lucent, Enterprise Business Group
 00:E0:B2	TelmaxComm             # TELMAX COMMUNICATIONS CORP.
 00:E0:B3	Etherwan               # EtherWAN Systems, Inc.
 00:E0:B4	TechnoScop             # TECHNO SCOPE CO., LTD.
@@ -10253,7 +10634,7 @@
 00:E0:FE	Cisco                  # CISCO SYSTEMS, INC.
 00:E0:FF	SecurityDy             # SECURITY DYNAMICS TECHNOLOGIES, Inc.
 00:E6:D3	NixdorfCom             # NIXDORF COMPUTER CORP.
-01:0E:CF	PN-MC                  # PROFINET Multicast
+01:0E:CF	PN-MC		# PROFINET Multicast
 02:04:06	BbnInterna             # BBN				internal usage (not registered)
 02:07:01	Racal-Data             # RACAL-DATACOM
 02:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
@@ -10302,7 +10683,7 @@
 08:00:18	PirelliFoc             # PIRELLI FOCOM NETWORKS
 08:00:19	GeneralEle             # GENERAL ELECTRIC CORPORATION
 08:00:1A	DataGenl	# Data General
-08:00:1B	DataGenera             # DATA GENERAL
+08:00:1B	Emc                    # EMC Corporation
 08:00:1C	Kdd-Kokusa             # KDD-KOKUSAI DEBNSIN DENWA CO.
 08:00:1D	AbleCommun             # ABLE COMMUNICATIONS INC.
 08:00:1E	ApolloComp             # APOLLO COMPUTER INC.
@@ -10493,9 +10874,11 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 00-00-5E-00-01/40	IETF-VRRP-virtual-router-VRID
 00-BF-00-00-00-00/16	MS-NLB-VirtServer
 00-E0-2B-00-00-00	Extreme-EDP
-00-E0-2B-00-00-01	Extreme-EAPS-Source
+# Extreme Encapsulation Protocol (basically EDP renamed)
+00-E0-2B-00-00-01	Extreme-EEP
 00-E0-2B-00-00-02	Extreme-ESRP-Client
 00-E0-2B-00-00-04	Extreme-EAPSv1
+00-E0-2B-00-00-06	Extreme-EAPSv2
 00-E0-2B-00-00-08	Extreme-ESRP-Master
 01-00-0C-00-00/40	ISL-Frame
 01-00-0C-CC-CC-CC	CDP/VTP/DTP/PAgP/UDLD
