@@ -20,16 +20,22 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=acp133
+PROTOCOL_NAME=cmip
 
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
 
 NEED_PACKET_PROTO_H = 1
 
-EXT_ASN_FILE_LIST =
+EXT_ASN_FILE_LIST = \
+	../ros/Remote-Operations-Information-Objects.asn \
+	../ros/Remote-Operations-Generic-ROS-PDUs.asn \
+	../x721/Attribute-ASN1Module.asn
 
-ASN_FILE_LIST = $(PROTOCOL_NAME).asn
+ASN_FILE_LIST = \
+	CMIP-1.asn \
+	CMIP-A-ABORT-Information.asn \
+	CMIP-A-ASSOCIATE-Information.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist # for all protocols: Please add/remove as required.
@@ -43,7 +49,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -X -T
+A2W_FLAGS= -b -e
 
 EXTRA_CNF=
 

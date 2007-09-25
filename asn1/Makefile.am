@@ -23,7 +23,12 @@
 
 SUBDIRS = \
 	acp133	\
+	acse	\
+	ansi_map	\
 	camel	\
+	cdt	\
+	cmip	\
+	cms	\
 	h245	\
 	nbap	\
 	ranap	\
@@ -32,40 +37,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	acse/acse.asn	\
-	acse/acse.cnf	\
-	acse/acse-exp.cnf	\
-	acse/Makefile	\
-	acse/Makefile.nmake	\
-	acse/packet-acse-template.c	\
-	acse/packet-acse-template.h	\
-	ansi_map/ansi_map.asn	\
-	ansi_map/ansi_map.cnf	\
-	ansi_map/Makefile	\
-	ansi_map/Makefile.nmake	\
-	ansi_map/packet-ansi_map-template.c	\
-	ansi_map/packet-ansi_map-template.h	\
-	cdt/cdt.asn	\
-	cdt/cdt.cnf	\
-	cdt/cdt-exp.cnf	\
-	cdt/Makefile	\
-	cdt/Makefile.nmake	\
-	cdt/packet-cdt-template.c	\
-	cdt/packet-cdt-template.h	\
-	cmip/CMIP.asn	\
-	cmip/cmip.cnf	\
-	cmip/cmip-exp.cnf	\
-	cmip/Makefile	\
-	cmip/Makefile.nmake	\
-	cmip/packet-cmip-template.c	\
-	cmip/packet-cmip-template.h	\
-	cms/cms.cnf	\
-	cms/cms-exp.cnf	\
-	cms/CryptographicMessageSyntax.asn	\
-	cms/Makefile	\
-	cms/Makefile.nmake	\
-	cms/packet-cms-template.c	\
-	cms/packet-cms-template.h	\
 	dap/dap.asn	\
 	dap/dap.cnf	\
 	dap/dap-exp.cnf	\

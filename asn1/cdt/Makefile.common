@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=acp133
+PROTOCOL_NAME=cdt
 
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
@@ -43,7 +43,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -X -T
+A2W_FLAGS= -b -X -T -e
 
 EXTRA_CNF=
 

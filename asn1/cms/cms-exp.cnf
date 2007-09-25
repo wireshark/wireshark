@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # ./cms-exp.cnf
-# ../../tools/asn2wrs.py -b -X -T -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn
+# ../../tools/asn2wrs.py -b -X -T -e -p cms -c ./cms.cnf -s ./packet-cms-template -D . CryptographicMessageSyntax.asn
 
 #.MODULE
 CryptographicMessageSyntax  cms

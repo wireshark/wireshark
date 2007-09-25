@@ -24,9 +24,9 @@
 
 all: generate_dissector
 
-generate_dissector: $(DISSECTOR_FILES) $(EXTRA_CNF)
+generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
+$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
 		$(A2W_FLAGS) \
 		-p $(PROTOCOL_NAME) \

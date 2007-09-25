@@ -1,15 +1,15 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # ./cmip-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn
+# ../../tools/asn2wrs.py -b -e -p cmip -c ./cmip.cnf -s ./packet-cmip-template -D . CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn ../x721/Attribute-ASN1Module.asn
 
 #.MODULE
 CMIP-1                                 cmip
 CMIP-A-ABORT-Information               cmip
 CMIP-A-ASSOCIATE-Information           cmip
-Attribute-ASN1Module                   cmip
 Remote-Operations-Information-Objects  cmip
 Remote-Operations-Generic-ROS-PDUs     cmip
+Attribute-ASN1Module                   cmip
 #.END
 
 #.IMPORT_TAG
@@ -20,12 +20,12 @@ ObjectInstance           BER_CLASS_ANY/*choice*/ -1/*choice*/
 RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CMIPAbortInfo            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CMIPUserInfo             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+ROS                      BER_CLASS_ANY/*choice*/ -1/*choice*/
 AdditionalInformation    BER_CLASS_UNI BER_UNI_TAG_SET
 AdministrativeState      BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 AttributeList            BER_CLASS_UNI BER_UNI_TAG_SET
 AvailabilityStatus       BER_CLASS_UNI BER_UNI_TAG_SET
 ProbableCause            BER_CLASS_ANY/*choice*/ -1/*choice*/
-ROS                      BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END
 
 #.TYPE_ATTR
@@ -36,11 +36,11 @@ ObjectInstance           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(c
 RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 CMIPAbortInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CMIPUserInfo             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ROS                      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ROS_vals)  BITMASK = 0
 AdditionalInformation    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 AdministrativeState      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_AdministrativeState_vals)  BITMASK = 0
 AttributeList            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 AvailabilityStatus       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 ProbableCause            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ProbableCause_vals)  BITMASK = 0
-ROS                      TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmip_ROS_vals)  BITMASK = 0
 #.END
 
