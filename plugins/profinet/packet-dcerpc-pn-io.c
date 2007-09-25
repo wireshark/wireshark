@@ -2458,6 +2458,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
     e_uuid_t aruuid;
     guint16 u16AddVal1;
     guint16 u16AddVal2;
+    guint32 u32Status;
 
 
     offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, item, drep, u16Index, &aruuid);
@@ -2476,10 +2477,16 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_add_val2, &u16AddVal2);
 
+    u32Status = ((drep[0] & 0x10)
+            ? tvb_get_letohl (tvb, offset)
+            : tvb_get_ntohl (tvb, offset));
+
+	offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
+
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 16);
 
-    proto_item_append_text(item, ", Len:%u, AddVal1:%u, AddVal2:%u",
-        *u32RecDataLen, u16AddVal1, u16AddVal2);
+	proto_item_append_text(item, ", Len:%u, Index:0x%x, Status:0x%x, Val1:%u, Val2:%u",
+        *u32RecDataLen, *u16Index, u32Status, u16AddVal1, u16AddVal2);
 
     if (check_col(pinfo->cinfo, COL_INFO) && *u32RecDataLen != 0)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
@@ -5745,7 +5752,7 @@ dissect_IODWriteRes(tvbuff_t *tvb, int offset,
     /* IODWriteMultipleRes? */
     if(u16Index == 0xe040) {
         while((remain = tvb_length_remaining(tvb, offset)) > 0) {
-            offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
+			offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         }
     }
 
