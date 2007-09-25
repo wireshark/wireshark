@@ -49,17 +49,13 @@ WIRESHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_errs.c	\
 	capture-pcap-util.c	\
-	capture_stop_conditions.c	\
 	capture_ui_utils.c	\
 	cfile.c	\
 	clopts_common.c	\
-	conditions.c	\
 	disabled_protos.c	\
 	packet-range.c	\
 	print.c	\
 	ps.c	\
-	pcapio.c	\
-	ringbuffer.c	\
 	timestats.c	\
 	util.c	\
 	version_info.c
@@ -70,23 +66,19 @@ WIRESHARK_COMMON_INCLUDES =	\
 	capture_errs.h	\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
-	capture_stop_conditions.h	\
 	capture_ui_utils.h	\
 	cfile.h	\
 	clopts_common.h	\
 	cmdarg_err.h	\
 	color.h	\
-	conditions.h	\
 	disabled_protos.h	\
 	file.h	\
 	fileset.h	\
 	isprint.h	\
 	packet-range.h	\
-	pcapio.h	\
 	print.h	\
 	ps.h	\
 	register.h	\
-	ringbuffer.h	\
 	tempfile.h	\
 	timestats.h	\
 	util.h	\
@@ -166,7 +158,6 @@ wireshark_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
 	capture_info.h	\
-	capture_loop.h	\
 	capture_opts.h	\
 	capture_sync.h	\
 	color_filters.h	\
@@ -192,7 +183,7 @@ tshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	$(TSHARK_TAP_SRC)	\
 	capture_opts.c		\
-	capture_loop.c		\
+	capture_sync.c		\
 	tempfile.c		\
 	tshark-tap-register.c	\
 	tshark.c
@@ -244,9 +235,17 @@ dumpcap_SOURCES =	\
 	version_info.c	\
 	epan/unicode-utils.c
 
+# corresponding headers
+dumpcap_INCLUDES = \
+	capture_loop.h	\
+	capture_stop_conditions.h	\
+	conditions.h	\
+	pcapio.h	\
+	ringbuffer.h	\
 
 # this target needed for distribution only
 noinst_HEADERS =	\
 	$(WIRESHARK_COMMON_INCLUDES) \
 	$(wireshark_INCLUDES) \
-	$(EXTRA_wireshark_INCLUDES)
+	$(EXTRA_wireshark_INCLUDES) \
+	$(dumpcap_INCLUDES)

@@ -86,8 +86,6 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include <epan/prefs.h>
-#include "conditions.h"
-#include "ringbuffer.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"

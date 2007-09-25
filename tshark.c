@@ -81,10 +81,6 @@
 #include <epan/conversation.h>
 #include <epan/plugins.h>
 #include "register.h"
-#include "conditions.h"
-#include "capture_stop_conditions.h"
-#include "ringbuffer.h"
-#include "capture_ui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
@@ -92,22 +88,19 @@
 #include <epan/ex-opt.h>
 
 #ifdef HAVE_LIBPCAP
+#include "capture_ui_utils.h"
 #include <pcap.h>
-#include <setjmp.h>
 #include "capture-pcap-util.h"
-#include "pcapio.h"
-#include <wiretap/wtap-capture.h>
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_errs.h"
 #endif /* _WIN32 */
-#include "capture.h"
-#include "capture_loop.h"
 #include "capture_sync.h"
 #endif /* HAVE_LIBPCAP */
 #include "epan/emem.h"
 #include "log.h"
 #include <epan/funnel.h>
+
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -154,18 +147,12 @@ static const char please_report[] =
 static gboolean print_packet_counts;
 
 
-static loop_data ld;
-
-#ifdef HAVE_LIBPCAP
 static capture_options capture_opts;
-
 
 #ifdef SIGINFO
 static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
 static gboolean infoprint;	/* if TRUE, print capture info after clearing infodelay */
 #endif /* SIGINFO */
-#endif /* HAVE_LIBPCAP */
-
 
 static int capture(void);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
@@ -721,6 +708,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gboolean             list_link_layer_types = FALSE;
   gboolean             start_capture = FALSE;
+  int                  status;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -734,7 +722,6 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
   GLogLevelFlags       log_flags;
-  int                  status;
   int                  optind_initial;
 
 #define OPTSTRING_INIT "a:b:c:d:De:E:f:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
@@ -794,7 +781,7 @@ main(int argc, char *argv[])
   g_log_set_handler(NULL,
 		    log_flags,
 		    log_func_ignore, NULL /* user_data */);
-  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
+  g_log_set_handler(LOG_DOMAIN_CAPTURE,
 		    log_flags,
 		    log_func_ignore, NULL /* user_data */);
 
@@ -926,10 +913,6 @@ main(int argc, char *argv[])
     g_free(dp_path);
   }
 
-#ifdef _WIN32
-  /* Load Wpcap, if possible */
-  load_wpcap();
-#endif
 
   init_cap_file(&cfile);
 
@@ -951,12 +934,12 @@ main(int argc, char *argv[])
     switch (opt) {
       case 'a':        /* autostop criteria */
       case 'b':        /* Ringbuffer option */
-      case 'c':        /* Capture xxx packets */
+      case 'c':        /* Capture x packets */
       case 'f':        /* capture filter */
-      case 'i':        /* Use interface xxx */
+      case 'i':        /* Use interface x */
       case 'p':        /* Don't capture in promiscuous mode */
       case 's':        /* Set the snapshot (capture) length */
-      case 'w':        /* Write to capture file xxx */
+      case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
       case 'B':        /* Buffer size */
@@ -1067,7 +1050,7 @@ main(int argc, char *argv[])
       case 'q':        /* Quiet */
         quiet = TRUE;
         break;
-      case 'r':        /* Read capture file xxx */
+      case 'r':        /* Read capture file x */
         cf_name = g_strdup(optarg);
         break;
       case 'R':        /* Read file filter */
@@ -1584,10 +1567,6 @@ main(int argc, char *argv[])
 
     capture();
 
-    if (capture_opts.multi_files_on) {
-      ringbuf_free();
-    }
-
     if (print_packet_info) {
       if (!write_finale()) {
         err = errno;
@@ -1611,49 +1590,139 @@ main(int argc, char *argv[])
   return 0;
 }
 
+/*#define USE_BROKEN_G_MAIN_LOOP*/
+
+#ifdef USE_BROKEN_G_MAIN_LOOP
+  GMainLoop *loop;
+#else
+  gboolean loop_running = FALSE;
+#endif
+  guint32 packet_count = 0;
+
+
+/* XXX - move to the right position / file */
+/* read from a pipe (callback) */
+typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
+
+typedef struct pipe_input_tag {
+    gint                source;
+    gpointer            user_data;
+    int                 *child_process;
+    pipe_input_cb_t     input_cb;
+    guint               pipe_input_id;
+	GStaticMutex		callback_running;
+} pipe_input_t;
+
+static pipe_input_t pipe_input;
+
+/* The timer has expired, see if there's stuff to read from the pipe,
+   if so, do the callback */
+static gint
+pipe_timer_cb(gpointer data)
+{
+  HANDLE handle;
+  DWORD avail = 0;
+  gboolean result, result1;
+  DWORD childstatus;
+  pipe_input_t *pipe_input = data;
+  gint iterations = 0;
+
+
+  g_static_mutex_lock (&pipe_input->callback_running);
+
+  /* try to read data from the pipe only 5 times, to avoid blocking */
+  while(iterations < 5) {
+	  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
+
+	  /* Oddly enough although Named pipes don't work on win9x,
+		 PeekNamedPipe does !!! */
+	  handle = (HANDLE) _get_osfhandle (pipe_input->source);
+	  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+	  /* Get the child process exit status */
+	  result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
+								   &childstatus);
+
+	  /* If the Peek returned an error, or there are bytes to be read
+		 or the childwatcher thread has terminated then call the normal
+		 callback */
+	  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+
+		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
+
+		/* And call the real handler */
+		if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+			g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
+			/* pipe closed, return false so that the timer is stopped */
+			g_static_mutex_unlock (&pipe_input->callback_running);
+			return FALSE;
+		}
+	  }
+	  else {
+		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
+		/* No data, stop now */
+		break;
+	  }
+
+	  iterations++;
+  }
+
+	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
+
+	g_static_mutex_unlock (&pipe_input->callback_running);
+
+	/* we didn't stopped the timer, so let it run */
+	return TRUE;
+}
+
+void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+{
+
+    pipe_input.source			= source;
+    pipe_input.child_process	= child_process;
+    pipe_input.user_data		= user_data;
+    pipe_input.input_cb			= input_cb;
+	pipe_input.callback_running	= G_STATIC_MUTEX_INIT;
+
+#ifdef _WIN32
+    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
+       do this but that doesn't cover all win32 platforms.  GTK can do
+       this but doesn't seem to work over processes.  Attempt to do
+       something similar here, start a timer and check for data on every
+       timeout. */
+	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
+    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
+#else
+	/* XXX - in gui_utils.c, this was: 
+	 * pipe_input->pipe_input_id = gtk_input_add_full (source,
+	 *		     GDK_INPUT_READ|GDK_INPUT_EXCEPTION, */
+    pipe_input.pipe_input_id = g_input_add_full(source,
+				      200,
+				      pipe_input_cb,
+				      NULL,
+				      &pipe_input,
+				      NULL);
+#endif
+}
+
+
 #ifdef HAVE_LIBPCAP
-/* Do the low-level work of a capture.
-   Returns TRUE if it succeeds, FALSE otherwise. */
-
-static condition  *volatile cnd_file_duration = NULL; /* this must be visible in process_packet */
-
 static int
 capture(void)
 {
-  int         err = 0;
-  int         volatile volatile_err = 0;
-  int         volatile inpkts = 0;
-  int         pcap_cnt;
-  condition  *volatile cnd_autostop_size = NULL;
-  condition  *volatile cnd_autostop_duration = NULL;
-#ifndef _WIN32
-  void        (*oldhandler)(int);
-#endif
-  struct pcap_stat stats;
-  gboolean    write_ok;
-  gboolean    close_ok;
-  gboolean    cfilter_error = FALSE;
-  char        errmsg[1024+1];
-  char        secondary_errmsg[4096+1];
-  int         save_file_fd;
+  gboolean ret;
 
-  /* Initialize all data structures used for dissection. */
-  init_dissection();
-
-  ld.wtap_linktype  = WTAP_ENCAP_UNKNOWN;
-  ld.pdh            = NULL;
-  ld.packet_cb      = capture_pcap_cb;
-
-
-  check_npf_sys();
-
-  /* open the "input file" from network interface or capture pipe */
-  if (!capture_loop_open_input(&capture_opts, &ld, errmsg, sizeof(errmsg),
-                               secondary_errmsg, sizeof(secondary_errmsg))) {
-    goto error;
-  }
 
   /*
+   * XXX - dropping privileges is still required, until code cleanup is done
+   *
+   * remove all dependencies to pcap specific code and using only dumpcap is almost done.
+   * when it's done, we don't need special privileges to run tshark at all,
+   * therefore we don't need to drop these privileges
+   * The only thing we might want to keep is a warning if tshark is run as root,
+   * as it's no longer necessary and potentially dangerous.
+   * 
+   * THE FOLLOWING IS THE FORMER COMMENT WHICH IS NO LONGER REALLY VALID:
    * We've opened the capture device, so we shouldn't need any special
    * privileges any more; relinquish those privileges.
    *
@@ -1668,44 +1737,11 @@ capture(void)
   relinquish_special_privs_perm();
   print_current_user();
 
-  /* init the input filter from the network interface (capture pipe will do nothing) */
-  switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts.iface, capture_opts.cfilter)) {
+  check_npf_sys();
 
-  case INITFILTER_NO_ERROR:
-    break;
-
-  case INITFILTER_BAD_FILTER:
-    cfilter_error = TRUE;
-    g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(ld.pcap_h));
-    *secondary_errmsg = '\0';
-    goto error;
-
-  case INITFILTER_OTHER_ERROR:
-    g_snprintf(errmsg, sizeof(errmsg), "Can't install filter (%s).",
-               pcap_geterr(ld.pcap_h));
-    g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
-    goto error;
-  }
-
-  if (capture_opts.saving_to_file) {
-    /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
-    if (!capture_loop_open_output(&capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
-      *secondary_errmsg = '\0';
-      goto error;
-    }
-
-    /* set up to write to the already-opened capture output file/files */
-    if(!capture_loop_init_output(&capture_opts, save_file_fd, &ld, errmsg, sizeof errmsg)) {
-      *secondary_errmsg = '\0';
-      goto error;
-    }
-
-    /* Save the capture file name. */
-    ld.save_file = capture_opts.save_file;
-  }
-
-  ld.wtap_linktype = wtap_pcap_encap_to_wtap_encap(ld.linktype);
-
+  /* Initialize all data structures used for dissection. */
+  init_dissection();
+  
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
   SetConsoleCtrlHandler(capture_cleanup, TRUE);
@@ -1726,209 +1762,83 @@ capture(void)
 #endif /* SIGINFO */
 #endif /* _WIN32 */
 
+  capture_opts.state = CAPTURE_PREPARING;
+
   /* Let the user know what interface was chosen. */
   capture_opts.iface_descr = get_interface_descriptive_name(capture_opts.iface);
   fprintf(stderr, "Capturing on %s\n", capture_opts.iface_descr);
 
-  /* initialize capture stop conditions */
-  init_capture_stop_conditions();
-  /* create stop conditions */
-  if (capture_opts.has_autostop_filesize)
-    cnd_autostop_size = cnd_new((const char*)CND_CLASS_CAPTURESIZE,
-                                   (long)capture_opts.autostop_filesize * 1024);
-  if (capture_opts.has_autostop_duration)
-    cnd_autostop_duration = cnd_new((const char*)CND_CLASS_TIMEOUT,
-                               (gint32)capture_opts.autostop_duration);
+  ret = sync_pipe_start(&capture_opts);
+  if(ret) {
+	/* the actual capture loop
+	 *
+	 * XXX - glib doesn't seem to provide any event based loop handling.
+	 *
+	 * XXX - for whatever reason, 
+	 * calling g_main_loop_new() ends up in 100% cpu load.
+	 * Therefore use simple g_usleep() to poll for new input. */
+#ifdef USE_BROKEN_G_MAIN_LOOP
+    /*loop = g_main_loop_new(NULL, FALSE);*/
+	/*g_main_loop_run(loop);*/
+    loop = g_main_new(FALSE);
+	g_main_run(loop);
+#else
+    loop_running = TRUE;
 
-  if (capture_opts.multi_files_on && capture_opts.has_file_duration)
-    cnd_file_duration = cnd_new(CND_CLASS_TIMEOUT, capture_opts.file_duration);
-
-  if (!setjmp(ld.stopenv)) {
-    ld.go = TRUE;
-    ld.packet_count = 0;
-  } else
-    ld.go = FALSE;
-
-  while (ld.go) {
-    /* We need to be careful with automatic variables defined in the
-       outer scope which are changed inside the loop.  Most compilers
-       don't try to roll them back to their original values after the
-       longjmp which causes the loop to finish, but all that the
-       standards say is that their values are indeterminate.  If we
-       don't want them to be rolled back, we should define them with the
-       volatile attribute (paraphrasing W. Richard Stevens, Advanced
-       Programming in the UNIX Environment, p. 178).
-
-       The "err" variable causes a particular problem.  If we give it
-       the volatile attribute, then when we pass a reference to it (as
-       in "&err") to a function, GCC warns: "passing arg <n> of
-       <function> discards qualifiers from pointer target type".
-       Therefore within the loop and just beyond we don't use "err".
-       Within the loop we define "loop_err", and assign its value to
-       "volatile_err", which is in the outer scope and is checked when
-       the loop finishes.
-
-       We also define "packet_count_prev" here to keep things tidy,
-       since it's used only inside the loop.  If it were defined in the
-       outer scope, GCC would give a warning (unnecessary in this case)
-       that it might be clobbered, and we'd need to give it the volatile
-       attribute to suppress the warning. */
-
-    int loop_err = 0;
-    int packet_count_prev = 0;
-
-    if (cnd_autostop_size == NULL && cnd_autostop_duration == NULL) {
-      /* We're not stopping at a particular capture file size, and we're
-         not stopping after some particular amount of time has expired,
-         so either we have no stop condition or the only stop condition
-         is a maximum packet count.
-
-         If there's no maximum packet count, pass it -1, meaning "until
-         you run out of packets in the bufferful you read".  Otherwise,
-         pass it the number of packets we have left to capture.
-
-         We don't call "pcap_loop()" as, if we're saving to a file that's
-         a FIFO, we want to flush the FIFO after we're done processing
-         this libpcap bufferful of packets, so that the program
-         reading the FIFO sees the packets immediately and doesn't get
-         any partial packet, forcing it to block in the middle of reading
-         that packet. */
-      if (capture_opts.autostop_packets == 0)
-        pcap_cnt = -1;
-      else {
-        if (ld.packet_count >= capture_opts.autostop_packets) {
-          /* XXX do we need this test here? */
-          /* It appears there's nothing more to capture. */
-          break;
-        }
-        pcap_cnt = capture_opts.autostop_packets - ld.packet_count;
-      }
-    } else {
-      /* We need to check the capture file size or the timeout after
-         each packet. */
-      pcap_cnt = 1;
-    }
-
-    inpkts = capture_loop_dispatch(NULL, &ld, errmsg, sizeof errmsg);
-    if (inpkts < 0) {
-      /* Error from "pcap_dispatch()", or error or "no more packets" from
-         "cap_pipe_dispatch(). */
-      ld.go = FALSE;
-    } else if (cnd_autostop_duration != NULL && cnd_eval(cnd_autostop_duration)) {
-      /* The specified capture time has elapsed; stop the capture. */
-      ld.go = FALSE;
-    } else if (inpkts > 0) {
-      if (capture_opts.autostop_packets != 0 &&
-                 ld.packet_count >= capture_opts.autostop_packets) {
-        /* The specified number of packets have been captured and have
-           passed both any capture filter in effect and any read filter
-           in effect. */
-        ld.go = FALSE;
-      } else if (cnd_autostop_size != NULL &&
-                    cnd_eval(cnd_autostop_size, (guint32)ld.bytes_written)) {
-        /* We're saving the capture to a file, and the capture file reached
-           its maximum size. */
-        if (capture_opts.multi_files_on) {
-          /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &capture_opts.save_file,
-                                  &save_file_fd, &ld.bytes_written,
-                                  &loop_err)) {
-            /* File switch succeeded: reset the condition */
-            cnd_reset(cnd_autostop_size);
-            if (cnd_file_duration) {
-              cnd_reset(cnd_file_duration);
-            }
-          } else {
-            /* File switch failed: stop here */
-            volatile_err = loop_err;
-            ld.go = FALSE;
-          }
-        } else {
-          /* No ringbuffer - just stop. */
-          ld.go = FALSE;
-        }
-      }
-      if (capture_opts.output_to_pipe) {
-        if (ld.packet_count > packet_count_prev) {
-          libpcap_dump_flush(ld.pdh, NULL);
-          packet_count_prev = ld.packet_count;
-        }
-      }
-    } /* inpkts > 0 */
-  } /* while (ld.go) */
-
-  /* delete stop conditions */
-  if (cnd_autostop_size != NULL)
-    cnd_delete(cnd_autostop_size);
-  if (cnd_autostop_duration != NULL)
-    cnd_delete(cnd_autostop_duration);
-  if (cnd_file_duration != NULL)
-    cnd_delete(cnd_file_duration);
-
-  if (print_packet_counts) {
-    /* We're printing packet counts to stderr.
-       Send a newline so that we move to the line after the packet count. */
-    fprintf(stderr, "\n");
+	while(loop_running && pipe_timer_cb(&pipe_input)) {
+		g_usleep(200000);	/* 200 ms */
+	}
+#endif
+	return TRUE;
+  } else {
+	return FALSE;
   }
+}
 
-  /* If we got an error while capturing, report it. */
-  if (inpkts < 0) {
-    if (ld.from_cap_pipe) {
-      if (ld.cap_pipe_err == PIPERR) {
-        cmdarg_err("Error while capturing packets: %s", errmsg);
-      }
-    } else {
-      cmdarg_err("Error while capturing packets: %s", pcap_geterr(ld.pcap_h));
-    }
-  }
 
-  if (volatile_err == 0)
-    write_ok = TRUE;
-  else {
-    show_capture_file_io_error(capture_opts.save_file, volatile_err, FALSE);
-    write_ok = FALSE;
-  }
+/* XXX - move the call to main_window_update() out of capture_sync.c */
+/* dummy for capture_sync.c to make linker happy */
+void main_window_update(void)
+{
+}
 
-  if (capture_opts.save_file != NULL) {
-    /* We're saving to a file or files; close all files. */
-    close_ok = capture_loop_close_output(&capture_opts, &ld, &err);
+/* XXX - move the call to simple_dialog() out of capture_sync.c */
+#include "simple_dialog.h"
 
-    /* If we've displayed a message about a write error, there's no point
-       in displaying another message about an error on close. */
-    if (!close_ok && write_ok)
-      show_capture_file_io_error(capture_opts.save_file, err, TRUE);
-  }
+/* capture_sync.c want's to tell us an error */
+gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
+					   const gchar *msg_format, ...)
+{
+	va_list ap;
 
-  if (ld.from_cap_pipe && ld.cap_pipe_fd >= 0)
-    eth_close(ld.cap_pipe_fd);
-  else {
-    /* Get the capture statistics, and, if any packets were dropped, report
-       that. */
-    if (pcap_stats(ld.pcap_h, &stats) >= 0) {
-      if (stats.ps_drop != 0) {
-        fprintf(stderr, "%u packets dropped\n", stats.ps_drop);
-      }
-    } else {
-      cmdarg_err("Can't get packet-drop statistics: %s", pcap_geterr(ld.pcap_h));
-    }
-    pcap_close(ld.pcap_h);
-  }
+	/* XXX - do we need to display buttons and alike? */
+	va_start(ap, msg_format);
+	fprintf(stderr, "tshark: ");
+	vfprintf(stderr, msg_format, ap);
+	fprintf(stderr, "\n");
+	va_end(ap);
 
-  /* Report the number of captured packets if not reported during capture
-     and we are saving to a file. */
-  report_counts();
+	return NULL;
+}
 
-  return TRUE;
 
-error:
-  if (capture_opts.multi_files_on) {
-    ringbuf_error_cleanup();
-  }
-  g_free(capture_opts.save_file);
-  capture_opts.save_file = NULL;
-  if (cfilter_error) {
+/* capture child detected an error */
+void
+capture_input_error_message(capture_options *capture_opts, char *error_msg, char *secondary_error_msg)
+{
+	cmdarg_err("%s", error_msg);
+	cmdarg_err_cont("%s", secondary_error_msg);
+}
+
+
+/* capture child detected an capture filter related error */
+void
+capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message)
+{
     dfilter_t   *rfcode = NULL;
-    if (dfilter_compile(capture_opts.cfilter, &rfcode) && rfcode != NULL) {
+
+
+    if (dfilter_compile(capture_opts->cfilter, &rfcode) && rfcode != NULL) {
       cmdarg_err(
         "Invalid capture filter: \"%s\"!\n"
         "\n"
@@ -1939,7 +1849,7 @@ error:
         "so you can't use most display filter expressions as capture filters.\n"
         "\n"
         "See the User's Guide for a description of the capture filter syntax.",
-        capture_opts.cfilter, errmsg);
+        capture_opts->cfilter, error_message);
       dfilter_free(rfcode);
     } else {
       cmdarg_err(
@@ -1947,38 +1857,78 @@ error:
         "\n"
         "That string isn't a valid capture filter (%s).\n"
         "See the User's Guide for a description of the capture filter syntax.",
-        capture_opts.cfilter, errmsg);
+        capture_opts->cfilter, error_message);
     }
-  } else {
-    cmdarg_err("%s", errmsg);
-    if (*secondary_errmsg != '\0') {
-      fprintf(stderr, "\n");
-      cmdarg_err_cont("%s", secondary_errmsg);
-    }
-  }
-  if (ld.from_cap_pipe) {
-    if (ld.cap_pipe_fd >= 0)
-      eth_close(ld.cap_pipe_fd);
-  } else {
-  if (ld.pcap_h != NULL)
-    pcap_close(ld.pcap_h);
-  }
-
-  return FALSE;
 }
 
-static void
-capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
-  const u_char *pd)
+
+/* capture child tells us we have a new (or the first) capture file */
+gboolean
+capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 {
-  struct wtap_pkthdr whdr;
-  union wtap_pseudo_header pseudo_header;
-  const guchar *wtap_pd;
-  loop_data *ld = (void *) user;
-  int loop_err;
-  int err;
-  int save_file_fd;
-  gboolean packet_accepted;
+  gboolean is_tempfile;
+  int  err;
+
+
+  if(capture_opts->state == CAPTURE_PREPARING) {
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
+  }
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
+
+  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+
+  capture_opts->cf = &cfile;
+
+  /* free the old filename */
+  if(capture_opts->save_file != NULL) {
+    /* we start a new capture file, close the old one (if we had one before) */
+    if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
+		if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
+			wtap_close(((capture_file *) capture_opts->cf)->wth);
+		}
+    }
+    g_free(capture_opts->save_file);
+    is_tempfile = FALSE;
+  } else {
+    /* we didn't had a save_file before, must be a tempfile */
+    is_tempfile = TRUE;
+  }
+
+  /* save the new filename */
+  capture_opts->save_file = g_strdup(new_file);
+
+  /* if we are in real-time mode, open the new file now */
+  if(do_dissection) {
+    /* Attempt to open the capture file and set up to read from it. */
+    switch(cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    case CF_OK:
+      break;
+    case CF_ERROR:
+      /* Don't unlink (delete) the save file - leave it around,
+         for debugging purposes. */
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
+      return FALSE;
+      break;
+    }
+  }
+
+  capture_opts->state = CAPTURE_RUNNING;
+
+  return TRUE;
+}
+
+
+/* capture child tells us we have new packets to read */
+void
+capture_input_new_packets(capture_options *capture_opts, int to_read)
+{
+  gboolean     ret;
+  int          err;
+  gchar        *err_info;
+  gint64       data_offset;
+  capture_file *cf = capture_opts->cf;
+
 
 #ifdef SIGINFO
   /*
@@ -1989,69 +1939,32 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   infodelay = TRUE;
 #endif /* SIGINFO */
 
-  /* The current packet may have arrived after a very long silence,
-   * way past the time to switch files.  In order not to have
-   * the first packet of a new series of events as the last
-   * [or only] packet in the file, switch before writing!
-   */
-  if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
-    /* time elapsed for this ring file, switch to the next */
-    if (ringbuf_switch_file(&ld->pdh, &ld->save_file, &save_file_fd,
-                            &ld->bytes_written, &loop_err)) {
-      /* File switch succeeded: reset the condition */
-      cnd_reset(cnd_file_duration);
-    } else {
-      /* File switch failed: stop here */
-      /* XXX - we should do something with "loop_err" */
-      ld->go = FALSE;
-    }
-  }
-
-  if (do_dissection) {
-    /* We're goint to print packet information, run a read filter, or
-       process taps.  Use process_packet() to handle that; in order
-       to do that, we need to convert from libpcap to Wiretap format.
-       If that fails, ignore the packet (wtap_process_pcap_packet has
-       written an error message). */
-    wtap_pd = wtap_process_pcap_packet(ld->wtap_linktype, phdr, pd,
-                                       &pseudo_header, &whdr, &err);
-    if (wtap_pd == NULL)
-      return;
-
-    packet_accepted = process_packet(&cfile, 0, &whdr, &pseudo_header, wtap_pd);
-  } else {
-    /* We're just writing out packets. */
-    packet_accepted = TRUE;
-  }
-
-  if (packet_accepted) {
-    /* Count this packet. */
-#ifdef HAVE_LIBPCAP
-    ld->packet_count++;
-#endif
-
-    if (ld->pdh != NULL) {
-      if (!libpcap_write_packet(ld->pdh, phdr, pd, &ld->bytes_written, &err)) {
-        /* Error writing to a capture file */
-        if (print_packet_counts) {
-          /* We're printing counts of packets captured; move to the line after
-             the count. */
-          fprintf(stderr, "\n");
-        }
-        show_capture_file_io_error(ld->save_file, err, FALSE);
-        pcap_close(ld->pcap_h);
-        libpcap_dump_close(ld->pdh, &err);
-        exit(2);
-      }
-    }
-    if (print_packet_counts) {
+  if(do_dissection) {
+	  while (to_read-- && cf->wth) {
+		  ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
+		  if(ret == FALSE) {
+			  /* read from file failed, tell the capture child to stop */
+			  sync_pipe_stop(capture_opts);
+			  wtap_close(cf->wth);
+			  cf->wth = NULL;
+		  } else {
+			  ret = process_packet(cf, data_offset, wtap_phdr(cf->wth),
+							   wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth));
+		  }
+		  if (ret != FALSE) {
+			/* packet sucessfully read and gone through the "Read Filter" */
+			packet_count++;
+		  }
+	  }
+  } 
+  
+  if (print_packet_counts) {
       /* We're printing packet counts. */
-      if (ld->packet_count != 0) {
-        fprintf(stderr, "\r%u ", ld->packet_count);
+      if (packet_count != 0) {
+        fprintf(stderr, "\r%u ", packet_count);
         /* stderr could be line buffered */
         fflush(stderr);
       }
-    }
   }
 
 #ifdef SIGINFO
@@ -2067,6 +1980,87 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     report_counts();
 #endif /* SIGINFO */
 }
+
+static void
+report_counts(void)
+{
+#ifdef SIGINFO
+  /* XXX - if we use sigaction, this doesn't have to be done.
+     (Yes, this isn't necessary on BSD, but just in case a system
+     where "signal()" has AT&T semantics adopts SIGINFO....) */
+  signal(SIGINFO, report_counts_siginfo);
+#endif /* SIGINFO */
+
+  if (!print_packet_counts) {
+    /* Report the count only if we aren't printing a packet count
+       as packets arrive. */
+    fprintf(stderr, "%u packets captured\n", packet_count);
+  }
+#ifdef SIGINFO
+  infoprint = FALSE; /* we just reported it */
+#endif /* SIGINFO */
+}
+
+#ifdef SIGINFO
+static void
+report_counts_siginfo(int signum _U_)
+{
+  int sav_errno = errno;
+  /* If we've been told to delay printing, just set a flag asking
+     that we print counts (if we're supposed to), otherwise print
+     the count of packets captured (if we're supposed to). */
+  if (infodelay)
+    infoprint = TRUE;
+  else
+    report_counts();
+  errno = sav_errno;
+}
+#endif /* SIGINFO */
+
+
+/* capture child detected any packet drops? */
+void
+capture_input_drops(capture_options *capture_opts, int dropped)
+{
+	if (print_packet_counts) {
+	/* We're printing packet counts to stderr.
+	   Send a newline so that we move to the line after the packet count. */
+	  fprintf(stderr, "\n");
+	}
+
+	if(dropped != 0) {
+		/* We're printing packet counts to stderr.
+		   Send a newline so that we move to the line after the packet count. */
+		  fprintf(stderr, "%u packet%s dropped\n", dropped, plurality(dropped, "", "s"));
+	}
+}
+
+
+/* capture child closed its side of the pipe, do the required cleanup */
+void
+capture_input_closed(capture_options *capture_opts)
+{
+	if (!print_packet_counts) {
+    /* Report the count only if we aren't printing a packet count
+       as packets arrive. */
+      fprintf(stderr, "%u packets captured\n", packet_count);
+  }
+
+	/*printf("capture_input_closed\n");*/
+
+	if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
+		wtap_close(((capture_file *) capture_opts->cf)->wth);
+	}
+#ifdef USE_BROKEN_G_MAIN_LOOP
+	/*g_main_loop_quit(loop);*/
+	g_main_quit(loop);
+#else
+	loop_running = FALSE;
+#endif
+}
+
+
+
 
 #ifdef _WIN32
 static BOOL WINAPI
@@ -2094,7 +2088,14 @@ capture_cleanup(DWORD ctrltype _U_)
      C++ (i.e., it's a property of the Cygwin console window or Bash;
      it happens if TShark is not built with Cygwin - for all I know,
      building it with Cygwin may make the problem go away). */
-  ld.go = FALSE;
+
+  /* tell the capture child to stop */
+  sync_pipe_stop(&capture_opts);
+
+  /* don't stop our own loop already here, otherwise status messages and 
+   * cleanup wouldn't be done properly. The child will indicate the stop of 
+   * everything by calling capture_input_closed() later */
+
   return TRUE;
 }
 #else
@@ -2108,42 +2109,6 @@ capture_cleanup(int signum _U_)
   longjmp(ld.stopenv, 1);
 }
 #endif /* _WIN32 */
-
-static void
-report_counts(void)
-{
-#ifdef SIGINFO
-  /* XXX - if we use sigaction, this doesn't have to be done.
-     (Yes, this isn't necessary on BSD, but just in case a system
-     where "signal()" has AT&T semantics adopts SIGINFO....) */
-  signal(SIGINFO, report_counts_siginfo);
-#endif /* SIGINFO */
-
-  if (!print_packet_counts) {
-    /* Report the count only if we aren't printing a packet count
-       as packets arrive. */
-    fprintf(stderr, "%u packets captured\n", ld.packet_count);
-  }
-#ifdef SIGINFO
-  infoprint = FALSE; /* we just reported it */
-#endif /* SIGINFO */
-}
-
-#ifdef SIGINFO
-static void
-report_counts_siginfo(int signum _U_)
-{
-  int sav_errno = errno;
-  /* If we've been told to delay printing, just set a flag asking
-     that we print counts (if we're supposed to), otherwise print
-     the count of packets captured (if we're supposed to). */
-  if (infodelay)
-    infoprint = TRUE;
-  else
-    report_counts();
-  errno = sav_errno;
-}
-#endif /* SIGINFO */
 #endif /* HAVE_LIBPCAP */
 
 static int
@@ -3140,71 +3105,3 @@ cmdarg_err_cont(const char *fmt, ...)
 }
 
 
-/****************************************************************************************************************/
-/* indication report "dummies", needed for capture_loop.c */
-
-#ifdef HAVE_LIBPCAP
-
-/** Report a new capture file having been opened. */
-void
-report_new_capture_file(const char *filename _U_)
-{
-    /* shouldn't happen */
-    g_assert_not_reached();
-}
-
-/** Report a number of new packets captured. */
-void
-report_packet_count(int packet_count _U_)
-{
-    /* shouldn't happen */
-    g_assert_not_reached();
-}
-
-/** Report the packet drops once the capture finishes. */
-void
-report_packet_drops(int drops _U_)
-{
-    /* shouldn't happen */
-    g_assert_not_reached();
-}
-
-/** Report an error in the capture. */
-void
-report_capture_error(const char *errmsg, const char *secondary_error_msg)
-{
-    cmdarg_err(errmsg);
-    cmdarg_err_cont(secondary_error_msg);
-}
-
-/** Report an error with a capture filter. */
-void
-report_cfilter_error(const char *cfilter, const char *errmsg)
-{
-
-    cmdarg_err(
-      "Invalid capture filter: \"%s\"!\n"
-      "\n"
-      "That string isn't a valid capture filter (%s).\n"
-      "See the User's Guide for a description of the capture filter syntax.",
-      cfilter, errmsg);
-}
-
-#endif /* HAVE_LIBPCAP */
-
-
-/****************************************************************************************************************/
-/* signal pipe "dummies", needed for capture_loop.c */
-
-#ifdef HAVE_LIBPCAP
-
-#ifdef _WIN32
-gboolean
-signal_pipe_check_running(void)
-{
-    /* currently, no check required */
-    return TRUE;
-}
-#endif  /* _WIN32 */
-
-#endif /* HAVE_LIBPCAP */

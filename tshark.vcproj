@@ -64,6 +64,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\capture_opts.c"
+				>
+			</File>
+			<File
 				RelativePath=".\capture_sync.c"
 				>
 			</File>
@@ -78,7 +82,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\capture-pcap-util.h"
+				>
+			</File>
+			<File
 				RelativePath=".\capture_sync.h"
+				>
+			</File>
+			<File
+				RelativePath=".\capture_ui_utils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pcapio.h"
 				>
 			</File>
 		</Filter>
