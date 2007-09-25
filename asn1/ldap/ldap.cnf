@@ -143,24 +143,25 @@ char *mechanism = NULL;
      * type and mechanism, if you can unbind and rebind with a
      * different type and/or mechanism.
      */
-    mechanism = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
-    ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
-    /*
-     * If the mechanism in this request is an empty string (which is
-     * returned as a null pointer), use the saved mechanism instead.
-     * Otherwise, if the saved mechanism is an empty string (null),
-     * save this mechanism.
-     */
-    if (mechanism == NULL)
-        mechanism = ldap_info->auth_mech;
-    else {
-      if (ldap_info->auth_mech != NULL) {
-        g_free(ldap_info->auth_mech);
-      }
-      ldap_info->auth_mech = mechanism;
-    }
+    if(!actx->pinfo->fd->flags.visited) {
+        mechanism = tvb_get_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+        ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
+        /*
+         * If the mechanism in this request is an empty string (which is
+         * returned as a null pointer), use the saved mechanism instead.
+         * Otherwise, if the saved mechanism is an empty string (null),
+         * save this mechanism.
+         */
+        if (mechanism == NULL) {
+            mechanism = ldap_info->auth_mech;
+        } else {
+          if (ldap_info->auth_mech != NULL) {
+              g_free(ldap_info->auth_mech);
+          }
+          ldap_info->auth_mech = mechanism;
+        }
 	actx->pinfo->private_data = ldap_info;
-
+    }
 #.FN_BODY Credentials VAL_PTR = &parameter_tvb
 
 tvbuff_t	*parameter_tvb;
