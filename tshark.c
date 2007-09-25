@@ -1615,6 +1615,7 @@ typedef struct pipe_input_tag {
 
 static pipe_input_t pipe_input;
 
+#ifdef _WIN32
 /* The timer has expired, see if there's stuff to read from the pipe,
    if so, do the callback */
 static gint
@@ -1674,6 +1675,17 @@ pipe_timer_cb(gpointer data)
 	/* we didn't stopped the timer, so let it run */
 	return TRUE;
 }
+#else
+/* The timer has expired, see if there's stuff to read from the pipe,
+   if so, do the callback */
+static gint
+pipe_timer_cb(gpointer data)
+{
+    /* XXX - this has to be implemented */
+    g_assert(0);
+}
+#endif
+
 
 void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
@@ -1693,15 +1705,19 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
     pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
 #else
-	/* XXX - in gui_utils.c, this was: 
+    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
+
+    /* XXX - in gui_utils.c, this was: 
 	 * pipe_input->pipe_input_id = gtk_input_add_full (source,
 	 *		     GDK_INPUT_READ|GDK_INPUT_EXCEPTION, */
+#if 0
     pipe_input.pipe_input_id = g_input_add_full(source,
 				      200,
 				      pipe_input_cb,
 				      NULL,
 				      &pipe_input,
 				      NULL);
+#endif
 #endif
 }
 
