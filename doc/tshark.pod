@@ -89,7 +89,8 @@ When writing packets to a file, B<TShark>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
 output file.  The B<-F> option can be used to specify the format in which
 to write the file. This list of available file formats is displayed by 
-the B<-h> flag.
+the B<-F> flag without a value. However, you can't specify a file format
+for a live capture.
 
 Read filters in B<TShark>, which allow you to select which packets
 are to be decoded or written to a file, are very powerful; more fields
@@ -252,7 +253,8 @@ Set the capture filter expression.
 
 Set the file format of the output capture file written using the B<-w>
 option.  The output written with the B<-w> option is raw packet data, not
-text, so there is no B<-F> option to request text output.
+text, so there is no B<-F> option to request text output.  The option B<-F>
+without a value will list the available formats.
 
 =item -h
 
