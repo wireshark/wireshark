@@ -241,7 +241,7 @@ dumpcap_INCLUDES = \
 	capture_stop_conditions.h	\
 	conditions.h	\
 	pcapio.h	\
-	ringbuffer.h	\
+	ringbuffer.h
 
 # this target needed for distribution only
 noinst_HEADERS =	\
