@@ -21,6 +21,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+SUBDIRS = \
+	camel
+
 EXTRA_DIST = \
 	Makefile.nmake	\
 	acp133/acp133.asn	\
@@ -42,24 +45,6 @@ EXTRA_DIST = \
 	ansi_map/Makefile.nmake	\
 	ansi_map/packet-ansi_map-template.c	\
 	ansi_map/packet-ansi_map-template.h	\
-	camel/camel.asn	\
-	camel/CAP-classes.asn	\
-	camel/CAP-datatypes.asn	\
-	camel/CAP-errorcodes.asn	\
-	camel/CAP-errortypes.asn	\
-	camel/CAP-GPRS-ReferenceNumber.asn	\
-	camel/CAP-gprsSSF-gsmSCF-ops-args.asn	\
-	camel/CAP-gsmSCF-gsmSRF-ops-args.asn	\
-	camel/CAP-gsmSSF-gsmSCF-ops-args.asn	\
-	camel/CAP-object-identifiers.asn	\
-	camel/CAP-operationcodes.asn	\
-	camel/CAP-SMS-ops-args.asn	\
-	camel/CAP-U-ABORT-Data.asn		\
-	camel/camel.cnf	\
-	camel/Makefile	\
-	camel/Makefile.nmake	\
-	camel/packet-camel-template.c	\
-	camel/packet-camel-template.h	\
 	cdt/cdt.asn	\
 	cdt/cdt.cnf	\
 	cdt/cdt-exp.cnf	\

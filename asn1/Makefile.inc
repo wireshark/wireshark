@@ -1,4 +1,4 @@
-## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+# To be included into the asn1 Makefiles
 #
 # $Id$
 #
@@ -22,7 +22,26 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-include Makefile.common
-include ../../config.nmake
-include ../Makefile.inc.nmake
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES) $(EXTRA_CNF)
+
+$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
+	python $(top_srcdir)/tools/asn2wrs.py \
+		$(A2W_FLAGS) \
+		-p $(PROTOCOL_NAME) \
+		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
+		-s $(srcdir)/packet-$(PROTOCOL_NAME)-template \
+		-D $(srcdir) \
+		$(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST)
+
+copy_files: generate_dissector
+	cp $(DISSECTOR_FILES) $(top_srcdir)/epan/dissectors/
+
+CLEANFILES = \
+	parsetab.py \
+	parsetab.pyc \
+	$(DISSECTOR_FILES) \
+	*-exp.cnf \
+	packet-*-{dis-tab,ettarr,ett,fn,hfarr,hf,table*,val}.[hc]
 
