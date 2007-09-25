@@ -90,6 +90,14 @@ Wireshark Info
 
     The following bugs have been fixed:
 
+      <itemizedlist>
+
+        <listitem><para>
+            Wireshark could crash while editing a coloring rule.
+        </para></listitem>
+
+      </itemizedlist>
+
     </para>
 
     </section>
