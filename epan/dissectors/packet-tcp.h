@@ -193,7 +193,27 @@ struct tcp_analysis {
 	/* This structure contains a tree containing all the various ta's
 	 * keyed by frame number.
 	 */
-	emem_tree_t *acked_table;
+	emem_tree_t	*acked_table;
+
+	/* Remember the timestamp of the first frame seen in this tcp
+	 * conversation to be able to calculate a relative time compared
+	 * to the start of this conversation
+	 */
+	nstime_t	ts_first;
+
+	/* Remember the timestamp of the frame that was last seen in this
+	 * tcp conversation to be able to calculate a delta time compared
+	 * to previous frame in this conversation
+	 */
+	nstime_t	ts_prev;
+};
+
+/* Structure that keeps per packet data. First used to be able
+ * to calculate the time_delta from the last seen frame in this
+ * TCP conversation. Can be extended for future use.
+ */
+struct tcp_per_packet_data_t {
+	nstime_t	ts_del;
 };
 
 

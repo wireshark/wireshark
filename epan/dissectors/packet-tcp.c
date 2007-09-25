@@ -141,6 +141,8 @@ static int hf_tcp_option_ccnew = -1;
 static int hf_tcp_option_ccecho = -1;
 static int hf_tcp_option_md5 = -1;
 static int hf_tcp_option_qs = -1;
+static int hf_tcp_ts_relative = -1;
+static int hf_tcp_ts_delta = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -148,6 +150,7 @@ static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_analysis = -1;
 static gint ett_tcp_analysis_faults = -1;
+static gint ett_tcp_timestamps = -1;
 static gint ett_tcp_segments = -1;
 static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
@@ -182,6 +185,7 @@ static dissector_handle_t data_handle;
  * **************************************************************************/
 static gboolean tcp_analyze_seq = TRUE;
 static gboolean tcp_relative_seq = TRUE;
+static gboolean tcp_calculate_ts = FALSE;
 
 /* SLAB allocator for tcp_unacked structures
  */
@@ -263,6 +267,10 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->flow2.flags=0;
 		tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
 		tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
+		tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
+		tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
+		tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
+		tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
 
 
 		conversation_add_proto_data(conv, proto_tcp, tcpd);
@@ -285,6 +293,51 @@ get_tcp_conversation_data(packet_info *pinfo)
 
 	tcpd->ta=NULL;
 	return tcpd;
+}
+
+/* Calculate the timestamps relative to this conversation */
+static void
+tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
+			struct tcp_per_packet_data_t *tcppd)
+{
+	if( !tcppd ) 
+		tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
+	
+	if( !tcppd ) {
+		tcppd = se_alloc(sizeof(struct tcp_per_packet_data_t));
+		p_add_proto_data(pinfo->fd, proto_tcp, tcppd);
+	}
+	
+	nstime_delta(&tcppd->ts_del, &pinfo->fd->abs_ts, &tcpd->ts_prev);
+	
+	tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
+	tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
+}
+
+/* Add a subtree with the timestamps relative to this conversation */
+static void
+tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree, struct tcp_analysis *tcpd, struct tcp_per_packet_data_t *tcppd)
+{
+	proto_item	*item;
+	proto_tree	*tree;
+	nstime_t	ts;
+	
+	item=proto_tree_add_text(parent_tree, tvb, 0, 0, "Timestamps");
+	PROTO_ITEM_SET_GENERATED(item);
+	tree=proto_item_add_subtree(item, ett_tcp_timestamps);
+
+	nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
+	item = proto_tree_add_time(tree, hf_tcp_ts_relative, tvb, 0, 0, &ts);
+	PROTO_ITEM_SET_GENERATED(item);
+
+	if( !tcppd ) 
+		tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
+
+	if( tcppd ) {
+		item = proto_tree_add_time(tree, hf_tcp_ts_delta, tvb, 0, 0,
+			&tcppd->ts_del);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
 }
 
 static void
@@ -2435,6 +2488,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct tcpheader *tcph;
   proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL;
   struct tcp_analysis *tcpd=NULL;
+  struct tcp_per_packet_data_t *tcppd=NULL;
   proto_item *item;
   proto_tree *checksum_tree;
 
@@ -2510,6 +2564,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* find(or create if needed) the conversation for this tcp session */
   tcpd=get_tcp_conversation_data(pinfo);
+
+  /* Calculate the timestamps relative to this conversation */
+  if(!(pinfo->fd->flags.visited) && tcp_calculate_ts){
+    tcp_calculate_timestamps(pinfo, tcpd, tcppd);
+  }
+
 
   /*
    * If we've been handed an IP fragment, we don't know how big the TCP
@@ -2926,6 +2986,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(tcp_analyze_seq){
       tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd);
   }
+  
+  /* handle conversation timestamps */
+  if(tcp_calculate_ts){
+      tcp_print_timestamps(pinfo, tvb, tcp_tree, tcpd, tcppd);
+  }
+
   tap_queue_packet(tcp_tap, pinfo, tcph);
 
 
@@ -3294,6 +3360,7 @@ proto_register_tcp(void)
 		{ &hf_tcp_pdu_time,
 		  { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "How long time has passed until the last frame of this PDU", HFILL}},
+
 		{ &hf_tcp_pdu_size,
 		  { "PDU Size", "tcp.pdu.size", FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "The size of this PDU", HFILL}},
@@ -3302,7 +3369,15 @@ proto_register_tcp(void)
 		  { "Last frame of this PDU", "tcp.pdu.last_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This is the last frame of the PDU starting in this segment", HFILL }},
 
+		{ &hf_tcp_ts_relative,
+		  { "Time since first frame in this TCP stream", "tcp.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "Time relative to first frame in this TCP stream", HFILL}},
+
+		{ &hf_tcp_ts_delta,
+		  { "Time since previous frame in this TCP stream", "tcp.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "Time delta from previous frame in this TCP stream", HFILL}},
 	};
+
 	static gint *ett[] = {
 		&ett_tcp,
 		&ett_tcp_flags,
@@ -3310,6 +3385,7 @@ proto_register_tcp(void)
 		&ett_tcp_option_sack,
 		&ett_tcp_analysis_faults,
 		&ett_tcp_analysis,
+		&ett_tcp_timestamps,
 		&ett_tcp_segments,
 		&ett_tcp_segment,
                 &ett_tcp_checksum
@@ -3350,6 +3426,10 @@ proto_register_tcp(void)
 	    "To use this option you must also enable \"Analyze TCP sequence numbers\". "
 	    "This option will also try to track and adjust the window field according to any TCP window scaling options seen.",
 	    &tcp_relative_seq);
+	prefs_register_bool_preference(tcp_module, "calculate_timestamps",
+	    "Calculate conversation timestamps",
+	    "Calculate timestamps relative to the first frame and the previous frame in the tcp conversation",
+	    &tcp_calculate_ts);
 	prefs_register_bool_preference(tcp_module, "try_heuristic_first",
 	    "Try heuristic sub-dissectors first",
 	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
