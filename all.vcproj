@@ -25,7 +25,7 @@
 				Name="VCNMakeTool"
 				BuildCommandLine="nmake -f Makefile.nmake setup all"
 				ReBuildCommandLine="nmake -f Makefile.nmake setup distclean all"
-				CleanCommandLine="nmake -f Makefile.nmake clean_setup"
+				CleanCommandLine="nmake -f Makefile.nmake clean_setup distclean"
 				Output="wireshark-gtk2\wireshark.exe"
 				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_CONFIG_H"
 				IncludeSearchPath=""
