@@ -35,7 +35,7 @@ $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
 		-p $(PROTOCOL_NAME) \
 		-c $(PROTOCOL_NAME).cnf \
 		-s packet-$(PROTOCOL_NAME)-template \
-		$(ASN_FILE_LIST)
+		$(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
@@ -60,12 +60,17 @@ maintainer-clean: distclean
 
 fix_eol: generate_dissector
 	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
-	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
+	del /f packet-$(PROTOCOL_NAME).c.tmp 
+!IF $(NEED_PACKET_PROTO_H)
+	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
-	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
+	del /f packet-$(PROTOCOL_NAME).h.tmp
+!ENDIF
 
 copy_files: generate_dissector
 	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
+!IF $(NEED_PACKET_PROTO_H)
 	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
+!ENDIF
 

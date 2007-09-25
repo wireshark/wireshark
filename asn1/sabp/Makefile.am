@@ -1,5 +1,3 @@
-## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
-#
 # $Id$
 #
 #
@@ -23,6 +21,5 @@
 
 
 include Makefile.common
-include ../../config.nmake
-include ../Makefile.inc.nmake
+include ../Makefile.inc
 

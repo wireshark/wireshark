@@ -25,6 +25,8 @@ PROTOCOL_NAME=camel
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
 
+NEED_PACKET_PROTO_H = 1
+
 EXT_ASN_FILE_LIST = \
 	../ros/Remote-Operations-Information-Objects.asn \
 	../ros/Remote-Operations-Generic-ROS-PDUs.asn

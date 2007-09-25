@@ -22,7 +22,12 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 SUBDIRS = \
-	camel
+	camel	\
+	h245	\
+	nbap	\
+	ranap	\
+	rnsap	\
+	sabp	\
 
 EXTRA_DIST = \
 	Makefile.nmake	\
@@ -161,13 +166,6 @@ EXTRA_DIST = \
 	h235/Makefile.nmake	\
 	h235/packet-h235-template.c	\
 	h235/packet-h235-template.h	\
-	h245/h245.cnf	\
-	h245/h245-exp.cnf	\
-	h245/Makefile	\
-	h245/Makefile.nmake	\
-	h245/MULTIMEDIA-SYSTEM-CONTROL.asn	\
-	h245/packet-h245-template.c	\
-	h245/packet-h245-template.h	\
 	h248/h248.cnf	\
 	h248/Makefile	\
 	h248/Makefile.nmake	\
@@ -244,15 +242,6 @@ EXTRA_DIST = \
 	mpeg/packet-mpeg-audio-template.c \
 	mpeg/packet-mpeg-pes-template.c \
 	nbap/Makefile	\
-	nbap/Makefile.nmake	\
-	nbap/NBAP-CommonDataTypes.asn \
-	nbap/NBAP-Constants.asn \
-	nbap/NBAP-Containers.asn \
-	nbap/NBAP-IEs.asn \
-	nbap/NBAP-PDU-Contents.asn \
-	nbap/NBAP-PDU-Descriptions.asn \
-	nbap/nbap.cnf	\
-	nbap/packet-nbap-template.c	\
 	ns-cert-exts/Makefile	\
 	ns-cert-exts/Makefile.nmake	\
 	ns-cert-exts/NETSCAPE-CERT-EXTS.asn	\
@@ -385,28 +374,6 @@ EXTRA_DIST = \
 	qsig/Makefile.nmake	\
 	qsig/packet-qsig-template.c	\
 	qsig/packet-qsig-template.h	\
-	ranap/Makefile	\
-	ranap/Makefile.nmake	\
-	ranap/packet-ranap-template.c	\
-	ranap/packet-ranap-template.h	\
-	ranap/RANAP-CommonDataTypes.asn \
-	ranap/RANAP-Constants.asn \
-	ranap/RANAP-Containers.asn \
-	ranap/RANAP-IEs.asn \
-	ranap/RANAP-PDU-Contents.asn \
-	ranap/RANAP-PDU-Descriptions.asn \
-	ranap/ranap.cnf	\
-	ranap/ranap-exp.cnf	\
-	rnsap/Makefile	\
-	rnsap/Makefile.nmake	\
-	rnsap/packet-rnsap-template.c	\
-	rnsap/RNSAP-CommonDataTypes.asn \
-	rnsap/RNSAP-Constants.asn \
-	rnsap/RNSAP-Containers.asn \
-	rnsap/RNSAP-IEs.asn \
-	rnsap/RNSAP-PDU-Contents.asn \
-	rnsap/RNSAP-PDU-Descriptions.asn \
-	rnsap/rnsap.cnf	\
 	ros/Makefile	\
 	ros/Makefile.nmake	\
 	ros/packet-ros-template.c	\
@@ -445,16 +412,6 @@ EXTRA_DIST = \
 	s4406/packet-s4406-template.h	\
 	s4406/s4406.asn	\
 	s4406/s4406.cnf	\
-	sabp/Makefile	\
-	sabp/Makefile.nmake	\
-	sabp/SABP-CommonDataTypes.asn \
-	sabp/SABP-Constants.asn \
-	sabp/SABP-Containers.asn \
-	sabp/SABP-IEs.asn \
-	sabp/SABP-PDU-Contents.asn \
-	sabp/SABP-PDU-Descriptions.asn \
-	sabp/sabp.cnf	\
-	sabp/packet-sabp-template.c	\
 	smrse/Makefile	\
 	smrse/Makefile.nmake	\
 	smrse/packet-smrse-template.c	\

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-rnsap.c                                                           */
+/* ./packet-rnsap.c                                                           */
 /* ../../tools/asn2wrs.py -p rnsap -c rnsap.cnf -s packet-rnsap-template RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
 
 /* Input file: packet-rnsap-template.c */
