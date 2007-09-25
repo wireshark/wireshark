@@ -3570,7 +3570,6 @@ static void
 dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 sasl_len;
-	guint32 gss_len;
 	guint32 ldap_len;
 	int offset;
 	gboolean ind;
@@ -4322,7 +4321,7 @@ void proto_register_ldap(void) {
         "ldap.INTEGER", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1626 "packet-ldap-template.c"
+#line 1625 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4380,7 +4379,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ReplControlValue,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1637 "packet-ldap-template.c"
+#line 1636 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4493,7 +4492,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1740 "packet-ldap-template.c"
+#line 1739 "packet-ldap-template.c"
 	
 
 }

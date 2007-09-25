@@ -1327,7 +1327,6 @@ static void
 dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 sasl_len;
-	guint32 gss_len;
 	guint32 ldap_len;
 	int offset;
 	gboolean ind;
