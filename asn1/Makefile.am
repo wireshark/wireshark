@@ -22,6 +22,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 SUBDIRS = \
+	acp133	\
 	camel	\
 	h245	\
 	nbap	\
@@ -31,12 +32,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	acp133/acp133.asn	\
-	acp133/acp133.cnf	\
-	acp133/Makefile	\
-	acp133/Makefile.nmake	\
-	acp133/packet-acp133-template.c	\
-	acp133/packet-acp133-template.h	\
 	acse/acse.asn	\
 	acse/acse.cnf	\
 	acse/acse-exp.cnf	\
