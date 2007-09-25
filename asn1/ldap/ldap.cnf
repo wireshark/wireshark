@@ -245,6 +245,15 @@ ldap_conv_info_t *ldap_info;
       ldap_info->first_auth_frame = actx->pinfo->fd->num + 1;
       if (ldap_info->auth_mech != NULL &&
           strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+	/* It could be the second leg of GSS-SPNEGO wrapping NTLMSSP
+	 * which might not be wrapped in GSS-SPNEGO but be a raw
+	 * NTLMSSP blob
+	 */
+	if ( (tvb_length(parameter_tvb)>=7) 
+	&&   (!tvb_memeql(parameter_tvb, 0, "NTLMSSP", 7))){
+	  call_dissector(ntlmssp_handle, parameter_tvb, actx->pinfo, tree);
+	  break;
+	}
         /*
          * This is a GSS-API token.
          */
