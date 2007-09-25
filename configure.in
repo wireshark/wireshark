@@ -1465,6 +1465,12 @@ AC_OUTPUT(
   Makefile
   doxygen.cfg
   asn1/Makefile
+  asn1/h245/Makefile
+  asn1/nbap/Makefile
+  asn1/ranap/Makefile
+  asn1/rnsap/Makefile
+  asn1/sabp/Makefile
+  asn1/camel/Makefile
   doc/Makefile
   epan/Makefile
   epan/crypt/Makefile
