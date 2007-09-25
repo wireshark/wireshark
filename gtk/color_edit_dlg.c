@@ -44,19 +44,13 @@
 
 #include "color_edit_dlg.h"
 
-/* XXX - ugly workaround for bug #699 */
-/* the "Up"/"Down" buttons of the GTK2.x version doesn't work properly */
-/* simply use the GTK1.x version of this dialog for now ... */
 #if GTK_MAJOR_VERSION >= 2
-#undef GTK_MAJOR_VERSION
-#define GTK_MAJOR_VERSION 1
 #define BUTTON_SIZE_X -1
 #define BUTTON_SIZE_Y -1
 #else
 #define BUTTON_SIZE_X 50
 #define BUTTON_SIZE_Y 20
 #endif
-/* XXX - ugly workaround for bug #699 */
 
 
 #if GTK_MAJOR_VERSION < 2
@@ -95,7 +89,7 @@ filter_expr_cb(GtkWidget *w _U_, gpointer filter_te)
         dfilter_expr_dlg_new(GTK_WIDGET(filter_te));
 }
 
- 
+
 /* Create an "Edit Color Filter" dialog for a given color filter, and
    associate it with that color filter. */
 void
@@ -149,7 +143,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     /* dialog window */
     edit_dialog = dlg_window_new ("Wireshark: Edit Color Filter");
-    gtk_window_set_default_size(GTK_WINDOW(edit_dialog), 500, -1);  
+    gtk_window_set_default_size(GTK_WINDOW(edit_dialog), 500, -1);
     OBJECT_SET_DATA(edit_dialog, "edit_dialog", edit_dialog);
     colorf->edit_dialog = edit_dialog;
 
@@ -450,7 +444,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
         colorf->filter_name);
   } else {
     color = &colorf->fg_color;
-    title = g_strdup_printf("Wireshark: Choose foreground color for \"%s\"", 
+    title = g_strdup_printf("Wireshark: Choose foreground color for \"%s\"",
         colorf->filter_name);
   }
   color_sel_win = gtk_color_selection_dialog_new(title);
