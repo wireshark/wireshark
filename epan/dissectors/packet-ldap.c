@@ -3573,12 +3573,28 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 ldap_len;
 	int offset;
 	gboolean ind;
+        conversation_t *conversation;
+	ldap_conv_info_t *ldap_info = NULL;
+ 
+	/*
+	 * Do we have a conversation for this connection?
+	 */
+	conversation = find_conversation(pinfo->fd->num, 
+				&pinfo->src, &pinfo->dst,
+				pinfo->ptype, pinfo->srcport,
+				pinfo->destport, 0);
+	if(conversation){
+		ldap_info = conversation_get_proto_data(conversation, proto_ldap);
+	}
 
         ldm_tree = NULL;
 
 	/* This is a bit tricky. We have to find out whether SASL is used
 	 * so that we know how big a header we are supposed to pass
 	 * to tcp_dissect_pdus()
+	 * We must also cope with the case when a client connects to LDAP
+	 * and performs a few unauthenticated searches of LDAP before
+	 * it performs the bind on the same tcp connection.
 	 */
 	/* check for a SASL header, i.e. assume it is SASL if 
 	 * 1, first four bytes (SASL length) is an integer 
@@ -3587,16 +3603,8 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 *        "random" tcp payload)
 	 * (no SASL ldap PDUs are ever going to be >64k in size?)
 	 *
-	 * Following the SASL header is a GSSAPI blob so the next byte
-	 * is always 0x60. (only true for MS SASL LDAP, there are other
-	 * blobs that may follow in real-world)
-	 *
-	 * 2, Then one byte with the value 0x60 indicating the GSSAPI blob
-	 *
-	 * 3, Then X bytes describing the BER encoded lengtyh of the blob.
-	 *    This length should point to the same end-of-pdu as 1,
-	 *
-	 * 4, finally a byte 0x06 indicating that the next object is an OID
+	 * 2, we must have a conversation and the auth type must
+	 *    be LDAP_AUTH_SASL
 	 */
 	sasl_len=tvb_get_ntohl(tvb, 0);
  
@@ -3604,21 +3612,16 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto this_was_not_sasl;
 	}
 
-	if(tvb_get_guint8(tvb, 4)!=0x60){
+	if( sasl_len>65535 ){
 		goto this_was_not_sasl;
 	}
 		
-	offset=get_ber_length(tvb, 5, &gss_len, &ind);
-	if(sasl_len!=(gss_len+offset-4)){
-		goto this_was_not_sasl;
-	}
-
-	if(tvb_get_guint8(tvb, offset)!=0x06){
+	if((!ldap_info) || (ldap_info->auth_type!=LDAP_AUTH_SASL) ){
 		goto this_was_not_sasl;
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
-
+	return;
 
 this_was_not_sasl:
 	/* check if it is a normal BER encoded LDAP packet
@@ -4318,7 +4321,7 @@ void proto_register_ldap(void) {
         "ldap.INTEGER", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1623 "packet-ldap-template.c"
+#line 1626 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4376,7 +4379,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ReplControlValue,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1634 "packet-ldap-template.c"
+#line 1637 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4489,7 +4492,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1737 "packet-ldap-template.c"
+#line 1740 "packet-ldap-template.c"
 	
 
 }
