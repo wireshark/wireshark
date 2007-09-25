@@ -428,8 +428,9 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 			    "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
 			    sent_fcs, fcs);
       }
-      proto_tree_set_appendix(fh_tree, tvb, tvb_length(tvb) - 4, 4);
+      trailer_length += 4;
     }
+    proto_tree_set_appendix(fh_tree, tvb, tvb_length(tvb) - trailer_length, trailer_length);
   }
 }
 
