@@ -691,12 +691,18 @@ File "${GTK2_DIR}\bin\libpangocairo-1.0-0.dll"
 !ifdef NEED_LIBPNG_DLL
 File "${GTK2_DIR}\bin\libpng13.dll"
 !endif
+!ifdef NEED_LIBTIFF_DLL
+File "${GTK2_DIR}\bin\libtiff3.dll"
+!endif
+!ifdef NEED_LIBJPEG_DLL
+File "${GTK2_DIR}\bin\jpeg62.dll"
+!endif
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK2_DIR}\etc\gtk-2.0\*.*"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK2_DIR}\etc\pango\pango.*"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders
-File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders\libpixbufloader-*.dll"
+#SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders
+#File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders\libpixbufloader-*.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules
 File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules\im-*.dll"
 # Not needed with pango 1.14.5
