@@ -576,11 +576,11 @@ static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *str
 
     nwritten = fwrite(data, size, count, stream);
     if (nwritten != count) {
-	if (nwritten == 0 && ferror(stream))
-	    *err_p = errno;
-	else
-	    *err_p = WTAP_ERR_SHORT_WRITE;
-	return FALSE;
+        if (nwritten == 0 && ferror(stream))
+            *err_p = errno;
+        else
+            *err_p = WTAP_ERR_SHORT_WRITE;
+        return FALSE;
     }
     return TRUE;
 }
