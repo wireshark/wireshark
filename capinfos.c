@@ -55,6 +55,7 @@
 #endif
 
 static gboolean cap_file_type = FALSE;      /* Do not report capture type     */
+static gboolean cap_file_encap = FALSE;     /* Do not report encapsulation    */
 static gboolean cap_packet_count = FALSE;   /* Do not produce packet count    */
 static gboolean cap_file_size = FALSE;      /* Do not report file size        */
 static gboolean cap_data_size = FALSE;      /* Do not report packet byte size */
@@ -70,6 +71,7 @@ static gboolean cap_packet_size = FALSE;
 typedef struct _capture_info {
 	const char		*filename;
 	guint16			file_type;
+	int			file_encap;
 	gint64			filesize;
 	guint64			packet_bytes;
 	double			start_time;
@@ -79,7 +81,7 @@ typedef struct _capture_info {
 	guint32			snaplen;
 	gboolean		drops_known;
 	guint32			drop_count;
-	
+
 	double			duration;
 	double			packet_rate;
 	double			packet_size;
@@ -95,16 +97,18 @@ secs_nsecs(const struct wtap_nstime * nstime)
 static void
 print_stats(capture_info *cf_info)
 {
-  const gchar		*file_type_string;
+  const gchar		*file_type_string, *file_encap_string;
   time_t		start_time_t;
   time_t		stop_time_t;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_string(cf_info->file_type);
+  file_encap_string = wtap_encap_string(cf_info->file_encap);
   start_time_t = (time_t)cf_info->start_time;
   stop_time_t = (time_t)cf_info->stop_time;
 
   if (cap_file_type) printf("File type: %s\n", file_type_string);
+  if (cap_file_encap) printf("File encapsulation: %s\n", file_encap_string);
   if (cap_packet_count) printf("Number of packets: %u \n", cf_info->packet_count);
   if (cap_file_size) printf("File size: %" PRId64 " bytes\n", cf_info->filesize);
   if (cap_data_size) printf("Data size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
@@ -116,14 +120,14 @@ print_stats(capture_info *cf_info)
   if (cap_packet_size) printf("Average packet size: %.2f bytes\n", cf_info->packet_size);
 }
 
-static int 
+static int
 process_cap_file(wtap *wth, const char *filename)
 {
   int			err;
   gchar			*err_info;
   gint64		size;
   gint64		data_offset;
-  
+
   guint32		packet = 0;
   gint64		bytes = 0;
   const struct wtap_pkthdr *phdr;
@@ -131,7 +135,7 @@ process_cap_file(wtap *wth, const char *filename)
   double		start_time = 0;
   double		stop_time = 0;
   double		cur_time = 0;
-  
+
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
     phdr = wtap_phdr(wth);
@@ -149,7 +153,7 @@ process_cap_file(wtap *wth, const char *filename)
     bytes+=phdr->len;
     packet++;
   }
-  
+
   if (err != 0) {
     fprintf(stderr,
             "capinfos: An error occurred after reading %u packets from \"%s\": %s.\n",
@@ -173,15 +177,18 @@ process_cap_file(wtap *wth, const char *filename)
 	    filename, strerror(err));
     return 1;
   }
-  
+
   cf_info.filesize = size;
-  
+
   /* File Type */
   cf_info.file_type = wtap_file_type(wth);
-  
+
+  /* File Encapsulation */
+  cf_info.file_encap = wtap_file_encap(wth);
+
   /* # of packets */
   cf_info.packet_count = packet;
-  
+
   /* File Times */
   cf_info.start_time = start_time;
   cf_info.stop_time = stop_time;
@@ -189,7 +196,7 @@ process_cap_file(wtap *wth, const char *filename)
 
   /* Number of packet bytes */
   cf_info.packet_bytes = bytes;
-  
+
   if (packet > 0) {
     cf_info.data_rate   = (double)bytes / (stop_time-start_time);  /* Data rate per second */
     cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
@@ -198,7 +205,7 @@ process_cap_file(wtap *wth, const char *filename)
     cf_info.data_rate   = 0.0;
     cf_info.packet_size = 0.0;
   }
-  
+
   printf("File name: %s\n", filename);
   print_stats(&cf_info);
 
@@ -208,7 +215,7 @@ process_cap_file(wtap *wth, const char *filename)
 static void usage(gboolean is_error)
 {
   FILE *output;
-  
+
   if (!is_error) {
     output = stdout;
     /* XXX - add capinfos header info here */
@@ -229,6 +236,7 @@ static void usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "General:\n");
   fprintf(output, "  -t display the capture file type\n");
+  fprintf(output, "  -E display the capture file encapsulation\n");
   fprintf(output, "\n");
   fprintf(output, "Size:\n");
   fprintf(output, "  -c display the number of packets\n");
@@ -274,7 +282,7 @@ int main(int argc, char *argv[])
   int status = 0;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
-	
+
   /* Register wiretap plugins */
 
     if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
@@ -285,15 +293,19 @@ int main(int argc, char *argv[])
 		init_plugins();
     }
 #endif
-    
+
   /* Process the options */
 
-  while ((opt = getopt(argc, argv, "tcsduaeyizvh")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcsduaeyizvh")) !=-1) {
 
     switch (opt) {
 
     case 't':
       cap_file_type = TRUE;
+      break;
+
+    case 'E':
+      cap_file_encap = TRUE;
       break;
 
     case 'c':
@@ -347,11 +359,12 @@ int main(int argc, char *argv[])
   if (optind < 2) {
 
     /* If no arguments were given, by default display all statistics */
-    cap_file_type = TRUE;      
-    cap_packet_count = TRUE;   
-    cap_file_size = TRUE;      
-    cap_data_size = TRUE;      
-    cap_duration = TRUE;       
+    cap_file_type = TRUE;
+    cap_file_encap = TRUE;
+    cap_packet_count = TRUE;
+    cap_file_size = TRUE;
+    cap_data_size = TRUE;
+    cap_duration = TRUE;
     cap_start_time = TRUE;
     cap_end_time = TRUE;
 
@@ -359,14 +372,14 @@ int main(int argc, char *argv[])
     cap_data_rate_bit = TRUE;
     cap_packet_size = TRUE;
   }
-  
+
   if ((argc - optind) < 1) {
     usage(TRUE);
     exit(1);
   }
 
   for (opt = optind; opt < argc; opt++) {
-  
+
     wth = wtap_open_offline(argv[opt], &err, &err_info, FALSE);
 
     if (!wth) {
@@ -387,7 +400,7 @@ int main(int argc, char *argv[])
     if (opt > optind)
       printf("\n");
     status = process_cap_file(wth, argv[opt]);
-  
+
     wtap_close(wth);
     if (status)
       exit(status);
