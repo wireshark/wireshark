@@ -276,7 +276,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
  *	Auxiliary functions to dissect DCCP options
  */
 /* decode a variable-length number of nbytes starting at offset. Based on a concept by Arnaldo de Melo */
-static guint64 tvb_get_ntoh_var(tvbuff_t *tvb, gint offset, guint8 nbytes)
+static guint64 tvb_get_ntoh_var(tvbuff_t *tvb, gint offset, guint nbytes)
 {
 	const guint8* ptr;
 	guint64 value = 0;
