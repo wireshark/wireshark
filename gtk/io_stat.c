@@ -93,9 +93,9 @@ static const char *plot_style_name[MAX_PLOT_STYLES] = {
 static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Bits/Tick", "Advanced..."};
 
 /* unit is in ms */
-#define MAX_TICK_VALUES 5
+#define MAX_TICK_VALUES 7
 #define DEFAULT_TICK_VALUE 3
-static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 };
+static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000, 60000, 600000 };
 
 #define CALC_TYPE_SUM	0
 #define CALC_TYPE_COUNT	1
@@ -540,12 +540,8 @@ io_stat_draw(io_stat_t *io)
 	 * Find the length of the intervals we have data for
 	 * so we know how large arrays we need to malloc()
 	 */
-	num_time_intervals=io->num_items;
-	/* if there isnt anything to do, just return */
-	if(num_time_intervals==0){
-		return;
-	}
-	num_time_intervals+=1;
+	num_time_intervals=io->num_items+1;
+
 	/* XXX move this check to _packet() */
 	if(num_time_intervals>NUM_IO_ITEMS){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "IO-Stat error. There are too many entries, bailing out");
@@ -798,7 +794,13 @@ io_stat_draw(io_stat_t *io)
 		first_interval=0;
 	}
 
-	interval_delta=1;
+	if (io->pixels_per_tick==1) {
+		interval_delta=25*io->interval;
+	} else if (io->pixels_per_tick==2) {
+		interval_delta=20*io->interval;
+	} else {
+		interval_delta=5*io->interval;
+	}
 	delta_multiplier=5;
 	while(interval_delta<((last_interval-first_interval)/10)){
 		interval_delta*=delta_multiplier;
@@ -812,7 +814,7 @@ io_stat_draw(io_stat_t *io)
 	for(current_interval=last_interval;current_interval>=(gint32)first_interval;current_interval=current_interval-io->interval){
 		int x, xlen;
 
-		/* if pixels_per_tick is <5, only draw every 10 ticks */
+		/* if pixels_per_tick is <10, only draw every 10 ticks */
 		if((io->pixels_per_tick<10) && (current_interval%(10*io->interval))){
 			continue;
 		}
@@ -832,7 +834,9 @@ io_stat_draw(io_stat_t *io)
 
 		if(xlen==10){
 			int lwidth=10;
-			if(io->interval>=1000){
+			if(io->interval>=60000){
+				g_snprintf(label_string, 15, "%dm", current_interval/60000);
+			} else if(io->interval>=1000){
 				g_snprintf(label_string, 15, "%ds", current_interval/1000);
 			} else if(io->interval>=100){
 				g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
@@ -1364,7 +1368,9 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 	int i;
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
-		if(tick_interval_values[i]>=1000){
+		if(tick_interval_values[i]>=60000){
+			g_snprintf(str, 15, "%u min", tick_interval_values[i]/60000);
+		} else if(tick_interval_values[i]>=1000){
 			g_snprintf(str, 15, "%u sec", tick_interval_values[i]/1000);
 		} else if(tick_interval_values[i]>=100){
 			g_snprintf(str, 15, "0.%1u sec", (tick_interval_values[i]/100)%10);
@@ -1487,38 +1493,38 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, void (*func)(i
 static void
 create_ctrl_area(io_stat_t *io, GtkWidget *box)
 {
-    GtkWidget *frame_vbox;
-    GtkWidget *frame;
+	GtkWidget *frame_vbox;
+	GtkWidget *frame;
 	GtkWidget *vbox;
 
 	frame_vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
 	gtk_widget_show(frame_vbox);
 
-    frame = gtk_frame_new("X Axis");
+	frame = gtk_frame_new("X Axis");
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
-    gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
 	create_ctrl_menu(io, vbox, "Tick interval:", create_tick_interval_menu_items);
 	create_ctrl_menu(io, vbox, "Pixels per tick:", create_pixels_per_tick_menu_items);
 
-    frame = gtk_frame_new("Y Axis");
+	frame = gtk_frame_new("Y Axis");
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
-    gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
-    create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
+	create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
 	create_ctrl_menu(io, vbox, "Scale:", create_yscale_max_menu_items);
 
 	return;
