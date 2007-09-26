@@ -7,6 +7,7 @@ capinfos - Prints information about capture files
 
 B<capinfos>
 S<[ B<-t> ]>
+S<[ B<-E> ]>
 S<[ B<-c> ]>
 S<[ B<-s> ]>
 S<[ B<-d> ]>
@@ -25,13 +26,13 @@ I<...>
 B<Capinfos> is a program that reads one or more capture files and
 returns some or all available statistics of each E<lt>I<infile>E<gt>.
 
-The user specifies which statistics to report by specifying flags 
-corresponding to the statistic.  If no flags are specified, B<Capinfos> 
+The user specifies which statistics to report by specifying flags
+corresponding to the statistic.  If no flags are specified, B<Capinfos>
 will report all statistics available.
 
-B<Capinfos> is able to detect and read the same capture files that are 
+B<Capinfos> is able to detect and read the same capture files that are
 supported by B<Wireshark>.
-The input files don't need a specific filename extension; the file 
+The input files don't need a specific filename extension; the file
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<http://www.wireshark.org/docs/man-pages/wireshark.html>
@@ -45,6 +46,10 @@ the same way B<Capinfos> handles this.
 =item -t
 
 Displays the capture type of the capture file.
+
+=item -E
+
+Displays the per-file encapsulation of the capture file.
 
 =item -c
 
