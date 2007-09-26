@@ -1694,7 +1694,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
     pipe_input.child_process	= child_process;
     pipe_input.user_data		= user_data;
     pipe_input.input_cb			= input_cb;
-	pipe_input.callback_running	= G_STATIC_MUTEX_INIT;
+    g_static_mutex_init(&pipe_input.callback_running);
 
 #ifdef _WIN32
     /* Tricky to use pipes in win9x, as no concept of wait.  NT can
