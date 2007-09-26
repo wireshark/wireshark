@@ -346,6 +346,12 @@ or something such as
 
 	#define DBG(args)		printf args
 
+Don't use
+
+	case N ... M:
+
+as that's not supported by all compilers.
+
 snprintf() -> g_snprintf()
 snprintf() is not available on all platforms, so it's a good idea to use the
 g_snprintf() function declared by <glib.h> instead.

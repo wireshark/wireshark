@@ -336,15 +336,14 @@ static void dissect_feature_options(proto_tree *dcp_options_tree, tvbuff_t *tvb,
 			proto_item_append_text(dcp_item, " %" G_GINT64_MODIFIER "u", tvb_get_ntoh_var(tvb, offset + 3, option_len - 3));
 		break;
 	/* Reserved, specific, or unknown features */		
-	case 0:			/* fall through */
-	case 10 ... 127:
-		proto_item_append_text(dcp_item, "Reserved feature number %d", feature_number);
-		break;
-	case 193 ... 255:
-		proto_item_append_text(dcp_item, "CCID-specific feature number %d", feature_number);
-		break;
 	default:
-		proto_item_append_text(dcp_item, "Unknown feature number %d", feature_number);
+		if (feature_number == 0 ||
+		    (feature_number >= 10 && feature_number <= 127))
+			proto_item_append_text(dcp_item, "Reserved feature number %d", feature_number);
+		else if (feature_number >= 193 && feature_number <= 255)
+			proto_item_append_text(dcp_item, "CCID-specific feature number %d", feature_number);
+		else
+			proto_item_append_text(dcp_item, "Unknown feature number %d", feature_number);
 		break;
 	}
 	proto_item_append_text(dcp_item, ")");
