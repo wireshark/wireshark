@@ -340,7 +340,7 @@ static void dissect_feature_options(proto_tree *dcp_options_tree, tvbuff_t *tvb,
 		if (feature_number == 0 ||
 		    (feature_number >= 10 && feature_number <= 127))
 			proto_item_append_text(dcp_item, "Reserved feature number %d", feature_number);
-		else if (feature_number >= 193 && feature_number <= 255)
+		else if (feature_number >= 193)
 			proto_item_append_text(dcp_item, "CCID-specific feature number %d", feature_number);
 		else
 			proto_item_append_text(dcp_item, "Unknown feature number %d", feature_number);
