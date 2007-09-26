@@ -56,6 +56,7 @@ WIRESHARK_COMMON_SRC =	\
 	packet-range.c	\
 	print.c	\
 	ps.c	\
+	sync_pipe_write.c	\
 	timestats.c	\
 	util.c	\
 	version_info.c
@@ -147,7 +148,6 @@ wireshark_SOURCES =	\
 	g711.c \
 	merge.c	\
 	proto_hier_stats.c	\
-	sync_pipe_write.c	\
 	summary.c	\
 	tempfile.c
 
