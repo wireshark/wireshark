@@ -396,7 +396,7 @@
 	<listitem>
 	<para>
 	<command>Tick interval</command>: an interval in x direction lasts 
-	(10/1/0.1/0.01/0.001 seconds)
+	(10/1 minutes or 10/1/0.1/0.01/0.001 seconds)
 	</para>
 	</listitem>
 	<listitem>
