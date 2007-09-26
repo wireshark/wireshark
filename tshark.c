@@ -1679,7 +1679,7 @@ pipe_timer_cb(gpointer data)
 /* The timer has expired, see if there's stuff to read from the pipe,
    if so, do the callback */
 static gint
-pipe_timer_cb(gpointer data)
+pipe_timer_cb(gpointer data _U_)
 {
     /* XXX - this has to be implemented */
     g_assert(0);
@@ -1727,7 +1727,9 @@ static int
 capture(void)
 {
   gboolean ret;
-
+#ifndef _WIN32 	 
+  void        (*oldhandler)(int); 	 
+#endif
 
   /*
    * XXX - dropping privileges is still required, until code cleanup is done
@@ -1822,7 +1824,7 @@ void main_window_update(void)
 #include "simple_dialog.h"
 
 /* capture_sync.c want's to tell us an error */
-gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
+gpointer simple_dialog(ESD_TYPE_E type _U_, gint btn_mask _U_,
 					   const gchar *msg_format, ...)
 {
 	va_list ap;
@@ -1840,7 +1842,7 @@ gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
 
 /* capture child detected an error */
 void
-capture_input_error_message(capture_options *capture_opts, char *error_msg, char *secondary_error_msg)
+capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, char *secondary_error_msg)
 {
 	cmdarg_err("%s", error_msg);
 	cmdarg_err_cont("%s", secondary_error_msg);
@@ -2036,7 +2038,7 @@ report_counts_siginfo(int signum _U_)
 
 /* capture child detected any packet drops? */
 void
-capture_input_drops(capture_options *capture_opts, int dropped)
+capture_input_drops(capture_options *capture_opts _U_, int dropped)
 {
 	if (print_packet_counts) {
 	/* We're printing packet counts to stderr.
@@ -2118,11 +2120,8 @@ capture_cleanup(DWORD ctrltype _U_)
 static void
 capture_cleanup(int signum _U_)
 {
-  /* Longjmp back to the starting point; "pcap_dispatch()", on many
-     UNIX platforms, just keeps looping if it gets EINTR, so if we set
-     "ld.go" to FALSE and return, we won't break out of it and quit
-     capturing. */
-  longjmp(ld.stopenv, 1);
+  /* tell the capture child to stop */
+  sync_pipe_stop(&capture_opts);
 }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
