@@ -1855,7 +1855,7 @@ dissect_rsl_ie_err_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	return offset;
 }
-
+#if 0
 /*
  * 9.3.39 Full BCCH Information (message name)
  */
@@ -1898,6 +1898,7 @@ dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	return offset;
  }
+#endif
 /*
  * 9.3.40 Channel Needed
  */
@@ -2263,6 +2264,8 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
 		/* Erroneous Message		9.3.38	O 4) TLV >=3 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_err_msg(tvb, pinfo, tree, offset, TRUE);
 		break;
 	/* 8.5.8 SMS BROADCAST COMMAND */
 	case RSL_MSG_SMS_BC_CMD:	/*	29	 8.5.8 */
