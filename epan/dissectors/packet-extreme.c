@@ -33,8 +33,8 @@
   - Things seen in traces
    Flags in the EDP Vlan field (value 0x01)
    Meaning of special MAC adresses:
-	ExtremeN:00:00:06
-   TLV type 0x0e (XOS only?) (EAPSv2?)
+   TLV type 0x0e (EAPSv2), actually, it seems to be EAPSv1
+	shared link managemnt
    TLV type 0x15 (XOS only?)
    EAPS type 0x10 (EAPSv2?)
    ESRP state 0x03
@@ -222,6 +222,24 @@ static int hf_edp_eaps_state = -1;
 static int hf_edp_eaps_reserved1 = -1;
 static int hf_edp_eaps_helloseq = -1;
 static int hf_edp_eaps_reserved2 = -1;
+/* EAPSv2 element */
+static int hf_edp_eaps2 = -1;
+static int hf_edp_eaps2_ver = -1;
+static int hf_edp_eaps2_type = -1;
+static int hf_edp_eaps2_ctrlvlanid = -1;
+static int hf_edp_eaps2_reserved0 = -1;
+static int hf_edp_eaps2_sysmac = -1;
+static int hf_edp_eaps2_reserved1 = -1;
+static int hf_edp_eaps2_reserved2 = -1;
+static int hf_edp_eaps2_linkid1 = -1;
+static int hf_edp_eaps2_failed1 = -1;
+static int hf_edp_eaps2_failed2 = -1;
+static int hf_edp_eaps2_reserved4 = -1;
+static int hf_edp_eaps2_linkid2 = -1;
+static int hf_edp_eaps2_reserved5 = -1;
+static int hf_edp_eaps2_linkid3 = -1;
+static int hf_edp_eaps2_linkid4 = -1;
+static int hf_edp_eaps2_rest = -1;
 /* ELSM (Extreme Link Status Monitoring) */
 static int hf_edp_elsm = -1;
 static int hf_edp_elsm_type = -1;
@@ -246,6 +264,7 @@ static gint ett_edp_vlan = -1;
 static gint ett_edp_vlan_flags = -1;
 static gint ett_edp_esrp = -1;
 static gint ett_edp_eaps = -1;
+static gint ett_edp_eaps2 = -1;
 static gint ett_edp_elrp = -1;
 static gint ett_edp_elsm = -1;
 static gint ett_edp_unknown = -1;
@@ -284,7 +303,8 @@ typedef enum {
 	EDP_TYPE_ESRP = 8,
 	EDP_TYPE_EAPS = 0xb,
 	EDP_TYPE_ELRP = 0xd,
-	EDP_TYPE_ELSM = 0xf
+	EDP_TYPE_EAPS2,
+	EDP_TYPE_ELSM
 } edp_type_t;
 
 static const value_string edp_type_vals[] = {
@@ -293,8 +313,9 @@ static const value_string edp_type_vals[] = {
 	{ EDP_TYPE_INFO,	"Info"},
 	{ EDP_TYPE_VLAN,	"VL"},
 	{ EDP_TYPE_ESRP,	"ESRP"},
-	{ EDP_TYPE_ELRP,	"ELRP"},
 	{ EDP_TYPE_EAPS,	"EAPS"},
+	{ EDP_TYPE_ELRP,	"ELRP"},
+	{ EDP_TYPE_EAPS2,	"EAPSv2"},
 	{ EDP_TYPE_ELSM,	"ELSM"},
 
 	{ 0,	NULL }
@@ -327,14 +348,14 @@ static const value_string eaps_state_vals[] = {
 };
 
 static const value_string elsm_type_vals[] = {
-	{ 0x01,	"Hello" },
+	{ 0x01,		"Hello" },
 
 	{ 0,		NULL }
 };
 
 static const value_string elsm_subtype_vals[] = {
-	{ 0x00,	"-" },
-	{ 0x01,	"+" },
+	{ 0x00,		"-" },
+	{ 0x01,		"+" },
 
 	{ 0,		NULL }
 };
@@ -648,11 +669,14 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	proto_item	*eaps_item;
 	proto_tree	*eaps_tree;
 	guint16		ctrlvlanid;
+	const guint8	*sysmac;
 
-	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
+	ctrlvlanid = tvb_get_ntohs(tvb, offset + 1 + 1 + 4);
+	sysmac = tvb_get_ptr(tvb, offset + 12, 6);
 
 	eaps_item = proto_tree_add_protocol_format(tree, hf_edp_eaps,
-		tvb, offset, length, "EAPS: Ctrlvlan %d", ctrlvlanid);
+		tvb, offset, length, "EAPS: Ctrlvlan %d, Sysmac %s",
+			ctrlvlanid, ether_to_str(sysmac));
 
 	eaps_tree = proto_item_add_subtree(eaps_item, ett_edp_eaps);
 
@@ -705,6 +729,117 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
+			ctrlvlanid, ether_to_str(sysmac));
+}
+
+static void
+dissect_eaps2_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item	*eaps2_item;
+	proto_tree	*eaps2_tree;
+	guint16		ctrlvlanid;
+	const guint8	*sysmac;
+
+	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
+	sysmac = tvb_get_ptr(tvb, offset + 12, 6);
+
+	eaps2_item = proto_tree_add_protocol_format(tree, hf_edp_eaps2,
+		tvb, offset, length, "EAPSv2: Ctrlvlan %d, Sysmac %s",
+			ctrlvlanid, ether_to_str(sysmac));
+
+	eaps2_tree = proto_item_add_subtree(eaps2_item, ett_edp_eaps2);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, eaps2_tree);
+	offset += 4;
+	length -= 4;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_ver, tvb, offset, 1,
+		FALSE);
+	offset += 1;
+	length -= 1;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_type, tvb, offset, 1,
+		FALSE);
+	offset += 1;
+	length -= 1;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved0, tvb, offset, 4,
+		FALSE);
+	offset += 4;
+	length -= 4;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_sysmac, tvb, offset, 6,
+		FALSE);
+	offset += 6;
+	length -= 6;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved1, tvb, offset, 4,
+		FALSE);
+	offset += 4;
+	length -= 4;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved2, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_linkid1, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_failed1, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_failed2, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved4, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_linkid2, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved5, tvb, offset, 4,
+		FALSE);
+	offset += 4;
+	length -= 4;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_linkid3, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_linkid4, tvb, offset, 2,
+		FALSE);
+	offset += 2;
+	length -= 2;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_rest, tvb, offset, length,
+		FALSE);
+	offset += length;
+	length = 0;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPSv2");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
+			ctrlvlanid, ether_to_str(sysmac));
 }
 
 static void
@@ -905,7 +1040,8 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				last = TRUE;
 				break;
 			}
-			if (check_col(pinfo->cinfo, COL_INFO))
+			if (check_col(pinfo->cinfo, COL_INFO) &&
+				tlv_type != EDP_TYPE_NULL)
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
 
@@ -928,6 +1064,9 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Swtiching */
 				dissect_eaps_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+				break;
+			case EDP_TYPE_EAPS2: /* Ethernet Automatic Protection Swtiching version 2 */
+				dissect_eaps2_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			case EDP_TYPE_ELSM: /* Extreme Link Status Monitoring */
 				dissect_elsm_tlv(tvb, pinfo, offset, tlv_length, edp_tree, seqno);
@@ -1185,6 +1324,75 @@ proto_register_edp(void)
 		{ "Reserved2",	"edp.eaps.reserved2", FT_BYTES, BASE_NONE, NULL,
 			0x0, "", HFILL }},
 
+	/* EAPSv2 element */
+		{ &hf_edp_eaps2,
+		{ "EAPSv2",	"edp.eaps2", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Ethernet Automatic Protection Switching v2 element", HFILL }},
+
+		{ &hf_edp_eaps2_ver,
+		{ "Version",	"edp.eaps2.ver", FT_UINT8, BASE_DEC, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_type,
+		{ "Type",	"edp.eaps2.type", FT_UINT8, BASE_DEC, VALS(eaps_type_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_ctrlvlanid,
+		{ "Vlan ID",	"edp.eaps2.vlanid", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Control Vlan ID", HFILL }},
+
+		{ &hf_edp_eaps2_reserved0,
+		{ "Reserved0",	"edp.eaps2.reserved0", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_sysmac,
+		{ "Sys MAC",	"edp.eaps2.sysmac", FT_ETHER, BASE_NONE, NULL,
+			0x0, "System MAC address", HFILL }},
+
+		{ &hf_edp_eaps2_reserved1,
+		{ "Reserved1",	"edp.eaps2.reserved1", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_reserved2,
+		{ "Reserved2",	"edp.eaps2.reserved2", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_linkid1,
+		{ "Link ID 1",	"edp.eaps2.linkid1", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Shared link ID 1", HFILL }},
+
+		{ &hf_edp_eaps2_failed1,
+		{ "Failed ID 1",	"edp.eaps2.failed1", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Failed link ID 1", HFILL }},
+
+		{ &hf_edp_eaps2_failed2,
+		{ "Failed ID 2",	"edp.eaps2.failed2", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Failed link ID 2", HFILL }},
+
+		{ &hf_edp_eaps2_reserved4,
+		{ "Reserved4",	"edp.eaps2.reserved4", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_linkid2,
+		{ "Link ID 2",	"edp.eaps2.linkid2", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Shared link ID 2", HFILL }},
+
+		{ &hf_edp_eaps2_reserved5,
+		{ "Reserved5",	"edp.eaps2.reserved5", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_linkid3,
+		{ "Link ID 3",	"edp.eaps2.linkid3", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Shared link ID 3", HFILL }},
+
+		{ &hf_edp_eaps2_linkid4,
+		{ "Link ID 4",	"edp.eaps2.linkid4", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Shared link ID 4", HFILL }},
+
+		{ &hf_edp_eaps2_rest,
+		{ "Rest",	"edp.eaps2.rest", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
 	/* ELSM element */
 		{ &hf_edp_elsm,
 		{ "ELSM",	"edp.elsm", FT_PROTOCOL, BASE_NONE, NULL,
@@ -1236,6 +1444,7 @@ proto_register_edp(void)
 		&ett_edp_vlan,
 		&ett_edp_esrp,
 		&ett_edp_eaps,
+		&ett_edp_eaps2,
 		&ett_edp_elrp,
 		&ett_edp_elsm,
 		&ett_edp_unknown,
