@@ -3007,32 +3007,49 @@ static guint dissect_wimaxasncp_tlvs(
 
         if (tree)
         {
+            proto_item *type_item;
+
             gint tree_length = MIN(
                 (gint)(4 + length + pad), tvb_length_remaining(tvb, offset));
 
-            if (tlv_info->decode_type == WIMAXASNCP_TLV_COMPOUND)
+            tlv_item = proto_tree_add_item(
+                tree, hf_wimaxasncp_tlv,
+                tvb, offset, tree_length, -1);
+
+            /* Set label for tlv item */
+            proto_item_set_text(tlv_item, "TLV: %s", tlv_info->name);
+
+            /* Show code number if unknkown */
+            if (strcmp(tlv_info->name, "Unknown") == 0)
             {
-                tlv_item = proto_tree_add_uint_format(
-                    tree, hf_wimaxasncp_tlv_type,
-                    tvb, offset, tree_length, type,
-                    "TLV: %s [compound]", tlv_info->name);
-            }
-            else
-            {
-                tlv_item = proto_tree_add_uint_format(
-                    tree, hf_wimaxasncp_tlv_type,
-                    tvb, offset, tree_length, type,
-                    "TLV: %s", tlv_info->name);
+                proto_item_append_text(tlv_item, "(%u)", type);
             }
 
+            /* Indicate if a compound tlv */
+            if (tlv_info->decode_type == WIMAXASNCP_TLV_COMPOUND)
+            {
+                proto_item_append_text(tlv_item, "[Compound]");
+            }
+
+            /* Create TLV subtree */
             tlv_tree = proto_item_add_subtree(
                 tlv_item, ett_wimaxasncp_tlv);
 
-            proto_tree_add_uint_format(
+            /* Type (expert item if unknown) */
+            type_item = proto_tree_add_uint_format(
                 tlv_tree, hf_wimaxasncp_tlv_type,
                 tvb, offset, 2, type,
                 "Type: %s (%u)", tlv_info->name, type);
 
+            if (strcmp(tlv_info->name, "Unknown") == 0)
+            {
+                expert_add_info_format(pinfo, type_item,
+                                       PI_UNDECODED, PI_WARN,
+                                       "Unknown TLV type (%u)",
+                                       type);
+            }
+
+            /* Length */
             proto_tree_add_uint(
                 tlv_tree, hf_wimaxasncp_tlv_length,
                 tvb, offset + 2, 2, length);
@@ -3056,11 +3073,13 @@ static guint dissect_wimaxasncp_tlvs(
             {
                 tvbuff_t *tlv_tvb;
 
+                /* N.B.  Not padding out tvb length */
                 tlv_tvb = tvb_new_subset(
                     tvb, offset,
                     MIN(length, tvb_length_remaining(tvb, offset)),
                     length);
 
+                /* N.B.  This is a recursive call... */
                 dissect_wimaxasncp_tlvs(tlv_tvb, pinfo, tlv_tree);
             }
             else
@@ -3828,8 +3847,8 @@ proto_register_wimaxasncp(void)
                 {
                     "TLV",
                     "wimaxasncp.tlv",
-                    FT_UINT16,
-                    BASE_DEC,
+                    FT_BYTES,
+                    BASE_HEX,
                     NULL,
                     0x0,
                     "",
