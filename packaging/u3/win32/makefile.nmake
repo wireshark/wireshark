@@ -292,9 +292,16 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 !IFDEF NEED_LIBPNG_DLL
 	$(COPY) $(GTK2_DIR)\bin\libpng13.dll $(HOST) $(COPY_FLAGS)
 !ENDIF
+!IFDEF NEED_LIBTIFF_DLL
+	$(COPY) $(GTK2_DIR)\bin\libtiff3.dll $(HOST) $(COPY_FLAGS)
+!ENDIF
+!IFDEF NEED_LIBJPEG_DLL
+	$(COPY) $(GTK2_DIR)\bin\jpeg62.dll $(HOST) $(COPY_FLAGS)
+!ENDIF
+
 	$(COPY) $(GTK2_DIR)\etc\gtk-2.0\*.* $(HOST)\etc\gtk-2.0 $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\etc\pango\pango.* $(HOST)\etc\pango $(COPY_FLAGS)
-	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders $(COPY_FLAGS)
+#	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules $(COPY_FLAGS)
 !IFDEF GTK_WIMP_DIR
 	$(COPY) $(GTK_WIMP_DLLSRC_DIR)\libwimp.dll $(HOST)\$(GTK_WIMP_DLLDST_DIR) $(COPY_FLAGS)
