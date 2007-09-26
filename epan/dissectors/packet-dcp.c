@@ -412,7 +412,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Slow Receiver");
 			break;
 
-		case 32 ... 35:
+		case 32:
+		case 33:
+		case 34:
+		case 35:
 			dissect_feature_options(dcp_options_tree, tvb, offset, option_len, option_type);
 			break;
 
@@ -546,7 +549,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 	} /* end while() */
 }
 /* compute DCCP checksum coverage according to RFC 4340, section 9 */
-static inline guint dccp_csum_coverage(const e_dcphdr *dcph, guint len)
+static G_INLINE_FUNC guint dccp_csum_coverage(const e_dcphdr *dcph, guint len)
 {
 	guint cov;
 
