@@ -1980,7 +1980,7 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 	int count;
 	int cptr;
 	const char *string;
-	gint string_len;
+	gint string_len = 0;
 
 	if (aux_count_p != NULL)
 		*aux_count_p = 0;

@@ -912,7 +912,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 {
 	GtkWidget *bv;
 
-    guint len;
+    guint len = 0;
     int bytes_consumed = 0;
     int flags;
 
@@ -1640,7 +1640,7 @@ packet_hex_reprint(GtkWidget *bv)
   int start, end, encoding;
   int astart, aend;
   const guint8 *data;
-  guint len;
+  guint len = 0;
 
   start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
   end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));

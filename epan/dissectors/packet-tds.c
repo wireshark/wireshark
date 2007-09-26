@@ -729,7 +729,7 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     guint offset;
     guint pos;
     guint token_len_field_size = 2;
-    guint token_len_field_val;
+    guint token_len_field_val = 0;
     guint8 token;
     guint token_sz;
     proto_item *query_hdr;
@@ -1472,7 +1472,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *token_tree;
 	guint pos, token_sz = 0;
 	guint token_len_field_size = 2;
-	guint token_len_field_val;
+	guint token_len_field_val = 0;
 	guint8 token;
 	struct _netlib_data nl_data;
 	gint length_remaining;
