@@ -1860,7 +1860,7 @@ dissect_rsl_ie_err_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  * 9.3.39 Full BCCH Information (message name)
  */
 static int
-dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
