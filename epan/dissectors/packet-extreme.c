@@ -231,6 +231,7 @@ static int hf_edp_eaps2_reserved0 = -1;
 static int hf_edp_eaps2_sysmac = -1;
 static int hf_edp_eaps2_reserved1 = -1;
 static int hf_edp_eaps2_reserved2 = -1;
+static int hf_edp_eaps2_linkrole = -1;
 static int hf_edp_eaps2_linkid1 = -1;
 static int hf_edp_eaps2_failed1 = -1;
 static int hf_edp_eaps2_failed2 = -1;
@@ -343,6 +344,13 @@ static const value_string eaps_state_vals[] = {
 	{ 3,	"Links up" },
 	{ 4,	"Links down" },
 	{ 5,	"Pre Forwarding" },
+
+	{ 0,	NULL }
+};
+
+static const value_string eaps2_role_vals[] = {
+	{ 1,	"Controller" },
+	{ 2,	"Partner" },
 
 	{ 0,	NULL }
 };
@@ -765,7 +773,7 @@ dissect_eaps2_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
 	offset += 1;
 	length -= 1;
 
-	proto_tree_add_item(eaps2_tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_ctrlvlanid, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 	length -= 2;
@@ -785,10 +793,15 @@ dissect_eaps2_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pro
 	offset += 4;
 	length -= 4;
 
-	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved2, tvb, offset, 2,
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_reserved2, tvb, offset, 1,
 		FALSE);
-	offset += 2;
-	length -= 2;
+	offset += 1;
+	length -= 1;
+
+	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_linkrole, tvb, offset, 1,
+		FALSE);
+	offset += 1;
+	length -= 1;
 
 	proto_tree_add_item(eaps2_tree, hf_edp_eaps2_linkid1, tvb, offset, 2,
 		FALSE);
@@ -1355,6 +1368,10 @@ proto_register_edp(void)
 
 		{ &hf_edp_eaps2_reserved2,
 		{ "Reserved2",	"edp.eaps2.reserved2", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps2_linkrole,
+		{ "Role",	"edp.eaps2.role", FT_UINT8, BASE_DEC, VALS(eaps2_role_vals),
 			0x0, "", HFILL }},
 
 		{ &hf_edp_eaps2_linkid1,
