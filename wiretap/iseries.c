@@ -474,7 +474,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 {
   gint64 cur_off;
   gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
-  int num_items_scanned, line, pktline, buflen;
+  int num_items_scanned, line, pktline, buflen, i;
   guint32 pkt_len;
   int cap_len, pktnum, month, day, year, hr, min, sec, csec;
   char direction[2], destmac[13], srcmac[13], type[5], ipheader[41],
@@ -508,6 +508,10 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
 	}
       /* look for packet header */
+      for (i=0; i<8; i++) {      
+	if (strncmp(data+i,"*",1) == 0)
+	  strncpy(data+i," ",1);
+      }
       num_items_scanned =
 	sscanf (data,
 		"%6d   %1s   %6d  %d:%d:%d.%d               %12s  %12s  ETHV2   Type: %s",
