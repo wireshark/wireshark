@@ -33,7 +33,11 @@ SUBDIRS = \
 	nbap	\
 	ranap	\
 	rnsap	\
-	sabp
+	rrc	\
+	rrlp	\
+	sabp	\
+	t38	\
+	ulp
 
 EXTRA_DIST = \
 	Makefile.nmake	\
@@ -350,21 +354,6 @@ EXTRA_DIST = \
 	ros/Remote-Operations-Useful-Definitions.asn	\
 	ros/ros.cnf	\
 	ros/ros-exp.cnf	\
-	rrc/Makefile	\
-	rrc/Makefile.nmake	\
-	rrc/packet-rrc-template.c	\
-	rrc/Class-definitions.asn 	\
-	rrc/PDU-definitions.asn \
-	rrc/InformationElements.asn \
-	rrc/Constant-definitions.asn \
-	rrc/Internode-definitions.asn 	\
-	rrc/rrc.cnf	\
-	rrlp/Makefile	\
-	rrlp/Makefile.nmake	\
-	rrlp/packet-rrlp-template.c	\
-	rrlp/RRLP-Messages.asn 	\
-	rrlp/RRLP-Components.asn 	\
-	rrlp/rrlp.cnf	\
 	rtse/Makefile	\
 	rtse/Makefile.nmake	\
 	rtse/packet-rtse-template.c	\
@@ -397,12 +386,6 @@ EXTRA_DIST = \
 	spnego/packet-spnego-template.h	\
 	spnego/spnego.asn	\
 	spnego/spnego.cnf	\
-	t38/t38.cnf	\
-	t38/T38(2002).asn 	\
-	t38/Makefile	\
-	t38/Makefile.nmake	\
-	t38/packet-t38-template.c	\
-	t38/packet-t38-template.h	\
 	tcap/Makefile	\
 	tcap/Makefile.nmake	\
 	tcap/packet-tcap-template.c	\
@@ -414,13 +397,6 @@ EXTRA_DIST = \
 	tcap/TCAPPackage.asn	\
 	tcap/UnidialoguePDUs.asn	\
 	tcap/tcap.cnf	\
-	ulp/Makefile	\
-	ulp/Makefile.nmake	\
-	ulp/packet-ulp-template.c	\
-	ulp/ULP.asn	\
-	ulp/SUPL.asn	\
-	ulp/ULP-Components.asn	\
-	ulp/ulp.cnf	\
 	wlancertextn/Makefile	\
 	wlancertextn/Makefile.nmake	\
 	wlancertextn/packet-wlancertextn-template.c	\

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-t38.c                                                             */
+/* ./packet-t38.c                                                             */
 /* ../../tools/asn2wrs.py -p t38 -c t38.cnf -s packet-t38-template T38(2002).asn */
 
 /* Input file: packet-t38-template.c */

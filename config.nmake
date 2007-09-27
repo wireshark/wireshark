@@ -29,7 +29,7 @@ WTAP_VERSION_MICRO=1
 # Base directory, where your libraries reside, which are needed to 
 # compile the sources. This setting is used only inside this file.
 #
-WIRESHARK_LIBS=C:\wireshark-win32-libs
+WIRESHARK_LIBS=D:\Ethereal
 
 # 
 # Base directory, where your programs reside. 
@@ -319,7 +319,7 @@ POD2HTML=$(SH) pod2html
 PYTHON="C:/python24/python.exe"
 #PYTHON="C:/python25/python.exe"
 # add native python to the path (not needed if cygwin's python is used)
-PATH=c:\python24;$(PATH)
+#PATH=c:\python24;$(PATH)
 #PATH=c:\python25;$(PATH)
 
 # command for python (cygwin's python package, not recommended)
@@ -339,7 +339,7 @@ YACC=bison
 # If you don't have NSIS, comment this line out, so that MAKENSIS
 # isn't defined.
 #
-MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
+#MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 
 #
 # Optional: To build the developers API documentation with doxygen and dot.
@@ -371,7 +371,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
+#HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 
 
 ##### Flags, PATHs and Miscellaneous #####
@@ -792,7 +792,7 @@ LIBWIRESHARK_CONFIG=
 !ENDIF
 
 # Construct the path
-PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
+PATH=$(CYGWIN_PATH);$(PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
 
 
 # "convert" the MSVC variant into the required MSC compiler version
