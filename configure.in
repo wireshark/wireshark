@@ -1476,7 +1476,11 @@ AC_OUTPUT(
   asn1/nbap/Makefile
   asn1/ranap/Makefile
   asn1/rnsap/Makefile
+  asn1/rrc/Makefile
+  asn1/rrlp/Makefile
   asn1/sabp/Makefile
+  asn1/t38/Makefile
+  asn1/ulp/Makefile
   doc/Makefile
   epan/Makefile
   epan/crypt/Makefile
