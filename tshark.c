@@ -1610,7 +1610,9 @@ typedef struct pipe_input_tag {
     int                 *child_process;
     pipe_input_cb_t     input_cb;
     guint               pipe_input_id;
-	GStaticMutex		callback_running;
+#ifdef _WIN32
+    GStaticMutex		callback_running;
+#endif
 } pipe_input_t;
 
 static pipe_input_t pipe_input;
@@ -1675,28 +1677,20 @@ pipe_timer_cb(gpointer data)
 	/* we didn't stopped the timer, so let it run */
 	return TRUE;
 }
-#else
-/* The timer has expired, see if there's stuff to read from the pipe,
-   if so, do the callback */
-static gint
-pipe_timer_cb(gpointer data _U_)
-{
-    /* XXX - this has to be implemented */
-    g_assert(0);
-}
 #endif
 
 
-void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+void
+pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
 
     pipe_input.source			= source;
-    pipe_input.child_process	= child_process;
+    pipe_input.child_process		= child_process;
     pipe_input.user_data		= user_data;
     pipe_input.input_cb			= input_cb;
-    g_static_mutex_init(&pipe_input.callback_running);
 
 #ifdef _WIN32
+    g_static_mutex_init(&pipe_input.callback_running);
     /* Tricky to use pipes in win9x, as no concept of wait.  NT can
        do this but that doesn't cover all win32 platforms.  GTK can do
        this but doesn't seem to work over processes.  Attempt to do
@@ -1704,20 +1698,6 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
        timeout. */
 	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
     pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
-#else
-    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
-
-    /* XXX - in gui_utils.c, this was: 
-	 * pipe_input->pipe_input_id = gtk_input_add_full (source,
-	 *		     GDK_INPUT_READ|GDK_INPUT_EXCEPTION, */
-#if 0
-    pipe_input.pipe_input_id = g_input_add_full(source,
-				      200,
-				      pipe_input_cb,
-				      NULL,
-				      &pipe_input,
-				      NULL);
-#endif
 #endif
 }
 
@@ -1727,6 +1707,9 @@ static int
 capture(void)
 {
   gboolean ret;
+#ifdef USE_TSHARK_SELECT
+  fd_set readfds;
+#endif
 #ifndef _WIN32 	 
   void        (*oldhandler)(int); 	 
 #endif
@@ -1787,30 +1770,57 @@ capture(void)
   fprintf(stderr, "Capturing on %s\n", capture_opts.iface_descr);
 
   ret = sync_pipe_start(&capture_opts);
-  if(ret) {
-	/* the actual capture loop
-	 *
-	 * XXX - glib doesn't seem to provide any event based loop handling.
-	 *
-	 * XXX - for whatever reason, 
-	 * calling g_main_loop_new() ends up in 100% cpu load.
-	 * Therefore use simple g_usleep() to poll for new input. */
-#ifdef USE_BROKEN_G_MAIN_LOOP
-    /*loop = g_main_loop_new(NULL, FALSE);*/
-	/*g_main_loop_run(loop);*/
-    loop = g_main_new(FALSE);
-	g_main_run(loop);
-#else
-    loop_running = TRUE;
 
-	while(loop_running && pipe_timer_cb(&pipe_input)) {
-		g_usleep(200000);	/* 200 ms */
-	}
+  if (!ret)
+    return FALSE;
+
+    /* the actual capture loop
+     *
+     * XXX - glib doesn't seem to provide any event based loop handling.
+     *
+     * XXX - for whatever reason, 
+     * calling g_main_loop_new() ends up in 100% cpu load.
+     *
+     * But that doesn't matter: in UNIX we can use select() to find an input
+     * source with something to do.
+     *
+     * But that doesn't matter because we're in a CLI (that doesn't need to
+     * update a GUI or something at the same time) so it's OK if we block
+     * trying to read from the pipe.
+     *
+     * So all the stuff in USE_TSHARK_SELECT could be removed unless I'm
+     * wrong (but I leave it there in case I am...).
+     */
+
+#ifdef USE_TSHARK_SELECT
+  FD_ZERO(&readfds);
+  FD_SET(pipe_input.source, &readfds);
 #endif
-	return TRUE;
-  } else {
+
+  loop_running = TRUE;
+
+  while (loop_running)
+  {
+#ifdef USE_TSHARK_SELECT
+    ret = select(pipe_input.source+1, &readfds, NULL, NULL, NULL);
+
+    if (ret == -1)
+    {
+      perror("select()");
+      return TRUE;
+    } else if (ret == 1) {
+#endif
+      /* Call the real handler */
+      if (!pipe_input.input_cb(pipe_input.source, pipe_input.user_data)) {
+	g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
 	return FALSE;
+      }
+#ifdef USE_TSHARK_SELECT
+    }
+#endif
   }
+
+  return TRUE;
 }
 
 
