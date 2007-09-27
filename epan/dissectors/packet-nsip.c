@@ -39,16 +39,12 @@
 #include <prefs.h>
 
 #define NSIP_DEBUG 0
-#define DECODE_AS_NSIP 1
-#define NSIP_UDP_PORT1 2157
-#define NSIP_UDP_PORT2 19999
 #define NSIP_SEP ", " /* Separator string */
 #define NSIP_LITTLE_ENDIAN 0
 
-static guint nsip_udp_port1 = NSIP_UDP_PORT1;
-static guint nsip_udp_port2 = NSIP_UDP_PORT2;
-static guint global_nsip_udp_port1 = NSIP_UDP_PORT1;
-static guint global_nsip_udp_port2 = NSIP_UDP_PORT2;
+static range_t *global_nsip_udp_port_range;
+static range_t *nsip_udp_port_range;
+#define DEFAULT_NSIP_PORT_RANGE "2157,19999"
 
 void proto_reg_handoff_nsip(void);
 
@@ -1103,44 +1099,47 @@ proto_register_nsip(void)
 
   register_dissector("nsip", dissect_nsip, proto_nsip);
 
+  /* Set default UDP ports */
+  range_convert_str(&global_nsip_udp_port_range, DEFAULT_NSIP_PORT_RANGE, MAX_UDP_PORT);
+  nsip_udp_port_range = range_empty();
+
   /* Register configuration options */
   nsip_module = prefs_register_protocol(proto_nsip, proto_reg_handoff_nsip);
-  prefs_register_uint_preference(nsip_module, "udp.port1", "NSIP UDP Port 1",
-				 "Set the first UDP port",
-				 10, &nsip_udp_port1);
-  prefs_register_uint_preference(nsip_module, "udp.port2", "NSIP UDP Port 2",
-				 "Set the second UDP port",
-				 10, &nsip_udp_port2);
+  prefs_register_obsolete_preference(nsip_module, "udp.port1");
+  prefs_register_obsolete_preference(nsip_module, "udp.port2");
+  prefs_register_range_preference(nsip_module, "udp.ports", "NSIP UDP ports",
+				  "UDP ports to be decoded as NSIP (default: "
+				  DEFAULT_NSIP_PORT_RANGE ")",
+				  &global_nsip_udp_port_range, MAX_UDP_PORT);
+}
+
+static void
+range_delete_callback(guint32 port)
+{
+    dissector_delete("udp.port", port, nsip_handle);
+}
+
+static void
+range_add_callback(guint32 port)
+{
+    dissector_add("udp.port", port, nsip_handle);
 }
 
 void
 proto_reg_handoff_nsip(void) {
   static int nsip_prefs_initialized = FALSE;
-  /*
-  nsip_handle = create_dissector_handle(dissect_nsip, proto_nsip);
-  if (nsip_handle) {
-    if (DECODE_AS_NSIP) {
-      dissector_add("udp.port", NSIP_UDP_PORT1, nsip_handle);
-      dissector_add("udp.port", NSIP_UDP_PORT2, nsip_handle);
-    }
-    else {
-      dissector_add_handle("udp.port", nsip_handle);
-    }
-  }
-  */
+
   if (!nsip_prefs_initialized) {
     nsip_handle = create_dissector_handle(dissect_nsip, proto_nsip);
     nsip_prefs_initialized = TRUE;
+  } else {
+    range_foreach(nsip_udp_port_range, range_delete_callback);
   }
-  else {
-    dissector_delete("udp.port", nsip_udp_port1, nsip_handle);
-    dissector_delete("udp.port", nsip_udp_port2, nsip_handle);
-  }
-  global_nsip_udp_port1 = nsip_udp_port1;
-  global_nsip_udp_port2 = nsip_udp_port2;
 
-  dissector_add("udp.port", global_nsip_udp_port1, nsip_handle);
-  dissector_add("udp.port", global_nsip_udp_port2, nsip_handle);
+  g_free(nsip_udp_port_range);
+  nsip_udp_port_range = range_copy(global_nsip_udp_port_range);
+
+  range_foreach(nsip_udp_port_range, range_add_callback);
   
   bssgp_handle = find_dissector("bssgp");
 }
