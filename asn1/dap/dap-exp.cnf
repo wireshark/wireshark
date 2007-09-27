@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
 # ./dap-exp.cnf
-# ../../tools/asn2wrs.py -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn
+# ../../tools/asn2wrs.py -b -e -p dap -c ./dap.cnf -s ./packet-dap-template -D . dap.asn
 
 #.MODULE
 DirectoryAbstractService  dap

@@ -29,6 +29,7 @@ SUBDIRS = \
 	cdt	\
 	cmip	\
 	cms	\
+	dap	\
 	h245	\
 	nbap	\
 	ranap	\
@@ -41,13 +42,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	dap/dap.asn	\
-	dap/dap.cnf	\
-	dap/dap-exp.cnf	\
-	dap/Makefile	\
-	dap/Makefile.nmake	\
-	dap/packet-dap-template.c	\
-	dap/packet-dap-template.h	\
 	disp/disp.asn	\
 	disp/disp.cnf	\
 	disp/disp-exp.cnf	\
