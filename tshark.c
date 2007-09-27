@@ -674,8 +674,9 @@ print_current_user() {
 }
 
 static void
-check_npf_sys() {
+check_capture_privs() {
 #ifdef _WIN32
+  load_wpcap();
   /* Warn the user if npf.sys isn't loaded. */
   if (!npf_sys_is_running() && get_os_major_version() >= 6) {
     fprintf(stderr, "The NPF driver isn't running.  You may have trouble "
@@ -913,6 +914,7 @@ main(int argc, char *argv[])
     g_free(dp_path);
   }
 
+  check_capture_privs();
 
   init_cap_file(&cfile);
 
@@ -960,7 +962,6 @@ main(int argc, char *argv[])
         break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-        check_npf_sys();
         status = capture_opts_list_interfaces(FALSE);
         exit(status);
 #else
@@ -1537,7 +1538,6 @@ main(int argc, char *argv[])
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
-        check_npf_sys();
         status = capture_opts_list_link_layer_types(&capture_opts, FALSE);
         exit(status);
     }
@@ -1710,8 +1710,8 @@ capture(void)
 #ifdef USE_TSHARK_SELECT
   fd_set readfds;
 #endif
-#ifndef _WIN32 	 
-  void        (*oldhandler)(int); 	 
+#ifndef _WIN32
+  void        (*oldhandler)(int);
 #endif
 
   /*
@@ -1722,7 +1722,7 @@ capture(void)
    * therefore we don't need to drop these privileges
    * The only thing we might want to keep is a warning if tshark is run as root,
    * as it's no longer necessary and potentially dangerous.
-   * 
+   *
    * THE FOLLOWING IS THE FORMER COMMENT WHICH IS NO LONGER REALLY VALID:
    * We've opened the capture device, so we shouldn't need any special
    * privileges any more; relinquish those privileges.
@@ -1738,11 +1738,9 @@ capture(void)
   relinquish_special_privs_perm();
   print_current_user();
 
-  check_npf_sys();
-
   /* Initialize all data structures used for dissection. */
   init_dissection();
-  
+
 #ifdef _WIN32
   /* Catch a CTRL+C event and, if we get it, clean up and exit. */
   SetConsoleCtrlHandler(capture_cleanup, TRUE);
@@ -1778,7 +1776,7 @@ capture(void)
      *
      * XXX - glib doesn't seem to provide any event based loop handling.
      *
-     * XXX - for whatever reason, 
+     * XXX - for whatever reason,
      * calling g_main_loop_new() ends up in 100% cpu load.
      *
      * But that doesn't matter: in UNIX we can use select() to find an input
@@ -1984,8 +1982,8 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 			packet_count++;
 		  }
 	  }
-  } 
-  
+  }
+
   if (print_packet_counts) {
       /* We're printing packet counts. */
       if (packet_count != 0) {
@@ -2120,8 +2118,8 @@ capture_cleanup(DWORD ctrltype _U_)
   /* tell the capture child to stop */
   sync_pipe_stop(&capture_opts);
 
-  /* don't stop our own loop already here, otherwise status messages and 
-   * cleanup wouldn't be done properly. The child will indicate the stop of 
+  /* don't stop our own loop already here, otherwise status messages and
+   * cleanup wouldn't be done properly. The child will indicate the stop of
    * everything by calling capture_input_closed() later */
 
   return TRUE;
