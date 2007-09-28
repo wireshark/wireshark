@@ -58,9 +58,12 @@ static int hf_catapult_dct2000_tty_line = -1;
 static int hf_catapult_dct2000_dissected_length = -1;
 
 static int hf_catapult_dct2000_ipprim_addresses = -1;
-static int hf_catapult_dct2000_ipprim_src_addr = -1;
-static int hf_catapult_dct2000_ipprim_dst_addr = -1;
-static int hf_catapult_dct2000_ipprim_addr = -1;
+static int hf_catapult_dct2000_ipprim_src_addr_v4 = -1;
+static int hf_catapult_dct2000_ipprim_src_addr_v6 = -1;
+static int hf_catapult_dct2000_ipprim_dst_addr_v4 = -1;
+static int hf_catapult_dct2000_ipprim_dst_addr_v6 = -1;
+static int hf_catapult_dct2000_ipprim_addr_v4 = -1;
+static int hf_catapult_dct2000_ipprim_addr_v6 = -1;
 static int hf_catapult_dct2000_ipprim_udp_src_port = -1;
 static int hf_catapult_dct2000_ipprim_udp_dst_port = -1;
 static int hf_catapult_dct2000_ipprim_udp_port = -1;
@@ -135,7 +138,8 @@ static int skipASNLength(guint8 value)
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
 static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 direction,
-                                        guint32 *source_addr_offset, guint32 *dest_addr_offset,
+                                        guint32 *source_addr_offset, guint8 *source_addr_length,
+                                        guint32 *dest_addr_offset,   guint8 *dest_addr_length,
                                         guint32 *source_port_offset, guint32 *dest_port_offset,
                                         port_type *type_of_port,
                                         guint16 *conn_id_offset)
@@ -179,21 +183,23 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
             /* Read length in next byte */
             length = tvb_get_guint8(tvb, offset++);
 
-            if (tag == 0x31 && length >=4 && length <= 6)
+            if (tag == 0x31 && length >=4)
             {
                 /* Remote IP address */
                 if (direction == 0)
                 {
                     /* Sent *to* remote, so dest */
                     *dest_addr_offset = offset;
+                    *dest_addr_length = (length/4) * 4;
                 }
                 else
                 {
                     *source_addr_offset = offset;
+                    *source_addr_length = (length/4) * 4;
                 }
 
                 /* Remote port follows (if present) */
-                if (length > 4)
+                if ((length % 4) == 2)
                 {
                     if (direction == 0)
                     {
@@ -206,17 +212,22 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
                 }
             }
             else
-            if (tag == 0x32 && length == 4)
+            if (tag == 0x32)
             {
-                /* Local IP address */
-                if (direction == 0)
+                if (length == 4 || length == 16)
                 {
-                    /* Sent *from* local, so source */
-                    *source_addr_offset = offset;
-                }
-                else
-                {
-                    *dest_addr_offset = offset;
+                    /* Local IP address */
+                    if (direction == 0)
+                    {
+                        /* Sent *from* local, so source */
+                        *source_addr_offset = offset;
+                        *source_addr_length = length;
+                    }
+                    else
+                    {
+                        *dest_addr_offset = offset;
+                        *dest_addr_length = length;
+                    }
                 }
             }
             else
@@ -930,7 +941,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             */
             protocol_handle = 0;
 
-            
+
             /* Work with generic XML protocol.
                This is a bit of a hack, but xml isn't really a proper
                encapsulation type... */
@@ -939,6 +950,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 protocol_handle = find_dissector("xml");
             }
             else
+
             /* Attempt to show tty messages as raw text */
             if (strcmp(protocol_name, "tty") == 0)
             {
@@ -946,10 +958,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
             }
 
+
             /* Try IP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_ipprim_heuristic)
             {
                 guint32      source_addr_offset = 0, dest_addr_offset = 0;
+                guint8       source_addr_length = 0, dest_addr_length = 0;
                 guint32      source_port_offset = 0, dest_port_offset = 0;
                 port_type    type_of_port = PT_NONE;
                 guint16      conn_id_offset = 0;
@@ -959,7 +973,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
                     find_ipprim_data_offset(tvb, &offset, direction,
-                                            &source_addr_offset, &dest_addr_offset,
+                                            &source_addr_offset, &source_addr_length,
+                                            &dest_addr_offset, &dest_addr_length,
                                             &source_port_offset, &dest_port_offset,
                                             &type_of_port,
                                             &conn_id_offset))
@@ -971,20 +986,26 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Add address parameters to tree */
                     /* Unfortunately can't automatically create a conversation filter for this...
-                       I could create a fake IP header from these details, but then it would be tricky
-                       to get FP dissector called as it has no well-known ports or heuristics... */
+                       I *could* create a fake IP header from these details, but then it would be tricky
+                       to get the FP dissector called as it has no well-known ports or heuristics... */
                     ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_ipprim_addresses,
                                                        tvb, offset_before_ipprim_header, 0,
                                                        "", "IPPrim transport (%s): %s:%u -> %s:%u",
                                                        (type_of_port == PT_UDP) ? "UDP" : "TCP",
                                                        (source_addr_offset) ?
-                                                           (char *)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)) :
+                                                           ((source_addr_length == 4) ?
+                                                              (char *)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)) :
+                                                              "<ipv6-address>"
+                                                            ) :
                                                            "0.0.0.0",
                                                        (source_port_offset) ?
                                                            tvb_get_ntohs(tvb, source_port_offset) :
                                                            0,
                                                        (dest_addr_offset) ?
-                                                           (char *)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
+                                                         ((source_addr_length == 4) ?
+                                                              (char *)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
+                                                              "<ipv6-address>"
+                                                            ) :
                                                            "0.0.0.0",
                                                        (dest_port_offset) ?
                                                            tvb_get_ntohs(tvb, dest_port_offset) :
@@ -1015,13 +1036,28 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         proto_item *addr_ti;
 
-                        SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, (tvb_get_ptr(tvb, source_addr_offset, 4)));
-                        SET_ADDRESS(&pinfo->src, AT_IPv4, 4, (tvb_get_ptr(tvb, source_addr_offset, 4)));
+                        SET_ADDRESS(&pinfo->net_src,
+                                    (source_addr_length == 4) ? AT_IPv4 : AT_IPv6,
+                                    source_addr_length,
+                                    (tvb_get_ptr(tvb, source_addr_offset, source_addr_length)));
+                        SET_ADDRESS(&pinfo->src,
+                                    (source_addr_length == 4) ? AT_IPv4 : AT_IPv6,
+                                    source_addr_length,
+                                    (tvb_get_ptr(tvb, source_addr_offset, source_addr_length)));
 
-                        proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_src_addr,
-                                            tvb, source_addr_offset, 4, FALSE);
-                        addr_ti = proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
-                                                      tvb, source_addr_offset, 4, FALSE);
+                        proto_tree_add_item(ipprim_tree,
+                                            (source_addr_length == 4) ? 
+                                                hf_catapult_dct2000_ipprim_src_addr_v4 :
+                                                hf_catapult_dct2000_ipprim_src_addr_v6,
+                                            tvb, source_addr_offset, source_addr_length, FALSE);
+
+                        /* Add hidden item for "side-less" addr */
+                        addr_ti = proto_tree_add_item(ipprim_tree,
+                                                      (source_addr_length == 4) ?
+                                                          hf_catapult_dct2000_ipprim_addr_v4 :
+                                                          hf_catapult_dct2000_ipprim_addr_v6,
+                                                      tvb, source_addr_offset,
+                                                      source_addr_length, FALSE);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
                     if (source_port_offset != 0)
@@ -1046,12 +1082,26 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         proto_item *addr_ti;
 
-                        SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, (tvb_get_ptr(tvb, dest_addr_offset, 4)));
-                        SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, (tvb_get_ptr(tvb, dest_addr_offset, 4)));
-                        proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_dst_addr,
-                                            tvb, dest_addr_offset, 4, FALSE);
-                        addr_ti = proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
-                                                      tvb, dest_addr_offset, 4, FALSE);
+                        SET_ADDRESS(&pinfo->net_dst,
+                                    (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
+                                    dest_addr_length,
+                                    (tvb_get_ptr(tvb, dest_addr_offset, dest_addr_length)));
+                        SET_ADDRESS(&pinfo->dst,
+                                    (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
+                                    dest_addr_length,
+                                    (tvb_get_ptr(tvb, dest_addr_offset, dest_addr_length)));
+                        proto_tree_add_item(ipprim_tree,
+                                            (dest_addr_length == 4) ? 
+                                                hf_catapult_dct2000_ipprim_dst_addr_v4 :
+                                                hf_catapult_dct2000_ipprim_dst_addr_v6,
+                                            tvb, dest_addr_offset, dest_addr_length, FALSE);
+
+                        /* Add hidden item for "side-less" addr */
+                        addr_ti = proto_tree_add_item(ipprim_tree,
+                                                      (dest_addr_length == 4) ? 
+                                                          hf_catapult_dct2000_ipprim_addr_v4 :
+                                                          hf_catapult_dct2000_ipprim_addr_v6,
+                                                      tvb, dest_addr_offset, dest_addr_length, FALSE);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
                     if (dest_port_offset != 0)
@@ -1252,22 +1302,40 @@ void proto_register_catapult_dct2000(void)
               "IPPrim Addresses", HFILL
             }
         },
-        { &hf_catapult_dct2000_ipprim_src_addr,
+        { &hf_catapult_dct2000_ipprim_src_addr_v4,
             { "Source Address",
               "dct2000.ipprim.src", FT_IPv4, BASE_NONE, NULL, 0x0,
-              "IPPrim Source Address", HFILL
+              "IPPrim IPv4 Source Address", HFILL
             }
         },
-        { &hf_catapult_dct2000_ipprim_dst_addr,
+        { &hf_catapult_dct2000_ipprim_src_addr_v6,
+            { "Source Address",
+              "dct2000.ipprim.srcv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "IPPrim IPv6 Source Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_ipprim_dst_addr_v4,
             { "Destination Address",
               "dct2000.ipprim.dst", FT_IPv4, BASE_NONE, NULL, 0x0,
-              "IPPrim Destination Address", HFILL
+              "IPPrim IPv4 Destination Address", HFILL
             }
         },
-        { &hf_catapult_dct2000_ipprim_addr,
+        { &hf_catapult_dct2000_ipprim_dst_addr_v6,
+            { "Destination Address",
+              "dct2000.ipprim.dstv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "IPPrim IPv6 Destination Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_ipprim_addr_v4,
             { "Address",
               "dct2000.ipprim.addr", FT_IPv4, BASE_NONE, NULL, 0x0,
-              "IPPrim Destination Address", HFILL
+              "IPPrim IPv4 Destination Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_ipprim_addr_v6,
+            { "Address",
+              "dct2000.ipprim.addrv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "IPPrim IPv6 Destination Address", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_udp_src_port,
