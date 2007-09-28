@@ -2101,7 +2101,22 @@ in the past.
 proto_tree_add_item_hidden()
 ----------------------------
 proto_tree_add_item_hidden is used to add fields and values to a tree,
-but not show them on a GUI tree.  The caller may want a value to be
+but not show them on a GUI tree.
+
+NOTE that creating hidden fields is actually quite a bad idea from a UI design
+perspective because the user (someone who did not write nor has ever seen the
+code) has no way of knowing that hidden fields are there to be filtered on
+thus defeating the whole purpose of putting them there.  A Better Way might
+be to add the fields (that might otherwise be hidden) to a subtree where they
+won't be seen unless the user opens the subtree--but they can be found if the
+user wants.
+
+NOTE, too, that all of the proto_tree_add_*_hidden() APIs are deprecated:
+instead of using them, use add the item using proto_tree_add_item() and then
+make it hidden using PROTO_ITEM_SET_HIDDEN().
+
+One use for hidden fields (which would be better implemented using visible
+fields in a subtree) follows: The caller may want a value to be
 included in a tree so that the packet can be filtered on this field, but
 the representation of that field in the tree is not appropriate.  An
 example is the token-ring routing information field (RIF).  The best way
@@ -2264,9 +2279,9 @@ proto_tree_add_int_hidden()
 proto_tree_add_guid_hidden()
 proto_tree_add_oid_hidden()
 ----------------------------
-These routines add fields and values to a tree, but don't show them in
-the GUI tree.  They are used for the same reason that
-proto_tree_add_item() is used.
+These routines add fields and values to a tree, but don't show them in the GUI
+tree.  They are used for the same reason that proto_tree_add_item_hidden() is
+used (and they should not be used for the same reasons).
 
 proto_tree_add_bytes_format()
 proto_tree_add_time_format()
