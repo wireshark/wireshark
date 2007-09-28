@@ -208,6 +208,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   ehdr->type = tvb_get_ntohs(tvb, 12);
 
+  tap_queue_packet(eth_tap, pinfo, ehdr);
+
   /*
    * In case the packet is a non-Ethernet packet inside
    * Ethernet framing, allow heuristic dissectors to take
@@ -215,7 +217,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    * Ethernet packet.
    */
   if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, parent_tree))
-    goto end_of_eth;
+    return;
 
   if (ehdr->type <= IEEE_802_3_MAX_LEN) {
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the
@@ -229,7 +231,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		tvb_get_guint8(tvb, 3) == 0x00 &&
 		tvb_get_guint8(tvb, 4) == 0x00 ) {
       dissect_isl(tvb, pinfo, parent_tree, fcs_len);
-      goto end_of_eth;
+      return;
     }
   }
 
@@ -311,7 +313,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if ((dst_addr[0] == 'i') || (dst_addr[0] == 'I') ||
 	    (dst_addr[0] == 'o') || (dst_addr[0] == 'O')) {
 	  call_dissector(fw1_handle, tvb, pinfo, parent_tree);
-	  goto end_of_eth;
+	  return;
 	}
     }
 
@@ -344,10 +346,6 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
           hf_eth_trailer, fcs_len);
   }
-
-end_of_eth:
-  tap_queue_packet(eth_tap, pinfo, ehdr);
-  return;
 }
 
 /*

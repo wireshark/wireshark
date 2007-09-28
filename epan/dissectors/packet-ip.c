@@ -1248,7 +1248,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	"Header length: %u bytes (bogus, must be at least %u)", hlen,
 	IPH_MIN_LEN);
     }
-    goto end_of_ip;
+    return;
   }
 
   if (tree) {
@@ -1313,7 +1313,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
        "Total length: %u bytes (bogus, less than header length %u)", iph->ip_len,
        hlen);
     }
-    goto end_of_ip;
+    return;
   }
   if (tree)
 	proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
@@ -1416,6 +1416,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, dst_addr);
+
+  tap_queue_packet(ip_tap, pinfo, iph);
+
 
   /* If an IP is destined for a IP address in the Local Network Control Block
    * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would
@@ -1533,7 +1536,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
                    parent_tree);
     pinfo->fragmented = save_fragmented;
-    goto end_of_ip;
+    return;
   }
 
   /* XXX This is an ugly hack because I didn't manage to make the IPIP
@@ -1563,10 +1566,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
   pinfo->fragmented = save_fragmented;
-
-end_of_ip:
-  tap_queue_packet(ip_tap, pinfo, iph);
-
 }
 
 #define ICMP_MIP_EXTENSION_PAD	0
