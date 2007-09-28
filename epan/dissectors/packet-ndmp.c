@@ -42,6 +42,7 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include "packet-rpc.h"
+#include "packet-ndmp.h"
 #include "packet-tcp.h"
 #include "packet-scsi.h"
 #include "packet-frame.h"
@@ -3026,15 +3027,15 @@ get_ndmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return len+4;
 }
 
-static int
-dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+gboolean
+check_if_ndmp(tvbuff_t *tvb, packet_info *pinfo)
 {
 	guint len;
 	guint32 tmp;
 
 	/* verify that the tcp port is 10000, ndmp always runs on port 10000*/
 	if ((pinfo->srcport!=TCP_PORT_NDMP)&&(pinfo->destport!=TCP_PORT_NDMP)) {
-		return 0;
+		return FALSE;
 	}
 
 	/* check that the header looks sane */
@@ -3045,40 +3046,53 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(len>=4){
 		tmp=(tvb_get_ntohl(tvb, 0)&RPC_RM_FRAGLEN);
 		if( (tmp<24)||(tmp>1000000) ){
-			return 0;
+			return FALSE;
 		}
 	}
+
 	/* check the timestamp,  timestamps are valid if they
 	 * (arbitrary) lie between 1980-jan-1 and 2030-jan-1
 	 */
 	if(len>=12){
 		tmp=tvb_get_ntohl(tvb, 8);
 		if( (tmp<0x12ceec50)||(tmp>0x70dc1ed0) ){
-			return 0;
+			return FALSE;
 		}
 	}
+
 	/* check the type */
 	if(len>=16){
 		tmp=tvb_get_ntohl(tvb, 12);
 		if( tmp>1 ){
-			return 0;
+			return FALSE;
 		}
 	}
+
 	/* check message */
 	if(len>=20){
 		tmp=tvb_get_ntohl(tvb, 16);
 		if( (tmp>0xa09) || (tmp==0) ){
-			return 0;
+			return FALSE;
 		}
 	}
+
 	/* check error */
 	if(len>=28){
 		tmp=tvb_get_ntohl(tvb, 24);
 		if( (tmp>0x17) ){
-			return 0;
+			return FALSE;
 		}
 	}
 
+	return TRUE;
+}
+
+static int
+dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if(!check_if_ndmp(tvb, pinfo)) {
+		return 0;
+	}
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ndmp_desegment, 28,
 			 get_ndmp_pdu_len, dissect_ndmp_message);
