@@ -29,6 +29,11 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
+case $WS_SYSTEM in
+	Windows|SunOS) SKIP_CAPTURE=0 ;;
+	*) SKIP_CAPTURE=1 ;;
+esac
+
 capture_test_output_print() {
 	wait
 	for f in "$@"; do
@@ -45,9 +50,17 @@ traffic_gen_ping() {
 	# This will have to be adjusted for non-Windows systems.
 	{
 	date 
-	for (( x=20; x<=50; x++ ))
+	for (( x=20; x<=50; x++ )) # in effect: number the packets
 	do
-		ping -n 1 -l $x www.wireshark.org # in effect: number the packets
+		# How does ping _not_ have a standard set of arguments?
+		case $WS_SYSTEM in
+			Windows)
+				ping -n 1 -l $x www.wireshark.org	;;
+			SunOS)
+				ping www.wireshark.org $x 1		;;
+			*) # *BSD, Linux
+				ping -c 1 -s $x www.wireshark.org	;;
+		esac
 		sleep 1
 	done
 	date
@@ -61,7 +74,7 @@ ping_cleanup() {
 
 # capture exactly 10 packets
 capture_step_10packets() {
-	if [ "$WS_SYSTEM" != "Windows" ] ; then
+	if [ $SKIP_CAPTURE -ne 0 ] ; then
 		test_step_skipped
 		return
 	fi
@@ -112,7 +125,7 @@ capture_step_10packets() {
 
 # capture exactly 10 packets using "-w -" (piping to stdout)
 capture_step_10packets_stdout() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
+        if [ $SKIP_CAPTURE -ne 0 ] ; then
                 test_step_skipped
                 return
         fi
@@ -191,7 +204,7 @@ capture_step_fifo() {
 
 # capture exactly 2 times 10 packets (multiple files)
 capture_step_2multi_10packets() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
+        if [ $SKIP_CAPTURE -ne 0 ] ; then
                 test_step_skipped
                 return
         fi
@@ -238,7 +251,7 @@ capture_step_2multi_10packets() {
 
 # capture with a very unlikely read filter, packets must be zero afterwards
 capture_step_read_filter() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
+        if [ $SKIP_CAPTURE -ne 0 ] ; then
                 test_step_skipped
                 return
         fi
@@ -287,7 +300,7 @@ capture_step_read_filter() {
 
 # capture with a snapshot length
 capture_step_snapshot() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
+        if [ $SKIP_CAPTURE -ne 0 ] ; then
                 test_step_skipped
                 return
         fi
