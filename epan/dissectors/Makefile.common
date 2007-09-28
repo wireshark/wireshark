@@ -927,6 +927,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ncp-int.h	\
 	packet-ncp-nmas.h	\
 	packet-ncp-sss.h \
+	packet-ndmp.h	\
 	packet-ndps.h	\
 	packet-netbios.h	\
 	packet-nfs.h	\
