@@ -2162,7 +2162,7 @@ filter is then possible:
 	tr.rif_ring eq 0x013
 
 proto_tree_add_protocol_format()
-----------------------------
+--------------------------------
 proto_tree_add_protocol_format is used to add the top-level item for the
 protocol when the dissector routines wants complete control over how the
 field and value will be represented on the GUI tree.  The ID value for
@@ -2193,7 +2193,7 @@ proto_tree_add_int()
 proto_tree_add_int64()
 proto_tree_add_guid()
 proto_tree_add_oid()
-----------------------------
+------------------------
 These routines are used to add items to the protocol tree if either:
 
 	the value of the item to be added isn't just extracted from the
@@ -2324,7 +2324,7 @@ proto_tree_add_int_format_value()
 proto_tree_add_int64_format_value()
 proto_tree_add_guid_format_value()
 proto_tree_add_oid_format_value()
-----------------------------
+------------------------------------
 
 These routines are used to add items to the protocol tree when the
 dissector routines wants complete control over how the value will be
@@ -2344,7 +2344,8 @@ to this new-style proto_tree so that Wireshark would still decode all
 protocols w/o being able to filter on all protocols and fields.
 Otherwise we would have had to cripple Wireshark's functionality while we
 converted all the old-style proto_tree calls to the new-style proto_tree
-calls.
+calls.  In other words, you should not use this in new code unless you've got
+a specific reason (see below).
 
 This can also be used for items with subtrees, which may not have values
 themselves - the items in the subtree are the ones with values.
@@ -2388,14 +2389,14 @@ meaningful as possible, and set it or append additional information to
 it as the values needed to supply that information is extracted.
 
 proto_tree_add_text_valist()
----------------------
+----------------------------
 This is like proto_tree_add_text(), but takes, as the last argument, a
 'va_list'; it is used to allow routines that take a printf-like
 variable-length list of arguments to add a text item to the protocol
 tree.
 
 proto_tree_add_bitmask()
----------------------
+------------------------
 This function provides an easy to use and convenient helper function
 to manage many types of common bitmasks that occur in protocols.
 
