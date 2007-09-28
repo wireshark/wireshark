@@ -275,7 +275,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "     separator=/t|/s|<char> select tab, space, printable character as separator\n");
   fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
-  fprintf(output, "  -l                       flush output after each packet\n");
+  fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
