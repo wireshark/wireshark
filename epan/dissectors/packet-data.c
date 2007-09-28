@@ -35,6 +35,8 @@
  * print routines
  */
 int proto_data = -1;
+int hf_data_data = -1;
+int ett_data = -1;
 
 static void
 dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
@@ -44,10 +46,13 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	if (tree) {
 		bytes = tvb_length_remaining(tvb, 0);
 		if (bytes > 0) {
-			proto_tree_add_protocol_format(tree, proto_data, tvb,
+			proto_item *ti = proto_tree_add_protocol_format(tree, proto_data, tvb,
 				0,
 				bytes, "Data (%d byte%s)", bytes,
 				plurality(bytes, "", "s"));
+			proto_tree *data_tree = proto_item_add_subtree(ti, ett_data);
+
+			proto_tree_add_item(data_tree, hf_data_data, tvb, 0, bytes, FALSE);
 		}
 	}
 }
@@ -55,6 +60,16 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 void
 proto_register_data(void)
 {
+	static hf_register_info hf[] = {
+		{&hf_data_data,
+		 {"Data", "data.data", FT_BYTES, BASE_HEX, NULL, 0x0,
+		  NULL, HFILL}}
+	};
+
+	static gint *ett[] = {
+		&ett_data
+	};
+
 	proto_data = proto_register_protocol (
 		"Data",		/* name */
 		"Data",		/* short name */
@@ -62,6 +77,9 @@ proto_register_data(void)
 		);
 
 	register_dissector("data", dissect_data, proto_data);
+
+	proto_register_field_array(proto_data, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/*
 	 * "Data" is used to dissect something whose normal dissector
