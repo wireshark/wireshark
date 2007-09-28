@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "packet-ndmp.h"
 
 static int hf_tcpencap_unknown = -1;
 static int hf_tcpencap_zero = -1;
@@ -75,11 +76,29 @@ static dissector_handle_t udp_handle;
 #define TCP_ENCAP_P_ESP 1
 #define TCP_ENCAP_P_UDP 2
 
+
+/* oh what a crap protocol.
+   there is nothing in the protocol that makes it easy to identify and then
+   worse   is that by default it is using port 10000 which ndmp has been
+   using for ages.
+
+   assume it is tcpencap    if it does not look like ndmp
+*/
+static int
+packet_is_tcpencap(tvbuff_t *tvb, packet_info *pinfo)
+{
+	if(check_if_ndmp(tvb, pinfo)){
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 /*
  * TCP Encapsulation of IPsec Packets	
  * as supported by the cisco vpn3000 concentrator series
  */
-static void
+static int
 dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *tcpencap_tree = NULL;
@@ -91,6 +110,11 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 reported_length = tvb_reported_length(tvb);
 	guint32 offset;
 	guint8  protocol;
+
+	/* verify that this looks like a tcpencap packet */
+	if(!packet_is_tcpencap(tvb, pinfo)){
+		return 0;
+	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCPENCAP");
@@ -136,6 +160,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(esp_handle, next_tvb, pinfo, tree);
 	}
 
+	return tvb_length(tvb);
 }
 
 void
@@ -146,7 +171,7 @@ proto_reg_handoff_tcpencap(void)
 	esp_handle = find_dissector("esp");
 	udp_handle = find_dissector("udp");
 
-	tcpencap_handle = create_dissector_handle(dissect_tcpencap, proto_tcpencap);
+	tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
 	dissector_add("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
 }
 
