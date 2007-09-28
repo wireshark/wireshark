@@ -922,22 +922,9 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     return;	/* no address, nothing to do */
 
   if (is_res) {
-    get_addr_name_buf(addr, pinfo->cinfo->col_buf[col],COL_MAX_LEN);
+    get_addr_name_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
   } else {
-    switch (addr->type) {
-
-    case AT_STRINGZ:
-      /* XXX - should be done in "address_to_str_buf()", but that routine
-         doesn't know COL_MAX_LEN; it should be changed to take the
-         maximum length as an argument. */
-      strncpy(pinfo->cinfo->col_buf[col], addr->data, COL_MAX_LEN);
-      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      break;
-
-    default:
-      address_to_str_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
-      break;
-    }
+    address_to_str_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
   }
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 
@@ -984,6 +971,14 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     else
       strcpy(pinfo->cinfo->col_expr[col], "arcnet.dst");
     strcpy(pinfo->cinfo->col_expr_val[col], pinfo->cinfo->col_buf[col]);
+    break;
+
+  case AT_URI:
+    if (is_src)
+      strcpy(pinfo->cinfo->col_expr[col], "uri.src");
+    else
+      strcpy(pinfo->cinfo->col_expr[col], "uri.dst");
+    address_to_str_buf(addr, pinfo->cinfo->col_expr_val[col], COL_MAX_LEN);
     break;
 
   default:
