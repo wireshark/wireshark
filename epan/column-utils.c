@@ -922,7 +922,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     return;	/* no address, nothing to do */
 
   if (is_res) {
-    get_addr_name_buf(addr, pinfo->cinfo->col_buf[col],COL_MAX_LEN-1);
+    get_addr_name_buf(addr, pinfo->cinfo->col_buf[col],COL_MAX_LEN);
   } else {
     switch (addr->type) {
 

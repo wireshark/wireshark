@@ -109,9 +109,9 @@ extern gchar *get_sctp_port(guint port);
 const gchar *get_addr_name(address *addr);
 
 /* get_addr_name_buf solves an address in the same way as get_addr_name above */
-/* The difference is that get_addr_name_buf takes as input a buffer, in which it puts */
-/* the result, and a maximum string length -size-. the buffer should be large enough to */
-/* contain size characters plus the terminator */
+/* The difference is that get_addr_name_buf takes as input a buffer, into which it puts */
+/* the result which is always NUL ('\0') terminated. The buffer should be large enough to */
+/* contain size characters including the terminator */
 
 void get_addr_name_buf(address *addr, gchar *buf, guint size);
 

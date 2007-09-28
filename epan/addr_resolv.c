@@ -2132,14 +2132,9 @@ const gchar *get_addr_name(address *addr)
 
 void get_addr_name_buf(address *addr, gchar *buf, guint size)
 {
-  const gchar *result;
+  const gchar *result = get_addr_name(addr);
 
-  result = get_addr_name(addr);
-
-  strncpy(buf,result,size);
-  buf[size]='\0';
-  return;
-
+  g_snprintf(buf, size, "%s", result);
 } /* get_addr_name_buf */
 
 
