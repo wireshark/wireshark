@@ -115,7 +115,7 @@ void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsi
 /*
  * the 32 bits .rf5 file contains:
  *  an 8 byte magic number
- *  32bit lenght
+ *  32bit length
  *  32bit number of records
  *  other 0x200 bytes bytes of uncharted territory
  *     1 or more copies of the num_of_records in there
@@ -723,25 +723,43 @@ int k12_dump_can_write_encap(int encap) {
 
 static const gchar dumpy_junk[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
-static void k12_dump_record(wtap_dumper *wdh, long len,  guint8* buffer) {
+static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *stream, int *err_p) {
+    size_t nwritten;
+
+    nwritten = fwrite(data, size, count, stream);
+    if (nwritten != count) {
+        if (nwritten == 0 && ferror(stream))
+            *err_p = errno;
+        else
+            *err_p = WTAP_ERR_SHORT_WRITE;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static gboolean k12_dump_record(wtap_dumper *wdh, long len,  guint8* buffer, int *err_p) {
     long junky_offset = (0x2000 - ( (wdh->dump.k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
     
     if (len > junky_offset) {
+        if (junky_offset) {
+            if (! do_fwrite(buffer, 1, junky_offset, wdh->fh, err_p))
+                return FALSE;
+        }
+        if (! do_fwrite(dumpy_junk, 1, 0x10, wdh->fh, err_p))
+            return FALSE;
         
-        if (junky_offset)
-            fwrite(buffer, 1, junky_offset, wdh->fh);
-        
-        fwrite(dumpy_junk, 1, 0x10, wdh->fh);
-        
-        fwrite(buffer+junky_offset, 1, len - junky_offset, wdh->fh);
+        if (! do_fwrite(buffer+junky_offset, 1, len - junky_offset, wdh->fh, err_p))
+            return FALSE;
         
         wdh->dump.k12->file_offset += len + 0x10;
     } else {
-        fwrite(buffer, 1, len, wdh->fh);
+        if (! do_fwrite(buffer, 1, len, wdh->fh, err_p))
+            return FALSE;
         wdh->dump.k12->file_offset += len;
     }
     
     wdh->dump.k12->num_of_records++;
+    return TRUE;
 }
 
 static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
@@ -750,7 +768,8 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
     guint32 len;
     guint offset;
     guint i;
-    
+    int   errxxx; /* dummy */
+
     union {
         guint8 buffer[0x2000];
         
@@ -848,12 +867,12 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
     obj.record.name_len =  g_htons(obj.record.name_len);
     obj.record.stack_len = g_htons(obj.record.stack_len);
     
-    k12_dump_record(wdh,len,obj.buffer);
+    k12_dump_record(wdh,len,obj.buffer, &errxxx); /* fwrite errs ignored: see k12_dump below */
 }
 
 static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                          const union wtap_pseudo_header *pseudo_header,
-                         const guchar *pd, int *err _U_) {
+                         const guchar *pd, int *err) {
     long len;
     union {
         guint8 buffer[0x2000];
@@ -873,9 +892,13 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     
     if (wdh->dump.k12->num_of_records == 0) {
         k12_t* file_data = pseudo_header->k12.stuff;
+        /* XXX: We'll assume that any fwrite errors in k12_dump_src_setting will    */
+        /*      repeat during the final k12_dump_record at the end of k12_dump      */
+        /*      (and thus cause an error return from k12_dump).                     */
+        /*      (I don't see a reasonably clean way to handle any fwrite errors     */
+        /*       encountered in k12_dump_src_setting).                              */
         g_hash_table_foreach(file_data->src_by_id,k12_dump_src_setting,wdh);
     }
-    
     obj.record.len = 0x20 + phdr->len;
     obj.record.len += (obj.record.len % 4) ? 4 - obj.record.len % 4 : 0;
     
@@ -891,10 +914,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     
     memcpy(obj.record.frame,pd,phdr->len);
     
-    k12_dump_record(wdh,len,obj.buffer);
-    
-    /* XXX if OK */
-    return TRUE;
+    return k12_dump_record(wdh,len,obj.buffer, err);
 }
 
 static const guint8 k12_eof[] = {0xff,0xff};
@@ -905,7 +925,8 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
         guint32 u;
     } d;
     
-    fwrite(k12_eof, 1, 2, wdh->fh);
+    if (! do_fwrite(k12_eof, 1, 2, wdh->fh, err))
+        return FALSE;
     
     if (fseek(wdh->fh, 8, SEEK_SET) == -1) {
         *err = errno;
@@ -914,11 +935,13 @@ static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
     
     d.u = g_htonl(wdh->dump.k12->file_len);
     
-    fwrite(d.b, 1, 4, wdh->fh);
+    if (! do_fwrite(d.b, 1, 4, wdh->fh, err))
+        return FALSE;
     
     d.u = g_htonl(wdh->dump.k12->num_of_records);
     
-    fwrite(d.b, 1, 4, wdh->fh);
+    if (! do_fwrite(d.b, 1, 4, wdh->fh, err))
+        return FALSE;
     
     return TRUE;
 }
@@ -931,8 +954,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
         return FALSE;
     }
     
-    if ( fwrite(k12_file_magic, 1, 8, wdh->fh) != 8 ) {
-        *err = errno;
+    if ( ! do_fwrite(k12_file_magic, 1, 8, wdh->fh, err)) {
         return FALSE;
     }
     
