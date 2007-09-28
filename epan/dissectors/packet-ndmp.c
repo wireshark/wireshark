@@ -3032,6 +3032,10 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint len;
 	guint32 tmp;
 
+	/* verify that the tcp port is 10000, ndmp always runs on port 10000*/
+	if ((pinfo->srcport!=TCP_PORT_NDMP)&&(pinfo->destport!=TCP_PORT_NDMP)) {
+		return 0;
+	}
 
 	/* check that the header looks sane */
 	len=tvb_length(tvb);
@@ -3821,4 +3825,6 @@ proto_reg_handoff_ndmp(void)
 
   ndmp_handle = new_create_dissector_handle(dissect_ndmp, proto_ndmp);
   dissector_add("tcp.port",TCP_PORT_NDMP, ndmp_handle);
+
+  heur_dissector_add("tcp", dissect_ndmp, proto_ndmp);
 }
