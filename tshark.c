@@ -1966,22 +1966,28 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 #endif /* SIGINFO */
 
   if(do_dissection) {
-	  while (to_read-- && cf->wth) {
-		  ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
-		  if(ret == FALSE) {
-			  /* read from file failed, tell the capture child to stop */
-			  sync_pipe_stop(capture_opts);
-			  wtap_close(cf->wth);
-			  cf->wth = NULL;
-		  } else {
-			  ret = process_packet(cf, data_offset, wtap_phdr(cf->wth),
-							   wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth));
-		  }
-		  if (ret != FALSE) {
-			/* packet sucessfully read and gone through the "Read Filter" */
-			packet_count++;
-		  }
-	  }
+    while (to_read-- && cf->wth) {
+      ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
+      if(ret == FALSE) {
+        /* read from file failed, tell the capture child to stop */
+        sync_pipe_stop(capture_opts);
+        wtap_close(cf->wth);
+        cf->wth = NULL;
+      } else {
+        ret = process_packet(cf, data_offset, wtap_phdr(cf->wth),
+                             wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth));
+      }
+      if (ret != FALSE) {
+        /* packet sucessfully read and gone through the "Read Filter" */
+        packet_count++;
+      }
+    }
+  } else {
+    /*
+     * Dumpcap's doing all the work; we're not doing any dissection.
+     * Count all the packets it wrote.
+     */
+    packet_count += to_read;
   }
 
   if (print_packet_counts) {
