@@ -660,11 +660,3 @@ signal_pipe_check_running(void)
     }
 }
 #endif
-
-
-/****************************************************************************************************************/
-/* Stub functions */
-
-
-const char *netsnmp_get_version(void) { return ""; }
-
