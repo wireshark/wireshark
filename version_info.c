@@ -40,10 +40,6 @@
 #include <pcre.h>	/* to get the libpcre version number */
 #endif /* HAVE_LIBPCRE */
 
-#ifdef HAVE_NET_SNMP
-#include <net-snmp/version.h>
-#endif /* HAVE_NET_SNMP */
-
 #if (defined(HAVE_LIBGCRYPT) || defined(HAVE_LIBGNUTLS)) && defined(_WIN32)
 #include <winposixtype.h>
 #endif
