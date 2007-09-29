@@ -471,7 +471,7 @@ sync_pipe_start(capture_options *capture_opts) {
       execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		argv[0], strerror(errno));
-      sync_pipe_errmsg_to_parent(errmsg, "");
+      sync_pipe_errmsg_to_parent(1, errmsg, "");
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
@@ -887,7 +887,11 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
 
 /* Close down the stats process */
 int
-sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg) {
+sync_interface_stats_close(int *read_fd, int *fork_child
+#ifndef _WIN32
+_U_
+#endif
+, gchar **msg) {
 #ifdef _WIN32
     return sync_pipe_close_command(read_fd, fork_child, msg);
 #else
