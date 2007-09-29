@@ -2253,7 +2253,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
     if (fullmediatype) {
         gchar *mediatype = ep_strdup(fullmediatype);
         gchar *parms_at = strchr(mediatype, ';');
-        const void const * save_match_string = pinfo->match_string;
+        const char *save_match_string = pinfo->match_string;
         void * save_private_data = pinfo->private_data;
 
         /* Based upon what is done in packet-media.c we set up type and params */
