@@ -155,8 +155,6 @@ static gboolean infoprint;	/* if TRUE, print capture info after clearing infodel
 #endif /* SIGINFO */
 
 static int capture(void);
-static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
-  const u_char *);
 static void report_counts(void);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
