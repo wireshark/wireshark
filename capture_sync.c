@@ -354,6 +354,7 @@ sync_pipe_start(capture_options *capture_opts) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
 #ifdef _WIN32
@@ -804,6 +805,7 @@ sync_interface_list_open(gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -843,6 +845,7 @@ sync_linktype_list_open(gchar *ifname, gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -880,6 +883,7 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
     return sync_pipe_open_command(argv, read_fd, fork_child, msg);
