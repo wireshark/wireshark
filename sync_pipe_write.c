@@ -104,11 +104,12 @@ pipe_write_block(int pipe, char indicator, const char *msg)
 
 
 void
-sync_pipe_errmsg_to_parent(const char *error_msg, const char *secondary_error_msg)
+sync_pipe_errmsg_to_parent(int pipe, const char *error_msg,
+                           const char *secondary_error_msg)
 {
 
     /* first write a "master header" with the length of the two messages plus their "slave headers" */
-    pipe_write_header(1, SP_ERROR_MSG, strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4);
-    pipe_write_block(1, SP_ERROR_MSG, error_msg);
-    pipe_write_block(1, SP_ERROR_MSG, secondary_error_msg);
+    pipe_write_header(pipe, SP_ERROR_MSG, strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4);
+    pipe_write_block(pipe, SP_ERROR_MSG, error_msg);
+    pipe_write_block(pipe, SP_ERROR_MSG, secondary_error_msg);
 }

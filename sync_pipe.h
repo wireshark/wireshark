@@ -1,5 +1,6 @@
 /* sync_pipe.h
- * Low-level synchronization pipe routines for use by Wireshark and dumpcap
+ * Low-level synchronization pipe routines for use by Wireshark/TShark
+ * and dumpcap
  *
  * $Id$
  *
@@ -73,7 +74,7 @@ pipe_write_block(int pipe, char indicator, const char *msg);
 
 /** the child encountered an error, notify the parent */
 extern void 
-sync_pipe_errmsg_to_parent(const char *error_msg,
+sync_pipe_errmsg_to_parent(int pipe, const char *error_msg,
                            const char *secondary_error_msg);
 
 #endif /* sync_pipe.h */

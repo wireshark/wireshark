@@ -600,7 +600,7 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
             "Primary Error: %s", error_msg);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Secondary Error: %s", secondary_error_msg);
-    	sync_pipe_errmsg_to_parent(error_msg, secondary_error_msg);
+    	sync_pipe_errmsg_to_parent(1, error_msg, secondary_error_msg);
     } else {
         fprintf(stderr, "%s\n%s\n", error_msg, secondary_error_msg);
     }
