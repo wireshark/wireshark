@@ -206,12 +206,12 @@ decode IPv6 packets, but you'll only see IPv6 addresses, not host names.
 SNMP
 ----
 Wireshark can do some basic decoding of SNMP packets; it can also use
-the Net-SNMP library to do more sophisticated decoding, by reading MIB
+the libsmi library to do more sophisticated decoding, by reading MIB
 files and using the information in those files to display OIDs and
 variable binding values in a friendlier fashion.  The configure script
-will automatically determine whether you have the Net-SNMP library on
-your system.  If you have the Net-SNMP library but _do not_ want to have
-wireshark use it, you can run configure with the "--without-net-snmp"
+will automatically determine whether you have the libsmi library on
+your system.  If you have the libsmi library but _do not_ want to have
+Wireshark use it, you can run configure with the "--without-libsmi"
 option.
 
 How to Report a Bug
