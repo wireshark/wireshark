@@ -202,7 +202,7 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info _U_)
 		return -1;
 
 	wth->data_offset = 0;
-	wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->file_type = WTAP_FILE_NETSCREEN;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = netscreen_read;
@@ -244,12 +244,34 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
+	/*
+	 * Determine the encapsulation type, based on the
+	 * first 4 characters of the interface name
+	 *
+	 * XXX  convert this to a 'case' structure when adding more
+	 *      (non-ethernet) interfacetypes
+	 */
 	if (strncmp(cap_int, "adsl", 4) == 0) 
 		wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
 	else if (strncmp(cap_int, "seri", 4) == 0)
 		wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
 	else
 		wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
+
+	/*
+	 * If the per-file encapsulation isn't known, set it to this
+	 * packet's encapsulation.
+	 *
+	 * If it *is* known, and it isn't this packet's encapsulation,
+	 * set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
+	 * have a single encapsulation for all packets in the file.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
+		wth->file_encap = wth->phdr.pkt_encap;
+	else {
+		if (wth->file_encap != wth->phdr.pkt_encap)
+			wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	}
 
 	wth->data_offset = offset;
 	wth->phdr.caplen = caplen;
