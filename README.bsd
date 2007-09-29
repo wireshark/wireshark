@@ -1,6 +1,6 @@
 $Id$
 
-Installing Wireshark on FreeBSD/OpenBSD/NetBSD
+Installing Wireshark on FreeBSD/OpenBSD/NetBSD/DragonFly BSD
 ========================================================================
 
      1. Extra packages required
@@ -80,4 +80,34 @@ that need to use Wireshark to the wheel group.  Check your operating
 system's documentation on how to make permanent these changes as they
 are often reset upon reboot; if /dev is implemented with devfs, it might
 be possible to configure devfs to create all bpf devices owned by a
-particular user and/or group and with particular permissions.
+particular user and/or group and with particular permissions.  In
+FreeBSD 6.0 and later this can be done by creating an /etc/devfs.rules
+file with content such as
+
+	[localrules=10]
+	add path 'bpf*' {mode and permissons}
+
+where "mode and permissions" can include clauses such as
+
+	mode {octal permissions}
+
+to set the permissions on the device (e.g., "mode 0660" to set the
+permissions to rw-rw-r--),
+
+	user {user}
+
+to set the user who owns the device, or
+
+	group {group}
+
+to set the group that owns the device and adding a line such as
+
+	devfs_system_ruleset=localrules
+
+to /etc/rc.conf.  For example, an /etc/devfs.rules file with
+
+	[localrules=10]
+	add path 'bpf*' mode 0660 group wheel
+
+will grant read and write permissions on all BPF devices to all users in
+the "wheel" group.
