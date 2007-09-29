@@ -265,7 +265,7 @@ static void usage(gboolean is_error)
 static void
 failure_message(const char *msg_format, va_list ap)
 {
-	fprintf(stderr, "capinos: ");
+	fprintf(stderr, "capinfos: ");
 	vfprintf(stderr, msg_format, ap);
 	fprintf(stderr, "\n");
 }
