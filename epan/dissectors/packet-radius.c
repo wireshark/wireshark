@@ -140,8 +140,6 @@ static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
 static const value_string* radius_vendors = NULL;
 
-static radius_info_t rad_info;
-
 /* http://www.iana.org/assignments/radius-types */
 static const value_string radius_vals[] =
 {
@@ -853,17 +851,77 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
     CLEANUP_CALL_AND_POP;
 }
 
-static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/* This function tries to determine whether a packet is radius or not */
+static gboolean
+is_radius(tvbuff_t *tvb)
+{
+	guint8 code;
+	guint16 length;
+
+	code=tvb_get_guint8(tvb, 0);
+	switch(code){
+	case RADIUS_ACCESS_REQUEST:
+	case RADIUS_ACCESS_ACCEPT:
+	case RADIUS_ACCESS_REJECT:
+	case RADIUS_ACCOUNTING_REQUEST:
+	case RADIUS_ACCOUNTING_RESPONSE:
+	case RADIUS_ACCOUNTING_STATUS:
+	case RADIUS_ACCESS_PASSWORD_REQUEST:
+	case RADIUS_ACCESS_PASSWORD_ACK:
+	case RADIUS_ACCESS_PASSWORD_REJECT:
+	case RADIUS_ACCOUNTING_MESSAGE:
+	case RADIUS_ACCESS_CHALLENGE:
+	case RADIUS_STATUS_SERVER:
+	case RADIUS_STATUS_CLIENT:
+	case RADIUS_VENDOR_SPECIFIC_CODE:
+	case RADIUS_ASCEND_ACCESS_NEXT_CODE:
+	case RADIUS_ASCEND_ACCESS_NEW_PIN:
+	case RADIUS_ASCEND_PASSWORD_EXPIRED:
+	case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
+	case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
+	case RADIUS_DISCONNECT_REQUEST:
+	case RADIUS_DISCONNECT_REQUEST_ACK:
+	case RADIUS_DISCONNECT_REQUEST_NAK:
+	case RADIUS_CHANGE_FILTER_REQUEST:
+	case RADIUS_CHANGE_FILTER_REQUEST_ACK:
+	case RADIUS_CHANGE_FILTER_REQUEST_NAK:
+	case RADIUS_EAP_MESSAGE_CODE:
+	case RADIUS_MESSAGE_AUTHENTICATOR:
+		break;
+	default:
+		return FALSE;
+	}
+
+	/* Check for valid length value:
+	 * Length
+	 *
+	 *  The Length field is two octets.  It indicates the length of the
+	 *  packet including the Code, Identifier, Length, Authenticator and
+	 *  Attribute fields.  Octets outside the range of the Length field
+	 *  MUST be treated as padding and ignored on reception.  If the
+	 *  packet is shorter than the Length field indicates, it MUST be
+	 *  silently discarded.  The minimum length is 20 and maximum length
+	 *  is 4096.
+	 */
+	length=tvb_get_ntohs(tvb, 2);
+	if ( (length<20) || (length>4096) ) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static int
+dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *radius_tree = NULL;
 	proto_tree *avptree = NULL;
 	proto_item *ti;
 	proto_item *avptf;
-	guint rhlength;
-	guint rhcode;
-	guint rhident;
 	guint avplength;
 	e_radiushdr rh;
+	radius_info_t *rad_info;
+
 
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
@@ -872,80 +930,75 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nstime_t delta;
 	static address null_address = { AT_NONE, 0, NULL };
 
-	/* Initialise stat info for passing to tap */
-	rad_info.code = 0;
-	rad_info.ident = 0;
-	rad_info.req_time.secs = 0;
-	rad_info.req_time.nsecs = 0;
-	rad_info.is_duplicate = FALSE;
-	rad_info.request_available = FALSE;
-	rad_info.req_num = 0; /* frame number request seen */
-	rad_info.rspcode = 0;
+	/* does this look like radius ? */
+	if(!is_radius(tvb)){
+		return 0;
+	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
+	rh.rh_code=tvb_get_guint8(tvb,0);
+	rh.rh_ident=tvb_get_guint8(tvb,1);
+	rh.rh_pktlength=tvb_get_ntohs(tvb,2);
 
-	rhcode = rh.rh_code;
-	rhident = rh.rh_ident;
-	rhlength = g_ntohs(rh.rh_pktlength);
-	/* XXX Check for valid length value:
-		* Length
-		*
-		*  The Length field is two octets.  It indicates the length of the
-		*  packet including the Code, Identifier, Length, Authenticator and
-		*  Attribute fields.  Octets outside the range of the Length field
-		*  MUST be treated as padding and ignored on reception.  If the
-		*  packet is shorter than the Length field indicates, it MUST be
-		*  silently discarded.  The minimum length is 20 and maximum length
-		*  is 4096.
-		*/
 
+	/* Initialise stat info for passing to tap */
+	rad_info = ep_alloc(sizeof(radius_info_t));
+	rad_info->code = 0;
+	rad_info->ident = 0;
+	rad_info->req_time.secs = 0;
+	rad_info->req_time.nsecs = 0;
+	rad_info->is_duplicate = FALSE;
+	rad_info->request_available = FALSE;
+	rad_info->req_num = 0; /* frame number request seen */
+	rad_info->rspcode = 0;
 	/* tap stat info */
-	rad_info.code = rhcode;
-	rad_info.ident = rhident;
+	rad_info->code = rh.rh_code;
+	rad_info->ident = rh.rh_ident;
+	tap_queue_packet(radius_tap, pinfo, rad_info);
+
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
-			     val_to_str(rhcode,radius_vals,"Unknown Packet"),
-			     rhcode, rhident, rhlength);
+			     val_to_str(rh.rh_code,radius_vals,"Unknown Packet"),
+			     rh.rh_code, rh.rh_ident, rh.rh_pktlength);
 	}
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rhlength, FALSE);
+		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rh.rh_pktlength, FALSE);
 
 		radius_tree = proto_item_add_subtree(ti, ett_radius);
 
 		proto_tree_add_uint(radius_tree,hf_radius_code, tvb, 0, 1, rh.rh_code);
 
 		proto_tree_add_uint_format(radius_tree,hf_radius_id, tvb, 1, 1, rh.rh_ident,
-								   "Packet identifier: 0x%01x (%d)", rhident,rhident);
+								   "Packet identifier: 0x%01x (%d)", rh.rh_ident, rh.rh_ident);
 	}
 
 	/*
 	 * Make sure the length is sane.
 	 */
-	if (rhlength < HDR_LENGTH)
+	if (rh.rh_pktlength < HDR_LENGTH)
 	{
 		if (tree)
 		{
 			proto_tree_add_uint_format(radius_tree, hf_radius_length,
-						   tvb, 2, 2, rhlength,
+						   tvb, 2, 2, rh.rh_pktlength,
 						   "Length: %u (bogus, < %u)",
-						   rhlength, HDR_LENGTH);
+						   rh.rh_pktlength, HDR_LENGTH);
 		}
-		return;
+		goto end_of_radius;
 	}
-	avplength = rhlength - HDR_LENGTH;
+	avplength = rh.rh_pktlength - HDR_LENGTH;
 	if (tree)
 	{
 		proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
-				    2, 2, rhlength);
+				    2, 2, rh.rh_pktlength);
 
 		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4,AUTHENTICATOR_LENGTH,FALSE);
 	}
@@ -954,7 +1007,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 
 		/* Conversation support REQUEST/RESPONSES */
-		switch (rhcode)
+		switch (rh.rh_code)
 		{
 			case RADIUS_ACCESS_REQUEST:
 			case RADIUS_ACCOUNTING_REQUEST:
@@ -990,8 +1043,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 
 				/* Prepare the key data */
-				radius_call_key.code = rhcode;
-				radius_call_key.ident = rhident;
+				radius_call_key.code = rh.rh_code;
+				radius_call_key.ident = rh.rh_ident;
 				radius_call_key.conversation = conversation;
 				radius_call_key.req_time = pinfo->fd->abs_ts;
 
@@ -1004,19 +1057,19 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (pinfo->fd->num != radius_call->req_num)
 					{
 						/* No, so it's a duplicate request. Mark it as such. */
-						rad_info.is_duplicate = TRUE;
-						rad_info.req_num = radius_call->req_num;
+						rad_info->is_duplicate = TRUE;
+						rad_info->req_num = radius_call->req_num;
 						if (check_col(pinfo->cinfo, COL_INFO))
 						{
 							col_append_fstr(pinfo->cinfo, COL_INFO,
 							                ", Duplicate Request ID:%u",
-							                rhident);
+							                rh.rh_ident);
 						}
 						if (tree)
 						{
 							proto_item* item;
-							proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rhident);
-							item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0,0, rhident);
+							proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
+							item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0,0, rh.rh_ident);
 							PROTO_ITEM_SET_GENERATED(item);
 						}
 					}
@@ -1033,8 +1086,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					radius_call = g_mem_chunk_alloc(radius_call_info_value_chunk);
 					radius_call->req_num = pinfo->fd->num;
 					radius_call->rsp_num = 0;
-					radius_call->ident = rhident;
-					radius_call->code = rhcode;
+					radius_call->ident = rh.rh_ident;
+					radius_call->code = rh.rh_code;
 					radius_call->responded = FALSE;
 					radius_call->req_time=pinfo->fd->abs_ts;
 					radius_call->rspcode = 0;
@@ -1085,8 +1138,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* Look only for matching request, if
 					   matching conversation is available. */
 					/* Prepare the key data */
-					radius_call_key.code = rhcode;
-					radius_call_key.ident = rhident;
+					radius_call_key.code = rh.rh_code;
+					radius_call_key.ident = rh.rh_ident;
 					radius_call_key.conversation = conversation;
 					radius_call_key.req_time = pinfo->fd->abs_ts;
 
@@ -1097,8 +1150,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (radius_call->req_num)
 						{
 							proto_item* item;
-							rad_info.request_available = TRUE;
-							rad_info.req_num = radius_call->req_num;
+							rad_info->request_available = TRUE;
+							rad_info->req_num = radius_call->req_num;
 							radius_call->responded = TRUE;
 
 							item = proto_tree_add_uint_format(radius_tree, hf_radius_req_frame,
@@ -1122,29 +1175,29 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						{
 							/* We have seen a response to this call - but was it
 							   *this* response? (disregard provisional responses) */
-							if ( (radius_call->rsp_num != pinfo->fd->num) && (radius_call->rspcode == rhcode) )
+							if ( (radius_call->rsp_num != pinfo->fd->num) && (radius_call->rspcode == rh.rh_code) )
 							{
 								/* No, so it's a duplicate response. Mark it as such. */
-								rad_info.is_duplicate = TRUE;
+								rad_info->is_duplicate = TRUE;
 								if (check_col(pinfo->cinfo, COL_INFO))
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO,
 									                ", Duplicate Response ID:%u",
-									                rhident);
+									                rh.rh_ident);
 								}
 								if (tree)
 								{
 									proto_item* item;
-									proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rhident);
+									proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
 									item = proto_tree_add_uint(radius_tree, hf_radius_rsp_dup,
-									                           tvb, 0, 0, rhident);
+									                           tvb, 0, 0, rh.rh_ident);
 									PROTO_ITEM_SET_GENERATED(item);
 								}
 							}
 						}
 						/* Now store the response code (after comparison above) */
-						radius_call->rspcode = rhcode;
-						rad_info.rspcode = rhcode;
+						radius_call->rspcode = rh.rh_code;
+						rad_info->rspcode = rh.rh_code;
 					}
 				}
 				break;
@@ -1154,8 +1207,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (radius_call)
 		{
-			rad_info.req_time.secs = radius_call->req_time.secs;
-			rad_info.req_time.nsecs = radius_call->req_time.nsecs;
+			rad_info->req_time.secs = radius_call->req_time.secs;
+			rad_info->req_time.nsecs = radius_call->req_time.nsecs;
 		}
 
 		if (avplength > 0) {
@@ -1169,7 +1222,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	tap_queue_packet(radius_tap, pinfo, &rad_info);
+end_of_radius:
+	return tvb_length(tvb);
 }
 
 
@@ -1517,7 +1571,7 @@ proto_register_radius(void)
 	radius_vendors = (value_string*)g_array_data(ri.vend_vs);
 
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
-	register_dissector("radius", dissect_radius, proto_radius);
+	new_register_dissector("radius", dissect_radius, proto_radius);
 
 	proto_register_field_array(proto_radius,(hf_register_info*)g_array_data(ri.hf),ri.hf->len);
 	proto_register_subtree_array((gint**)g_array_data(ri.ett), ri.ett->len);
@@ -1549,7 +1603,7 @@ proto_reg_handoff_radius(void)
 
 	eap_handle = find_dissector("eap");
 
-	radius_handle = create_dissector_handle(dissect_radius, proto_radius);
+	radius_handle = new_create_dissector_handle(dissect_radius, proto_radius);
 
 	dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);
 	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
