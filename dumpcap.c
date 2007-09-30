@@ -331,7 +331,7 @@ main(int argc, char *argv[])
         GString             *comp_info_str;
         GString             *runtime_info_str;
         /* Assemble the compile-time version information string */
-        comp_info_str = g_string_new("Compiled with ");
+        comp_info_str = g_string_new("Compiled ");
         get_compiled_version_info(comp_info_str, NULL);
 
         /* Assemble the run-time version information string */
