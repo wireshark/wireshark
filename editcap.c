@@ -185,11 +185,18 @@ selected(int recno)
 }
 
 /* is the packet in the selected timeframe */
-static gboolean check_timestamp(wtap *wth) {
-	static int i = 0;
-	struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
-	if (!((i++)%250)) printf("== %d starttime=%lu stoptime=%lu ts=%lu",i,starttime,stoptime,pkthdr->ts.secs);
-	return ( (time_t) pkthdr->ts.secs >= starttime ) && ( (time_t) pkthdr->ts.secs <= stoptime );
+static gboolean
+check_timestamp(wtap *wth)
+{
+  static int i = 0;
+  struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
+
+  if (!((i++)%250))
+    printf("== %d starttime=%lu stoptime=%lu ts=%lu",i,
+           (unsigned long)starttime,
+	   (unsigned long)stoptime,
+	   (unsigned long)pkthdr->ts.secs);
+  return ( pkthdr->ts.secs >= starttime ) && ( pkthdr->ts.secs <= stoptime );
 }
 
 static void
@@ -505,42 +512,41 @@ int main(int argc, char *argv[])
       verbose = !verbose;  /* Just invert */
       break;
 
-	case 'A':
-	{
-		struct tm starttm;
+    case 'A':
+    {
+      struct tm starttm;
 
-		memset(&starttm,0,sizeof(struct tm));
+      memset(&starttm,0,sizeof(struct tm));
 
-		if(!strptime(optarg,"%F %T",&starttm)) {
-			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
-					optarg);
-			exit(1);
-		}
+      if(!strptime(optarg,"%F %T",&starttm)) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
+        exit(1);
+      }
 
-		check_startstop = TRUE;
-		starttm.tm_isdst = -1;
+      check_startstop = TRUE;
+      starttm.tm_isdst = -1;
 
-		starttime = mktime(&starttm);
-		printf("=START=> given='%s' stoptime=%lu\n",optarg,starttime);
-		break;
-	}
-	case 'B':
-	{
-		struct tm stoptm;
+      starttime = mktime(&starttm);
+      printf("=START=> given='%s' stoptime=%lu\n",optarg,(unsigned long)starttime);
+      break;
+    }
 
-		memset(&stoptm,0,sizeof(struct tm));
+    case 'B':
+    {
+      struct tm stoptm;
 
-		if(!strptime(optarg,"%F %T",&stoptm)) {
-			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
-					optarg);
-			exit(1);
-		}
-		check_startstop = TRUE;
-		stoptm.tm_isdst = -1;
-		stoptime = mktime(&stoptm);
-		printf("=STOP=> given='%s' stoptime=%lu\n",optarg,stoptime);
-		break;
-	}
+      memset(&stoptm,0,sizeof(struct tm));
+
+      if(!strptime(optarg,"%F %T",&stoptm)) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
+        exit(1);
+      }
+      check_startstop = TRUE;
+      stoptm.tm_isdst = -1;
+      stoptime = mktime(&stoptm);
+      printf("=STOP=> given='%s' stoptime=%lu\n",optarg,(unsigned long)stoptime);
+      break;
+    }
     }
 
   }
@@ -557,22 +563,22 @@ int main(int argc, char *argv[])
   }
 
   if (check_startstop && !stoptime) {
-	  struct tm stoptm;
-	  /* XXX: will work until 2035 */
-	  memset(&stoptm,0,sizeof(struct tm));
-	  stoptm.tm_year = 135;
-	  stoptm.tm_mday = 31;
-	  stoptm.tm_mon = 11;
+    struct tm stoptm;
+    /* XXX: will work until 2035 */
+    memset(&stoptm,0,sizeof(struct tm));
+    stoptm.tm_year = 135;
+    stoptm.tm_mday = 31;
+    stoptm.tm_mon = 11;
 
-	  stoptime = mktime(&stoptm);
-	  printf("=STOP=NEVER=> stoptime=%lu\n",stoptime);
+    stoptime = mktime(&stoptm);
+    printf("=STOP=NEVER=> stoptime=%lu\n",(unsigned long)stoptime);
   }
 
   if (starttime > stoptime) {
-	  fprintf(stderr, "editcap: start time is after the stop time\n");
-	  exit(1);
+    fprintf(stderr, "editcap: start time is after the stop time\n");
+    exit(1);
   }
-  printf("==> stoptime=%lu stoptime=%lu\n",starttime,stoptime);
+  printf("==> stoptime=%lu stoptime=%lu\n",(unsigned long)starttime,(unsigned long)stoptime);
 
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
