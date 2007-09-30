@@ -542,39 +542,39 @@ proto_register_fcip (void)
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcip_protocol,
-	  { "Protocol", "fcencap.proto", FT_UINT8, BASE_DEC,
+	  { "Protocol", "fcip.proto", FT_UINT8, BASE_DEC,
 	     VALS(fcencap_proto_vals), 0, "Protocol", HFILL }},
         { &hf_fcip_protocol_c,
-          {"Protocol (1's Complement)", "fcencap.protoc", FT_UINT8, BASE_DEC, NULL,
+          {"Protocol (1's Complement)", "fcip.protoc", FT_UINT8, BASE_DEC, NULL,
            0, "Protocol (1's Complement)", HFILL}},
         { &hf_fcip_version,
-          {"Version", "fcencap.version", FT_UINT8, BASE_DEC, NULL, 0, "",
+          {"Version", "fcip.version", FT_UINT8, BASE_DEC, NULL, 0, "",
            HFILL}},
         { &hf_fcip_version_c,
-          {"Version (1's Complement)", "fcencap.versionc", FT_UINT8, BASE_DEC,
+          {"Version (1's Complement)", "fcip.versionc", FT_UINT8, BASE_DEC,
            NULL, 0, "", HFILL}},
         { &hf_fcip_encap_word1,
-          {"FCIP Encapsulation Word1", "fcip.word1", FT_UINT32, BASE_HEX, NULL,
+          {"FCIP Encapsulation Word1", "fcip.encap_word1", FT_UINT32, BASE_HEX, NULL,
            0, "", HFILL}},
         { &hf_fcip_flags,
-          {"Flags", "fcencap.flags", FT_UINT8, BASE_HEX, NULL, 0xFC, "", HFILL}},
+          {"Flags", "fcip.flags", FT_UINT8, BASE_HEX, NULL, 0xFC, "", HFILL}},
         { &hf_fcip_flags_c,
-          {"Flags (1's Complement)", "fcencap.flagsc", FT_UINT8, BASE_HEX,
+          {"Flags (1's Complement)", "fcip.flagsc", FT_UINT8, BASE_HEX,
            NULL, 0xFC, "", HFILL}},
         { &hf_fcip_framelen,
-          {"Frame Length (in Words)", "fcencap.framelen", FT_UINT16, BASE_DEC,
+          {"Frame Length (in Words)", "fcip.framelen", FT_UINT16, BASE_DEC,
            NULL, 0x03FF, "", HFILL}},
         { &hf_fcip_framelen_c,
-          {"Frame Length (1's Complement)", "fcencap.framelenc", FT_UINT16,
+          {"Frame Length (1's Complement)", "fcip.framelenc", FT_UINT16,
            BASE_DEC, NULL, 0x03FF, "", HFILL}},
         { &hf_fcip_tsec,
-          {"Time (secs)", "fcencap.tsec", FT_UINT32, BASE_DEC, NULL, 0, "",
+          {"Time (secs)", "fcip.tsec", FT_UINT32, BASE_DEC, NULL, 0, "",
            HFILL}},
         { &hf_fcip_tusec,
-          {"Time (fraction)", "fcencap.tusec", FT_UINT32, BASE_DEC, NULL, 0,
+          {"Time (fraction)", "fcip.tusec", FT_UINT32, BASE_DEC, NULL, 0,
            "", HFILL}},
         { &hf_fcip_encap_crc,
-          {"CRC", "fcencap.crc", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL}},
+          {"CRC", "fcip.encap_crc", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL}},
         { &hf_fcip_sof,
           {"SOF", "fcip.sof", FT_UINT8, BASE_HEX, VALS (&fcip_sof_vals), 0,
            "", HFILL}},
@@ -625,7 +625,7 @@ proto_register_fcip (void)
     module_t *fcip_module;
 
     /* Register the protocol name and description */
-    proto_fcip = proto_register_protocol("FCIP", "FCIP", "fcip");
+    proto_fcip = proto_register_protocol("FCIP", "Fibre Channel over IP", "fcip");
 
     /* Required function calls to register the header fields and
      * subtrees used */

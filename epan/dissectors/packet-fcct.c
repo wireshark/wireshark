@@ -266,13 +266,13 @@ proto_register_fcct(void)
           {"Transaction ID", "fcct.ext_tid", FT_UINT32, BASE_HEX, NULL, 0x0, "",
            HFILL}},
         { &hf_fcct_ext_reqname,
-          {"Requestor Port Name", "fcct_ext_reqnm", FT_BYTES, BASE_HEX, NULL,
+          {"Requestor Port Name", "fcct.ext_reqnm", FT_BYTES, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_fcct_ext_tstamp,
-          {"Timestamp", "fcct_ext_tstamp", FT_BYTES, BASE_HEX, NULL, 0x0, "",
+          {"Timestamp", "fcct.ext_tstamp", FT_BYTES, BASE_HEX, NULL, 0x0, "",
            HFILL}},
         { &hf_fcct_ext_authblk,
-          {"Auth Hash Blk", "fcct_ext_authblk", FT_BYTES, BASE_HEX, NULL, 0x0,
+          {"Auth Hash Blk", "fcct.ext_authblk", FT_BYTES, BASE_HEX, NULL, 0x0,
            "", HFILL}},
     };
 

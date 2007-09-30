@@ -864,10 +864,10 @@ void proto_register_fr(void)
 	  "Supervisory frame type", "fr.control.s_ftype", FT_UINT16, BASE_HEX,
 	  VALS(stype_vals), XDLC_S_FTYPE_MASK, "", HFILL }},
 	{ &hf_fr_u_modifier_cmd, {
-	  "Command", "lapd.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+	  "Command", "fr.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
 	  VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, "", HFILL }},
 	{ &hf_fr_u_modifier_resp, {
-	  "Response", "lapd.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+	  "Response", "fr.control.u_modifier_resp", FT_UINT8, BASE_HEX,
 	    VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, "", HFILL }},
 	{ &hf_fr_ftype_i, {
 	  "Frame type", "fr.control.ftype", FT_UINT16, BASE_HEX,

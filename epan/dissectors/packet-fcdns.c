@@ -1908,7 +1908,7 @@ proto_register_fcdns (void)
           {"Zone Member Type", "fcdns.zone.mbrtype", FT_UINT8, BASE_HEX,
            VALS (fc_swils_zonembr_type_val), 0x0, "", HFILL}},
         { &hf_fcdns_zone_mbrid,
-          {"Member Identifier", "swils.zone.mbrid", FT_STRING, BASE_HEX, NULL,
+          {"Member Identifier", "fcdns.zone.mbrid", FT_STRING, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_fcdns_zonenm,
           {"Zone Name", "fcdns.zonename", FT_STRING, BASE_HEX, NULL, 0x0, "",
