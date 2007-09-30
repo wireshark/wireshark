@@ -5,9 +5,9 @@ not work on earlier versions of Mac OS).
 
 In order to build Wireshark, you must have X11 and the X11 developer
 headers and libraries installed; otherwise, you will not be able to
-build or install GTK+, and will only be able to build TShark.  The
-X11 and X11 SDK that come with Mac OS X 10.3[.x] are sufficient to build
-and run Wireshark.
+build or install GTK+, and will only be able to build TShark.  The X11
+and X11 SDK that come with Mac OS X Panther and Tiger are sufficient to
+build and run Wireshark.
 
 The changes to enable libwiretap and libwireshark being built as shared
 libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
