@@ -1023,8 +1023,9 @@ main(int argc, char *argv[])
           g_resolv_flags = RESOLV_NONE;
         badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
-          cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
+          cmdarg_err("-N specifies unknown resolving option '%c';",
                      badopt);
+          cmdarg_err_cont( "           Valid options are 'm', 'n', 't', and 'C'");
           exit(1);
         }
         break;
