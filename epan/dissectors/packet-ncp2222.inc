@@ -2088,11 +2088,13 @@ padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
 	item = ptvcursor_add(ptvc, *rec->hf_ptr,
 		rec->length, rec->endianness);
 
-	uint_to_nwdate(get_item_value(item), &nw_date);
+	if (item) {
+		uint_to_nwdate(get_item_value(item), &nw_date);
 	
-	proto_item_set_text(item, "%s", get_item_name(item)); 
-	proto_item_append_text(item, ": %04u/%02u/%02u",
-			nw_date.year, nw_date.month, nw_date.day);
+		proto_item_set_text(item, "%s", get_item_name(item)); 
+		proto_item_append_text(item, ": %04u/%02u/%02u",
+				nw_date.year, nw_date.month, nw_date.day);
+	}
 	return item;
 }
 
@@ -2108,11 +2110,13 @@ padd_time(ptvcursor_t *ptvc, const ptvc_record *rec)
 	item = ptvcursor_add(ptvc, *rec->hf_ptr,
 		rec->length, rec->endianness);
 
-	uint_to_nwtime(get_item_value(item), &nw_time);
+	if (item) {
+		uint_to_nwtime(get_item_value(item), &nw_time);
 	
-	proto_item_set_text(item, "%s", get_item_name(item)); 
-	proto_item_append_text(item, ": %02u:%02u:%02u",
-			nw_time.hour, nw_time.minute, nw_time.second);
+		proto_item_set_text(item, "%s", get_item_name(item)); 
+		proto_item_append_text(item, ": %02u:%02u:%02u",
+				nw_time.hour, nw_time.minute, nw_time.second);
+	}
 	return item;
 }
 
@@ -2133,9 +2137,11 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
 	item = ptvcursor_add(ptvc, *rec->hf_ptr,
 		rec->length, rec->endianness);
 
-        proto_item_set_text(item, "%s", get_item_name(item)); 
-	proto_item_append_text(item, " %s",
-			nw_uni.buffer);
+	if (item) {
+		proto_item_set_text(item, "%s", get_item_name(item)); 
+		proto_item_append_text(item, " %s",
+				nw_uni.buffer);
+	}
                                 
 	return item;
 } 
