@@ -1867,7 +1867,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 		real_length=fhlen;
-		if(real_length<tvb_length_remaining(tvb, offset)){
+		if(default_nfs_fhandle_type != FHT_UNKNOWN && real_length<tvb_length_remaining(tvb, offset)){
 			real_length=tvb_length_remaining(tvb, offset);
 		}
 		fh_tvb=tvb_new_subset(tvb, offset, real_length, fhlen);
