@@ -1865,9 +1865,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	}
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
-	if(di){
-		dcv = (dcerpc_call_value *)di->call_data;
-	}
+	dcv = (dcerpc_call_value *)di->call_data;
 	if(dcv){
 		polhnd = dcv->pol;
 	}
