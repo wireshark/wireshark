@@ -862,8 +862,9 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
             if (NULL != tpt_conversation) {
                 tpt_conv_data = (jxta_stream_conversation_data *) conversation_get_proto_data(tpt_conversation, proto_jxta);
-
-                peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
+		if (tpt_conv_data) {
+		  peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
+		}
             }
             
             /* Use our source and destination addresses if we have them */
