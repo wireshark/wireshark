@@ -4643,6 +4643,7 @@ hfinfo_int_format(header_field_info *hfinfo)
 					DISSECTOR_ASSERT_NOT_REACHED();
 					;
 			}
+			break;
 		case BASE_OCT: /* I'm lazy */
 			format = "%s: %o";
 			break;
