@@ -272,6 +272,10 @@ static int hf_pn_io_ext_channel_add_value = -1;
 
 static int hf_pn_io_ptcp_subdomain_id = -1;
 static int hf_pn_io_ir_data_id = -1;
+static int hf_pn_io_max_bridge_delay = -1;
+static int hf_pn_io_number_of_ports = -1;
+static int hf_pn_io_max_port_tx_delay = -1;
+static int hf_pn_io_max_port_rx_delay = -1;
 static int hf_pn_io_reserved_interval_begin = -1;
 static int hf_pn_io_reserved_interval_end = -1;
 static int hf_pn_io_pllwindow = -1;
@@ -280,12 +284,15 @@ static int hf_pn_io_sync_properties = -1;
 static int hf_pn_io_sync_frame_address = -1;
 static int hf_pn_io_ptcp_timeout_factor = -1;
 static int hf_pn_io_ptcp_takeover_timeout_factor = -1;
+static int hf_pn_io_ptcp_master_startup_time = -1;
 static int hf_pn_io_ptcp_master_priority_1 = -1;
 static int hf_pn_io_ptcp_master_priority_2 = -1;
 static int hf_pn_io_ptcp_length_subdomain_name = -1;
 static int hf_pn_io_ptcp_subdomain_name = -1;
 
 static int hf_pn_io_domain_boundary = -1;
+static int hf_pn_io_domain_boundary_ingress = -1;
+static int hf_pn_io_domain_boundary_egress = -1;
 static int hf_pn_io_multicast_boundary = -1;
 static int hf_pn_io_adjust_properties = -1;
 static int hf_pn_io_mau_type = -1;
@@ -3106,21 +3113,29 @@ static int
 dissect_AdjustDomainBoundary_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
 {
-    guint32 u32DomainBoundary;
+    guint32 u32DomainBoundaryIngress;
+    guint32 u32DomainBoundaryEgress;
     guint16 u16AdjustProperties;
 
 
+	/* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* Boundary */
+    /* DomainBoundaryIngress */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_domain_boundary, &u32DomainBoundary);
+                        hf_pn_io_domain_boundary_ingress, &u32DomainBoundaryIngress);
+    /* DomainBoundaryEgress */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_domain_boundary_egress, &u32DomainBoundaryEgress);
     /* AdjustProperties */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_adjust_properties, &u16AdjustProperties);
 
-    proto_item_append_text(item, ": Boundary:0x%x, Properties:0x%x",
-        u32DomainBoundary, u16AdjustProperties);
+	/* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    proto_item_append_text(item, ": BoundaryIngress:0x%x, BoundaryEgress:0x%x, Properties:0x%x",
+        u32DomainBoundaryIngress, u32DomainBoundaryEgress, u16AdjustProperties);
 
     return offset;
 }
@@ -3519,8 +3534,9 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
     guint16 u16SendClockFactor;
     guint16 u16SyncProperties;
     guint16 u16SyncFrameAddress;
-    guint16 u16PTCPTakeoverTimeoutFactor;
     guint16 u16PTCPTimeoutFactor;
+    guint16 u16PTCPTakeoverTimeoutFactor;
+	guint16 u16PTCPMasterStartupTime;
     guint8 u8MasterPriority1;
     guint8 u8MasterPriority2;
     guint8 u8LengthSubdomainName;
@@ -3554,6 +3570,9 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
         /* PTCPTakeoverTimeoutFactor 16 */
 	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_ptcp_takeover_timeout_factor, &u16PTCPTakeoverTimeoutFactor);
+        /* PTCPMasterStartupTime 16 */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_ptcp_master_startup_time, &u16PTCPMasterStartupTime);
         /* SyncProperties 16 bitfield */
 	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_sync_properties, &u16SyncProperties);
@@ -3662,9 +3681,14 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 /* dissect the PDIRGlobalData block */
 static int
 dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionLow)
 {
     e_uuid_t uuid;
+	guint32 u32MaxBridgeDelay;
+	guint32 u32NumberOfPorts;
+	guint32 u32MaxPortTxDelay;
+	guint32 u32MaxPortRxDelay;
+	guint32 u32Tmp;
 
 
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -3672,6 +3696,25 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
     /* IRDataID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ir_data_id, &uuid);
+
+	if(u8BlockVersionLow == 1) {
+		/* MaxBridgeDelay */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                                     hf_pn_io_max_bridge_delay, &u32MaxBridgeDelay);
+		/* NumberOfPorts */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                                     hf_pn_io_number_of_ports, &u32NumberOfPorts);
+		u32Tmp = u32NumberOfPorts;
+
+		while(u32Tmp--) {
+			/* MaxPortTxDelay */
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+										 hf_pn_io_max_port_tx_delay, &u32MaxPortTxDelay);
+			/* MaxPortRxDelay */
+			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+										 hf_pn_io_max_port_rx_delay, &u32MaxPortRxDelay);
+		}
+	}
 
     return offset;
 }
@@ -5156,7 +5199,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_PDIRData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0206):
-        dissect_PDIRGlobalData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_PDIRGlobalData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionLow);
         break;
     case(0x0207):
         dissect_PDIRFrameData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
@@ -6468,6 +6511,14 @@ proto_register_pn_io (void)
       { "PTCPSubdomainID", "pn_io.ptcp_subdomain_id", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ir_data_id,
       { "IRDataID", "pn_io.ir_data_id", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_max_bridge_delay,
+      { "MaxBridgeDelay", "pn_io.max_bridge_delay", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_ports,
+      { "hf_pn_io_number_of_ports", "pn_io.number_of_ports", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_max_port_tx_delay,
+      { "MaxPortTxDelay", "pn_io.max_port_tx_delay", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_max_port_rx_delay,
+      { "MaxPortRxDelay", "pn_io.max_port_rx_delay", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_reserved_interval_begin,
       { "ReservedIntervalBegin", "pn_io.reserved_interval_begin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_reserved_interval_end,
@@ -6484,6 +6535,8 @@ proto_register_pn_io (void)
       { "PTCPTimeoutFactor", "pn_io.ptcp_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ptcp_takeover_timeout_factor,
       { "PTCPTakeoverTimeoutFactor", "pn_io.ptcp_takeover_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_ptcp_master_startup_time,
+      { "PTCPMasterStartupTime", "pn_io.ptcp_master_startup_time", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ptcp_master_priority_1,
       { "PTCP_MasterPriority1", "pn_io.ptcp_master_priority_1", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ptcp_master_priority_2,
@@ -6495,6 +6548,10 @@ proto_register_pn_io (void)
 
     { &hf_pn_io_domain_boundary,
       { "DomainBoundary", "pn_io.domain_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_domain_boundary_ingress,
+      { "DomainBoundaryIngress", "pn_io.domain_boundary.ingress", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_domain_boundary_egress,
+      { "DomainBoundaryEgress", "pn_io.domain_boundary.egress", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_multicast_boundary,
       { "MulticastBoundary", "pn_io.multicast_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_adjust_properties,
