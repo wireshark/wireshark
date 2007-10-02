@@ -1913,6 +1913,7 @@ dissect_rsl_ie_full_imm_ass_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	return offset;
 }
 
+#if 0
 /*
  * 9.3.36 SMSCB Information
  *
@@ -1955,6 +1956,8 @@ dissect_rsl_ie_smscb_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	return offset;
 }
+#endif
+
 /*
  * 9.3.37 MS Timing Offset
  */
