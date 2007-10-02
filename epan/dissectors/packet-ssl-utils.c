@@ -278,6 +278,7 @@ const value_string ssl_31_public_value_encoding[] = {
 #endif
 
 const value_string ssl_31_ciphersuite[] = {
+    /* RFC 2246, RFC 4346 */
     { 0x0000, "TLS_NULL_WITH_NULL_NULL" },
     { 0x0001, "TLS_RSA_WITH_NULL_MD5" },
     { 0x0002, "TLS_RSA_WITH_NULL_SHA" },
@@ -306,10 +307,38 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0019, "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA" },
     { 0x001a, "TLS_DH_anon_WITH_DES_CBC_SHA" },
     { 0x001b, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA" },
+
     { 0x001c, "SSL_FORTEZZA_KEA_WITH_NULL_SHA" },
     { 0x001d, "SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA" },
+#if 0 /* Because it clashes with KRB5, is never used any more, and is safe
+	 to remove according to David Hopwood <david.hopwood@zetnet.co.uk>
+	 of the ietf-tls list */ 
     { 0x001e, "SSL_FORTEZZA_KEA_WITH_RC4_128_SHA" },
-    { 0x002f, "TLS_RSA_WITH_AES_128_CBC_SHA" },
+#endif 
+
+    /* RFC 2712 */
+    { 0x001E, "TLS_KRB5_WITH_DES_CBC_SHA" },
+    { 0x001F, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA" },
+    { 0x0020, "TLS_KRB5_WITH_RC4_128_SHA" },
+    { 0x0021, "TLS_KRB5_WITH_IDEA_CBC_SHA" },
+    { 0x0022, "TLS_KRB5_WITH_DES_CBC_MD5" },
+    { 0x0023, "TLS_KRB5_WITH_3DES_EDE_CBC_MD5" },
+    { 0x0024, "TLS_KRB5_WITH_RC4_128_MD5" },
+    { 0x0025, "TLS_KRB5_WITH_IDEA_CBC_MD5" },
+    { 0x0026, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA" },
+    { 0x0027, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA" },
+    { 0x0028, "TLS_KRB5_EXPORT_WITH_RC4_40_SHA" },
+    { 0x0029, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5" },
+    { 0x002A, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5" },
+    { 0x002B, "TLS_KRB5_EXPORT_WITH_RC4_40_MD5" },
+
+    /* RFC 4785 */
+    { 0x002C, "TLS_PSK_WITH_NULL_SHA" },
+    { 0x002D, "TLS_DHE_PSK_WITH_NULL_SHA" },
+    { 0x002E, "TLS_RSA_PSK_WITH_NULL_SHA" },
+            
+    /* RFC 3268 */
+    { 0x002F, "TLS_RSA_WITH_AES_128_CBC_SHA" },
     { 0x0030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA" },
     { 0x0031, "TLS_DH_RSA_WITH_AES_128_CBC_SHA" },
     { 0x0032, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA" },
@@ -321,31 +350,54 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" },
     { 0x0039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA" },
     { 0x003A, "TLS_DH_anon_WITH_AES_256_CBC_SHA" },
+              
+    /* ??? */
+    { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
+    { 0x0061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
+
+    /* draft-ietf-tls-56-bit-ciphersuites-01.txt */
+    { 0x0062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
+    { 0x0063, "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA" },
+    { 0x0064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
+    { 0x0065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
+    { 0x0066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
+
+    /* RFC 4132 */
     { 0x0041, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0042, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0043, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0044, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0045, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0046, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA" },
-    { 0x0047, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
-    { 0x0048, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
-    { 0x0049, "TLS_ECDH_ECDSA_WITH_DES_CBC_SHA" },
-    { 0x004A, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA" },
-    { 0x004B, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA" },
-    { 0x004C, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA" },
-    { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
-    { 0x0061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
-    { 0x0062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
-    { 0x0063, "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA" },
-    { 0x0064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
-    { 0x0065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
-    { 0x0066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
     { 0x0084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0086, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0087, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0088, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0089, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA" },
+            
+    /* RFC 4279 */
+    { 0x008A, "TLS_PSK_WITH_RC4_128_SHA" },
+    { 0x008B, "TLS_PSK_WITH_3DES_EDE_CBC_SHA" },
+    { 0x008C, "TLS_PSK_WITH_AES_128_CBC_SHA" },
+    { 0x008D, "TLS_PSK_WITH_AES_256_CBC_SHA" },
+    { 0x008E, "TLS_DHE_PSK_WITH_RC4_128_SHA" },
+    { 0x008F, "TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA" },
+    { 0x0090, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA" },
+    { 0x0091, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA" },
+    { 0x0092, "TLS_RSA_PSK_WITH_RC4_128_SHA" },
+    { 0x0093, "TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA" },
+    { 0x0094, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA" },
+    { 0x0095, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA" },
+
+    /* RFC 4162 */
+    { 0x0096, "TLS_RSA_WITH_SEED_CBC_SHA" },
+    { 0x0097, "TLS_DH_DSS_WITH_SEED_CBC_SHA" },
+    { 0x0098, "TLS_DH_RSA_WITH_SEED_CBC_SHA" },
+    { 0x0099, "TLS_DHE_DSS_WITH_SEED_CBC_SHA" },
+    { 0x009A, "TLS_DHE_RSA_WITH_SEED_CBC_SHA" },
+    { 0x009B, "TLS_DH_anon_WITH_SEED_CBC_SHA" },
+            
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -372,6 +424,18 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xc017, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA" },
     { 0xc018, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA" },
     { 0xc019, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA" },
+
+    /* draft-ietf-tls-srp-14.txt */
+    { 0xC01A, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA" },
+    { 0xC01B, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA" },
+    { 0xC01C, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA" },
+    { 0xC01D, "TLS_SRP_SHA_WITH_AES_128_CBC_SHA" },
+    { 0xC01E, "TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA" },
+    { 0xC01F, "TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA" },
+    { 0xC020, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA" },
+    { 0xC021, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA" },
+    { 0xC022, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA" },
+ 
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
