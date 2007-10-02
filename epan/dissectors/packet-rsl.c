@@ -2568,7 +2568,7 @@ dissect_rsl_ie_multirate_cntrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* Bit 8 -5 Spare /*
+	/* Bit 8 -5 Spare */
 	/* The OD field (bit 5 of octet 3) indicates if the BSC expects distant parameters or
 	 * TFO Decision algorithm result from the BTS
 	 */
@@ -2593,6 +2593,8 @@ dissect_rsl_ie_multirate_cntrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 /*
  * 9.3.57 TFO Status
+ */
+
 /*
  * 9.3.58 LLP APDU
  */
