@@ -283,8 +283,9 @@ reserved_words = {
   'UNIVERSAL'   : 'UNIVERSAL',
   'UTCTime'     : 'UTCTime',
   'WITH'        : 'WITH',
-# obsolete but still used
+# X.208 obsolete but still used
   'ANY'         : 'ANY',
+  'DEFINED'     : 'DEFINED',
 }
 
 for k in static_tokens.keys():
@@ -6048,11 +6049,6 @@ def p_Class_2 (t):
     t[0] = 'CONTEXT'
 
 
-def p_AnyType (t):
-    'AnyType : ANY'
-    t[0] = AnyType ()
-
-
 # 31 Notation for the object identifier type ----------------------------------
 
 # 31.1
@@ -6497,6 +6493,16 @@ def p_number (t):
   'number : NUMBER'
   t[0] = t[1]
 
+
+#--- ITU-T Recommendation X.208 -----------------------------------------------
+
+# 27 Notation for the any type ------------------------------------------------
+
+# 27.1
+def p_AnyType (t):
+  '''AnyType : ANY
+             | ANY DEFINED BY identifier'''
+  t[0] = AnyType()
 
 #--- ITU-T Recommendation X.681 -----------------------------------------------
 
