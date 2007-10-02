@@ -178,9 +178,6 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   word1 = tvb_get_ntohl (tvb, 0);
   word2 = tvb_get_ntohl (tvb, sizeof(word1));
 
-  /* Get the frame type, for later use */
-  frame_type = (word1 & CPFI_FRAME_TYPE_MASK) >> CPFI_FRAME_TYPE_SHIFT;
-
   /* Figure out where the frame came from. dstTDA is source of frame! */
   tda = (word1 & CPFI_DEST_MASK) >> CPFI_DEST_SHIFT;
   if ( tda >= FIRST_TIO_CARD_ADDRESS )
@@ -297,13 +294,48 @@ dissect_cpfi_footer(tvbuff_t *tvb, proto_tree *tree)
 }
 
 /* CPFI */
-static void
+static int
 dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *header_tvb, *body_tvb, *footer_tvb;
   proto_item *cpfi_item = NULL;
   proto_tree *cpfi_tree = NULL;
   gint length, reported_length, body_length, reported_body_length;
+
+  frame_type = (tvb_get_ntohl (message_tvb, 0) & CPFI_FRAME_TYPE_MASK) >> CPFI_FRAME_TYPE_SHIFT;
+
+  /*  If this is not a CPFI frame, return 0 to let another dissector try to
+   *  dissect it.
+   */
+  if ( !((frame_type == 9) && fc_handle) )
+    return 0;
+
+  /* If we don't have Ethernet addresses, can't do further dissection... */
+  if (pinfo->dst.type != AT_ETHER || pinfo->src.type != AT_ETHER)
+    return 0;
+
+  length = tvb_length_remaining(message_tvb, 8);
+  reported_length = tvb_reported_length_remaining(message_tvb, 8);
+  if (reported_length < 8)
+  {
+    /* We don't even have enough for the footer. */
+    return 0;
+  }
+
+  /* Length of packet, minus the footer. */
+  reported_body_length = reported_length - 8;
+  /* How much of that do we have in the tvbuff? */
+  body_length = length;
+  if (body_length > reported_body_length)
+    body_length = reported_body_length;
+
+  length = tvb_length_remaining(message_tvb, 8+body_length);
+  if (length < 0)
+  {
+    /* The footer wasn't captured at all.
+       XXX - we'd like to throw a BoundsError if that's the case. */
+    return 0;
+  }
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
@@ -325,52 +357,21 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   header_tvb = tvb_new_subset(message_tvb, 0, 8, 8);
   dissect_cpfi_header(header_tvb, pinfo, cpfi_tree);
 
-  /* Got good CPFI frame? */
-  if ( (frame_type == 9) && fc_handle )
-  {
-    /* create a tvb for the rest of the fc frame (exclude the checksum and CPFI trailer) */
-    length = tvb_length_remaining(message_tvb, 8);
-    reported_length = tvb_reported_length_remaining(message_tvb, 8);
-    if (reported_length < 8)
-    {
-      /* We don't even have enough for the footer. */
-      body_tvb = tvb_new_subset(message_tvb, 8, -1, -1);
-      call_dissector(data_handle, body_tvb, pinfo, tree);
-      return;
-    }
-    /* Length of packet, minus the footer. */
-    reported_body_length = reported_length - 8;
-    /* How much of that do we have in the tvbuff? */
-    body_length = length;
-    if (body_length > reported_body_length)
-      body_length = reported_body_length;
-    body_tvb = tvb_new_subset(message_tvb, 8, body_length, reported_body_length);
-    call_dissector(fc_handle, body_tvb, pinfo, tree);
+  body_tvb = tvb_new_subset(message_tvb, 8, body_length, reported_body_length);
+  call_dissector(fc_handle, body_tvb, pinfo, tree);
 
-    /* add more info, now that FC added it's */
-    proto_item_append_text(cpfi_item, direction_and_port_string, left, arrow, right);
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-      col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
-    }
-
-    /* Do the footer */
-    length = tvb_length_remaining(message_tvb, 8+body_length);
-    if (length < 0)
-    {
-      /* The footer wasn't captured at all.
-         XXX - we'd like to throw a BoundsError if that's the case. */
-      return;
-    }
-    footer_tvb = tvb_new_subset(message_tvb, 8+body_length, length, 8);
-    dissect_cpfi_footer(footer_tvb, cpfi_tree);
-  }
-  else if ( data_handle )
+  /* add more info, now that FC added it's */
+  proto_item_append_text(cpfi_item, direction_and_port_string, left, arrow, right);
+  if (check_col(pinfo->cinfo, COL_INFO))
   {
-    /* create a tvb for the rest of the frame */
-    body_tvb = tvb_new_subset(message_tvb, 8, -1, -1);
-    call_dissector(data_handle, body_tvb, pinfo, tree);
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
   }
+
+  /* Do the footer */
+  footer_tvb = tvb_new_subset(message_tvb, 8+body_length, length, 8);
+  dissect_cpfi_footer(footer_tvb, cpfi_tree);
+
+  return(tvb_length(message_tvb));
 
 }
 
@@ -525,8 +526,8 @@ proto_reg_handoff_cpfi(void)
     cpfi_init_complete = TRUE;
     fc_handle     = find_dissector("fc");
     data_handle   = find_dissector("data");
-    cpfi_handle   = create_dissector_handle(dissect_cpfi, proto_cpfi);
-    ttot_handle   = create_dissector_handle(dissect_cpfi, proto_cpfi);
+    cpfi_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
+    ttot_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
   }
   else
   {
