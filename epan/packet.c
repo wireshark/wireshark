@@ -1386,7 +1386,9 @@ register_dissector_table(const char *name, const char *ui_name, ftenum_t type,
 	}
 
 	/* Make sure the registration is unique */
-	g_assert(!g_hash_table_lookup( dissector_tables, name ));
+	if(g_hash_table_lookup( dissector_tables, name )) {
+		g_error("The filter name %s (%s) is already registered - do you use a buggy plugin?", name, ui_name);
+	}
 
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
