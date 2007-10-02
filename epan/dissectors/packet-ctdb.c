@@ -797,9 +797,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		cd(pinfo, tree, tvb, data_offset, 0, endianess);
 	}
 
-	if(ctdb_control){
-		ctdb_display_control(pinfo, tree, tvb, ctdb_control);
-	}
+	ctdb_display_control(pinfo, tree, tvb, ctdb_control);
 	
 	return offset;
 }
