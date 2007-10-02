@@ -515,8 +515,40 @@ static void sbus_init_protocol(void){
               G_ALLOC_AND_FREE);
 }
 
+/* check whether the packet looks like SBUS or not */
+static gboolean
+is_sbus_pdu(tvbuff_t *tvb)
+{
+	guint32 length;
+
+	/* we need at least 8 bytes to determine whether this is sbus or
+	   not
+	*/
+	if(tvb_length(tvb)<8){
+		return FALSE;
+	}
+
+	/* the length must be >= 8 bytes to accomodate the header,
+	   it also must be <65536 to fit inside a udp packet
+	 */
+	length=tvb_get_ntohl(tvb, 0);
+	if ( (length<8) || (length>65535) ) {
+		return FALSE;
+	}
+	if (tvb_reported_length(tvb) != length) {
+		return FALSE;
+	}
+
+	/* XXX */
+	/* We should also test version and protocol    but that requires
+	   someone to look at the specification for SBUS
+	*/
+	
+	return TRUE;
+}
+
 /*Dissect the telegram*/
-static void
+static int
 dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -551,7 +583,12 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        conversation_t *conversation = NULL;
        sbus_request_key request_key, *new_request_key;
        sbus_request_val *request_val = NULL;
-       
+
+       /* does this look like an sbus pdu? */       
+       if(!is_sbus_pdu(tvb)){
+           return 0;
+       }
+
        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
               pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
        
@@ -1278,6 +1315,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               }
               offset += 2; /*now at the end of the telegram*/
        }
+       return tvb_length(tvb);
 /*End of dissect_sbus*/
 }
 
@@ -1620,7 +1658,7 @@ proto_reg_handoff_sbus(void)
 {
        dissector_handle_t sbus_handle;
 
-       sbus_handle = create_dissector_handle(dissect_sbus, proto_sbus);
+       sbus_handle = new_create_dissector_handle(dissect_sbus, proto_sbus);
        dissector_add("udp.port", 5050, sbus_handle);
 }
 
