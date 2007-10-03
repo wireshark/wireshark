@@ -2144,13 +2144,13 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         offset_v+=1;
 
         /* sccs flags */
-        offset_v=dissect_spc_inq_sccsflags(tvb_v, offset, tree);
+        offset_v=dissect_spc_inq_sccsflags(tvb_v, offset_v, tree);
 
         /* bque flags */
-        offset_v=dissect_spc_inq_bqueflags(tvb_v, offset, tree);
+        offset_v=dissect_spc_inq_bqueflags(tvb_v, offset_v, tree);
 
         /* reladdr flags */
-        offset_v=dissect_spc_inq_reladrflags(tvb_v, offset, tree);
+        offset_v=dissect_spc_inq_reladrflags(tvb_v, offset_v, tree);
 
         /* vendor id */
         proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb_v, offset_v, 8, 0);
