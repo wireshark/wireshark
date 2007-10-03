@@ -55,6 +55,8 @@ col_format_to_string(gint fmt) {
     "%Yt",
     "%Tt",
     "%Gt",
+    "%rct",
+    "%dct",
     "%s",
     "%rs",
     "%us",
@@ -122,6 +124,8 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"Absolute date and time",                   /* COL_ABS_DATE_TIME */
 	"Delta time",                               /* COL_DELTA_TIME */
 	"Delta time displayed",                     /* COL_DELTA_TIME_DIS */
+	"Relative time (conversation)",             /* COL_REL_CONV_TIME */
+	"Delta time (conversation)",                /* COL_DELTA_CONV_TIME */
 	"Source address",                           /* COL_DEF_SRC */
 	"Src addr (resolved)",                      /* COL_RES_SRC */
 	"Src addr (unresolved)",                    /* COL_UNRES_SRC */
@@ -489,6 +493,10 @@ get_column_longest_string(gint format)
       break;
     case COL_DELTA_TIME_DIS:
       return get_timestamp_column_longest_string(TS_DELTA_DIS, timestamp_get_precision());
+      break;
+    case COL_REL_CONV_TIME:	/* 'abuse' TS_RELATIVE to set the time format */
+    case COL_DELTA_CONV_TIME:	/* for the conversation related time columns */
+      return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());
       break;
     case COL_DEF_SRC:
     case COL_RES_SRC:

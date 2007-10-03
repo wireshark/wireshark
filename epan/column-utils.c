@@ -909,6 +909,56 @@ col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
   }
 }
 
+void
+col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
+{
+  int	col;
+
+  g_assert(cinfo->col_first[el] >= 0);
+
+  for (col = cinfo->col_first[el]; col <= cinfo->col_last[el]; col++) {
+    if (cinfo->fmt_matx[col][el]) {
+      switch(timestamp_get_precision()) {
+	case(TS_PREC_FIXED_SEC):
+	case(TS_PREC_AUTO_SEC):
+	  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+	    (gint32) ts->secs, ts->nsecs / 1000000000, SECS);
+	  break;
+	case(TS_PREC_FIXED_DSEC):
+	case(TS_PREC_AUTO_DSEC):
+	  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+	    (gint32) ts->secs, ts->nsecs / 100000000, DSECS);
+	  break;
+	case(TS_PREC_FIXED_CSEC):
+	case(TS_PREC_AUTO_CSEC):
+	  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+	    (gint32) ts->secs, ts->nsecs / 10000000, CSECS);
+	  break;
+	case(TS_PREC_FIXED_MSEC):
+	case(TS_PREC_AUTO_MSEC):
+	  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+	    (gint32) ts->secs, ts->nsecs / 1000000, MSECS);
+	  break;
+	case(TS_PREC_FIXED_USEC):
+	case(TS_PREC_AUTO_USEC):
+	  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+	    (gint32) ts->secs, ts->nsecs / 1000, USECS);
+	  break;
+	case(TS_PREC_FIXED_NSEC):
+	case(TS_PREC_AUTO_NSEC):
+	  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
+	    (gint32) ts->secs, ts->nsecs, NSECS);
+	  break;
+	default:
+	  g_assert_not_reached();
+      }
+      cinfo->col_data[col] = cinfo->col_buf[col];
+      strcpy(cinfo->col_expr[col],fieldname);
+      strcpy(cinfo->col_expr_val[col],cinfo->col_buf[col]);
+    }
+  }
+}
+
 static void
 col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 	     gboolean is_src)
@@ -1199,6 +1249,10 @@ col_fill_in(packet_info *pinfo)
     case COL_DELTA_TIME_DIS:
       col_set_delta_time_dis(pinfo->fd, pinfo->cinfo, i);
       break;
+
+    case COL_REL_CONV_TIME:
+    case COL_DELTA_CONV_TIME:
+      break;		/* Will be set by various dissectors */
 
     case COL_DEF_SRC:
     case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */

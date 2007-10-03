@@ -209,6 +209,20 @@ extern void	col_append_sep_fstr(column_info *cinfo, gint col, const gchar *sep,
 		const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 4, 5);
 
+/** Set the given (relative) time to a column element.
+ *
+ * Used by multiple dissectors to set the time in the columns
+ * COL_REL_CONV_TIME and COL_DELTA_CONV_TIME
+ * 
+ * @param cinfo		the current packet row
+ * @param col		the column to use, e.g. COL_INFO
+ * @param ts		the time to set in the column
+ * @param fieldname	the fieldname to use for creating a filter (when 
+ *			  applying/preparing/copying as filter)
+ */
+extern void 	col_set_time(column_info *cinfo, int col,
+			nstime_t *ts, char *fieldname);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

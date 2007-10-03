@@ -2491,6 +2491,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct tcp_per_packet_data_t *tcppd=NULL;
   proto_item *item;
   proto_tree *checksum_tree;
+  nstime_t	ts;
 
 
   tcph=ep_alloc(sizeof(struct tcpheader));
@@ -2565,9 +2566,30 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* find(or create if needed) the conversation for this tcp session */
   tcpd=get_tcp_conversation_data(pinfo);
 
-  /* Calculate the timestamps relative to this conversation */
-  if(!(pinfo->fd->flags.visited) && tcp_calculate_ts){
-    tcp_calculate_timestamps(pinfo, tcpd, tcppd);
+  /* Do we need to calculate timestamps relative to the tcp-stream? */
+  if (tcp_calculate_ts) {
+
+    /*
+     * Calculate the timestamps relative to this conversation (but only on the
+     * first run when frames are accessed sequentially)
+     */
+    if (!(pinfo->fd->flags.visited))
+      tcp_calculate_timestamps(pinfo, tcpd, tcppd);
+
+
+    /* Fill the conversation timestamp columns */
+    if (check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
+      nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
+      col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
+    }
+
+    if (check_col(pinfo->cinfo, COL_DELTA_CONV_TIME)) {
+      if( !tcppd ) 
+	tcppd = p_get_proto_data(pinfo->fd, proto_tcp);
+      
+      if( tcppd ) 
+        col_set_time(pinfo->cinfo, COL_DELTA_CONV_TIME, &tcppd->ts_del, "tcp.time_delta");
+    }
   }
 
 
