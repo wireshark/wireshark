@@ -650,7 +650,7 @@ struct file_type_info {
 	const char *name;
 
     /* the file type short name, used as a shortcut for the command line tools */
-    /* should be NULL for all "pseudo" types that are are only internally used and not read/writeable */
+    /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
 	const char *short_name;
 
     /* the common file extensions for this type (seperated by semicolon) */
@@ -682,34 +682,57 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
  * "int" pointed to by its second argument:
  *
  * a positive "errno" value if the capture file can't be opened;
- *
  * a negative number, indicating the type of error, on other failures.
  */
 struct wtap* wtap_open_offline(const char *filename, int *err,
     gchar **err_info, gboolean do_random);
 
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
- * set the the offset in the file where the data for the read packet is
+ * set to the offset in the file where the data for the read packet is
  * located. */
 gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 
-/*
- * Return an approximation of the amount of data we've read sequentially
- * from the file so far.
- */
-gint64 wtap_read_so_far(wtap *wth, int *err);
+gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
+	int *err, gchar **err_info);
 
+/*** get various information snippets about the current packet ***/
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
 union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
 guint8 *wtap_buf_ptr(wtap *wth);
 
+/*** get various information snippets about the current file ***/
+
+/* Return an approximation of the amount of data we've read sequentially
+ * from the file so far. */
+gint64 wtap_read_so_far(wtap *wth, int *err);
 gint64 wtap_file_size(wtap *wth, int *err);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);
 
+/*** close the current file ***/
+void wtap_sequential_close(wtap *wth);
+void wtap_close(wtap *wth);
+
+/*** dump packets into a capture file ***/
+gboolean wtap_dump_can_open(int filetype);
+gboolean wtap_dump_can_write_encap(int filetype, int encap);
+gboolean wtap_dump_can_compress(int filetype);
+wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
+	int snaplen, gboolean compressed, int *err);
+wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
+	gboolean compressed, int *err);
+gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
+	const union wtap_pseudo_header *pseudo_header, const guchar *, int *err);
+void wtap_dump_flush(wtap_dumper *);
+gint64 wtap_get_bytes_dumped(wtap_dumper *);
+void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
+gboolean wtap_dump_close(wtap_dumper *, int *);
+
+/*** various string converter functions ***/
 const char *wtap_file_type_string(int filetype);
 const char *wtap_file_type_short_string(int filetype);
 int wtap_short_string_to_file_type(const char *short_name);
@@ -722,30 +745,17 @@ const char *wtap_encap_short_string(int encap);
 int wtap_short_string_to_encap(const char *short_name);
 
 const char *wtap_strerror(int err);
-void wtap_sequential_close(wtap *wth);
-void wtap_close(wtap *wth);
-gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
-	int *err, gchar **err_info);
 
-gboolean wtap_dump_can_open(int filetype);
-gboolean wtap_dump_can_write_encap(int filetype, int encap);
-gboolean wtap_dump_can_compress(int filetype);
-wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
-	int snaplen, gboolean compressed, int *err);
-wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
-	gboolean compressed, int *err);
-gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
-	const union wtap_pseudo_header *pseudo_header, const guchar *, int *err);
-void wtap_dump_flush(wtap_dumper *);
-gboolean wtap_dump_close(wtap_dumper *, int *);
-gint64 wtap_get_bytes_dumped(wtap_dumper *);
-void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
+/*** get available number of file types and encapsulations ***/
 int wtap_get_num_encap_types(void);
 int wtap_get_num_file_types(void);
-void wtap_register_open_routine(wtap_open_routine_t,gboolean);
+
+/*** dynamically register new file types and encapsulations ***/
+void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);
+int wtap_register_file_type(const struct file_type_info* fi);
 int wtap_register_encap_type(char* name, char* short_name);
-int wtap_register_file_type(const struct file_type_info*);
+
+
 /*
  * Wiretap error codes.
  */
