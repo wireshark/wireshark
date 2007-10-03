@@ -7,7 +7,7 @@ submit patches - free software is a community effort....
 To add the ability to read a new capture file format, you have to:
 
 	add a new WTAP_FILE_ value for the file type to
-	"wiretap/wtap.h", and increase WTAP_NUM_FILE_TYPES by 1;
+	"wiretap/wtap.h";
 
 	write an "open" routine that can read the beginning of the
 	capture file and figure out if it's in that format or not,
@@ -33,19 +33,20 @@ To add the ability to read a new capture file format, you have to:
 	"subtype_close" member of the "wtap" structure to point to it,
 	otherwise leave it set to NULL;
 
-	add a pointer to the "open" routine to the "open_routines[]"
-	table in "file_access.c" - if it uses a magic number, put it in
-	the first section of that list, and, if it uses a heuristic, put
-	it in the second section, preferably putting the heuristic
+	add a pointer to the "open" routine to the "open_routines_base[]"
+	table in "wiretap/file_access.c" - if it uses a magic number, put 
+	it in the first section of that list, and, if it uses a heuristic, 
+	put it in the second section, preferably putting the heuristic
 	routines for binary files before the heuristic routines for text
 	files;
 
-	add an entry for that file type in the "dump_open_table[]" in
-	"file_access.c", giving a descriptive name, a short name that's
-	convenient to type on a command line (no blanks or capital
-	letters, please), and pointers to the "can_write_encap" and
-	"dump_open" routines if writing that file is supported (see
-	below), otherwise just null pointers.
+	add an entry for that file type in the "dump_open_table_base[]" in
+	"wiretap/file_access.c", giving a descriptive name, a short name 
+	that's convenient to type on a command line (no blanks or capital
+	letters, please), common file extensions to open and save, a flag 
+	if it can be compressed with gzip (currently unused) and pointers 
+	to the "can_write_encap" and "dump_open" routines if writing that 
+	file is supported (see below), otherwise just null pointers.
 
 Wiretap applications typically first perform sequential reads through
 the capture file and may later do "seek and read" for individual frames. 
