@@ -2177,7 +2177,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
     proto_tree *subslot_tree;
 
 
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0 && u8BlockVersionLow != 1) {
+	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -3322,7 +3322,7 @@ dissect_AdjustDomainBoundary_block(tvbuff_t *tvb, int offset,
     guint16 u16AdjustProperties;
 
 
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0 && u8BlockVersionLow != 1) {
+	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -4021,7 +4021,7 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
 	guint32 u32Tmp;
 
 
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0 && u8BlockVersionLow != 1) {
+	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -4148,7 +4148,7 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
     guint16 u16UserStructureIdentifier;
 
 
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0 && u8BlockVersionLow != 1) {
+	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
