@@ -336,9 +336,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						 * trailing CRLF.
 						 */ 
 						pinfo->desegment_offset = offset;
-						pinfo->desegment_len =
-						    chunk_size + 1 -
-						    reported_length_remaining;
+						pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 						return FALSE;
 					}
 				}
