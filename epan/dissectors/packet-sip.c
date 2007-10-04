@@ -134,6 +134,8 @@ static gint hf_sip_rack_rseq_no          = -1;
 static gint hf_sip_rack_cseq_no          = -1;
 static gint hf_sip_rack_cseq_method      = -1;
 
+static gint hf_sip_msg_body              = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip 				= -1;
 static gint ett_sip_reqresp 		= -1;
@@ -1662,7 +1664,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	case REQUEST_LINE:
 		if (sip_tree) {
-			ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, offset, linelen,
+			ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, offset, next_offset-offset,
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
 		}
@@ -1671,7 +1673,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	case STATUS_LINE:
 		if (sip_tree) {
-			ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, offset, linelen,
+			ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, offset, next_offset-offset,
 			                           tvb_format_text(tvb, offset, linelen));
 			reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
 		}
@@ -2400,8 +2402,8 @@ separator_found2:
 		proto_item_set_end(th, tvb, offset);
 		next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
 		if(sip_tree) {
-			ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
-			                         "Message body");
+			ti = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
+			                         FALSE);
 			message_body_tree = proto_item_add_subtree(ti, ett_sip_message_body);
 		}
 
@@ -3641,8 +3643,13 @@ void proto_register_sip(void)
 		{ &hf_sip_rack_cseq_method,
 			{ "CSeq Method",  "sip.RAck.CSeq.method",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"RAck CSeq header method (from prov response)", HFILL}}
-		};
+		    	"RAck CSeq header method (from prov response)", HFILL}
+		},
+		{ &hf_sip_msg_body,
+				{ "Message Body",           "sip.msg_body",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Message Body in SIP message", HFILL }
+		}};
 
 
 	/* Setup protocol subtree array */
