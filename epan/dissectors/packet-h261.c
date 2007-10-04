@@ -82,7 +82,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/* SBIT 1st octet, 3 bits */
 		proto_tree_add_uint( h261_tree, hf_h261_sbit, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
 		/* EBIT 1st octet, 3 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_ebit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset )  << 3 ) >> 5 );
+		proto_tree_add_uint( h261_tree, hf_h261_ebit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset )  >> 2 ) & 7 );
 		/* I flag, 1 bit */
 		proto_tree_add_boolean( h261_tree, hf_h261_ibit, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 2 );
 		/* V flag, 1 bit */
