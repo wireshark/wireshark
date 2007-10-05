@@ -26,11 +26,12 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-if NO_PROTO_OPT
-PROTO_OPT =
-else
-PROTO_OPT = -p $(PROTOCOL_NAME)
-endif
+# commented out till it is fixed
+#if NO_PROTO_OPT
+#PROTO_OPT =
+#else
+#PROTO_OPT = -p $(PROTOCOL_NAME)
+xendif
 
 $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
