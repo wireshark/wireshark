@@ -30,9 +30,7 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-!IFDEF NO_PROTO_OPT
-PROTO_OPT =
-!ELSE
+!IFNDEF PROTO_OPT
 PROTO_OPT = -p $(PROTOCOL_NAME)
 !ENDIF
 
