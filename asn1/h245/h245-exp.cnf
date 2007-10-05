@@ -8,11 +8,15 @@ MULTIMEDIA-SYSTEM-CONTROL  h245
 #.END
 
 #.TYPE_ATTR
+Capability               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h245_Capability_vals)  BITMASK = 0
 H223Capability           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 QOSCapability            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DataProtocolCapability   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(DataProtocolCapability_vals)  BITMASK = 0
 T38FaxProfile            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 OpenLogicalChannel       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 H223LogicalChannelParameters TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+TransportAddress         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h245_TransportAddress_vals)  BITMASK = 0
+UnicastAddress           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h245_UnicastAddress_vals)  BITMASK = 0
+MulticastAddress         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h245_MulticastAddress_vals)  BITMASK = 0
 #.END
 

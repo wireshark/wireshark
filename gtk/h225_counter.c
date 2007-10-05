@@ -450,7 +450,7 @@ h225counter_draw(void *phs)
 				for(j=0;j<=REL_CMP_REASONS;j++) {
 					if(hs->rel_cmp_reason[j]!=0) {
 						g_snprintf(str[0], sizeof(char[256]),
-                            "    %s", val_to_str(j,ReleaseCompleteReason_vals,"unknown reason   "));
+                            "    %s", val_to_str(j,h225_ReleaseCompleteReason_vals,"unknown reason   "));
 						g_snprintf(str[1], sizeof(char[256]),
                             "%d", hs->rel_cmp_reason[j]);
 						gtk_clist_append(hs->table, str);

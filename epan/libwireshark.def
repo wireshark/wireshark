@@ -716,7 +716,7 @@ register_stat_cmd_arg
 register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
-ReleaseCompleteReason_vals      DATA
+h225_ReleaseCompleteReason_vals      DATA
 relinquish_special_privs_perm
 rel_time_to_str
 rel_time_to_secs_str

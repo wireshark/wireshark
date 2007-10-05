@@ -46,7 +46,7 @@
 #include "packet-h450-ros.h"
 
 #define PNAME  "H.450 Supplementary Services"
-#define PSNAME "H450"
+#define PSNAME "H.450"
 #define PFNAME "h450"
 
 /* Initialize the protocol and registered fields */

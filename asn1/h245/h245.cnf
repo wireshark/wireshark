@@ -10,6 +10,11 @@ OpenLogicalChannel
 QOSCapability
 H223Capability
 H223LogicalChannelParameters
+TransportAddress
+UnicastAddress
+MulticastAddress
+Capability
+#.END
 
 #.PDU
 OpenLogicalChannel

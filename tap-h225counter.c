@@ -329,7 +329,7 @@ h225counter_draw(void *phs)
 			case 5: /* ReleaseComplete */
 				for(j=0;j<=REL_CMP_REASONS;j++) {
 					if(hs->rel_cmp_reason[j]!=0) {
-						printf("    %s : %u\n", val_to_str(j,ReleaseCompleteReason_vals,"unknown reason   "), hs->rel_cmp_reason[j]);
+						printf("    %s : %u\n", val_to_str(j,h225_ReleaseCompleteReason_vals,"unknown reason   "), hs->rel_cmp_reason[j]);
 					}
 				}
 				break;

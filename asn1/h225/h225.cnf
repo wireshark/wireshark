@@ -4,6 +4,12 @@
 # $Id$
 
 #.INCLUDE ../h235/h235-exp.cnf
+
+#.TYPE_ATTR
+# override TransportAddress from H.245
+# temporary solution till collision between imported and defined type is solved in the asn2wrs
+TransportAddress         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h225_TransportAddress_vals)  BITMASK = 0
+#.END
 #.INCLUDE ../h245/h245-exp.cnf
 
 #----------------------------------------------------------------------------------------
@@ -18,18 +24,42 @@ BandRejectReason
 DisengageReason		
 DisengageRejectReason	
 InfoRequestNakReason	
-ReleaseCompleteReason	
 AdmissionRejectReason	
 LocationRejectReason	
 RegistrationRejectReason
+
 #.EXPORTS
-NonStandardParameter	 		
+NonStandardParameter
+PublicTypeOfNumber
+PrivateTypeOfNumber
 AliasAddress			NO_PROT_PREFIX
 PartyNumber
 PresentationIndicator
 ScreeningIndicator
 CallIdentifier
+ConferenceIdentifier
+CircuitIdentifier
+GenericIdentifier
 GenericData
+BandWidth
+TimeToLive
+TransportAddress
+AlternateTransportAddresses
+TransportChannelInfo
+CallReferenceValue
+GloballyUniqueID
+TunnelledProtocol
+IntegrityMechanism
+ICV
+CryptoH323Token
+TransportQOS
+FeatureSet
+CircuitInfo
+EndpointType
+SupportedProtocols
+GatekeeperIdentifier
+ServiceControlSession
+ReleaseCompleteReason  WS_VAR
 #.END
 #----------------------------------------------------------------------------------------
 
