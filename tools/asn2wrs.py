@@ -552,7 +552,7 @@ class EthCtx:
     self.default_containing_variant = '_pdu_new'
     self.default_embedded_pdv_cb = None
     self.default_external_type_cb = None
-    self.srcdir = '.'
+    self.srcdir = None
     self.emitted_pdu = {}
     self.module = {}
     self.module_ord = []
@@ -788,7 +788,7 @@ class EthCtx:
   def eth_import_type(self, ident, mod, proto):
     #print "eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto)
     if self.type.has_key(ident):
-      #print "already defined import=%s, module=%s" % (str(self.type[ident]['import']), self.type[ident]['module'])
+      #print "already defined '%s' import=%s, module=%s" % (ident, str(self.type[ident]['import']), self.type[ident].get('module', '-'))
       if not self.type[ident]['import'] and (self.type[ident]['module'] == mod) :
         return  # OK - already defined
       elif self.type[ident]['import'] and (self.type[ident]['import'] == mod) :
@@ -7460,7 +7460,8 @@ def eth_main():
   for fn in args:
     input_file = fn
     lexer.lineno = 1
-    f = open (ectx.srcdir + '/' + fn, "r")
+    if (ectx.srcdir): fn = ectx.srcdir + '/' + fn
+    f = open (fn, "r")
     ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
     f.close ()
   ectx.eth_clean()
