@@ -26,10 +26,16 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
+!IFDEF NO_PROTO_OPT
+PROTO_OPT =
+!ELSE
+PROTO_OPT = -p $(PROTOCOL_NAME)
+!ENDIF
+
 $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
 		$(A2W_FLAGS) \
-		-p $(PROTOCOL_NAME) \
+		$(PROTO_OPT) \
 		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
 		-s $(srcdir)/packet-$(PROTOCOL_NAME)-template \
 		-D $(srcdir) \
