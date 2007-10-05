@@ -214,7 +214,7 @@ gboolean capture_info_new_file(const char *new_filename)
         g_snprintf(err_msg, sizeof err_msg,
                    cf_open_error_message(err, err_info, FALSE, WTAP_FILE_PCAP),
                    new_filename);
-        g_warning("capture_info_new_file: %s", err_msg);
+        g_warning("capture_info_new_file: %d (%s)", err, err_msg);
         return FALSE;
     } else
         return TRUE;
