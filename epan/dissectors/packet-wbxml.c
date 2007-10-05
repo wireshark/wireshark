@@ -3,6 +3,9 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
+ * Routines for WV-CSP 1.3 dissection
+ * Copyright 2007, Andrei Rubaniuk.
+ *
  * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
@@ -13,6 +16,8 @@
  * Copyright 1998 Gerald Combs
  *
  * WAP Binary XML decoding functionality provided by Olivier Biot.
+ * WV-CSP 1.2 updated to Release version and WV-CSP 1.3 protocol 
+ * decoding functionality provided by Andrei Rubaniuk.
  *
  * The WAP specifications used to be found at the WAP Forum:
  *	<http://www.wapforum.org/what/Technical.htm>
@@ -64,7 +69,7 @@
  * so that it contains "-DDEBUG_wbxml"
  */
 #ifdef DEBUG_wbxml
-#define DebugLog(x) \
+#define DebugLog(x)				\
 	g_print("%s:%u: ", __FILE__, __LINE__); \
 	g_print x
 #else
@@ -143,15 +148,15 @@ typedef struct _value_valuestring {
 static const value_string *
 val_to_valstr(guint32 val, const value_valuestring *vvs)
 {
-  gint i = 0;
+	gint i = 0;
 
-  while (vvs[i].valstrptr) {
-   	if (vvs[i].value == val)
-      return(vvs[i].valstrptr);
-      i++;
-  }
+	while (vvs[i].valstrptr) {
+		if (vvs[i].value == val)
+			return(vvs[i].valstrptr);
+		i++;
+	}
 
-  return(NULL);
+	return(NULL);
 }
 
 /* Note on Token mapping
@@ -221,7 +226,7 @@ typedef char * (* opaque_literal_func_ptr)(tvbuff_t *, guint32, const char *, gu
 
 static char *
 default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
-		guint8 token _U_, guint8 codepage _U_, guint32 *length)
+			  guint8 token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
@@ -231,7 +236,7 @@ default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 
 static char *
 default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
-		const char *token _U_, guint8 codepage _U_, guint32 *length)
+			   const char *token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
@@ -241,7 +246,7 @@ default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 
 static char *
 default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
-		guint8 token _U_, guint8 codepage _U_, guint32 *length)
+			   guint8 token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
@@ -251,7 +256,7 @@ default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 
 static char *
 default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
-		const char *token _U_, guint8 codepage _U_, guint32 *length)
+			    const char *token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = g_strdup_printf("(%d bytes of opaque data)", data_len);
@@ -267,48 +272,48 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 	char *str;
 
 	switch (data_len) {
-		case 4: /* YYYY-MM-DD[T00:00:00Z] */
-			str = g_strdup_printf("%%DateTime: "
-					"%02x%02x-%02x-%02xT00:00:00Z",
-					tvb_get_guint8(tvb, offset),
-					tvb_get_guint8(tvb, offset + 1),
-					tvb_get_guint8(tvb, offset + 2),
-					tvb_get_guint8(tvb, offset + 3));
-			break;
-		case 5: /* YYYY-MM-DDThh[:00:00Z] */
-			str = g_strdup_printf("%%DateTime: "
-					"%02x%02x-%02x-%02xT%02x:00:00Z",
-					tvb_get_guint8(tvb, offset),
-					tvb_get_guint8(tvb, offset + 1),
-					tvb_get_guint8(tvb, offset + 2),
-					tvb_get_guint8(tvb, offset + 3),
-					tvb_get_guint8(tvb, offset + 4));
-			break;
-		case 6: /* YYYY-MM-DDThh:mm[:00Z] */
-			str = g_strdup_printf("%%DateTime: "
-					"%02x%02x-%02x-%02xT%02x:%02x:00Z",
-					tvb_get_guint8(tvb, offset),
-					tvb_get_guint8(tvb, offset + 1),
-					tvb_get_guint8(tvb, offset + 2),
-					tvb_get_guint8(tvb, offset + 3),
-					tvb_get_guint8(tvb, offset + 4),
-					tvb_get_guint8(tvb, offset + 5));
-			break;
-		case 7: /* YYYY-MM-DDThh:mm[:00Z] */
-			str = g_strdup_printf("%%DateTime: "
-					"%02x%02x-%02x-%02xT%02x:%02x:%02xZ",
-					tvb_get_guint8(tvb, offset),
-					tvb_get_guint8(tvb, offset + 1),
-					tvb_get_guint8(tvb, offset + 2),
-					tvb_get_guint8(tvb, offset + 3),
-					tvb_get_guint8(tvb, offset + 4),
-					tvb_get_guint8(tvb, offset + 5),
-					tvb_get_guint8(tvb, offset + 6));
-			break;
-		default:
-			str = g_strdup_printf("<Error: invalid binary %%DateTime "
-					"(%d bytes of opaque data)>", data_len);
-			break;
+	case 4: /* YYYY-MM-DD[T00:00:00Z] */
+		str = g_strdup_printf("%%DateTime: "
+				      "%02x%02x-%02x-%02xT00:00:00Z",
+				      tvb_get_guint8(tvb, offset),
+				      tvb_get_guint8(tvb, offset + 1),
+				      tvb_get_guint8(tvb, offset + 2),
+				      tvb_get_guint8(tvb, offset + 3));
+		break;
+	case 5: /* YYYY-MM-DDThh[:00:00Z] */
+		str = g_strdup_printf("%%DateTime: "
+				      "%02x%02x-%02x-%02xT%02x:00:00Z",
+				      tvb_get_guint8(tvb, offset),
+				      tvb_get_guint8(tvb, offset + 1),
+				      tvb_get_guint8(tvb, offset + 2),
+				      tvb_get_guint8(tvb, offset + 3),
+				      tvb_get_guint8(tvb, offset + 4));
+		break;
+	case 6: /* YYYY-MM-DDThh:mm[:00Z] */
+		str = g_strdup_printf("%%DateTime: "
+				      "%02x%02x-%02x-%02xT%02x:%02x:00Z",
+				      tvb_get_guint8(tvb, offset),
+				      tvb_get_guint8(tvb, offset + 1),
+				      tvb_get_guint8(tvb, offset + 2),
+				      tvb_get_guint8(tvb, offset + 3),
+				      tvb_get_guint8(tvb, offset + 4),
+				      tvb_get_guint8(tvb, offset + 5));
+		break;
+	case 7: /* YYYY-MM-DDThh:mm[:00Z] */
+		str = g_strdup_printf("%%DateTime: "
+				      "%02x%02x-%02x-%02xT%02x:%02x:%02xZ",
+				      tvb_get_guint8(tvb, offset),
+				      tvb_get_guint8(tvb, offset + 1),
+				      tvb_get_guint8(tvb, offset + 2),
+				      tvb_get_guint8(tvb, offset + 3),
+				      tvb_get_guint8(tvb, offset + 4),
+				      tvb_get_guint8(tvb, offset + 5),
+				      tvb_get_guint8(tvb, offset + 6));
+		break;
+	default:
+		str = g_strdup_printf("<Error: invalid binary %%DateTime "
+				      "(%d bytes of opaque data)>", data_len);
+		break;
 	}
 
 	return str;
@@ -350,11 +355,11 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 		timezone = tvb_get_guint8(tvb, offset + 5);
 		/* Now construct the string */
 		str = g_strdup_printf("WV-CSP DateTime: "
-				"%04d-%02d-%02dT%02d:%02d:%02d%c",
-				year, month, day, hour, minute, second, timezone);
+				      "%04d-%02d-%02dT%02d:%02d:%02d%c",
+				      year, month, day, hour, minute, second, timezone);
 	} else { /* Invalid length for a WV-CSP DateTime tag value */
 		str = g_strdup_printf("<Error: invalid binary WV-CSP DateTime value "
-				"(%d bytes of opaque data)>", data_len);
+				      "(%d bytes of opaque data)>", data_len);
 	}
 	return str;
 }
@@ -367,93 +372,85 @@ wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 	char *str;
 
 	switch (data_len) {
-		case 1:
-			str = g_strdup_printf("WV-CSP Integer: %d",
-					tvb_get_guint8(tvb, offset));
-			break;
-		case 2:
-			str = g_strdup_printf("WV-CSP Integer: %d",
-					tvb_get_ntohs(tvb, offset));
-			break;
-		case 3:
-			str = g_strdup_printf("WV-CSP Integer: %d",
-					tvb_get_ntoh24(tvb, offset));
-			break;
-		case 4:
-			str = g_strdup_printf("WV-CSP Integer: %d",
-					tvb_get_ntohl(tvb, offset));
-			break;
-		default:
-			str = g_strdup_printf("<Error: invalid binary WV-CSP Integer value "
-					"(%d bytes of opaque data)>", data_len);
-			break;
+	case 1:
+		str = g_strdup_printf("WV-CSP Integer: %d",
+				      tvb_get_guint8(tvb, offset));
+		break;
+	case 2:
+		str = g_strdup_printf("WV-CSP Integer: %d",
+				      tvb_get_ntohs(tvb, offset));
+		break;
+	case 3:
+		str = g_strdup_printf("WV-CSP Integer: %d",
+				      tvb_get_ntoh24(tvb, offset));
+		break;
+	case 4:
+		str = g_strdup_printf("WV-CSP Integer: %d",
+				      tvb_get_ntohl(tvb, offset));
+		break;
+	default:
+		str = g_strdup_printf("<Error: invalid binary WV-CSP Integer value "
+				      "(%d bytes of opaque data)>", data_len);
+		break;
 	}
 
 	return str;
 }
 
-static char *
-wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
-		guint8 token, guint8 codepage, guint32 *length)
+static char * 
+wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset, 
+			   guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	switch (codepage) {
-		case 0: /* Common code page */
-			switch (token) {
-				case 0x0B: /* <Code> */
-				case 0x0F: /* <ContentSize> */
-				case 0x1A: /* <MessageCount> */
-				case 0x3C: /* <Validity> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				case 0x11: /* <DateTime> */
-					str = wv_datetime_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
+	case 0: /* Common code page */
+		switch (token) {
+		case 0x0B: /* <Code> */
+		case 0x0F: /* <ContentSize> */
+		case 0x1A: /* <MessageCount> */
+		case 0x3C: /* <Validity> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
 			break;
-		case 1: /* Access code page */
-			switch (token) {
-				case 0x1C: /* <KeepAliveTime> */
-				case 0x32: /* <TimeToLive> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
-		case 3: /* Client capability code page */
-			switch (token) {
-				case 0x06: /* <AcceptedContentLength> */
-				case 0x0C: /* <MultiTrans> */
-				case 0x0D: /* <ParserSize> */
-				case 0x0E: /* <ServerPollMin> */
-				case 0x12: /* <TCPPort> */
-				case 0x13: /* <UDPPort> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
-			break;
-		case 6: /* Messaging code page */
-			switch (token) {
-				case 0x1A: /* <DeliveryTime> - not in 1.0 */
-					str = wv_datetime_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
+		case 0x11: /* <DateTime> */
+			str = wv_datetime_from_opaque(tvb,
+						      offset + *length, data_len);
 			break;
 		default:
 			break;
+		}
+		break;
+	case 1: /* Access code page */
+		switch (token) {
+		case 0x1C: /* <KeepAliveTime> */
+		case 0x32: /* <TimeToLive> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 3: /* Client capability code page */
+		switch (token) {
+		case 0x06: /* <AcceptedContentLength> */
+		case 0x0C: /* <MultiTrans> */
+		case 0x0D: /* <ParserSize> */
+		case 0x0E: /* <ServerPollMin> */
+		case 0x11: /* <TCPAddress> */
+		case 0x12: /* <TCPPort> */
+		case 0x13: /* <UDPPort> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
@@ -463,99 +460,141 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-static char *
-wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
-		guint8 token, guint8 codepage, guint32 *length)
+static char * 
+wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+			    const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
+	
+	if ( token && ( (strcmp(token, "Code") == 0)
+			|| (strcmp(token, "ContentSize") == 0)
+			|| (strcmp(token, "MessageCount") == 0)
+			|| (strcmp(token, "Validity") == 0)
+			|| (strcmp(token, "KeepAliveTime") == 0)
+			|| (strcmp(token, "TimeToLive") == 0)
+			|| (strcmp(token, "AcceptedContentLength") == 0)
+			|| (strcmp(token, "MultiTrans") == 0)
+			|| (strcmp(token, "ParserSize") == 0)
+			|| (strcmp(token, "ServerPollMin") == 0)
+			|| (strcmp(token, "TCPAddress") == 0)
+			|| (strcmp(token, "TCPPort") == 0)
+			|| (strcmp(token, "UDPPort") == 0) ) )
+		{
+			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+		}
+	else if ( token && ( strcmp(token, "DateTime") == 0) )
+		{
+			str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+		}
+	
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+	return str;
+}
 
+static char * 
+wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset, 
+			   guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+	
 	switch (codepage) {
-		case 0: /* Common code page */
-			switch (token) {
-				case 0x0B: /* <Code> */
-				case 0x0F: /* <ContentSize> */
-				case 0x1A: /* <MessageCount> */
-				case 0x3C: /* <Validity> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				case 0x11: /* <DateTime> */
-					str = wv_datetime_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
+	case 0: /* Common code page */
+		switch (token) {
+		case 0x0B: /* <Code> */
+		case 0x0F: /* <ContentSize> */
+		case 0x1A: /* <MessageCount> */
+		case 0x3C: /* <Validity> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
 			break;
-		case 1: /* Access code page */
-			switch (token) {
-				case 0x1C: /* <KeepAliveTime> */
-				case 0x32: /* <TimeToLive> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
-		case 3: /* Client capability code page */
-			switch (token) {
-				case 0x06: /* <AcceptedContentLength> */
-				case 0x0C: /* <MultiTrans> */
-				case 0x0D: /* <ParserSize> */
-				case 0x0E: /* <ServerPollMin> */
-				case 0x11: /* <TCPAddress> */
-				case 0x12: /* <TCPPort> */
-				case 0x13: /* <UDPPort> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
+		case 0x11: /* <DateTime> */
+			str = wv_datetime_from_opaque(tvb,
+						      offset + *length, data_len);
 			break;
 		default:
 			break;
+		}
+		break;
+	case 1: /* Access code page */
+		switch (token) {
+		case 0x1C: /* <KeepAliveTime> */
+		case 0x32: /* <TimeToLive> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 3: /* Client capability code page */
+		switch (token) {
+		case 0x06: /* <AcceptedContentLength> */
+		case 0x0C: /* <MultiTrans> */
+		case 0x0D: /* <ParserSize> */
+		case 0x0E: /* <ServerPollMin> */
+		case 0x12: /* <TCPPort> */
+		case 0x13: /* <UDPPort> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 6: /* Messaging code page */
+		switch (token) {
+		case 0x1A: /* <DeliveryTime> - not in 1.0 */
+			str = wv_datetime_from_opaque(tvb,
+						      offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
-
+	
 	return str;
 }
 
-
-
-#ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
 static char *
 wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
+			    const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "Code") == 0)
-		|| (strcmp(token, "ContentSize") == 0)
-		|| (strcmp(token, "MessageCount") == 0)
-		|| (strcmp(token, "Validity") == 0)
-		|| (strcmp(token, "KeepAliveTime") == 0)
-		|| (strcmp(token, "TimeToLive") == 0)
-		|| (strcmp(token, "AcceptedContentLength") == 0)
-		|| (strcmp(token, "MultiTrans") == 0)
-		|| (strcmp(token, "ParserSize") == 0)
-		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0) ) )
-	{
-		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
-	}
+			|| (strcmp(token, "ContentSize") == 0)
+			|| (strcmp(token, "MessageCount") == 0)
+			|| (strcmp(token, "Validity") == 0)
+			|| (strcmp(token, "KeepAliveTime") == 0)
+			|| (strcmp(token, "TimeToLive") == 0)
+			|| (strcmp(token, "AcceptedContentLength") == 0)
+			|| (strcmp(token, "MultiTrans") == 0)
+			|| (strcmp(token, "ParserSize") == 0)
+			|| (strcmp(token, "ServerPollMin") == 0)
+			|| (strcmp(token, "TCPPort") == 0)
+			|| (strcmp(token, "UDPPort") == 0) ) )
+		{
+			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+		}
 	else
-	if ( token && ( (strcmp(token, "DateTime") == 0)
-		|| (strcmp(token, "DeliveryTime") == 0) ) )
-	{
-		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
-	}
+		if ( token && ( (strcmp(token, "DateTime") == 0)
+				|| (strcmp(token, "DeliveryTime") == 0) ) )
+			{
+				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+			}
 
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
@@ -566,70 +605,118 @@ wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 
 
 static char *
-wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
+wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+			   guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-
-	if ( token && ( (strcmp(token, "Code") == 0)
-		|| (strcmp(token, "ContentSize") == 0)
-		|| (strcmp(token, "MessageCount") == 0)
-		|| (strcmp(token, "Validity") == 0)
-		|| (strcmp(token, "KeepAliveTime") == 0)
-		|| (strcmp(token, "TimeToLive") == 0)
-		|| (strcmp(token, "AcceptedContentLength") == 0)
-		|| (strcmp(token, "MultiTrans") == 0)
-		|| (strcmp(token, "ParserSize") == 0)
-		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPAddress") == 0)
-		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0) ) )
-	{
-		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+	
+	switch (codepage) {
+	case 0: /* Common code page */
+		switch (token) {
+		case 0x0B: /* <Code> */
+		case 0x0F: /* <ContentSize> */
+		case 0x1A: /* <MessageCount> */
+		case 0x3C: /* <Validity> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		case 0x11: /* <DateTime> */
+			str = wv_datetime_from_opaque(tvb,
+						      offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 1: /* Access code page */
+		switch (token) {
+		case 0x1C: /* <KeepAliveTime> */
+		case 0x32: /* <TimeToLive> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 3: /* Client capability code page */
+		switch (token) {
+		case 0x06: /* <AcceptedContentLength> */
+		case 0x0C: /* <MultiTrans> */
+		case 0x0D: /* <ParserSize> */
+		case 0x0E: /* <ServerPollMin> */
+		case 0x12: /* <TCPPort> */
+		case 0x13: /* <UDPPort> */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 6: /* Messaging code page */
+		switch (token) {
+		case 0x1A: /* <DeliveryTime> - not in 1.0 */
+			str = wv_datetime_from_opaque(tvb,
+						      offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	case 9: /* Common code page (continued) */
+		switch (token) {
+		case 0x08: /* <HistoryPeriod> - 1.2 only */
+		case 0x0A: /* <MaxWatcherList> - 1.2 only */
+			str = wv_integer_from_opaque(tvb,
+						     offset + *length, data_len);
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
 	}
-	else if ( token && ( strcmp(token, "DateTime") == 0) )
-	{
-		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
-	}
-
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
+	
 	return str;
 }
 
 static char *
 wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
+			    const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "Code") == 0)
-		|| (strcmp(token, "ContentSize") == 0)
-		|| (strcmp(token, "MessageCount") == 0)
-		|| (strcmp(token, "Validity") == 0)
-		|| (strcmp(token, "KeepAliveTime") == 0)
-		|| (strcmp(token, "TimeToLive") == 0)
-		|| (strcmp(token, "AcceptedContentLength") == 0)
-		|| (strcmp(token, "MultiTrans") == 0)
-		|| (strcmp(token, "ParserSize") == 0)
-		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0)
-		|| (strcmp(token, "HistoryPeriod") == 0)
-		|| (strcmp(token, "MaxWatcherList") == 0) ) )
-	{
-		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
-	}
+			|| (strcmp(token, "ContentSize") == 0)
+			|| (strcmp(token, "MessageCount") == 0)
+			|| (strcmp(token, "Validity") == 0)
+			|| (strcmp(token, "KeepAliveTime") == 0)
+			|| (strcmp(token, "TimeToLive") == 0)
+			|| (strcmp(token, "AcceptedContentLength") == 0)
+			|| (strcmp(token, "MultiTrans") == 0)
+			|| (strcmp(token, "ParserSize") == 0)
+			|| (strcmp(token, "ServerPollMin") == 0)
+			|| (strcmp(token, "TCPPort") == 0)
+			|| (strcmp(token, "UDPPort") == 0)
+			|| (strcmp(token, "HistoryPeriod") == 0)
+			|| (strcmp(token, "MaxWatcherList") == 0) ) )
+		{
+			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+		}
 	else
-	if ( token && ( (strcmp(token, "DateTime") == 0)
-		|| (strcmp(token, "DeliveryTime") == 0) ) )
-	{
-		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
-	}
+		if ( token && ( (strcmp(token, "DateTime") == 0)
+				|| (strcmp(token, "DeliveryTime") == 0) ) )
+			{
+				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+			}
 
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
@@ -639,100 +726,214 @@ wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 }
 
 static char *
-wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
-		guint8 token, guint8 codepage, guint32 *length)
+wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+			   guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-
-	switch (codepage) {
+	
+	switch (codepage)
+		{
 		case 0: /* Common code page */
-			switch (token) {
+			switch (token)
+				{
 				case 0x0B: /* <Code> */
 				case 0x0F: /* <ContentSize> */
 				case 0x1A: /* <MessageCount> */
 				case 0x3C: /* <Validity> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
+					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 					break;
 				case 0x11: /* <DateTime> */
-					str = wv_datetime_from_opaque(tvb,
-							offset + *length, data_len);
+					str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
-			}
+				}
 			break;
+
 		case 1: /* Access code page */
-			switch (token) {
+			switch (token) 
+				{
 				case 0x1C: /* <KeepAliveTime> */
+				case 0x25: /* <SearchFindings> */
+				case 0x26: /* <SearchID> */
+				case 0x27: /* <SearchIndex> */
+				case 0x28: /* <SearchLimit> */
 				case 0x32: /* <TimeToLive> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
+					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
-			}
+				}
+			break;
+
 		case 3: /* Client capability code page */
-			switch (token) {
+			switch (token)
+				{
 				case 0x06: /* <AcceptedContentLength> */
 				case 0x0C: /* <MultiTrans> */
 				case 0x0D: /* <ParserSize> */
 				case 0x0E: /* <ServerPollMin> */
 				case 0x12: /* <TCPPort> */
 				case 0x13: /* <UDPPort> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
+					/* New in WV-CSP 1.3*/	
+				case 0x16: /* <AcceptedPullLength> */
+				case 0x17: /* <AcceptedPushLength> */  
+				case 0x18: /* <AcceptedRichContentLength> */
+				case 0x19: /* <AcceptedTextContentLength> */
+				case 0x1B: /* <PlainTextCharset> MIBenum number - character set, i.e. UTF-8, windows-1251, etc. */ 
+				case 0x1C: /* <SessionPriority> */
+				case 0x1F: /* <UserSessionLimit> */
+				case 0x21: /* <MultiTransPerMessage> */
+				case 0x24: /* <ContentPolicyLimit> */
+					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
-			}
+				}
 			break;
+
+		case 5: /* Presence attribute code page */
+			switch (token) 
+				{
+					/* New in WV-CSP 1.3*/	
+					//		case 0x3B: /* <ClientContentLimit> */	
+				case 0x3C: /* <ClientIMPriority> */
+				case 0x3D: /* <MaxPullLength> */ 
+				case 0x3E: /* <MaxPushLength> */
+					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					break;
+				default:
+					break;
+				}
+			break;
+
 		case 6: /* Messaging code page */
-			switch (token) {
+			switch (token)
+				{
 				case 0x1A: /* <DeliveryTime> - not in 1.0 */
-					str = wv_datetime_from_opaque(tvb,
-							offset + *length, data_len);
+					/* New in WV-CSP 1.3*/
+				case 0x1C: /* <AnswerOptionID> */
+					str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
-			}
+				}
 			break;
+
 		case 9: /* Common code page (continued) */
-			switch (token) {
+			switch (token)
+				{
 				case 0x08: /* <HistoryPeriod> - 1.2 only */
 				case 0x0A: /* <MaxWatcherList> - 1.2 only */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
+					/* New in WV-CSP 1.3*/
+				case 0x25: /* <SegmentCount> */
+				case 0x28: /* <SegmentReference> */
+				case 0x30: /* <TryAgainTimeout> */
+				case 0x3A: /* <GroupContentLimit> */
+				case 0x3B: /* <MessageTotalCount> */
+					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 					break;
 				default:
 					break;
-			}
+				}
+			break;
+
+		case 10:
+			switch (token)
+				{
+					/* New in WV-CSP 1.3*/
+				case 0x0C: /* <PairID> */
+					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+					break;
+				default:
+					break;
+				}
 			break;
 		default:
 			break;
-	}
+		}
+
+	if (str == NULL)
+		{ /* Error, or not parsed */
+			str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+		}
+	*length += data_len;
+	
+	return str;
+}
+
+
+static char *
+wv_csp13_opaque_literal_tag(tvbuff_t *tvb, guint32 offset, 
+			    const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+	
+	if ( token && ( (strcmp(token, "Code") == 0)
+			|| (strcmp(token, "ContentSize") == 0)
+			|| (strcmp(token, "MessageCount") == 0)
+			|| (strcmp(token, "Validity") == 0)
+			|| (strcmp(token, "KeepAliveTime") == 0)
+			|| (strcmp(token, "TimeToLive") == 0)
+			|| (strcmp(token, "AcceptedContentLength") == 0)
+			|| (strcmp(token, "MultiTrans") == 0)
+			|| (strcmp(token, "ParserSize") == 0)
+			|| (strcmp(token, "ServerPollMin") == 0)
+			|| (strcmp(token, "TCPPort") == 0)
+			|| (strcmp(token, "UDPPort") == 0)
+			|| (strcmp(token, "HistoryPeriod") == 0)
+			|| (strcmp(token, "MaxWatcherList") == 0)
+			/* New in WV-CSP 1.3*/
+			|| (strcmp(token, "SearchFindings") == 0)
+			|| (strcmp(token, "SearchID") == 0)
+			|| (strcmp(token, "SearchIndex") == 0)
+			|| (strcmp(token, "SearchLimit") == 0)
+			|| (strcmp(token, "AcceptedPullLength") == 0)
+			|| (strcmp(token, "AcceptedPushLength") == 0)  
+			|| (strcmp(token, "AcceptedRichContentLength") == 0)
+			|| (strcmp(token, "AcceptedTextContentLength") == 0)
+			|| (strcmp(token, "SessionPriority") == 0)
+			|| (strcmp(token, "UserSessionLimit") == 0)
+			|| (strcmp(token, "MultiTransPerMessage") == 0)
+			|| (strcmp(token, "ContentPolicyLimit") == 0)
+			|| (strcmp(token, "AnswerOptionID") == 0)
+			|| (strcmp(token, "SegmentCount") == 0)
+			|| (strcmp(token, "SegmentReference") == 0)
+			|| (strcmp(token, "TryAgainTimeout") == 0)
+			|| (strcmp(token, "GroupContentLimit") == 0)
+			|| (strcmp(token, "MessageTotalCount") == 0)
+			|| (strcmp(token, "PairID") == 0) ) )
+		{
+			str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+		}
+	else
+		if ( token && ( (strcmp(token, "DateTime") == 0)
+				|| (strcmp(token, "DeliveryTime") == 0) ) )
+			{
+				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+			}
+		
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
-
 	return str;
 }
-#endif
 
 static char *
 sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
+			  const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	if ( token && ( (strcmp(token, "created") == 0)
-		|| (strcmp(token, "si-expires") == 0) ) )
-	{
-		str = date_time_from_opaque(tvb, offset + *length, data_len);
-	}
+			|| (strcmp(token, "si-expires") == 0) ) )
+		{
+			str = date_time_from_opaque(tvb, offset + *length, data_len);
+		}
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
@@ -743,25 +944,25 @@ sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 
 static char *
 sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
-		guint8 token, guint8 codepage, guint32 *length)
+			 guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	switch (codepage) {
-		case 0: /* Only valid codepage for SI */
-			switch (token) {
-				case 0x0A: /* created= */
-				case 0x10: /* si-expires= */
-					str = date_time_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
+	case 0: /* Only valid codepage for SI */
+		switch (token) {
+		case 0x0A: /* created= */
+		case 0x10: /* si-expires= */
+			str = date_time_from_opaque(tvb,
+						    offset + *length, data_len);
 			break;
 		default:
 			break;
+		}
+		break;
+	default:
+		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
@@ -773,15 +974,15 @@ sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 
 static char *
 emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
+			   const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	if ( token && (strcmp(token, "timestamp") == 0) )
-	{
-		str = date_time_from_opaque(tvb, offset + *length, data_len);
-	}
+		{
+			str = date_time_from_opaque(tvb, offset + *length, data_len);
+		}
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
@@ -792,24 +993,24 @@ emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 
 static char *
 emnc10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
-		guint8 token, guint8 codepage, guint32 *length)
+			  guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
 
 	switch (codepage) {
-		case 0: /* Only valid codepage for EMN */
-			switch (token) {
-				case 0x05: /* timestamp= */
-					str = date_time_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
+	case 0: /* Only valid codepage for EMN */
+		switch (token) {
+		case 0x05: /* timestamp= */
+			str = date_time_from_opaque(tvb,
+						    offset + *length, data_len);
 			break;
 		default:
 			break;
+		}
+		break;
+	default:
+		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
@@ -820,17 +1021,17 @@ emnc10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 }
 
 typedef struct _wbxml_decoding {
-    const char *name;
-    const char *abbrev;
-    ext_t_func_ptr ext_t[3];
+	const char *name;
+	const char *abbrev;
+	ext_t_func_ptr ext_t[3];
 	opaque_token_func_ptr	opaque_binary_tag;
 	opaque_literal_func_ptr	opaque_literal_tag;
 	opaque_token_func_ptr	opaque_binary_attr;
 	opaque_literal_func_ptr	opaque_literal_attr;
-    const value_valuestring *global;
-    const value_valuestring *tags;
-    const value_valuestring *attrStart;
-    const value_valuestring *attrValue;
+	const value_valuestring *global;
+	const value_valuestring *tags;
+	const value_valuestring *attrStart;
+	const value_valuestring *attrValue;
 } wbxml_decoding;
 
 /* Define a pointer to a discriminator function taking a tvb and the start
@@ -840,15 +1041,15 @@ typedef const wbxml_decoding * (* discriminator_func_ptr)(tvbuff_t *, guint32);
 
 /* For the decoding lists based on the known WBXML public ID */
 typedef struct _wbxml_integer_list {
-    guint32 public_id;
-    const wbxml_decoding *map;
+	guint32 public_id;
+	const wbxml_decoding *map;
 } wbxml_integer_list;
 
 /* For the decoding lists on the literal content type */
 typedef struct _wbxml_literal_list {
-    const char *content_type;
-    discriminator_func_ptr discriminator; /* TODO */
-    const wbxml_decoding *map;
+	const char *content_type;
+	discriminator_func_ptr discriminator; /* TODO */
+	const wbxml_decoding *map;
 } wbxml_literal_list;
 
 /************************** Variable declarations **************************/
@@ -878,7 +1079,7 @@ static gboolean disable_wbxml_token_parsing = FALSE;
  * http://www.openmobilealliance.org/tech/omna/ */
 static const value_string vals_wbxml_public_ids[] = {
 	/* 0x00 = literal public identifier */
-	{ 0x01, "Unknown / missing Public Identifier" },
+	{ 0x01, "Unknown or missing Public Identifier" },
 	{ 0x02, "-//WAPFORUM//DTD WML 1.0//EN (WML 1.0)" },
 	{ 0x03, "-//WAPFORUM//DTD WTA 1.0//EN (WTA Event 1.0) - Deprecated" },
 	{ 0x04, "-//WAPFORUM//DTD WML 1.1//EN (WML 1.1)" },
@@ -893,9 +1094,13 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x0d, "-//WAPFORUM//DTD EMN 1.0//EN (Email Notification 1.0)" },
 	{ 0x0e, "-//WAPFORUM//DTD DRMREL 1.0//EN (DRMREL 1.0)" },
 	{ 0x0f, "-//WIRELESSVILLAGE//DTD CSP 1.0//EN"
-		" (Wireless Village Client-Server Protocol DTD v1.0)" },
+	  " (Wireless Village Client-Server Protocol DTD v1.0)" },
 	{ 0x10, "-//WIRELESSVILLAGE//DTD CSP 1.1//EN"
-		" (Wireless Village Client-Server Protocol DTD v1.1)" },
+	  " (Wireless Village Client-Server Protocol DTD v1.1)" },
+	{ 0x11, "-//OMA//DTD WV-CSP 1.2//EN (OMA IMPS - CSP protocol DTD v1.2)" },
+	{ 0x12, "-//OMA//DTD IMPS-CSP 1.3//EN (OMA IMPS - CSP protocol DTD v1.3)" },
+	{ 0x13, "-//OMA//DRM 2.1//EN (OMA DRM 2.1)" },
+	/* 0x14 -- 0x7F: reserved */
 
 	/* Registered values - www.syncml.org */
 	{ 0x0fd1, "-//SYNCML//DTD SyncML 1.0//EN (SyncML 1.0)" },
@@ -919,6 +1124,10 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x110e, "-//PHONE.COM//DTD MMC 2.0//EN" },
 	/* 0x110F -- 0x11FF: unassigned */
 	{ 0x1200, "-//3GPP2.COM//DTD IOTA 1.0//EN" },
+	{ 0x1201, "-//SYNCML//DTD SyncML 1.2//EN" },
+  	{ 0x1202, "-//SYNCML//DTD MetaInf 1.2//EN" },
+ 	{ 0x1203, "-//SYNCML//DTD DevInf 1.2//EN" },
+ 	{ 0x1204, "-//NOKIA//DTD LANDMARKS 1.0//EN" },
 
 	{ 0x00, NULL }
 };
@@ -987,28 +1196,28 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 static char *
 ext_t_0_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
-    gint str_len = tvb_strsize (tvb, str_tbl + value);
-    char *str = g_strdup_printf("Variable substitution - escaped: '%s'",
-	    tvb_get_ptr(tvb, str_tbl + value, str_len));
-    return str;
+	gint str_len = tvb_strsize (tvb, str_tbl + value);
+	char *str = g_strdup_printf("Variable substitution - escaped: '%s'",
+				    tvb_get_ptr(tvb, str_tbl + value, str_len));
+	return str;
 }
 
 static char *
 ext_t_1_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
-    gint str_len = tvb_strsize (tvb, str_tbl + value);
-    char *str = g_strdup_printf("Variable substitution - unescaped: '%s'",
-	    tvb_get_ptr(tvb, str_tbl + value, str_len));
-    return str;
+	gint str_len = tvb_strsize (tvb, str_tbl + value);
+	char *str = g_strdup_printf("Variable substitution - unescaped: '%s'",
+				    tvb_get_ptr(tvb, str_tbl + value, str_len));
+	return str;
 }
 
 static char *
 ext_t_2_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
-    gint str_len = tvb_strsize (tvb, str_tbl + value);
-    char *str = g_strdup_printf("Variable substitution - no transformation: '%s'",
-	    tvb_get_ptr(tvb, str_tbl + value, str_len));
-    return str;
+	gint str_len = tvb_strsize (tvb, str_tbl + value);
+	char *str = g_strdup_printf("Variable substitution - no transformation: '%s'",
+				    tvb_get_ptr(tvb, str_tbl + value, str_len));
+	return str;
 }
 /*****   Global extension tokens   *****/
 static const value_string wbxml_wmlc10_global_cp0[] = {
@@ -1201,17 +1410,17 @@ static const value_valuestring wbxml_wmlc10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_wmlc_10 = {
-    "Wireless Markup Language 1.0",
-    "WML 1.0",
-    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	"Wireless Markup Language 1.0",
+	"WML 1.0",
+	{ ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    wbxml_wmlc10_global,
-    wbxml_wmlc10_tags,
-    wbxml_wmlc10_attrStart,
-    wbxml_wmlc10_attrValue
+	wbxml_wmlc10_global,
+	wbxml_wmlc10_tags,
+	wbxml_wmlc10_attrStart,
+	wbxml_wmlc10_attrValue
 };
 
 
@@ -1417,17 +1626,17 @@ static const value_valuestring wbxml_wmlc11_attrValue[] = {
 };
 
 static const wbxml_decoding decode_wmlc_11 = {
-    "Wireless Markup Language 1.1",
-    "WML 1.1",
-    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	"Wireless Markup Language 1.1",
+	"WML 1.1",
+	{ ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    wbxml_wmlc11_global,
-    wbxml_wmlc11_tags,
-    wbxml_wmlc11_attrStart,
-    wbxml_wmlc11_attrValue
+	wbxml_wmlc11_global,
+	wbxml_wmlc11_tags,
+	wbxml_wmlc11_attrStart,
+	wbxml_wmlc11_attrValue
 };
 
 
@@ -1606,17 +1815,17 @@ static const value_valuestring wbxml_wmlc12_attrValue[] = {
 };
 
 static const wbxml_decoding decode_wmlc_12 = {
-    "Wireless Markup Language 1.2",
-    "WML 1.2",
-    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	"Wireless Markup Language 1.2",
+	"WML 1.2",
+	{ ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    wbxml_wmlc12_global,
-    wbxml_wmlc12_tags,
-    wbxml_wmlc12_attrStart,
-    wbxml_wmlc12_attrValue
+	wbxml_wmlc12_global,
+	wbxml_wmlc12_tags,
+	wbxml_wmlc12_attrStart,
+	wbxml_wmlc12_attrValue
 };
 
 
@@ -1756,17 +1965,17 @@ static const value_valuestring wbxml_wmlc13_attrValue[] = {
 };
 
 static const wbxml_decoding decode_wmlc_13 = {
-    "Wireless Markup Language 1.3",
-    "WML 1.3",
-    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+	"Wireless Markup Language 1.3",
+	"WML 1.3",
+	{ ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    wbxml_wmlc13_global,
-    wbxml_wmlc13_tags,
-    wbxml_wmlc13_attrStart,
-    wbxml_wmlc13_attrValue
+	wbxml_wmlc13_global,
+	wbxml_wmlc13_tags,
+	wbxml_wmlc13_attrStart,
+	wbxml_wmlc13_attrValue
 };
 
 
@@ -1840,17 +2049,17 @@ static const value_valuestring wbxml_sic10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_sic_10 = {
-    "Service Indication 1.0",
-    "SI 1.0",
-    { NULL, NULL, NULL },
+	"Service Indication 1.0",
+	"SI 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	sic10_opaque_binary_attr,
 	sic10_opaque_literal_attr,
-    NULL,
-    wbxml_sic10_tags,
-    wbxml_sic10_attrStart,
-    wbxml_sic10_attrValue
+	NULL,
+	wbxml_sic10_tags,
+	wbxml_sic10_attrStart,
+	wbxml_sic10_attrValue
 };
 
 
@@ -1907,17 +2116,17 @@ static const value_valuestring wbxml_slc10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_slc_10 = {
-    "Service Loading 1.0",
-    "SL 1.0",
-    { NULL, NULL, NULL },
+	"Service Loading 1.0",
+	"SL 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_slc10_tags,
-    wbxml_slc10_attrStart,
-    wbxml_slc10_attrValue
+	NULL,
+	wbxml_slc10_tags,
+	wbxml_slc10_attrStart,
+	wbxml_slc10_attrValue
 };
 
 
@@ -1973,17 +2182,17 @@ static const value_valuestring wbxml_coc10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_coc_10 = {
-    "Cache Operation 1.0",
-    "CO 1.0",
-    { NULL, NULL, NULL },
+	"Cache Operation 1.0",
+	"CO 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_coc10_tags,
-    wbxml_coc10_attrStart,
-    wbxml_coc10_attrValue
+	NULL,
+	wbxml_coc10_tags,
+	wbxml_coc10_attrStart,
+	wbxml_coc10_attrValue
 };
 
 
@@ -2228,10 +2437,10 @@ static const value_string wbxml_provc10_attrValue_cp1[] = {
 	/* 0x8F */
 
 	/* XXX - Errors that require a fix in the OMA/WAP Client Provisioning specs:
-	{ 0xXXX, "','" },
-	{ 0xXXX, "'HTTP-'" },
-	{ 0xXXX, "'BASIC'" },
-	{ 0xXXX, "'DIGEST'" },
+	   { 0xXXX, "','" },
+	   { 0xXXX, "'HTTP-'" },
+	   { 0xXXX, "'BASIC'" },
+	   { 0xXXX, "'DIGEST'" },
 	*/
 
 	{ 0xE0, "'AAA'" },
@@ -2260,17 +2469,17 @@ static const value_valuestring wbxml_provc10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_provc_10 = {
-    "WAP Client Provisioning Document 1.0",
-    "WAP ProvisioningDoc 1.0",
-    { NULL, NULL, NULL },
+	"WAP Client Provisioning Document 1.0",
+	"WAP ProvisioningDoc 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_provc10_tags,
-    wbxml_provc10_attrStart,
-    wbxml_provc10_attrValue
+	NULL,
+	wbxml_provc10_tags,
+	wbxml_provc10_attrStart,
+	wbxml_provc10_attrValue
 };
 
 
@@ -2328,17 +2537,17 @@ static const value_valuestring wbxml_emnc10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_emnc_10 = {
-    "E-Mail Notification 1.0",
-    "EMN 1.0",
-    { NULL, NULL, NULL },
+	"E-Mail Notification 1.0",
+	"EMN 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	emnc10_opaque_binary_attr,
 	emnc10_opaque_literal_attr,
-    NULL,
-    wbxml_emnc10_tags,
-    wbxml_emnc10_attrStart,
-    wbxml_emnc10_attrValue
+	NULL,
+	wbxml_emnc10_tags,
+	wbxml_emnc10_attrStart,
+	wbxml_emnc10_attrValue
 };
 
 
@@ -2439,17 +2648,17 @@ static const value_valuestring wbxml_syncmlc10_tags[] = {
 };
 
 static const wbxml_decoding decode_syncmlc_10 = {
-    "SyncML Representation Protocol 1.0",
-    "SyncML 1.0",
-    { NULL, NULL, NULL },
+	"SyncML Representation Protocol 1.0",
+	"SyncML 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_syncmlc10_tags,
-    NULL,
-    NULL
+	NULL,
+	wbxml_syncmlc10_tags,
+	NULL,
+	NULL
 };
 
 
@@ -2553,17 +2762,17 @@ static const value_valuestring wbxml_syncmlc11_tags[] = {
 };
 
 static const wbxml_decoding decode_syncmlc_11 = {
-    "SyncML Representation Protocol 1.1",
-    "SyncML 1.1",
-    { NULL, NULL, NULL },
+	"SyncML Representation Protocol 1.1",
+	"SyncML 1.1",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_syncmlc11_tags,
-    NULL,
-    NULL
+	NULL,
+	wbxml_syncmlc11_tags,
+	NULL,
+	NULL
 };
 
 
@@ -2624,17 +2833,17 @@ static const value_valuestring wbxml_channelc10_attrStart[] = {
 };
 
 static const wbxml_decoding decode_channelc_10 = {
-    "Wireless Telephony Application (WTA) Channel 1.0",
-    "CHANNEL 1.0",
-    { NULL, NULL, NULL },
+	"Wireless Telephony Application (WTA) Channel 1.0",
+	"CHANNEL 1.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_channelc10_tags,
-    wbxml_channelc10_attrStart,
-    NULL
+	NULL,
+	wbxml_channelc10_tags,
+	wbxml_channelc10_attrStart,
+	NULL
 };
 
 
@@ -2734,17 +2943,17 @@ static const value_valuestring wbxml_nokiaprovc70_attrStart[] = {
 };
 
 static const wbxml_decoding decode_nokiaprovc_70 = {
-    "Nokia Client Provisioning 7.0",
-    "Nokia Client Provisioning 7.0",
-    { NULL, NULL, NULL },
+	"Nokia Client Provisioning 7.0",
+	"Nokia Client Provisioning 7.0",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_nokiaprovc70_tags,
-    wbxml_nokiaprovc70_attrStart,
-    NULL
+	NULL,
+	wbxml_nokiaprovc70_tags,
+	wbxml_nokiaprovc70_attrStart,
+	NULL
 };
 
 
@@ -2924,17 +3133,17 @@ static const value_string  wbxml_uaprof_attrStart_cp0[] = {
 static const value_string  wbxml_uaprof_attrStart_cp1[] = {
 	{0x05, "rdf:resource"},
 	{0x06, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
-		"ccppschema-20010430#HardwarePlatform'"},
+	 "ccppschema-20010430#HardwarePlatform'"},
 	{0x07, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
-		"ccppschema-20010430#SoftwarePlatform'"},
+	 "ccppschema-20010430#SoftwarePlatform'"},
 	{0x08, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
-		"ccppschema-20010430#NetworkCharacteristics'"},
+	 "ccppschema-20010430#NetworkCharacteristics'"},
 	{0x09, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
-		"ccppschema-20010430#WapCharacteristics'"},
+	 "ccppschema-20010430#WapCharacteristics'"},
 	{0x0A, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
-		"ccppschema-20010430#BrowserUA'"},
+	 "ccppschema-20010430#BrowserUA'"},
 	{0x0B, "rdf:resource='http://www.wapforum.org/profiles/UAPROF/"
-		"ccppschema-20010430#PushCharacteristics'"},
+	 "ccppschema-20010430#PushCharacteristics'"},
 	{0x10, "prf:BitsPerPixel"},
 	{0x11, "prf:ColorCapable='Yes'"},
 	{0x12, "prf:ColorCapable='No'"},
@@ -3125,17 +3334,17 @@ static const value_valuestring wbxml_uaprof_attrValue[] = {
 };
 
 static const wbxml_decoding decode_uaprof_wap_248 = {
-    "User-Agent Profile (WAP-174, WAP-248)",
-    "UAProf (WAP-174, WAP-248)",
-    { NULL, NULL, NULL },
+	"User-Agent Profile (WAP-174, WAP-248)",
+	"UAProf (WAP-174, WAP-248)",
+	{ NULL, NULL, NULL },
 	default_opaque_binary_tag,
 	default_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_uaprof_tags,
-    wbxml_uaprof_attrStart,
-    wbxml_uaprof_attrValue
+	NULL,
+	wbxml_uaprof_tags,
+	wbxml_uaprof_attrStart,
+	wbxml_uaprof_attrValue
 };
 
 
@@ -3656,17 +3865,17 @@ static const value_valuestring wbxml_wv_csp_10_attrValue[] = {
 };
 
 static const wbxml_decoding decode_wv_cspc_10 = {
-    "Wireless-Village Client-Server Protocol 1.0",
-    "WV-CSP 1.0",
-    { NULL, NULL, NULL },
+	"Wireless-Village Client-Server Protocol 1.0",
+	"WV-CSP 1.0",
+	{ NULL, NULL, NULL },
 	wv_csp10_opaque_binary_tag,
-	default_opaque_literal_tag,
+	wv_csp10_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    NULL,
-    wbxml_wv_csp_10_tags,
-    wbxml_wv_csp_10_attrStart,
-    wbxml_wv_csp_10_attrValue
+	NULL,
+	wbxml_wv_csp_10_tags,
+	wbxml_wv_csp_10_attrStart,
+	wbxml_wv_csp_10_attrValue
 };
 
 
@@ -3790,7 +3999,7 @@ static const value_string wbxml_wv_csp_11_tags_cp1[] = {
 	{ 0x26, "SearchID" },
 	{ 0x27, "SearchIndex" },
 	{ 0x28, "SearchLimit" },
-	{ 0x29, "KeepAlive-Response" },	/* Was: SearchOnlineStatus */
+	{ 0x29, "KeepAlive-Response" },
 	{ 0x2A, "SearchPairList" },
 	{ 0x2B, "Search-Request" },
 	{ 0x2C, "Search-Response" },
@@ -4139,10 +4348,10 @@ static const value_string vals_wv_csp_11_element_value_tokens[] = {
 static char *
 ext_t_0_wv_cspc_11(tvbuff_t *tvb _U_, guint32 value, guint32 str_tbl _U_)
 {
-    char *str = g_strdup_printf("Common Value: '%s'",
-	    val_to_str(value, vals_wv_csp_11_element_value_tokens,
-		"<Unknown WV-CSP 1.1 Common Value token 0x%X>"));
-    return str;
+	char *str = g_strdup_printf("Common Value: '%s'",
+				    val_to_str(value, vals_wv_csp_11_element_value_tokens,
+					       "<Unknown WV-CSP 1.1 Common Value token 0x%X>"));
+	return str;
 }
 
 static const value_valuestring wbxml_wv_csp_11_global[] = {
@@ -4168,17 +4377,17 @@ static const value_valuestring wbxml_wv_csp_11_attrStart[] = {
 };
 
 static const wbxml_decoding decode_wv_cspc_11 = {
-    "Wireless-Village Client-Server Protocol 1.1",
-    "WV-CSP 1.1",
-    { ext_t_0_wv_cspc_11, NULL, NULL },
+	"Wireless-Village Client-Server Protocol 1.1",
+	"WV-CSP 1.1",
+	{ ext_t_0_wv_cspc_11, NULL, NULL },
 	wv_csp11_opaque_binary_tag,
-	default_opaque_literal_tag,
+	wv_csp11_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    wbxml_wv_csp_11_global,
-    wbxml_wv_csp_11_tags,
-    wbxml_wv_csp_11_attrStart,
-    NULL
+	wbxml_wv_csp_11_global,
+	wbxml_wv_csp_11_tags,
+	wbxml_wv_csp_11_attrStart,
+	NULL
 };
 
 
@@ -4189,7 +4398,6 @@ static const wbxml_decoding decode_wv_cspc_11 = {
  *
  * Wireless Village Client Server Protocol
  ***************************************/
-#ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
 
 /*****   Global extension tokens   *****/
 /* Same as WV-CSP 1.1 */
@@ -4330,7 +4538,6 @@ static const value_string wbxml_wv_csp_12_tags_cp2[] = {
 	/* New in WV-CSP 1.2 */
 	{ 0x3D, "MF" },
 	{ 0x3E, "MG" },
-	{ 0x3E, "VRID" }, /* Duplicate, and cp2 is full --> Will move to cp8? */
 	{ 0x3F, "MM" },
 
 	{ 0x00, NULL }
@@ -4338,8 +4545,29 @@ static const value_string wbxml_wv_csp_12_tags_cp2[] = {
 /* Note that the table continues in code page 0x08 */
 
 /* Client capability code page (0x03) */
-/* Same as cp3 of WV-CSP 1.1 */
-#define wbxml_wv_csp_12_tags_cp3 wbxml_wv_csp_11_tags_cp3
+static const value_string wbxml_wv_csp_12_tags_cp3[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "AcceptedCharset" },
+	{ 0x06, "AcceptedContentLength" },
+	{ 0x07, "AcceptedContentType" },
+	{ 0x08, "AcceptedTransferEncoding" },
+	{ 0x09, "AnyContent" },
+	{ 0x0A, "DefaultLanguage" },
+	{ 0x0B, "InitialDeliveryMethod" },
+	{ 0x0C, "MultiTrans" },
+	{ 0x0D, "ParserSize" },
+	{ 0x0E, "ServerPollMin" },
+	{ 0x0F, "SupportedBearer" },
+	{ 0x10, "SupportedCIRMethod" },
+	{ 0x11, "TCPAddress" },
+	{ 0x12, "TCPPort" },
+	{ 0x13, "UDPPort" },
+	{ 0x14, "CIRURL" },
+	
+	{ 0x00, NULL }
+};
+
+
 
 /* Presence primitive code page (0x04) */
 static const value_string wbxml_wv_csp_12_tags_cp4[] = {
@@ -4520,12 +4748,13 @@ static const value_string wbxml_wv_csp_12_tags_cp7[] = {
 };
 
 /* Service negotiation code page - continued (0x08) */
-/* Same as cp8 of WV-CSP 1.1, but a new token is likely to be added. - XXX */
 static const value_string wbxml_wv_csp_12_tags_cp8[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "MP" },
 	{ 0x06, "GETAUT" },
 	{ 0x07, "GETJU" },
+	{ 0x08, "VRID" },
+	{ 0x09, "VerifyIDFunc" },
 
 	{ 0x00, NULL }
 };
@@ -4543,7 +4772,7 @@ static const value_string wbxml_wv_csp_12_tags_cp9[] = {
 	{ 0x0C, "ReactiveAuthStatus" },
 	{ 0x0D, "ReactiveAuthStatusList" },
 	{ 0x0E, "Watcher" },
-	{ 0x0C, "WatcherStatus" }, /* Duplicate --> Will move to 0x0F? */
+	{ 0x0F, "WatcherStatus" },
 
 	{ 0x00, NULL }
 };
@@ -4553,6 +4782,7 @@ static const value_string wbxml_wv_csp_12_tags_cp10[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "WV-CSP-NSDiscovery-Request" },
 	{ 0x06, "WV-CSP-NSDiscovery-Response" },
+	{ 0x07, "VersionList" },
 
 	{ 0x00, NULL }
 };
@@ -4651,10 +4881,11 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x31, "AutoDelete" },
 	{ 0x32, "GM" },
 	{ 0x33, "Validity" },
-	{ 0x34, "DENIED" }, /* Duplicate */
-	{ 0x34, "ShowID" }, /* Duplicate */
+	{ 0x34, "DENIED" },
 	{ 0x35, "GRANTED" },
 	{ 0x36, "PENDING" },
+	{ 0x37, "ShowID" },
+
 	/*
 	 * Access value tokens
 	 */
@@ -4695,7 +4926,7 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x65, "EMAIL" },
 	{ 0x66, "EXCITED" },
 	{ 0x67, "HAPPY" },
-	{ 0x68, "IM" },
+	/*	{ 0x68, "IM" },		Obsolete */
 	{ 0x69, "IM_OFFLINE" },
 	{ 0x6A, "IM_ONLINE" },
 	{ 0x6B, "IN_LOVE" },
@@ -4712,6 +4943,12 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x76, "VIDEO_CALL" },
 	{ 0x77, "VIDEO_STREAM" },
 
+	/*
+	 * Access value tokens - continued
+	 */
+	{ 0xA4, "SSMS" },
+	{ 0xA5, "SHTTP" },
+
 	{ 0x00, NULL }
 };
 
@@ -4722,10 +4959,10 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 static char *
 ext_t_0_wv_cspc_12(tvbuff_t *tvb _U_, guint32 value, guint32 str_tbl _U_)
 {
-    char *str = g_strdup_printf("Common Value: '%s'",
-	    val_to_str(value, vals_wv_csp_12_element_value_tokens,
-		"<Unknown WV-CSP 1.2 Common Value token 0x%X>"));
-    return str;
+	char *str = g_strdup_printf("Common Value: '%s'",
+				    val_to_str(value, vals_wv_csp_12_element_value_tokens,
+					       "<Unknown WV-CSP 1.2 Common Value token 0x%X>"));
+	return str;
 }
 
 #define wbxml_wv_csp_12_global wbxml_wv_csp_11_global
@@ -4751,19 +4988,860 @@ static const value_valuestring wbxml_wv_csp_12_attrStart[] = {
 };
 
 static const wbxml_decoding decode_wv_cspc_12 = {
-    "Wireless-Village Client-Server Protocol 1.2",
-    "WV-CSP 1.2",
-    { ext_t_0_wv_cspc_12, NULL, NULL },
+	"Wireless-Village Client-Server Protocol 1.2",
+	"WV-CSP 1.2",
+	{ ext_t_0_wv_cspc_12, NULL, NULL },
 	wv_csp12_opaque_binary_tag,
-	default_opaque_literal_tag,
+	wv_csp12_opaque_literal_tag,
 	default_opaque_binary_attr,
 	default_opaque_literal_attr,
-    wbxml_wv_csp_12_global,
-    wbxml_wv_csp_12_tags,
-    wbxml_wv_csp_12_attrStart,
-    NULL
+	wbxml_wv_csp_12_global,
+	wbxml_wv_csp_12_tags,
+	wbxml_wv_csp_12_attrStart,
+	NULL
 };
-#endif /* Remove_this_comment_when_WV_CSP_will_be_an_approved_spec */
+
+
+/* WV-CSP 1.3
+ *
+ * Wireless Village Client Server Protocol
+ ***************************************/
+
+/*****   Global extension tokens   *****/
+/* Same as WV-CSP 1.1 */
+
+/*****         Tag tokens          *****/
+/* Common code page */
+static const value_string wbxml_wv_csp_13_tags_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Acceptance"},
+	{ 0x06, "AddList" },
+	{ 0x07, "AddNickList"},
+	{ 0x09, "WV-CSP-Message"},
+	{ 0x0A, "ClientID"},
+	{ 0x0B,	"Code"},
+	{ 0x0C, "ContactList"},
+	{ 0x0D, "ContentData"},
+	{ 0x0E, "ContentEncoding"},
+	{ 0x0F, "ContentSize"   },
+	{ 0x10, "ContentType"},
+	{ 0x11, "DateTime"   },
+	{ 0x12, "Description" },
+	{ 0x13, "DetailedResult"},
+	{ 0x14, "EntityList"},
+	{ 0x15, "Group"  },
+	{ 0x16, "GroupID"},
+	{ 0x17, "GroupList"},
+	{ 0x19, "Logo"},
+	{ 0x1A, "MessageCount" },
+	{ 0x1B, "MessageID" },
+	{ 0x1C, "MessageURI"},
+	{ 0x1D, "MSISDN" },
+	{ 0x1E, "Name"},
+	{ 0x1F, "NickList"},
+	{ 0x20, "NickName"},
+	{ 0x21, "Poll"},
+	{ 0x22, "Presence"},
+	{ 0x23, "PresenceSubList" },
+	{ 0x24, "PresenceValue"},
+	{ 0x25, "Property"  },
+	{ 0x26, "Qualifier" },
+	{ 0x27, "Recipient" },
+	{ 0x28, "RemoveList"},
+	{ 0x29, "RemoveNickList"  },
+	{ 0x2A, "Result" },
+	{ 0x2B, "ScreenName"},
+	{ 0x2C, "Sender" },
+	{ 0x2D, "Session"},
+	{ 0x2E, "SessionDescriptor" },
+	{ 0x2F, "SessionID"},
+	{ 0x30, "SessionType" },
+	{ 0x08, "SName" },
+	{ 0x31, "Status"},
+	{ 0x32, "Transaction" },
+	{ 0x33, "TransactionContent"  },
+	{ 0x34, "TransactionDescriptor"},
+	{ 0x35, "TransactionID"},
+	{ 0x36, "TransactionMode" },
+	{ 0x37, "URL" },
+	{ 0x38, "URLList"},
+	{ 0x39, "User"},
+	{ 0x3A, "UserID" },
+	{ 0x3B, "UserList"  },
+	{ 0x3C, "Validity"  },
+	{ 0x3D, "Value"  },
+
+	{ 0x00, NULL }
+};
+/* Note that the table continues in code page 0x09 */
+
+/* Access code page (0x01) */
+static const value_string wbxml_wv_csp_13_tags_cp1[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "AllFunctions" },
+	{ 0x06, "AllFunctionsRequest" },
+	{ 0x07, "CancelInvite-Request" },
+	{ 0x08, "CancelInviteUser-Request" },
+	//	{ 0x09, "Capability" }, - removed in WV 1.3
+	{ 0x0A, "CapabilityList" },
+	{ 0x0B, "CapabilityRequest" },
+	{ 0x0C, "ClientCapability-Request" },
+	{ 0x0D, "ClientCapability-Response" },
+	{ 0x0E, "DigestBytes" },
+	{ 0x0F, "DigestSchema" },
+	{ 0x10, "Disconnect" },
+	{ 0x11, "Functions" },
+	{ 0x12, "GetSPInfo-Request" },
+	{ 0x13, "GetSPInfo-Response" },
+	{ 0x14, "InviteID" },
+	{ 0x15, "InviteNote" },
+	{ 0x16, "Invite-Request" },
+	{ 0x17, "Invite-Response" },
+	{ 0x18, "InviteType" },
+	{ 0x19, "InviteUser-Request" },
+	{ 0x1A, "InviteUser-Response" },
+	{ 0x1B, "KeepAlive-Request" },
+	{ 0x1C, "KeepAliveTime" },
+	{ 0x1D, "Login-Request" },
+	{ 0x1E, "Login-Response" },
+	{ 0x1F, "Logout-Request" },
+	{ 0x20, "Nonce" },
+	{ 0x21, "Password" },
+	{ 0x22, "Polling-Request" },
+	{ 0x23, "ResponseNote" },
+	{ 0x24, "SearchElement" },
+	{ 0x25, "SearchFindings" },
+	{ 0x26, "SearchID" },
+	{ 0x27, "SearchIndex" },
+	{ 0x28, "SearchLimit" },
+	{ 0x29, "KeepAlive-Response" },
+	{ 0x2A, "SearchPairList" },
+	{ 0x2B, "Search-Request" },
+	{ 0x2C, "Search-Response" },
+	{ 0x2D, "SearchResult" },
+	{ 0x2E, "Service-Request" },
+	{ 0x2F, "Service-Response" },
+	{ 0x30, "SessionCookie" },
+	{ 0x31, "StopSearch-Request" },
+	{ 0x32, "TimeToLive" },
+	/* New in WV-CSP 1.1 */
+	{ 0x33, "SearchString" },
+	{ 0x34, "CompletionFlag" },
+	/* New in WV-CSP 1.2 */
+	{ 0x36, "ReceiveList" },
+	{ 0x37, "VerifyID-Request" },
+	{ 0x38, "Extended-Request" },
+	{ 0x39, "Extended-Response" },
+	{ 0x3A, "AgreedCapabilityList" },
+	{ 0x3B, "ExtendedData" },
+	{ 0x3C, "OtherServer" },
+	{ 0x3D, "PresenceAttributeNSName" },
+	{ 0x3E, "SessionNSName" },
+	{ 0x3F, "TransactionNSName" },
+
+	{ 0x00, NULL }
+};
+/* Note that the table continues in code page 0x0A */
+
+/* Service code page (0x02) */
+static const value_string wbxml_wv_csp_13_tags_cp2[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "ADDGM" },
+	//	{ 0x06, "AttListFunc" }, removed in WV 1.3
+	{ 0x07, "BLENT" },
+	//	{ 0x08, "CAAUT" }, removed in WV 1.3
+	{ 0x09, "CAINV" },
+	//	{ 0x0A, "CALI" }, removed in WV 1.3
+	{ 0x0B, "CCLI" },
+	{ 0x0C, "ContListFunc" },
+	{ 0x0D, "CREAG" },
+	{ 0x0E, "DALI" },
+	{ 0x0F, "DCLI" },
+	{ 0x10, "DELGR" },
+	{ 0x11, "FundamentalFeat" },
+	{ 0x12, "FWMSG" },
+	//	{ 0x13, "GALS" }, removed in WV 1.3
+	{ 0x14, "GCLI" },
+	{ 0x15, "GETGM" },
+	{ 0x16, "GETGP" },
+	{ 0x17, "GETLM" },
+	{ 0x18, "GETM" },
+	{ 0x19, "GETPR" },
+	{ 0x1A, "GETSPI" },
+	{ 0x1B, "GETWL" },
+	{ 0x1C, "GLBLU" },
+	{ 0x1D, "GRCHN" },
+	{ 0x1E, "GroupAuthFunc" },
+	{ 0x1F, "GroupFeat" },
+	{ 0x20, "GroupMgmtFunc" },
+	{ 0x21, "GroupUseFunc" },
+	{ 0x22, "IMAuthFunc" },
+	{ 0x23, "IMFeat" },
+	{ 0x24, "IMReceiveFunc" },
+	{ 0x25, "IMSendFunc" },
+	{ 0x26, "INVIT" },
+	{ 0x27, "InviteFunc" },
+	{ 0x28, "MBRAC" },
+	{ 0x29, "MCLS" },
+	{ 0x2A, "MDELIV" },
+	{ 0x2B, "NEWM" },
+	{ 0x2C, "NOTIF" },
+	{ 0x2D, "PresenceAuthFunc" },
+	{ 0x2E, "PresenceDeliverFunc"},
+	{ 0x2F, "PresenceFeat" },
+	//	{ 0x30, "REACT" }, removed in WV 1.3
+	{ 0x31, "REJCM" },
+	{ 0x32, "REJEC" },
+	{ 0x33, "RMVGM" },
+	{ 0x34, "SearchFunc" },
+	{ 0x35, "ServiceFunc" },
+	{ 0x36, "SETD" },
+	{ 0x37, "SETGP" },
+	{ 0x38, "SRCH" },
+	{ 0x39, "STSRC" },
+	{ 0x3A, "SUBGCN" },
+	{ 0x3B, "UPDPR" },
+	{ 0x3C, "WVCSPFeat" },
+	/* New in WV-CSP 1.2 */
+	{ 0x3D, "MF" },
+	{ 0x3E, "MG" },
+	{ 0x3F, "MM" },
+
+	{ 0x00, NULL }
+};
+/* Note that the table continues in code page 0x08 */
+
+/* Client capability code page (0x03) */
+static const value_string wbxml_wv_csp_13_tags_cp3[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/*  {0x05, "AcceptedCharset"}, - removed in WV 1.3 */
+	/*  { 0x06, "AcceptedContentLength"}, - removed in WV 1.3 */
+	{ 0x07, "AcceptedContentType"},
+	{ 0x08, "AcceptedTransferEncoding"},
+	{ 0x09, "AnyContent"},
+	{ 0x0A, "DefaultLanguage"},
+	{ 0x0B, "InitialDeliveryMethod"},
+	{ 0x0C, "MultiTrans"},
+	{ 0x0D, "ParserSize"},
+	{ 0x0E, "ServerPollMin"},
+	{ 0x0F, "SupportedBearer"},
+	{ 0x10, "SupportedCIRMethod"},
+	{ 0x11, "TCPAddress"},
+	{ 0x12, "TCPPort"},
+	{ 0x13, "UDPPort"},
+	/* New in WV-CSP 1.3*/	
+	{ 0x14, "CIRHTTPAddress"},
+	{ 0x15, "UDPAddress"},
+	{ 0x16, "AcceptedPullLength"}, 
+	{ 0x17, "AcceptedPushLength"}, 
+	{ 0x18, "AcceptedRichContentLength"}, 
+	{ 0x19, "AcceptedTextContentLength"}, 
+	{ 0x1A, "OfflineETEMHandling"}, 
+	{ 0x1B, "PlainTextCharset"}, 
+	{ 0x1C, "SessionPriority"}, 
+	{ 0x1D, "SupportedOfflineBearer"}, 	
+	{ 0x1F, "UserSessionLimit"}, 
+	{ 0x20, "CIRSMSAddress"}, 
+	{ 0x21, "MultiTransPerMessage"}, 
+	{ 0x22, "OnlineETEMHandling"}, 
+	{ 0x23,"ContentPolicy"}, 
+	{ 0x24, "ContentPolicyLimit"}, 
+	
+	{ 0x00, NULL }
+};
+
+/* Presence primitive code page (0x04) */
+static const value_string wbxml_wv_csp_13_tags_cp4[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	//	{ 0x05, "CancelAuth-Request" }, - removed in WV 1.3
+	{ 0x06, "ContactListProperties" },
+	{ 0x07, "CreateAttributeList-Request" },
+	{ 0x08, "CreateList-Request" },
+	{ 0x09, "DefaultAttributeList" },
+	{ 0x0A, "DefaultContactList" },
+	{ 0x0B, "DefaultList" },
+	{ 0x0C, "DeleteAttributeList-Request" },
+	{ 0x0D, "DeleteList-Request" },
+	{ 0x0E, "GetAttributeList-Request" },
+	{ 0x0F, "GetAttributeList-Response" },
+	{ 0x10, "GetList-Request" },
+	{ 0x11, "GetList-Response" },
+	{ 0x12, "GetPresence-Request" },
+	{ 0x13, "GetPresence-Response" },
+	{ 0x14, "GetWatcherList-Request" },
+	{ 0x15, "GetWatcherList-Response" },
+	{ 0x16, "ListManage-Request" },
+	{ 0x17, "ListManage-Response" },
+	{ 0x18, "UnsubscribePresence-Request" },
+	{ 0x19, "PresenceAuth-Request" },
+	{ 0x1A, "PresenceAuth-User" },
+	{ 0x1B, "PresenceNotification-Request" },
+	{ 0x1C, "UpdatePresence-Request" },
+	{ 0x1D, "SubscribePresence-Request" },
+	/* New in WV-CSP 1.2 */
+	//	{ 0x1E, "Auto-Subscribe" }, - removed in WV 1.3
+	//	{ 0x1F, "GetReactiveAuthStatus-Request" },
+	//	{ 0x20, "GetReactiveAuthStatus-Response" },
+	/* New in WV-CSP 1.3 */
+	{ 0x21, "CreateList-Response"},
+
+	{ 0x00, NULL }
+};
+
+/* Presence attribute code page (0x05) */
+static const value_string wbxml_wv_csp_13_tags_cp5[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Accuracy" },
+	{ 0x06, "Address" },
+	{ 0x07, "AddrPref" },
+	{ 0x08, "Alias" },
+	{ 0x09, "Altitude" },
+	{ 0x0A, "Building" },
+	{ 0x0B, "Caddr" },
+	{ 0x0C, "City" },
+	{ 0x0D, "ClientInfo" },
+	{ 0x0E, "ClientProducer" },
+	{ 0x0F, "ClientType" },
+	{ 0x10, "ClientVersion" },
+	{ 0x11, "CommC" },
+	{ 0x12, "CommCap" },
+	{ 0x13, "ContactInfo" },
+	{ 0x14, "ContainedvCard" },
+	{ 0x15, "Country" },
+	{ 0x16, "Crossing1" },
+	{ 0x17, "Crossing2" },
+	{ 0x18, "DevManufacturer" },
+	{ 0x19, "DirectContent" },
+	{ 0x1A, "FreeTextLocation" },
+	{ 0x1B, "GeoLocation" },
+	{ 0x1C, "Language" },
+	{ 0x1D, "Latitude" },
+	{ 0x1E, "Longitude" },
+	{ 0x1F, "Model" },
+	{ 0x20, "NamedArea" },
+	{ 0x21, "OnlineStatus" },
+	{ 0x22, "PLMN" },
+	{ 0x23, "PrefC" },
+	{ 0x24, "PreferredContacts" },
+	{ 0x25, "PreferredLanguage" },
+	{ 0x26, "ReferredContent" },
+	{ 0x27, "ReferredvCard" },
+	{ 0x28, "Registration" },
+	{ 0x29, "StatusContent" },
+	{ 0x2A, "StatusMood" },
+	{ 0x2B, "StatusText" },
+	{ 0x2C, "Street" },
+	{ 0x2D, "TimeZone" },
+	{ 0x2E, "UserAvailability" },
+	/* New in WV-CSP 1.1 */
+	{ 0x2F, "Cap" },
+	{ 0x30, "Cname" },
+	{ 0x31, "Contact" },
+	{ 0x32, "Cpriority" },
+	{ 0x33, "Cstatus" },
+	{ 0x34, "Note" },
+	{ 0x35, "Zone" },
+	/* New in WV-CSP 1.2 */
+	{ 0x36, "ContentType" },
+	{ 0x37, "Inf_link" },
+	{ 0x38, "InfoLink" },
+	{ 0x39, "Link" },
+	{ 0x3A, "Text" },
+	/* New in WV-CSP 1.3 */
+	{ 0x3B, "ClientContentLimit"}, 
+	{ 0x3C, "ClientIMPriority"}, 
+	{ 0x3D, "MaxPullLength"}, 
+	{ 0x3E, "MaxPushLength"}, 
+
+	{ 0x00, NULL }
+};
+
+/* Messaging code page (0x06) */
+static const value_string wbxml_wv_csp_13_tags_cp6[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "BlockList" },
+	{ 0x06, "BlockEntity-Request" }, /* Was: BlockUser-Request */
+	{ 0x07, "DeliveryMethod" },
+	{ 0x08, "DeliveryReport" },
+	{ 0x09, "DeliveryReport-Request" },
+	{ 0x0A, "ForwardMessage-Request" },
+	{ 0x0B, "GetBlockedList-Request" },
+	{ 0x0C, "GetBlockedList-Response" },
+	{ 0x0D, "GetMessageList-Request" },
+	{ 0x0E, "GetMessageList-Response" },
+	{ 0x0F, "GetMessage-Request" },
+	{ 0x10, "GetMessage-Response" },
+	{ 0x11, "GrantList" },
+	{ 0x12, "MessageDelivered" },
+	{ 0x13, "MessageInfo" },
+	{ 0x14, "MessageNotification" },
+	{ 0x15, "NewMessage" },
+	{ 0x16, "RejectMessage-Request" },
+	{ 0x17, "SendMessage-Request" },
+	{ 0x18, "SendMessage-Response" },
+	{ 0x19, "SetDeliveryMethod-Request" },
+	{ 0x1A, "DeliveryTime" },
+	/* New in WV-CSP 1.3 */
+	{ 0x20, "MessageInfoList"}, 
+	{ 0x21, "ForwardMessage-Response"}, 
+	
+	{ 0x00, NULL }
+};
+
+/* Group code page (0x07) */
+static const value_string wbxml_wv_csp_13_tags_cp7[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "AddGroupMembers-Request" },
+	{ 0x06, "Admin" },
+	{ 0x07, "CreateGroup-Request" },
+	{ 0x08, "DeleteGroup-Request" },
+	{ 0x09, "GetGroupMembers-Request" },
+	{ 0x0A, "GetGroupMembers-Response" },
+	{ 0x0B, "GetGroupProps-Request" },
+	{ 0x0C, "GetGroupProps-Response" },
+	{ 0x0D, "GroupChangeNotice" },
+	{ 0x0E, "GroupProperties" },
+	{ 0x0F, "Joined" },
+	{ 0x10, "JoinedRequest" },
+	{ 0x11, "JoinGroup-Request" },
+	{ 0x12, "JoinGroup-Response" },
+	{ 0x13, "LeaveGroup-Request" },
+	{ 0x14, "LeaveGroup-Response" },
+	{ 0x15, "Left" },
+	{ 0x16, "MemberAccess-Request" },
+	{ 0x17, "Mod" },
+	{ 0x18, "OwnProperties" },
+	{ 0x19, "RejectList-Request" },
+	{ 0x1A, "RejectList-Response" },
+	{ 0x1B, "RemoveGroupMembers-Request" },
+	{ 0x1C, "SetGroupProps-Request" },
+	{ 0x1D, "SubscribeGroupNotice-Request" },
+	{ 0x1E, "SubscribeGroupNotice-Response" },
+	//	{ 0x1F, "Users" },  - removed in WV 1.3
+	{ 0x20, "WelcomeNote" },
+	/* New in WV-CSP 1.1 */
+	{ 0x21, "JoinGroup" },
+	{ 0x22, "SubscribeNotification" },
+	{ 0x23, "SubscribeType" },
+	/* New in WV-CSP 1.2 */
+	{ 0x24, "GetJoinedUsers-Request" },
+	{ 0x25, "GetJoinedUsers-Response" },
+	{ 0x26, "AdminMapList" },
+	{ 0x27, "AdminMapping" },
+	{ 0x28, "Mapping" },
+	{ 0x29, "ModMapping" },
+	{ 0x2A, "UserMapList" },
+	{ 0x2B, "UserMapping" },
+	/* New in WV-CSP 1.3 */
+	{ 0x2C, "JoinedBlocked" }, 
+	{ 0x2D, "LeftBlocked" }, 
+
+	{ 0x00, NULL }
+};
+
+/* Service negotiation code page - continued (0x08) */
+static const value_string wbxml_wv_csp_13_tags_cp8[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* New in WV-CSP 1.2 */
+	{ 0x05, "MP" },
+	{ 0x06, "GETAUT" },
+	{ 0x07, "GETJU" },
+	{ 0x08, "VRID" }, 
+	{ 0x09, "VerifyIDFunc" }, 
+	/* New in WV-CSP 1.3 */
+ 	{ 0x0A, "GETMAP" }, 
+	{ 0x0B, "SGMNT" }, 
+	{ 0x0C, "EXCON" }, 
+	{ 0x0D, "OFFNOTIF" }, 
+	{ 0x0E, "ADVSR" },
+
+	{ 0x00, NULL }
+};
+
+/* Common code page - continued (0x09) */
+static const value_string wbxml_wv_csp_13_tags_cp9[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* New in WV-CSP 1.2 */
+	{ 0x05, "CIR" },
+	{ 0x06, "Domain" },
+	{ 0x07, "ExtBlock" },
+	{ 0x08, "HistoryPeriod" },
+	{ 0x09, "IDList" },
+	{ 0x0A, "MaxWatcherList" },
+	//	{ 0x0B, "ReactiveAuthState" }, - removed in WV 1.3
+	//	{ 0x0C, "ReactiveAuthStatus" }, - removed in WV 1.3
+	//	{ 0x0D, "ReactiveAuthStatusList" }, - removed in WV 1.3
+	{ 0x0E, "Watcher" },
+	{ 0x0F, "WatcherStatus" },
+	/* New in WV-CSP 1.3 */
+	{ 0x1B, "AnswerOption"}, 
+	{ 0x1C, "AnswerOptionID" }, 
+	{ 0x1D, "AnswerOptions"}, 
+	{ 0x0B, "AnswerOptionText"}, 
+	{ 0x1E, "ApplicationID"}, 
+	{ 0x1F, "AuthorizeAndGrant"}, 
+	{ 0x20, "ChosenOptionID"}, 
+	{ 0x19, "ClearPublicProfile"}, 
+	{ 0x13, "Color"}, 
+	{ 0x21, "ContactListNotify"}, 
+	{ 0x14, "ContentName"}, 
+	{ 0x22, "DefaultNotify"}, 
+	{ 0x39, "ExtBlockETEM"}, 
+	{ 0x36, "ExtendConversationID"}, 
+	{ 0x23, "ExtendConversationUser"}, 
+	{ 0x10, "Font"}, 
+	{ 0x18, "FriendlyName"}, 
+	{ 0x34 , "GetMap-Request"}, 
+	{ 0x35, "GetMap-Response"}, 
+	{ 0x3A, "GroupContentLimit" }, 
+	{ 0x24, "InText"}, 
+	{ 0x15, "Map"}, 
+	{ 0x3B, "MessageTotalCount"}, 
+	{ 0x16, "NotificationType"}, 
+	{ 0x17, "NotificationTypeList"}, 
+	{ 0x1A, "PublicProfile"}, 
+	{ 0x38, "RequiresResponse"}, 
+	{ 0x25, "SegmentCount"}, 
+	{ 0x26, "SegmentID"	}, 
+	{ 0x27, "SegmentInfo"}, 
+	{ 0x28, "SegmentReference"}, 
+	{ 0x11, "Size"}, 
+	{ 0x12, "Style"	}, 
+	{ 0x29, "SystemMessage"}, 
+	{ 0x2A, "SystemMessageID"}, 
+	{ 0x2B, "SystemMessageList"}, 
+	{ 0x2C, "SystemMessageResponse"}, 
+	{ 0x2D, "SystemMessageResponseList" }, 
+	{ 0x2F, "SystemMessageText"}, 
+	{ 0x30, "TryAgainTimeout"}, 
+	{ 0x3C, "UnrecognizedUserID"}, 
+	{ 0x3F , "UserIDList"}, 
+	{ 0x3D, "UserIDPair"}, 
+	{ 0x31, "UserNotify"}, 
+	{ 0x3E, "ValidUserID"}, 
+	{ 0x32, "VerificationKey"}, 
+	{ 0x33, "VerificationMechanism"}, 
+	{ 0x37, "WatcherCount"}, 
+
+	{ 0x00, NULL }
+};
+
+/* Access code page - continued (0x0A) */
+static const value_string wbxml_wv_csp_13_tags_cp10[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* New in WV-CSP 1.2 */
+	{ 0x05, "WV-CSP-NSDiscovery-Request" },
+	{ 0x06, "WV-CSP-NSDiscovery-Response" },
+	{ 0x07, "VersionList"},
+	/* New in WV-CSP 1.3 */
+	{ 0x08, "SubscribeNotification-Request" }, 
+	{ 0x09, "UnsubscribeNotification-Request" }, 
+	{ 0x0A, "Notification-Request" }, 
+	{ 0x0B, "AdvancedCriteria" }, 
+	{ 0x0C, "PairID" }, 
+	{ 0x0D, "GetPublicProfile-Request" }, 
+	{ 0x0E, "GetPublicProfile-Response" }, 
+	{ 0x0F, "UpdatePublicProfile-Request" }, 
+	{ 0x10, "DropSegment-Request" }, 
+	{ 0x11, "ExtendConversation-Response" }, 
+	{ 0x12, "ExtendConversation-Request" }, 
+	{ 0x13, "GetSegment-Request" }, 
+	{ 0x14, "GetSegment-Response" }, 
+	{ 0x15, "SystemMessage-Request" }, 
+	{ 0x16, "SystemMessage-User" }, 
+	{ 0x17, "SearchPair" }, 
+	{ 0x18, "SegmentContent" }, 
+	
+	{ 0x00, NULL }
+};
+
+/* Common code page – continued (0x0B) */
+static const value_string wbxml_wv_csp_13_tags_cp11[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	/* New in WV-CSP 1.3 */
+	{ 0x05, "GrantListInUse" }, 
+	{ 0x06, "BlockListInUse" }, 
+	{ 0x07, "ContactListIDList" }, 
+	{ 0x08, "AnswerOptionsText" }, 
+	
+	{ 0x00, NULL }
+};
+
+
+/*****    Attribute Start tokens   *****/
+/* Common code page (0x00) */
+static const value_string wbxml_wv_csp_13_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
+	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
+	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
+	/* New in WV-CSP 1.2 */
+	{ 0x08, "xmlns='http://www.openmobilealliance.org/DTD/WV-CSP'" },
+	{ 0x09, "xmlns='http://www.openmobilealliance.org/DTD/WV-PA'" },
+	{ 0x0A, "xmlns='http://www.openmobilealliance.org/DTD/WV-TRC'" },
+	/* New in WV-CSP 1.3 */
+	{ 0x0B, "xmlns='http://www.openmobilealliance.org/DTD/IMPS-CSP'" },
+	{ 0x0C, "xmlns='http://www.openmobilealliance.org/DTD/IMPS-PA'" },
+	{ 0x0D, "xmlns='http://www.openmobilealliance.org/DTD/IMPS-TRC'" },
+	
+	{ 0x00, NULL }
+};
+
+/*****    Attribute Value tokens   *****/
+/*
+ * Element value tokens
+ */
+static const value_string vals_wv_csp_13_element_value_tokens[] = {
+	/*
+	 * Common value tokens
+	 */
+	{ 0x52, "AC" },
+	{ 0x00, "AccessType" },
+	{ 0x01, "ActiveUsers" },
+	{ 0x02, "Admin" },
+	{ 0x3C, "ANC" },
+	{ 0x51, "AND" },
+	{ 0x5A, "ANU" },
+	{ 0x68, "AP" },
+	{ 0x03, "application/" },
+	{ 0x04, "application/vnd.wap.mms-message" },
+	{ 0x05, "application/x-sms" },
+	{ 0x8F, "Aqua" },
+	{ 0x90, "ATCL" },
+	{ 0x31, "AutoDelete" },
+	{ 0x06, "AutoJoin" },
+	{ 0x07, "BASE64" },
+	{ 0x7B, "Big" },
+	{ 0x80, "Black" },
+	{ 0x53, "BLC" },
+	{ 0x54, "BLUC" },
+	{ 0x8D, "Blue" },
+	{ 0x7D, "Bold" },
+	{ 0xBC, "C" },
+	{ 0x91, "CLC" },
+	{ 0x55, "CLCR" },
+	{ 0x56, "CLD" },
+	{ 0x08, "Closed" },
+	{ 0xBD, "CURRENT_SUBSCRIBER" },
+	{ 0x09, "Default" },
+	{ 0x34, "DENIED" },
+	{ 0xAB, "DETECT" },
+	{ 0x0A, "DisplayName" },
+	{ 0xA6, "DoNotNotify" },
+	{ 0xA0, "EC" },
+	{ 0xBA, "EG" },
+	{ 0x0B, "F" },
+	{ 0xAC, "FORKALL" },
+	{ 0xBE, "FORMER_SUBSCRIBER" },
+	{ 0x87, "Fuchsia" },
+	{ 0x0C, "G" },
+	{ 0x57, "GC" },
+	{ 0x58, "GD" },
+	{ 0x59, "GLC" },
+	{ 0xA1, "GLUC" },
+	{ 0x32, "GM" },
+	{ 0xA7, "GMAU" },
+	{ 0xA8, "GMG" },
+	{ 0xA9, "GMR" },
+	{ 0xAA, "GMU" },
+	{ 0x0D, "GR" },
+	{ 0x35, "GRANTED" },
+	{ 0x82, "Gray" },
+	{ 0x88, "Green" },
+	{ 0x3D, "History" },
+	{ 0x0E, "http://" },
+	{ 0x0F, "https://" },
+	{ 0x7C, "Huge" },
+	{ 0xA2, "IA" },
+	{ 0xA3, "IC" },
+	{ 0x10, "image/" },
+	{ 0x11, "Inband" },
+	{ 0x12, "IM" },
+	{ 0x9F, "IR" },
+	{ 0x7E, "Italic" },
+	{ 0x89, "Lime" },
+	{ 0x84, "Maroon" },
+	{ 0x13, "MaxActiveUsers" },
+	{ 0x7A, "Medium" },
+	{ 0xBB, "MinimumAge" },
+	{ 0x14, "Mod" },
+	{ 0x15, "Name" },
+	{ 0x8C, "Navy" },
+	{ 0x16, "None" },
+	{ 0x17, "N" },
+	{ 0xAD, "OEU" },
+	{ 0x8A, "Olive" },
+	{ 0x18, "Open" },
+	{ 0x19, "Outband" },
+	{ 0x36, "PENDING" },
+	{ 0x3A, "PPU" },
+	{ 0x1A, "PR" },
+	{ 0xBF, "PRESENCE_ACCESS" },
+	{ 0x1B, "Private" },
+	{ 0x1C, "PrivateMessaging" },
+	{ 0x1D, "PrivilegeLevel" },
+	{ 0x1E, "Public" },
+	{ 0x86, "Purple" },
+	{ 0x1F, "P" },
+	{ 0xC0, "R" },
+	{ 0x85, "Red" },
+	{ 0x20, "Request" },
+	{ 0x21, "Response" },
+	{ 0x22, "Restricted" },
+	{ 0x38, "RequireInvitation" },
+	{ 0x23, "ScreenName" },
+	{ 0x24, "Searchable" },
+	{ 0x25, "S" },
+	{ 0x26, "SC" },
+	{ 0xAE, "SERVERLOGIC" },
+	{ 0x37, "ShowID" },
+	{ 0x81, "Silver" },
+	{ 0x79, "Small" },
+	{ 0x3B, "SPA" },
+	{ 0x8E, "Teal" },
+	{ 0x27, "text/" },
+	{ 0x28, "text/plain" },
+	{ 0x29, "text/x-vCalendar" },
+	{ 0x2A, "text/x-vCard" },
+	{ 0x39, "Tiny" },
+	{ 0x2B, "Topic" },
+	{ 0x2C, "T" },
+	{ 0x2D, "Type" },
+	{ 0x2E, "U" },
+	{ 0x7F, "Underline" },
+	{ 0x2F, "US" },
+	{ 0x33, "Validity" },
+	{ 0x83, "White" },
+	{ 0x78, "www.openmobilealliance.org" },
+	{ 0x30, "www.wireless-village.org" },
+	{ 0x8B, "Yellow" },
+	/*
+	 * Access value tokens
+	 */
+	{ 0x3D, "GROUP_ID" },
+	{ 0x3E, "GROUP_NAME" },
+	{ 0x3F, "GROUP_TOPIC" },
+	{ 0x40, "GROUP_USER_ID_JOINED" },
+	{ 0x41, "GROUP_USER_ID_OWNER" },
+	{ 0x42, "HTTP" },
+	{ 0x43, "SMS" },
+	{ 0x44, "STCP" },
+	{ 0x45, "SUDP" },
+	{ 0x46, "USER_ALIAS" },
+	{ 0x47, "USER_EMAIL_ADDRESS" },
+	{ 0x48, "USER_FIRST_NAME" },
+	{ 0x49, "USER_ID" },
+	{ 0x4A, "USER_LAST_NAME" },
+	{ 0x4B, "USER_MOBILE_NUMBER" },
+	{ 0x4C, "USER_ONLINE_STATUS" },
+	{ 0x4D, "WAPSMS" },
+	{ 0x4E, "WAPUDP" },
+	{ 0x4F, "WSP" },	
+	{ 0x50, "GROUP_USER_ID_AUTOJOIN" },
+	/*
+	 * Presence value tokens
+	 */
+	{ 0x5B, "ANGRY" },
+	{ 0x5C, "ANXIOUS" },
+	{ 0x5D, "ASHAMED" },
+	{ 0x5F, "AVAILABLE" },
+	{ 0x60, "BORED" },
+	{ 0x61, "CALL" },
+	{ 0x62, "CLI" },
+	{ 0x63, "COMPUTER" },
+	{ 0x64, "DISCREET" },
+	{ 0x65, "EMAIL" },
+	{ 0x66, "EXCITED" },
+	{ 0x67, "HAPPY" },
+	{ 0x6B, "IN_LOVE" },
+	{ 0x6C, "INVINCIBLE" },
+	{ 0x6D, "JEALOUS" },
+	{ 0x6E, "MMS" },
+	{ 0x6F, "MOBILE_PHONE" },
+	{ 0x70, "NOT_AVAILABLE" },
+	{ 0x71, "OTHER" },
+	{ 0x72, "PDA" },
+	{ 0x73, "SAD" },
+	{ 0x74, "SLEEPY" },
+	{ 0x75, "SMS" },
+	/*
+	 * Access value tokens - continued
+	 */
+	{ 0x93, "USER_CITY" },
+	{ 0x94, "USER_COUNTRY" },
+	{ 0x95, "USER_FRIENDLY_NAME" },
+	{ 0x96, "USER_GENDER" },
+	{ 0x97, "USER_INTENTION" },
+	{ 0x98, "USER_INTERESTS_HOBBIES" },
+	{ 0x99, "USER_MARITAL_STATUS" },
+	{ 0x9A, "PRIORITYREJECT" },
+	{ 0x9B, "PRIORITYSTORE" },
+	{ 0x9C, "REJECT" },
+	{ 0x9D, "SENDREJECT" },
+	{ 0x9E, "SENDSTORE" },
+	{ 0xA4, "SSMS" },
+	{ 0xA5, "SHTTP" },
+	{ 0xAF, "PP_AGE" },
+	{ 0xB0, "PP_CITY" },
+	{ 0xB1, "PP_COUNTRY" },
+	{ 0xB2, "PP_FRIENDLY_NAME" },
+	{ 0xB3, "PP_FREE_TEXT" },
+	{ 0xB4, "PP_GENDER" },
+	{ 0xB5, "PP_INTENTION" },
+	{ 0xB6, "PP_INTERESTS" },
+	{ 0xB7, "PP_MARITAL_STATUS" },
+	{ 0xB8, "USER_AGE_MAX" },
+	{ 0xB9, "USER_AGE_MIN" },
+	
+	{ 0x00, NULL }
+};
+
+/***** Token code page aggregation *****/
+static char *
+ext_t_0_wv_cspc_13(tvbuff_t *tvb _U_, guint32 value, guint32 str_tbl _U_)
+{
+	char *str = g_strdup_printf("Common Value: '%s'",
+				    val_to_str(value, vals_wv_csp_13_element_value_tokens,
+					       "<Unknown WV-CSP 1.3 Common Value token 0x%X>"));
+	return str;
+}
+
+#define wbxml_wv_csp_13_global wbxml_wv_csp_12_global		/*TODO*/
+
+static const value_valuestring wbxml_wv_csp_13_tags[] = {
+	{  0, wbxml_wv_csp_13_tags_cp0 },
+	{  1, wbxml_wv_csp_13_tags_cp1 },
+	{  2, wbxml_wv_csp_13_tags_cp2 },
+	{  3, wbxml_wv_csp_13_tags_cp3 },
+	{  4, wbxml_wv_csp_13_tags_cp4 },
+	{  5, wbxml_wv_csp_13_tags_cp5 },
+	{  6, wbxml_wv_csp_13_tags_cp6 },
+	{  7, wbxml_wv_csp_13_tags_cp7 },
+	{  8, wbxml_wv_csp_13_tags_cp8 },
+	{  9, wbxml_wv_csp_13_tags_cp9 },
+	{ 10, wbxml_wv_csp_13_tags_cp10 },
+	{ 11, wbxml_wv_csp_13_tags_cp11 },
+	{  0, NULL }
+};
+
+static const value_valuestring wbxml_wv_csp_13_attrStart[] = {
+	{ 0, wbxml_wv_csp_13_attrStart_cp0 },
+	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_wv_cspc_13 = {
+	"Wireless-Village Client-Server Protocol 1.3",
+	"WV-CSP 1.3",
+	{ ext_t_0_wv_cspc_13, NULL, NULL },
+	wv_csp13_opaque_binary_tag,
+	wv_csp13_opaque_literal_tag,
+	default_opaque_binary_attr,
+	default_opaque_literal_attr,
+	wbxml_wv_csp_13_global,
+	wbxml_wv_csp_13_tags,
+	wbxml_wv_csp_13_attrStart,
+	NULL
+};
 
 
 
@@ -4779,28 +5857,37 @@ wv_csp_discriminator(tvbuff_t *tvb, guint32 offset)
 	guint32 magic_1 = tvb_get_ntohl(tvb, offset + 0);
 	guint16 magic_2 = tvb_get_ntohs(tvb, offset + 4);
 
-	if (magic_1 == 0xFE050331 && magic_2 == 0x2e30) {
-		/* FE 05 03 31 23 30 --> WV-CSP 1.0 */
-		return &decode_wv_cspc_10;
-	} else if (magic_1 == 0xC9050331 && magic_2 == 0x2e31) {
-		/* C9 05 03 31 23 31 --> WV-CSP 1.1 */
-		return &decode_wv_cspc_11;
-#ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
-	} else if (magic_1 == 0xC9050331 && magic_2 == 0x2e31) {
-		/* C9 05 03 31 23 32 --> WV-CSP 1.2 */
-		return &decode_wv_cspc_12;
-#endif /* Remove_this_comment_when_WV_CSP_will_be_an_approved_spec */
-	}
+	if (magic_1 == 0xFE050331 && magic_2 == 0x2e30)
+		{
+			/* FE 05 03 31 2E 30 --> WV-CSP 1.0 */
+			return &decode_wv_cspc_10;
+		}
+	else if (magic_1 == 0xC9050331 && magic_2 == 0x2e31)
+		{
+			/* C9 05 03 31 2E 31 --> WV-CSP 1.1 */
+			return &decode_wv_cspc_11;
+		}
+	else if (magic_1 == 0xC9080331 && magic_2 == 0x2e32)
+		{
+			/* C9 08 03 31 2E 32 --> WV-CSP 1.2 */
+			return &decode_wv_cspc_12;
+		}
+	else if ( magic_1 == 0xC90B0331 && magic_2 == 0x2E33)
+		{
+			/* C9 0B 03 31 2E 33 --> WV-CSP 1.3 */
+			return &decode_wv_cspc_13;
+		}
 
-	/* Default: WV-CSP 1.1 */
-	return &decode_wv_cspc_11;
+
+	/* Default: WV-CSP 1.2 */
+	return &decode_wv_cspc_12;
 }
 
 /********************** WBXML token mapping aggregation **********************/
 
 static const wbxml_decoding *get_wbxml_decoding_from_public_id (guint32 publicid);
 static const wbxml_decoding *get_wbxml_decoding_from_content_type (
-	const char *content_type, tvbuff_t *tvb, guint32 offset);
+								   const char *content_type, tvbuff_t *tvb, guint32 offset);
 
 
 /**
@@ -4812,52 +5899,54 @@ static const wbxml_decoding *get_wbxml_decoding_from_content_type (
  * The following map contains entries registered with a registered WBXML
  * public ID. See WAP WINA or OMA OMNA for registered values:
  * http://www.openmobilealliance.org/tech/omna/ */
-static const wbxml_integer_list well_known_public_id_list[] = {
-    /* 0x00 - Unknown or missing Public ID */
-    /* 0x01 - LITERAL PublicID - see String Table */
-    { 0x02,	&decode_wmlc_10 },	/* WML 1.0 */
-    /* 0x03 - WTA 1.0 */
-    { 0x04,	&decode_wmlc_11 },	/* WML 1.1 */
-    { 0x05,	&decode_sic_10 },	/* SI 1.0 */
-    { 0x06,	&decode_slc_10 },	/* SL 1.0 */
-    { 0x07,	&decode_coc_10 },	/* CO 1.0 */
-    { 0x08,	&decode_channelc_10 },	/* CHANNEL 1.0 */
-    { 0x09,	&decode_wmlc_12 },	/* WML 1.2 */
-    { 0x0A,	&decode_wmlc_13 },	/* WML 1.3 */
-    { 0x0B,	&decode_provc_10 },	/* PROV 1.0 */
-    /* 0x0C - WTA-WML 1.2 */
-    { 0x0D,	&decode_emnc_10 },	/* EMN 1.0 */
-    /* 0x0E - DRMREL 1.0 */
-    { 0x0F,	&decode_wv_cspc_10 },	/* WV-CSP 1.0 */
-    { 0x10,	&decode_wv_cspc_11 },	/* WV-CSP 1.1 */
+ static const wbxml_integer_list well_known_public_id_list[] = {
+	 /* 0x00 - Unknown or missing Public ID */
+	 /* 0x01 - LITERAL PublicID - see String Table */
+	 { 0x02,	&decode_wmlc_10 },	/* WML 1.0 */
+	 /* 0x03 - WTA 1.0 */
+	 { 0x04,	&decode_wmlc_11 },	/* WML 1.1 */
+	 { 0x05,	&decode_sic_10 },	/* SI 1.0 */
+	 { 0x06,	&decode_slc_10 },	/* SL 1.0 */
+	 { 0x07,	&decode_coc_10 },	/* CO 1.0 */
+	 { 0x08,	&decode_channelc_10 },	/* CHANNEL 1.0 */
+	 { 0x09,	&decode_wmlc_12 },	/* WML 1.2 */
+	 { 0x0A,	&decode_wmlc_13 },	/* WML 1.3 */
+	 { 0x0B,	&decode_provc_10 },	/* PROV 1.0 */
+	 /* 0x0C - WTA-WML 1.2 */
+	 { 0x0D,	&decode_emnc_10 },	/* EMN 1.0 */
+	 /* 0x0E - DRMREL 1.0 */
+	 { 0x0F,	&decode_wv_cspc_10 },	/* WV-CSP 1.0 */
+	 { 0x10,	&decode_wv_cspc_11 },	/* WV-CSP 1.1 */
+	 /*See http://www.openmobilealliance.org/tech/omna/omna-wbxml-public-docid.htm */
+	 { 0x11,	&decode_wv_cspc_12 },	/* OMA IMPS - CSP protocol DTD v1.2 */
+	 { 0x12,	&decode_wv_cspc_13 },	/* OMA IMPS - CSP protocol DTD v1.3 */
+	 { 0x020B,	&decode_nokiaprovc_70 },/* Nokia OTA Provisioning 7.0 */
+	 { 0x0FD1,	&decode_syncmlc_10 },	/* SyncML 1.0 */
+	 { 0x0FD3,	&decode_syncmlc_11 },	/* SyncML 1.1 */
+	 /* Note: I assumed WML+ 1.x would be not that different from WML 1.x,
+	  *       the real mapping should come from Phone.com (OpenWave)! */
+	 { 0x1108,	&decode_wmlc_11 },	/* Phone.com WMLC+ 1.1 - not 100% correct */
+	 { 0x110D,	&decode_wmlc_13 },	/* Phone.com WMLC+ 1.3 - not 100% correct */
 
-    { 0x020B,	&decode_nokiaprovc_70 },/* Nokia OTA Provisioning 7.0 */
-    { 0x0FD1,	&decode_syncmlc_10 },	/* SyncML 1.0 */
-    { 0x0FD3,	&decode_syncmlc_11 },	/* SyncML 1.1 */
-    /* Note: I assumed WML+ 1.x would be not that different from WML 1.x,
-     *       the real mapping should come from Phone.com (OpenWave)! */
-    { 0x1108,	&decode_wmlc_11 },	/* Phone.com WMLC+ 1.1 - not 100% correct */
-    { 0x110D,	&decode_wmlc_13 },	/* Phone.com WMLC+ 1.3 - not 100% correct */
-
-    { 0x00,	NULL }
-};
+	 { 0x00,	NULL }
+ };
 
 /* The following map contains entries only registered with a literal media
  * type. */
 static const wbxml_literal_list content_type_list[] = {
-    {	"application/x-wap-prov.browser-settings",
-	NULL,
-	&decode_nokiaprovc_70
-    },
-    {	"application/x-wap-prov.browser-bookmarks",
-	NULL,
-	&decode_nokiaprovc_70
-    },
-    {	"application/vnd.wv.csp.wbxml",
-	wv_csp_discriminator,
-	&decode_wv_cspc_11
-    },
-    {	NULL, NULL, NULL }
+	{	"application/x-wap-prov.browser-settings",
+		NULL,
+		&decode_nokiaprovc_70
+	},
+	{	"application/x-wap-prov.browser-bookmarks",
+		NULL,
+		&decode_nokiaprovc_70
+	},
+	{	"application/vnd.wv.csp.wbxml",
+		wv_csp_discriminator,
+		&decode_wv_cspc_11
+	},
+	{	NULL, NULL, NULL }
 };
 
 
@@ -4865,49 +5954,49 @@ static const wbxml_literal_list content_type_list[] = {
  * identifier value (see WINA for a table with defined identifiers). */
 static const wbxml_decoding *get_wbxml_decoding_from_public_id (guint32 public_id)
 {
-    const wbxml_decoding *map = NULL;
+	const wbxml_decoding *map = NULL;
 
-    DebugLog(("get_wbxml_decoding_from_public_id: public_id = %u\n",
-		public_id));
-    if (public_id >= 2) {
-	const wbxml_integer_list *item = well_known_public_id_list;
+	DebugLog(("get_wbxml_decoding_from_public_id: public_id = %u\n",
+		  public_id));
+	if (public_id >= 2) {
+		const wbxml_integer_list *item = well_known_public_id_list;
 
-	while (item && item->public_id && item->map) {
-	    if (item->public_id == public_id) {
-		map = item->map;
-		break;
-	    }
-	    item++;
+		while (item && item->public_id && item->map) {
+			if (item->public_id == public_id) {
+				map = item->map;
+				break;
+			}
+			item++;
+		}
 	}
-    }
-    return map;
+	return map;
 }
 
 static const wbxml_decoding *get_wbxml_decoding_from_content_type (
-	const char *content_type, tvbuff_t *tvb, guint32 offset)
+								   const char *content_type, tvbuff_t *tvb, guint32 offset)
 {
-    const wbxml_decoding *map = NULL;
+	const wbxml_decoding *map = NULL;
 
-    DebugLog(("get_wbxml_decoding_from_content_type: content_type = [%s]\n",
-		content_type));
-    if (content_type && content_type[0]) {
-    	const wbxml_literal_list *item = content_type_list;
+	DebugLog(("get_wbxml_decoding_from_content_type: content_type = [%s]\n",
+		  content_type));
+	if (content_type && content_type[0]) {
+		const wbxml_literal_list *item = content_type_list;
 
-	while (item && item->content_type) {
-	    if (strcasecmp(content_type, item->content_type) == 0) {
-		/* Try the discriminator */
-		if (item->discriminator != NULL) {
-		    map = item->discriminator(tvb, offset);
+		while (item && item->content_type) {
+			if (strcasecmp(content_type, item->content_type) == 0) {
+				/* Try the discriminator */
+				if (item->discriminator != NULL) {
+					map = item->discriminator(tvb, offset);
+				}
+				if (map == NULL) {
+					map = item->map;
+				}
+				break;
+			}
+			item++;
 		}
-		if (map == NULL) {
-    		    map = item->map;
-		}
-		break;
-	    }
-	    item++;
 	}
-    }
-    return map;
+	return map;
 }
 
 
@@ -4923,11 +6012,11 @@ static const wbxml_decoding *get_wbxml_decoding_from_content_type (
  *   4. If exists, retrieve token mapping
  */
 
-#define wbxml_UNDEFINED_TOKEN \
+#define wbxml_UNDEFINED_TOKEN					\
 	"(Requested token not defined for this content type)"
-#define wbxml_UNDEFINED_TOKEN_CODE_PAGE \
+#define wbxml_UNDEFINED_TOKEN_CODE_PAGE					\
 	"(Requested token code page not defined for this content type)"
-#define wbxml_UNDEFINED_TOKEN_MAP \
+#define wbxml_UNDEFINED_TOKEN_MAP					\
 	"(Requested token map not defined for this content type)"
 /* Return token mapping for a given content mapping entry. */
 static const char *
@@ -4945,17 +6034,17 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 			}
 			/* No valid token mapping in specified code page of token map */
 			DebugLog(("map_token(codepage = %u, token = %u: "
-						wbxml_UNDEFINED_TOKEN "\n", codepage, token));
+				  wbxml_UNDEFINED_TOKEN "\n", codepage, token));
 			return wbxml_UNDEFINED_TOKEN;
 		}
 		/* There is no token map entry for the requested code page */
 		DebugLog(("map_token(codepage = %u, token = %u: "
-					wbxml_UNDEFINED_TOKEN_CODE_PAGE "\n", codepage, token));
+			  wbxml_UNDEFINED_TOKEN_CODE_PAGE "\n", codepage, token));
 		return wbxml_UNDEFINED_TOKEN_CODE_PAGE;
 	}
 	/* The token map does not exist */
 	DebugLog(("map_token(codepage = %u, token = %u: "
-				wbxml_UNDEFINED_TOKEN_MAP "\n", codepage, token));
+		  wbxml_UNDEFINED_TOKEN_MAP "\n", codepage, token));
 	return wbxml_UNDEFINED_TOKEN_MAP;
 }
 
@@ -4974,7 +6063,7 @@ dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		const wbxml_decoding *override_content_map);
+		     const wbxml_decoding *override_content_map);
 
 void
 proto_register_wbxml(void);
@@ -4982,31 +6071,31 @@ proto_register_wbxml(void);
 /* Parse and display the WBXML string table */
 static void
 show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
-		guint32 str_tbl_len);
+			 guint32 str_tbl_len);
 
 /* Parse data while in STAG state */
 static guint32
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr);
+		 guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr);
 
 /* Parse data while in STAG state;
  * interpret tokens as defined by content type */
 static guint32
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
-		const wbxml_decoding *map);
+			 guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
+			 const wbxml_decoding *map);
 
 /* Parse data while in ATTR state */
 static guint32
 parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr);
+			    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr);
 
 /* Parse data while in ATTR state;
  * interpret tokens as defined by content type */
 static guint32
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
-		const wbxml_decoding *map);
+				    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
+				    const wbxml_decoding *map);
 
 
 /****************** WBXML protocol dissection functions ******************/
@@ -5027,7 +6116,7 @@ dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Code to actually dissect the packets */
 static void
 dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		const wbxml_decoding *override_content_map)
+		     const wbxml_decoding *override_content_map)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -5060,16 +6149,16 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * Last valid format: WBXML 1.3
 	 */
 	switch ( version = tvb_get_guint8 (tvb, 0) ) {
-		case 0x00: /* WBXML/1.0 */
-			break;
+	case 0x00: /* WBXML/1.0 */
+		break;
 
-		case 0x01: /* WBXML/1.1 */
-		case 0x02: /* WBXML/1.2 */
-		case 0x03: /* WBXML/1.3 */
-			break;
+	case 0x01: /* WBXML/1.1 */
+	case 0x02: /* WBXML/1.2 */
+	case 0x03: /* WBXML/1.3 */
+		break;
 
-		default:
-			return;
+	default:
+		return;
 	}
 
 	/* In order to properly construct the packet summary,
@@ -5088,23 +6177,23 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Version-specific handling of Charset */
 	switch ( version ) {
-		case 0x00: /* WBXML/1.0 */
-			/* No charset */
-			break;
+	case 0x00: /* WBXML/1.0 */
+		/* No charset */
+		break;
 
-		case 0x01: /* WBXML/1.1 */
-		case 0x02: /* WBXML/1.2 */
-		case 0x03: /* WBXML/1.3 */
-			/* Get charset */
-			charset = tvb_get_guintvar (tvb, offset, &charset_len);
-			offset += charset_len;
-			break;
+	case 0x01: /* WBXML/1.1 */
+	case 0x02: /* WBXML/1.2 */
+	case 0x03: /* WBXML/1.3 */
+		/* Get charset */
+		charset = tvb_get_guintvar (tvb, offset, &charset_len);
+		offset += charset_len;
+		break;
 
-		default: /* Impossible since we returned already earlier */
-			g_error("%s:%u: WBXML version octet 0x%02X only partly supported!\n"
-					"Please report this as a bug.\n", __FILE__, __LINE__, version);
-			DISSECTOR_ASSERT_NOT_REACHED();
-			break;
+	default: /* Impossible since we returned already earlier */
+		g_error("%s:%u: WBXML version octet 0x%02X only partly supported!\n"
+			"Please report this as a bug.\n", __FILE__, __LINE__, version);
+		DISSECTOR_ASSERT_NOT_REACHED();
+		break;
 	}
 
 	/* String table: read string table length in bytes */
@@ -5114,14 +6203,14 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Compose the summary line */
 	if ( publicid ) {
 		summary = g_strdup_printf("%s, Public ID: \"%s\"",
-				val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
-				val_to_str (publicid, vals_wbxml_public_ids, "(unknown 0x%x)"));
+					  val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
+					  val_to_str (publicid, vals_wbxml_public_ids, "(unknown 0x%x)"));
 	} else {
 		/* Read length of Public ID from string table */
 		len = tvb_strsize (tvb, str_tbl + publicid_index);
 		summary = g_strdup_printf("%s, Public ID: \"%s\"",
-				val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
-				tvb_format_text (tvb, str_tbl + publicid_index, len - 1));
+					  val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
+					  tvb_format_text (tvb, str_tbl + publicid_index, len - 1));
 	}
 
 	/* Add summary to INFO column if it is enabled */
@@ -5140,21 +6229,21 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* WBXML Version */
 		proto_tree_add_uint (wbxml_tree, hf_wbxml_version,
-				tvb, 0, 1, version);
+				     tvb, 0, 1, version);
 
 		/* Public ID */
 		if (publicid) { /* Known Public ID */
 			proto_tree_add_uint(wbxml_tree, hf_wbxml_public_id_known,
-					tvb, 1, publicid_len, publicid);
+					    tvb, 1, publicid_len, publicid);
 		} else { /* Public identifier in string table */
 			proto_tree_add_item (wbxml_tree, hf_wbxml_public_id_literal,
-					tvb, 1, publicid_len, FALSE);
+					     tvb, 1, publicid_len, FALSE);
 		}
 		offset = 1 + publicid_len;
 
 		if ( version ) { /* Charset */
 			proto_tree_add_uint (wbxml_tree, hf_wbxml_charset,
-					tvb, 1 + publicid_len, charset_len, charset);
+					     tvb, 1 + publicid_len, charset_len, charset);
 			offset += charset_len;
 		}
 
@@ -5163,14 +6252,14 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* String Table */
 		ti = proto_tree_add_text(wbxml_tree,
-				tvb, offset, len + str_tbl_len, "String table: %u bytes",
-				str_tbl_len);
+					 tvb, offset, len + str_tbl_len, "String table: %u bytes",
+					 str_tbl_len);
 
 		if (wbxml_tree && str_tbl_len) { /* Display string table as subtree */
 			wbxml_str_tbl_tree = proto_item_add_subtree (ti,
-					ett_wbxml_str_tbl);
+								     ett_wbxml_str_tbl);
 			show_wbxml_string_table (wbxml_str_tbl_tree, tvb,
-					str_tbl, str_tbl_len);
+						 str_tbl, str_tbl_len);
 		}
 
 		/* Data starts HERE */
@@ -5178,13 +6267,13 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* The WBXML BODY starts here */
 		if (disable_wbxml_token_parsing) {
-		    ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
-			    "Data representation not shown "
-			    "(edit WBXML preferences to show)");
-		    return;
+			ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
+						  "Data representation not shown "
+						  "(edit WBXML preferences to show)");
+			return;
 		} /* Else: render the WBXML tokens */
 		ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
-				"Data representation");
+					  "Data representation");
 		wbxml_content_tree = proto_item_add_subtree (ti, ett_wbxml_content);
 
 		/* The parse_wbxml_X() functions will process the content correctly,
@@ -5195,49 +6284,49 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (override_content_map != NULL) {
 				content_map = override_content_map;
 				proto_item_append_text(ti,
-						" is based on: %s",
-						content_map->name);
+						       " is based on: %s",
+						       content_map->name);
 			} else {
 				/* Retrieve the content token mapping if available */
 				content_map = get_wbxml_decoding_from_public_id (publicid);
 				if (! content_map) {
 					content_map = get_wbxml_decoding_from_content_type(
-							pinfo->match_string, tvb, offset);
+											   pinfo->match_string, tvb, offset);
 					if (! content_map) {
 						proto_tree_add_text (wbxml_content_tree,
-								tvb, offset, -1,
-								"[Rendering of this content type"
-								" not (yet) supported]");
+								     tvb, offset, -1,
+								     "[Rendering of this content type"
+								     " not (yet) supported]");
 					} else {
 						proto_item_append_text(ti,
-								" is based on Content-Type: %s "
-								"(chosen decoding: %s)",
-								pinfo->match_string, content_map->name);
+								       " is based on Content-Type: %s "
+								       "(chosen decoding: %s)",
+								       pinfo->match_string, content_map->name);
 					}
 				}
 			}
-		    if (content_map && skip_wbxml_token_mapping) {
-			proto_tree_add_text (wbxml_content_tree,
-				tvb, offset, -1,
-				"[Rendering of this content type"
-				" has been disabled "
-				"(edit WBXML preferences to enable)]");
-			content_map = NULL;
-		    }
-		    proto_tree_add_text (wbxml_content_tree, tvb,
-			    offset, -1,
-			    "Level | State | Codepage "
-			    "| WBXML Token Description         "
-			    "| Rendering");
-		    if (content_map) {
-			len = parse_wbxml_tag_defined (wbxml_content_tree,
-				tvb, offset, str_tbl, &level, &codepage_stag,
-				&codepage_attr, content_map);
-		    } else {
-			/* Default: WBXML only, no interpretation of the content */
-			len = parse_wbxml_tag (wbxml_content_tree, tvb, offset,
-				str_tbl, &level, &codepage_stag, &codepage_attr);
-		    }
+			if (content_map && skip_wbxml_token_mapping) {
+				proto_tree_add_text (wbxml_content_tree,
+						     tvb, offset, -1,
+						     "[Rendering of this content type"
+						     " has been disabled "
+						     "(edit WBXML preferences to enable)]");
+				content_map = NULL;
+			}
+			proto_tree_add_text (wbxml_content_tree, tvb,
+					     offset, -1,
+					     "Level | State | Codepage "
+					     "| WBXML Token Description         "
+					     "| Rendering");
+			if (content_map) {
+				len = parse_wbxml_tag_defined (wbxml_content_tree,
+							       tvb, offset, str_tbl, &level, &codepage_stag,
+							       &codepage_attr, content_map);
+			} else {
+				/* Default: WBXML only, no interpretation of the content */
+				len = parse_wbxml_tag (wbxml_content_tree, tvb, offset,
+						       str_tbl, &level, &codepage_stag, &codepage_attr);
+			}
 		}
 		return;
 	}
@@ -5252,20 +6341,20 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 static void
 show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
-		guint32 str_tbl_len)
+			 guint32 str_tbl_len)
 {
 	guint32 off = str_tbl;
 	guint32 len = 0;
 	guint32 end = str_tbl + str_tbl_len;
 
 	proto_tree_add_text (tree, tvb, off, end,
-			"Start  | Length | String");
+			     "Start  | Length | String");
 	while (off < end) {
 		len = tvb_strsize (tvb, off);
 		proto_tree_add_text (tree, tvb, off, len,
-				"%6d | %6d | '%s'",
-				off - str_tbl, len,
-				tvb_format_text (tvb, off, len-1));
+				     "%6d | %6d | '%s'",
+				     off - str_tbl, len,
+				     tvb_format_text (tvb, off, len-1));
 		off += len;
 	}
 }
@@ -5344,8 +6433,8 @@ static const char * Indent (guint8 level) {
  */
 static guint32
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
-		const wbxml_decoding *map)
+			 guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
+			 const wbxml_decoding *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -5360,10 +6449,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
-										   tag with content: <x>Content</x>
+					       tag with content: <x>Content</x>
 
-										   The initial state is FALSE.
-										   This state will trigger recursion. */
+					       The initial state is FALSE.
+					       This state will trigger recursion. */
 	tag_save_literal = NULL; /* Prevents compiler warning */
 
 	DebugLog(("parse_wbxml_tag_defined (level = %u, offset = %u)\n", *level, offset));
@@ -5371,181 +6460,181 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("STAG: (top of while) level = %3u, peek = 0x%02X, off = %u, tvb_len = %u\n", *level, peek, off, tvb_len));
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
-												  but not the LITERAL tokens */
-			case 0x00: /* SWITCH_PAGE */
-				*codepage_stag = tvb_get_guint8 (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 2,
-						"      | Tag   | T -->%3d "
-						"| SWITCH_PAGE (Tag code page)     "
-						"|",
-						*codepage_stag);
-				off += 2;
-				break;
-			case 0x01: /* END: only possible for Tag with Content */
-				if (tag_save_known) { /* Known TAG */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d    "
-							"| END (Known Tag 0x%02X)            "
-							"| %s</%s>",
-							*level, *codepage_stag,
-							tag_save_known, Indent (*level),
-							tag_save_literal); /* We already looked it up! */
-				} else { /* Literal TAG */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d    "
-							"| END (Literal Tag)               "
-							"| %s</%s>",
-							*level, *codepage_stag, Indent (*level),
-							tag_save_literal ? tag_save_literal : "");
+							  but not the LITERAL tokens */
+		case 0x00: /* SWITCH_PAGE */
+			*codepage_stag = tvb_get_guint8 (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 2,
+					     "      | Tag   | T -->%3d "
+					     "| SWITCH_PAGE (Tag code page)     "
+					     "|",
+					     *codepage_stag);
+			off += 2;
+			break;
+		case 0x01: /* END: only possible for Tag with Content */
+			if (tag_save_known) { /* Known TAG */
+				proto_tree_add_text (tree, tvb, off, 1,
+						     "  %3d | Tag   | T %3d    "
+						     "| END (Known Tag 0x%02X)            "
+						     "| %s</%s>",
+						     *level, *codepage_stag,
+						     tag_save_known, Indent (*level),
+						     tag_save_literal); /* We already looked it up! */
+			} else { /* Literal TAG */
+				proto_tree_add_text (tree, tvb, off, 1,
+						     "  %3d | Tag   | T %3d    "
+						     "| END (Literal Tag)               "
+						     "| %s</%s>",
+						     *level, *codepage_stag, Indent (*level),
+						     tag_save_literal ? tag_save_literal : "");
+			}
+			(*level)--;
+			off++;
+			/* Reset code page: not needed as return from recursion */
+			DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
+			return (off - offset);
+			break;
+		case 0x02: /* ENTITY */
+			ent = tvb_get_guintvar (tvb, off+1, &len);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| ENTITY                          "
+					     "| %s'&#%u;'",
+					     *level, *codepage_stag, Indent (*level), ent);
+			off += 1+len;
+			break;
+		case 0x03: /* STR_I */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| STR_I (Inline string)           "
+					     "| %s\'%s\'",
+					     *level, *codepage_stag, Indent(*level),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
+		case 0x40: /* EXT_I_0 */
+		case 0x41: /* EXT_I_1 */
+		case 0x42: /* EXT_I_2 */
+			/* Extension tokens */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| EXT_I_%1x    (Extension Token)    "
+					     "| %s(%s: \'%s\')",
+					     *level, *codepage_stag,
+					     peek & 0x0f, Indent (*level),
+					     map_token (map->global, 0, peek),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
+		case 0x43: /* PI */
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d | Tag   | T %3d    "
+					     "| PI (XML Processing Instruction) "
+					     "| %s<?xml",
+					     *level, *codepage_stag, Indent (*level));
+			len = parse_wbxml_attribute_list_defined (tree, tvb, off,
+								  str_tbl, *level, codepage_attr, map);
+			/* Check that there is still room in packet */
+			off += len;
+			if (off >= tvb_len) {
+				DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
+				/*
+				 * TODO - Do we need to free g_malloc()ed memory?
+				 */
+				THROW(ReportedBoundsError);
+			}
+			proto_tree_add_text (tree, tvb, off-1, 1,
+					     "  %3d | Tag   | T %3d    "
+					     "| END (PI)                        "
+					     "| %s?>",
+					     *level, *codepage_stag, Indent (*level));
+			break;
+		case 0x80: /* EXT_T_0 */
+		case 0x81: /* EXT_T_1 */
+		case 0x82: /* EXT_T_2 */
+			/* Extension tokens */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			{   char *s;
+				if (map->ext_t[peek & 0x03])
+					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
+				else
+					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
+							    map_token (map->global, 0, peek));
+				proto_tree_add_text (tree, tvb, off, 1+len,
+						     "  %3d | Tag   | T %3d    "
+						     "| EXT_T_%1x    (Extension Token)    "
+						     "| %s%s",
+						     *level, *codepage_stag, peek & 0x0f, Indent (*level),
+						     s);
+				g_free(s);
+			}
+			off += 1+len;
+			break;
+		case 0x83: /* STR_T */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+index);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| STR_T (Tableref string)         "
+					     "| %s\'%s\'",
+					     *level, *codepage_stag, Indent (*level),
+					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+			off += 1+len;
+			break;
+		case 0xC0: /* EXT_0 */
+		case 0xC1: /* EXT_1 */
+		case 0xC2: /* EXT_2 */
+			/* Extension tokens */
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d | Tag   | T %3d    "
+					     "| EXT_%1x      (Extension Token)    "
+					     "| %s(%s)",
+					     *level, *codepage_stag, peek & 0x0f, Indent (*level),
+					     map_token (map->global, 0, peek));
+			off++;
+			break;
+		case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
+			if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
+				char *str;
+				if (tag_save_known) { /* Knwon tag */
+					if (map->opaque_binary_tag) {
+						str = map->opaque_binary_tag(tvb, off + 1,
+									     tag_save_known, *codepage_stag, &len);
+					} else {
+						str = default_opaque_binary_tag(tvb, off + 1,
+										tag_save_known, *codepage_stag, &len);
+					}
+				} else { /* lITERAL tag */
+					if (map->opaque_literal_tag) {
+						str = map->opaque_literal_tag(tvb, off + 1,
+									      tag_save_literal, *codepage_stag, &len);
+					} else {
+						str = default_opaque_literal_tag(tvb, off + 1,
+										 tag_save_literal, *codepage_stag, &len);
+					}
 				}
-				(*level)--;
-				off++;
-				/* Reset code page: not needed as return from recursion */
+				proto_tree_add_text (tree, tvb, off, 1 + len,
+						     "  %3d | Tag   | T %3d    "
+						     "| OPAQUE (Opaque data)            "
+						     "| %s%s",
+						     *level, *codepage_stag, Indent (*level), str);
+				g_free(str);
+				off += 1 + len;
+			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
+				proto_tree_add_text (tree, tvb, off, 1,
+						     "  %3d | Tag   | T %3d    "
+						     "| RESERVED_2     (Invalid Token!) "
+						     "| WBXML 1.0 parsing stops here.",
+						     *level, *codepage_stag);
+				/* Stop processing as it is impossible to parse now */
+				off = tvb_len;
 				DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
 				return (off - offset);
-				break;
-			case 0x02: /* ENTITY */
-				ent = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| ENTITY                          "
-						"| %s'&#%u;'",
-						*level, *codepage_stag, Indent (*level), ent);
-				off += 1+len;
-				break;
-			case 0x03: /* STR_I */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| STR_I (Inline string)           "
-						"| %s\'%s\'",
-						*level, *codepage_stag, Indent(*level),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
-			case 0x40: /* EXT_I_0 */
-			case 0x41: /* EXT_I_1 */
-			case 0x42: /* EXT_I_2 */
-				/* Extension tokens */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_I_%1x    (Extension Token)    "
-						"| %s(%s: \'%s\')",
-						*level, *codepage_stag,
-						peek & 0x0f, Indent (*level),
-						map_token (map->global, 0, peek),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
-			case 0x43: /* PI */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | T %3d    "
-						"| PI (XML Processing Instruction) "
-						"| %s<?xml",
-						*level, *codepage_stag, Indent (*level));
-				len = parse_wbxml_attribute_list_defined (tree, tvb, off,
-						str_tbl, *level, codepage_attr, map);
-				/* Check that there is still room in packet */
-				off += len;
-				if (off >= tvb_len) {
-					DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n", *level, off - offset));
-					/*
-					 * TODO - Do we need to free g_malloc()ed memory?
-					 */
-					THROW(ReportedBoundsError);
-				}
-				proto_tree_add_text (tree, tvb, off-1, 1,
-						"  %3d | Tag   | T %3d    "
-						"| END (PI)                        "
-						"| %s?>",
-						*level, *codepage_stag, Indent (*level));
-				break;
-			case 0x80: /* EXT_T_0 */
-			case 0x81: /* EXT_T_1 */
-			case 0x82: /* EXT_T_2 */
-				/* Extension tokens */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				{   char *s;
-				    if (map->ext_t[peek & 0x03])
-					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
-				    else
-					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
-						map_token (map->global, 0, peek));
-    				    proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_T_%1x    (Extension Token)    "
-						"| %s%s",
-						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						s);
-				    g_free(s);
-				}
-				off += 1+len;
-				break;
-			case 0x83: /* STR_T */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| STR_T (Tableref string)         "
-						"| %s\'%s\'",
-						*level, *codepage_stag, Indent (*level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
-				off += 1+len;
-				break;
-			case 0xC0: /* EXT_0 */
-			case 0xC1: /* EXT_1 */
-			case 0xC2: /* EXT_2 */
-				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_%1x      (Extension Token)    "
-						"| %s(%s)",
-						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						map_token (map->global, 0, peek));
-				off++;
-				break;
-			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
-				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-					char *str;
-					if (tag_save_known) { /* Knwon tag */
-						if (map->opaque_binary_tag) {
-							str = map->opaque_binary_tag(tvb, off + 1,
-									tag_save_known, *codepage_stag, &len);
-						} else {
-							str = default_opaque_binary_tag(tvb, off + 1,
-									tag_save_known, *codepage_stag, &len);
-						}
-					} else { /* lITERAL tag */
-						if (map->opaque_literal_tag) {
-							str = map->opaque_literal_tag(tvb, off + 1,
-									tag_save_literal, *codepage_stag, &len);
-						} else {
-							str = default_opaque_literal_tag(tvb, off + 1,
-									tag_save_literal, *codepage_stag, &len);
-						}
-					}
-					proto_tree_add_text (tree, tvb, off, 1 + len,
-							"  %3d | Tag   | T %3d    "
-							"| OPAQUE (Opaque data)            "
-							"| %s%s",
-							*level, *codepage_stag, Indent (*level), str);
-					g_free(str);
-					off += 1 + len;
-				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d    "
-							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.",
-							*level, *codepage_stag);
-					/* Stop processing as it is impossible to parse now */
-					off = tvb_len;
-					DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
-					return (off - offset);
-				}
-				break;
+			}
+			break;
 
-				/* No default clause, as all cases have been treated */
+			/* No default clause, as all cases have been treated */
 		} else { /* LITERAL or Known TAG */
 			/* We must store the initial tag, and also retrieve the new tag.
 			 * For efficiency reasons, we store the literal tag representation
@@ -5571,7 +6660,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
 				tag_new_literal = map_token (map->tags, *codepage_stag,
-										tag_new_known);
+							     tag_new_known);
 				/* Stored looked up tag name string */
 			}
 
@@ -5588,7 +6677,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 * recursion will take care of it */
 					(*level)++;
 					len = parse_wbxml_tag_defined (tree, tvb, off, str_tbl,
-							level, codepage_stag, codepage_attr, map);
+								       level, codepage_stag, codepage_attr, map);
 					off += len;
 				} else { /* Now we will have content to parse */
 					/* Save the start tag so we can properly close it later. */
@@ -5604,55 +6693,55 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					if (peek & 0x80) { /* Content and Attribute list present */
 						if (tag_new_known) { /* Known tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"|   Known Tag 0x%02X           (AC) "
-									"| %s<%s",
-									*level, *codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "|   Known Tag 0x%02X           (AC) "
+									     "| %s<%s",
+									     *level, *codepage_stag, tag_new_known,
+									     Indent (*level), tag_new_literal);
 							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"| LITERAL_AC (Literal tag)   (AC) "
-									"| %s<%s",
-									*level, *codepage_stag, Indent (*level), tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "| LITERAL_AC (Literal tag)   (AC) "
+									     "| %s<%s",
+									     *level, *codepage_stag, Indent (*level), tag_new_literal);
 							off += 1 + tag_len;
 						}
 						len = parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl, *level, codepage_attr, map);
+											  off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
-										*level, off - offset));
+								  *level, off - offset));
 							/*
 							 * TODO - Do we need to free g_malloc()ed memory?
 							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   | T %3d    "
-								"| END (attribute list)            "
-								"| %s>",
-								*level, *codepage_stag, Indent (*level));
+								     "  %3d | Tag   | T %3d    "
+								     "| END (attribute list)            "
+								     "| %s>",
+								     *level, *codepage_stag, Indent (*level));
 					} else { /* Content, no Attribute list */
 						if (tag_new_known) { /* Known tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"|   Known Tag 0x%02X           (.C) "
-									"| %s<%s>",
-									*level, *codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "|   Known Tag 0x%02X           (.C) "
+									     "| %s<%s>",
+									     *level, *codepage_stag, tag_new_known,
+									     Indent (*level), tag_new_literal);
 							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"| LITERAL_C  (Literal Tag)   (.C) "
-									"| %s<%s>",
-									*level, *codepage_stag, Indent (*level),
-									tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "| LITERAL_C  (Literal Tag)   (.C) "
+									     "| %s<%s>",
+									     *level, *codepage_stag, Indent (*level),
+									     tag_new_literal);
 							off += 1 + tag_len;
 						}
 					}
@@ -5670,15 +6759,15 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				if (peek & 0x80) { /* No Content, Attribute list present */
 					if (tag_new_known) { /* Known tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"|   Known Tag 0x%02X           (A.) "
-								"| %s<%s",
-								*level, *codepage_stag, tag_new_known,
-								Indent (*level), tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "|   Known Tag 0x%02X           (A.) "
+								     "| %s<%s",
+								     *level, *codepage_stag, tag_new_known,
+								     Indent (*level), tag_new_literal);
 						/* Tag string already looked up earlier! */
 						off++;
 						len = parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl, *level, codepage_attr, map);
+											  off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off > tvb_len) {
@@ -5689,19 +6778,19 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   | T %3d    "
-								"| END (Known Tag)                 "
-								"| %s/>",
-								*level, *codepage_stag, Indent (*level));
+								     "  %3d | Tag   | T %3d    "
+								     "| END (Known Tag)                 "
+								     "| %s/>",
+								     *level, *codepage_stag, Indent (*level));
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"| LITERAL_A  (Literal Tag)   (A.) "
-								"| %s<%s",
-								*level, *codepage_stag, Indent (*level), tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "| LITERAL_A  (Literal Tag)   (A.) "
+								     "| %s<%s",
+								     *level, *codepage_stag, Indent (*level), tag_new_literal);
 						off += 1 + tag_len;
 						len = parse_wbxml_attribute_list_defined (tree, tvb,
-								off, str_tbl, *level, codepage_attr, map);
+											  off, str_tbl, *level, codepage_attr, map);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
@@ -5712,28 +6801,28 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   | T %3d    "
-								"| END (Literal Tag)               "
-								"| %s/>",
-								*level, *codepage_stag, Indent (*level));
+								     "  %3d | Tag   | T %3d    "
+								     "| END (Literal Tag)               "
+								     "| %s/>",
+								     *level, *codepage_stag, Indent (*level));
 					}
 				} else { /* No Content, No Attribute list */
 					if (tag_new_known) { /* Known tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"|   Known Tag 0x%02x           (..) "
-								"| %s<%s />",
-								*level, *codepage_stag, tag_new_known,
-								Indent (*level), tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "|   Known Tag 0x%02x           (..) "
+								     "| %s<%s />",
+								     *level, *codepage_stag, tag_new_known,
+								     Indent (*level), tag_new_literal);
 						/* Tag string already looked up earlier! */
 						off++;
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"| LITERAL    (Literal Tag)   (..) "
-								"| %s<%s />",
-								*level, *codepage_stag, Indent (*level),
-								tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "| LITERAL    (Literal Tag)   (..) "
+								     "| %s<%s />",
+								     *level, *codepage_stag, Indent (*level),
+								     tag_new_literal);
 						off += 1 + tag_len;
 					}
 				}
@@ -5754,8 +6843,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  */
 static guint32
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 *level,
-		guint8 *codepage_stag, guint8 *codepage_attr)
+		 guint32 str_tbl, guint8 *level,
+		 guint8 *codepage_stag, guint8 *codepage_attr)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -5772,10 +6861,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	char *tag_save_buf=NULL; /* Will contain "tag_0x%02X" */
 	char *tag_new_buf=NULL; /* Will contain "tag_0x%02X" */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
-										   tag with content: <x>Content</x>
+					       tag with content: <x>Content</x>
 
-										   The initial state is FALSE.
-										   This state will trigger recursion. */
+					       The initial state is FALSE.
+					       This state will trigger recursion. */
 	tag_save_literal = NULL; /* Prevents compiler warning */
 
 	DebugLog(("parse_wbxml_tag (level = %u, offset = %u)\n", *level, offset));
@@ -5783,155 +6872,155 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("STAG: (top of while) level = %3u, peek = 0x%02X, off = %u, tvb_len = %u\n", *level, peek, off, tvb_len));
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
-												  but not the LITERAL tokens */
-			case 0x00: /* SWITCH_PAGE */
-				*codepage_stag = tvb_get_guint8 (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 2,
-						"      | Tag   | T -->%3d "
-						"| SWITCH_PAGE (Tag code page)     "
-						"|",
-						*codepage_stag);
-				off += 2;
-				break;
-			case 0x01: /* END: only possible for Tag with Content */
-				if (tag_save_known) { /* Known TAG */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d    "
-							"| END (Known Tag 0x%02X)            "
-							"| %s</%s>",
-							*level, *codepage_stag, tag_save_known,
-							Indent (*level),
-							tag_save_literal); /* We already looked it up! */
-				} else { /* Literal TAG */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d    "
-							"| END (Literal Tag)               "
-							"| %s</%s>",
-							*level, *codepage_stag, Indent (*level),
-							tag_save_literal ? tag_save_literal : "");
-				}
-				(*level)--;
-				off++;
-				/* Reset code page: not needed as return from recursion */
+							  but not the LITERAL tokens */
+		case 0x00: /* SWITCH_PAGE */
+			*codepage_stag = tvb_get_guint8 (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 2,
+					     "      | Tag   | T -->%3d "
+					     "| SWITCH_PAGE (Tag code page)     "
+					     "|",
+					     *codepage_stag);
+			off += 2;
+			break;
+		case 0x01: /* END: only possible for Tag with Content */
+			if (tag_save_known) { /* Known TAG */
+				proto_tree_add_text (tree, tvb, off, 1,
+						     "  %3d | Tag   | T %3d    "
+						     "| END (Known Tag 0x%02X)            "
+						     "| %s</%s>",
+						     *level, *codepage_stag, tag_save_known,
+						     Indent (*level),
+						     tag_save_literal); /* We already looked it up! */
+			} else { /* Literal TAG */
+				proto_tree_add_text (tree, tvb, off, 1,
+						     "  %3d | Tag   | T %3d    "
+						     "| END (Literal Tag)               "
+						     "| %s</%s>",
+						     *level, *codepage_stag, Indent (*level),
+						     tag_save_literal ? tag_save_literal : "");
+			}
+			(*level)--;
+			off++;
+			/* Reset code page: not needed as return from recursion */
+			DebugLog(("STAG: level = %u, Return: len = %u\n",
+				  *level, off - offset));
+			return (off - offset);
+			break;
+		case 0x02: /* ENTITY */
+			ent = tvb_get_guintvar (tvb, off+1, &len);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| ENTITY                          "
+					     "| %s'&#%u;'",
+					     *level, *codepage_stag, Indent (*level), ent);
+			off += 1+len;
+			break;
+		case 0x03: /* STR_I */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| STR_I (Inline string)           "
+					     "| %s\'%s\'",
+					     *level, *codepage_stag, Indent(*level),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
+		case 0x40: /* EXT_I_0 */
+		case 0x41: /* EXT_I_1 */
+		case 0x42: /* EXT_I_2 */
+			/* Extension tokens */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| EXT_I_%1x    (Extension Token)    "
+					     "| %s(Inline string extension: \'%s\')",
+					     *level, *codepage_stag, peek & 0x0f, Indent (*level),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
+		case 0x43: /* PI */
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d | Tag   | T %3d    "
+					     "| PI (XML Processing Instruction) "
+					     "| %s<?xml",
+					     *level, *codepage_stag, Indent (*level));
+			len = parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
+							  *level, codepage_attr);
+			/* Check that there is still room in packet */
+			off += len;
+			if (off >= tvb_len) {
+				DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
+					  *level, off - offset));
+				/*
+				 * TODO - Do we need to free g_malloc()ed memory?
+				 */
+				THROW(ReportedBoundsError);
+			}
+			proto_tree_add_text (tree, tvb, off-1, 1,
+					     "  %3d | Tag   | T %3d    "
+					     "| END (PI)                        "
+					     "| %s?>",
+					     *level, *codepage_stag, Indent (*level));
+			break;
+		case 0x80: /* EXT_T_0 */
+		case 0x81: /* EXT_T_1 */
+		case 0x82: /* EXT_T_2 */
+			/* Extension tokens */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| EXT_T_%1x    (Extension Token)    "
+					     "| %s(Extension Token, integer value: %u)",
+					     *level, *codepage_stag, peek & 0x0f, Indent (*level),
+					     index);
+			off += 1+len;
+			break;
+		case 0x83: /* STR_T */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+index);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d | Tag   | T %3d    "
+					     "| STR_T (Tableref string)         "
+					     "| %s\'%s\'",
+					     *level, *codepage_stag, Indent (*level),
+					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+			off += 1+len;
+			break;
+		case 0xC0: /* EXT_0 */
+		case 0xC1: /* EXT_1 */
+		case 0xC2: /* EXT_2 */
+			/* Extension tokens */
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d | Tag   | T %3d    "
+					     "| EXT_%1x      (Extension Token)    "
+					     "| %s(Single-byte extension)",
+					     *level, *codepage_stag, peek & 0x0f, Indent (*level));
+			off++;
+			break;
+		case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
+			if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
+				index = tvb_get_guintvar (tvb, off+1, &len);
+				proto_tree_add_text (tree, tvb, off, 1 + len + index,
+						     "  %3d | Tag   | T %3d    "
+						     "| OPAQUE (Opaque data)            "
+						     "| %s(%d bytes of opaque data)",
+						     *level, *codepage_stag, Indent (*level), index);
+				off += 1+len+index;
+			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
+				proto_tree_add_text (tree, tvb, off, 1,
+						     "  %3d | Tag   | T %3d    "
+						     "| RESERVED_2     (Invalid Token!) "
+						     "| WBXML 1.0 parsing stops here.",
+						     *level, *codepage_stag);
+				/* Stop processing as it is impossible to parse now */
+				off = tvb_len;
 				DebugLog(("STAG: level = %u, Return: len = %u\n",
-							*level, off - offset));
+					  *level, off - offset));
 				return (off - offset);
-				break;
-			case 0x02: /* ENTITY */
-				ent = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| ENTITY                          "
-						"| %s'&#%u;'",
-						*level, *codepage_stag, Indent (*level), ent);
-				off += 1+len;
-				break;
-			case 0x03: /* STR_I */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| STR_I (Inline string)           "
-						"| %s\'%s\'",
-						*level, *codepage_stag, Indent(*level),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
-			case 0x40: /* EXT_I_0 */
-			case 0x41: /* EXT_I_1 */
-			case 0x42: /* EXT_I_2 */
-				/* Extension tokens */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_I_%1x    (Extension Token)    "
-						"| %s(Inline string extension: \'%s\')",
-						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
-			case 0x43: /* PI */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | T %3d    "
-						"| PI (XML Processing Instruction) "
-						"| %s<?xml",
-						*level, *codepage_stag, Indent (*level));
-				len = parse_wbxml_attribute_list (tree, tvb, off, str_tbl,
-						*level, codepage_attr);
-				/* Check that there is still room in packet */
-				off += len;
-				if (off >= tvb_len) {
-					DebugLog(("STAG: level = %u, ThrowException: len = %u (short frame)\n",
-								*level, off - offset));
-					/*
-					 * TODO - Do we need to free g_malloc()ed memory?
-					 */
-					THROW(ReportedBoundsError);
-				}
-				proto_tree_add_text (tree, tvb, off-1, 1,
-						"  %3d | Tag   | T %3d    "
-						"| END (PI)                        "
-						"| %s?>",
-						*level, *codepage_stag, Indent (*level));
-				break;
-			case 0x80: /* EXT_T_0 */
-			case 0x81: /* EXT_T_1 */
-			case 0x82: /* EXT_T_2 */
-				/* Extension tokens */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_T_%1x    (Extension Token)    "
-						"| %s(Extension Token, integer value: %u)",
-						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						index);
-				off += 1+len;
-				break;
-			case 0x83: /* STR_T */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| STR_T (Tableref string)         "
-						"| %s\'%s\'",
-						*level, *codepage_stag, Indent (*level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
-				off += 1+len;
-				break;
-			case 0xC0: /* EXT_0 */
-			case 0xC1: /* EXT_1 */
-			case 0xC2: /* EXT_2 */
-				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_%1x      (Extension Token)    "
-						"| %s(Single-byte extension)",
-						*level, *codepage_stag, peek & 0x0f, Indent (*level));
-				off++;
-				break;
-			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
-				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-					index = tvb_get_guintvar (tvb, off+1, &len);
-					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d | Tag   | T %3d    "
-							"| OPAQUE (Opaque data)            "
-							"| %s(%d bytes of opaque data)",
-							*level, *codepage_stag, Indent (*level), index);
-					off += 1+len+index;
-				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d | Tag   | T %3d    "
-							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.",
-							*level, *codepage_stag);
-					/* Stop processing as it is impossible to parse now */
-					off = tvb_len;
-					DebugLog(("STAG: level = %u, Return: len = %u\n",
-								*level, off - offset));
-					return (off - offset);
-				}
-				break;
+			}
+			break;
 
-				/* No default clause, as all cases have been treated */
+			/* No default clause, as all cases have been treated */
 		} else { /* LITERAL or Known TAG */
 			/* We must store the initial tag, and also retrieve the new tag.
 			 * For efficiency reasons, we store the literal tag representation
@@ -5950,7 +7039,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			tag_len = 0;
 			if ((peek & 0x3F) == 4) { /* LITERAL */
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u)"
-							" - TableRef follows!\n", peek, off));
+					  " - TableRef follows!\n", peek, off));
 				index = tvb_get_guintvar (tvb, off+1, &tag_len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
 				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+index, str_len);
@@ -5959,7 +7048,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				tag_new_known = peek & 0x3F;
 				tag_new_buf=ep_alloc(10);
 				g_snprintf (tag_new_buf, 10, "Tag_0x%02X",
-						tag_new_known);
+					    tag_new_known);
 				tag_new_literal = tag_new_buf;
 				/* Stored looked up tag name string */
 			}
@@ -5977,7 +7066,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 * recursion will take care of it */
 					(*level)++;
 					len = parse_wbxml_tag (tree, tvb, off, str_tbl, level,
-							codepage_stag, codepage_attr);
+							       codepage_stag, codepage_attr);
 					off += len;
 				} else { /* Now we will have content to parse */
 					/* Save the start tag so we can properly close it later. */
@@ -5988,7 +7077,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						tag_save_known = tag_new_known;
 						tag_save_buf=ep_alloc(10);
 						g_snprintf (tag_save_buf, 10, "Tag_0x%02X",
-								tag_new_known);
+							    tag_new_known);
 						tag_save_literal = tag_save_buf;
 						/* The last statement avoids needless lookups */
 					}
@@ -5996,57 +7085,57 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					if (peek & 0x80) { /* Content and Attribute list present */
 						if (tag_new_known) { /* Known tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"|   Known Tag 0x%02X           (AC) "
-									"| %s<%s",
-									*level, *codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "|   Known Tag 0x%02X           (AC) "
+									     "| %s<%s",
+									     *level, *codepage_stag, tag_new_known,
+									     Indent (*level), tag_new_literal);
 							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"| LITERAL_AC (Literal tag)   (AC) "
-									"| %s<%s",
-									*level, *codepage_stag, Indent (*level),
-									tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "| LITERAL_AC (Literal tag)   (AC) "
+									     "| %s<%s",
+									     *level, *codepage_stag, Indent (*level),
+									     tag_new_literal);
 							off += 1 + tag_len;
 						}
 						len = parse_wbxml_attribute_list (tree, tvb,
-								off, str_tbl, *level, codepage_attr);
+										  off, str_tbl, *level, codepage_attr);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: "
-										"len = %u (short frame)\n",
-										*level, off - offset));
+								  "len = %u (short frame)\n",
+								  *level, off - offset));
 							/*
 							 * TODO - Do we need to free g_malloc()ed memory?
 							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   | T %3d    "
-								"| END (attribute list)            "
-								"| %s>",
-								*level, *codepage_stag, Indent (*level));
+								     "  %3d | Tag   | T %3d    "
+								     "| END (attribute list)            "
+								     "| %s>",
+								     *level, *codepage_stag, Indent (*level));
 					} else { /* Content, no Attribute list */
 						if (tag_new_known) { /* Known tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"|   Known Tag 0x%02X           (.C) "
-									"| %s<%s>",
-									*level, *codepage_stag, tag_new_known,
-									Indent (*level), tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "|   Known Tag 0x%02X           (.C) "
+									     "| %s<%s>",
+									     *level, *codepage_stag, tag_new_known,
+									     Indent (*level), tag_new_literal);
 							/* Tag string already looked up earlier! */
 							off++;
 						} else { /* LITERAL tag */
 							proto_tree_add_text (tree, tvb, off, 1,
-									"  %3d | Tag   | T %3d    "
-									"| LITERAL_C  (Literal Tag)   (.C) "
-									"| %s<%s>",
-									*level, *codepage_stag, Indent (*level),
-									tag_new_literal);
+									     "  %3d | Tag   | T %3d    "
+									     "| LITERAL_C  (Literal Tag)   (.C) "
+									     "| %s<%s>",
+									     *level, *codepage_stag, Indent (*level),
+									     tag_new_literal);
 							off += 1 + tag_len;
 						}
 					}
@@ -6057,7 +7146,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 */
 					parsing_tag_content = TRUE;
 					DebugLog(("Tag in Tag - No recursion this time! "
-								"(off = %u)\n", off));
+						  "(off = %u)\n", off));
 				}
 			} else { /* No Content */
 				DebugLog(("<Tag/> in Tag - No recursion! (off = %u)\n", off));
@@ -6065,75 +7154,75 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				if (peek & 0x80) { /* No Content, Attribute list present */
 					if (tag_new_known) { /* Known tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"|   Known Tag 0x%02X           (A.) "
-								"| %s<%s",
-								*level, *codepage_stag, tag_new_known,
-								Indent (*level), tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "|   Known Tag 0x%02X           (A.) "
+								     "| %s<%s",
+								     *level, *codepage_stag, tag_new_known,
+								     Indent (*level), tag_new_literal);
 						/* Tag string already looked up earlier! */
 						off++;
 						len = parse_wbxml_attribute_list (tree, tvb,
-								off, str_tbl, *level, codepage_attr);
+										  off, str_tbl, *level, codepage_attr);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: "
-										"len = %u (short frame)\n",
-										*level, off - offset));
+								  "len = %u (short frame)\n",
+								  *level, off - offset));
 							/*
 							 * TODO - Do we need to free g_malloc()ed memory?
 							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   | T %3d    "
-								"| END (Known Tag)                 "
-								"| %s/>",
-								*level, *codepage_stag, Indent (*level));
+								     "  %3d | Tag   | T %3d    "
+								     "| END (Known Tag)                 "
+								     "| %s/>",
+								     *level, *codepage_stag, Indent (*level));
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"| LITERAL_A  (Literal Tag)   (A.) "
-								"| %s<%s",
-								*level, *codepage_stag, Indent (*level),
-								tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "| LITERAL_A  (Literal Tag)   (A.) "
+								     "| %s<%s",
+								     *level, *codepage_stag, Indent (*level),
+								     tag_new_literal);
 						off += 1 + tag_len;
 						len = parse_wbxml_attribute_list (tree, tvb,
-								off, str_tbl, *level, codepage_attr);
+										  off, str_tbl, *level, codepage_attr);
 						/* Check that there is still room in packet */
 						off += len;
 						if (off >= tvb_len) {
 							DebugLog(("STAG: level = %u, ThrowException: "
-										"len = %u (short frame)\n",
-										*level, off - offset));
+								  "len = %u (short frame)\n",
+								  *level, off - offset));
 							/*
 							 * TODO - Do we need to free g_malloc()ed memory?
 							 */
 							THROW(ReportedBoundsError);
 						}
 						proto_tree_add_text (tree, tvb, off-1, 1,
-								"  %3d | Tag   | T %3d    "
-								"| END (Literal Tag)               "
-								"| %s/>",
-								*level, *codepage_stag, Indent (*level));
+								     "  %3d | Tag   | T %3d    "
+								     "| END (Literal Tag)               "
+								     "| %s/>",
+								     *level, *codepage_stag, Indent (*level));
 					}
 				} else { /* No Content, No Attribute list */
 					if (tag_new_known) { /* Known tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"|   Known Tag 0x%02x           (..) "
-								"| %s<%s />",
-								*level, *codepage_stag, tag_new_known,
-								Indent (*level), tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "|   Known Tag 0x%02x           (..) "
+								     "| %s<%s />",
+								     *level, *codepage_stag, tag_new_known,
+								     Indent (*level), tag_new_literal);
 						/* Tag string already looked up earlier! */
 						off++;
 					} else { /* LITERAL tag */
 						proto_tree_add_text (tree, tvb, off, 1,
-								"  %3d | Tag   | T %3d    "
-								"| LITERAL    (Literal Tag)   (..) "
-								"| %s<%s />",
-								*level, *codepage_stag, Indent (*level),
-								tag_new_literal);
+								     "  %3d | Tag   | T %3d    "
+								     "| LITERAL    (Literal Tag)   (..) "
+								     "| %s<%s />",
+								     *level, *codepage_stag, Indent (*level),
+								     tag_new_literal);
 						off += 1 + tag_len;
 					}
 				}
@@ -6143,7 +7232,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		} /* if (tag & 0x3F) >= 5 */
 	} /* while */
 	DebugLog(("STAG: level = %u, Return: len = %u (end of function body)\n",
-				*level, off - offset));
+		  *level, off - offset));
 	return (off - offset);
 }
 
@@ -6172,8 +7261,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  */
 static guint32
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
-		const wbxml_decoding *map)
+				    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
+				    const wbxml_decoding *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -6186,205 +7275,205 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 	const char *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
 
 	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n",
-				level, offset));
+		  level, offset));
 	/* Parse attributes */
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, "
-					"off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
+			  "off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
 		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
-												  in state = ATTR */
-			case 0x00: /* SWITCH_PAGE */
-				*codepage_attr = tvb_get_guint8 (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 2,
-						"      |  Attr | A -->%3d "
-						"| SWITCH_PAGE (Attr code page)    |",
-						*codepage_attr);
-				off += 2;
-				break;
-			case 0x01: /* END */
-				/* BEWARE
-				 *   The Attribute END token means either ">" or "/>"
-				 *   and as a consequence both must be treated separately.
-				 *   This is done in the TAG state parser.
-				 */
-				off++;
-				DebugLog(("ATTR: level = %u, Return: len = %u\n",
-							level, off - offset));
-				return (off - offset);
-			case 0x02: /* ENTITY */
-				ent = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| ENTITY                          "
-						"|     %s'&#%u;'",
-						level, *codepage_attr, Indent (level), ent);
-				off += 1+len;
-				break;
-			case 0x03: /* STR_I */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| STR_I (Inline string)           "
-						"|     %s\'%s\'",
-						level, *codepage_attr, Indent (level),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
-			case 0x04: /* LITERAL */
-				/* ALWAYS means the start of a new attribute,
-				 * and may only contain the NAME of the attribute.
-				 */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				attr_save_known = 0;
-				attr_save_literal = tvb_format_text (tvb,
-						str_tbl+index, str_len-1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| LITERAL (Literal Attribute)     "
-						"|   %s<%s />",
-						level, *codepage_attr, Indent (level),
-						attr_save_literal);
-				off += 1+len;
-				break;
-			case 0x40: /* EXT_I_0 */
-			case 0x41: /* EXT_I_1 */
-			case 0x42: /* EXT_I_2 */
-				/* Extension tokens */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| EXT_I_%1x    (Extension Token)    "
-						"|     %s(%s: \'%s\')",
-						level, *codepage_attr, peek & 0x0f, Indent (level),
-						map_token (map->global, 0, peek),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
+							  in state = ATTR */
+		case 0x00: /* SWITCH_PAGE */
+			*codepage_attr = tvb_get_guint8 (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 2,
+					     "      |  Attr | A -->%3d "
+					     "| SWITCH_PAGE (Attr code page)    |",
+					     *codepage_attr);
+			off += 2;
+			break;
+		case 0x01: /* END */
+			/* BEWARE
+			 *   The Attribute END token means either ">" or "/>"
+			 *   and as a consequence both must be treated separately.
+			 *   This is done in the TAG state parser.
+			 */
+			off++;
+			DebugLog(("ATTR: level = %u, Return: len = %u\n",
+				  level, off - offset));
+			return (off - offset);
+		case 0x02: /* ENTITY */
+			ent = tvb_get_guintvar (tvb, off+1, &len);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| ENTITY                          "
+					     "|     %s'&#%u;'",
+					     level, *codepage_attr, Indent (level), ent);
+			off += 1+len;
+			break;
+		case 0x03: /* STR_I */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| STR_I (Inline string)           "
+					     "|     %s\'%s\'",
+					     level, *codepage_attr, Indent (level),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
+		case 0x04: /* LITERAL */
+			/* ALWAYS means the start of a new attribute,
+			 * and may only contain the NAME of the attribute.
+			 */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+index);
+			attr_save_known = 0;
+			attr_save_literal = tvb_format_text (tvb,
+							     str_tbl+index, str_len-1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| LITERAL (Literal Attribute)     "
+					     "|   %s<%s />",
+					     level, *codepage_attr, Indent (level),
+					     attr_save_literal);
+			off += 1+len;
+			break;
+		case 0x40: /* EXT_I_0 */
+		case 0x41: /* EXT_I_1 */
+		case 0x42: /* EXT_I_2 */
+			/* Extension tokens */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| EXT_I_%1x    (Extension Token)    "
+					     "|     %s(%s: \'%s\')",
+					     level, *codepage_attr, peek & 0x0f, Indent (level),
+					     map_token (map->global, 0, peek),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
 			/* 0x43 impossible in ATTR state */
 			/* 0x44 impossible in ATTR state */
-			case 0x80: /* EXT_T_0 */
-			case 0x81: /* EXT_T_1 */
-			case 0x82: /* EXT_T_2 */
-				/* Extension tokens */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				{   char *s;
+		case 0x80: /* EXT_T_0 */
+		case 0x81: /* EXT_T_1 */
+		case 0x82: /* EXT_T_2 */
+			/* Extension tokens */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			{   char *s;
 
-				    if (map->ext_t[peek & 0x03])
+				if (map->ext_t[peek & 0x03])
 					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
-				    else
+				else
 					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03,
-						map_token (map->global, 0, peek));
+							    map_token (map->global, 0, peek));
 
-    				    proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d | Tag   | T %3d    "
-						"| EXT_T_%1x    (Extension Token)    "
-						"| %s%s)",
-						level, *codepage_attr, peek & 0x0f, Indent (level),
-						s);
-				    g_free(s);
-				}
-				off += 1+len;
-				break;
-			case 0x83: /* STR_T */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
 				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| STR_T (Tableref string)         "
-						"|     %s\'%s\'",
-						level, *codepage_attr, Indent (level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
-				off += 1+len;
-				break;
+						     "  %3d | Tag   | T %3d    "
+						     "| EXT_T_%1x    (Extension Token)    "
+						     "| %s%s)",
+						     level, *codepage_attr, peek & 0x0f, Indent (level),
+						     s);
+				g_free(s);
+			}
+			off += 1+len;
+			break;
+		case 0x83: /* STR_T */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+index);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| STR_T (Tableref string)         "
+					     "|     %s\'%s\'",
+					     level, *codepage_attr, Indent (level),
+					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+			off += 1+len;
+			break;
 			/* 0x84 impossible in ATTR state */
-			case 0xC0: /* EXT_0 */
-			case 0xC1: /* EXT_1 */
-			case 0xC2: /* EXT_2 */
-				/* Extension tokens */
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"| EXT_%1x      (Extension Token)    "
-						"|     %s(%s)",
-						level, *codepage_attr, peek & 0x0f, Indent (level),
-						map_token (map->global, 0, peek));
-				off++;
-				break;
-			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
-				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-					char *str;
-					if (attr_save_known) { /* Knwon attribute */
-						if (map->opaque_binary_attr) {
-							str = map->opaque_binary_attr(tvb, off + 1,
-									attr_save_known, *codepage_attr, &len);
-						} else {
-							str = default_opaque_binary_attr(tvb, off + 1,
-									attr_save_known, *codepage_attr, &len);
-						}
-					} else { /* lITERAL attribute */
-						if (map->opaque_literal_tag) {
-							str = map->opaque_literal_attr(tvb, off + 1,
-									attr_save_literal, *codepage_attr, &len);
-						} else {
-							str = default_opaque_literal_attr(tvb, off + 1,
-									attr_save_literal, *codepage_attr, &len);
-						}
+		case 0xC0: /* EXT_0 */
+		case 0xC1: /* EXT_1 */
+		case 0xC2: /* EXT_2 */
+			/* Extension tokens */
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d |  Attr | A %3d    "
+					     "| EXT_%1x      (Extension Token)    "
+					     "|     %s(%s)",
+					     level, *codepage_attr, peek & 0x0f, Indent (level),
+					     map_token (map->global, 0, peek));
+			off++;
+			break;
+		case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
+			if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
+				char *str;
+				if (attr_save_known) { /* Knwon attribute */
+					if (map->opaque_binary_attr) {
+						str = map->opaque_binary_attr(tvb, off + 1,
+									      attr_save_known, *codepage_attr, &len);
+					} else {
+						str = default_opaque_binary_attr(tvb, off + 1,
+										 attr_save_known, *codepage_attr, &len);
 					}
-					proto_tree_add_text (tree, tvb, off, 1 + len,
-							"  %3d |  Attr | A %3d    "
-							"| OPAQUE (Opaque data)            "
-							"|       %s%s",
-							level, *codepage_attr, Indent (level), str);
-					g_free(str);
-					off += 1 + len;
-				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d    "
-							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.",
-							level, *codepage_attr);
-					/* Stop processing as it is impossible to parse now */
-					off = tvb_len;
-					DebugLog(("ATTR: level = %u, Return: len = %u\n",
-								level, off - offset));
-					return (off - offset);
+				} else { /* lITERAL attribute */
+					if (map->opaque_literal_tag) {
+						str = map->opaque_literal_attr(tvb, off + 1,
+									       attr_save_literal, *codepage_attr, &len);
+					} else {
+						str = default_opaque_literal_attr(tvb, off + 1,
+										  attr_save_literal, *codepage_attr, &len);
+					}
 				}
-				break;
-			/* 0xC4 impossible in ATTR state */
-			default:
+				proto_tree_add_text (tree, tvb, off, 1 + len,
+						     "  %3d |  Attr | A %3d    "
+						     "| OPAQUE (Opaque data)            "
+						     "|       %s%s",
+						     level, *codepage_attr, Indent (level), str);
+				g_free(str);
+				off += 1 + len;
+			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"| %-10s     (Invalid Token!) "
-						"| WBXML parsing stops here.",
-						level, *codepage_attr,
-						val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
-				/* Move to end of buffer */
+						     "  %3d |  Attr | A %3d    "
+						     "| RESERVED_2     (Invalid Token!) "
+						     "| WBXML 1.0 parsing stops here.",
+						     level, *codepage_attr);
+				/* Stop processing as it is impossible to parse now */
 				off = tvb_len;
-				break;
+				DebugLog(("ATTR: level = %u, Return: len = %u\n",
+					  level, off - offset));
+				return (off - offset);
+			}
+			break;
+			/* 0xC4 impossible in ATTR state */
+		default:
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d |  Attr | A %3d    "
+					     "| %-10s     (Invalid Token!) "
+					     "| WBXML parsing stops here.",
+					     level, *codepage_attr,
+					     val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
+			/* Move to end of buffer */
+			off = tvb_len;
+			break;
 		} else { /* Known atribute token */
 			if (peek & 0x80) { /* attrValue */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"|   Known attrValue 0x%02X          "
-						"|       %s%s",
-						level, *codepage_attr, peek & 0x7f, Indent (level),
-						map_token (map->attrValue, *codepage_attr, peek));
+						     "  %3d |  Attr | A %3d    "
+						     "|   Known attrValue 0x%02X          "
+						     "|       %s%s",
+						     level, *codepage_attr, peek & 0x7f, Indent (level),
+						     map_token (map->attrValue, *codepage_attr, peek));
 				off++;
 			} else { /* attrStart */
 				attr_save_known = peek & 0x7f;
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"|   Known attrStart 0x%02X          "
-						"|   %s%s",
-						level, *codepage_attr, attr_save_known, Indent (level),
-						map_token (map->attrStart, *codepage_attr, peek));
+						     "  %3d |  Attr | A %3d    "
+						     "|   Known attrStart 0x%02X          "
+						     "|   %s%s",
+						     level, *codepage_attr, attr_save_known, Indent (level),
+						     map_token (map->attrStart, *codepage_attr, peek));
 				off++;
 			}
 		}
 	} /* End WHILE */
 	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n",
-				level, off - offset));
+		  level, off - offset));
 	return (off - offset);
 }
 
@@ -6399,7 +7488,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
  */
 static guint32
 parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
-		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr)
+			    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -6414,163 +7503,163 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, "
-					"off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
+			  "off = %u, tvb_len = %u\n", level, peek, off, tvb_len));
 		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
-												  in state = ATTR */
-			case 0x00: /* SWITCH_PAGE */
-				*codepage_attr = tvb_get_guint8 (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 2,
-						"      |  Attr | A -->%3d "
-						"| SWITCH_PAGE (Attr code page)    |",
-						*codepage_attr);
-				off += 2;
-				break;
-			case 0x01: /* END */
-				/* BEWARE
-				 *   The Attribute END token means either ">" or "/>"
-				 *   and as a consequence both must be treated separately.
-				 *   This is done in the TAG state parser.
-				 */
-				off++;
-				DebugLog(("ATTR: level = %u, Return: len = %u\n",
-							level, off - offset));
-				return (off - offset);
-			case 0x02: /* ENTITY */
-				ent = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| ENTITY                          "
-						"|     %s'&#%u;'",
-						level, *codepage_attr, Indent (level), ent);
-				off += 1+len;
-				break;
-			case 0x03: /* STR_I */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| STR_I (Inline string)           "
-						"|     %s\'%s\'",
-						level, *codepage_attr, Indent (level),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
-			case 0x04: /* LITERAL */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| LITERAL (Literal Attribute)     "
-						"|   %s<%s />",
-						level, *codepage_attr, Indent (level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
-				off += 1+len;
-				break;
-			case 0x40: /* EXT_I_0 */
-			case 0x41: /* EXT_I_1 */
-			case 0x42: /* EXT_I_2 */
-				/* Extension tokens */
-				len = tvb_strsize (tvb, off+1);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| EXT_I_%1x    (Extension Token)    "
-						"|     %s(Inline string extension: \'%s\')",
-						level, *codepage_attr, peek & 0x0f, Indent (level),
-						tvb_format_text (tvb, off+1, len-1));
-				off += 1+len;
-				break;
+							  in state = ATTR */
+		case 0x00: /* SWITCH_PAGE */
+			*codepage_attr = tvb_get_guint8 (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 2,
+					     "      |  Attr | A -->%3d "
+					     "| SWITCH_PAGE (Attr code page)    |",
+					     *codepage_attr);
+			off += 2;
+			break;
+		case 0x01: /* END */
+			/* BEWARE
+			 *   The Attribute END token means either ">" or "/>"
+			 *   and as a consequence both must be treated separately.
+			 *   This is done in the TAG state parser.
+			 */
+			off++;
+			DebugLog(("ATTR: level = %u, Return: len = %u\n",
+				  level, off - offset));
+			return (off - offset);
+		case 0x02: /* ENTITY */
+			ent = tvb_get_guintvar (tvb, off+1, &len);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| ENTITY                          "
+					     "|     %s'&#%u;'",
+					     level, *codepage_attr, Indent (level), ent);
+			off += 1+len;
+			break;
+		case 0x03: /* STR_I */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| STR_I (Inline string)           "
+					     "|     %s\'%s\'",
+					     level, *codepage_attr, Indent (level),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
+		case 0x04: /* LITERAL */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+index);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| LITERAL (Literal Attribute)     "
+					     "|   %s<%s />",
+					     level, *codepage_attr, Indent (level),
+					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+			off += 1+len;
+			break;
+		case 0x40: /* EXT_I_0 */
+		case 0x41: /* EXT_I_1 */
+		case 0x42: /* EXT_I_2 */
+			/* Extension tokens */
+			len = tvb_strsize (tvb, off+1);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| EXT_I_%1x    (Extension Token)    "
+					     "|     %s(Inline string extension: \'%s\')",
+					     level, *codepage_attr, peek & 0x0f, Indent (level),
+					     tvb_format_text (tvb, off+1, len-1));
+			off += 1+len;
+			break;
 			/* 0x43 impossible in ATTR state */
 			/* 0x44 impossible in ATTR state */
-			case 0x80: /* EXT_T_0 */
-			case 0x81: /* EXT_T_1 */
-			case 0x82: /* EXT_T_2 */
-				/* Extension tokens */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| EXT_T_%1x    (Extension Token)    "
-						"|     %s(Extension Token, integer value: %u)",
-						level, *codepage_attr, peek & 0x0f, Indent (level),
-						index);
-				off += 1+len;
-				break;
-			case 0x83: /* STR_T */
-				index = tvb_get_guintvar (tvb, off+1, &len);
-				str_len = tvb_strsize (tvb, str_tbl+index);
-				proto_tree_add_text (tree, tvb, off, 1+len,
-						"  %3d |  Attr | A %3d    "
-						"| STR_T (Tableref string)         "
-						"|     %s\'%s\'",
-						level, *codepage_attr, Indent (level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
-				off += 1+len;
-				break;
+		case 0x80: /* EXT_T_0 */
+		case 0x81: /* EXT_T_1 */
+		case 0x82: /* EXT_T_2 */
+			/* Extension tokens */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| EXT_T_%1x    (Extension Token)    "
+					     "|     %s(Extension Token, integer value: %u)",
+					     level, *codepage_attr, peek & 0x0f, Indent (level),
+					     index);
+			off += 1+len;
+			break;
+		case 0x83: /* STR_T */
+			index = tvb_get_guintvar (tvb, off+1, &len);
+			str_len = tvb_strsize (tvb, str_tbl+index);
+			proto_tree_add_text (tree, tvb, off, 1+len,
+					     "  %3d |  Attr | A %3d    "
+					     "| STR_T (Tableref string)         "
+					     "|     %s\'%s\'",
+					     level, *codepage_attr, Indent (level),
+					     tvb_format_text (tvb, str_tbl+index, str_len-1));
+			off += 1+len;
+			break;
 			/* 0x84 impossible in ATTR state */
-			case 0xC0: /* EXT_0 */
-			case 0xC1: /* EXT_1 */
-			case 0xC2: /* EXT_2 */
-				/* Extension tokens */
+		case 0xC0: /* EXT_0 */
+		case 0xC1: /* EXT_1 */
+		case 0xC2: /* EXT_2 */
+			/* Extension tokens */
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d |  Attr | A %3d    "
+					     "| EXT_%1x      (Extension Token)    "
+					     "|     %s(Single-byte extension)",
+					     level, *codepage_attr, peek & 0x0f, Indent (level));
+			off++;
+			break;
+		case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
+			if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
+				index = tvb_get_guintvar (tvb, off+1, &len);
+				proto_tree_add_text (tree, tvb, off, 1 + len + index,
+						     "  %3d |  Attr | A %3d    "
+						     "| OPAQUE (Opaque data)            "
+						     "|       %s(%d bytes of opaque data)",
+						     level, *codepage_attr, Indent (level), index);
+				off += 1+len+index;
+			} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"| EXT_%1x      (Extension Token)    "
-						"|     %s(Single-byte extension)",
-						level, *codepage_attr, peek & 0x0f, Indent (level));
-				off++;
-				break;
-			case 0xC3: /* OPAQUE - WBXML 1.1 and newer */
-				if (tvb_get_guint8 (tvb, 0)) { /* WBXML 1.x (x > 0) */
-					index = tvb_get_guintvar (tvb, off+1, &len);
-					proto_tree_add_text (tree, tvb, off, 1 + len + index,
-							"  %3d |  Attr | A %3d    "
-							"| OPAQUE (Opaque data)            "
-							"|       %s(%d bytes of opaque data)",
-							level, *codepage_attr, Indent (level), index);
-					off += 1+len+index;
-				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
-					proto_tree_add_text (tree, tvb, off, 1,
-							"  %3d |  Attr | A %3d    "
-							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.",
-							level, *codepage_attr);
-					/* Stop processing as it is impossible to parse now */
-					off = tvb_len;
-					DebugLog(("ATTR: level = %u, Return: len = %u\n",
-								level, off - offset));
-					return (off - offset);
-				}
-				break;
-			/* 0xC4 impossible in ATTR state */
-			default:
-				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"| %-10s     (Invalid Token!) "
-						"| WBXML parsing stops here.",
-						level, *codepage_attr,
-						val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
-				/* Move to end of buffer */
+						     "  %3d |  Attr | A %3d    "
+						     "| RESERVED_2     (Invalid Token!) "
+						     "| WBXML 1.0 parsing stops here.",
+						     level, *codepage_attr);
+				/* Stop processing as it is impossible to parse now */
 				off = tvb_len;
-				break;
+				DebugLog(("ATTR: level = %u, Return: len = %u\n",
+					  level, off - offset));
+				return (off - offset);
+			}
+			break;
+			/* 0xC4 impossible in ATTR state */
+		default:
+			proto_tree_add_text (tree, tvb, off, 1,
+					     "  %3d |  Attr | A %3d    "
+					     "| %-10s     (Invalid Token!) "
+					     "| WBXML parsing stops here.",
+					     level, *codepage_attr,
+					     val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
+			/* Move to end of buffer */
+			off = tvb_len;
+			break;
 		} else { /* Known atribute token */
 			if (peek & 0x80) { /* attrValue */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"|   Known attrValue 0x%02X          "
-						"|       %sattrValue_0x%02X",
-						level, *codepage_attr, peek & 0x7f, Indent (level),
-						peek);
+						     "  %3d |  Attr | A %3d    "
+						     "|   Known attrValue 0x%02X          "
+						     "|       %sattrValue_0x%02X",
+						     level, *codepage_attr, peek & 0x7f, Indent (level),
+						     peek);
 				off++;
 			} else { /* attrStart */
 				proto_tree_add_text (tree, tvb, off, 1,
-						"  %3d |  Attr | A %3d    "
-						"|   Known attrStart 0x%02X          "
-						"|   %sattrStart_0x%02X",
-						level, *codepage_attr, peek & 0x7f, Indent (level),
-						peek);
+						     "  %3d |  Attr | A %3d    "
+						     "|   Known attrStart 0x%02X          "
+						     "|   %sattrStart_0x%02X",
+						     level, *codepage_attr, peek & 0x7f, Indent (level),
+						     peek);
 				off++;
 			}
 		}
 	} /* End WHILE */
 	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n",
-				level, off - offset));
+		  level, off - offset));
 	return (off - offset);
 }
 
@@ -6589,32 +7678,32 @@ proto_register_wbxml(void)
 	/* Setup list of header fields. */
 	static hf_register_info hf[] = {
 		{ &hf_wbxml_version,
-			{ "Version",
-			  "wbxml.version",
-			  FT_UINT8, BASE_HEX,
-			  VALS ( vals_wbxml_versions ), 0x00,
-			  "WBXML Version", HFILL }
+		  { "Version",
+		    "wbxml.version",
+		    FT_UINT8, BASE_HEX,
+		    VALS ( vals_wbxml_versions ), 0x00,
+		    "WBXML Version", HFILL }
 		},
 		{ &hf_wbxml_public_id_known,
-			{ "Public Identifier (known)",
-			  "wbxml.public_id.known",
-			  FT_UINT32, BASE_HEX,
-			  VALS ( vals_wbxml_public_ids ), 0x00,
-			  "WBXML Known Public Identifier (integer)", HFILL }
+		  { "Public Identifier (known)",
+		    "wbxml.public_id.known",
+		    FT_UINT32, BASE_HEX,
+		    VALS ( vals_wbxml_public_ids ), 0x00,
+		    "WBXML Known Public Identifier (integer)", HFILL }
 		},
 		{ &hf_wbxml_public_id_literal,
-			{ "Public Identifier (literal)",
-			  "wbxml.public_id.literal",
-			  FT_STRING, BASE_NONE,
-			  NULL, 0x00,
-			  "WBXML Literal Public Identifier (text string)", HFILL }
+		  { "Public Identifier (literal)",
+		    "wbxml.public_id.literal",
+		    FT_STRING, BASE_NONE,
+		    NULL, 0x00,
+		    "WBXML Literal Public Identifier (text string)", HFILL }
 		},
 		{ &hf_wbxml_charset,
-			{ "Character Set",
-			  "wbxml.charset",
-			  FT_UINT32, BASE_HEX,
-			  VALS ( vals_character_sets ), 0x00,
-			  "WBXML Character Set", HFILL }
+		  { "Character Set",
+		    "wbxml.charset",
+		    FT_UINT32, BASE_HEX,
+		    VALS ( vals_character_sets ), 0x00,
+		    "WBXML Character Set", HFILL }
 		},
 	};
 
@@ -6627,10 +7716,10 @@ proto_register_wbxml(void)
 
 	/* Register the protocol name and description */
 	proto_wbxml = proto_register_protocol(
-			"WAP Binary XML",
-			"WBXML",
-			"wbxml"
-	);
+					      "WAP Binary XML",
+					      "WBXML",
+					      "wbxml"
+					      );
 
 	/* Required function calls to register the header fields
 	 * and subtrees used */
@@ -6640,21 +7729,21 @@ proto_register_wbxml(void)
 	/* Preferences */
 	wbxml_module = prefs_register_protocol(proto_wbxml, NULL);
 	prefs_register_bool_preference(wbxml_module,
-			"skip_wbxml_token_mapping",
-			"Skip the mapping of WBXML tokens to media type tokens.",
-			"Enable this preference if you want to view the WBXML "
-			"tokens without the representation in a media type "
-			"(e.g., WML). Tokens will show up as Tag_0x12, "
-			"attrStart_0x08 or attrValue_0x0B for example.",
-			&skip_wbxml_token_mapping);
+				       "skip_wbxml_token_mapping",
+				       "Skip the mapping of WBXML tokens to media type tokens.",
+				       "Enable this preference if you want to view the WBXML "
+				       "tokens without the representation in a media type "
+				       "(e.g., WML). Tokens will show up as Tag_0x12, "
+				       "attrStart_0x08 or attrValue_0x0B for example.",
+				       &skip_wbxml_token_mapping);
 	prefs_register_bool_preference(wbxml_module,
-			"disable_wbxml_token_parsing",
-			"Disable the parsing of the WBXML tokens.",
-			"Enable this preference if you want to skip the "
-			"parsing of the WBXML tokens that constitute the body "
-			"of the WBXML document. Only the WBXML header will be "
-			"dissected (and visualized) then.",
-			&disable_wbxml_token_parsing);
+				       "disable_wbxml_token_parsing",
+				       "Disable the parsing of the WBXML tokens.",
+				       "Enable this preference if you want to skip the "
+				       "parsing of the WBXML tokens that constitute the body "
+				       "of the WBXML document. Only the WBXML header will be "
+				       "dissected (and visualized) then.",
+				       &disable_wbxml_token_parsing);
 
 	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
 	register_dissector("wbxml-uaprof", dissect_uaprof, proto_wbxml);
@@ -6684,55 +7773,68 @@ proto_reg_handoff_wbxml(void)
 	/**** Well-known WBXML WSP Content-Type values ****/
 
 	dissector_add_string("media_type",
-			"application/vnd.wap.wmlc", wbxml_handle);
+			     "application/vnd.wap.wmlc", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.wta-eventc", wbxml_handle);
+			     "application/vnd.wap.wta-eventc", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.wbxml", wbxml_handle);
+			     "application/vnd.wap.wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.sic", wbxml_handle);
+			     "application/vnd.wap.sic", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.slc", wbxml_handle);
+			     "application/vnd.wap.slc", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.coc", wbxml_handle);
+			     "application/vnd.wap.coc", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.connectivity-wbxml", wbxml_handle);
+			     "application/vnd.wap.connectivity-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wap.locc+wbxml", wbxml_handle);
+			     "application/vnd.wap.locc+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.syncml+wbxml", wbxml_handle);
+			     "application/vnd.syncml+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.syncml.dm+wbxml", wbxml_handle);
+			     "application/vnd.syncml.dm+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.oma.drm.rights+wbxml", wbxml_handle);
+			     "application/vnd.oma.drm.rights+wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.wv.csp.wbxml", wbxml_handle);
+			     "application/vnd.wv.csp.wbxml", wbxml_handle);
 
 	/**** Registered WBXML WSP Content-Type values ****/
 
 	dissector_add_string("media_type",
-			"application/vnd.uplanet.cacheop-wbxml", wbxml_handle);
+			     "application/vnd.uplanet.cacheop-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.uplanet.alert-wbxml", wbxml_handle);
+			     "application/vnd.uplanet.alert-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.uplanet.list-wbxml", wbxml_handle);
+			     "application/vnd.uplanet.list-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.uplanet.listcmd-wbxml", wbxml_handle);
+			     "application/vnd.uplanet.listcmd-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.uplanet.channel-wbxml", wbxml_handle);
+			     "application/vnd.uplanet.channel-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.uplanet.bearer-choice-wbxml", wbxml_handle);
+			     "application/vnd.uplanet.bearer-choice-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.phonecom.mmc-wbxml", wbxml_handle);
+			     "application/vnd.phonecom.mmc-wbxml", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/vnd.nokia.syncset+wbxml", wbxml_handle);
+			     "application/vnd.nokia.syncset+wbxml", wbxml_handle);
 
 	/***** Content types that only have a textual representation *****/
 	dissector_add_string("media_type",
-			"application/x-wap-prov.browser-bookmarks", wbxml_handle);
+			     "application/x-wap-prov.browser-bookmarks", wbxml_handle);
 	dissector_add_string("media_type",
-			"application/x-wap-prov.browser-settings", wbxml_handle);
+			     "application/x-wap-prov.browser-settings", wbxml_handle);
 	/* Same as application/vnd.nokia.syncset+wbxml */
 	dissector_add_string("media_type",
-			"application/x-prov.syncset+wbxml", wbxml_handle);
+			     "application/x-prov.syncset+wbxml", wbxml_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
