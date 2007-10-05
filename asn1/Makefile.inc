@@ -30,8 +30,8 @@ generate_dissector: $(DISSECTOR_FILES)
 #if NO_PROTO_OPT
 #PROTO_OPT =
 #else
-#PROTO_OPT = -p $(PROTOCOL_NAME)
-xendif
+PROTO_OPT = -p $(PROTOCOL_NAME)
+#endif
 
 $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
