@@ -21,17 +21,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+ifdef NO_PROTO_OPT
+PROTO_OPT =
+else
+PROTO_OPT = -p $(PROTOCOL_NAME)
+endif
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-# commented out till it is fixed
-#if NO_PROTO_OPT
-#PROTO_OPT =
-#else
-PROTO_OPT = -p $(PROTOCOL_NAME)
-#endif
 
 $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
