@@ -70,14 +70,31 @@
 
 #include <epan/prefs.h>
 
-#define UDP_PORT_NETFLOW	2055
+/* 4739 is IPFIX.
+   2055 and 9996 are common defaults for Netflow
+ */
+#define NETFLOW_UDP_PORTS "2055,9996"
+#define IPFIX_UDP_PORTS   "4739"
+static dissector_handle_t netflow_handle;
 
-#define UDP_PORT_IPFIX	        4739
+/*
+ *	global_netflow_ports : holds the configured range of ports for netflow
+ */
+static range_t *global_netflow_ports = NULL;
+/*
+ *	netflow_ports : holds the currently used range of ports for netflow
+ */
+static range_t *netflow_ports = NULL;
 
-static guint global_netflow_udp_port = UDP_PORT_NETFLOW;
-static guint netflow_udp_port = 0;
-static guint global_ipfix_port = UDP_PORT_IPFIX;
-static guint ipfix_port = 0;
+/*
+ *	global_netflow_ports : holds the configured range of ports for IPFIX
+ */
+static range_t *global_ipfix_ports = NULL;
+/*
+ *	netflow_ports : holds the currently used range of ports for IPFIX
+ */
+static range_t *ipfix_ports = NULL;
+
 
 /*
  * pdu identifiers & sizes
@@ -382,8 +399,6 @@ static struct v9_template *v9_template_get(guint16 id, address  * net_src,
 static const char *   decode_v9_template_types(int type);
 
 static gchar   *getprefix(const guint32 * address, int prefix);
-static void     dissect_netflow(tvbuff_t * tvb, packet_info * pinfo,
-				proto_tree * tree);
 
 static int      flow_process_ints(proto_tree * pdutree, tvbuff_t * tvb,
 				  int offset);
@@ -400,7 +415,7 @@ static int      flow_process_textfield(proto_tree * pdutree, tvbuff_t * tvb,
 				       const char *text);
 
 
-static void
+static int
 dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 	proto_tree     *netflow_tree = NULL;
@@ -414,24 +429,8 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	nstime_t        ts;
 	dissect_pdu_t  *pduptr;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFLOW");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_netflow, tvb,
-					 offset, -1, FALSE);
-		netflow_tree = proto_item_add_subtree(ti, ett_netflow);
-	}
 
 	ver = tvb_get_ntohs(tvb, offset);
-
-	hdrinfo.vspec = ver;
-	hdrinfo.src_id = 0;
-	SET_ADDRESS(&hdrinfo.net_src, pinfo->net_src.type, pinfo->net_src.len,
-		    pinfo->net_src.data);
-
 
 	switch (ver) {
 	case 1:
@@ -456,8 +455,28 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		pduptr = &dissect_v9_flowset;
 		break;
 	default:
-		return;
+		/*  This does not appear to be a valid netflow packet;
+		 *  return 0 to let another dissector have a chance at
+		 *  dissecting it.
+		 */
+		return 0;
 	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFLOW");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_netflow, tvb,
+					 offset, -1, FALSE);
+		netflow_tree = proto_item_add_subtree(ti, ett_netflow);
+	}
+
+	hdrinfo.vspec = ver;
+	hdrinfo.src_id = 0;
+	SET_ADDRESS(&hdrinfo.net_src, pinfo->net_src.type, pinfo->net_src.len,
+		    pinfo->net_src.data);
 
 	if (tree)
 		proto_tree_add_uint(netflow_tree, hf_cflow_version, tvb,
@@ -507,7 +526,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	 * packet
 	 */
 	if (!tree)
-		return;
+		return tvb_length(tvb);
 
 	if(ver == 10) {
 		proto_tree_add_item(netflow_tree, hf_cflow_exporttime, tvb,
@@ -636,7 +655,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		/* This is absurd, but does happens in practice.  */
 		proto_tree_add_text(netflow_tree, tvb, offset, tvb_length_remaining(tvb, offset),
 					"FlowSets impossibles - PDU Count is %d", pdus);
-		return;
+		return tvb_length(tvb);
 	}
 	/*
 	 * everything below here should be payload
@@ -676,6 +695,8 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		else
 			break;
 	}
+
+	return tvb_length(tvb);
 }
 
 /*
@@ -738,6 +759,7 @@ flow_process_timeperiod(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 
 	timeitem = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
 				       offset_s, 8, &ts_delta);
+	PROTO_ITEM_SET_GENERATED(timeitem);
 	timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
 	proto_tree_add_time(timetree, hf_cflow_timestart, tvb, offset_s, 4,
@@ -1357,6 +1379,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 				timeitem =
 				  proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
 						      offset_s, 0, &ts_delta);
+				PROTO_ITEM_SET_GENERATED(timeitem);
 				timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
 				proto_tree_add_time(timetree, hf_cflow_timestart, tvb,
@@ -2189,6 +2212,39 @@ getprefix(const guint32 * address, int prefix)
 	return (ip_to_str((const guint8 *)&gprefix));
 }
 
+static void
+netflow_delete_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_delete("udp.port", port, netflow_handle);
+    }
+}
+static void
+ipfix_delete_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_delete("udp.port", port, netflow_handle);
+	dissector_delete("tcp.port", port, netflow_handle);
+	dissector_delete("sctp.port", port, netflow_handle);
+    }
+}
+
+static void
+netflow_add_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_add("udp.port", port, netflow_handle);
+    }
+}
+static void
+ipfix_add_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_add("udp.port", port, netflow_handle);
+	dissector_add("tcp.port", port, netflow_handle);
+	dissector_add("sctp.port", port, netflow_handle);
+    }
+}
 
 static void
 netflow_reinit(void)
@@ -2207,6 +2263,21 @@ netflow_reinit(void)
 		g_free(v9_template_cache[i].entries);
 	}
 	memset(v9_template_cache, 0, sizeof v9_template_cache);
+
+	if (netflow_ports) {
+	  range_foreach(netflow_ports, netflow_delete_callback);
+	  g_free(netflow_ports);
+	}
+	if (ipfix_ports) {
+	  range_foreach(ipfix_ports, ipfix_delete_callback);
+	  g_free(ipfix_ports);
+	}
+
+	netflow_ports = range_copy(global_netflow_ports);
+	ipfix_ports = range_copy(global_ipfix_ports);
+
+	range_foreach(netflow_ports, netflow_add_callback);
+	range_foreach(ipfix_ports, ipfix_add_callback);
 }
 
 void
@@ -2872,9 +2943,25 @@ proto_register_netflow(void)
 	netflow_module = prefs_register_protocol(proto_netflow,
 	    proto_reg_handoff_netflow);
 
-	prefs_register_uint_preference(netflow_module, "udp.port",
-	    "NetFlow UDP Port", "Set the port for NetFlow messages",
-	    10, &global_netflow_udp_port);
+	/* Set default Neflow port(s) */
+	range_convert_str(&global_netflow_ports, NETFLOW_UDP_PORTS,
+			  MAX_UDP_PORT);
+	range_convert_str(&global_ipfix_ports, IPFIX_UDP_PORTS,
+			  MAX_UDP_PORT);
+
+	prefs_register_obsolete_preference(netflow_module, "udp.port");
+
+	prefs_register_range_preference(netflow_module, "netflow.ports",
+					"NetFlow UDP Port(s)",
+					"Set the port(s) for NetFlow messages"
+					" (default: " NETFLOW_UDP_PORTS ")",
+					&global_netflow_ports, MAX_UDP_PORT);
+
+	prefs_register_range_preference(netflow_module, "ipfix.ports",
+					"IPFIX UDP/TCP/SCTP Port(s)",
+					"Set the port(s) for IPFIX messages"
+					" (default: " IPFIX_UDP_PORTS ")",
+					&global_ipfix_ports, MAX_UDP_PORT);
 
 	register_init_routine(&netflow_reinit);
 }
@@ -2887,27 +2974,14 @@ void
 proto_reg_handoff_netflow(void)
 {
 	static int netflow_prefs_initialized = FALSE;
-	static dissector_handle_t netflow_handle;
 
 	if (!netflow_prefs_initialized) {
-		netflow_handle = create_dissector_handle(dissect_netflow,
+		netflow_handle = new_create_dissector_handle(dissect_netflow,
 		    proto_netflow);
+
 		netflow_prefs_initialized = TRUE;
-	} else {
-		dissector_delete("udp.port", netflow_udp_port, netflow_handle);
-		dissector_delete("udp.port", ipfix_port,  netflow_handle);
-		dissector_delete("tcp.port", ipfix_port,  netflow_handle);
-		dissector_delete("sctp.port", ipfix_port, netflow_handle);
 	}
 
-	/* Set out port number for future use */
-	netflow_udp_port = global_netflow_udp_port;
-
-	dissector_add("udp.port", netflow_udp_port, netflow_handle);
-
-	ipfix_port = global_ipfix_port;
-	dissector_add("udp.port", ipfix_port,  netflow_handle);
-	dissector_add("tcp.port", ipfix_port,  netflow_handle);
-	dissector_add("sctp.port", ipfix_port, netflow_handle);
+	netflow_reinit();
 }
 
