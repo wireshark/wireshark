@@ -648,6 +648,12 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 
 	doing_address = FALSE;
 
+#.FN_BODY MessageIdentifier
+
+	address_item = NULL;
+
+	%(DEFAULT_BODY)s
+
 #.FN_BODY GlobalDomainIdentifier
 	
 	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
