@@ -93,6 +93,7 @@ static int hf_ack_count = -1;
 static int hf_ack_entry = -1;
 static int hf_ack_length = -1;
 static int hf_miss_seq_no = -1;
+static int hf_tot_miss_seq_no = -1;
 static int hf_dest_entry = -1;
 static int hf_dest_id = -1;
 static int hf_msg_seq_no = -1;
@@ -118,6 +119,7 @@ static gint ett_msg_fragments = -1;
 /* User definable values to use for dissection */
 static gboolean p_mul_reassemble = TRUE;
 static gint decode_option = DECODE_NONE;
+static gboolean use_relative_msgid = TRUE;
 
 static guint global_p_mul_tport = P_MUL_TPORT;
 static guint global_p_mul_rport = P_MUL_RPORT;
@@ -131,6 +133,8 @@ static guint p_mul_aport = 0;
 
 static GHashTable *p_mul_fragment_table = NULL;
 static GHashTable *p_mul_reassembled_table = NULL;
+
+static guint32 message_id_offset = 0;
 
 static const fragment_items p_mul_frag_items = {
   /* Fragment subtrees */
@@ -233,7 +237,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   guint16     no_dest = 0, count = 0, len = 0, data_len = 0;
   guint16     checksum1, checksum2, pdu_length = 0;
   guint8      pdu_type = 0, *value = NULL, map = 0;
-  gint        i, no_missing = 0, offset = 0;
+  gint        i, tot_no_missing = 0, no_missing = 0, offset = 0;
   nstime_t    ts;
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -319,7 +323,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, FALSE);
     proto_item_append_text (ti, ", Seq no: %u", seq_no);
     if (check_col (pinfo->cinfo, COL_INFO))
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
     break;
 
   case Announce_PDU:
@@ -365,7 +369,18 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     /* Message Id */
     message_id = tvb_get_ntohl (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, FALSE);
+    if (use_relative_msgid) {
+      if (message_id_offset == 0) {
+	/* First P_Mul package - initialize message_id_offset */
+	message_id_offset = message_id;
+      }
+      message_id -= message_id_offset;
+      proto_tree_add_uint_format (p_mul_tree, hf_message_id, tvb, offset, 4,
+				  message_id, "Message ID (MSID): %u"
+				  "    (relative message id)", message_id);
+    } else {
+      proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, FALSE);
+    }
     offset += 4;
 
     proto_item_append_text (ti, ", MSID: %u", message_id);
@@ -426,7 +441,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (p_mul_reassemble) {
       /* Start fragment table */
-      fragment_start_seq_check (pinfo, message_id, p_mul_fragment_table, no_pdus - 1);
+      fragment_start_seq_check (pinfo, message_id, p_mul_fragment_table, 
+				no_pdus - 1);
     }
     break;
 
@@ -472,32 +488,60 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       field_tree = proto_item_add_subtree (en, ett_entry);
 
       /* Length of Ack Info Entry */
-      proto_tree_add_item (field_tree, hf_ack_length, tvb, offset, 2, FALSE);
+      en = proto_tree_add_item (field_tree, hf_ack_length, tvb, offset, 
+				2, FALSE);
       offset += 2;
+
+      if (len < 10) {
+	proto_item_append_text (en, "    (invalid length)");
+	expert_add_info_format (pinfo, en, PI_MALFORMED, PI_WARN,
+				"Invalid ack info length");
+      }
 
       /* Source Id */
       proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, FALSE);
       offset += 4;
 
       /* Message Id */
-      proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, FALSE);
+      message_id = tvb_get_ntohl (tvb, offset);
+      if (use_relative_msgid) {
+	if (message_id_offset == 0) {
+	  /* First P_Mul package - initialize message_id_offset */
+	  message_id_offset = message_id;
+	}
+	message_id -= message_id_offset;
+	proto_tree_add_uint_format (field_tree, hf_message_id, tvb, offset, 4,
+				    message_id, "Message ID (MSID): %u"
+				    "    (relative message id)", message_id);
+      } else {
+	proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, FALSE);
+      }
       offset += 4;
 
-      for (no_missing = 0; no_missing < (len - 10) / 2; no_missing++) {
-        /* Missing Data PDU Seq Number */
-        proto_tree_add_item (field_tree, hf_miss_seq_no, tvb,offset, 2, FALSE);
-        offset += 2;
-      }
-
-      if (no_missing) {
-        proto_item_append_text (ti, ", Missing seq numbers: %u", no_missing);
-        expert_add_info_format (pinfo, en, PI_RESPONSE_CODE, PI_NOTE,
-                                "Missing seq numbers: %d", no_missing);
-        if (check_col (pinfo->cinfo, COL_INFO))
-          col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
-                           no_missing);
+      if (len > 10) {
+	for (no_missing = 0; no_missing < (len - 10) / 2; no_missing++) {
+	  /* Missing Data PDU Seq Number */
+	  proto_tree_add_item (field_tree, hf_miss_seq_no, tvb,offset, 
+			       2, FALSE);
+	  offset += 2;
+	}
+        tot_no_missing += no_missing;
       }
     }
+    
+    if (tot_no_missing) {
+      proto_item_append_text (ti, ", Missing seq numbers: %u", tot_no_missing);
+      en = proto_tree_add_uint (p_mul_tree, hf_tot_miss_seq_no, tvb, 0, 0,
+                                tot_no_missing);
+      PROTO_ITEM_SET_GENERATED (en);
+      expert_add_info_format (pinfo, en, PI_RESPONSE_CODE, PI_NOTE,
+                              "Missing seq numbers: %d", tot_no_missing);
+      if (check_col (pinfo->cinfo, COL_INFO))
+        col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
+                         tot_no_missing);
+    }
+    if (check_col (pinfo->cinfo, COL_INFO))
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Ack: %u", count);
     break;
 
   case Announce_PDU:
@@ -543,8 +587,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void p_mul_reassemble_init (void)
 {
-    fragment_table_init (&p_mul_fragment_table);
-    reassembled_table_init (&p_mul_reassembled_table);
+  fragment_table_init (&p_mul_fragment_table);
+  reassembled_table_init (&p_mul_reassembled_table);
+  message_id_offset = 0;
 }
 
 void proto_register_p_mul (void)
@@ -619,6 +664,10 @@ void proto_register_p_mul (void)
     { &hf_miss_seq_no,
       { "Missing Data PDU Seq Number", "p_mul.missing_seq_no", FT_UINT16,
         BASE_DEC, NULL, 0x0, "Missing Data PDU Seq Number", HFILL } },
+    { &hf_tot_miss_seq_no,
+      { "Total Number of Missing Data PDU Sequence Numbers", 
+        "p_mul.no_missing_seq_no", FT_UINT16, BASE_DEC, NULL, 0x0, 
+        "Total Number of Missing Data PDU Sequence Numbers", HFILL } },
     { &hf_dest_entry,
       { "Destination Entry", "p_mul.dest_entry", FT_NONE, BASE_NONE,
         NULL, 0x0, "Destination Entry", HFILL } },
@@ -689,6 +738,11 @@ void proto_register_p_mul (void)
                                   "Reassemble fragmented P_Mul packets",
                                   "Reassemble fragmented P_Mul packets",
                                   &p_mul_reassemble);
+  prefs_register_bool_preference (p_mul_module, "relative_msgid",
+                                  "Use relative Message ID",
+                                  "Make the P_Mul dissector use relative"
+                                  " message id number instead of absolute"
+                                  " ones", &use_relative_msgid);
   prefs_register_enum_preference (p_mul_module, "decode",
                                   "Decode Data PDU as",
                                   "Type of content in Data_PDU",
@@ -739,3 +793,16 @@ void proto_reg_handoff_p_mul (void)
   dissector_add ("udp.port", global_p_mul_dport, p_mul_handle);
   dissector_add ("udp.port", global_p_mul_aport, p_mul_handle);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 noexpandtab
+ * :indentSize=2:tabSize=8:noTabs=false:
+ */
