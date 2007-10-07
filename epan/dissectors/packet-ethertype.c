@@ -135,6 +135,7 @@ const value_string etype_vals[] = {
     {PPP_PAP,			"PPP Password Authentication Protocol" },
     {PPP_CCP,			"PPP Compression Control Protocol" },
     {ETHERTYPE_LLT,		"Veritas Low Latency Transport (not officially registered)"},
+    {ETHERTYPE_CFM,		"IEEE 802.1ag Connectivity Fault Management (CFM) protocol" },
     {ETHERTYPE_FCOE,	"Fibre Channel over Ethernet" },
 	{ETHERTYPE_PTP,		"PTPv2 over Ethernet (IEEE1588)"},
     {0,				NULL				} };

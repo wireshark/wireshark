@@ -358,6 +358,10 @@
 									/* transmission or distribution substation. */
 									/*  There are three types of application services */
 
+#ifndef ETHERTYPE_CFM
+#define ETHERTYPE_CFM		0x8902	/* IEEE 802.1ag Connectivity Fault Management */
+#endif								/* (CFM) protocol. */
+
 #ifndef ETHERTYPE_FCOE
 #define ETHERTYPE_FCOE		0x8906	/* Fibre Channel over Ethernet */
 #endif
