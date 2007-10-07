@@ -30,6 +30,13 @@ SUBDIRS = \
 	cmip	\
 	cms	\
 	dap	\
+	disp	\
+	dop	\
+	dsp	\
+	ess	\
+	ftam	\
+	gnm	\
+	gsmmap	\
 	h245	\
 	nbap	\
 	ranap	\
@@ -42,79 +49,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	disp/disp.asn	\
-	disp/disp.cnf	\
-	disp/disp-exp.cnf	\
-	disp/Makefile	\
-	disp/Makefile.nmake	\
-	disp/packet-disp-template.c	\
-	disp/packet-disp-template.h	\
-	dop/dop.asn	\
-	dop/dop.cnf	\
-	dop/dop-exp.cnf	\
-	dop/Makefile	\
-	dop/Makefile.nmake	\
-	dop/packet-dop-template.c	\
-	dop/packet-dop-template.h	\
-	dop/x501-exp.cnf	\
-	dsp/dsp.asn	\
-	dsp/dsp.cnf	\
-	dsp/dsp-exp.cnf	\
-	dsp/Makefile	\
-	dsp/Makefile.nmake	\
-	dsp/packet-dsp-template.c	\
-	dsp/packet-dsp-template.h	\
-	ess/ess.cnf	\
-	ess/ExtendedSecurityServices.asn	\
-	ess/Makefile	\
-	ess/Makefile.nmake	\
-	ess/packet-ess-template.c	\
-	ess/packet-ess-template.h	\
-	ftam/ftam.cnf	\
-	ftam/ftam-exp.cnf	\
-	ftam/ISO8571-FTAM.asn	\
-	ftam/Makefile	\
-	ftam/Makefile.nmake	\
-	ftam/packet-ftam-template.c	\
-	ftam/packet-ftam-template.h	\
-	gnm/GNM.asn	\
-	gnm/gnm.cnf	\
-	gnm/Makefile	\
-	gnm/Makefile.nmake	\
-	gnm/packet-gnm-template.c	\
-	gnm/packet-gnm-template.h	\
-	gsmmap/GSMMAP.asn	\
-	gsmmap/MAP-ApplicationContexts.asn	\
-	gsmmap/MAP-BS-Code.asn	\
-	gsmmap/MAP-CallHandlingOperations.asn	\
-	gsmmap/MAP-CH-DataTypes.asn	\
-	gsmmap/MAP-CommonDataTypes.asn	\
-	gsmmap/MAP-DialogueInformation.asn	\
-	gsmmap/MAP-ER-DataTypes.asn	\
-	gsmmap/MAP-Errors.asn	\
-	gsmmap/MAP-ExtensionDataTypes.asn	\
-	gsmmap/MAP-GR-DataTypes.asn	\
-	gsmmap/MAP-Group-Call-Operations.asn	\
-	gsmmap/MAP-LCS-DataTypes.asn	\
-	gsmmap/MAP-LocationServiceOperations.asn	\
-	gsmmap/MAP-MobileServiceOperations.asn	\
-	gsmmap/MAP-MS-DataTypes.asn	\
-	gsmmap/MAP-OM-DataTypes.asn	\
-	gsmmap/MAP-OperationAndMaintenanceOperations.asn	\
-	gsmmap/MAP-Protocol.asn	\
-	gsmmap/MAP-ShortMessageServiceOperations.asn	\
-	gsmmap/MAP-SM-DataTypes.asn	\
-	gsmmap/MAP-SS-Code.asn	\
-	gsmmap/MAP-SS-DataTypes.asn	\
-	gsmmap/MAP-SupplementaryServiceOperations.asn	\
-	gsmmap/MAP-TS-Code.asn	\
-	gsmmap/MobileDomainDefinitions.asn	\
-	gsmmap/gsmmap.cnf	\
-	gsmmap/gsm_map-exp.cnf	\
-	gsmmap/Makefile	\
-	gsmmap/Makefile.nmake	\
-	gsmmap/packet-gsm_map-template.c	\
-	gsmmap/packet-gsm_map-template.h	\
 	h225/h225.cnf	\
 	h225/h225-exp.cnf	\
 	h225/H323-MESSAGES.asn	\

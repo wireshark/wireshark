@@ -1479,6 +1479,13 @@ AC_OUTPUT(
   asn1/cmip/Makefile
   asn1/cms/Makefile
   asn1/dap/Makefile
+  asn1/disp/Makefile
+  asn1/dop/Makefile
+  asn1/dsp/Makefile
+  asn1/ess/Makefile
+  asn1/ftam/Makefile
+  asn1/gnm/Makefile
+  asn1/gsmmap/Makefile
   asn1/h245/Makefile
   asn1/nbap/Makefile
   asn1/ranap/Makefile
