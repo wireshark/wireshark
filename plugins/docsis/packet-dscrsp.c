@@ -107,17 +107,17 @@ proto_register_docsis_dscrsp (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dscrsp,
-     {"Dynamic Service Change Request", "docsis.dscrsp",
+     {"Dynamic Service Change Request", "docsis_dscrsp",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Dynamic Service Add Request", HFILL}
      },
     {&hf_docsis_dscrsp_tranid,
-     {"Transaction Id", "docsis.dscrsp.tranid",
+     {"Transaction Id", "docsis_dscrsp.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
      },
     {&hf_docsis_dscrsp_response,
-     {"Confirmation Code", "docsis.dscrsp.confcode",
+     {"Confirmation Code", "docsis_dscrsp.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
       "Confirmation Code", HFILL}
      },

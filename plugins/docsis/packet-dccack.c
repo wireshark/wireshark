@@ -129,7 +129,7 @@ proto_register_docsis_dccack (void)
     {&hf_docsis_dccack_tran_id ,
       {
       "Transaction ID ", 
-      "docsis.dccack.tran_id",
+      "docsis_dccack.tran_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Transaction ID ", 
       HFILL
@@ -138,7 +138,7 @@ proto_register_docsis_dccack (void)
     {&hf_docsis_dccack_key_seq_num ,
       {
       "Auth Key Sequence Number ",
-      "docsis.dccack.key_seq_num",
+      "docsis_dccack.key_seq_num",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Auth Key Sequence Number ",
       HFILL
@@ -147,7 +147,7 @@ proto_register_docsis_dccack (void)
     {&hf_docsis_dccack_hmac_digest ,
       {
       "HMAC-DigestNumber ",
-      "docsis.dccack.hmac_digest",
+      "docsis_dccack.hmac_digest",
       FT_BYTES, BASE_DEC, NULL, 0x0,
       "HMAC-DigestNumber ",
       HFILL

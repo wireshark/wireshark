@@ -100,12 +100,12 @@ proto_register_docsis_dscreq (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dscreq,
-     {"Dynamic Service Change Request", "docsis.dscreq",
+     {"Dynamic Service Change Request", "docsis_dscreq",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Dynamic Service Addition Request", HFILL}
      },
     {&hf_docsis_dscreq_tranid,
-     {"Transaction Id", "docsis.dscreq.tranid",
+     {"Transaction Id", "docsis_dscreq.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Transaction Id", HFILL}
      },

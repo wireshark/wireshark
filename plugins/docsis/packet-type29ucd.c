@@ -836,97 +836,97 @@ proto_register_docsis_type29ucd (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_type29ucd_upstream_chid,
-     {"Upstream Channel ID", "docsis.type29ucd.upchid",
+     {"Upstream Channel ID", "docsis_type29ucd.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
     {&hf_docsis_type29ucd_config_ch_cnt,
-     {"Config Change Count", "docsis.type29ucd.confcngcnt",
+     {"Config Change Count", "docsis_type29ucd.confcngcnt",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Configuration Change Count", HFILL}
      },
     {&hf_docsis_type29ucd_mini_slot_size,
-     {"Mini Slot Size (6.25us TimeTicks)", "docsis.type29ucd.mslotsize",
+     {"Mini Slot Size (6.25us TimeTicks)", "docsis_type29ucd.mslotsize",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Mini Slot Size (6.25us TimeTicks)", HFILL}
      },
     {&hf_docsis_type29ucd_down_chid,
-     {"Downstream Channel ID", "docsis.type29ucd.downchid",
+     {"Downstream Channel ID", "docsis_type29ucd.downchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Management Message", HFILL}
      },
     {&hf_docsis_type29ucd_symbol_rate,
-     {"1 Symbol Rate (ksym/sec)", "docsis.type29ucd.symrate",
+     {"1 Symbol Rate (ksym/sec)", "docsis_type29ucd.symrate",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Symbol Rate", HFILL}
      },
     {&hf_docsis_type29ucd_frequency,
-     {"2 Frequency (Hz)", "docsis.type29ucd.freq",
+     {"2 Frequency (Hz)", "docsis_type29ucd.freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Upstream Center Frequency", HFILL}
      },
     {&hf_docsis_type29ucd_preamble_pat,
-     {"3 Preamble Pattern", "docsis.type29ucd.preamble",
+     {"3 Preamble Pattern", "docsis_type29ucd.preamble",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Preamble Superstring", HFILL}
      },
     {&hf_docsis_type29ucd_iuc,
-     {"Interval Usage Code", "docsis.type29ucd.iuc",
+     {"Interval Usage Code", "docsis_type29ucd.iuc",
       FT_UINT8, BASE_DEC, VALS (iuc_vals2), 0x0,
       "Interval Usage Code", HFILL}
      },
     {&hf_docsis_burst_mod_type,
-     {"1 Modulation Type", "docsis.type29ucd.burst.modtype",
+     {"1 Modulation Type", "docsis_type29ucd.burst.modtype",
       FT_UINT8, BASE_DEC, VALS (mod_vals2), 0x0,
       "Modulation Type", HFILL}
      },
     {&hf_docsis_burst_diff_encoding,
-     {"2 Differential Encoding", "docsis.type29ucd.burst.diffenc",
+     {"2 Differential Encoding", "docsis_type29ucd.burst.diffenc",
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       "Differential Encoding", HFILL}
      },
     {&hf_docsis_burst_preamble_len,
-     {"3 Preamble Length (Bits)", "docsis.type29ucd.burst.preamble_len",
+     {"3 Preamble Length (Bits)", "docsis_type29ucd.burst.preamble_len",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Preamble Length (Bits)", HFILL}
      },
     {&hf_docsis_burst_preamble_val_off,
-     {"4 Preamble Offset (Bits)", "docsis.type29ucd.burst.preamble_off",
+     {"4 Preamble Offset (Bits)", "docsis_type29ucd.burst.preamble_off",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Preamble Offset (Bits)", HFILL}
      },
     {&hf_docsis_burst_fec,
-     {"5 FEC (T)", "docsis.type29ucd.burst.fec",
+     {"5 FEC (T)", "docsis_type29ucd.burst.fec",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "FEC (T) Codeword Parity Bits = 2^T", HFILL}
      },
     {&hf_docsis_burst_fec_codeword,
-     {"6 FEC Codeword Info bytes (k)", "docsis.type29ucd.burst.fec_codeword",
+     {"6 FEC Codeword Info bytes (k)", "docsis_type29ucd.burst.fec_codeword",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "FEC Codeword Info Bytes (k)", HFILL}
      },
     {&hf_docsis_burst_scrambler_seed,
-     {"7 Scrambler Seed", "docsis.type29ucd.burst.scrambler_seed",
+     {"7 Scrambler Seed", "docsis_type29ucd.burst.scrambler_seed",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "Burst Descriptor", HFILL}
      },
     {&hf_docsis_burst_max_burst,
-     {"8 Max Burst Size (Minislots)", "docsis.type29ucd.burst.maxburst",
+     {"8 Max Burst Size (Minislots)", "docsis_type29ucd.burst.maxburst",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Max Burst Size (Minislots)", HFILL}
      },
     {&hf_docsis_burst_guard_time,
-     {"9 Guard Time Size (Symbol Times)", "docsis.type29ucd.burst.guardtime",
+     {"9 Guard Time Size (Symbol Times)", "docsis_type29ucd.burst.guardtime",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Guard Time Size", HFILL}
      },
     {&hf_docsis_burst_last_cw_len,
-     {"10 Last Codeword Length", "docsis.type29ucd.burst.last_cw_len",
+     {"10 Last Codeword Length", "docsis_type29ucd.burst.last_cw_len",
       FT_UINT8, BASE_DEC, VALS (last_cw_len_vals), 0x0,
       "Last Codeword Length", HFILL}
      },
     {&hf_docsis_burst_scrambler_onoff,
-     {"11 Scrambler On/Off", "docsis.type29ucd.burst.scrambleronoff",
+     {"11 Scrambler On/Off", "docsis_type29ucd.burst.scrambleronoff",
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       "Scrambler On/Off", HFILL}
      },
@@ -944,57 +944,57 @@ proto_register_docsis_type29ucd (void)
  *  * #define type29ucd_RANGING_REQUIRED 16
  *  */
     {&hf_docsis_type29ucd_ext_preamble,
-     {"6 Extended Preamble Pattern", "docsis.type29ucd.extpreamble",
+     {"6 Extended Preamble Pattern", "docsis_type29ucd.extpreamble",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Extended Preamble Pattern", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_mode_enable,
-     {"7 SCDMA Mode Enable", "docsis.type29ucd.scdmaenable",
+     {"7 SCDMA Mode Enable", "docsis_type29ucd.scdmaenable",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA Mode Enable", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_spreading_interval,
-     {"8 SCDMA Spreading Interval", "docsis.type29ucd.scdmaspreadinginterval",
+     {"8 SCDMA Spreading Interval", "docsis_type29ucd.scdmaspreadinginterval",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA Spreading Interval", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_codes_per_mini_slot,
-     {"9 SCDMA Codes per mini slot", "docsis.type29ucd.scdmacodesperminislot",
+     {"9 SCDMA Codes per mini slot", "docsis_type29ucd.scdmacodesperminislot",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA Codes per mini slot", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_active_codes,
-     {"10 SCDMA Active Codes", "docsis.type29ucd.scdmaactivecodes",
+     {"10 SCDMA Active Codes", "docsis_type29ucd.scdmaactivecodes",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA Active Codes", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_code_hopping_seed,
-     {"11 SCDMA Code Hopping Seed", "docsis.type29ucd.scdmacodehoppingseed",
+     {"11 SCDMA Code Hopping Seed", "docsis_type29ucd.scdmacodehoppingseed",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA Code Hopping Seed", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_us_ratio_num,
-     {"12 SCDMA US Ratio Numerator", "docsis.type29ucd.scdmausrationum",
+     {"12 SCDMA US Ratio Numerator", "docsis_type29ucd.scdmausrationum",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA US Ratio Numerator", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_us_ratio_denom,
-     {"13 SCDMA US Ratio Denominator", "docsis.type29ucd.scdmausratiodenom",
+     {"13 SCDMA US Ratio Denominator", "docsis_type29ucd.scdmausratiodenom",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA US Ratio Denominator", HFILL}
      },
     {&hf_docsis_type29ucd_scdma_timestamp_snapshot,
-     {"14 SCDMA Timestamp Snapshot", "docsis.type29ucd.scdmatimestamp",
+     {"14 SCDMA Timestamp Snapshot", "docsis_type29ucd.scdmatimestamp",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "SCDMA Timestamp Snapshot", HFILL}
      },
     {&hf_docsis_type29ucd_maintain_power_spectral_density,
-     {"15 Maintain power spectral density", "docsis.type29ucd.maintainpowerspectraldensity",
+     {"15 Maintain power spectral density", "docsis_type29ucd.maintainpowerspectraldensity",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Maintain power spectral density", HFILL}
      },
     {&hf_docsis_type29ucd_ranging_required,
-     {"16 Ranging Required", "docsis.type29ucd.rangingrequired",
+     {"16 Ranging Required", "docsis_type29ucd.rangingrequired",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Ranging Required", HFILL}
      },
@@ -1007,37 +1007,37 @@ proto_register_docsis_type29ucd (void)
  * #define type29ucd_TCM_ENABLED 18
  */
     {&hf_docsis_rs_int_depth,
-     {"12 Scrambler On/Off", "docsis.type29ucd.burst.rsintdepth",
+     {"12 Scrambler On/Off", "docsis_type29ucd.burst.rsintdepth",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "R-S Interleaver Depth", HFILL}
      },
     {&hf_docsis_rs_int_block,
-     {"13 Scrambler On/Off", "docsis.type29ucd.burst.rsintblock",
+     {"13 Scrambler On/Off", "docsis_type29ucd.burst.rsintblock",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "R-S Interleaver Block", HFILL}
      },
     {&hf_docsis_preamble_type,
-     {"14 Scrambler On/Off", "docsis.type29ucd.burst.preambletype",
+     {"14 Scrambler On/Off", "docsis_type29ucd.burst.preambletype",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Preamble Type", HFILL}
      },
     {&hf_docsis_scdma_scrambler_onoff,
-     {"15 Scrambler On/Off", "docsis.type29ucd.burst.scdmascrambleronoff",
+     {"15 Scrambler On/Off", "docsis_type29ucd.burst.scdmascrambleronoff",
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       "SCDMA Scrambler On/Off", HFILL}
      },
     {&hf_docsis_scdma_codes_per_subframe,
-     {"16 Scrambler On/Off", "docsis.type29ucd.burst.scdmacodespersubframe",
+     {"16 Scrambler On/Off", "docsis_type29ucd.burst.scdmacodespersubframe",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "SCDMA Codes per Subframe", HFILL}
      },
     {&hf_docsis_scdma_framer_int_step_size,
-     {"17 Scrambler On/Off", "docsis.type29ucd.burst.scdmaframerintstepsize",
+     {"17 Scrambler On/Off", "docsis_type29ucd.burst.scdmaframerintstepsize",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "SCDMA Framer Interleaving Step Size", HFILL}
      },
     {&hf_docsis_tcm_enabled,
-     {"18 Scrambler On/Off", "docsis.type29ucd.burst.tcmenabled",
+     {"18 Scrambler On/Off", "docsis_type29ucd.burst.tcmenabled",
       FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       "TCM Enabled", HFILL}
      },

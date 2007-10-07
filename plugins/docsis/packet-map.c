@@ -187,77 +187,77 @@ proto_register_docsis_map (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_map,
-     {"Map Message", "docsis.map",
+     {"Map Message", "docsis_map",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "MAP Message", HFILL}
      },
     {&hf_docsis_map_ucd_count,
-     {"UCD Count", "docsis.map.ucdcount",
+     {"UCD Count", "docsis_map.ucdcount",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Map UCD Count", HFILL}
      },
     {&hf_docsis_map_upstream_chid,
-     {"Upstream Channel ID", "docsis.map.upchid",
+     {"Upstream Channel ID", "docsis_map.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
     {&hf_docsis_map_numie,
-     {"Number of IE's", "docsis.map.numie",
+     {"Number of IE's", "docsis_map.numie",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Number of Information Elements", HFILL}
      },
     {&hf_docsis_map_alloc_start,
-     {"Alloc Start Time (minislots)", "docsis.map.allocstart",
+     {"Alloc Start Time (minislots)", "docsis_map.allocstart",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Alloc Start Time (minislots)", HFILL}
      },
     {&hf_docsis_map_ack_time,
-     {"ACK Time (minislots)", "docsis.map.acktime",
+     {"ACK Time (minislots)", "docsis_map.acktime",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Ack Time (minislots)", HFILL}
      },
     {&hf_docsis_map_rng_start,
-     {"Ranging Backoff Start", "docsis.map.rng_start",
+     {"Ranging Backoff Start", "docsis_map.rng_start",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Ranging Backoff Start", HFILL}
      },
     {&hf_docsis_map_rng_end,
-     {"Ranging Backoff End", "docsis.map.rng_end",
+     {"Ranging Backoff End", "docsis_map.rng_end",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Ranging Backoff End", HFILL}
      },
     {&hf_docsis_map_data_start,
-     {"Data Backoff Start", "docsis.map.data_start",
+     {"Data Backoff Start", "docsis_map.data_start",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Data Backoff Start", HFILL}
      },
     {&hf_docsis_map_data_end,
-     {"Data Backoff End", "docsis.map.data_end",
+     {"Data Backoff End", "docsis_map.data_end",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Data Backoff End", HFILL}
      },
     {&hf_docsis_map_ie,
-     {"Information Element", "docsis.map.ie",
+     {"Information Element", "docsis_map.ie",
       FT_UINT32, BASE_HEX, NULL, 0x0,
       "Information Element", HFILL}
      },
     {&hf_docsis_map_rsvd,
-     {"Reserved [0x00]", "docsis.map.rsvd",
+     {"Reserved [0x00]", "docsis_map.rsvd",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "Reserved Byte", HFILL}
      },
     {&hf_docsis_map_sid,
-     {"Service Identifier", "docsis.map.sid",
+     {"Service Identifier", "docsis_map.sid",
       FT_UINT32, BASE_DEC, NULL, 0xFFFC0000,
       "Service Identifier", HFILL}
      },
     {&hf_docsis_map_iuc,
-     {"Interval Usage Code", "docsis.map.iuc",
+     {"Interval Usage Code", "docsis_map.iuc",
       FT_UINT32, BASE_DEC, VALS(iuc_vals), 0x0003c000,
       "Interval Usage Code", HFILL}
      },
     {&hf_docsis_map_offset,
-     {"Offset", "docsis.map.offset",
+     {"Offset", "docsis_map.offset",
       FT_UINT32, BASE_DEC, NULL, 0x00003fff,
       "Offset", HFILL}
      },

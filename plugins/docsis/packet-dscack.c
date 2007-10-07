@@ -108,17 +108,17 @@ proto_register_docsis_dscack (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dscack,
-     {"Dynamic Service Change Ack", "docsis.dscack",
+     {"Dynamic Service Change Ack", "docsis_dscack",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Dynamic Service Add Request", HFILL}
      },
     {&hf_docsis_dscack_tranid,
-     {"Transaction Id", "docsis.dscack.tranid",
+     {"Transaction Id", "docsis_dscack.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
      },
     {&hf_docsis_dscack_response,
-     {"Confirmation Code", "docsis.dscack.confcode",
+     {"Confirmation Code", "docsis_dscack.confcode",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
       "Confirmation Code", HFILL}
      },

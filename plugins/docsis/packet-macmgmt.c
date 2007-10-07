@@ -203,52 +203,52 @@ proto_register_docsis_mgmt (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_mgt_hdr,
-     {"Mac Management Header", "docsis.mgmt",
+     {"Mac Management Header", "docsis_mgmt",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Mac Management Header", HFILL}
      },
     {&hf_docsis_mgt_dst_addr,
-     {"Destination Address", "docsis.mgmt.dst",
+     {"Destination Address", "docsis_mgmt.dst",
       FT_ETHER, BASE_HEX, NULL, 0x0,
       "Destination Address", HFILL}
      },
     {&hf_docsis_mgt_src_addr,
-     {"Source Address", "docsis.mgmt.src",
+     {"Source Address", "docsis_mgmt.src",
       FT_ETHER, BASE_HEX, NULL, 0x0,
       "Source Address", HFILL}
      },
     {&hf_docsis_mgt_msg_len,
-     {"Message Length - DSAP to End (Bytes)", "docsis.mgmt.msglen",
+     {"Message Length - DSAP to End (Bytes)", "docsis_mgmt.msglen",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Message Length", HFILL}
      },
     {&hf_docsis_mgt_dsap,
-     {"DSAP [0x00]", "docsis.mgmt.dsap",
+     {"DSAP [0x00]", "docsis_mgmt.dsap",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "Destination SAP", HFILL}
      },
     {&hf_docsis_mgt_ssap,
-     {"SSAP [0x00]", "docsis.mgmt.ssap",
+     {"SSAP [0x00]", "docsis_mgmt.ssap",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "Source SAP", HFILL}
      },
     {&hf_docsis_mgt_control,
-     {"Control [0x03]", "docsis.mgmt.control",
+     {"Control [0x03]", "docsis_mgmt.control",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "Control", HFILL}
      },
     {&hf_docsis_mgt_version,
-     {"Version", "docsis.mgmt.version",
+     {"Version", "docsis_mgmt.version",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Version", HFILL}
      },
     {&hf_docsis_mgt_type,
-     {"Type", "docsis.mgmt.type",
+     {"Type", "docsis_mgmt.type",
       FT_UINT8, BASE_DEC, VALS (mgmt_type_vals), 0x0,
       "Type", HFILL}
      },
     {&hf_docsis_mgt_rsvd,
-     {"Reserved [0x00]", "docsis.mgmt.rsvd",
+     {"Reserved [0x00]", "docsis_mgmt.rsvd",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Reserved", HFILL}
      },

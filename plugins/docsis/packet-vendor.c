@@ -238,42 +238,42 @@ proto_register_docsis_vsif (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_vsif,
-     {"VSIF Encodings", "docsis.vsif",
+     {"VSIF Encodings", "docsis_vsif",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Vendor Specific Encodings", HFILL}
      },
     {&hf_docsis_vsif_vendorid,
-     {"Vendor Id", "docsis.vsif.vendorid",
+     {"Vendor Id", "docsis_vsif.vendorid",
       FT_UINT24, BASE_HEX, VALS(vendorid_vals), 0x0,
       "Vendor Identifier", HFILL}
      },
     {&hf_docsis_vsif_vendor_unknown,
-     {"VSIF Encodings", "docsis.vsif.unknown",
+     {"VSIF Encodings", "docsis_vsif.unknown",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Unknown Vendor", HFILL}
      },
     {&hf_docsis_vsif_cisco_numphones,
-     {"Number of phone lines", "docsis.vsif.cisco.numphones",
+     {"Number of phone lines", "docsis_vsif.cisco.numphones",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Number of phone lines", HFILL}
      },
     {&hf_docsis_vsif_cisco_ipprec,
-     {"IP Precedence Encodings", "docsis.vsif.cisco.ipprec",
+     {"IP Precedence Encodings", "docsis_vsif.cisco.ipprec",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "IP Precedence Encodings", HFILL}
      },
     {&hf_docsis_vsif_cisco_ipprec_val,
-     {"IP Precedence Value", "docsis.vsif.cisco.ipprec.value",
+     {"IP Precedence Value", "docsis_vsif.cisco.ipprec.value",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "IP Precedence Value", HFILL}
      },
     {&hf_docsis_vsif_cisco_ipprec_bw,
-     {"IP Precedence Bandwidth", "docsis.vsif.cisco.ipprec.bw",
+     {"IP Precedence Bandwidth", "docsis_vsif.cisco.ipprec.bw",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "IP Precedence Bandwidth", HFILL}
      },
     {&hf_docsis_vsif_cisco_config_file,
-     {"IOS Config File", "docsis.vsif.cisco.iosfile",
+     {"IOS Config File", "docsis_vsif.cisco.iosfile",
       FT_STRING, BASE_DEC, NULL, 0x0,
       "IOS Config File", HFILL}
      },

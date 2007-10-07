@@ -104,22 +104,22 @@ proto_register_docsis_dsdreq (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_dsdreq,
-     {"Dynamic Service Delete Request", "docsis.dsdreq",
+     {"Dynamic Service Delete Request", "docsis_dsdreq",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Dynamic Service Delete Request", HFILL}
      },
     {&hf_docsis_dsdreq_tranid,
-     {"Transaction Id", "docsis.dsdreq.tranid",
+     {"Transaction Id", "docsis_dsdreq.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Transaction Id", HFILL}
      },
     {&hf_docsis_dsdreq_rsvd,
-     {"Reserved", "docsis.dsdreq.rsvd",
+     {"Reserved", "docsis_dsdreq.rsvd",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "Reserved", HFILL}
      },
     {&hf_docsis_dsdreq_sfid,
-     {"Service Flow ID", "docsis.dsdreq.sfid",
+     {"Service Flow ID", "docsis_dsdreq.sfid",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Service Flow Id", HFILL}
      },

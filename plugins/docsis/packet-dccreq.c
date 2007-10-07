@@ -396,7 +396,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_tran_id ,
       {
       "Transaction ID ", 
-      "docsis.dccreq.tran_id",
+      "docsis_dccreq.tran_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Transaction ID ", 
       HFILL
@@ -405,7 +405,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_up_chan_id ,
       {
       "Up Channel ID ", 
-      "docsis.dccreq.up_chan_id",
+      "docsis_dccreq.up_chan_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Up Channel ID ", 
       HFILL
@@ -414,7 +414,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_freq ,
       {
       "Frequency ", 
-      "docsis.dccreq.ds_freq",
+      "docsis_dccreq.ds_freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Frequency ", 
       HFILL
@@ -423,7 +423,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_mod_type ,
       {
       "Modulation Type ", 
-      "docsis.dccreq.ds_mod_type",
+      "docsis_dccreq.ds_mod_type",
       FT_UINT8, BASE_DEC, VALS (ds_mod_type_vals), 0x0,
       "Modulation Type ", 
       HFILL
@@ -432,7 +432,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_sym_rate ,
       {
       "Symbol Rate", 
-      "docsis.dccreq.ds_sym_rate",
+      "docsis_dccreq.ds_sym_rate",
       FT_UINT8, BASE_DEC, VALS (ds_sym_rate_vals), 0x0,
       "Symbol Rate", 
       HFILL
@@ -441,7 +441,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_intlv_depth_i ,
       {
       "Interleaver Depth I Value", 
-      "docsis.dccreq.ds_intlv_depth_i",
+      "docsis_dccreq.ds_intlv_depth_i",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Interleaver Depth I Value", 
       HFILL
@@ -450,7 +450,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_intlv_depth_j ,
       {
       "Interleaver Depth J Value", 
-      "docsis.dccreq.ds_intlv_depth_j",
+      "docsis_dccreq.ds_intlv_depth_j",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Interleaver Depth J Value", 
       HFILL
@@ -459,7 +459,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_chan_id ,
       {
       "Downstream Channel ID",
-      "docsis.dccreq.ds_chan_id",
+      "docsis_dccreq.ds_chan_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Downstream Channel ID",
       HFILL
@@ -468,7 +468,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ds_sync_sub ,
       {
       "SYNC Substitution",
-      "docsis.dccreq.ds_sync_sub",
+      "docsis_dccreq.ds_sync_sub",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "SYNC Substitution",
       HFILL
@@ -477,7 +477,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_init_tech ,
       {
       "Initialization Technique", 
-      "docsis.dccreq.init_tech",
+      "docsis_dccreq.init_tech",
       FT_UINT8, BASE_DEC, VALS (init_tech_vals), 0x0,
       "Initialization Technique", 
       HFILL
@@ -486,7 +486,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_ucd_sub ,
       {
       "UCD Substitution ", 
-      "docsis.dccreq.ucd_sub",
+      "docsis_dccreq.ucd_sub",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "UCD Substitution ", 
       HFILL
@@ -495,7 +495,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_said_sub_cur ,
       {
       "SAID Sub - Current Value",
-      "docsis.dccreq.said_sub_cur",
+      "docsis_dccreq.said_sub_cur",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "SAID Sub - Current Value",
       HFILL
@@ -504,7 +504,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_said_sub_new ,
       {
       "SAID Sub - New Value",
-      "docsis.dccreq.said_sub_new",
+      "docsis_dccreq.said_sub_new",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "SAID Sub - New Value",
       HFILL
@@ -513,7 +513,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_sf_sfid_cur ,
       {
       "SF Sub - SFID Current Value",
-      "docsis.dccreq.sf_sfid_cur",
+      "docsis_dccreq.sf_sfid_cur",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "SF Sub - SFID Current Value",
       HFILL
@@ -522,7 +522,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_sf_sfid_new ,
       {
       "SF Sub - SFID New Value",
-      "docsis.dccreq.sf_sfid_new",
+      "docsis_dccreq.sf_sfid_new",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "SF Sub - SFID New Value",
       HFILL
@@ -531,7 +531,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_sf_sid_cur ,
       {
       "SF Sub - SID Current Value",
-      "docsis.dccreq.sf_sid_cur",
+      "docsis_dccreq.sf_sid_cur",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "SF Sub - SID Current Value",
       HFILL
@@ -540,7 +540,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_sf_sid_new ,
       {
       "SF Sub - SID New Value",
-      "docsis.dccreq.sf_sid_new",
+      "docsis_dccreq.sf_sid_new",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "SF Sub - SID New Value",
       HFILL
@@ -549,7 +549,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_sf_unsol_grant_tref ,
       {
       "SF Sub - Unsolicited Grant Time Reference ",
-      "docsis.dccreq.sf_unsol_grant_tref",
+      "docsis_dccreq.sf_unsol_grant_tref",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "SF Sub - Unsolicited Grant Time Reference ",
       HFILL
@@ -558,7 +558,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_cmts_mac_addr ,
       {
       "CMTS Mac Address ",
-      "docsis.dccreq.cmts_mac_addr",
+      "docsis_dccreq.cmts_mac_addr",
       FT_ETHER, BASE_DEC, NULL, 0x0,
       "CMTS Mac Address ",
       HFILL
@@ -567,7 +567,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_key_seq_num ,
       {
       "Auth Key Sequence Number ",
-      "docsis.dccreq.key_seq_num",
+      "docsis_dccreq.key_seq_num",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Auth Key Sequence Number ",
       HFILL
@@ -576,7 +576,7 @@ proto_register_docsis_dccreq (void)
     {&hf_docsis_dccreq_hmac_digest ,
       {
       "HMAC-DigestNumber ",
-      "docsis.dccreq.hmac_digest",
+      "docsis_dccreq.hmac_digest",
       FT_BYTES, BASE_DEC, NULL, 0x0,
       "HMAC-DigestNumber ",
       HFILL

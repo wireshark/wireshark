@@ -106,17 +106,17 @@ proto_register_docsis_regack (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_regack,
-     {"Registration Request", "docsis.regack",
+     {"Registration Request", "docsis_regack",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Registration Request", HFILL}
      },
     {&hf_docsis_regack_sid,
-     {"Service Identifier", "docsis.regack.sid",
+     {"Service Identifier", "docsis_regack.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
      },
     {&hf_docsis_regack_response,
-     {"Response Code", "docsis.regack.respnse",
+     {"Response Code", "docsis_regack.respnse",
       FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
       "Response Code", HFILL}
      },

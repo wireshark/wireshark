@@ -101,12 +101,12 @@ proto_register_docsis_uccreq (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_uccreq,
-     {"Upstream Channel Change Request", "docsis.uccreq",
+     {"Upstream Channel Change Request", "docsis_uccreq",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Upstream Channel Change Request", HFILL}
      },
     {&hf_docsis_uccreq_upchid,
-     {"Upstream Channel Id", "docsis.uccreq.upchid",
+     {"Upstream Channel Id", "docsis_uccreq.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel Id", HFILL}
      },

@@ -128,22 +128,22 @@ proto_register_docsis_bpkmreq (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_bpkmreq,
-     {"BPKM Request Message", "docsis.bpkmreq",
+     {"BPKM Request Message", "docsis_bpkmreq",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "BPKM Request Message", HFILL}
      },
     {&hf_docsis_bpkmreq_code,
-     {"BPKM Code", "docsis.bpkmreq.code",
+     {"BPKM Code", "docsis_bpkmreq.code",
       FT_UINT8, BASE_DEC, VALS (code_field_vals), 0x0,
       "BPKM Request Message", HFILL}
      },
     {&hf_docsis_bpkmreq_ident,
-     {"BPKM Identifier", "docsis.bpkmreq.ident",
+     {"BPKM Identifier", "docsis_bpkmreq.ident",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "BPKM Identifier", HFILL}
      },
     {&hf_docsis_bpkmreq_length,
-     {"BPKM Length", "docsis.bpkmreq.length",
+     {"BPKM Length", "docsis_bpkmreq.length",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "BPKM Length", HFILL}
      },

@@ -211,52 +211,52 @@ proto_register_docsis_rngrsp (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_rngrsp,
-     {"RNG-RSP Message", "docsis.rngrsp",
+     {"RNG-RSP Message", "docsis_rngrsp",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Ranging Response Message", HFILL}
      },
     {&hf_docsis_rngrsp_sid,
-     {"Service Identifier", "docsis.rngrsp.sid",
+     {"Service Identifier", "docsis_rngrsp.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
      },
     {&hf_docsis_rngrsp_upstream_chid,
-     {"Upstream Channel ID", "docsis.rngrsp.upchid",
+     {"Upstream Channel ID", "docsis_rngrsp.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
     {&hf_docsis_rngrsp_timing_adj,
-     {"Timing Adjust (6.25us/64)", "docsis.rngrsp.timingadj",
+     {"Timing Adjust (6.25us/64)", "docsis_rngrsp.timingadj",
       FT_INT32, BASE_DEC, NULL, 0x0,
       "Timing Adjust", HFILL}
      },
     {&hf_docsis_rngrsp_power_adj,
-     {"Power Level Adjust (0.25dB units)", "docsis.rngrsp.poweradj",
+     {"Power Level Adjust (0.25dB units)", "docsis_rngrsp.poweradj",
       FT_INT8, BASE_DEC, NULL, 0x0,
       "Power Level Adjust", HFILL}
      },
     {&hf_docsis_rngrsp_freq_adj,
-     {"Offset Freq Adjust (Hz)", "docsis.rngrsp.freqadj",
+     {"Offset Freq Adjust (Hz)", "docsis_rngrsp.freqadj",
       FT_INT16, BASE_DEC, NULL, 0x0,
       "Frequency Adjust", HFILL}
      },
     {&hf_docsis_rngrsp_xmit_eq_adj,
-     {"Transmit Equalisation Adjust", "docsis.rngrsp.xmit_eq_adj",
+     {"Transmit Equalisation Adjust", "docsis_rngrsp.xmit_eq_adj",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Timing Equalisation Adjust", HFILL}
      },
     {&hf_docsis_rngrsp_ranging_status,
-     {"Ranging Status", "docsis.rngrsp.rng_stat",
+     {"Ranging Status", "docsis_rngrsp.rng_stat",
       FT_UINT8, BASE_DEC, VALS (rng_stat_vals), 0x0,
       "Ranging Status", HFILL}
      },
     {&hf_docsis_rngrsp_down_freq_over,
-     {"Downstream Frequency Override (Hz)", "docsis.rngrsp.freq_over",
+     {"Downstream Frequency Override (Hz)", "docsis_rngrsp.freq_over",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Downstream Frequency Override", HFILL}
      },
     {&hf_docsis_rngrsp_upstream_ch_over,
-     {"Upstream Channel ID Override", "docsis.rngrsp.chid_override",
+     {"Upstream Channel ID Override", "docsis_rngrsp.chid_override",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID Override", HFILL}
      },

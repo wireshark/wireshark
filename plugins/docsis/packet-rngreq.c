@@ -104,22 +104,22 @@ proto_register_docsis_rngreq (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     {&hf_docsis_rngreq,
-     {"RNG-REQ Message", "docsis.rngreq",
+     {"RNG-REQ Message", "docsis_rngreq",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Ranging Request Message", HFILL}
      },
     {&hf_docsis_rngreq_sid,
-     {"Service Identifier", "docsis.rngreq.sid",
+     {"Service Identifier", "docsis_rngreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Service Identifier", HFILL}
      },
     {&hf_docsis_rngreq_down_chid,
-     {"Downstream Channel ID", "docsis.rngreq.downchid",
+     {"Downstream Channel ID", "docsis_rngreq.downchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Downstream Channel ID", HFILL}
      },
     {&hf_docsis_rngreq_pend_compl,
-     {"Pending Till Complete", "docsis.rngreq.pendcomp",
+     {"Pending Till Complete", "docsis_rngreq.pendcomp",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },
