@@ -83,7 +83,7 @@ IMPORTS
 --         WITH COMPONENTS        {..., authorityCertIssuer ABSENT,
 --                                authorityCertSerialNumber ABSENT} )
 --
---KeyIdentifier ::= OCTET STRING
+KeyIdentifier ::= OCTET STRING
 --
 --subjectKeyIdentifier EXTENSION ::= {
 --        SYNTAX          SubjectKeyIdentifier

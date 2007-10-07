@@ -62,6 +62,8 @@ static int hf_pkix1explicit_object_identifier_id = -1;
 #line 1 "packet-pkix1explicit-hf.c"
 static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
 static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
+static int hf_pkix1explicit_utcTime = -1;         /* UTCTime */
+static int hf_pkix1explicit_generalTime = -1;     /* GeneralizedTime */
 static int hf_pkix1explicit_Extensions_item = -1;  /* Extension */
 static int hf_pkix1explicit_extnId = -1;          /* T_extnId */
 static int hf_pkix1explicit_critical = -1;        /* BOOLEAN */
@@ -74,6 +76,8 @@ static int hf_pkix1explicit_validationParms = -1;  /* ValidationParms */
 static int hf_pkix1explicit_seed = -1;            /* BIT_STRING */
 static int hf_pkix1explicit_pgenCounter = -1;     /* INTEGER */
 static int hf_pkix1explicit_type = -1;            /* OBJECT_IDENTIFIER */
+static int hf_pkix1explicit_values = -1;          /* T_values */
+static int hf_pkix1explicit_values_item = -1;     /* T_values_item */
 static int hf_pkix1explicit_value = -1;           /* T_value */
 static int hf_pkix1explicit_RDNSequence_item = -1;  /* RelativeDistinguishedName */
 static int hf_pkix1explicit_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndValue */
@@ -87,10 +91,13 @@ static int hf_pkix1explicit_value_01 = -1;        /* TeletexString */
 
 /*--- Included file: packet-pkix1explicit-ett.c ---*/
 #line 1 "packet-pkix1explicit-ett.c"
+static gint ett_pkix1explicit_Time = -1;
 static gint ett_pkix1explicit_Extensions = -1;
 static gint ett_pkix1explicit_Extension = -1;
 static gint ett_pkix1explicit_DomainParameters = -1;
 static gint ett_pkix1explicit_ValidationParms = -1;
+static gint ett_pkix1explicit_Attribute = -1;
+static gint ett_pkix1explicit_T_values = -1;
 static gint ett_pkix1explicit_AttributeTypeAndValue = -1;
 static gint ett_pkix1explicit_RDNSequence = -1;
 static gint ett_pkix1explicit_RelativeDistinguishedName = -1;
@@ -150,9 +157,85 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 int
+dissect_pkix1explicit_UniqueIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+
+
+const value_string pkix1explicit_Version_vals[] = {
+  {   0, "v1" },
+  {   1, "v2" },
+  {   2, "v3" },
+  { 0, NULL }
+};
+
+
+int
+dissect_pkix1explicit_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+int
 dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkix1explicit_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_utcTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_UTCTime(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_utcTime);
+}
+
+
+
+static int
+dissect_pkix1explicit_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_generalTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_GeneralizedTime(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_generalTime);
+}
+
+
+const value_string pkix1explicit_Time_vals[] = {
+  {   0, "utcTime" },
+  {   1, "generalTime" },
+  { 0, NULL }
+};
+
+static const ber_old_choice_t Time_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_utcTime },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_generalTime },
+  { 0, 0, 0, 0, NULL }
+};
+
+int
+dissect_pkix1explicit_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     Time_choice, hf_index, ett_pkix1explicit_Time,
+                                     NULL);
 
   return offset;
 }
@@ -185,7 +268,7 @@ static int dissect_critical(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_pkix1explicit_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "pkix1explicit.cnf"
+#line 54 "pkix1explicit.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -326,8 +409,54 @@ static int dissect_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
+dissect_pkix1explicit_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 42 "pkix1explicit.cnf"
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_values_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_T_values_item(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_values_item);
+}
+
+
+static const ber_old_sequence_t T_values_set_of[1] = {
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_values_item },
+};
+
+static int
+dissect_pkix1explicit_T_values(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
+                                     T_values_set_of, hf_pkix1explicit_object_identifier_id, ett_pkix1explicit_T_values);
+
+  return offset;
+}
+static int dissect_values(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_T_values(FALSE, tvb, offset, actx, tree, hf_pkix1explicit_values);
+}
+
+
+static const ber_old_sequence_t Attribute_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_values },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_pkix1explicit_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       Attribute_sequence, hf_index, ett_pkix1explicit_Attribute);
+
+  return offset;
+}
+
+
+
+static int
 dissect_pkix1explicit_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "pkix1explicit.cnf"
+#line 48 "pkix1explicit.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -389,7 +518,7 @@ dissect_pkix1explicit_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 32 "pkix1explicit.cnf"
+#line 36 "pkix1explicit.cnf"
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
 
@@ -486,6 +615,14 @@ void proto_register_pkix1explicit(void) {
       { "DirectoryString", "pkix1explicit.DirectoryString",
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.DirectoryString", HFILL }},
+    { &hf_pkix1explicit_utcTime,
+      { "utcTime", "pkix1explicit.utcTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "pkix1explicit.UTCTime", HFILL }},
+    { &hf_pkix1explicit_generalTime,
+      { "generalTime", "pkix1explicit.generalTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "pkix1explicit.GeneralizedTime", HFILL }},
     { &hf_pkix1explicit_Extensions_item,
       { "Item", "pkix1explicit.Extensions_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -534,6 +671,14 @@ void proto_register_pkix1explicit(void) {
       { "type", "pkix1explicit.type",
         FT_OID, BASE_NONE, NULL, 0,
         "pkix1explicit.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_pkix1explicit_values,
+      { "values", "pkix1explicit.values",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.T_values", HFILL }},
+    { &hf_pkix1explicit_values_item,
+      { "Item", "pkix1explicit.values_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.T_values_item", HFILL }},
     { &hf_pkix1explicit_value,
       { "value", "pkix1explicit.value",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -564,10 +709,13 @@ void proto_register_pkix1explicit(void) {
 
 /*--- Included file: packet-pkix1explicit-ettarr.c ---*/
 #line 1 "packet-pkix1explicit-ettarr.c"
+    &ett_pkix1explicit_Time,
     &ett_pkix1explicit_Extensions,
     &ett_pkix1explicit_Extension,
     &ett_pkix1explicit_DomainParameters,
     &ett_pkix1explicit_ValidationParms,
+    &ett_pkix1explicit_Attribute,
+    &ett_pkix1explicit_T_values,
     &ett_pkix1explicit_AttributeTypeAndValue,
     &ett_pkix1explicit_RDNSequence,
     &ett_pkix1explicit_RelativeDistinguishedName,

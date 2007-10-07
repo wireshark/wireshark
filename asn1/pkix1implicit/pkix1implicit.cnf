@@ -12,6 +12,7 @@ PKIX1Explicit93 pkix1explicit
 #.EXPORTS
 
 AuthorityInfoAccessSyntax
+KeyIdentifier
 UserNotice
 
 #.PDU

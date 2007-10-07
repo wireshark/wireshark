@@ -4,7 +4,7 @@
 # ../../tools/asn2wrs.py -b -e -p crmf -c crmf.cnf -s packet-crmf-template CRMF.asn
 
 #.MODULE
-CRMF  crmf
+PKIXCRMF-2005  crmf
 #.END
 
 #.IMPORT_TAG
@@ -35,6 +35,9 @@ CertId                   BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ProtocolEncrKey          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 UTF8Pairs                BER_CLASS_UNI BER_UNI_TAG_UTF8String
 CertReq                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+EncKeyWithID             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+PrivateKeyInfo           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Attributes               BER_CLASS_UNI BER_UNI_TAG_SET
 #.END
 
 #.TYPE_ATTR
@@ -65,5 +68,8 @@ CertId                   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 ProtocolEncrKey          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 UTF8Pairs                TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertReq                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+EncKeyWithID             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PrivateKeyInfo           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Attributes               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 #.END
 

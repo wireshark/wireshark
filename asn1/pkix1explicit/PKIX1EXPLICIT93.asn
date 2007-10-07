@@ -117,9 +117,9 @@ IMPORTS
 --   }
 --}
 --
---UniqueIdentifier        ::=  BIT STRING
+UniqueIdentifier        ::=  BIT STRING
 --
---Version                 ::=  INTEGER { v1(0), v2(1), v3(2) }
+Version                 ::=  INTEGER { v1(0), v2(1), v3(2) }
 
           -- This one is defined with .NO_EMIT in the conformance file
           -- and implemented in the template as just a call to the
@@ -130,9 +130,9 @@ CertificateSerialNumber ::=  INTEGER
 --   notBefore            Time,
 --   notAfter             Time }
 --
---Time ::= CHOICE {
---        utcTime         UTCTime,
---        generalTime             GeneralizedTime }
+Time ::= CHOICE {
+        utcTime         UTCTime,
+        generalTime             GeneralizedTime }
 --
 
 
@@ -361,6 +361,11 @@ ValidationParms ::= SEQUENCE {
 --        type            ATTRIBUTE.&id ({SupportedAttributes}),
 --        values  SET SIZE (1 .. MAX) OF ATTRIBUTE.&Type
 --                        ({SupportedAttributes}{@type})}
+
+Attribute       ::=     SEQUENCE {
+	type            OBJECT IDENTIFIER,
+	values  SET SIZE (1 .. MAX) OF ANY
+	-- at least one value is required -- }
 
 AttributeTypeAndValue           ::=     SEQUENCE {
         type            OBJECT IDENTIFIER,

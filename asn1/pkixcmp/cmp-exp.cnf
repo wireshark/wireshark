@@ -4,27 +4,26 @@
 # ../../tools/asn2wrs.py -b -e -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn
 
 #.MODULE
-CMP  cmp
+PKIXCMP  cmp
 #.END
 
 #.IMPORT_TAG
+CMPCertificate           BER_CLASS_ANY/*choice*/ -1/*choice*/
 PKIMessage               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+PKIMessages              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIHeader                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIFreeText              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIBody                  BER_CLASS_ANY/*choice*/ -1/*choice*/
 PKIProtection            BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 ProtectedPart            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-PasswordBasedMac         BER_CLASS_UNI BER_UNI_TAG_OID
 PBMParameter             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-DHBasedMac               BER_CLASS_UNI BER_UNI_TAG_OID
 DHBMParameter            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 NestedMessageContent     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIStatus                BER_CLASS_UNI BER_UNI_TAG_INTEGER
 PKIFailureInfo           BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 PKIStatusInfo            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-OOBCert                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+OOBCert                  BER_CLASS_ANY/*choice*/ -1/*choice*/
 OOBCertHash              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-POPODecKeyChallContent   BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Challenge                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 POPODecKeyRespContent    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertRepMessage           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -36,34 +35,36 @@ RevReqContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RevDetails               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RevRepContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CAKeyUpdAnnContent       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-CertAnnContent           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+CertAnnContent           BER_CLASS_ANY/*choice*/ -1/*choice*/
 RevAnnContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CRLAnnContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+CertConfirmContent       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+CertStatus               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIConfirmContent        BER_CLASS_UNI BER_UNI_TAG_NULL
 InfoTypeAndValue         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 GenMsgContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-GenRepContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ErrorMsgContent          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+PollReqContent           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+PollRepContent           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
+CMPCertificate           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmp_CMPCertificate_vals)  BITMASK = 0
 PKIMessage               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PKIMessages              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 PKIHeader                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PKIFreeText              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 PKIBody                  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmp_PKIBody_vals)  BITMASK = 0
 PKIProtection            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 ProtectedPart            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-PasswordBasedMac         TYPE = FT_OID     DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PBMParameter             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-DHBasedMac               TYPE = FT_OID     DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DHBMParameter            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-NestedMessageContent     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+NestedMessageContent     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 PKIStatus                TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(cmp_PKIStatus_vals)  BITMASK = 0
 PKIFailureInfo           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 PKIStatusInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-OOBCert                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+OOBCert                  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmp_CMPCertificate_vals)  BITMASK = 0
 OOBCertHash              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-POPODecKeyChallContent   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 Challenge                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 POPODecKeyRespContent    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 CertRepMessage           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
@@ -75,13 +76,16 @@ RevReqContent            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  
 RevDetails               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RevRepContent            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CAKeyUpdAnnContent       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-CertAnnContent           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+CertAnnContent           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmp_CMPCertificate_vals)  BITMASK = 0
 RevAnnContent            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CRLAnnContent            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+CertConfirmContent       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+CertStatus               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PKIConfirmContent        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 InfoTypeAndValue         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 GenMsgContent            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-GenRepContent            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 ErrorMsgContent          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PollReqContent           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+PollRepContent           TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 #.END
 

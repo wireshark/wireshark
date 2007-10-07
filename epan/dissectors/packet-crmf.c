@@ -59,12 +59,15 @@ static int hf_crmf_type_oid = -1;
 
 /*--- Included file: packet-crmf-hf.c ---*/
 #line 1 "packet-crmf-hf.c"
+static int hf_crmf_CertRequest_PDU = -1;          /* CertRequest */
 static int hf_crmf_PBMParameter_PDU = -1;         /* PBMParameter */
-static int hf_crmf_utcTime = -1;                  /* UTCTime */
-static int hf_crmf_generalTime = -1;              /* GeneralizedTime */
+static int hf_crmf_CertId_PDU = -1;               /* CertId */
+static int hf_crmf_ProtocolEncrKey_PDU = -1;      /* ProtocolEncrKey */
+static int hf_crmf_UTF8Pairs_PDU = -1;            /* UTF8Pairs */
+static int hf_crmf_EncKeyWithID_PDU = -1;         /* EncKeyWithID */
 static int hf_crmf_CertReqMessages_item = -1;     /* CertReqMsg */
 static int hf_crmf_certReq = -1;                  /* CertRequest */
-static int hf_crmf_pop = -1;                      /* ProofOfPossession */
+static int hf_crmf_popo = -1;                     /* ProofOfPossession */
 static int hf_crmf_regInfo = -1;                  /* SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue */
 static int hf_crmf_regInfo_item = -1;             /* AttributeTypeAndValue */
 static int hf_crmf_certReqId = -1;                /* INTEGER */
@@ -104,6 +107,8 @@ static int hf_crmf_mac = -1;                      /* AlgorithmIdentifier */
 static int hf_crmf_thisMessage = -1;              /* BIT_STRING */
 static int hf_crmf_subsequentMessage = -1;        /* SubsequentMessage */
 static int hf_crmf_dhMAC = -1;                    /* BIT_STRING */
+static int hf_crmf_agreeMAC = -1;                 /* PKMACValue */
+static int hf_crmf_encryptedKey = -1;             /* EnvelopedData */
 static int hf_crmf_action = -1;                   /* T_action */
 static int hf_crmf_pubInfos = -1;                 /* SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo */
 static int hf_crmf_pubInfos_item = -1;            /* SinglePubInfo */
@@ -121,6 +126,15 @@ static int hf_crmf_keyAlg = -1;                   /* AlgorithmIdentifier */
 static int hf_crmf_valueHint = -1;                /* OCTET_STRING */
 static int hf_crmf_encValue = -1;                 /* BIT_STRING */
 static int hf_crmf_issuer = -1;                   /* GeneralName */
+static int hf_crmf_enckeywid_privkey = -1;        /* PrivateKeyInfo */
+static int hf_crmf_identifier = -1;               /* T_identifier */
+static int hf_crmf_string = -1;                   /* UTF8String */
+static int hf_crmf_generalName = -1;              /* GeneralName */
+static int hf_crmf_privkey_version = -1;          /* INTEGER */
+static int hf_crmf_privateKeyAlgorithm = -1;      /* AlgorithmIdentifier */
+static int hf_crmf_privateKey = -1;               /* OCTET_STRING */
+static int hf_crmf_attributes = -1;               /* Attributes */
+static int hf_crmf_Attributes_item = -1;          /* Attribute */
 
 /*--- End of included file: packet-crmf-hf.c ---*/
 #line 52 "packet-crmf-template.c"
@@ -129,7 +143,6 @@ static int hf_crmf_issuer = -1;                   /* GeneralName */
 
 /*--- Included file: packet-crmf-ett.c ---*/
 #line 1 "packet-crmf-ett.c"
-static gint ett_crmf_Time = -1;
 static gint ett_crmf_CertReqMessages = -1;
 static gint ett_crmf_CertReqMsg = -1;
 static gint ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue = -1;
@@ -152,6 +165,10 @@ static gint ett_crmf_PKIArchiveOptions = -1;
 static gint ett_crmf_EncryptedKey = -1;
 static gint ett_crmf_EncryptedValue = -1;
 static gint ett_crmf_CertId = -1;
+static gint ett_crmf_EncKeyWithID = -1;
+static gint ett_crmf_T_identifier = -1;
+static gint ett_crmf_PrivateKeyInfo = -1;
+static gint ett_crmf_Attributes = -1;
 
 /*--- End of included file: packet-crmf-ett.c ---*/
 #line 55 "packet-crmf-template.c"
@@ -163,6 +180,9 @@ static const char *object_identifier_id;
 #line 1 "packet-crmf-fn.c"
 /*--- Fields for imported types ---*/
 
+static int dissect_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_Version(TRUE, tvb, offset, actx, tree, hf_crmf_version);
+}
 static int dissect_signingAlg_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_AlgorithmIdentifier(TRUE, tvb, offset, actx, tree, hf_crmf_signingAlg);
 }
@@ -178,8 +198,20 @@ static int dissect_publicKey(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset
 static int dissect_publicKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_SubjectPublicKeyInfo(TRUE, tvb, offset, actx, tree, hf_crmf_publicKey);
 }
+static int dissect_issuerUID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_UniqueIdentifier(TRUE, tvb, offset, actx, tree, hf_crmf_issuerUID);
+}
+static int dissect_subjectUID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_UniqueIdentifier(TRUE, tvb, offset, actx, tree, hf_crmf_subjectUID);
+}
 static int dissect_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_Extensions(TRUE, tvb, offset, actx, tree, hf_crmf_extensions);
+}
+static int dissect_notBefore_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_Time(TRUE, tvb, offset, actx, tree, hf_crmf_notBefore);
+}
+static int dissect_notAfter_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_Time(TRUE, tvb, offset, actx, tree, hf_crmf_notAfter);
 }
 static int dissect_algorithmIdentifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_crmf_algorithmIdentifier);
@@ -195,6 +227,9 @@ static int dissect_owf(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, 
 }
 static int dissect_mac(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_crmf_mac);
+}
+static int dissect_encryptedKey_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cms_EnvelopedData(TRUE, tvb, offset, actx, tree, hf_crmf_encryptedKey);
 }
 static int dissect_pubLocation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_GeneralName(FALSE, tvb, offset, actx, tree, hf_crmf_pubLocation);
@@ -214,96 +249,14 @@ static int dissect_keyAlg_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offs
 static int dissect_issuer(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_GeneralName(FALSE, tvb, offset, actx, tree, hf_crmf_issuer);
 }
-
-
-static const value_string crmf_Version_vals[] = {
-  {   0, "v1" },
-  {   1, "v2" },
-  {   2, "v3" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_crmf_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
+static int dissect_generalName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1implicit_GeneralName(FALSE, tvb, offset, actx, tree, hf_crmf_generalName);
 }
-static int dissect_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_Version(TRUE, tvb, offset, actx, tree, hf_crmf_version);
+static int dissect_privateKeyAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_crmf_privateKeyAlgorithm);
 }
-
-
-
-static int
-dissect_crmf_UniqueIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
-                                    NULL);
-
-  return offset;
-}
-static int dissect_issuerUID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_UniqueIdentifier(TRUE, tvb, offset, actx, tree, hf_crmf_issuerUID);
-}
-static int dissect_subjectUID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_UniqueIdentifier(TRUE, tvb, offset, actx, tree, hf_crmf_subjectUID);
-}
-
-
-
-static int
-dissect_crmf_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_utcTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_UTCTime(FALSE, tvb, offset, actx, tree, hf_crmf_utcTime);
-}
-
-
-
-static int
-dissect_crmf_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-static int dissect_generalTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_GeneralizedTime(FALSE, tvb, offset, actx, tree, hf_crmf_generalTime);
-}
-
-
-static const value_string crmf_Time_vals[] = {
-  {   0, "utcTime" },
-  {   1, "generalTime" },
-  { 0, NULL }
-};
-
-static const ber_old_choice_t Time_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_utcTime },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_generalTime },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_crmf_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Time_choice, hf_index, ett_crmf_Time,
-                                     NULL);
-
-  return offset;
-}
-static int dissect_notBefore_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_Time(TRUE, tvb, offset, actx, tree, hf_crmf_notBefore);
-}
-static int dissect_notAfter_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_Time(TRUE, tvb, offset, actx, tree, hf_crmf_notAfter);
+static int dissect_Attributes_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkix1explicit_Attribute(FALSE, tvb, offset, actx, tree, hf_crmf_Attributes_item);
 }
 
 
@@ -327,11 +280,14 @@ static int dissect_serialNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, in
 static int dissect_iterationCount(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_crmf_INTEGER(FALSE, tvb, offset, actx, tree, hf_crmf_iterationCount);
 }
+static int dissect_privkey_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_INTEGER(FALSE, tvb, offset, actx, tree, hf_crmf_privkey_version);
+}
 
 
 static const ber_old_sequence_t OptionalValidity_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_notBefore_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_notAfter_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notBefore_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notAfter_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -388,7 +344,7 @@ static int dissect_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "crmf.cnf"
+#line 70 "crmf.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -513,6 +469,9 @@ dissect_crmf_PKMACValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int dissect_publicKeyMAC(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_crmf_PKMACValue(FALSE, tvb, offset, actx, tree, hf_crmf_publicKeyMAC);
 }
+static int dissect_agreeMAC_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_PKMACValue(TRUE, tvb, offset, actx, tree, hf_crmf_agreeMAC);
+}
 
 
 static const value_string crmf_T_authInfo_vals[] = {
@@ -600,6 +559,8 @@ const value_string crmf_POPOPrivKey_vals[] = {
   {   0, "thisMessage" },
   {   1, "subsequentMessage" },
   {   2, "dhMAC" },
+  {   3, "agreeMAC" },
+  {   4, "encryptedKey" },
   { 0, NULL }
 };
 
@@ -607,6 +568,8 @@ static const ber_old_choice_t POPOPrivKey_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_thisMessage_impl },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_subsequentMessage_impl },
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_dhMAC_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_agreeMAC_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_encryptedKey_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -650,8 +613,8 @@ dissect_crmf_ProofOfPossession(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_pop(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_crmf_ProofOfPossession(FALSE, tvb, offset, actx, tree, hf_crmf_pop);
+static int dissect_popo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_ProofOfPossession(FALSE, tvb, offset, actx, tree, hf_crmf_popo);
 }
 
 
@@ -673,7 +636,7 @@ static int dissect_regInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _
 
 static const ber_old_sequence_t CertReqMsg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certReq },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pop },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_popo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_regInfo },
   { 0, 0, 0, NULL }
 };
@@ -716,6 +679,9 @@ static int dissect_salt(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 static int dissect_valueHint_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_crmf_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_crmf_valueHint);
+}
+static int dissect_privateKey(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_crmf_privateKey);
 }
 
 
@@ -995,12 +961,127 @@ dissect_crmf_CertReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   return offset;
 }
 
+
+static const ber_old_sequence_t Attributes_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Attributes_item },
+};
+
+int
+dissect_crmf_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
+                                     Attributes_set_of, hf_index, ett_crmf_Attributes);
+
+  return offset;
+}
+static int dissect_attributes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_Attributes(TRUE, tvb, offset, actx, tree, hf_crmf_attributes);
+}
+
+
+static const ber_old_sequence_t PrivateKeyInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_privkey_version },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_privateKeyAlgorithm },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_privateKey },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributes_impl },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_crmf_PrivateKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       PrivateKeyInfo_sequence, hf_index, ett_crmf_PrivateKeyInfo);
+
+  return offset;
+}
+static int dissect_enckeywid_privkey(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_PrivateKeyInfo(FALSE, tvb, offset, actx, tree, hf_crmf_enckeywid_privkey);
+}
+
+
+
+static int
+dissect_crmf_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_string(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_UTF8String(FALSE, tvb, offset, actx, tree, hf_crmf_string);
+}
+
+
+static const value_string crmf_T_identifier_vals[] = {
+  {   0, "string" },
+  {   1, "generalName" },
+  { 0, NULL }
+};
+
+static const ber_old_choice_t T_identifier_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_string },
+  {   1, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_generalName },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_crmf_T_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
+                                     T_identifier_choice, hf_index, ett_crmf_T_identifier,
+                                     NULL);
+
+  return offset;
+}
+static int dissect_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_crmf_T_identifier(FALSE, tvb, offset, actx, tree, hf_crmf_identifier);
+}
+
+
+static const ber_old_sequence_t EncKeyWithID_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_enckeywid_privkey },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_identifier },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_crmf_EncKeyWithID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
+                                       EncKeyWithID_sequence, hf_index, ett_crmf_EncKeyWithID);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
+static void dissect_CertRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_CertRequest(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_CertRequest_PDU);
+}
 static void dissect_PBMParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_crmf_PBMParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_PBMParameter_PDU);
+}
+static void dissect_CertId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_CertId(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_CertId_PDU);
+}
+static void dissect_ProtocolEncrKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_ProtocolEncrKey(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_ProtocolEncrKey_PDU);
+}
+static void dissect_UTF8Pairs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_UTF8Pairs(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_UTF8Pairs_PDU);
+}
+static void dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_crmf_EncKeyWithID(FALSE, tvb, 0, &asn1_ctx, tree, hf_crmf_EncKeyWithID_PDU);
 }
 
 
@@ -1020,18 +1101,30 @@ void proto_register_crmf(void) {
 
 /*--- Included file: packet-crmf-hfarr.c ---*/
 #line 1 "packet-crmf-hfarr.c"
+    { &hf_crmf_CertRequest_PDU,
+      { "CertRequest", "crmf.CertRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "crmf.CertRequest", HFILL }},
     { &hf_crmf_PBMParameter_PDU,
       { "PBMParameter", "crmf.PBMParameter",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.PBMParameter", HFILL }},
-    { &hf_crmf_utcTime,
-      { "utcTime", "crmf.utcTime",
+    { &hf_crmf_CertId_PDU,
+      { "CertId", "crmf.CertId",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "crmf.CertId", HFILL }},
+    { &hf_crmf_ProtocolEncrKey_PDU,
+      { "ProtocolEncrKey", "crmf.ProtocolEncrKey",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "crmf.ProtocolEncrKey", HFILL }},
+    { &hf_crmf_UTF8Pairs_PDU,
+      { "UTF8Pairs", "crmf.UTF8Pairs",
         FT_STRING, BASE_NONE, NULL, 0,
-        "crmf.UTCTime", HFILL }},
-    { &hf_crmf_generalTime,
-      { "generalTime", "crmf.generalTime",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "crmf.GeneralizedTime", HFILL }},
+        "crmf.UTF8Pairs", HFILL }},
+    { &hf_crmf_EncKeyWithID_PDU,
+      { "EncKeyWithID", "crmf.EncKeyWithID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "crmf.EncKeyWithID", HFILL }},
     { &hf_crmf_CertReqMessages_item,
       { "Item", "crmf.CertReqMessages_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1040,8 +1133,8 @@ void proto_register_crmf(void) {
       { "certReq", "crmf.certReq",
         FT_NONE, BASE_NONE, NULL, 0,
         "crmf.CertRequest", HFILL }},
-    { &hf_crmf_pop,
-      { "pop", "crmf.pop",
+    { &hf_crmf_popo,
+      { "popo", "crmf.popo",
         FT_UINT32, BASE_DEC, VALS(crmf_ProofOfPossession_vals), 0,
         "crmf.ProofOfPossession", HFILL }},
     { &hf_crmf_regInfo,
@@ -1066,8 +1159,8 @@ void proto_register_crmf(void) {
         "crmf.Controls", HFILL }},
     { &hf_crmf_version,
       { "version", "crmf.version",
-        FT_INT32, BASE_DEC, VALS(crmf_Version_vals), 0,
-        "crmf.Version", HFILL }},
+        FT_INT32, BASE_DEC, VALS(pkix1explicit_Version_vals), 0,
+        "pkix1explicit.Version", HFILL }},
     { &hf_crmf_serialNumber,
       { "serialNumber", "crmf.serialNumber",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -1095,23 +1188,23 @@ void proto_register_crmf(void) {
     { &hf_crmf_issuerUID,
       { "issuerUID", "crmf.issuerUID",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "crmf.UniqueIdentifier", HFILL }},
+        "pkix1explicit.UniqueIdentifier", HFILL }},
     { &hf_crmf_subjectUID,
       { "subjectUID", "crmf.subjectUID",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "crmf.UniqueIdentifier", HFILL }},
+        "pkix1explicit.UniqueIdentifier", HFILL }},
     { &hf_crmf_extensions,
       { "extensions", "crmf.extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1explicit.Extensions", HFILL }},
     { &hf_crmf_notBefore,
       { "notBefore", "crmf.notBefore",
-        FT_UINT32, BASE_DEC, VALS(crmf_Time_vals), 0,
-        "crmf.Time", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_Time_vals), 0,
+        "pkix1explicit.Time", HFILL }},
     { &hf_crmf_notAfter,
       { "notAfter", "crmf.notAfter",
-        FT_UINT32, BASE_DEC, VALS(crmf_Time_vals), 0,
-        "crmf.Time", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_Time_vals), 0,
+        "pkix1explicit.Time", HFILL }},
     { &hf_crmf_Controls_item,
       { "Item", "crmf.Controls_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1200,6 +1293,14 @@ void proto_register_crmf(void) {
       { "dhMAC", "crmf.dhMAC",
         FT_BYTES, BASE_HEX, NULL, 0,
         "crmf.BIT_STRING", HFILL }},
+    { &hf_crmf_agreeMAC,
+      { "agreeMAC", "crmf.agreeMAC",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "crmf.PKMACValue", HFILL }},
+    { &hf_crmf_encryptedKey,
+      { "encryptedKey", "crmf.encryptedKey",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "cms.EnvelopedData", HFILL }},
     { &hf_crmf_action,
       { "action", "crmf.action",
         FT_INT32, BASE_DEC, VALS(crmf_T_action_vals), 0,
@@ -1268,6 +1369,42 @@ void proto_register_crmf(void) {
       { "issuer", "crmf.issuer",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pkix1implicit.GeneralName", HFILL }},
+    { &hf_crmf_enckeywid_privkey,
+      { "privateKey", "crmf.privateKey",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "crmf.PrivateKeyInfo", HFILL }},
+    { &hf_crmf_identifier,
+      { "identifier", "crmf.identifier",
+        FT_UINT32, BASE_DEC, VALS(crmf_T_identifier_vals), 0,
+        "crmf.T_identifier", HFILL }},
+    { &hf_crmf_string,
+      { "string", "crmf.string",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "crmf.UTF8String", HFILL }},
+    { &hf_crmf_generalName,
+      { "generalName", "crmf.generalName",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pkix1implicit.GeneralName", HFILL }},
+    { &hf_crmf_privkey_version,
+      { "version", "crmf.version",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "crmf.INTEGER", HFILL }},
+    { &hf_crmf_privateKeyAlgorithm,
+      { "privateKeyAlgorithm", "crmf.privateKeyAlgorithm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.AlgorithmIdentifier", HFILL }},
+    { &hf_crmf_privateKey,
+      { "privateKey", "crmf.privateKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "crmf.OCTET_STRING", HFILL }},
+    { &hf_crmf_attributes,
+      { "attributes", "crmf.attributes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "crmf.Attributes", HFILL }},
+    { &hf_crmf_Attributes_item,
+      { "Item", "crmf.Attributes_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.Attribute", HFILL }},
 
 /*--- End of included file: packet-crmf-hfarr.c ---*/
 #line 71 "packet-crmf-template.c"
@@ -1278,7 +1415,6 @@ void proto_register_crmf(void) {
 
 /*--- Included file: packet-crmf-ettarr.c ---*/
 #line 1 "packet-crmf-ettarr.c"
-    &ett_crmf_Time,
     &ett_crmf_CertReqMessages,
     &ett_crmf_CertReqMsg,
     &ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue,
@@ -1301,6 +1437,10 @@ void proto_register_crmf(void) {
     &ett_crmf_EncryptedKey,
     &ett_crmf_EncryptedValue,
     &ett_crmf_CertId,
+    &ett_crmf_EncKeyWithID,
+    &ett_crmf_T_identifier,
+    &ett_crmf_PrivateKeyInfo,
+    &ett_crmf_Attributes,
 
 /*--- End of included file: packet-crmf-ettarr.c ---*/
 #line 76 "packet-crmf-template.c"
@@ -1321,7 +1461,12 @@ void proto_reg_handoff_crmf(void) {
 
 /*--- Included file: packet-crmf-dis-tab.c ---*/
 #line 1 "packet-crmf-dis-tab.c"
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.5", dissect_CertId_PDU, proto_crmf, "id-regCtrl-oldCertID");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.2", dissect_CertRequest_PDU, proto_crmf, "id-regInfo-certReq");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.21", dissect_EncKeyWithID_PDU, proto_crmf, "id-ct-encKeyWithID");
   register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.6", dissect_ProtocolEncrKey_PDU, proto_crmf, "id-regCtrl-protocolEncrKey");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.1", dissect_UTF8Pairs_PDU, proto_crmf, "id-regInfo-utf8Pairs");
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/

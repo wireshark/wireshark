@@ -1,6 +1,7 @@
 
 #.IMPORT_TAG
 AlgorithmIdentifier      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Attribute                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeTypeAndValue    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Certificate		 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertificateList		 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -15,9 +16,13 @@ RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
 SubjectPublicKeyInfo     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 TeletexDomainDefinedAttribute BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 TerminalType             BER_CLASS_UNI BER_UNI_TAG_INTEGER
+Time                     BER_CLASS_ANY/*choice*/ -1/*choice*/
+UniqueIdentifier         BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+Version                  BER_CLASS_UNI BER_UNI_TAG_INTEGER
 #.END
 
 #.TYPE_ATTR
+Attribute                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AttributeTypeAndValue    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Certificate		 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertificateList		 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
@@ -32,5 +37,8 @@ RelativeDistinguishedName TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL 
 SubjectPublicKeyInfo     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 TeletexDomainDefinedAttribute TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 TerminalType             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+Time                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_Time_vals)  BITMASK = 0
+UniqueIdentifier         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+Version                  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_Version_vals)  BITMASK = 0
 #.END
 

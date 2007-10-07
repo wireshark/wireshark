@@ -8,9 +8,13 @@ PKIX1Explicit93  pkix1explicit
 #.END
 
 #.IMPORT_TAG
+UniqueIdentifier         BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+Version                  BER_CLASS_UNI BER_UNI_TAG_INTEGER
 CertificateSerialNumber  BER_CLASS_UNI BER_UNI_TAG_INTEGER
+Time                     BER_CLASS_ANY/*choice*/ -1/*choice*/
 Extensions               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Extension                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Attribute                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeTypeAndValue    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
@@ -20,9 +24,13 @@ TeletexDomainDefinedAttribute BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
+UniqueIdentifier         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+Version                  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_Version_vals)  BITMASK = 0
 CertificateSerialNumber  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+Time                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(pkix1explicit_Time_vals)  BITMASK = 0
 Extensions               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 Extension                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Attribute                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AttributeTypeAndValue    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 RelativeDistinguishedName TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
