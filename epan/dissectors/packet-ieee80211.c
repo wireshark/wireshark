@@ -8252,325 +8252,325 @@ proto_register_ieee80211 (void)
 
     /*** Begin: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_ssc,
-     {"Block Ack Starting Sequence Control (SSC)", "wlan.fixed.ssc",
+     {"Block Ack Starting Sequence Control (SSC)", "wlan_mgt.fixed.ssc",
       FT_UINT16, BASE_HEX, 0, 0, "Block Ack Starting Sequence Control (SSC)", HFILL }},
 
     {&ff_block_ack_ssc_fragment,
-     {"Fragment", "wlan.fixed.fragment",
+     {"Fragment", "wlan_mgt.fixed.fragment",
       FT_UINT16, BASE_DEC, 0, 0x000f, "Fragment", HFILL }},
 
     {&ff_block_ack_ssc_sequence,
-     {"Starting Sequence Number", "wlan.fixed.sequence",
+     {"Starting Sequence Number", "wlan_mgt.fixed.sequence",
       FT_UINT16, BASE_DEC, 0, 0xfff0, "Starting Sequence Number", HFILL }},
     /*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
     {&ff_delba_param,
-     {"Delete Block Ack (DELBA) Parameter Set", "wlan.fixed.delba.param",
+     {"Delete Block Ack (DELBA) Parameter Set", "wlan_mgt.fixed.delba.param",
       FT_UINT16, BASE_HEX, 0, 0, "Delete Block Ack (DELBA) Parameter Set", HFILL }},
 
     {&ff_delba_param_reserved,
-     {"Reserved", "wlan.fixed.delba.param.reserved",
+     {"Reserved", "wlan_mgt.fixed.delba.param.reserved",
       FT_UINT16, BASE_HEX, 0, 0x07ff, "Reserved", HFILL }},
 
     {&ff_delba_param_init,
-     {"Initiator", "wlan.fixed.delba.param.initiator",
+     {"Initiator", "wlan_mgt.fixed.delba.param.initiator",
       FT_BOOLEAN, 16, 0, 0x08000, "Initiator", HFILL }},
 
     {&ff_delba_param_tid,
-     {"TID", "wlan.fixed.delba.param.tid",
+     {"TID", "wlan_mgt.fixed.delba.param.tid",
       FT_UINT16, BASE_HEX, 0, 0xf000, "Traffic Identifier (TID)", HFILL }},
     /*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Max Regulation Power Fixed Field - Dustin Johnson ***/
     {&ff_max_reg_pwr,
-     {"Maximum Regulation Power", "wlan.fixed.maxregpwr",
+     {"Maximum Regulation Power", "wlan_mgt.fixed.maxregpwr",
       FT_UINT16, BASE_HEX, 0, 0, "Maximum Regulation Power", HFILL }},
     /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
     {&ff_measurement_pilot_int,
-     {"Measurement Pilot Interval", "wlan.fixed.msmtpilotint",
+     {"Measurement Pilot Interval", "wlan_mgt.fixed.msmtpilotint",
       FT_UINT16, BASE_HEX, 0, 0, "Measurement Pilot Interval Fixed Field", HFILL }},
     /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Country String Fixed Field - Dustin Johnson ***/
     {&ff_country_str,
-     {"Country String", "wlan.fixed.country",
+     {"Country String", "wlan_mgt.fixed.country",
       FT_STRING, BASE_NONE, 0, 0, "Country String", HFILL }},
     /*** End: Country String Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
     {&ff_max_tx_pwr,
-     {"Maximum Transmit Power", "wlan.fixed.maxtxpwr",
+     {"Maximum Transmit Power", "wlan_mgt.fixed.maxtxpwr",
       FT_INT8, BASE_HEX, 0, 0, "Maximum Transmit Power", HFILL }},
     /*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_tx_pwr_used,
-     {"Transmit Power Used", "wlan.fixed.txpwr",
+     {"Transmit Power Used", "wlan_mgt.fixed.txpwr",
       FT_INT8, BASE_HEX, 0, 0, "Transmit Power Used", HFILL }},
     /*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_transceiver_noise_floor,
-     {"Transceiver Noise Floor", "wlan.fixed.tnoisefloor",
+     {"Transceiver Noise Floor", "wlan_mgt.fixed.tnoisefloor",
       FT_INT8, BASE_HEX, 0, 0, "Transceiver Noise Floor", HFILL }},
     /*** End: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     {&ff_channel_width,
-     {"Supported Channel Width", "fixed.chanwidth",
+     {"Supported Channel Width", "wlan_mgt.fixed.chanwidth",
       FT_UINT8, BASE_HEX, TFS (&ff_channel_width_flag), 0, "Supported Channel Width", HFILL }},
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_ap,
-     {"QoS Inforamtion (AP)", "fixed.qosinfo.ap",
+     {"QoS Inforamtion (AP)", "wlan_mgt.fixed.qosinfo.ap",
       FT_UINT8, BASE_HEX, NULL, 0, "QoS Inforamtion (AP)", HFILL }},
 
     {&ff_qos_info_ap_edca_param_set_counter,
-     {"EDCA Parameter Set Update Count", "fixed.qosinfo.ap.edcaupdate",
+     {"EDCA Parameter Set Update Count", "wlan_mgt.fixed.qosinfo.ap.edcaupdate",
       FT_UINT8, BASE_HEX, NULL, 0x0F, "Enhanced Distributed Channel Access (EDCA) Parameter Set Update Count", HFILL }},
 
     {&ff_qos_info_ap_q_ack,
-     {"Q-Ack", "fixed.qosinfo.ap.qack",
+     {"Q-Ack", "wlan_mgt.fixed.qosinfo.ap.qack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_q_ack_flag), 0x10, "QoS Ack", HFILL }},
 
     {&ff_qos_info_ap_queue_req,
-     {"Queue Request", "fixed.qosinfo.ap",
+     {"Queue Request", "wlan_mgt.fixed.qosinfo.ap",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_queue_req_flag), 0x20, "Queue Request", HFILL }},
 
     {&ff_qos_info_ap_txop_request,
-     {"TXOP Request", "fixed.qosinfo.ap.txopreq",
+     {"TXOP Request", "wlan_mgt.fixed.qosinfo.ap.txopreq",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_txop_request_flag), 0x40, "Transmit Opportunity (TXOP) Request", HFILL }},
 
     {&ff_qos_info_ap_reserved,
-     {"Reserved", "fixed.qosinfo.ap.reserved",
+     {"Reserved", "wlan_mgt.fixed.qosinfo.ap.reserved",
       FT_BOOLEAN, 8, NULL, 0x80, "Reserved", HFILL }},
     /*** End: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_sta,
-     {"QoS Inforamtion (STA)", "fixed.qosinfo.sta",
+     {"QoS Inforamtion (STA)", "wlan_mgt.fixed.qosinfo.sta",
       FT_UINT8, BASE_HEX, NULL, 0, "QoS Inforamtion (STA)", HFILL }},
 
     {&ff_qos_info_sta_ac_vo,
-     {"AC_VO", "fixed.qosinfo.sta.ac.vo",
+     {"AC_VO", "wlan_mgt.fixed.qosinfo.sta.ac.vo",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x01, "AC_VO", HFILL }},
 
     {&ff_qos_info_sta_ac_vi,
-     {"AC_VI", "fixed.qosinfo.sta.ac.vi",
+     {"AC_VI", "wlan_mgt.fixed.qosinfo.sta.ac.vi",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x02, "AC_VI", HFILL }},
 
     {&ff_qos_info_sta_ac_bk,
-     {"AC_BK", "fixed.qosinfo.sta.ac.bk",
+     {"AC_BK", "wlan_mgt.fixed.qosinfo.sta.ac.bk",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x04, "AC_BK", HFILL }},
 
     {&ff_qos_info_sta_ac_be,
-     {"AC_BE", "fixed.qosinfo.sta.ac.be",
+     {"AC_BE", "wlan_mgt.fixed.qosinfo.sta.ac.be",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x08, "AC_BE", HFILL }},
 
     {&ff_qos_info_sta_q_ack,
-     {"Q-Ack", "fixed.qosinfo.sta.qack",
+     {"Q-Ack", "wlan_mgt.fixed.qosinfo.sta.qack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_q_ack_flag), 0x10, "QoS Ack", HFILL }},
 
     {&ff_qos_info_sta_max_sp_len,
-     {"Service Period (SP) Length", "fixed.qosinfo.sta.splen",
+     {"Service Period (SP) Length", "wlan_mgt.fixed.qosinfo.sta.splen",
       FT_UINT8, BASE_HEX, VALS (&ff_qos_info_sta_max_sp_len_flags) , 0x60, "Service Period (SP) Length", HFILL }},
 
     {&ff_qos_info_sta_more_data_ack,
-     {"More Data Ack", "fixed.qosinfo.sta.moredataack",
+     {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.moredataack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, "More Data Ack", HFILL }},
     /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     {&ff_sm_pwr_save,
-     {"Spatial Multiplexing (SM) Power Control", "fixed.sm.powercontrol",
+     {"Spatial Multiplexing (SM) Power Control", "wlan_mgt.fixed.sm.powercontrol",
       FT_UINT8, BASE_HEX, NULL, 0, "Spatial Multiplexing (SM) Power Control", HFILL }},
 
     {&ff_sm_pwr_save_enabled,
-     {"SM Power Save", "fixed.sm.powercontrol.enabled",
+     {"SM Power Save", "wlan_mgt.fixed.sm.powercontrol.enabled",
       FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_enabled_flag), 0x01, "Spatial Multiplexing (SM) Power Save", HFILL }},
 
     {&ff_sm_pwr_save_sm_mode,
-     {"SM Mode", "fixed.sm.powercontrol.mode",
+     {"SM Mode", "wlan_mgt.fixed.sm.powercontrol.mode",
       FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_sm_mode_flag), 0x02, "Spatial Multiplexing (SM) Mode", HFILL }},
 
     {&ff_sm_pwr_save_reserved,
-     {"Reserved", "fixed.sm.powercontrol.reserved",
+     {"Reserved", "wlan_mgt.fixed.sm.powercontrol.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xFC, "Reserved", HFILL }},
     /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
     /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
     {&ff_pco_phase_cntrl,
-     {"Phased Coexistence Operation (PCO) Phase Control", "fixed.pco.phasecntrl",
+     {"Phased Coexistence Operation (PCO) Phase Control", "wlan_mgt.fixed.pco.phasecntrl",
       FT_BOOLEAN, 0, TFS (&ff_pco_phase_cntrl_flag), 0, "Phased Coexistence Operation (PCO) Phase Control", HFILL }},
     /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
     {&ff_psmp_param_set,
-     {"Power Save Multi-Poll (PSMP) Parameter Set", "fixed.psmp.paramset",
+     {"Power Save Multi-Poll (PSMP) Parameter Set", "wlan_mgt.fixed.psmp.paramset",
       FT_UINT16, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Parameter Set", HFILL }},
 
     {&ff_psmp_param_set_n_sta,
-     {"Number of STA Info Fields Present", "fixed.psmp.paramset.nsta",
+     {"Number of STA Info Fields Present", "wlan_mgt.fixed.psmp.paramset.nsta",
       FT_UINT8, BASE_HEX, 0, 0, "Number of STA Info Fields Present", HFILL }},
 
     {&ff_psmp_param_set_more_psmp,
-     {"More PSMP", "fixed.psmp.paramset.more",
+     {"More PSMP", "wlan_mgt.fixed.psmp.paramset.more",
       FT_BOOLEAN, 0, TFS(&ff_psmp_param_set_more_psmp_flag), 0, "More Power Save Multi-Poll (PSMP)", HFILL }},
 
     {&ff_psmp_param_set_psmp_sequence_duration,
-     {"PSMP Sequence Duration", "fixed.psmp.paramset.seqduration",
+     {"PSMP Sequence Duration", "wlan_mgt.fixed.psmp.paramset.seqduration",
       FT_UINT16, BASE_DEC, 0, 0, "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
     /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
 
     /*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
     {&ff_mimo_cntrl_nc_index,
-     {"Nc Index", "fixed.mimo.control.ncindex",
+     {"Nc Index", "wlan_mgt.fixed.mimo.control.ncindex",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
 
     {&ff_mimo_cntrl_nr_index,
-     {"Nr Index", "fixed.mimo.control.nrindex",
+     {"Nr Index", "wlan_mgt.fixed.mimo.control.nrindex",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
 
     {&ff_mimo_cntrl_channel_width,
-     {"Channel Width", "fixed.mimo.control.chanwidth",
+     {"Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 16, TFS(&ff_mimo_cntrl_channel_width_flag), 0x0010, "Channel Width", HFILL }},
 
     {&ff_mimo_cntrl_grouping,
-     {"Grouping (Ng)", "fixed.mimo.control.grouping",
+     {"Grouping (Ng)", "wlan_mgt.fixed.mimo.control.grouping",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_grouping_flags), 0x0060, "Grouping (Ng)", HFILL }},
 
     {&ff_mimo_cntrl_coefficient_size,
-     {"Coefficient Size (Nb)", "fixed.mimo.control.cosize",
+     {"Coefficient Size (Nb)", "wlan_mgt.fixed.mimo.control.cosize",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_coefficient_size_flags), 0x0180, "Coefficient Size (Nb)", HFILL }},
 
     {&ff_mimo_cntrl_codebook_info,
-     {"Codebook Information", "fixed.mimo.control.codebookinfo",
+     {"Codebook Information", "wlan_mgt.fixed.mimo.control.codebookinfo",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_codebook_info_flags), 0x0600, "Codebook Information", HFILL }},
 
     {&ff_mimo_cntrl_remaining_matrix_segment,
-     {"Remaining Matrix Segment", "fixed.mimo.control.matrixseg",
+     {"Remaining Matrix Segment", "wlan_mgt.fixed.mimo.control.matrixseg",
       FT_UINT16, BASE_HEX, 0, 0x3800, "Remaining Matrix Segment", HFILL }},
 
     {&ff_mimo_cntrl_reserved,
-     {"Reserved", "fixed.mimo.control.reserved",
+     {"Reserved", "wlan_mgt.fixed.mimo.control.reserved",
       FT_UINT16, BASE_HEX, 0, 0xC000, "Reserved", HFILL }},
 
     {&ff_mimo_cntrl_sounding_timestamp,
-     {"Sounding Timestamp", "fixed.mimo.control.soundingtime",
+     {"Sounding Timestamp", "wlan_mgt.fixed.mimo.control.soundingtime",
       FT_UINT32, BASE_HEX, 0, 0, "Sounding Timestamp", HFILL }},
     /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
     {&ff_psmp_sta_info,
-     {"Power Save Multi-Poll (PSMP) Station Information", "fixed.psmp.stainfo",
+     {"Power Save Multi-Poll (PSMP) Station Information", "wlan_mgt.fixed.psmp.stainfo",
       FT_UINT8, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, "Power Save Multi-Poll (PSMP) Station Information", HFILL }},
 
     {&ff_psmp_sta_info_dtt_start_offset,
-     {"DTT Start Offset", "fixed.psmp.stainfo.dttstart",
+     {"DTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.dttstart",
       FT_UINT16, BASE_HEX, 0, 0, "DTT Start Offset", HFILL }},
 
     {&ff_psmp_sta_info_dtt_duration,
-     {"DTT Duration", "fixed.psmp.stainfo.dttduration",
+     {"DTT Duration", "wlan_mgt.fixed.psmp.stainfo.dttduration",
       FT_UINT8, BASE_HEX, 0, 0, "DTT Duration", HFILL }},
 
     {&ff_psmp_sta_info_sta_id,
-     {"Target Station ID", "fixed.psmp.stainfo.staid",
+     {"Target Station ID", "wlan_mgt.fixed.psmp.stainfo.staid",
       FT_UINT16, BASE_HEX, 0, 0, "Target Station ID", HFILL }},
 
     {&ff_psmp_sta_info_utt_start_offset,
-     {"UTT Start Offset", "fixed.psmp.stainfo.uttstart",
+     {"UTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.uttstart",
       FT_UINT16, BASE_HEX, 0, 0, "UTT Start Offset", HFILL }},
 
     {&ff_psmp_sta_info_utt_duration,
-     {"UTT Duration", "fixed.psmp.stainfo.uttduration",
+     {"UTT Duration", "wlan_mgt.fixed.psmp.stainfo.uttduration",
       FT_UINT16, BASE_HEX, 0, 0, "UTT Duration", HFILL }},
 
     {&ff_psmp_sta_info_reserved_small,
-     {"Reserved", "fixed.psmp.stainfo.reserved",
+     {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
       FT_UINT16, BASE_HEX, 0, 0, "Reserved", HFILL }},
 
     {&ff_psmp_sta_info_reserved_large,
-     {"Reserved", "fixed.psmp.stainfo.reserved",
+     {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
       FT_UINT64, BASE_HEX, 0, 0, "Reserved", HFILL }},
 
     {&ff_psmp_sta_info_psmp_multicast_id,
-     {"Power Save Multi-Poll (PSMP) Multicast ID", "fixed.psmp.stainfo.multicastid",
+     {"Power Save Multi-Poll (PSMP) Multicast ID", "wlan_mgt.fixed.psmp.stainfo.multicastid",
       FT_UINT64, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Multicast ID", HFILL }},
     /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
     {&ff_ant_selection,
-     {"Antenna Selection", "fixed.antsel",
+     {"Antenna Selection", "wlan_mgt.fixed.antsel",
       FT_UINT8, BASE_HEX, 0, 0, "Antenna Selection", HFILL }},
 
     {&ff_ant_selection_0,
-     {"Antenna 0", "fixed.antsel.ant0",
+     {"Antenna 0", "wlan_mgt.fixed.antsel.ant0",
       FT_UINT8, BASE_HEX, 0, 0x01, "Antenna 0", HFILL }},
 
     {&ff_ant_selection_1,
-     {"Antenna 1", "fixed.antsel.ant1",
+     {"Antenna 1", "wlan_mgt.fixed.antsel.ant1",
       FT_UINT8, BASE_HEX, 0, 0x02, "Antenna 1", HFILL }},
 
     {&ff_ant_selection_2,
-     {"Antenna 2", "fixed.antsel.ant2",
+     {"Antenna 2", "wlan_mgt.fixed.antsel.ant2",
       FT_UINT8, BASE_HEX, 0, 0x04, "Antenna 2", HFILL }},
 
     {&ff_ant_selection_3,
-     {"Antenna 3", "fixed.antsel.ant3",
+     {"Antenna 3", "wlan_mgt.fixed.antsel.ant3",
       FT_UINT8, BASE_HEX, 0, 0x08, "Antenna 3", HFILL }},
 
     {&ff_ant_selection_4,
-     {"Antenna 4", "fixed.antsel.ant4",
+     {"Antenna 4", "wlan_mgt.fixed.antsel.ant4",
       FT_UINT8, BASE_HEX, 0, 0x10, "Antenna 4", HFILL }},
 
     {&ff_ant_selection_5,
-     {"Antenna 5", "fixed.antsel.ant5",
+     {"Antenna 5", "wlan_mgt.fixed.antsel.ant5",
       FT_UINT8, BASE_HEX, 0, 0x20, "Antenna 5", HFILL }},
 
     {&ff_ant_selection_6,
-     {"Antenna 6", "fixed.antsel.ant6",
+     {"Antenna 6", "wlan_mgt.fixed.antsel.ant6",
       FT_UINT8, BASE_HEX, 0, 0x40, "Antenna 6", HFILL }},
 
     {&ff_ant_selection_7,
-     {"Antenna 7", "fixed.antsel.ant7",
+     {"Antenna 7", "wlan_mgt.fixed.antsel.ant7",
       FT_UINT8, BASE_HEX, 0, 0x80, "Antenna 7", HFILL }},
     /*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
     {&ff_ext_channel_switch_announcement,
-     {"Extended Channel Switch Announcement", "fixed.extchansw",
+     {"Extended Channel Switch Announcement", "wlan_mgt.fixed.extchansw",
       FT_UINT32, BASE_HEX, 0, 0, "", HFILL }},
     /*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
 
     /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
     {&ff_ht_info,
-     {"HT Information", "fixed.extchansw",
+     {"HT Information", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0, "HT Information Fixed Field", HFILL }},
 
     {&ff_ht_info_information_request,
-     {"Information Request", "fixed.mimo.control.chanwidth",
+     {"Information Request", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_information_request_flag), 0x01, "Information Request", HFILL }},
 
     {&ff_ht_info_40_mhz_intolerant,
-     {"40 MHz Intolerant", "fixed.mimo.control.chanwidth",
+     {"40 MHz Intolerant", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_40_mhz_intolerant_flag), 0x02, "40 MHz Intolerant", HFILL }},
 
     {&ff_ht_info_sta_chan_width,
-     {"Station Channel Width", "fixed.mimo.control.chanwidth",
+     {"Station Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_sta_chan_width_flag), 0x04, "Station Channel Width", HFILL }},
 
     {&ff_ht_info_reserved,
-     {"Reserved", "fixed.extchansw",
+     {"Reserved", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0xF8, "Reserved Field", HFILL }},
     /*** End: HT Information Fixed Field - Dustin Johnson ***/
 
     /*** Begin: HT Action Fixed Field - Dustin Johnson ***/
     {&ff_ht_action,
-     {"HT Action", "fixed.htact",
+     {"HT Action", "wlan_mgt.fixed.htact",
       FT_UINT8, BASE_HEX, VALS (&ff_ht_action_flags), 0, "HT Action Code", HFILL }},
     /*** End: HT Action Fixed Field - Dustin Johnson ***/
 
@@ -9474,7 +9474,7 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0xe0, "Reserved", HFILL }},
 
     {&hf_tag_measure_rpi_histogram_report,
-     {"Receive Power Indicator (RPI) Histogram Report", "",
+     {"Receive Power Indicator (RPI) Histogram Report", "wlan_mgt.measure.rep.rpi.histogram_report",
       FT_STRING, BASE_NONE, NULL, 0, "Receive Power Indicator (RPI) Histogram Report", HFILL }},
 
     {&hf_tag_measure_rpi_histogram_report_0,
