@@ -835,15 +835,15 @@ proto_register_basicxid(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_llc_xid_format,
-		{ "XID Format", "llc.xid.format", FT_UINT8, BASE_HEX,
+		{ "XID Format", "basicxid.llc.xid.format", FT_UINT8, BASE_HEX,
 			VALS(format_vals), 0x0, "", HFILL }},
 
 		{ &hf_llc_xid_types,
-		{ "LLC Types/Classes", "llc.xid.types", FT_UINT8, BASE_HEX,
+		{ "LLC Types/Classes", "basicxid.llc.xid.types", FT_UINT8, BASE_HEX,
 			VALS(type_vals), 0x0, "", HFILL }},
 
 		{ &hf_llc_xid_wsize,
-		{ "Receive Window Size", "llc.xid.wsize", FT_UINT8, BASE_DEC,
+		{ "Receive Window Size", "basicxid.llc.xid.wsize", FT_UINT8, BASE_DEC,
 			NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
