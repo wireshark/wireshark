@@ -5339,6 +5339,7 @@ def define_errors():
     	errors[0x7a00] = "Connection Already Temporary"
     	errors[0x7b00] = "Connection Already Logged in"
     	errors[0x7c00] = "Connection Not Authenticated"
+        errors[0x7d00] = "Connection Not Logged In"
 
     	errors[0x7e00] = "NCP failed boundary check"
     	errors[0x7e01] = "Invalid Length"
@@ -9706,7 +9707,7 @@ def define_ncp2222():
 		rec( 62, 7, LoginTime ),
 		rec( 69, 1, Reserved ),
 	])
-	pkt.CompletionCodes([0x0000, 0x9602, 0xfb02, 0xfc06, 0xfd00, 0xfe07, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x7d00, 0x9602, 0xfb02, 0xfc06, 0xfd00, 0xfe07, 0xff00])
 	# 2222/171D, 23/29
 	pkt = NCP(0x171D, "Change Connection State", 'connection')
 	pkt.Request( 11, [
@@ -13238,7 +13239,7 @@ def define_ncp2222():
 		rec( 14, 1, CCFunction ),
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8800, 0xff16])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8800, 0xff16])
 	# 2222/5723, 87/35
 	pkt = NCP(0x5723, "Modify DOS Attributes on a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((28, 282), [
