@@ -55,7 +55,6 @@ static int hf_rsl_ie_id				= -1;
 static int hf_rsl_ie_length			= -1;
 static int hf_rsl_ch_no_Cbits		= -1;
 static int hf_rsl_ch_no_TN			= -1;
-
 static int hf_rsl_acc_delay			= -1;
 static int hf_rsl_rach_slot_cnt		= -1;
 static int hf_rsl_rach_busy_cnt		= -1;
@@ -114,6 +113,9 @@ static int hf_rsl_msg_slt_cnt		= -1;
 static int hf_rsl_ch_ind			= -1;
 static int hf_rsl_command			= -1;
 static int hf_rsl_emlpp_prio		= -1;
+static int hf_rsl_rtd				= -1;
+static int hf_rsl_delay_ind			= -1;
+static int hf_rsl_tfo				= -1;
 
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
@@ -154,12 +156,19 @@ static int ett_ie_cbch_load_inf = -1;
 static int ett_ie_smscb_ch_ind = -1;
 static int ett_ie_grp_call_ref = -1;
 static int ett_ie_ch_desc = -1;
+static int ett_ie_nch_drx = -1;
 static int ett_ie_cmd_ind = -1;
 static int ett_ie_emlpp_prio = -1;
 static int ett_ie_uic = -1;
 static int ett_ie_main_ch_ref = -1;
 static int ett_ie_multirate_conf = -1;
 static int ett_ie_multirate_cntrl = -1;
+static int ett_ie_sup_codec_types = -1;
+static int ett_ie_codec_conf = -1;
+static int ett_ie_rtd = -1;
+static int ett_ie_tfo_status = -1;
+static int ett_ie_llp_apdu = -1;
+static int ett_ie_tfo_transp_cont = -1;
 static int ett_ie_cause = -1;
 static int ett_ie_meas_res_no = -1;
 static int ett_ie_message_id = -1;
@@ -378,13 +387,19 @@ static const value_string rsl_msg_type_vals[] = {
 #define RSL_IE_SMSCB_CH_IND				46
 #define RSL_IE_GRP_CALL_REF				47
 #define RSL_IE_CH_DESC					48
-
+#define RSL_IE_NCH_DRX_INF				49
 #define RSL_IE_CMD_IND					50
 #define RSL_IE_EMLPP_PRIO				51
 #define RSL_IE_UIC						52
 #define RSL_IE_MAIN_CH_REF				53
 #define RSL_IE_MULTIRATE_CONF			54
 #define RSL_IE_MULTIRATE_CNTRL			55
+#define RSL_IE_SUP_CODEC_TYPES			56
+#define RSL_IE_CODEC_CONF				57
+#define RSL_IE_RTD						58
+#define RSL_IE_TFO_STATUS				59
+#define RSL_IE_LLP_APDU					60
+#define RSL_IE_TFO_TRANSP_CONT			61
 	
 static const value_string rsl_ie_type_vals[] = {
 	{  0x01,	"Channel Number" },				/*  9.3.1 */
@@ -1913,7 +1928,6 @@ dissect_rsl_ie_full_imm_ass_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	return offset;
 }
 
-#if 0
 /*
  * 9.3.36 SMSCB Information
  *
@@ -1956,7 +1970,6 @@ dissect_rsl_ie_smscb_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	return offset;
 }
-#endif
 
 /*
  * 9.3.37 MS Timing Offset
@@ -2228,7 +2241,6 @@ dissect_rsl_ie_cbch_load_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 	offset++;
 
-	
 	return offset;
 }
 
@@ -2351,8 +2363,42 @@ dissect_rsl_ie_ch_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 }
 /*
  * 9.3.47 NCH DRX information
+ * This is a variable length element used to pass a radio interface information element
+ * from BSC to BTS.
  */
+static int
+dissect_rsl_ie_nch_drx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint8		ie_id;
 
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_NCH_DRX_INF)
+			return offset;
+	}
+
+	ti = proto_tree_add_text(tree, tvb,offset,2,"NCH DRX information IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_nch_drx);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* NCH DRX information */
+	/* Octet 3 bits 7 and 8 are spare and set to zero. */
+	/* Octet 3 bit 6 is the NLN status parameter as defined in 3GPP TS 44.018.*/
+	/* Octet 3 bits 3, 4 and 5 are bits 1, 2 and 3 of the radio interface
+	 * eMLPP priority as defined in 3GPP TS 44.018.
+	 */
+	/* Octet 3 bits 1 and 2 are bits 1 and 2 of the radio interface NLN 
+	 * as defined in 3GPP TS 44.018.
+	 */
+
+	offset++;
+
+	return offset;
+}
 /*
  * 9.3.48 Command indicator
  */
@@ -2584,33 +2630,255 @@ dissect_rsl_ie_multirate_cntrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 /*
  * 9.3.54 Supported Codec Types
+ * This element indicates the codec types supported by the BSS or remote BSS.
  */
+dissect_rsl_ie_sup_codec_types(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint length;
+	guint8 ie_id;
 
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_SUP_CODEC_TYPES)
+			return offset;
+	}
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Supported Codec Types IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_sup_codec_types);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Length */
+	length = tvb_get_guint8(tvb,offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+	offset++;
+
+	proto_tree_add_text(tree, tvb,offset,length,"Codec List");
+
+	/* The Codec List field (octet 4) lists the codec types that are supported
+	 * by the BSS and Transcoder, and are therefore potential candidates for TFO
+	 * establishment.
+	 */
+	/* The Codec List extension 1 field (octet 5) lists additional codec types
+	 * that are supported by the BSS and Transcoder, and are therefore potential
+	 * candidates for TFO establishment. When no codec from this list is supported,
+	 * then this field shall not be sent, and the extension bit of octet 4 shall
+	 * be set to 0.
+	 */
+	/* If bit 4 of the Codec List field (octet 4) indicates that FR AMR is supported
+	 * or if bit 5 of the Codec List field (octet 4) indicates that HR AMR is supported
+	 * and bit 8 is set to 0, or if bit 6 of the Codec List field (octet 4) indicates
+	 * that UMTS AMR is supported, or if bit 7 of the Codec List field (octet 4)
+	 * indicates that UMTS AMR 2 is supported, or if bit 1, 3, 4 or 5 of the Codec List
+	 * extension 1 field (octet 5) indicates that AMR WB is supported, the following 
+	 * two octets (after the Codec List field and its extensions) is present
+	 */
+
+	return offset + length;
+
+}
 /*
- * 9.3.55 Codec Configuratio
+ * 9.3.55 Codec Configuration
  */
+dissect_rsl_ie_codec_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint length;
+	guint8 ie_id;
+
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_CODEC_CONF)
+			return offset;
+	}
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Codec Configuration IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_codec_conf);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Length */
+	length = tvb_get_guint8(tvb,offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+	offset++;
+
+	return offset + length;
+}
 
 /*
  * 9.3.56 Round Trip Delay
+ * This element indicates the value of the calculated round trip delay between the BTS
+ * and the transcoder, or between the BTS and the remote BTS, if TFO is established.
  */
 
+static const value_string rsl_delay_ind_vals[] = {
+	{  0x00,	"The RTD field contains the BTS-Transcoder round trip delay" },
+	{  0x01,	"The RTD field contains the BTS-Remote BTS round trip delay" },
+	{ 0,			NULL }
+};
+static int
+dissect_rsl_ie_rtd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti, *rtd_item;
+	proto_tree *ie_tree;
+	guint8		ie_id;
+	guint8		rtd;
+
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_RTD)
+			return offset;
+	}
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"Round Trip Delay IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_rtd);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	/* The RTD field is the binary representation of the value of the 
+	 * round trip delay in 20 ms increments.
+	 */
+	rtd = (tvb_get_guint8(tvb,offset)>>1)*20;
+	rtd_item = proto_tree_add_uint(tree, hf_rsl_rtd, tvb,offset,1,rtd);
+	proto_item_append_text(rtd_item," ms");
+
+	/* The Delay IND field indicates if the delay corresponds to a BTS 
+	 * to transcoder delay or to a BTS to remote BTS delay.
+	 */
+	proto_tree_add_item(ie_tree, hf_rsl_delay_ind, tvb, offset, 1, FALSE);
+	offset++;
+
+	return offset;
+}
 /*
  * 9.3.57 TFO Status
+ * This element indicates if TFO is established. It is coded in 2 octets
  */
 
+static const true_false_string rsl_tfo_vals = {
+  "TFO is established",
+  "TFO is not established"
+};
+
+static int
+dissect_rsl_ie_tfo_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint8		ie_id;
+
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_TFO_STATUS)
+			return offset;
+	}
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"TFO Status IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_tfo_status);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+
+	proto_tree_add_item(ie_tree, hf_rsl_tfo, tvb, offset, 1, FALSE);
+	offset++;
+	return offset;
+}
 /*
  * 9.3.58 LLP APDU
  */
 
-/* The rest of the information element contains the embedded message
- * that contains a Facility Information Element as defined in
- * 3GPP TS 44.071 excluding the Facility IEI and length of Facility IEI
- * octets defined in 3GPP TS 44.071.
- */
+static int
+dissect_rsl_ie_llp_apdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint8 length;
+	int ie_offset;
+	guint8 ie_id;
 
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_LLP_APDU)
+			return offset;
+	}
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"LLP APDU IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_llp_apdu);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Length */
+	length = tvb_get_guint8(tvb, offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+ 	offset++;
+
+	ie_offset = offset;
+
+	/* The rest of the information element contains the embedded message
+	 * that contains a Facility Information Element as defined in
+	 * 3GPP TS 44.071 excluding the Facility IEI and length of Facility IEI
+	 * octets defined in 3GPP TS 44.071.
+	 */
+	/* TODO: Given traces with LLP data this IE could be further dissected */
+	proto_tree_add_text(tree, tvb,offset,length,
+		"Facility Information Element as defined in 3GPP TS 44.071");
+	return ie_offset + length;
+}
 /*
  * 9.3.59 TFO transparent container
+ * This is a variable length element that conveys a message associated with TFO protocol,
+ * as defined in 3GPP TS 28.062. This element can be sent from the BSC to the BTS or 
+ * from the BTS to the BSC. The BTS shall retrieve the information it is able to understand,
+ * and forward transparently the complete information to the BSC or to the TRAU.
  */
+static int
+dissect_rsl_ie_tfo_transp_cont(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+	proto_item *ti;
+	proto_tree *ie_tree;
+	guint8 length;
+	int ie_offset;
+	guint8 ie_id;
+
+	if(is_mandatory == FALSE){
+		ie_id = tvb_get_guint8(tvb,offset);
+		if (ie_id != RSL_IE_TFO_TRANSP_CONT)
+			return offset;
+	}
+
+	ti = proto_tree_add_text(tree, tvb,offset,0,"TFO transparent container IE");
+	ie_tree = proto_item_add_subtree(ti, ett_ie_tfo_transp_cont);
+
+	/* Element identifier */
+	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
+	offset++;
+	/* Length */
+	length = tvb_get_guint8(tvb, offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+ 	offset++;
+
+	ie_offset = offset;
+
+	/* The rest of the information element contains the embedded message
+	 * that contains a Facility Information Element as defined in
+	 * 3GPP TS 44.071 excluding the Facility IEI and length of Facility IEI
+	 * octets defined in 3GPP TS 44.071.
+	 */
+	proto_tree_add_text(tree, tvb,offset,length,
+		"Embedded message that contains the TFO configuration");
+	return ie_offset + length;
+}
 
 static int
 dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -2704,7 +2972,8 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 	Link Identifier			9.3.2	M TV 2				 */
 		offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
 		/* 	L3 Information			9.3.11	O (note 1) TLV 3-23	 */
-		offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE);
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE);
 		break;
 /* Common Channel Management/TRX Management messages */
 	/* 8.5.1 BCCH INFORMATION 17*/
@@ -2776,7 +3045,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
 		/* SMSCB Information		9.3.36	M TV 24 */
-		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
+		offset = dissect_rsl_ie_smscb_inf(tvb, pinfo, tree, offset, TRUE);
 		/* SMSCB Channel Indicator	9.3.44	O 1) TV 2 */
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_smscb_ch_ind(tvb, pinfo, tree, offset, FALSE);
@@ -2851,6 +3120,8 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_ch_desc(tvb, pinfo, tree, offset, FALSE);
 		/* NCH DRX information		9.3.47 O TLV 3 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_nch_drx(tvb, pinfo, tree, offset, FALSE);
 		break;
 
 /* Dedicated Channel Management messages: */
@@ -2897,9 +3168,13 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			offset = dissect_rsl_ie_multirate_conf(tvb, pinfo, tree, offset, FALSE);
 		/* MultiRate Control		9.3.53	O 12) TV 2		*/
 		if(tvb_length_remaining(tvb,offset) > 0)
-		offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, FALSE);
+			offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, FALSE);
 			/* Supported Codec Types	9.3.54	O 12) TLV >=5	*/
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
 		/* TFO transparent container 9.3.59 O 12) TLV >=3	*/
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
 		break;
 
 	/* 8.4.2 CHANNEL ACTIVATION ACKNOWLEDGE	34*/
@@ -2986,7 +3261,11 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, FALSE);
 		/* Supported Codec Types	9.3.54 O 4) TLV >=5 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
 		/* TFO transparent container 9.3.59 O 4) TLV */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
 		break;
 	/* 8.4.10 MODE MODIFY ACKNOWLEDGE */
 	case RSL_MSG_MODE_MODIFY_ACK:	/*	42	8.4.10 */
@@ -3092,22 +3371,32 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
 		/* Codec Configuration		9.3.55	M TLV >=3 */
+		offset = dissect_rsl_ie_codec_conf(tvb, pinfo, tree, offset, TRUE);
 		/* Supported Codec Types	9.3.54	M TLV >=5 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
 		/* TFO transparent container 9.3.59 O 4) TLV >=3 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
 		break;
 	/* 8.4.24 ROUND TRIP DELAY REPORT */
 	case RSL_MSG_R_T_D_REP:			/*	56	8.4.24 */
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
 		/* Round Trip Delay			9.3.56	M TV 2 */
+		offset = dissect_rsl_ie_rtd(tvb, pinfo, tree, offset, TRUE);
 		break;
 	/* 8.4.25 PRE-HANDOVER NOTIFICATION */
 	case RSL_MSG_PRE_HANDO_NOTIF:		/*	57	8.4.25 */
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
 		/* MultiRateControl			9.3.53	M TV 2 */
+		offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, TRUE);
 		/* Codec Configuration		9.3.55	M TLV >=3 */
+		offset = dissect_rsl_ie_codec_conf(tvb, pinfo, tree, offset, TRUE);
 		/* TFO transparent container 9.3.59 O 4) TLV >=3 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
 		break;
 	/* 8.4.26 MULTIRATE CODEC MODIFICATION REQUEST */
 	case RSL_MSG_MR_CODEC_MOD_REQ:	/*	58	8.4.26 */
@@ -3144,19 +3433,26 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Channel number			9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
 		/* TFO Status				9.3.57	M TV 1 */
+		offset = dissect_rsl_ie_tfo_status(tvb, pinfo, tree, offset, TRUE);
 		break;
 	/* 8.4.31 TFO MODIFICATION REQUEST */
 	case RSL_MSG_TFO_MOD_REQ:			/*	63	8.4.31 */
 		/* Channel number			9.3.1 M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
 		/* MultiRateControl			9.3.53 M TV 2 */
+		offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, TRUE);
 		/* Supported Codec Type		9.3.54 O 1) TLV >=5 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);			
 		/* TFO transparent container 9.3.59 O 4) TLV >=3 */
+		if(tvb_length_remaining(tvb,offset) > 0)
+			offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
 		break;
 	/* 	0 1 - - - - - - Location Services messages: */
 	/* 8.7.1 LOCATION INFORMATION */
 	case RSL_MSG_LOC_INF:				/*	65	8.7.1 */
 		/* LLP APDU 9.3.58 M LV 2-N */
+		offset = dissect_rsl_ie_llp_apdu(tvb, pinfo, tree, offset, TRUE);
 		break;
 	default:
 		break;
@@ -3254,6 +3550,21 @@ void proto_register_rsl(void)
 			{ "Time slot number (TN)",  "rsl.ch_no_TN",
 			FT_UINT8, BASE_DEC, NULL, 0x07,
 			"Time slot number (TN)", HFILL }
+		},
+		{ &hf_rsl_rtd,
+			{ "Round Trip Delay (RTD)",  "rsl.rtd",
+			FT_UINT8, BASE_DEC, NULL, 0xfe,
+			"Round Trip Delay (RTD)", HFILL }
+		},
+		{ &hf_rsl_delay_ind,
+			{ "Delay IND",  "rsl.delay_ind",
+			FT_UINT8, BASE_DEC, rsl_delay_ind_vals, 0x01,
+			"Delay IND", HFILL }
+		},
+		{ &hf_rsl_tfo,
+			{ "TFO",           "rsl.tfo",
+			FT_BOOLEAN, 8, TFS(&rsl_tfo_vals), 0x01,
+			"TFO", HFILL }
 		},
 		{ &hf_rsl_req_ref_ra,
 			{ "Random Access Information (RA)", "rsl.req_ref_ra",
@@ -3585,6 +3896,7 @@ void proto_register_rsl(void)
 		&ett_ie_smscb_ch_ind,
 		&ett_ie_grp_call_ref,
 		&ett_ie_ch_desc,
+		&ett_ie_nch_drx,
 		&ett_ie_cmd_ind,
 		&ett_ie_emlpp_prio,
 		&ett_ie_uic,
@@ -3592,6 +3904,12 @@ void proto_register_rsl(void)
 		&ett_ie_main_ch_ref,
 		&ett_ie_multirate_conf,
 		&ett_ie_multirate_cntrl,
+		&ett_ie_sup_codec_types,
+		&ett_ie_codec_conf,
+		&ett_ie_rtd,
+		&ett_ie_tfo_status,
+		&ett_ie_llp_apdu,
+		&ett_ie_tfo_transp_cont,
 		&ett_ie_cause,
 		&ett_ie_meas_res_no,
 		&ett_ie_message_id,
