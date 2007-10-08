@@ -37,7 +37,10 @@ SUBDIRS = \
 	ftam	\
 	gnm	\
 	gsmmap	\
+	h225	\
+	h235	\
 	h245	\
+	h248	\
 	nbap	\
 	qsig	\
 	ranap	\
@@ -50,27 +53,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	h225/h225.cnf	\
-	h225/h225-exp.cnf	\
-	h225/H323-MESSAGES.asn	\
-	h225/Makefile	\
-	h225/Makefile.nmake	\
-	h225/packet-h225-template.c	\
-	h225/packet-h225-template.h	\
-	h235/h235.cnf	\
-	h235/h235-exp.cnf	\
-	h235/H235-SECURITY-MESSAGES.asn	\
-	h235/H235-SRTP.asn	\
-	h235/Makefile	\
-	h235/Makefile.nmake	\
-	h235/packet-h235-template.c	\
-	h235/packet-h235-template.h	\
-	h248/h248.cnf	\
-	h248/Makefile	\
-	h248/Makefile.nmake	\
-	h248/MEGACO.asn	\
-	h248/packet-h248-template.c	\
-	h248/packet-h248-template.h	\
 	h450/H4501-Supplementary-ServiceAPDU-Structure.asn	\
 	h450/Addressing-Data-Elements.asn 	\
 	h450/H225-generic-parameters-definition.asn 	\
