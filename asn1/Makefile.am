@@ -41,6 +41,8 @@ SUBDIRS = \
 	h235	\
 	h245	\
 	h248	\
+	h450	\
+	h450-ros	\
 	nbap	\
 	qsig	\
 	ranap	\
@@ -53,30 +55,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	h450/H4501-Supplementary-ServiceAPDU-Structure.asn	\
-	h450/Addressing-Data-Elements.asn 	\
-	h450/H225-generic-parameters-definition.asn 	\
-	h450/Manufacturer-specific-service-extension-definition.asn 	\
-	h450/H4501-General-Error-List.asn	\
-	h450/Call-Transfer-Operations.asn 	\
-	h450/Call-Diversion-Operations.asn 	\
-	h450/Call-Hold-Operations.asn 	\
-	h450/Call-Park-Pickup-Operations.asn 	\
-	h450/Call-Waiting-Operations.asn 	\
-	h450/Message-Waiting-Indication-Operations.asn 	\
-	h450/Name-Operations.asn 	\
-	h450/Call-Completion-Operations.asn 	\
-	h450/Call-Offer-Operations.asn 	\
-	h450/Call-Intrusion-Operations.asn 	\
-	h450/Common-Information-Operations.asn 	\
-	h450/Remote-Operations-Apdus.asn	\
-	h450/h450.cnf	\
-	h450/h450-ros.cnf	\
-	h450/Makefile	\
-	h450/Makefile.nmake	\
-	h450/packet-h450-template.c	\
-	h450/packet-h450-ros-template.c	\
-	h450/packet-h450-ros-template.h	\
 	inap/inap.asn	\
 	inap/IN-common-classes.asn	\
 	inap/IN-common-datatypes.asn	\

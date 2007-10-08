@@ -73,7 +73,7 @@ FN_VARIANT = _pdu
 TYPE_REF_FN = argument_cb
 #.END
 
-#.INCLUDE ros-inv.cnf
+#.INCLUDE ../ros/ros-inv.cnf
 
 #--- RETURN RESULT ---
 
@@ -86,7 +86,7 @@ TYPE_REF_FN = result_cb
 
 #.END
 
-#.INCLUDE ros-res.cnf
+#.INCLUDE ../ros/ros-res.cnf
 
 #--- RETURN ERROR ---
 
@@ -98,8 +98,8 @@ FN_VARIANT = _pdu
 TYPE_REF_FN = error_cb
 #.END
 
-#.INCLUDE ros-err.cnf
+#.INCLUDE ../ros/ros-err.cnf
 
 #--- REJECT ---
 
-#.INCLUDE ros-rej.cnf
+#.INCLUDE ../ros/ros-rej.cnf

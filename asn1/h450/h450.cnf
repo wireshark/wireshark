@@ -11,7 +11,7 @@ GROUP_BY_PROT
 #.END
 
 #.INCLUDE ../h225/h225-exp.cnf
-#.INCLUDE h450-ros-exp.cnf 
+#.INCLUDE ../h450-ros/h450-ros-exp.cnf 
 
 #.MODULE
 
