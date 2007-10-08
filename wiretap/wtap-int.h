@@ -136,12 +136,6 @@ typedef struct {
 	gboolean	has_fcs;
 } airopeek9_t;
 
-typedef struct {
-	guint32		atm_encap;
-	guint32		hdlc_encap;
-	gboolean	is_rawatm;
-} erf_t;
-
 typedef struct _k12_t k12_t;
 
 typedef struct {
@@ -182,7 +176,6 @@ struct wtap {
 		csids_t			*csids;
 		etherpeek_t		*etherpeek;
 		airopeek9_t		*airopeek9;
-		erf_t			*erf;
 		k12_t			*k12;
 		catapult_dct2000_t	*catapult_dct2000;
 		mpeg_t			*mpeg;
@@ -406,6 +399,34 @@ extern gint wtap_num_file_types;
 	(p)[1] = (guint8)((v) >> 16);	\
 	(p)[2] = (guint8)((v) >> 8);	\
 	(p)[3] = (guint8)((v) >> 0);	\
+	}
+#endif
+
+#ifndef phtonll
+#define phtonll(p, v) \
+	{ 				\
+	(p)[0] = (guint8)((v) >> 56);	\
+	(p)[1] = (guint8)((v) >> 48);	\
+	(p)[2] = (guint8)((v) >> 40);	\
+	(p)[3] = (guint8)((v) >> 32);	\
+	(p)[4] = (guint8)((v) >> 24);	\
+	(p)[5] = (guint8)((v) >> 16);	\
+	(p)[6] = (guint8)((v) >> 8);	\
+	(p)[7] = (guint8)((v) >> 0);	\
+	}
+#endif
+
+#ifndef pletonll
+#define pletonll(p, v) \
+	{ 				\
+	(p)[0] = (guint8)((v) >> 0);	\
+	(p)[1] = (guint8)((v) >> 8);	\
+	(p)[2] = (guint8)((v) >> 16);	\
+	(p)[3] = (guint8)((v) >> 24);	\
+	(p)[4] = (guint8)((v) >> 32);	\
+	(p)[5] = (guint8)((v) >> 40);	\
+	(p)[6] = (guint8)((v) >> 48);	\
+	(p)[7] = (guint8)((v) >> 56);	\
 	}
 #endif
 

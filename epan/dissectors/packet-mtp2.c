@@ -35,6 +35,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "epan/prefs.h"
+#include "epan/crc16.h"
+#include "epan/expert.h"
 
 #define LITTLE_ENDIAN_BYTE_ORDER TRUE
 
@@ -122,6 +124,89 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
     }
   }
 }
+/*
+*******************************************************************************
+* DETAILS : Calculate a new FCS-16 given the current FCS-16 and the new data.
+*******************************************************************************
+*/
+static guint16 mtp2_fcs16(tvbuff_t * tvbuff)
+{
+    guint len = tvb_length(tvbuff)-2;
+
+    /* Check for Invalid Length */
+    if (len == 0)
+        return (0x0000);
+    return crc16_ccitt_tvb(tvbuff, len);
+}
+
+/*
+ * This function for CRC16 only is based on the decode_fcs of packet_ppp.c
+ */
+tvbuff_t * mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
+{
+  tvbuff_t   *next_tvb;
+  gint       len, reported_len;
+  int        rx_fcs_offset;
+  guint32    rx_fcs_exp;
+  guint32    rx_fcs_got;
+  int proto_offset=0;
+  proto_item *cause;
+
+  /*
+   * Do we have the entire packet, and does it include a 2-byte FCS?
+   */
+  len = tvb_length_remaining(tvb, proto_offset);
+  reported_len = tvb_reported_length_remaining(tvb, proto_offset);
+  if (reported_len < 2 || len < 0) {
+    /*
+     * The packet is claimed not to even have enough data for a 2-byte FCS,
+     * or we're already past the end of the captured data.
+     * Don't slice anything off.
+     */
+    next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+  } else if (len < reported_len) {
+    /*
+     * The packet is claimed to have enough data for a 2-byte FCS, but
+     * we didn't capture all of the packet.
+     * Slice off the 2-byte FCS from the reported length, and trim the
+     * captured length so it's no more than the reported length; that
+     * will slice off what of the FCS, if any, is in the captured
+     * length.
+     */
+    reported_len -= 2;
+    if (len > reported_len)
+      len = reported_len;
+    next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+  } else {
+    /*
+     * We have the entire packet, and it includes a 2-byte FCS.
+     * Slice it off.
+     */
+    len -= 2;
+    reported_len -= 2;
+    next_tvb = tvb_new_subset(tvb, proto_offset, len, reported_len);
+    
+    /*
+     * Compute the FCS and put it into the tree.
+     */
+    rx_fcs_offset = proto_offset + len;
+    rx_fcs_exp = mtp2_fcs16(tvb);
+    rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
+    if (rx_fcs_got != rx_fcs_exp) {
+      cause=proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
+				"FCS 16: 0x%04x [incorrect, should be 0x%04x]",
+				rx_fcs_got, rx_fcs_exp);
+      proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+      expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "MTP2 Frame CheckFCS 16 Error");
+    } else {
+      proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
+			  "FCS 16: 0x%04x [correct]",
+			  rx_fcs_got);
+    }
+  }
+  return next_tvb;
+}
+
 
 static void
 dissect_mtp2_fisu(packet_info *pinfo)
@@ -196,11 +281,15 @@ dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pr
 }
 
 static void
-dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, proto_item *mtp2_tree, proto_tree *tree)
+dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, proto_item *mtp2_tree, proto_tree *tree,gboolean validate_crc)
 {
   guint16 li;
+  tvbuff_t  *next_tvb = NULL;
 
-  dissect_mtp2_header(su_tvb, mtp2_tree);
+  dissect_mtp2_header(su_tvb, mtp2_tree); 
+  if (validate_crc)  
+    next_tvb = mtp2_decode_crc16(su_tvb, mtp2_tree, pinfo);
+
   if (use_extended_sequence_numbers)
     li = tvb_get_letohs(su_tvb, EXTENDED_LI_OFFSET) & EXTENDED_LI_MASK;
   else
@@ -210,17 +299,25 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pro
     dissect_mtp2_fisu(pinfo);
     break;
   case 1:
-  case 2:
-    dissect_mtp2_lssu(su_tvb, pinfo, mtp2_tree);
+  case 2: 
+    if (validate_crc)  
+      dissect_mtp2_lssu(next_tvb, pinfo, mtp2_tree);
+    else
+      dissect_mtp2_lssu(su_tvb, pinfo, mtp2_tree);
     break;
   default:
-    dissect_mtp2_msu(su_tvb, pinfo, mtp2_item, tree);
+    /* In some capture files (like .rf5), CRC are not present */
+    /* So, to avoid trouble, give the complete buffer if CRC validation is disabled */
+    if (validate_crc)  
+      dissect_mtp2_msu(next_tvb, pinfo, mtp2_item, tree);
+    else 
+      dissect_mtp2_msu(su_tvb, pinfo, mtp2_item, tree);
     break;
   }
 }
 
 static void
-dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean validate_crc)
 {
   proto_item *mtp2_item = NULL;
   proto_tree *mtp2_tree = NULL;
@@ -238,7 +335,20 @@ dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
   };
 
-  dissect_mtp2_su(tvb, pinfo, mtp2_item, mtp2_tree, tree);
+  dissect_mtp2_su(tvb, pinfo, mtp2_item, mtp2_tree, tree, validate_crc);
+}
+
+/* Dissect MTP2 frame with/without CRC16 included at end of payload */
+static void
+dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  /* If the link extention indicate the FCS presence, then the Checkbits
+   * have to be proceeded in the MTP2 dissector */
+  if ( pinfo->fd->lnk_t == WTAP_ENCAP_ERF ) {
+    dissect_mtp2_common(tvb, pinfo, tree, TRUE);
+  } else {
+    dissect_mtp2_common(tvb, pinfo, tree, FALSE);
+  }
 }
 
 void

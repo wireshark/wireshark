@@ -35,6 +35,7 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "atm.h"
+#include "erf.h"
 #include "libpcap.h"
 
 #ifdef HAVE_PCAP_H
@@ -143,6 +144,14 @@ static gboolean libpcap_read_lapd_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean libpcap_get_erf_pseudoheader(const guint8 *erf_hdr, struct wtap_pkthdr *whdr,
+    union wtap_pseudo_header *pseudo_header);
+static gboolean libpcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static gboolean libpcap_get_erf_subheader(const guint8 *erf_subhdr,
+    union wtap_pseudo_header *pseudo_header, guint * size);
+static gboolean libpcap_read_erf_subheader(FILE_T fh, 
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_, guint * size);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void libpcap_close(wtap *wth);
@@ -429,7 +438,8 @@ static const struct {
 	{ 189, 		WTAP_ENCAP_USB_LINUX },
         /* Per-Packet Information header */
         { 192,          WTAP_ENCAP_PPI },
-
+	/* Endace Record File Encapsulation */
+	{ 197,	        WTAP_ENCAP_ERF },
 	/*
 	 * To repeat:
 	 *
@@ -1174,7 +1184,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 {
 	struct pcaprec_ss990915_hdr hdr;
 	guint packet_size;
-	guint orig_size;
+	guint orig_size, size;
 	int bytes_read;
 	guchar fddi_padding[3];
 
@@ -1389,6 +1399,41 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		packet_size -= sizeof (struct linux_usb_phdr);
 		wth->data_offset += sizeof (struct linux_usb_phdr);
 		break;
+
+	case WTAP_ENCAP_ERF:
+		if (packet_size < sizeof(struct erf_phdr) ) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: ERF file has a %u-byte packet, too small to have even an ERF pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_erf_pseudoheader(wth->fh, &wth->phdr, &wth->pseudo_header,
+						   err, err_info))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof(struct erf_phdr);
+		packet_size -= sizeof(struct erf_phdr);
+		wth->data_offset += sizeof(struct erf_phdr);
+
+		if (!libpcap_read_erf_subheader(wth->fh, &wth->pseudo_header,
+					       err, err_info, &size))
+		  return FALSE;	/* Read error */
+		
+		/*
+		 * Don't count the optional mc-header as part of the packet.
+		 */
+		orig_size -= size;
+		packet_size -= size;
+		wth->data_offset += size;
+		break;
+
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -1397,11 +1442,14 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.secs = hdr.hdr.ts_sec;
-	if(wth->tsprecision == WTAP_FILE_TSPREC_NSEC) {
-		wth->phdr.ts.nsecs = hdr.hdr.ts_usec;
-	} else {
-		wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
+	/* Update the Timestamp, if not already done */
+	if (wth->file_encap != WTAP_ENCAP_ERF) {
+	  wth->phdr.ts.secs = hdr.hdr.ts_sec;
+	  if(wth->tsprecision == WTAP_FILE_TSPREC_NSEC) {
+	    wth->phdr.ts.nsecs = hdr.hdr.ts_usec;
+	  } else {
+	    wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
+	  }
 	}
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
@@ -1439,6 +1487,8 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
 {
+  guint size;
+
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
@@ -1514,6 +1564,20 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 		    pseudo_header, err))
 			return FALSE;	/* Read error */
 		break;
+
+	case WTAP_ENCAP_ERF:
+	  if (!libpcap_read_erf_pseudoheader(wth->random_fh, NULL, pseudo_header,
+					     err, err_info)) {
+	    /* Read error */
+	    return FALSE;
+	  }
+	  /* check the optional Multi Channel header */
+	  if (!libpcap_read_erf_subheader(wth->random_fh, pseudo_header,
+					 err, err_info, &size)) {
+	    /* Read error */
+	    return FALSE;
+	  }
+	  break;
 	}
 
 	/*
@@ -1932,6 +1996,135 @@ libpcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
 }
 
 static gboolean
+libpcap_get_erf_pseudoheader(const guint8 *erf_hdr, struct wtap_pkthdr *whdr,
+			     union wtap_pseudo_header *pseudo_header)
+{	
+  pseudo_header->erf.phdr.ts = pletohll(&erf_hdr[0]); /* timestamp */
+  pseudo_header->erf.phdr.type =  erf_hdr[8];
+  pseudo_header->erf.phdr.flags = erf_hdr[9];
+  pseudo_header->erf.phdr.rlen = pntohs(&erf_hdr[10]);
+  pseudo_header->erf.phdr.lctr = pntohs(&erf_hdr[12]);
+  pseudo_header->erf.phdr.wlen = pntohs(&erf_hdr[14]);
+
+  /* The high 32 bits of the timestamp contain the integer number of seconds
+   * while the lower 32 bits contain the binary fraction of the second. 
+   * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */ 
+  if (whdr) {
+    guint64 ts = pseudo_header->erf.phdr.ts;
+    whdr->ts.secs = (guint32) (ts >> 32);
+    ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+    ts += (ts & 0x80000000) << 1; /* rounding */
+    whdr->ts.nsecs = ((guint32) (ts >> 32));
+    if ( whdr->ts.nsecs >= 1000000000) {
+      whdr->ts.nsecs -= 1000000000;
+      whdr->ts.secs += 1;
+    }
+  }  
+  return TRUE;
+}
+
+static gboolean
+libpcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
+			      union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+  guint8 erf_hdr[sizeof(struct erf_phdr)];
+  int    bytes_read;
+
+  errno = WTAP_ERR_CANT_READ;
+  bytes_read = file_read(erf_hdr, 1, sizeof(struct erf_phdr), fh);
+  if (bytes_read != sizeof(struct erf_phdr)) {
+    *err = file_error(fh);
+    if (*err == 0)
+      *err = WTAP_ERR_SHORT_READ;
+    return FALSE;
+  }
+  return libpcap_get_erf_pseudoheader(erf_hdr, whdr, pseudo_header);
+}
+
+static gboolean
+libpcap_get_erf_subheader(const guint8 *erf_subhdr,
+			  union wtap_pseudo_header *pseudo_header, guint * psize)
+{
+  *psize=0;
+  switch(pseudo_header->erf.phdr.type) {
+  case ERF_TYPE_MC_HDLC:
+  case ERF_TYPE_MC_RAW:
+  case ERF_TYPE_MC_ATM:
+  case ERF_TYPE_MC_RAW_CHANNEL:
+  case ERF_TYPE_MC_AAL5:
+  case ERF_TYPE_MC_AAL2: 
+  case ERF_TYPE_COLOR_MC_HDLC_POS:
+    /* Extract the Multi Channel header to include it in the pseudo header part */
+    pseudo_header->erf.subhdr.mc_hdr = pntohl(&erf_subhdr[0]);
+    *psize = sizeof(erf_mc_header_t);
+    break;
+  case ERF_TYPE_ETH:
+  case ERF_TYPE_COLOR_ETH:
+  case ERF_TYPE_DSM_COLOR_ETH:
+    /* Extract the Ethernet additional header to include it in the pseudo header part */
+    pseudo_header->erf.subhdr.eth_hdr = pntohs(&erf_subhdr[0]);
+    *psize = sizeof(erf_eth_header_t);
+    break;
+  default:
+    /* No optional pseudo header for this ERF type */
+    break;
+  } 
+  return TRUE;
+}
+
+/* 
+ * If the type of record given in the pseudo header indicate the precense of a subheader 
+ * then, read this optional subheader 
+ */
+static gboolean
+libpcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+			   int *err, gchar **err_info _U_, guint * psize)
+{
+  guint8 erf_subhdr[sizeof(union erf_subhdr)];
+  int    bytes_read;
+
+  *psize=0;
+  switch(pseudo_header->erf.phdr.type) {
+  case ERF_TYPE_MC_HDLC:
+  case ERF_TYPE_MC_RAW:
+  case ERF_TYPE_MC_ATM:
+  case ERF_TYPE_MC_RAW_CHANNEL:
+  case ERF_TYPE_MC_AAL5:
+  case ERF_TYPE_MC_AAL2:
+  case ERF_TYPE_COLOR_MC_HDLC_POS:
+    /* Extract the Multi Channel header to include it in the pseudo header part */
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(erf_subhdr, 1, sizeof(erf_mc_header_t), fh);
+    if (bytes_read != sizeof(erf_mc_header_t) ) {
+      *err = file_error(fh);
+      if (*err == 0)
+	*err = WTAP_ERR_SHORT_READ;
+      return FALSE;
+    }
+    *psize = sizeof(erf_mc_header_t);
+    break;
+  case ERF_TYPE_ETH:
+  case ERF_TYPE_COLOR_ETH:
+  case ERF_TYPE_DSM_COLOR_ETH:
+    /* Extract the Ethernet additional header to include it in the pseudo header part */
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(erf_subhdr, 1, sizeof(erf_eth_header_t), fh);
+    if (bytes_read != sizeof(erf_eth_header_t) ) {
+      *err = file_error(fh);
+      if (*err == 0)
+	*err = WTAP_ERR_SHORT_READ;
+      return FALSE;
+    }
+    *psize = sizeof(erf_eth_header_t);
+    break;
+  default:
+    /* No optional pseudo header for this ERF type */
+    break;
+  }
+  return libpcap_get_erf_subheader(erf_subhdr, pseudo_header, psize);
+}
+
+static gboolean
 libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -2029,6 +2222,8 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
     const guchar *pd, union wtap_pseudo_header *pseudo_header,
     struct wtap_pkthdr *whdr, int *err)
 {
+  guint size;
+
 	/* "phdr->ts" may not necessarily be a "struct timeval" - it may
 	   be a "struct bpf_timeval", with member sizes wired to 32
 	   bits - and we may go that way ourselves in the future, so
@@ -2159,7 +2354,38 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->len -= sizeof (struct linux_usb_phdr);
 		whdr->caplen -= sizeof (struct linux_usb_phdr);
 		pd += sizeof (struct linux_usb_phdr);
-		break;
+		break;	
+
+	case WTAP_ENCAP_ERF:
+		if (whdr->caplen < sizeof(struct erf_phdr) ) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: ERF capture has a %u-byte packet, too small to have even an ERF pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+		if (!libpcap_get_erf_pseudoheader(pd, whdr, pseudo_header))
+			return NULL;
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof(struct erf_phdr);
+		whdr->caplen -= sizeof(struct erf_phdr);
+		pd += sizeof(struct erf_phdr);
+
+		if (!libpcap_get_erf_subheader(pd, pseudo_header, &size))
+		  return NULL;
+		
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= size;
+		whdr->caplen -= size;
+		pd += size;
 	}
 	return pd;
 }
@@ -2275,7 +2501,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	guint8 irda_hdr[IRDA_SLL_LEN];
 	guint8 lapd_hdr[LAPD_SLL_LEN];
 	guint8 mtp2_hdr[MTP2_HDR_LEN];
-	int hdrsize;
+	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
+	int hdrsize, size;
 
 	switch (wdh->encap) {
 
@@ -2297,6 +2524,28 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_USB_LINUX:
 		hdrsize = sizeof (struct linux_usb_phdr);
+		break;
+
+	case WTAP_ENCAP_ERF:
+	        hdrsize = sizeof (struct erf_phdr);
+		switch(pseudo_header->erf.phdr.type) {
+		case ERF_TYPE_MC_HDLC:
+		case ERF_TYPE_MC_RAW:
+		case ERF_TYPE_MC_ATM:
+		case ERF_TYPE_MC_RAW_CHANNEL:
+		case ERF_TYPE_MC_AAL5:
+		case ERF_TYPE_MC_AAL2:
+		case ERF_TYPE_COLOR_MC_HDLC_POS:
+		  hdrsize += sizeof(struct erf_mc_hdr);
+		  break;
+		case ERF_TYPE_ETH:
+		case ERF_TYPE_COLOR_ETH:
+		case ERF_TYPE_DSM_COLOR_ETH:
+		  hdrsize += sizeof(struct erf_eth_hdr);
+		  break;
+		default:
+		  break;
+		}
 		break;
 
 	default:
@@ -2507,6 +2756,50 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(lapd_hdr);
+		break;
+
+	case WTAP_ENCAP_ERF:
+	         /*
+		 * Write the ERF header.
+		 */
+	        memset(&erf_hdr, 0, sizeof(erf_hdr));
+		pletonll(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+		erf_hdr[8] = pseudo_header->erf.phdr.type;
+		erf_hdr[9] = pseudo_header->erf.phdr.flags;
+		phtons(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
+		phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+		phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+		size = sizeof(struct erf_phdr);
+
+		switch(pseudo_header->erf.phdr.type) {
+		case ERF_TYPE_MC_HDLC:
+		case ERF_TYPE_MC_RAW:
+		case ERF_TYPE_MC_ATM:
+		case ERF_TYPE_MC_RAW_CHANNEL:
+		case ERF_TYPE_MC_AAL5:
+		case ERF_TYPE_MC_AAL2:
+		case ERF_TYPE_COLOR_MC_HDLC_POS:
+		  phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
+		  size += sizeof(struct erf_mc_hdr);
+		  break;
+		case ERF_TYPE_ETH:
+		case ERF_TYPE_COLOR_ETH:
+		case ERF_TYPE_DSM_COLOR_ETH:
+		  phtons(&erf_hdr[16], pseudo_header->erf.subhdr.eth_hdr);
+		  size += sizeof(struct erf_eth_hdr);
+		  break;
+		default:
+		  break;
+		}
+		nwritten = wtap_dump_file_write(wdh, erf_hdr, size);
+		if (nwritten != (guint) size) {
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += size;
 		break;
 	}
 

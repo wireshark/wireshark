@@ -382,7 +382,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "MPEG", "mpeg" },
 
 	/* WTAP_ENCAP_PPI */
-	{ "Per-Packet Information header", "ppi" }
+	{ "Per-Packet Information header", "ppi" },
+
+	/* WTAP_ENCAP_ERF */
+	{ "Endace Record File", "erf" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
