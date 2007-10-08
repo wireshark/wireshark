@@ -1617,12 +1617,17 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
     	GtkWidget *bt_close;
     	GtkWidget *bt_save;
 	GtkTooltips *tooltips = gtk_tooltips_new();
+	const gchar *title_name_ptr;
+	gchar   *win_name;
+
+	title_name_ptr = cf_get_display_name(&cfile);
+	win_name = g_strdup_printf("%s - VoIP Graph Analysis", title_name_ptr);
 
         /* create the main window */
 		if (user_data->dlg.title)
 	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, user_data->dlg.title);
 		else
-	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, "Graph Analysis");
+	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, win_name);
 
 
         vbox=gtk_vbox_new(FALSE, 0);
@@ -1667,6 +1672,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 		gtk_window_set_destroy_with_parent(GTK_WINDOW(user_data->dlg.window), TRUE);
 #endif
 	}
+	g_free(win_name);
 }
 
 /* Return the index array if the node is in the array. Return -1 if there is room in the array

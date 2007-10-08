@@ -1790,12 +1790,16 @@ rtp_player_dlg_create(void)
 	GtkWidget *bt_close;
 	GtkAdjustment *jitter_spinner_adj;
 	GtkWidget *label;
+	const gchar *title_name_ptr;
+	gchar   *win_name;
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
 	rtp_player_dlg_w=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	
-	gtk_window_set_title(GTK_WINDOW(rtp_player_dlg_w), "Wireshark: RTP Player");
+
+	title_name_ptr = cf_get_display_name(&cfile);
+	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);	
+	gtk_window_set_title(GTK_WINDOW(rtp_player_dlg_w), win_name);
 	gtk_window_set_position(GTK_WINDOW(rtp_player_dlg_w), GTK_WIN_POS_NONE);
 
 	gtk_window_set_default_size(GTK_WINDOW(rtp_player_dlg_w), 400, 50);
@@ -1884,6 +1888,8 @@ rtp_player_dlg_create(void)
 
 	/* Force gtk to redraw the window before starting decoding the packet */
 	while (g_main_context_iteration(NULL, FALSE));
+
+	g_free(win_name);
 }
 
 /****************************************************************************/

@@ -75,7 +75,6 @@
 #endif
 #endif /* HAVE_LIBPORTAUDIO */
 
-static const gchar FWD_LABEL_TEXT[] = "Select one call.";
 
 /****************************************************************************/
 /* pointer to the one and only dialog window */
@@ -84,7 +83,6 @@ static GtkWidget *voip_calls_dlg = NULL;
 static GtkWidget *clist = NULL;
 static GtkWidget *top_label = NULL;
 static GtkWidget *status_label = NULL;
-static GtkWidget *label_fwd = NULL;
 
 /*static GtkWidet *bt_unselect = NULL;*/
 static GtkWidget *bt_filter = NULL;
@@ -250,8 +248,8 @@ voip_calls_on_unselect                  (GtkButton       *button _U_,
 {
 	selected_call_fwd = NULL;
 	gtk_clist_unselect_all(GTK_CLIST(clist));
-	gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
-
+/*	gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
+*/
 	/*gtk_widget_set_sensitive(bt_unselect, FALSE);*/
 	gtk_widget_set_sensitive(bt_filter, FALSE);
 	gtk_widget_set_sensitive(bt_graph, FALSE);
@@ -385,7 +383,13 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 }
 
 
-
+/****************************************************************************/
+static void
+voip_calls_on_select_all                    (GtkButton       *button _U_,
+                                        gpointer         user_data _U_)
+{
+	gtk_clist_select_all(GTK_CLIST(clist));
+}
 
 /****************************************************************************/
 static void
@@ -451,18 +455,28 @@ voip_calls_on_select_row(GtkCList *clist,
                                             GdkEventButton *event _U_,
                                             gpointer user_data _U_)
 {
-	GdkColor color = COLOR_DEFAULT;
+/*	GdkColor color = COLOR_DEFAULT;*/
 	gchar label_text[80];
+	GList* list;
+	voip_calls_info_t *listinfo;
 	
 	selected_call_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 
 	if (selected_call_fwd==NULL)
 		return;
 
-	if (!selected_call_fwd->selected)
-		calls_ns++;
-	else
-		calls_ns--;
+	selected_call_fwd->selected=TRUE;
+
+        /* count the selected calls */
+	calls_ns = 0;
+        list = g_list_first(voip_calls_get_info()->strinfo_list);
+        while (list){
+                listinfo=list->data;
+                if (listinfo->selected){
+			calls_ns++;	
+                }
+                list = g_list_next(list);
+        }
 
 	g_snprintf(label_text, 80,
 	        "Detected %d VoIP %s. Selected %d %s.",
@@ -472,21 +486,6 @@ voip_calls_on_select_row(GtkCList *clist,
 			plurality(calls_ns, "Call", "Calls"));
 	gtk_label_set(GTK_LABEL(top_label), label_text);
 
-	g_snprintf(label_text, 80, "Selected Call: From  %s  To %s, starting time %i.%i",
-		selected_call_fwd->from_identity,
-		selected_call_fwd->to_identity,
-		selected_call_fwd->start_sec, 
-		selected_call_fwd->start_usec
-	);
-	gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
-
-	selected_call_fwd->selected=!selected_call_fwd->selected;
-	if (selected_call_fwd->selected)
-		color = COLOR_SELECT;
-	else
-		color = COLOR_DEFAULT;
-
-	gtk_clist_set_background(GTK_CLIST(clist), row, &color);
 
 	if 	(calls_ns > 0) {
 		gtk_widget_set_sensitive(bt_filter, TRUE);
@@ -508,6 +507,73 @@ voip_calls_on_select_row(GtkCList *clist,
 
 	/* TODO: activate other buttons when implemented */
 }
+
+
+/****************************************************************************/
+/* when the user selects a row in the calls list */
+static void
+voip_calls_on_unselect_row(GtkCList *clist,
+                                            gint row _U_,
+                                            gint column _U_,
+                                            GdkEventButton *event _U_,
+                                            gpointer user_data _U_)
+{
+	gchar label_text[80];
+	GList* list;
+	voip_calls_info_t *listinfo;
+	
+	selected_call_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
+
+	if (selected_call_fwd==NULL)
+		return;
+
+	selected_call_fwd->selected=FALSE;
+
+        /* count the selected calls */
+	calls_ns = 0;
+        list = g_list_first(voip_calls_get_info()->strinfo_list);
+        while (list){
+                listinfo=list->data;
+                if (listinfo->selected){
+			calls_ns++;	
+                }
+                list = g_list_next(list);
+        }
+
+	g_snprintf(label_text, 80,
+	        "Detected %d VoIP %s. Selected %d %s.",
+	        calls_nb, 
+            plurality(calls_nb, "Call", "Calls"),
+			calls_ns,
+			plurality(calls_ns, "Call", "Calls"));
+	gtk_label_set(GTK_LABEL(top_label), label_text);
+
+	if 	(calls_ns > 0) {
+		gtk_widget_set_sensitive(bt_filter, TRUE);
+		gtk_widget_set_sensitive(bt_graph, TRUE);
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+		gtk_widget_set_sensitive(bt_player, TRUE);
+#endif
+#endif /* HAVE_LIBPORTAUDIO */
+	} else {
+		gtk_widget_set_sensitive(bt_filter, FALSE);
+		gtk_widget_set_sensitive(bt_graph, FALSE);
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+		gtk_widget_set_sensitive(bt_player, FALSE);
+#endif
+#endif /* HAVE_LIBPORTAUDIO */
+	}
+
+	/* TODO: activate other buttons when implemented */
+}
+
+
+
+
+
+
 
 
 /****************************************************************************/
@@ -606,14 +672,19 @@ static void voip_calls_dlg_create (void)
 	GtkWidget *scrolledwindow;
 	GtkWidget *hbuttonbox;
 	GtkWidget *bt_close;
+	GtkWidget *bt_select_all;
 	GtkTooltips *tooltips = gtk_tooltips_new();
+	const gchar *title_name_ptr;
+	gchar	*win_name;
 
 	const gchar *titles[NUM_COLS] =  {"Start Time", "Stop Time", "Initial Speaker", "From",  "To", "Protocol", "Packets", "State", "Comments"};
 	column_arrows *col_arrows;
 	GtkWidget *column_lb;
 	int i;
 
-	voip_calls_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: VoIP Calls");
+	title_name_ptr = cf_get_display_name(&cfile);
+	win_name = g_strdup_printf("%s - VoIP Calls", title_name_ptr);
+	voip_calls_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, win_name);
 
 	gtk_window_set_default_size(GTK_WINDOW(voip_calls_dlg_w), 840, 350);
 
@@ -628,6 +699,8 @@ static void voip_calls_dlg_create (void)
 	gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
 
 	clist = gtk_clist_new (NUM_COLS);
+	gtk_clist_set_selection_mode(GTK_CLIST (clist), GTK_SELECTION_MULTIPLE);
+
 	gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
 
 	gtk_clist_set_column_width (GTK_CLIST (clist), CALL_COL_START_TIME, 60);
@@ -682,9 +755,9 @@ static void voip_calls_dlg_create (void)
 
 	SIGNAL_CONNECT(clist, "click-column", voip_calls_click_column_cb, col_arrows);
 
-	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
+/*	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
 	gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
-
+*/
 	status_label = gtk_label_new ("Total: Calls: 0   Start packets: 0   Completed calls: 0   Rejected calls: 0");
 	gtk_box_pack_start (GTK_BOX (main_vb), status_label, FALSE, FALSE, 8);
 
@@ -718,12 +791,18 @@ static void voip_calls_dlg_create (void)
 #endif
 #endif /* HAVE_LIBPORTAUDIO */
 
+	bt_select_all = gtk_button_new_with_label("Select All");
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_select_all);
+	GTK_WIDGET_SET_FLAGS(bt_select_all, GTK_CAN_DEFAULT);
+	gtk_tooltips_set_tip (tooltips, bt_select_all, "Select all the calls", NULL);
+
 	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 
 	SIGNAL_CONNECT(clist, "select_row", voip_calls_on_select_row, NULL);
+	SIGNAL_CONNECT(clist, "unselect_row", voip_calls_on_unselect_row, NULL);
 	/*SIGNAL_CONNECT(bt_unselect, "clicked", voip_calls_on_unselect, NULL);*/
 	SIGNAL_CONNECT(bt_filter, "clicked", voip_calls_on_filter, NULL);
 
@@ -731,6 +810,7 @@ static void voip_calls_dlg_create (void)
 
 	SIGNAL_CONNECT(voip_calls_dlg_w, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(voip_calls_dlg_w, "destroy", voip_calls_on_destroy, NULL);
+	SIGNAL_CONNECT(bt_select_all, "clicked", voip_calls_on_select_all, NULL);
 
 	gtk_widget_show_all(voip_calls_dlg_w);
 	window_present(voip_calls_dlg_w);
@@ -738,6 +818,8 @@ static void voip_calls_dlg_create (void)
 	voip_calls_on_unselect(NULL, NULL);
 
 	voip_calls_dlg = voip_calls_dlg_w;
+
+	g_free(win_name); 
 }
 
 
