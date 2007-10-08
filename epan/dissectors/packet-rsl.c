@@ -2632,6 +2632,7 @@ dissect_rsl_ie_multirate_cntrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
  * 9.3.54 Supported Codec Types
  * This element indicates the codec types supported by the BSS or remote BSS.
  */
+static int
 dissect_rsl_ie_sup_codec_types(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
@@ -2683,6 +2684,7 @@ dissect_rsl_ie_sup_codec_types(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 /*
  * 9.3.55 Codec Configuration
  */
+static int
 dissect_rsl_ie_codec_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
 	proto_item *ti;
