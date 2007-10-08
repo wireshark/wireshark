@@ -1663,18 +1663,18 @@ void dcerpc_smb_init(int proto_dcerpc)
 		/* String handling */
 
 		{ &hf_nt_cs_size,
-		  { "Size", "nt.str.size", FT_UINT16, BASE_DEC,
+		  { "Size", "dcerpc.nt.str.size", FT_UINT16, BASE_DEC,
 		    NULL, 0x0, "Size of string in short integers",
 		    HFILL }},
 
 		{ &hf_nt_cs_len,
-		  { "Length", "nt.str.len", FT_UINT16, BASE_DEC,
+		  { "Length", "dcerpc.nt.str.len", FT_UINT16, BASE_DEC,
 		    NULL, 0x0, "Length of string in short integers",
 		    HFILL }},
 
 		/* GUIDs */
 		{ &hf_nt_guid,
-		  { "GUID", "nt.guid", FT_GUID, BASE_NONE,
+		  { "GUID", "dcerpc.nt.guid", FT_GUID, BASE_NONE,
 		    NULL, 0x0, "GUID (uuid for groups?)", HFILL }},
 
 		/* Policy handles */
@@ -1692,85 +1692,85 @@ void dcerpc_smb_init(int proto_dcerpc)
 		/* ACBs */
 
 		{ &hf_nt_acct_ctrl,
-		  { "Acct Ctrl", "nt.acct_ctrl", FT_UINT32, BASE_HEX,
+		  { "Acct Ctrl", "dcerpc.nt.acct_ctrl", FT_UINT32, BASE_HEX,
 		    NULL, 0x0, "Acct CTRL", HFILL }},
 
 		{ &hf_nt_acb_disabled,
-		  { "Account disabled", "nt.acb.disabled", FT_BOOLEAN, 32,
+		  { "Account disabled", "dcerpc.nt.acb.disabled", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_disabled), 0x0001,
 		    "If this account is enabled or disabled", HFILL }},
 
 		{ &hf_nt_acb_homedirreq,
-		  { "Home dir required", "nt.acb.homedirreq", FT_BOOLEAN, 32,
+		  { "Home dir required", "dcerpc.nt.acb.homedirreq", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_homedirreq), 0x0002,
 		    "Is homedirs required for this account?", HFILL }},
 
 		{ &hf_nt_acb_pwnotreq,
-		  { "Password required", "nt.acb.pwnotreq", FT_BOOLEAN, 32,
+		  { "Password required", "dcerpc.nt.acb.pwnotreq", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_pwnotreq), 0x0004,
 		    "If a password is required for this account?", HFILL }},
 
 		{ &hf_nt_acb_tempdup,
-		  { "Temporary duplicate account", "nt.acb.tempdup", FT_BOOLEAN, 32,
+		  { "Temporary duplicate account", "dcerpc.nt.acb.tempdup", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_tempdup), 0x0008,
 		    "If this is a temporary duplicate account", HFILL }},
 
 		{ &hf_nt_acb_normal,
-		  { "Normal user account", "nt.acb.normal", FT_BOOLEAN, 32,
+		  { "Normal user account", "dcerpc.nt.acb.normal", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_normal), 0x0010,
 		    "If this is a normal user account", HFILL }},
 
 		{ &hf_nt_acb_mns,
-		  { "MNS logon user account", "nt.acb.mns", FT_BOOLEAN, 32,
+		  { "MNS logon user account", "dcerpc.nt.acb.mns", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_mns), 0x0020,
 		    "MNS logon user account", HFILL }},
 
 		{ &hf_nt_acb_domtrust,
-		  { "Interdomain trust account", "nt.acb.domtrust", FT_BOOLEAN, 32,
+		  { "Interdomain trust account", "dcerpc.nt.acb.domtrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_domtrust), 0x0040,
 		    "Interdomain trust account", HFILL }},
 
 		{ &hf_nt_acb_wstrust,
-		  { "Workstation trust account", "nt.acb.wstrust", FT_BOOLEAN, 32,
+		  { "Workstation trust account", "dcerpc.nt.acb.wstrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_wstrust), 0x0080,
 		    "Workstation trust account", HFILL }},
 
 		{ &hf_nt_acb_svrtrust,
-		  { "Server trust account", "nt.acb.svrtrust", FT_BOOLEAN, 32,
+		  { "Server trust account", "dcerpc.nt.acb.svrtrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_svrtrust), 0x0100,
 		    "Server trust account", HFILL }},
 
 		{ &hf_nt_acb_pwnoexp,
-		  { "Password expires", "nt.acb.pwnoexp", FT_BOOLEAN, 32,
+		  { "Password expires", "dcerpc.nt.acb.pwnoexp", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_pwnoexp), 0x0200,
 		    "If this account expires or not", HFILL }},
 
 		{ &hf_nt_acb_autolock,
-		  { "Account is autolocked", "nt.acb.autolock", FT_BOOLEAN, 32,
+		  { "Account is autolocked", "dcerpc.nt.acb.autolock", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_autolock), 0x0400,
 		    "If this account has been autolocked", HFILL }},
 
 		/* SIDs */
 
 		{ &hf_nt_domain_sid,
-		  { "Domain SID", "nt.domain_sid",
+		  { "Domain SID", "dcerpc.nt.domain_sid",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "The Domain SID", HFILL }},
 
 		{ &hf_nt_count,
-		  { "Count", "nt.count",
+		  { "Count", "dcerpc.nt.count",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Number of elements in following array", HFILL }},
 
 		/* Logon hours */
 
 		{ &hf_logonhours_divisions,
-		  { "Divisions", "logonhours.divisions",
+		  { "Divisions", "dcerpc.nt.logonhours.divisions",
 		    FT_UINT16, BASE_DEC, NULL, 0,
 		    "Number of divisions for LOGON_HOURS", HFILL }},
 
 		{ &hf_logonhours_unknown_char,
-		  { "Unknown char", "nt.unknown.char",
+		  { "Unknown char", "dcerpc.nt.unknown.char",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "Unknown char. If you know what this is, contact "
 		    "wireshark developers.", HFILL }},
@@ -1778,7 +1778,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 		/* Misc */
 
                 { &hf_nt_attrib,
-		  { "Attributes", "nt.attr",
+		  { "Attributes", "dcerpc.nt.attr",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 	};
 

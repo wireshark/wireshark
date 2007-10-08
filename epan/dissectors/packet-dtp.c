@@ -215,7 +215,7 @@ proto_register_dtp(void)
 		NULL, 0x0, "", HFILL }},
 
 	{ &hf_dtp_some_mac,
-		{ "Neighbor", "vtp.neighbor", FT_ETHER, BASE_NONE, 
+		{ "Neighbor", "dtp.neighbor", FT_ETHER, BASE_NONE, 
 		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
         };

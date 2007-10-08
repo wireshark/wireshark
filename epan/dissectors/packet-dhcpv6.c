@@ -953,7 +953,7 @@ proto_register_dhcpv6(void)
          BASE_DEC, 			VALS(msgtype_vals),   0x0,
       	"", HFILL }},
     { &hf_fqdn_1,
-      { "Reserved", "", FT_UINT8, BASE_HEX, NULL, 0xF8, "", HFILL}},
+      { "Reserved", "dhcpv6.msgtype.reserved", FT_UINT8, BASE_HEX, NULL, 0xF8, "", HFILL}},
     { &hf_fqdn_2,
       { "N", "dhcpv6.msgtype.n", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, "", HFILL}},
     { &hf_fqdn_3,

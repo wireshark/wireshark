@@ -765,7 +765,7 @@ proto_register_dvmrp(void)
 			  NULL, 0, "Count", HFILL }},
 
 		{ &hf_netmask,
-			{ "Netmask", "igmp.netmask", FT_IPv4, BASE_NONE,
+			{ "Netmask", "dvmrp.netmask", FT_IPv4, BASE_NONE,
 			  NULL, 0, "DVMRP Netmask", HFILL }},
 
 		{ &hf_metric,
@@ -785,11 +785,11 @@ proto_register_dvmrp(void)
 			  NULL, 0, "DVMRP Infinity", HFILL }},
 
 		{ &hf_daddr,
-			{ "Dest Addr", "igmp.daddr", FT_IPv4, BASE_NONE,
+			{ "Dest Addr", "dvmrp.daddr", FT_IPv4, BASE_NONE,
 			  NULL, 0, "DVMRP Destination Address", HFILL }},
 
 		{ &hf_maddr,
-			{ "Multicast Addr", "igmp.maddr", FT_IPv4, BASE_NONE,
+			{ "Multicast Addr", "dvmrp.maddr", FT_IPv4, BASE_NONE,
 			  NULL, 0, "DVMRP Multicast Address", HFILL }},
 
 		{ &hf_hold,
@@ -845,7 +845,7 @@ proto_register_dvmrp(void)
 			  NULL, 0, "DVMRP V3 Route Report", HFILL }},
 
 		{ &hf_saddr,
-			{ "Source Addr", "igmp.saddr", FT_IPv4, BASE_NONE,
+			{ "Source Addr", "dvmrp.saddr", FT_IPv4, BASE_NONE,
 			  NULL, 0, "DVMRP Source Address", HFILL }},
 
 		{ &hf_life,
@@ -893,7 +893,7 @@ proto_register_dvmrp(void)
 			NULL, 0, "DVMRP Neighbor Count", HFILL }},
 
 		{ &hf_neighbor,
-			{ "Neighbor Addr", "igmp.neighbor", FT_IPv4, BASE_NONE,
+			{ "Neighbor Addr", "dvmrp.neighbor", FT_IPv4, BASE_NONE,
 			  NULL, 0, "DVMRP Neighbor Address", HFILL }}
 	};
 	static gint *ett[] = {
