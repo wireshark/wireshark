@@ -364,7 +364,7 @@ wireshark_capture_suite() {
 tshark_capture_suite() {
 	DUT=$TSHARK
 	test_step_add "Capture 10 packets" capture_step_10packets
-	test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
+	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
 	if [ $TEST_FIFO ]; then
 		test_step_add "Capture via fifo" capture_step_fifo
 	fi
