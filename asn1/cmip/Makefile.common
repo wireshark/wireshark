@@ -27,10 +27,10 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 NEED_PACKET_PROTO_H = 1
 
-EXT_ASN_FILE_LIST = \
+EXT_ASN_FILE_LIST_LATE = \
+	../x721/Attribute-ASN1Module.asn \
 	../ros/Remote-Operations-Information-Objects.asn \
-	../ros/Remote-Operations-Generic-ROS-PDUs.asn \
-	../x721/Attribute-ASN1Module.asn
+	../ros/Remote-Operations-Generic-ROS-PDUs.asn
 
 ASN_FILE_LIST = \
 	CMIP-1.asn \

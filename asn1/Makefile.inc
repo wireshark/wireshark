@@ -34,7 +34,7 @@ $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
 		-s $(srcdir)/packet-$(PROTOCOL_NAME)-template \
 		-D $(srcdir) \
-		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST)
+		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) $(top_srcdir)/epan/dissectors/
