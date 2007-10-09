@@ -75,7 +75,7 @@ To add the ability to write a new capture file format, you have to:
 	"dump_open" routine set the "subtype_write" member of the
 	"wtap_dumper" structure passed to it to point to it;
 
-	add a "close" routine, if necessary (if, for example, the
+	add a "dump_close" routine, if necessary (if, for example, the
 	"dump_open" routine allocates any memory, or if some of the file
 	header can be written only after all the packets have been
 	written), and have the "dump_open" routine set the
@@ -83,4 +83,4 @@ To add the ability to write a new capture file format, you have to:
 	to it;
 
 	put pointers to the "can_write_encap" and "dump_open" routines
-	in the "dump_open_table[]" entry for that file type.
+	in the "dump_open_table_base[]" entry for that file type.
