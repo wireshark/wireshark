@@ -68,7 +68,7 @@ fix_eol: generate_dissector
 	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
 	del /f packet-$(PROTOCOL_NAME).c.tmp 
-!IF $(NEED_PACKET_PROTO_H)
+!IFDEF NEED_PACKET_PROTO_H
 	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
 	del /f packet-$(PROTOCOL_NAME).h.tmp
@@ -76,7 +76,7 @@ fix_eol: generate_dissector
 
 copy_files: generate_dissector
 	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
-!IF $(NEED_PACKET_PROTO_H)
+!IFDEF NEED_PACKET_PROTO_H
 	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
 !ENDIF
 
