@@ -20,12 +20,13 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=h450-ros
+PROTOCOL_NAME = h450-ros
 
 # The file needs to use h450 for the filter elements etc
 PROTO_OPT = -p h450.ros
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
+DISSECTOR_FILES = \
+	packet-$(PROTOCOL_NAME).c	\
 	packet-$(PROTOCOL_NAME).h
 
 NEED_PACKET_PROTO_H = 1
@@ -46,16 +47,10 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-# -o needed to compensate the -p h450 hack above.
-A2W_FLAGS= -e -o $(PROTOCOL_NAME)
+A2W_FLAGS= -e
 
-EXTRA_CNF= \
+EXTRA_CNF = \
 	../ros/ros-inv.cnf \
 	../ros/ros-res.cnf \
 	../ros/ros-err.cnf \
 	../ros/ros-rej.cnf
-
-
-$(EXTRA_CNF):
-	(cd ../ros && $(MAKE) $(MAKEFLAGS))
-
