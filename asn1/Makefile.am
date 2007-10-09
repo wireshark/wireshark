@@ -43,6 +43,9 @@ SUBDIRS = \
 	h248	\
 	h450	\
 	h450-ros	\
+	inap	\
+	ldap	\
+	logotype-cert-extn	\
 	nbap	\
 	qsig	\
 	ranap	\
@@ -55,36 +58,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	inap/inap.asn	\
-	inap/IN-common-classes.asn	\
-	inap/IN-common-datatypes.asn	\
-	inap/IN-errorcodes.asn	\
-	inap/IN-errortypes.asn	\
-	inap/IN-object-identifiers.asn	\
-	inap/IN-operationcodes.asn	\
-	inap/IN-SCF-SRF-Classes.asn	\
-	inap/IN-SCF-SRF-datatypes.asn	\
-	inap/IN-SCF-SRF-ops-args.asn	\
-	inap/IN-SSF-SCF-Classes.asn	\
-	inap/IN-SSF-SCF-datatypes.asn	\
-	inap/IN-SSF-SCF-ops-args.asn	\
-	inap/inap.cnf	\
-	inap/Makefile	\
-	inap/Makefile.nmake	\
-	inap/packet-inap-template.c	\
-	inap/packet-inap-template.h	\
-	ldap/ldap.cnf	\
-	ldap/Lightweight-Directory-Access-Protocol-V3.asn	\
-	ldap/Makefile	\
-	ldap/Makefile.nmake	\
-	ldap/packet-ldap-template.c	\
-	ldap/packet-ldap-template.h	\
-	logotype-cert-extn/LogotypeCertExtn.asn	\
-	logotype-cert-extn/logotype-cert-extn.cnf	\
-	logotype-cert-extn/Makefile	\
-	logotype-cert-extn/Makefile.nmake	\
-	logotype-cert-extn/packet-logotype-cert-extn-template.c	\
-	logotype-cert-extn/packet-logotype-cert-extn-template.h	\
 	mms/Makefile	\
 	mms/Makefile.nmake	\
 	mms/mms.asn	\
