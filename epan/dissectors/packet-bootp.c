@@ -21,6 +21,7 @@
  * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * RFC 3442: Classless Static Route Option for DHCP version 4
+ * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
  * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
@@ -1568,7 +1569,8 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 {
 	int suboptoff = optoff;
 	guint8 subopt;
-	guint8 subopt_len;
+	int subopt_len, datalen;
+	guint32 enterprise;
 
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
@@ -1599,6 +1601,27 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				    "Agent Remote ID: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
+
+	case 9:
+		while (suboptoff < optend) {
+			enterprise = tvb_get_ntohl(tvb, suboptoff);
+			proto_tree_add_text(v_tree, tvb, suboptoff, 4,
+					    "Enterprise-number: %s-%u",
+					    val_to_str( enterprise, sminmpec_values, "Unknown"),
+					    enterprise);
+			suboptoff += 4;
+
+			datalen = tvb_get_guint8(tvb, suboptoff);
+			proto_tree_add_text(v_tree, tvb, suboptoff, 1,
+				"Data Length: %u", datalen);
+			suboptoff++;
+
+			proto_tree_add_text(v_tree, tvb, suboptoff, datalen,
+				"Suboption Data: %s", tvb_bytes_to_str(tvb, suboptoff, datalen));
+			suboptoff += datalen;
+		}
+		break;
+
 	default:
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Invalid agent suboption %d (%d bytes)",
