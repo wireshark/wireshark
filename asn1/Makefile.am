@@ -22,104 +22,58 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 SUBDIRS = \
-	acp133	\
-	acse	\
+	acp133		\
+	acse		\
 	ansi_map	\
-	camel	\
-	cdt	\
-	cmip	\
-	cms	\
-	dap	\
-	disp	\
-	dop	\
-	dsp	\
-	ess	\
-	ftam	\
-	gnm	\
-	gsmmap	\
-	h225	\
-	h235	\
-	h245	\
-	h248	\
-	h450	\
+	camel		\
+	cdt		\
+	cmip		\
+	cms		\
+	dap		\
+	disp		\
+	dop		\
+	dsp		\
+	ess		\
+	ftam		\
+	gnm		\
+	gsmmap		\
+	h225		\
+	h235		\
+	h245		\
+	h248		\
+	h450		\
 	h450-ros	\
-	inap	\
-	ldap	\
+	inap		\
+	ldap		\
 	logotype-cert-extn	\
-	mms	\
+	mms		\
 	mpeg-audio	\
 	mpeg-pes	\
-	nbap	\
+	nbap		\
 	ns-cert-exts	\
-	ocsp	\
-	pkcs1	\
-	pkcs12	\
-	pkinit	\
-	qsig	\
-	ranap	\
-	rnsap	\
-	rrc	\
-	rrlp	\
-	sabp	\
-	t38	\
+	ocsp		\
+	pkcs1		\
+	pkcs12		\
+	pkinit		\
+	pkix1explicit	\
+	pkix1implicit	\
+	pkixcmp		\
+	pkixcrmf	\
+	pkixproxy	\
+	pkixqualified	\
+	pkixtsp		\
+	pres		\
+	qsig		\
+	ranap		\
+	rnsap		\
+	rrc		\
+	rrlp		\
+	sabp		\
+	t38		\
 	ulp
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	pkix1explicit/Makefile	\
-	pkix1explicit/Makefile.nmake	\
-	pkix1explicit/packet-pkix1explicit-template.c	\
-	pkix1explicit/packet-pkix1explicit-template.h	\
-	pkix1explicit/PKIX1EXPLICIT93.asn	\
-	pkix1explicit/pkix1explicit.cnf	\
-	pkix1explicit/pkix1explicit_exp.cnf	\
-	pkix1explicit/pkix1explicit-exp.cnf	\
-	pkix1implicit/Makefile	\
-	pkix1implicit/Makefile.nmake	\
-	pkix1implicit/packet-pkix1implicit-template.c	\
-	pkix1implicit/packet-pkix1implicit-template.h	\
-	pkix1implicit/PKIX1IMPLICIT93.asn	\
-	pkix1implicit/pkix1implicit.cnf	\
-	pkix1implicit/pkix1implicit_exp.cnf	\
-	pkix1implicit/pkix1implicit-exp.cnf	\
-	pkixcmp/CMP.asn	\
-	pkixcmp/cmp.cnf	\
-	pkixcmp/cmp-exp.cnf	\
-	pkixcmp/Makefile	\
-	pkixcmp/Makefile.nmake	\
-	pkixcmp/packet-cmp-template.c	\
-	pkixcmp/packet-cmp-template.h	\
-	pkixcrmf/CRMF.asn	\
-	pkixcrmf/crmf.cnf	\
-	pkixcrmf/crmf-exp.cnf	\
-	pkixcrmf/Makefile	\
-	pkixcrmf/Makefile.nmake	\
-	pkixcrmf/packet-crmf-template.c	\
-	pkixcrmf/packet-crmf-template.h	\
-	pkixproxy/Makefile	\
-	pkixproxy/Makefile.nmake	\
-	pkixproxy/packet-pkixproxy-template.c	\
-	pkixproxy/packet-pkixproxy-template.h	\
-	pkixproxy/PKIXProxy.asn	\
-	pkixproxy/pkixproxy.cnf	\
-	pkixqualified/Makefile	\
-	pkixqualified/Makefile.nmake	\
-	pkixqualified/packet-pkixqualified-template.c	\
-	pkixqualified/packet-pkixqualified-template.h	\
-	pkixqualified/PKIXqualified.asn	\
-	pkixqualified/pkixqualified.cnf	\
-	pkixtsp/Makefile	\
-	pkixtsp/Makefile.nmake	\
-	pkixtsp/packet-pkixtsp-template.c	\
-	pkixtsp/packet-pkixtsp-template.h	\
-	pkixtsp/PKIXTSP.asn	\
-	pkixtsp/pkixtsp.cnf	\
-	pres/ISO8823-PRESENTATION.asn	\
-	pres/Makefile	\
-	pres/Makefile.nmake	\
-	pres/packet-pres-template.c	\
-	pres/packet-pres-template.h	\
-	pres/pres.cnf	\
 	q932/Addressing-Data-Elements.asn	\
 	q932/Interpretation-component.asn	\
 	q932/Network-Facility-Extension.asn	\

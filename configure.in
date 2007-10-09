@@ -1504,6 +1504,14 @@ AC_OUTPUT(
   asn1/pkcs1/Makefile
   asn1/pkcs12/Makefile
   asn1/pkinit/Makefile
+  asn1/pkix1explicit/Makefile
+  asn1/pkix1implicit/Makefile
+  asn1/pkixcmp/Makefile
+  asn1/pkixcrmf/Makefile
+  asn1/pkixproxy/Makefile
+  asn1/pkixqualified/Makefile
+  asn1/pkixtsp/Makefile
+  asn1/pres/Makefile
   asn1/qsig/Makefile
   asn1/ranap/Makefile
   asn1/rnsap/Makefile
