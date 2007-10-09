@@ -1,54 +1,28 @@
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
+#
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+
+include Makefile.common
 include ../../config.nmake
+include ../Makefile.inc.nmake
 
-UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
-
-PROTOCOL_NAME=mpeg
-MPEG_AUDIO=packet-$(PROTOCOL_NAME)-audio.c 
-MPEG_PES=packet-$(PROTOCOL_NAME)-pes.c
-DISSECTOR_FILES=$(MPEG_AUDIO) $(MPEG_PES)
-all: generate_dissector
-
-generate_dissector: $(DISSECTOR_FILES)
-
-$(MPEG_AUDIO): ../../tools/asn2wrs.py $(PROTOCOL_NAME)-audio.asn packet-$(PROTOCOL_NAME)-audio-template.c $(PROTOCOL_NAME)-audio.cnf
-!IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -e -p $(PROTOCOL_NAME)-audio -c $(PROTOCOL_NAME)-audio.cnf -s packet-$(PROTOCOL_NAME)-audio-template mpeg-audio.asn
-!ELSE
-	@echo Error: You need Python to use asn2wrs.py
-	@exit 1
-!ENDIF
-
-$(MPEG_PES): ../../tools/asn2wrs.py $(PROTOCOL_NAME)-pes.asn packet-$(PROTOCOL_NAME)-pes-template.c $(PROTOCOL_NAME)-pes.cnf
-!IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -e -p $(PROTOCOL_NAME)-pes -c $(PROTOCOL_NAME)-pes.cnf -o $(PROTOCOL_NAME)-pes -s packet-$(PROTOCOL_NAME)-pes-template $(PROTOCOL_NAME)-pes.asn
-!ELSE
-	@echo Error: You need Python to use asn2wrs.py
-	@exit 1
-!ENDIF
-
-clean:
-	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)
-
-distclean: clean
-
-maintainer-clean: distclean
-
-# Fix EOL in generated dissectors. Cygwin's python generates files with 
-# mixed EOL styles, which can't be commited to the SVN repository.
-# Stuff included from template and "cnf" files has "\r\n" on windows, while 
-# the generated stuff has "\n".
-
-fix_eol: generate_dissector
-	move packet-$(PROTOCOL_NAME)-audio.c packet-$(PROTOCOL_NAME)-audio.c.tmp
-	move packet-$(PROTOCOL_NAME)-pes.c packet-$(PROTOCOL_NAME)-pes.c.tmp
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME)-audio.c.tmp > packet-$(PROTOCOL_NAME)-audio.c
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME)-pes.c.tmp > packet-$(PROTOCOL_NAME)-pes.c
-	del /f packet-$(PROTOCOL_NAME)-audio.c.tmp packet-$(PROTOCOL_NAME)-pes.c.tmp
-
-copy_files: generate_dissector fix_eol
-	xcopy packet-$(PROTOCOL_NAME)-audio.c ..\..\epan\dissectors /d /y
-	xcopy packet-$(PROTOCOL_NAME)-pes.c ..\..\epan\dissectors /d /y

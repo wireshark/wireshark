@@ -46,6 +46,9 @@ SUBDIRS = \
 	inap	\
 	ldap	\
 	logotype-cert-extn	\
+	mms	\
+	mpeg-audio	\
+	mpeg-pes	\
 	nbap	\
 	qsig	\
 	ranap	\
@@ -58,21 +61,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	mms/Makefile	\
-	mms/Makefile.nmake	\
-	mms/mms.asn	\
-	mms/mms.cnf	\
-	mms/mms-exp.cnf	\
-	mms/packet-mms-template.c	\
-	mms/packet-mms-template.h	\
-	mpeg/Makefile \
-	mpeg/Makefile.nmake \
-	mpeg/mpeg-audio.asn \
-	mpeg/mpeg-audio.cnf \
-	mpeg/mpeg-pes.asn \
-	mpeg/mpeg-pes.cnf \
-	mpeg/packet-mpeg-audio-template.c \
-	mpeg/packet-mpeg-pes-template.c \
 	nbap/Makefile	\
 	ns-cert-exts/Makefile	\
 	ns-cert-exts/Makefile.nmake	\
