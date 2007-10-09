@@ -82,7 +82,8 @@ per: \
 	h245	\
 	h450	\
 	nbap	\
-	mpeg	\
+	mpeg-audio	\
+	mpeg-pes	\
 	ranap	\
 	rnsap	\
 	rrc		\
@@ -164,7 +165,10 @@ clean:
 	cd mms
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd mpeg
+	cd mpeg-audio
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd mpeg-pes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd nbap
@@ -402,8 +406,13 @@ mms::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
-mpeg::
-	cd mpeg
+mpeg-audio::
+	cd mpeg-audio
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+mpeg-pes::
+	cd mpeg-pes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
