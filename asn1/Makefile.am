@@ -50,6 +50,11 @@ SUBDIRS = \
 	mpeg-audio	\
 	mpeg-pes	\
 	nbap	\
+	ns-cert-exts	\
+	ocsp	\
+	pkcs1	\
+	pkcs12	\
+	pkinit	\
 	qsig	\
 	ranap	\
 	rnsap	\
@@ -61,38 +66,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	nbap/Makefile	\
-	ns-cert-exts/Makefile	\
-	ns-cert-exts/Makefile.nmake	\
-	ns-cert-exts/NETSCAPE-CERT-EXTS.asn	\
-	ns-cert-exts/ns_cert_exts.cnf	\
-	ns-cert-exts/packet-ns_cert_exts-template.c	\
-	ns-cert-exts/packet-ns_cert_exts-template.h	\
-	ocsp/Makefile	\
-	ocsp/Makefile.nmake	\
-	ocsp/OCSP.asn	\
-	ocsp/ocsp.cnf	\
-	ocsp/packet-ocsp-template.c	\
-	ocsp/packet-ocsp-template.h	\
-	pkcs1/Makefile	\
-	pkcs1/Makefile.nmake	\
-	pkcs1/packet-pkcs1-template.c	\
-	pkcs1/packet-pkcs1-template.h	\
-	pkcs1/PKCS1.asn	\
-	pkcs1/pkcs1.cnf	\
-	pkcs12/Makefile	\
-	pkcs12/Makefile.nmake	\
-	pkcs12/packet-pkcs12-template.c	\
-	pkcs12/packet-pkcs12-template.h	\
-	pkcs12/pkcs12.asn	\
-	pkcs12/pkcs12.cnf	\
-	pkinit/Makefile	\
-	pkinit/Makefile.nmake	\
-	pkinit/packet-pkinit-template.c	\
-	pkinit/packet-pkinit-template.h	\
-	pkinit/PKINIT.asn	\
-	pkinit/pkinit.cnf	\
-	pkinit/pkinit_exp.cnf	\
 	pkix1explicit/Makefile	\
 	pkix1explicit/Makefile.nmake	\
 	pkix1explicit/packet-pkix1explicit-template.c	\

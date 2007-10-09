@@ -1499,6 +1499,11 @@ AC_OUTPUT(
   asn1/mpeg-audio/Makefile
   asn1/mpeg-pes/Makefile
   asn1/nbap/Makefile
+  asn1/ns-cert-exts/Makefile
+  asn1/ocsp/Makefile
+  asn1/pkcs1/Makefile
+  asn1/pkcs12/Makefile
+  asn1/pkinit/Makefile
   asn1/qsig/Makefile
   asn1/ranap/Makefile
   asn1/rnsap/Makefile
