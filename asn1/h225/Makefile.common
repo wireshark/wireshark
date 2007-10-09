@@ -45,5 +45,13 @@ SRC_FILES = \
 
 A2W_FLAGS= -e
 
-EXTRA_CNF=
+EXTRA_CNF= \
+	../h235/h235-exp.cnf \
+	../h245/h245-exp.cnf
+
+../h235/h235-exp.cnf:
+	(cd ../h235 && $(MAKE) $(MAKEFLAGS))
+
+../h245/h245-exp.cnf:
+	(cd ../h245 && $(MAKE) $(MAKEFLAGS))
 
