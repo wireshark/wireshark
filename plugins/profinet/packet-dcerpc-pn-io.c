@@ -2480,7 +2480,7 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
 
     *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
     if(*ar == NULL) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODWriteReq: AR not existing!");
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "IODWriteReq: AR information not found!");
     }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
@@ -2523,7 +2523,7 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
 
     *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
     if(*ar == NULL) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODReadReq: AR not existing!");
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "IODReadReq: AR information not found!");
     }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
@@ -2570,7 +2570,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 
     *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
     if(*ar == NULL) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODWriteRes: AR not existing!");
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "IODWriteRes: AR information not found!");
     }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
@@ -2622,7 +2622,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 
     *ar = pnio_ar_find_by_aruuid(pinfo, &aruuid);
     if(*ar == NULL) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IODReadRes: AR not existing!");
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "IODReadRes: AR information not found!");
     }
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
@@ -2675,7 +2675,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 
     *ar = pnio_ar_find_by_aruuid(pinfo, &ar_uuid);
     if(*ar == NULL) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ControlConnect: AR not existing!");
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "ControlConnect: AR information not found!");
     }
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -2932,10 +2932,8 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 {
     e_uuid_t uuid;
     guint16 u16Role;
-#if 0
     guint8 u8LengthDomainName;
     char *pDomainName;
-#endif
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -2944,6 +2942,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
         return offset;
 	}
 
+	/* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_DomainUUID */
@@ -2955,9 +2954,6 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-#if 0
-    /* XXX - these fields will be added later */
-
     /* MRP_LengthDomainName */
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
@@ -2967,7 +2963,6 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     pDomainName[u8LengthDomainName] = '\0';
     proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
     offset += u8LengthDomainName;
-#endif
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -2985,6 +2980,8 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     e_uuid_t uuid;
     guint16 u16Role;
     guint16 u16Version;
+    guint8 u8LengthDomainName;
+    char *pDomainName;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -2993,6 +2990,7 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
         return offset;
 	}
 
+	/* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_DomainUUID */
@@ -3002,9 +3000,22 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_role, &u16Role);
 
+    /* MRP_LengthDomainName */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
+    /* MRP_DomainName */
+    pDomainName = ep_alloc(u8LengthDomainName+1);
+    tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
+    pDomainName[u8LengthDomainName] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+    offset += u8LengthDomainName;
+
     /* MRP_Version */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_version, &u16Version);
+
+	/* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
@@ -4663,7 +4674,7 @@ dissect_ARBlockRes_block(tvbuff_t *tvb, int offset,
 
     par = pnio_ar_find_by_aruuid(pinfo, &uuid);
     if(par == NULL) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockRes: AR not existing!");
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "ARBlockRes: AR information not found!");
     } else {
         memcpy( (void *) (&par->devicemac), mac, sizeof(par->controllermac));
     }
