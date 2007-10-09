@@ -3619,7 +3619,6 @@ static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
-  guint number_of_ppid;
 
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
@@ -3638,11 +3637,21 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "");
 
-  /* is this done automatically ? */
-  for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
-    pinfo->ppid[number_of_ppid] = 0;
+  memset(&pinfo->ppid, 0, sizeof(pinfo->ppid));
 
-  memset(&sctp_info, 0, sizeof(struct _sctp_info));
+  /*  The tvb array in struct _sctp_info is huge: currently 2k pointers.
+   *  We know (by the value of 'number_of_tvbs') which of these entries have
+   *  been used, so don't memset() the array.  This saves us from zeroing out
+   *  8k (4-byte pointers) or 16k (8-byte pointers) of memory every time we
+   *  dissect a packet (saving quite a bit of time!).
+   */
+  sctp_info.incomplete = 0;
+  sctp_info.adler32_calculated = 0;
+  sctp_info.adler32_correct = 0;
+  sctp_info.crc32c_calculated = 0;
+  sctp_info.crc32c_correct = 0;
+  sctp_info.vtag_reflected = 0;
+  sctp_info.number_of_tvbs = 0;
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
 
   sctp_info.sport = pinfo->srcport;
