@@ -50,8 +50,8 @@ EXTRA_CNF= \
 	../h245/h245-exp.cnf
 
 ../h235/h235-exp.cnf:
-	(cd ../h235 && $(MAKE) $(MAKEFLAGS))
+	(cd ../h235 && $(MAKE_CNF_EXPORT))
 
 ../h245/h245-exp.cnf:
-	(cd ../h245 && $(MAKE) $(MAKEFLAGS))
+	(cd ../h245 && $(MAKE_CNF_EXPORT))
 
