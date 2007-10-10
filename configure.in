@@ -1474,7 +1474,7 @@ AC_OUTPUT(
   asn1/acp133/Makefile
   asn1/acse/Makefile
   asn1/ansi_map/Makefile
-  asn1/ansi_tcap/Makefile
+  asn1/ansi-tcap/Makefile
   asn1/camel/Makefile
   asn1/cdt/Makefile
   asn1/cmip/Makefile

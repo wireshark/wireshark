@@ -27,7 +27,7 @@ SUBDIRS = \
 	acp133		\
 	acse		\
 	ansi_map	\
-	ansi_tcap	\
+	ansi-tcap	\
 	camel		\
 	cdt		\
 	cmip		\
