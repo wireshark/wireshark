@@ -20,12 +20,16 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=h225
+PROTOCOL_NAME = h225
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
+DISSECTOR_FILES = \
+	packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
 
 NEED_PACKET_PROTO_H = 1
+
+EXPORT_FILES = \
+	$(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST =
 

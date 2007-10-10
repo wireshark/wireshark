@@ -25,9 +25,11 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
+generate_export: $(EXPORT_FILES)
+
 PROTO_OPT ?= -p $(PROTOCOL_NAME)
 
-$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+$(DISSECTOR_FILES) $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
 		$(A2W_FLAGS) \
 		$(PROTO_OPT) \

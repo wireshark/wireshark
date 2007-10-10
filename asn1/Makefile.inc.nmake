@@ -30,11 +30,13 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
+generate_export: $(EXPORT_FILES)
+
 !IFNDEF PROTO_OPT
 PROTO_OPT = -p $(PROTOCOL_NAME)
 !ENDIF
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+$(DISSECTOR_FILES) $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		$(A2W_FLAGS) \
