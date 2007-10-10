@@ -27,8 +27,9 @@ all: ber per
 
 ber: \
 	acse	\
-	acp133 \
-	ansi_map \
+	acp133	\
+	ansi_map	\
+	ansi-tcap	\
 	camel	\
 	cdt	\
 	cmip	\
@@ -60,6 +61,7 @@ ber: \
 	pkixtsp	\
 	pres	\
 	q932	\
+	q932-ros	\
 	qsig	\
 	ros	\
 	rtse	\
@@ -81,6 +83,7 @@ per: \
 	h235	\
 	h245	\
 	h450	\
+	h450-ros	\
 	nbap	\
 	mpeg-audio	\
 	mpeg-pes	\
@@ -93,10 +96,10 @@ per: \
 	ulp
 	
 clean:
-	cd acse
+	cd acp133
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
 	cd ..
-	cd acp133
+	cd acse
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
 	cd ..
 	cd ansi_map
@@ -117,10 +120,10 @@ clean:
 	cd dap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd dop
+	cd disp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd disp
+	cd dop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd dsp
@@ -297,6 +300,11 @@ acp133::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
 	cd ..
 
+ansi-tcap::
+	cd ansi-tcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	cd ..
+
 ansi_map::
 	cd ansi_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
@@ -383,6 +391,11 @@ h248::
 
 h450::
 	cd h450
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+h450-ros::
+	cd h450-ros
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
@@ -491,6 +504,11 @@ q932::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
+q932-ros::
+	cd q932-ros
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
 qsig::
 	cd qsig
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
@@ -578,11 +596,6 @@ x411::
 
 x420::
 	cd x420
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-x501::
-	cd x501
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
