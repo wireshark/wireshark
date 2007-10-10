@@ -27,6 +27,7 @@ SUBDIRS = \
 	acp133		\
 	acse		\
 	ansi_map	\
+	ansi_tcap	\
 	camel		\
 	cdt		\
 	cmip		\
@@ -80,21 +81,11 @@ SUBDIRS = \
 	snmp		\
 	spnego		\
 	t38		\
+	tcap		\
 	ulp
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	tcap/Makefile	\
-	tcap/Makefile.nmake	\
-	tcap/packet-tcap-template.c	\
-	tcap/packet-tcap-template.h	\
-	tcap/tcap.asn	\
-	tcap/DialoguePDUs.asn	\
-	tcap/TCAP-Remote-Operations-Information-Objects.asn	\
-	tcap/TCAPMessages.asn	\
-	tcap/TCAPPackage.asn	\
-	tcap/UnidialoguePDUs.asn	\
-	tcap/tcap.cnf	\
 	wlancertextn/Makefile	\
 	wlancertextn/Makefile.nmake	\
 	wlancertextn/packet-wlancertextn-template.c	\
