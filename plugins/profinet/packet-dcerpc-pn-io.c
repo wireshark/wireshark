@@ -423,6 +423,9 @@ static int hf_pn_io_fs_hello_interval = -1;
 static int hf_pn_io_fs_hello_retry = -1;
 static int hf_pn_io_fs_hello_delay = -1;
 
+static int hf_pn_io_fs_parameter_mode = -1;
+static int hf_pn_io_fs_parameter_uuid = -1;
+
 
 static int hf_pn_io_check_sync_mode = -1;
 static int hf_pn_io_check_sync_mode_reserved = -1;
@@ -582,7 +585,9 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0400, "MultipleBlockHeader"},
 	{ 0x0500, "RecordDataReadQuery"},
 	{ 0x0600, "FSHello"},
+	{ 0x0601, "FSParameterBlock"},
 	{ 0x0608, "PDInterfaceFSUDataAdjust"},
+	{ 0x0609, "ARFSUDataAdjust"},
 	{ 0x0F00, "MaintenanceItem"},
 	{ 0, NULL }
 };
@@ -1452,6 +1457,14 @@ static const value_string pn_io_fs_hello_mode_vals[] = {
     { 0x0000, "OFF" },
     { 0x0001, "Send req on LinkUp" },
     { 0x0002, "Send req on LinkUp after HelloDelay" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_fs_parameter_mode_vals[] = {
+    { 0x0000, "OFF" },
+    { 0x0001, "ON" },
+    { 0x0002, "Reserved" },
+    { 0x0003, "Reserved" },
     { 0, NULL }
 };
 
@@ -4525,6 +4538,37 @@ dissect_FSHello_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the FS Parameter block */
+static int
+dissect_FSParameter_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+	guint32 u32FSParameterMode;
+	e_uuid_t FSParameterUUID;
+
+
+	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+	}
+
+	offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+	/* FSParameterMode */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_fs_parameter_mode, &u32FSParameterMode);
+	/* FSParameterUUID */
+	offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_fs_parameter_uuid, &FSParameterUUID);
+
+    proto_item_append_text(item, ": Mode:%s",
+        val_to_str(u32FSParameterMode, pn_io_fs_parameter_mode_vals, "0x%x"));
+
+	return offset;
+}
+
+
 
 
 /* dissect the FSUDataAdjust block */
@@ -4552,16 +4596,37 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     dissect_blocks(tvb_new, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
-#if 0
-    proto_item_append_text(item, ": Mode:%s, Interval:%ums, Retry:%u, Delay:%ums",
-        val_to_str(u32FSHelloMode, pn_io_fs_hello_mode_vals, "0x%x"),
-		u32FSHelloInterval, u32FSHelloRetry, u32FSHelloDelay);
-#endif
-
 	return offset;
 }
 
 
+/* dissect the ARFSUDataAdjust block */
+static int
+dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+	guint16 u16BodyLength)
+{
+    tvbuff_t *tvb_new;
+
+
+	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+	}
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    u16BodyLength -= 2;
+
+    /* sub blocks */
+    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    offset += u16BodyLength;
+
+	return offset;
+}
 
 /* dissect the ARBlockReq */
 static int
@@ -5782,8 +5847,15 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0600):
         dissect_FSHello_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0601):
+        dissect_FSParameter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0608):
         dissect_PDInterfaceFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
+			u16BodyLength);
+        break;
+    case(0x0609):
+        dissect_ARFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
 			u16BodyLength);
         break;
     case(0x0f00):
@@ -7286,6 +7358,11 @@ proto_register_pn_io (void)
 	    { "FSHelloRetry", "pn_io.fs_hello_retry", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_fs_hello_delay,
 	    { "FSHelloDelay", "pn_io.fs_hello_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_fs_parameter_mode,
+	    { "FSParameterMode", "pn_io.fs_parameter_mode", FT_UINT32, BASE_HEX, VALS(pn_io_fs_parameter_mode_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_fs_parameter_uuid,
+        { "FSParameterUUID", "pn_io.fs_parameter_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_check_sync_mode,
       { "CheckSyncMode", "pn_io.check_sync_mode", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
