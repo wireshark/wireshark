@@ -58,7 +58,7 @@ case "$1" in
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
 	if [ ! -e $DEST_PATH/$PACKAGE ] ; then 
-	    err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'make setup' required ?"
+	    err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'nmake -f ... setup' required ?"
 	fi
         ;;  
 --download)
