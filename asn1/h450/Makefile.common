@@ -27,7 +27,7 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
 # need empty -p <proto> option, default is -p $(PROTOCOL_NAME)
 PROTO_OPT =
 
-NEED_PACKET_PROTO_H = 0
+# NEED_PACKET_PROTO_H =
 
 EXT_ASN_FILE_LIST = 
 
