@@ -66,12 +66,13 @@ SRC_FILES = \
 
 A2W_FLAGS= 
 
-EXTRA_CNF=../h225/h225-exp.cnf \
+EXTRA_CNF = \
+	../h225/h225-exp.cnf	\
 	../h450-ros/h450-ros-exp.cnf
 
 ../h225/h225-exp.cnf:
-	(cd ../h225 && $(MAKE) $(MAKEFLAGS))
+	(cd ../h225 && $(MAKE_CNF_EXPORT))
 
 ../h450-ros/h450-ros-exp.cnf:
-	(cd ../h450-ros && $(MAKE) $(MAKEFLAGS))
+	(cd ../h450-ros && $(MAKE_CNF_EXPORT))
 

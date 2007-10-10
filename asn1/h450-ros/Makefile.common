@@ -31,6 +31,8 @@ DISSECTOR_FILES = \
 
 NEED_PACKET_PROTO_H = 1
 
+EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
+
 EXT_ASN_FILE_LIST = ../ros/Remote-Operations-Information-Objects.asn
 
 ASN_FILE_LIST = Remote-Operations-Apdus.asn
