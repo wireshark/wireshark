@@ -47,9 +47,12 @@ SRC_FILES = \
 A2W_FLAGS= -b -e
 
 EXTRA_CNF= \
-	 ../x509if/x509if-exp.cnf \
+	../x509if/x509if-exp.cnf \
 	../x509af/x509af-exp.cnf \
+	../x509sat/x509sat-exp.cnf \
+	../pkixcrmf/crmf-exp.cnf \
 	../dsp/dsp-exp.cnf \
+	../disp/disp-exp.cnf \
 	../ros/ros-exp.cnf \
 	../acse/acse-exp.cnf
 
@@ -58,6 +61,15 @@ EXTRA_CNF= \
 
 ../x509af/x509af-exp.cnf:
 	(cd ../x509af && $(MAKE) $(MAKEFLAGS))
+
+../x509sat/x509sat-exp.cnf:
+	(cd ../x509sat && $(MAKE) $(MAKEFLAGS))
+
+../pkixcrmf/pkixcrmf-exp.cnf:
+	(cd ../pkixcrmf && $(MAKE) $(MAKEFLAGS))
+
+../disp/disp-exp.cnf:
+	(cd ../disp && $(MAKE) $(MAKEFLAGS))
 
 ../dsp/dsp-exp.cnf:
 	(cd ../dsp && $(MAKE) $(MAKEFLAGS))

@@ -20,29 +20,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME = t38
-
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c	\
-	packet-$(PROTOCOL_NAME).h
-
-NEED_PACKET_PROTO_H = 1
-
-EXT_ASN_FILE_LIST = 
-
-ASN_FILE_LIST = \
-	T38_2002.asn
-
-EXTRA_DIST = \
-	$(ASN_FILE_LIST) \
-	packet-$(PROTOCOL_NAME)-template.c \
-	$(PROTOCOL_NAME).cnf
-
-SRC_FILES = \
-	$(EXTRA_DIST) \
-	$(EXT_ASN_FILE_LIST)
-
-A2W_FLAGS = 
-
-EXTRA_CNF = 
+include Makefile.common
+include ../Makefile.inc
 

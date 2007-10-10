@@ -21,6 +21,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+all:
+
 SUBDIRS = \
 	acp133		\
 	acse		\
@@ -63,72 +65,25 @@ SUBDIRS = \
 	pkixqualified	\
 	pkixtsp		\
 	pres		\
+	q932		\
+	q932-ros	\
 	qsig		\
 	ranap		\
 	rnsap		\
+	ros		\
 	rrc		\
 	rrlp		\
+	rtse		\
+	s4406		\
 	sabp		\
+	smrse		\
+	snmp		\
+	spnego		\
 	t38		\
 	ulp
 
 EXTRA_DIST = \
 	Makefile.nmake	\
-	q932/Addressing-Data-Elements.asn	\
-	q932/Interpretation-component.asn	\
-	q932/Network-Facility-Extension.asn	\
-	q932/Network-Protocol-Profile-component.asn	\
-	q932/Facility-Information-Element-Components.asn	\
-	q932/q932.cnf	\
-	q932/q932-ros.cnf	\
-	q932/q932-exp.cnf	\
-	q932/Makefile	\
-	q932/Makefile.nmake	\
-	q932/packet-q932-ros-template.c	\
-	q932/packet-q932-template.c	\
-	q932/packet-q932-template.h	\
-	ros/Makefile	\
-	ros/Makefile.nmake	\
-	ros/packet-ros-template.c	\
-	ros/packet-ros-template.h	\
-	ros/ros.asn	\
-	ros/Remote-Operations-Generic-ROS-PDUs.asn	\
-	ros/Remote-Operations-Information-Objects.asn	\
-	ros/Remote-Operations-Useful-Definitions.asn	\
-	ros/ros.cnf	\
-	ros/ros-exp.cnf	\
-	rtse/Makefile	\
-	rtse/Makefile.nmake	\
-	rtse/packet-rtse-template.c	\
-	rtse/packet-rtse-template.h	\
-	rtse/rtse.asn	\
-	rtse/rtse.cnf	\
-	rtse/rtse-exp.cnf	\
-	s4406/Makefile	\
-	s4406/Makefile.nmake	\
-	s4406/packet-s4406-template.c	\
-	s4406/packet-s4406-template.h	\
-	s4406/s4406.asn	\
-	s4406/s4406.cnf	\
-	smrse/Makefile	\
-	smrse/Makefile.nmake	\
-	smrse/packet-smrse-template.c	\
-	smrse/packet-smrse-template.h	\
-	smrse/SMRSE.asn	\
-	smrse/smrse.cnf	\
-	snmp/Makefile	\
-	snmp/Makefile.nmake	\
-	snmp/packet-snmp-template.c	\
-	snmp/packet-snmp-template.h	\
-	snmp/snmp.asn	\
-	snmp/snmp.cnf	\
-	snmp/snmp-exp.cnf	\
-	spnego/Makefile	\
-	spnego/Makefile.nmake	\
-	spnego/packet-spnego-template.c	\
-	spnego/packet-spnego-template.h	\
-	spnego/spnego.asn	\
-	spnego/spnego.cnf	\
 	tcap/Makefile	\
 	tcap/Makefile.nmake	\
 	tcap/packet-tcap-template.c	\

@@ -76,7 +76,7 @@ Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_HEX
   offset += tvb_length_remaining(tvb, offset);
 #.END
 
-#.INCLUDE ros-inv.cnf
+#.INCLUDE ../ros/ros-inv.cnf
 
 #--- RETURN RESULT ---
 
@@ -95,7 +95,7 @@ ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_HEX
 
 #.END
 
-#.INCLUDE ros-res.cnf
+#.INCLUDE ../ros/ros-res.cnf
 
 #--- RETURN ERROR ---
 
@@ -114,8 +114,8 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
   offset += tvb_length_remaining(tvb, offset);
 #.END
 
-#.INCLUDE ros-err.cnf
+#.INCLUDE ../ros/ros-err.cnf
 
 #--- REJECT ---
 
-#.INCLUDE ros-rej.cnf
+#.INCLUDE ../ros/ros-rej.cnf

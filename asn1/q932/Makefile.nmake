@@ -1,60 +1,28 @@
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
+#
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+
+include Makefile.common
 include ../../config.nmake
+include ../Makefile.inc.nmake
 
-UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
-
-PROTOCOL_NAME=q932
-Q932_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h 
-Q932_ROS_FILES=packet-$(PROTOCOL_NAME)-ros.c
-DISSECTOR_FILES=$(Q932_FILES) $(Q932_ROS_FILES)
-Q932_ASN=Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn
-Q932_ROS_ASN=../ros/Remote-Operations-Information-Objects.asn Facility-Information-Element-Components.asn
-
-all: generate_dissector
-
-generate_dissector: $(DISSECTOR_FILES)
-
-$(Q932_FILES): ../../tools/asn2wrs.py $(Q932_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
-!IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -T -X -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(Q932_ASN)
-!ELSE
-	@echo Error: You need Python to use asn2wrs.py
-	@exit 1
-!ENDIF
-
-$(Q932_ROS_FILES): ../../tools/asn2wrs.py $(Q932_ROS_ASN) packet-$(PROTOCOL_NAME)-ros-template.c $(PROTOCOL_NAME)-ros.cnf ../ros/ros-inv.cnf ../ros/ros-res.cnf ../ros/ros-err.cnf ../ros/ros-rej.cnf
-!IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -b -T -X -p $(PROTOCOL_NAME).ros -I ../ros -c $(PROTOCOL_NAME)-ros.cnf -o $(PROTOCOL_NAME)-ros -s packet-$(PROTOCOL_NAME)-ros-template $(Q932_ROS_ASN)
-!ELSE
-	@echo Error: You need Python to use asn2wrs.py
-	@exit 1
-!ENDIF
-
-clean:
-	rm -f parsetab.py parsetab.pyc $(DISSECTOR_FILES)
-
-distclean: clean
-
-maintainer-clean: distclean
-
-# Fix EOL in generated dissectors. Cygwin's python generates files with 
-# mixed EOL styles, which can't be commited to the SVN repository.
-# Stuff included from template and "cnf" files has "\r\n" on windows, while 
-# the generated stuff has "\n".
-
-fix_eol: generate_dissector
-	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
-	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
-	move packet-$(PROTOCOL_NAME)-ros.c packet-$(PROTOCOL_NAME)-ros.c.tmp
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME)-ros.c.tmp > packet-$(PROTOCOL_NAME)-ros.c
-	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp  packet-$(PROTOCOL_NAME)-ros.c.tmp
-
-copy_files: generate_dissector fix_eol
-	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
-	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
-	xcopy packet-$(PROTOCOL_NAME)-ros.c ..\..\epan\dissectors /d /y

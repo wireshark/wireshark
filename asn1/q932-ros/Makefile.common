@@ -20,19 +20,21 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME = t38
+PROTOCOL_NAME=q932-ros
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c	\
-	packet-$(PROTOCOL_NAME).h
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
 
-NEED_PACKET_PROTO_H = 1
+PROTO_OPT = -p q932.ros
 
-EXT_ASN_FILE_LIST = 
+NEED_PACKET_PROTO_H = 0
 
-ASN_FILE_LIST = \
-	T38_2002.asn
+EXT_ASN_FILE_LIST = \
+	../ros/Remote-Operations-Information-Objects.asn
 
+ASN_FILE_LIST = Facility-Information-Element-Components.asn
+
+# The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
+# files do not exist # for all protocols: Please add/remove as required.
 EXTRA_DIST = \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
@@ -42,7 +44,11 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS = 
+A2W_FLAGS= -b -T -X -e
 
-EXTRA_CNF = 
+EXTRA_CNF = \
+	../ros/ros-inv.cnf \
+	../ros/ros-res.cnf \
+	../ros/ros-err.cnf \
+	../ros/ros-rej.cnf
 
