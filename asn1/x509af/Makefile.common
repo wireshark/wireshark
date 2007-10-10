@@ -50,3 +50,12 @@ EXTRA_CNF= \
 	../x509if/x509if-exp.cnf \
 	../x509sat/x509sat-exp.cnf
 
+../x509ce/x509ce-exp.cnf:
+	(cd ../x509ce && $(MAKE_CNF_EXPORT))
+
+../x509if/x509if-exp.cnf:
+	(cd ../x509if && $(MAKE_CNF_EXPORT))
+
+../x509sat/x509sat-exp.cnf:
+	(cd ../x509sat && $(MAKE_CNF_EXPORT))
+

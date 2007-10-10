@@ -65,8 +65,8 @@ EXTRA_CNF=../inap/inap-exp.cnf \
 	../gsmmap/gsm_map-exp.cnf
 
 ../gsmmap/gsm_map-exp.cnf:
-	(cd ../gsmmap && $(MAKE) $(MAKEFLAGS))
+	(cd ../gsmmap && $(MAKE_CNF_EXPORT))
 
 ../inap/inap-exp.cnf:
-	(cd ../inap && $(MAKE) $(MAKEFLAGS))
+	(cd ../inap && $(MAKE_CNF_EXPORT))
 

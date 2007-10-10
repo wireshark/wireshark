@@ -48,3 +48,6 @@ A2W_FLAGS= -b -e
 EXTRA_CNF= \
 	../x509sat/x509sat-exp.cnf
 
+../x509sat/x509sat-exp.cnf:
+	(cd ../x509sat && $(MAKE_CNF_EXPORT))
+

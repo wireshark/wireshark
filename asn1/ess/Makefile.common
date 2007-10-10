@@ -45,5 +45,17 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -k -e
 
-EXTRA_CNF=
+EXTRA_CNF= \
+	../cms/cms-exp.cnf \
+	../x509af/x509af-exp.cnf \
+	../x509ce/x509ce-exp.cnf
+
+../cms/cms-exp.cnf:
+	(cd ../cms && $(MAKE_CNF_EXPORT))
+
+../x509af/x509af-exp.cnf:
+	(cd ../x509af && $(MAKE_CNF_EXPORT))
+
+../x509ce/x509ce-exp.cnf:
+	(cd ../x509ce && $(MAKE_CNF_EXPORT))
 

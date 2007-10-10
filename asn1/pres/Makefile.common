@@ -45,5 +45,9 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -e
 
-EXTRA_CNF=
+EXTRA_CNF= \
+	../rtse/rtse-exp.cnf
+
+../rtse/rtse-exp.cnf:
+	(cd ../rtse && $(MAKE_CNF_EXPORT))
 

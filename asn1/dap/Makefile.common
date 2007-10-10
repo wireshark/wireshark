@@ -47,36 +47,36 @@ SRC_FILES = \
 A2W_FLAGS= -b -e
 
 EXTRA_CNF= \
-	../x509if/x509if-exp.cnf \
-	../x509af/x509af-exp.cnf \
-	../x509sat/x509sat-exp.cnf \
-	../pkixcrmf/crmf-exp.cnf \
-	../dsp/dsp-exp.cnf \
+	../acse/acse-exp.cnf \
 	../disp/disp-exp.cnf \
+	../dsp/dsp-exp.cnf \
+	../pkixcrmf/crmf-exp.cnf \
 	../ros/ros-exp.cnf \
-	../acse/acse-exp.cnf
+	../x509af/x509af-exp.cnf \
+	../x509if/x509if-exp.cnf \
+	../x509sat/x509sat-exp.cnf
 
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE) $(MAKEFLAGS))
-
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE) $(MAKEFLAGS))
-
-../x509sat/x509sat-exp.cnf:
-	(cd ../x509sat && $(MAKE) $(MAKEFLAGS))
-
-../pkixcrmf/pkixcrmf-exp.cnf:
-	(cd ../pkixcrmf && $(MAKE) $(MAKEFLAGS))
+../acse/acse-exp.cnf:
+	(cd ../acse && $(MAKE_CNF_EXPORT))
 
 ../disp/disp-exp.cnf:
-	(cd ../disp && $(MAKE) $(MAKEFLAGS))
+	(cd ../disp && $(MAKE_CNF_EXPORT))
 
 ../dsp/dsp-exp.cnf:
-	(cd ../dsp && $(MAKE) $(MAKEFLAGS))
+	(cd ../dsp && $(MAKE_CNF_EXPORT))
+
+../pkixcrmf/crmf-exp.cnf:
+	(cd ../pkixcrmf && $(MAKE_CNF_EXPORT))
 
 ../ros/ros-exp.cnf:
-	(cd ../ros && $(MAKE) $(MAKEFLAGS))
+	(cd ../ros && $(MAKE_CNF_EXPORT))
 
-../acse/asce-exp.cnf:
-	(cd ../asce && $(MAKE) $(MAKEFLAGS))
+../x509af/x509af-exp.cnf:
+	(cd ../x509af && $(MAKE_CNF_EXPORT))
+
+../x509if/x509if-exp.cnf:
+	(cd ../x509if && $(MAKE_CNF_EXPORT))
+
+../x509sat/x509sat-exp.cnf:
+	(cd ../x509sat && $(MAKE_CNF_EXPORT))
 

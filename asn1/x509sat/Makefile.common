@@ -48,3 +48,6 @@ A2W_FLAGS= -b -e
 EXTRA_CNF= \
 	../x509if/x509if-exp.cnf
 
+../x509if/x509if-exp.cnf:
+	(cd ../x509if && $(MAKE_CNF_EXPORT))
+

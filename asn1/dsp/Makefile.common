@@ -46,25 +46,24 @@ SRC_FILES = \
 A2W_FLAGS= -b -e
 
 EXTRA_CNF = \
+	../acse/acse-exp.cnf \
 	../dap/dap-exp.cnf \
-	../x509if/x509if-exp.cnf \
 	../x509af/x509af-exp.cnf \
-	../x509sat/x509sat-exp.cnf \
-	../acse/acse-exp.cnf
-
-
-../dap/dap-exp.cnf:
-	(cd ../dap && $(MAKE) $(MAKEFLAGS))
-
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE) $(MAKEFLAGS))
-
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE) $(MAKEFLAGS))
-
-../x509sat/x509sat-exp.cnf:
-	(cd ../x509sat && $(MAKE) $(MAKEFLAGS))
+	../x509if/x509if-exp.cnf \
+	../x509sat/x509sat-exp.cnf
 
 ../acse/acse-exp.cnf:
-	(cd ../acse && $(MAKE) $(MAKEFLAGS))
+	(cd ../acse && $(MAKE_CNF_EXPORT))
+
+../dap/dap-exp.cnf:
+	(cd ../dap && $(MAKE_CNF_EXPORT))
+
+../x509af/x509af-exp.cnf:
+	(cd ../x509af && $(MAKE_CNF_EXPORT))
+
+../x509if/x509if-exp.cnf:
+	(cd ../x509if && $(MAKE_CNF_EXPORT))
+
+../x509sat/x509sat-exp.cnf:
+	(cd ../x509sat && $(MAKE_CNF_EXPORT))
 

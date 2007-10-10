@@ -45,5 +45,9 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -e -X -T
 
-EXTRA_CNF=
+EXTRA_CNF= \
+	../cmip/cmip-exp.cnf
+
+../cmip/cmip-exp.cnf:
+	(cd ../cmip && $(MAKE_CNF_EXPORT))
 

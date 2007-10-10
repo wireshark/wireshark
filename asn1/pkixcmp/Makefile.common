@@ -51,5 +51,5 @@ EXTRA_CNF= \
 	../pkixcrmf/crmf-exp.cnf
 
 ../pkixcrmf/crmf-exp.cnf:
-	(cd ../pkixcrmf && $(MAKE) $(MAKEFLAGS))
+	(cd ../pkixcrmf && $(MAKE_CNF_EXPORT))
 

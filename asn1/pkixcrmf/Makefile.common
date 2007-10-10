@@ -45,5 +45,9 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -e
 
-EXTRA_CNF=
+EXTRA_CNF= \
+	../cms/cms-exp.cnf
+
+../cms/cms-exp.cnf:
+	(cd ../cms && $(MAKE_CNF_EXPORT))
 

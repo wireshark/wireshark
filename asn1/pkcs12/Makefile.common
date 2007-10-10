@@ -51,11 +51,11 @@ EXTRA_CNF= \
 	../x509af/x509af-exp.cnf
 
 ../cms/cms-exp.cnf:
-	(cd ../cms && $(MAKE) $(MAKEFLAGS))
-
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE) $(MAKEFLAGS))
+	(cd ../cms && $(MAKE_CNF_EXPORT))
 
 ../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE) $(MAKEFLAGS))
+	(cd ../x509af && $(MAKE_CNF_EXPORT))
+
+../x509if/x509if-exp.cnf:
+	(cd ../x509if && $(MAKE_CNF_EXPORT))
 
