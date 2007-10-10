@@ -82,59 +82,18 @@ SUBDIRS = \
 	spnego		\
 	t38		\
 	tcap		\
-	ulp
+	ulp		\
+	wlancertextn	\
+	x411		\
+	x420		\
+	x509af		\
+	x509ce		\
+	x509if		\
+	x509sat		\
+	x721
 
 EXTRA_DIST = \
-	Makefile.nmake	\
-	wlancertextn/Makefile	\
-	wlancertextn/Makefile.nmake	\
-	wlancertextn/packet-wlancertextn-template.c	\
-	wlancertextn/packet-wlancertextn-template.h	\
-	wlancertextn/WLANCERTEXTN.asn	\
-	wlancertextn/wlancertextn.cnf	\
-	x411/Makefile	\
-	x411/Makefile.nmake	\
-	x411/packet-x411-template.c	\
-	x411/packet-x411-template.h	\
-	x411/x411.asn	\
-	x411/x411.cnf	\
-	x411/x411-exp.cnf	\
-	x420/Makefile	\
-	x420/Makefile.nmake	\
-	x420/packet-x420-template.c	\
-	x420/packet-x420-template.h	\
-	x420/x420.asn	\
-	x420/ftbp.asn	\
-	x420/x420.cnf	\
-	x420/x420-exp.cnf	\
-	x509af/AuthenticationFramework.asn	\
-	x509af/Makefile	\
-	x509af/Makefile.nmake	\
-	x509af/packet-x509af-template.c	\
-	x509af/packet-x509af-template.h	\
-	x509af/x509af.cnf	\
-	x509af/x509af-exp.cnf	\
-	x509ce/CertificateExtensions.asn	\
-	x509ce/Makefile	\
-	x509ce/Makefile.nmake	\
-	x509ce/packet-x509ce-template.c	\
-	x509ce/packet-x509ce-template.h	\
-	x509ce/x509ce.cnf	\
-	x509ce/x509ce-exp.cnf	\
-	x509if/InformationFramework.asn	\
-	x509if/Makefile	\
-	x509if/Makefile.nmake	\
-	x509if/packet-x509if-template.c	\
-	x509if/packet-x509if-template.h	\
-	x509if/x509if.cnf	\
-	x509if/x509if-exp.cnf	\
-	x509sat/Makefile	\
-	x509sat/Makefile.nmake	\
-	x509sat/packet-x509sat-template.c	\
-	x509sat/packet-x509sat-template.h	\
-	x509sat/SelectedAttributeTypes.asn	\
-	x509sat/x509sat.cnf	\
-	x509sat/x509sat-exp.cnf
+	Makefile.nmake
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

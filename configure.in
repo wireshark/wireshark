@@ -1530,6 +1530,14 @@ AC_OUTPUT(
   asn1/t38/Makefile
   asn1/tcap/Makefile
   asn1/ulp/Makefile
+  asn1/wlancertextn/Makefile
+  asn1/x411/Makefile
+  asn1/x420/Makefile
+  asn1/x509af/Makefile
+  asn1/x509ce/Makefile
+  asn1/x509if/Makefile
+  asn1/x509sat/Makefile
+  asn1/x721/Makefile
   doc/Makefile
   epan/Makefile
   epan/crypt/Makefile
