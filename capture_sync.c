@@ -354,7 +354,6 @@ sync_pipe_start(capture_options *capture_opts) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
 #ifdef _WIN32
@@ -412,7 +411,7 @@ sync_pipe_start(capture_options *capture_opts) {
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
     si.hStdInput = signal_pipe_read;
-    si.hStdOutput = sync_pipe_write;
+    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError = sync_pipe_write;
     /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
 #endif
@@ -466,7 +465,7 @@ sync_pipe_start(capture_options *capture_opts) {
        * Child process - run dumpcap with the right arguments to make
        * it just capture with the specified capture parameters
        */
-      eth_close(1);
+      eth_close(2);
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
       execv(argv[0], (gpointer)argv);
@@ -805,7 +804,6 @@ sync_interface_list_open(gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -845,7 +843,6 @@ sync_linktype_list_open(gchar *ifname, gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -883,7 +880,6 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    argv = sync_pipe_add_arg(argv, &argc, "1");
 #endif
 
     return sync_pipe_open_command(argv, read_fd, fork_child, msg);

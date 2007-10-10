@@ -85,8 +85,6 @@ void exit_main(int err) __attribute__ ((noreturn));
 void exit_main(int err);
 #endif
 
-/* Sync pipe file descriptor. */
-static int sync_pipe_fd;
 
 static void
 print_usage(gboolean print_ver) {
@@ -255,7 +253,7 @@ main(int argc, char *argv[])
   gboolean             print_statistics = FALSE;
   int                  status, run_once_args = 0;
 
-#define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z:"
+#define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -364,10 +362,9 @@ main(int argc, char *argv[])
       /*** hidden option: Wireshark child mode (using binary output messages) ***/
       case 'Z':
           capture_child = TRUE;
-          sync_pipe_fd = get_positive_int(optarg, "sync pipe file descriptor");
 #ifdef _WIN32
           /* set output pipe to binary mode, to avoid ugly text conversions */
-	  _setmode(sync_pipe_fd, O_BINARY);
+	  _setmode(2, O_BINARY);
 #endif
           break;
 
@@ -557,7 +554,7 @@ report_packet_count(int packet_count)
     if(capture_child) {
         g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
-        pipe_write_block(sync_pipe_fd, SP_PACKET_COUNT, tmp);
+        pipe_write_block(2, SP_PACKET_COUNT, tmp);
     } else {
         count += packet_count;
         fprintf(stderr, "\rPackets: %u ", count);
@@ -571,7 +568,7 @@ report_new_capture_file(const char *filename)
 {
     if(capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
-        pipe_write_block(sync_pipe_fd, SP_FILE, filename);
+        pipe_write_block(2, SP_FILE, filename);
     } else {
         fprintf(stderr, "File: %s\n", filename);
         /* stderr could be line buffered */
@@ -584,7 +581,7 @@ report_cfilter_error(const char *cfilter, const char *errmsg)
 {
     if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
-        pipe_write_block(sync_pipe_fd, SP_BAD_FILTER, errmsg);
+        pipe_write_block(2, SP_BAD_FILTER, errmsg);
     } else {
         fprintf(stderr,
           "Invalid capture filter: \"%s\"!\n"
@@ -603,7 +600,7 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
             "Primary Error: %s", error_msg);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Secondary Error: %s", secondary_error_msg);
-    	sync_pipe_errmsg_to_parent(sync_pipe_fd, error_msg, secondary_error_msg);
+    	sync_pipe_errmsg_to_parent(2, error_msg, secondary_error_msg);
     } else {
         fprintf(stderr, "%s\n%s\n", error_msg, secondary_error_msg);
     }
@@ -618,7 +615,7 @@ report_packet_drops(int drops)
 
     if(capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets dropped: %s", tmp);
-        pipe_write_block(sync_pipe_fd, SP_DROPS, tmp);
+        pipe_write_block(2, SP_DROPS, tmp);
     } else {
         fprintf(stderr, "Packets dropped: %s\n", tmp);
         /* stderr could be line buffered */
