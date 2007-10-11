@@ -360,14 +360,14 @@ clean_gtk2.tmp:
 	rm -rf gtk2.tmp
 
 clean: clean_gtk2.tmp clean-deps
-	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
+	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
 		nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
 		AUTHORS-SHORT-FORMAT $(LIBS_CHECK) \
-		dftest.obj dftest.exe randpkt.obj randpkt.ext dumpcap.obj \
+		dftest.obj dftest.exe randpkt.obj randpkt.ext \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll
 	cd asn1
