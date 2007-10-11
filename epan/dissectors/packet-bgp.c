@@ -1036,8 +1036,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         tvb_get_ntohs(tvb, offset + 4),
                         ip_to_str(ip4addr.addr_bytes),
                         ce_id,
-                        labblk_size,
                         labblk_off,
+                        labblk_size,
                         lab_stk);
                 break;
 
