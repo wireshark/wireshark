@@ -49,7 +49,7 @@ SRC_FILES = \
 	TC-Notation-Extensions.asn \
 	UnidialoguePDUs.asn
 
-A2W_FLAGS= -b -e
+A2W_FLAGS= -b
 
 EXTRA_CNF=
 

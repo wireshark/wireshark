@@ -29,6 +29,9 @@ NEED_PACKET_PROTO_H = 1
 
 PROTO_OPT =
 
+EXPORT_FILES = \
+	$(PROTOCOL_NAME)-exp.cnf
+
 EXT_ASN_FILE_LIST = \
 	../ros/Remote-Operations-Information-Objects.asn
 

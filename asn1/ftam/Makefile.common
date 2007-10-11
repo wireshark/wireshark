@@ -27,6 +27,9 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 NEED_PACKET_PROTO_H = 1
 
+EXPORT_FILES = \
+	$(PROTOCOL_NAME)-exp.cnf
+
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = ISO8571-FTAM.asn
@@ -43,7 +46,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -X -T -e
+A2W_FLAGS= -b -X -T
 
 EXTRA_CNF= \
 	../acse/acse-exp.cnf

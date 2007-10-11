@@ -27,6 +27,9 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 NEED_PACKET_PROTO_H = 1
 
+EXPORT_FILES = \
+        $(PROTOCOL_NAME)-exp.cnf
+
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = SelectedAttributeTypes.asn
