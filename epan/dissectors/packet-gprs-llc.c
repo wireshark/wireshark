@@ -344,7 +344,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		if (check_col(pinfo->cinfo,COL_INFO))
 		{
-		       col_add_str(pinfo->cinfo,COL_INFO,"Invalid packet - Protocol Discriminator bit is set to 1");
+		       col_set_str(pinfo->cinfo,COL_INFO,"Invalid packet - Protocol Discriminator bit is set to 1");
 		}
 		return;
 	}
@@ -358,7 +358,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	  
 	length = tvb_reported_length(tvb);
-	if (tvb_bytes_exist(tvb, 0, length) && length >= 3)
+	if (tvb_length(tvb) >= length && length >= 3)
 	{
 		/*
 		 * We have all the packet data, including the full FCS,

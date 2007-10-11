@@ -1488,7 +1488,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
+			col_add_str(pinfo->cinfo, COL_INFO, val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
 		while ((msg_len + 1) > offset ){
 			offset++;
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
@@ -1500,7 +1500,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+			col_add_str(pinfo->cinfo, COL_INFO, val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
 			col_set_fence(pinfo->cinfo,COL_INFO);
 		}
 		offset++;

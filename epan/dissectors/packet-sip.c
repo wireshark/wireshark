@@ -1562,15 +1562,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint resend_for_packet = 0;
 	int strlen_to_copy;
 
-	/* Initialise stat info for passing to tap */
-	stat_info = ep_alloc(sizeof(sip_info_value_t));
-	stat_info->response_code = 0;
-	stat_info->request_method = NULL;
-	stat_info->reason_phrase = NULL;
-	stat_info->resend = 0;
-	stat_info->tap_call_id = NULL;
-	stat_info->tap_from_addr = NULL;
-	stat_info->tap_to_addr = NULL;
 
 	/*
 	 * Note that "tvb_find_line_end()" will return a value that
@@ -1622,6 +1613,16 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			return -1;
 		}
 	}
+
+	/* Initialise stat info for passing to tap */
+	stat_info = ep_alloc(sizeof(sip_info_value_t));
+	stat_info->response_code = 0;
+	stat_info->request_method = NULL;
+	stat_info->reason_phrase = NULL;
+	stat_info->resend = 0;
+	stat_info->tap_call_id = NULL;
+	stat_info->tap_from_addr = NULL;
+	stat_info->tap_to_addr = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");

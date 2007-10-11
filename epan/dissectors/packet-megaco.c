@@ -388,7 +388,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Display MEGACO in protocol column */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
 
 	/* Build the info tree if we've been given a root */
 	/* Create megaco subtree */
@@ -514,7 +514,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* errorDescriptor */
 		case ERRORTOKEN:
 			if (check_col(pinfo->cinfo, COL_INFO) )
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Error  ");
+			col_set_str(pinfo->cinfo, COL_INFO, "Error  ");
 
 			tvb_current_offset = tvb_find_guint8(tvb, tvb_offset+1, tvb_len, '}');
 
@@ -727,7 +727,7 @@ nextcontext:
 				tvb_previous_offset, 1,
 				"Choose one");
 			if (check_col(pinfo->cinfo, COL_INFO) )
-				col_append_fstr(pinfo->cinfo, COL_INFO, " |=Choose one");
+				col_append_str(pinfo->cinfo, COL_INFO, " |=Choose one");
 			break;
 		case '*':
 			ctx_id = ALL_CONTEXTS;
@@ -735,13 +735,13 @@ nextcontext:
 				tvb_previous_offset, 1,
 				"All");
 			if (check_col(pinfo->cinfo, COL_INFO) )
-				col_append_fstr(pinfo->cinfo, COL_INFO, " |=All");
+				col_append_str(pinfo->cinfo, COL_INFO, " |=All");
 			break;
 		case '-':
 			ctx_id = NULL_CONTEXT;
 			proto_tree_add_text(megaco_context_tree, tvb, tvb_previous_offset, tokenlen, "Context: NULL" );
 			if (check_col(pinfo->cinfo, COL_INFO) )
-				col_append_fstr(pinfo->cinfo, COL_INFO, " |=NULL");
+				col_append_str(pinfo->cinfo, COL_INFO, " |=NULL");
 			break;
 		default:
 			my_proto_tree_add_string(megaco_context_tree, hf_megaco_Context, tvb,
@@ -924,7 +924,7 @@ nextcontext:
 									tvb_command_start_offset, tokenlen,
 									"AuditValue");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " AuditValue");
+									col_append_str(pinfo->cinfo, COL_INFO, " AuditValue");
 								break;
 
 							case 'C':
@@ -937,7 +937,7 @@ nextcontext:
 									tvb_command_start_offset, tokenlen,
 									"AuditCapability");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " AuditCapability");
+									col_append_str(pinfo->cinfo, COL_INFO, " AuditCapability");
 								break;
 
 							default:
@@ -951,7 +951,7 @@ nextcontext:
 									tvb_command_start_offset, tokenlen,
 									"Add");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " Add");
+									col_append_str(pinfo->cinfo, COL_INFO, " Add");
 								break;
 							}
 							break;
@@ -967,7 +967,7 @@ nextcontext:
 								tvb_command_start_offset, tokenlen,
 								"Notify");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " Notify");
+									col_append_str(pinfo->cinfo, COL_INFO, " Notify");
 							break;
 
 						case 'M': 
@@ -988,7 +988,7 @@ nextcontext:
 									tvb_command_start_offset, tokenlen,
 									"Modify");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " Modify");
+									col_append_str(pinfo->cinfo, COL_INFO, " Modify");
 								break;
 
 							case 'V':
@@ -1001,7 +1001,7 @@ nextcontext:
 									tvb_command_start_offset, tokenlen,
 									"Move");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " Move");
+									col_append_str(pinfo->cinfo, COL_INFO, " Move");
 								break;
 							}
 							break;
@@ -1070,7 +1070,7 @@ nextcontext:
 									tvb_command_start_offset, tokenlen,
 									"Subtract");
 								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_fstr(pinfo->cinfo, COL_INFO, " Subtract");
+									col_append_str(pinfo->cinfo, COL_INFO, " Subtract");
 								break;
 							}
 							break;
@@ -1214,7 +1214,7 @@ nextcontext:
 							tvb_offset, tokenlen,
 							"WildCard all");
 							if (check_col(pinfo->cinfo, COL_INFO) )
-								col_append_fstr(pinfo->cinfo, COL_INFO, "=*");
+								col_append_str(pinfo->cinfo, COL_INFO, "=*");
 						break;
 
 					case '$':
@@ -1229,7 +1229,7 @@ nextcontext:
 							tvb_offset, tokenlen,
 							"WildCard any");
 							if (check_col(pinfo->cinfo, COL_INFO) )
-								col_append_fstr(pinfo->cinfo, COL_INFO, "=$");
+								col_append_str(pinfo->cinfo, COL_INFO, "=$");
 						break;
 
 					default:

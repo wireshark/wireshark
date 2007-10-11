@@ -3593,7 +3593,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 				" (Message Reassembled)");
 		} else { /* Not last packet of reassembled Short Message */
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO,
+				col_append_str(pinfo->cinfo, COL_INFO,
 				" (Message fragment )");
 		}
 

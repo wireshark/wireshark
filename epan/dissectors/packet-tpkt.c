@@ -82,7 +82,7 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 		return -1;
 
 	/* There should at least be 4 bytes left in the frame */
-	if (!tvb_bytes_exist(tvb, 0, 4))
+	if (tvb_length(tvb) < 4)
 		return -1;	/* there aren't */
 
 	/*
@@ -134,7 +134,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * anyway.
 	 */
 	if (desegment && check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, "");
+		col_set_str(pinfo->cinfo, COL_INFO, "");
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
