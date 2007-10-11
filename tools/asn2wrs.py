@@ -2739,7 +2739,7 @@ class EthOut:
     out = ''
     out += self.outcomment('Do not modify this file.', comment)
     out += self.outcomment('It is created automatically by the ASN.1 to Wireshark dissector compiler', comment)
-    out += self.outcomment(fn, comment)
+    out += self.outcomment(os.path.basename(fn), comment)
     out += self.outcomment(' '.join(sys.argv), comment)
     out += '\n'
     # Make Windows path separator look like Unix path separator
@@ -2776,7 +2776,7 @@ class EthOut:
     fin = file(in_nm, "r")
     fout = file(out_nm, "w")
     fout.write(self.fhdr(out_nm))
-    fout.write('/* Input file: ' + in_nm +' */\n')
+    fout.write('/* Input file: ' + os.path.basename(in_nm) +' */\n')
     fout.write('\n')
     fout.write('#line %u "%s"\n' % (1, os.path.basename(in_nm)))
 
