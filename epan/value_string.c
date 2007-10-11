@@ -56,16 +56,18 @@ const gchar*
 match_strval_idx(guint32 val, const value_string *vs, gint *idx) {
   gint i = 0;
 
-  while (vs[i].strptr) {
-    if (vs[i].value == val) {
-      *idx = i;
-      return(vs[i].strptr);
+  if(vs) {
+    while (vs[i].strptr) {
+      if (vs[i].value == val) {
+        *idx = i;
+        return(vs[i].strptr);
+      }
+      i++;
     }
-    i++;
   }
 
   *idx = -1;
-  return(NULL);
+  return NULL;
 }
 
 /* Like match_strval_idx(), but doesn't return the index. */
@@ -137,16 +139,18 @@ const gchar *match_strrval_idx(guint32 val, const range_string *rs, gint *idx)
 {
   gint i = 0;
 
-  while(rs[i].strptr) {
-    if( (val >= rs[i].value_min) && (val <= rs[i].value_max) ) {
-      *idx = i;
-      return (rs[i].strptr);
+  if(rs) {
+    while(rs[i].strptr) {
+      if( (val >= rs[i].value_min) && (val <= rs[i].value_max) ) {
+        *idx = i;
+        return (rs[i].strptr);
+      }
+      i++;
     }
-    i++;
   }
 
   *idx = -1;
-  return (NULL);
+  return NULL;
 }
 
 /* Like match_strrval_idx(), but doesn't return the index. */
