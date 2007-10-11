@@ -284,7 +284,7 @@ proto_register_tcap(void)
 	},
 	{ &hf_tcap_length,
 		{ "Length", "tcap.len",
-		FT_UINT8, BASE_HEX, NULL, 0,
+		FT_UINT8, BASE_DEC, NULL, 0,
 		"", HFILL }
 	},
 	{ &hf_tcap_data,
@@ -451,6 +451,8 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
     gboolean pc;
     gint32 tag;
     guint32 len;
+    guint32 tag_length;
+    guint32 len_length;
     gboolean ind_field;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0)
@@ -462,45 +464,57 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 	offset = get_ber_length(tvb, offset, &len, &ind_field);
 	len_offset = offset;
 
+	tag_length = tag_offset - saved_offset;
+	len_length = len_offset - tag_offset;
+
 	if (pc)
 	{
-	    pi =
-		proto_tree_add_text(tree, tvb, saved_offset, len + (len_offset - saved_offset), "CONSTRUCTOR");
+	    pi = proto_tree_add_text(tree, tvb, saved_offset,
+				     len + (len_offset - saved_offset),
+				     "CONSTRUCTOR");
 	    subtree = proto_item_add_subtree(pi, ett_param);
 	    proto_tree_add_uint_format(subtree, hf_tcap_tag, tvb,
-		saved_offset, tag_offset-saved_offset, tag, "CONSTRUCTOR Tag");
-	    proto_tree_add_uint(subtree, hf_tcap_tag, tvb,
-		saved_offset, tag_offset-saved_offset, class);
+				       saved_offset, tag_length, tag,
+				       "CONSTRUCTOR Tag");
+	    proto_tree_add_uint(subtree, hf_tcap_tag, tvb, saved_offset,
+				tag_length, class);
 
-	    proto_tree_add_uint(subtree, hf_tcap_length, tvb,
-		tag_offset, len_offset-tag_offset, len);
-		if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
-		{
-	    	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-	    		dissect_tcap_param(actx, subtree,next_tvb,0);
+	    proto_tree_add_uint(subtree, hf_tcap_length, tvb, tag_offset,
+				len_length, len);
+
+	    if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
+	    {
+		next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field),
+					  len-(2*ind_field));
+		dissect_tcap_param(actx, subtree,next_tvb,0);
 	    }
-	    	if (ind_field)
-	    		proto_tree_add_text(subtree, tvb, offset+len-2, 2, "CONSTRUCTOR EOC");
+
+	    if (ind_field)
+		    proto_tree_add_text(subtree, tvb, offset+len-2, 2, "CONSTRUCTOR EOC");
+
 	    offset += len;
 	}
 	else
 	{
-	    pi = proto_tree_add_text(tree, tvb,
-		saved_offset, len + (len_offset - saved_offset), "Parameter (0x%.2x)", tag);
+	    pi = proto_tree_add_text(tree, tvb, saved_offset,
+				     len + (len_offset - saved_offset),
+				     "Parameter (0x%.2x)", tag);
 
 	    subtree = proto_item_add_subtree(pi, ett_param);
 
-	    proto_tree_add_uint(subtree, hf_tcap_tag, tvb,
-		saved_offset, 1, tag);
+	    proto_tree_add_uint(subtree, hf_tcap_tag, tvb, saved_offset,
+			        tag_length, tag);
 
 	    proto_tree_add_uint(subtree, hf_tcap_length, tvb,
-		saved_offset+1, 1, len);
-		if (len) /* check for NULLS */
-			{
-	    	next_tvb = tvb_new_subset(tvb, offset, len, len);
-	    	dissect_ber_octet_string(TRUE, actx, tree, next_tvb, 0, hf_tcap_data,
-        	                        NULL);
-        	}
+				saved_offset+tag_length, len_length, len);
+
+	    if (len) /* check for NULLS */
+	    {
+		next_tvb = tvb_new_subset(tvb, offset, len, len);
+		dissect_ber_octet_string(TRUE, actx, tree, next_tvb, 0,
+					 hf_tcap_data, NULL);
+	    }
+
 	    offset += len;
 	}
     }
