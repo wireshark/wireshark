@@ -95,20 +95,20 @@ static gint64 ascend_seek(wtap *wth, int *err)
   guint string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
   guint excessive_read_count = 262144;
-  
+
   memset(&string_level, 0, sizeof(string_level));
 
   while (((byte = file_getc(wth->fh)) != EOF)) {
     excessive_read_count--;
-	  
+  
     if (!excessive_read_count) {
       return -1;
     }
-	  
+
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
       const gchar *strptr = ascend_magic[string_i].strptr;
       guint len           = strlen(strptr);
-      
+
       if (byte == *(strptr + string_level[string_i])) {
         string_level[string_i]++;
         if (string_level[string_i] >= len) {
@@ -171,6 +171,9 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
 {
   gint64 offset;
   struct stat statbuf;
+  guint8 buf[ASCEND_MAX_PKT_LEN];
+  ascend_pkthdr header;
+  guint64 dummy_seek_start;
 
   /* We haven't yet allocated a data structure for our private stuff;
      set the pointer to null, so that "ascend_seek()" knows not to
@@ -183,6 +186,12 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0;
     else
       return -1;
+  }
+
+  /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
+  init_parse_ascend();
+  if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, &dummy_seek_start)) {
+    return 0;
   }
 
   wth->data_offset = offset;
