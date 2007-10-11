@@ -2110,7 +2110,7 @@ class EthCnf:
     self.fn[name][ctx]['used'] = True
     out = self.fn[name][ctx]['text']
     if (not self.suppress_line): 
-      out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], self.fn[name][ctx]['fn'], out);
+      out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], os.path.basename(self.fn[name][ctx]['fn']), out);
     return out
 
   def add_pdu(self, par, is_new, fn, lineno):
@@ -2778,7 +2778,7 @@ class EthOut:
     fout.write(self.fhdr(out_nm))
     fout.write('/* Input file: ' + in_nm +' */\n')
     fout.write('\n')
-    fout.write('#line 1 "%s"\n' % (in_nm))
+    fout.write('#line %u "%s"\n' % (1, os.path.basename(in_nm)))
 
     include = re.compile(r'^\s*#\s*include\s+[<"](?P<fname>[^>"]+)[>"]', re.IGNORECASE)
 
@@ -2800,12 +2800,12 @@ class EthOut:
       if (ifile):
         fout.write('\n')
         fout.write('/*--- Included file: ' + ifile + ' ---*/\n')
-        fout.write('#line 1 "' + ifile + '"\n')
+        fout.write('#line %u "%s"\n' % (1, os.path.basename(ifile)))
         finc = file(ifile, "r")
         fout.write(finc.read())
         fout.write('\n')
         fout.write('/*--- End of included file: ' + ifile + ' ---*/\n')
-        fout.write('#line %i "%s"\n' % (cont_linenum+1,in_nm) )
+        fout.write('#line %u "%s"\n' % (cont_linenum+1, os.path.basename(in_nm)) )
         finc.close()
       else:
         fout.write(line)
