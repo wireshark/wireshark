@@ -87,11 +87,11 @@ static range_t *global_netflow_ports = NULL;
 static range_t *netflow_ports = NULL;
 
 /*
- *	global_netflow_ports : holds the configured range of ports for IPFIX
+ *	global_ipfix_ports : holds the configured range of ports for IPFIX
  */
 static range_t *global_ipfix_ports = NULL;
 /*
- *	netflow_ports : holds the currently used range of ports for IPFIX
+ *	ipfix_ports : holds the currently used range of ports for IPFIX
  */
 static range_t *ipfix_ports = NULL;
 
