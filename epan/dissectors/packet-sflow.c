@@ -55,9 +55,24 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
+
 /*#include "packet-sflow.h"*/
 
-#define UDP_PORT_SFLOW 6343
+#define SFLOW_UDP_PORTS "6343"
+
+static dissector_handle_t sflow_handle;
+
+/*
+ *	global_sflow_ports : holds the configured range of ports for sflow
+ */
+static range_t *global_sflow_ports = NULL;
+
+/*
+ *	sflow_ports : holds the currently used range of ports for sflow
+ */
+static range_t *sflow_ports = NULL;
+
 
 #define ADDRESS_IPV4 1
 #define ADDRESS_IPV6 2
@@ -324,10 +339,12 @@ static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t mpls_handle;
 
+void proto_reg_handoff_sflow(void);
+
 /* dissect a sampled header - layer 2 protocols */
 static gint
 dissect_sflow_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
-							 proto_tree *tree, volatile gint offset)
+			     proto_tree *tree, volatile gint offset)
 {
 	guint32 	header_proto, frame_length;
 	volatile 	guint32 	header_length;
@@ -754,7 +771,7 @@ dissect_sflow_samples(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -813,6 +830,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 16;
 		break;
 	default:
+		return 0;
 		/* unknown address.  this will cause a malformed packet.  */
 		break;
 	};
@@ -857,6 +875,38 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset);
 		}
 	}
+
+	return tvb_length(tvb);
+}
+
+
+static void
+sflow_delete_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_delete("udp.port", port, sflow_handle);
+    }
+}
+static void
+sflow_add_callback(guint32 port)
+{
+    if ( port ) {
+	dissector_add("udp.port", port, sflow_handle);
+    }
+}
+
+
+static void
+sflow_reinit(void)
+{
+	if (sflow_ports) {
+	  range_foreach(sflow_ports, sflow_delete_callback);
+	  g_free(sflow_ports);
+	}
+
+	sflow_ports = range_copy(global_sflow_ports);
+
+	range_foreach(sflow_ports, sflow_add_callback);
 }
 
 
@@ -868,7 +918,8 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_sflow(void)
-{                 
+{
+	module_t *sflow_module;
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
@@ -1084,17 +1135,47 @@ proto_register_sflow(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_sflow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* Register our configuration options for sFlow */
+	sflow_module = prefs_register_protocol(proto_sflow,
+					       proto_reg_handoff_sflow);
+
+/* Set default Neflow port(s) */
+	range_convert_str(&global_sflow_ports, SFLOW_UDP_PORTS,
+			  MAX_UDP_PORT);
+
+	prefs_register_obsolete_preference(sflow_module, "udp.port");
+
+	prefs_register_range_preference(sflow_module, "ports",
+					"SFlow UDP Port(s)",
+					"Set the port(s) for sFlow messages"
+					" (default: " SFLOW_UDP_PORTS ")",
+					&global_sflow_ports, MAX_UDP_PORT);
+
+	register_init_routine(&sflow_reinit);
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
+/* If this dissector uses sub-dissector registration add a
+   registration routine.  This format is required because a script is
+   used to find these routines and create the code that calls these
+   routines.
 */
 void
 proto_reg_handoff_sflow(void)
 {
-	dissector_handle_t sflow_handle;
+	static int sflow_prefs_initialized = FALSE;
+	if (!sflow_prefs_initialized) {
+		sflow_handle = new_create_dissector_handle(dissect_sflow,
+							   proto_sflow);
+
+		sflow_prefs_initialized = TRUE;
+	}
+
+
+	sflow_reinit();
+
+	/*dissector_handle_t sflow_handle;*/
 
 	/*
 	 * XXX - should this be done with a dissector table?
@@ -1120,8 +1201,4 @@ proto_reg_handoff_sflow(void)
 	ipv4_handle = find_dissector("ip");
 	ipv6_handle = find_dissector("ipv6");
 	mpls_handle = find_dissector("mpls");
-
-	sflow_handle = create_dissector_handle(dissect_sflow,
-	    proto_sflow);
-	dissector_add("udp.port", UDP_PORT_SFLOW, sflow_handle);
 }
