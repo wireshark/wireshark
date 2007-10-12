@@ -492,6 +492,15 @@ File "..\..\dtds\xcap-error.dtd"
 File "..\..\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 
+
+;
+; install the wimaxasncp TLV definitions in the wimaxasncp subdirectory
+;
+SetOutPath $INSTDIR\wimaxasncp
+File "..\..\plugins\wimaxasncp\dictionary.xml"
+File "..\..\plugins\wimaxasncp\dictionary.dtd"
+SetOutPath $INSTDIR
+
 SetOutPath $INSTDIR\help
 File "..\..\help\toc"
 File "..\..\help\overview.txt"
