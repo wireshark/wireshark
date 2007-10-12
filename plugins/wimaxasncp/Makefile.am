@@ -128,7 +128,9 @@ EXTRA_DIST = \
 	Makefile.common	      \
 	Makefile.nmake        \
 	moduleinfo.nmake      \
-	plugin.rc.in
+	plugin.rc.in          \
+	dictionary.xml        \
+	dictionary.dtd
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
