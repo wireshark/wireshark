@@ -65,6 +65,7 @@
 #include <stdio.h>
 #include "dtd.h"
 #include "dtd_preparse_lex.h"
+#include <wiretap/file_util.h>
 
 #define ECHO g_string_append(current,yytext);
 
@@ -187,7 +188,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	filename = fname;
 	linenum = 1;
 
-	yyin = fopen(fullname,"r");
+	yyin = eth_fopen(fullname,"r");
 	
 	if (!yyin) {
 		if (err)
