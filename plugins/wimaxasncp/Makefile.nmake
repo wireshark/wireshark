@@ -92,8 +92,11 @@ plugin.c: $(DISSECTOR_SRC) ../../tools/make-dissector-reg.py ../../tools/make-di
 
 RUNLEX=..\..\tools\runlex.sh
 
-wimaxasncp_dict_lex.h: wimaxasncp_dict.c
 wimaxasncp.obj :       wimaxasncp_dict.c
+wimaxasncp_dict_lex.h: wimaxasncp_dict.c
+
+wimaxasncp_dict.c: wimaxasncp_dict.l
+	$(RUNLEX) -o wimaxasncp_dict.c wimaxasncp_dict.l
 
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
