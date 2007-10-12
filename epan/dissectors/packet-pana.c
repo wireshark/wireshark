@@ -664,6 +664,8 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint16 flags;
        guint32 buffer_length;
        guint16 msg_type;
+       guint16 avp_length;
+       guint16 avp_offset;
 
        /* Get buffer length */
        buffer_length = tvb_length(tvb);
@@ -678,6 +680,8 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        msg_length = tvb_get_ntohs(tvb, 2);
        flags = tvb_get_ntohs(tvb, 4);
        msg_type = tvb_get_ntohs(tvb, 6);
+       avp_length = msg_length-16;
+       avp_offset = 16;
 
        /* Check minimum packet length */
        if(msg_length < 12) {
@@ -687,6 +691,19 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        /* Check the packet length and buffer length matching */
        if(msg_length != buffer_length) {
                return FALSE;
+       }
+
+       /* For bug 1908: check the length of the first AVP, too */
+       if (avp_length) {
+	       guint16 first_avp_length;
+
+               if (avp_length < MIN_AVP_SIZE)
+		    return FALSE;
+
+               first_avp_length = tvb_get_ntohs(tvb, avp_offset + 4);
+
+               if (first_avp_length < MIN_AVP_SIZE || first_avp_length > avp_length)
+		    return FALSE;
        }
 
        /* check that the reserved field is zero */
