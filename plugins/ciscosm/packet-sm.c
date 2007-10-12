@@ -159,7 +159,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ti = proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, 4, 2, FALSE);
 			ti = proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, 6, 2, FALSE);
 			msg_type = tvb_get_ntohs(tvb,8);
-			ti = proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, 0, 4, msg_type,
+			ti = proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, 8, 2, msg_type,
 			"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"), msg_type);
 			ti = proto_tree_add_item(sm_tree, hf_sm_channel, tvb, 10, 2, FALSE);
 			ti = proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, 12, 2, FALSE);
