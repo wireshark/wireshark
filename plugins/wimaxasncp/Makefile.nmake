@@ -6,6 +6,7 @@
 
 include ..\..\config.nmake
 include moduleinfo.nmake
+include ..\..\Makefile.nmake.inc
 
 include Makefile.common
 
@@ -90,13 +91,10 @@ plugin.c: $(DISSECTOR_SRC) ../../tools/make-dissector-reg.py ../../tools/make-di
 !ENDIF
 
 
-RUNLEX=..\..\tools\runlex.sh
+RUNLEX = ..\..\tools\runlex.sh
 
-wimaxasncp.obj :       wimaxasncp_dict.c
-wimaxasncp_dict_lex.h: wimaxasncp_dict.c
-
-wimaxasncp_dict.c: wimaxasncp_dict.l
-	$(RUNLEX) -o wimaxasncp_dict.c wimaxasncp_dict.l
+wimaxasncp_dict_lex.h : wimaxasncp_dict.c
+wimaxasncp_dict.obj :   wimaxasncp_dict.c
 
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \

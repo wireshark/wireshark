@@ -83,7 +83,7 @@ typedef struct entity_t {
 #define ATTR_UINT16(cont) do { D(("attr_uint16 " #cont "\t" )); attr_uint16 = &(cont); yy_push_state(GET_UINT16_ATTR); } while(0)
 #define ATTR_STR(cont) do { D(("attr_str " #cont "\t" )); attr_str = &(cont); yy_push_state(GET_ATTR); } while(0)
 #define ATTR_DECODER(cont) do { D(("attr_decoder " #cont "\t" )); attr_uint = &(cont); yy_push_state(GET_DECODER_ATTR); } while(0)
-#define IGNORE() do { D(("ignore: %s\t",yytext)); yy_push_state(IGNORE_ATTR); } while(0)
+#define WIMAXASNCP_IGNORE() do { D(("ignore: %s\t",yytext)); yy_push_state(IGNORE_ATTR); } while(0)
 
 #define D(args) wimaxasncp_dict_debug args
 
@@ -322,7 +322,7 @@ decoder_attr decoder=\042
 }
 
 <GET_UINT16_ATTR>{number} {
-	*attr_uint16 = strtol(yytext,NULL,0);
+	*attr_uint16 = (gint16) strtol(yytext,NULL,0);
 	D(("%s\n",yytext););
 	attr_uint16 = NULL;
 	BEGIN END_ATTR;
@@ -431,7 +431,7 @@ decoder_attr decoder=\042
 	yyterminate();
 }
 
-<TLV_ATTRS,ENUM_ATTRS>{ignored_attr} IGNORE();
+<TLV_ATTRS,ENUM_ATTRS>{ignored_attr} WIMAXASNCP_IGNORE();
 
 <OUTSIDE>. ;
 
