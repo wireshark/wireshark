@@ -22,6 +22,9 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+# lex rules
+include ../../Makefile.am.inc
+
 INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
@@ -115,11 +118,28 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	Makefile.in	\
+	Makefile.in	      \
+	wimaxasncp_dict.c     \
+	wimaxasncp_dict_lex.h \
 	plugin.c
 
 EXTRA_DIST = \
-	Makefile.common		\
-	Makefile.nmake		\
-	moduleinfo.nmake	\
+	wimaxasncp_dict.l     \
+	Makefile.common	      \
+	Makefile.nmake        \
+	moduleinfo.nmake      \
 	plugin.rc.in
+
+RUNLEX = $(top_srcdir)/tools/runlex.sh
+
+wimaxasncp_dict_lex.h : wimaxasncp_dict.c
+
+#
+# Install the wimaxasncp DTD and XML files in the "wimaxasncp"
+# subdirectory of $(pkgdatadir)
+#
+
+wimaxasncpdir = $(pkgdatadir)/wimaxasncp
+wimaxasncp_DATA = \
+	dictionary.dtd \
+	dictionary.xml

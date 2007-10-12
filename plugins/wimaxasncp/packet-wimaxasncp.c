@@ -43,9 +43,12 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
+#include <epan/filesystem.h>
+#include <epan/report_err.h>
 
 /* TODO: delete?. */
 #include "packet-wimaxasncp.h"
+#include "wimaxasncp_dict.h"
 
 /* Forward declaration we need below */
 void proto_reg_handoff_wimaxasncp(void);
@@ -128,17 +131,7 @@ static gint ett_wimaxasncp_tlv_vendor_specific_information_field = -1;
 #define WIMAXASNCP_FLAGS_T  WIMAXASNCP_BIT8(6)
 #define WIMAXASNCP_FLAGS_R  WIMAXASNCP_BIT8(7)
 
-
-/* ------------------------------------------------------------------------- */
-/* generic
- */
-
-static const value_string wimaxasncp_tlv_success_failure_vals[] =
-{
-    { 0, "Success"},
-    { 1, "Failure"},
-    { 0, NULL}
-};
+static wimaxasncp_dict_t *wimaxasncp_dict = NULL;
 
 /* ------------------------------------------------------------------------- */
 
@@ -391,1609 +384,31 @@ static const wimaxasncp_func_msg_t wimaxasncp_func_to_msg_vals_map[] =
     { WIMAXASNCP_FT_SESSION,           wimaxasncp_session_msg_vals }
 };
 
-/* =========================================================================
- * TLV related structures.
- * Note: The value_string structures and TLV types are kept in the same
- * order as found in the spec.
- * ========================================================================= */
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_accept_reject_indicator_vals[]=
-{
-    { 0x00, "accept"},
-    { 0x01, "reject"},
-    { 0,    NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_action_code_vals[] =
-{
-    { 0x0000, "Deregister MS"},
-    { 0x0001, "Suspend all MS traffic"},
-    { 0x0002, "Suspend user traffic"},
-    { 0x0003, "Resume traffic"},
-    { 0x0004, "MS terminate current normal operations with BS"},
-    { 0,      NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const
-value_string wimaxasncp_tlv_anchor_pc_relocation_request_response_vals[] =
-{
-    { 0xff,  "accept"},
-    { 0x00,  "refuse"},
-    { 0,     NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_auth_ind_vals[]=
-{
-    { 0, "Initial authentication"},
-    { 1, "Re-authentication"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_authorization_policy_vals[] =
-{
-    { WIMAXASNCP_BIT16(0),  "RSA authorization"},
-    { WIMAXASNCP_BIT16(1),  "EAP authorization"},
-    { WIMAXASNCP_BIT16(2),  "Authenticated-EAP authorization"},
-    { WIMAXASNCP_BIT16(3),  "HMAC supported"},
-    { WIMAXASNCP_BIT16(4),  "CMAC supported"},
-    { WIMAXASNCP_BIT16(5),  "64-bit Short-HMAC"},
-    { WIMAXASNCP_BIT16(6),  "80-bit Short-HMAC"},
-    { WIMAXASNCP_BIT16(7),  "96-bit Short-HMAC"},
-    { WIMAXASNCP_BIT16(8),  "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(9),  "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(10), "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(11), "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(12), "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(13), "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(14), "Reauthentication Policy (TBD)"},
-    { WIMAXASNCP_BIT16(15), "Reauthentication Policy (TBD)"},
-    { 0,                    NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_classifier_action_vals[] =
-{
-    { 0, "Add Classifier"},
-    { 1, "Replace Classifier"},
-    { 2, "Delete Classifier"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_classifier_type_vals[] =
-{
-    { 1,  "IP TOS/DSCP Range and Mask"},
-    { 2,  "Protocol"},
-    { 3,  "IP Source Address and Mask"},
-    { 4,  "IP Destination Address and Mask"},
-    { 5,  "Protocol Source Port Range"},
-    { 6,  "Protocol Destination Port Range"},
-    { 7,  "IEEE 802.3/Ethernet Destination MAC address"},
-    { 8,  "IEEE 802.3/Ethernet Source MAC address"},
-    { 9,  "Ethertype/IEEE 802.2 SAP"},
-    { 10, "IEEE 802.1D User_Priority"},
-    { 11, "IEEE 802.1Q VLAN_ID"},
-    { 0,  NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_combined_resources_required_vals[] =
-{
-    { 0x0000, "Not combined"},
-    { 0x0001, "Combined"},
-    { 0,      NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_context_purpose_indicator_vals[] =
-{
-    { WIMAXASNCP_BIT32(0), "MS AK Context"},
-    { WIMAXASNCP_BIT32(1), "MS Network Context"},
-    { WIMAXASNCP_BIT32(2), "MS MAC Context"},
-    { WIMAXASNCP_BIT32(3), "Service Authorization Context"},
-    { WIMAXASNCP_BIT32(4), "FA Context"},
-    { 0,                   NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_cryptographic_suite_vals[] =
-{
-    { 0x000000, "No data encryption, no data authentication & 3-DES, 128"},
-    { 0x010001, "CBC-Mode 56-bit DES, no data authentication & 3-DES, 128"},
-    { 0x000002, "No data encryption, no data authentication & RSA, 1024"},
-    { 0x010002, "CBC-Mode 56-bit DES, no data authentication & RSA, 1024"},
-    { 0x020103, "CCM-Mode 128-bit AES, CCM-Mode, 128-bit, ECB mode AES"
-                " with 128-bit key"},
-    { 0x020104, "CCM-Mode 128bits AES, CCM-Mode, AES Key Wrap with 128-bit"
-                " key"},
-    { 0x030003, "CBC-Mode 128-bit AES, no data authentication, ECB mode AES"
-                " with 128-bit key"},
-    { 0x800003, "MBS CTR Mode 128 bits AES, no data authentication, AES ECB"
-                " mode with 128-bit key"},
-    { 0x800004, "MBS CTR mode 128 bits AES, no data authentication, AES Key"
-                " Wrap with 128-bit key"},
-    { 0,        NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_cs_type_vals[]=
-{
-    { 1, "Packet, IPv4"},
-    { 2, "Packet, IPv6"},
-    { 3, "Packet, 802.3"},
-    { 4, "Packet, 802.1Q"},
-    { 5, "Packet, IPv4over802.3"},
-    { 6, "Packet, IPv6over802.3"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_data_integrity_vals[] =
-{
-    { 0x0, "No recommendation"},
-    { 0x1, "Data integrity requested"},
-    { 0x2, "Data delay jitter sensitive"},
-    { 0,   NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_data_path_encapsulation_type_vals[] =
-{
-    { 1, "GRE"},
-    { 2, "IP-in-IP"},
-    { 3, "VLAN"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static
-const value_string wimaxasncp_tlv_data_path_establishment_option_vals[] =
-{
-    { 0, "Do not (Pre-) Establish DP"},
-    { 1, "(Pre-) Establish DP"},
-    { 0, NULL }
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_data_path_integrity_mechanism_vals[]=
-{
-    /* No values defined yet. */
-    { 0,     NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_data_path_type_vals[]=
-{
-    { 0, "Type1"},
-    { 1, "Type2"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static
-const value_string wimaxasncp_tlv_device_authentication_indicator_vals[]=
-{
-    { 0, "Reserved"},
-    { 1, "Certificate-based device authentication has been successfully"
-         " performed"},
-    { 2, "Device authentication has been successfully performed."},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_direction_vals[] =
-{
-    { 0x001, "For Uplink"},
-    { 0x002, "For Downlink"},
-    { 0,     NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static
-const value_string wimaxasncp_tlv_exit_idle_mode_operation_indication_vals[]=
-{
-    { 0, "No"},
-    { 1, "Yes"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_failure_indication_vals[]=
-{
-    { 0,  "Unspecified Error"},
-    { 1,  "Incompatible Version Number"},
-    { 2,  "Invalid Function Type"},
-    { 3,  "Invalid Message Type"},
-    { 4,  "Unknown MSID"},
-    { 5,  "Transaction Failure"},
-    { 6,  "Unknown Source Identifier"},
-    { 7,  "Unknown Destination Identifier"},
-    { 8,  "Invalid Message Header"},
-    { 16, "Invalid message format"},
-    { 17, "Mandatory TLV missing"},
-    { 18, "TLV Value Invalid"},
-    { 19, "Unsupported Options"},
-    { 32, "Timer expired without response"},
-    { 48, "Requested Context Unavailable"},
-    { 49, "Authorization Failure"},
-    { 50, "Registration Failure"},
-    { 51, "No Resources"},
-    { 0,  NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_ho_confirm_type_vals[] =
-{
-    { 0, "Confirm"},
-    { 1, "Unconfirm"},
-    { 2, "Cancel"},
-    { 3, "Reject"},
-    { 0,  NULL}
-};
-
-static const value_string wimaxasncp_tlv_ho_type_vals[] =
-{
-    { 0, "HHO"},
-    { 0, NULL }
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_location_update_status_vals[]=
-{
-    { 0, "Refuse"},
-    { 1, "Accept"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const
-value_string wimaxasncp_tlv_location_update_success_failure_indication_vals[]=
-{
-    { 0, "Success"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_ms_mobility_mode_vals[]=
-{
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_network_exit_indicator_vals[]=
-{
-    { 0x00, "MS Power Down indication"},
-    { 0x01, "Radio link with MS is lost"},
-    { 0,    NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_paging_cause_vals[]=
-{
-    { 1, "LCS"},
-    { 2, "Incoming Data for Idle MS"},
-    { 3, "Acknowledge Exiting Idle Mode"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_phs_rule_action_vals[]=
-{
-    { 0, "Add PHS Rule"},
-    { 1, "Replace PHS Rule"},
-    { 2, "Delete PHS Rule"},
-    { 3, "Delete All PHS Rules"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_phsv_vals[]=
-{
-    { 0, "Verify"},
-    { 1, "Don't verify"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_pkm_context_vals[]=
-{
-    { 0, "PKM Capabilities defined in the MTG Profile."},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_pkm2_vals[]=
-{
-    { 18, "EAP Transfer"},
-    { 19, "Authenticated EAP Transfer"},
-    { 29, "EAP Complete"},
-    { 0,  NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_reg_context_vals[] =
-{
-    { 0, "REG handshake related capabilities defined in the MTG Profile"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_registration_type_vals[] =
-{
-    { 0, "Initial Network Entry"},
-    { 1, "HO"},
-    { 2, "In-Service Data Path Establishment"},
-    { 3, "MS Network Exit"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_reservation_action_vals[] =
-{
-    { WIMAXASNCP_BIT16(15), "Create service flow"},
-    { WIMAXASNCP_BIT16(14), "Admit service flow"},
-    { WIMAXASNCP_BIT16(13), "Activate service flow"},
-    { WIMAXASNCP_BIT16(12), "Modify service flow"},
-    { WIMAXASNCP_BIT16(11), "Delete service flow"},
-    { 0,                     NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_reservation_result_vals[] =
-{
-    { 0x0000, "Successfully Created"},
-    { 0x0001, "Request Denied - No resources"},
-    { 0x0002, "Request Denied due to Policy"},
-    { 0x0003, "Request Denied due to Requests for Other Flows Failed"},
-    { 0x0004, "Request Failed (Unspecified reason)"},
-    { 0x0005, "Request Denied due to MS reason"},
-    { 0,      NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_request_transmission_policy_vals[]=
-{
-    { WIMAXASNCP_BIT32(0), "Service flow SHALL not use broadcast bandwidth"
-                           " request opportunities"},
-    { WIMAXASNCP_BIT32(1), "Reserved"},
-    { WIMAXASNCP_BIT32(2), "Service flow SHALL not piggyback requests"
-                           " with data"},
-    { WIMAXASNCP_BIT32(3), "Service flow SHALL not fragment data"},
-    { WIMAXASNCP_BIT32(4), "Service flow SHALL not suppress payload headers"},
-    { WIMAXASNCP_BIT32(5), "Service flow SHALL not pack multiple SDUs"
-                           " (or fragments) into single MAC PDUs"},
-    { WIMAXASNCP_BIT32(6), "Service flow SHALL not include CRC in the"
-                           " MAC PDU"},
-    {0,                    NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_response_code_vals[]=
-{
-    { 1, "not allowed - Paging Reference is zero"},
-    { 2, "not allowed - no such SF"},
-    { 0,  NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_rrm_reporting_characteristics_vals[]=
-{
-    { WIMAXASNCP_BIT32(0), "periodically as defined by reporting period P"},
-    { WIMAXASNCP_BIT32(1), "regularly whenever resources have changed as"
-                           " defined by RT since the last measurement"
-                           " period"},
-    { WIMAXASNCP_BIT32(2), "regularly whenever resources cross predefined"
-                           " total threshold(s) defined by reporting"
-                           " absolute threshold values J"},
-    { WIMAXASNCP_BIT32(3), "DCD/UCD Configuration Change Count modification"},
-    { 0,                   NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_rrm_spare_capacity_report_type_vals[]=
-{
-    { 0, "Type 1: Available radio resource indicator"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_r3_operation_status_vals[]=
-{
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_r3_release_reason_vals[]=
-{
-    { 0, "MS power down"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_sa_service_type_vals[]=
-{
-    { 0, "Unicast Service"},
-    { 1, "Group Multicast Service"},
-    { 2, "MBS Service"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_sa_type_vals[]=
-{
-    { 0, "Primary"},
-    { 1, "Static"},
-    { 2, "Dynamic"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_serving_target_indicator_vals[] =
-{
-    { 0, "Serving"},
-    { 1, "Target"},
-    { 0, NULL}
-};
-
-/* ------------------------------------------------------------------------- */
-
-static const value_string wimaxasncp_tlv_sf_classification_vals[]=
-{
-    { 0, "SF classification not supported"},
-    { 1, "SF classification supported"},
-    { 0, NULL}
-};
-
-/* -------------------------------------------------------------------------
- * decode types
- * ------------------------------------------------------------------------- */
-
-enum
-{
-    WIMAXASNCP_TLV_TBD,
-    WIMAXASNCP_TLV_COMPOUND,
-    WIMAXASNCP_TLV_BYTES,
-    WIMAXASNCP_TLV_ENUM8,
-    WIMAXASNCP_TLV_ENUM16,
-    WIMAXASNCP_TLV_ENUM32,
-    WIMAXASNCP_TLV_ETHER,
-    WIMAXASNCP_TLV_ASCII_STRING,
-    WIMAXASNCP_TLV_FLAG0,
-    WIMAXASNCP_TLV_BITFLAGS16,
-    WIMAXASNCP_TLV_BITFLAGS32,
-    WIMAXASNCP_TLV_ID,
-    WIMAXASNCP_TLV_HEX8,
-    WIMAXASNCP_TLV_HEX16,
-    WIMAXASNCP_TLV_HEX32,
-    WIMAXASNCP_TLV_DEC8,
-    WIMAXASNCP_TLV_DEC16,
-    WIMAXASNCP_TLV_DEC32,
-    WIMAXASNCP_TLV_IP_ADDRESS,   /* Note: IPv4 or IPv6, determined by length */
-    WIMAXASNCP_TLV_IPV4_ADDRESS,
-    WIMAXASNCP_TLV_PROTOCOL_LIST,
-    WIMAXASNCP_TLV_PORT_RANGE_LIST,
-    WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST,
-    WIMAXASNCP_TLV_VENDOR_SPECIFIC
-};
-
-/* -------------------------------------------------------------------------
- * TLV database
- * ------------------------------------------------------------------------- */
-
-typedef struct {
-    guint16 type;
-    const gchar *name;
-    gint decode_type;
-    const value_string *vals;
-} wimaxasncp_tlv_info_t;
-
-/* ------------------------------------------------------------------------- */
-
-static const wimaxasncp_tlv_info_t wimaxasncp_tlv_db[] =
-{
-    {
-        1,     "Accept/Reject Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_accept_reject_indicator_vals
-    },
-    {
-        2,     "Accounting Extension",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        3,     "Action Code",
-        WIMAXASNCP_TLV_ENUM16,
-        wimaxasncp_tlv_action_code_vals
-    },
-    {
-        4,     "Action Time",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        5,     "AK",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        6,     "AK Context",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        7,     "AK ID",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        8,     "AK Lifetime",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        9,     "AK SN",
-        WIMAXASNCP_TLV_HEX8,
-        NULL
-    },
-    {
-        10,    "Anchor ASN GW ID / Anchor DPF Identifier",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        11,    "Anchor MM Context",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        12,    "Anchor PCID - Anchor Paging Controller ID",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        13,    "Anchor PC Relocation Destination",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        14,    "Anchor PC Relocation Request Response",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_anchor_pc_relocation_request_response_vals
-    },
-    {
-        15,    "Associated PHSI",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        16,    "Anchor Authenticator ID",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        17,    "Authentication Complete",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        18,    "Authentication Result",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        19,    "Authenticator Identifier",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        20,    "Auth-IND",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_auth_ind_vals
-    },
-    {
-        21,    "Authorization Policy",
-        WIMAXASNCP_TLV_BITFLAGS16,
-        wimaxasncp_tlv_authorization_policy_vals
-    },
-    {
-        22,    "Available Radio Resource DL",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        23,    "Available Radio Resource UL",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        24,    "BE Data Delivery Service",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        25,    "BS ID",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        26,    "BS Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        27,    "BS-originated EAP-Start Flag",
-        WIMAXASNCP_TLV_FLAG0,
-        NULL
-    },
-    {
-        28,    "Care-Of Address (CoA)",
-        WIMAXASNCP_TLV_IPV4_ADDRESS,
-        NULL
-    },
-    {
-        29,    "CID",
-        WIMAXASNCP_TLV_HEX16,
-        NULL
-    },
-    {
-        30,    "Classifier",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        31,    "Classifier Action",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_classifier_action_vals
-    },
-    {
-        32,    "Classifier Rule Priority",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        33,    "Classifier Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_classifier_type_vals
-    },
-    {
-        34,    "CMAC_KEY_COUNT",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        35,    "Combined Resources Required",
-        WIMAXASNCP_TLV_ENUM16,
-        wimaxasncp_tlv_combined_resources_required_vals
-    },
-    {
-        36,    "Context Purpose Indicator",
-        WIMAXASNCP_TLV_ENUM32,
-        wimaxasncp_tlv_context_purpose_indicator_vals
-    },
-    {
-        37,    "Correlation ID",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        38,    "Cryptographic Suite",
-        WIMAXASNCP_TLV_ENUM32,
-        wimaxasncp_tlv_cryptographic_suite_vals
-    },
-    {
-        39,    "CS Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_cs_type_vals
-    },
-    {
-        40,    "Data Integrity",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_data_integrity_vals
-    },
-    {
-        41,    "Data Integrity Info",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        42,    "Data Path Encapsulation Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_data_path_encapsulation_type_vals
-    },
-    {
-        43,    "Data Path Establishment Option",
-        WIMAXASNCP_TLV_HEX8,
-        wimaxasncp_tlv_data_path_establishment_option_vals
-    },
-    {
-        44,    "Data Path ID",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        45,    "Data Path Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        46,    "Data Path Integrity Mechanism",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_data_path_integrity_mechanism_vals
-    },
-    {
-        47,    "Data Path Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_data_path_type_vals
-    },
-    {
-        48,    "DCD/UCD Configuration Change Count",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        49,    "DCD Setting",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        50,    "Device Authentication Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_device_authentication_indicator_vals
-    },
-    {
-        51,    "DHCP Key",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        52,    "DHCP Key ID",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        53,    "DHCP Key Lifetime",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        54,    "DHCP Proxy Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        55,    "DHCP Relay Address",
-        WIMAXASNCP_TLV_IPV4_ADDRESS,
-        NULL
-    },
-    {
-        56,    "DHCP Relay Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        57,    "DHCP Server Address",
-        WIMAXASNCP_TLV_IPV4_ADDRESS,
-        NULL
-    },
-    {
-        58,    "DHCP Server List",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        59,    "Direction",
-        WIMAXASNCP_TLV_ENUM16,
-        wimaxasncp_tlv_direction_vals
-    },
-    {
-        60,    "DL PHY Quality Info",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        61,    "DL PHY Service Level",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        62,    "EAP Payload",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        63,    "EIK",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        64,    "ERT-VR Data Delivery Service",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        65,    "Exit IDLE Mode Operation Indication",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_exit_idle_mode_operation_indication_vals
-    },
-    {
-        66,    "FA-HA Key",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        67,    "FA-HA Key Lifetime",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        68,    "FA-HA Key SPI",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        69,    "Failure Indication",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_failure_indication_vals
-    },
-    {
-        70,    "FA IP Address",
-        WIMAXASNCP_TLV_IPV4_ADDRESS,
-        NULL
-    },
-    {
-        71,    "FA Relocation Indication",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        72,    "Full DCD Setting",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        73,    "Full UCD Setting",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        74,    "Global Service Class Change",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        75,    "HA IP Address",
-        WIMAXASNCP_TLV_IP_ADDRESS,
-        NULL
-    },
-    {
-        76,    "HO Confirm Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_ho_confirm_type_vals
-    },
-    {
-        77,    "Home Address (HoA)",
-        WIMAXASNCP_TLV_IPV4_ADDRESS,
-        NULL
-    },
-    {
-        78,    "HO Process Optimization",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        79,    "HO Type",
-        WIMAXASNCP_TLV_ENUM32,
-        wimaxasncp_tlv_ho_type_vals
-    },
-    {
-        80,    "IDLE Mode Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        81,    "IDLE Mode Retain Info",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        82,    "IP Destination Address and Mask",
-        WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST,
-        NULL
-    },
-    {
-        83,    "IP Remained Time",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        84,    "IP Source Address and Mask",
-        WIMAXASNCP_TLV_IP_ADDRESS_MASK_LIST,
-        NULL
-    },
-    {
-        85,    "IP TOS/DSCP Range and Mask",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        86,    "Key Change Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        87,    "L-BSID",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        88,    "Location Update Status",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_location_update_status_vals
-    },
-    {
-        89,    "Location Update Success/Failure Indication",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_location_update_success_failure_indication_vals
-    },
-    {
-        90,    "LU Result Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        91,    "Maximum Latency",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        92,    "Maximum Sustained Traffic Rate",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        93,    "Maximum Traffic Burst",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        94,    "Media Flow Type",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        95,    "Minimum Reserved Traffic Rate",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        96,    "MIP4 Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        97,    "MIP4 Security Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        98,    "MN-FA Key",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        99,    "MN-FA SPI",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        100,   "MS Authorization Context",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        101,   "MS FA Context",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        102,   "MS ID",
-        WIMAXASNCP_TLV_ETHER,
-        NULL
-    },
-    {
-        103,   "MS Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        104,   "MS Mobility Mode",
-        WIMAXASNCP_TLV_TBD,
-        wimaxasncp_tlv_ms_mobility_mode_vals
-    },
-    {
-        105,   "MS NAI",
-        WIMAXASNCP_TLV_ASCII_STRING,
-        NULL
-    },
-    {
-        106,   "MS Networking Context",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        107,   "MS Security Context",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        108,   "MS Security History",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        109,   "Network Exit Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_network_exit_indicator_vals
-    },
-    {
-        110,   "Newer TEK Parameters",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        111,   "NRT-VR Data Delivery Service",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        112,   "Older TEK Parameters",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        113,   "Old Anchor PCID",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        114,   "Packet Classification Rule / Media Flow Description",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        115,   "Paging Announce Timer",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        116,   "Paging Cause",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_paging_cause_vals
-    },
-    {
-        117,   "Paging Controller Identifier",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        118,   "Paging Cycle",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        119,   "Paging Information",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        120,   "Paging Offset",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        121,   "Paging Start/Stop",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        122,   "PC Relocation Indication",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        123,   "PGID - Paging Group ID",
-        WIMAXASNCP_TLV_HEX16,
-        NULL
-    },
-    {
-        124,   "PHSF",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        125,   "PHSI",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        126,   "PHSM",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        127,   "PHS Rule",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        128,   "PHS Rule Action",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_phs_rule_action_vals
-    },
-    {
-        129,   "PHSS",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        130,   "PHSV",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_phsv_vals
-    },
-    {
-        131,   "PKM Context",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_pkm_context_vals
-    },
-    {
-        132,   "PMIP4 Client Location",
-        WIMAXASNCP_TLV_IPV4_ADDRESS,
-        NULL
-    },
-    {
-        133,   "PMK SN",
-        WIMAXASNCP_TLV_HEX8,
-        NULL
-    },
-    {
-        134,   "PKM2",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_pkm2_vals
-    },
-    {
-        135,   "PMK2 SN",
-        WIMAXASNCP_TLV_HEX8,
-        NULL
-    },
-    {
-        136,   "PN Counter",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        137,   "Preamble Index/Sub-channel Index",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        138,   "Protocol",
-        WIMAXASNCP_TLV_PROTOCOL_LIST,
-        NULL
-    },
-    {
-        139,   "Protocol Destination Port Range",
-        WIMAXASNCP_TLV_PORT_RANGE_LIST,
-        NULL
-    },
-    {
-        140,   "Protocol Source Port Range",
-        WIMAXASNCP_TLV_PORT_RANGE_LIST,
-        NULL
-    },
-    {
-        141,   "QoS Parameters",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        142,   "Radio Resource Fluctuation",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        143,   "Reduced Resources Code",
-        WIMAXASNCP_TLV_FLAG0,
-        NULL
-    },
-    {
-        144,   "REG Context",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_reg_context_vals
-    },
-    {
-        145,   "Registration Type",
-        WIMAXASNCP_TLV_ENUM32,
-        wimaxasncp_tlv_registration_type_vals
-    },
-    {
-        146,   "Relative Delay",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        147,   "Relocation Destination ID",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        148,   "Relocation Response",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        149,   "Relocation Success Indication",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        150,   "Request/Transmission Policy",
-        WIMAXASNCP_TLV_BITFLAGS32,
-        wimaxasncp_tlv_request_transmission_policy_vals
-    },
-    {
-        151,   "Reservation Action",
-        WIMAXASNCP_TLV_BITFLAGS16,
-        wimaxasncp_tlv_reservation_action_vals
-    },
-    {
-        152,   "Reservation Result",
-        WIMAXASNCP_TLV_ENUM16,
-        wimaxasncp_tlv_reservation_result_vals
-    },
-    {
-        153,   "Response Code",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_response_code_vals
-    },
-    {
-        154,   "Result Code",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        155,   "ROHC/ECRTP Context ID",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        156,   "Round Trip Delay",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        157,   "RRM Absolute Threshold Value J",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        158,   "RRM Averaging Time T",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        159,   "RRM BS Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        160,   "RRM BS-MS PHY Quality Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        161,   "RRM Relative Threshold RT",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        162,   "RRM Reporting Characteristics",
-        WIMAXASNCP_TLV_BITFLAGS32,
-        wimaxasncp_tlv_rrm_reporting_characteristics_vals
-    },
-    {
-        163,   "RRM Reporting Period P",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        164,   "RRM Spare Capacity Report Type",
-        WIMAXASNCP_TLV_HEX8,
-        wimaxasncp_tlv_rrm_spare_capacity_report_type_vals
-    },
-    {
-        165,   "RT-VR Data Delivery Service",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        166,   "RxPN Counter",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        167,   "R3 Operation Status",
-        WIMAXASNCP_TLV_TBD,
-        wimaxasncp_tlv_r3_operation_status_vals
-    },
-    {
-        168,   "R3 Release Reason",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_r3_release_reason_vals
-    },
-    {
-        169,   "SAID",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        170,   "SA Descriptor",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        171,   "SA Index",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        172,   "SA Service Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_sa_service_type_vals
-    },
-    {
-        173,   "SA Type",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_sa_type_vals
-    },
-    {
-        174,   "SBC Context",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        175,   "SDU BSN Map",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        176,   "SDU Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        177,   "SDU Size",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        178,   "SDU SN",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        179,   "Service Class Name",
-        WIMAXASNCP_TLV_ASCII_STRING,
-        NULL
-    },
-    {
-        180,   "Service Level Prediction",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        181,   "Service Authorization Code",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        182,   "Serving/Target Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_serving_target_indicator_vals
-    },
-    {
-        183,   "SF Classification",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_sf_classification_vals
-    },
-    {
-        184,   "SFID",
-        WIMAXASNCP_TLV_HEX32,
-        NULL
-    },
-    {
-        185,   "SF Info",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        186,   "Spare Capacity Indicator",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        187,   "TEK",
-        WIMAXASNCP_TLV_BYTES,
-        NULL
-    },
-    {
-        188,   "TEK Lifetime",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        189,   "TEK SN",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        190,   "Tolerated Jitter",
-        WIMAXASNCP_TLV_DEC32,
-        NULL
-    },
-    {
-        191,   "Total Slots DL",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        192,   "Total Slots UL",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        193,   "Traffic Priority/QoS Priority",
-        WIMAXASNCP_TLV_DEC8,
-        NULL
-    },
-    {
-        194,   "Tunnel Endpoint",
-        WIMAXASNCP_TLV_IP_ADDRESS,
-        NULL
-    },
-    {
-        195,   "UCD Setting",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        196,   "UGS Data Delivery Service",
-        WIMAXASNCP_TLV_COMPOUND,
-        NULL
-    },
-    {
-        197,   "UL PHY Quality Info",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        198,   "UL PHY Service Level",
-        WIMAXASNCP_TLV_TBD,
-        NULL
-    },
-    {
-        199,   "Unsolicited Grant Interval",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        200,   "Unsolicited Polling Interval",
-        WIMAXASNCP_TLV_DEC16,
-        NULL
-    },
-    {
-        201,   "VAAA IP Address",
-        WIMAXASNCP_TLV_IP_ADDRESS,
-        NULL
-    },
-    {
-        202,   "VAAA Realm",
-        WIMAXASNCP_TLV_ASCII_STRING,
-        NULL
-    },
-    {
-        1136,  "Control Plane Indicator",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        1228,  "IM Auth Indication",
-        WIMAXASNCP_TLV_ENUM8,
-        wimaxasncp_tlv_success_failure_vals
-    },
-    {
-        0xff01, "Source Identifier",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        0xff02, "Destination Identifier",
-        WIMAXASNCP_TLV_ID,
-        NULL
-    },
-    {
-        0xffff, "Vendor Specific",
-        WIMAXASNCP_TLV_VENDOR_SPECIFIC,
-        NULL
-    }
-};
-
 /* ========================================================================= */
 
-static const wimaxasncp_tlv_info_t *wimaxasncp_get_tlv_info(
+static const wimaxasncp_dict_tlv_t *wimaxasncp_get_tlv_info(
     guint16 type)
 {
-    static wimaxasncp_tlv_info_t not_found =
+    static wimaxasncp_dict_tlv_t not_found =
     {
-        0,     "Unknown",
+        0,
+        "Unknown",
+        NULL,
         WIMAXASNCP_TLV_BYTES,
+        NULL,
         NULL
     };
 
-    gsize i;
-    for (i = 0; i < array_length(wimaxasncp_tlv_db); ++i)
+    if (wimaxasncp_dict)
     {
-        if (wimaxasncp_tlv_db[i].type == type)
+        wimaxasncp_dict_tlv_t *tlv;
+        
+        for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
         {
-            return &wimaxasncp_tlv_db[i];
+            if (tlv->type == type)
+            {
+                return tlv;
+            }
         }
     }
 
@@ -2008,16 +423,16 @@ static const wimaxasncp_tlv_info_t *wimaxasncp_get_tlv_info(
 /* ========================================================================= */
 
 static const gchar *wimaxasncp_get_enum_name(
-    const wimaxasncp_tlv_info_t *tlv_info,
-    guint32 value)
+    const wimaxasncp_dict_tlv_t *tlv_info,
+    guint32 code)
 {
+    wimaxasncp_dict_enum_t *e;
 
-    if (tlv_info->vals != NULL)
+    for (e = tlv_info->enums; e; e = e->next)
     {
-        const gchar *name = match_strval(value, tlv_info->vals);
-        if (name != NULL)
+        if (e->code == code)
         {
-            return name;
+            return e->name;
         }
     }
 
@@ -2072,7 +487,7 @@ static void wimaxasncp_dissect_tlv_value(
     packet_info *pinfo _U_,
     proto_tree *tree,
     proto_item *tlv_item,
-    const wimaxasncp_tlv_info_t *tlv_info)
+    const wimaxasncp_dict_tlv_t *tlv_info)
 {
     guint offset = 0;
     guint length;
@@ -2080,7 +495,7 @@ static void wimaxasncp_dissect_tlv_value(
 
     length = tvb_reported_length(tvb);
 
-    switch(tlv_info->decode_type)
+    switch(tlv_info->decoder)
     {
     case WIMAXASNCP_TLV_ENUM8:
     {
@@ -2090,7 +505,7 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->vals == NULL)
+        if (tlv_info->enums == NULL)
         {
             if (debug_enabled)
             {
@@ -2125,7 +540,7 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->vals == NULL)
+        if (tlv_info->enums == NULL)
         {
             if (debug_enabled)
             {
@@ -2160,7 +575,7 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->vals == NULL)
+        if (tlv_info->enums == NULL)
         {
             if (debug_enabled)
             {
@@ -2225,7 +640,8 @@ static void wimaxasncp_dissect_tlv_value(
                 tvb, offset, length, p);
 
             proto_item_append_text(
-                tlv_item, " - %s", tvb_get_string(tvb, offset, length));
+                tlv_item, " - %s", 
+                tvb_get_ephemeral_string(tvb, offset, length));
         }
 
         return;
@@ -2248,7 +664,7 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->vals == NULL)
+        if (tlv_info->enums == NULL)
         {
             /* enum values missing */
         }
@@ -2303,7 +719,7 @@ static void wimaxasncp_dissect_tlv_value(
             break;
         }
 
-        if (tlv_info->vals == NULL)
+        if (tlv_info->enums == NULL)
         {
             /* enum values missing */
         }
@@ -2955,7 +1371,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (debug_enabled)
         {
             g_print(
-                "fix-me: unknown decode_type: %d\n", tlv_info->decode_type);
+                "fix-me: unknown decoder: %d\n", tlv_info->decoder);
         }
         break;
     }
@@ -2984,7 +1400,7 @@ static guint dissect_wimaxasncp_tlvs(
     {
         proto_tree *tlv_tree = NULL;
         proto_item *tlv_item = NULL;
-        const wimaxasncp_tlv_info_t *tlv_info;
+        const wimaxasncp_dict_tlv_t *tlv_info;
 
         guint16 type;
         guint16 length;
@@ -3026,9 +1442,9 @@ static guint dissect_wimaxasncp_tlvs(
             }
 
             /* Indicate if a compound tlv */
-            if (tlv_info->decode_type == WIMAXASNCP_TLV_COMPOUND)
+            if (tlv_info->decoder == WIMAXASNCP_TLV_COMPOUND)
             {
-                proto_item_append_text(tlv_item, "[Compound]");
+                proto_item_append_text(tlv_item, " [Compound]");
             }
 
             /* Create TLV subtree */
@@ -3063,7 +1479,7 @@ static guint dissect_wimaxasncp_tlvs(
          * --------------------------------------------------------------------
          */
 
-        if (tlv_info->decode_type == WIMAXASNCP_TLV_COMPOUND)
+        if (tlv_info->decoder == WIMAXASNCP_TLV_COMPOUND)
         {
             if (length == 0)
             {
@@ -3563,11 +1979,16 @@ void
 proto_register_wimaxasncp(void)
 {
     module_t *wimaxasncp_module;
+    gboolean debug_parser;
+    gboolean dump_dict;
+    gchar *dir;
+    gchar* dict_error;
+ 
+    /* ------------------------------------------------------------------------
+     * List of header fields
+     * ------------------------------------------------------------------------
+     */
 
-        /* --------------------------------------------------------------------
-         * List of header fields
-         * --------------------------------------------------------------------
-         */
     static hf_register_info hf[] = {
             {
                 &hf_wimaxasncp_version,      /* ID */
@@ -4169,7 +2590,11 @@ proto_register_wimaxasncp(void)
             }
         };
 
-        /* Protocol subtree array */
+    /* ------------------------------------------------------------------------
+     * Protocol subtree array
+     * ------------------------------------------------------------------------
+     */
+
     static gint *ett[] = {
             &ett_wimaxasncp,
             &ett_wimaxasncp_flags,
@@ -4182,6 +2607,37 @@ proto_register_wimaxasncp(void)
             &ett_wimaxasncp_tlv_ip_address_mask,
             &ett_wimaxasncp_tlv_vendor_specific_information_field
     };
+
+    /* ------------------------------------------------------------------------
+     * load the XML dictionary
+     * ------------------------------------------------------------------------
+     */
+
+    debug_parser = getenv("WIRESHARK_DEBUG_WIMAXASNCP_DICT_PARSER") != NULL;
+    dump_dict    = getenv("WIRESHARK_DUMP_WIMAXASNCP_DICT") != NULL;
+
+    dir = ep_strdup_printf(
+        "%s" G_DIR_SEPARATOR_S "wimaxasncp",
+        get_datafile_dir());
+
+    wimaxasncp_dict = 
+        wimaxasncp_dict_scan(dir, "dictionary.xml", debug_parser, &dict_error);
+
+    if (dict_error)
+    {
+        report_failure("wimaxasncp - %s", dict_error);
+        g_free(dict_error);
+    }
+
+    if (wimaxasncp_dict && dump_dict)
+    {
+        wimaxasncp_dict_print(stdout, wimaxasncp_dict);
+    }
+
+    /* ------------------------------------------------------------------------
+     * complete registration
+     * ------------------------------------------------------------------------
+     */
 
         /* Register the protocol name and description */
     proto_wimaxasncp = proto_register_protocol(
