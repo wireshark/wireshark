@@ -89,6 +89,12 @@ plugin.c: $(DISSECTOR_SRC) ../../tools/make-dissector-reg.py ../../tools/make-di
 
 !ENDIF
 
+
+RUNLEX=..\..\tools\runlex.sh
+
+wimaxasncp_dict_lex.h: wimaxasncp_dict.c
+wimaxasncp.obj :       wimaxasncp_dict.c
+
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
