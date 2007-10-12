@@ -76,7 +76,7 @@ Procedure
    and that will leave you with heuristic dissection.
 
 
-If you dont want to use the shell script wrapper, then try
+If you don't want to use the shell script wrapper, then try
 steps 3 or 4 instead.
 
 3.  To write the C code to stdout.  
@@ -94,8 +94,8 @@ steps 3 or 4 instead.
    and that will leave you with heuristic dissection.
 
 
-5. Copy the resulting C code to your wireshark src directory, edit the 2 make files
-   to include the packet-test-idl.c
+5. Copy the resulting C code to your wireshark src directory, edit the 2 make
+   files to include the packet-test-idl.c
  
    cp packet-test-idl.c /dir/where/wireshark/lives/
    edit Makefile.am

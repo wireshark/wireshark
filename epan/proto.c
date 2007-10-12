@@ -88,7 +88,7 @@ static void *discard_const(const void *const_ptr)
 	   or else filtering will not work (they would be ignored since tree\
 	   would be NULL).						\
 	   DONT try to fake a node where PITEM_FINFO(pi) is NULL	\
-	   since dissectors that want to do proto_item_set_len() ot	\
+	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
 	   We dont fake FT_PROTOCOL either since these are cheap and    \
 	   some stuff (proto hier stat) assumes they always exist.	\

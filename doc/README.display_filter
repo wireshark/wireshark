@@ -57,7 +57,7 @@ faster.
 
 You define a display filter function by adding an entry to
 the df_functions table in epan/dfilter/dfunctions.c. The record struct
-is defined in defunctions.h, and shown here:
+is defined in dfunctions.h, and shown here:
 
 typedef struct {
     char            *name;

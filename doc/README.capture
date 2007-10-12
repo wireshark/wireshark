@@ -6,7 +6,7 @@ maybe wrong :-( The following will concentrate a bit on the win32 gtk
 port of wireshark.
 
 
-XXX: when ongoing file reorganisation will be completed, the following 
+XXX: when ongoing file reorganization will be completed, the following 
 two lists maybe won't be needed any longer!
 
 libpcap related source files:
@@ -90,7 +90,7 @@ menu/toolbar of the parent process or the Stop button of the child processes
 dialog box (which obviously cannot be used it this dialog is hidden).
 
 The Stop button will stop the capture itself, close the control pipe and then 
-closes itself. The parent will detect this and stop it's part of the capture.
+closes itself. The parent will detect this and stop its part of the capture.
 
 If the menu/toolbar is used, the parent will send a break signal to the child 
 which will lead to the same sequence as described above.
@@ -103,7 +103,7 @@ message instead of a signal.
 Start capture
 -------------
 A capture is started, by specifying to start the capture at the command line, 
-trigger the Ok button in the "Capture Options" dialog box and some more. The 
+trigger the OK button in the "Capture Options" dialog box and some more. The 
 capture start is actually done by calling the capture_start() function in 
 capture.c.
 
@@ -133,14 +133,14 @@ matched, the ld.go flag is set to FALSE, and the loop will stop shortly after.
 
 Capture parent
 --------------
-In the capture parent the cap_pipe_input_cb() function is called "cyclically" 
-(unix:waiting for pipe, win32:timer,1000ms) to read data from the pipe and show it 
-on the main screen. While the capture is in progress, no other capture file 
+In the capture parent the cap_pipe_input_cb() function is called "cyclically"
+(unix:waiting for pipe, win32:timer,1000ms) to read data from the pipe and show
+it on the main screen. While the capture is in progress, no other capture file
 can be opened.
 
 
 Updating
 --------
-The actual packet capturing inside the libpcap is done using it's own task.
+The actual packet capturing inside the libpcap is done using its own task.
 Catching and processing the packet data from the libpcap is done using the
-pcap_dispatch() function. 
+pcap_dispatch() function.

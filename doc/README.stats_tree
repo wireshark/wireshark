@@ -143,18 +143,18 @@ stats_tree_parent_id_by_name( st, parent_name)
 Node functions
 ==============
 
-All the functions that opearate on nodes return a parent_id
+All the functions that operate on nodes return a parent_id
 
 stats_tree_create_node(st, name, parent_id, with_children)
   Creates a node in the tree (to be used in the in init_cb)
     name: the name of the new node
     parent_id: the id of the parent_node (NULL for root)
     with_children: TRUE if this node will have "dynamically created" children
-                   (i.e. it will be a candidate parrent)
+                   (i.e. it will be a candidate parent)
 
 
 stats_tree_create_node_by_pname(st, name, parent_name, with_children);
-  As before but creates a node using it's parent's name
+  As before but creates a node using its parent's name
 
 
 stats_tree_create_range_node(st, name, parent_id, ...)

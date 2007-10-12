@@ -257,7 +257,7 @@ scripts. These now generate the additional code needed for plugin
 encapsulation in plugin.c. When using the new style build scripts,
 stips the parts outlined below:
 
-    o Remove the following include statments:
+    o Remove the following include statements:
 
         #include <gmodule.h>
         #include "moduleinfo.h"

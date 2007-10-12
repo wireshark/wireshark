@@ -29,8 +29,8 @@ PDML
 ====
 The PDML that wireshark produces is known not to be loadable into Analyzer.
 It causes Analyzer to crash. As such, the PDML that wireshark produces
-is be labled with a version number of "0", which means that the PDML does
-not fully follow the PDML spec. Furthemore, a creator attribute in the
+is be labeled with a version number of "0", which means that the PDML does
+not fully follow the PDML spec. Furthermore, a creator attribute in the
 "<pdml>" tag gives the version number of wireshark/tshark that produced the PDML.
 In that way, as the PDML produced by wireshark matures, but still does not
 meet the PDML spec, scripts can make intelligent decisions about how to
@@ -43,7 +43,7 @@ A protocol might contain one or more fields, denoted by the "<field>" tag.
 
 A pseudo-protocol named "geninfo" is produced, as is required by the PDML
 spec, and exported as the first protocol after the opening "<packet>" tag.
-Its information comes from wireshark's "frame" protocol, which servers
+Its information comes from wireshark's "frame" protocol, which serves
 the similar purpose of storing packet meta-data. Both "geninfo" and
 "frame" protocols are provided in the PDML output.
 
@@ -66,9 +66,9 @@ The "<proto>" tag
 		but it can be modified by dissectors to include more data
 		(tcp can do this)
 	pos - the starting offset within the packet data where this
-			protocol starts
+		protocol starts
 	size - the number of octets in the packet data that this protocol
-			covers.
+		covers.
 
 The "<field>" tag
 =================
@@ -77,11 +77,11 @@ The "<field>" tag
 	name - the display filter name for the field
 	showname - the label used to describe this field in the protocol
 		tree. This is usually the descriptive name of the protocol,
-		followed by some represention of the value.
+		followed by some representation of the value.
 	pos - the starting offset within the packet data where this
-			field starts
+		field starts
 	size - the number of octets in the packet data that this field
-			covers.
+		covers.
 	value - the actual packet data, in hex, that this field covers
 	show - the representation of the packet data ('value') as it would
 		appear in a display filter.
@@ -137,7 +137,7 @@ In PDML, the "Data" protocol would become another field under HTTP:
 
 tools/WiresharkXML.py
 ====================
-This is a python module which provides some infrastructor for
+This is a python module which provides some infrastructure for
 Python developers who wish to parse PDML. It is designed to read
 a PDML file and call a user's callback function every time a packet
 is constructed from the protocols and fields for a single packet.
@@ -154,7 +154,7 @@ def my_callback(packet):
 fh = open(xml_filename)
 WiresharkXML.parse_fh(fh, my_callback)
 
-# Now that the script has the packet data, do someting.
+# Now that the script has the packet data, do something.
 ------------------------------------------------------------
 
 The object that is passed to the callback function is an
@@ -180,7 +180,7 @@ Field objects, if any, that are contained. The "children" list can be
 directly accessed by calling users. It will be empty of this Protocol
 or Field contains no Fields.
 
-Furthemore, the Packet class is a sub-class of the PacketList class.
+Furthermore, the Packet class is a sub-class of the PacketList class.
 The PacketList class provides methods to look for protocols and fields.
 The term "item" is used when the item being looked for can be
 a protocol or a field:
@@ -196,10 +196,10 @@ the PDML output of tshark, pass a read filter with "-R" to tshark to
 try to reduce as much as possible the number of packets coming out of tshark.
 The less your script has to process, the faster it will be.
 
-'tools/msnchat' is a sample Python program that uses WiresharkXML to parse PDML.
-Given one or more capture files, it runs tshark on each of them, providing
-a read filter to reduce tshark's output. It finds MSN Chat conversations
-in the capture file and produces nice HTML showing the conversations. It has
-only been tested with capture files containing non-simultaneous chat sessions,
-but was written to more-or-less handle any number of simultanous chat
-sessions.
+'tools/msnchat' is a sample Python program that uses WiresharkXML to parse
+PDML. Given one or more capture files, it runs tshark on each of them,
+providing a read filter to reduce tshark's output. It finds MSN Chat
+conversations in the capture file and produces nice HTML showing the
+conversations. It has only been tested with capture files containing
+non-simultaneous chat sessions, but was written to more-or-less handle any
+number of simultaneous chat sessions.

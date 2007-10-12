@@ -35,7 +35,7 @@ your package complies with this license, or we send in the marmots.
 In versions up to and including 0.99.6, it was necessary to run
 Wireshark with elevated privileges in order to be able to capture
 traffic. With version 0.99.7, all function calls that require elevated
-privliges have been moved out of the GUI to dumpcap.
+privileges have been moved out of the GUI to dumpcap.
 
 WIRESHARK CONTAINS OVER ONE POINT FIVE MILLION LINES OF SOURCE CODE. DO
 NOT RUN THEM AS ROOT.

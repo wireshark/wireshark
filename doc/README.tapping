@@ -45,11 +45,11 @@ do and is done in four easy steps;
 4, In the actual dissector for that protocol, after any child dissectors
 have returned, just add 'tap_queue_packet(<protocol>_tap, pinfo, <pointer>);'
 
-<pointer> is used if the tap has any special additional data to provide to
-the tap listeners. What this points to is dependent on the protocol that
-is tapped, or if there are no useful extra data to provide just specify NULL.
-For packet-rpc.c what we specify there is the persistent structure 'rpc_call'
-which contains lots of useful information the rpc layer that a listener might
+<pointer> is used if the tap has any special additional data to provide to the
+tap listeners. What this points to is dependent on the protocol that is tapped,
+or if there are no useful extra data to provide just specify NULL.  For
+packet-rpc.c what we specify there is the persistent structure 'rpc_call' which
+contains lots of useful information from the rpc layer that a listener might
 need.
 
 
@@ -153,10 +153,10 @@ Redissection occurs when you apply a new display filter or if you
 change and Save/Apply a preference setting that might affect how
 packets are dissected.
 After each individual packet has been completely dissected and all
-dissectors have returned, all the tap listeners that has been flagged
+dissectors have returned, all the tap listeners that have been flagged
 to receive tap data during the dissection of the frame will be called in
 sequence.
-The order of which the tap listeners will be called is not defined.
+The order in which the tap listeners will be called is not defined.
 Not until all tap listeners for the frame has been called and returned
 will Wireshark continue to dissect the next packet.
 This is why it is important to make the *_packet() callbacks execute as
