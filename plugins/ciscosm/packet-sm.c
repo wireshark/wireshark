@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -55,23 +49,23 @@
 
 #include <epan/packet.h>
 
-#define MESSAGE_TYPE_START		0
-#define MESSAGE_TYPE_STOP		1
-#define MESSAGE_TYPE_ACTIVE		2
-#define MESSAGE_TYPE_STANDBY		3
-#define MESSAGE_TYPE_Q_HOLD_INVOKE	4
+#define MESSAGE_TYPE_START				0
+#define MESSAGE_TYPE_STOP				1
+#define MESSAGE_TYPE_ACTIVE				2
+#define MESSAGE_TYPE_STANDBY			3
+#define MESSAGE_TYPE_Q_HOLD_INVOKE		4
 #define MESSAGE_TYPE_Q_HOLD_RESPONSE	5
 #define MESSAGE_TYPE_Q_RESUME_INVOKE	6
 #define MESSAGE_TYPE_Q_RESUME_RESPONSE	7
-#define MESSAGE_TYPE_Q_RESET_INVOKE	8
+#define MESSAGE_TYPE_Q_RESET_INVOKE		8
 #define MESSAGE_TYPE_Q_RESET_RESPONSE	9
-#define MESSAGE_TYPE_PDU		0x8000
+#define MESSAGE_TYPE_PDU				0x8000
 
 const value_string sm_message_type_value[] = {
- 	{ MESSAGE_TYPE_START,			"Start Message" },
-	{ MESSAGE_TYPE_STOP,			"Stop Message" },
-	{ MESSAGE_TYPE_ACTIVE,			"Active Message" },
-	{ MESSAGE_TYPE_STANDBY,			"Standby Message" },
+ 	{ MESSAGE_TYPE_START,				"Start Message" },
+	{ MESSAGE_TYPE_STOP,				"Stop Message" },
+	{ MESSAGE_TYPE_ACTIVE,				"Active Message" },
+	{ MESSAGE_TYPE_STANDBY,				"Standby Message" },
 	{ MESSAGE_TYPE_Q_HOLD_INVOKE,  		"Q_HOLD Invoke Message" }, 
 	{ MESSAGE_TYPE_Q_HOLD_RESPONSE,  	"Q_HOLD Response Message" }, 
 	{ MESSAGE_TYPE_Q_RESUME_INVOKE,  	"Q_RESUME Invoke Message" }, 
@@ -106,14 +100,15 @@ const value_string sm_message_type_value_info[] = {
 
 const value_string sm_pdu_type_value[] = {
 	{ PDU_MTP3_TO_SLT,			"mtp3 to SLT"},
-	{ PDU_MTP3_FROM_SLT, 			"mtp3 from SLT"},
+	{ PDU_MTP3_FROM_SLT, 		"mtp3 from SLT"},
 	{ PDU_SET_STATE, 			"set session state"},
 	{ PDU_RETURN_STATE,			"return session state"},
-        { 0,                                    NULL }
+        { 0,                    NULL }
 };
 
-
-
+/* TODO: Change to useful name once known */
+#define SM_PROTOCOL_X101 0x0101
+#define SM_PROTOCOL_X114 0x0114
 
 
 /* Initialize the protocol and registered fields */
@@ -126,9 +121,13 @@ static int hf_sm_msg_type = -1;
 static int hf_sm_channel = -1;
 static int hf_sm_bearer = -1;
 static int hf_sm_len = -1;
+static int hf_sm_ip_addr = -1;
+static int hf_sm_tag = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sm = -1;
+
+static dissector_handle_t sdp_handle;
 
 /* Code to actually dissect the packets */
 static void
@@ -138,9 +137,13 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *sm_tree;
 	tvbuff_t *next_tvb = NULL;
 	guint32 sm_message_type;
+	guint16 protocol;
 	guint16 msg_type;
+	guint16 length;
+	guint16 tag;
+	int		offset=0;
 
-	sm_message_type = tvb_get_ntohl(tvb,0);
+	sm_message_type = tvb_get_ntohl(tvb,offset);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SM");
@@ -150,29 +153,105 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_sm, tvb, 0, 16, FALSE);
+		ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, FALSE);
 		sm_tree = proto_item_add_subtree(ti, ett_sm);
 
-		ti = proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, 0, 4, sm_message_type,
+		proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
 			"SM Message type: %s (0x%0x)", val_to_str(sm_message_type, sm_message_type_value, "reserved"), sm_message_type);
+
+		offset = offset + 4;
 		if (sm_message_type ==  MESSAGE_TYPE_PDU) {
-			ti = proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, 4, 2, FALSE);
-			ti = proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, 6, 2, FALSE);
-			msg_type = tvb_get_ntohs(tvb,8);
-			ti = proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, 8, 2, msg_type,
-			"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"), msg_type);
-			ti = proto_tree_add_item(sm_tree, hf_sm_channel, tvb, 10, 2, FALSE);
-			ti = proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, 12, 2, FALSE);
-			ti = proto_tree_add_item(sm_tree, hf_sm_len, tvb, 14, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, offset, 2, FALSE);
+			protocol = tvb_get_ntohs(tvb,offset);
+			offset = offset + 2;
+			switch(protocol){
+			case SM_PROTOCOL_X101:
+				/* XXX Reveres enginered so this may not be correct!!! */
+				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+				length = tvb_get_ntohs(tvb,offset);
+				offset = offset + 2;
+				proto_item_set_len(ti, length + offset);
+				/* The next stuff seems to be IP addr */
+				proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
+				offset = offset + 4;
+				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+				offset = offset +2;
+				proto_tree_add_text(sm_tree, tvb, offset,3,"[unknown]");
+				offset = offset + 3;
+				/* XXX Problem are tags 1 or two bytes???*/
+				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+				
+				tag = tvb_get_ntohs(tvb,offset);
+				offset = offset +2;
+				if (tag== 0x01ac) {
+					proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+					length = tvb_get_ntohs(tvb,offset);
+					offset = offset +2;
+					next_tvb = tvb_new_subset(tvb, offset, length, length);
+					call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
+					offset = offset+length;
+
+				}
+				/*return;*/
+				break;
+			case SM_PROTOCOL_X114:
+				/* XXX Reveres enginered so this may not be correct!!! */
+				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+				length = tvb_get_ntohs(tvb,offset);
+				offset = offset + 2;
+				proto_item_set_len(ti, length + offset);
+				/* The next stuff seems to be IP addr */
+				proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
+				offset = offset + 4;
+				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+				offset = offset +2;
+				proto_tree_add_text(sm_tree, tvb, offset,3,"[unknown]");
+				offset = offset + 3;
+				/* XXX Problem are tags 1 or two bytes???*/
+				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+				
+				tag = tvb_get_ntohs(tvb,offset);
+				offset = offset +2;
+				if (tag== 0x01ac) {
+					proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+					length = tvb_get_ntohs(tvb,offset);
+					offset = offset +2;
+					next_tvb = tvb_new_subset(tvb, offset, length, length);
+					call_dissector(sdp_handle, next_tvb, pinfo, sm_tree);
+					offset = offset+length;
+
+				}
+				break;
+			default:
+				proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
+				msg_type = tvb_get_ntohs(tvb,offset);
+				offset = offset +2;
+				proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
+				"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"), msg_type);
+				msg_type = tvb_get_ntohs(tvb,offset);
+				offset = offset + 2;
+				proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
+				offset = offset + 2;
+				proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, FALSE);
+				offset = offset +2;
+				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+				offset = offset +2;
+				proto_item_set_len(ti, 16);
+			}
 		}
 	}
 
 	if (sm_message_type ==  MESSAGE_TYPE_PDU) {
-		msg_type = tvb_get_ntohs(tvb,8);
-		next_tvb = tvb_new_subset(tvb, 16, -1, -1);
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		if ((msg_type == PDU_MTP3_TO_SLT || msg_type == PDU_MTP3_FROM_SLT) && tvb_length(next_tvb) && find_dissector("mtp3"))
 			call_dissector(find_dissector("mtp3"), next_tvb, pinfo, tree);
 	}
+}
+
+void
+proto_reg_handoff_sm(void)
+{
+	sdp_handle = find_dissector("sdp");
 }
 
 void
@@ -213,6 +292,16 @@ proto_register_sm(void)
 			{ "Length",           "sm.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"", HFILL }
+		},
+		{ &hf_sm_ip_addr,
+			{ "IPv4 address","sm.ip_addr",
+			FT_IPv4,BASE_NONE,  NULL, 0x0,          
+			"IPv4 address", HFILL }
+		},
+		{ &hf_sm_tag,
+			{ "Tag","sm.tag",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"Tag(guesswork!)", HFILL }
 		},
 	};
 
