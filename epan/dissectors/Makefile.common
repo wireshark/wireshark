@@ -231,6 +231,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-catapult-dct2000.c \
 	packet-ccsds.c		\
 	packet-cdp.c		\
+	packet-cfm.c		\
 	packet-cgmp.c		\
 	packet-chdlc.c		\
 	packet-cigi.c   	\
@@ -795,6 +796,7 @@ DISSECTOR_INCLUDES =	\
 	packet-camel.h	\
 	packet-chdlc.h	\
 	packet-cdt.h	\
+	packet-cfm.h	\
 	packet-cimd.h	\
 	packet-cip.h	\
 	packet-clearcase.h	\
