@@ -1335,6 +1335,23 @@ of any subsequent chunks may only append to the Info column.
 necessary).  It will create a fence at the end of the prended data if the
 fence does not already exist.
 
+
+1.5.9 The col_set_time function.
+
+The 'col_set_time' function takes a nstime value as it's third argument. 
+This nstime value is a relative value and will be added as such to the
+column. The fourth argument is the filtername holding this value. This
+way, rightclicking on the column makes it possible to build a filter
+based on the time-value.
+
+For example:
+
+if (check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
+  nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
+  col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
+}
+
+
 1.6 Constructing the protocol tree.
 
 The middle pane of the main window, and the topmost pane of a packet
@@ -2653,7 +2670,7 @@ conversations.  This routine does NOT clean up any data pointers that are
 passed in the conversation_new 'data' variable.  You are responsible for
 this clean up if you pass a malloc'ed pointer in this variable.
 
-See item 2.2.7 for more information about the 'data' pointer.
+See item 2.2.8 for more information about the 'data' pointer.
 
 
 2.2.2 The conversation_new function.
@@ -2813,7 +2830,55 @@ Where:
 is a unique protocol number created with proto_register_protocol,
 typically in the proto_register_XXXX portion of a dissector.
 
-2.2.7 The example conversation code with GMemChunk's.
+
+2.2.7 Using timestamps relative to the conversation
+
+There is a framework to calculate timestams relative to the start of the
+conversation. First of all the timestamp of the first packet that has been
+seen in the conversation must be kept in the protocol data to be able
+to calculate the timestamp of the current packet relative to the start
+of the conversation. The timestamp of the last packet that was seen in the
+conversation should also be kept in the protocol data. This way the
+delta time between the current packet and the previous packet in the
+conversation can be calculated.
+
+So add the following items to the struct that is used for the protocol data:
+
+  nstime_t	ts_first;
+  nstime_t	ts_prev;
+
+The ts_prev value should only be set during the first run through the 
+packets (ie pinfo->fd->flags.visited is false).
+
+Next step is to use the per packet information (described in section 2.5)
+to keep the calculated delta timestamp, as it can only be calculated
+on the first run through the packets. This is because a packet can be 
+selected in random order once the whole file has been read.
+
+After calculating the conversation timestamps, it is time to put them in
+the appropriate columns with the function 'col_set_time' (described in 
+section 1.5.9). There are two columns for conversation timestamps:
+
+COL_REL_CONV_TIME,  /* Relative time to beginning of conversation */
+COL_DELTA_CONV_TIME,/* Delta time to last frame in conversation */
+
+Last but not least, there MUST be a preference in each dissector that
+uses conversation timestamps that makes it possible to enable and
+dissable the calculation of conversation timestamps. The main argument
+for this is that a higher level conversation is able to overwrite
+the values of lowel level conversations in these two columns. Being
+able to actively select which protocols may overwrite the conversation
+timestamp columns give the user the power to control these columns.
+(A second reason is that conversation timestamps use the per packet
+data structure which uses additional memory, which should be avoided
+if these timestamps are not needed)
+
+Have a look at the differences to packet-tcp.[ch] in SVN 22966 and 
+SVN 23058 to see the implementation of conversation timestamps for
+the tcp-dissector.
+
+
+2.2.8 The example conversation code with GMemChunk's.
 
 For a conversation between two IP addresses and ports you can use this as an
 example.  This example uses the GMemChunk to allocate memory and stores the data
@@ -2904,7 +2969,7 @@ register_init_routine(&my_dissector_init);
 my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 
 
-2.2.8 An example conversation code that starts at a specific frame number.
+2.2.9 An example conversation code that starts at a specific frame number.
 
 Sometimes a dissector has determined that a new conversation is needed that
 starts at a specific frame number, when a capture session encompasses multiple
@@ -2928,7 +2993,7 @@ that starts at the specific frame number.
 	}
 
 
-2.2.9 The example conversation code using conversation index field.
+2.2.10 The example conversation code using conversation index field.
 
 Sometimes the conversation isn't enough to define a unique data storage
 value for the network traffic.  For example if you are storing information
