@@ -14,6 +14,7 @@ all: \
 	custom \
 	docsis \
 	enttec \
+	ethercat \
 	giop \
 	gryphon \
 	irda \
@@ -66,6 +67,11 @@ docsis::
 
 enttec::
 	cd enttec
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd .. 
+
+ethercat::
+	cd ethercat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd .. 
 
@@ -189,6 +195,9 @@ clean:
 	cd enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd ethercat
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -268,6 +277,9 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd enttec
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+	cd ethercat
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd giop
@@ -351,6 +363,9 @@ maintainer-clean: distclean
 	cd enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	cd ethercat
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
 	cd giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -425,6 +440,7 @@ install-plugins:
 	xcopy ciscosm\*.dll $(VERSION) /d
 	xcopy docsis\*.dll $(VERSION) /d
 	xcopy enttec\*.dll $(VERSION) /d
+	xcopy ethercat\*.dll $(VERSION) /d
 	xcopy giop\*.dll $(VERSION) /d
 	xcopy gryphon\*.dll $(VERSION) /d
 	xcopy irda\*.dll $(VERSION) /d

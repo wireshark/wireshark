@@ -102,6 +102,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_CDMA2000_A10_UBS,	"CDMA2000 A10 Unstructured byte stream" },
     {ETHERTYPE_PROFINET,			"PROFINET"			},
     {ETHERTYPE_AOE,					"ATA over Ethernet"             },
+    {ETHERTYPE_ECATF,					"EtherCAT frame" },
     {ETHERTYPE_TELKONET,			"Telkonet powerline"    },
     {ETHERTYPE_EPL_V2,				"ETHERNET Powerlink v2"			},
     {ETHERTYPE_CSM_ENCAPS,			"CSM_ENCAPS Protocol"             },

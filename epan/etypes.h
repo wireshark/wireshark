@@ -286,6 +286,10 @@
 #define ETHERTYPE_AOE           0x88A2
 #endif
 
+#ifndef ETHERTYPE_ECATF
+#define ETHERTYPE_ECATF 0x88A4 /* Ethernet type for EtherCAT frames */
+#endif
+
 #ifndef ETHERTYPE_IEEE_802_1AD
 #define ETHERTYPE_IEEE_802_1AD  0x88A8 /* IEEE 802.1ad Provider Bridge, Q-in-Q */
 #endif
