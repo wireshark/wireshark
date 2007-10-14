@@ -58,6 +58,7 @@ device-dirs:
 	if not exist $(DEVICE)\diameter $(MKDIR) $(DEVICE)\diameter
 	if not exist $(DEVICE)\dtds $(MKDIR) $(DEVICE)\dtds
 	if not exist $(DEVICE)\radius $(MKDIR) $(DEVICE)\radius
+	if not exist $(DEVICE)\wimaxasncp $(MKDIR) $(DEVICE)\wimaxasncp
 
 data-dirs:
 	if not exist $(DATA) $(MKDIR) $(DATA)
