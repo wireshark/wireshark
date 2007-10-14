@@ -138,7 +138,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb = NULL;
 	guint32 sm_message_type;
 	guint16 protocol;
-	guint16 msg_type;
+	guint16 msg_type = 0;
 	guint16 length;
 	guint16 tag;
 	int		offset=0;
