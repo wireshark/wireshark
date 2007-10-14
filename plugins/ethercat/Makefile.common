@@ -1,0 +1,296 @@
+# Makefile.common for EtherCAT plugin
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# the name of the plugin
+PLUGIN_NAME = ethercat
+
+# the dissector sources (without any helpers)
+DISSECTOR_SRC = \
+	packet-ethercat-frame.c \
+	packet-ioraw.c \
+	packet-nv.c \
+	packet-ams.c \
+	packet-ecatmb.c \
+	packet-ethercat-datagram.c
+
+# corresponding headers
+DISSECTOR_INCLUDES =	\
+	packet-ams.h \
+	packet-ethercat-frame.h \
+	packet-ecatmb.h \
+	packet-ethercat-datagram.h \
+	packet-ioraw.h \
+	packet-nv.h
+# Makefile.common
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# "BUILT_SOURCES" are built before any "make all" or "make check" targets.
+BUILT_HEADER_FILES =	\
+	svnversion.h
+
+BUILT_C_FILES =		\
+	ps.c
+
+BUILT_SOURCES =	$(BUILT_C_FILES) $(BUILT_HEADER_FILES)
+
+# Header files generated from source files.
+GENERATED_HEADER_FILES = \
+	$(BUILT_HEADER_FILES)
+
+# C source files generated from source files.
+GENERATED_C_FILES = \
+	$(BUILT_C_FILES)	\
+	tshark-tap-register.c
+
+# All the generated files.
+GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
+
+# sources common for wireshark and tshark
+WIRESHARK_COMMON_SRC =	\
+	$(PLATFORM_SRC) \
+	capture_errs.c	\
+	capture-pcap-util.c	\
+	capture_ui_utils.c	\
+	cfile.c	\
+	clopts_common.c	\
+	disabled_protos.c	\
+	packet-range.c	\
+	print.c	\
+	ps.c	\
+	sync_pipe_write.c	\
+	timestats.c	\
+	util.c	\
+	version_info.c
+
+# corresponding headers
+WIRESHARK_COMMON_INCLUDES =	\
+	svnversion.h		\
+	capture_errs.h	\
+	capture-pcap-util.h	\
+	capture-pcap-util-int.h	\
+	capture_ui_utils.h	\
+	cfile.h	\
+	clopts_common.h	\
+	cmdarg_err.h	\
+	color.h	\
+	disabled_protos.h	\
+	file.h	\
+	fileset.h	\
+	isprint.h	\
+	packet-range.h	\
+	print.h	\
+	ps.h	\
+	register.h	\
+	tempfile.h	\
+	timestats.h	\
+	util.h	\
+	version_info.h
+
+# sources for TShark taps
+TSHARK_TAP_SRC =	\
+	tap-afpstat.c	\
+	tap-ansi_astat.c	\
+	tap-bootpstat.c	\
+	tap-camelcounter.c	\
+	tap-camelsrt.c	\
+	tap-dcerpcstat.c	\
+	tap-funnel.c \
+	tap-gsm_astat.c	\
+	tap-h225counter.c	\
+	tap-h225rassrt.c	\
+	tap-httpstat.c	\
+	tap-iostat.c	\
+	tap-iousers.c	\
+	tap-mgcpstat.c	\
+	tap-protocolinfo.c	\
+	tap-protohierstat.c	\
+	tap-radiusstat.c	\
+	tap-rpcstat.c	\
+	tap-rpcprogs.c	\
+	tap-sctpchunkstat.c	\
+	tap-sipstat.c \
+	tap-smbsids.c	\
+	tap-smbstat.c	\
+	tap-stats_tree.c	\
+	tap-wspstat.c
+
+# helpers already available on some platforms (and on others not)
+EXTRA_wireshark_SOURCES =	\
+	getopt.c	\
+	inet_ntop.c	\
+	inet_pton.c	\
+	mkstemp.c	\
+	strerror.c	\
+	strcasecmp.c	\
+	strncasecmp.c	\
+	strptime.c
+
+# corresponding headers
+EXTRA_wireshark_INCLUDES =	\
+	getopt.h	\
+	inet_v6defs.h	\
+	mkstemp.h	\
+	strerror.h	\
+	strptime.h
+
+# wireshark specifics
+wireshark_SOURCES =	\
+	$(WIRESHARK_COMMON_SRC)	\
+	airpcap_loader.c \
+	alert_box.c	\
+	capture.c	\
+	capture_info.c	\
+	capture_opts.c \
+	capture_sync.c	\
+	color_filters.c	\
+	file.c	\
+	fileset.c	\
+	filters.c	\
+	g711.c \
+	merge.c	\
+	proto_hier_stats.c	\
+	summary.c	\
+	tempfile.c
+
+# corresponding headers
+wireshark_INCLUDES =	\
+	airpcap.h	\
+	airpcap_loader.h \
+	alert_box.h	\
+	capture.h	\
+	capture_info.h	\
+	capture_opts.h	\
+	capture_sync.h	\
+	color_filters.h	\
+	filters.h	\
+	g711.h	\
+	globals.h	\
+	log.h	\
+	main_window.h	\
+	menu.h	\
+	merge.h	\
+	progress_dlg.h	\
+	proto_hier_stats.h	\
+	simple_dialog.h	\
+	stat_menu.h	\
+	statusbar.h	\
+	summary.h	\
+	sync_pipe.h	\
+	tap_dfilter_dlg.h	\
+	ui_util.h
+
+# tshark specifics
+tshark_SOURCES =	\
+	$(WIRESHARK_COMMON_SRC)	\
+	$(TSHARK_TAP_SRC)	\
+	capture_opts.c		\
+	capture_sync.c		\
+	tempfile.c		\
+	tshark-tap-register.c	\
+	tshark.c
+
+# text2pcap specifics
+text2pcap_SOURCES = \
+	text2pcap.c \
+	text2pcap-scanner.l
+
+# mergecap specifics
+mergecap_SOURCES = \
+	mergecap.c \
+	merge.c \
+	svnversion.h
+
+# editcap specifics
+editcap_SOURCES = \
+	editcap.c	\
+	epan/crypt/crypt-md5.c \
+	$(WTAP_PLUGIN_SOURCES)
+
+capinfos_SOURCES = \
+	capinfos.c \
+	$(WTAP_PLUGIN_SOURCES)
+
+# dftest specifics
+dftest_SOURCES =	\
+	dftest.c	\
+	util.c
+
+# randpkt specifics
+randpkt_SOURCES = \
+	randpkt.c
+
+# dumpcap specifics
+dumpcap_SOURCES =	\
+	$(PLATFORM_SRC) \
+	capture_opts.c \
+	capture_loop.c	\
+	capture-pcap-util.c	\
+	capture_stop_conditions.c	\
+	clopts_common.c	\
+	conditions.c	\
+	dumpcap.c	\
+	pcapio.c	\
+	ringbuffer.c	\
+	sync_pipe_write.c	\
+	tempfile.c	\
+	version_info.c	\
+	epan/unicode-utils.c
+
+# corresponding headers
+dumpcap_INCLUDES = \
+	capture_loop.h	\
+	capture_stop_conditions.h	\
+	conditions.h	\
+	pcapio.h	\
+	ringbuffer.h
+
+# this target needed for distribution only
+noinst_HEADERS =	\
+	$(WIRESHARK_COMMON_INCLUDES) \
+	$(wireshark_INCLUDES) \
+	$(EXTRA_wireshark_INCLUDES) \
+	$(dumpcap_INCLUDES)
