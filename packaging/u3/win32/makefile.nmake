@@ -135,6 +135,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\plugins\ciscosm\ciscosm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\docsis\docsis.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\enttec\enttec.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\plugins\ethercat\ethercat.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\giop\coseventcomm.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\giop\cosnaming.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\giop\parlay.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
