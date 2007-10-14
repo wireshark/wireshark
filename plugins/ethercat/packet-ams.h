@@ -1,4 +1,8 @@
-/* Copyright (c) 2007 by Beckhoff Automation GmbH
+/* packet-ams.h
+ *
+ * $Id$
+ *
+ * Copyright (c) 2007 by Beckhoff Automation GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -18,7 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-/* Ams.h*/
 
 #ifndef __PACKET_AMS_H__
 #define __PACKET_AMS_H__

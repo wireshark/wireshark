@@ -1,4 +1,8 @@
-/* Copyright (c) 2007 by Beckhoff Automation GmbH
+/* packet-ecatmb.h
+ *
+ * $Id$
+ *
+ * Copyright (c) 2007 by Beckhoff Automation GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

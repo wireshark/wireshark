@@ -26,6 +26,10 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
 
+if HAVE_WARNINGS_AS_ERRORS
+AM_CFLAGS = -Werror
+endif
+
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = ethercat.la
@@ -46,7 +50,7 @@ LIBS =
 # Build plugin.c, which contains the plugin version[] string, a
 # function plugin_register() that calls the register routines for all
 # protocols, and a function plugin_reg_handoff() that calls the handoff
-# registration routines for all protocolsagentx_la.
+# registration routines for all protocols.
 #
 # We do this by scanning sources.  If that turns out to be too slow,
 # maybe we could just require every .o file to have an register routine
@@ -114,5 +118,7 @@ MAINTAINERCLEANFILES = \
 	plugin.c
 
 EXTRA_DIST = \
-	Makefile.common	\
-	Makefile.nmake
+	Makefile.common		\
+	Makefile.nmake		\
+	moduleinfo.nmake	\
+	plugin.rc.in
