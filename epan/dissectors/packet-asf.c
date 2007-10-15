@@ -91,7 +91,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len = tvb_get_guint8(tvb, 7);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, "%s",
+		col_add_str(pinfo->cinfo, COL_INFO,
 		     val_to_str(type, asf_type_vals, "Unknown (0x%02x)"));
 
 	if (tree) {
