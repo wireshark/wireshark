@@ -585,7 +585,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   function = tvb_get_guint8(tvb, 0);
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+    col_add_str(pinfo->cinfo, COL_INFO,
 	val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
 
   if (tree) {
@@ -850,7 +850,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u",
     	val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
     if (more_fragment)
-	col_append_fstr(pinfo->cinfo, COL_INFO, " [fragment]");
+	col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
   }
 
   if (tree) {

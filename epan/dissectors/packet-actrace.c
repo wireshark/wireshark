@@ -497,7 +497,7 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, "Non CAS or ISDN AudioCodes trace message");
+			col_set_str(pinfo->cinfo, COL_INFO, "Non CAS or ISDN AudioCodes trace message");
 	}
 }
 

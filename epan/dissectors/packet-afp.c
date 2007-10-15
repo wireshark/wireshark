@@ -1002,20 +1002,20 @@ decode_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	if (tree) {
 		item = proto_tree_add_item(tree, hf_afp_vol_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_vol_bitmap);
-	}
 
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Attributes,	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Signature, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_CreateDate, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ModDate, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BackupDate, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ID, 		tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesFree, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesTotal, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Name, 		tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ExtBytesFree, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ExtBytesTotal, 	tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BlockSize , 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Attributes,	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Signature, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_CreateDate, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ModDate, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BackupDate, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ID, 		tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesFree, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BytesTotal, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_Name, 		tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ExtBytesFree, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_ExtBytesTotal, 	tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_bitmap_BlockSize , 	tvb, offset, 2,FALSE);
+	}
 
 	return bitmap;
 }
@@ -1032,19 +1032,20 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	if (tree) {
 		item = proto_tree_add_item(tree, hf_afp_vol_attribute, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_vol_attribute);
+
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_ReadOnly                ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_HasVolumePassword       ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsFileIDs         ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsCatSearch       ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsBlankAccessPrivs,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsUnixPrivs       ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsUTF8Names       ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_NoNetworkUserID         ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_DefaultPrivsFromParent  ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_NoExchangeFiles         ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsExtAttrs        ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsACLs            ,tvb, offset, 2,FALSE);
 	}
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_ReadOnly                ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_HasVolumePassword       ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsFileIDs         ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsCatSearch       ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsBlankAccessPrivs,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsUnixPrivs       ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsUTF8Names       ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_NoNetworkUserID         ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_DefaultPrivsFromParent  ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_NoExchangeFiles         ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsExtAttrs        ,tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsACLs            ,tvb, offset, 2,FALSE);
 
 	return bitmap;
 }
@@ -1147,25 +1148,26 @@ decode_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	if (tree) {
 		item = proto_tree_add_item(tree, hf_afp_file_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_file_bitmap);
+
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_Attributes      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_CreateDate     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ModDate        , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_BackupDate     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_FinderInfo     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_LongName       , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ShortName      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_NodeID         , tvb, offset, 2,FALSE);
+
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_DataForkLen   	, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_RsrcForkLen   	, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ExtDataForkLen	, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_LaunchLimit   	, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UTF8Name	    , tvb, offset, 2,FALSE);
+
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ExtRsrcForkLen	, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UnixPrivs      , tvb, offset, 2,FALSE);
 	}
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_Attributes      , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_CreateDate     , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ModDate        , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_BackupDate     , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_FinderInfo     , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_LongName       , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ShortName      , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_NodeID         , tvb, offset, 2,FALSE);
-
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_DataForkLen   	, tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_RsrcForkLen   	, tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ExtDataForkLen	, tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_LaunchLimit   	, tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UTF8Name	    , tvb, offset, 2,FALSE);
-
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_ExtRsrcForkLen	, tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_file_bitmap_UnixPrivs      , tvb, offset, 2,FALSE);
 
 	return bitmap;
 }
@@ -1179,11 +1181,12 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 	guint16		attribute;
 
 	attribute = tvb_get_ntohs(tvb, offset);
-	if (tree) {
-		item = proto_tree_add_text(tree, tvb, offset, 2,
-					"File Attributes: 0x%04x", attribute);
-		sub_tree = proto_item_add_subtree(item, ett_afp_file_attribute);
+	if (!tree) {
+		return attribute;
 	}
+	item = proto_tree_add_text(tree, tvb, offset, 2,
+				"File Attributes: 0x%04x", attribute);
+	sub_tree = proto_item_add_subtree(item, ett_afp_file_attribute);
 	proto_tree_add_item(sub_tree, hf_afp_file_attribute_Invisible    , tvb, offset, 2,FALSE);
 	if (!shared)
 		proto_tree_add_item(sub_tree, hf_afp_file_attribute_MultiUser    , tvb, offset, 2,FALSE);
@@ -1428,23 +1431,23 @@ decode_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 	if (tree) {
 		item = proto_tree_add_item(tree, hf_afp_dir_bitmap, tvb, offset, 2,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_dir_bitmap);
-	}
 
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_Attributes      , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_CreateDate     , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ModDate        , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_BackupDate     , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_FinderInfo     , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_LongName       , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ShortName      , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_NodeID         , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_OffspringCount , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_OwnerID        , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_GroupID        , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_AccessRights   , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_UTF8Name	   , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_UnixPrivs      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_Attributes      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_CreateDate     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ModDate        , tvb, offset, 2,FALSE);	
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_BackupDate     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_FinderInfo     , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_LongName       , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ShortName      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_NodeID         , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_OffspringCount , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_OwnerID        , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_GroupID        , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_AccessRights   , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_UTF8Name	   , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_UnixPrivs      , tvb, offset, 2,FALSE);
+	}
 
 	return bitmap;
 }
@@ -1462,15 +1465,16 @@ decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
 		item = proto_tree_add_text(tree, tvb, offset, 2,
 					"Directory Attributes: 0x%04x", attribute);
 		sub_tree = proto_item_add_subtree(item, ett_afp_dir_attribute);
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Invisible    , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_IsExpFolder  , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_System       , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Mounted      , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_InExpFolder  , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_BackUpNeeded , tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_RenameInhibit, tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_dir_attribute_DeleteInhibit, tvb, offset, 2,FALSE);
 	}
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Invisible    , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_IsExpFolder  , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_System       , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_Mounted      , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_InExpFolder  , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_BackUpNeeded , tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_RenameInhibit, tvb, offset, 2,FALSE);
-	proto_tree_add_item(sub_tree, hf_afp_dir_attribute_DeleteInhibit, tvb, offset, 2,FALSE);
 
 	return(attribute);
 }
@@ -3349,7 +3353,7 @@ dissect_reply_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	/* We don't keep the type from the request */
 	/* If remain == 16, assume UUID */
-	remain =  tvb_reported_length_remaining(tvb,0);
+	remain =  tvb_reported_length(tvb);
 	if (remain == 16) {
 		proto_tree_add_item(tree, hf_afp_UUID, tvb, offset, 16, FALSE);
 		offset += 16;
@@ -4028,7 +4032,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		afp_command;
 	nstime_t	delta_ts;
 
-	int     len =  tvb_reported_length_remaining(tvb,0);
+	int     len =  tvb_reported_length(tvb);
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -4068,7 +4072,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!request_val) {	/* missing request */
 		if (col_info)
-			col_add_fstr(pinfo->cinfo, COL_INFO, "[Reply without query?]");
+			col_set_str(pinfo->cinfo, COL_INFO, "[Reply without query?]");
 		return;
 	}
 
@@ -4102,7 +4106,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        	 * ip1:2048 --> ip2:548 <SYN> use the same port but it's a new session!
 	        	 */
 			if (col_info) {
-				col_add_fstr(pinfo->cinfo, COL_INFO,
+				col_set_str(pinfo->cinfo, COL_INFO,
 			          "[Error!IP port reused, you need to split the capture file]");
 				return;
 			}
@@ -4350,7 +4354,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_get_acl(tvb, pinfo, afp_tree, offset);break;
 		}
 	}
-	if (tree && offset < len) {
+	if (offset < len) {
 		call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
 		    pinfo, afp_tree);
 	}

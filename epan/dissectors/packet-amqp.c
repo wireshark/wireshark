@@ -1153,7 +1153,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_start(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Start ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1162,7 +1162,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_start_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Start-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1171,7 +1171,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_secure(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Secure ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1180,7 +1180,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_secure_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Secure-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1189,7 +1189,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_tune(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Tune ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1198,7 +1198,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_tune_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Tune-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1207,7 +1207,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_open(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Open ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1216,7 +1216,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_open_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Open-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1225,7 +1225,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_redirect(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Redirect ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1234,7 +1234,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_close(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Close ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1243,7 +1243,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_connection_close_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Connection.Close-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1263,7 +1263,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_open(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Open ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1272,7 +1272,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_open_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Open-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1281,7 +1281,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_flow(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Flow ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1290,7 +1290,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_flow_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Flow-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1299,7 +1299,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_close(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Close ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1308,7 +1308,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_close_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Close-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1317,7 +1317,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_resume(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Resume ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1326,7 +1326,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_ping(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Ping ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1335,7 +1335,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_pong(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Pong ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1344,7 +1344,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_channel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Channel.Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1364,7 +1364,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_access_request(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Access.Request ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1373,7 +1373,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_access_request_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Access.Request-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1393,7 +1393,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_exchange_declare(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Exchange.Declare ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1402,7 +1402,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_exchange_declare_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Exchange.Declare-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1411,7 +1411,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_exchange_delete(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Exchange.Delete ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1420,7 +1420,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_exchange_delete_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Exchange.Delete-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1440,7 +1440,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_declare(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Declare ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1449,7 +1449,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_declare_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Declare-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1458,7 +1458,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_bind(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Bind ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1467,7 +1467,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_bind_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Bind-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1476,7 +1476,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_unbind(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Unbind ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1485,7 +1485,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_unbind_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Unbind-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1494,7 +1494,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_purge(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Purge ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1503,7 +1503,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_purge_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Purge-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1512,7 +1512,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_delete(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Delete ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1521,7 +1521,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_queue_delete_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Queue.Delete-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1541,7 +1541,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_qos(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Qos ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1550,7 +1550,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_qos_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Qos-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1559,7 +1559,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_consume(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Consume ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1568,7 +1568,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_consume_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Consume-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1577,7 +1577,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_cancel(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Cancel ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1586,7 +1586,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_cancel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Cancel-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1595,7 +1595,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_publish(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Publish ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1604,7 +1604,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_return(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Return ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1613,7 +1613,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_deliver(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Deliver ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1622,7 +1622,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_get(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Get ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1631,7 +1631,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_get_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Get-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1640,7 +1640,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_get_empty(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Get-Empty ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1649,7 +1649,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_ack(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Ack ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1658,7 +1658,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_reject(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Reject ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1667,7 +1667,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_basic_recover(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Basic.Recover ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1687,7 +1687,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_qos(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Qos ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1696,7 +1696,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_qos_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Qos-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1705,7 +1705,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_consume(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Consume ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1714,7 +1714,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_consume_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Consume-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1723,7 +1723,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_cancel(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Cancel ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1732,7 +1732,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_cancel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Cancel-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1741,7 +1741,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_open(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Open ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1750,7 +1750,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_open_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Open-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1759,7 +1759,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_stage(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Stage ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1768,7 +1768,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_publish(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Publish ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1777,7 +1777,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_return(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Return ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1786,7 +1786,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_deliver(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Deliver ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1795,7 +1795,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_ack(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Ack ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1804,7 +1804,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_file_reject(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "File.Reject ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1824,7 +1824,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_qos(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Qos ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1833,7 +1833,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_qos_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Qos-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1842,7 +1842,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_consume(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Consume ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1851,7 +1851,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_consume_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Consume-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1860,7 +1860,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_cancel(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Cancel ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1869,7 +1869,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_cancel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Cancel-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1878,7 +1878,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_publish(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Publish ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1887,7 +1887,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_return(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Return ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1896,7 +1896,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_stream_deliver(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Stream.Deliver ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1916,7 +1916,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tx_select(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tx.Select ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1925,7 +1925,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tx_select_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tx.Select-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1934,7 +1934,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tx_commit(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tx.Commit ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1943,7 +1943,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tx_commit_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tx.Commit-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1952,7 +1952,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tx_rollback(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tx.Rollback ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1961,7 +1961,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tx_rollback_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tx.Rollback-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1981,7 +1981,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_dtx_select(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Dtx.Select ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1990,7 +1990,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_dtx_select_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Dtx.Select-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -1999,7 +1999,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_dtx_start(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Dtx.Start ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -2008,7 +2008,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_dtx_start_ok(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Dtx.Start-Ok ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }
@@ -2028,7 +2028,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_amqp_method_tunnel_request(tvb,
                         11, tvb_length (tvb), args_tree);
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        col_append_str(pinfo->cinfo, COL_INFO,
                             "Tunnel.Request ");
                         col_set_fence(pinfo->cinfo, COL_INFO);
                     }

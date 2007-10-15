@@ -223,7 +223,7 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length_remaining(tvb, 0), "Supported services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length(tvb), "Supported services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
@@ -246,7 +246,7 @@ static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_
 static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Supported services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Supported services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 	
 	while(tvb_length_remaining(tvb, offset) > 0) {
@@ -277,7 +277,7 @@ static int dissect_aim_generic_redirect(tvbuff_t *tvb, packet_info *pinfo, proto
 static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Requested services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Requested services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
@@ -292,7 +292,7 @@ static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U
 static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length_remaining(tvb, offset), "Accepted requested services");
+	proto_item *ti = proto_tree_add_text(gen_tree, tvb, offset, tvb_length(tvb), "Accepted requested services");
 	proto_tree *entry = proto_item_add_subtree(ti, ett_generic_clientready);
 
 	while(tvb_length_remaining(tvb, offset) > 0) {

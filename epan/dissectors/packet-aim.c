@@ -421,7 +421,7 @@ static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* check, if this is really an AIM packet, they start with 0x2a */
 /* XXX - I've seen some stuff starting with 0x5a followed by 0x2a */
 
-  if(tvb_bytes_exist(tvb, 0, 1) && tvb_get_guint8(tvb, 0) != 0x2a) {
+  if(tvb_length(tvb) >= 1 && tvb_get_guint8(tvb, 0) != 0x2a) {
     /* Not an instant messenger packet, just happened to use the same port */
     /* XXX - if desegmentation disabled, this might be a continuation
        packet, not a non-AIM packet */
@@ -466,7 +466,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
+    col_set_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
 
   /* get relevant header information */
   offset += 1;          /* XXX - put the identifier into the tree? */	
@@ -649,7 +649,7 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
 				int offset, proto_tree *tree)
 {
   if (check_col(pinfo->cinfo, COL_INFO)) 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "New Connection");
+    col_set_str(pinfo->cinfo, COL_INFO, "New Connection");
 
   if (tvb_length_remaining(tvb, offset) > 0) {
 	  proto_tree_add_item(tree, hf_aim_version, tvb, offset, 4, FALSE);
@@ -669,7 +669,7 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 
   if ((name = match_strval(tvb_get_ntohs(tvb, 0), aim_snac_errors)) != NULL) {
      if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+		col_add_str(pinfo->cinfo, COL_INFO, name);
   }
 
   proto_tree_add_item (aim_tree, hf_aim_snac_error,
@@ -803,7 +803,7 @@ static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo,
 				 int offset, proto_tree *tree)
 {
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "FLAP error");
+    col_set_str(pinfo->cinfo, COL_INFO, "FLAP error");
   }
 
   /* Show the undissected payload */
@@ -815,7 +815,7 @@ static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo,
 				   int offset, proto_tree *tree)
 {
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Keep Alive");
+    col_set_str(pinfo->cinfo, COL_INFO, "Keep Alive");
   }
 
   /* Show the undissected payload */
@@ -827,7 +827,7 @@ static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo,
 				   int offset, proto_tree *tree)
 {
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Close Connection");
+    col_set_str(pinfo->cinfo, COL_INFO, "Close Connection");
   }	  
   
   offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
@@ -837,7 +837,7 @@ static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo,
 					int offset, proto_tree *tree)
 {
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Channel");
+    col_set_str(pinfo->cinfo, COL_INFO, "Unknown Channel");
   }
 
   /* Show the undissected payload */

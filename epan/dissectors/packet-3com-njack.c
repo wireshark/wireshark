@@ -578,7 +578,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
 			njack_type_vals, "Type 0x%02x"));
 
 	if (tree) {
@@ -649,7 +649,7 @@ static gboolean
 test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
-	if ( !tvb_bytes_exist(tvb, 0, 6) ||
+	if ( tvb_length(tvb) < 6 ||
 		    g_strncasecmp((const char *)tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
         	return FALSE;
 	}

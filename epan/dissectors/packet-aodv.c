@@ -795,7 +795,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+	col_add_str(pinfo->cinfo, COL_INFO, "%s",
 		     val_to_str(type, type_vals,
 				"Unknown AODV Packet Type (%u)"));
     if (tree) {
