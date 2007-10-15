@@ -569,16 +569,16 @@ static void SoeFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gui
             g_snprintf ( szText, nMax, "SoE: RRQ (%s, '%s')", tmp, elm);
             break;
          case ECAT_SOE_OPCODE_RRS:
-            g_snprintf ( szText, nMax, "SoE: RRS (%s, '%s') : %d Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
+            g_snprintf ( szText, nMax, "SoE: RRS (%s, '%s') : %u Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
             break;
          case ECAT_SOE_OPCODE_WRS:
             g_snprintf ( szText, nMax, "SoE: WRS (%s, '%s')", tmp, elm);
             break;
          case ECAT_SOE_OPCODE_WRQ:
-            g_snprintf ( szText, nMax, "SoE: WRQ (%s, '%s') : %d Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
+            g_snprintf ( szText, nMax, "SoE: WRQ (%s, '%s') : %u Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
             break;
          case ECAT_SOE_OPCODE_NFC:
-            g_snprintf ( szText, nMax, "SoE: NFC (%s, '%s') : %d Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
+            g_snprintf ( szText, nMax, "SoE: NFC (%s, '%s') : %u Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
             break;
          case 6:
             g_snprintf ( szText, nMax, "SoE: EMGCY");
