@@ -359,7 +359,7 @@ text2pcap-scanner.c : text2pcap-scanner.l
 clean_gtk2.tmp:
 	rm -rf gtk2.tmp
 
-clean: clean_gtk2.tmp clean-deps
+clean-local: clean_gtk2.tmp clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(EXTRA_OBJECTS) \
 		$(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
@@ -370,6 +370,8 @@ clean: clean_gtk2.tmp clean-deps
 		dftest.obj dftest.exe randpkt.obj randpkt.ext \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll
+
+clean: clean-local
 	cd asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -399,11 +401,13 @@ clean: clean_gtk2.tmp clean-deps
 
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
-distclean: clean
+distclean-local: clean-local
 	rm -f $(ZLIB_DIR)\zlib1.dll $(ZLIB_DIR)\zlib1.dll.manifest \
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
 		$(ZLIB_DIR)\lib\zdll.lib 
 	rm -f config.h $(BUILT_SOURCES)
+
+distclean: distclean-local
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
@@ -431,8 +435,10 @@ distclean: clean
 # Make "maintainer-clean" only if you would like to remove ALL generated
 # files.
 # Be sure to have python and perl installed to regenerate them.
-maintainer-clean: distclean
+maintainer-clean-local: distclean-local
 	rm -f $(GENERATED_FILES)
+
+maintainer-clean: maintainer-clean-local
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs

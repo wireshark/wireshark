@@ -175,8 +175,10 @@ wimaxasncp::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-clean:
+clean-local:
 	rm -rf $(VERSION)
+
+clean: clean-local
 	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -260,7 +262,9 @@ clean:
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
 
-distclean: clean
+distclean-local: clean-local
+
+distclean: distclean-local
 	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
@@ -344,7 +348,9 @@ distclean: clean
 	cd ..
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
 
-maintainer-clean: distclean
+maintainer-clean-local: distclean-local
+
+maintainer-clean: maintainer-clean-local
 	cd agentx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
