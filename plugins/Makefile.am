@@ -28,7 +28,7 @@ SUBDIRS = \
 	ciscosm \
 	docsis \
 	enttec \
-	ethercat \
+#	ethercat \
 	giop \
 	gryphon \
 	irda \
