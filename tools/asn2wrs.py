@@ -1091,7 +1091,8 @@ class EthCtx:
       nm = self.type[t]['tname']
       if ((nm.find('#') >= 0) or 
           ((len(t.split('/'))>1) and 
-           (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t)) and 
+           (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t) or 
+            self.conform.get_fn_presence('/'.join((t,'_item'))) or self.conform.check_item('FN_PARS', '/'.join((t,'_item')))) and 
            not self.conform.check_item('TYPE_RENAME', t))):
         if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequnce of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
@@ -1962,20 +1963,21 @@ class EthCtx:
     if (not self.output.outnm):
       self.output.outnm = self.proto
       self.output.outnm = self.output.outnm.replace('.', '-')
-    self.eth_output_hf()
-    self.eth_output_ett()
-    self.eth_output_types()
-    self.eth_output_hf_arr()
-    self.eth_output_ett_arr()
-    self.eth_output_export()
+    if not self.justexpcnf:
+      self.eth_output_hf()
+      self.eth_output_ett()
+      self.eth_output_types()
+      self.eth_output_hf_arr()
+      self.eth_output_ett_arr()
+      self.eth_output_export()
+      self.eth_output_val()
+      self.eth_output_valexp()
+      self.eth_output_dis_hnd()
+      self.eth_output_dis_reg()
+      self.eth_output_dis_tab()
+      self.eth_output_table()
     if self.expcnf:
       self.eth_output_expcnf()
-    self.eth_output_val()
-    self.eth_output_valexp()
-    self.eth_output_dis_hnd()
-    self.eth_output_dis_reg()
-    self.eth_output_dis_tab()
-    self.eth_output_table()
 
   def dbg_modules(self):
     def print_mod(m):
@@ -2209,11 +2211,12 @@ class EthCnf:
       return par
 
     f = open(fn, "r")
+    lineno = 0
+    is_import = False
     directive = re.compile(r'^\s*#\.(?P<name>[A-Z_][A-Z_0-9]*)(\s+|$)')
     report = re.compile(r'^TABLE(?P<num>\d*)_(?P<type>HDR|BODY|FTR)$')
     comment = re.compile(r'^\s*#[^.]')
     empty = re.compile(r'^\s*$')
-    lineno = 0
     ctx = None
     name = ''
     default_flags = 0x00
@@ -2229,7 +2232,7 @@ class EthCnf:
           f.close()
         if stack:
           frec = stack.pop()
-          fn, f, lineno = frec['fn'], frec['f'], frec['lineno']
+          fn, f, lineno, is_import = frec['fn'], frec['f'], frec['lineno'], frec['is_import']
           continue
         else: 
           break
@@ -2303,11 +2306,20 @@ class EthCnf:
             elif (par[i] == 'UPPER_CASE'):     default_flags |= EF_UCASE
             elif (par[i] == 'NO_UPPER_CASE'):  default_flags &= ~EF_UCASE
             else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
-        elif result.group('name') in ('FN_HDR', 'FN_FTR'):
-          par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
-          if not par: continue
+        elif result.group('name') == 'FN_HDR':
+          minp = 1
+          if (ctx in ('FN_PARS',)) and name: minp = 0
+          par = get_par(line[result.end():], minp, 1, fn=fn, lineno=lineno)
+          if (not par) and (minp > 0): continue
           ctx = result.group('name')
-          name = par[0]
+          if par: name = par[0]
+        elif result.group('name') == 'FN_FTR':
+          minp = 1
+          if (ctx in ('FN_PARS','FN_HDR')) and name: minp = 0
+          par = get_par(line[result.end():], minp, 1, fn=fn, lineno=lineno)
+          if (not par) and (minp > 0): continue
+          ctx = result.group('name')
+          if par: name = par[0]
         elif result.group('name') == 'FN_BODY':
           par = get_par_nm(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
@@ -2353,10 +2365,11 @@ class EthCnf:
           self.report.setdefault(num, []).append(rep)
           ctx = 'TABLE'
           name = num
-        elif result.group('name') == 'INCLUDE':
+        elif result.group('name') in ('INCLUDE', 'IMPORT') :
+          is_imp = result.group('name') == 'IMPORT'
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: 
-            warnings.warn_explicit("INCLUDE requires parameter", UserWarning, fn, lineno)
+            warnings.warn_explicit("%s requires parameter" % (result.group('name'),), UserWarning, fn, lineno)
             continue
           fname = par[0]
           #print "Try include: %s" % (fname)
@@ -2369,10 +2382,13 @@ class EthCnf:
             #print "Try include: %s" % (fname)
             i += 1
           if (not os.path.exists(fname)):
-            fname = par[0]
+            if is_imp:
+              continue  # just ignore
+            else:
+              fname = par[0]  # report error
           fnew = open(fname, "r")
-          stack.append({'fn' : fn, 'f' : f, 'lineno' : lineno})
-          fn, f, lineno = par[0], fnew, 0
+          stack.append({'fn' : fn, 'f' : f, 'lineno' : lineno, 'is_import' : is_import})
+          fn, f, lineno, is_import = par[0], fnew, 0, is_imp
         elif result.group('name') == 'END':
           ctx = None
         else:
@@ -7374,6 +7390,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -c cnf_file   : Conformance file
   -I path       : Path for conformance file includes
   -e            : Create conformance file for exported types
+  -E            : Just create conformance file for exported types
   -S            : Single output for multiple modules
   -s template   : Single file output (template is input file
                   without .c/.h extension)
@@ -7401,7 +7418,7 @@ def eth_main():
   global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eSs:kL");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kL");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
@@ -7420,6 +7437,7 @@ def eth_main():
   ectx.dbgopt = ''
   ectx.new = True
   ectx.expcnf = False
+  ectx.justexpcnf = False
   ectx.merge_modules = False
   ectx.group_by_prot = False
   ectx.conform.last_group = 0
@@ -7433,6 +7451,9 @@ def eth_main():
       conf_to_read = a
     if o in ("-I",):
       ectx.conform.include_path.append(a)
+    if o in ("-E",):
+      ectx.expcnf = True
+      ectx.justexpcnf = True
     if o in ("-D",):
       ectx.srcdir = a
     #if o in ("-X",):
@@ -7442,7 +7463,7 @@ def eth_main():
     ectx.conform.read(conf_to_read)
 
   for o, a in opts:
-    if o in ("-h", "-?", "-c", "-I", "-D"):
+    if o in ("-h", "-?", "-c", "-I", "-E", "-D"):
       pass  # already processed
     else:
       par = []
@@ -7501,7 +7522,8 @@ def eth_main():
 
   if ectx.dbg('c'):
     ectx.conform.dbg_print()
-  ectx.conform.unused_report()
+  if not ectx.justexpcnf:
+    ectx.conform.unused_report()
 
   if ectx.dbg('o'):
     ectx.output.dbg_print()
