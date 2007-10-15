@@ -38,7 +38,7 @@ $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(I
 		-D $(srcdir) \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
-ifdef EXPORT_FILES
+if EXPORT_FILES
 $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
 		-E $(A2W_FLAGS) \
