@@ -4,7 +4,7 @@
 
 # $Id$
 
-#.INCLUDE ../h225/h225-exp.cnf
+#.IMPORT ../h225/h225-exp.cnf
 
 #.EXPORTS
 
