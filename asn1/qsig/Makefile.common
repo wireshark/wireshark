@@ -75,7 +75,8 @@ SRC_FILES = \
 
 # need empty -p <proto> option, default is -p $(PROTOCOL_NAME)
 PROTO_OPT = 
-A2W_FLAGS = 
+A2W_FLAGS = -e
 
 EXTRA_CNF = 
 
+IMPORT_CNF = 

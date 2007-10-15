@@ -20,9 +20,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=q932
+PROTOCOL_NAME = q932
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
+DISSECTOR_FILES = \
+	packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
 
 NEED_PACKET_PROTO_H = 1
@@ -49,7 +50,8 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -T -X
+A2W_FLAGS= -e -b -T -X
 
-EXTRA_CNF=
+EXTRA_CNF =
 
+IMPORT_CNF =
