@@ -36,7 +36,7 @@ generate_export: $(EXPORT_FILES)
 PROTO_OPT = -p $(PROTOCOL_NAME)
 !ENDIF
 
-$(DISSECTOR_FILES) $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(IMPORT_CNF)
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		$(A2W_FLAGS) \
@@ -47,6 +47,20 @@ $(DISSECTOR_FILES) $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
+!ENDIF
+
+!IFDEF EXPORT_FILES
+$(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+!IFDEF PYTHON
+	$(PYTHON) "../../tools/asn2wrs.py" \
+		-E $(A2W_FLAGS) \
+		$(PROTO_OPT) \
+		-c $(PROTOCOL_NAME).cnf \
+		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
+!ELSE
+	@echo Error: You need Python to use asn2wrs.py
+	@exit 1
+!ENDIF
 !ENDIF
 
 clean:

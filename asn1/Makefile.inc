@@ -29,7 +29,7 @@ generate_export: $(EXPORT_FILES)
 
 PROTO_OPT ?= -p $(PROTOCOL_NAME)
 
-$(DISSECTOR_FILES) $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(IMPORT_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
 		$(A2W_FLAGS) \
 		$(PROTO_OPT) \
@@ -37,6 +37,16 @@ $(DISSECTOR_FILES) $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) 
 		-s $(srcdir)/packet-$(PROTOCOL_NAME)-template \
 		-D $(srcdir) \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
+
+ifdef EXPORT_FILES
+$(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+	python $(top_srcdir)/tools/asn2wrs.py \
+		-E $(A2W_FLAGS) \
+		$(PROTO_OPT) \
+		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
+		-D $(srcdir) \
+		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
+endif
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) $(top_srcdir)/epan/dissectors/
