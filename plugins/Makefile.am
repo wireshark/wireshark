@@ -34,7 +34,6 @@ SUBDIRS = \
 	lwres \
 	m2m \
 	mate \
-	mgcp \
 	opcua \
 	opsi \
 	pcli \

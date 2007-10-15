@@ -893,7 +893,6 @@ install-common-files:
 	xcopy ".\plugins\lwres\lwres.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\m2m\m2m.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\mate\mate.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
-	xcopy ".\plugins\mgcp\mgcp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\opcua\opcua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\opsi\opsi.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\pcli\pcli.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d

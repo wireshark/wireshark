@@ -146,7 +146,6 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\plugins\lwres\lwres.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\m2m\m2m.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\mate\mate.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\plugins\mgcp\mgcp.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\opsi\opsi.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\pcli\pcli.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\profinet\profinet.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)

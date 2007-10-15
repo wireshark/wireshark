@@ -21,7 +21,6 @@ all: \
 	lwres \
 	m2m \
 	mate \
-	mgcp \
 	opcua \
 	opsi \
 	pcli \
@@ -102,11 +101,6 @@ m2m::
 
 mate::
 	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
-mgcp::
-	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd .. 
 
@@ -218,9 +212,6 @@ clean: clean-local
 	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd mgcp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd opcua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -302,9 +293,6 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd opcua
@@ -390,9 +378,6 @@ maintainer-clean: maintainer-clean-local
 	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
-	cd mgcp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ..
 	cd opcua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -453,7 +438,6 @@ install-plugins:
 	xcopy lwres\*.dll $(VERSION) /d
 	xcopy m2m\*.dll $(VERSION) /d
 	xcopy mate\*.dll $(VERSION) /d
-	xcopy mgcp\*.dll $(VERSION) /d
 	xcopy opcua\*.dll $(VERSION) /d
 	xcopy opsi\*.dll $(VERSION) /d
 	xcopy pcli\*.dll $(VERSION) /d

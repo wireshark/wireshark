@@ -509,6 +509,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-mdshdr.c		\
 	packet-media.c		\
 	packet-megaco.c		\
+	packet-mgcp.c		\
 	packet-mikey.c		\
 	packet-mip.c		\
 	packet-mip6.c		\
@@ -672,7 +673,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-socks.c		\
 	packet-spp.c		\
 	packet-spray.c		\
-        packet-srp.c		\
+	packet-srp.c		\
 	packet-sscf-nni.c	\
 	packet-srvloc.c		\
 	packet-sscop.c		\
@@ -917,6 +918,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ldp.h	\
 	packet-llc.h	\
 	packet-logotypecertextn.h	\
+	packet-mgcp.h		\
 	packet-mikey.h	\
 	packet-mip6.h	\
 	packet-mms.h	\

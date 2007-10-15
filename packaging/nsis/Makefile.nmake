@@ -79,7 +79,6 @@ PLUGINS= \
 	../../plugins/lwres/lwres.dll \
 	../../plugins/m2m/m2m.dll \
 	../../plugins/mate/mate.dll \
-	../../plugins/mgcp/mgcp.dll \
 	../../plugins/opsi/opsi.dll \
 	../../plugins/pcli/pcli.dll \
 	../../plugins/rlm/rlm.dll \
