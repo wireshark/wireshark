@@ -54,7 +54,7 @@
 #include <epan/dissectors/packet-h245.h>
 #include <epan/dissectors/packet-q931.h>
 #include <epan/dissectors/packet-sdp.h>
-#include <plugins/mgcp/packet-mgcp.h>
+#include <epan/dissectors/packet-mgcp.h>
 #include <epan/dissectors/packet-actrace.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtp-events.h>
