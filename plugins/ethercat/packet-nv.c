@@ -71,36 +71,36 @@ static int hf_nv_data = -1;
 /*nv*/
 static void NvSummaryFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
 {
-   guint32 pubOffset = offset+offsetof(NvParserHDR, Publisher);
+   guint32 nvOffset = offset;
 
    g_snprintf ( szText, nMax, "Network Vars from %d.%d.%d.%d.%d.%d - %d Var(s)",
-      tvb_get_guint8(tvb, pubOffset),
-      tvb_get_guint8(tvb, pubOffset+1),
-      tvb_get_guint8(tvb, pubOffset+2),
-      tvb_get_guint8(tvb, pubOffset+3),
-      tvb_get_guint8(tvb, pubOffset+4),
-      tvb_get_guint8(tvb, pubOffset+5),
-      tvb_get_letohs(tvb, offset+offsetof(NvParserHDR, CountNV)));
+      tvb_get_guint8(tvb, nvOffset),
+      tvb_get_guint8(tvb, nvOffset+1),
+      tvb_get_guint8(tvb, nvOffset+2),
+      tvb_get_guint8(tvb, nvOffset+3),
+      tvb_get_guint8(tvb, nvOffset+4),
+      tvb_get_guint8(tvb, nvOffset+5),
+      tvb_get_letohs(tvb, nvOffset+6));
 }
 
 static void NvPublisherFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
 {
-   guint32 pubOffset = offset+offsetof(NvParserHDR, Publisher);
+   guint32 nvOffset = offset;
 
    g_snprintf ( szText, nMax, "Publisher %d.%d.%d.%d.%d.%d",
-      tvb_get_guint8(tvb, pubOffset),
-      tvb_get_guint8(tvb, pubOffset+1),
-      tvb_get_guint8(tvb, pubOffset+2),
-      tvb_get_guint8(tvb, pubOffset+3),
-      tvb_get_guint8(tvb, pubOffset+4),
-      tvb_get_guint8(tvb, pubOffset+5));    
+      tvb_get_guint8(tvb, nvOffset),
+      tvb_get_guint8(tvb, nvOffset+1),
+      tvb_get_guint8(tvb, nvOffset+2),
+      tvb_get_guint8(tvb, nvOffset+3),
+      tvb_get_guint8(tvb, nvOffset+4),
+      tvb_get_guint8(tvb, nvOffset+5));    
 }
 
 static void NvVarHeaderFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
 { 
    g_snprintf ( szText, nMax, "Variable - Id = %d, Length = %d",
-      tvb_get_letohs(tvb, offset+offsetof(ETYPE_88A4_NV_DATA_HEADER, Id)),
-      tvb_get_letohs(tvb, offset+offsetof(ETYPE_88A4_NV_DATA_HEADER, Length)));
+      tvb_get_letohs(tvb, offset),
+      tvb_get_letohs(tvb, offset+4));
 }
 
 static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -111,7 +111,6 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    char szText[200];
    int nMax = sizeof(szText)-1;
 
-   guint nv_length = tvb_reported_length(tvb);
    gint i;
  
    if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -132,7 +131,7 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       nv_tree = proto_item_add_subtree(ti, ett_nv);
       proto_item_append_text(ti,": %s",szText);
 
-      ti = proto_tree_add_item(nv_tree, hf_nv_header, tvb, offset, sizeof(NvParserHDR), TRUE);
+      ti = proto_tree_add_item(nv_tree, hf_nv_header, tvb, offset, NvParserHDR_Len, TRUE);
 
       nv_header_tree = proto_item_add_subtree(ti, ett_nv_header);
 
@@ -146,18 +145,18 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset+=sizeof(guint16);
 
       ti= proto_tree_add_item(nv_header_tree, hf_nv_cycleindex, tvb, offset, sizeof(guint16), TRUE);
-      offset = sizeof(NvParserHDR);
+      offset = NvParserHDR_Len;
 
       for ( i=0; i < nv_count; i++ )
       {
-         guint16 var_length = tvb_get_letohs(tvb, offset+offsetof(ETYPE_88A4_NV_DATA_HEADER, Length));
+         guint16 var_length = tvb_get_letohs(tvb, offset+4);
 
-         ti = proto_tree_add_item(nv_tree, hf_nv_variable, tvb, offset, sizeof(ETYPE_88A4_NV_DATA_HEADER)+var_length, TRUE);
+         ti = proto_tree_add_item(nv_tree, hf_nv_variable, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len+var_length, TRUE);
          NvVarHeaderFormater(tvb, offset, szText, nMax);
          proto_item_set_text(ti, szText);
 
          nv_var_tree = proto_item_add_subtree(ti, ett_nv_var);
-         ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, sizeof(ETYPE_88A4_NV_DATA_HEADER), TRUE);
+         ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len, TRUE);
 
          nv_varheader_tree = proto_item_add_subtree(ti, ett_nv_varheader);
          ti = proto_tree_add_item(nv_varheader_tree, hf_nv_id, tvb, offset, sizeof(guint16), TRUE);

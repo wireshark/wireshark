@@ -671,20 +671,17 @@ typedef enum
 #define MACHINEIDENTRYDONTCARE 0xFF
 #define AMS_NETIDLEN           23
 
-/* Ensure the same data layout for all platforms */
-#pragma pack(push, 1)
-
 typedef struct AmsNetId_
 {
    guint8 b[6];
-} AmsNetId, *PAmsNetId;
-
+} AmsNetId;
+#define AmsNetId_Len sizeof(AmsNetId)
 
 typedef struct AmsAddr_
 {
    AmsNetId   netId;
    guint16    port;
-} AmsAddr, *PAmsAddr;
+} AmsAddr;
 
 typedef union ErrCodeUnion
 {
@@ -712,7 +709,8 @@ typedef struct
 
    ErrCodeUnion anErrCodeUnion;
    UserUnion aUserUnion;
-} AmsHead, *PAmsHead;
+} AmsHead;
+#define AmsHead_Len sizeof(AmsHead)
 
 
 /*   State flags */
@@ -735,9 +733,6 @@ typedef struct
    AmsHead head;
 } AmsCmd, *PAmsCmd;
 
-#define SIZEOF_AmsCmd(p) (sizeof(AmsHead) + ((PAmsCmd)p)->head.cbData)
-
-#pragma pack(pop)
 
 /* ADS */
 
@@ -843,8 +838,6 @@ typedef struct
 
 #define ADSIGRP_ECAT_VOE 0xF430
 
-
-#define ADS_NOTIFICATIONBLOCKSIZE (sizeof(AdsNotificationBlock)-1)
 
 typedef enum nAdsState
 {
@@ -985,19 +978,101 @@ typedef enum nAdsTransMode
    #define ANYSIZE_ARRAY 1
 #endif
 
-#ifndef UNALIGNED
-   #define UNALIGNED
-#endif 
-
 /* ADS AMS command */
-/* Ensure the same data layout for all platforms */
-#pragma pack(push, 1)
+/*typedef struct
+{
+   guint32 hNotification;
+   guint32 cbSampleSize;
+   guint8  data[ANYSIZE_ARRAY];
+} AdsNotificationSample, *PAdsNotificationSample;*/
+#define AdsNotificationSample_Min_Len 4
 
 typedef struct
 {
-   AmsHead head;
+   guint32 invokeId;
+} TAdsReadDeviceInfoReq;
+
+#define TAdsReadDeviceInfoReq_Len sizeof(TAdsReadDeviceInfoReq)
+
+/*typedef struct
+{
+   guint16 adsState;
+   guint16 deviceState;
+   guint32 cbLength;
    guint16 firstDataWord;
-} AdsAmsCmd, *PAdsAmsCmd;
+} TAdsWriteControlReq, TAdsWriteControlInd;*/
+#define TAdsWriteControlReq_Len 10
+
+typedef struct
+{
+   guint32 invokeId;
+} TAdsReadStateReq;
+#define TAdsReadStateReq_Len sizeof(TAdsReadStateReq)
+
+typedef struct
+{
+   guint32 indexGroup;
+   guint32 indexOffset;
+   guint32 cbLength;
+} TAdsReadReq;
+#define TAdsReadReq_Len sizeof(TAdsReadReq)
+
+/*typedef struct
+{
+   guint32 indexGroup;
+   guint32 indexOffset;
+   guint32 cbLength;
+   guint16 firstDataWord;
+} TAdsWriteReq;*/
+#define TAdsWriteReq_Len 14
+
+/*
+typedef struct
+{
+   guint32 indexGroup;
+   guint32 indexOffset;
+   guint32 cbReadLength;
+   guint32 cbWriteLength;
+   guint16 firstDataWord;
+} TAdsReadWriteReq;*/
+#define TAdsReadWriteReq_Len 18
+
+typedef struct
+{
+   guint32 cbLength;
+   guint32 nTransMode;
+   guint32 nMaxDelay;
+   guint32 nCycleTime;
+   guint8  nCmpMax[sizeof(double)];
+   guint8  nCmpMin[sizeof(double)];
+} AdsNotificationAttrib;
+
+typedef struct
+{
+   guint32               indexGroup;
+   guint32               indexOffset;
+   AdsNotificationAttrib noteAttrib;
+} TAdsAddDeviceNotificationReq; 
+#define TAdsAddDeviceNotificationReq_Len sizeof(TAdsAddDeviceNotificationReq)  
+
+typedef struct
+{
+   guint32   hNotification;
+}  TAdsDelDeviceNotificationReq;
+#define TAdsDelDeviceNotificationReq_Len sizeof(TAdsDelDeviceNotificationReq)
+
+typedef struct
+{
+   guint32 cbLength;
+   guint32 nStamps;
+}  TAdsDeviceNotificationReq;
+#define TAdsDeviceNotificationReq_Len sizeof(TAdsDeviceNotificationReq)
+
+typedef struct
+{
+   guint32  result;
+} TAdsRes;
+#define TAdsRes_Len sizeof(TAdsRes)
 
 typedef struct
 {
@@ -1008,204 +1083,70 @@ typedef struct
 
 typedef struct
 {
-   guint32 hNotification;
-   guint32 cbSampleSize;
-   guint8  data[ANYSIZE_ARRAY];
-} AdsNotificationSample, *PAdsNotificationSample;
-
-typedef struct
-{
-   gint64  nTimeStamp;
-   guint32 nSamples;
-   AdsNotificationSample tSample[ANYSIZE_ARRAY];
-} AdsStampHeader, *PAdsStampHeader;
-
-
-typedef struct
-{
-   guint32        nStamps;
-   AdsStampHeader tStamp[ANYSIZE_ARRAY];
-} AdsNotificationStream, *PAdsNotificationStream;
-
-
-typedef struct
-{
-   guint32 hNotification;
-   gint64  nTimeStamp;
-   guint32 cbSampleSize;
-   guint8  data[ANYSIZE_ARRAY];
-} AdsNotificationHeader, *PAdsNotificationHeader;
-
-typedef struct
-{
-   guint32      cbLength;
-   ADSTRANSMODE nTransMode;
-   guint32      nMaxDelay;
-   guint32      nCycleTime;
-   guint8       nCmpMax[sizeof(double)];
-   guint8       nCmpMin[sizeof(double)];
-} AdsNotificationAttrib, *PAdsNotificationAttrib;
-
-typedef struct
-{
-   guint32 invokeId;
-} TAdsReadDeviceInfoReq, *PTAdsReadDeviceInfoReq, TAdsReadDeviceInfoInd, *PTAdsReadDeviceInfoInd;
-
-typedef struct
-{
-   guint16 adsState;
-   guint16 deviceState;
-   guint32 cbLength;
-   guint16 firstDataWord;
-} TAdsWriteControlReq, *PTAdsWriteControlReq, TAdsWriteControlInd, *PTAdsWriteControlInd;
-
-typedef struct
-{
-   guint32 invokeId;
-} TAdsReadStateReq, *PTAdsReadStateReq, TAdsReadStateInd, *PTAdsReadStateInd;
-
-typedef struct
-{
-   guint32 indexGroup;
-   guint32 indexOffset;
-   guint32 cbLength;
-} TAdsReadReq, *PTAdsReadReq, TAdsReadInd, *PTAdsReadInd;
-
-typedef struct
-{
-   guint32 indexGroup;
-   guint32 indexOffset;
-   guint32 cbLength;
-   guint16 firstDataWord;
-} TAdsWriteReq, *PTAdsWriteReq, TAdsWriteInd, *PTAdsWriteInd;
-
-typedef struct
-{
-   guint32 indexGroup;
-   guint32 indexOffset;
-   guint32 cbReadLength;
-   guint32 cbWriteLength;
-   guint16 firstDataWord;
-} TAdsReadWriteReq, *PTAdsReadWriteReq, TAdsReadWriteInd, *PTAdsReadWriteInd;
-
-typedef struct
-{
-   guint32               indexGroup;
-   guint32               indexOffset;
-   AdsNotificationAttrib noteAttrib;
-} TAdsAddDeviceNotificationReq, *PTAdsAddDeviceNotificationReq,
-   TAdsAddDeviceNotificationInd, *PTAdsAddDeviceNotificationInd;
-
-typedef struct
-{
-   guint32   hNotification;
-}  TAdsDelDeviceNotificationReq, *PTAdsDelDeviceNotificationReq,
-   TAdsDelDeviceNotificationInd, *PTAdsDelDeviceNotificationInd;
-
-typedef struct
-{
-   guint32               cbLength;
-   AdsNotificationStream noteBlocks;
-}  TAdsDeviceNotificationReq, *PTAdsDeviceNotificationReq,
-   TAdsDeviceNotificationInd, *PTAdsDeviceNotificationInd;
-
-
-typedef struct
-{
-   guint32  result;
-} TAdsCon, *PTAdsCon, TAdsRes, *PTAdsRes;
-
-typedef struct
-{
    guint32    result;
    AdsVersion version;
    char       sName[ADS_FIXEDNAMESIZE];
-} TAdsReadDeviceInfoRes, *PTAdsReadDeviceInfoRes, TAdsReadDeviceInfoCon, *PTAdsReadDeviceInfoCon;
+} TAdsReadDeviceInfoRes;
+#define TAdsReadDeviceInfoRes_Len sizeof(TAdsReadDeviceInfoRes)
 
 typedef struct
 {
    guint32 result;
-} TAdsWriteControlRes, *PTAdsWriteControlRes, TAdsWriteControlCon, *PTAdsWriteControlCon;
+} TAdsWriteControlRes;
+#define TAdsWriteControlRes_Len sizeof(TAdsWriteControlRes)
 
 typedef struct
 {
    guint32 result;
    guint16 adsState;
    guint16 deviceState;
-} TAdsReadStateRes, *PTAdsReadStateRes, TAdsReadStateCon, *PTAdsReadStateCon;
+} TAdsReadStateRes;
+#define TAdsReadStateRes_Len sizeof(TAdsReadStateRes)
 
 typedef struct
 {
    guint32 result;
    guint32 cbLength;
    guint16 firstDataWord;
-} TAdsReadRes, *PTAdsReadRes, TAdsReadCon, *PTAdsReadCon;
+} TAdsReadRes;
+#define TAdsReadRes_Len sizeof(TAdsReadRes)
 
 typedef struct
 {
    guint32 result;
    guint32 cbLength;
    guint16 firstDataWord;
-} TAdsReadWriteRes, *PTAdsReadWriteRes, TAdsReadWriteCon, *PTAdsReadWriteCon;
+} TAdsReadWriteRes;
+#define TAdsReadWriteRes_Len sizeof(TAdsReadWriteRes)
 
 typedef struct
 {
    guint32 result;
-} TAdsWriteRes, *PTAdsWriteRes, TAdsWriteCon, *PTAdsWriteCon;
+} TAdsWriteRes;
+#define TAdsWriteRes_Len sizeof(TAdsWriteRes)
 
 typedef struct
 {
    guint32 result;
    guint32 handle;
-}  TAdsAddDeviceNotificationRes, *PTAdsAddDeviceNotificationRes,
-   TAdsAddDeviceNotificationCon, *PTAdsAddDeviceNotificationCon;
+}  TAdsAddDeviceNotificationRes;   
+#define TAdsAddDeviceNotificationRes_Len sizeof(TAdsAddDeviceNotificationRes)
 
 typedef struct
 {
    guint32 result;
-}  TAdsDelDeviceNotificationRes, *PTAdsDelDeviceNotificationRes,
-   TAdsDelDeviceNotificationCon, *PTAdsDelDeviceNotificationCon;
+}  TAdsDelDeviceNotificationRes;   
+#define TAdsDelDeviceNotificationRes_Len sizeof(TAdsDelDeviceNotificationRes)
 
 
 /* structure for decoding the header -----------------------------------------*/
-typedef struct
+/*typedef struct
 {
    guint16 reserved;
-   guint16 cbLength[2];
+   guint32 cbLength;
 } TcpAdsParserHDR;
-typedef TcpAdsParserHDR UNALIGNED *PTcpAdsParserHDR;
+typedef TcpAdsParserHDR;*/
+#define TcpAdsParserHDR_Len 6
 
-typedef union tAdsUnion
-{
-   TAdsReadReq                  readReq;
-   TAdsReadRes                  readRes;
-   TAdsWriteReq                 writeReq;
-   TAdsWriteRes                 writeRes;
-   TAdsReadWriteReq             rwReq;
-   TAdsReadWriteRes             rwRes;
-   TAdsReadDeviceInfoReq        infoReq;
-   TAdsReadDeviceInfoRes        infoRes;
-   TAdsWriteControlReq          writeCtrlReq;
-   TAdsWriteControlRes          writeCtrlRes;
-   TAdsReadStateReq             readStateReq;
-   TAdsReadStateRes             readStateRes;
-   TAdsAddDeviceNotificationReq addDnReq;
-   TAdsAddDeviceNotificationRes addDnRes;
-   TAdsDelDeviceNotificationReq delDnReq;
-   TAdsDelDeviceNotificationRes delDnRes;
-   TAdsDeviceNotificationReq    dnReq;
-   TAdsReadDeviceInfoReq        readDInfoReq;
-   TAdsReadDeviceInfoRes        readDInfoRes;
-} AdsUnion;
-
-typedef struct _AdsParser
-{
-   AmsHead ams;
-
-   AdsUnion anAdsUnion;
-} AdsParserHDR;
-typedef AdsParserHDR UNALIGNED *PAdsParserHDR;
-
-#pragma pack(pop)
 
 #endif

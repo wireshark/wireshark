@@ -25,15 +25,11 @@
 #ifndef _PACKET_IORAW_H_
 #define _PACKET_IORAW_H_
 
-/* Ensure the same data layout for all platforms */
-#pragma pack(push, 1)
-
 /* headers are only used for size and offset calculation*/
 typedef struct _IoRawParser
 {
    guint32 head;
 } IoRawParserHDR, *PIoRawParserHDR;
-
-#pragma pack(pop)
+#define IoRawParserHDR_Len sizeof(IoRawParserHDR)
 
 #endif /* _PACKET_IORAW_H_*/

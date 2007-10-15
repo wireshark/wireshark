@@ -257,8 +257,8 @@ static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, gint offset)
 {
    pHdr->cmd = tvb_get_guint8(tvb, offset++);
    pHdr->idx = tvb_get_guint8(tvb, offset++);
-   pHdr->adp = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
-   pHdr->ado = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pHdr->anAddrUnion.adp = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pHdr->anAddrUnion.ado = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
    pHdr->len = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
    pHdr->intr = tvb_get_letohs(tvb, offset);
 }
@@ -327,7 +327,7 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
       guint16 len = ecFirst.len&0x07ff;
       guint16 cnt = get_wc(&ecFirst, tvb, offset);
       g_snprintf ( szText, nMax, "'%s', Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ", 
-         convertEcCmdToText(ecFirst.cmd), len, ecFirst.adp, ecFirst.ado, cnt );
+         convertEcCmdToText(ecFirst.cmd), len, ecFirst.anAddrUnion.adp, ecFirst.anAddrUnion.ado, cnt );
    }
    else if ( nSub == 2 )
    {
@@ -373,13 +373,13 @@ static void EcSubFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
    case EC_CMD_TYPE_ARMW:
    case EC_CMD_TYPE_FRMW:
       g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d", 
-         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.adp, ecParser.ado, cnt);
+         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.adp, ecParser.anAddrUnion.ado, cnt);
       break;
    case EC_CMD_TYPE_LRD:
    case EC_CMD_TYPE_LWR:
    case EC_CMD_TYPE_LRW:
       g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Addr 0x%x, Cnt %d", 
-         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, *(guint32*)&ecParser.adp, cnt);
+         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.addr, cnt);
       break;
    case EC_CMD_TYPE_EXT:
       g_snprintf ( szText, nMax, "Sub Frame: Cmd: 'EXT' (%d), Len: %d",  ecParser.cmd, len);
@@ -405,8 +405,6 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    int nMax = sizeof(szText)-1;
    guint b;
 
-   guint ecat_length = tvb_reported_length(tvb);
-   
    guint32 ecLength=0;
    guint subCount = 0;
 
@@ -454,9 +452,9 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       subsize = get_cmd_len(&ecHdr);
       len = ecHdr.len&0x7fff;
 
-      if ( len >= sizeof(ETHERCAT_MBOX_HEADER) &&
+      if ( len >= sizeof(ETHERCAT_MBOX_HEADER_LEN) &&
          (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) && 
-         ecHdr.ado>=0x1000 
+         ecHdr.anAddrUnion.ado>=0x1000 
          )
       {
          ETHERCAT_MBOX_HEADER mbox;
@@ -469,7 +467,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          case ETHERCAT_MBOX_TYPE_FOE:
          case ETHERCAT_MBOX_TYPE_COE:
          case ETHERCAT_MBOX_TYPE_SOE:
-            if ( /*pMBox->Length > 0 &&*/ mbox.Length <= 1500 /*&& pMBox->Length+sizeof(ETHERCAT_MBOX_HEADER) >= len*/ )
+            if ( /*pMBox->Length > 0 &&*/ mbox.Length <= 1500 /*&& pMBox->Length+sizeof(ETHERCAT_MBOX_HEADER_LEN) >= len*/ )
             {
                bMBox = TRUE;
             }
@@ -503,23 +501,23 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          case 10:
          case 11:
          case 12:
-            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_lad, tvb, suboffset, sizeof(ecHdr.adp)+sizeof(ecHdr.ado), TRUE);
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_lad, tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp)+sizeof(ecHdr.anAddrUnion.ado), TRUE);
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_lad[subCount], tvb, suboffset, sizeof(ecHdr.adp)+sizeof(ecHdr.ado), TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_lad[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp)+sizeof(ecHdr.anAddrUnion.ado), TRUE);
 
-            suboffset += (sizeof(ecHdr.adp)+sizeof(ecHdr.ado));
+            suboffset += (sizeof(ecHdr.anAddrUnion.adp)+sizeof(ecHdr.anAddrUnion.ado));
             break;
          default:
-            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_adp, tvb, suboffset, sizeof(ecHdr.adp), TRUE);
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_adp, tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp), TRUE);
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_adp[subCount], tvb, suboffset, sizeof(ecHdr.adp), TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_adp[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp), TRUE);
 
-            suboffset+= sizeof(ecHdr.adp);
-            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_ado, tvb, suboffset, sizeof(ecHdr.ado), TRUE);
+            suboffset+= sizeof(ecHdr.anAddrUnion.adp);
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_ado, tvb, suboffset, sizeof(ecHdr.anAddrUnion.ado), TRUE);
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.ado), TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.ado), TRUE);
 
-            suboffset+= sizeof(ecHdr.ado);
+            suboffset+= sizeof(ecHdr.anAddrUnion.ado);
          }
 
          aitem = proto_tree_add_uint(ecat_header_tree, hf_ecat_len, tvb, suboffset, sizeof(ecHdr.len), ecHdr.len&0x07FF);
@@ -536,7 +534,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          suboffset+=EcParserHDR_Len;
       }
 
-      if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.ado>=0x600 && ecHdr.ado<0x700 && (ecHdr.ado%16)==0 && (len%16)==0 )
+      if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.anAddrUnion.ado>=0x600 && ecHdr.anAddrUnion.ado<0x700 && (ecHdr.anAddrUnion.ado%16)==0 && (len%16)==0 )
       {
          if( tree )
          {
@@ -605,7 +603,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             }
          }
       }
-      else if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.ado>=0x800 && ecHdr.ado<0x880 && (ecHdr.ado%8)==0 && (len%8)==0 )
+      else if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.anAddrUnion.ado>=0x800 && ecHdr.anAddrUnion.ado<0x880 && (ecHdr.anAddrUnion.ado%8)==0 && (len%8)==0 )
       {
          if( tree )
          {
@@ -639,7 +637,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             }
          }
       }
-      else if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.ado == 0x900 && ecHdr.len >= 16 )
+      else if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.ado == 0x900 && ecHdr.len >= 16 )
       {
          if (tree)
          {
@@ -1549,7 +1547,7 @@ void proto_register_ecat(void)
       &ett_ecat_dc
    };
 
-   proto_ecat_datagram = proto_register_protocol("EtherCAT Datagram",
+   proto_ecat_datagram = proto_register_protocol("EtherCAT datagram",
       "ECAT","ecat");
    proto_register_field_array(proto_ecat_datagram,hf,array_length(hf));
    proto_register_subtree_array(ett,array_length(ett));

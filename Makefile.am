@@ -228,6 +228,7 @@ plugin_ldadd = \
 	-dlopen plugins/ciscosm/ciscosm.la \
 	-dlopen plugins/docsis/docsis.la \
 	-dlopen plugins/enttec/enttec.la \
+	-dlopen plugins/ethercat/ethercat.la \
 	-dlopen plugins/giop/cosnaming.la \
 	-dlopen plugins/giop/coseventcomm.la \
 	-dlopen plugins/gryphon/gryphon.la \

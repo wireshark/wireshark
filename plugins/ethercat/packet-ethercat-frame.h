@@ -25,18 +25,19 @@
 #ifndef _PACKET_ETHERCAT_FRAME_H
 #define _PACKET_ETHERCAT_FRAME_H
 
-/* Ensure the same data layout for all platforms */
-#pragma pack(push, 1)
-
 /* structure for decoding the header -----------------------------------------*/
-typedef struct _EtherCATFrameParser
+typedef union _EtherCATFrameParser
 {
-   guint16 length   : 11;
-   guint16 reserved : 1;
-   guint16 protocol : 4;
+   struct
+   {
+      guint16 length   : 11;
+      guint16 reserved : 1;
+      guint16 protocol : 4;
+   };
+   guint16 hdr;
 } EtherCATFrameParserHDR;
 typedef EtherCATFrameParserHDR *PEtherCATFrameParserHDR;
 
-#pragma pack(pop)
+#define EtherCATFrameParserHDR_Len sizeof(EtherCATFrameParserHDR)
 
 #endif

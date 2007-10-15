@@ -26,22 +26,25 @@
 #define _PACKET_ETHERCAT_DATAGRAM_
 
 /* structure for decoding the header -----------------------------------------*/
-
-/* Ensure the same data layout for all platforms */
-#pragma pack(push, 1)
+typedef union 
+{
+   struct
+   {
+      guint16 adp;
+      guint16 ado;
+   };
+   guint32 addr;
+} EcParserAddrUnion;
 
 typedef struct _EcParser
 {
    guint8  cmd;
    guint8  idx;
-   guint16 adp;
-   guint16 ado;
+   EcParserAddrUnion anAddrUnion;
    guint16 len;
    guint16 intr;
 } EcParserHDR, *PEcParserHDR;
 
-#define EcParserHDR_Len sizeof(EcParserHDR)
-
-#pragma pack(pop)
+#define EcParserHDR_Len 10/*sizeof(EcParserHDR)*/
 
 #endif /* _PACKET_ETHERCAT_DATAGRAM_ */

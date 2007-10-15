@@ -27,25 +27,22 @@
 #define _PACKET_NV_H_
 
 /* Ensure the same data layout for all platforms*/
-#pragma pack(push, 1)
-
 typedef struct _ETYPE_88A4_NV_DATA_HEADER
 {
    guint16 Id;
    guint16 Hash;
    guint16 Length;
    guint16 Quality;
-} ETYPE_88A4_NV_DATA_HEADER, *PETYPE_88A4_NV_DATA_HEADER;
+} ETYPE_88A4_NV_DATA_HEADER;
+#define ETYPE_88A4_NV_DATA_HEADER_Len sizeof(ETYPE_88A4_NV_DATA_HEADER)
 
-
-typedef struct _ETYPE_88A4_NV_HEADER
+typedef struct _NvParserHDR
 {
    guint8  Publisher[6];
    guint16 CountNV;
    guint16 CycleIndex;
    guint16 Reserved;
-} ETYPE_88A4_NV_HEADER, *PETYPE_88A4_NV_HEADER, NvParserHDR, *PNvParserHDR;
-
-#pragma pack(pop)
+} NvParserHDR;
+#define NvParserHDR_Len sizeof(NvParserHDR)
 
 #endif /* _PACKET_NV_H_*/

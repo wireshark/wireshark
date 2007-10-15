@@ -26,7 +26,6 @@
 #define _PACKET_ECATMAILBOX_H_
 
 /* Ensure the same data layout for all platforms */
-#pragma pack(push, 1)
 
 typedef struct TETHERNET_ADDRESS
 {
@@ -80,25 +79,8 @@ typedef struct TETHERCAT_MBOX_HEADER
 #define EOE_RESULT_NO_IP_SUPPORT            0x0201
 #define EOE_RESULT_NO_MACFILTERMASK_SUPPORT 0x0401
 
-static char* EoEResultText(guint16 result)
-{
-   switch (result)
-   {
-   case EOE_RESULT_NOERROR:
-      return "No error";
-   case EOE_RESULT_UNSPECIFIED_ERROR:
-      return "Unspecified error";
-   case EOE_RESULT_UNSUPPORTED_TYPE:
-      return "Unsupported type";
-   case EOE_RESULT_NO_IP_SUPPORT:
-      return "No IP support";
-   case EOE_RESULT_NO_MACFILTERMASK_SUPPORT:
-      return "No MAC filter support";
-   }
-   return "";
-}
 
-typedef struct TETHERCAT_EOE_INIT
+/*typedef struct TETHERCAT_EOE_INIT
 {
    guint32          ContainsMacAddr        :1;
    guint32          ContainsIpAddr         :1;
@@ -113,8 +95,8 @@ typedef struct TETHERCAT_EOE_INIT
    guint32          DefaultGateway;
    guint32          DnsServer;
    char             DnsName[32];
-} ETHERCAT_EOE_INIT, *PETHERCAT_EOE_INIT;
-#define ETHERCAT_EOE_INIT_LEN sizeof(ETHERCAT_EOE_INIT)
+} ETHERCAT_EOE_INIT, *PETHERCAT_EOE_INIT;*/
+#define ETHERCAT_EOE_INIT_LEN 58 /*sizeof(ETHERCAT_EOE_INIT)*/
 
 typedef union tEoeMacFilterOptionsUnion
 {
@@ -135,13 +117,13 @@ typedef struct TETHERCAT_EOE_MACFILTER
    EoeMacFilterOptionsUnion anEoeMacFilterOptionsUnion;
    ETHERNET_ADDRESS MacFilter[16];
    ETHERNET_ADDRESS MacFilterMask[4];
-} ETHERCAT_EOE_MACFILTER, *PETHERCAT_EOE_MACFILTER;
+} ETHERCAT_EOE_MACFILTER;
 #define ETHERCAT_EOE_MACFILTER_LEN sizeof(ETHERCAT_EOE_MACFILTER)
 
 typedef struct TETHERCAT_EOE_TIMESTAMP
 {
    guint32 TimeStamp; /* 32 bit time stamp */
-} ETHERCAT_EOE_TIMESTAMP, *PETHERCAT_EOE_TIMESTAMP;
+} ETHERCAT_EOE_TIMESTAMP;
 #define ETHERCAT_EOE_TIMESTAMP_LEN sizeof(ETHERCAT_EOE_TIMESTAMP)
 
 typedef union tEoeHeaderDataUnion
@@ -169,7 +151,6 @@ typedef union tEoeHeaderInfoUnion
    };
    guint16 Info;
 } EoeHeaderInfoUnion;
-
 
 typedef struct TETHERCAT_EOE_HEADER
 {   
@@ -201,8 +182,6 @@ typedef union TETHERCAT_COE_HEADER
 } ETHERCAT_COE_HEADER, *PETHERCAT_COE_HEADER;
 #define ETHERCAT_COE_HEADER_LEN sizeof(ETHERCAT_COE_HEADER)
 
-#pragma pack(pop)
-/*ETHERCAT_SDO_HEADER not naturally aligned -> can't use pragma pack 1*/
 
 typedef union tSdoHeaderUnion
 {
@@ -278,8 +257,6 @@ typedef struct TETHERCAT_SDO_HEADER
 
 #define ETHERCAT_SDO_HEADER_LEN  8 /* sizeof(ETHERCAT_SDO_HEADER)*/
 
-#pragma pack(push,1)
-
 #define SDO_CCS_DOWNLOAD_SEGMENT  0
 #define SDO_CCS_INITIATE_DOWNLOAD 1
 #define SDO_CCS_INITIATE_UPLOAD   2
@@ -326,7 +303,7 @@ typedef struct TETHERCAT_SDO_INFO_LIST
    {
       guint16 Index[1];
    } Res;
-} ETHERCAT_SDO_INFO_LIST, *PETHERCAT_SDO_INFO_LIST;
+} ETHERCAT_SDO_INFO_LIST;
 
 typedef struct TETHERCAT_SDO_INFO_OBJ
 {
@@ -338,7 +315,7 @@ typedef struct TETHERCAT_SDO_INFO_OBJ
       guint8  ObjCode;     /* defined in DS 301 (Table 37)*/
       char    Name[1];     /* rest of mailbox data*/
    } Res;
-} ETHERCAT_SDO_INFO_OBJ, *PETHERCAT_SDO_INFO_OBJ;
+} ETHERCAT_SDO_INFO_OBJ;
 
 typedef struct TETHERCAT_SDO_INFO_ENTRY
 {
@@ -352,13 +329,13 @@ typedef struct TETHERCAT_SDO_INFO_ENTRY
       guint16 BitLen;
       guint16 ObjAccess; /* bit0 = read; bit1 = write; bit2 = const. bit3 = 'PRE-OP'; bit4 = 'SAFE-OP'; bit5 = 'OP'.*/
    } Res;
-} ETHERCAT_SDO_INFO_ENTRY, *PETHERCAT_SDO_INFO_ENTRY;
+} ETHERCAT_SDO_INFO_ENTRY;
 
 typedef struct TETHERCAT_SDO_INFO_ERROR
 {
    guint32 ErrorCode;
    char    ErrorText[1]; /* rest of mailbox data */
-} ETHERCAT_SDO_INFO_ERROR, *PETHERCAT_SDO_INFO_ERROR;
+} ETHERCAT_SDO_INFO_ERROR;
 
 typedef union tSdoInfoUnion
 {
@@ -387,9 +364,7 @@ typedef struct TETHERCAT_SDO_INFO_HEADER
    SdoInfoUnion anSdoInfoUnion;
 } ETHERCAT_SDO_INFO_HEADER, *PETHERCAT_SDO_INFO_HEADER;
 
-#define ETHERCAT_SDO_INFO_LISTREQ_LEN offsetof(ETHERCAT_SDO_INFO_HEADER, anSdoInfoUnion.List.Res)
-#define ETHERCAT_SDO_INFO_OBJREQ_LEN offsetof(ETHERCAT_SDO_INFO_HEADER, anSdoInfoUnionObj.Res)
-#define ETHERCAT_SDO_INFO_ENTRYREQ_LEN offsetof(ETHERCAT_SDO_INFO_HEADER, anSdoInfoUnionEntry.Res)
+#define ETHERCAT_SDO_INFO_LISTREQ_LEN 6 /*offsetof(ETHERCAT_SDO_INFO_HEADER, anSdoInfoUnion.List.Res)*/
 
 /* FoE (File Access over EtherCAT)*/
 #define ECAT_FOE_OPMODE_RRQ  1
@@ -409,9 +384,6 @@ typedef struct TETHERCAT_SDO_INFO_HEADER
 #define ECAT_FOE_ERRCODE_NOUSER         7
 #define ECAT_FOE_ERRCODE_BOOTSTRAPONLY  8
 #define ECAT_FOE_ERRCODE_NOTINBOOTSTRAP 9
-
-#pragma pack(pop) 
-/*ETHERCAT_FOE_HEADER is not naturally aligned --> can't use pragma pack 1*/
 
 typedef union tFoeHeaderDataUnion
 {
@@ -443,8 +415,6 @@ typedef struct TETHERCAT_FOE_HEADER
    } MailBoxDataUnion;*/
 } ETHERCAT_FOE_HEADER, *PETHERCAT_FOE_HEADER;
 #define ETHERCAT_FOE_HEADER_LEN 6 /*sizeof(ETHERCAT_FOE_HEADER)*/
-
-#pragma pack(push,1)
 
 typedef struct
 {
@@ -506,10 +476,6 @@ typedef struct TETHERCAT_SOE_HEADER
    } MailBoxDataUnion;*/
 } ETHERCAT_SOE_HEADER, *PETHERCAT_SOE_HEADER;
 #define ETHERCAT_SOE_HEADER_LEN sizeof(ETHERCAT_SOE_HEADER)
-
-
-
-#pragma pack(pop)
 
 extern void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset);
 

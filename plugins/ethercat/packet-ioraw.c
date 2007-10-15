@@ -89,8 +89,8 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ioraw_tree = proto_item_add_subtree(ti, ett_ioraw);
 
       proto_item_append_text(ti,": %s",szText);
-      proto_tree_add_item(ioraw_tree, hf_ioraw_header, tvb, offset, sizeof(IoRawParserHDR), TRUE);
-      offset+=sizeof(IoRawParserHDR);
+      proto_tree_add_item(ioraw_tree, hf_ioraw_header, tvb, offset, IoRawParserHDR_Len, TRUE);
+      offset+=IoRawParserHDR_Len;
 
       proto_tree_add_item(ioraw_tree, hf_ioraw_data, tvb, offset, ioraw_length - offset, TRUE);
    }   

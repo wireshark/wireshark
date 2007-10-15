@@ -76,8 +76,7 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    proto_item *ti;
    proto_tree *ethercat_frame_tree;
    gint offset = 0;
-   guint16 hdr_val;
-   guint16 protocol;
+   EtherCATFrameParserHDR hdr;
 
    if (check_col(pinfo->cinfo, COL_PROTOCOL))
    {
@@ -91,27 +90,25 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
    if (tree)
    {
-      ti = proto_tree_add_item(tree, proto_ethercat_frame, tvb, offset, sizeof(EtherCATFrameParserHDR), TRUE);
+      ti = proto_tree_add_item(tree, proto_ethercat_frame, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
       ethercat_frame_tree = proto_item_add_subtree(ti, ett_ethercat_frame);
 
-      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_length, tvb, offset, sizeof(EtherCATFrameParserHDR), TRUE);
-      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_type, tvb, offset, sizeof(EtherCATFrameParserHDR), TRUE);
+      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_length, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
+      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_type, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
    }
-   hdr_val = tvb_get_letohs(tvb, offset);
-   protocol = ((PEtherCATFrameParserHDR)(&hdr_val))->protocol;
-
-   offset = sizeof(EtherCATFrameParserHDR);
+   hdr.hdr = tvb_get_letohs(tvb, offset);
+   offset = EtherCATFrameParserHDR_Len;
 
    /* The Ethercat frame header has now been processed, allow sub dissectors to
       handle the rest of the PDU. */
    next_tvb = tvb_new_subset (tvb, offset, -1, -1);
 
-   if (!dissector_try_port (ethercat_frame_dissector_table, protocol,
+   if (!dissector_try_port (ethercat_frame_dissector_table, hdr.protocol,
        next_tvb, pinfo, tree))
    {
       if (check_col (pinfo->cinfo, COL_PROTOCOL))
       {
-         col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", protocol);
+         col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.protocol);
       }
       /* No sub dissector wanted to handle this payload, decode it as general
          data instead. */
