@@ -138,6 +138,7 @@ dtds_DATA = \
 	dtds/xcap-caps.dtd \
 	dtds/xcap-error.dtd \
 	dtds/watcherinfo.dtd
+
 #
 # Install the RADIUS directory files in the "radius" subdirectory
 # of that directory.
@@ -206,6 +207,15 @@ radius_DATA = \
 	radius/dictionary.versanet  \
 	radius/dictionary.wispr  \
 	radius/dictionary.xedia
+
+#
+# Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
+# of that directory
+#
+wimaxasncpdir = $(pkgdatadir)/wimaxasncp
+wimaxasncp_DATA = \
+	wimaxasncp/dictionary.xml \
+	wimaxasncp/dictionary.dtd
 
 PLATFORM_SRC = capture-pcap-util-unix.c
 
@@ -667,6 +677,7 @@ EXTRA_DIST = \
 	$(diameter_DATA)	\
 	$(dtds_DATA)		\
 	$(radius_DATA)		\
+	$(wimaxasncp_DATA)		\
 	randpkt.c		\
 	rdps.c			\
 	smi_modules \

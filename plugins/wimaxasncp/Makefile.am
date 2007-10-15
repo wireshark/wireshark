@@ -128,9 +128,7 @@ EXTRA_DIST = \
 	Makefile.common	      \
 	Makefile.nmake        \
 	moduleinfo.nmake      \
-	plugin.rc.in          \
-	dictionary.xml        \
-	dictionary.dtd
+	plugin.rc.in
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
@@ -142,6 +140,4 @@ wimaxasncp_dict_lex.h : wimaxasncp_dict.c
 #
 
 wimaxasncpdir = $(pkgdatadir)/wimaxasncp
-wimaxasncp_DATA = \
-	dictionary.dtd \
-	dictionary.xml
+
