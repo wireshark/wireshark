@@ -119,6 +119,7 @@
 #include "inet_v6defs.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
+#include <wiretap/file_util.h>
 
 
 static gboolean ssl_desegment = TRUE;
@@ -331,7 +332,7 @@ ssl_parse(void)
     if (ssl_keys_list && (ssl_keys_list[0] != 0))
     {
         if (file_exists(ssl_keys_list)) {
-            if ((ssl_keys_file = fopen(ssl_keys_list, "r"))) {
+            if ((ssl_keys_file = eth_fopen(ssl_keys_list, "r"))) {
                 read_failed = FALSE;
                 fstat(fileno(ssl_keys_file), &statb);
                 size = statb.st_size;

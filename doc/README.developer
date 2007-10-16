@@ -262,8 +262,15 @@ to include it explicitly - in order to get "open()", "close()",
 "read()", "write()", etc. mapped to "_open()", "_close()", "_read()",
 "_write()", etc..
 
-When opening a file with "fopen()", "freopen()", or "fdopen()", if the
-file contains ASCII text, use "r", "w", "a", and so on as the open mode
+Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
+"fopen()", "freopen()" directly.  Instead use "eth_open()", "eth_rename()",
+"eth_mkdir()", "eth_stat()", "eth_unlink()", "eth_remove()", "eth_fopen()",
+"eth_freopen()": these wrapper functions change the path and file name from
+UTF8 to UTF16 on Windows allowing the functions to work correctly when the
+path or file name contain non-ASCII characters.
+
+When opening a file with "eth_fopen()", "eth_freopen()", or "eth_fdopen()", if
+the file contains ASCII text, use "r", "w", "a", and so on as the open mode
 - but if it contains binary data, use "rb", "wb", and so on.  On
 Windows, if a file is opened in a text mode, writing a byte with the
 value of octal 12 (newline) to the file causes two bytes, one with the
@@ -274,7 +281,7 @@ lines that end with newline and Windows' DEC-style lines that end with
 carriage return/line feed).
 
 In addition, that also means that when opening or creating a binary
-file, you must use "open()" (with O_CREAT and possibly O_TRUNC if the
+file, you must use "eth_open()" (with O_CREAT and possibly O_TRUNC if the
 file is to be created if it doesn't exist), and OR in the O_BINARY flag.
 That flag is not present on most, if not all, UNIX systems, so you must
 also do
@@ -1338,7 +1345,7 @@ fence does not already exist.
 
 1.5.9 The col_set_time function.
 
-The 'col_set_time' function takes a nstime value as it's third argument. 
+The 'col_set_time' function takes a nstime value as it's third argument.
 This nstime value is a relative value and will be added as such to the
 column. The fourth argument is the filtername holding this value. This
 way, rightclicking on the column makes it possible to build a filter
@@ -2847,16 +2854,16 @@ So add the following items to the struct that is used for the protocol data:
   nstime_t	ts_first;
   nstime_t	ts_prev;
 
-The ts_prev value should only be set during the first run through the 
+The ts_prev value should only be set during the first run through the
 packets (ie pinfo->fd->flags.visited is false).
 
 Next step is to use the per packet information (described in section 2.5)
 to keep the calculated delta timestamp, as it can only be calculated
-on the first run through the packets. This is because a packet can be 
+on the first run through the packets. This is because a packet can be
 selected in random order once the whole file has been read.
 
 After calculating the conversation timestamps, it is time to put them in
-the appropriate columns with the function 'col_set_time' (described in 
+the appropriate columns with the function 'col_set_time' (described in
 section 1.5.9). There are two columns for conversation timestamps:
 
 COL_REL_CONV_TIME,  /* Relative time to beginning of conversation */
@@ -2873,7 +2880,7 @@ timestamp columns give the user the power to control these columns.
 data structure which uses additional memory, which should be avoided
 if these timestamps are not needed)
 
-Have a look at the differences to packet-tcp.[ch] in SVN 22966 and 
+Have a look at the differences to packet-tcp.[ch] in SVN 22966 and
 SVN 23058 to see the implementation of conversation timestamps for
 the tcp-dissector.
 

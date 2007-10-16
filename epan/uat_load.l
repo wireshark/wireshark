@@ -34,17 +34,17 @@
 	 * Wireshark - Network traffic analyzer
 	 * By Gerald Combs <gerald@wireshark.org>
 	 * Copyright 2001 Gerald Combs
-	 * 
+	 *
 	 * This program is free software; you can redistribute it and/or
 	 * modify it under the terms of the GNU General Public License
 	 * as published by the Free Software Foundation; either version 2
 	 * of the License, or (at your option) any later version.
-	 * 
+	 *
 	 * This program is distributed in the hope that it will be useful,
 	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	 * GNU General Public License for more details.
-	 * 
+	 *
 	 * You should have received a copy of the GNU General Public License
 	 * along with this program; if not, write to the Free Software
 	 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -52,19 +52,20 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-	
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-	
+
 #include <glib.h>
 
 #include <epan/emem.h>
 #include "uat-int.h"
 #include "uat_load_lex.h"
-	
+#include <wiretap/file_util.h>
+
 	static uat_t* uat;
 	static guint colnum;
 	static gchar* ptr;
@@ -119,22 +120,22 @@ comment #[^\n]*\n
 <START_OF_LINE,NEXT_FIELD>{separator} {
 	ptr = g_strdup("");
 	len = 0;
-	
+
 	DUMP_FIELD("empty->next");
-	
+
 	SET_FIELD();
-	
+
 	if ( colnum >= uat->ncols ) {
 		ERROR(("more fields than required"));
 	}
-	
+
 	BEGIN NEXT_FIELD;
 }
 
 <START_OF_LINE,NEXT_FIELD>{newline}   {
 	ptr = "";
 	len = 0;
-	
+
 	BEGIN END_OF_RECORD;
 
 	yyless(yyleng);
@@ -142,8 +143,8 @@ comment #[^\n]*\n
 
 <START_OF_LINE,NEXT_FIELD>{quoted_string} {
 	ptr = uat_undquote(yytext,yyleng,&len);
-	
-	
+
+
 	if (colnum < uat->ncols - 1) {
 		DUMP("quoted_str->s");
 		BEGIN SEPARATOR;
@@ -159,7 +160,7 @@ comment #[^\n]*\n
 	if (!ptr) {
 		ERROR(("uneven hexstring for field %s",uat->fields[colnum].name));
 	}
-	
+
 	if ( colnum < uat->ncols - 1 ) {
 		DUMP("binstring->s");
 		BEGIN SEPARATOR;
@@ -170,7 +171,7 @@ comment #[^\n]*\n
 }
 
 <SEPARATOR>{separator} {
-	
+
 	DUMP_FIELD("separator->next");
 
 	SET_FIELD();
@@ -178,7 +179,7 @@ comment #[^\n]*\n
 	if ( colnum >= uat->ncols ) {
 		ERROR(("more fields than required"));
 	}
-	
+
 	BEGIN NEXT_FIELD;
 }
 
@@ -201,27 +202,27 @@ comment #[^\n]*\n
 <END_OF_RECORD>{newline} {
 	void* rec;
 	const gchar* err = NULL;
-	
+
 	linenum++;
 
 	DUMP_FIELD("newline->start");
 
 	SET_FIELD();
-	
+
 	rec = uat_add_record(uat, record);
 
 	if (uat->update_cb)
 		uat->update_cb(rec,&err);
-	
+
 	if (err) {
 		ERROR(("%s",err));
 	}
-	
+
 	colnum = 0;;
 	ptr = NULL;
 	len = 0;
 	memset(record,0,uat->record_size);
-	
+
 	BEGIN START_OF_LINE;
  }
 
@@ -250,21 +251,21 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 		UAT_UPDATE(uat);
 		return TRUE;
 	}
-	
 
-	if (!(yyin = fopen(fname,"r"))) {
+
+	if (!(yyin = eth_fopen(fname,"r"))) {
 		*err = strerror(errno);
 		return FALSE;
 	}
-	
+
 	error = NULL;
 	colnum = 0;
 	record = g_malloc0(uat->record_size);
 	linenum = 1;
-	
+
 	BEGIN START_OF_LINE;
 	DUMP(fname);
-	
+
 	yylex();
 	yyrestart(NULL);
 
@@ -275,7 +276,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 		*err = ep_strdup(error);
 		return FALSE;
 	} else {
-		UAT_UPDATE(uat);		
+		UAT_UPDATE(uat);
 		*err = NULL;
 		return TRUE;
 	}

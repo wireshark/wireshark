@@ -301,6 +301,7 @@
 
 #include "packet-giop.h"
 #include "packet-tcp.h"
+#include <wiretap/file_util.h>
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
@@ -1289,7 +1290,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   gboolean stream_is_big_endian;
 
 
-  fp = fopen(name,"r");	/* open read only */
+  fp = eth_fopen(name,"r");	/* open read only */
 
   if (fp == NULL) {
     if (errno == EACCES)

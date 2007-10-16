@@ -36,6 +36,7 @@
 #include "packet-ssl-utils.h"
 
 #include <epan/emem.h>
+#include <wiretap/file_util.h>
 
 /*
  * Lookup tables
@@ -312,9 +313,9 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x001d, "SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA" },
 #if 0 /* Because it clashes with KRB5, is never used any more, and is safe
 	 to remove according to David Hopwood <david.hopwood@zetnet.co.uk>
-	 of the ietf-tls list */ 
+	 of the ietf-tls list */
     { 0x001e, "SSL_FORTEZZA_KEA_WITH_RC4_128_SHA" },
-#endif 
+#endif
 
     /* RFC 2712 */
     { 0x001E, "TLS_KRB5_WITH_DES_CBC_SHA" },
@@ -336,7 +337,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x002C, "TLS_PSK_WITH_NULL_SHA" },
     { 0x002D, "TLS_DHE_PSK_WITH_NULL_SHA" },
     { 0x002E, "TLS_RSA_PSK_WITH_NULL_SHA" },
-            
+
     /* RFC 3268 */
     { 0x002F, "TLS_RSA_WITH_AES_128_CBC_SHA" },
     { 0x0030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA" },
@@ -350,7 +351,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" },
     { 0x0039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA" },
     { 0x003A, "TLS_DH_anon_WITH_AES_256_CBC_SHA" },
-              
+
     /* ??? */
     { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
     { 0x0061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
@@ -375,7 +376,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0087, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0088, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0089, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA" },
-            
+
     /* RFC 4279 */
     { 0x008A, "TLS_PSK_WITH_RC4_128_SHA" },
     { 0x008B, "TLS_PSK_WITH_3DES_EDE_CBC_SHA" },
@@ -397,7 +398,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0099, "TLS_DHE_DSS_WITH_SEED_CBC_SHA" },
     { 0x009A, "TLS_DHE_RSA_WITH_SEED_CBC_SHA" },
     { 0x009B, "TLS_DH_anon_WITH_SEED_CBC_SHA" },
-            
+
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
     { 0xc002, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA" },
@@ -435,7 +436,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xC020, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA" },
     { 0xC021, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA" },
     { 0xC022, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA" },
- 
+
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
@@ -2396,7 +2397,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
 		     ip[0], ip[1], ip[2], ip[3], service->port, filename);
 
     /* try to load pen file*/
-    fp = fopen(filename, "rb");
+    fp = eth_fopen(filename, "rb");
     if (!fp) {
       fprintf(stderr, "can't open file %s \n",filename);
       continue;
@@ -2485,7 +2486,7 @@ ssl_set_debug(char* name)
     else if (!name || (strcmp(name, "") ==0))
         ssl_debug_file = NULL;
     else
-        ssl_debug_file = fopen(name, "w");
+        ssl_debug_file = eth_fopen(name, "w");
     if (!use_stderr && ssl_debug_file)
         debug_file_must_be_closed = 1;
 }

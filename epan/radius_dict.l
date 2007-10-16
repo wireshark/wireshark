@@ -51,11 +51,11 @@
 	* along with this program; if not, write to the Free Software
 	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	*/
-	
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-	
+
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,19 +64,21 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-radius.h>
 #include "radius_dict_lex.h"
+#include <wiretap/file_util.h>
+
 #define ECHO
 #define MAX_INCLUDE_DEPTH 10
 
 	void add_vendor(const gchar* name, guint32 vendor_id);
 	void add_value(const gchar* attrib_name,const  gchar* value_repr, long value);
 	void add_attribute(const gchar*,const  gchar*, radius_attr_dissector_t,const  gchar*, gboolean, gboolean);
-	
+
 	static YY_BUFFER_STATE include_stack[10];
 	static int include_stack_ptr = 0;
-	
+
 	static radius_dictionary_t* dict = NULL;
 	static GHashTable* value_strings = NULL; /* GArray(value_string) by attribute name */
-	
+
 	static gchar* attr_name = NULL;
 	static gchar* attr_id = NULL;
 	static radius_attr_dissector_t* attr_type = NULL;
@@ -86,12 +88,12 @@
 	static gboolean encrypted = FALSE;
 	static gboolean has_tag = FALSE;
 	static gchar* current_vendor = NULL;
-	
+
 	static GString* error = NULL;
 	static gchar* directory = NULL;
 	static int linenums[] = {1,1,1,1,1,1,1,1,1,1};
 	static gchar* fullpaths[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-	
+
 %}
 
 %START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE ATTR_W_VENDOR VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR
@@ -175,7 +177,7 @@
     g_free(attr_id);
     g_free(attr_vendor);
     g_free(attr_name);
-    linenums[include_stack_ptr]++; 
+    linenums[include_stack_ptr]++;
     BEGIN WS_OUT;
 };
 
@@ -189,14 +191,14 @@
 		g_string_sprintfa(error, "$INCLUDE files nested to deeply\n");
 		yyterminate();
 	}
-	
+
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
-	
+
 	fullpaths[include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    directory,yytext);
 
-	yyin = fopen( fullpaths[include_stack_ptr], "r" );
-	
+	yyin = eth_fopen( fullpaths[include_stack_ptr], "r" );
+
 	if (!yyin) {
 		if (errno) {
 			g_string_sprintfa(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
@@ -206,22 +208,22 @@
 		linenums[include_stack_ptr] = 1;
 		yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
 	}
-	
+
 
 	BEGIN WS_OUT;
 }
 
 <<EOF>> {
-	
+
 	fclose(yyin);
 	yyin = NULL;
-    
+
 	if ( --include_stack_ptr < 0 ) {
 		yyterminate();
 	} else {
 		g_free(fullpaths[include_stack_ptr+1]);
 		fullpaths[include_stack_ptr+1] = NULL;
-		
+
 		yy_delete_buffer( YY_CURRENT_BUFFER );
 		yy_switch_to_buffer(include_stack[include_stack_ptr]);
 	}
@@ -236,12 +238,12 @@
 
 void add_vendor(const gchar* name, guint32 vendor_id) {
 	radius_vendor_info_t* v = g_malloc(sizeof(radius_vendor_info_t));
-	
+
 	v->name = g_strdup(name);
 	v->code = vendor_id;
 	v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 	v->ett = -1;
-    
+
 	g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
 	g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
 }
@@ -249,11 +251,11 @@ void add_vendor(const gchar* name, guint32 vendor_id) {
 void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_t type, const  gchar* vendor_name, gboolean crypt, gboolean tagged) {
 	radius_attr_info_t* a = g_malloc(sizeof(radius_attr_info_t));
 	GHashTable* by_id;
-	
+
 	if (vendor_name) {
 		radius_vendor_info_t* v;
 		v = g_hash_table_lookup(dict->vendors_by_name,vendor_name);
-		
+
 		if (! v) {
 			g_string_sprintfa(error, "Vendor: '%s', does not exist in %s:%i \n", vendor_name, fullpaths[include_stack_ptr], linenums[include_stack_ptr] );
 			BEGIN JUNK;
@@ -264,7 +266,7 @@ void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_
 	} else {
 		by_id = dict->attrs_by_id;
 	}
-	
+
 	a->name = g_strdup(name);
 	a->code = strtol(code,NULL,10);
 	a->encrypt = crypt;
@@ -277,7 +279,7 @@ void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_
 	a->hf_tag = -1;
 	a->hf_len = -1;
 	a->ett = -1;
-	
+
 	g_hash_table_insert(by_id,GUINT_TO_POINTER(a->code),a);
 	g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
 }
@@ -285,15 +287,15 @@ void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_
 void add_value(const gchar* attrib_name, const gchar* value_repr, long value) {
 	value_string v;
 	GArray* a = g_hash_table_lookup(value_strings,attrib_name);
-	
+
 	if (! a) {
 		a = g_array_new(TRUE,TRUE,sizeof(value_string));
 		g_hash_table_insert(value_strings,g_strdup(attrib_name),a);
 	}
-	
+
 	v.value = value;
 	v.strptr = g_strdup(value_repr);
-	
+
 	g_array_append_val(a,v);
 }
 
@@ -301,12 +303,12 @@ void add_value(const gchar* attrib_name, const gchar* value_repr, long value) {
 static void setup_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	radius_attr_info_t* a = v;
 	gpointer key;
-	
+
 	union {
 		GArray* a;
 		gpointer p;
 	} vs;
-	
+
 	if (g_hash_table_lookup_extended(value_strings,a->name,&key,&vs.p) ) {
 		a->vs = (value_string*) vs.a->data;
 		g_array_free(vs.a,FALSE);
@@ -317,19 +319,19 @@ static void setup_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 static void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	radius_vendor_info_t* vnd = v;
-	
-	g_hash_table_foreach(vnd->attrs_by_id,setup_attrs,p);	
+
+	g_hash_table_foreach(vnd->attrs_by_id,setup_attrs,p);
 }
 
 static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
     value_string* vs = (value_string*)(((GArray*)v)->data);
-    
+
 	g_free(k);
-    
+
     for (;vs->strptr;vs++) {
         g_free((void*)vs->strptr);
     }
-    
+
 	g_array_free(v,TRUE);
 	return TRUE;
 }
@@ -337,7 +339,7 @@ static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
 static gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	radius_attr_info_t* a = v;
 	int i;
-	
+
 	g_free((gpointer) (a->name));
 	if (a->vs) {
 		for(i=0; a->vs[i].strptr; i++) {
@@ -360,7 +362,7 @@ static gboolean destroy_vendors(gpointer k _U_, gpointer v, gpointer p) {
 
 static void destroy_dict(radius_dictionary_t* d) {
 	g_hash_table_foreach_remove(d->attrs_by_id,destroy_attrs,NULL);
-	g_hash_table_foreach_remove(d->vendors_by_id,destroy_vendors,NULL);	
+	g_hash_table_foreach_remove(d->vendors_by_id,destroy_vendors,NULL);
 	g_hash_table_destroy(d->vendors_by_id);
 	g_hash_table_destroy(d->attrs_by_id);
 	g_hash_table_destroy(d->vendors_by_name);
@@ -370,16 +372,16 @@ static void destroy_dict(radius_dictionary_t* d) {
 
 radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, gchar** err_str) {
 	int i;
-	
+
 	directory = dir;
-	
+
 	fullpaths[include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    directory,filename);
-	
+
 	error = g_string_new("");
 
-	yyin = fopen(fullpaths[include_stack_ptr],"r");
-	
+	yyin = eth_fopen(fullpaths[include_stack_ptr],"r");
+
 	if (!yyin) {
 		g_string_sprintfa(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
 		g_free(fullpaths[include_stack_ptr]);
@@ -393,24 +395,24 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 	dict->attrs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 	dict->vendors_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 	dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-	
+
 	value_strings = g_hash_table_new(g_str_hash,g_str_equal);
-	
+
 	BEGIN WS_OUT;
 
 	yylex();
 
 	if (yyin != NULL) fclose(yyin);
 	yyin = NULL;
-    
+
 	for (i=0; i < 10; i++) {
 		if (fullpaths[i]) g_free(fullpaths[i]);
 	}
-		
+
 	g_hash_table_foreach(dict->attrs_by_id,setup_attrs,NULL);
-	g_hash_table_foreach(dict->vendors_by_id,setup_vendors,NULL);	
+	g_hash_table_foreach(dict->vendors_by_id,setup_vendors,NULL);
 	g_hash_table_foreach_remove(value_strings,destroy_value_strings,NULL);
-	
+
 	if (error->len > 0) {
 		 *err_str = error->str;
 		g_string_free(error,FALSE);

@@ -55,11 +55,11 @@
 	 ** Foundation, Inc., 51 Franklin Street, Fifth Floor,
 	 ** Boston, MA  02110-1301, USA.
 	 */
-	
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-	
+
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
@@ -69,6 +69,7 @@
 #include "emem.h"
 #include "diam_dict.h"
 #include "diam_dict_lex.h"
+#include <wiretap/file_util.h>
 
 typedef struct entity_t {
 	char* name;
@@ -175,7 +176,7 @@ application_end<\/application>
 command_start <command
 command_end<\/command>
 
-typedefn_start <typedefn 
+typedefn_start <typedefn
 
 avp_start <avp
 avp_end <\/avp>
@@ -206,7 +207,7 @@ description_attr description=\042
 %S GET_ATTR GET_UINT_ATTR END_ATTR OUTSIDE IN_DICT IN_APPL IN_AVP APPL_ATTRS IGNORE_ATTR
 %S TYPE_ATTRS GAVP_ATTRS ENUM_ATTRS AVP_ATTRS VENDOR_ATTRS COMMAND_ATTRS TYPEDEFN_ATTRS
 %S XMLPI_ATTRS XMLPI_GETKEY XMLPI_GETVAL XMLPI_ENDATTR
-%% 
+%%
 <LOADING>{doctype} ;
 <LOADING>{doctype_end} ;
 
@@ -222,10 +223,10 @@ description_attr description=\042
 	xmlpi->key = NULL;
 	xmlpi->value = NULL;
 	xmlpi->next = NULL;
-	
+
 	if (!dict->xmlpis) last_xmlpi = dict->xmlpis = xmlpi;
 	else last_xmlpi = last_xmlpi->next = xmlpi;
-	
+
 	BEGIN XMLPI_ATTRS;
 }
 
@@ -273,9 +274,9 @@ description_attr description=\042
 <LOADING>{entity} {
 	char* p = ++yytext;
 	entity_t* e;
-	
+
 	while(*p != ';') p++;
-	
+
 	*p = '\0';
 
 	D(("looking for entity: %s\n",yytext));
@@ -284,10 +285,10 @@ description_attr description=\042
 		fprintf(stderr, "included files nested to deeply\n");
 		yyterminate();
 	}
-	
+
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
-	
+
 	for (e = ents.next; e; e = e->next) {
 		if (strcmp(e->name,yytext) == 0) {
 			yyin = ddict_open(sys_dir,e->file);
@@ -304,20 +305,20 @@ description_attr description=\042
 			break;
 		}
 	}
-	
+
 	if (!e) {
 		fprintf(stderr, "Could not find entity: '%s'", e->name );
 		yyterminate();
 	}
-	
+
 }
 
-<<EOF>> { 
+<<EOF>> {
 	if (!yyin) yyterminate();
-	
+
 	fclose(yyin);
 	D(("closing: %p %i\n",yyin,include_stack_ptr));
-    
+
 	if ( --include_stack_ptr < 0 ) {
 		D(("DONE READING\n"));
 		yyin = NULL;
@@ -369,12 +370,12 @@ description_attr description=\042
 
 <IN_DICT>{applictation_start} {
 	D(("applictation_start\n"));
-	
+
 	appl = g_malloc(sizeof(ddict_application_t));
 	appl->name = NULL;
 	appl->code = 0;
 	appl->next = NULL;
-	
+
 	if (!dict->applications) last_appl = dict->applications = appl;
 	else last_appl = last_appl->next = appl;
 
@@ -389,18 +390,18 @@ description_attr description=\042
 
 <IN_APPL>{command_end}			;
 
-<IN_APPL>{command_start}		{ 
+<IN_APPL>{command_start}		{
 	D(("command_start\n"));
-	
+
 	cmd = g_malloc(sizeof(ddict_cmd_t));
 	cmd->name = NULL;
 	cmd->vendor = NULL;
 	cmd->code = 0;
 	cmd->next = NULL;
-	
+
 	if (!dict->cmds) last_cmd = dict->cmds = cmd;
 	else last_cmd = last_cmd->next = cmd;
-	
+
 	BEGIN COMMAND_ATTRS;
 }
 
@@ -412,15 +413,15 @@ description_attr description=\042
 
 <IN_APPL>{vendor_start} {
 	D(("vendor_start\n"));
-	
+
 	vnd = g_malloc(sizeof(ddict_vendor_t));
 	vnd->name = NULL;
 	vnd->code = 0;
 	vnd->next = NULL;
-	
+
 	if (!dict->vendors) last_vnd = dict->vendors = vnd;
 	else last_vnd = last_vnd->next = vnd;
-	
+
 	BEGIN VENDOR_ATTRS;
 }
 
@@ -432,15 +433,15 @@ description_attr description=\042
 
 <IN_APPL>{typedefn_start} {
 	D(("typedefn_start\n"));
-	
+
 	typedefn = g_malloc(sizeof(ddict_typedefn_t));
 	typedefn->name = NULL;
 	typedefn->parent = NULL;
 	typedefn->next = NULL;
-	
+
 	if (!dict->typedefns) last_typedefn = dict->typedefns = typedefn;
 	else last_typedefn = last_typedefn->next = typedefn;
-	
+
 	BEGIN TYPEDEFN_ATTRS;
 }
 
@@ -452,7 +453,7 @@ description_attr description=\042
 
 <IN_APPL>{avp_start}	{
 	D(("avp_start\n"));
-	
+
 	avp = g_malloc(sizeof(ddict_avp_t));
 	avp->name = NULL;
 	avp->description = NULL;
@@ -462,7 +463,7 @@ description_attr description=\042
 	avp->enums = NULL;
 	avp->gavps = NULL;
 	avp->next = NULL;
-	
+
 	if (! dict->avps ) last_avp = dict->avps = avp;
 	else last_avp = last_avp->next = avp;
 
@@ -483,14 +484,14 @@ description_attr description=\042
 <IN_AVP>{type_start} { BEGIN TYPE_ATTRS; }
 <TYPE_ATTRS>{typename_attr}			{ ATTR_STR(avp->type); }
 
-<IN_AVP>{gavp_start} { 
+<IN_AVP>{gavp_start} {
 	D(("gavp_start\n"));
-	
+
 	gavp = g_malloc(sizeof(ddict_gavp_t));
 	gavp->name = NULL;
 	gavp->code = 0;
 	gavp->next = NULL;
-	
+
 	if (!avp->gavps) last_gavp = avp->gavps = gavp;
 	else last_gavp = last_gavp->next = gavp;
 
@@ -501,14 +502,14 @@ description_attr description=\042
 <GAVP_ATTRS>{name_attr}			{ ATTR_STR(gavp->name); }
 
 
-<IN_AVP>{enum_start} { 
+<IN_AVP>{enum_start} {
 	D(("enum_start\n"));
-	
+
 	enumitem = g_malloc(sizeof(ddict_enum_t));
 	enumitem->name = NULL;
 	enumitem->code = 0;
 	enumitem->next = NULL;
-	
+
 	if (!avp->enums) last_enumitem = avp->enums = enumitem;
 	else last_enumitem = last_enumitem->next = enumitem;
 
@@ -548,11 +549,11 @@ static int debugging  = 0;
 
 static void ddict_debug(const char* fmt, ...) {
 	va_list ap;
-	
+
 	va_start(ap, fmt);
 	if (debugging) vfprintf(stderr, fmt, ap);
 	va_end(ap);
-	
+
 	fflush(stderr);
 }
 
@@ -574,12 +575,12 @@ static void append_to_buffer(char* txt, int len) {
 	if (strbuf == NULL) {
 		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);
 	}
-	
+
 	if ( (len_strbuf + len) >= size_strbuf ) {
 		read_ptr = strbuf = g_realloc(strbuf,size_strbuf *= 2);
 	}
-	
-	write_ptr = strbuf + len_strbuf;	
+
+	write_ptr = strbuf + len_strbuf;
 	strncpy(write_ptr,txt,len);
 	len_strbuf += len;
 
@@ -587,13 +588,13 @@ static void append_to_buffer(char* txt, int len) {
 
 static size_t file_input(char* buf, size_t max) {
 	size_t read;
-	
+
 	read = fread(buf,1,max,yyin);
 
 	if ( read == max ) {
 		return max;
 	} else if (read > 0) {
-		return read;		
+		return read;
 	} else {
 		return YY_NULL;
 	}
@@ -609,8 +610,8 @@ static size_t string_input(char* buf, size_t max) {
 
 	memcpy(buf,read_ptr,max);
 	read_ptr += max;
-	
-	return max; 
+
+	return max;
 }
 
 static FILE* ddict_open(const char* system_directory, const char* filename) {
@@ -623,8 +624,8 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 	} else {
 		fname = strdup(filename);
 	}
-	
-	fh = fopen(fname,"r");
+
+	fh = eth_fopen(fname,"r");
 
 	D(("fname: %s fh: %p\n",fname,fh));
 
@@ -635,9 +636,9 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 }
 
 ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg) {
-	
+
 	debugging = dbg;
-		
+
 	sys_dir = system_directory;
 
 	yyin = ddict_open(sys_dir,filename);
@@ -646,10 +647,10 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 		D(("unable to open %s\n", filename));
 		return NULL;
 	}
-	
+
 	write_ptr = NULL;
 	read_ptr = NULL;
-		
+
 	dict = g_malloc(sizeof(ddict_t));
 	dict->applications = NULL;
 	dict->cmds = NULL;
@@ -657,7 +658,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	dict->typedefns = NULL;
 	dict->avps = NULL;
 	dict->xmlpis = NULL;
-	
+
 	appl = NULL;
 	avp = NULL;
 	enumitem = NULL;
@@ -666,7 +667,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	cmd = NULL;
 	vnd = NULL;
 	xmlpi = NULL;
-	
+
 	last_appl = NULL;
 	last_avp = NULL;
 	last_enumitem = NULL;
@@ -680,9 +681,9 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	current_yyinput = file_input;
 	BEGIN LOADING;
 	yylex();
-	
+
 	D(("\n---------------\n%s\n------- %d -------\n",strbuf,len_strbuf));
-	
+
 	current_yyinput = string_input;
 
 	BEGIN OUTSIDE;
@@ -691,7 +692,7 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	g_free(strbuf);
 	strbuf = NULL;
 	size_strbuf = 8192;
-	
+
 	return dict;
 }
 
@@ -703,50 +704,50 @@ void ddict_free(ddict_t* d) {
 	ddict_avp_t *a, *an;
 
 #define FREE_NAMEANDOBJ(n) do { if(n->name) g_free(n->name); g_free(n); } while(0)
-	
+
 	for (p = d->applications; p; p = pn ) {
 		pn = p->next;
 		FREE_NAMEANDOBJ(p);
 	}
-	
+
 	for (v = d->vendors; v; v = vn) {
-		vn = v->next; 
+		vn = v->next;
 		if (!v->desc)  g_free(v->desc);
 		FREE_NAMEANDOBJ(v);
 	}
-	
+
 	for (c = d->cmds; c; c = cn ) {
 		cn = c->next;
 		FREE_NAMEANDOBJ(c);
 	}
-	
+
 	for (t = d->typedefns; t; t = tn) {
-		tn = t->next; 
+		tn = t->next;
 		if (!t->parent)  g_free(t->parent);
 		FREE_NAMEANDOBJ(t);
 	}
-	
+
 	for (a = d->avps; a; a = an) {
 		ddict_gavp_t* g, *gn;
 		ddict_enum_t* e, *en;
 		an = a->next;
-		
+
 		for (g = a->gavps; g; g = gn) {
 			gn = g->next;
 			FREE_NAMEANDOBJ(g);
 		}
-		
+
 		for (e = a->enums; e; e = en) {
 			en = e->next;
 			FREE_NAMEANDOBJ(e);
 		}
-		
+
 		if (!a->vendor)  g_free(a->vendor);
 		if (!a->type)  g_free(a->type);
 		if (!a->description)  g_free(a->description);
 		FREE_NAMEANDOBJ(a);
 	}
-	
+
 	g_free(d);
 }
 
@@ -756,24 +757,24 @@ void ddict_print(FILE* fh, ddict_t* d) {
 	ddict_cmd_t* c;
 	ddict_typedefn_t* t;
 	ddict_avp_t* a;
-	
-	
+
+
 	for (p = d->applications; p; p = p->next) {
 		fprintf(fh,"Application: %s[%u]:\n",
 				p->name ? p->name : "-",
 				p->code);
 	}
-	
+
 	for (v = d->vendors; v; v = v->next) {
 		fprintf(fh,"Vendor: %s[%u]:\n",
 				v->name ? v->name : "-",
 				v->code);
 	}
-	
+
 	for (c = d->cmds; c; c = c->next) {
 		fprintf(fh,"Command: %s[%u] \n",
 				c->name ? c->name : "-",
-				c->code);		
+				c->code);
 	}
 
 	for (t = d->typedefns; t; t = t->next) {
@@ -781,14 +782,14 @@ void ddict_print(FILE* fh, ddict_t* d) {
 				t->name ? t->name : "-",
 				t->parent ? t->parent : "" );
 	}
-	
+
 	for (a = d->avps; a; a = a->next) {
 		ddict_gavp_t* g;
 		ddict_enum_t* e;
 		fprintf(fh,"AVP: %s[%u:%s] %s %s\n",
 				a->name ? a->name : "-",
-				a->code, 
-				a->vendor ? a->vendor : "None", 
+				a->code,
+				a->vendor ? a->vendor : "None",
 				a->type ? a->type : "-",
 				a->description ? a->description : "");
 
@@ -796,7 +797,7 @@ void ddict_print(FILE* fh, ddict_t* d) {
 			fprintf(fh,"\tGAVP: %s\n",
 					g->name ? g->name : "-" );
 		}
-		
+
 		for (e = a->enums; e; e = e->next) {
 			fprintf(fh,"\tEnum: %s[%u]\n",
 					e->name ? e->name : "-",
@@ -811,20 +812,20 @@ int main(int argc, char** argv) {
 	char* dname = NULL;
 	char* fname;
 	int i = 1;
-	
+
 	switch (argc) {
 		case 3:
 			dname = argv[i++];
-		case 2: 
+		case 2:
 			fname = argv[i];
 			break;
 		default:
 			fprintf(stderr,"%s: usage [dictionary_dir] dictionary_filename\n",argv[0]);
 			return 1;
 	}
-	
+
 	d = ddict_scan(dname,fname,1);
-	
+
 	ddict_print(stdout, d);
 
 	return 0;

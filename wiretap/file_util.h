@@ -40,8 +40,10 @@ extern "C" {
 #endif
 
 
-/* Win32: Since GLib2.6, we use UTF8 throughout the code, so file functions must tweak a given filename
-	from UTF8 to UTF16 as we use NT Unicode (Win9x - now unsupported - used locale based encoding here). */
+/*  Win32: Since GLib2.6, we use UTF8 throughout the code, so file functions
+ *  must tweak a given filename from UTF8 to UTF16 as we use NT Unicode (Win9x
+ *  - now unsupported - used locale based encoding here).
+ */
 #if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
 #include <stdio.h>
 

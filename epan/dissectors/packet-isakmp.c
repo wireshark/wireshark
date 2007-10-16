@@ -3181,7 +3181,7 @@ isakmp_init_protocol(void) {
 	G_ALLOC_AND_FREE);
   if (logf)
     fclose(logf);
-  logf = fopen(pluto_log_path, "r");
+  logf = eth_fopen(pluto_log_path, "r");
 
   scan_pluto_log();
 #endif /* HAVE_LIBNETTLE */
