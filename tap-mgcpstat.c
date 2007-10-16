@@ -38,7 +38,7 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include "register.h"
-#include "plugins/mgcp/packet-mgcp.h"
+#include "epan/dissectors/packet-mgcp.h"
 #include "timestats.h"
 
 #define NUM_TIMESTATS 11

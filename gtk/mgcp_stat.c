@@ -41,7 +41,7 @@
 
 #include <epan/tap.h>
 #include "../register.h"
-#include "../plugins/mgcp/packet-mgcp.h"
+#include "../epan/dissectors/packet-mgcp.h"
 #include "../timestats.h"
 #include "gui_stat_util.h"
 #include "compat_macros.h"
