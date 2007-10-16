@@ -144,13 +144,15 @@ static gboolean libpcap_read_lapd_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean libpcap_read_bt_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_get_erf_pseudoheader(const guint8 *erf_hdr, struct wtap_pkthdr *whdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_get_erf_subheader(const guint8 *erf_subhdr,
     union wtap_pseudo_header *pseudo_header, guint * size);
-static gboolean libpcap_read_erf_subheader(FILE_T fh, 
+static gboolean libpcap_read_erf_subheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_, guint * size);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
@@ -440,6 +442,9 @@ static const struct {
         { 192,          WTAP_ENCAP_PPI },
 	/* Endace Record File Encapsulation */
 	{ 197,	        WTAP_ENCAP_ERF },
+	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
+	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+
 	/*
 	 * To repeat:
 	 *
@@ -1400,6 +1405,28 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		wth->data_offset += sizeof (struct linux_usb_phdr);
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		if (packet_size < sizeof (struct libpcap_bt_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: lipcap bluetooth file has a %u-byte packet, too small to have even a pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_bt_pseudoheader(wth->fh,
+		    &wth->pseudo_header, err))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct libpcap_bt_phdr);
+		packet_size -= sizeof (struct libpcap_bt_phdr);
+		wth->data_offset += sizeof (struct libpcap_bt_phdr);
+
 	case WTAP_ENCAP_ERF:
 		if (packet_size < sizeof(struct erf_phdr) ) {
 			/*
@@ -1425,7 +1452,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		if (!libpcap_read_erf_subheader(wth->fh, &wth->pseudo_header,
 					       err, err_info, &size))
 		  return FALSE;	/* Read error */
-		
+
 		/*
 		 * Don't count the optional mc-header as part of the packet.
 		 */
@@ -1561,6 +1588,12 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_USB_LINUX:
 		if (!libpcap_read_linux_usb_pseudoheader(wth, wth->random_fh,
+		    pseudo_header, err))
+			return FALSE;	/* Read error */
+		break;
+
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		if (!libpcap_read_bt_pseudoheader(wth->random_fh,
 		    pseudo_header, err))
 			return FALSE;	/* Read error */
 		break;
@@ -1996,9 +2029,30 @@ libpcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
 }
 
 static gboolean
+libpcap_read_bt_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	int	bytes_read;
+	struct libpcap_bt_phdr phdr;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&phdr, 1,
+	    sizeof (struct libpcap_bt_phdr), fh);
+	if (bytes_read != sizeof (struct libpcap_bt_phdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	pseudo_header->p2p.sent = ((g_ntohl(phdr.direction) & 0x1) == 0)? TRUE: FALSE;
+	return TRUE;
+}
+
+
+static gboolean
 libpcap_get_erf_pseudoheader(const guint8 *erf_hdr, struct wtap_pkthdr *whdr,
 			     union wtap_pseudo_header *pseudo_header)
-{	
+{
   pseudo_header->erf.phdr.ts = pletohll(&erf_hdr[0]); /* timestamp */
   pseudo_header->erf.phdr.type =  erf_hdr[8];
   pseudo_header->erf.phdr.flags = erf_hdr[9];
@@ -2007,8 +2061,8 @@ libpcap_get_erf_pseudoheader(const guint8 *erf_hdr, struct wtap_pkthdr *whdr,
   pseudo_header->erf.phdr.wlen = pntohs(&erf_hdr[14]);
 
   /* The high 32 bits of the timestamp contain the integer number of seconds
-   * while the lower 32 bits contain the binary fraction of the second. 
-   * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */ 
+   * while the lower 32 bits contain the binary fraction of the second.
+   * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */
   if (whdr) {
     guint64 ts = pseudo_header->erf.phdr.ts;
     whdr->ts.secs = (guint32) (ts >> 32);
@@ -2019,7 +2073,7 @@ libpcap_get_erf_pseudoheader(const guint8 *erf_hdr, struct wtap_pkthdr *whdr,
       whdr->ts.nsecs -= 1000000000;
       whdr->ts.secs += 1;
     }
-  }  
+  }
   return TRUE;
 }
 
@@ -2052,7 +2106,7 @@ libpcap_get_erf_subheader(const guint8 *erf_subhdr,
   case ERF_TYPE_MC_ATM:
   case ERF_TYPE_MC_RAW_CHANNEL:
   case ERF_TYPE_MC_AAL5:
-  case ERF_TYPE_MC_AAL2: 
+  case ERF_TYPE_MC_AAL2:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
     /* Extract the Multi Channel header to include it in the pseudo header part */
     pseudo_header->erf.subhdr.mc_hdr = pntohl(&erf_subhdr[0]);
@@ -2068,13 +2122,13 @@ libpcap_get_erf_subheader(const guint8 *erf_subhdr,
   default:
     /* No optional pseudo header for this ERF type */
     break;
-  } 
+  }
   return TRUE;
 }
 
-/* 
- * If the type of record given in the pseudo header indicate the precense of a subheader 
- * then, read this optional subheader 
+/*
+ * If the type of record given in the pseudo header indicate the precense of a subheader
+ * then, read this optional subheader
  */
 static gboolean
 libpcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
@@ -2347,14 +2401,13 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 			*err = WTAP_ERR_BAD_RECORD;
 			return NULL;
 		}
-
 		/*
-		 * Don't count the pseudo-header as part of the packet.
-		 */
+		* Don't count the pseudo-header as part of the packet.
+		*/
 		whdr->len -= sizeof (struct linux_usb_phdr);
 		whdr->caplen -= sizeof (struct linux_usb_phdr);
 		pd += sizeof (struct linux_usb_phdr);
-		break;	
+		break;
 
 	case WTAP_ENCAP_ERF:
 		if (whdr->caplen < sizeof(struct erf_phdr) ) {
@@ -2379,13 +2432,32 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 
 		if (!libpcap_get_erf_subheader(pd, pseudo_header, &size))
 		  return NULL;
-		
+
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
 		whdr->len -= size;
 		whdr->caplen -= size;
 		pd += size;
+
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+		if (whdr->caplen < sizeof (struct libpcap_bt_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: bluetooth file has a %u-byte packet, too small to have even a pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof (struct libpcap_bt_phdr);
+		whdr->caplen -= sizeof (struct libpcap_bt_phdr);
+		pd += sizeof (struct libpcap_bt_phdr);
+		break;
 	}
 	return pd;
 }

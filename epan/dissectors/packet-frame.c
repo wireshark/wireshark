@@ -130,6 +130,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		case WTAP_ENCAP_PPP_WITH_PHDR:
 		case WTAP_ENCAP_SDLC:
 		case WTAP_ENCAP_BLUETOOTH_H4:
+		case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 			pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;
 			break;

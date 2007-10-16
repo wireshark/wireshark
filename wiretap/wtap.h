@@ -193,6 +193,7 @@ extern "C" {
 #define WTAP_ENCAP_MPEG                     96
 #define WTAP_ENCAP_PPI                      97
 #define WTAP_ENCAP_ERF						98
+#define WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR       99
 
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
@@ -607,6 +608,14 @@ struct linux_usb_phdr {
     gint32 status;
     guint32 urb_len;        /* whole len of urb this event refers to */
     guint32 data_len;       /* amount of urb data really present in this event*/
+};
+
+/*
+ * Header prepended by libpcap to each bluetooth hci h:4 frame.
+ * Values in network byte order
+ */
+struct libpcap_bt_phdr {
+    guint32 direction;     /* Bit 0 hold the frame direction. */
 };
 
 /*

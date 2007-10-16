@@ -17,12 +17,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -68,14 +68,14 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti=NULL;
 	proto_tree *hci_h4_tree=NULL;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if(check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI H4");
-    
+
 	if(check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	type = tvb_get_guint8(tvb, 0);
-       
+
 	if(tree){
 		ti = proto_tree_add_item(tree, proto_hci_h4, tvb, 0, 1, FALSE);
 		hci_h4_tree = proto_item_add_subtree(ti, ett_hci_h4);
@@ -105,16 +105,16 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_hci_h4(void)
-{                 
+{
 	static hf_register_info hf[] = {
 	{ &hf_hci_h4_type,
 		{ "HCI Packet Type",           "hci_h4.type",
-		FT_UINT8, BASE_HEX, VALS(hci_h4_type_vals), 0x0,          
+		FT_UINT8, BASE_HEX, VALS(hci_h4_type_vals), 0x0,
 		"HCI Packet Type", HFILL }},
 
 	{ &hf_hci_h4_direction,
 		{ "Direction",           "hci_h4.direction",
-		FT_UINT8, BASE_HEX, VALS(hci_h4_direction_vals), 0x0,          
+		FT_UINT8, BASE_HEX, VALS(hci_h4_direction_vals), 0x0,
 		"HCI Packet Direction Sent/Rcvd", HFILL }},
 
 	};
@@ -143,6 +143,7 @@ proto_reg_handoff_hci_h4(void)
 	data_handle = find_dissector("data");
 	hci_h4_handle = find_dissector("hci_h4");
 	dissector_add("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4, hci_h4_handle);
+	dissector_add("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR, hci_h4_handle);
 }
 
 
