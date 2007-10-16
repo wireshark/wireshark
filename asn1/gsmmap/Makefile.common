@@ -22,8 +22,8 @@
 
 PROTOCOL_NAME=gsmmap
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
+DISSECTOR_FILES=packet-gsm_map.c \
+	packet-gsm_map.h
 
 NEED_PACKET_PROTO_H = 1
 

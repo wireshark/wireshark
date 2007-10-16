@@ -2,11 +2,11 @@
 DirectoryAccessProtocol		dap
 ServiceAdministration		x509if
 
-#.INCLUDE	../dap/dap-exp.cnf
-#.INCLUDE	../x509if/x509if-exp.cnf
-#.INCLUDE	../x509af/x509af-exp.cnf
-#.INCLUDE	../x509sat/x509sat-exp.cnf
-#.INCLUDE	../acse/acse-exp.cnf
+#.IMPORT	../dap/dap-exp.cnf
+#.IMPORT	../x509if/x509if-exp.cnf
+#.IMPORT	../x509af/x509af-exp.cnf
+#.IMPORT	../x509sat/x509sat-exp.cnf
+#.IMPORT	../acse/acse-exp.cnf
 
 #.EXPORTS
 OperationProgress

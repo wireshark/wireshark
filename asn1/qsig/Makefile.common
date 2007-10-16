@@ -79,4 +79,3 @@ A2W_FLAGS = -e
 
 EXTRA_CNF = 
 
-IMPORT_CNF = 

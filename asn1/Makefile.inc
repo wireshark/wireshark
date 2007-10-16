@@ -29,7 +29,7 @@ generate_export: $(EXPORT_FILES)
 
 PROTO_OPT ?= -p $(PROTOCOL_NAME)
 
-$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(IMPORT_CNF)
+$(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	python $(top_srcdir)/tools/asn2wrs.py \
 		$(A2W_FLAGS) \
 		$(PROTO_OPT) \
@@ -38,15 +38,13 @@ $(DISSECTOR_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(I
 		-D $(srcdir) \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
-#ifdef EXPORT_FILES
-#$(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
-#	python $(top_srcdir)/tools/asn2wrs.py \
-#		-E $(A2W_FLAGS) \
-#		$(PROTO_OPT) \
-#		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
-#		-D $(srcdir) \
-#		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
-#endif
+$(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
+	python $(top_srcdir)/tools/asn2wrs.py \
+		-E $(A2W_FLAGS) \
+		$(PROTO_OPT) \
+		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
+		-D $(srcdir) \
+		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) $(top_srcdir)/epan/dissectors/
@@ -56,5 +54,5 @@ CLEANFILES = \
 	parsetab.pyc \
 	$(DISSECTOR_FILES) \
 	*-exp.cnf \
-	packet-*-{dis-tab,ettarr,ett,fn,hfarr,hf,table*,val}.[hc]
+	packet-*-{dis-tab,ettarr,ett,fn,hfarr,hf,table*,val,exp}.[hc]
 

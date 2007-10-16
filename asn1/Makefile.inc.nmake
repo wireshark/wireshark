@@ -36,7 +36,7 @@ generate_export: $(EXPORT_FILES)
 PROTO_OPT = -p $(PROTOCOL_NAME)
 !ENDIF
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(IMPORT_CNF)
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		$(A2W_FLAGS) \
@@ -50,7 +50,7 @@ $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF) $(IMPORT_CN
 !ENDIF
 
 !IFDEF EXPORT_FILES
-$(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+$(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		-E $(A2W_FLAGS) \

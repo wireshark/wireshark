@@ -1,10 +1,10 @@
 # acp133.cnf
 # ACP133 conformation file
 
-#.INCLUDE ../x509ce/x509ce-exp.cnf
-#.INCLUDE ../x509if/x509if-exp.cnf
-#.INCLUDE ../x509af/x509af-exp.cnf
-#.INCLUDE ../x411/x411-exp.cnf
+#.IMPORT ../x509ce/x509ce-exp.cnf
+#.IMPORT ../x509if/x509if-exp.cnf
+#.IMPORT ../x509af/x509af-exp.cnf
+#.IMPORT ../x411/x411-exp.cnf
 
 #.MODULE_IMPORT
 MTSAbstractService 	x411

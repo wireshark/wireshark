@@ -3,7 +3,7 @@
 
 # $Id$
 
-#.INCLUDE ../rtse/rtse-exp.cnf
+#.IMPORT ../rtse/rtse-exp.cnf
 
 #.EXPORTS
 

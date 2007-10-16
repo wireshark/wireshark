@@ -6,10 +6,10 @@
 #.MODULE_IMPORT
 MTSAbstractService	x411
 
-#.INCLUDE ../x509if/x509if-exp.cnf
-#.INCLUDE ../x509af/x509af-exp.cnf
-#.INCLUDE ../x509sat/x509sat-exp.cnf
-#.INCLUDE ../x411/x411-exp.cnf
+#.IMPORT ../x509if/x509if-exp.cnf
+#.IMPORT ../x509af/x509af-exp.cnf
+#.IMPORT ../x509sat/x509sat-exp.cnf
+#.IMPORT ../x411/x411-exp.cnf
 
 #.EXPORTS
 AltNameType

@@ -4,12 +4,12 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.MODULE_IMPORT
 OperationalBindingManagement	dop
 
-#.INCLUDE ../x509if/x509if-exp.cnf
-#.INCLUDE ../x509af/x509af-exp.cnf
-#.INCLUDE ../dap/dap-exp.cnf
-#.INCLUDE ../dsp/dsp-exp.cnf
-#.INCLUDE ../dop/dop-exp.cnf
-#.INCLUDE ../acse/acse-exp.cnf
+#.IMPORT ../x509if/x509if-exp.cnf
+#.IMPORT ../x509af/x509af-exp.cnf
+#.IMPORT ../dap/dap-exp.cnf
+#.IMPORT ../dsp/dsp-exp.cnf
+#.IMPORT ../dop/dop-exp.cnf
+#.IMPORT ../acse/acse-exp.cnf
 
 #.EXPORTS
 AgreementID

@@ -3,7 +3,7 @@
 
 # $Id$
 
-#.INCLUDE ../x509sat/x509sat-exp.cnf
+#.IMPORT ../x509sat/x509sat-exp.cnf
 
 #.EXPORTS
 AllowedSubset

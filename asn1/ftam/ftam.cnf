@@ -3,7 +3,7 @@
 
 # $Id$
 
-#.INCLUDE ../acse/acse-exp.cnf
+#.IMPORT ../acse/acse-exp.cnf
 
 #.EXPORTS
 Attribute-Extensions

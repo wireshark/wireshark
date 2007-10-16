@@ -1,8 +1,8 @@
 #.MODULE_IMPORT 
 MTSAbstractService	x411
 
-#.INCLUDE ../x411/x411-exp.cnf
-#.INCLUDE ../x420/x420-exp.cnf
+#.IMPORT ../x411/x411-exp.cnf
+#.IMPORT ../x420/x420-exp.cnf
 
 #.TYPE_RENAME
 AddressListDesignator/type	AddressListType

@@ -7,7 +7,7 @@
 PKIX1Explicit88              pkix1explicit
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
-#.INCLUDE ../cms/cms-exp.cnf
+#.IMPORT ../cms/cms-exp.cnf
 
 #.EXPORTS
 

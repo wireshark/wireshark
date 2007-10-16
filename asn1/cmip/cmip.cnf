@@ -3,7 +3,7 @@
 
 # $Id$
 
-#.INCLUDE ../acse/acse-exp.cnf
+#.IMPORT ../acse/acse-exp.cnf
 
 #.MODULE
 Remote-Operations-Information-Objects cmip.ros

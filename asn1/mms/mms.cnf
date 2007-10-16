@@ -6,7 +6,7 @@
 #.MODULE_IMPORT
 ISO-8650-ACSE-1 acse
 
-#.INCLUDE ../acse/acse-exp.cnf
+#.IMPORT ../acse/acse-exp.cnf
 
 #.EXPORTS
 MMSpdu

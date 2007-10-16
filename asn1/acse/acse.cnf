@@ -3,7 +3,7 @@
 
 # $Id$
 
-#.INCLUDE ../x509if/x509if-exp.cnf
+#.IMPORT ../x509if/x509if-exp.cnf
 
 #.EXPORTS
 EXTERNALt

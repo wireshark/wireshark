@@ -49,9 +49,7 @@ SRC_FILES = \
 
 A2W_FLAGS = -e
 
-EXTRA_CNF = 
-
-IMPORT_CNF = \
+EXTRA_CNF = \
 	../h225/h225-exp.cnf
 
 ../h225/h225-exp.cnf:

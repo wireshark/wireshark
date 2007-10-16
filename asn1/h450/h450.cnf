@@ -10,8 +10,8 @@ GROUP_BY_PROT
 -o h450
 #.END
 
-#.INCLUDE ../h225/h225-exp.cnf
-#.INCLUDE ../h450-ros/h450-ros-exp.cnf 
+#.IMPORT ../h225/h225-exp.cnf
+#.IMPORT ../h450-ros/h450-ros-exp.cnf 
 
 #.MODULE
 

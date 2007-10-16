@@ -2,7 +2,7 @@
 # gnm conformation file
 # $Id$
 
-#.INCLUDE ../cmip/cmip-exp.cnf
+#.IMPORT ../cmip/cmip-exp.cnf
 #.EXPORTS
 
 #.PDU

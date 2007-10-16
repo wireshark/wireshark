@@ -3,8 +3,8 @@
 # Anders Broman 2007
 # $Id$
 
-#.INCLUDE ../gsmmap/gsm_map-exp.cnf
-#.INCLUDE ../inap/inap-exp.cnf
+#.IMPORT ../gsmmap/gsm_map-exp.cnf
+#.IMPORT ../inap/inap-exp.cnf
 
 #.MODULE
 CS1-DataTypes  inap
