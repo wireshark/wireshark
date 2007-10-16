@@ -183,7 +183,7 @@ extern "C" {
  * WPA/WPA2 decryption
  * @return
  * - AIRPDCAP_RET_SUCCESS: Decryption has been done (decrypt_data and
- *   decrypt_length will contain the packet data decrypted and the lenght of
+ *   decrypt_length will contain the packet data decrypted and the length of
  *   the new packet)
  * - AIRPDCAP_RET_SUCCESS_HANDSHAKE: A step of the 4-way handshake for
  *   WPA key has been successfully done

@@ -831,7 +831,7 @@ AirPDcapRsna4WHandshake(
         if (AIRPDCAP_EAP_SEC(data[offset])==0) {
 
             /* PATCH:	some implementations set secure bit to 0 also in the 4th message		*/
-            /*		to recognize which message is this check if wep_key data lenght is 0		*/
+            /*		to recognize which message is this check if wep_key data length is 0		*/
             /*		in the 4th message								*/
             if (data[offset+92]!=0 || data[offset+93]!=0) {
                 /* message 2	*/

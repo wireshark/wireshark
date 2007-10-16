@@ -1823,7 +1823,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    
 		    if(((stlv_len % 4)!=0)) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len, 
-					    "Malformed Packet: Lenght must be N x 4 octets");
+					    "Malformed Packet: Length must be N x 4 octets");
 			break;
 		    }
 		    

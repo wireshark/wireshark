@@ -123,7 +123,7 @@ typedef struct _AIRPDCAP_KEY_ITEM {
 			/**
 			 * The binary value of the WEP key.
 			 * @note
-			 * It is accepted a key of lenght between
+			 * It is accepted a key of length between
 			 * AIRPDCAP_WEP_KEY_MINLEN and
 			 * AIRPDCAP_WEP_KEY_MAXLEN. A WEP key
 			 * standard-compliante should be either 40 bits

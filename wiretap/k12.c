@@ -203,7 +203,7 @@ typedef struct _k12_src_desc_t {
  *   Every about 0x2000 bytes 0x10 bytes are inserted in the file,
  *   even in the middle of a record.
  *   This reads the next record without the eventual 0x10 bytes.
- *   returns the lenght of the record + the stuffing (if any)
+ *   returns the length of the record + the stuffing (if any)
  *
  * XXX: works at most with 0x1FFF bytes per record
  */
@@ -230,7 +230,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	*bufferp = buffer;
 
 	if  ( junky_offset == 0x2000 ) {
-		/* the lenght of the record is 0x10 bytes ahead from we are reading */
+		/* the length of the record is 0x10 bytes ahead from we are reading */
 		read = file_read(junk,1,0x14,fh);
 
         if (read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
@@ -243,7 +243,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 
 		memcpy(buffer,&(junk[0x10]),4);
 	} else {
-		/* the lenght of the record is right where we are reading */
+		/* the length of the record is right where we are reading */
 		read = file_read(buffer,1, 0x4, fh);
 
 		if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {

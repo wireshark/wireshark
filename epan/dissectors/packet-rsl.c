@@ -2418,7 +2418,7 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 
 
-	/* TODO Lenght wrong if extended */
+	/* TODO Length wrong if extended */
 	ti = proto_tree_add_text(tree, tvb,offset,2,"Command indicator IE");
 	ie_tree = proto_item_add_subtree(ti, ett_ie_cmd_ind);
 

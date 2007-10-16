@@ -1531,7 +1531,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_segment_length,
-			{ "Lenght", "gdsdb.segment.length",
+			{ "Length", "gdsdb.segment.length",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -1655,7 +1655,7 @@ proto_register_gdsdb(void)
 		},
 		/* gdsdb_slice_response */
 		{ &hf_gdsdb_sliceresponse_length,
-			{ "Lenght", "gdsdb.sliceresponse.length",
+			{ "Length", "gdsdb.sliceresponse.length",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},

@@ -213,7 +213,7 @@ WSLUA_METHOD ByteArray_len(lua_State* L) {
 WSLUA_METHOD ByteArray_subset(lua_State* L) {
 	/* obtain a segment of a ByteArray */
 #define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* the position of the first byte */
-#define WSLUA_ARG_ByteArray_set_index_LENGTH 2 /* the lenght of the segment */
+#define WSLUA_ARG_ByteArray_set_index_LENGTH 2 /* the length of the segment */
     ByteArray ba = checkByteArray(L,1);
     int offset = luaL_checkint(L,2);
     int len = luaL_checkint(L,3);
@@ -305,7 +305,7 @@ int ByteArray_register(lua_State* L) {
  * Tvb & TvbRange
  *
  * a Tvb represents a tvbuff_t in Lua.
- * a TvbRange represents a range in a tvb (tvb,offset,lenght) it's main purpose is to do bounds checking,
+ * a TvbRange represents a range in a tvb (tvb,offset,length) it's main purpose is to do bounds checking,
  *            it helps too simplifing argument passing to Tree. In wireshark terms this is worthless nothing
  *            not already done by the TVB itself. In lua's terms is necessary to avoid abusing TRY{}CATCH(){}
  *            via preemptive bounds checking.
@@ -415,7 +415,7 @@ WSLUA_METHOD Tvb_len(lua_State* L) {
     if (!tvb) return 0;
 
     lua_pushnumber(L,tvb_length(tvb));
-    WSLUA_RETURN(1); /* the lenght of the Tvb. */
+    WSLUA_RETURN(1); /* the length of the Tvb. */
 }
 
 WSLUA_METHOD Tvb_offset(lua_State* L) {
@@ -439,7 +439,7 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
 /*
  *  a TvbRange represents an usable range of a Tvb and is used to extract data from the Tvb that generated it
- * TvbRanges are created by calling a tvb (e.g. tvb(offset,lenght)). If the TvbRange span is outside the Tvb's range the creation will cause a runtime error.
+ * TvbRanges are created by calling a tvb (e.g. tvb(offset,length)). If the TvbRange span is outside the Tvb's range the creation will cause a runtime error.
  */
 
 TvbRange new_TvbRange(lua_State* L, tvbuff_t* tvb, int offset, int len) {
@@ -510,7 +510,7 @@ int Tvb_register(lua_State* L) {
  */
 static int TvbRange_get_index(lua_State* L) {
 	/* WSLUA_ATTRIBUTE TvbRange_tvb RO The Tvb from which this TvbRange was generated */
-	/* WSLUA_ATTRIBUTE TvbRange_len RW The lenght (in octets) of this TvbRange */
+	/* WSLUA_ATTRIBUTE TvbRange_len RW The length (in octets) of this TvbRange */
 	/* WSLUA_ATTRIBUTE TvbRange_offset RW The offset (in octets) of this TvbRange */
 
     TvbRange tvbr = checkTvbRange(L,1);

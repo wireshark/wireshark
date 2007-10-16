@@ -32,7 +32,7 @@
 #define AIRPCAP_ADVANCED_FROM_OPTIONS 1
 
 /*
- * Returns FALSE if a text string has lenght 0, i.e. the first char 
+ * Returns FALSE if a text string has length 0, i.e. the first char 
  * is '\0', TRUE otherwise
  */
 gboolean

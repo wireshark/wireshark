@@ -528,7 +528,7 @@ dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
 	for(i=0;i<numdisks;i++){
 		offset = dissect_rpc_uint64(tvb, tree, hf_fmp_sig_offset,  offset);
 		length = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 4, "Lenght of List  : %d", length);
+		proto_tree_add_text(tree, tvb, offset, 4, "Length of List  : %d", length);
 		offset += 4;
 		
 		for(j=0;j<length;j++){

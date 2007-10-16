@@ -382,7 +382,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
  @param decoder the stream decoder to be used
  @param ct the content type of this ssl record
  @param in a pinter to the ssl record to be decrypted
- @param inl the record lenght
+ @param inl the record length
  @param out a pointer to the store for the decrypted data
  @param outl the decrypted data len
  @return 0 on success */

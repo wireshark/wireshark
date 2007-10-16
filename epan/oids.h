@@ -118,11 +118,11 @@ extern void oids_init(void);
  * subids: is an array of guint32s
  */
 
-/* return lenght of encoded buffer */
+/* return length of encoded buffer */
 guint oid_subid2encoded(guint len, guint32* subids, guint8** encoded_p);
 guint oid_string2encoded(const gchar *oid_str, guint8** encoded_p);
 
-/* return lenght of subid array */
+/* return length of subid array */
 guint oid_encoded2subid(const guint8 *oid, gint len, guint32** subids_p);
 guint oid_string2subid(const gchar *oid_str, guint32** subids_p);
 

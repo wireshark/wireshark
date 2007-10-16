@@ -77,7 +77,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
 	 Creates an ethernet pseudoheader
 	 */
 
-#define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* the fcs lenght */
+#define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* the fcs length */
 	
     PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;

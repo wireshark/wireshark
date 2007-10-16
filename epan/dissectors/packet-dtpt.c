@@ -1119,7 +1119,7 @@ proto_register_dtpt(void)
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"Remote Address", HFILL }},
     { &hf_dtpt_sockaddr_length,
-      { "Lenght", "dtpt.sockaddr.length",
+      { "Length", "dtpt.sockaddr.length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Socket Address Length", HFILL }},
     { &hf_dtpt_sockaddr_family,

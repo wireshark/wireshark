@@ -339,7 +339,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
 }
 
 /*
- * Returns FALSE if a text string has lenght 0, i.e. the first char
+ * Returns FALSE if a text string has length 0, i.e. the first char
  * is '\0', TRUE otherwise
  */
 gboolean
