@@ -72,8 +72,8 @@ EXTRA_DIST = \
 	$(GENERATOR_SOURCES) 	\
 	$(GENERATED_FILES)
 
-libwiretap_la_LIBADD = libwiretap_generated.la @LIBM@
-libwiretap_la_DEPENDENCIES = libwiretap_generated.la @LIBM@
+libwiretap_la_LIBADD = libwiretap_generated.la
+libwiretap_la_DEPENDENCIES = libwiretap_generated.la
 
 RUNLEX = $(top_srcdir)/runlex.sh
 
