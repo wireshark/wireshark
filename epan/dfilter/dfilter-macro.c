@@ -38,6 +38,7 @@
 #include <epan/uat.h>
 #include <epan/report_err.h>
 #include <epan/proto.h>
+#include <wiretap/file_util.h>
 
 typedef struct {
 	const char* name;
@@ -60,9 +61,9 @@ static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
 static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 	field_info* finfo = node->finfo;
 	fvt_cache_entry_t* e;
-	
+
 	if (!finfo) return FALSE;
-	
+
 	if ((e = g_hash_table_lookup(fvt_cache,finfo->hfinfo->abbrev))) {
 		e->usable = FALSE;
 	} else if (finfo->value.ftype->val_to_string_repr) {
@@ -103,7 +104,7 @@ static void macro_fprint(dfilter_macro_t* m, void* ud) {
 }
 
 void dfilter_macro_save(const gchar* filename, gchar** error) {
-	FILE* f = fopen(filename,"w");
+	FILE* f = eth_fopen(filename,"w");
 
 	if (!f) {
 		*error = ep_strdup_printf("Could not open file: '%s', error: %s\n", filename, strerror(errno) );
@@ -552,4 +553,4 @@ void dfilter_macro_get_uat(void** p) {
 
 
 
-  
+

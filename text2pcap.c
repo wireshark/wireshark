@@ -85,6 +85,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wiretap/file_util.h>
 
 /*
  * Just make sure we include the prototype for strptime as well
@@ -582,7 +583,7 @@ write_current_packet (void)
             HDR_UDP.length = g_htons(proto_length);
 
 	    HDR_UDP.checksum = 0;
-	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) + 
+	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) +
 		    g_ntohs(in_checksum(&HDR_UDP, sizeof(HDR_UDP))) +
 		    g_ntohs(in_checksum(packet_buf, curr_offset));
 	    HDR_UDP.checksum = g_htons((u & 0xffff) + (u>>16));
@@ -600,7 +601,7 @@ write_current_packet (void)
 	    HDR_TCP.window = g_htons(0x2000);
 
 	    HDR_TCP.checksum = 0;
-	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) + 
+	    u = g_ntohs(in_checksum(&pseudoh, sizeof(pseudoh))) +
 		    g_ntohs(in_checksum(&HDR_TCP, sizeof(HDR_TCP))) +
 		    g_ntohs(in_checksum(packet_buf, curr_offset));
 	    HDR_TCP.checksum = g_htons((u & 0xffff) + (u>>16));
@@ -707,7 +708,7 @@ append_to_preamble(char *str)
 		char xs[PACKET_PREAMBLE_MAX_LEN];
 		strcpy(xs, packet_preamble);
 		while ((c = strchr(xs, '\r')) != NULL) *c=' ';
-		fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs); 
+		fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
 	}
     }
 }
@@ -767,7 +768,7 @@ parse_preamble (void)
 			fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
 				 packet_preamble, ts_fmt);
 			if (debug >= 2) {
-				fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n", 
+				fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
 					timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
 					timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
 			}
@@ -809,7 +810,7 @@ parse_preamble (void)
 	if (debug >= 2) {
 		char *c;
 		while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-		fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble); 
+		fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
 		fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, ts_sec, ts_usec);
 	}
 
@@ -1030,7 +1031,7 @@ usage (void)
             "                          (.) but no pattern is required; the remaining number\n"
             "                          is assumed to be fractions of a second.\n"
             "                         NOTE: Date/time fields from the current date/time are\n"
-            "                         used as the default for unspecified fields.\n" 
+            "                         used as the default for unspecified fields.\n"
             "\n"
             "Output:\n"
             "  -l <typenum>           link-layer type number. Default is 1 (Ethernet). \n"
@@ -1256,7 +1257,7 @@ parse_options (int argc, char *argv[])
 
     if (strcmp(argv[optind], "-")) {
         input_filename = strdup(argv[optind]);
-        input_file = fopen(input_filename, "rb");
+        input_file = eth_fopen(input_filename, "rb");
         if (!input_file) {
             fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
                     input_filename, strerror(errno));
@@ -1269,7 +1270,7 @@ parse_options (int argc, char *argv[])
 
     if (strcmp(argv[optind+1], "-")) {
         output_filename = strdup(argv[optind+1]);
-        output_file = fopen(output_filename, "wb");
+        output_file = eth_fopen(output_filename, "wb");
         if (!output_file) {
             fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
                     output_filename, strerror(errno));
