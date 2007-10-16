@@ -332,6 +332,7 @@ text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
 	$(text2pcap_optional_objects)	\
+	wiretap/libwiretap.la		\
 	@GLIB_LIBS@ -lm
 
 # Libraries with which to link mergecap.

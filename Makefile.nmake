@@ -87,6 +87,10 @@ mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS)
 
+text2pcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS)
+
 dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS)
@@ -243,10 +247,10 @@ mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj getop
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
+text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib strptime.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj $(text2pcap_LIBS) strptime.obj image\text2pcap.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
