@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -68,7 +68,7 @@ static int ett_ecat_mailbox_coe = -1;
 static int ett_ecat_mailbox_sdo = -1;
 static int ett_ecat_mailbox_coe_sdoccs = -1;
 static int ett_ecat_mailbox_coe_sdoscs = -1;
-static int ett_ecat_mailbox_foe = -1; 
+static int ett_ecat_mailbox_foe = -1;
 static int ett_ecat_mailbox_foe_efw = -1;
 static int ett_ecat_mailbox_soeopmode = -1;
 static int ett_ecat_mailbox_soeflag = -1;
@@ -104,14 +104,14 @@ static int hf_ecat_mailbox_eoe_init_subnetmask = -1;
 static int hf_ecat_mailbox_eoe_init_defaultgateway = -1;
 static int hf_ecat_mailbox_eoe_init_dnsserver = -1;
 static int hf_ecat_mailbox_eoe_init_dnsname = -1;
-static int hf_ecat_mailbox_eoe_macfilter = -1; 
-static int hf_ecat_mailbox_eoe_macfilter_macfiltercount = -1; 
-static int hf_ecat_mailbox_eoe_macfilter_maskcount = -1; 
-static int hf_ecat_mailbox_eoe_macfilter_nobroadcasts = -1; 
+static int hf_ecat_mailbox_eoe_macfilter = -1;
+static int hf_ecat_mailbox_eoe_macfilter_macfiltercount = -1;
+static int hf_ecat_mailbox_eoe_macfilter_maskcount = -1;
+static int hf_ecat_mailbox_eoe_macfilter_nobroadcasts = -1;
 static int hf_ecat_mailbox_eoe_macfilter_filter;
 static int hf_ecat_mailbox_eoe_macfilter_filters[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static int hf_ecat_mailbox_eoe_macfilter_filtermask = -1; 
-static int hf_ecat_mailbox_eoe_macfilter_filtermasks[4] = {-1,-1,-1,-1}; 
+static int hf_ecat_mailbox_eoe_macfilter_filtermask = -1;
+static int hf_ecat_mailbox_eoe_macfilter_filtermasks[4] = {-1,-1,-1,-1};
 static int hf_ecat_mailbox_eoe_timestamp = -1;
 static int hf_ecat_mailbox_coe = -1;
 static int hf_ecat_mailbox_coe_number = -1;
@@ -261,7 +261,7 @@ static const value_string SoeOpcode[] =
    {   0, NULL }
 };
 
-static const true_false_string tfs_complete = 
+static const true_false_string tfs_complete =
 {
    "Complete", "Legacy"
 };
@@ -281,8 +281,8 @@ void init_eoe_header(PETHERCAT_EOE_HEADER pEoE, tvbuff_t *tvb, gint offset)
 
 void init_foe_header(PETHERCAT_FOE_HEADER pFoE, tvbuff_t *tvb, gint offset)
 {
-   pFoE->OpMode = tvb_get_guint8(tvb, offset++); 
-   pFoE->Reserved1 = tvb_get_guint8(tvb, offset++); 
+   pFoE->OpMode = tvb_get_guint8(tvb, offset++);
+   pFoE->Reserved1 = tvb_get_guint8(tvb, offset++);
    pFoE->aFoeHeaderDataUnion.FileLength = tvb_get_letohl(tvb, offset);
 }
 
@@ -323,7 +323,7 @@ static void MailboxTypeFormater(PETHERCAT_MBOX_HEADER pMbx, char *szText, gint n
       if( EcMBoxType[i].value == pMbx->aControlUnion.Type )
       {
          g_snprintf(szText, nMax, "Type    : %s (0x%x)", EcMBoxType[i].strptr, pMbx->aControlUnion.Type);
-         return; 
+         return;
       }
    }
    g_snprintf ( szText, nMax,"Type    : %d", pMbx->aControlUnion.Type);
@@ -358,7 +358,7 @@ static void EoETypeFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 }
 
 static void EoEFragNoFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
-{   
+{
    g_snprintf ( szText, nMax, "FragNo     : %d", pEoE->anEoeHeaderDataUnion.Fragment);
 }
 
@@ -421,7 +421,7 @@ static void CANopenTypeFormater(PETHERCAT_COE_HEADER pCoE, char *szText, gint nM
 static void CANopenSdoReqFormater(PETHERCAT_SDO_HEADER pSdo, char *szText, gint nMax)
 {
    switch ( pSdo->anSdoHeaderUnion.Idq.Ccs )
-   { 
+   {
    case SDO_CCS_INITIATE_DOWNLOAD:
       g_snprintf ( szText, nMax, "SDO Req : 'Initiate Download' (%d) Idx=0x%x Sub=%d", pSdo->anSdoHeaderUnion.Idq.Ccs, pSdo->Index,  pSdo->SubIndex);
       break;
@@ -438,7 +438,7 @@ static void CANopenSdoReqFormater(PETHERCAT_SDO_HEADER pSdo, char *szText, gint 
       g_snprintf ( szText, nMax, "SDO Req : 'Abort Transfer' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
       break;
    default:
-      g_snprintf ( szText, nMax, "SDO Req : Ccs %d", pSdo->anSdoHeaderUnion.Idq.Ccs); 
+      g_snprintf ( szText, nMax, "SDO Req : Ccs %d", pSdo->anSdoHeaderUnion.Idq.Ccs);
    }
 }
 
@@ -448,7 +448,7 @@ static void CANopenSdoResFormater(PETHERCAT_SDO_HEADER pSdo, char *szText, gint 
 }
 
 static void CANopenSdoInfoFormater(PETHERCAT_SDO_INFO_HEADER pHead, char *szText, gint nMax)
-{   
+{
    guint8 opCode = pHead->anSdoControlUnion.OpCode&0x7F;
    char* txt2 = "";
    if ( (pHead->anSdoControlUnion.OpCode&0x80) != 0 )
@@ -569,16 +569,16 @@ static void SoeFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gui
             g_snprintf ( szText, nMax, "SoE: RRQ (%s, '%s')", tmp, elm);
             break;
          case ECAT_SOE_OPCODE_RRS:
-            g_snprintf ( szText, nMax, "SoE: RRS (%s, '%s') : %u Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
+            g_snprintf ( szText, nMax, "SoE: RRS (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
             break;
          case ECAT_SOE_OPCODE_WRS:
             g_snprintf ( szText, nMax, "SoE: WRS (%s, '%s')", tmp, elm);
             break;
          case ECAT_SOE_OPCODE_WRQ:
-            g_snprintf ( szText, nMax, "SoE: WRQ (%s, '%s') : %u Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
+            g_snprintf ( szText, nMax, "SoE: WRQ (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
             break;
          case ECAT_SOE_OPCODE_NFC:
-            g_snprintf ( szText, nMax, "SoE: NFC (%s, '%s') : %u Bytes", tmp, elm, soe_length-ETHERCAT_SOE_HEADER_LEN);
+            g_snprintf ( szText, nMax, "SoE: NFC (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
             break;
          case 6:
             g_snprintf ( szText, nMax, "SoE: EMGCY");
@@ -602,8 +602,8 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    proto_item *aitem = NULL, *aparent = NULL;
    char szText[200];
    int nMax = sizeof(szText)-1;
-  
-   guint coe_length = tvb_reported_length(tvb)-offset; 
+
+   guint coe_length = tvb_reported_length(tvb)-offset;
    guint16 len;
 
    if( tree )
@@ -614,7 +614,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
       proto_item_append_text(aparent,":CoE ");
    }
 
-   if (check_col(pinfo->cinfo, COL_INFO)) 
+   if (check_col(pinfo->cinfo, COL_INFO))
       col_append_str(pinfo->cinfo, COL_INFO, "CoE ");
 
    if( coe_length >= ETHERCAT_COE_HEADER_LEN )
@@ -644,7 +644,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_HEADER_LEN )
             {
-               if (check_col(pinfo->cinfo, COL_INFO)) 
+               if (check_col(pinfo->cinfo, COL_INFO))
                   col_append_str(pinfo->cinfo, COL_INFO, "Sdo Req - invalid length");
                break;
             }
@@ -652,10 +652,10 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             init_sdo_header(&sdo, tvb, offset);
 
             CANopenSdoReqFormater(&sdo, szText, nMax);
-            if (check_col(pinfo->cinfo, COL_INFO)) 
+            if (check_col(pinfo->cinfo, COL_INFO))
                col_append_str(pinfo->cinfo, COL_INFO, szText);
 
-            if( tree ) 
+            if( tree )
             {
                proto_item_append_text(aparent, szText);
 
@@ -735,15 +735,15 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             ETHERCAT_SDO_HEADER sdo;
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_HEADER_LEN )
             {
-               if (check_col(pinfo->cinfo, COL_INFO)) 
+               if (check_col(pinfo->cinfo, COL_INFO))
                   col_append_str(pinfo->cinfo, COL_INFO, "Sdo Res - invalid length");
                break;
             }
 
             init_sdo_header(&sdo, tvb, offset);
 
-            CANopenSdoResFormater(&sdo, szText, nMax); 
-            if (check_col(pinfo->cinfo, COL_INFO)) 
+            CANopenSdoResFormater(&sdo, szText, nMax);
+            if (check_col(pinfo->cinfo, COL_INFO))
                col_append_str(pinfo->cinfo, COL_INFO, szText);
 
             if( tree )
@@ -814,7 +814,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_INFO_LISTREQ_LEN )
             {
-               if (check_col(pinfo->cinfo, COL_INFO)) 
+               if (check_col(pinfo->cinfo, COL_INFO))
                   col_append_str(pinfo->cinfo, COL_INFO, "Sdo Info - invalid length");
                break;
             }
@@ -822,14 +822,14 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             init_sdo_info_header(&info, tvb, offset);
 
             CANopenSdoInfoFormater(&info, szText, nMax);
-            if (check_col(pinfo->cinfo, COL_INFO)) 
+            if (check_col(pinfo->cinfo, COL_INFO))
                col_append_str(pinfo->cinfo, COL_INFO, szText);
 
             if( tree )
             {
                aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfoopcode, tvb, offset++, 1, TRUE);
                offset++; /*Reserved*/
-               
+
                aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfofrag, tvb, offset, 2, TRUE);
                offset+=2;
 
@@ -870,7 +870,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfoindex, tvb, offset, 2, TRUE);
                      offset+=2;
 
-                     aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfosubindex, tvb, offset++, 1, TRUE);                     
+                     aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfosubindex, tvb, offset++, 1, TRUE);
                      aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfovalueinfo, tvb, offset, 1, TRUE);
                   }
                   break;
@@ -881,7 +881,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfoindex, tvb, offset, 2, TRUE);
                      offset+=2;
 
-                     aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfosubindex, tvb, offset++, 1, TRUE);                     
+                     aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfosubindex, tvb, offset++, 1, TRUE);
                      aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfovalueinfo, tvb, offset++, 1, TRUE);
 
                      aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfodatatype, tvb, offset, 2, TRUE);
@@ -894,7 +894,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      offset+=2;
 
                      if ( (info.anSdoInfoUnion.Entry.ValueInfo & 0x08) != 0 )
-                     {                        
+                     {
                         aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfounittype, tvb, offset, 2, TRUE);
                         offset+=2;
                      }
@@ -944,8 +944,8 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    proto_item *aitem = NULL ,*aparent = NULL;
    char szText[200];
    int nMax = sizeof(szText)-1;
-   
-   guint soe_length = tvb_reported_length(tvb)-offset; 
+
+   guint soe_length = tvb_reported_length(tvb)-offset;
 
    if( tree )
    {
@@ -958,7 +958,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    if( soe_length >= ETHERCAT_SOE_HEADER_LEN )
    {
       SoeFormater(tvb, offset, szText, nMax, soe_length);
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
          col_append_str(pinfo->cinfo, COL_INFO, szText);
 
       if( tree )
@@ -990,7 +990,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          if ( !soe.anSoeHeaderControlUnion.Error )
          {
             if ( !soe.anSoeHeaderControlUnion.InComplete )
-            {  
+            {
                switch (soe.anSoeHeaderControlUnion.OpCode)
                {
                case ECAT_SOE_OPCODE_RRQ:
@@ -1023,12 +1023,12 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
          col_append_str(pinfo->cinfo, COL_INFO, "SoE - invalid length");
    }
 }
 
-static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree) 
+static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
    proto_tree *ecat_eoe_tree = 0, *ecat_fraghead_tree, *ecat_eoe_init_tree, *ecat_eoe_macfilter_tree,
       *ecat_eoe_macfilter_filter_tree, *ecat_eoe_macfilter_filtermask_tree;
@@ -1038,8 +1038,8 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    int nMax = sizeof(szText)-1;
    int nCnt;
 
-   guint eoe_length = tvb_reported_length(tvb)-offset; 
-   
+   guint eoe_length = tvb_reported_length(tvb)-offset;
+
    if( tree )
    {
       aitem = proto_tree_add_item(tree, hf_ecat_mailbox_eoe, tvb, offset, eoe_length, TRUE);
@@ -1050,10 +1050,10 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
 
    if( eoe_length >= ETHERCAT_EOE_HEADER_LEN )
-   {            
-      ETHERCAT_EOE_HEADER eoe; 
+   {
+      ETHERCAT_EOE_HEADER eoe;
       init_eoe_header(&eoe, tvb, offset);
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
       {
          if ( eoe.anEoeHeaderInfoUnion.Type == EOE_TYPE_FRAME_FRAG )
             g_snprintf ( szText, nMax, "EoE-Frag %d", eoe.anEoeHeaderDataUnion.Fragment);
@@ -1073,7 +1073,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_type, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.Type);
          EoETypeFormater(&eoe, szText, nMax);
          proto_item_set_text(aitem,szText);
-         
+
          switch ( eoe.anEoeHeaderInfoUnion.Type )
          {
          case EOE_TYPE_FRAME_FRAG:
@@ -1124,7 +1124,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             aitem = proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_timestamp, tvb, offset+ETHERCAT_EOE_HEADER_LEN, ETHERCAT_EOE_TIMESTAMP_LEN, TRUE);
             break;
 
-         case EOE_TYPE_INIT_REQ:               
+         case EOE_TYPE_INIT_REQ:
             offset+=ETHERCAT_EOE_HEADER_LEN;
             aitem = proto_tree_add_item(ecat_fraghead_tree, hf_ecat_mailbox_eoe_init, tvb, offset, MIN(eoe_length-offset,ETHERCAT_EOE_INIT_LEN), TRUE);
             if( eoe_length-offset >= ETHERCAT_EOE_INIT_LEN )
@@ -1143,7 +1143,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                aitem = proto_tree_add_item(ecat_eoe_init_tree, hf_ecat_mailbox_eoe_init_macaddr, tvb, offset, ETHERNET_ADDRESS_LEN, TRUE);
                offset+=ETHERNET_ADDRESS_LEN;
 
-               aitem = proto_tree_add_item(ecat_eoe_init_tree, hf_ecat_mailbox_eoe_init_ipaddr, tvb, offset, 4, TRUE); 
+               aitem = proto_tree_add_item(ecat_eoe_init_tree, hf_ecat_mailbox_eoe_init_ipaddr, tvb, offset, 4, TRUE);
                offset+=4;
 
                aitem = proto_tree_add_item(ecat_eoe_init_tree, hf_ecat_mailbox_eoe_init_subnetmask, tvb, offset, 4, TRUE);
@@ -1197,20 +1197,20 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          }
       }
 
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
          col_prepend_fstr(pinfo->cinfo, COL_INFO, "EoE(");
 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
          col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "EoE-");
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
          col_append_str(pinfo->cinfo, COL_INFO, "EoE - invalid length!");
    }
 }
 
-static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree) 
+static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
    proto_tree *ecat_foe_tree,*ecat_foe_efw_tree;
 
@@ -1232,12 +1232,12 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    if( foe_length >= ETHERCAT_FOE_HEADER_LEN )
    {
       FoeFormater(tvb, offset, szText, nMax, foe_length);
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
          col_append_str(pinfo->cinfo, COL_INFO, szText);
 
       if( tree )
       {
-         ETHERCAT_FOE_HEADER foe;         
+         ETHERCAT_FOE_HEADER foe;
          init_foe_header(&foe, tvb, offset);
 
          ecat_foe_tree = proto_item_add_subtree(aitem, ett_ecat_mailbox_foe);
@@ -1262,7 +1262,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                aitem = proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_data, tvb, offset, foe_length-offset, TRUE);
 
                if( foe_length-offset >= sizeof(TEFWUPDATE_HEADER) )
-               {                  
+               {
                   aitem = proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_efw, tvb, offset, foe_length-offset, TRUE);
                   ecat_foe_efw_tree = proto_item_add_subtree(aitem, ett_ecat_mailbox_foe_efw);
                   aitem = proto_tree_add_item(ecat_foe_efw_tree, hf_ecat_mailbox_foe_efw_cmd, tvb, offset, 2, TRUE);
@@ -1304,7 +1304,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO)) 
+      if (check_col(pinfo->cinfo, COL_INFO))
          col_append_str(pinfo->cinfo, COL_INFO, "FoE - invalid length");
    }
 }
@@ -1318,7 +1318,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    char szText[200];
    int nMax = sizeof(szText)-1;
 
-   guint mailbox_length = tvb_reported_length(tvb); 
+   guint mailbox_length = tvb_reported_length(tvb);
 
    if( mailbox_length >= ETHERCAT_MBOX_HEADER_LEN )
    {
@@ -1329,7 +1329,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
       if( mailbox_length >= ETHERCAT_MBOX_HEADER_LEN + hdr.Length )
       {
-         if (check_col(pinfo->cinfo, COL_INFO)) 
+         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, " Mbx(");
 
          if( tree )
@@ -1341,7 +1341,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset+=sizeof(hdr.Length);
 
             aitem = proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxaddress, tvb, offset, sizeof(hdr.Address), TRUE);
-            offset+=sizeof(hdr.Address)+sizeof(guint8); 
+            offset+=sizeof(hdr.Address)+sizeof(guint8);
 
             aitem = proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxtype, tvb, offset, 1, TRUE);
             MailboxTypeFormater(&hdr, szText, nMax);
@@ -1381,7 +1381,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             aitem = proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxdata, tvb, offset, hdr.Length, TRUE);
          }
 
-         if (check_col(pinfo->cinfo, COL_INFO)) 
+         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, ")");
       }
    }
@@ -1397,32 +1397,32 @@ void proto_register_ecat_mailbox(void)
 
    static hf_register_info hf[] =
    {
-      { &hf_ecat_mailbox,  
+      { &hf_ecat_mailbox,
       { "Mbx: ", "ecat_mailbox",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_mailboxlength,  
+      { &hf_ecat_mailboxlength,
       { "Length  ", "ecat_mailbox.length",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_mailboxaddress,  
+      { &hf_ecat_mailboxaddress,
       { "Address ", "ecat_mailbox.address",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_mailboxtype,  
+      { &hf_ecat_mailboxtype,
       { "Type    ", "ecat_mailbox.type",
       FT_UINT8, BASE_HEX, VALS(EcMBoxType), 0x0F,
       "", 0x0F, 0, 0, 0, NULL, NULL }
       },
-      { &hf_ecat_mailboxcounter,  
+      { &hf_ecat_mailboxcounter,
       { "Counter    ", "ecat_mailbox.counter",
       FT_UINT8, BASE_HEX, NULL, 0x70,
       "", 0x70, 0, 0, 0, NULL, NULL }
       },
-      { &hf_ecat_mailbox_eoe,  
+      { &hf_ecat_mailbox_eoe,
       { "EoE Fragment", "ecat_mailbox.eoe",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "", HFILL }
@@ -1673,7 +1673,7 @@ void proto_register_ecat_mailbox(void)
       FT_BOOLEAN, 8, TFS(&tfs_complete), 0x00000010,
       "", HFILL }
       },
-      { &hf_ecat_mailbox_coe_sdoccsds,  
+      { &hf_ecat_mailbox_coe_sdoccsds,
       { "Download Segment", "ecat_mailbox.coe.sdoccsds",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -1693,7 +1693,7 @@ void proto_register_ecat_mailbox(void)
       FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
       "", HFILL }
       },
-      { &hf_ecat_mailbox_coe_sdoccsiu, 
+      { &hf_ecat_mailbox_coe_sdoccsiu,
       { "Init Upload", "ecat_mailbox.coe.sdoccsiu",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -1703,7 +1703,7 @@ void proto_register_ecat_mailbox(void)
       FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
       "", HFILL }
       },
-      { &hf_ecat_mailbox_coe_sdoccsus, 
+      { &hf_ecat_mailbox_coe_sdoccsus,
       { "Upload Segment", "ecat_mailbox.coe.sdoccsus",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -2059,7 +2059,7 @@ void proto_register_ecat_mailbox(void)
       &ett_ecat_mailbox_foe_efw,
       &ett_ecat_mailbox_soeopmode,
       &ett_ecat_mailbox_soeflag,
-      &ett_ecat_mailbox_soe, 
+      &ett_ecat_mailbox_soe,
       &ett_ecat_mailbox_fraghead
    };
 
