@@ -67,8 +67,6 @@ typedef struct _per_sequence_t {
 	per_type_fn func;
 } per_sequence_t;
 
-extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 *length);
-
 extern guint32 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 extern guint32 dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);

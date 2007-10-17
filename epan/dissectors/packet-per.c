@@ -205,6 +205,9 @@ static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, gu
 
 /* 10 Encoding procedures -------------------------------------------------- */
 
+static guint32
+dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length);
+
 /* 10.2 Open type fields --------------------------------------------------- */
 static guint32 
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
@@ -301,7 +304,7 @@ dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, p
 			field in the manner described above in Note 2.
 
  */
-guint32
+static guint32
 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
 {
 	guint8 byte;
