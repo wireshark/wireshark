@@ -2483,7 +2483,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 		}
 
 		if ((entry_length == bufsiz) && 
-				((entry[entry_length - 1] != '\n') || 
+				((entry[entry_length - 1] != '\n') && 
 				 (entry[entry_length - 1] != '\0')))
 		{
 			/*

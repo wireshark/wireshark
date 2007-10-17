@@ -2710,7 +2710,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 							proto_item_append_text(ti,
 							    "802.1Q filtering");
 						}
-						if (! raw_val & 0x03)
+						if (!(raw_val & 0x03))
 							proto_item_append_text(ti,
 							    "None");
 						proto_item_append_text(ti,
