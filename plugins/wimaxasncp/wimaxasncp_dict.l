@@ -70,6 +70,8 @@
 #include <epan/emem.h>
 #include <epan/value_string.h>
 #include <epan/packet.h>	/* array_length */
+#include <wiretap/file_util.h>
+
 #include "wimaxasncp_dict.h"
 #include "wimaxasncp_dict_lex.h"
 
@@ -579,7 +581,7 @@ static FILE *wimaxasncp_dict_open(
 		fname = g_strdup(filename);
 	}
 	
-	fh = fopen(fname,"r");
+	fh = eth_fopen(fname,"r");
 
 	D(("fname: %s fh: %p\n",fname,fh));
 

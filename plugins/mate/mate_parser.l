@@ -47,6 +47,8 @@
 	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	*/
 	
+#include <wiretap/file_util.h>
+
 #include "mate.h"	
 #include "mate_grammar.h"
 #include "mate_parser_lex.h"
@@ -159,7 +161,7 @@ blk_cmnt_stop  "*/"
 		g_error("dtd_preparse: include files nested to deeply");
 	
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
-	yyin = fopen( yytext, "r" );
+	yyin = eth_fopen( yytext, "r" );
 
 	if (!yyin) {
 		yy_delete_buffer( YY_CURRENT_BUFFER );
@@ -275,7 +277,7 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 	volatile gboolean state = TRUE;
 	mc = matecfg;
 
-	yyin = fopen(filename,"r");
+	yyin = eth_fopen(filename,"r");
 	
 	if (!yyin) {
 		g_string_sprintfa(mc->config_error,"Mate parser: Could not open file: '%s', error: %s", filename, strerror(errno) );
