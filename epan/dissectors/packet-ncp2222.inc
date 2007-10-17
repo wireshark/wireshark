@@ -8345,7 +8345,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
 		    }
             verb_string = val_to_str(request_value->nds_request_verb,
                     ncp_nds_verb_vals, "Continuation Fragment");
-            if(request_value->req_nds_prot_flags && 0x4000)
+            if(request_value->req_nds_prot_flags & 0x4000)
             {
                 /* CRC is included in the NDS header so justify the offset */
                 proto_tree_add_item(ncp_tree, hf_nds_crc, tvb, nds_offset, 4, TRUE);
