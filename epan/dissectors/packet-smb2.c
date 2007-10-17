@@ -2350,7 +2350,7 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 	}
 	offset += 2;
 
-	if(!si->flags & SMB2_FLAGS_RESPONSE){
+	if(!(si->flags & SMB2_FLAGS_RESPONSE)){
 		/* Only update COL_INFO for requests. It clutters the
 		 * display ab bit too much if we do it for replies
 		 * as well.

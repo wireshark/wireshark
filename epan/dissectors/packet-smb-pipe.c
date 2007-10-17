@@ -3422,7 +3422,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 		goto clean_up_and_exit;
 	}
-	if(!fd_head->flags&FD_DEFRAGMENTED){
+	if(!(fd_head->flags&FD_DEFRAGMENTED)){
 		/* we dont have a fully reassembled frame */
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 		goto clean_up_and_exit;
