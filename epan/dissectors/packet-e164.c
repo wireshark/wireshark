@@ -447,7 +447,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 	case 0x0200:
 		switch ( cc & 0x00f0 ) {
 		case 0: 
-		case 7 : 
+		case 0x70 : 
 			cc_length = 2;	
 			break;
 		default : 
