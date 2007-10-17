@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h225.c                                                            */
+/* packet-h225.c                                                              */
 /* ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.c */
@@ -63,6 +63,7 @@
 #include <epan/h225-persistentdata.h>
 #include "packet-h235.h"
 #include "packet-h245.h"
+#include "packet-h323.h"
 #include "packet-q931.h"
 #include "packet-ssl.h"
 
@@ -91,6 +92,8 @@ static dissector_handle_t data_handle;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t tp_dissector_table;
+static dissector_table_t gef_name_dissector_table;
+static dissector_table_t gef_content_dissector_table;
 
 
 static dissector_handle_t h245_handle=NULL;
@@ -602,10 +605,10 @@ static int hf_h225_callDurationLimit = -1;        /* INTEGER_1_4294967295 */
 static int hf_h225_enforceCallDurationLimit = -1;  /* BOOLEAN */
 static int hf_h225_callStartingPoint = -1;        /* CallCreditServiceControl_callStartingPoint */
 static int hf_h225_id = -1;                       /* GenericIdentifier */
-static int hf_h225_parameters = -1;               /* SEQUENCE_SIZE_1_512_OF_EnumeratedParameter */
-static int hf_h225_parameters_item = -1;          /* EnumeratedParameter */
-static int hf_h225_standard = -1;                 /* INTEGER_0_16383_ */
-static int hf_h225_oid = -1;                      /* OBJECT_IDENTIFIER */
+static int hf_h225_parameters = -1;               /* T_parameters */
+static int hf_h225_parameters_item = -1;          /* T_parameters_item */
+static int hf_h225_standard = -1;                 /* T_standard */
+static int hf_h225_oid = -1;                      /* T_oid */
 static int hf_h225_genericIdentifier_nonStandard = -1;  /* GloballyUniqueID */
 static int hf_h225_content = -1;                  /* Content */
 static int hf_h225_raw = -1;                      /* OCTET_STRING */
@@ -882,7 +885,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 111 "packet-h225-template.c"
+#line 114 "packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1045,10 +1048,11 @@ static gint ett_h225_CallCreditServiceControl = -1;
 static gint ett_h225_T_billingMode = -1;
 static gint ett_h225_CallCreditServiceControl_callStartingPoint = -1;
 static gint ett_h225_GenericData = -1;
-static gint ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter = -1;
+static gint ett_h225_T_parameters = -1;
 static gint ett_h225_GenericIdentifier = -1;
 static gint ett_h225_EnumeratedParameter = -1;
 static gint ett_h225_Content = -1;
+static gint ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter = -1;
 static gint ett_h225_SEQUENCE_SIZE_1_16_OF_GenericData = -1;
 static gint ett_h225_FeatureSet = -1;
 static gint ett_h225_TransportChannelInfo = -1;
@@ -1128,7 +1132,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 115 "packet-h225-template.c"
+#line 118 "packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -1162,7 +1166,7 @@ static const char *tpOID;
 /* EnumeratedParameter -> Content -> Content/compound -> EnumeratedParameter */
 static int dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
-/* GenericData -> GenericData/parameters -> EnumeratedParameter -> Content -> Content/nested -> GenericData */
+/* GenericData -> GenericData/parameters -> GenericData/parameters/_item -> EnumeratedParameter -> Content -> Content/nested -> GenericData */
 int dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
@@ -3627,9 +3631,34 @@ dissect_h225_CircuitIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
-dissect_h225_INTEGER_0_16383_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 672 "h225.cnf"
+  gint32 value_int = -1;
+  gef_ctx_t *gefx;
+
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 16383U, NULL, TRUE);
+                                              0U, 16383U, &value_int, TRUE);
+
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) gefx->id = ep_strdup_printf("%d", value_int);
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_h225_T_oid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 681 "h225.cnf"
+  const gchar *oid_str = NULL;
+  gef_ctx_t *gefx;
+
+  offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &oid_str);
+
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) gefx->id = oid_str;
+
 
   return offset;
 }
@@ -3643,17 +3672,31 @@ const value_string h225_GenericIdentifier_vals[] = {
 };
 
 static const per_choice_t GenericIdentifier_choice[] = {
-  {   0, &hf_h225_standard       , ASN1_EXTENSION_ROOT    , dissect_h225_INTEGER_0_16383_ },
-  {   1, &hf_h225_oid            , ASN1_EXTENSION_ROOT    , dissect_h225_OBJECT_IDENTIFIER },
+  {   0, &hf_h225_standard       , ASN1_EXTENSION_ROOT    , dissect_h225_T_standard },
+  {   1, &hf_h225_oid            , ASN1_EXTENSION_ROOT    , dissect_h225_T_oid },
   {   2, &hf_h225_genericIdentifier_nonStandard, ASN1_EXTENSION_ROOT    , dissect_h225_GloballyUniqueID },
   { 0, NULL, 0, NULL }
 };
 
 int
 dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 658 "h225.cnf"
+  gef_ctx_t *gefx;
+
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h225_GenericIdentifier, GenericIdentifier_choice,
                                  NULL);
+
+#line 660 "h225.cnf"
+  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG GenericIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    actx->pinfo->private_data = actx;
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree);
+  }
+  actx->private_data = gefx;  /* subdissector could overwrite it */
 
   return offset;
 }
@@ -3690,7 +3733,7 @@ dissect_h225_BMPString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 static const per_sequence_t SEQUENCE_SIZE_1_512_OF_EnumeratedParameter_sequence_of[1] = {
-  { &hf_h225_parameters_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_EnumeratedParameter },
+  { &hf_h225_compound_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_EnumeratedParameter },
 };
 
 static int
@@ -3774,16 +3817,62 @@ dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+
+static int
+dissect_h225_T_parameters_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 640 "h225.cnf"
+  gef_ctx_t *parent_gefx;
+
+  parent_gefx = gef_ctx_get(actx->private_data);
+  actx->private_data = gef_ctx_alloc(parent_gefx, NULL);
+
+  offset = dissect_h225_EnumeratedParameter(tvb, offset, actx, tree, hf_index);
+
+#line 645 "h225.cnf"
+  actx->private_data = parent_gefx;
+
+  return offset;
+}
+
+
+static const per_sequence_t T_parameters_sequence_of[1] = {
+  { &hf_h225_parameters_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_T_parameters_item },
+};
+
+static int
+dissect_h225_T_parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_h225_T_parameters, T_parameters_sequence_of,
+                                                  1, 512);
+
+  return offset;
+}
+
+
 static const per_sequence_t GenericData_sequence[] = {
   { &hf_h225_id             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_GenericIdentifier },
-  { &hf_h225_parameters     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter },
+  { &hf_h225_parameters     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_T_parameters },
   { NULL, 0, 0, NULL }
 };
 
 int
 dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 626 "h225.cnf"
+  void *priv_data = actx->private_data;
+  gef_ctx_t *gefx;
+
+  /* check if not inherited from FeatureDescriptor */
+  gefx = gef_ctx_get(actx->private_data);
+  if (!gefx) {
+    gefx = gef_ctx_alloc(NULL, "GenericData");
+    actx->private_data = gefx;
+  }
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_GenericData, GenericData_sequence);
+
+#line 636 "h225.cnf"
+  actx->private_data = priv_data;
 
   return offset;
 }
@@ -3821,7 +3910,14 @@ dissect_h225_CircuitInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_FeatureDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 650 "h225.cnf"
+  void *priv_data = actx->private_data;
+  actx->private_data = gef_ctx_alloc(NULL, "FeatureDescriptor");
+
   offset = dissect_h225_GenericData(tvb, offset, actx, tree, hf_index);
+
+#line 653 "h225.cnf"
+  actx->private_data = priv_data;
 
   return offset;
 }
@@ -7307,7 +7403,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 141 "packet-h225-template.c"
+#line 144 "packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -9362,19 +9458,19 @@ void proto_register_h225(void) {
     { &hf_h225_parameters,
       { "parameters", "h225.parameters",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h225.SEQUENCE_SIZE_1_512_OF_EnumeratedParameter", HFILL }},
+        "h225.T_parameters", HFILL }},
     { &hf_h225_parameters_item,
       { "Item", "h225.parameters_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h225.EnumeratedParameter", HFILL }},
+        "h225.T_parameters_item", HFILL }},
     { &hf_h225_standard,
       { "standard", "h225.standard",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h225.INTEGER_0_16383_", HFILL }},
+        "h225.T_standard", HFILL }},
     { &hf_h225_oid,
       { "oid", "h225.oid",
         FT_OID, BASE_NONE, NULL, 0,
-        "h225.OBJECT_IDENTIFIER", HFILL }},
+        "h225.T_oid", HFILL }},
     { &hf_h225_genericIdentifier_nonStandard,
       { "nonStandard", "h225.nonStandard",
         FT_GUID, BASE_NONE, NULL, 0,
@@ -10473,7 +10569,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 254 "packet-h225-template.c"
+#line 257 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10638,10 +10734,11 @@ void proto_register_h225(void) {
     &ett_h225_T_billingMode,
     &ett_h225_CallCreditServiceControl_callStartingPoint,
     &ett_h225_GenericData,
-    &ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter,
+    &ett_h225_T_parameters,
     &ett_h225_GenericIdentifier,
     &ett_h225_EnumeratedParameter,
     &ett_h225_Content,
+    &ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter,
     &ett_h225_SEQUENCE_SIZE_1_16_OF_GenericData,
     &ett_h225_FeatureSet,
     &ett_h225_TransportChannelInfo,
@@ -10721,7 +10818,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 260 "packet-h225-template.c"
+#line 263 "packet-h225-template.c"
   };
   module_t *h225_module;
 
@@ -10756,6 +10853,8 @@ void proto_register_h225(void) {
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
   tp_dissector_table = register_dissector_table("h225.tp", "H.225 TunnelledProtocol", FT_STRING, BASE_NONE);
+  gef_name_dissector_table = register_dissector_table("h225.gef.name", "H.225 Generic Extensible Framework (names)", FT_STRING, BASE_NONE);
+  gef_content_dissector_table = register_dissector_table("h225.gef.content", "H.225 Generic Extensible Framework", FT_STRING, BASE_NONE);
 
   register_init_routine(&h225_init_routine);
   h225_tap = register_tap("h225");

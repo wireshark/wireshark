@@ -111,6 +111,10 @@ void proto_register_h235(void) {
     add_oid_str_name(OID_TG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 70 - TG");
   /* H.235.7, Chapter 9.5 */
     add_oid_str_name(OID_SG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 71 - SG");
+  /* H.235.8, Chapter 4.2, Table 2 */
+    add_oid_str_name("0.0.8.235.0.4.91", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 91 - AES_CM_128_HMAC_SHA1_80");
+    add_oid_str_name("0.0.8.235.0.4.92", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 92 - AES_CM_128_HMAC_SHA1_32");
+    add_oid_str_name("0.0.8.235.0.4.93", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 93 - F8_128_HMAC_SHA1_80");
 }
 
 
@@ -120,23 +124,27 @@ void proto_reg_handoff_h235(void) {
   mikey_handle = find_dissector("mikey");
 
   /* H.235.7, Chapter 7.1, MIKEY operation at "session level" */
-  dissector_add_string("h245.gen_par", OID_MIKEY         "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PS      "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DHHMAC  "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PK_SIGN "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DH_SIGN "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY         "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PS      "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DHHMAC  "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PK_SIGN "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DH_SIGN "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/0", mikey_handle);
   /* H.235.7, Chapter 7.2, MIKEY operation at "media level" */
-  dissector_add_string("h245.gen_par", "EncryptionSync-76", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-72", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-73", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-74", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-75", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY         "-76", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PS      "-72", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DHHMAC  "-73", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PK_SIGN "-74", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DH_SIGN "-75", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/76", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/72", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/73", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/74", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/75", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY         "/nonCollapsing/76", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PS      "/nonCollapsing/72", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DHHMAC  "/nonCollapsing/73", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PK_SIGN "/nonCollapsing/74", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DH_SIGN "/nonCollapsing/75", mikey_handle);
+
+  /* H.235.8, Chapter 4.1.2, SrtpCryptoCapability transport */
+  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.235.0.4.90/nonCollapsingRaw", 
+                       new_create_dissector_handle(dissect_SrtpCryptoCapability_PDU, proto_h235));
 
 }
 

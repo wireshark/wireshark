@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h450.c                                                            */
+/* packet-h450.c                                                              */
 /* ../../tools/asn2wrs.py -c h450.cnf -s packet-h450-template H4501-Supplementary-ServiceAPDU-Structure.asn Addressing-Data-Elements.asn H225-generic-parameters-definition.asn Manufacturer-specific-service-extension-definition.asn H4501-General-Error-List.asn Call-Transfer-Operations.asn Call-Diversion-Operations.asn Call-Hold-Operations.asn Call-Park-Pickup-Operations.asn Call-Waiting-Operations.asn Message-Waiting-Indication-Operations.asn Name-Operations.asn Call-Completion-Operations.asn Call-Offer-Operations.asn Call-Intrusion-Operations.asn Common-Information-Operations.asn */
 
 /* Input file: packet-h450-template.c */
@@ -80,7 +80,7 @@ static int hf_h450_anyEntity = -1;                /* NULL */
 static int hf_h450_discardAnyUnrecognizedInvokePdu = -1;  /* NULL */
 static int hf_h450_clearCallIfAnyInvokePduNotRecognized = -1;  /* NULL */
 static int hf_h450_rejectAnyUnrecognizedInvokePdu = -1;  /* NULL */
-static int hf_h450_rosApdus = -1;                 /* SEQUENCE_SIZE_1_MAX_OF_ROS */
+static int hf_h450_rosApdus = -1;                 /* T_rosApdus */
 static int hf_h450_rosApdus_item = -1;            /* T_rosApdus_item */
 static int hf_h450_addressScreened_presentationAllowedAddress = -1;  /* AddressScreened */
 static int hf_h450_presentationRestricted = -1;   /* NULL */
@@ -477,7 +477,7 @@ static gint ett_h450_NetworkFacilityExtension = -1;
 static gint ett_h450_EntityType = -1;
 static gint ett_h450_InterpretationApdu = -1;
 static gint ett_h450_ServiceApdus = -1;
-static gint ett_h450_SEQUENCE_SIZE_1_MAX_OF_ROS = -1;
+static gint ett_h450_T_rosApdus = -1;
 static gint ett_h450_PresentedAddressScreened = -1;
 static gint ett_h450_PresentedAddressUnscreened = -1;
 static gint ett_h450_PresentedNumberScreened = -1;
@@ -952,14 +952,14 @@ dissect_h450_T_rosApdus_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const per_sequence_t h450_SEQUENCE_SIZE_1_MAX_OF_ROS_sequence_of[1] = {
+static const per_sequence_t h450_T_rosApdus_sequence_of[1] = {
   { &hf_h450_rosApdus_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h450_T_rosApdus_item },
 };
 
 static int
-dissect_h450_SEQUENCE_SIZE_1_MAX_OF_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h450_T_rosApdus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_h450_SEQUENCE_SIZE_1_MAX_OF_ROS, h450_SEQUENCE_SIZE_1_MAX_OF_ROS_sequence_of,
+                                                  ett_h450_T_rosApdus, h450_T_rosApdus_sequence_of,
                                                   1, NO_BOUND);
 
   return offset;
@@ -972,7 +972,7 @@ static const value_string h450_ServiceApdus_vals[] = {
 };
 
 static const per_choice_t h450_ServiceApdus_choice[] = {
-  {   0, &hf_h450_rosApdus       , ASN1_EXTENSION_ROOT    , dissect_h450_SEQUENCE_SIZE_1_MAX_OF_ROS },
+  {   0, &hf_h450_rosApdus       , ASN1_EXTENSION_ROOT    , dissect_h450_T_rosApdus },
   { 0, NULL, 0, NULL }
 };
 
@@ -5080,7 +5080,7 @@ void proto_register_h450(void) {
     { &hf_h450_rosApdus,
       { "rosApdus", "h450.rosApdus",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h450.SEQUENCE_SIZE_1_MAX_OF_ROS", HFILL }},
+        "h450.T_rosApdus", HFILL }},
     { &hf_h450_rosApdus_item,
       { "Item", "h450.rosApdus_item",
         FT_UINT32, BASE_DEC, VALS(h450_ros_ROS_vals), 0,
@@ -6520,7 +6520,7 @@ void proto_register_h450(void) {
     &ett_h450_EntityType,
     &ett_h450_InterpretationApdu,
     &ett_h450_ServiceApdus,
-    &ett_h450_SEQUENCE_SIZE_1_MAX_OF_ROS,
+    &ett_h450_T_rosApdus,
     &ett_h450_PresentedAddressScreened,
     &ett_h450_PresentedAddressUnscreened,
     &ett_h450_PresentedNumberScreened,

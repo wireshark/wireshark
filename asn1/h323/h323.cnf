@@ -1,0 +1,17 @@
+# h323.cnf
+# H.323 conformation file
+# 2007  Tomas Kukosa
+
+# $Id$
+
+#.IMPORT ../h225/h225-exp.cnf
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.PDU_NEW
+RasTunnelledSignallingMessage
+RobustnessData
+#.END

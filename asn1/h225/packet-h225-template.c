@@ -55,6 +55,7 @@
 #include <epan/h225-persistentdata.h>
 #include "packet-h235.h"
 #include "packet-h245.h"
+#include "packet-h323.h"
 #include "packet-q931.h"
 #include "packet-ssl.h"
 
@@ -83,6 +84,8 @@ static dissector_handle_t data_handle;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
 static dissector_table_t tp_dissector_table;
+static dissector_table_t gef_name_dissector_table;
+static dissector_table_t gef_content_dissector_table;
 
 
 static dissector_handle_t h245_handle=NULL;
@@ -291,6 +294,8 @@ void proto_register_h225(void) {
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
   tp_dissector_table = register_dissector_table("h225.tp", "H.225 TunnelledProtocol", FT_STRING, BASE_NONE);
+  gef_name_dissector_table = register_dissector_table("h225.gef.name", "H.225 Generic Extensible Framework (names)", FT_STRING, BASE_NONE);
+  gef_content_dissector_table = register_dissector_table("h225.gef.content", "H.225 Generic Extensible Framework", FT_STRING, BASE_NONE);
 
   register_init_routine(&h225_init_routine);
   h225_tap = register_tap("h225");

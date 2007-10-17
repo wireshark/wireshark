@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h235.c                                                            */
-/* ../../tools/asn2wrs.py -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* packet-h235.c                                                              */
+/* ../../tools/asn2wrs.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -65,6 +65,7 @@ int proto_h235 = -1;
 
 /*--- Included file: packet-h235-hf.c ---*/
 #line 1 "packet-h235-hf.c"
+static int hf_h235_SrtpCryptoCapability_PDU = -1;  /* SrtpCryptoCapability */
 static int hf_h235_nonStandardIdentifier = -1;    /* OBJECT_IDENTIFIER */
 static int hf_h235_data = -1;                     /* OCTET_STRING */
 static int hf_h235_halfkey = -1;                  /* BIT_STRING_SIZE_0_2048 */
@@ -571,7 +572,7 @@ static const per_sequence_t ENCRYPTED_sequence[] = {
 
 int
 dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "h235.cnf"
+#line 59 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -601,7 +602,7 @@ static const per_sequence_t SIGNED_sequence[] = {
 
 int
 dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "h235.cnf"
+#line 56 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -764,7 +765,7 @@ static const per_sequence_t ClearToken_sequence[] = {
 
 int
 dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "h235.cnf"
+#line 66 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -783,7 +784,7 @@ static const per_sequence_t HASHED_sequence[] = {
 
 int
 dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "h235.cnf"
+#line 62 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -866,7 +867,7 @@ static const per_choice_t CryptoToken_choice[] = {
 
 int
 dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "h235.cnf"
+#line 70 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -1015,7 +1016,7 @@ static const per_sequence_t SrtpCryptoCapability_sequence_of[1] = {
   { &hf_h235_SrtpCryptoCapability_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_SrtpCryptoInfo },
 };
 
-int
+static int
 dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
                                       ett_h235_SrtpCryptoCapability, SrtpCryptoCapability_sequence_of);
@@ -1100,6 +1101,17 @@ dissect_h235_SrtpKeys(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static int dissect_SrtpCryptoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_h235_SrtpCryptoCapability(tvb, offset, &asn1_ctx, tree, hf_h235_SrtpCryptoCapability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+
 
 /*--- End of included file: packet-h235-fn.c ---*/
 #line 71 "packet-h235-template.c"
@@ -1113,6 +1125,10 @@ void proto_register_h235(void) {
 
 /*--- Included file: packet-h235-hfarr.c ---*/
 #line 1 "packet-h235-hfarr.c"
+    { &hf_h235_SrtpCryptoCapability_PDU,
+      { "SrtpCryptoCapability", "h235.SrtpCryptoCapability",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h235.SrtpCryptoCapability", HFILL }},
     { &hf_h235_nonStandardIdentifier,
       { "nonStandardIdentifier", "h235.nonStandardIdentifier",
         FT_OID, BASE_NONE, NULL, 0,
@@ -1619,6 +1635,10 @@ void proto_register_h235(void) {
     add_oid_str_name(OID_TG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 70 - TG");
   /* H.235.7, Chapter 9.5 */
     add_oid_str_name(OID_SG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 71 - SG");
+  /* H.235.8, Chapter 4.2, Table 2 */
+    add_oid_str_name("0.0.8.235.0.4.91", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 91 - AES_CM_128_HMAC_SHA1_80");
+    add_oid_str_name("0.0.8.235.0.4.92", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 92 - AES_CM_128_HMAC_SHA1_32");
+    add_oid_str_name("0.0.8.235.0.4.93", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 93 - F8_128_HMAC_SHA1_80");
 }
 
 
@@ -1628,23 +1648,27 @@ void proto_reg_handoff_h235(void) {
   mikey_handle = find_dissector("mikey");
 
   /* H.235.7, Chapter 7.1, MIKEY operation at "session level" */
-  dissector_add_string("h245.gen_par", OID_MIKEY         "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PS      "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DHHMAC  "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PK_SIGN "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DH_SIGN "-0", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY         "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PS      "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DHHMAC  "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PK_SIGN "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DH_SIGN "/nonCollapsing/0", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/0", mikey_handle);
   /* H.235.7, Chapter 7.2, MIKEY operation at "media level" */
-  dissector_add_string("h245.gen_par", "EncryptionSync-76", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-72", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-73", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-74", mikey_handle);
-  dissector_add_string("h245.gen_par", "EncryptionSync-75", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY         "-76", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PS      "-72", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DHHMAC  "-73", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_PK_SIGN "-74", mikey_handle);
-  dissector_add_string("h245.gen_par", OID_MIKEY_DH_SIGN "-75", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/76", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/72", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/73", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/74", mikey_handle);
+  dissector_add_string("h245.gef.content", "EncryptionSync/75", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY         "/nonCollapsing/76", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PS      "/nonCollapsing/72", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DHHMAC  "/nonCollapsing/73", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_PK_SIGN "/nonCollapsing/74", mikey_handle);
+  dissector_add_string("h245.gef.content", "GenericCapability/" OID_MIKEY_DH_SIGN "/nonCollapsing/75", mikey_handle);
+
+  /* H.235.8, Chapter 4.1.2, SrtpCryptoCapability transport */
+  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.235.0.4.90/nonCollapsingRaw", 
+                       new_create_dissector_handle(dissect_SrtpCryptoCapability_PDU, proto_h235));
 
 }
 

@@ -16,8 +16,11 @@ ClearToken
 CryptoToken
 AuthenticationMechanism
 
-SrtpCryptoCapability
 SrtpKeys
+#.END
+
+#.PDU_NEW
+SrtpCryptoCapability
 #.END
 
 #.OMIT_ASSIGNMENT

@@ -20,9 +20,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=h235
+PROTOCOL_NAME = h235
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
+DISSECTOR_FILES = \
+	packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
 
 NEED_PACKET_PROTO_H = 1
@@ -53,5 +54,6 @@ EXTRA_CNF = \
 	../h225/h225-exp.cnf
 
 ../h225/h225-exp.cnf:
-	(cd ../h235 && $(MAKE_CNF_EXPORT))
+	(cd ../h225 && $(MAKE_CNF_EXPORT))
+
 

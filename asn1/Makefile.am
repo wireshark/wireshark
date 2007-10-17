@@ -43,6 +43,7 @@ SUBDIRS = \
 	h235		\
 	h245		\
 	h248		\
+	h323		\
 	h450		\
 	h450-ros	\
 	inap		\

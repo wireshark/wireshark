@@ -620,6 +620,75 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
   }
 #.END
 
+#=== Generic Extensible Framework =======================================================
+
+#.FN_HDR GenericData
+  void *priv_data = actx->private_data;
+  gef_ctx_t *gefx;
+
+  /* check if not inherited from FeatureDescriptor */
+  gefx = gef_ctx_get(actx->private_data);
+  if (!gefx) {
+    gefx = gef_ctx_alloc(NULL, "GenericData");
+    actx->private_data = gefx;
+  }
+#.FN_FTR 
+  actx->private_data = priv_data;
+#.END
+
+#.FN_HDR GenericData/parameters/_item
+  gef_ctx_t *parent_gefx;
+
+  parent_gefx = gef_ctx_get(actx->private_data);
+  actx->private_data = gef_ctx_alloc(parent_gefx, NULL);
+#.FN_FTR
+  actx->private_data = parent_gefx;
+#.END
+
+#----------------------------------------------------------------------------------------
+#.FN_HDR FeatureDescriptor
+  void *priv_data = actx->private_data;
+  actx->private_data = gef_ctx_alloc(NULL, "FeatureDescriptor");
+#.FN_FTR 
+  actx->private_data = priv_data;
+#.END
+#----------------------------------------------------------------------------------------
+
+#.FN_HDR GenericIdentifier
+  gef_ctx_t *gefx;
+#.FN_FTR
+  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG GenericIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    actx->pinfo->private_data = actx;
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree);
+  }
+  actx->private_data = gefx;  /* subdissector could overwrite it */
+#.END
+
+#.FN_BODY GenericIdentifier/standard  VAL_PTR = &value_int
+  gint32 value_int = -1;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) gefx->id = ep_strdup_printf("%%d", value_int);
+#.END
+
+#.FN_BODY GenericIdentifier/oid  FN_VARIANT = _str  VAL_PTR = &oid_str
+  const gchar *oid_str = NULL;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) gefx->id = oid_str;
+#.END
+
+
+#=== end of GEF =========================================================================
+
 #.TYPE_ATTR
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
