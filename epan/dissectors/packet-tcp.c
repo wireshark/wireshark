@@ -537,18 +537,24 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 
 	/* if this is the first segment for this list we need to store the
 	 * base_seq
+	 *
+	 * Start relative seq and ack numbers at 1 if this
+	 * is not a SYN packet. This makes the relative 
+	 * seq/ack numbers to be displayed correctly in the
+	 * event that the SYN or SYN/ACK packet is not seen
+	 * (this solves bug 1542)
 	 */
 	if(tcpd->fwd->base_seq==0){
-		tcpd->fwd->base_seq=seq;
-		/* Only store reverse sequence if this isn't a handshake.
- 	 	 * There's no guarantee that the ACK field of a SYN
- 	 	 * contains zeros; get the ISN from the SYNACK instead.
- 	 	 */
-		if(tcpd->rev->base_seq==0){
-			if (!flags & TH_SYN){
-				tcpd->rev->base_seq=ack;
-			}
-		}
+		tcpd->fwd->base_seq = (flags & TH_SYN) ? seq : seq-1;
+	}
+
+	/* Only store reverse sequence if this isn't the SYN
+  	 * There's no guarantee that the ACK field of a SYN
+  	 * contains zeros; get the ISN from the first segment
+	 * with the ACK bit set instead (usually the SYN/ACK).
+	 */
+	if( (tcpd->rev->base_seq==0) && (flags & TH_ACK) ){
+		tcpd->rev->base_seq = (flags & TH_SYN) ? ack : ack-1;
 	}
 
 
