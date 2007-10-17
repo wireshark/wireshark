@@ -313,6 +313,7 @@ static gint ett_qsig_unknown_extension = -1;
 /* Preferences */
 
 /* Subdissectors */
+static dissector_handle_t q931_handle = NULL; 
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
@@ -645,6 +646,7 @@ void proto_reg_handoff_qsig(void) {
   dissector_handle_t qsig_err_handle;
   dissector_handle_t qsig_ie_handle;
 
+  q931_handle = find_dissector("q931");
   data_handle = find_dissector("data");
 
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
@@ -665,6 +667,9 @@ void proto_reg_handoff_qsig(void) {
   qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs5, proto_qsig);
   /* SSIG-BC - Party category */
   dissector_add("q931.ie", CS5 | QSIG_IE_PARTY_CATEGORY, qsig_ie_handle);
+
+  /* RFC 3204, 3.2 QSIG Media Type */
+  dissector_add_string("media_type", "application/qsig", q931_handle);
 
 }
 

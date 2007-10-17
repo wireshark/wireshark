@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-qsig.c                                                            */
+/* packet-qsig.c                                                              */
 /* ../../tools/asn2wrs.py -e -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
 
 /* Input file: packet-qsig-template.c */
@@ -2024,6 +2024,7 @@ static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 /* Preferences */
 
 /* Subdissectors */
+static dissector_handle_t q931_handle = NULL; 
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
@@ -11899,7 +11900,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 325 "packet-qsig-template.c"
+#line 326 "packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12117,7 +12118,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 334 "packet-qsig-template.c"
+#line 335 "packet-qsig-template.c"
 };                                 
 
 typedef struct _qsig_err_t {
@@ -12298,7 +12299,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 343 "packet-qsig-template.c"
+#line 344 "packet-qsig-template.c"
 };                                 
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -15811,7 +15812,7 @@ void proto_register_qsig(void) {
         "qsig.Extension", HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 618 "packet-qsig-template.c"
+#line 619 "packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16262,7 +16263,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 626 "packet-qsig-template.c"
+#line 627 "packet-qsig-template.c"
   };
 
   /* Register protocol and dissector */
@@ -16285,6 +16286,7 @@ void proto_reg_handoff_qsig(void) {
   dissector_handle_t qsig_err_handle;
   dissector_handle_t qsig_ie_handle;
 
+  q931_handle = find_dissector("q931");
   data_handle = find_dissector("data");
 
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
@@ -16305,6 +16307,9 @@ void proto_reg_handoff_qsig(void) {
   qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs5, proto_qsig);
   /* SSIG-BC - Party category */
   dissector_add("q931.ie", CS5 | QSIG_IE_PARTY_CATEGORY, qsig_ie_handle);
+
+  /* RFC 3204, 3.2 QSIG Media Type */
+  dissector_add_string("media_type", "application/qsig", q931_handle);
 
 }
 
