@@ -9,17 +9,15 @@
 ; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
 ;
 EXPORTS
-abs_time_to_str
 abs_time_secs_to_str
+abs_time_to_str
+add_new_data_source
 address_to_str
 address_to_str_buf
-add_new_data_source
-AirPDcapDestroyContext
-AirPDcapInitContext
 AdmissionRejectReason_vals      DATA
 airpdcap_ctx                    DATA
-byte_array_dup
-byte_array_equal
+AirPDcapDestroyContext
+AirPDcapInitContext
 ansi_a_bsmap_strings     DATA
 ansi_a_dtap_strings     DATA
 ansi_a_ios401_bsmap_strings     DATA
@@ -34,8 +32,10 @@ ber_decode_as_foreach
 ber_set_filename
 build_column_format_array
 build_follow_filter
-bytes_to_str_punct
+byte_array_dup
+byte_array_equal
 bytes_to_str
+bytes_to_str_punct
 bytestring_to_str
 call_dissector
 camel_opr_code_strings          DATA
@@ -76,14 +76,14 @@ col_clear
 col_format_desc
 col_format_to_string
 col_get_writable
-col_prepend_fstr
 col_prepend_fence_fstr
-col_setup
+col_prepend_fstr
 col_set_cls_time
 col_set_fence
 col_set_str
 col_set_time
 col_set_writable
+col_setup
 CommandCode_vals	DATA
 conversation_add_proto_data
 conversation_delete_proto_data
@@ -111,8 +111,8 @@ dcom_interface_new
 dcom_variant_type_vals			DATA
 decode_bitfield_value
 decode_boolean_bitfield
-decode_enumerated_bitfield
 decode_enumerated_bitfield_shifted
+decode_enumerated_bitfield
 decode_numeric_bitfield
 deletefile
 dfilter_apply_edt
@@ -125,8 +125,108 @@ dfilter_macro_foreach
 dfilter_macro_get_uat
 DisengageReason_vals            DATA
 DisengageRejectReason_vals      DATA
-display_signed_time
 display_epoch_time
+display_signed_time
+dissect_ber_bitstring
+dissect_ber_boolean
+dissect_ber_boolean_value
+dissect_ber_choice
+dissect_ber_GeneralizedTime
+dissect_ber_identifier
+dissect_ber_integer
+dissect_ber_integer64
+dissect_ber_length
+dissect_ber_null
+dissect_ber_object_identifier
+dissect_ber_object_identifier_str
+dissect_ber_octet_string
+dissect_ber_old_choice
+dissect_ber_old_sequence_of
+dissect_ber_old_sequence
+dissect_ber_restricted_string
+dissect_ber_sequence_of
+dissect_ber_sequence
+dissect_ber_set_of
+dissect_ber_tagged_type
+dissect_dcerpc_uint16
+dissect_dcerpc_uint32
+dissect_dcerpc_uint64
+dissect_dcerpc_uint8
+dissect_dcerpc_uuid_t
+dissect_dcom_BSTR
+dissect_dcom_dcerpc_pointer
+dissect_dcom_dcerpc_array_size
+dissect_dcom_HRESULT_item
+dissect_dcom_HRESULT
+dissect_dcom_indexed_HRESULT
+dissect_dcom_indexed_LPWSTR
+dissect_dcom_indexed_DWORD
+dissect_dcom_LPWSTR
+dissect_dcom_MInterfacePointer
+dissect_dcom_PMInterfacePointer
+dissect_dcom_SAFEARRAY
+dissect_dcom_simple_rqst
+dissect_dcom_simple_resp
+dissect_dcom_that
+dissect_dcom_this
+dissect_dcom_VARIANT
+dissect_dcom_VARTYPE
+dissect_h245_H223Capability
+dissect_IDispatch_GetIDsOfNames_resp
+dissect_IDispatch_GetTypeInfo_resp
+dissect_IDispatch_GetTypeInfo_rqst
+dissect_IDispatch_GetTypeInfoCount_resp
+dissect_IDispatch_GetIDsOfNames_rqst
+dissect_IDispatch_Invoke_rqst
+dissect_IDispatch_Invoke_resp
+dissect_ndr_double
+dissect_ndr_duint32
+dissect_ndr_uint16
+dissect_ndr_uint32
+dissect_ndr_uint8
+dissect_ndr_uuid_t
+dissect_nt_64bit_time
+dissect_per_bit_string
+dissect_per_BMPString
+dissect_per_boolean
+dissect_per_choice
+dissect_per_constrained_sequence_of
+dissect_per_constrained_set_of
+dissect_per_constrained_integer
+dissect_per_enumerated
+dissect_per_GeneralString
+dissect_per_IA5String
+dissect_per_integer
+dissect_per_null
+dissect_per_NumericString
+dissect_per_object_identifier_str
+dissect_per_object_identifier
+dissect_per_octet_string
+dissect_per_PrintableString
+dissect_per_restricted_character_string
+dissect_per_sequence_of
+dissect_per_sequence
+dissect_per_set_of
+dissect_per_VisibleString
+dissect_q932_PartyNumber              
+dissect_q932_PartySubaddress        
+dissect_q932_PresentedNumberUnscreened
+dissect_q932_PresentedNumberScreened  
+dissect_qsig_na_Name
+dissect_rpc_array
+dissect_rpc_bool
+dissect_rpc_bytes
+dissect_rpc_data
+dissect_rpc_indir_call
+dissect_rpc_indir_reply
+dissect_rpc_list
+dissect_rpc_opaque_data
+dissect_rpc_string
+dissect_rpc_uint32
+dissect_rpc_uint64
+dissect_tpkt_encap
+dissect_unknown_ber
+dissect_xdlc_control
 dissector_add
 dissector_add_handle
 dissector_add_string
@@ -148,145 +248,35 @@ dissector_table_foreach_handle
 dissector_try_heuristic
 dissector_try_port
 dissector_try_string
-dissect_ber_bitstring
-dissect_ber_boolean
-dissect_ber_boolean_value
-dissect_ber_choice
-dissect_ber_GeneralizedTime
-dissect_ber_identifier
-dissect_ber_integer
-dissect_ber_integer64
-dissect_ber_length
-dissect_ber_null
-dissect_ber_object_identifier
-dissect_ber_object_identifier_str
-dissect_ber_octet_string
-dissect_ber_old_choice
-dissect_ber_old_sequence
-dissect_ber_old_sequence_of
-dissect_ber_restricted_string
-dissect_ber_sequence
-dissect_ber_sequence_of
-dissect_ber_set_of
-dissect_ber_tagged_type
-dissect_unknown_ber
-dissect_dcerpc_uint8
-dissect_dcerpc_uint16
-dissect_dcerpc_uint32
-dissect_dcerpc_uint64
-dissect_dcerpc_uuid_t
-dissect_dcom_BSTR
-dissect_dcom_dcerpc_array_size
-dissect_dcom_dcerpc_pointer
-dissect_dcom_HRESULT
-dissect_dcom_HRESULT_item
-dissect_dcom_indexed_DWORD
-dissect_dcom_indexed_HRESULT
-dissect_dcom_indexed_LPWSTR
-dissect_dcom_LPWSTR
-dissect_dcom_MInterfacePointer
-dissect_dcom_PMInterfacePointer
-dissect_dcom_SAFEARRAY
-dissect_dcom_simple_resp
-dissect_dcom_simple_rqst
-dissect_dcom_that
-dissect_dcom_this
-dissect_dcom_VARIANT
-dissect_dcom_VARTYPE
-dissect_h245_H223Capability
-dissect_IDispatch_Invoke_resp
-dissect_IDispatch_Invoke_rqst
-dissect_IDispatch_GetIDsOfNames_resp
-dissect_IDispatch_GetIDsOfNames_rqst
-dissect_IDispatch_GetTypeInfo_resp
-dissect_IDispatch_GetTypeInfo_rqst
-dissect_IDispatch_GetTypeInfoCount_resp
-dissect_ndr_double
-dissect_ndr_duint32
-dissect_ndr_uint8
-dissect_ndr_uint16
-dissect_ndr_uint32
-dissect_ndr_uuid_t
-dissect_nt_64bit_time
-dissect_per_bit_string
-dissect_per_BMPString
-dissect_per_boolean
-dissect_per_choice
-dissect_per_constrained_integer
-dissect_per_constrained_sequence_of
-dissect_per_constrained_set_of
-dissect_per_enumerated
-dissect_per_GeneralString
-dissect_per_IA5String
-dissect_per_integer
-dissect_per_null
-dissect_per_NumericString
-dissect_per_object_identifier
-dissect_per_object_identifier_str
-dissect_per_octet_string
-dissect_per_PrintableString
-dissect_per_restricted_character_string
-dissect_per_sequence
-dissect_per_sequence_of
-dissect_per_set_of
-dissect_per_VisibleString
-dissect_q932_PresentedNumberScreened  
-dissect_q932_PresentedNumberUnscreened
-dissect_q932_PartyNumber              
-dissect_q932_PartySubaddress        
-dissect_qsig_na_Name
-dissect_rpc_array
-dissect_rpc_bool
-dissect_rpc_bytes
-dissect_rpc_data
-dissect_rpc_indir_call
-dissect_rpc_indir_reply
-dissect_rpc_list
-dissect_rpc_opaque_data
-dissect_rpc_string
-dissect_rpc_uint32
-dissect_rpc_uint64
-dissect_tpkt_encap
-dissect_xdlc_control
 draw_tap_listeners
 dscp_vals						DATA
 dtbl_entry_get_handle
 dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
 EBCDIC_to_ASCII1
-ep_init_chunk
-se_init_chunk
-ep_alloc
-se_alloc
-ep_alloc0
-se_alloc0
-ep_free_all
-ep_strdup
-se_strdup
-ep_strdup_printf
-ep_strdup_vprintf
-se_strdup_printf
-se_strdup_vprintf
-ep_strndup
-se_strndup
-ep_strsplit
-ep_memdup
-se_memdup
-ep_stack_new
-ep_stack_push
-ep_stack_pop
-ep_tvb_memdup
-se_tree_create
-pe_tree_create
-se_tree_create_non_persistent
 emem_tree_insert32
 emem_tree_insert32_array
 emem_tree_insert_string
 emem_tree_lookup32
-emem_tree_lookup32_le
 emem_tree_lookup32_array
+emem_tree_lookup32_le
 emem_tree_lookup_string
 empty_tcp_stream           DATA
+ep_alloc
+ep_alloc0
+ep_free_all
+ep_init_chunk
+ep_memdup
+ep_stack_new
+ep_stack_pop
+ep_stack_push
+ep_strdup
+ep_strdup_printf
+ep_strdup_vprintf
+ep_strndup
+ep_strsplit
+ep_tvb_memdup
+epan_base64_decode
 epan_cleanup
 epan_dissect_fill_in_columns
 epan_dissect_free
@@ -295,22 +285,21 @@ epan_dissect_prime_dfilter
 epan_dissect_run
 epan_get_version
 epan_init
-epan_base64_decode
-eth_stdio_fopen
 epan_strcasestr
+eth_stdio_fopen
 ether_to_str
 ex_opt_add
 ex_opt_count
-ex_opt_get_nth
 ex_opt_get_next
+ex_opt_get_nth
 except_alloc
 except_deinit
 except_free
 except_init
 except_pop
 except_rethrow
-except_setup_try
 except_set_allocator
+except_setup_try
 except_take_data
 except_throw
 except_throwd
@@ -323,11 +312,11 @@ expert_severity_vals            DATA
 FacilityReason_vals             DATA
 fc_fc4_val                      DATA
 fetch_tapped_data
-filesystem_opt
+file_exists
 file_open_error_message
 file_write_error_message
-file_exists
 files_identical
+filesystem_opt
 find_circuit
 find_conversation
 find_dissector
@@ -346,8 +335,8 @@ fragment_add_multiple_ok
 fragment_add_seq
 fragment_add_seq_check
 fragment_add_seq_next
-fragment_end_seq_next
 fragment_delete
+fragment_end_seq_next
 fragment_get
 fragment_get_reassembled_id
 fragment_get_tot_len
@@ -365,21 +354,21 @@ ftype_can_matches
 ftype_can_ne
 ftype_can_slice
 ftype_pretty_name
-fvalue_t_free_list              DATA
+funnel_get_funnel_ops
+funnel_register_all_menus
+funnel_register_menu
+funnel_set_funnel_ops
 fvalue_from_unparsed
 fvalue_get
 fvalue_get_floating
-fvalue_get_uinteger
-fvalue_get_sinteger
 fvalue_get_integer64
+fvalue_get_sinteger
+fvalue_get_uinteger
+fvalue_t_free_list              DATA
 fvalue_to_string_repr
-funnel_get_funnel_ops
-funnel_set_funnel_ops
-funnel_register_menu
-funnel_register_all_menus
+g_resolv_flags                  DATA
 GatekeeperRejectReason_vals     DATA
 gcamel_StatSRT                  DATA
-gtcap_StatSRT                   DATA
 get_addr_name
 get_asn1_ctx
 get_basename
@@ -418,17 +407,17 @@ get_column_width_string
 get_credential_info
 get_cur_groupname
 get_cur_username
-get_datafile_path
 get_datafile_dir
+get_datafile_path
 get_dirname
-get_dissector_table_base
 get_dissector_table_selector_type
 get_dissector_table_ui_name
+get_dissector_table_base
 get_ether_name
-get_hostname
-get_hostname6
 get_host_ipaddr
 get_host_ipaddr6
+get_hostname
+get_hostname6
 get_key_string
 get_manuf_name_if_known
 get_persconffile_path
@@ -442,25 +431,26 @@ get_tcp_port
 get_tempfile_path
 get_udp_port
 getenv_utf8
+golay_decode
 golay_encode
 golay_errors
-golay_decode
 gsm_a_bssmap_msg_strings        DATA
 gsm_a_dtap_msg_cc_strings       DATA
 gsm_a_dtap_msg_gmm_strings      DATA
 gsm_a_dtap_msg_mm_strings       DATA
 gsm_a_dtap_msg_rr_strings       DATA
-gsm_a_dtap_msg_sms_strings      DATA
 gsm_a_dtap_msg_sm_strings       DATA
+gsm_a_dtap_msg_sms_strings      DATA
 gsm_a_dtap_msg_ss_strings       DATA
 gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
+gtcap_StatSRT                   DATA
 guid_to_str
 guids_add_guid
-guids_init
 guids_get_guid_name
+guids_init
 guids_resolve_guid_to_str
-g_resolv_flags                  DATA
+h225_ReleaseCompleteReason_vals      DATA
 h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
 have_tap_listeners
@@ -474,29 +464,29 @@ hf_text_only                    DATA
 host_ip_af
 host_name_lookup_process
 http_dissector_add
-ieee802a_add_oui
 ieee80211_chan_to_mhz
 ieee80211_mhz_to_chan
 ieee80211_mhz_to_str
+ieee802a_add_oui
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
 init_dissection
 init_progfile_dir
 ip6_to_str
-ipv4_get_net_order_addr
 ip_to_str
 ipprotostr
-isup_message_type_value         DATA
-isup_message_type_value_acro    DATA
+ipv4_get_net_order_addr
 is_big_endian
 is_tpkt
+isup_message_type_value_acro    DATA
+isup_message_type_value         DATA
 list_stat_cmd_args
 llc_add_oui
 LocationRejectReason_vals       DATA
 make_printable_string
 match_strrval
-match_strval
 match_strrval_idx
+match_strval
 match_strval_idx
 md5_append
 md5_finish
@@ -520,27 +510,30 @@ nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
 offset_from_real_beginning
-oid_has_dissector
-oid_subid2encoded
-oid_string2encoded
-oid_encoded2subid
-oid_string2subid
-oid_encoded2string
-oid_subid2string
-oid_resolved
-oid_resolved_from_encoded
-oid_resolved_from_string
-oid_both
-oid_both_from_encoded
-oid_both_from_string
-oid_get
-oid_get_from_encoded
-oid_get_from_string
 oid_add
 oid_add_from_encoded
 oid_add_from_string
+oid_both
+oid_both_from_encoded
+oid_both_from_string
+oid_encoded2string
+oid_encoded2subid
+oid_get
+oid_get_from_encoded
+oid_get_from_string
+oid_has_dissector
+oid_resolved
+oid_resolved_from_encoded
+oid_resolved_from_string
+oid_string2encoded
+oid_string2subid
+oid_subid2encoded
+oid_subid2string
 other_decode_bitfield_value
+p_add_proto_data
+p_get_proto_data
 parse_key_string
+pe_tree_create
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA
@@ -549,8 +542,8 @@ prefs_apply_all
 prefs_find_module
 prefs_get_title_by_name
 prefs_is_registered_protocol
-prefs_modules_foreach
 prefs_module_list_foreach
+prefs_modules_foreach
 prefs_pref_foreach
 prefs_register_bool_preference
 prefs_register_enum_preference
@@ -565,7 +558,6 @@ prefs_register_uint_preference
 prefs_set_pref
 process_reassembled_data
 process_stat_cmd_arg
-protocols_module                DATA
 proto_all_finfos
 proto_can_match_selected
 proto_can_toggle_protocol
@@ -575,8 +567,8 @@ proto_find_field_from_offset
 proto_find_finfo
 proto_frame                     DATA
 proto_get_finfo_ptr_array
-proto_get_first_protocol
 proto_get_first_protocol_field
+proto_get_first_protocol
 proto_get_id_by_filter_name
 proto_get_next_protocol
 proto_get_next_protocol_field
@@ -588,8 +580,8 @@ proto_item_add_subtree
 proto_item_append_text
 proto_item_fill_label
 proto_item_get_len
-proto_item_get_parent
 proto_item_get_parent_nth
+proto_item_get_parent
 proto_item_get_subtree
 proto_item_set_end
 proto_item_set_expert_flags
@@ -599,91 +591,90 @@ proto_malformed
 proto_register_field_array
 proto_register_protocol
 proto_register_subtree_array
-proto_registrar_dump_fields
 proto_registrar_dump_protocols
 proto_registrar_dump_values
-proto_registrar_get_abbrev
-proto_registrar_get_byname
+proto_registrar_dump_fields
 proto_registrar_get_ftype
+proto_registrar_get_byname
 proto_registrar_get_nth
 proto_registrar_get_parent
+proto_registrar_get_abbrev
 proto_registrar_is_protocol
 proto_registrar_n
 proto_set_cant_toggle
 proto_set_decoding
 proto_tree_add_bitmask
-proto_tree_add_boolean
 proto_tree_add_boolean_format
-proto_tree_add_boolean_format_value
 proto_tree_add_boolean_hidden
-proto_tree_add_bytes
+proto_tree_add_boolean_format_value
+proto_tree_add_boolean
+proto_tree_add_bytes_hidden
 proto_tree_add_bytes_format
 proto_tree_add_bytes_format_value
-proto_tree_add_bytes_hidden
+proto_tree_add_bytes
 proto_tree_add_debug_text
 proto_tree_add_double
 proto_tree_add_double_format
 proto_tree_add_double_format_value
 proto_tree_add_double_hidden
-proto_tree_add_ether
 proto_tree_add_ether_format
-proto_tree_add_ether_format_value
+proto_tree_add_ether
 proto_tree_add_ether_hidden
-proto_tree_add_float
+proto_tree_add_ether_format_value
 proto_tree_add_float_format
 proto_tree_add_float_format_value
 proto_tree_add_float_hidden
+proto_tree_add_float
 proto_tree_add_guid
-proto_tree_add_guid_format
-proto_tree_add_guid_format_value
 proto_tree_add_guid_hidden
+proto_tree_add_guid_format_value
+proto_tree_add_guid_format
 proto_tree_add_int
+proto_tree_add_int64_format_value
+proto_tree_add_int64
+proto_tree_add_int64_format
 proto_tree_add_int_format
 proto_tree_add_int_format_value
 proto_tree_add_int_hidden
-proto_tree_add_int64
-proto_tree_add_int64_format
-proto_tree_add_int64_format_value
 proto_tree_add_ipv4
+proto_tree_add_ipv4_hidden
 proto_tree_add_ipv4_format
 proto_tree_add_ipv4_format_value
-proto_tree_add_ipv4_hidden
 proto_tree_add_ipv6
-proto_tree_add_ipv6_format
 proto_tree_add_ipv6_format_value
 proto_tree_add_ipv6_hidden
+proto_tree_add_ipv6_format
 proto_tree_add_ipxnet
 proto_tree_add_ipxnet_format
-proto_tree_add_ipxnet_format_value
 proto_tree_add_ipxnet_hidden
+proto_tree_add_ipxnet_format_value
 proto_tree_add_item
 proto_tree_add_item_hidden
 proto_tree_add_none_format
 proto_tree_add_protocol_format
-proto_tree_add_string
 proto_tree_add_string_format
 proto_tree_add_string_format_value
 proto_tree_add_string_hidden
+proto_tree_add_string
 proto_tree_add_text
 proto_tree_add_time
+proto_tree_add_time_hidden
 proto_tree_add_time_format
 proto_tree_add_time_format_value
-proto_tree_add_time_hidden
 proto_tree_add_uint
-proto_tree_add_uint_format
-proto_tree_add_uint_format_value
-proto_tree_add_uint_hidden
 proto_tree_add_uint64
 proto_tree_add_uint64_format
 proto_tree_add_uint64_format_value
+proto_tree_add_uint_format_value
+proto_tree_add_uint_format
+proto_tree_add_uint_hidden
 proto_tree_children_foreach
 proto_tree_get_parent
 proto_tree_get_root
 proto_tree_move_item
-p_add_proto_data
-p_get_proto_data
-q931_cause_code_vals           DATA
+protocols_module                DATA
 q850_cause_code_vals           DATA		
+q931_cause_code_vals           DATA
 q931_message_type_vals         DATA
 range_convert_range
 range_convert_str
@@ -704,23 +695,22 @@ register_ber_oid_syntax
 register_ber_syntax_dissector
 register_count
 register_dissector
-register_dissector_table
 register_dissector_filter
+register_dissector_table
 register_final_registration_routine
 register_giop_user
 register_giop_user_module
 register_heur_dissector_list
 register_init_routine
-register_postseq_cleanup_routine
 register_postdissector
+register_postseq_cleanup_routine
 register_stat_cmd_arg
 register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
-h225_ReleaseCompleteReason_vals      DATA
-relinquish_special_privs_perm
-rel_time_to_str
 rel_time_to_secs_str
+rel_time_to_str
+relinquish_special_privs_perm
 remove_tap_listener
 report_failure
 report_open_failure
@@ -731,33 +721,43 @@ rose_ctx_clean_data
 rose_ctx_init
 rpc_init_proc_table
 rpc_init_prog
-rpc_procs                       DATA
 rpc_proc_name
-rpc_progs                       DATA
+rpc_procs                       DATA
 rpc_prog_hf
 rpc_prog_name
+rpc_progs                       DATA
 rpc_roundup
 rtcp_add_address
 rtp_add_address
 rtp_free_hash_dyn_payload
-rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
+rtp_payload_type_vals           DATA
 running_in_build_directory
 running_with_special_privs
 rval_to_str
 sccp_message_type_acro_values		DATA
 scsi_mmc_vals					DATA
-scsi_smc_vals					DATA
-scsi_sbc_vals					DATA
-scsi_ssc_vals					DATA
 scsi_osd_vals					DATA
+scsi_sbc_vals					DATA
+scsi_smc_vals					DATA
+scsi_ssc_vals					DATA
+se_alloc
+se_alloc0
+se_init_chunk
+se_memdup
+se_strdup
+se_strdup_printf
+se_strdup_vprintf
+se_strndup
+se_tree_create
+se_tree_create_non_persistent
 set_actual_length
 show_fragment_seq_tree
 show_fragment_tree
 sid_name_snooping               DATA
 sid_name_table                  DATA
-smb_cmd_vals                    DATA
 smb2_cmd_vals                    DATA
+smb_cmd_vals                    DATA
 sminmpec_values                 DATA
 ssl_dissector_add
 ssl_dissector_delete
@@ -768,8 +768,8 @@ stats_tree_branch_max_namelen
 stats_tree_branch_to_str
 stats_tree_create_node
 stats_tree_create_node_by_pname
-stats_tree_create_pivot
 stats_tree_create_pivot_by_pname
+stats_tree_create_pivot
 stats_tree_create_range_node
 stats_tree_free
 stats_tree_get_abbr
@@ -794,8 +794,8 @@ stream_process_reassembled
 string_to_name_resolve
 sua_co_class_type_acro_values	DATA
 swaptab
-t30_facsimile_control_field_vals        DATA
 t30_facsimile_control_field_vals_short  DATA
+t30_facsimile_control_field_vals        DATA
 t38_T30_data_vals                   DATA
 t38_T30_indicator_vals		DATA
 T_h323_message_body_vals	DATA
@@ -805,25 +805,25 @@ tap_queue_packet
 tcp_dissect_pdus
 test_for_directory
 test_for_fifo
+tfs_accept_reject               DATA
+tfs_ack_nack                    DATA
+tfs_active_inactive             DATA
+tfs_allow_block                 DATA
+tfs_capable_not_capable         DATA
+tfs_command_response            DATA
+tfs_enabled_disabled            DATA
+tfs_found_not_found             DATA
+tfs_more_nomore                 DATA
+tfs_odd_even                    DATA
+tfs_ok_error                    DATA
+tfs_on_off                      DATA
+tfs_present_absent              DATA
+tfs_restricted_allowed          DATA
+tfs_set_notset                  DATA
+tfs_success_fail                DATA
+tfs_supported_not_supported     DATA
 tfs_true_false                  DATA
 tfs_yes_no                      DATA
-tfs_set_notset                  DATA
-tfs_enabled_disabled            DATA
-tfs_ok_error                    DATA
-tfs_success_fail                DATA
-tfs_on_off                      DATA
-tfs_ack_nack                    DATA
-tfs_odd_even                    DATA
-tfs_allow_block                 DATA
-tfs_restricted_allowed          DATA
-tfs_accept_reject               DATA
-tfs_more_nomore                 DATA
-tfs_present_absent              DATA
-tfs_active_inactive             DATA
-tfs_found_not_found             DATA
-tfs_command_response            DATA
-tfs_capable_not_capable         DATA
-tfs_supported_not_supported     DATA
 time_msecs_to_str
 time_secs_to_str
 timestamp_get_precision
@@ -851,10 +851,10 @@ tvb_get_ipv6
 tvb_get_letoh24
 tvb_get_letoh64
 tvb_get_letohguid
-tvb_get_letohl
-tvb_get_letohs
 tvb_get_letohieee_double
 tvb_get_letohieee_float
+tvb_get_letohl
+tvb_get_letohs
 tvb_get_nstringz
 tvb_get_nstringz0
 tvb_get_ntoh24
@@ -887,16 +887,16 @@ tvb_strsize
 tvb_uncompress
 uat_add_record
 uat_clear
-uat_fld_chk_str
-uat_fld_chk_proto
+uat_fld_chk_enum
 uat_fld_chk_num_dec
 uat_fld_chk_num_hex
-uat_fld_chk_enum
+uat_fld_chk_proto
 uat_fld_chk_range
-uat_fld_chk_str_isprint
+uat_fld_chk_str
 uat_fld_chk_str_isalpha
 uat_fld_chk_str_isalnum
 uat_fld_chk_str_isdigit
+uat_fld_chk_str_isprint
 uat_fld_chk_str_isxdigit
 uat_foreach_table
 uat_load
@@ -907,11 +907,11 @@ uat_swap
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes
-utf_8to16
 utf_16to8
+utf_8to16
+val_to_str
 vals_pdu_type                   DATA
 vals_status                     DATA
-val_to_str
 value_is_in_range
 write_prefs
 ws_strsplit
