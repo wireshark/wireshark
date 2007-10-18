@@ -14,7 +14,6 @@ TransportAddress         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h
 
 #----------------------------------------------------------------------------------------
 #.EXPORTS  ONLY_VALS WS_VAR NO_PROT_PREFIX
-RasMessage			WITH_VALS 
 H323-UU-PDU/h323-message-body
 FacilityReason
 GatekeeperRejectReason
@@ -29,6 +28,7 @@ LocationRejectReason
 RegistrationRejectReason
 
 #.EXPORTS
+RasMessage  WS_VAR
 NonStandardParameter
 PublicTypeOfNumber
 PrivateTypeOfNumber
@@ -60,7 +60,15 @@ SupportedProtocols
 GatekeeperIdentifier
 ServiceControlSession
 ReleaseCompleteReason  WS_VAR
+ExtendedAliasAddress_PDU
 #.END
+
+#.PDU_NEW
+H323-UserInformation
+RasMessage
+ExtendedAliasAddress
+#.END
+
 #----------------------------------------------------------------------------------------
 
 #.OMIT_ASSIGNMENT
@@ -278,7 +286,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 %(DEFAULT_BODY)s
 	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
 		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "RAS: %%s ",
-			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
+			val_to_str(rasmessage_value, h225_RasMessage_vals, "<unknown>"));
 	}
 
 	h225_pi->msg_tag = rasmessage_value;

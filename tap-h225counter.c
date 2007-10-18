@@ -242,7 +242,7 @@ h225counter_draw(void *phs)
 	printf("RAS-Messages:\n");
 	for(i=0;i<=RAS_MSG_TYPES;i++) {
 		if(hs->ras_msg[i]!=0) {
-			printf("  %s : %u\n", val_to_str(i,RasMessage_vals,"unknown ras-messages  "), hs->ras_msg[i]);
+			printf("  %s : %u\n", val_to_str(i,h225_RasMessage_vals,"unknown ras-messages  "), hs->ras_msg[i]);
 			/* reason counter */
 			switch(i) {
 			case 2: /* GRJ */

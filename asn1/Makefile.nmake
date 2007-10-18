@@ -85,6 +85,7 @@ per: \
 	h323	\
 	h450	\
 	h450-ros	\
+	h460	\
 	nbap	\
 	mpeg-audio	\
 	mpeg-pes	\
@@ -161,6 +162,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd h450-ros
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd h460
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd inap
@@ -411,6 +415,11 @@ h450::
 
 h450-ros::
 	cd h450-ros
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+h460::
+	cd h460
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

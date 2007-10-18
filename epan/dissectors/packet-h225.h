@@ -104,7 +104,7 @@ extern const value_string h225_PrivateTypeOfNumber_vals[];
 extern const value_string h225_IntegrityMechanism_vals[];
 extern const value_string h225_CryptoH323Token_vals[];
 extern const value_string h225_GenericIdentifier_vals[];
-WS_VAR_IMPORT const value_string RasMessage_vals[];
+WS_VAR_IMPORT const value_string h225_RasMessage_vals[];
 WS_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
 WS_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
 WS_VAR_IMPORT const value_string UnregRequestReason_vals[];
@@ -148,6 +148,7 @@ int dissect_h225_FeatureSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 int dissect_h225_TransportChannelInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h225_RasMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h225_TransportQOS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_h225_ExtendedAliasAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-h225-exp.h ---*/
 #line 83 "packet-h225-template.h"

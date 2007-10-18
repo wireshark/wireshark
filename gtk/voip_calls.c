@@ -1915,7 +1915,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			default:
 				comment = g_strdup("H225 RAS");
 		}
-		frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, RasMessage_vals, "<unknown>"));
+		frame_label = g_strdup_printf("%s", val_to_str(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
 	} else {
 		frame_label = g_strdup("H225: Unknown");
 		comment = g_strdup("");

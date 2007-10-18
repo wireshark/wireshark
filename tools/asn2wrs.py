@@ -960,6 +960,7 @@ class EthCtx:
       self.field[ident]['modified'] = '#' + str(id(self))
       self.field[ident]['attr'].update(self.conform.use_item('FIELD_ATTR', ident))
     if (pdu):
+      self.field[ident]['pdu']['export'] = (self.conform.use_item('EXPORTS', ident + '_PDU') != 0)
       self.pdu_ord.append(ident)
     else:
       self.field_ord.append(ident)
@@ -1197,7 +1198,7 @@ class EthCtx:
       nm = asn2c(nm)
       if (self.field[f]['pdu']): 
         nm += '_PDU'
-        if (not self.merge_modules):
+        if (not self.merge_modules or self.field[f]['pdu']['export']):
           nm = self.eproto + '_' + nm
       t = self.field[f]['type']
       if self.type.has_key(t):
@@ -1302,9 +1303,9 @@ class EthCtx:
     out = ""
     has_enum = self.eth_type[tname]['enum'] & EF_ENUM
     if (not self.eth_type[tname]['export'] & EF_VALS):
-      out += "static "
+      out += 'static '
     if (self.eth_type[tname]['export'] & EF_VALS) and (self.eth_type[tname]['export'] & EF_TABLE):
-      out += "static "
+      out += 'static '
     out += "const value_string %s[] = {\n" % (self.eth_vals_nm(tname))
     for (val, id) in vals:
       if (has_enum):
@@ -1379,7 +1380,7 @@ class EthCtx:
   def eth_type_fn_h(self, tname):
     out = ""
     if (not self.eth_type[tname]['export'] & EF_TYPE):
-      out += "static "
+      out += 'static '
     out += "int "
     if (self.Ber()):
       out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
@@ -1409,7 +1410,7 @@ class EthCtx:
   def eth_type_fn_hdr(self, tname):
     out = '\n'
     if (not self.eth_type[tname]['export'] & EF_TYPE):
-      out += "static "
+      out += 'static '
     out += "int\n"
     if (self.Ber()):
       out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
@@ -1447,6 +1448,20 @@ class EthCtx:
         out = out % pars
       except (TypeError):
         pass
+    return out
+
+  #--- eth_out_pdu_decl ----------------------------------------------------------
+  def eth_out_pdu_decl(self, f):
+    t = self.eth_hf[f]['ethtype']
+    is_new = self.eth_hf[f]['pdu']['new']
+    out = ''
+    if (not self.eth_hf[f]['pdu']['export']):
+      out += 'static '
+    if (is_new):
+      out += 'int '
+    else:
+      out += 'void '
+    out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
     return out
 
   #--- eth_output_hf ----------------------------------------------------------
@@ -1527,6 +1542,9 @@ class EthCtx:
         if self.eth_type[t]['export'] & EF_EXTERN:
           fx.write("extern ")
         fx.write(self.eth_type_fn_h(t))
+    for f in self.eth_hfpdu_ord:  # PDUs
+      if (self.eth_hf[f]['pdu'] and self.eth_hf[f]['pdu']['export']):
+        fx.write(self.eth_out_pdu_decl(f))
     self.output.file_close(fx)
 
   #--- eth_output_expcnf ------------------------------------------------------
@@ -1626,27 +1644,18 @@ class EthCtx:
         out += '}\n'
       return out
     #end out_field()
-    def out_pdu_decl(f):
-      t = self.eth_hf[f]['ethtype']
-      is_new = self.eth_hf[f]['pdu']['new']
-      out = 'static '
-      if (is_new):
-        out += 'int'
-      else:
-        out += 'void'
-      out += ' dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);\n'
-      return out
-    #end out_pdu_decl()
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
       is_new = self.eth_hf[f]['pdu']['new']
       impl = 'FALSE'
-      out = 'static '
+      out = ''
+      if (not self.eth_hf[f]['pdu']['export']):
+        out += 'static '
       if (is_new):
-        out += 'int'
+        out += 'int '
       else:
-        out += 'void'
-      out += ' dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
+        out += 'void '
+      out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
       if (is_new):
         out += '  int offset = 0;\n'
         off_par = 'offset'
@@ -1686,7 +1695,7 @@ class EthCtx:
           if first_decl:
             fx.write('/*--- PDUs declarations ---*/\n')
             first_decl = False
-          fx.write(out_pdu_decl(f))
+          fx.write(self.eth_out_pdu_decl(f))
       if not first_decl:
         fx.write('\n')
     if self.eth_dep_cycle:
@@ -2120,7 +2129,7 @@ class EthCnf:
     (reg, hidden) = (None, False)
     if (len(par) > 1): reg = par[1]
     if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
-    attr = {'new' : is_new, 'reg' : reg, 'hidden' : hidden, 'need_decl' : False}
+    attr = {'new' : is_new, 'reg' : reg, 'hidden' : hidden, 'need_decl' : False, 'export' : False}
     self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
     return
 

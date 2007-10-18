@@ -102,8 +102,6 @@ static next_tvb_list_t tp_list;
 static int h225_tap = -1;
 static int proto_h225 = -1;
 
-static int hf_h225_H323_UserInformation = -1;
-static int hf_h225_RasMessage = -1;
 static int hf_h221Manufacturer = -1;
 static int hf_h225_ras_req_frame = -1;
 static int hf_h225_ras_rsp_frame = -1;
@@ -152,7 +150,6 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *it;
 	proto_tree *tr;
 	int offset = 0;
-	asn1_ctx_t asn1_ctx;
 
     pi_current++;
     if(pi_current==5){
@@ -177,8 +174,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-	offset = dissect_h225_H323_UserInformation(tvb, offset, &asn1_ctx, tr, hf_h225_H323_UserInformation);
+	offset = dissect_H323_UserInformation_PDU(tvb, pinfo, tr);
 
 	if (h245_list.count && check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
@@ -197,7 +193,6 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
-	asn1_ctx_t asn1_ctx;
 
     pi_current++;
     if(pi_current==5){
@@ -216,8 +211,7 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-	offset = dissect_h225_RasMessage(tvb, 0, &asn1_ctx, tr, hf_h225_RasMessage );
+	offset = dissect_RasMessage_PDU(tvb, pinfo, tr);
 
 	ras_call_matching(tvb, pinfo, tr, h225_pi);
 
@@ -231,12 +225,6 @@ void proto_register_h225(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-	{ &hf_h225_H323_UserInformation,
-		{ "H323_UserInformation", "h225.H323_UserInformation", FT_NONE, BASE_NONE,
-		NULL, 0, "H323_UserInformation sequence", HFILL }},
-	{ &hf_h225_RasMessage,
-		{ "RasMessage", "h225.RasMessage", FT_UINT32, BASE_DEC,
-		VALS(RasMessage_vals), 0, "RasMessage choice", HFILL }},
 	{ &hf_h221Manufacturer,
 		{ "H.221 Manufacturer", "h221.Manufacturer", FT_UINT32, BASE_HEX,
 		VALS(H221ManufacturerCode_vals), 0, "H.221 Manufacturer", HFILL }},
@@ -290,6 +278,7 @@ void proto_register_h225(void) {
 
   new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
   new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
+  new_register_dissector("h225.ras", dissect_h225_h225_RasMessage, proto_h225);
 
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
@@ -299,9 +288,13 @@ void proto_register_h225(void) {
 
   register_init_routine(&h225_init_routine);
   h225_tap = register_tap("h225");
-  add_oid_str_name("0.0.8.2250.0.2","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 2");
-  add_oid_str_name("0.0.8.2250.0.4","itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 4");
 
+  add_oid_str_name("0.0.8.2250.0.1", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 1 - Version 1");
+  add_oid_str_name("0.0.8.2250.0.2", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 2 - Version 2");
+  add_oid_str_name("0.0.8.2250.0.3", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 3 - Version 3");
+  add_oid_str_name("0.0.8.2250.0.4", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 4 - Version 4");
+  add_oid_str_name("0.0.8.2250.0.5", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 5 - Version 5");
+  add_oid_str_name("0.0.8.2250.0.6", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 6 - Version 6");
 
 }
 

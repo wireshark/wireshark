@@ -450,6 +450,7 @@ guids_add_guid
 guids_get_guid_name
 guids_init
 guids_resolve_guid_to_str
+h225_RasMessage_vals                 DATA
 h225_ReleaseCompleteReason_vals      DATA
 h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
@@ -682,7 +683,6 @@ range_copy
 range_empty
 range_foreach
 ranges_are_equal
-RasMessage_vals                 DATA
 read_prefs
 read_prefs_file
 reassembled_table_init

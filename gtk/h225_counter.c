@@ -312,7 +312,7 @@ h225counter_draw(void *phs)
 	for(i=0;i<=RAS_MSG_TYPES;i++) {
 		if(hs->ras_msg[i]!=0) {
 			g_snprintf(str[0], sizeof(char[256]), 
-                "%s", val_to_str(i,RasMessage_vals,"unknown ras-messages  "));
+                "%s", val_to_str(i,h225_RasMessage_vals,"unknown ras-messages  "));
 			g_snprintf(str[1], sizeof(char[256]),
                 "%d", hs->ras_msg[i]);
 			gtk_clist_append(hs->table, str);
