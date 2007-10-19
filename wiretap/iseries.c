@@ -514,7 +514,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       }
       num_items_scanned =
 	sscanf (data,
-		"%6d   %1s   %6d  %d:%d:%d.%d               %12s  %12s  ETHV2   Type: %s",
+		"%6d   %1s   %6d  %d:%d:%d.%d               %12s  %12s  ETHV2   Type: %4s",
 		&pktnum, direction, &cap_len, &hr, &min, &sec, &csec, destmac,
 		srcmac, type);
       if (num_items_scanned == 10)
