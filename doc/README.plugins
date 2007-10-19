@@ -109,7 +109,7 @@ xxx:
 and add to the clean rules support for cleaning up after your
 plugin:
 
-clean:
+clean:  clean-local
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mgcp
@@ -120,7 +120,7 @@ clean:
 	cd ..
 
 
-distclean: clean
+distclean: distclean-local
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../mgcp
@@ -131,7 +131,7 @@ distclean: clean
 	cd ..
 
 
-maintainer-clean: clean
+maintainer-clean: maintainer-clean-local
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../mgcp
