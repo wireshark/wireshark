@@ -72,6 +72,9 @@ static range_t *global_sflow_ports = NULL;
  *	sflow_ports : holds the currently used range of ports for sflow
  */
 static range_t *sflow_ports = NULL;
+static gboolean global_dissect_samp_headers = TRUE;
+static gboolean global_analyze_samp_ip_headers = FALSE;
+
 
 
 #define ADDRESS_IPV4 1
@@ -338,6 +341,8 @@ static dissector_handle_t aal5_handle;
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t mpls_handle;
+/* don't dissect */
+static dissector_handle_t data_handle;
 
 void proto_reg_handoff_sflow(void);
 
@@ -353,7 +358,8 @@ dissect_sflow_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item 	*ti;
 	/* stuff for saving column state before calling other dissectors.
 	 * Thanks to Guy Harris for the tip. */
-	gboolean 			save_writable;
+	gboolean save_writable;
+	gboolean save_in_error_pkt;
 	volatile address 	save_dl_src;
 	volatile address 	save_dl_dst;
 	volatile address 	save_net_src;
@@ -386,6 +392,31 @@ dissect_sflow_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* save some state */
 	save_writable = col_get_writable(pinfo->cinfo);
+
+	/* 
+	   If sFlow samples a TCP packet it is very likely that the
+	   TCP analysis will flag the packet as having some error with
+	   the sequence numbers.  sFlow only report on a "sample" of
+	   traffic so many packets will not be reported on.  This is
+	   most obvious if the colorizing rules are on, but will also
+	   cause confusion if you attempt to filter on
+	   "tcp.analysis.flags".
+
+	   The following only works to suppress IP/TCP errors, but
+	   it is a start anyway.  Other protocols carried as payloads
+	   may exhibit similar issues.
+
+	   I think what is really needed is a more general
+	   "protocol_as_payload" flag.  Of course then someone has to
+	   play whack-a-mole and add code to implement it to any
+	   protocols that could be carried as a payload.  In the case
+	   of sFlow that pretty much means anything on your network.
+	*/
+	save_in_error_pkt = pinfo->in_error_pkt;
+	if (!global_analyze_samp_ip_headers) {
+	  pinfo->in_error_pkt = TRUE;
+	}
+
 	col_set_writable(pinfo->cinfo, FALSE);
 	save_dl_src = pinfo->dl_src;
 	save_dl_dst = pinfo->dl_dst;
@@ -444,6 +475,8 @@ dissect_sflow_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* restore saved state */
 	col_set_writable(pinfo->cinfo, save_writable);
+	pinfo->in_error_pkt = save_in_error_pkt;
+
 	pinfo->dl_src = save_dl_src;
 	pinfo->dl_dst = save_dl_dst;
 	pinfo->net_src = save_net_src;
@@ -1147,10 +1180,36 @@ proto_register_sflow(void)
 	prefs_register_obsolete_preference(sflow_module, "udp.port");
 
 	prefs_register_range_preference(sflow_module, "ports",
-					"SFlow UDP Port(s)",
+					"sFlow UDP Port(s)",
 					"Set the port(s) for sFlow messages"
 					" (default: " SFLOW_UDP_PORTS ")",
 					&global_sflow_ports, MAX_UDP_PORT);
+
+	/* 
+	   If I use a filter like "ip.src == 10.1.1.1" this will, in
+	   addition to the usual suspects, find every sFlow packet
+	   where *any* of the payload headers contain 10.1.1.1 as a
+	   src addr.  I think this may not be the desired behavior.
+	   It can certainly be confusing since the ip.src being found
+	   is buried about 3 subtrees deep and the subtrees might be
+	   under any one of the sampled (payload) header trees. It is
+	   certainly not quickly obvious why the filter matched.
+	*/
+	prefs_register_bool_preference(sflow_module, "enable_dissection",
+				       "Dissect data in sampled headers",
+				       "Enabling dissection makes it easy to view protocol details in each of the sampled headers.  Disabling dissection may reduce noise caused when display filters match the contents of any sampled header(s).",
+					&global_dissect_samp_headers);
+	/* 
+	   It is not clear to me that it *ever* makes sense to enable
+	   this option.  However, it was previously the default
+	   behavior so I'll leave it as an option if someone thinks
+	   they have a use for it.
+	*/
+	prefs_register_bool_preference(sflow_module, "enable_analysis",
+				       "Analyze data in sampled IP headers",
+				       "This option only makes sense if dissection of sampled headers is enabled and probably not even then.",
+					&global_analyze_samp_ip_headers );
+
 
 	register_init_routine(&sflow_reinit);
 }
@@ -1180,25 +1239,42 @@ proto_reg_handoff_sflow(void)
 	/*
 	 * XXX - should this be done with a dissector table?
 	 */
-	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-	tr_handle = find_dissector("tr");
-	fddi_handle = find_dissector("fddi");
-	fr_handle = find_dissector("fr");
-	x25_handle = find_dissector("x.25");
-	ppp_handle = find_dissector("ppp");
+	data_handle = find_dissector("data");
+
+	if (global_dissect_samp_headers) {
+	    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+	    tr_handle = find_dissector("tr");
+	    fddi_handle = find_dissector("fddi");
+	    fr_handle = find_dissector("fr");
+	    x25_handle = find_dissector("x.25");
+	    ppp_handle = find_dissector("ppp");
 #if 0
-	smds_handle = find_dissector("smds");
+	    smds_handle = find_dissector("smds");
 #else
-	/* We don't have an SMDS dissector yet */
-	smds_handle = find_dissector("data");
+	    /* We don't have an SMDS dissector yet */
+	    smds_handle = data_handle;
 #endif
 #if 0
-	aal5_handle = find_dissector("atm");
+	    aal5_handle = find_dissector("atm");
 #else
-	/* What dissector should be used here? */
-	aal5_handle = find_dissector("data");
+	    /* What dissector should be used here? */
+	    aal5_handle = data_handle;
 #endif
-	ipv4_handle = find_dissector("ip");
-	ipv6_handle = find_dissector("ipv6");
-	mpls_handle = find_dissector("mpls");
+	    ipv4_handle = find_dissector("ip");
+	    ipv6_handle = find_dissector("ipv6");
+	    mpls_handle = find_dissector("mpls");
+	} else {
+	    eth_withoutfcs_handle = data_handle;
+	    tr_handle = data_handle;
+	    fddi_handle = data_handle;
+	    fr_handle = data_handle;
+	    x25_handle = data_handle;
+	    ppp_handle = data_handle;
+	    smds_handle = data_handle;
+	    aal5_handle = data_handle;
+	    ipv4_handle = data_handle;
+	    ipv6_handle = data_handle;
+	    mpls_handle = data_handle;
+	}
+
 }
