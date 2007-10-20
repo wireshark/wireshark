@@ -496,7 +496,13 @@ window_geom_recent_read_pair(const char *name, const char *key, const char *valu
         }
         geom.set_maximized = TRUE;
     } else {
-        g_assert_not_reached();
+        /*
+         * Silently ignore the bogus key.  We shouldn't abort here,
+         * as this could be due to a corrupt recent file.
+         *
+         * XXX - should we print a message about this?
+         */
+        return;
     }
 
     /* save / replace geometry in hashtable */
