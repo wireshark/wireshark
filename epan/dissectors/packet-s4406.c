@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-s4406.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+/* packet-s4406.c                                                             */
+/* ../../tools/asn2wrs.py -b -X -T -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
 
@@ -161,33 +161,6 @@ static gint ett_s4406_BodyPartSecurityLabel = -1;
 
 /*--- Included file: packet-s4406-fn.c ---*/
 #line 1 "packet-s4406-fn.c"
-/*--- Fields for imported types ---*/
-
-static int dissect_mm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPM(TRUE, tvb, offset, actx, tree, hf_s4406_mm);
-}
-static int dissect_mn_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPN(TRUE, tvb, offset, actx, tree, hf_s4406_mn);
-}
-static int dissect_listName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ORDescriptor(TRUE, tvb, offset, actx, tree, hf_s4406_listName);
-}
-static int dissect_pilotRecipient_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ORDescriptor(FALSE, tvb, offset, actx, tree, hf_s4406_pilotRecipient_item);
-}
-static int dissect_pilotSecurity_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_s4406_pilotSecurity);
-}
-static int dissect_content_security_label_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_s4406_content_security_label);
-}
-static int dissect_heading_security_label_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_s4406_heading_security_label);
-}
-static int dissect_body_part_security_label_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_s4406_body_part_security_label);
-}
-
 
 static const value_string s4406_InformationObject_vals[] = {
   {   0, "mm" },
@@ -195,17 +168,17 @@ static const value_string s4406_InformationObject_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t InformationObject_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mm_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mn_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t InformationObject_choice[] = {
+  {   0, &hf_s4406_mm            , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_IPM },
+  {   1, &hf_s4406_mn            , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_IPN },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     InformationObject_choice, hf_index, ett_s4406_InformationObject,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 InformationObject_choice, hf_index, ett_s4406_InformationObject,
+                                 NULL);
 
   return offset;
 }
@@ -236,19 +209,16 @@ dissect_s4406_ExemptedAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ExemptedAddressSeq_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_ExemptedAddress(FALSE, tvb, offset, actx, tree, hf_s4406_ExemptedAddressSeq_item);
-}
 
 
-static const ber_old_sequence_t ExemptedAddressSeq_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ExemptedAddressSeq_item },
+static const ber_sequence_t ExemptedAddressSeq_sequence_of[1] = {
+  { &hf_s4406_ExemptedAddressSeq_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_s4406_ExemptedAddress },
 };
 
 static int
 dissect_s4406_ExemptedAddressSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ExemptedAddressSeq_sequence_of, hf_index, ett_s4406_ExemptedAddressSeq);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ExemptedAddressSeq_sequence_of, hf_index, ett_s4406_ExemptedAddressSeq);
 
   return offset;
 }
@@ -274,24 +244,18 @@ dissect_s4406_Sic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_sics_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_Sic(FALSE, tvb, offset, actx, tree, hf_s4406_sics_item);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_Sic_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_sics_item },
+static const ber_sequence_t SEQUENCE_OF_Sic_sequence_of[1] = {
+  { &hf_s4406_sics_item     , BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_s4406_Sic },
 };
 
 static int
 dissect_s4406_SEQUENCE_OF_Sic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_Sic_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_Sic);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_Sic_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_Sic);
 
   return offset;
-}
-static int dissect_sics_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_SEQUENCE_OF_Sic(TRUE, tvb, offset, actx, tree, hf_s4406_sics);
 }
 
 
@@ -301,9 +265,6 @@ dissect_s4406_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_dist_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_s4406_dist_type);
 }
 
 
@@ -317,55 +278,46 @@ dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_dist_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_T_dist_value(FALSE, tvb, offset, actx, tree, hf_s4406_dist_value);
-}
 
 
-static const ber_old_sequence_t DistributionExtensionField_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_dist_type },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_dist_value },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DistributionExtensionField_sequence[] = {
+  { &hf_s4406_dist_type     , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_s4406_OBJECT_IDENTIFIER },
+  { &hf_s4406_dist_value    , BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_s4406_T_dist_value },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_DistributionExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DistributionExtensionField_sequence, hf_index, ett_s4406_DistributionExtensionField);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DistributionExtensionField_sequence, hf_index, ett_s4406_DistributionExtensionField);
 
   return offset;
 }
-static int dissect_dist_Extensions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_DistributionExtensionField(FALSE, tvb, offset, actx, tree, hf_s4406_dist_Extensions_item);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_DistributionExtensionField_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dist_Extensions_item },
+static const ber_sequence_t SEQUENCE_OF_DistributionExtensionField_sequence_of[1] = {
+  { &hf_s4406_dist_Extensions_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_s4406_DistributionExtensionField },
 };
 
 static int
 dissect_s4406_SEQUENCE_OF_DistributionExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_DistributionExtensionField_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_DistributionExtensionField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_DistributionExtensionField_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_DistributionExtensionField);
 
   return offset;
 }
-static int dissect_dist_Extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_SEQUENCE_OF_DistributionExtensionField(TRUE, tvb, offset, actx, tree, hf_s4406_dist_Extensions);
-}
 
 
-static const ber_old_sequence_t DistributionCodes_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sics_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dist_Extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DistributionCodes_set[] = {
+  { &hf_s4406_sics          , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_Sic },
+  { &hf_s4406_dist_Extensions, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_DistributionExtensionField },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_DistributionCodes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  DistributionCodes_set, hf_index, ett_s4406_DistributionCodes);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              DistributionCodes_set, hf_index, ett_s4406_DistributionCodes);
 
   return offset;
 }
@@ -380,41 +332,29 @@ dissect_s4406_MilitaryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_HandlingInstructions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_MilitaryString(FALSE, tvb, offset, actx, tree, hf_s4406_HandlingInstructions_item);
-}
-static int dissect_MessageInstructions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_MilitaryString(FALSE, tvb, offset, actx, tree, hf_s4406_MessageInstructions_item);
-}
-static int dissect_designator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_MilitaryString(TRUE, tvb, offset, actx, tree, hf_s4406_designator);
-}
-static int dissect_pilotHandling_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_MilitaryString(FALSE, tvb, offset, actx, tree, hf_s4406_pilotHandling_item);
-}
 
 
-static const ber_old_sequence_t HandlingInstructions_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_HandlingInstructions_item },
+static const ber_sequence_t HandlingInstructions_sequence_of[1] = {
+  { &hf_s4406_HandlingInstructions_item, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_s4406_MilitaryString },
 };
 
 static int
 dissect_s4406_HandlingInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          HandlingInstructions_sequence_of, hf_index, ett_s4406_HandlingInstructions);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      HandlingInstructions_sequence_of, hf_index, ett_s4406_HandlingInstructions);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t MessageInstructions_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_MessageInstructions_item },
+static const ber_sequence_t MessageInstructions_sequence_of[1] = {
+  { &hf_s4406_MessageInstructions_item, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_s4406_MilitaryString },
 };
 
 static int
 dissect_s4406_MessageInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          MessageInstructions_sequence_of, hf_index, ett_s4406_MessageInstructions);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      MessageInstructions_sequence_of, hf_index, ett_s4406_MessageInstructions);
 
   return offset;
 }
@@ -514,9 +454,6 @@ dissect_s4406_TypeMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_message_type_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_TypeMessage(TRUE, tvb, offset, actx, tree, hf_s4406_message_type_type);
-}
 
 
 
@@ -526,21 +463,18 @@ dissect_s4406_MessageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_MessageIdentifier(TRUE, tvb, offset, actx, tree, hf_s4406_identifier);
-}
 
 
-static const ber_old_sequence_t MessageType_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_message_type_type_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_identifier_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MessageType_set[] = {
+  { &hf_s4406_message_type_type, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_s4406_TypeMessage },
+  { &hf_s4406_identifier    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_MessageIdentifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_MessageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  MessageType_set, hf_index, ett_s4406_MessageType);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MessageType_set, hf_index, ett_s4406_MessageType);
 
   return offset;
 }
@@ -560,9 +494,6 @@ dissect_s4406_AddressListType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_address_list_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_AddressListType(TRUE, tvb, offset, actx, tree, hf_s4406_address_list_type);
-}
 
 
 static const value_string s4406_AddressListRequest_vals[] = {
@@ -580,42 +511,33 @@ dissect_s4406_AddressListRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_notificationRequest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_AddressListRequest(TRUE, tvb, offset, actx, tree, hf_s4406_notificationRequest);
-}
-static int dissect_replyRequest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_AddressListRequest(TRUE, tvb, offset, actx, tree, hf_s4406_replyRequest);
-}
 
 
-static const ber_old_sequence_t AddressListDesignator_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_address_list_type_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_listName_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notificationRequest_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_replyRequest_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AddressListDesignator_set[] = {
+  { &hf_s4406_address_list_type, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_s4406_AddressListType },
+  { &hf_s4406_listName      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_ORDescriptor },
+  { &hf_s4406_notificationRequest, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_AddressListRequest },
+  { &hf_s4406_replyRequest  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_AddressListRequest },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_AddressListDesignator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  AddressListDesignator_set, hf_index, ett_s4406_AddressListDesignator);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              AddressListDesignator_set, hf_index, ett_s4406_AddressListDesignator);
 
   return offset;
 }
-static int dissect_AddressListDesignatorSeq_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_AddressListDesignator(FALSE, tvb, offset, actx, tree, hf_s4406_AddressListDesignatorSeq_item);
-}
 
 
-static const ber_old_sequence_t AddressListDesignatorSeq_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_AddressListDesignatorSeq_item },
+static const ber_sequence_t AddressListDesignatorSeq_sequence_of[1] = {
+  { &hf_s4406_AddressListDesignatorSeq_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_s4406_AddressListDesignator },
 };
 
 static int
 dissect_s4406_AddressListDesignatorSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          AddressListDesignatorSeq_sequence_of, hf_index, ett_s4406_AddressListDesignatorSeq);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      AddressListDesignatorSeq_sequence_of, hf_index, ett_s4406_AddressListDesignatorSeq);
 
   return offset;
 }
@@ -635,37 +557,31 @@ dissect_s4406_OtherRecipientType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_other_recipient_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_OtherRecipientType(TRUE, tvb, offset, actx, tree, hf_s4406_other_recipient_type);
-}
 
 
-static const ber_old_sequence_t OtherRecipientDesignator_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_other_recipient_type_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_designator_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t OtherRecipientDesignator_set[] = {
+  { &hf_s4406_other_recipient_type, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_s4406_OtherRecipientType },
+  { &hf_s4406_designator    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_s4406_MilitaryString },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_OtherRecipientDesignator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  OtherRecipientDesignator_set, hf_index, ett_s4406_OtherRecipientDesignator);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              OtherRecipientDesignator_set, hf_index, ett_s4406_OtherRecipientDesignator);
 
   return offset;
 }
-static int dissect_OtherRecipientDesignatorSeq_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_OtherRecipientDesignator(FALSE, tvb, offset, actx, tree, hf_s4406_OtherRecipientDesignatorSeq_item);
-}
 
 
-static const ber_old_sequence_t OtherRecipientDesignatorSeq_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_OtherRecipientDesignatorSeq_item },
+static const ber_sequence_t OtherRecipientDesignatorSeq_sequence_of[1] = {
+  { &hf_s4406_OtherRecipientDesignatorSeq_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_s4406_OtherRecipientDesignator },
 };
 
 static int
 dissect_s4406_OtherRecipientDesignatorSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          OtherRecipientDesignatorSeq_sequence_of, hf_index, ett_s4406_OtherRecipientDesignatorSeq);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      OtherRecipientDesignatorSeq_sequence_of, hf_index, ett_s4406_OtherRecipientDesignatorSeq);
 
   return offset;
 }
@@ -692,71 +608,59 @@ dissect_s4406_PilotPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_pilotPrecedence_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_PilotPrecedence(TRUE, tvb, offset, actx, tree, hf_s4406_pilotPrecedence);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_ORDescriptor_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_pilotRecipient_item },
+static const ber_sequence_t SEQUENCE_OF_ORDescriptor_sequence_of[1] = {
+  { &hf_s4406_pilotRecipient_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_ORDescriptor },
 };
 
 static int
 dissect_s4406_SEQUENCE_OF_ORDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_ORDescriptor_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_ORDescriptor);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ORDescriptor_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_ORDescriptor);
 
   return offset;
 }
-static int dissect_pilotRecipient_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_SEQUENCE_OF_ORDescriptor(TRUE, tvb, offset, actx, tree, hf_s4406_pilotRecipient);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_MilitaryString_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_pilotHandling_item },
+static const ber_sequence_t SEQUENCE_OF_MilitaryString_sequence_of[1] = {
+  { &hf_s4406_pilotHandling_item, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_s4406_MilitaryString },
 };
 
 static int
 dissect_s4406_SEQUENCE_OF_MilitaryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_MilitaryString_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_MilitaryString);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_MilitaryString_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_MilitaryString);
 
   return offset;
 }
-static int dissect_pilotHandling_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_SEQUENCE_OF_MilitaryString(TRUE, tvb, offset, actx, tree, hf_s4406_pilotHandling);
-}
 
 
-static const ber_old_sequence_t PilotInformation_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotPrecedence_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotRecipient_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotSecurity_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotHandling_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PilotInformation_sequence[] = {
+  { &hf_s4406_pilotPrecedence, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_PilotPrecedence },
+  { &hf_s4406_pilotRecipient, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_ORDescriptor },
+  { &hf_s4406_pilotSecurity , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { &hf_s4406_pilotHandling , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_MilitaryString },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_PilotInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PilotInformation_sequence, hf_index, ett_s4406_PilotInformation);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PilotInformation_sequence, hf_index, ett_s4406_PilotInformation);
 
   return offset;
 }
-static int dissect_PilotInformationSeq_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_PilotInformation(FALSE, tvb, offset, actx, tree, hf_s4406_PilotInformationSeq_item);
-}
 
 
-static const ber_old_sequence_t PilotInformationSeq_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_PilotInformationSeq_item },
+static const ber_sequence_t PilotInformationSeq_sequence_of[1] = {
+  { &hf_s4406_PilotInformationSeq_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_s4406_PilotInformation },
 };
 
 static int
 dissect_s4406_PilotInformationSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          PilotInformationSeq_sequence_of, hf_index, ett_s4406_PilotInformationSeq);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      PilotInformationSeq_sequence_of, hf_index, ett_s4406_PilotInformationSeq);
 
   return offset;
 }
@@ -805,56 +709,47 @@ dissect_s4406_BodyPartSequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_body_part_sequence_number_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_BodyPartSequenceNumber(TRUE, tvb, offset, actx, tree, hf_s4406_body_part_sequence_number);
-}
 
 
-static const ber_old_sequence_t BodyPartSecurityLabel_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_body_part_security_label_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_body_part_sequence_number_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t BodyPartSecurityLabel_set[] = {
+  { &hf_s4406_body_part_security_label, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { &hf_s4406_body_part_sequence_number, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_BodyPartSequenceNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_BodyPartSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  BodyPartSecurityLabel_set, hf_index, ett_s4406_BodyPartSecurityLabel);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              BodyPartSecurityLabel_set, hf_index, ett_s4406_BodyPartSecurityLabel);
 
   return offset;
 }
-static int dissect_body_part_security_labels_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_BodyPartSecurityLabel(FALSE, tvb, offset, actx, tree, hf_s4406_body_part_security_labels_item);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_BodyPartSecurityLabel_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_body_part_security_labels_item },
+static const ber_sequence_t SEQUENCE_OF_BodyPartSecurityLabel_sequence_of[1] = {
+  { &hf_s4406_body_part_security_labels_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_s4406_BodyPartSecurityLabel },
 };
 
 static int
 dissect_s4406_SEQUENCE_OF_BodyPartSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_BodyPartSecurityLabel_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_BodyPartSecurityLabel);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_BodyPartSecurityLabel_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_BodyPartSecurityLabel);
 
   return offset;
 }
-static int dissect_body_part_security_labels_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_s4406_SEQUENCE_OF_BodyPartSecurityLabel(TRUE, tvb, offset, actx, tree, hf_s4406_body_part_security_labels);
-}
 
 
-static const ber_old_sequence_t SecurityInformationLabels_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_content_security_label_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_heading_security_label_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_body_part_security_labels_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SecurityInformationLabels_sequence[] = {
+  { &hf_s4406_content_security_label, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { &hf_s4406_heading_security_label, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { &hf_s4406_body_part_security_labels, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_BodyPartSecurityLabel },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_s4406_SecurityInformationLabels(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       SecurityInformationLabels_sequence, hf_index, ett_s4406_SecurityInformationLabels);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SecurityInformationLabels_sequence, hf_index, ett_s4406_SecurityInformationLabels);
 
   return offset;
 }
