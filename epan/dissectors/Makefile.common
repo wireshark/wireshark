@@ -835,7 +835,6 @@ DISSECTOR_INCLUDES =	\
 	packet-dcom.h	\
 	packet-dcom-dispatch.h	\
 	packet-ddtp.h	\
-	packet-diameter-defs.h	\
 	packet-diffserv-mpls-common.h	\
 	packet-disp.h	\
 	packet-dis-enums.h	\
