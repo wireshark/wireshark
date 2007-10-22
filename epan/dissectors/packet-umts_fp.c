@@ -372,17 +372,15 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int chan;
     int bit_offset = 0;
     guint data_bits = 0;
-    proto_item *ti = NULL;
+    proto_item *tree_ti = NULL;
     proto_tree *data_tree = NULL;
 
     if (tree)
     {
         /* Add data subtree */
-        ti =  proto_tree_add_string_format(tree, hf_fp_data, tvb, offset, 0,
-                                           "",
-                                           "TB data for %u chans",
-                                           p_fp_info->num_chans);
-        data_tree = proto_item_add_subtree(ti, ett_fp_data);
+        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, 0, FALSE);
+        proto_item_set_text(tree_ti, "TB data for %u chans", p_fp_info->num_chans);
+        data_tree = proto_item_add_subtree(tree_ti, ett_fp_data);
     }
 
     /* Now for the TB data */
@@ -411,8 +409,8 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8,
                                          FALSE);
-                proto_item_append_text(ti, " (chan %u, tb %u, %u bits)",
-                                       chan+1, n+1, p_fp_info->chan_tf_size[chan]);
+                proto_item_set_text(ti, "TB (chan %u, tb %u, %u bits)",
+                                    chan+1, n+1, p_fp_info->chan_tf_size[chan]);
             }
             (*num_tbs)++;
 
@@ -437,8 +435,8 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Data tree should cover entire length */
     if (data_tree)
     {
-        proto_item_set_len(data_tree, bit_offset/8);
-        proto_item_append_text(ti, " (%u bits in %u tbs)", data_bits, *num_tbs);
+        proto_item_set_len(tree_ti, bit_offset/8);
+        proto_item_append_text(tree_ti, " (%u bits in %u tbs)", data_bits, *num_tbs);
     }
 
     /* Move offset past TBs (we know its already padded out to next byte) */
@@ -454,24 +452,21 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     int pdu;
     int bit_offset = 0;
-    proto_item *ti = NULL;
+    proto_item *pdus_ti = NULL;
     proto_tree *data_tree = NULL;
 
     /* Add data subtree */
     if (tree)
     {
-        ti =  proto_tree_add_string_format(tree, hf_fp_data, tvb, offset, 0,
-                                           "",
-                                           "%u MAC-d PDUs of %u bits",
-                                           number_of_pdus,
-                                           length);
-        data_tree = proto_item_add_subtree(ti, ett_fp_data);
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, 0, FALSE);
+        proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bits", number_of_pdus, length);
+        data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
     }
 
     /* Now for the PDUs */
     for (pdu=0; pdu < number_of_pdus; pdu++)
     {
-        proto_item *ti;
+        proto_item *pdu_ti;
 
         if (data_tree)
         {
@@ -483,11 +478,11 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Data bytes! */
         if (data_tree)
         {
-            ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
-                                     offset + (bit_offset/8),
-                                     ((bit_offset % 8) + length + 7) / 8,
-                                     FALSE);
-            proto_item_append_text(ti, " (PDU %u)", pdu+1);
+            pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
+                                         offset + (bit_offset/8),
+                                         ((bit_offset % 8) + length + 7) / 8,
+                                         FALSE);
+            proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
         }
 
         /* Advance bit offset */
@@ -501,7 +496,7 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Data tree should cover entire length */
-    proto_item_set_len(data_tree, bit_offset/8);
+    proto_item_set_len(pdus_ti, bit_offset/8);
 
     /* Move offset past PDUs (we know its already padded out to next byte) */
     offset += (bit_offset / 8);
@@ -529,10 +524,8 @@ int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Add CRCIs subtree */
     if (tree)
     {
-        ti =  proto_tree_add_string_format(tree, hf_fp_crcis, tvb, offset, 0,
-                                           "",
-                                           "CRCI bits for %u tbs",
-                                           num_tbs);
+        ti =  proto_tree_add_item(tree, hf_fp_crcis, tvb, offset, (num_tbs+7)/8, FALSE);
+        proto_item_set_text(ti, "CRCI bits for %u tbs", num_tbs);
         crcis_tree = proto_item_add_subtree(ti, ett_fp_crcis);
     }
 
@@ -2287,7 +2280,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_tb,
             { "TB",
-              "fp.tb", FT_NONE, BASE_NONE, NULL, 0x0,
+              "fp.tb", FT_BYTES, BASE_HEX, NULL, 0x0,
               "Transport Block", HFILL
             }
         },
@@ -2659,19 +2652,19 @@ void proto_register_fp(void)
         },
         { &hf_fp_mac_d_pdu,
             { "MAC-d PDU",
-              "fp.mac-d-pdu", FT_NONE, BASE_NONE, NULL, 0x0,
+              "fp.mac-d-pdu", FT_BYTES, BASE_HEX, NULL, 0x0,
               "MAC-d PDU", HFILL
             }
         },
         { &hf_fp_data,
             { "Data",
-              "fp.data", FT_STRING, BASE_NONE, NULL, 0x0,
+              "fp.data", FT_BYTES, BASE_HEX, NULL, 0x0,
               "Data", HFILL
             }
         },
         { &hf_fp_crcis,
             { "CRCIs",
-              "fp.crcis", FT_STRING, BASE_NONE, NULL, 0x0,
+              "fp.crcis", FT_BYTES, BASE_HEX, NULL, 0x0,
               "CRC Indicators for uplink TBs", HFILL
             }
         },
