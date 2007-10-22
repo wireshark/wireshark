@@ -93,25 +93,7 @@ EXTERNALt
 
 	}
 
-#.FN_BODY EXTERNALt
-  gint8 class;
-  gboolean pc, ind_field;
-  gint32 tag;
-  guint32 len1;
-
-  if(!implicit_tag) {
-    /* XXX  asn2wrs can not yet handle tagged assignment so for the
-     * time being  just remove this tag manually inside the EXTERNAL
-     * dissector.
-     */
-     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-     offset = get_ber_length(tvb, offset, &len1, &ind_field);
-   }
-
-   offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
-                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
-
-#.FN_BODY EXTERNALt/indirect-reference
+#.FN_BODY EXTERNALt/_untag/indirect-reference
   char *oid;
 
   offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
@@ -126,7 +108,7 @@ EXTERNALt
   }
 	
 
-#.FN_BODY EXTERNALt/encoding/single-ASN1-type
+#.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
   if (object_identifier_id) 
     offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 

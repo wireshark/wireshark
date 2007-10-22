@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-rtse.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
+/* packet-rtse.c                                                              */
+/* ../../tools/asn2wrs.py -b -e -X -T -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
 
@@ -126,7 +126,7 @@ static gint ett_rtse_RTABapdu = -1;
 static gint ett_rtse_ConnectionData = -1;
 static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
-static gint ett_rtse_EXTERNALt = -1;
+static gint ett_rtse_EXTERNALt_U = -1;
 static gint ett_rtse_T_encoding = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
@@ -222,9 +222,6 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
 /*--- Included file: packet-rtse-fn.c ---*/
 #line 1 "packet-rtse-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -233,12 +230,6 @@ dissect_rtse_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                   NULL);
 
   return offset;
-}
-static int dissect_checkpointSize_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_INTEGER(TRUE, tvb, offset, actx, tree, hf_rtse_checkpointSize);
-}
-static int dissect_windowSize_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_INTEGER(TRUE, tvb, offset, actx, tree, hf_rtse_windowSize);
 }
 
 
@@ -255,9 +246,6 @@ dissect_rtse_T_dialogueMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                   NULL);
 
   return offset;
-}
-static int dissect_dialogueMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_dialogueMode(TRUE, tvb, offset, actx, tree, hf_rtse_dialogueMode);
 }
 
 
@@ -295,15 +283,12 @@ dissect_rtse_T_open(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_open(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_open(FALSE, tvb, offset, actx, tree, hf_rtse_open);
-}
 
 
 
 static int
 dissect_rtse_T_t61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "rtse.cnf"
+#line 128 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             actx, tree, tvb, offset, hf_index,
@@ -316,15 +301,12 @@ dissect_rtse_T_t61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_t61String(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_t61String(FALSE, tvb, offset, actx, tree, hf_rtse_t61String);
-}
 
 
 
 static int
 dissect_rtse_T_octetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 162 "rtse.cnf"
+#line 144 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &string);
@@ -336,9 +318,6 @@ dissect_rtse_T_octetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_octetString(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_octetString(FALSE, tvb, offset, actx, tree, hf_rtse_octetString);
-}
 
 
 static const value_string rtse_CallingSSuserReference_vals[] = {
@@ -347,29 +326,26 @@ static const value_string rtse_CallingSSuserReference_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t CallingSSuserReference_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_t61String },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_octetString },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t CallingSSuserReference_choice[] = {
+  {   0, &hf_rtse_t61String      , BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_rtse_T_t61String },
+  {   1, &hf_rtse_octetString    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rtse_T_octetString },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_rtse_CallingSSuserReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     CallingSSuserReference_choice, hf_index, ett_rtse_CallingSSuserReference,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 CallingSSuserReference_choice, hf_index, ett_rtse_CallingSSuserReference,
+                                 NULL);
 
   return offset;
-}
-static int dissect_callingSSuserReference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_CallingSSuserReference(FALSE, tvb, offset, actx, tree, hf_rtse_callingSSuserReference);
 }
 
 
 
 static int
 dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 154 "rtse.cnf"
+#line 136 "rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
                                             actx, tree, tvb, offset, hf_index,
@@ -382,9 +358,6 @@ dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_commonReference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_CommonReference(FALSE, tvb, offset, actx, tree, hf_rtse_commonReference);
-}
 
 
 
@@ -396,33 +369,27 @@ dissect_rtse_AdditionalReferenceInformation(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_additionalReferenceInformation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_AdditionalReferenceInformation(TRUE, tvb, offset, actx, tree, hf_rtse_additionalReferenceInformation);
-}
 
 
-static const ber_old_sequence_t SessionConnectionIdentifier_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_callingSSuserReference },
-  { BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_commonReference },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalReferenceInformation_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SessionConnectionIdentifier_sequence[] = {
+  { &hf_rtse_callingSSuserReference, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rtse_CallingSSuserReference },
+  { &hf_rtse_commonReference, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_rtse_CommonReference },
+  { &hf_rtse_additionalReferenceInformation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_AdditionalReferenceInformation },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_rtse_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "rtse.cnf"
+#line 121 "rtse.cnf"
   if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Recover");
-    offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       SessionConnectionIdentifier_sequence, hf_index, ett_rtse_SessionConnectionIdentifier);
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SessionConnectionIdentifier_sequence, hf_index, ett_rtse_SessionConnectionIdentifier);
 
 
 
 
   return offset;
-}
-static int dissect_recover_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_SessionConnectionIdentifier(TRUE, tvb, offset, actx, tree, hf_rtse_recover);
 }
 
 
@@ -432,25 +399,19 @@ static const value_string rtse_ConnectionData_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ConnectionData_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_open },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_recover_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ConnectionData_choice[] = {
+  {   0, &hf_rtse_open           , BER_CLASS_CON, 0, 0, dissect_rtse_T_open },
+  {   1, &hf_rtse_recover        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rtse_SessionConnectionIdentifier },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_rtse_ConnectionData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ConnectionData_choice, hf_index, ett_rtse_ConnectionData,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ConnectionData_choice, hf_index, ett_rtse_ConnectionData,
+                                 NULL);
 
   return offset;
-}
-static int dissect_connectionDataRQ(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_ConnectionData(FALSE, tvb, offset, actx, tree, hf_rtse_connectionDataRQ);
-}
-static int dissect_connectionDataAC(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_ConnectionData(FALSE, tvb, offset, actx, tree, hf_rtse_connectionDataAC);
 }
 
 
@@ -463,7 +424,7 @@ static const value_string rtse_T_applicationProtocol_vals[] = {
 
 static int
 dissect_rtse_T_applicationProtocol(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "rtse.cnf"
+#line 117 "rtse.cnf"
 
   offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
 
@@ -471,18 +432,15 @@ dissect_rtse_T_applicationProtocol(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_applicationProtocol_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_applicationProtocol(TRUE, tvb, offset, actx, tree, hf_rtse_applicationProtocol);
-}
 
 
-static const ber_old_sequence_t RTORQapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialogueMode_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_connectionDataRQ },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_applicationProtocol_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RTORQapdu_set[] = {
+  { &hf_rtse_checkpointSize , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_INTEGER },
+  { &hf_rtse_windowSize     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_INTEGER },
+  { &hf_rtse_dialogueMode   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_T_dialogueMode },
+  { &hf_rtse_connectionDataRQ, BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_rtse_ConnectionData },
+  { &hf_rtse_applicationProtocol, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_T_applicationProtocol },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
@@ -492,8 +450,8 @@ dissect_rtse_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
   open_request=TRUE;
-    offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
+    offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
 
   open_request=FALSE;
 
@@ -501,16 +459,13 @@ dissect_rtse_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_rtorq_apdu_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RTORQapdu(TRUE, tvb, offset, actx, tree, hf_rtse_rtorq_apdu);
-}
 
 
-static const ber_old_sequence_t RTOACapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_connectionDataAC },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RTOACapdu_set[] = {
+  { &hf_rtse_checkpointSize , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_INTEGER },
+  { &hf_rtse_windowSize     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_INTEGER },
+  { &hf_rtse_connectionDataAC, BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_rtse_ConnectionData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
@@ -520,16 +475,13 @@ dissect_rtse_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
-    offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
+    offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
 
 
 
 
   return offset;
-}
-static int dissect_rtoac_apdu_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RTOACapdu(TRUE, tvb, offset, actx, tree, hf_rtse_rtoac_apdu);
 }
 
 
@@ -548,9 +500,6 @@ dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                   NULL);
 
   return offset;
-}
-static int dissect_refuseReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RefuseReason(TRUE, tvb, offset, actx, tree, hf_rtse_refuseReason);
 }
 
 
@@ -587,26 +536,20 @@ dissect_rtse_T_userDataRJ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_userDataRJ(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_userDataRJ(FALSE, tvb, offset, actx, tree, hf_rtse_userDataRJ);
-}
 
 
-static const ber_old_sequence_t RTORJapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_refuseReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_userDataRJ },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RTORJapdu_set[] = {
+  { &hf_rtse_refuseReason   , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_RefuseReason },
+  { &hf_rtse_userDataRJ     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_rtse_T_userDataRJ },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RTORJapdu_set, hf_index, ett_rtse_RTORJapdu);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RTORJapdu_set, hf_index, ett_rtse_RTORJapdu);
 
   return offset;
-}
-static int dissect_rtorj_apdu_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RTORJapdu(TRUE, tvb, offset, actx, tree, hf_rtse_rtorj_apdu);
 }
 
 
@@ -617,9 +560,6 @@ dissect_rtse_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
                                   NULL);
 
   return offset;
-}
-static int dissect_rttp_apdu(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RTTPapdu(FALSE, tvb, offset, actx, tree, hf_rtse_rttp_apdu);
 }
 
 
@@ -647,9 +587,6 @@ dissect_rtse_RTTRapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_rttr_apdu(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RTTRapdu(FALSE, tvb, offset, actx, tree, hf_rtse_rttr_apdu);
-}
 
 
 static const value_string rtse_AbortReason_vals[] = {
@@ -672,9 +609,6 @@ dissect_rtse_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_abortReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_AbortReason(TRUE, tvb, offset, actx, tree, hf_rtse_abortReason);
-}
 
 
 
@@ -685,12 +619,6 @@ dissect_rtse_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                     NULL);
 
   return offset;
-}
-static int dissect_reflectedParameter_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_BIT_STRING(TRUE, tvb, offset, actx, tree, hf_rtse_reflectedParameter);
-}
-static int dissect_arbitrary_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_BIT_STRING(TRUE, tvb, offset, actx, tree, hf_rtse_arbitrary);
 }
 
 
@@ -704,27 +632,21 @@ dissect_rtse_T_userdataAB(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_userdataAB(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_userdataAB(FALSE, tvb, offset, actx, tree, hf_rtse_userdataAB);
-}
 
 
-static const ber_old_sequence_t RTABapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_abortReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reflectedParameter_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_userdataAB },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RTABapdu_set[] = {
+  { &hf_rtse_abortReason    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_AbortReason },
+  { &hf_rtse_reflectedParameter, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_BIT_STRING },
+  { &hf_rtse_userdataAB     , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_rtse_T_userdataAB },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_rtse_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RTABapdu_set, hf_index, ett_rtse_RTABapdu);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RTABapdu_set, hf_index, ett_rtse_RTABapdu);
 
   return offset;
-}
-static int dissect_rtab_apdu_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_RTABapdu(TRUE, tvb, offset, actx, tree, hf_rtse_rtab_apdu);
 }
 
 
@@ -738,21 +660,21 @@ static const value_string rtse_RTSE_apdus_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t RTSE_apdus_choice[] = {
-  {   0, BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_rtorq_apdu_impl },
-  {   1, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_rtoac_apdu_impl },
-  {   2, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_rtorj_apdu_impl },
-  {   3, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_rttp_apdu },
-  {   4, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rttr_apdu },
-  {   5, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_rtab_apdu_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t RTSE_apdus_choice[] = {
+  {   0, &hf_rtse_rtorq_apdu     , BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_rtse_RTORQapdu },
+  {   1, &hf_rtse_rtoac_apdu     , BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_rtse_RTOACapdu },
+  {   2, &hf_rtse_rtorj_apdu     , BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_rtse_RTORJapdu },
+  {   3, &hf_rtse_rttp_apdu      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_rtse_RTTPapdu },
+  {   4, &hf_rtse_rttr_apdu      , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_rtse_RTTRapdu },
+  {   5, &hf_rtse_rtab_apdu      , BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_rtse_RTABapdu },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     RTSE_apdus_choice, hf_index, ett_rtse_RTSE_apdus,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 RTSE_apdus_choice, hf_index, ett_rtse_RTSE_apdus,
+                                 NULL);
 
   return offset;
 }
@@ -765,15 +687,12 @@ dissect_rtse_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_direct_reference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_rtse_direct_reference);
-}
 
 
 
 static int
 dissect_rtse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 115 "rtse.cnf"
+#line 97 "rtse.cnf"
   char *oid;
 
   offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
@@ -792,9 +711,6 @@ dissect_rtse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_indirect_reference(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_indirect_reference(FALSE, tvb, offset, actx, tree, hf_rtse_indirect_reference);
-}
 
 
 
@@ -806,15 +722,12 @@ dissect_rtse_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_data_value_descriptor(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_ObjectDescriptor(FALSE, tvb, offset, actx, tree, hf_rtse_data_value_descriptor);
-}
 
 
 
 static int
 dissect_rtse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "rtse.cnf"
+#line 112 "rtse.cnf"
   if (object_identifier_id) 
     offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
@@ -822,9 +735,6 @@ dissect_rtse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
   return offset;
-}
-static int dissect_single_ASN1_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_single_ASN1_type(FALSE, tvb, offset, actx, tree, hf_rtse_single_ASN1_type);
 }
 
 
@@ -836,9 +746,6 @@ dissect_rtse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_octet_aligned_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_rtse_octet_aligned);
-}
 
 
 static const value_string rtse_T_encoding_vals[] = {
@@ -848,55 +755,45 @@ static const value_string rtse_T_encoding_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_encoding_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_single_ASN1_type },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_arbitrary_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_encoding_choice[] = {
+  {   0, &hf_rtse_single_ASN1_type, BER_CLASS_CON, 0, 0, dissect_rtse_T_single_ASN1_type },
+  {   1, &hf_rtse_octet_aligned  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_rtse_OCTET_STRING },
+  {   2, &hf_rtse_arbitrary      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_rtse_BIT_STRING },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_rtse_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_encoding_choice, hf_index, ett_rtse_T_encoding,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_encoding_choice, hf_index, ett_rtse_T_encoding,
+                                 NULL);
 
   return offset;
 }
-static int dissect_encoding(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_rtse_T_encoding(FALSE, tvb, offset, actx, tree, hf_rtse_encoding);
+
+
+static const ber_sequence_t EXTERNALt_U_sequence[] = {
+  { &hf_rtse_direct_reference, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_rtse_OBJECT_IDENTIFIER },
+  { &hf_rtse_indirect_reference, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_rtse_T_indirect_reference },
+  { &hf_rtse_data_value_descriptor, BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_rtse_ObjectDescriptor },
+  { &hf_rtse_encoding       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rtse_T_encoding },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_rtse_EXTERNALt_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EXTERNALt_U_sequence, hf_index, ett_rtse_EXTERNALt_U);
+
+  return offset;
 }
 
 
-static const ber_old_sequence_t EXTERNALt_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
-  { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
-  { 0, 0, 0, NULL }
-};
 
 int
 dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "rtse.cnf"
-  gint8 class;
-  gboolean pc, ind_field;
-  gint32 tag;
-  guint32 len1;
-
-  if(!implicit_tag) {
-    /* XXX  asn2wrs can not yet handle tagged assignment so for the
-     * time being  just remove this tag manually inside the EXTERNAL
-     * dissector.
-     */
-     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-     offset = get_ber_length(tvb, offset, &len1, &ind_field);
-   }
-
-   offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
-                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
-
-
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_UNI, 8, TRUE, dissect_rtse_EXTERNALt_U);
 
   return offset;
 }
@@ -1210,7 +1107,7 @@ void proto_register_rtse(void) {
     &ett_rtse_ConnectionData,
     &ett_rtse_SessionConnectionIdentifier,
     &ett_rtse_CallingSSuserReference,
-    &ett_rtse_EXTERNALt,
+    &ett_rtse_EXTERNALt_U,
     &ett_rtse_T_encoding,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
