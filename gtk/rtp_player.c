@@ -527,7 +527,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	double arrive_time;
 	double arrive_time_prev;
 	double start_time;
-	double start_rtp_time;
+	double start_rtp_time = 0;
 	double diff;
 	double pack_period;
 	double total_time;
