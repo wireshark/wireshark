@@ -1899,6 +1899,7 @@ static int
 dissect_per_T_direct_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
 
+  actx->external.direct_ref_present = TRUE;
   return offset;
 }
 
@@ -1908,6 +1909,7 @@ static int
 dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &actx->external.indirect_reference);
 
+  actx->external.indirect_ref_present = TRUE;
   return offset;
 }
 
@@ -1917,6 +1919,7 @@ static int
 dissect_per_T_data_value_descriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_object_descriptor(tvb, offset, actx, tree, hf_index, &actx->external.data_value_descriptor);
 
+  actx->external.data_value_descr_present = TRUE;
   return offset;
 }
 

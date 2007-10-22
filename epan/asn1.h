@@ -81,8 +81,11 @@ typedef struct _asn1_ctx_t {
   void *value_ptr;
   void *private_data;
   struct {
-    tvbuff_t *data_value_descriptor;
     int hf_index;
+    gboolean data_value_descr_present;
+    gboolean direct_ref_present;
+    gboolean indirect_ref_present;
+    tvbuff_t *data_value_descriptor;
     const char *direct_reference;
     gint32 indirect_reference;
     gint encoding;  
@@ -104,8 +107,9 @@ typedef struct _asn1_ctx_t {
     } u;
   } external;
   struct {
-    tvbuff_t *data_value_descriptor;
     int hf_index;
+    gboolean data_value_descr_present;
+    tvbuff_t *data_value_descriptor;
     gint identification;
       /* 
          0 : syntaxes, 
