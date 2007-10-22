@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-dap.h                                                             */
-/* ../../tools/asn2wrs.py -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
+/* packet-dap.h                                                               */
+/* ../../tools/asn2wrs.py -b -e -X -T -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.h */
 

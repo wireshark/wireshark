@@ -110,6 +110,8 @@ TokenData/name		distinguished-name
 
 TokenData/time		utctime
 
+PagedResultsRequest/queryReference	pagedResultsQueryReference
+
 #.FN_BODY	FilterItem/substrings/strings/_item/initial
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
