@@ -5286,11 +5286,11 @@ class FixedTypeValueSetFieldSpec (FieldSpec):
 
 class ObjectFieldSpec (FieldSpec):
   def get_repr(self):
-    return ['ClassReference', self.cls]
+    return ['ClassReference', self.cls.val]
 
 class ObjectSetFieldSpec (FieldSpec):
   def get_repr(self):
-    return ['ClassReference', self.cls]
+    return ['ClassReference', self.cls.val]
 
 #==============================================================================
     
