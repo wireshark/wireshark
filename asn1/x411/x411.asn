@@ -2755,7 +2755,7 @@ UniversalPostOfficeBoxAddress ::= UniversalPDSParameter
 --  IDENTIFIED BY  19
 --}
 
---PosteRestanteAddress ::= PDSParameter
+PosteRestanteAddress ::= PDSParameter
 
 --universal-poste-restante-address EXTENSION-ATTRIBUTE ::= {
 --  UniversalPosteRestanteAddress

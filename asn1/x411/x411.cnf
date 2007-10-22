@@ -1,5 +1,5 @@
 #.TYPE_ATTR
-CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_vals)  BITMASK = 0
+CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_U_vals)  BITMASK = 0
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.IMPORT ../acse/acse-exp.cnf
@@ -40,10 +40,6 @@ ExtensionField/value		ExtensionValue
 SecurityCategory/value		CategoryValue
 
 #.FIELD_RENAME
-CountryName/iso-3166-alpha2-code	printable-country-name
-CountryName/x121-dcc-code		numeric-country-name
-AdministrationDomainName/printable	printable-administration-domain-name
-AdministrationDomainName/numeric	numeric-administration-domain-name
 PrivateDomainName/printable		printable-private-domain-name
 PrivateDomainName/numeric		numeric-private-domain-name
 PrivateDomainIdentifier/printable	printable-private-domain-identifier
@@ -305,65 +301,18 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 /*XXX not implemented yet */
 
 #.FN_BODY CountryName
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
-
  if(doing_address)
     g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
-
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              CountryName_choice, hf_index, ett_x411_CountryName, NULL);
-
+ 
+ %(DEFAULT_BODY)s
 
 
 #.FN_BODY AdministrationDomainName
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
-
   if(doing_address)
     g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
 
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                              AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
+ %(DEFAULT_BODY)s
 
-#.FN_BODY ContentIdentifier
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
-
-  /* this is magic I haven't seen used before - I've stripped the tag - but now I'm going to say it is IMPLICIT! */
-  offset = dissect_ber_restricted_string(TRUE, BER_UNI_TAG_PrintableString,
-                                         actx, tree, tvb, offset, hf_index,
-                                         NULL);
 
 #.FN_PARS StandardExtension
 	VAL_PTR = &extension_id
@@ -389,11 +338,10 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	  proto_item_append_text(tree, " (%%s)", name);
 	}
 
-#.FN_PARS BuiltInContentType
-	VAL_PTR = &ict
+#.FN_PARS BuiltInContentType/_untag VAL_PTR = &ict
 
-#.FN_BODY BuiltInContentType
-  guint32	ict = -1;	
+#.FN_BODY BuiltInContentType/_untag
+  static guint32	ict = -1;	
 
   %(DEFAULT_BODY)s
 
@@ -533,7 +481,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	}
 
 #.VIRTUAL_ASSGN
-AddrPrintableString	CountryName/iso-3166-alpha2-code AdministrationDomainName/printable PrivateDomainName/printable PrivateDomainIdentifier/printable
+AddrPrintableString	CountryName/_untag/iso-3166-alpha2-code AdministrationDomainName/_untag/printable PrivateDomainName/printable PrivateDomainIdentifier/printable PhysicalDeliveryCountryName/iso-3166-alpha2-code 
 
 #.FN_BODY AddrPrintableString  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
@@ -544,7 +492,7 @@ AddrPrintableString	CountryName/iso-3166-alpha2-code AdministrationDomainName/pr
 		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
 
 #.VIRTUAL_ASSGN
-AddrNumericString  	UserAddress/x121/x121-address CountryName/x121-dcc-code AdministrationDomainName/numeric PrivateDomainName/numeric PrivateDomainIdentifier/numeric PhysicalDeliveryCountryName/x121-dcc-code PostalCode/numeric-code
+AddrNumericString  	UserAddress/x121/x121-address CountryName/_untag/x121-dcc-code AdministrationDomainName/_untag/numeric PrivateDomainName/numeric PrivateDomainIdentifier/numeric PhysicalDeliveryCountryName/x121-dcc-code PostalCode/numeric-code
 
 #.FN_BODY AddrNumericString  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
