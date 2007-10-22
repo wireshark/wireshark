@@ -881,6 +881,8 @@ install-common-files:
 	if not exist $(INSTALL_DIR)\diameter mkdir $(INSTALL_DIR)\diameter
 	xcopy ".\diameter\*.dtd" $(INSTALL_DIR)\diameter /d
 	xcopy ".\diameter\*.xml" $(INSTALL_DIR)\diameter /d
+	if not exist $(INSTALL_DIR)\wimaxasncp mkdir $(INSTALL_DIR)\wimaxasncp
+	xcopy ".\wimaxasncp\*.*" $(INSTALL_DIR)\wimaxasncp /d
 	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)
 	xcopy ".\plugins\agentx\agentx.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\artnet\artnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
@@ -909,6 +911,7 @@ install-common-files:
 	xcopy ".\plugins\unistim\unistim.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\v5ua\v5ua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\wimax\wimax.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\wimaxasncp\wimaxasncp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)
 
 install-deps1: install-common-deps1
