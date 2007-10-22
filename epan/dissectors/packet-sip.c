@@ -3494,22 +3494,22 @@ void proto_register_sip(void)
 		{ &hf_sip_auth_nc,
 			{ "Nonce Count",  "sip.auth.nc",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Authentication nonce count", HFILL}
+		    	"SIP Authentication Nonce count", HFILL}
 		},
 		{ &hf_sip_auth_username,
 			{ "Username",  "sip.auth.username",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"Sip authentication username", HFILL}
+		    	"SIP Authentication Username", HFILL}
 		},
 		{ &hf_sip_auth_realm,
 			{ "Realm",  "sip.auth.realm",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"Sip Authentication realm", HFILL}
+		    	"SIP Authentication Realm", HFILL}
 		},
 		{ &hf_sip_auth_nonce,
 			{ "Nonce Value",  "sip.auth.nonce",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Authentication nonce value", HFILL}
+		    	"SIP Authentication Nonce", HFILL}
 		},
 		{ &hf_sip_auth_algorithm,
 			{ "Algorithm",  "sip.auth.algorithm",
@@ -3519,7 +3519,7 @@ void proto_register_sip(void)
 		{ &hf_sip_auth_opaque,
 			{ "Opaque Value",  "sip.auth.opaque",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Authentication opaque value", HFILL}
+		    	"SIP Authentication Opaque value", HFILL}
 		},
 		{ &hf_sip_auth_qop,
 			{ "QOP",  "sip.auth.qop",
@@ -3529,7 +3529,7 @@ void proto_register_sip(void)
 		{ &hf_sip_auth_cnonce,
 			{ "CNonce Value",  "sip.auth.cnonce",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Authentication Client Nonce value ", HFILL}
+		    	"SIP Authentication Client Nonce", HFILL}
 		},
 		{ &hf_sip_auth_uri,
 			{ "Authentication URI",  "sip.auth.uri",
@@ -3554,22 +3554,22 @@ void proto_register_sip(void)
 		{ &hf_sip_auth_rspauth,
 			{ "Response auth",  "sip.auth.rspauth",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Response auth", HFILL}
+		    	"SIP Authentication Response auth", HFILL}
 		},
 		{ &hf_sip_auth_nextnonce,
 			{ "Next Nonce",  "sip.auth.nextnonce",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Next Nonce", HFILL}
+		    	"SIP Authentication Next Nonce", HFILL}
 		},
 		{ &hf_sip_auth_ik,
 			{ "Integrity Key",  "sip.auth.ik",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Integrity Key", HFILL}
+		    	"SIP Authentication Integrity Key", HFILL}
 		},
 		{ &hf_sip_auth_ck,
 			{ "Cyphering Key",  "sip.auth.ck",
 			FT_STRING, BASE_NONE, NULL, 0x0,
-		    	"SIP Cyphering Key", HFILL}
+		    	"SIP Authentication Cyphering Key", HFILL}
 		},
 		{ &hf_sip_cseq_seq_no,
 			{ "Sequence Number",  "sip.CSeq.seq",
