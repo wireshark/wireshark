@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-x420.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn ftbp.asn */
+/* packet-x420.c                                                              */
+/* ../../tools/asn2wrs.py -b -e -X -T -p x420 -c x420.cnf -s packet-x420-template x420.asn ftbp.asn */
 
 /* Input file: packet-x420-template.c */
 
@@ -398,7 +398,7 @@ static gint ett_x420_InformationObject = -1;
 static gint ett_x420_IPM = -1;
 static gint ett_x420_IPMSExtension = -1;
 static gint ett_x420_Heading = -1;
-static gint ett_x420_IPMIdentifier = -1;
+static gint ett_x420_IPMIdentifier_U = -1;
 static gint ett_x420_RecipientSpecifier = -1;
 static gint ett_x420_ORDescriptor = -1;
 static gint ett_x420_NotificationRequests = -1;
@@ -506,127 +506,6 @@ static gint ett_x420_Application_Entity_Title = -1;
 /* IPM -> Body -> BodyPart -> MessageBodyPart -> MessageData -> IPM */
 int dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
-static int dissect_ipm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPM(TRUE, tvb, offset, actx, tree, hf_x420_ipm);
-}
-
-
-/*--- Fields for imported types ---*/
-
-static int dissect_user(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ORName(FALSE, tvb, offset, actx, tree, hf_x420_user);
-}
-static int dissect_user_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ORName(TRUE, tvb, offset, actx, tree, hf_x420_user);
-}
-static int dissect_formal_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ORName(FALSE, tvb, offset, actx, tree, hf_x420_formal_name);
-}
-static int dissect_extended_parameters_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_EXTERNALt(TRUE, tvb, offset, actx, tree, hf_x420_extended_parameters);
-}
-static int dissect_extended_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_EXTERNALt(FALSE, tvb, offset, actx, tree, hf_x420_extended_data);
-}
-static int dissect_g3facsimile_non_basic_parameters_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_G3FacsimileNonBasicParameters(TRUE, tvb, offset, actx, tree, hf_x420_g3facsimile_non_basic_parameters);
-}
-static int dissect_teletex_non_basic_parameters_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_TeletexNonBasicParameters(TRUE, tvb, offset, actx, tree, hf_x420_teletex_non_basic_parameters);
-}
-static int dissect_algorithm_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_x420_algorithm_identifier);
-}
-static int dissect_originator_certificates(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ExtendedCertificates(FALSE, tvb, offset, actx, tree, hf_x420_originator_certificates);
-}
-static int dissect_originator_certificates_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ExtendedCertificates(TRUE, tvb, offset, actx, tree, hf_x420_originator_certificates);
-}
-static int dissect_delivery_time_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_MessageDeliveryTime(TRUE, tvb, offset, actx, tree, hf_x420_delivery_time);
-}
-static int dissect_delivery_envelope_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_OtherMessageDeliveryFields(TRUE, tvb, offset, actx, tree, hf_x420_delivery_envelope);
-}
-static int dissect_algorithmIdentifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_x420_algorithmIdentifier);
-}
-static int dissect_originator_certificate_selector_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, actx, tree, hf_x420_originator_certificate_selector);
-}
-static int dissect_content_security_label_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_x420_content_security_label);
-}
-static int dissect_heading_security_label_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_x420_heading_security_label);
-}
-static int dissect_body_part_security_label_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_SecurityLabel(TRUE, tvb, offset, actx, tree, hf_x420_body_part_security_label);
-}
-static int dissect_mts_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_MessageDeliveryIdentifier(TRUE, tvb, offset, actx, tree, hf_x420_mts_identifier);
-}
-static int dissect_proof_of_submission_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ProofOfSubmission(TRUE, tvb, offset, actx, tree, hf_x420_proof_of_submission);
-}
-static int dissect_originating_MTA_certificate_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_OriginatingMTACertificate(TRUE, tvb, offset, actx, tree, hf_x420_originating_MTA_certificate);
-}
-static int dissect_message_submission_envelope(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_MessageSubmissionEnvelope(FALSE, tvb, offset, actx, tree, hf_x420_message_submission_envelope);
-}
-static int dissect_FileTransferData_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_EXTERNALt(FALSE, tvb, offset, actx, tree, hf_x420_FileTransferData_item);
-}
-static int dissect_permitted_actions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Permitted_Actions_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_permitted_actions);
-}
-static int dissect_date_and_time_of_creation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_date_and_time_of_creation);
-}
-static int dissect_date_and_time_of_last_modification_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_date_and_time_of_last_modification);
-}
-static int dissect_date_and_time_of_last_read_access_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_date_and_time_of_last_read_access);
-}
-static int dissect_date_and_time_of_last_attribute_modification_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_date_and_time_of_last_attribute_modification);
-}
-static int dissect_object_availability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Object_Availability_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_object_availability);
-}
-static int dissect_object_size_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Object_Size_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_object_size);
-}
-static int dissect_future_object_size_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Object_Size_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_future_object_size);
-}
-static int dissect_legal_qualifications_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Legal_Qualification_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_legal_qualifications);
-}
-static int dissect_private_use_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Private_Use_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_private_use);
-}
-static int dissect_attribute_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Attribute_Extensions(TRUE, tvb, offset, actx, tree, hf_x420_attribute_extensions);
-}
-static int dissect_incomplete_pathname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Pathname(TRUE, tvb, offset, actx, tree, hf_x420_incomplete_pathname);
-}
-static int dissect_complete_pathname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Pathname(TRUE, tvb, offset, actx, tree, hf_x420_complete_pathname);
-}
-static int dissect_concurrency_access_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Concurrency_Access(TRUE, tvb, offset, actx, tree, hf_x420_concurrency_access);
-}
-static int dissect_ap_title(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_x420_ap_title);
-}
-static int dissect_ae_qualifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_x420_ae_qualifier);
-}
 
 
 
@@ -637,12 +516,6 @@ dissect_x420_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
                                             NULL);
 
   return offset;
-}
-static int dissect_next_available(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Time(FALSE, tvb, offset, actx, tree, hf_x420_next_available);
-}
-static int dissect_effective_from_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Time(TRUE, tvb, offset, actx, tree, hf_x420_effective_from);
 }
 
 
@@ -655,21 +528,28 @@ dissect_x420_LocalIPMIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_user_relative_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_LocalIPMIdentifier(FALSE, tvb, offset, actx, tree, hf_x420_user_relative_identifier);
-}
 
 
-static const ber_old_sequence_t IPMIdentifier_set[] = {
-  { BER_CLASS_APP, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_user },
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_user_relative_identifier },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IPMIdentifier_U_set[] = {
+  { &hf_x420_user           , BER_CLASS_APP, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_ORName },
+  { &hf_x420_user_relative_identifier, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_x420_LocalIPMIdentifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
+dissect_x420_IPMIdentifier_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              IPMIdentifier_U_set, hf_index, ett_x420_IPMIdentifier_U);
+
+  return offset;
+}
+
+
+
+static int
 dissect_x420_IPMIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  IPMIdentifier_set, hf_index, ett_x420_IPMIdentifier);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 11, TRUE, dissect_x420_IPMIdentifier_U);
 
   return offset;
 }
@@ -682,9 +562,6 @@ dissect_x420_ThisIPMField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_this_IPM(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ThisIPMField(FALSE, tvb, offset, actx, tree, hf_x420_this_IPM);
-}
 
 
 
@@ -695,9 +572,6 @@ dissect_x420_FreeFormName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                             NULL);
 
   return offset;
-}
-static int dissect_free_form_name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_FreeFormName(TRUE, tvb, offset, actx, tree, hf_x420_free_form_name);
 }
 
 
@@ -710,33 +584,21 @@ dissect_x420_TelephoneNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_telephone_number_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_TelephoneNumber(TRUE, tvb, offset, actx, tree, hf_x420_telephone_number);
-}
 
 
-static const ber_old_sequence_t ORDescriptor_set[] = {
-  { BER_CLASS_APP, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_formal_name },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_free_form_name_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_telephone_number_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ORDescriptor_set[] = {
+  { &hf_x420_formal_name    , BER_CLASS_APP, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_ORName },
+  { &hf_x420_free_form_name , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_FreeFormName },
+  { &hf_x420_telephone_number, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_TelephoneNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_x420_ORDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ORDescriptor_set, hf_index, ett_x420_ORDescriptor);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ORDescriptor_set, hf_index, ett_x420_ORDescriptor);
 
   return offset;
-}
-static int dissect_recipient_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ORDescriptor(TRUE, tvb, offset, actx, tree, hf_x420_recipient);
-}
-static int dissect_new_address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ORDescriptor(TRUE, tvb, offset, actx, tree, hf_x420_new_address);
-}
-static int dissect_or_descriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ORDescriptor(TRUE, tvb, offset, actx, tree, hf_x420_or_descriptor);
 }
 
 
@@ -747,9 +609,6 @@ dissect_x420_OriginatorField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_originator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OriginatorField(TRUE, tvb, offset, actx, tree, hf_x420_originator);
-}
 
 
 
@@ -759,24 +618,18 @@ dissect_x420_AuthorizingUsersSubfield(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_AuthorizingUsersField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_AuthorizingUsersSubfield(FALSE, tvb, offset, actx, tree, hf_x420_AuthorizingUsersField_item);
-}
 
 
-static const ber_old_sequence_t AuthorizingUsersField_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_AuthorizingUsersField_item },
+static const ber_sequence_t AuthorizingUsersField_sequence_of[1] = {
+  { &hf_x420_AuthorizingUsersField_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_AuthorizingUsersSubfield },
 };
 
 static int
 dissect_x420_AuthorizingUsersField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          AuthorizingUsersField_sequence_of, hf_index, ett_x420_AuthorizingUsersField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      AuthorizingUsersField_sequence_of, hf_index, ett_x420_AuthorizingUsersField);
 
   return offset;
-}
-static int dissect_authorizing_users_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_AuthorizingUsersField(TRUE, tvb, offset, actx, tree, hf_x420_authorizing_users);
 }
 
 
@@ -797,9 +650,6 @@ dissect_x420_NotificationRequests(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_notification_requests_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NotificationRequests(TRUE, tvb, offset, actx, tree, hf_x420_notification_requests);
-}
 
 
 
@@ -808,12 +658,6 @@ dissect_x420_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
-}
-static int dissect_reply_requested_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_x420_reply_requested);
-}
-static int dissect_telex_compatible_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_x420_telex_compatible);
 }
 
 
@@ -833,9 +677,6 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_type(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_type(FALSE, tvb, offset, actx, tree, hf_x420_type);
-}
 
 
 
@@ -849,77 +690,50 @@ dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_value(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_value(FALSE, tvb, offset, actx, tree, hf_x420_value);
-}
 
 
-static const ber_old_sequence_t IPMSExtension_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IPMSExtension_sequence[] = {
+  { &hf_x420_type           , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x420_T_type },
+  { &hf_x420_value          , BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_x420_T_value },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_IPMSExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       IPMSExtension_sequence, hf_index, ett_x420_IPMSExtension);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IPMSExtension_sequence, hf_index, ett_x420_IPMSExtension);
 
   return offset;
 }
-static int dissect_RecipientExtensionsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMSExtension(FALSE, tvb, offset, actx, tree, hf_x420_RecipientExtensionsField_item);
-}
-static int dissect_ExtensionsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMSExtension(FALSE, tvb, offset, actx, tree, hf_x420_ExtensionsField_item);
-}
-static int dissect_NotificationExtensionsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMSExtension(FALSE, tvb, offset, actx, tree, hf_x420_NotificationExtensionsField_item);
-}
-static int dissect_NRNExtensionsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMSExtension(FALSE, tvb, offset, actx, tree, hf_x420_NRNExtensionsField_item);
-}
-static int dissect_RNExtensionsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMSExtension(FALSE, tvb, offset, actx, tree, hf_x420_RNExtensionsField_item);
-}
-static int dissect_OtherNotificationTypeFields_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMSExtension(FALSE, tvb, offset, actx, tree, hf_x420_OtherNotificationTypeFields_item);
-}
 
 
-static const ber_old_sequence_t RecipientExtensionsField_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RecipientExtensionsField_item },
+static const ber_sequence_t RecipientExtensionsField_set_of[1] = {
+  { &hf_x420_RecipientExtensionsField_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_IPMSExtension },
 };
 
 static int
 dissect_x420_RecipientExtensionsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     RecipientExtensionsField_set_of, hf_index, ett_x420_RecipientExtensionsField);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 RecipientExtensionsField_set_of, hf_index, ett_x420_RecipientExtensionsField);
 
   return offset;
 }
-static int dissect_recipient_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RecipientExtensionsField(TRUE, tvb, offset, actx, tree, hf_x420_recipient_extensions);
-}
 
 
-static const ber_old_sequence_t RecipientSpecifier_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_recipient_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notification_requests_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reply_requested_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_recipient_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RecipientSpecifier_set[] = {
+  { &hf_x420_recipient      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_ORDescriptor },
+  { &hf_x420_notification_requests, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_NotificationRequests },
+  { &hf_x420_reply_requested, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_BOOLEAN },
+  { &hf_x420_recipient_extensions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_RecipientExtensionsField },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_RecipientSpecifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  RecipientSpecifier_set, hf_index, ett_x420_RecipientSpecifier);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              RecipientSpecifier_set, hf_index, ett_x420_RecipientSpecifier);
 
   return offset;
-}
-static int dissect_circulation_recipient(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RecipientSpecifier(FALSE, tvb, offset, actx, tree, hf_x420_circulation_recipient);
 }
 
 
@@ -930,24 +744,18 @@ dissect_x420_PrimaryRecipientsSubfield(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_PrimaryRecipientsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_PrimaryRecipientsSubfield(FALSE, tvb, offset, actx, tree, hf_x420_PrimaryRecipientsField_item);
-}
 
 
-static const ber_old_sequence_t PrimaryRecipientsField_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_PrimaryRecipientsField_item },
+static const ber_sequence_t PrimaryRecipientsField_sequence_of[1] = {
+  { &hf_x420_PrimaryRecipientsField_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_PrimaryRecipientsSubfield },
 };
 
 static int
 dissect_x420_PrimaryRecipientsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          PrimaryRecipientsField_sequence_of, hf_index, ett_x420_PrimaryRecipientsField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      PrimaryRecipientsField_sequence_of, hf_index, ett_x420_PrimaryRecipientsField);
 
   return offset;
-}
-static int dissect_primary_recipients_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_PrimaryRecipientsField(TRUE, tvb, offset, actx, tree, hf_x420_primary_recipients);
 }
 
 
@@ -958,24 +766,18 @@ dissect_x420_CopyRecipientsSubfield(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_CopyRecipientsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CopyRecipientsSubfield(FALSE, tvb, offset, actx, tree, hf_x420_CopyRecipientsField_item);
-}
 
 
-static const ber_old_sequence_t CopyRecipientsField_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_CopyRecipientsField_item },
+static const ber_sequence_t CopyRecipientsField_sequence_of[1] = {
+  { &hf_x420_CopyRecipientsField_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_CopyRecipientsSubfield },
 };
 
 static int
 dissect_x420_CopyRecipientsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CopyRecipientsField_sequence_of, hf_index, ett_x420_CopyRecipientsField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CopyRecipientsField_sequence_of, hf_index, ett_x420_CopyRecipientsField);
 
   return offset;
-}
-static int dissect_copy_recipients_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CopyRecipientsField(TRUE, tvb, offset, actx, tree, hf_x420_copy_recipients);
 }
 
 
@@ -986,24 +788,18 @@ dissect_x420_BlindCopyRecipientsSubfield(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_BlindCopyRecipientsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BlindCopyRecipientsSubfield(FALSE, tvb, offset, actx, tree, hf_x420_BlindCopyRecipientsField_item);
-}
 
 
-static const ber_old_sequence_t BlindCopyRecipientsField_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_BlindCopyRecipientsField_item },
+static const ber_sequence_t BlindCopyRecipientsField_sequence_of[1] = {
+  { &hf_x420_BlindCopyRecipientsField_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_BlindCopyRecipientsSubfield },
 };
 
 static int
 dissect_x420_BlindCopyRecipientsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          BlindCopyRecipientsField_sequence_of, hf_index, ett_x420_BlindCopyRecipientsField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      BlindCopyRecipientsField_sequence_of, hf_index, ett_x420_BlindCopyRecipientsField);
 
   return offset;
-}
-static int dissect_blind_copy_recipients_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BlindCopyRecipientsField(TRUE, tvb, offset, actx, tree, hf_x420_blind_copy_recipients);
 }
 
 
@@ -1014,9 +810,6 @@ dissect_x420_RepliedToIPMField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_replied_to_IPM_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RepliedToIPMField(TRUE, tvb, offset, actx, tree, hf_x420_replied_to_IPM);
-}
 
 
 
@@ -1026,24 +819,18 @@ dissect_x420_ObsoletedIPMsSubfield(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ObsoletedIPMsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ObsoletedIPMsSubfield(FALSE, tvb, offset, actx, tree, hf_x420_ObsoletedIPMsField_item);
-}
 
 
-static const ber_old_sequence_t ObsoletedIPMsField_sequence_of[1] = {
-  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_ObsoletedIPMsField_item },
+static const ber_sequence_t ObsoletedIPMsField_sequence_of[1] = {
+  { &hf_x420_ObsoletedIPMsField_item, BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_x420_ObsoletedIPMsSubfield },
 };
 
 static int
 dissect_x420_ObsoletedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ObsoletedIPMsField_sequence_of, hf_index, ett_x420_ObsoletedIPMsField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ObsoletedIPMsField_sequence_of, hf_index, ett_x420_ObsoletedIPMsField);
 
   return offset;
-}
-static int dissect_obsoleted_IPMs_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ObsoletedIPMsField(TRUE, tvb, offset, actx, tree, hf_x420_obsoleted_IPMs);
 }
 
 
@@ -1054,24 +841,18 @@ dissect_x420_RelatedIPMsSubfield(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_RelatedIPMsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RelatedIPMsSubfield(FALSE, tvb, offset, actx, tree, hf_x420_RelatedIPMsField_item);
-}
 
 
-static const ber_old_sequence_t RelatedIPMsField_sequence_of[1] = {
-  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_RelatedIPMsField_item },
+static const ber_sequence_t RelatedIPMsField_sequence_of[1] = {
+  { &hf_x420_RelatedIPMsField_item, BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_x420_RelatedIPMsSubfield },
 };
 
 static int
 dissect_x420_RelatedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          RelatedIPMsField_sequence_of, hf_index, ett_x420_RelatedIPMsField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      RelatedIPMsField_sequence_of, hf_index, ett_x420_RelatedIPMsField);
 
   return offset;
-}
-static int dissect_related_IPMs_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RelatedIPMsField(TRUE, tvb, offset, actx, tree, hf_x420_related_IPMs);
 }
 
 
@@ -1093,9 +874,6 @@ dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_subject(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SubjectField(FALSE, tvb, offset, actx, tree, hf_x420_subject);
-}
 
 
 
@@ -1104,9 +882,6 @@ dissect_x420_ExpiryTimeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_x420_Time(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_expiry_time_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ExpiryTimeField(TRUE, tvb, offset, actx, tree, hf_x420_expiry_time);
 }
 
 
@@ -1117,9 +892,6 @@ dissect_x420_ReplyTimeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_reply_time_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ReplyTimeField(TRUE, tvb, offset, actx, tree, hf_x420_reply_time);
-}
 
 
 
@@ -1129,24 +901,18 @@ dissect_x420_ReplyRecipientsSubfield(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_ReplyRecipientsField_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ReplyRecipientsSubfield(FALSE, tvb, offset, actx, tree, hf_x420_ReplyRecipientsField_item);
-}
 
 
-static const ber_old_sequence_t ReplyRecipientsField_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ReplyRecipientsField_item },
+static const ber_sequence_t ReplyRecipientsField_sequence_of[1] = {
+  { &hf_x420_ReplyRecipientsField_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_ReplyRecipientsSubfield },
 };
 
 static int
 dissect_x420_ReplyRecipientsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ReplyRecipientsField_sequence_of, hf_index, ett_x420_ReplyRecipientsField);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ReplyRecipientsField_sequence_of, hf_index, ett_x420_ReplyRecipientsField);
 
   return offset;
-}
-static int dissect_reply_recipients_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ReplyRecipientsField(TRUE, tvb, offset, actx, tree, hf_x420_reply_recipients);
 }
 
 
@@ -1165,9 +931,6 @@ dissect_x420_ImportanceField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_importance_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ImportanceField(TRUE, tvb, offset, actx, tree, hf_x420_importance);
-}
 
 
 static const value_string x420_SensitivityField_vals[] = {
@@ -1185,9 +948,6 @@ dissect_x420_SensitivityField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_sensitivity_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SensitivityField(TRUE, tvb, offset, actx, tree, hf_x420_sensitivity);
-}
 
 
 
@@ -1197,57 +957,48 @@ dissect_x420_AutoForwardedField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_auto_forwarded_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_AutoForwardedField(TRUE, tvb, offset, actx, tree, hf_x420_auto_forwarded);
-}
 
 
-static const ber_old_sequence_t ExtensionsField_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ExtensionsField_item },
+static const ber_sequence_t ExtensionsField_set_of[1] = {
+  { &hf_x420_ExtensionsField_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_IPMSExtension },
 };
 
 int
 dissect_x420_ExtensionsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     ExtensionsField_set_of, hf_index, ett_x420_ExtensionsField);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 ExtensionsField_set_of, hf_index, ett_x420_ExtensionsField);
 
   return offset;
 }
-static int dissect_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ExtensionsField(TRUE, tvb, offset, actx, tree, hf_x420_extensions);
-}
 
 
-static const ber_old_sequence_t Heading_set[] = {
-  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_this_IPM },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originator_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorizing_users_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_primary_recipients_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_copy_recipients_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_blind_copy_recipients_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_replied_to_IPM_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_obsoleted_IPMs_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_related_IPMs_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_subject },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_expiry_time_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reply_time_impl },
-  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reply_recipients_impl },
-  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_importance_impl },
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sensitivity_impl },
-  { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_auto_forwarded_impl },
-  { BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Heading_set[] = {
+  { &hf_x420_this_IPM       , BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_x420_ThisIPMField },
+  { &hf_x420_originator     , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_OriginatorField },
+  { &hf_x420_authorizing_users, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_AuthorizingUsersField },
+  { &hf_x420_primary_recipients, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_PrimaryRecipientsField },
+  { &hf_x420_copy_recipients, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_CopyRecipientsField },
+  { &hf_x420_blind_copy_recipients, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_BlindCopyRecipientsField },
+  { &hf_x420_replied_to_IPM , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_RepliedToIPMField },
+  { &hf_x420_obsoleted_IPMs , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ObsoletedIPMsField },
+  { &hf_x420_related_IPMs   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_RelatedIPMsField },
+  { &hf_x420_subject        , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_x420_SubjectField },
+  { &hf_x420_expiry_time    , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ExpiryTimeField },
+  { &hf_x420_reply_time     , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ReplyTimeField },
+  { &hf_x420_reply_recipients, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ReplyRecipientsField },
+  { &hf_x420_importance     , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ImportanceField },
+  { &hf_x420_sensitivity    , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_SensitivityField },
+  { &hf_x420_auto_forwarded , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_AutoForwardedField },
+  { &hf_x420_extensions     , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ExtensionsField },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Heading(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  Heading_set, hf_index, ett_x420_Heading);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              Heading_set, hf_index, ett_x420_Heading);
 
   return offset;
-}
-static int dissect_heading(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Heading(FALSE, tvb, offset, actx, tree, hf_x420_heading);
 }
 
 
@@ -1265,25 +1016,19 @@ dissect_x420_Repertoire(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_repertoire_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Repertoire(TRUE, tvb, offset, actx, tree, hf_x420_repertoire);
-}
 
 
-static const ber_old_sequence_t IA5TextParameters_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_repertoire_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IA5TextParameters_set[] = {
+  { &hf_x420_repertoire     , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_Repertoire },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_IA5TextParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  IA5TextParameters_set, hf_index, ett_x420_IA5TextParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              IA5TextParameters_set, hf_index, ett_x420_IA5TextParameters);
 
   return offset;
-}
-static int dissect_ia5text_parameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IA5TextParameters(FALSE, tvb, offset, actx, tree, hf_x420_ia5text_parameters);
 }
 
 
@@ -1296,26 +1041,20 @@ dissect_x420_IA5TextData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_ia5text_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IA5TextData(FALSE, tvb, offset, actx, tree, hf_x420_ia5text_data);
-}
 
 
-static const ber_old_sequence_t IA5TextBodyPart_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ia5text_parameters },
-  { BER_CLASS_UNI, BER_UNI_TAG_IA5String, BER_FLAGS_NOOWNTAG, dissect_ia5text_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IA5TextBodyPart_sequence[] = {
+  { &hf_x420_ia5text_parameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_IA5TextParameters },
+  { &hf_x420_ia5text_data   , BER_CLASS_UNI, BER_UNI_TAG_IA5String, BER_FLAGS_NOOWNTAG, dissect_x420_IA5TextData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_IA5TextBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       IA5TextBodyPart_sequence, hf_index, ett_x420_IA5TextBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IA5TextBodyPart_sequence, hf_index, ett_x420_IA5TextBodyPart);
 
   return offset;
-}
-static int dissect_ia5_text_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IA5TextBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_ia5_text);
 }
 
 
@@ -1327,35 +1066,20 @@ dissect_x420_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_number_of_pages_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_INTEGER(TRUE, tvb, offset, actx, tree, hf_x420_number_of_pages);
-}
-static int dissect_submitted_body_part_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_INTEGER(TRUE, tvb, offset, actx, tree, hf_x420_submitted_body_part);
-}
-static int dissect_voice_message_duration_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_INTEGER(TRUE, tvb, offset, actx, tree, hf_x420_voice_message_duration);
-}
-static int dissect_body_part_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_INTEGER(TRUE, tvb, offset, actx, tree, hf_x420_body_part_reference);
-}
 
 
-static const ber_old_sequence_t G3FacsimileParameters_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_number_of_pages_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_g3facsimile_non_basic_parameters_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t G3FacsimileParameters_set[] = {
+  { &hf_x420_number_of_pages, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_INTEGER },
+  { &hf_x420_g3facsimile_non_basic_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_G3FacsimileNonBasicParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_G3FacsimileParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  G3FacsimileParameters_set, hf_index, ett_x420_G3FacsimileParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              G3FacsimileParameters_set, hf_index, ett_x420_G3FacsimileParameters);
 
   return offset;
-}
-static int dissect_g3facsimile_parameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_G3FacsimileParameters(FALSE, tvb, offset, actx, tree, hf_x420_g3facsimile_parameters);
 }
 
 
@@ -1368,45 +1092,33 @@ dissect_x420_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_G3FacsimileData_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BIT_STRING(FALSE, tvb, offset, actx, tree, hf_x420_G3FacsimileData_item);
-}
-static int dissect_encrypted(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BIT_STRING(FALSE, tvb, offset, actx, tree, hf_x420_encrypted);
-}
 
 
-static const ber_old_sequence_t G3FacsimileData_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_G3FacsimileData_item },
+static const ber_sequence_t G3FacsimileData_sequence_of[1] = {
+  { &hf_x420_G3FacsimileData_item, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_x420_BIT_STRING },
 };
 
 static int
 dissect_x420_G3FacsimileData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          G3FacsimileData_sequence_of, hf_index, ett_x420_G3FacsimileData);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      G3FacsimileData_sequence_of, hf_index, ett_x420_G3FacsimileData);
 
   return offset;
 }
-static int dissect_g3facsimile_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_G3FacsimileData(FALSE, tvb, offset, actx, tree, hf_x420_g3facsimile_data);
-}
 
 
-static const ber_old_sequence_t G3FacsimileBodyPart_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_g3facsimile_parameters },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_g3facsimile_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t G3FacsimileBodyPart_sequence[] = {
+  { &hf_x420_g3facsimile_parameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_G3FacsimileParameters },
+  { &hf_x420_g3facsimile_data, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_G3FacsimileData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       G3FacsimileBodyPart_sequence, hf_index, ett_x420_G3FacsimileBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   G3FacsimileBodyPart_sequence, hf_index, ett_x420_G3FacsimileBodyPart);
 
   return offset;
-}
-static int dissect_g3_facsimile_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_G3FacsimileBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_g3_facsimile);
 }
 
 
@@ -1420,22 +1132,16 @@ dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_G4Class1Data_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Interchange_Data_Element(FALSE, tvb, offset, actx, tree, hf_x420_G4Class1Data_item);
-}
-static int dissect_MixedModeData_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Interchange_Data_Element(FALSE, tvb, offset, actx, tree, hf_x420_MixedModeData_item);
-}
 
 
-static const ber_old_sequence_t G4Class1Data_sequence_of[1] = {
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_G4Class1Data_item },
+static const ber_sequence_t G4Class1Data_sequence_of[1] = {
+  { &hf_x420_G4Class1Data_item, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_x420_Interchange_Data_Element },
 };
 
 static int
 dissect_x420_G4Class1Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          G4Class1Data_sequence_of, hf_index, ett_x420_G4Class1Data);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      G4Class1Data_sequence_of, hf_index, ett_x420_G4Class1Data);
 
   return offset;
 }
@@ -1448,27 +1154,21 @@ dissect_x420_G4Class1BodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_g4_class1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_G4Class1BodyPart(TRUE, tvb, offset, actx, tree, hf_x420_g4_class1);
-}
 
 
-static const ber_old_sequence_t TeletexParameters_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_number_of_pages_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_telex_compatible_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_teletex_non_basic_parameters_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TeletexParameters_set[] = {
+  { &hf_x420_number_of_pages, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_INTEGER },
+  { &hf_x420_telex_compatible, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_BOOLEAN },
+  { &hf_x420_teletex_non_basic_parameters, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_TeletexNonBasicParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_TeletexParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  TeletexParameters_set, hf_index, ett_x420_TeletexParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              TeletexParameters_set, hf_index, ett_x420_TeletexParameters);
 
   return offset;
-}
-static int dissect_teletex_parameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_TeletexParameters(FALSE, tvb, offset, actx, tree, hf_x420_teletex_parameters);
 }
 
 
@@ -1481,42 +1181,33 @@ dissect_x420_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_TeletexData_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_TeletexString(FALSE, tvb, offset, actx, tree, hf_x420_TeletexData_item);
-}
 
 
-static const ber_old_sequence_t TeletexData_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_TeletexData_item },
+static const ber_sequence_t TeletexData_sequence_of[1] = {
+  { &hf_x420_TeletexData_item, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_x420_TeletexString },
 };
 
 static int
 dissect_x420_TeletexData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          TeletexData_sequence_of, hf_index, ett_x420_TeletexData);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      TeletexData_sequence_of, hf_index, ett_x420_TeletexData);
 
   return offset;
 }
-static int dissect_teletex_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_TeletexData(FALSE, tvb, offset, actx, tree, hf_x420_teletex_data);
-}
 
 
-static const ber_old_sequence_t TeletexBodyPart_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_teletex_parameters },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_teletex_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TeletexBodyPart_sequence[] = {
+  { &hf_x420_teletex_parameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_TeletexParameters },
+  { &hf_x420_teletex_data   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_TeletexData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_TeletexBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TeletexBodyPart_sequence, hf_index, ett_x420_TeletexBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TeletexBodyPart_sequence, hf_index, ett_x420_TeletexBodyPart);
 
   return offset;
-}
-static int dissect_teletex_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_TeletexBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_teletex);
 }
 
 
@@ -1536,25 +1227,19 @@ dissect_x420_VideotexSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_syntax_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_VideotexSyntax(TRUE, tvb, offset, actx, tree, hf_x420_syntax);
-}
 
 
-static const ber_old_sequence_t VideotexParameters_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_syntax_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t VideotexParameters_set[] = {
+  { &hf_x420_syntax         , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_VideotexSyntax },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_VideotexParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  VideotexParameters_set, hf_index, ett_x420_VideotexParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              VideotexParameters_set, hf_index, ett_x420_VideotexParameters);
 
   return offset;
-}
-static int dissect_videotex_parameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_VideotexParameters(FALSE, tvb, offset, actx, tree, hf_x420_videotex_parameters);
 }
 
 
@@ -1567,44 +1252,35 @@ dissect_x420_VideotexData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_videotex_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_VideotexData(FALSE, tvb, offset, actx, tree, hf_x420_videotex_data);
-}
 
 
-static const ber_old_sequence_t VideotexBodyPart_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_videotex_parameters },
-  { BER_CLASS_UNI, BER_UNI_TAG_VideotexString, BER_FLAGS_NOOWNTAG, dissect_videotex_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t VideotexBodyPart_sequence[] = {
+  { &hf_x420_videotex_parameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_VideotexParameters },
+  { &hf_x420_videotex_data  , BER_CLASS_UNI, BER_UNI_TAG_VideotexString, BER_FLAGS_NOOWNTAG, dissect_x420_VideotexData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_VideotexBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       VideotexBodyPart_sequence, hf_index, ett_x420_VideotexBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   VideotexBodyPart_sequence, hf_index, ett_x420_VideotexBodyPart);
 
   return offset;
 }
-static int dissect_videotex_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_VideotexBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_videotex);
-}
 
 
-static const ber_old_sequence_t EncryptedParameters_set[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithm_identifier },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_originator_certificates },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t EncryptedParameters_set[] = {
+  { &hf_x420_algorithm_identifier, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509af_AlgorithmIdentifier },
+  { &hf_x420_originator_certificates, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_ExtendedCertificates },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_EncryptedParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  EncryptedParameters_set, hf_index, ett_x420_EncryptedParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              EncryptedParameters_set, hf_index, ett_x420_EncryptedParameters);
 
   return offset;
-}
-static int dissect_encrypted_parameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_EncryptedParameters(FALSE, tvb, offset, actx, tree, hf_x420_encrypted_parameters);
 }
 
 
@@ -1617,44 +1293,35 @@ dissect_x420_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_encrypted_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_EncryptedData(FALSE, tvb, offset, actx, tree, hf_x420_encrypted_data);
-}
 
 
-static const ber_old_sequence_t EncryptedBodyPart_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_encrypted_parameters },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t EncryptedBodyPart_sequence[] = {
+  { &hf_x420_encrypted_parameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_EncryptedParameters },
+  { &hf_x420_encrypted_data , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_x420_EncryptedData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_EncryptedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       EncryptedBodyPart_sequence, hf_index, ett_x420_EncryptedBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EncryptedBodyPart_sequence, hf_index, ett_x420_EncryptedBodyPart);
 
   return offset;
 }
-static int dissect_encrypted_bp_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_EncryptedBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_encrypted_bp);
-}
 
 
-static const ber_old_sequence_t MessageParameters_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_delivery_time_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_delivery_envelope_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MessageParameters_set[] = {
+  { &hf_x420_delivery_time  , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_MessageDeliveryTime },
+  { &hf_x420_delivery_envelope, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_OtherMessageDeliveryFields },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_x420_MessageParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  MessageParameters_set, hf_index, ett_x420_MessageParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MessageParameters_set, hf_index, ett_x420_MessageParameters);
 
   return offset;
-}
-static int dissect_message_parameters(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_MessageParameters(FALSE, tvb, offset, actx, tree, hf_x420_message_parameters);
 }
 
 
@@ -1665,37 +1332,31 @@ dissect_x420_MessageData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_message_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_MessageData(FALSE, tvb, offset, actx, tree, hf_x420_message_data);
-}
 
 
-static const ber_old_sequence_t MessageBodyPart_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_message_parameters },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_message_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MessageBodyPart_sequence[] = {
+  { &hf_x420_message_parameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_MessageParameters },
+  { &hf_x420_message_data   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_MessageData },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_MessageBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       MessageBodyPart_sequence, hf_index, ett_x420_MessageBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MessageBodyPart_sequence, hf_index, ett_x420_MessageBodyPart);
 
   return offset;
 }
-static int dissect_message_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_MessageBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_message);
-}
 
 
-static const ber_old_sequence_t MixedModeData_sequence_of[1] = {
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_MixedModeData_item },
+static const ber_sequence_t MixedModeData_sequence_of[1] = {
+  { &hf_x420_MixedModeData_item, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_x420_Interchange_Data_Element },
 };
 
 static int
 dissect_x420_MixedModeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          MixedModeData_sequence_of, hf_index, ett_x420_MixedModeData);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      MixedModeData_sequence_of, hf_index, ett_x420_MixedModeData);
 
   return offset;
 }
@@ -1708,9 +1369,6 @@ dissect_x420_MixedModeBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_mixed_mode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_MixedModeBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_mixed_mode);
-}
 
 
 
@@ -1720,9 +1378,6 @@ dissect_x420_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb
                                        NULL);
 
   return offset;
-}
-static int dissect_bilaterally_defined_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BilaterallyDefinedBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_bilaterally_defined);
 }
 
 
@@ -1736,26 +1391,20 @@ dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_nationally_defined_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NationallyDefinedBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_nationally_defined);
-}
 
 
-static const ber_old_sequence_t ExtendedBodyPart_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extended_parameters_impl },
-  { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_extended_data },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ExtendedBodyPart_sequence[] = {
+  { &hf_x420_extended_parameters, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acse_EXTERNALt },
+  { &hf_x420_extended_data  , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_ExtendedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ExtendedBodyPart_sequence, hf_index, ett_x420_ExtendedBodyPart);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ExtendedBodyPart_sequence, hf_index, ett_x420_ExtendedBodyPart);
 
   return offset;
-}
-static int dissect_extended_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ExtendedBodyPart(TRUE, tvb, offset, actx, tree, hf_x420_extended);
 }
 
 
@@ -1774,57 +1423,48 @@ static const value_string x420_BodyPart_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t BodyPart_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ia5_text_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_g3_facsimile_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_g4_class1_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_teletex_impl },
-  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_videotex_impl },
-  {   8, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_encrypted_bp_impl },
-  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_message_impl },
-  {  11, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_mixed_mode_impl },
-  {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_bilaterally_defined_impl },
-  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_nationally_defined_impl },
-  {  15, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_extended_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t BodyPart_choice[] = {
+  {   0, &hf_x420_ia5_text       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_IA5TextBodyPart },
+  {   3, &hf_x420_g3_facsimile   , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_x420_G3FacsimileBodyPart },
+  {   4, &hf_x420_g4_class1      , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_x420_G4Class1BodyPart },
+  {   5, &hf_x420_teletex        , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_x420_TeletexBodyPart },
+  {   6, &hf_x420_videotex       , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_x420_VideotexBodyPart },
+  {   8, &hf_x420_encrypted_bp   , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_x420_EncryptedBodyPart },
+  {   9, &hf_x420_message        , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_x420_MessageBodyPart },
+  {  11, &hf_x420_mixed_mode     , BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_x420_MixedModeBodyPart },
+  {  14, &hf_x420_bilaterally_defined, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_x420_BilaterallyDefinedBodyPart },
+  {   7, &hf_x420_nationally_defined, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_x420_NationallyDefinedBodyPart },
+  {  15, &hf_x420_extended       , BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_x420_ExtendedBodyPart },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_BodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     BodyPart_choice, hf_index, ett_x420_BodyPart,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 BodyPart_choice, hf_index, ett_x420_BodyPart,
+                                 NULL);
 
   return offset;
 }
-static int dissect_Body_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPart(FALSE, tvb, offset, actx, tree, hf_x420_Body_item);
-}
-static int dissect_advice(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPart(FALSE, tvb, offset, actx, tree, hf_x420_advice);
-}
 
 
-static const ber_old_sequence_t Body_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Body_item },
+static const ber_sequence_t Body_sequence_of[1] = {
+  { &hf_x420_Body_item      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_BodyPart },
 };
 
 static int
 dissect_x420_Body(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          Body_sequence_of, hf_index, ett_x420_Body);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      Body_sequence_of, hf_index, ett_x420_Body);
 
   return offset;
 }
-static int dissect_body(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Body(FALSE, tvb, offset, actx, tree, hf_x420_body);
-}
 
 
-static const ber_old_sequence_t IPM_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_heading },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_body },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IPM_sequence[] = {
+  { &hf_x420_heading        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_Heading },
+  { &hf_x420_body           , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_Body },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
@@ -1834,8 +1474,8 @@ dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
  if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Message");
 
-    offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       IPM_sequence, hf_index, ett_x420_IPM);
+    offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IPM_sequence, hf_index, ett_x420_IPM);
 
 
 
@@ -1852,9 +1492,6 @@ dissect_x420_SubjectIPMField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_subject_ipm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SubjectIPMField(FALSE, tvb, offset, actx, tree, hf_x420_subject_ipm);
-}
 
 
 
@@ -1863,9 +1500,6 @@ dissect_x420_IPNOriginatorField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_x420_ORDescriptor(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ipn_originator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPNOriginatorField(TRUE, tvb, offset, actx, tree, hf_x420_ipn_originator);
 }
 
 
@@ -1876,9 +1510,6 @@ dissect_x420_IPMIntendedRecipientField(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_ipm_intended_recipient_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPMIntendedRecipientField(TRUE, tvb, offset, actx, tree, hf_x420_ipm_intended_recipient);
-}
 
 
 
@@ -1888,24 +1519,18 @@ dissect_x420_ConversionEITsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_conversion_eits(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ConversionEITsField(FALSE, tvb, offset, actx, tree, hf_x420_conversion_eits);
-}
 
 
-static const ber_old_sequence_t NotificationExtensionsField_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NotificationExtensionsField_item },
+static const ber_sequence_t NotificationExtensionsField_set_of[1] = {
+  { &hf_x420_NotificationExtensionsField_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_IPMSExtension },
 };
 
 static int
 dissect_x420_NotificationExtensionsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     NotificationExtensionsField_set_of, hf_index, ett_x420_NotificationExtensionsField);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 NotificationExtensionsField_set_of, hf_index, ett_x420_NotificationExtensionsField);
 
   return offset;
-}
-static int dissect_notification_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NotificationExtensionsField(TRUE, tvb, offset, actx, tree, hf_x420_notification_extensions);
 }
 
 
@@ -1922,9 +1547,6 @@ dissect_x420_NonReceiptReasonField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
                                   NULL);
 
   return offset;
-}
-static int dissect_non_receipt_reason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NonReceiptReasonField(TRUE, tvb, offset, actx, tree, hf_x420_non_receipt_reason);
 }
 
 
@@ -1943,9 +1565,6 @@ dissect_x420_DiscardReasonField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                   NULL);
 
   return offset;
-}
-static int dissect_discard_reason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_DiscardReasonField(TRUE, tvb, offset, actx, tree, hf_x420_discard_reason);
 }
 
 
@@ -1967,9 +1586,6 @@ dissect_x420_AutoForwardCommentField(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_auto_forward_comment_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_AutoForwardCommentField(TRUE, tvb, offset, actx, tree, hf_x420_auto_forward_comment);
-}
 
 
 
@@ -1979,45 +1595,36 @@ dissect_x420_ReturnedIPMField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_returned_ipm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ReturnedIPMField(TRUE, tvb, offset, actx, tree, hf_x420_returned_ipm);
-}
 
 
-static const ber_old_sequence_t NRNExtensionsField_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_NRNExtensionsField_item },
+static const ber_sequence_t NRNExtensionsField_set_of[1] = {
+  { &hf_x420_NRNExtensionsField_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_IPMSExtension },
 };
 
 static int
 dissect_x420_NRNExtensionsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     NRNExtensionsField_set_of, hf_index, ett_x420_NRNExtensionsField);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 NRNExtensionsField_set_of, hf_index, ett_x420_NRNExtensionsField);
 
   return offset;
 }
-static int dissect_nrn_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NRNExtensionsField(TRUE, tvb, offset, actx, tree, hf_x420_nrn_extensions);
-}
 
 
-static const ber_old_sequence_t NonReceiptFields_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_non_receipt_reason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_discard_reason_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_auto_forward_comment_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_returned_ipm_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nrn_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t NonReceiptFields_set[] = {
+  { &hf_x420_non_receipt_reason, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_NonReceiptReasonField },
+  { &hf_x420_discard_reason , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_DiscardReasonField },
+  { &hf_x420_auto_forward_comment, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_AutoForwardCommentField },
+  { &hf_x420_returned_ipm   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ReturnedIPMField },
+  { &hf_x420_nrn_extensions , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_NRNExtensionsField },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_NonReceiptFields(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  NonReceiptFields_set, hf_index, ett_x420_NonReceiptFields);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              NonReceiptFields_set, hf_index, ett_x420_NonReceiptFields);
 
   return offset;
-}
-static int dissect_non_receipt_fields_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NonReceiptFields(TRUE, tvb, offset, actx, tree, hf_x420_non_receipt_fields);
 }
 
 
@@ -2027,9 +1634,6 @@ dissect_x420_ReceiptTimeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   offset = dissect_x420_Time(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_receipt_time_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ReceiptTimeField(TRUE, tvb, offset, actx, tree, hf_x420_receipt_time);
 }
 
 
@@ -2047,9 +1651,6 @@ dissect_x420_AcknowledgmentModeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_acknowledgment_mode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_AcknowledgmentModeField(TRUE, tvb, offset, actx, tree, hf_x420_acknowledgment_mode);
-}
 
 
 
@@ -2059,60 +1660,48 @@ dissect_x420_SupplReceiptInfoField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_suppl_receipt_info_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SupplReceiptInfoField(TRUE, tvb, offset, actx, tree, hf_x420_suppl_receipt_info);
-}
 
 
-static const ber_old_sequence_t RNExtensionsField_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RNExtensionsField_item },
+static const ber_sequence_t RNExtensionsField_set_of[1] = {
+  { &hf_x420_RNExtensionsField_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_IPMSExtension },
 };
 
 static int
 dissect_x420_RNExtensionsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     RNExtensionsField_set_of, hf_index, ett_x420_RNExtensionsField);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 RNExtensionsField_set_of, hf_index, ett_x420_RNExtensionsField);
 
   return offset;
 }
-static int dissect_rn_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RNExtensionsField(TRUE, tvb, offset, actx, tree, hf_x420_rn_extensions);
-}
 
 
-static const ber_old_sequence_t ReceiptFields_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_receipt_time_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acknowledgment_mode_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_suppl_receipt_info_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rn_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReceiptFields_set[] = {
+  { &hf_x420_receipt_time   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_ReceiptTimeField },
+  { &hf_x420_acknowledgment_mode, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_AcknowledgmentModeField },
+  { &hf_x420_suppl_receipt_info, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_SupplReceiptInfoField },
+  { &hf_x420_rn_extensions  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_RNExtensionsField },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_ReceiptFields(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ReceiptFields_set, hf_index, ett_x420_ReceiptFields);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ReceiptFields_set, hf_index, ett_x420_ReceiptFields);
 
   return offset;
 }
-static int dissect_receipt_fields_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ReceiptFields(TRUE, tvb, offset, actx, tree, hf_x420_receipt_fields);
-}
 
 
-static const ber_old_sequence_t OtherNotificationTypeFields_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_OtherNotificationTypeFields_item },
+static const ber_sequence_t OtherNotificationTypeFields_set_of[1] = {
+  { &hf_x420_OtherNotificationTypeFields_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_IPMSExtension },
 };
 
 static int
 dissect_x420_OtherNotificationTypeFields(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     OtherNotificationTypeFields_set_of, hf_index, ett_x420_OtherNotificationTypeFields);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 OtherNotificationTypeFields_set_of, hf_index, ett_x420_OtherNotificationTypeFields);
 
   return offset;
-}
-static int dissect_other_notification_type_fields_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OtherNotificationTypeFields(TRUE, tvb, offset, actx, tree, hf_x420_other_notification_type_fields);
 }
 
 
@@ -2123,34 +1712,31 @@ static const value_string x420_T_choice_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_choice_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_non_receipt_fields_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_receipt_fields_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_other_notification_type_fields_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_choice_choice[] = {
+  {   0, &hf_x420_non_receipt_fields, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_NonReceiptFields },
+  {   1, &hf_x420_receipt_fields , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_ReceiptFields },
+  {   2, &hf_x420_other_notification_type_fields, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_x420_OtherNotificationTypeFields },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_T_choice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_choice_choice, hf_index, ett_x420_T_choice,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_choice_choice, hf_index, ett_x420_T_choice,
+                                 NULL);
 
   return offset;
 }
-static int dissect_choice_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_choice(TRUE, tvb, offset, actx, tree, hf_x420_choice);
-}
 
 
-static const ber_old_sequence_t IPN_set[] = {
-  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_subject_ipm },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ipn_originator_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ipm_intended_recipient_impl },
-  { BER_CLASS_APP, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_conversion_eits },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notification_extensions_impl },
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_choice_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IPN_set[] = {
+  { &hf_x420_subject_ipm    , BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_x420_SubjectIPMField },
+  { &hf_x420_ipn_originator , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_IPNOriginatorField },
+  { &hf_x420_ipm_intended_recipient, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_IPMIntendedRecipientField },
+  { &hf_x420_conversion_eits, BER_CLASS_APP, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x420_ConversionEITsField },
+  { &hf_x420_notification_extensions, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_NotificationExtensionsField },
+  { &hf_x420_choice         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_T_choice },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
@@ -2160,16 +1746,13 @@ dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
  if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Notification");
 
-    offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  IPN_set, hf_index, ett_x420_IPN);
+    offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              IPN_set, hf_index, ett_x420_IPN);
 
 
 
 
   return offset;
-}
-static int dissect_ipn_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IPN(TRUE, tvb, offset, actx, tree, hf_x420_ipn);
 }
 
 
@@ -2179,47 +1762,47 @@ const value_string x420_InformationObject_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t InformationObject_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ipm_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ipn_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t InformationObject_choice[] = {
+  {   0, &hf_x420_ipm            , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_IPM },
+  {   1, &hf_x420_ipn            , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_IPN },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_x420_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     InformationObject_choice, hf_index, ett_x420_InformationObject,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 InformationObject_choice, hf_index, ett_x420_InformationObject,
+                                 NULL);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t AbsenceAdvice_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_advice },
-  { BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_next_available },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AbsenceAdvice_sequence[] = {
+  { &hf_x420_advice         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_BodyPart },
+  { &hf_x420_next_available , BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x420_Time },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_AbsenceAdvice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AbsenceAdvice_sequence, hf_index, ett_x420_AbsenceAdvice);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AbsenceAdvice_sequence, hf_index, ett_x420_AbsenceAdvice);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t ChangeOfAddressAdvice_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_new_address_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_effective_from_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ChangeOfAddressAdvice_sequence[] = {
+  { &hf_x420_new_address    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_ORDescriptor },
+  { &hf_x420_effective_from , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_Time },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_ChangeOfAddressAdvice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ChangeOfAddressAdvice_sequence, hf_index, ett_x420_ChangeOfAddressAdvice);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ChangeOfAddressAdvice_sequence, hf_index, ett_x420_ChangeOfAddressAdvice);
 
   return offset;
 }
@@ -2233,15 +1816,6 @@ dissect_x420_SequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_stored_entry_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SequenceNumber(TRUE, tvb, offset, actx, tree, hf_x420_stored_entry);
-}
-static int dissect_stored_content_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SequenceNumber(TRUE, tvb, offset, actx, tree, hf_x420_stored_content);
-}
-static int dissect_message_entry(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SequenceNumber(FALSE, tvb, offset, actx, tree, hf_x420_message_entry);
-}
 
 
 
@@ -2252,26 +1826,20 @@ dissect_x420_BodyPartNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_body_part_number(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPartNumber(FALSE, tvb, offset, actx, tree, hf_x420_body_part_number);
-}
 
 
-static const ber_old_sequence_t T_stored_body_part_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_message_entry },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_body_part_number },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t T_stored_body_part_sequence[] = {
+  { &hf_x420_message_entry  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x420_SequenceNumber },
+  { &hf_x420_body_part_number, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x420_BodyPartNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_T_stored_body_part(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_stored_body_part_sequence, hf_index, ett_x420_T_stored_body_part);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_stored_body_part_sequence, hf_index, ett_x420_T_stored_body_part);
 
   return offset;
-}
-static int dissect_stored_body_part_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_stored_body_part(TRUE, tvb, offset, actx, tree, hf_x420_stored_body_part);
 }
 
 
@@ -2283,52 +1851,46 @@ static const value_string x420_BodyPartReference_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t BodyPartReference_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_stored_entry_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_stored_content_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_submitted_body_part_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_stored_body_part_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t BodyPartReference_choice[] = {
+  {   0, &hf_x420_stored_entry   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_SequenceNumber },
+  {   1, &hf_x420_stored_content , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_SequenceNumber },
+  {   2, &hf_x420_submitted_body_part, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_x420_INTEGER },
+  {   3, &hf_x420_stored_body_part, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_x420_T_stored_body_part },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_BodyPartReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     BodyPartReference_choice, hf_index, ett_x420_BodyPartReference,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 BodyPartReference_choice, hf_index, ett_x420_BodyPartReference,
+                                 NULL);
 
   return offset;
 }
-static int dissect_BodyPartReferences_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPartReference(FALSE, tvb, offset, actx, tree, hf_x420_BodyPartReferences_item);
-}
 
 
-static const ber_old_sequence_t BodyPartReferences_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BodyPartReferences_item },
+static const ber_sequence_t BodyPartReferences_sequence_of[1] = {
+  { &hf_x420_BodyPartReferences_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_BodyPartReference },
 };
 
 static int
 dissect_x420_BodyPartReferences(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          BodyPartReferences_sequence_of, hf_index, ett_x420_BodyPartReferences);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      BodyPartReferences_sequence_of, hf_index, ett_x420_BodyPartReferences);
 
   return offset;
 }
-static int dissect_assembly_instructions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPartReferences(TRUE, tvb, offset, actx, tree, hf_x420_assembly_instructions);
-}
 
 
-static const ber_old_sequence_t IPMAssemblyInstructions_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_assembly_instructions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IPMAssemblyInstructions_set[] = {
+  { &hf_x420_assembly_instructions, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_BodyPartReferences },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_IPMAssemblyInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  IPMAssemblyInstructions_set, hf_index, ett_x420_IPMAssemblyInstructions);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              IPMAssemblyInstructions_set, hf_index, ett_x420_IPMAssemblyInstructions);
 
   return offset;
 }
@@ -2363,19 +1925,16 @@ dissect_x420_Language(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_Languages_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Language(FALSE, tvb, offset, actx, tree, hf_x420_Languages_item);
-}
 
 
-static const ber_old_sequence_t Languages_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_Languages_item },
+static const ber_sequence_t Languages_set_of[1] = {
+  { &hf_x420_Languages_item , BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_x420_Language },
 };
 
 static int
 dissect_x420_Languages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     Languages_set_of, hf_index, ett_x420_Languages);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 Languages_set_of, hf_index, ett_x420_Languages);
 
   return offset;
 }
@@ -2398,16 +1957,16 @@ dissect_x420_AutoSubmitted(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const ber_old_sequence_t Signature_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithmIdentifier },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Signature_sequence[] = {
+  { &hf_x420_algorithmIdentifier, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509af_AlgorithmIdentifier },
+  { &hf_x420_encrypted      , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_x420_BIT_STRING },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Signature_sequence, hf_index, ett_x420_Signature);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Signature_sequence, hf_index, ett_x420_Signature);
 
   return offset;
 }
@@ -2420,39 +1979,33 @@ dissect_x420_BodyPartSignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_body_part_signature(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPartSignature(FALSE, tvb, offset, actx, tree, hf_x420_body_part_signature);
-}
 
 
-static const ber_old_sequence_t BodyPartSignatures_item_set[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_body_part_number },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_body_part_signature },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originator_certificate_selector_impl },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originator_certificates_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t BodyPartSignatures_item_set[] = {
+  { &hf_x420_body_part_number, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x420_BodyPartNumber },
+  { &hf_x420_body_part_signature, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_BodyPartSignature },
+  { &hf_x420_originator_certificate_selector, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_CertificateAssertion },
+  { &hf_x420_originator_certificates, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_ExtendedCertificates },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_BodyPartSignatures_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  BodyPartSignatures_item_set, hf_index, ett_x420_BodyPartSignatures_item);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              BodyPartSignatures_item_set, hf_index, ett_x420_BodyPartSignatures_item);
 
   return offset;
 }
-static int dissect_BodyPartSignatures_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPartSignatures_item(FALSE, tvb, offset, actx, tree, hf_x420_BodyPartSignatures_item);
-}
 
 
-static const ber_old_sequence_t BodyPartSignatures_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_BodyPartSignatures_item },
+static const ber_sequence_t BodyPartSignatures_set_of[1] = {
+  { &hf_x420_BodyPartSignatures_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_BodyPartSignatures_item },
 };
 
 static int
 dissect_x420_BodyPartSignatures(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     BodyPartSignatures_set_of, hf_index, ett_x420_BodyPartSignatures);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 BodyPartSignatures_set_of, hf_index, ett_x420_BodyPartSignatures);
 
   return offset;
 }
@@ -2465,15 +2018,6 @@ dissect_x420_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_body_part_unlabelled_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NULL(TRUE, tvb, offset, actx, tree, hf_x420_body_part_unlabelled);
-}
-static int dissect_simple(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NULL(FALSE, tvb, offset, actx, tree, hf_x420_simple);
-}
-static int dissect_no_value_available_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_NULL(TRUE, tvb, offset, actx, tree, hf_x420_no_value_available);
-}
 
 
 static const value_string x420_BodyPartSecurityLabel_vals[] = {
@@ -2482,52 +2026,46 @@ static const value_string x420_BodyPartSecurityLabel_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t BodyPartSecurityLabel_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_body_part_unlabelled_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_body_part_security_label_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t BodyPartSecurityLabel_choice[] = {
+  {   0, &hf_x420_body_part_unlabelled, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_NULL },
+  {   1, &hf_x420_body_part_security_label, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_BodyPartSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     BodyPartSecurityLabel_choice, hf_index, ett_x420_BodyPartSecurityLabel,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 BodyPartSecurityLabel_choice, hf_index, ett_x420_BodyPartSecurityLabel,
+                                 NULL);
 
   return offset;
 }
-static int dissect_body_part_security_labels_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_BodyPartSecurityLabel(FALSE, tvb, offset, actx, tree, hf_x420_body_part_security_labels_item);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_BodyPartSecurityLabel_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_body_part_security_labels_item },
+static const ber_sequence_t SEQUENCE_OF_BodyPartSecurityLabel_sequence_of[1] = {
+  { &hf_x420_body_part_security_labels_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_BodyPartSecurityLabel },
 };
 
 static int
 dissect_x420_SEQUENCE_OF_BodyPartSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_BodyPartSecurityLabel_sequence_of, hf_index, ett_x420_SEQUENCE_OF_BodyPartSecurityLabel);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_BodyPartSecurityLabel_sequence_of, hf_index, ett_x420_SEQUENCE_OF_BodyPartSecurityLabel);
 
   return offset;
 }
-static int dissect_body_part_security_labels_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SEQUENCE_OF_BodyPartSecurityLabel(TRUE, tvb, offset, actx, tree, hf_x420_body_part_security_labels);
-}
 
 
-static const ber_old_sequence_t IPMSecurityLabel_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_content_security_label_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_heading_security_label_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_body_part_security_labels_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t IPMSecurityLabel_sequence[] = {
+  { &hf_x420_content_security_label, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { &hf_x420_heading_security_label, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_SecurityLabel },
+  { &hf_x420_body_part_security_labels, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_SEQUENCE_OF_BodyPartSecurityLabel },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_IPMSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       IPMSecurityLabel_sequence, hf_index, ett_x420_IPMSecurityLabel);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IPMSecurityLabel_sequence, hf_index, ett_x420_IPMSecurityLabel);
 
   return offset;
 }
@@ -2549,12 +2087,6 @@ dissect_x420_CirculationTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_timestamped(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CirculationTime(FALSE, tvb, offset, actx, tree, hf_x420_timestamped);
-}
-static int dissect_timestamp(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CirculationTime(FALSE, tvb, offset, actx, tree, hf_x420_timestamp);
-}
 
 
 
@@ -2564,46 +2096,37 @@ dissect_x420_CirculationSignatureAlgorithmIdentifier(gboolean implicit_tag _U_, 
 
   return offset;
 }
-static int dissect_circulation_signature_algorithm_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CirculationSignatureAlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_x420_circulation_signature_algorithm_identifier);
-}
 
 
-static const ber_old_sequence_t CirculationSignatureData_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_circulation_signature_algorithm_identifier },
-  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_this_IPM },
-  { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_timestamp },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CirculationSignatureData_sequence[] = {
+  { &hf_x420_circulation_signature_algorithm_identifier, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_CirculationSignatureAlgorithmIdentifier },
+  { &hf_x420_this_IPM       , BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_x420_ThisIPMField },
+  { &hf_x420_timestamp      , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_x420_CirculationTime },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_CirculationSignatureData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CirculationSignatureData_sequence, hf_index, ett_x420_CirculationSignatureData);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CirculationSignatureData_sequence, hf_index, ett_x420_CirculationSignatureData);
 
   return offset;
 }
-static int dissect_circulation_signature_data(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CirculationSignatureData(FALSE, tvb, offset, actx, tree, hf_x420_circulation_signature_data);
-}
 
 
-static const ber_old_sequence_t CirculationSignature_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_circulation_signature_data },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithm_identifier },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_encrypted },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CirculationSignature_sequence[] = {
+  { &hf_x420_circulation_signature_data, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_CirculationSignatureData },
+  { &hf_x420_algorithm_identifier, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509af_AlgorithmIdentifier },
+  { &hf_x420_encrypted      , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_x420_BIT_STRING },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_CirculationSignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CirculationSignature_sequence, hf_index, ett_x420_CirculationSignature);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CirculationSignature_sequence, hf_index, ett_x420_CirculationSignature);
 
   return offset;
-}
-static int dissect_signed(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CirculationSignature(FALSE, tvb, offset, actx, tree, hf_x420_signed);
 }
 
 
@@ -2614,52 +2137,46 @@ static const value_string x420_Checkmark_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Checkmark_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_simple },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_timestamped },
-  {   2, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signed },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Checkmark_choice[] = {
+  {   0, &hf_x420_simple         , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_x420_NULL },
+  {   1, &hf_x420_timestamped    , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_x420_CirculationTime },
+  {   2, &hf_x420_signed         , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_CirculationSignature },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Checkmark(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Checkmark_choice, hf_index, ett_x420_Checkmark,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Checkmark_choice, hf_index, ett_x420_Checkmark,
+                                 NULL);
 
   return offset;
 }
-static int dissect_checked(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Checkmark(FALSE, tvb, offset, actx, tree, hf_x420_checked);
-}
 
 
-static const ber_old_sequence_t CirculationMember_set[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_circulation_recipient },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_checked },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CirculationMember_set[] = {
+  { &hf_x420_circulation_recipient, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_RecipientSpecifier },
+  { &hf_x420_checked        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Checkmark },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_CirculationMember(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  CirculationMember_set, hf_index, ett_x420_CirculationMember);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              CirculationMember_set, hf_index, ett_x420_CirculationMember);
 
   return offset;
 }
-static int dissect_CirculationList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CirculationMember(FALSE, tvb, offset, actx, tree, hf_x420_CirculationList_item);
-}
 
 
-static const ber_old_sequence_t CirculationList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_CirculationList_item },
+static const ber_sequence_t CirculationList_sequence_of[1] = {
+  { &hf_x420_CirculationList_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_CirculationMember },
 };
 
 static int
 dissect_x420_CirculationList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          CirculationList_sequence_of, hf_index, ett_x420_CirculationList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      CirculationList_sequence_of, hf_index, ett_x420_CirculationList);
 
   return offset;
 }
@@ -2681,24 +2198,6 @@ dissect_x420_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_oid_code(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_x420_oid_code);
-}
-static int dissect_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x420_reference);
-}
-static int dissect_voice_encoding_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x420_voice_encoding_type);
-}
-static int dissect_operating_system_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x420_operating_system);
-}
-static int dissect_registered_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x420_registered_identifier);
-}
-static int dissect_compression_algorithm_id_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_x420_compression_algorithm_id);
-}
 
 
 
@@ -2708,38 +2207,32 @@ dissect_x420_AlphaCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_alphanumeric_code(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_AlphaCode(FALSE, tvb, offset, actx, tree, hf_x420_alphanumeric_code);
-}
 
 
-static const ber_old_sequence_t DistributionCode_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_oid_code },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alphanumeric_code },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_or_descriptor_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DistributionCode_sequence[] = {
+  { &hf_x420_oid_code       , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x420_OBJECT_IDENTIFIER },
+  { &hf_x420_alphanumeric_code, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x420_AlphaCode },
+  { &hf_x420_or_descriptor  , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ORDescriptor },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_DistributionCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DistributionCode_sequence, hf_index, ett_x420_DistributionCode);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DistributionCode_sequence, hf_index, ett_x420_DistributionCode);
 
   return offset;
 }
-static int dissect_DistributionCodes_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_DistributionCode(FALSE, tvb, offset, actx, tree, hf_x420_DistributionCodes_item);
-}
 
 
-static const ber_old_sequence_t DistributionCodes_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DistributionCodes_item },
+static const ber_sequence_t DistributionCodes_sequence_of[1] = {
+  { &hf_x420_DistributionCodes_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_DistributionCode },
 };
 
 static int
 dissect_x420_DistributionCodes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          DistributionCodes_sequence_of, hf_index, ett_x420_DistributionCodes);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      DistributionCodes_sequence_of, hf_index, ett_x420_DistributionCodes);
 
   return offset;
 }
@@ -2761,37 +2254,31 @@ dissect_x420_DescriptionString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_description_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_DescriptionString(TRUE, tvb, offset, actx, tree, hf_x420_description);
-}
 
 
-static const ber_old_sequence_t InformationCategory_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reference_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_description_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InformationCategory_sequence[] = {
+  { &hf_x420_reference      , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_OBJECT_IDENTIFIER },
+  { &hf_x420_description    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_DescriptionString },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_InformationCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       InformationCategory_sequence, hf_index, ett_x420_InformationCategory);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   InformationCategory_sequence, hf_index, ett_x420_InformationCategory);
 
   return offset;
 }
-static int dissect_InformationCategories_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_InformationCategory(FALSE, tvb, offset, actx, tree, hf_x420_InformationCategories_item);
-}
 
 
-static const ber_old_sequence_t InformationCategories_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_InformationCategories_item },
+static const ber_sequence_t InformationCategories_sequence_of[1] = {
+  { &hf_x420_InformationCategories_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_InformationCategory },
 };
 
 static int
 dissect_x420_InformationCategories(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          InformationCategories_sequence_of, hf_index, ett_x420_InformationCategories);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      InformationCategories_sequence_of, hf_index, ett_x420_InformationCategories);
 
   return offset;
 }
@@ -2804,19 +2291,16 @@ dissect_x420_ManualHandlingInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_ManualHandlingInstructions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ManualHandlingInstruction(FALSE, tvb, offset, actx, tree, hf_x420_ManualHandlingInstructions_item);
-}
 
 
-static const ber_old_sequence_t ManualHandlingInstructions_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ManualHandlingInstructions_item },
+static const ber_sequence_t ManualHandlingInstructions_sequence_of[1] = {
+  { &hf_x420_ManualHandlingInstructions_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x420_ManualHandlingInstruction },
 };
 
 static int
 dissect_x420_ManualHandlingInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ManualHandlingInstructions_sequence_of, hf_index, ett_x420_ManualHandlingInstructions);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      ManualHandlingInstructions_sequence_of, hf_index, ett_x420_ManualHandlingInstructions);
 
   return offset;
 }
@@ -2867,19 +2351,16 @@ dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_GeneralTextParameters_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CharacterSetRegistration(FALSE, tvb, offset, actx, tree, hf_x420_GeneralTextParameters_item);
-}
 
 
-static const ber_old_sequence_t GeneralTextParameters_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_GeneralTextParameters_item },
+static const ber_sequence_t GeneralTextParameters_set_of[1] = {
+  { &hf_x420_GeneralTextParameters_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x420_CharacterSetRegistration },
 };
 
 static int
 dissect_x420_GeneralTextParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     GeneralTextParameters_set_of, hf_index, ett_x420_GeneralTextParameters);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 GeneralTextParameters_set_of, hf_index, ett_x420_GeneralTextParameters);
 
   return offset;
 }
@@ -2905,22 +2386,19 @@ dissect_x420_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_supplementary_information_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_IA5String(TRUE, tvb, offset, actx, tree, hf_x420_supplementary_information);
-}
 
 
-static const ber_old_sequence_t VoiceParameters_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voice_message_duration_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_voice_encoding_type_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_supplementary_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t VoiceParameters_sequence[] = {
+  { &hf_x420_voice_message_duration, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_INTEGER },
+  { &hf_x420_voice_encoding_type, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_OBJECT_IDENTIFIER },
+  { &hf_x420_supplementary_information, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_IA5String },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_VoiceParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       VoiceParameters_sequence, hf_index, ett_x420_VoiceParameters);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   VoiceParameters_sequence, hf_index, ett_x420_VoiceParameters);
 
   return offset;
 }
@@ -2936,37 +2414,34 @@ dissect_x420_VoiceData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const ber_old_sequence_t SubmissionProof_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_proof_of_submission_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_originating_MTA_certificate_impl },
-  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_message_submission_envelope },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t SubmissionProof_set[] = {
+  { &hf_x420_proof_of_submission, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x411_ProofOfSubmission },
+  { &hf_x420_originating_MTA_certificate, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x411_OriginatingMTACertificate },
+  { &hf_x420_message_submission_envelope, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x411_MessageSubmissionEnvelope },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_SubmissionProof(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  SubmissionProof_set, hf_index, ett_x420_SubmissionProof);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SubmissionProof_set, hf_index, ett_x420_SubmissionProof);
 
   return offset;
 }
-static int dissect_submission_proof_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SubmissionProof(TRUE, tvb, offset, actx, tree, hf_x420_submission_proof);
-}
 
 
-static const ber_old_sequence_t ForwardedContentParameters_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_delivery_time_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_delivery_envelope_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mts_identifier_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_submission_proof_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ForwardedContentParameters_set[] = {
+  { &hf_x420_delivery_time  , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_MessageDeliveryTime },
+  { &hf_x420_delivery_envelope, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_OtherMessageDeliveryFields },
+  { &hf_x420_mts_identifier , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_MessageDeliveryIdentifier },
+  { &hf_x420_submission_proof, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_SubmissionProof },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_ForwardedContentParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  ForwardedContentParameters_set, hf_index, ett_x420_ForwardedContentParameters);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              ForwardedContentParameters_set, hf_index, ett_x420_ForwardedContentParameters);
 
   return offset;
 }
@@ -2978,25 +2453,19 @@ static const value_string x420_Pathname_Attribute_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Pathname_Attribute_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_incomplete_pathname_impl },
-  {  23, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_complete_pathname_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Pathname_Attribute_choice[] = {
+  {   0, &hf_x420_incomplete_pathname, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ftam_Pathname },
+  {  23, &hf_x420_complete_pathname, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_ftam_Pathname },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Pathname_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Pathname_Attribute_choice, hf_index, ett_x420_Pathname_Attribute,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Pathname_Attribute_choice, hf_index, ett_x420_Pathname_Attribute,
+                                 NULL);
 
   return offset;
-}
-static int dissect_pathname(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Pathname_Attribute(FALSE, tvb, offset, actx, tree, hf_x420_pathname);
-}
-static int dissect_pathname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Pathname_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_pathname);
 }
 
 
@@ -3009,38 +2478,20 @@ dissect_x420_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_file_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GraphicString(TRUE, tvb, offset, actx, tree, hf_x420_file_version);
-}
-static int dissect_descriptive_relationship_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GraphicString(TRUE, tvb, offset, actx, tree, hf_x420_descriptive_relationship);
-}
-static int dissect_user_visible_string_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GraphicString(FALSE, tvb, offset, actx, tree, hf_x420_user_visible_string_item);
-}
-static int dissect_descriptive_identifier_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GraphicString(FALSE, tvb, offset, actx, tree, hf_x420_descriptive_identifier_item);
-}
-static int dissect_graphic_string(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GraphicString(FALSE, tvb, offset, actx, tree, hf_x420_graphic_string);
-}
 
 
-static const ber_old_sequence_t PathnameandVersion_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_pathname_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_file_version_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PathnameandVersion_sequence[] = {
+  { &hf_x420_pathname       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Pathname_Attribute },
+  { &hf_x420_file_version   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_GraphicString },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_PathnameandVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PathnameandVersion_sequence, hf_index, ett_x420_PathnameandVersion);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PathnameandVersion_sequence, hf_index, ett_x420_PathnameandVersion);
 
   return offset;
-}
-static int dissect_pathname_and_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_PathnameandVersion(TRUE, tvb, offset, actx, tree, hf_x420_pathname_and_version);
 }
 
 
@@ -3051,12 +2502,6 @@ dissect_x420_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                        NULL);
 
   return offset;
-}
-static int dissect_application_cross_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_x420_application_cross_reference);
-}
-static int dissect_octet_string(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_x420_octet_string);
 }
 
 
@@ -3069,45 +2514,36 @@ dissect_x420_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_user_relative_identifier_ref_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_PrintableString(TRUE, tvb, offset, actx, tree, hf_x420_user_relative_identifier_ref);
-}
 
 
-static const ber_old_sequence_t MessageReference_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_user_relative_identifier_ref_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MessageReference_set[] = {
+  { &hf_x420_user           , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_ORName },
+  { &hf_x420_user_relative_identifier_ref, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_PrintableString },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_MessageReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set(implicit_tag, actx, tree, tvb, offset,
-                                  MessageReference_set, hf_index, ett_x420_MessageReference);
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              MessageReference_set, hf_index, ett_x420_MessageReference);
 
   return offset;
 }
-static int dissect_message_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_MessageReference(TRUE, tvb, offset, actx, tree, hf_x420_message_reference);
-}
 
 
-static const ber_old_sequence_t CrossReference_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_application_cross_reference_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_message_reference_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_body_part_reference_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CrossReference_sequence[] = {
+  { &hf_x420_application_cross_reference, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_OCTET_STRING },
+  { &hf_x420_message_reference, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_MessageReference },
+  { &hf_x420_body_part_reference, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_INTEGER },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_CrossReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CrossReference_sequence, hf_index, ett_x420_CrossReference);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CrossReference_sequence, hf_index, ett_x420_CrossReference);
 
   return offset;
-}
-static int dissect_cross_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CrossReference(TRUE, tvb, offset, actx, tree, hf_x420_cross_reference);
 }
 
 
@@ -3117,22 +2553,19 @@ static const value_string x420_FileIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t FileIdentifier_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pathname_and_version_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_cross_reference_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t FileIdentifier_choice[] = {
+  {   0, &hf_x420_pathname_and_version, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_PathnameandVersion },
+  {   1, &hf_x420_cross_reference, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_CrossReference },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_FileIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     FileIdentifier_choice, hf_index, ett_x420_FileIdentifier,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 FileIdentifier_choice, hf_index, ett_x420_FileIdentifier,
+                                 NULL);
 
   return offset;
-}
-static int dissect_file_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_FileIdentifier(FALSE, tvb, offset, actx, tree, hf_x420_file_identifier);
 }
 
 
@@ -3152,9 +2585,6 @@ dissect_x420_ExplicitRelationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_explicit_relationship_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ExplicitRelationship(TRUE, tvb, offset, actx, tree, hf_x420_explicit_relationship);
-}
 
 
 static const value_string x420_Relationship_vals[] = {
@@ -3163,56 +2593,47 @@ static const value_string x420_Relationship_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Relationship_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_explicit_relationship_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_descriptive_relationship_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Relationship_choice[] = {
+  {   0, &hf_x420_explicit_relationship, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_ExplicitRelationship },
+  {   1, &hf_x420_descriptive_relationship, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_GraphicString },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Relationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Relationship_choice, hf_index, ett_x420_Relationship,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Relationship_choice, hf_index, ett_x420_Relationship,
+                                 NULL);
 
   return offset;
 }
-static int dissect_relationship(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Relationship(FALSE, tvb, offset, actx, tree, hf_x420_relationship);
-}
 
 
-static const ber_old_sequence_t RelatedStoredFile_item_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_file_identifier },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_relationship },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RelatedStoredFile_item_sequence[] = {
+  { &hf_x420_file_identifier, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_FileIdentifier },
+  { &hf_x420_relationship   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Relationship },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_RelatedStoredFile_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RelatedStoredFile_item_sequence, hf_index, ett_x420_RelatedStoredFile_item);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RelatedStoredFile_item_sequence, hf_index, ett_x420_RelatedStoredFile_item);
 
   return offset;
 }
-static int dissect_RelatedStoredFile_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RelatedStoredFile_item(FALSE, tvb, offset, actx, tree, hf_x420_RelatedStoredFile_item);
-}
 
 
-static const ber_old_sequence_t RelatedStoredFile_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RelatedStoredFile_item },
+static const ber_sequence_t RelatedStoredFile_set_of[1] = {
+  { &hf_x420_RelatedStoredFile_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_RelatedStoredFile_item },
 };
 
 static int
 dissect_x420_RelatedStoredFile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     RelatedStoredFile_set_of, hf_index, ett_x420_RelatedStoredFile);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 RelatedStoredFile_set_of, hf_index, ett_x420_RelatedStoredFile);
 
   return offset;
-}
-static int dissect_related_stored_file_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_RelatedStoredFile(TRUE, tvb, offset, actx, tree, hf_x420_related_stored_file);
 }
 
 
@@ -3222,9 +2643,6 @@ dissect_x420_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_document_type_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Document_Type_Name(FALSE, tvb, offset, actx, tree, hf_x420_document_type_name);
 }
 
 
@@ -3238,26 +2656,20 @@ dissect_x420_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_parameter_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_parameter(TRUE, tvb, offset, actx, tree, hf_x420_parameter);
-}
 
 
-static const ber_old_sequence_t T_document_type_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_document_type_name },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_parameter_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t T_document_type_sequence[] = {
+  { &hf_x420_document_type_name, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x420_Document_Type_Name },
+  { &hf_x420_parameter      , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_T_parameter },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_T_document_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_document_type_sequence, hf_index, ett_x420_T_document_type);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_document_type_sequence, hf_index, ett_x420_T_document_type);
 
   return offset;
-}
-static int dissect_document_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_document_type(TRUE, tvb, offset, actx, tree, hf_x420_document_type);
 }
 
 
@@ -3268,9 +2680,6 @@ dissect_x420_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_constraint_set_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Constraint_Set_Name(FALSE, tvb, offset, actx, tree, hf_x420_constraint_set_name);
-}
 
 
 
@@ -3280,26 +2689,20 @@ dissect_x420_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_abstract_syntax_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Abstract_Syntax_Name(FALSE, tvb, offset, actx, tree, hf_x420_abstract_syntax_name);
-}
 
 
-static const ber_old_sequence_t T_constraint_set_and_abstract_syntax_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_constraint_set_name },
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_abstract_syntax_name },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t T_constraint_set_and_abstract_syntax_sequence[] = {
+  { &hf_x420_constraint_set_name, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x420_Constraint_Set_Name },
+  { &hf_x420_abstract_syntax_name, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x420_Abstract_Syntax_Name },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_T_constraint_set_and_abstract_syntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_constraint_set_and_abstract_syntax_sequence, hf_index, ett_x420_T_constraint_set_and_abstract_syntax);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_constraint_set_and_abstract_syntax_sequence, hf_index, ett_x420_T_constraint_set_and_abstract_syntax);
 
   return offset;
-}
-static int dissect_constraint_set_and_abstract_syntax_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_constraint_set_and_abstract_syntax(TRUE, tvb, offset, actx, tree, hf_x420_constraint_set_and_abstract_syntax);
 }
 
 
@@ -3309,17 +2712,17 @@ static const value_string x420_Contents_Type_Attribute_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Contents_Type_Attribute_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_document_type_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_constraint_set_and_abstract_syntax_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Contents_Type_Attribute_choice[] = {
+  {   0, &hf_x420_document_type  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_T_document_type },
+  {   1, &hf_x420_constraint_set_and_abstract_syntax, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_T_constraint_set_and_abstract_syntax },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Contents_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Contents_Type_Attribute_choice, hf_index, ett_x420_Contents_Type_Attribute,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Contents_Type_Attribute_choice, hf_index, ett_x420_Contents_Type_Attribute,
+                                 NULL);
 
   return offset;
 }
@@ -3332,24 +2735,18 @@ dissect_x420_ContentsTypeParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_contents_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ContentsTypeParameter(TRUE, tvb, offset, actx, tree, hf_x420_contents_type);
-}
 
 
-static const ber_old_sequence_t T_descriptive_identifier_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_descriptive_identifier_item },
+static const ber_sequence_t T_descriptive_identifier_sequence_of[1] = {
+  { &hf_x420_descriptive_identifier_item, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_x420_GraphicString },
 };
 
 static int
 dissect_x420_T_descriptive_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_descriptive_identifier_sequence_of, hf_index, ett_x420_T_descriptive_identifier);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      T_descriptive_identifier_sequence_of, hf_index, ett_x420_T_descriptive_identifier);
 
   return offset;
-}
-static int dissect_descriptive_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_descriptive_identifier(TRUE, tvb, offset, actx, tree, hf_x420_descriptive_identifier);
 }
 
 
@@ -3359,61 +2756,49 @@ static const value_string x420_GeneralIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t GeneralIdentifier_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_registered_identifier_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_descriptive_identifier_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t GeneralIdentifier_choice[] = {
+  {   0, &hf_x420_registered_identifier, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_OBJECT_IDENTIFIER },
+  {   1, &hf_x420_descriptive_identifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_T_descriptive_identifier },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_GeneralIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     GeneralIdentifier_choice, hf_index, ett_x420_GeneralIdentifier,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 GeneralIdentifier_choice, hf_index, ett_x420_GeneralIdentifier,
+                                 NULL);
 
   return offset;
 }
-static int dissect_application_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GeneralIdentifier(TRUE, tvb, offset, actx, tree, hf_x420_application_reference);
-}
-static int dissect_machine_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_GeneralIdentifier(TRUE, tvb, offset, actx, tree, hf_x420_machine);
-}
 
 
-static const ber_old_sequence_t T_user_visible_string_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_user_visible_string_item },
+static const ber_sequence_t T_user_visible_string_sequence_of[1] = {
+  { &hf_x420_user_visible_string_item, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_x420_GraphicString },
 };
 
 static int
 dissect_x420_T_user_visible_string(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          T_user_visible_string_sequence_of, hf_index, ett_x420_T_user_visible_string);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      T_user_visible_string_sequence_of, hf_index, ett_x420_T_user_visible_string);
 
   return offset;
 }
-static int dissect_user_visible_string_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_user_visible_string(TRUE, tvb, offset, actx, tree, hf_x420_user_visible_string);
-}
 
 
-static const ber_old_sequence_t EnvironmentParameter_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_application_reference_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_machine_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_operating_system_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_visible_string_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t EnvironmentParameter_sequence[] = {
+  { &hf_x420_application_reference, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_GeneralIdentifier },
+  { &hf_x420_machine        , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_GeneralIdentifier },
+  { &hf_x420_operating_system, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_OBJECT_IDENTIFIER },
+  { &hf_x420_user_visible_string, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_T_user_visible_string },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       EnvironmentParameter_sequence, hf_index, ett_x420_EnvironmentParameter);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EnvironmentParameter_sequence, hf_index, ett_x420_EnvironmentParameter);
 
   return offset;
-}
-static int dissect_environment_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_EnvironmentParameter(TRUE, tvb, offset, actx, tree, hf_x420_environment);
 }
 
 
@@ -3427,26 +2812,20 @@ dissect_x420_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_compression_algorithm_param_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_T_compression_algorithm_param(TRUE, tvb, offset, actx, tree, hf_x420_compression_algorithm_param);
-}
 
 
-static const ber_old_sequence_t CompressionParameter_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_compression_algorithm_id_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_compression_algorithm_param_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t CompressionParameter_sequence[] = {
+  { &hf_x420_compression_algorithm_id, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_OBJECT_IDENTIFIER },
+  { &hf_x420_compression_algorithm_param, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_T_compression_algorithm_param },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_CompressionParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       CompressionParameter_sequence, hf_index, ett_x420_CompressionParameter);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CompressionParameter_sequence, hf_index, ett_x420_CompressionParameter);
 
   return offset;
-}
-static int dissect_compression_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_CompressionParameter(TRUE, tvb, offset, actx, tree, hf_x420_compression);
 }
 
 
@@ -3459,9 +2838,6 @@ dissect_x420_Account(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_account_actual_values(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Account(FALSE, tvb, offset, actx, tree, hf_x420_account_actual_values);
-}
 
 
 static const value_string x420_Account_Attribute_vals[] = {
@@ -3470,22 +2846,19 @@ static const value_string x420_Account_Attribute_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Account_Attribute_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_no_value_available_impl },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_account_actual_values },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Account_Attribute_choice[] = {
+  {   0, &hf_x420_no_value_available, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_NULL },
+  {   1, &hf_x420_account_actual_values, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_x420_Account },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Account_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Account_Attribute_choice, hf_index, ett_x420_Account_Attribute,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Account_Attribute_choice, hf_index, ett_x420_Account_Attribute,
+                                 NULL);
 
   return offset;
-}
-static int dissect_storage_account_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Account_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_storage_account);
 }
 
 
@@ -3498,12 +2871,6 @@ dissect_x420_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_identity_actual_values(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_User_Identity(FALSE, tvb, offset, actx, tree, hf_x420_identity_actual_values);
-}
-static int dissect_identity_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_User_Identity(TRUE, tvb, offset, actx, tree, hf_x420_identity);
-}
 
 
 static const value_string x420_User_Identity_Attribute_vals[] = {
@@ -3512,31 +2879,19 @@ static const value_string x420_User_Identity_Attribute_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t User_Identity_Attribute_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_no_value_available_impl },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_identity_actual_values },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t User_Identity_Attribute_choice[] = {
+  {   0, &hf_x420_no_value_available, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_NULL },
+  {   1, &hf_x420_identity_actual_values, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_x420_User_Identity },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     User_Identity_Attribute_choice, hf_index, ett_x420_User_Identity_Attribute,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 User_Identity_Attribute_choice, hf_index, ett_x420_User_Identity_Attribute,
+                                 NULL);
 
   return offset;
-}
-static int dissect_identity_of_creator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_identity_of_creator);
-}
-static int dissect_identity_of_last_modifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_identity_of_last_modifier);
-}
-static int dissect_identity_of_last_reader_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_identity_of_last_reader);
-}
-static int dissect_identity_of_last_attribute_modifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_identity_of_last_attribute_modifier);
 }
 
 
@@ -3560,9 +2915,6 @@ dissect_x420_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_action_list_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Access_Request(TRUE, tvb, offset, actx, tree, hf_x420_action_list);
-}
 
 
 static const value_string x420_Password_vals[] = {
@@ -3571,146 +2923,101 @@ static const value_string x420_Password_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Password_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_graphic_string },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_octet_string },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Password_choice[] = {
+  {   0, &hf_x420_graphic_string , BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_x420_GraphicString },
+  {   1, &hf_x420_octet_string   , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_x420_OCTET_STRING },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Password(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Password_choice, hf_index, ett_x420_Password,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Password_choice, hf_index, ett_x420_Password,
+                                 NULL);
 
   return offset;
 }
-static int dissect_read_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_read_password);
-}
-static int dissect_insert_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_insert_password);
-}
-static int dissect_replace_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_replace_password);
-}
-static int dissect_extend_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_extend_password);
-}
-static int dissect_erase_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_erase_password);
-}
-static int dissect_read_attribute_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_read_attribute_password);
-}
-static int dissect_change_attribute_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_change_attribute_password);
-}
-static int dissect_delete_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_delete_password);
-}
-static int dissect_link_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(TRUE, tvb, offset, actx, tree, hf_x420_link_password);
-}
-static int dissect_Pass_Passwords_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Password(FALSE, tvb, offset, actx, tree, hf_x420_Pass_Passwords_item);
-}
 
 
-static const ber_old_sequence_t Pass_Passwords_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Pass_Passwords_item },
+static const ber_sequence_t Pass_Passwords_sequence_of[1] = {
+  { &hf_x420_Pass_Passwords_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
 };
 
 static int
 dissect_x420_Pass_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          Pass_Passwords_sequence_of, hf_index, ett_x420_Pass_Passwords);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      Pass_Passwords_sequence_of, hf_index, ett_x420_Pass_Passwords);
 
   return offset;
 }
-static int dissect_pass_passwords_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Pass_Passwords(TRUE, tvb, offset, actx, tree, hf_x420_pass_passwords);
-}
 
 
-static const ber_old_sequence_t Access_Passwords_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_read_password_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_insert_password_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_replace_password_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_extend_password_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_erase_password_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_read_attribute_password_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_change_attribute_password_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_delete_password_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_pass_passwords_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_link_password_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Access_Passwords_sequence[] = {
+  { &hf_x420_read_password  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_insert_password, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_replace_password, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_extend_password, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_erase_password , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_read_attribute_password, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_change_attribute_password, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_delete_password, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { &hf_x420_pass_passwords , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_x420_Pass_Passwords },
+  { &hf_x420_link_password  , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Password },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Access_Passwords_sequence, hf_index, ett_x420_Access_Passwords);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Access_Passwords_sequence, hf_index, ett_x420_Access_Passwords);
 
   return offset;
 }
-static int dissect_passwords_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Access_Passwords(TRUE, tvb, offset, actx, tree, hf_x420_passwords);
-}
 
 
-static const ber_old_sequence_t Application_Entity_Title_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ap_title },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ae_qualifier },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Application_Entity_Title_sequence[] = {
+  { &hf_x420_ap_title       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_acse_AP_title },
+  { &hf_x420_ae_qualifier   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_acse_AE_qualifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Application_Entity_Title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Application_Entity_Title_sequence, hf_index, ett_x420_Application_Entity_Title);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Application_Entity_Title_sequence, hf_index, ett_x420_Application_Entity_Title);
 
   return offset;
 }
-static int dissect_location_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Application_Entity_Title(TRUE, tvb, offset, actx, tree, hf_x420_location);
-}
 
 
-static const ber_old_sequence_t Access_Control_Element_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_action_list_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_concurrency_access_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_identity_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_passwords_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_location_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Access_Control_Element_sequence[] = {
+  { &hf_x420_action_list    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_Access_Request },
+  { &hf_x420_concurrency_access, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Concurrency_Access },
+  { &hf_x420_identity       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_User_Identity },
+  { &hf_x420_passwords      , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_Access_Passwords },
+  { &hf_x420_location       , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_Application_Entity_Title },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Access_Control_Element_sequence, hf_index, ett_x420_Access_Control_Element);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Access_Control_Element_sequence, hf_index, ett_x420_Access_Control_Element);
 
   return offset;
 }
-static int dissect_actual_values_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Access_Control_Element(FALSE, tvb, offset, actx, tree, hf_x420_actual_values_item);
-}
 
 
-static const ber_old_sequence_t SET_OF_Access_Control_Element_set_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actual_values_item },
+static const ber_sequence_t SET_OF_Access_Control_Element_set_of[1] = {
+  { &hf_x420_actual_values_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x420_Access_Control_Element },
 };
 
 static int
 dissect_x420_SET_OF_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_set_of(implicit_tag, actx, tree, tvb, offset,
-                                     SET_OF_Access_Control_Element_set_of, hf_index, ett_x420_SET_OF_Access_Control_Element);
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 SET_OF_Access_Control_Element_set_of, hf_index, ett_x420_SET_OF_Access_Control_Element);
 
   return offset;
-}
-static int dissect_actual_values_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_SET_OF_Access_Control_Element(TRUE, tvb, offset, actx, tree, hf_x420_actual_values);
 }
 
 
@@ -3720,86 +3027,80 @@ static const value_string x420_Access_Control_Attribute_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Access_Control_Attribute_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_no_value_available_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actual_values_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Access_Control_Attribute_choice[] = {
+  {   0, &hf_x420_no_value_available, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x420_NULL },
+  {   1, &hf_x420_actual_values  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x420_SET_OF_Access_Control_Element },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_Access_Control_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Access_Control_Attribute_choice, hf_index, ett_x420_Access_Control_Attribute,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Access_Control_Attribute_choice, hf_index, ett_x420_Access_Control_Attribute,
+                                 NULL);
 
   return offset;
 }
-static int dissect_access_control_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_Access_Control_Attribute(TRUE, tvb, offset, actx, tree, hf_x420_access_control);
-}
 
 
-static const ber_old_sequence_t FileAttributes_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pathname },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_permitted_actions_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_storage_account_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_date_and_time_of_creation_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_date_and_time_of_last_modification_impl },
-  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_date_and_time_of_last_read_access_impl },
-  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_date_and_time_of_last_attribute_modification_impl },
-  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_identity_of_creator_impl },
-  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_identity_of_last_modifier_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_identity_of_last_reader_impl },
-  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_identity_of_last_attribute_modifier_impl },
-  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_object_availability_impl },
-  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_object_size_impl },
-  { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_future_object_size_impl },
-  { BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_access_control_impl },
-  { BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legal_qualifications_impl },
-  { BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_private_use_impl },
-  { BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attribute_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FileAttributes_sequence[] = {
+  { &hf_x420_pathname       , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Pathname_Attribute },
+  { &hf_x420_permitted_actions, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Permitted_Actions_Attribute },
+  { &hf_x420_storage_account, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Account_Attribute },
+  { &hf_x420_date_and_time_of_creation, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Date_and_Time_Attribute },
+  { &hf_x420_date_and_time_of_last_modification, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Date_and_Time_Attribute },
+  { &hf_x420_date_and_time_of_last_read_access, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Date_and_Time_Attribute },
+  { &hf_x420_date_and_time_of_last_attribute_modification, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Date_and_Time_Attribute },
+  { &hf_x420_identity_of_creator, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_User_Identity_Attribute },
+  { &hf_x420_identity_of_last_modifier, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_User_Identity_Attribute },
+  { &hf_x420_identity_of_last_reader, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_User_Identity_Attribute },
+  { &hf_x420_identity_of_last_attribute_modifier, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_User_Identity_Attribute },
+  { &hf_x420_object_availability, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Object_Availability_Attribute },
+  { &hf_x420_object_size    , BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Object_Size_Attribute },
+  { &hf_x420_future_object_size, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Object_Size_Attribute },
+  { &hf_x420_access_control , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_Access_Control_Attribute },
+  { &hf_x420_legal_qualifications, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Legal_Qualification_Attribute },
+  { &hf_x420_private_use    , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Private_Use_Attribute },
+  { &hf_x420_attribute_extensions, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ftam_Attribute_Extensions },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_FileAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       FileAttributes_sequence, hf_index, ett_x420_FileAttributes);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FileAttributes_sequence, hf_index, ett_x420_FileAttributes);
 
   return offset;
 }
-static int dissect_file_attributes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_FileAttributes(TRUE, tvb, offset, actx, tree, hf_x420_file_attributes);
-}
 
 
-static const ber_old_sequence_t FileTransferParameters_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_related_stored_file_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_contents_type_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_environment_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_compression_impl },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_file_attributes_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t FileTransferParameters_sequence[] = {
+  { &hf_x420_related_stored_file, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_RelatedStoredFile },
+  { &hf_x420_contents_type  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_x420_ContentsTypeParameter },
+  { &hf_x420_environment    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_EnvironmentParameter },
+  { &hf_x420_compression    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_CompressionParameter },
+  { &hf_x420_file_attributes, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_FileAttributes },
+  { &hf_x420_extensions     , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_ExtensionsField },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x420_FileTransferParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       FileTransferParameters_sequence, hf_index, ett_x420_FileTransferParameters);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FileTransferParameters_sequence, hf_index, ett_x420_FileTransferParameters);
 
   return offset;
 }
 
 
-static const ber_old_sequence_t FileTransferData_sequence_of[1] = {
-  { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_FileTransferData_item },
+static const ber_sequence_t FileTransferData_sequence_of[1] = {
+  { &hf_x420_FileTransferData_item, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
 };
 
 static int
 dissect_x420_FileTransferData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          FileTransferData_sequence_of, hf_index, ett_x420_FileTransferData);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      FileTransferData_sequence_of, hf_index, ett_x420_FileTransferData);
 
   return offset;
 }
@@ -5228,7 +4529,7 @@ void proto_register_x420(void) {
     &ett_x420_IPM,
     &ett_x420_IPMSExtension,
     &ett_x420_Heading,
-    &ett_x420_IPMIdentifier,
+    &ett_x420_IPMIdentifier_U,
     &ett_x420_RecipientSpecifier,
     &ett_x420_ORDescriptor,
     &ett_x420_NotificationRequests,
