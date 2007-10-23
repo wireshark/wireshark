@@ -5327,7 +5327,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 	if (message_type == RSVP_MSG_BUNDLE) {
-	    col_add_str(pinfo->cinfo, COL_INFO,
+	    col_set_str(pinfo->cinfo, COL_INFO,
 			rsvp_bundle_dissect ?
 			"Component Messages Dissected" :
 			"Component Messages Not Dissected");

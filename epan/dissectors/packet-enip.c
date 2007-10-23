@@ -308,7 +308,7 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 					/* Call dissector for interface */
 					next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
 
-               if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_port(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, g_tree) )
+               if( tvb_length(next_tvb) == 0 || !dissector_try_port(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, g_tree) )
                {
                   /* Show the undissected payload */
                    if( tvb_length_remaining(tvb, offset) > 0 )
@@ -332,7 +332,7 @@ dissect_cpf( int command, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
 
-                  if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_port(subdissector_sud_table, ifacehndl, next_tvb, pinfo, g_tree) )
+                  if( tvb_length(next_tvb) == 0 || !dissector_try_port(subdissector_sud_table, ifacehndl, next_tvb, pinfo, g_tree) )
                   {
                      /* Show the undissected payload */
                       if( tvb_length_remaining(tvb, offset) > 0 )

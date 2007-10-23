@@ -646,7 +646,7 @@ dissect_hello_checksum_clv(tvbuff_t *tvb,
         		case DATA_MISSING :
           			isis_dissect_unknown(tvb, tree, offset,
                                                      "[packet length %d went beyond packet]",
-                                                     tvb_length_remaining(tvb, 0));
+                                                     tvb_length(tvb));
         		break;
         		case CKSUM_NOT_OK :
                                 proto_tree_add_text ( tree, tvb, offset, length,

@@ -546,7 +546,7 @@ dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 				    "Invalid offset/length. Malformed packet");
 
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+			col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
 		}
 
 		return NULL;
@@ -625,7 +625,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 				    "Invalid offset/length. Malformed packet");
 
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed packet]");
+			col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
 		}
 
 		return;
@@ -3280,7 +3280,7 @@ dissect_smb2_MxAc_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		item = proto_tree_get_parent(tree);
 	}
 
-	if (tvb_length_remaining(tvb, offset) == 0) {
+	if (tvb_length(tvb) == 0) {
 		if (item) {
 			proto_item_append_text(item, ": NO DATA");
 		}

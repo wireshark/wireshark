@@ -408,7 +408,7 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 static const char* address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	address_avp_t* t = a->type_data;
-	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
 	proto_tree* pt = proto_item_add_subtree(pi,t->ett);
 	guint32 addr_type = tvb_get_ntohs(tvb,0);
 	guint32 len = tvb_length_remaining(tvb,2);
@@ -459,7 +459,7 @@ static const char* proto_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 }
 
 static const char* time_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
-	int len = tvb_length_remaining(tvb,0);
+	int len = tvb_length(tvb);
 	guint8 ntptime[8] = {0,0,0,0,0,0,0,0};
 	char* label;
 	proto_item* pi;
@@ -482,9 +482,9 @@ static const char* time_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 static const char* address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	address_avp_t* t = a->type_data;
-	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
 	proto_tree* pt = proto_item_add_subtree(pi,t->ett);
-	guint32 len = tvb_length_remaining(tvb,0);
+	guint32 len = tvb_length(tvb);
 	
 	switch (len) {
 		case 4:
@@ -509,7 +509,7 @@ static const char* address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) 
 
 static const char* simple_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
-	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
 	proto_item_fill_label(pi->finfo, label);
 	label = strstr(label,": ")+2;
 	return label;
@@ -542,7 +542,7 @@ static const char* unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 
 static const char* grouped_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	int offset = 0;
-	int len = tvb_length_remaining(tvb,0);
+	int len = tvb_length(tvb);
 	proto_item* pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, FALSE);
 	proto_tree* pt = c->tree;
 

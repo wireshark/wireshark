@@ -450,7 +450,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 				msg_code);
 		}
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+			col_append_str(pinfo->cinfo, COL_INFO, 
 			val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
 		}
 		offset += 1;
@@ -554,7 +554,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+		col_append_str(pinfo->cinfo, COL_INFO, 
 			val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
 	}
 	offset += 1;

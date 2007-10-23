@@ -1219,7 +1219,7 @@ static const value_string zero_is_none_vals[] = {
 									\
 	if (sep == NULL) {						\
 	   if (check_col(pinfo->cinfo, COL_INFO))			\
-		   col_add_str(pinfo->cinfo, COL_INFO, str);		\
+		   col_set_str(pinfo->cinfo, COL_INFO, str);		\
 	   sep = ":";							\
 	}								\
 									\
@@ -4289,7 +4289,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 			 * We haven't set the column yet; set it.
 			 */
 			if (check_col(pinfo->cinfo, COL_INFO))
-			      col_add_str(pinfo->cinfo, COL_INFO, "Requests");
+			      col_set_str(pinfo->cinfo, COL_INFO, "Requests");
 
 			/*
 			 * Initialize the separator.

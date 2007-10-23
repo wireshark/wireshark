@@ -254,7 +254,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   p_mul_tree = proto_item_add_subtree (ti, ett_p_mul);
 
   if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, "%s", get_type (pdu_type));
+    col_append_str (pinfo->cinfo, COL_INFO, get_type (pdu_type));
 
   /* Length of PDU */
   pdu_length = tvb_get_ntohs (tvb, offset);
@@ -469,7 +469,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
                                           &p_mul_frag_items, NULL, tree);
 
       if (check_col (pinfo->cinfo, COL_INFO) && frag_msg)
-        col_append_fstr (pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+        col_append_str (pinfo->cinfo, COL_INFO, " (Message Reassembled)");
 
       if (new_tvb) {
         dissect_reassembled_data (new_tvb, pinfo, tree);

@@ -257,7 +257,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", opcode_str);
+	col_add_str(pinfo->cinfo, COL_INFO, opcode_str);
 
     }
 
@@ -512,9 +512,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    if (to_server) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Response");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Response");
 	    } else {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Request");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Request");
 	    }
 	}
 	break;

@@ -1459,7 +1459,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (colcodename) {
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)", coltypename, colcodename);
 	} else {
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", coltypename);
+	    col_add_str(pinfo->cinfo, COL_INFO, coltypename);
 	}
     }
 

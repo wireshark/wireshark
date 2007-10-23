@@ -4259,7 +4259,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 1, TRUE);
 		offset++;
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+			col_add_str(pinfo->cinfo, COL_INFO, 
 				val_to_str(payloadtype, ipmi_payload_vals,	"Unknown (0x%02x)"));
 		}
 

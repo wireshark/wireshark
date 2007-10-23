@@ -912,7 +912,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	}
 	if(flags&0x00000001){
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " IMMEDIATE");
+			col_append_str(pinfo->cinfo, COL_INFO, " IMMEDIATE");
 		}
 	}	
 	offset+=4;

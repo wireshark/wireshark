@@ -1575,7 +1575,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     }
 
     if( rtp_marker && check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Mark" );
+      col_append_str (pinfo->cinfo, COL_INFO, ", Mark" );
 
 
     dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
@@ -1958,7 +1958,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 
   if( offset >= tvb_reported_length (tvb)) {
     if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", empty frame" );
+      col_append_str (pinfo->cinfo, COL_INFO, ", empty frame" );
     return;
   }
 
@@ -1973,7 +1973,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 				   iax_dataformats, "unknown (0x%02x)"));
 #if 0
       if( out_of_order )
-	col_append_fstr (pinfo->cinfo, COL_INFO, " (out-of-order packet)");
+	col_append_str (pinfo->cinfo, COL_INFO, " (out-of-order packet)");
 #endif
     } else {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",

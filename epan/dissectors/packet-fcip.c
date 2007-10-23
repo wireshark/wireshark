@@ -374,7 +374,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint offset = 0,
          start  = 0,
          frame_len = 0;
-    gint bytes_remaining = tvb_length_remaining (tvb, offset);
+    gint bytes_remaining = tvb_length (tvb);
     guint8 pflags, sof = 0, eof = 0;
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;

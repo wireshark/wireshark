@@ -267,7 +267,7 @@ dissect_pvfs_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint64 size;
 
 	/* verify that this is indeed PVFS and that it looks sane */
-	if(tvb_length_remaining(tvb,0)<24){
+	if(tvb_length(tvb)<24){
 		/* too few bytes remaining to verify the header */
 		return 0;
 	}
@@ -3205,7 +3205,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		col_set_str(pinfo->cinfo, COL_INFO, 
 				val_to_str(server_op, names_pvfs_server_op, "%u (unknown)"));
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO, 
 				(mode == TCP_MODE_UNEXP)? " (request)": " (response)");
 	}
 

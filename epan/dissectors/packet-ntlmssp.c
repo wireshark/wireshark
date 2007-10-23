@@ -1384,7 +1384,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 verifier_length;
   guint32 encrypted_block_length;
 
-  verifier_length = tvb_length_remaining (tvb, offset);
+  verifier_length = tvb_length (tvb);
   encrypted_block_length = verifier_length - 4;
 
   if (encrypted_block_length < 12) {

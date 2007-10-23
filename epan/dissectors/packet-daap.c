@@ -156,12 +156,12 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     */
    if (check_col(pinfo->cinfo, COL_INFO)) {
       if (is_request) {
-	 col_add_str(pinfo->cinfo, COL_INFO, "DAAP Request");
+	 col_set_str(pinfo->cinfo, COL_INFO, "DAAP Request");
       } else {
 	 /* This is done in two functions on purpose. If the tvb_get_xxx()
 	  * functions fail, at least something will be in the info column
 	  */
-	 col_add_str(pinfo->cinfo, COL_INFO, "DAAP Response");
+	 col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
 	 col_append_fstr(pinfo->cinfo, COL_INFO, " [tag: %s, size: %d]",
 	 	 tvb_format_text(tvb, offset, 4), tvb_get_ntohl(tvb, offset+4));
       }

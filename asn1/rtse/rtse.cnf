@@ -119,7 +119,7 @@ EXTERNALt
 
 #.FN_BODY SessionConnectionIdentifier
   if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Recover");
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "Recover");
   %(DEFAULT_BODY)s
 
 #.END

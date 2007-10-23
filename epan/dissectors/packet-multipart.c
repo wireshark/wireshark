@@ -182,7 +182,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
 	char *data;
 	size_t len;
 
-	data = g_strdup(tvb_get_ephemeral_string(b64_tvb, 0, tvb_length_remaining(b64_tvb, 0)));
+	data = g_strdup(tvb_get_ephemeral_string(b64_tvb, 0, tvb_length(b64_tvb)));
 
 	len = epan_base64_decode(data);
 	tvb = tvb_new_real_data((const guint8 *)data, len, len);

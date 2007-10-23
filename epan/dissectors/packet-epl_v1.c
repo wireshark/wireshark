@@ -245,15 +245,15 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti=NULL;
 	proto_tree *epl_v1_tree=NULL;
 
-	offset = 0;
 
-	info_str = ep_alloc(200);
-	info_str[0] = 0;
-
-	if(tvb_length_remaining(tvb, offset) < 3){
+	if(tvb_length(tvb) < 3){
 		/* Not enough data for an EPL_V1 header; don't try to interpret it */
 		return FALSE;
 	}
+
+	offset = 0;
+	info_str = ep_alloc(200);
+	info_str[0] = 0;
 
 	/* make entries in Protocol column and Info column on summary display */
 	if(check_col(pinfo->cinfo, COL_PROTOCOL)){

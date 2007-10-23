@@ -334,7 +334,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case BPDU_TYPE_TOPOLOGY_CHANGE:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
+      col_set_str(pinfo->cinfo, COL_INFO, "Topology Change Notification");
       break;
 
     case BPDU_TYPE_RST:

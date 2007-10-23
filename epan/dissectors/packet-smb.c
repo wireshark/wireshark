@@ -6955,10 +6955,10 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		COUNT_BYTES(dn_len);
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", User: ");
+			col_append_str(pinfo->cinfo, COL_INFO, ", User: ");
 
 			if (!dn[0] && !an[0])
-				col_append_fstr(pinfo->cinfo, COL_INFO,
+				col_append_str(pinfo->cinfo, COL_INFO,
 						"anonymous");
 			else
 				col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -8590,7 +8590,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	} else {
 		/* secondary request */
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (secondary request)");
+			col_append_str(pinfo->cinfo, COL_INFO, " (secondary request)");
 		}
 	}
 	offset += 2;
@@ -9051,7 +9051,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		proto_tree_add_text(tree, tvb, offset, 0,
 			"Function: <unknown function - could not find matching request>");
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", <unknown>");
+			col_append_str(pinfo->cinfo, COL_INFO, ", <unknown>");
 		}
 	}
 
@@ -14277,7 +14277,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
 		if (count && check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 			", Files:");
 		}
 
@@ -14296,7 +14296,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
             break;
         }
 		if (count && check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 			", Files:");
 		}
 
@@ -14695,7 +14695,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_tree_add_text(tree, tvb, 0, 0,
 				"Subcommand: <UNKNOWN> since request packet wasn't seen");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, "<unknown>");
+				col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 			}
 		} else {
 			si->info_level = t2i->info_level;
@@ -14709,7 +14709,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				proto_tree_add_text(tree, tvb, 0, 0,
 					"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
 				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, "<unknown>");
+					col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 				}
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);

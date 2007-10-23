@@ -693,7 +693,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (check_col(pinfo->cinfo, COL_INFO)) 
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(iCommand, drda_opcode_abbr, "Unknown (0x%02x)"));
+			col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, drda_opcode_abbr, "Unknown (0x%02x)"));
 		}
 
 		if (tree)

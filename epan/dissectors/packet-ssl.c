@@ -1713,14 +1713,14 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         if (!first_iteration)
         {
             if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
         /*
          * Update our info string
          */
         if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", (msg_type_str != NULL)
+            col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
                             ? msg_type_str : "Encrypted Handshake Message");
 
         if (tree)

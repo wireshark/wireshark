@@ -928,7 +928,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 			proto_tree_add_text(icep_tree, tvb, offset, -1,
 					    "empty batch requests sequence");
 		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_fstr(mypinfo->cinfo, COL_INFO, 
+			col_append_str(mypinfo->cinfo, COL_INFO, 
 					" (empty batch requests sequence)");
 		}
 		
@@ -937,7 +937,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 	
 	
 	if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-		col_append_fstr(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				":");
 	}
 	
@@ -961,7 +961,7 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 		}
 			
 		if ( check_col(mypinfo->cinfo, COL_INFO) && (i != 0) ) {
-			col_append_fstr(mypinfo->cinfo, COL_INFO,
+			col_append_str(mypinfo->cinfo, COL_INFO,
 					",");
 		}
 		
@@ -1125,7 +1125,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICEP");
 	
 	if ( check_col(pinfo->cinfo, COL_INFO) ) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", 
+		col_add_str(pinfo->cinfo, COL_INFO, 
 			     val_to_str(tvb_get_guint8(tvb, 8),
 					icep_msgtype_vals,
 					"Unknown Message Type: 0x%02x"));

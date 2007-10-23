@@ -4874,7 +4874,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{ /* Append status code to INFO column */
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				": WAP Session Initiation Request");
 	}
 

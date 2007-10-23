@@ -334,7 +334,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_SESSION_END:
 	case NBIPX_SESSION_END_ACK:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+			col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -407,7 +407,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case NBIPX_DIRECTED_DATAGRAM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+			col_add_str(pinfo->cinfo, COL_INFO, 
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -434,7 +434,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	default:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+			col_add_str(pinfo->cinfo, COL_INFO, 
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 

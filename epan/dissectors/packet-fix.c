@@ -3027,7 +3027,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO)) {
         if (msg_count > 1)
             g_string_sprintfa(summary_label, " (%d)", msg_count);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", summary_label->str);
+        col_add_str(pinfo->cinfo, COL_INFO, summary_label->str);
         g_string_free(summary_label, TRUE);
     }
 

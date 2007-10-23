@@ -1044,13 +1044,13 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	if (is_response) {
 		if (packet_number == 0) {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_str(pinfo->cinfo, COL_INFO, "Server Greeting" );
+				col_set_str(pinfo->cinfo, COL_INFO, "Server Greeting" );
 			}
 			offset= mysql_dissect_greeting(tvb, pinfo, offset,
 						       mysql_tree, conn_data);
 		} else {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_str(pinfo->cinfo, COL_INFO, "Response" );
+				col_set_str(pinfo->cinfo, COL_INFO, "Response" );
 			}
 			offset= mysql_dissect_response(tvb, pinfo, offset,
 						       mysql_tree, conn_data);
@@ -1058,13 +1058,13 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	} else {
 		if (packet_number == 1) {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_str(pinfo->cinfo, COL_INFO, "Login Request");
+				col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			}
 			offset= mysql_dissect_login(tvb, pinfo, offset,
 						    mysql_tree, conn_data);
 		} else {
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_str(pinfo->cinfo, COL_INFO, "Request");
+				col_set_str(pinfo->cinfo, COL_INFO, "Request");
 			}
 			offset= mysql_dissect_request(tvb, pinfo, offset,
 						      mysql_tree, conn_data);

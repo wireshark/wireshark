@@ -364,7 +364,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
 				break;
 			case NBD_CMD_DISC:
-				col_add_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
+				col_set_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
 				break;
 			}
 		}

@@ -298,11 +298,11 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		if ( is_sns )
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", SNS");
+			col_append_str(pinfo->cinfo, COL_INFO, ", SNS");
 		}
 		else
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Data");
+			col_append_str(pinfo->cinfo, COL_INFO, ", Data");
 		}
 	}
 
@@ -894,7 +894,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_add_str(pinfo->cinfo, COL_INFO,
+		col_set_str(pinfo->cinfo, COL_INFO,
 			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");
 	}
 

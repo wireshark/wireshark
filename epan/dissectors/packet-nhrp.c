@@ -586,7 +586,7 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hdr.ar_op_type = tvb_get_guint8(tvb, 17);
 		
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+			col_add_str(pinfo->cinfo, COL_INFO,
 						 val_to_str(hdr.ar_op_type, nhrp_op_type_vals,
 									"0x%02X - unknown"));
 		}

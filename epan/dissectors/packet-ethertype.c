@@ -261,7 +261,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			description = match_strval(etype, etype_vals);
 			if (description) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+				col_add_str(pinfo->cinfo, COL_INFO, 
 				    description);
 			}
 		}

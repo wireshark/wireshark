@@ -1112,7 +1112,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		default:{
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_str(pinfo->cinfo, COL_INFO, "Unknown Message");
+				col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message");
 			break;
 		}
 	}

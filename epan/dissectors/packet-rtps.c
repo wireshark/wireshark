@@ -480,7 +480,7 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        g_snprintf(buff+buff_len, 200-buff_len, "vendor specific(%d) ",count_msg_type[10]);
    }
 
-   col_add_fstr(pinfo->cinfo, COL_INFO, buff);
+   col_add_str(pinfo->cinfo, COL_INFO, buff);
 
   }
 

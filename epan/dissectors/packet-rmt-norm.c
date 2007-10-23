@@ -662,7 +662,7 @@ dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (hi_nibble(byte1) != 1) return FALSE;
 	if (lo_nibble(byte1) < 1 || lo_nibble(byte1) > 6) return FALSE;
 	if (tvb_get_guint8(tvb, 1) > 20) return FALSE;
-	if (tvb_length_remaining(tvb, 0) < 12)
+	if (tvb_length(tvb) < 12)
 		return FALSE;
 	dissect_norm(tvb, pinfo, tree);
 	return TRUE; /* appears to be a NORM packet */

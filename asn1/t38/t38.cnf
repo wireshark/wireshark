@@ -136,7 +136,7 @@ VAL_PTR=&Data_Field_field_type_value
                         "[RECEIVED END OF FRAGMENT W/OUT ANY FRAGMENT DATA]");
                 }
                 if (check_col(actx->pinfo->cinfo, COL_INFO)){
-                    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Malformed?]");
+                    col_append_str(actx->pinfo->cinfo, COL_INFO, " [Malformed?]");
                 }
                 actx->pinfo->fragmented = save_fragmented;
             }

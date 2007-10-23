@@ -153,7 +153,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	case RMI_OUTPUTMESSAGE:
 	    message = tvb_get_guint8(tvb,0);
-	    col_add_str(pinfo->cinfo, COL_INFO,
+	    col_set_str(pinfo->cinfo, COL_INFO,
 			"JRMI, ");
 	    col_append_str(pinfo->cinfo, COL_INFO,
 			   val_to_str(message, rmi_output_message_str,
@@ -161,7 +161,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	case RMI_INPUTSTREAM:
 	    message = tvb_get_guint8(tvb,0);
-	    col_add_str(pinfo->cinfo, COL_INFO,
+	    col_set_str(pinfo->cinfo, COL_INFO,
 			"JRMI, ");
 	    col_append_str(pinfo->cinfo, COL_INFO,
 			   val_to_str(message, rmi_input_message_str,

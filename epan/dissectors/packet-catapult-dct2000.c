@@ -768,7 +768,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Protocol name */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_add_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
     }
 
     /* Info column */

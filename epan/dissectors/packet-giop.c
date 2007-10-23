@@ -4039,7 +4039,7 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
 
-  tot_len = tvb_length_remaining(tvb, 0);
+  tot_len = tvb_length(tvb);
 
   if (tot_len < GIOP_HEADER_SIZE) /* tot_len < 12 */
     {

@@ -3135,7 +3135,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "Full Header");
+    col_set_str(pinfo->cinfo, COL_INFO, "Full Header");
 
   /* only dissect IPv4 and UDP */
   ip_version = tvb_get_guint8(tvb, 0) >> 4;
@@ -3223,7 +3223,7 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "Compressed UDP 16");
+    col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 16");
 
   length = tvb_reported_length(tvb);
 
@@ -3260,7 +3260,7 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "Compressed UDP 8");
+    col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 8");
 
   length = tvb_reported_length(tvb);
 
@@ -3298,7 +3298,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "Context State");
+    col_set_str(pinfo->cinfo, COL_INFO, "Context State");
 
   if (tree) {
     
@@ -3608,7 +3608,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	   * packet and continued in a later packet.
 	   */
 	  if (check_col(pinfo->cinfo, COL_INFO)){
-		  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
+		  col_set_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
 	  }
 	  if (tree)
 		  proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");
@@ -3627,7 +3627,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   	   * mark it as a PPP fragment.
   	   */
 	  if(check_col(pinfo->cinfo, COL_INFO)){
-		  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
+		  col_set_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
 	  }
 	  length = offset;
 	  if (tree)
@@ -3652,7 +3652,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  	   */
 		  if (first) {
 			  if(check_col(pinfo->cinfo, COL_INFO)){
-				  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
+				  col_set_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
 			  }
 		  }
 		  if (tree)

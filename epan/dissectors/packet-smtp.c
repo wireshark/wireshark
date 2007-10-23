@@ -528,7 +528,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    frag_msg = fragment_add_seq_next (tvb, 0, pinfo, frame_data->conversation_id, 
 					      smtp_data_segment_table, smtp_data_reassembled_table, 
-					      tvb_length_remaining(tvb,0), frame_data->more_frags);
+					      tvb_length(tvb), frame_data->more_frags);
 	  } else {
 	    
 	    /*

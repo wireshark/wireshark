@@ -256,7 +256,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo,COL_INFO))
 	{
-		col_add_fstr(pinfo->cinfo,COL_INFO, val_to_str(pppoe_code, code_vals, "Unknown"));
+		col_add_str(pinfo->cinfo,COL_INFO, val_to_str(pppoe_code, code_vals, "Unknown"));
 	}
 
 	/* Read length of payload */
@@ -444,7 +444,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo,COL_INFO))
 	{
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 		             val_to_str(pppoe_code, code_vals, "Unknown"));
 	}
 

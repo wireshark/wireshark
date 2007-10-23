@@ -245,7 +245,7 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *epl_tree = NULL, *epl_src_item, *epl_dest_item;
     gint offset = 0;
 
-    if (tvb_length_remaining(tvb, offset) < 3)
+    if (tvb_length(tvb) < 3)
     {
         /* Not enough data for an EPL header; don't try to interpret it */
         return FALSE;
@@ -294,7 +294,7 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             case EPL_SOC:
                 /* source and destination NodeID are fixed according to the spec */
-                col_add_str(pinfo->cinfo, COL_INFO, "SoC    ");
+                col_set_str(pinfo->cinfo, COL_INFO, "SoC    ");
                 break;
 
             case EPL_PREQ:
@@ -309,13 +309,13 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             case EPL_SOA:
                 /* source and destination NodeID are fixed according to the spec */
-                col_add_str(pinfo->cinfo, COL_INFO, "SoA    ");
+                col_set_str(pinfo->cinfo, COL_INFO, "SoA    ");
                 break;
 
             case EPL_ASND:
                 if (udpencap)
                 {
-                    col_add_str(pinfo->cinfo, COL_INFO, "ASnd   ");
+                    col_set_str(pinfo->cinfo, COL_INFO, "ASnd   ");
                 }
                 else
                 {
@@ -728,7 +728,7 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+        col_append_str(pinfo->cinfo, COL_INFO, 
                         match_strval(rcid, asnd_cid_vals));
     }
 
@@ -772,7 +772,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+        col_append_str(pinfo->cinfo, COL_INFO, 
                         match_strval(epl_asnd_nmtcommand_cid, asnd_cid_vals));
     }
 
@@ -907,7 +907,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(profile, epl_device_profiles, "Device Profile %d"));
+        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(profile, epl_device_profiles, "Device Profile %d"));
     }
 
     return offset;

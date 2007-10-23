@@ -253,7 +253,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 		if (u32IntRefs) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u Refs=", u32IntRefs);
 		} else {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=0");
+			col_append_str(pinfo->cinfo, COL_INFO, " Cnt=0");
 		}
 	}
 

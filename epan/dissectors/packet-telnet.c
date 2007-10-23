@@ -1605,7 +1605,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELNET");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Telnet Data ...");
+		col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
 
 	if (tree) {
 	  gint offset = 0;

@@ -113,7 +113,7 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_str(pinfo->cinfo, COL_INFO, "InterPersonal");
+	  col_set_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
 	dissect_x420_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }

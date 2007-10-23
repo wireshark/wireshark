@@ -136,7 +136,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) 
     {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Status message");
+      col_set_str(pinfo->cinfo, COL_INFO, "Status message");
     }
     proto_item_append_text(ti, ", Status message"); 
 
@@ -149,7 +149,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) 
   {
-    col_add_fstr(pinfo->cinfo, COL_INFO, 
+    col_add_str(pinfo->cinfo, COL_INFO, 
       val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
   }
   proto_item_append_text(ti, ", Opcode: %s", 

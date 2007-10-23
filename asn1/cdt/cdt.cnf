@@ -76,7 +76,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
     expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to get compressed content");
     if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr (actx->pinfo->cinfo, COL_INFO, 
+      col_append_str (actx->pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to get compressed content]");
     return offset;
   }
@@ -89,7 +89,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
     expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to uncompress content");
     if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr (actx->pinfo->cinfo, COL_INFO, 
+      col_append_str (actx->pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to uncompress content]");
     return offset;
   }

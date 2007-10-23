@@ -688,7 +688,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     col_set_str(pinfo->cinfo, COL_INFO, "");
     if (checksumIsValid)
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s", match_strval(OC, vals_hdr_OC));
+      col_append_str(pinfo->cinfo, COL_INFO, match_strval(OC, vals_hdr_OC));
     else
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s - %s", match_strval(OC, vals_hdr_OC), "invalid checksum");
   }

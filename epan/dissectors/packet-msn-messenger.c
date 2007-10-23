@@ -96,7 +96,7 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Put the first line from the buffer into the summary.
 		 */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+		col_add_str(pinfo->cinfo, COL_INFO, 
 			    format_text(line, linelen));
 	}
 

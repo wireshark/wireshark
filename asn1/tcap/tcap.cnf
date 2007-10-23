@@ -231,10 +231,10 @@ if (parameter_tvb){
 	}
 
 	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "otid(");
+		col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
         		  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
+        	col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
 	}
 
 }
@@ -270,10 +270,10 @@ if (parameter_tvb){
 	}
 
 	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "dtid(");
+		col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
           		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
+        	col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
 	   }
 }
 #.FN_HDR Begin
@@ -287,7 +287,7 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  *  put that info there should call col_set_fence() to protect it.
  */
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 #.END
 
 
@@ -295,7 +295,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "End ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
 #.END
 
 
@@ -303,7 +303,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 #.END
 
 
@@ -311,7 +311,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.END
 
 
@@ -319,30 +319,30 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 gp_tcapsrt_info->ope=TC_ANSI_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.END
 
 
 #.FN_HDR TCMessage/ansiqueryWithPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
 #.FN_HDR TCMessage/ansiqueryWithoutPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
 #.FN_HDR TCMessage/ansiresponse
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "Response ");
 #.FN_HDR TCMessage/ansiconversationWithPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
 #.FN_HDR TCMessage/ansiconversationWithoutPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
 
 #.END
 

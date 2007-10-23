@@ -803,7 +803,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 
 
 static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	int len = tvb_length_remaining(tvb,0);
+	int len = tvb_length(tvb);
 	
 	guint8 first_octet =  tvb_get_guint8(tvb,0);
 	guint8 second_octet =  tvb_get_guint8(tvb,1);
@@ -834,7 +834,7 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static void find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	int len = tvb_length_remaining(tvb,0);
+	int len = tvb_length(tvb);
 	int offset = 0;
 	
 	while (len > 3) {

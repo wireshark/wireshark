@@ -684,7 +684,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
         else
         {
             if (check_col(pinfo->cinfo, COL_INFO)) {
-               col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - fragment");
+               col_set_str(pinfo->cinfo, COL_INFO, "C SecretStore - fragment");
                proto_tree_add_text(ncp_tree, tvb, foffset, 4, "Fragment");
             }
             /* Fragments don't really carry a subverb so store 0xff as the subverb number */

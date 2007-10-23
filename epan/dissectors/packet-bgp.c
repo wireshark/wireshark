@@ -2636,7 +2636,7 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (first)
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", typ);
+	    col_add_str(pinfo->cinfo, COL_INFO, typ);
 	else
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
     }

@@ -1149,7 +1149,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         break;
 
 		default:
-			col_add_fstr( pinfo->cinfo, COL_INFO, "%s",
+			col_add_str( pinfo->cinfo, COL_INFO, 
 			    command_name);
 			break;
 		}

@@ -199,14 +199,14 @@ static const camel_err_t camel_err_tab[] = {
 	if (camel_opcode_type == CAMEL_OPCODE_RETURN_ERROR){
 	  errorCode = opcode;	
 	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-	    col_append_fstr(actx->pinfo->cinfo, COL_INFO, 
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
 	       val_to_str(errorCode, camel_err_code_string_vals, "Unknown CAMEL error (%%u)"));
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
 	  }
 	}else{
 	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-	    col_append_fstr(actx->pinfo->cinfo, COL_INFO, 
+	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
 	       val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%%u)"));
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	    col_set_fence(actx->pinfo->cinfo, COL_INFO);

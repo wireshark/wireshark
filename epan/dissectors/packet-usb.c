@@ -942,7 +942,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     type = pinfo->pseudo_header->linux_usb.transfer_type;
     proto_tree_add_uint(tree, hf_usb_transfer_type, tvb, 0, 0, type);
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+        col_append_str(pinfo->cinfo, COL_INFO, 
             val_to_str(type, usb_transfer_type_vals, "Unknown type %x"));
     }
 

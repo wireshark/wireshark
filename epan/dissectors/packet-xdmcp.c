@@ -219,7 +219,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   offset += 2;
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+    col_add_str(pinfo->cinfo, COL_INFO, 
                  val_to_str(opcode, opcode_vals, "Unknown (0x%04x)"));
 
   }

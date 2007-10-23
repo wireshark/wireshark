@@ -560,7 +560,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 2;
         if (nsp_msg_type == CONN_ACK_MSG) {
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_add_str(pinfo->cinfo, COL_INFO,
+                col_set_str(pinfo->cinfo, COL_INFO,
                   "NSP connect acknowledgement");
                 /* Done with this msg type */
                 return;
@@ -593,7 +593,7 @@ do_initialization_msg(
     guint8  remainder_count;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
+        col_set_str(pinfo->cinfo, COL_INFO,
           "Routing control, initialization message");
     }
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
@@ -636,7 +636,7 @@ do_verification_msg(
     guint8  remainder_count;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_str(pinfo->cinfo, COL_INFO,
+      col_set_str(pinfo->cinfo, COL_INFO,
           "Routing control, verification message");
     }
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
@@ -663,7 +663,7 @@ do_hello_test_msg(
     guint   remainder_count;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_str(pinfo->cinfo, COL_INFO,
+      col_set_str(pinfo->cinfo, COL_INFO,
           "Routing control, hello/test message");
     }
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
@@ -705,7 +705,7 @@ do_routing_msg(
         rtginfo = tvb_get_letohs(tvb, my_offset + 4);
         if (msg == 3) {
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "Routing control, Level 1 routing message");
             }
             proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
@@ -714,7 +714,7 @@ do_routing_msg(
                 count, startid, (rtginfo & 0x7c00) >> 10, rtginfo & 0x3ff);
         } else {
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "Routing control, Level 2 routing message");
             }
             proto_tree_add_none_format(tree, hf_dec_rt_segment, tvb,
@@ -799,7 +799,7 @@ do_hello_msg(
         /* Ethernet router hello message
            Has a 'priority' field in this position */
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_str(pinfo->cinfo, COL_INFO,
+            col_set_str(pinfo->cinfo, COL_INFO,
                  "Routing control, Ethernet Router Hello  message");
         }
         priority = tvb_get_guint8(tvb, my_offset);
@@ -814,7 +814,7 @@ do_hello_msg(
         guint8  seed;
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_str(pinfo->cinfo, COL_INFO,
+            col_set_str(pinfo->cinfo, COL_INFO,
                 "Routing control, Endnode Hello message");
         }
         seed = tvb_get_guint8(tvb, my_offset);
@@ -984,7 +984,7 @@ handle_nsp_msg(
             break;
         case INTERRUPT_MSG:        /* "Interrupt message" */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "NSP interrupt message");
             }
             ack_num = tvb_get_letohs(tvb, my_offset);
@@ -1027,7 +1027,7 @@ handle_nsp_msg(
             break;
         case LINK_SERVICE_MSG:     /* "Link service message" */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "NSP link control message");
             }
             ack_num = tvb_get_letohs(tvb, my_offset);
@@ -1127,7 +1127,7 @@ handle_nsp_msg(
             break;
         case OTHER_DATA_ACK_MSG:   /* "Other data acknowledgement message" */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "NSP other data ACK message");
             }
             ack_num = tvb_get_letohs(tvb, my_offset);
@@ -1155,7 +1155,7 @@ handle_nsp_msg(
         case CONN_CONFIRM_MSG:     /* "Connect confirm" */
         case CONN_INITIATE_MSG:    /* "Connect initiate" */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "NSP connect confirm/initiate message");
             }
             services = tvb_get_guint8(tvb, my_offset);
@@ -1177,7 +1177,7 @@ handle_nsp_msg(
         case DISCONN_INITIATE_MSG: /* "Disconnect initiate" */
         case DISCONN_CONFIRM_MSG:  /* "Disconnect confirm" */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_add_str(pinfo->cinfo, COL_INFO,
+              col_set_str(pinfo->cinfo, COL_INFO,
                   "NSP disconnect initiate/confirm message");
             }
             reason = tvb_get_letohs(tvb, my_offset);

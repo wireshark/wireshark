@@ -191,7 +191,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(rsync_tree, hf_rsync_motd_string, tvb, offset, -1, TRUE);
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, "Server MOTD");
+	  col_append_str(pinfo->cinfo, COL_INFO, "Server MOTD");
 	}
 
 	conversation_data->state = RSYNC_SERV_RESPONSE;
@@ -216,7 +216,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  proto_tree_add_item(rsync_tree, hf_rsync_response_string, tvb, offset, -1, TRUE);
 
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, "Module list");
+	    col_append_str(pinfo->cinfo, COL_INFO, "Module list");
 	  }
 
 	  /* we need to check the end of the buffer for magic string */

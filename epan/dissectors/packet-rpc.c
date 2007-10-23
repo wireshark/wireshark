@@ -2081,7 +2081,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (first_pdu)
 				col_clear(pinfo->cinfo, COL_INFO);
 			else
-				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
+				col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
 			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
 				vers,
 				procname,
@@ -2289,7 +2289,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (first_pdu)
 				col_clear(pinfo->cinfo, COL_INFO);
 			else
-				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
+				col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
 			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
 				vers,
 				procname,

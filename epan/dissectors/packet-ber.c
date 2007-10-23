@@ -3980,7 +3980,7 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* if we got here we couldn't find anything better */
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_clear(pinfo->cinfo, COL_INFO);
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown BER");
+      col_append_str(pinfo->cinfo, COL_INFO, "Unknown BER");
     }
 
     (void) dissect_unknown_ber(pinfo, tvb, 0, tree);

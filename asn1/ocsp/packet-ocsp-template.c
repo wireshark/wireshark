@@ -74,7 +74,7 @@ dissect_ocsp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Request");
+		col_set_str(pinfo->cinfo, COL_INFO, "Request");
 	}
 
 
@@ -101,7 +101,7 @@ dissect_ocsp_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Response");
+		col_set_str(pinfo->cinfo, COL_INFO, "Response");
 	}
 
 

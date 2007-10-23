@@ -1052,7 +1052,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO, "Welcome");
+        col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
     }
 
     {

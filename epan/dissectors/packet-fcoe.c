@@ -120,7 +120,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint version;
     char *ver;
     guint16  len_sof;
-    gint bytes_remaining = tvb_length_remaining(tvb, 0);
+    gint bytes_remaining = tvb_length(tvb);
     guint8 sof = 0;
     guint8 eof = 0;
     const char *eof_str;

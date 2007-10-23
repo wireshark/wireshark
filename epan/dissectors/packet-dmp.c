@@ -3377,7 +3377,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo _U_ ,
     if (dmp_align) {
       col_append_fstr (pinfo->cinfo, COL_INFO, "%-30.30s", msg_type_to_str ());
     } else {
-      col_append_fstr (pinfo->cinfo, COL_INFO, "%s", msg_type_to_str ());
+      col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str ());
     }
     if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
 	(dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF))
@@ -3390,7 +3390,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo _U_ ,
       } else if (dmp.msg_type == ACK) {
       if (dmp_align) {
 	/* Append spaces to align subj_id */
-	col_append_fstr (pinfo->cinfo, COL_INFO, "              ");
+	col_append_str (pinfo->cinfo, COL_INFO, "              ");
       }
     }
     if ((dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF) ||
@@ -3413,7 +3413,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo _U_ ,
       }
     }
     if (dmp.checksum && (checksum1 != checksum2)) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Checksum incorrect");
+      col_append_str (pinfo->cinfo, COL_INFO, ", Checksum incorrect");
     }
   }
 

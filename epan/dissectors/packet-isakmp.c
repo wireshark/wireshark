@@ -867,7 +867,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if( (tvb_length(tvb)==1) && (tvb_get_guint8(tvb, offset)==0xff) ){
     if (check_col(pinfo->cinfo, COL_INFO)){
-      col_add_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
+      col_set_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
     }
     proto_tree_add_item(isakmp_tree, hf_isakmp_nat_keepalive, tvb, offset, 1, FALSE);
     return;

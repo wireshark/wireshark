@@ -351,7 +351,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 opcode = tvb_get_guint8(tvb, 1);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+                        col_add_str(pinfo->cinfo, COL_INFO, 
                                      val_to_str(opcode, hsrp_opcode_vals, "Unknown"));
         	}
         	if (opcode < 3) {

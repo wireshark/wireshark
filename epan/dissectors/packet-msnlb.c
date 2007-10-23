@@ -60,7 +60,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "MS NLB heartbeat");
+    col_append_str(pinfo->cinfo, COL_INFO, "MS NLB heartbeat");
   }
 
   if (tree) {

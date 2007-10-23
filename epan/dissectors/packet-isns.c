@@ -607,7 +607,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint offset = 0;
     guint16 function_id;
     guint16 isns_protocol_version;
-    guint32 packet_len = tvb_length_remaining(tvb, offset);
+    guint32 packet_len = tvb_length(tvb);
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti = NULL;
     proto_tree *isns_tree = NULL;
@@ -784,7 +784,7 @@ get_isns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	
-	gint length = tvb_length_remaining(tvb, 0);
+	gint length = tvb_length(tvb);
 	guint16 isns_protocol_version;
 	guint16 function_id;
 
@@ -815,7 +815,7 @@ dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	
-	gint length = tvb_length_remaining(tvb, 0);
+	gint length = tvb_length(tvb);
 	guint16 isns_protocol_version;
 	guint16 function_id;
 

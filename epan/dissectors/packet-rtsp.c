@@ -655,7 +655,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		line = tvb_get_ptr(tvb, offset, first_linelen);
 		if (is_request_or_reply)
 			if ( rtsp_type == RTSP_REPLY ) {
-				col_add_str(pinfo->cinfo, COL_INFO, "Reply: ");
+				col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
 				col_append_str(pinfo->cinfo, COL_INFO,
 					format_text(line, first_linelen));
 			}

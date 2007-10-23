@@ -1785,7 +1785,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%02x)"));
 	}
 
@@ -1815,7 +1815,7 @@ continuation:
 	 * It looks like a continuation.
 	 */
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
+		col_set_str(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, FALSE);

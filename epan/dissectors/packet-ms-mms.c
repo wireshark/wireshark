@@ -322,7 +322,7 @@ static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Work out what type of packet this is and dissect it as such */
 
     /* Just don't dissect if can't even read command signature */
-    if (tvb_length_remaining(tvb, 0) < 8)
+    if (tvb_length(tvb) < 8)
     {
         return 0;
     }
@@ -612,7 +612,7 @@ gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_add_str(pinfo->cinfo, COL_INFO, "Request to resend packet(s):");
+        col_set_str(pinfo->cinfo, COL_INFO, "Request to resend packet(s):");
     }
 
     /* Show list of packets to resend */

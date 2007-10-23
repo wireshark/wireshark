@@ -1773,7 +1773,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (protocol_name == NULL) {
         /* Not a recognized eDonkey protocol - probably a continuation */
         if (check_col(pinfo->cinfo, COL_INFO))
-            col_add_str(pinfo->cinfo, COL_INFO, "eDonkey Continuation");
+            col_set_str(pinfo->cinfo, COL_INFO, "eDonkey Continuation");
         if (edonkey_tree) {
             bytes = tvb_length_remaining(tvb, offset);
             proto_tree_add_text(edonkey_tree, tvb, 0, -1, "Continuation data (%d bytes)", bytes);

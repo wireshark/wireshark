@@ -581,7 +581,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree)
 			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Packet too short");
+			col_set_str(pinfo->cinfo, COL_INFO, "Packet too short");
 		THROW(ReportedBoundsError);
         }
 

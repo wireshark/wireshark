@@ -1732,7 +1732,7 @@ dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (cbind_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
     }
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_str (pinfo->cinfo, COL_INFO, "CBIND ");
+        col_set_str (pinfo->cinfo, COL_INFO, "CBIND ");
     }
 
     proto_tree_add_item (cbind_tree, hf_fcels_cbind_liveness, tvb, offset+4, 2, FALSE);
@@ -1775,7 +1775,7 @@ dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (cbind_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
     }
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_str (pinfo->cinfo, COL_INFO, "UNBIND ");
+        col_set_str (pinfo->cinfo, COL_INFO, "UNBIND ");
     }
 
     proto_tree_add_item (cbind_tree, hf_fcels_cbind_userinfo, tvb, offset+4, 4, FALSE);

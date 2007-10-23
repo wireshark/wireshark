@@ -899,11 +899,11 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (bits & 0x40) {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO,
+			col_set_str(pinfo->cinfo, COL_INFO,
 			    "HPR Idle Message");
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO,
+			col_set_str(pinfo->cinfo, COL_INFO,
 			    "HPR Status Message");
 	}
 }
@@ -1217,7 +1217,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	nhdr_1 = tvb_get_guint8(tvb, index+1);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, "HPR NLP Packet");
+		col_set_str(pinfo->cinfo, COL_INFO, "HPR NLP Packet");
 
 	if (tree) {
 		/* Don't bother setting length. We'll set it later after we
@@ -1372,7 +1372,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	index += (thdr_len << 2);
 	if (((thdr_8 & 0x20) == 0) && thdr_dlf) {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
+			col_set_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
 		if (tvb_offset_exists(tvb, index)) {
 			call_dissector(data_handle,
 			    tvb_new_subset(tvb, index, -1, -1), pinfo,
@@ -1390,7 +1390,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_get_ntohs(tvb, index+2) == 0x12ce) {
 				/* Route Setup */
 				if (check_col(pinfo->cinfo, COL_INFO))
-					col_add_str(pinfo->cinfo, COL_INFO,
+					col_set_str(pinfo->cinfo, COL_INFO,
 					    "HPR Route Setup");
 				dissect_gds(tvb_new_subset(tvb, index, -1, -1),
 				    pinfo, tree, parent_tree);

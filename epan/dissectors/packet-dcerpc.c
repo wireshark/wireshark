@@ -3736,7 +3736,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		} else {
 		    /* PDU is fragmented and this isn't the first fragment */
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 			                " [DCE/RPC fragment]");
 		    }
 		    if (dcerpc_tree) {
@@ -3771,7 +3771,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			     TRUE);
 		    }
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 			                " [DCE/RPC fragment]");
 		    }
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
@@ -3818,7 +3818,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			    /* Reassembly not complete - some fragments
 			       are missing */
 			    if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO,
+				col_append_str(pinfo->cinfo, COL_INFO,
 				                " [DCE/RPC fragment]");
 			    }
 			}
@@ -3831,7 +3831,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			     TRUE);
 		    }
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 			                " [DCE/RPC fragment]");
 		    }
 		}
@@ -4463,7 +4463,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	} else {
 	    /* PDU is fragmented and this isn't the first fragment */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
+		col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
 	    }
 	    if (dcerpc_tree) {
 		if (length > 0) {
@@ -4526,7 +4526,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	} else {
 	    /* Reassembly isn't completed yet */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
+		col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
 	    }
 	}
     }

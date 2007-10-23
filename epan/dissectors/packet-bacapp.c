@@ -5449,7 +5449,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, "BACnet APDU ");
+		col_set_str(pinfo->cinfo, COL_INFO, "BACnet APDU ");
 
 	tmp = (gint) tvb_get_guint8(tvb, 0);
 	bacapp_type = (tmp >> 4) & 0x0f;

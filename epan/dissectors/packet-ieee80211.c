@@ -2810,7 +2810,7 @@ static void
 dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
 {
   gint tag_off = 0;
-  gint tag_len = tvb_length_remaining(tag_tvb, 0);
+  gint tag_len = tvb_length(tag_tvb);
   gchar out_buff[SHORT_STR];
   guint i, byte1, byte2;
 
@@ -2997,7 +2997,7 @@ static void
 dissect_vendor_ie_rsn(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
 {
   guint tag_off = 0;
-  guint tag_len = tvb_length_remaining(tag_tvb, 0);
+  guint tag_len = tvb_length(tag_tvb);
   guint pmkid_len = tag_len - 4;
   char out_buff[SHORT_STR], valid_str[SHORT_STR] = "";
 
@@ -3095,7 +3095,7 @@ static void
 dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
 {
   guint tag_off = 0;
-  guint tag_len = tvb_length_remaining(tag_tvb, 0);
+  guint tag_len = tvb_length(tag_tvb);
   guint16 rsn_capab;
   char out_buff[SHORT_STR];
   int i, count;
@@ -3771,7 +3771,7 @@ dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc
 static void
 dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
 {
-  gint tag_len = tvb_length_remaining(tag_tvb, 0);
+  gint tag_len = tvb_length(tag_tvb);
   gchar out_buff[SHORT_STR];
 
   g_snprintf(out_buff, SHORT_STR, "802.11n (Pre) OUI");
@@ -3918,7 +3918,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=\"%s\"",
                             format_text(ssid, tag_len));
           } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
+            col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
           }
         }
         if (tag_len > 0) {
@@ -5350,8 +5350,7 @@ set_src_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
     col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
         get_ether_name(addr), type);
   if (check_col(pinfo->cinfo, COL_UNRES_DL_SRC))
-    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_SRC, "%s",
-        ether_to_str(addr));
+    col_add_str(pinfo->cinfo, COL_UNRES_DL_SRC, ether_to_str(addr));
 }
 
 static void
@@ -5361,8 +5360,7 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
     col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
         get_ether_name(addr), type);
   if (check_col(pinfo->cinfo, COL_UNRES_DL_DST))
-    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_DST, "%s",
-        ether_to_str(addr));
+    col_add_str(pinfo->cinfo, COL_UNRES_DL_DST, ether_to_str(addr));
 }
 
 static guint32

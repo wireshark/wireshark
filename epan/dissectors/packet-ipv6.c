@@ -1119,7 +1119,7 @@ static void ipv6_shim6_checkum_additional_info(tvbuff_t * tvb, packet_info * pin
 	if (!is_cksum_correct) {
 	  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
 	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
+	    col_append_str(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
 	}
 }
 
@@ -1480,7 +1480,7 @@ again:
             }
             if (shim6) {
 		if (stype & SHIM6_BITMASK_P) {
-              	  col_append_fstr(pinfo->cinfo, COL_INFO, "Shim6 (Payload)");
+              	  col_append_str(pinfo->cinfo, COL_INFO, "Shim6 (Payload)");
 		}
 		else {
               	  col_append_fstr(pinfo->cinfo, COL_INFO, "Shim6 (%s)", 

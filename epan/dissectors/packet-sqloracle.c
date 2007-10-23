@@ -497,7 +497,7 @@ static gboolean ParseCommand(proto_tree *tree,tvbuff_t *tvb, int offset, packet_
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 	    if (check_col(pinfo->cinfo, COL_INFO))
-		   col_add_fstr(pinfo->cinfo, COL_INFO, "%s",m_pCurQuery );
+		   col_add_str(pinfo->cinfo, COL_INFO, m_pCurQuery );
 		return TRUE;
 	}
 	return FALSE;
@@ -544,7 +544,7 @@ static gboolean ParseNewCommand( proto_tree *tree,tvbuff_t *tvb, int offset, pac
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 	    if (check_col(pinfo->cinfo, COL_INFO))
-		   col_add_fstr(pinfo->cinfo, COL_INFO, "%s",m_pCurQuery );
+		   col_add_str(pinfo->cinfo, COL_INFO, m_pCurQuery );
 		proto_tree_add_text(tree, tvb, offset+amount-sqlamount, sqlamount,
 			    "SQL statement = %s",m_pCurQuery);
 		return TRUE;
@@ -633,7 +633,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (ParseCommand(sqloracle_tree,tvb, offset + 0x14, pinfo,dataLen - 0x14) == TRUE)
 						{
 							if (check_col(pinfo->cinfo, COL_INFO))
-								col_add_fstr(pinfo->cinfo, COL_INFO, "%s",m_pCurQuery );
+								col_add_str(pinfo->cinfo, COL_INFO, m_pCurQuery );
 							break;
 						}
 						else

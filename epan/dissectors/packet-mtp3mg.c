@@ -456,7 +456,7 @@ dissect_mtp3mg_unknown_message(tvbuff_t *tvb, proto_tree *tree)
 {
     guint8 message_length;
 
-    message_length = tvb_length_remaining(tvb, 0);
+    message_length = tvb_length(tvb);
     proto_tree_add_text(tree, tvb, 0, message_length,
 			"Unknown message (%u byte%s)", message_length,
 			plurality(message_length, "", "s"));
@@ -1109,7 +1109,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    default:
 		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ");
+		    col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
 
 		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	    } /* switch */
@@ -1203,7 +1203,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	default:
 	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ");
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
 
 	    dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	} /* switch */

@@ -4121,7 +4121,7 @@ decode_iei_application_error(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
     tf = proto_item_add_subtree(ti, ett_bssgp_ran_information_container_unit);
 
     proto_tree_add_item(tf, hf_bssgp_iei_nacc_cause, bi->tvb, bi->offset, 1, FALSE);
-    proto_tree_add_text(tf, bi->tvb, bi->offset, tvb_length_remaining(bi->tvb, 0) - bi->offset , "Erroneous Application Container including IEI and LI");
+    proto_tree_add_text(tf, bi->tvb, bi->offset, tvb_length(bi->tvb) - bi->offset , "Erroneous Application Container including IEI and LI");
 
   } else {
 	bi->offset += ie->value_length;

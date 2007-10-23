@@ -244,7 +244,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   cntrl_type = tvb_get_ntohs(tvb, offset + 8);
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", cntrltype2str(cntrl_type));
+    col_add_str(pinfo->cinfo, COL_INFO, cntrltype2str(cntrl_type));
 
   if (tree) {
     guint32		cookie;

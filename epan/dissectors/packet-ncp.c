@@ -465,8 +465,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "%s",
+	    col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
 	}
 

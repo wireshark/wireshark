@@ -12039,7 +12039,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 {
                         
         		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "C Ping for NDS");
+                        col_set_str(pinfo->cinfo, COL_INFO, "C Ping for NDS");
                	}
                 
         }

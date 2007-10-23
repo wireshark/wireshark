@@ -140,7 +140,7 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 #.FN_BODY IPM
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Message");
+   col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
   %(DEFAULT_BODY)s
 
@@ -148,7 +148,7 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 #.FN_BODY IPN
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Notification");
+   col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
   %(DEFAULT_BODY)s
 

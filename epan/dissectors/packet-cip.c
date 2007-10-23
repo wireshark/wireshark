@@ -1053,7 +1053,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
       /* Add reply status to info column */
       if(check_col(pinfo->cinfo, COL_INFO))
       {
-         col_append_fstr( pinfo->cinfo, COL_INFO, "%s",
+         col_append_str( pinfo->cinfo, COL_INFO, 
                   val_to_str( ( tvb_get_guint8( tvb, offset+2 ) ),
                      cip_gs_vals , "Unknown Response (%x)") );
       }
@@ -1224,7 +1224,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
                   */
 
                   if(check_col(pinfo->cinfo, COL_INFO))
-                     col_append_fstr( pinfo->cinfo, COL_INFO, ", ");
+                     col_append_str( pinfo->cinfo, COL_INFO, ", ");
 
                   dissect_cip_data( temp_tree, tvb, offset+serv_offset+4, serv_length, pinfo );
                }
@@ -1304,7 +1304,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
       /* Add service to info column */
       if(check_col(pinfo->cinfo, COL_INFO))
       {
-         col_append_fstr( pinfo->cinfo, COL_INFO, "%s",
+         col_append_str( pinfo->cinfo, COL_INFO, 
                   val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
                      cip_sc_vals , "Unknown Service (%x)") );
       }
@@ -1520,7 +1520,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
 	       */
 
 	       if(check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr( pinfo->cinfo, COL_INFO, ": ");
+		  col_append_str( pinfo->cinfo, COL_INFO, ": ");
 
 	       dissect_cip_data( temp_tree, tvb, offset+2+req_path_size+4, msg_req_siz, pinfo );
 
@@ -1583,7 +1583,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
                */
 
                if(check_col(pinfo->cinfo, COL_INFO))
-                  col_append_fstr( pinfo->cinfo, COL_INFO, ", ");
+                  col_append_str( pinfo->cinfo, COL_INFO, ", ");
 
                dissect_cip_data( temp_tree, tvb, offset+serv_offset+6, serv_length, pinfo );
             }

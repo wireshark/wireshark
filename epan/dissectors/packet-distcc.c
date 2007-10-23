@@ -71,7 +71,7 @@ extern void proto_reg_handoff_distcc(void);
 	if(parameter>tvb_length_remaining(tvb, offset) || parameter < 1){\
 		len=tvb_length_remaining(tvb, offset);\
 		if (check_col(pinfo->cinfo, COL_INFO)) {\
-			col_append_fstr(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
+			col_append_str(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
 		}\
 	} \
 	tvb_ensure_bytes_exist(tvb, offset, len);
@@ -248,7 +248,7 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 	DESEGMENT_TCP("DOTI");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "DOTI source ");
+		col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
 	}
 
 	proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, FALSE);
@@ -270,7 +270,7 @@ dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 	DESEGMENT_TCP("DOTO");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "DOTO object ");
+		col_append_str(pinfo->cinfo, COL_INFO, "DOTO object ");
 	}
 
 	proto_tree_add_item(tree, hf_distcc_doto_object, tvb, offset, len, FALSE);

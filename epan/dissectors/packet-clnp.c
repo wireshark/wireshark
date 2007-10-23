@@ -1740,7 +1740,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "");
+    col_set_str(pinfo->cinfo, COL_INFO, "");
 
   while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {

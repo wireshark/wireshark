@@ -1703,7 +1703,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     /* Set up structures needed to add the protocol subtree and manage it */
     guint iSCSIPdusDissected = 0;
     guint offset = 0;
-    guint32 available_bytes = tvb_length_remaining(tvb, offset);
+    guint32 available_bytes = tvb_length(tvb);
     int digestsActive = 1;
     conversation_t *conversation = NULL;
     iscsi_session_t *iscsi_session=NULL;

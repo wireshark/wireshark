@@ -408,7 +408,7 @@ dissect_order_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	/*map*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, &str);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,"%s", str);
+		col_append_str(pinfo->cinfo, COL_INFO, str);
 	}
 	proto_item_append_text(tree, "%s", str);
 

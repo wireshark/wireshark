@@ -243,8 +243,8 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 
 	type = tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-			"%s",val_to_str(type, msnip_types,
+		col_add_str(pinfo->cinfo, COL_INFO,
+			val_to_str(type, msnip_types,
 				"Unknown Type:0x%02x"));
 	}
 

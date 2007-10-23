@@ -865,8 +865,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
              * been decrypted; dissect the decrypted LDAP message.
              */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-	      col_add_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
-
+				col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
             }
 
             if (sasl_tree) {
@@ -886,7 +885,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	     * dissect the plain LDAP message.
              */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-	      col_add_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
+				col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
             }
 
 	    if (sasl_tree) {

@@ -376,7 +376,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO,
+        col_set_str(pinfo->cinfo, COL_INFO,
                     (pinfo->match_port == pinfo->destport) ?
                      ">" : "<");
 

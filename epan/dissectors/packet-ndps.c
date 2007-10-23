@@ -4186,7 +4186,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     if (ndps_packet_type != 0 && ndps_packet_type != 1) {     /* Packet Type */
         if (check_col(pinfo->cinfo, COL_INFO))
             col_set_str(pinfo->cinfo, COL_INFO, "(Continuation Data)");
-        proto_tree_add_text(ndps_tree, tvb, 0, tvb_length_remaining(tvb, 0), "Data - (%d Bytes)", tvb_length_remaining(tvb, 0));
+        proto_tree_add_text(ndps_tree, tvb, 0, tvb_length(tvb), "Data - (%d Bytes)", tvb_length(tvb));
         return;
     }
     foffset = 0;
@@ -4438,7 +4438,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                       if (!spx_info->eom)
                       {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
+                        col_append_str(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
                       }
                     }
                 }
@@ -4450,7 +4450,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                   if (!spx_info->eom)
                   {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
+                    col_append_str(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
                   }
                 }
                 next_tvb = NULL;
@@ -6743,7 +6743,7 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
 
     ndps_problem_type = tvb_get_ntohl(tvb, foffset);
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+        col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
     expert_item = proto_tree_add_uint(ndps_tree, hf_ndps_problem_type, tvb, foffset, 4, ndps_problem_type);
     expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(ndps_problem_type, error_type_enum, "Unknown NDPS Error (0x%08x)"));
     foffset += 4;
@@ -6947,7 +6947,7 @@ return_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffse
     }
     foffset += 4;
     if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+        col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
     if (tvb_get_ntohl(tvb, foffset-4) == 0)
     {
         return foffset;
@@ -7965,7 +7965,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+                col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0)
             {
                 break;
@@ -8219,7 +8219,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+                col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0)
             {
                 break;
@@ -8234,7 +8234,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+                col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0)
             {
                 break;
@@ -8258,7 +8258,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+                col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0)
             {
                 break;
@@ -8277,7 +8277,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+                col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             break;
         case 0x00000002:    /* Delivery Unbind */
             /* NoOp */
@@ -8287,7 +8287,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
-                col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+                col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
             if (tvb_get_ntohl(tvb, foffset-4) != 0)
             {
                 break;

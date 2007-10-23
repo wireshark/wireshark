@@ -2547,7 +2547,7 @@ get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint length = tvb_length_remaining(tvb, 0);
+  gint length = tvb_length(tvb);
 
   /* Check for a dnp packet.  It should begin with 0x0564 */
   if(length < DNP_HDR_LEN || tvb_get_ntohs(tvb, 0) != 0x0564) {
@@ -2564,7 +2564,7 @@ dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint length = tvb_length_remaining(tvb, 0);
+  gint length = tvb_length(tvb);
   /* Check for a dnp packet.  It should begin with 0x0564 */
   if(length < DNP_HDR_LEN || tvb_get_ntohs(tvb, 0) != 0x0564) {
     /* Not a DNP 3.0 packet, just happened to use the same port */

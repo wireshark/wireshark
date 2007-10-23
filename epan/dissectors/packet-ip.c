@@ -2145,7 +2145,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, type_str);
+    col_set_str(pinfo->cinfo, COL_INFO, type_str);
     if (code_str[0] != '\0')
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", code_str);
   }
