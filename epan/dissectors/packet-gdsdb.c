@@ -604,7 +604,7 @@ gdsdb_receive(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_item(tree, hf_gdsdb_receive_messages, tvb,
 							offset, 4, FALSE);
 		offset += 4;
-		while(tvb_bytes_exist(tvb, 0, 12)) {
+		while(tvb_bytes_exist(tvb, offset, 12)) {
 			proto_tree_add_item(tree, hf_gdsdb_receive_direction,
 						tvb, offset, 4, FALSE);
 			offset += 4;
@@ -1263,7 +1263,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO,
-				match_strval(opcode, gdsdb_opcode));
+				val_to_str(opcode, gdsdb_opcode, "Unknown opcode %u"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_gdsdb, tvb, 0, -1,
