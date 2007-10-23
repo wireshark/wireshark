@@ -378,7 +378,7 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree)
     {
         /* Add data subtree */
-        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, 0, FALSE);
+        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, FALSE);
         proto_item_set_text(tree_ti, "TB data for %u chans", p_fp_info->num_chans);
         data_tree = proto_item_add_subtree(tree_ti, ett_fp_data);
     }
@@ -458,7 +458,7 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Add data subtree */
     if (tree)
     {
-        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, 0, FALSE);
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, FALSE);
         proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bits", number_of_pdus, length);
         data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
     }

@@ -3205,6 +3205,9 @@ proto_item_set_len(proto_item *pi, gint length)
 	fi = PITEM_FINFO(pi);
 	DISSECTOR_ASSERT(length >= 0);
 	fi->length = length;
+
+	if (fi->value.ftype->ftype == FT_BYTES)
+		fi->value.value.bytes->len = length;
 }
 
 /*
