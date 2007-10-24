@@ -160,4 +160,7 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "application/vnd.drm.message", text_lines_handle);
 
 	dissector_add_string("media_type", "application/json", text_lines_handle); /* RFC 4627 */
+
+	dissector_add_string("media_type", "application/x-wms-logplaystats", text_lines_handle);
+	dissector_add_string("media_type", "application/x-rtsp-udp-packetpair", text_lines_handle);
 }

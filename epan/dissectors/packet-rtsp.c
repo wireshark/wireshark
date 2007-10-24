@@ -66,10 +66,10 @@ static int hf_rtsp_transport	= -1;
 static int hf_rtsp_rdtfeaturelevel	= -1;
 static int hf_rtsp_X_Vig_Msisdn	= -1;
 
-static dissector_handle_t sdp_handle;
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t rdt_handle;
+static dissector_table_t media_type_dissector_table;
 
 void proto_reg_handoff_rtsp(void);
 
@@ -97,6 +97,59 @@ static guint global_rtsp_tcp_alternate_port = TCP_ALTERNATE_PORT_RTSP;
 */
 static guint tcp_port = 0;
 static guint tcp_alternate_port = 0;
+
+/*
+ * Copied from the mgcp dissector. (This function should be moved to /epan )
+ * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
+ *                character following offset or offset + maxlength -1 whichever
+ *                is smaller.
+ *
+ * Parameters:
+ * tvb - The tvbuff in which we are skipping whitespace.
+ * offset - The offset in tvb from which we begin trying to skip whitespace.
+ * maxlength - The maximum distance from offset that we may try to skip
+ * whitespace.
+ *
+ * Returns: The position in tvb of the first non-whitespace
+ *          character following offset or offset + maxlength -1 whichever
+ *          is smaller.
+ */
+static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
+{
+	gint counter = offset;
+	gint end = offset + maxlength,tvb_len;
+	guint8 tempchar;
+
+	/* Get the length remaining */
+	tvb_len = tvb_length(tvb);
+	end = offset + maxlength;
+	if (end >= tvb_len)
+	{
+		end = tvb_len;
+	}
+
+	/* Skip past spaces, tabs, CRs and LFs until run out or meet something else */
+	for (counter = offset;
+	     counter < end &&
+	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+	      tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
+	     counter++);
+
+	return (counter);
+}
+
+static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
+	gint counter = offset;
+	gint end;
+	guint8 tempchar;
+	end = 0;
+
+	for(counter = offset; counter > end &&
+		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
+	counter++;
+	return (counter);
+}
 
 /*
  * Takes an array of bytes, assumed to contain a null-terminated
@@ -323,31 +376,6 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 }
 
 static const char rtsp_content_type[] = "Content-Type:";
-
-static int
-is_content_sdp(const guchar *line, size_t linelen)
-{
-	static const char type[] = "application/sdp";
-	size_t		typelen = STRLEN_CONST(type);
-
-	line += STRLEN_CONST(rtsp_content_type);
-	linelen -= STRLEN_CONST(rtsp_content_type);
-	while (linelen > 0 && (*line == ' ' || *line == '\t')) {
-		line++;
-		linelen--;
-	}
-
-	if (linelen < typelen || strncasecmp(type, line, typelen))
-		return FALSE;
-
-	line += typelen;
-	linelen -= typelen;
-	if (linelen > 0 && !isspace(*line))
-		return FALSE;
-
-	return TRUE;
-}
-
 static const char rtsp_transport[] = "Transport:";
 static const char rtsp_sps[] = "server_port=";
 static const char rtsp_cps[] = "client_port=";
@@ -579,6 +607,10 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int			value_len;
 	e164_info_t		e164_info;
 	gint		rdt_feature_level = 0;
+	char		*media_type_str_lower_case = NULL;
+	char		*media_type_str = NULL;
+	int			semi_colon_offset;
+	int			par_end_offset;
 
 	/*
 	 * Is this a request or response?
@@ -906,25 +938,25 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				                      tvb_format_text(tvb, value_offset,
 				                                      value_len));
 
-				/*
-				 * If the Content-Type: header says this
-				 * is SDP, dissect the payload as SDP.
-				 *
-				 * XXX - we should just do the same
-				 * sort of header processing
-				 * that HTTP does, and use the
-				 * "media_type" dissector table on
-				 * the content type.
-				 *
-				 * We should use those for Transport:
-				 * and Content-Length: as well (and
-				 * should process Content-Length: in
-				 * HTTP).
-				 */
-				if (is_content_sdp(line, linelen))
-				{
-					is_sdp = TRUE;
+				offset = offset + STRLEN_CONST(rtsp_content_type);
+				/* Skip wsp */
+				offset = tvb_skip_wsp(tvb, offset, value_len);
+				semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
+				if ( semi_colon_offset != -1) {
+					/* m-parameter present */
+					par_end_offset = tvb_skip_wsp_return(tvb, semi_colon_offset-1);
+					value_len = par_end_offset - offset;
 				}
+
+				media_type_str = tvb_get_ephemeral_string(tvb, offset,
+							                             value_len);
+#if GLIB_MAJOR_VERSION < 2
+				media_type_str_lower_case = ep_strdup(media_type_str);
+				g_strdown(media_type_str_lower_case);
+#else
+				media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
+#endif
+
 			} else if (HDR_MATCHES(rtsp_content_length))
 			{
 				proto_tree_add_uint(rtsp_tree, hf_rtsp_content_length,
@@ -1047,9 +1079,31 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * There's stuff left over; process it.
 		 */
-		if (is_sdp) {
-			tvbuff_t *new_tvb;
+		tvbuff_t *new_tvb;
 
+		/*
+		 * Now create a tvbuff for the Content-type stuff and
+		 * dissect it.
+		 *
+		 * The amount of data to be processed that's
+		 * available in the tvbuff is "datalen", which
+		 * is the minimum of the amount of data left in
+		 * the tvbuff and any specified content length.
+		 *
+		 * The amount of data to be processed that's in
+		 * this frame, regardless of whether it was
+		 * captured or not, is "reported_datalen",
+		 * which, if no content length was specified,
+		 * is -1, i.e. "to the end of the frame.
+		 */
+		new_tvb = tvb_new_subset(tvb, offset, datalen,
+			    reported_datalen);
+
+		if (dissector_try_string(media_type_dissector_table,
+				media_type_str_lower_case,
+				new_tvb, pinfo, rtsp_tree)){
+			
+		}else {
 			/*
 			 * Fix up the top-level item so that it doesn't
 			 * include the SDP stuff.
@@ -1057,25 +1111,6 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (ti != NULL)
 				proto_item_set_len(ti, offset);
 
-			/*
-			 * Now create a tvbuff for the SDP stuff and
-			 * dissect it.
-			 *
-			 * The amount of data to be processed that's
-			 * available in the tvbuff is "datalen", which
-			 * is the minimum of the amount of data left in
-			 * the tvbuff and any specified content length.
-			 *
-			 * The amount of data to be processed that's in
-			 * this frame, regardless of whether it was
-			 * captured or not, is "reported_datalen",
-			 * which, if no content length was specified,
-			 * is -1, i.e. "to the end of the frame.
-			 */
-			new_tvb = tvb_new_subset(tvb, offset, datalen,
-			    reported_datalen);
-			call_dissector(sdp_handle, new_tvb, pinfo, tree);
-		} else {
 			if (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR) {
 				/*
 				 * This is interleaved stuff; don't
@@ -1275,8 +1310,10 @@ proto_register_rtsp(void)
 	};
 	module_t *rtsp_module;
 
-        proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
+    proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",
 		"RTSP", "rtsp");
+	media_type_dissector_table = find_dissector_table("media_type");
+
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -1330,7 +1367,6 @@ proto_reg_handoff_rtsp(void)
 	dissector_add("tcp.port", tcp_port, rtsp_handle);
 	dissector_add("tcp.port", tcp_alternate_port, rtsp_handle);
 
-	sdp_handle = find_dissector("sdp");
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
 	rdt_handle = find_dissector("rdt");
