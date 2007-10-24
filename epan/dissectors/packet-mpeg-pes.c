@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-mpeg-pes.c                                                        */
-/* ../../tools/asn2wrs.py -e -p mpeg-pes -c mpeg-pes.cnf -s packet-mpeg-pes-template mpeg-pes.asn */
+/* packet-mpeg-pes.c                                                          */
+/* ../../tools/asn2wrs.py -p mpeg-pes -c ./mpeg-pes.cnf -s ./packet-mpeg-pes-template -D . mpeg-pes.asn */
 
 /* Input file: packet-mpeg-pes-template.c */
 
@@ -619,7 +619,8 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (check_col(pinfo->cinfo, COL_DEF_DST)) {
 			SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_DST,
-					"PTS %u.%09u", nst.secs, nst.nsecs);
+					"PTS %ld.%09u",
+					(long) nst.secs, nst.nsecs);
 		}
 	}
 	if (flags & DTS_FLAG) {
@@ -632,7 +633,8 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
 			SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
-					"DTS %u.%09u", nst.secs, nst.nsecs);
+					"DTS %ld.%09u",
+					(long) nst.secs, nst.nsecs);
 		}
 	}
 	if (flags & ESCR_FLAG) {
@@ -1107,7 +1109,7 @@ proto_register_mpeg_pes(void)
         "mpeg_pes.BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 465 "packet-mpeg-pes-template.c"
+#line 467 "packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1203,7 +1205,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 550 "packet-mpeg-pes-template.c"
+#line 552 "packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 	};

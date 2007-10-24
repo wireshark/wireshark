@@ -178,7 +178,8 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (check_col(pinfo->cinfo, COL_DEF_DST)) {
 			SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_DST,
-					"PTS %u.%09u", nst.secs, nst.nsecs);
+					"PTS %ld.%09u",
+					(long) nst.secs, nst.nsecs);
 		}
 	}
 	if (flags & DTS_FLAG) {
@@ -191,7 +192,8 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
 			SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
-					"DTS %u.%09u", nst.secs, nst.nsecs);
+					"DTS %ld.%09u",
+					(long) nst.secs, nst.nsecs);
 		}
 	}
 	if (flags & ESCR_FLAG) {
