@@ -743,7 +743,7 @@ static char* alnumerize(char* name) {
 	char c;
 
 	for (;(c = *r); r++) {
-		if (isalnum(c) || c == '_' || c == '-' || c == '.') {
+		if (isalnum((unsigned char)c) || c == '_' || c == '-' || c == '.') {
 			*(w++) = c;
 		}
 	}
