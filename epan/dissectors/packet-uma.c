@@ -204,7 +204,9 @@ static int ett_urr_ie = -1;
 
 /* The dynamic payload type which will be dissected as uma */
 
-static guint gbl_umaTcpPort1 = 14001;
+static range_t *global_uma_tcp_port_range;
+static range_t *uma_tcp_port_range;
+#define DEFAULT_UMA_PORT_RANGE "14001,14001"
 
 /* Global variables */
 	guint32		sgw_ipv4_address;
@@ -1585,6 +1587,17 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
+static void
+range_delete_callback(guint32 port)
+{
+    dissector_delete("tcp.port", port, uma_tcp_handle);
+}
+
+static void
+range_add_callback(guint32 port)
+{
+    dissector_add("tcp.port", port, uma_tcp_handle);
+}
 
 /* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -1603,12 +1616,14 @@ proto_reg_handoff_uma(void)
 		dissector_add("udp.port", 0, uma_udp_handle);
 		Initialized=TRUE;
 	} else {
-		dissector_delete("tcp.port", TcpPort1, uma_tcp_handle);
+		range_foreach(uma_tcp_port_range, range_delete_callback);
 	}
 
-	/* set port for future deletes */
-	TcpPort1=gbl_umaTcpPort1;
-	dissector_add("tcp.port", gbl_umaTcpPort1, uma_tcp_handle);
+	g_free(uma_tcp_port_range);
+	uma_tcp_port_range = range_copy(global_uma_tcp_port_range);
+
+	range_foreach(uma_tcp_port_range, range_add_callback);
+
 	data_handle = find_dissector("data");
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
@@ -2186,17 +2201,22 @@ proto_register_uma(void)
 
 	
 	uma_module = prefs_register_protocol(proto_uma, proto_reg_handoff_uma);
+	
+	/* Set default TCP ports */
+	range_convert_str(&global_uma_tcp_port_range, DEFAULT_UMA_PORT_RANGE, MAX_UDP_PORT);
+	uma_tcp_port_range = range_empty();
 
 	prefs_register_bool_preference(uma_module, "desegment_ucp_messages",
 		"Reassemble UMA messages spanning multiple TCP segments",
 		"Whether the UMA dissector should reassemble messages spanning multiple TCP segments."
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&uma_desegment);
-	prefs_register_uint_preference(uma_module, "tcp.port1",
-								   "Unlicensed Mobile Access TCP Port1",
-								   "Set the TCP port1 for Unlicensed Mobile Access messages",
-								   10,
-								   &gbl_umaTcpPort1);
+	prefs_register_obsolete_preference(uma_module, "tcp.port1");
+	prefs_register_range_preference(uma_module, "udp.ports", "UMA TCP ports",
+				  "TCP ports to be decoded as UMA (default: "
+				  DEFAULT_UMA_PORT_RANGE ")",
+				  &global_uma_tcp_port_range, MAX_UDP_PORT);
+
 
 
 }

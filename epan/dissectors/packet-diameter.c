@@ -63,7 +63,6 @@
 #include "packet-ntp.h"
 #include "diam_dict.h"
 
-#define TCP_PORT_DIAMETER	3868
 #define SCTP_PORT_DIAMETER	3868
 
 /* Diameter Header Flags */
@@ -264,8 +263,12 @@ static gint ett_diameter_avpinfo = -1;
 static gint ett_unknown = -1;
 static gint ett_err = -1;
 
-static guint gbl_diameterTcpPort=TCP_PORT_DIAMETER;
 static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
+
+static dissector_handle_t diameter_tcp_handle;
+static range_t *global_diameter_tcp_port_range;
+static range_t *diameter_tcp_port_range;
+#define DEFAULT_DIAMETER_PORT_RANGE "3868,3868"
 
 /* desegmentation of Diameter over TCP */
 static gboolean gbl_diameter_desegment = TRUE;
@@ -1102,6 +1105,17 @@ extern int dictionary_load(void) {
 	return 1;
 }
 
+static void
+range_delete_callback(guint32 port)
+{
+    dissector_delete("tcp.port", port, diameter_tcp_handle);
+}
+
+static void
+range_add_callback(guint32 port)
+{
+    dissector_add("tcp.port", port, diameter_tcp_handle);
+}
 
 void
 proto_reg_handoff_diameter(void)
@@ -1109,7 +1123,6 @@ proto_reg_handoff_diameter(void)
 	static int Initialized=FALSE;
 	static int TcpPort=0;
 	static int SctpPort=0;
-	static dissector_handle_t diameter_tcp_handle;
 	static dissector_handle_t diameter_handle;
 
 	data_handle = find_dissector("data");
@@ -1121,17 +1134,18 @@ proto_reg_handoff_diameter(void)
 													  proto_diameter);
 		Initialized=TRUE;
 	} else {
-		dissector_delete("tcp.port", TcpPort, diameter_tcp_handle);
+		range_foreach(diameter_tcp_port_range, range_delete_callback);
 		dissector_delete("sctp.port", SctpPort, diameter_handle);
 	}
 
 	/* set port for future deletes */
-	TcpPort=gbl_diameterTcpPort;
+	g_free(diameter_tcp_port_range);
+	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
+
+	range_foreach(diameter_tcp_port_range, range_add_callback);
+
 	SctpPort=gbl_diameterSctpPort;
 
-	/* g_warning ("Diameter: Adding tcp dissector to port %d",
-		gbl_diameterTcpPort); */
-	dissector_add("tcp.port", gbl_diameterTcpPort, diameter_tcp_handle);
 	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
 }
 
@@ -1260,17 +1274,20 @@ proto_register_diameter(void)
 	/* Allow dissector to find be found by name. */
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
 
+	/* Set default TCP ports */
+	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
+	diameter_tcp_port_range = range_empty();
+
 	/* Register a configuration option for port */
 	diameter_module = prefs_register_protocol(proto_diameter,
 											  proto_reg_handoff_diameter);
 
-	prefs_register_obsolete_preference(diameter_module, "version");
 
-	prefs_register_uint_preference(diameter_module, "tcp.port",
-								   "Diameter TCP Port",
-								   "Set the TCP port for Diameter messages",
-								   10,
-								   &gbl_diameterTcpPort);
+	prefs_register_range_preference(diameter_module, "tcp.ports", "Diameter TCP ports",
+				  "TCP ports to be decoded as Diameter (default: "
+				  DEFAULT_DIAMETER_PORT_RANGE ")",
+				  &global_diameter_tcp_port_range, MAX_UDP_PORT);
+
 
 	prefs_register_uint_preference(diameter_module, "sctp.port",
 								   "Diameter SCTP Port",
@@ -1287,7 +1304,9 @@ proto_register_diameter(void)
 
 	/* Register some preferences we no longer support, so we can report
 	   them as obsolete rather than just illegal. */
+	prefs_register_obsolete_preference(diameter_module, "version");
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
+	prefs_register_obsolete_preference(diameter_module, "tcp.port");
 	prefs_register_obsolete_preference(diameter_module, "command_in_header");
 	prefs_register_obsolete_preference(diameter_module, "dictionary.name");
 	prefs_register_obsolete_preference(diameter_module, "dictionary.use");
