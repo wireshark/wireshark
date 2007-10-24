@@ -221,6 +221,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	strutil.h		\
 	t35.h			\
 	tap.h			\
+	tap-voip.h		\
 	tcap-persistentdata.h	\
 	timestamp.h    		\
 	tfs.h			\

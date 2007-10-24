@@ -40,26 +40,10 @@
 #include <stdio.h>
 #include <epan/address.h>
 #include <epan/guid-utils.h>
+#include <epan/tap-voip.h>
 
 /****************************************************************************/
-/* defines voip call state */
-typedef enum _voip_call_state {
-		VOIP_NO_STATE,
-        VOIP_CALL_SETUP,
-        VOIP_RINGING,
-        VOIP_IN_CALL,
-        VOIP_CANCELLED,
-        VOIP_COMPLETED,
-        VOIP_REJECTED,
-        VOIP_UNKNOWN
-} voip_call_state;
-
 extern const char *voip_call_state_name[8];
-
-typedef enum _voip_call_active_state {
-        VOIP_ACTIVE,
-        VOIP_INACTIVE
-} voip_call_active_state;
 
 typedef enum _voip_protocol {
 		VOIP_SIP,
@@ -73,7 +57,8 @@ typedef enum _voip_protocol {
 		TEL_SCCP,
 		TEL_BSSMAP,
 		TEL_RANAP,
-		VOIP_UNISTIM
+		VOIP_UNISTIM,
+		VOIP_COMMON
 } voip_protocol;
 
 extern const char *voip_protocol_name[];
@@ -141,6 +126,7 @@ typedef struct _actrace_cas_calls_info {
 typedef struct _voip_calls_info {
 	voip_call_state call_state;
 	voip_call_active_state call_active_state;
+	gchar *call_id;
 	gchar *from_identity;
 	gchar *to_identity;
 	gpointer prot_info;
@@ -150,6 +136,8 @@ typedef struct _voip_calls_info {
 	guint32 first_frame_num; /* frame number of first frame */
 	guint32 last_frame_num; 
 	voip_protocol protocol;
+	gchar *protocol_name;
+	gchar *call_comment;
 	guint16 call_num;
 	gint32 start_sec, start_usec, stop_sec, stop_usec;
 	gboolean selected;
@@ -190,6 +178,7 @@ typedef struct _voip_calls_tapinfo {
 	int sua_dummy;
 	int megaco_dummy;
 	int unistim_dummy;
+	int voip_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -249,6 +238,7 @@ void t38_init_tap(void);
 void h248_calls_init_tap(void);
 void sccp_calls_init_tap(void);
 void unistim_calls_init_tap(void);
+void VoIPcalls_init_tap(void);
 
 /*
 * Removes the voip_calls tap listener (if not already done)
@@ -269,6 +259,7 @@ void remove_tap_listener_t38(void);
 void remove_tap_listener_h248_calls(void);
 void remove_tap_listener_sccp_calls(void);
 void remove_tap_listener_unistim_calls(void);
+void remove_tap_listener_voip_calls(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.

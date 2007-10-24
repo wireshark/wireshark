@@ -133,14 +133,14 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 
 /*	strinfo->selected = FALSE;*/
 
-	g_snprintf(field[CALL_COL_START_TIME], 15, "%i.%2i", strinfo->start_sec, strinfo->start_usec/10000);
-	g_snprintf(field[CALL_COL_STOP_TIME], 15, "%i.%2i", strinfo->stop_sec, strinfo->stop_usec/10000);
+	g_snprintf(field[CALL_COL_START_TIME], 15, "%i.%03i", strinfo->start_sec, strinfo->start_usec/1000);
+	g_snprintf(field[CALL_COL_STOP_TIME], 15, "%i.%03i", strinfo->stop_sec, strinfo->stop_usec/1000);
 /*	xxx display_signed_time(data[0], sizeof(field[CALL_COL_START_TIME]), strinfo->start_sec, strinfo->start_usec, USECS); */
 /*	display_signed_time(data[1], sizeof(field[CALL_COL_STOP_TIME]), strinfo->stop_sec, strinfo->stop_usec, USECS); */
 	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
 	g_snprintf(field[CALL_COL_FROM], 50, "%s", strinfo->from_identity);
 	g_snprintf(field[CALL_COL_TO], 50, "%s", strinfo->to_identity);
-	g_snprintf(field[CALL_COL_PROTOCOL], 15, "%s", voip_protocol_name[strinfo->protocol]);
+	g_snprintf(field[CALL_COL_PROTOCOL], 15, "%s", ((strinfo->protocol==VOIP_COMMON)&&strinfo->protocol_name)?strinfo->protocol_name:voip_protocol_name[strinfo->protocol]);
 	g_snprintf(field[CALL_COL_PACKETS], 15, "%u", strinfo->npackets);
 	g_snprintf(field[CALL_COL_STATE], 15, "%s", voip_call_state_name[strinfo->call_state]);
 
@@ -159,6 +159,11 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 				if ((tmp_h323info->is_faststart_Setup == TRUE) && (tmp_h323info->is_faststart_Proc == TRUE)) tmp_bool = TRUE; 
 			g_snprintf(field[CALL_COL_COMMENTS],35, "Tunneling: %s  Fast Start: %s", (tmp_h323info->is_h245Tunneling==TRUE?"ON":"OFF"), 
 				(tmp_bool==TRUE?"ON":"OFF"));
+			break;
+		case VOIP_COMMON:
+			field[CALL_COL_COMMENTS][0]='\0';
+			if (strinfo->call_comment)
+				g_snprintf(field[CALL_COL_COMMENTS],30, "%s", strinfo->call_comment);
 			break;
 		default:
 			field[CALL_COL_COMMENTS][0]='\0';
@@ -212,6 +217,9 @@ static void voip_calls_remove_tap_listener(void)
 	remove_tap_listener_rtp();
 	if (find_tap_id("unistim")) {
 		remove_tap_listener_unistim_calls();
+	}
+	if (find_tap_id("voip")) {
+		remove_tap_listener_voip_calls();
 	}
 	remove_tap_listener_rtp_event();
 	if (find_tap_id("mgcp")) {
@@ -924,6 +932,9 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	/* We don't register this tap, if we don't have the unistim plugin loaded.*/
 	if (find_tap_id("unistim")) {
 		unistim_calls_init_tap();
+	}
+	if (find_tap_id("voip")) {
+		VoIPcalls_init_tap();
 	}
 	rtp_init_tap();
 	rtp_event_init_tap();
