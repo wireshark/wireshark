@@ -329,6 +329,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dec-dnart.c	\
 	packet-dhcp-failover.c	\
 	packet-dhcpv6.c		\
+	packet-diameter.c	\
 	packet-dis.c		\
 	packet-dis-enums.c	\
 	packet-dis-fields.c	\
@@ -761,7 +762,6 @@ CLEAN_DISSECTOR_SRC = \
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
 	packet-bacapp.c		\
-	packet-diameter.c	\
 	packet-k12.c 		\
 	packet-nbd.c		\
 	packet-sccp.c		\
