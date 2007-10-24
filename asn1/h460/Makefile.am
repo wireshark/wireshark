@@ -1,6 +1,5 @@
 # $Id: Makefile.am 23085 2007-10-07 21:07:33Z jmayer $
 #
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
@@ -18,9 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+#
 
 include ../Makefile.preinc
 include Makefile.common
 include ../Makefile.inc
-
