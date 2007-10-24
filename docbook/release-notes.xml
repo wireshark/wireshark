@@ -82,6 +82,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The Firebird/Interbase dissector could go into an infinite loop or crash.
+            <!-- Fixed in r23251 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1931">1931</ulink>) -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1932">1932</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
