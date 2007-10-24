@@ -1710,7 +1710,7 @@ capture(void)
   fd_set readfds;
 #endif
 #ifndef _WIN32
-  void        (*oldhandler)(int);
+  struct sigaction action, oldaction;
 #endif
 
   /*
@@ -1745,18 +1745,23 @@ capture(void)
   SetConsoleCtrlHandler(capture_cleanup, TRUE);
 #else /* _WIN32 */
   /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
-     and exit.
-     XXX - deal with signal semantics on various UNIX platforms.  Or just
-     use "sigaction()" and be done with it? */
-  signal(SIGTERM, capture_cleanup);
-  signal(SIGINT, capture_cleanup);
-  if ((oldhandler = signal(SIGHUP, capture_cleanup)) != SIG_DFL)
-    signal(SIGHUP, oldhandler);
+     and exit. */
+  action.sa_handler = capture_cleanup;
+  action.sa_flags = 0;
+  action.sa_mask = 0;
+  sigaction(SIGTERM, &action, NULL);
+  sigaction(SIGINT, &action, NULL);
+  sigaction(SIGHUP, NULL, &oldaction);
+  if (oldaction.sa_handler == SIG_DFL)
+    sigaction(SIGHUP, &action, NULL);
 
 #ifdef SIGINFO
   /* Catch SIGINFO and, if we get it and we're capturing to a file in
      quiet mode, report the number of packets we've captured. */
-  signal(SIGINFO, report_counts_siginfo);
+  action.sa_handler = report_counts_siginfo;
+  action.sa_flags = 0;
+  action.sa_mask = 0;
+  sigaction(SIGINFO, &action, NULL);
 #endif /* SIGINFO */
 #endif /* _WIN32 */
 
@@ -2015,13 +2020,6 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 static void
 report_counts(void)
 {
-#ifdef SIGINFO
-  /* XXX - if we use sigaction, this doesn't have to be done.
-     (Yes, this isn't necessary on BSD, but just in case a system
-     where "signal()" has AT&T semantics adopts SIGINFO....) */
-  signal(SIGINFO, report_counts_siginfo);
-#endif /* SIGINFO */
-
   if (!print_packet_counts) {
     /* Report the count only if we aren't printing a packet count
        as packets arrive. */
@@ -2071,22 +2069,16 @@ capture_input_drops(capture_options *capture_opts _U_, int dropped)
 void
 capture_input_closed(capture_options *capture_opts)
 {
-	if (!print_packet_counts) {
-    /* Report the count only if we aren't printing a packet count
-       as packets arrive. */
-      fprintf(stderr, "%u packets captured\n", packet_count);
+  report_counts();
+
+  if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
+    wtap_close(((capture_file *) capture_opts->cf)->wth);
   }
-
-	/*printf("capture_input_closed\n");*/
-
-	if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
-		wtap_close(((capture_file *) capture_opts->cf)->wth);
-	}
 #ifdef USE_BROKEN_G_MAIN_LOOP
-	/*g_main_loop_quit(loop);*/
-	g_main_quit(loop);
+  /*g_main_loop_quit(loop);*/
+  g_main_quit(loop);
 #else
-	loop_running = FALSE;
+  loop_running = FALSE;
 #endif
 }
 
