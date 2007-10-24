@@ -599,7 +599,6 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guchar			c;
 	rtsp_type_t		rtsp_type;
 	gboolean		is_header;
-	int			is_sdp = FALSE;
 	int			datalen;
 	int			content_length;
 	int			reported_datalen;
