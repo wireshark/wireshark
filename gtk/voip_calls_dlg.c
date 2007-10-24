@@ -378,9 +378,10 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 			case VOIP_AC_ISDN:
 			case VOIP_AC_CAS:
 			case MEDIA_T38:
- 		        case TEL_BSSMAP:
-		        case TEL_RANAP:
+			case TEL_BSSMAP:
+			case TEL_RANAP:
 			case VOIP_UNISTIM:
+			case VOIP_COMMON:
 				/* XXX - not supported */
 				break;
 		}
