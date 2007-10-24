@@ -123,7 +123,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
