@@ -1,4 +1,4 @@
-# $Id: Makefile.am 23085 2007-10-07 21:07:33Z jmayer $
+# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>

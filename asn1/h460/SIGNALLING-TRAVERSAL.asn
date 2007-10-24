@@ -3,7 +3,7 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.18/2005/SIGNALLING-TRAVERSAL.asn
 --
--- $Id: H323-MESSAGES.asn 20807 2007-02-14 08:08:44Z kukosa $
+-- $Id$
 --
 
 -- Module SIGNALLING-TRAVERSAL (H.460.18:09/2005)
