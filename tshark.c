@@ -1748,7 +1748,7 @@ capture(void)
      and exit. */
   action.sa_handler = capture_cleanup;
   action.sa_flags = 0;
-  action.sa_mask = 0;
+  sigemptyset(&action.sa_mask);
   sigaction(SIGTERM, &action, NULL);
   sigaction(SIGINT, &action, NULL);
   sigaction(SIGHUP, NULL, &oldaction);
@@ -1760,7 +1760,7 @@ capture(void)
      quiet mode, report the number of packets we've captured. */
   action.sa_handler = report_counts_siginfo;
   action.sa_flags = 0;
-  action.sa_mask = 0;
+  sigemptyset(&action.sa_mask);
   sigaction(SIGINFO, &action, NULL);
 #endif /* SIGINFO */
 #endif /* _WIN32 */
