@@ -379,7 +379,7 @@ sync_pipe_start(capture_options *capture_opts) {
     sa.lpSecurityDescriptor = NULL;
 
     /* Create a pipe for the child process */
-    /* (inrease this value if you have trouble while fast capture file switches) */
+    /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
