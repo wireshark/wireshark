@@ -3646,7 +3646,8 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		strinfo->call_active_state = pi->call_active_state;
 		if ((strinfo->call_state != VOIP_COMPLETED) && (pi->call_state == VOIP_COMPLETED))
 			tapinfo->completed_calls++;
-		strinfo->call_state = pi->call_state;
+        if (pi->call_state != VOIP_NO_STATE)
+			strinfo->call_state = pi->call_state;
 		strinfo->stop_sec=(gint32)(pinfo->fd->rel_ts.secs);
 		strinfo->stop_usec=pinfo->fd->rel_ts.nsecs/1000;
 		strinfo->last_frame_num=pinfo->fd->num;
