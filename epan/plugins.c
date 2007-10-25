@@ -69,7 +69,8 @@ static int
 add_plugin(void *handle, gchar *name, gchar *version,
 	   void (*register_protoinfo)(void), void (*reg_handoff)(void),
 	   void (*register_tap_listener)(void),
-	   void (*register_wtap_module)(void))
+	   void (*register_wtap_module)(void),
+	   void (*register_codec_module)(void))
 {
     plugin *new_plug, *pt_plug;
 
@@ -108,6 +109,7 @@ add_plugin(void *handle, gchar *name, gchar *version,
     new_plug->reg_handoff = reg_handoff;
     new_plug->register_tap_listener = register_tap_listener;
     new_plug->register_wtap_module = register_wtap_module;
+    new_plug->register_codec_module = register_codec_module;
     new_plug->next = NULL;
 
     return 0;
@@ -145,6 +147,7 @@ plugins_scan_dir(const char *dirname)
     void         (*reg_handoff)(void);
     void         (*register_tap_listener)(void);
     void (*register_wtap_module)(void);
+    void (*register_codec_module)(void);
 
     gchar         *dot;
     int            cr;
@@ -310,18 +313,29 @@ plugins_scan_dir(const char *dirname)
                register_wtap_module = NULL;
            }
            
+	    /*
+		 * Do we have a register_codec_module routine?
+		 */
+           if (g_module_symbol(handle, "register_codec_module", &gp))
+           {
+               register_codec_module = gp;
+           } else {
+               register_codec_module = NULL;
+           }
+
 	   /*
 		* Does this dissector do anything useful?
 		*/
 	    if (register_protoinfo == NULL &&
 		    register_tap_listener == NULL && 
-		    register_wtap_module == NULL )
+		    register_wtap_module == NULL &&
+		    register_codec_module == NULL )
 	    {
 		/*
 		 * No.
 		 */
 		report_failure("The plugin '%s' has neither a register routine, "
-					   "a register_tap_listener or a register_wtap_module routine",
+					   "a register_tap_listener or a register_wtap_module or a register_codec_module routine",
 		    name);
 		g_module_close(handle);
 		continue;
@@ -332,7 +346,7 @@ plugins_scan_dir(const char *dirname)
 	     */
 	    if ((cr = add_plugin(handle, g_strdup(name), version,
 				 register_protoinfo, reg_handoff,
-				 register_tap_listener,register_wtap_module)))
+				 register_tap_listener,register_wtap_module,register_codec_module)))
 	    {
 		if (cr == EEXIST)
 		    fprintf(stderr, "The plugin %s, version %s\n"
@@ -432,6 +446,7 @@ init_plugins(void)
 	}
     }
 	register_all_wiretap_modules();
+	register_all_codecs();
 }
 
 void
@@ -505,6 +520,22 @@ register_all_wiretap_modules(void)
     {
 		if (pt_plug->register_wtap_module)
 			(pt_plug->register_wtap_module)();
+    }
+}
+
+void
+register_all_codecs(void)
+{
+    plugin *pt_plug;
+
+    /*
+     * For all plugins with register_wtap_module routines, call the
+     * routines.
+     */
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    {
+		if (pt_plug->register_codec_module)
+			(pt_plug->register_codec_module)();
     }
 }
 #endif

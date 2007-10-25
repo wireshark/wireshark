@@ -66,6 +66,12 @@ plugins_scan(GtkWidget *list)
         {
             type = g_string_append(type, sep);
             type = g_string_append(type, "file_format");
+            sep = ", ";
+        }
+        if (pt_plug->register_codec_module)
+        {
+            type = g_string_append(type, sep);
+            type = g_string_append(type, "codec");
         }
         simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version,
                            2, type->str, -1);

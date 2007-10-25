@@ -66,6 +66,9 @@ circuit_add_proto_data
 circuit_get_proto_data
 circuit_new
 cleanup_dissection
+codec_init
+codec_decode
+codec_release
 col_add_fstr
 col_add_str
 col_append_fstr
@@ -318,6 +321,7 @@ file_write_error_message
 files_identical
 filesystem_opt
 find_circuit
+find_codec
 find_conversation
 find_dissector
 find_dissector_table
@@ -693,6 +697,7 @@ register_all_protocol_handoffs
 register_all_wiretap_modules
 register_ber_oid_syntax
 register_ber_syntax_dissector
+register_codec
 register_count
 register_dissector
 register_dissector_filter

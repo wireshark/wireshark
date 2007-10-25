@@ -79,6 +79,7 @@
 
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
+#include <epan/codecs.h>
 
 #include "rtp_player.h"
 #include "codecs/G711a/G711adecode.h"
@@ -238,6 +239,11 @@ typedef struct _rtp_play_channles {
 /* The two RTP channles to play */
 static rtp_play_channles_t *rtp_channels = NULL;
 
+typedef struct _rtp_decoder_t {
+	codec_handle_t handle;
+	void *context;
+} rtp_decoder_t;
+
 
 /****************************************************************************/
 static void 
@@ -280,6 +286,17 @@ rtp_stream_value_destroy(gpointer rsi_arg)
 	}
 	g_free(rsi);
 	rsi = NULL;
+}
+
+/****************************************************************************/
+static void 
+rtp_decoder_value_destroy(gpointer dec_arg)
+{
+	rtp_decoder_t *dec = dec_arg;
+
+	if (dec->handle)
+		codec_release(dec->handle, dec->context);
+	g_free(dec_arg);
 }
 
 /****************************************************************************/
@@ -440,10 +457,13 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
  * Return the number of decoded bytes
  */
 static int 
-decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff)
+decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash)
 {
 	unsigned int  payload_type;
+	const gchar *p;
+	rtp_decoder_t *decoder;
 	SAMPLE *tmp_buff = NULL;
+	int tmp_buff_len;
 	int decoded_bytes = 0;
 
 	if ((rp->payload_data == NULL) || (rp->info->info_payload_len == 0) ) {
@@ -451,32 +471,57 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff)
 	}
 
 	payload_type = rp->info->info_payload_type;
+
+	/* Look for registered codecs */
+	decoder = g_hash_table_lookup(decoders_hash, (gpointer)payload_type);
+	if (!decoder) {  /* Put either valid or empty decoder into the hash table */
+		decoder = g_malloc(sizeof(rtp_decoder_t));
+		decoder->handle = NULL;
+		decoder->context = NULL;
+		p = match_strval(payload_type, rtp_payload_type_short_vals);
+		if (p) {
+			decoder->handle = find_codec(p);
+			if (decoder->handle)
+				decoder->context = codec_init(decoder->handle);
+		}
+		g_hash_table_insert(decoders_hash, (gpointer)payload_type, decoder);
+	}
+	if (decoder->handle) {  /* Decode with registered codec */
+		tmp_buff_len = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, NULL, NULL);
+		tmp_buff = g_malloc(tmp_buff_len);
+		decoded_bytes = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, tmp_buff, &tmp_buff_len);
+		*out_buff = tmp_buff;
+		return decoded_bytes;
+	}
+
+	/* Try to decode with built-in codec */
+
 	switch (payload_type) {
 
 	case PT_PCMU:	/* G.711 u-law */
-		tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
+		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711u(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
 
 	case PT_PCMA:	/* G.711 A-law */
-		tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
+		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 1);
 		decodeG711a(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
 
 #ifdef HAVE_G729_G723
 	case PT_G729:	/* G.729 */
-		tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 8); /* G729 8kbps => 64kbps/8kbps = 8  */
+		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 8); /* G729 8kbps => 64kbps/8kbps = 8  */
 		decodeG729(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
 
 	case PT_G723:	/* G.723 */
 		if (rp->info->info_payload_len%24 == 0)	/* G723 High 6.4kbps */
-			tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 10); /* G723 High 64kbps/6.4kbps = 10  */	
+			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 10); /* G723 High 64kbps/6.4kbps = 10  */	
 		else if (rp->info->info_payload_len%20 == 0)    /* G723 Low 5.3kbps */
-			tmp_buff = malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 13); /* G723 High 64kbps/5.3kbps = 13  */	
+			tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 13); /* G723 High 64kbps/5.3kbps = 13  */	
 		else {
 			return 0;
 		}
@@ -546,6 +591,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	sample_t sample;
 	guint8 status;
 	guint32 start_timestamp; 
+	GHashTable *decoders_hash = NULL;
 
 	guint32 progbar_nextstep;
 	int progbar_quantum;
@@ -580,7 +626,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 	/* ..if it is not in the hash, create an entry */
 	if (rci == NULL) {
-		rci = malloc(sizeof(rtp_channel_info_t));
+		rci = g_malloc(sizeof(rtp_channel_info_t));
 		rci->call_num = rsi->call_num;
 		rci->start_time = rsi->start_time;
 		rci->end_time = rsi->start_time;		
@@ -628,6 +674,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	mean_delay = 0;
 	variation = 0;
 	start_timestamp = 0;
+	decoders_hash = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, rtp_decoder_value_destroy);
 
 	/* we update the progress bar 100 times */
 
@@ -663,7 +710,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 			seq = rp->info->info_seq_num - 1;
 		}
 
-		decoded_bytes = decode_rtp_packet(rp, &out_buff);
+		decoded_bytes = decode_rtp_packet(rp, &out_buff, decoders_hash);
 		if (decoded_bytes == 0) {
 			seq = rp->info->info_seq_num;
 		}
@@ -744,6 +791,10 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 		}
 
+		if (out_buff) {
+			g_free(out_buff);
+			out_buff = NULL;
+		}
 		rtp_packets_list = g_list_next (rtp_packets_list);
 		progbar_count++;
 	}
@@ -751,6 +802,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	rci->end_time = rci->start_time + ((double)rci->samples->len/SAMPLE_RATE)*1000;
 
 	g_string_free(key_str, TRUE);
+	g_hash_table_destroy(decoders_hash);
 }
 
 /****************************************************************************/

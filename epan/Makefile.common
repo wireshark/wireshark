@@ -35,6 +35,7 @@ LIBWIRESHARK_SRC = 		\
 	camel-persistentdata.c	\
 	charsets.c		\
 	circuit.c		\
+	codecs.c		\
 	column.c		\
 	column-utils.c		\
 	conversation.c		\
@@ -145,6 +146,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	charsets.h		\
 	chdlctypes.h		\
 	circuit.h		\
+	codecs.h		\
 	column.h		\
 	column_info.h		\
 	column-utils.h		\

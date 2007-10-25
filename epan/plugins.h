@@ -38,6 +38,7 @@ typedef struct _plugin {
     void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
     void (*register_tap_listener)(void);   /* routine to call to register tap listener */
     void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
+    void (*register_codec_module)(void);  /* routine to call to register a codec */
     struct _plugin *next;         /* forward link */
 } plugin;
 
@@ -48,6 +49,7 @@ extern void register_all_plugin_registrations(void);
 extern void register_all_plugin_handoffs(void);
 extern void register_all_plugin_tap_listeners(void);
 extern void register_all_wiretap_modules(void);
+extern void register_all_codecs(void);
 
 /* get the personal plugin dir */
 /* Return value is g_malloced so the caller should g_free() it. */
