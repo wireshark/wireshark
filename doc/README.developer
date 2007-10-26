@@ -3,8 +3,8 @@ $Date$
 $Author$
 
 This file is a HOWTO for Wireshark developers. It describes how to start coding
-a Wireshark protocol dissector and the use some of the important functions and
-variables.
+a Wireshark protocol dissector and the use of some of the important functions
+and variables.
 
 This file is compiled to give in depth information on Wireshark.
 It is by no means all inclusive and complete. Please feel free to send
@@ -16,7 +16,7 @@ Before starting to develop a new dissector, a "running" Wireshark build
 environment is required - there's no such thing as a standalone "dissector
 build toolkit".
 
-How to setup such an environment is platform dependant, detailed information
+How to setup such an environment is platform dependent, detailed information
 about these steps can be found in the "Developer's Guide" (available from:
 http://www.wireshark.org) and in the INSTALL and README files of the sources
 root dir.
@@ -94,7 +94,8 @@ Don't declare variables in the middle of executable code; not all C
 compilers support that.  Variables should be declared outside a
 function, or at the beginning of a function or compound statement.
 
-Don't use anonymous unions; not all compilers support it. Example:
+Don't use anonymous unions; not all compilers support it. 
+Example:
 typedef struct foo {
   guint32 foo;
   union {
@@ -121,7 +122,7 @@ long on many platforms.  Use "gint32" for signed 32-bit integers and use
 
 Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
 long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
-other many platforms.  Don't use "long long" or "unsigned long long",
+many other platforms.  Don't use "long long" or "unsigned long long",
 either, as not all platforms support them; use "gint64" or "guint64",
 which will be defined as the appropriate types for 64-bit signed and
 unsigned integers.
@@ -204,7 +205,7 @@ header file on which they're declared on your platform.
 
 Don't fetch data from packets by getting a pointer to data in the packet
 with "tvb_get_ptr()", casting that pointer to a pointer to a structure,
-and dereferencing that pointer.  That point won't necessarily be aligned
+and dereferencing that pointer.  That pointer won't necessarily be aligned
 on the proper boundary, which can cause crashes on some platforms (even
 if it doesn't crash on an x86-based PC); furthermore, the data in a
 packet is not necessarily in the byte order of the machine on which
@@ -217,7 +218,7 @@ packet data; the C programming language does not guarantee any
 particular alignment of fields within a structure, and even the
 extensions that try to guarantee that are compiler-specific and not
 necessarily supported by all compilers used to build Wireshark.  Using
-bitfields in those structures are even worse; the order of bitfields
+bitfields in those structures is even worse; the order of bitfields
 is not guaranteed.
 
 Don't use "ntohs()", "ntohl()", "htons()", or "htonl()"; the header
@@ -574,10 +575,10 @@ overflowing.
 
 sprintf() -> g_snprintf()
 Prevent yourself from using the sprintf() function, as it does not test the
-length of the given output buffer and might be writing into memory areas not
-intended for. This function is one of the main causes of security problems
-like buffer exploits and many other bugs that are very hard to find. It's
-much better to use the g_snprintf() function declared by <glib.h> instead.
+length of the given output buffer and might be writing into unintended memory
+areas. This function is one of the main causes of security problems like buffer
+exploits and many other bugs that are very hard to find. It's much better to
+use the g_snprintf() function declared by <glib.h> instead.
 
 You should test your dissector against incorrectly-formed packets.  This
 can be done using the randpkt and editcap utilities that come with the
@@ -949,7 +950,7 @@ proto_reg_handoff_PROTOABBREV(void)
 	}
 
         /*
-          If you perform registration functions which are dependant upon
+          If you perform registration functions which are dependent upon
           prefs the you should de-register everything which was associated
           with the previous settings and re-register using the new prefs
 	  settings here. In general this means you need to keep track of what
@@ -1377,13 +1378,13 @@ to the top-level protocol dissector, and then to all subsequent protocol
 dissectors for that packet, and then the GUI tree is drawn via
 proto_tree_draw().
 
-The logical proto_tree needs to know detailed information about the
-protocols and fields about which information will be collected from the
-dissection routines. By strictly defining (or "typing") the data that can
-be attached to a proto tree, searching and filtering becomes possible.
-This means that the for every protocol and field (which I also call
-"header fields", since they are fields in the protocol headers) which
-might be attached to a tree, some information is needed.
+The logical proto_tree needs to know detailed information about the protocols
+and fields about which information will be collected from the dissection
+routines. By strictly defining (or "typing") the data that can be attached to a
+proto tree, searching and filtering becomes possible.  This means that for
+every protocol and field (which I also call "header fields", since they are
+fields in the protocol headers) which might be attached to a tree, some
+information is needed.
 
 Every dissector routine will need to register its protocols and fields
 with the central protocol routines (in proto.c). At first I thought I
@@ -1655,7 +1656,7 @@ For FT_(U)INT* fields that need a 'range_string' struct, the 'strings' field
 would be set to 'RVALS(rvalstringname)'. Furthermore, 'display' field must be
 ORed with 'BASE_RANGE_STRING' (e.g. BASE_DEC|BASE_RANGE_STRING).
 
-FT_BOOLEANS have a default map of 0 = "False", 1 (or anything else) = "True".
+FT_BOOLEANs have a default map of 0 = "False", 1 (or anything else) = "True".
 Sometimes it is useful to change the labels for boolean values (e.g.,
 to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called
 true_false_string is used.
@@ -2436,7 +2437,7 @@ expansion that covers the 1-4 bytes of the bitmask.
 the individual subfields of the bitmask. These fields must either be integers
 of the same byte width as 'header' or of the type FT_BOOLEAN.
 Each of the entries in '**fields' will be dissected as an item under the
-'header' expansion and also IF the field is a booelan and IF it is set to 1,
+'header' expansion and also IF the field is a boolean and IF it is set to 1,
 then the name of that boolean field will be printed on the 'header' expansion
 line.  For integer type subfields that have a value_string defined, the
 matched string from that value_string will be printed on the expansion line as well.
@@ -2895,7 +2896,7 @@ NOTE: Remember to register the init routine (my_dissector_init) in the
 protocol_register routine.
 
 
-/************************ Globals values ************************/
+/************************ Global values ************************/
 
 /* the number of entries in the memory chunk array */
 #define my_init_count 10
