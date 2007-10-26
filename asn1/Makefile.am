@@ -47,6 +47,7 @@ SUBDIRS = \
 	h450		\
 	h450-ros	\
 	h460		\
+	h501		\
 	inap		\
 	ldap		\
 	logotype-cert-extn	\

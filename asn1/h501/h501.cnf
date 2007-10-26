@@ -1,0 +1,17 @@
+# h501.cnf
+# H.501 conformation file
+# 2007  Tomas Kukosa
+
+# $Id$
+
+#.INCLUDE ../h225/h225-exp.cnf
+#.INCLUDE ../h235/h235-exp.cnf
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.PDU_NEW
+Message
+#.END
