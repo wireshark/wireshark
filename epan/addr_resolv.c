@@ -120,6 +120,8 @@
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
+
+#include <epan/strutil.h>
 #include <wiretap/file_util.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
@@ -355,8 +357,7 @@ static void add_service_name(hashport_t **proto_table, guint port, const char *s
   tp->port = port;
   tp->next = NULL;
 
-  strncpy(tp->name, service_name, MAXNAMELEN);
-  tp->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(tp->name, service_name, MAXNAMELEN);
 }
 
 
@@ -524,8 +525,7 @@ static gchar *serv_name_lookup(guint port, port_type proto)
     /* unknown port */
     g_snprintf(tp->name, MAXNAMELEN, "%d", port);
   } else {
-    strncpy(tp->name, servp->s_name, MAXNAMELEN);
-    tp->name[MAXNAMELEN-1] = '\0';
+    g_strlcpy(tp->name, servp->s_name, MAXNAMELEN);
   }
 
   return (tp->name);
@@ -625,8 +625,7 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 # endif /* AVOID_DNS_TIMEOUT */
 
       if (hostp != NULL) {
-	strncpy(tp->name, hostp->h_name, MAXNAMELEN);
-	tp->name[MAXNAMELEN-1] = '\0';
+	g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
 	tp->is_dummy_entry = FALSE;
 	return tp->name;
       }
@@ -699,8 +698,7 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 # endif /* AVOID_DNS_TIMEOUT */
 
       if (hostp != NULL) {
-	strncpy(tp->name, hostp->h_name, MAXNAMELEN);
-	tp->name[MAXNAMELEN-1] = '\0';
+	g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
 	tp->is_dummy_entry = FALSE;
 	return tp->name;
       }
@@ -898,8 +896,7 @@ static int parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
   if ((cp = strtok(NULL, " \t")) == NULL)
     return -1;
 
-  strncpy(eth->name, cp, MAXNAMELEN);
-  eth->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(eth->name, cp, MAXNAMELEN);
 
   return 0;
 
@@ -1065,8 +1062,7 @@ static void add_manuf_name(guint8 *addr, unsigned int mask, gchar *name)
     }
 
     memcpy(tp->addr, addr, sizeof(tp->addr));
-    strncpy(tp->name, name, MAXMANUFLEN);
-    tp->name[MAXMANUFLEN-1] = '\0';
+    g_strlcpy(tp->name, name, MAXMANUFLEN);
     tp->next = NULL;
     return;
   }
@@ -1099,8 +1095,7 @@ static void add_manuf_name(guint8 *addr, unsigned int mask, gchar *name)
   }
 
   memcpy(etp->addr, addr, sizeof(etp->addr));
-  strncpy(etp->name, name, MAXNAMELEN);
-  etp->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(etp->name, name, MAXNAMELEN);
   etp->next = NULL;
   etp->is_dummy_entry = FALSE;
 
@@ -1253,8 +1248,7 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
     }
   }
 
-  strncpy(tp->name, name, MAXNAMELEN);
-  tp->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(tp->name, name, MAXNAMELEN);
   if (new_one) {
       memcpy(tp->addr, addr, sizeof(tp->addr));
       tp->next = NULL;
@@ -1400,8 +1394,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     tp->is_dummy_entry = TRUE;
 
   } else {
-    strncpy(tp->name, eth->name, MAXNAMELEN);
-    tp->name[MAXNAMELEN-1] = '\0';
+    g_strlcpy(tp->name, eth->name, MAXNAMELEN);
     tp->is_dummy_entry = FALSE;
   }
 
@@ -1485,8 +1478,7 @@ static int parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
 	ipxnet->addr = (a0 << 24) | (a1 << 16) | (a2 << 8) | a3;
   }
 
-  strncpy(ipxnet->name, cp, MAXNAMELEN);
-  ipxnet->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(ipxnet->name, cp, MAXNAMELEN);
 
   return 0;
 
@@ -1623,8 +1615,7 @@ static hashipxnet_t *add_ipxnet_name(guint addr, const gchar *name)
   }
 
   tp->addr = addr;
-  strncpy(tp->name, name, MAXNAMELEN);
-  tp->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->next = NULL;
 
   return tp;
@@ -1667,8 +1658,7 @@ static gchar *ipxnet_name_lookup(const guint addr)
       g_snprintf(tp->name, MAXNAMELEN, "%X", addr);
 
   } else {
-    strncpy(tp->name, ipxnet->name, MAXNAMELEN);
-    tp->name[MAXNAMELEN-1] = '\0';
+    g_strlcpy(tp->name, ipxnet->name, MAXNAMELEN);
   }
 
   return (tp->name);
@@ -1998,8 +1988,7 @@ extern void add_ipv4_name(guint addr, const gchar *name)
     }
   }
 
-  strncpy(tp->name, name, MAXNAMELEN);
-  tp->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(tp->name, name, MAXNAMELEN);
   if (new_one) {
       tp->addr = addr;
       tp->next = NULL;
@@ -2041,8 +2030,7 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
     }
   }
 
-  strncpy(tp->name, name, MAXNAMELEN);
-  tp->name[MAXNAMELEN-1] = '\0';
+  g_strlcpy(tp->name, name, MAXNAMELEN);
   if (new_one) {
       tp->addr = *addrp;
       tp->next = NULL;

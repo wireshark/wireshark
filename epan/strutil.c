@@ -952,19 +952,69 @@ convert_string_case(const char *string, gboolean case_insensitive)
   return out_string;
 }
 
-/* g_strlcat() does not exist in GLib 1.2[.x] */
+/* g_strlcat(), g_strlcpy don't exist in GLib 1.2[.x] */
 #if GLIB_MAJOR_VERSION < 2
 gsize
-g_strlcat(gchar *dst, gchar *src, gsize size)
+g_strlcat(gchar *dest, gchar *src, gsize dest_size)
 {
-	gsize strl;
-	int strs;
-	strl=strlen(dst);
-	strs=strlen(src);
-	if(strl<size)
-		g_snprintf(dst+strl, size-strl, "%s", src);
-	dst[size-1]=0;
-	return strl+strs;
+  gchar *d = dest;
+  const gchar *s = src;
+  gsize bytes_left = dest_size;
+  gsize dlength;  /* Logically, MIN (strlen (d), dest_size) */
+  
+  /* Find the end of dst and adjust bytes left but don't go past end */
+  while (*d != 0 && bytes_left-- != 0)
+    d++;
+  dlength = d - dest;
+  bytes_left = dest_size - dlength;
+  
+  if (bytes_left == 0)
+    return dlength + strlen (s);
+  
+  while (*s != 0)
+    {
+      if (bytes_left != 1)
+        {
+          *d++ = *s;
+          bytes_left--;
+        }
+      s++;
+    }
+  *d = 0;
+  
+  return dlength + (s - src);  /* count does not include NUL */
+}
+
+/* --------------------------------- */
+gsize 
+g_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
+{
+  gchar *d = dest;
+  const gchar *s = src;
+  gsize n = dest_size;
+  
+  /* Copy as many bytes as will fit */
+  if (n != 0 && --n != 0)
+    do
+      {
+        gchar c = *s++;
+        
+        *d++ = c;
+        if (c == 0)
+          break;
+      }
+    while (--n != 0);
+  
+  /* If not enough room in dest, add NUL and traverse rest of src */
+  if (n == 0)
+    {
+      if (dest_size != 0)
+        *d = 0;
+      while (*s++)
+        ;
+    }
+  
+  return s - src - 1;  /* count does not include NUL */
 }
 #endif
 

@@ -41,6 +41,8 @@
 #include "osi-utils.h"
 #include "value_string.h"
 
+#include <epan/strutil.h>
+
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
@@ -179,8 +181,7 @@ col_clear(column_info *cinfo, gint el)
   if (cinfo->col_data[i] != cinfo->col_buf[i]) {		\
     /* This was set with "col_set_str()"; copy the string they	\
        set it to into the buffer, so we can append to it. */	\
-    strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);	\
-    cinfo->col_buf[i][max_len - 1] = '\0';			\
+    g_strlcpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);	\
     cinfo->col_data[i] = cinfo->col_buf[i];			\
   }
 
@@ -216,8 +217,7 @@ col_set_str(column_info *cinfo, gint el, const gchar* str)
          */
         COL_CHECK_APPEND(cinfo, i, max_len);
 
-        strncpy(&cinfo->col_buf[i][fence], str, max_len - fence);
-        cinfo->col_buf[i][max_len - 1] = 0;
+        g_strlcpy(&cinfo->col_buf[i][fence], str, max_len - fence);
       } else {
         /*
          * There's no fence, so we can just set the column to point
@@ -360,8 +360,7 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         /* This was set with "col_set_str()"; which is effectively const */
         orig = cinfo->col_data[i];
       } else {
-        strncpy(orig_buf, cinfo->col_buf[i], max_len);
-        orig_buf[max_len - 1] = '\0';
+        g_strlcpy(orig_buf, cinfo->col_buf[i], max_len);
         orig = orig_buf;
       }
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
@@ -402,8 +401,7 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         /* This was set with "col_set_str()"; which is effectively const */
         orig = cinfo->col_data[i];
       } else {
-        strncpy(orig_buf, cinfo->col_buf[i], max_len);
-        orig_buf[max_len - 1] = '\0';
+        g_strlcpy(orig_buf, cinfo->col_buf[i], max_len);
         orig = orig_buf;
       }
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
@@ -456,8 +454,7 @@ col_add_str(column_info *cinfo, gint el, const gchar* str)
          */
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
-      strncpy(&cinfo->col_buf[i][fence], str, max_len - fence);
-      cinfo->col_buf[i][max_len - 1] = 0;
+      g_strlcpy(&cinfo->col_buf[i][fence], str, max_len - fence);
     }
   }
 }
@@ -985,8 +982,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       strcpy(pinfo->cinfo->col_expr[col], "eth.src");
     else
       strcpy(pinfo->cinfo->col_expr[col], "eth.dst");
-    strncpy(pinfo->cinfo->col_expr_val[col], ether_to_str(addr->data), COL_MAX_LEN);
-    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    g_strlcpy(pinfo->cinfo->col_expr_val[col], ether_to_str(addr->data), COL_MAX_LEN);
     break;
 
   case AT_IPv4:
@@ -994,8 +990,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       strcpy(pinfo->cinfo->col_expr[col], "ip.src");
     else
       strcpy(pinfo->cinfo->col_expr[col], "ip.dst");
-    strncpy(pinfo->cinfo->col_expr_val[col], ip_to_str(addr->data), COL_MAX_LEN);
-    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    g_strlcpy(pinfo->cinfo->col_expr_val[col], ip_to_str(addr->data), COL_MAX_LEN);
     break;
 
   case AT_IPv6:
@@ -1003,8 +998,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       strcpy(pinfo->cinfo->col_expr[col], "ipv6.src");
     else
       strcpy(pinfo->cinfo->col_expr[col], "ipv6.dst");
-    strncpy(pinfo->cinfo->col_expr_val[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
-    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    g_strlcpy(pinfo->cinfo->col_expr_val[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
     break;
 
   case AT_ATALK:
@@ -1051,14 +1045,14 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
 
   case PT_SCTP:
     if (is_res)
-      strncpy(pinfo->cinfo->col_buf[col], get_sctp_port(port), COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_buf[col], get_sctp_port(port), COL_MAX_LEN);
     else
       g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     break;
 
   case PT_TCP:
     if (is_res)
-      strncpy(pinfo->cinfo->col_buf[col], get_tcp_port(port), COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_buf[col], get_tcp_port(port), COL_MAX_LEN);
     else
       g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     if (is_src)
@@ -1071,7 +1065,7 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
 
   case PT_UDP:
     if (is_res)
-      strncpy(pinfo->cinfo->col_buf[col], get_udp_port(port), COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_buf[col], get_udp_port(port), COL_MAX_LEN);
     else
       g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     if (is_src)
