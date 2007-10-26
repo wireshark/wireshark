@@ -274,10 +274,10 @@ randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
+dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj epan/unicode-utils.obj inet_ntop.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj image\dumpcap.res
+		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj epan/unicode-utils.obj inet_ntop.obj mkstemp.obj image\dumpcap.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
 	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1

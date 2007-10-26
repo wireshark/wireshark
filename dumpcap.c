@@ -55,6 +55,10 @@
 #include "capture-wpcap.h"
 #endif
 
+#ifdef _WIN32
+#include "epan/unicode-utils.h"
+#endif
+
 #include "sync_pipe.h"
 
 #include "capture.h"
@@ -70,6 +74,10 @@
 /*#define DEBUG_DUMPCAP*/
 
 gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
+#ifdef _WIN32
+gchar *sig_pipe_name = NULL;
+HANDLE sig_pipe_handle = NULL;
+#endif
 
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
@@ -253,7 +261,7 @@ main(int argc, char *argv[])
   gboolean             print_statistics = FALSE;
   int                  status, run_once_args = 0;
 
-#define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z"
+#define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z:"
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -365,6 +373,23 @@ main(int argc, char *argv[])
 #ifdef _WIN32
           /* set output pipe to binary mode, to avoid ugly text conversions */
 	  _setmode(2, O_BINARY);
+          /*
+           * optarg = the control ID, aka the PPID, currently used for the
+           * signal pipe name.
+           */
+          if (strcmp(optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
+              sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT,
+                  optarg);
+              sig_pipe_handle = CreateFile(utf_8to16(sig_pipe_name),
+                  GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+
+              if (sig_pipe_handle == INVALID_HANDLE_VALUE) {
+                  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+                      "Signal pipe: Unable to open %s.  Dead parent?",
+                      sig_pipe_name);
+                  exit_main(1);
+              }
+          }
 #endif
           break;
 
@@ -632,27 +657,38 @@ report_packet_drops(int drops)
 gboolean
 signal_pipe_check_running(void)
 {
-    /* any news from our parent (stdin)? -> just stop the capture */
-    HANDLE handle;
+    /* any news from our parent? -> just stop the capture */
     DWORD avail = 0;
     gboolean result;
-
 
     /* if we are running standalone, no check required */
     if(!capture_child) {
         return TRUE;
     }
 
-    handle = (HANDLE) GetStdHandle(STD_INPUT_HANDLE);
-    result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+    if(!sig_pipe_name || !sig_pipe_handle) {
+        /* This shouldn't happen */
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+            "Signal pipe: No name or handle");
+        return FALSE;
+    }
+
+    /*
+     * XXX - We should have the process ID of the parent (from the "-Z" flag)
+     * at this point.  Should we check to see if the parent is still alive,
+     * e.g. by using OpenProcess?
+     */
+
+    result = PeekNamedPipe(sig_pipe_handle, NULL, 0, NULL, &avail, NULL);
 
     if(!result || avail > 0) {
         /* peek failed or some bytes really available */
         /* (if not piping from stdin this would fail) */
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-            "Signal pipe: Stop capture");
+            "Signal pipe: Stop capture: %s", sig_pipe_name);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Signal pipe: handle: %x result: %u avail: %u", handle, result, avail);
+            "Signal pipe: %s (%p) result: %u avail: %u", sig_pipe_name,
+            sig_pipe_handle, result, avail);
         return FALSE;
     } else {
         /* pipe ok and no bytes available */

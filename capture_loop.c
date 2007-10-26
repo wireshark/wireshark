@@ -156,7 +156,7 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
  * the string cap_pipe_err_str should be used instead of errno.
  */
 static int
-cap_pipe_select(int pipe_fd, gboolean wait_forever) {
+cap_pipe_select(int pipe_fd) {
 #ifndef _WIN32
   fd_set      rfds;
   struct timeval timeout, *pto;
@@ -166,13 +166,11 @@ cap_pipe_select(int pipe_fd, gboolean wait_forever) {
 
   FD_ZERO(&rfds);
   FD_SET(pipe_fd, &rfds);
-  if (wait_forever) {
-    pto = NULL;
-  } else {
-    timeout.tv_sec = 0;
-    timeout.tv_usec = CAP_READ_TIMEOUT * 1000;
-    pto = &timeout;
-  }
+
+  timeout.tv_sec = 0;
+  timeout.tv_usec = CAP_READ_TIMEOUT * 1000;
+  pto = &timeout;
+
   sel_ret = select(pipe_fd+1, &rfds, NULL, NULL, pto);
   if (sel_ret < 0)
     cap_pipe_err_str = strerror(errno);
@@ -185,7 +183,6 @@ cap_pipe_select(int pipe_fd, gboolean wait_forever) {
    */
   HANDLE hPipe = (HANDLE) _get_osfhandle(pipe_fd);
   wchar_t *err_str;
-  DWORD timeout = wait_forever ? INFINITE : CAP_READ_TIMEOUT * 1000;
   DWORD wait_ret;
 
   if (hPipe == INVALID_HANDLE_VALUE) {
@@ -195,7 +192,7 @@ cap_pipe_select(int pipe_fd, gboolean wait_forever) {
 
   cap_pipe_err_str = "Unknown error";
 
-  wait_ret = WaitForSingleObject(hPipe, timeout);
+  wait_ret = WaitForSingleObject(hPipe, CAP_READ_TIMEOUT);
   switch (wait_ret) {
     /* XXX - This probably isn't correct */
     case WAIT_ABANDONED:
@@ -374,7 +371,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   /* read the pcap header */
   bytes_read = 0;
   while (bytes_read < sizeof magic) {
-    sel_ret = cap_pipe_select(fd, FALSE);
+    sel_ret = cap_pipe_select(fd);
     if (sel_ret < 0) {
       g_snprintf(errmsg, errmsgl,
         "Unexpected error from select: %s", strerror(errno));
@@ -429,7 +426,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   /* Read the rest of the header */
   bytes_read = 0;
   while (bytes_read < sizeof(struct pcap_hdr)) {
-    sel_ret = cap_pipe_select(fd, FALSE);
+    sel_ret = cap_pipe_select(fd);
     if (sel_ret < 0) {
       g_snprintf(errmsg, errmsgl,
         "Unexpected error from select: %s", strerror(errno));
@@ -962,7 +959,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
 #endif
-    sel_ret = cap_pipe_select(ld->cap_pipe_fd, FALSE);
+    sel_ret = cap_pipe_select(ld->cap_pipe_fd);
     if (sel_ret <= 0) {
       inpkts = 0;
       if (sel_ret < 0 && errno != EINTR) {
@@ -1002,7 +999,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
 #endif
     if (ld->pcap_fd != -1) {
-      sel_ret = cap_pipe_select(ld->pcap_fd, FALSE);
+      sel_ret = cap_pipe_select(ld->pcap_fd);
       if (sel_ret > 0) {
         /*
          * "select()" says we can read from it without blocking; go for

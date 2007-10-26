@@ -58,9 +58,11 @@ extern void
 sync_pipe_kill(int fork_child);
 
 /** Has the parent signalled the child to stop? */
+#define SIGNAL_PIPE_CTRL_ID_NONE "none"
 #ifdef _WIN32
 extern gboolean
 signal_pipe_check_running(void);
+#define SIGNAL_PIPE_FORMAT "\\\\.\\pipe\\wireshark.%s.signal"
 #endif
 
 /** Get an interface list using dumpcap */

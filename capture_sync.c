@@ -254,14 +254,15 @@ sync_pipe_start(capture_options *capture_opts) {
     char buffer_size[ARGV_NUMBER_LEN];
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
     HANDLE sync_pipe_write;                 /* pipe used to send messages from child to parent */
-    HANDLE signal_pipe_read;                /* pipe used to send messages from parent to child (currently only stop) */
-    HANDLE signal_pipe_write;               /* pipe used to send messages from parent to child (currently only stop) */
+    HANDLE signal_pipe;                     /* named pipe used to send messages from parent to child (currently only stop) */
     GString *args = g_string_sized_new(200);
     gchar *quoted_arg;
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     int i;
+    char control_id[ARGV_NUMBER_LEN];
+    gchar *signal_pipe_name;
 #else
     char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
@@ -354,6 +355,12 @@ sync_pipe_start(capture_options *capture_opts) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+#ifdef _WIN32
+    g_snprintf(control_id, ARGV_NUMBER_LEN, "%d", GetCurrentProcessId());
+    argv = sync_pipe_add_arg(argv, &argc, control_id);
+#else
+    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
+#endif
 #endif
 
 #ifdef _WIN32
@@ -389,13 +396,16 @@ sync_pipe_start(capture_options *capture_opts) {
       return FALSE;
     }
 
-    /* Create a pipe for the parent process */
-    if (! CreatePipe(&signal_pipe_read, &signal_pipe_write, &sa, 512)) {
+    /* Create the signal pipe */
+    signal_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, control_id);
+    signal_pipe = CreateNamedPipe(utf_8to16(signal_pipe_name),
+      PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 65535, 65535, 0, NULL);
+    g_free(signal_pipe_name);
+
+    if (signal_pipe == INVALID_HANDLE_VALUE) {
       /* Couldn't create the signal pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create signal pipe: %s",
                         strerror(errno));
-      CloseHandle(sync_pipe_read);
-      CloseHandle(sync_pipe_write);
       g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
@@ -410,7 +420,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #else
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
-    si.hStdInput = signal_pipe_read;
+    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError = sync_pipe_write;
     /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
@@ -446,10 +456,8 @@ sync_pipe_start(capture_options *capture_opts) {
     sync_pipe_read_fd = _open_osfhandle( (long) sync_pipe_read, _O_BINARY);
 
     /* associate the operating system filehandle to a C run-time file handle */
-    capture_opts->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe_write, _O_BINARY);
+    capture_opts->signal_pipe_write_fd = _open_osfhandle( (long) signal_pipe, _O_BINARY);
 
-    /* child owns the read side now, close our handle */
-    CloseHandle(signal_pipe_read);
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
@@ -804,6 +812,7 @@ sync_interface_list_open(gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -843,6 +852,7 @@ sync_linktype_list_open(gchar *ifname, gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -880,6 +890,7 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
 
     return sync_pipe_open_command(argv, read_fd, fork_child, msg);
