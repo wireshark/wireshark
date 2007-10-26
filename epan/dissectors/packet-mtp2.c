@@ -221,7 +221,18 @@ static const value_string status_field_vals[] = {
   { 0x2, "Status Indication E" },
   { 0x3, "Status Indication OS" },
   { 0x4, "Status Indication PO" },
-  { 0x5, "Status Indication BO" },
+  { 0x5, "Status Indication B" },
+  { 0,   NULL}
+};
+
+/* Same as above but in acronym form (for the Info column) */
+static const value_string status_field_acro_vals[] = {
+  { 0x0, "SIO" },
+  { 0x1, "SIN" },
+  { 0x2, "SIE" },
+  { 0x3, "SIOS" },
+  { 0x4, "SIPO" },
+  { 0x5, "SIB" },
   { 0,   NULL}
 };
 
@@ -251,7 +262,7 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "LSSU: %s", val_to_str(sf, status_field_vals, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(sf, status_field_acro_vals, "Unknown"));
 }
 
 static void
