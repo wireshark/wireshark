@@ -1430,7 +1430,7 @@ static guint dissect_wimaxasncp_tlvs(
 
             tlv_item = proto_tree_add_item(
                 tree, hf_wimaxasncp_tlv,
-                tvb, offset, tree_length, -1);
+                tvb, offset, tree_length, FALSE);
 
             /* Set label for tlv item */
             proto_item_set_text(tlv_item, "TLV: %s", tlv_info->name);
@@ -1675,6 +1675,8 @@ dissect_wimaxasncp(
     packet_info *pinfo,
     proto_tree *tree)
 {
+    const gchar *unknown = "Unknown";
+
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *packet_item = NULL;
     proto_item *item = NULL;
@@ -1842,9 +1844,22 @@ dissect_wimaxasncp(
 
     if (tree)
     {
-        proto_tree_add_uint(
+        proto_item *function_type_item;
+        function_type_item = proto_tree_add_uint(
             wimaxasncp_tree, hf_wimaxasncp_function_type,
             tvb, offset, 1, function_type);
+
+        /* Add expert item if not matched */
+        if (strcmp(val_to_str(function_type,
+                              wimaxasncp_function_type_vals,
+                              unknown),
+                   unknown) == 0)
+        {
+                expert_add_info_format(pinfo, function_type_item,
+                                       PI_UNDECODED, PI_WARN,
+                                       "Unknown function type (%u)",
+                                       function_type);
+        }
     }
 
     offset += 1;
@@ -1858,7 +1873,6 @@ dissect_wimaxasncp(
 
     if (tree)
     {
-        const gchar *unknown = "Unknown";
         const gchar *message_name;
         const wimaxasncp_func_msg_t *p = NULL;
         gsize i;
@@ -1902,6 +1916,15 @@ dissect_wimaxasncp(
 
         proto_item_append_text(
             item, " (%s)", decode_numeric_bitfield(ui8, 0x1f, 8, "%u"));
+
+        /* Add expert item if not matched */
+        if (strcmp(message_name, unknown) == 0)
+        {
+                expert_add_info_format(pinfo, item,
+                                       PI_UNDECODED, PI_WARN,
+                                       "Unknown message op (%u)",
+                                       0x1f & ui8);
+        }
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
