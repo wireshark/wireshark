@@ -1,9 +1,9 @@
 -- CIRCUIT-STATUS-MAP.asn
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.15/2004/SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn
---
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.3/2002/CIRCUIT-STATUS-MAP.asn
+--
+-- $Id$
 --
 
 -- Module CIRCUIT-STATUS-MAP (H.460.3:11/2002)

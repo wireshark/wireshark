@@ -1,9 +1,9 @@
 -- MESSAGE-BROADCAST.asn
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.15/2004/SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn
---
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.21/2006/MESSAGE-BROADCAST.asn
+--
+-- $Id$
 --
 
 -- Module MESSAGE-BROADCAST (H.460.21:05/2006)
