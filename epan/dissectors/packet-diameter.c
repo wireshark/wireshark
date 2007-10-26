@@ -50,16 +50,12 @@
 #include <time.h>
 #include <glib.h>
 #include <epan/filesystem.h>
-#include <epan/xmlstub.h>
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/report_err.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
-#include "packet-sip.h"
 #include "packet-ntp.h"
 #include "diam_dict.h"
 
