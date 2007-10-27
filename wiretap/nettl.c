@@ -410,7 +410,16 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	return -1;
     offset += hdr_len;
 
-    switch (subsys) {
+    if ( ( (pntohl(&rec_hdr.kind) & ~NETTL_HDR_SUBSYSTEM_BITS_MASK)
+         & (NETTL_HDR_PROCEDURE_TRACE |
+            NETTL_HDR_STATE_TRACE |
+            NETTL_HDR_ERROR_TRACE) ) != 0) {
+        /* not actually a packet trace record */
+        phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
+        length = pntohl(&rec_hdr.length);
+        caplen = pntohl(&rec_hdr.caplen);
+        padlen = 0;
+    } else switch (subsys) {
 	case NETTL_SUBSYS_LAN100 :
 	case NETTL_SUBSYS_EISA100BT :
 	case NETTL_SUBSYS_BASE100 :
@@ -440,10 +449,12 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_NS_LS_ICMPV6 :
 	case NETTL_SUBSYS_NS_LS_ICMP :
 	case NETTL_SUBSYS_NS_LS_TELNET :
+	case NETTL_SUBSYS_NS_LS_SCTP :
 	    if( (subsys == NETTL_SUBSYS_NS_LS_IP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK)
 	     || (subsys == NETTL_SUBSYS_NS_LS_UDP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_TCP)
+	     || (subsys == NETTL_SUBSYS_NS_LS_SCTP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_IPV6)) {
 		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
 	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMP) {
@@ -506,6 +517,21 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                     return -1;
                 padlen = 26;
 		offset += padlen;
+            } else if (subsys == NETTL_SUBSYS_NS_LS_SCTP) {
+                /*
+                 * SCTP 8 byte header that we will ignore...
+                 * 32 bit integer defines format
+                 *   1 = Log
+                 *   2 = ASCII
+                 *   3 = Binary (PDUs should be Binary format)
+                 * 32 bit integer defines type
+                 *   1 = Inbound
+                 *   2 = Outbound
+                 */
+                if (file_seek(fh, 8, SEEK_CUR, err) == -1)
+                    return -1;
+                padlen = 8;
+                offset += padlen;   
 	    } else {
 	    	padlen = 0;
 	    }

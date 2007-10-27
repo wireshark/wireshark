@@ -76,6 +76,7 @@
 #define NETTL_SUBSYS_NS_LS_IPV6		244
 #define NETTL_SUBSYS_NS_LS_ICMPV6	245
 #define NETTL_SUBSYS_NS_LS_TELNET	267
+#define NETTL_SUBSYS_NS_LS_SCTP		268
 
 /* Ethernet cards */
 #define NETTL_SUBSYS_100VG		37
@@ -104,8 +105,17 @@
 
 /* from /usr/include/sys/subsys_id.h */
 
+#define NETTL_HDR_HDRIN                 0x80000000
+#define NETTL_HDR_HDROUT                0x40000000
 #define NETTL_HDR_PDUIN			0x20000000
 #define NETTL_HDR_PDUOUT		0x10000000
+#define NETTL_HDR_PROCEDURE_TRACE       0x08000000
+#define NETTL_HDR_STATE_TRACE           0x04000000
+#define NETTL_HDR_ERROR_TRACE	        0x02000000
+#define NETTL_HDR_LOG_TRACE             0x01000000
+#define NETTL_HDR_LOOPBACK              0x00800000
+#define NETTL_HDR_PTOP                  0x00400000
+#define NETTL_HDR_SUBSYSTEM_BITS_MASK   0x000fffff
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);
 gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);

@@ -52,6 +52,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t lapb_handle;
 static dissector_handle_t x25_handle;
+static dissector_handle_t sctp_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t wtap_dissector_table;
 static dissector_table_t ip_proto_dissector_table;
@@ -72,9 +73,9 @@ static const value_string trace_kind[] = {
 	{ 0x20000000, "PDUIN" },
 	{ 0x10000000, "Outgoing PDU - PDUOUT" },
 	{ 0x10000000, "PDUOUT" },
-	{ 0x08000000, "Procedure" },
-	{ 0x04000000, "State" },
-	{ 0x02000000, "Error" },
+	{ 0x08000000, "Procedure Trace" },
+	{ 0x04000000, "State Trace" },
+	{ 0x02000000, "Error Trace" },
 	{ 0x01000000, "Logging" },
 	{ 0x00800000, "Loopback" },
 	{ 0, NULL }
@@ -113,12 +114,21 @@ static const value_string subsystem[] = {
 	{ 29, "NS_LS_IGMP" },
 	{ 31, "TOKEN" },
 	{ 32, "HIPPI" },
-	{ 33, "FC" },
+	{ 33, "EISA_FC" },
 	{ 34, "SX25L2" },
 	{ 35, "SX25L3" },
 	{ 36, "NS_LS_SX25" },
 	{ 37, "100VG" },
-	{ 38, "ATM" },
+	{ 38, "EISA_ATM" },
+        { 39, "SEAH_FDDI" },
+        { 40, "TELECOM_HLR" },
+        { 41, "TELECOM_SCE" },
+        { 42, "TELECOM_SMS" },
+        { 43, "TELECOM_NEM" },
+        { 50, "FORE_ATM" },
+        { 60, "TMOS_TOB" },
+        { 62, "TELECOM_SCP" },
+        { 63, "TELECOM_SS7" },
 	{ 64, "FTAM_INIT" },
 	{ 65, "FTAM_RESP" },
 	{ 70, "FTAM_VFS" },
@@ -147,13 +157,14 @@ static const value_string subsystem[] = {
 	{ 178, "GSC100BT" },
 	{ 179, "PCI100BT" },
 	{ 180, "SPP100BT" },
+        { 181, "GLE" },
+        { 182, "FQE" },
 	{ 185, "GELAN" },
 	{ 187, "PCITR" },
 	{ 188, "HP_APA" },
 	{ 189, "HP_APAPORT" },
 	{ 190, "HP_APALACP" },
 	{ 210, "BTLAN" },
-	{ 227, "NS_LS_SCTP" },
 	{ 233, "INTL100" },
 	{ 244, "NS_LS_IPV6" },
 	{ 245, "NS_LS_ICMPV6" },
@@ -165,6 +176,7 @@ static const value_string subsystem[] = {
 	{ 253, "IETHER" },
 	{ 265, "IXGBE" },
 	{ 267, "NS_LS_TELNET" },
+	{ 268, "NS_LS_SCTP" },
 	{ 513, "KL_VM" },
 	{ 514, "KL_PKM" },
 	{ 515, "KL_DLKM" },
@@ -215,7 +227,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint_format(nettl_tree, hf_nettl_kind, tvb,
 		0, 0, pinfo->pseudo_header->nettl.kind,
 		"Trace Kind: 0x%08x (%s)", pinfo->pseudo_header->nettl.kind,
-		val_to_str(pinfo->pseudo_header->nettl.kind, trace_kind, "Unknown"));
+		val_to_str(pinfo->pseudo_header->nettl.kind & ~NETTL_HDR_SUBSYSTEM_BITS_MASK, trace_kind, "Unknown"));
             proto_tree_add_int(nettl_tree, hf_nettl_pid, tvb,
 		0, 0, pinfo->pseudo_header->nettl.pid);
             proto_tree_add_uint(nettl_tree, hf_nettl_uid, tvb,
@@ -236,7 +248,16 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_RAW_IP:
-            if (!dissector_try_port(wtap_dissector_table,
+            if ( ( (pinfo->pseudo_header->nettl.kind
+                   & ~NETTL_HDR_SUBSYSTEM_BITS_MASK)
+                 & (NETTL_HDR_PROCEDURE_TRACE |
+                    NETTL_HDR_STATE_TRACE |
+                    NETTL_HDR_ERROR_TRACE) ) != 0)
+                    /* not really a data packet */
+	            call_dissector(data_handle, tvb, pinfo, tree);
+            else if (pinfo->pseudo_header->nettl.subsys == NETTL_SUBSYS_NS_LS_SCTP )
+                    call_dissector(sctp_handle, tvb, pinfo, tree);
+            else if (!dissector_try_port(wtap_dissector_table,
 			WTAP_ENCAP_RAW_IP, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
@@ -339,6 +360,7 @@ proto_reg_handoff_nettl(void)
   tr_handle = find_dissector("tr");
   lapb_handle = find_dissector("lapb");
   x25_handle = find_dissector("x.25");
+  sctp_handle = find_dissector("sctp");
   data_handle = find_dissector("data");
   wtap_dissector_table = find_dissector_table("wtap_encap");
   ip_proto_dissector_table = find_dissector_table("ip.proto");
@@ -354,4 +376,5 @@ proto_reg_handoff_nettl(void)
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_TELNET, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_X25, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_UNKNOWN, nettl_handle);
+
 }
