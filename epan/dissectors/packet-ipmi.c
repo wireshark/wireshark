@@ -305,7 +305,7 @@ static int hf_GetDeviceID_datafield_DeviceAvailable = -1;
 static int hf_GetDeviceID_datafield_MajorFirmwareRevision = -1;
 static int hf_GetDeviceID_datafield_MinorFirmwareRevision = -1;
 static int hf_GetDeviceID_datafield_IPMIRevision = -1;
-static int hf_GetDeviceID_datafield_ADS_Chasis = -1;
+static int hf_GetDeviceID_datafield_ADS_Chassis = -1;
 static int hf_GetDeviceID_datafield_ADS_Bridge = -1;
 static int hf_GetDeviceID_datafield_ADS_IPMBEventGenerator = -1;
 static int hf_GetDeviceID_datafield_ADS_IPMBEventReceiver = -1;
@@ -1191,8 +1191,8 @@ static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit0_thres
 
 /* Get Device ID data, added by lane*/
 static const value_string cmd_GetDeviceID_data_DeviceSDR_vals[] = {
-	{ 0x00,	"Device provides device SDR" },
-	{ 0x01,	"Device does not provide device SDR" },
+	{ 0x00,	"Device does not provide device SDR" },
+	{ 0x01,	"Device provides device SDR" },
 	{ 0x00,	NULL },
 };
 
@@ -2418,7 +2418,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 			field_tree = proto_item_add_subtree(tf, ett_cmd_GetDeviceID_data_ads);
 
-			proto_tree_add_item(field_tree, hf_GetDeviceID_datafield_ADS_Chasis,
+			proto_tree_add_item(field_tree, hf_GetDeviceID_datafield_ADS_Chassis,
 				    tvb, *poffset, 1, TRUE);
 			proto_tree_add_item(field_tree, hf_GetDeviceID_datafield_ADS_Bridge,
 				    tvb, *poffset, 1, TRUE);
@@ -5042,10 +5042,10 @@ proto_register_ipmi(void)
 			"IPMI Revision", "GetDeviceID.datafield.IPMIRevision",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetDeviceID_Data_IPMIRevision_vals), 0,
 			"IPMI Revision", HFILL }},
-		{ &hf_GetDeviceID_datafield_ADS_Chasis, {
-			"Chasis Device", "GetDeviceID.datafield.Chasis",
+		{ &hf_GetDeviceID_datafield_ADS_Chassis, {
+			"Chassis Device", "GetDeviceID.datafield.Chassis",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetDeviceID_data_ADS_vals), 0x80,
-			"Chasis Device", HFILL }},
+			"Chassis Device", HFILL }},
 		{ &hf_GetDeviceID_datafield_ADS_Bridge, {
 			"Bridge Device", "GetDeviceID.datafield.Bridge",
 			FT_UINT8, BASE_HEX, VALS(cmd_GetDeviceID_data_ADS_vals), 0x40,
