@@ -482,8 +482,6 @@ toolbar_new(void)
 {
     GtkWidget *main_tb;
     GtkWidget *window = top_level;
-#if GTK_MAJOR_VERSION < 2
-#endif /* GTK_MAJOR_VERSION */
     GdkPixmap *icon;
     GdkBitmap * mask;
     GtkWidget *iconw;
