@@ -1,9 +1,12 @@
 /* packet-edonkey.h
  * Declarations for edonkey dissection
  * Copyright 2003, Xuan Zhang <xz@aemail4u.com>
+ * Copyright 2007, Stefano Picerno <stefano.picerno@gmail.com>
  * eDonkey dissector based on protocol descriptions from mldonkey:
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt 
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
+ *
+ * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.84b
  *
  * $Id$
  *
@@ -28,7 +31,7 @@
 
 void proto_register_edonkey(void);
 
-#define EDONKEY_MAX_SNAP_SIZE	1500
+#define EDONKEY_MAX_SNAP_SIZE   1500
 #define EDONKEY_TCP_HEADER_LENGTH  5
 #define EDONKEY_UDP_HEADER_LENGTH  2
 
@@ -52,7 +55,7 @@ void proto_register_edonkey(void);
 #define EDONKEY_MSG_CLIENT_CB_REQ        0x1c
 /* define EDONKEY_MSG_UNKNOWN            0x20 */
 #define EDONKEY_MSG_MORE_RESULTS         0x21
-#define EDONKEY_MSG_GET_SOURCES_OBFU	 0x23
+#define EDONKEY_MSG_GET_SOURCES_OBFU     0x23
 #define EDONKEY_MSG_SERVER_LIST          0x32
 #define EDONKEY_MSG_SEARCH_FILE_RESULTS  0x33
 #define EDONKEY_MSG_SERVER_STATUS        0x34
@@ -63,7 +66,7 @@ void proto_register_edonkey(void);
 #define EDONKEY_MSG_SERVER_INFO_DATA     0x41
 #define EDONKEY_MSG_FOUND_SOURCES        0x42
 #define EDONKEY_MSG_SEARCH_USER_RESULTS  0x43
-#define EDONKEY_MSG_FOUND_SOURCES_OBFU	 0x44
+#define EDONKEY_MSG_FOUND_SOURCES_OBFU   0x44
 
 /* Client <-> Client */
 #define EDONKEY_MSG_HELLO_CLIENT         0x10 /* 0x01 0x10 */
@@ -103,13 +106,15 @@ void proto_register_edonkey(void);
 #define EMULE_MSG_HELLO_ANSWER           0x02
 #define EMULE_MSG_DATA_COMPRESSED        0x40
 #define EMULE_MSG_QUEUE_RANKING          0x60
+#define EMULE_MSG_FILE_DESC              0x61
 #define EMULE_MSG_SOURCES_REQUEST        0x81
 #define EMULE_MSG_SOURCES_ANSWER         0x82
 #define EMULE_MSG_PUBLIC_KEY             0x85
 #define EMULE_MSG_SIGNATURE              0x86
-#define EMULE_MSG_SEC_IDENT_STATE	 0x87
+#define EMULE_MSG_SEC_IDENT_STATE        0x87
 #define EMULE_MSG_MULTIPACKET            0x92
 #define EMULE_MSG_MULTIPACKET_ANSWER     0x93
+#define EMULE_MSG_CALLBACK               0x99
 #define EMULE_MSG_AICH_REQUEST           0x9b
 #define EMULE_MSG_AICH_ANSWER            0x9c
 #define EMULE_MSG_AICHFILEHASH_ANSWER    0x9d
@@ -239,3 +244,165 @@ void proto_register_edonkey(void);
 /* EDONKEY SEARCH MIN/MAX   */
 #define EDONKEY_SEARCH_MIN               0x01
 #define EDONKEY_SEARCH_MAX               0x02
+
+/* KADEMLIA TAGS */
+#define KADEMLIA_TAGTYPE_HASH                   0x01
+#define KADEMLIA_TAGTYPE_STRING                 0x02
+#define KADEMLIA_TAGTYPE_UINT32                 0x03
+#define KADEMLIA_TAGTYPE_FLOAT32                0x04
+#define KADEMLIA_TAGTYPE_BOOL                   0x05
+#define KADEMLIA_TAGTYPE_BOOLARRAY              0x06
+#define KADEMLIA_TAGTYPE_BLOB                   0x07
+#define KADEMLIA_TAGTYPE_UINT16                 0x08
+#define KADEMLIA_TAGTYPE_UINT8                  0x09
+#define KADEMLIA_TAGTYPE_BSOB                   0x0A
+#define KADEMLIA_TAGTYPE_UINT64                 0x0B
+
+#define KADEMLIA_TAGTYPE_STR1                   0x11
+#define KADEMLIA_TAGTYPE_STR2                   0x12
+#define KADEMLIA_TAGTYPE_STR3                   0x13
+#define KADEMLIA_TAGTYPE_STR4                   0x14
+#define KADEMLIA_TAGTYPE_STR5                   0x15
+#define KADEMLIA_TAGTYPE_STR6                   0x16
+#define KADEMLIA_TAGTYPE_STR7                   0x17
+#define KADEMLIA_TAGTYPE_STR8                   0x18
+#define KADEMLIA_TAGTYPE_STR9                   0x19
+#define KADEMLIA_TAGTYPE_STR10                  0x1A
+#define KADEMLIA_TAGTYPE_STR11                  0x1B
+#define KADEMLIA_TAGTYPE_STR12                  0x1C
+#define KADEMLIA_TAGTYPE_STR13                  0x1D
+#define KADEMLIA_TAGTYPE_STR14                  0x1E
+#define KADEMLIA_TAGTYPE_STR15                  0x1F
+#define KADEMLIA_TAGTYPE_STR16                  0x20
+#define KADEMLIA_TAGTYPE_STR17                  0x21
+#define KADEMLIA_TAGTYPE_STR18                  0x22
+#define KADEMLIA_TAGTYPE_STR19                  0x23
+#define KADEMLIA_TAGTYPE_STR20                  0x24
+#define KADEMLIA_TAGTYPE_STR21                  0x25
+#define KADEMLIA_TAGTYPE_STR22                  0x26
+
+#define KADEMLIA_TAG_MEDIA_ARTIST               0xD0    /* <string> */
+#define KADEMLIA_TAG_MEDIA_ALBUM                0xD1    /* <string> */
+#define KADEMLIA_TAG_MEDIA_TITLE                0xD2    /* <string> */
+#define KADEMLIA_TAG_MEDIA_LENGTH               0xD3    /* <uint32> !!! */
+#define KADEMLIA_TAG_MEDIA_BITRATE              0xD4    /* <uint32> */
+#define KADEMLIA_TAG_MEDIA_CODEC                0xD5    /* <string> */
+#define KADEMLIA_TAG_USER_COUNT                 0xF4    /* <uint32> */
+#define KADEMLIA_TAG_FILE_COUNT                 0xF5    /* <uint32> */
+#define KADEMLIA_TAG_FILECOMMENT                0xF6    /* <string> */
+#define KADEMLIA_TAG_FILERATING                 0xF7    /* <uint8> */
+#define KADEMLIA_TAG_BUDDYHASH                  0xF8    /* <string> */
+#define KADEMLIA_TAG_CLIENTLOWID                0xF9    /* <uint32> */
+#define KADEMLIA_TAG_SERVERPORT                 0xFA    /* <uint16> */
+#define KADEMLIA_TAG_SERVERIP                   0xFB    /* <uint32> */
+#define KADEMLIA_TAG_SOURCEUPORT                0xFC    /* <uint16> */
+#define KADEMLIA_TAG_SOURCEPORT                 0xFD    /* <uint16> */
+#define KADEMLIA_TAG_SOURCEIP                   0xFE    /* <uint32> */
+#define KADEMLIA_TAG_SOURCETYPE                 0xFF    /* <uint8> */
+
+#define EDONKEY_PROTO_ADU_KADEMLIA              0xA4
+#define EDONKEY_PROTO_ADU_KADEMLIA_COMP         0xA5
+
+#define EDONKEY_PROTO_KADEMLIA                  0xE4
+#define EDONKEY_PROTO_KADEMLIA_COMP             0xE5
+
+/* KADEMLIA (opcodes) (udp) */
+#define KADEMLIA_BOOTSTRAP_REQ                  0x00    /* <PEER (sender) [25]> */
+#define KADEMLIA2_BOOTSTRAP_REQ                 0x01   /*  */
+
+#define KADEMLIA_BOOTSTRAP_RES                  0x08    /* <CNT [2]> <PEER [25]>*(CNT) */
+#define KADEMLIA2_BOOTSTRAP_RES                 0x09   /*  */
+
+#define KADEMLIA_HELLO_REQ                      0x10    /* <PEER (sender) [25]> */
+#define KADEMLIA2_HELLO_REQ                     0x11   /*  */
+
+#define KADEMLIA_HELLO_RES                      0x18    /* <PEER (receiver) [25]> */
+#define KADEMLIA2_HELLO_RES                     0x19   /*  */
+
+#define KADEMLIA_REQ                            0x20    /* <TYPE [1]> <HASH (target) [16]> <HASH (receiver) 16> */
+#define KADEMLIA2_REQ                           0x21   /*  */
+
+#define KADEMLIA_RES                            0x28    /* <HASH (target) [16]> <CNT> <PEER [25]>*(CNT) */
+#define KADEMLIA2_RES                           0x29   /*  */
+
+#define KADEMLIA_SEARCH_REQ                     0x30    /* <HASH (key) [16]> <ext 0/1 [1]> <SEARCH_TREE>[ext] */
+/*#define UNUSED                                0x31    Old Opcode, don't use. */
+#define KADEMLIA_SEARCH_NOTES_REQ               0x32    /* <HASH (key) [16]> */
+#define KADEMLIA2_SEARCH_KEY_REQ                0x33   /*  */
+#define KADEMLIA2_SEARCH_SOURCE_REQ             0x34   /*  */
+#define KADEMLIA2_SEARCH_NOTES_REQ              0x35   /*  */
+
+#define KADEMLIA_SEARCH_RES                     0x38    /* <HASH (key) [16]> <CNT1 [2]> (<HASH (answer) [16]> <CNT2 [2]> <META>*(CNT2))*(CNT1) */
+/*#define UNUSED                                0x39    Old Opcode, don't use. */
+#define KADEMLIA_SEARCH_NOTES_RES               0x3A    /* <HASH (key) [16]> <CNT1 [2]> (<HASH (answer) [16]> <CNT2 [2]> <META>*(CNT2))*(CNT1) */
+#define KADEMLIA2_SEARCH_RES                    0x3B   /*  */
+
+#define KADEMLIA_PUBLISH_REQ                    0x40    /* <HASH (key) [16]> <CNT1 [2]> (<HASH (target) [16]> <CNT2 [2]> <META>*(CNT2))*(CNT1) */
+/*#define UNUSED                                0x41    Old Opcode, don't use. */
+#define KADEMLIA_PUBLISH_NOTES_REQ              0x42    /* <HASH (key) [16]> <HASH (target) [16]> <CNT2 [2]> <META>*(CNT2))*(CNT1) */
+#define KADEMLIA2_PUBLISH_KEY_REQ               0x43   /*  */
+#define KADEMLIA2_PUBLISH_SOURCE_REQ            0x44   /*  */
+#define KADEMLIA2_PUBLISH_NOTES_REQ             0x45   /*  */
+
+#define KADEMLIA_PUBLISH_RES                    0x48    /* <HASH (key) [16]> */
+/*#define UNUSED                                0x49    Old Opcode, don't use. */
+#define KADEMLIA_PUBLISH_NOTES_RES              0x4A    /* <HASH (key) [16]> */
+#define KADEMLIA2_PUBLISH_RES                   0x4B   /*  */
+
+#define KADEMLIA_FIREWALLED_REQ                 0x50    /* <TCPPORT (sender) [2]> */
+#define KADEMLIA_FINDBUDDY_REQ                  0x51    /* <TCPPORT (sender) [2]> */
+#define KADEMLIA_CALLBACK_REQ                   0x52    /* <TCPPORT (sender) [2]> */
+
+#define KADEMLIA_FIREWALLED_RES                 0x58    /* <IP (sender) [4]> */
+#define KADEMLIA_FIREWALLED_ACK_RES             0x59    /* (null) */
+#define KADEMLIA_FINDBUDDY_RES                  0x5A    /* <TCPPORT (sender) [2]> */
+
+/* KADEMLIA (parameter) */
+#define KADEMLIA_FIND_VALUE                     0x02
+#define KADEMLIA_STORE                          0x04
+#define KADEMLIA_FIND_NODE                      0x0B
+
+/* Kad search + some unused tags to mirror the ed2k ones. */
+#define KADEMLIA_TAG_FILENAME                   0x01    /* <string> */
+#define KADEMLIA_TAG_FILESIZE                   0x02    /* <uint32> */
+#define KADEMLIA_TAG_FILESIZE_HI                0x3A    /* <uint32> */
+#define KADEMLIA_TAG_FILETYPE                   0x03    /* <string> */
+#define KADEMLIA_TAG_FILEFORMAT                 0x04    /* <string> */
+#define KADEMLIA_TAG_COLLECTION                 0x05
+#define KADEMLIA_TAG_PART_PATH                  0x06    /* <string> */
+#define KADEMLIA_TAG_PART_HASH                  0x07
+#define KADEMLIA_TAG_COPIED                     0x08    /* <uint32> */
+#define KADEMLIA_TAG_GAP_START                  0x09    /* <uint32> */
+#define KADEMLIA_TAG_GAP_END                    0x0A    /* <uint32> */
+#define KADEMLIA_TAG_DESCRIPTION                0x0B    /* <string> */
+#define KADEMLIA_TAG_PING                       0x0C
+#define KADEMLIA_TAG_FAIL                       0x0D
+#define KADEMLIA_TAG_PREFERENCE                 0x0E
+#define KADEMLIA_TAG_PORT                       0x0F
+#define KADEMLIA_TAG_IP_ADDRESS                 0x10
+#define KADEMLIA_TAG_VERSION                    0x11    /* <string> */
+#define KADEMLIA_TAG_TEMPFILE                   0x12    /* <string> */
+#define KADEMLIA_TAG_PRIORITY                   0x13    /* <uint32> */
+#define KADEMLIA_TAG_STATUS                     0x14    /* <uint32> */
+#define KADEMLIA_TAG_SOURCES                    0x15    /* <uint32> */
+#define KADEMLIA_TAG_PERMISSIONS                0x16
+#define KADEMLIA_TAG_QTIME                      0x16
+#define KADEMLIA_TAG_PARTS                      0x17
+#define KADEMLIA_TAG_MEDIA_ARTIST               0xD0    /* <string> */
+#define KADEMLIA_TAG_MEDIA_ALBUM                0xD1    /* <string> */
+#define KADEMLIA_TAG_MEDIA_TITLE                0xD2    /* <string> */
+#define KADEMLIA_TAG_MEDIA_LENGTH               0xD3    /* <uint32> !!! */
+#define KADEMLIA_TAG_MEDIA_BITRATE              0xD4    /* <uint32> */
+#define KADEMLIA_TAG_MEDIA_CODEC                0xD5    /* <string> */
+#define KADEMLIA_TAG_ENCRYPTION                 0xF3    /* <uint8> */
+#define KADEMLIA_TAG_FILERATING                 0xF7    /* <uint8> */
+#define KADEMLIA_TAG_BUDDYHASH                  0xF8    /* <string> */
+#define KADEMLIA_TAG_CLIENTLOWID                0xF9    /* <uint32> */
+#define KADEMLIA_TAG_SERVERPORT                 0xFA    /* <uint16> */
+#define KADEMLIA_TAG_SERVERIP                   0xFB    /* <uint32> */
+#define KADEMLIA_TAG_SOURCEUPORT                0xFC    /* <uint16> */
+#define KADEMLIA_TAG_SOURCEPORT                 0xFD    /* <uint16> */
+#define KADEMLIA_TAG_SOURCEIP                   0xFE    /* <uint32> */
+#define KADEMLIA_TAG_SOURCETYPE                 0xFF    /* <uint8> */
+
+
