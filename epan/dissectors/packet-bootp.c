@@ -240,6 +240,7 @@ static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend, int revision);
 
 #define OPT53_DISCOVER "Discover"
+/* http://www.iana.org/assignments/bootp-dhcp-parameters */
 static const value_string opt53_text[] = {
 	{ 1,	OPT53_DISCOVER },
 	{ 2,	"Offer" },
@@ -250,8 +251,12 @@ static const value_string opt53_text[] = {
 	{ 7,	"Release" },
 	{ 8,	"Inform" },
 	{ 9,	"Force Renew" },
-	/* draft-ietf-dhc-leasequery-09.txt */
-	{ 13,	"Lease query" },
+	{ 10,	"Lease query" },		/* RFC4388 */
+	{ 11,	"Lease Unassigned" },	/* RFC4388 */
+	{ 12,	"Lease Unknown" },		/* RFC4388 */
+	{ 13,	"Lease Active" },		/* RFC4388 */
+	/* draft-ietf-dhc-leasequery-09.txt 
+	{ 13,	"Lease query" },			*/
 	{ 14,	"Lease known" },
 	{ 15,	"Lease unknown" },
 	{ 16,	"Lease active" },
@@ -1591,17 +1596,44 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	 	return (optend);
 	}
 	switch (subopt) {
-	case 1:
+	case 1: /* 1   Agent Circuit ID Sub-option            [RFC3046] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Agent Circuit ID: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
-	case 2:
+	case 2: /* 2   Agent Remote ID Sub-option             [RFC3046] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Agent Remote ID: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
-
+	case 3:
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+				    "Reserved: %s",
+				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+		break;
+	case 4: /* 4   DOCSIS Device Class Suboption          [RFC3256] */
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+				    "DOCSIS Device Class: %s",
+				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+		break;
+	case 5: /* 5   Link selection Sub-option              [RFC3527] */
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+				    "Link selection: %s",
+					ip_to_str(tvb_get_ptr(tvb, suboptoff, subopt_len)));
+		break;
+	case 6: /*Subscriber-ID Suboption                [RFC3993] */
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Subscriber ID: %s",
+					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+		break;
+	case 7: /* 7   RADIUS Attributes Sub-option           [RFC4014] */
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"RADIUS Attributes: %s",
+					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+	case 8: /* 8   Authentication Suboption               [RFC4030]  */
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Authentication: %s",
+					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 	case 9:
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
@@ -1621,10 +1653,14 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			suboptoff += datalen;
 		}
 		break;
+	case 10: /* 10   Relay Agent Flags                      [RFC5010] */
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Flags: %s",
+					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 
 	default:
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-				    "Invalid agent suboption %d (%d bytes)",
+				    "Unknown agent suboption %d (%d bytes)",
 				    subopt, subopt_len);
 		break;
 	}
@@ -2746,17 +2782,17 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 #define PKT_CCC_MTA_KRB_CLEAR 12
 
 static const value_string pkt_i05_ccc_opt_vals[] = {
-	{ PKT_CCC_PRI_DHCP,		"Primary DHCP Server" },
-	{ PKT_CCC_SEC_DHCP,		"Secondary DHCP Server" },
-	{ PKT_CCC_I05_SNMP,		"SNMP Entity" },
+	{ PKT_CCC_PRI_DHCP,			"Primary DHCP Server" },
+	{ PKT_CCC_SEC_DHCP,			"Secondary DHCP Server" },
+	{ PKT_CCC_I05_SNMP,			"SNMP Entity" },
 	{ PKT_CCC_I05_PRI_DNS,		"Primary DNS Server" },
 	{ PKT_CCC_I05_SEC_DNS,		"Secondary DNS Server" },
 	{ PKT_CCC_KRB_REALM,		"Kerberos Realm" },
-	{ PKT_CCC_TGT_FLAG,		"MTA should fetch TGT?" },
+	{ PKT_CCC_TGT_FLAG,			"MTA should fetch TGT?" },
 	{ PKT_CCC_PROV_TIMER,		"Provisioning Timer" },
-	{ PKT_CCC_CMS_FQDN,		"CMS FQDN" },
-	{ PKT_CCC_AS_KRB,		"AS-REQ/AS-REP Backoff and Retry" },
-	{ PKT_CCC_AP_KRB,		"AP-REQ/AP-REP Backoff and Retry" },
+	{ PKT_CCC_CMS_FQDN,			"CMS FQDN" },
+	{ PKT_CCC_AS_KRB,			"AS-REQ/AS-REP Backoff and Retry" },
+	{ PKT_CCC_AP_KRB,			"AP-REQ/AP-REP Backoff and Retry" },
 	{ PKT_CCC_MTA_KRB_CLEAR,	"MTA should clear Kerberos tickets?" },
 	{ 0, NULL },
 };
