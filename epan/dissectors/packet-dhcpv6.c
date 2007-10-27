@@ -58,6 +58,7 @@ static int hf_fqdn_4 = -1;
 
 static gint ett_dhcpv6 = -1;
 static gint ett_dhcpv6_option = -1;
+static gint ett_dhcpv6_option_vsoption = -1;
 
 #define UDP_PORT_DHCPV6_DOWNSTREAM	546
 #define UDP_PORT_DHCPV6_UPSTREAM	547
@@ -296,6 +297,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	guint16	temp_optlen = 0;
 	proto_item *ti;
 	proto_tree *subtree;
+	proto_tree *subtree_2;
 	int i;
 	struct e_in6_addr in6;
 	guint16 duidtype;
@@ -606,12 +608,25 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "VENDOR_OPTS: malformed option");
 	    break;
 	  }
+
 	  proto_tree_add_text(subtree, tvb, off, 4,
 			      "enterprise-number: %u",
 			      tvb_get_ntohl(tvb, off));
-	  if (optlen > 4) {
-	    proto_tree_add_text(subtree, tvb, off+4, optlen-4,
-				"option-data");
+	  if (optlen >= 4)
+	  {
+            int optoffset = 0;
+
+            while((optlen - 4 - optoffset) > 0)
+            {
+              int olen = tvb_get_ntohs(tvb, off + optoffset + 6);
+              ti = proto_tree_add_text(subtree, tvb, off + optoffset + 4, 4 + olen, "option");
+              subtree_2 = proto_item_add_subtree(ti, ett_dhcpv6_option_vsoption);
+
+              proto_tree_add_text(subtree_2, tvb, off + optoffset + 4, 2, "option code: %u", tvb_get_ntohs(tvb, off + optoffset + 4));
+              proto_tree_add_text(subtree_2, tvb, off + optoffset + 6, 2, "option length: %u", olen);
+              proto_tree_add_text(subtree_2, tvb, off + optoffset + 8, olen, "option-data");
+	      optoffset += (4 + olen);
+            }
 	  }
 	  break;
 	case OPTION_INTERFACE_ID:
@@ -965,6 +980,7 @@ proto_register_dhcpv6(void)
   static gint *ett[] = {
     &ett_dhcpv6,
     &ett_dhcpv6_option,
+    &ett_dhcpv6_option_vsoption,
   };
 
   proto_dhcpv6 = proto_register_protocol("DHCPv6", "DHCPv6", "dhcpv6");
