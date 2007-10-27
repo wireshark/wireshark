@@ -3770,34 +3770,37 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
 
 static void
 dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-			gboolean stream_is_big_endian)
+		MessageHeader * header,	gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
-  guint32 request_id;
   proto_tree *fragment_tree = NULL;
   proto_item *tf;
 
   if (tree)
     {
       tf = proto_tree_add_text (tree, tvb, offset, -1,
-				"General Inter-ORB Fragment");
+                                "General Inter-ORB Fragment");
       if (fragment_tree == NULL)
-	{
-	  fragment_tree = proto_item_add_subtree (tf, ett_giop_fragment);
-
-	}
+        {
+          fragment_tree = proto_item_add_subtree (tf, ett_giop_fragment);
+      
+        }
     }
-
-  request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-  if (check_col(pinfo->cinfo, COL_INFO))
+        
+  if (header->GIOP_version.minor > 1) 
+  {     
+    guint32 request_id;
+        
+    request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
+    if (check_col(pinfo->cinfo, COL_INFO))
     {
       col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
-    }
-  if (fragment_tree )
-    {
+    }   
+    if (fragment_tree )
+    {   
       proto_tree_add_uint (fragment_tree, hf_giop_req_id, tvb, offset-4, 4,request_id);
     }
-
+  } 
 }
 
 
@@ -3983,7 +3986,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 				  stream_is_big_endian);
 	break;
     case Fragment:
-        dissect_giop_fragment(payload_tvb, pinfo, tree,
+        dissect_giop_fragment(payload_tvb, pinfo, tree, &header,
 			      stream_is_big_endian);
         break;
     default:
