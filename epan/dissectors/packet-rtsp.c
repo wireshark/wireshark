@@ -1098,7 +1098,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		new_tvb = tvb_new_subset(tvb, offset, datalen,
 			    reported_datalen);
 
-		if (dissector_try_string(media_type_dissector_table,
+		if (media_type_str_lower_case && 
+			dissector_try_string(media_type_dissector_table,
 				media_type_str_lower_case,
 				new_tvb, pinfo, rtsp_tree)){
 			
