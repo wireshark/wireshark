@@ -1068,6 +1068,8 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 	int ret;
 	const gchar *saved_match_string;
 
+	/* XXX ASSERT instead ? */
+	if (!string) return FALSE;
 	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
 	if (dtbl_entry != NULL) {
 		/*
