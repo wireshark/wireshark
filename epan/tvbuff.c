@@ -850,6 +850,36 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 	return NULL;
 }
 
+/* ----------------------------- */
+static const guint8*
+fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
+{
+	guint	end_offset;
+	guint	u_offset;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+	if (offset < 0 || !tvb->real_data) {
+	    return ensure_contiguous(tvb, offset, length);
+	}
+
+	u_offset = offset;
+	end_offset = u_offset + length;
+
+	/* don't need to check for overflow  because length <= 8 */
+
+	if (end_offset <= tvb->length) {
+		return tvb->real_data + u_offset;
+	}
+	
+	if (end_offset > tvb->reported_length) {
+		THROW(ReportedBoundsError);
+	}
+	THROW(BoundsError);
+	/* not reached */
+	return 0;
+}
+
+
 static const guint8*
 ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
 {
@@ -1050,12 +1080,13 @@ tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length)
 	return ensure_contiguous(tvb, offset, length);
 }
 
+/* ---------------- */
 guint8
 tvb_get_guint8(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint8));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint8));
 	return *ptr;
 }
 
@@ -1064,7 +1095,7 @@ tvb_get_ntohs(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint16));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint16));
 	return pntohs(ptr);
 }
 
@@ -1073,7 +1104,7 @@ tvb_get_ntoh24(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, 3);
+	ptr = fast_ensure_contiguous(tvb, offset, 3);
 	return pntoh24(ptr);
 }
 
@@ -1082,7 +1113,7 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pntohl(ptr);
 }
 
@@ -1091,7 +1122,7 @@ tvb_get_ntoh64(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint64));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint64));
 	return pntoh64(ptr);
 }
 
@@ -1303,7 +1334,7 @@ tvb_get_letohs(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint16));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint16));
 	return pletohs(ptr);
 }
 
@@ -1312,7 +1343,7 @@ tvb_get_letoh24(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, 3);
+	ptr = fast_ensure_contiguous(tvb, offset, 3);
 	return pletoh24(ptr);
 }
 
@@ -1321,7 +1352,7 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
 }
 
@@ -1330,7 +1361,7 @@ tvb_get_letoh64(tvbuff_t *tvb, gint offset)
 {
 	const guint8* ptr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint64));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint64));
 	return pletoh64(ptr);
 }
 
@@ -1400,7 +1431,7 @@ tvb_get_ipv4(tvbuff_t *tvb, gint offset)
 	const guint8* ptr;
 	guint32 addr;
 
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
+	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
 	memcpy(&addr, ptr, sizeof addr);
 	return addr;
 }

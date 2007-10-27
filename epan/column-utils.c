@@ -297,7 +297,7 @@ col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
        */
       if (separator != NULL) {
         if (len != 0) {
-          strncat(cinfo->col_buf[i], separator, max_len - len);
+          g_strlcat(cinfo->col_buf[i], separator, max_len);
           len += sep_len;
         }
       }
@@ -372,8 +372,7 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
       if (cinfo->col_fence[i] > 0)
         cinfo->col_fence[i] += strlen(cinfo->col_buf[i]);
 
-      strncat(cinfo->col_buf[i], orig, max_len);
-      cinfo->col_buf[i][max_len - 1] = '\0';
+      g_strlcat(cinfo->col_buf[i], orig, max_len);
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
@@ -416,8 +415,7 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
       } else {
         cinfo->col_fence[i]  = strlen(cinfo->col_buf[i]);
       }
-      strncat(cinfo->col_buf[i], orig, max_len);
-      cinfo->col_buf[i][max_len - 1] = '\0';
+      g_strlcat(cinfo->col_buf[i], orig, max_len);
       cinfo->col_data[i] = cinfo->col_buf[i];
     }
   }
@@ -484,19 +482,17 @@ col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
        */
       COL_CHECK_APPEND(cinfo, i, max_len);
 
-      len = strlen(cinfo->col_buf[i]);
+      len = cinfo->col_buf[i][0];
 
       /*
        * If we have a separator, append it if the column isn't empty.
        */
       if (separator != NULL) {
         if (len != 0) {
-          strncat(cinfo->col_buf[i], separator, max_len - len);
-          len += sep_len;
+          g_strlcat(cinfo->col_buf[i], separator, max_len);
         }
       }
-      strncat(cinfo->col_buf[i], str, max_len - len);
-      cinfo->col_buf[i][max_len - 1] = 0;
+      g_strlcat(cinfo->col_buf[i], str, max_len);
     }
   }
 }

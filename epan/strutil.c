@@ -955,7 +955,7 @@ convert_string_case(const char *string, gboolean case_insensitive)
 /* g_strlcat(), g_strlcpy don't exist in GLib 1.2[.x] */
 #if GLIB_MAJOR_VERSION < 2
 gsize
-g_strlcat(gchar *dest, gchar *src, gsize dest_size)
+g_strlcat(gchar *dest, const gchar *src, gsize dest_size)
 {
   gchar *d = dest;
   const gchar *s = src;

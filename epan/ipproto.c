@@ -36,11 +36,16 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-ip.h>
+#include <epan/strutil.h>
 
 static const value_string ipproto_val[] = {
 #if 0
     { IP_PROTO_IP,	"IPv4" },
 #endif
+    { IP_PROTO_TCP,	"TCP" },
+    { IP_PROTO_UDP,	"UDP" },
+    { IP_PROTO_RDP,     "Reliable Data" },
+
     { IP_PROTO_HOPOPTS,	"IPv6 hop-by-hop option" },
     { IP_PROTO_ICMP,	"ICMP" },
     { IP_PROTO_IGMP,	"IGMP" },
@@ -50,7 +55,6 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_IPV4,	"IPv4" },
 #endif
     { IP_PROTO_STREAM,  "Stream" },
-    { IP_PROTO_TCP,	"TCP" },
     { IP_PROTO_CBT,     "CBT" },
     { IP_PROTO_EGP,	"EGP" },
     { IP_PROTO_IGP,	"IGRP" },
@@ -61,7 +65,6 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_EMCON,   "EMCON" },
     { IP_PROTO_XNET,    "XNET" },
     { IP_PROTO_CHAOS,   "CHAOS" },
-    { IP_PROTO_UDP,	"UDP" },
     { IP_PROTO_MUX,     "Multiplex" },
     { IP_PROTO_DCNMEAS, "DCN Measurement" },
     { IP_PROTO_HMP,     "Host Monitoring" },
@@ -71,7 +74,6 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_TRUNK2,  "Trunk-2" },
     { IP_PROTO_LEAF1,   "Leaf-1" },
     { IP_PROTO_LEAF2,   "Leaf-2" },
-    { IP_PROTO_RDP,     "Reliable Data" },
     { IP_PROTO_IRT,     "IRT" },
     { IP_PROTO_TP,	"ISO TP4" },
     { IP_PROTO_BULK,    "Bulk Data" },
@@ -186,14 +188,12 @@ static const value_string ipproto_val[] = {
 };
 
 const char *ipprotostr(int proto) {
-    static char buf[128];
     const char *s;
-#ifdef HAVE_GETPROTOBYNUMBER
-    struct protoent *pe;
-#endif
 
     if ((s = match_strval(proto, ipproto_val)) != NULL)
-	goto ok;
+	return s;
+
+    s = "Unknown";
 
 #ifdef HAVE_GETPROTOBYNUMBER
     /*
@@ -201,17 +201,15 @@ const char *ipprotostr(int proto) {
      * protocol names?
      */
     if (g_resolv_flags != 0) {
+        static char buf[128];
+        struct protoent *pe;
+        
 	pe = getprotobynumber(proto);
 	if (pe) {
-	    s = pe->p_name;
-	    goto ok;
+	    g_strlcpy(buf, pe->p_name, sizeof(buf));
+	    s = buf;
 	}
     }
 #endif
-
-    s = "Unknown";
-
-ok:
-    g_snprintf(buf, sizeof(buf), "%s", s);
-    return buf;
+    return s;
 }
