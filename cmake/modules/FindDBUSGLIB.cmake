@@ -38,20 +38,21 @@
 #  Written by Frederic Heem, frederic.heem _at_ telsey.it
 
 # This module defines
-#  DBUSGLIBGLIB_FOUND, true if dbus-glib-1 has been found
-#  DBUSGLIBGLIB_VERSION, the dbus-glib-1 version 
-#  DBUSGLIBGLIB_INCLUDE_DIRS, where to find dbus/dbus-glib.h, etc.
-#  DBUSGLIBGLIB_LIBRARIES, library to link againt libdbus-glib-1
-#  DBUSGLIBGLIB_DEFINITIONS, the definitions used to compile dbus-glib-1
+#  DBUSGLIB_FOUND, true if dbus-glib-1 has been found
+#  DBUSGLIB_VERSION, the dbus-glib-1 version 
+#  DBUSGLIB_INCLUDE_DIRS, where to find dbus/dbus-glib.h, etc.
+#  DBUSGLIB_LIBRARIES, library to link againt libdbus-glib-1
+#  DBUSGLIB_DEFINITIONS, the definitions used to compile dbus-glib-1
+#  DBUSGLIB_BINDING_TOOL_EXECUTABLE the glib dbus binding tool
 
 #D-Bus is required by dbus-glib-1
 FIND_PACKAGE(DBUS REQUIRED)
 
-#Keep space in of $ENV{PKG_CONFIG_PATH} is empty
+#Keep space in case of $ENV{PKG_CONFIG_PATH} is empty
 SET(PKG_CONFIG_PATH " $ENV{PKG_CONFIG_PATH}")
 
 #Find the D-Bus package
-PKGCONFIG_FOUND(dbus-1 ${PKG_CONFIG_PATH} DBUSGLIB_FOUND)
+PKGCONFIG_FOUND(dbus-glib-1 ${PKG_CONFIG_PATH} DBUSGLIB_FOUND)
 
 IF(DBUSGLIB_FOUND)
   MESSAGE(STATUS "D-Bus glib found")
@@ -92,7 +93,7 @@ FIND_LIBRARY(DBUSGLIB_LIBRARY
     ${DBUSGLIB_LIBRARY_DIR}
   DOC 
     ${DBUSGLIB_LIB_PATH_DESCRIPTION}
-  NO_DEFAULT_PATH
+#NO_DEFAULT_PATH TODO fix PKGCONFIG_LIBRARY_DIR when pkg-config returns multiple directories
 )
 
 SET(DBUSGLIB_LIBRARIES ${DBUSGLIB_LIBRARY} ${DBUS_LIBRARIES}) 
@@ -115,6 +116,7 @@ MESSAGE(STATUS "D-Bus glib definitions are ${DBUSGLIB_DEFINITIONS}")
 FIND_PROGRAM(DBUSGLIB_BINDING_TOOL_EXECUTABLE
   NAMES 
     dbus-binding-tool
+  /usr/local/bin
 )
 
 MARK_AS_ADVANCED(

@@ -24,6 +24,9 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
+/* Define to 1 if you have the `chown' function. */
+#cmakedefine HAVE_CHOWN 1
+
 /* Define to 1 if you have the `gethostbyname2' function. */
 #cmakedefine HAVE_GETHOSTBYNAME2 1
 

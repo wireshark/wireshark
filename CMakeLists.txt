@@ -56,8 +56,6 @@ option(BUILD_TSHARK      "Build tshark" ON)
 option(BUILD_DUMPCAP     "Build dumpcap" ON)
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
 option(ENABLE_ADNS	     "Build with adns support" ON)
-option(ENABLE_DBUS	     "Build with D-Bus support" OFF)
-option(ENABLE_DBUS_TEST  "Build with D-Bus unitest support" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
 
 if(ENABLE_EXTRA_GCC_CHECKS)
@@ -76,9 +74,8 @@ else(CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-DHAVE_CONFIG_H -D_U_=\"\")
 endif(CMAKE_COMPILER_IS_GNUCC)
 
-if(BUILD_WIRESHARK OR BUILD_TSHARK OR BUILD_DUMPCAP)
-  subdirs(wiretap)
-endif(BUILD_WIRESHARK OR BUILD_TSHARK OR BUILD_DUMPCAP)
+
+subdirs(wiretap)
 
 #The minimum package list
 set(PACKAGELIST GLIB2 ZLIB PCAP ${PACKAGELIST})
@@ -94,13 +91,6 @@ if(ENABLE_ADNS)
   set(HAVE_GNU_ADNS 1)
 endif(ENABLE_ADNS)
 
-#D-Bus
-if(ENABLE_DBUS)
-  set(PACKAGELIST DBUS DBUSGLIB ${PACKAGELIST})
-  subdirs(dbus)
-  set(dumpcap_LIBS ${dumpcap_LIBS} capdbus)
-endif(ENABLE_DBUS)
-
 #Let's loop the package list 
 foreach(PACKAGE ${PACKAGELIST})
   find_package(${PACKAGE} REQUIRED)
@@ -113,6 +103,8 @@ foreach(PACKAGE ${PACKAGELIST})
     message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
   endif (${PACKAGE}_FOUND)
 endforeach(PACKAGE)
+
+#subdirs(dbus)
 
 #packaging
 set(CPACK_PACKAGE_NAME wireshark)
@@ -167,6 +159,7 @@ check_include_file("unistd.h"            HAVE_UNISTD_H)
 
 #Functions
 include(CheckFunctionExists)
+check_function_exists("chown"            HAVE_CHOWN)
 check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
 check_function_exists("getprotobynumber" HAVE_GETPROTOBYNUMBER)
 check_function_exists("iconv"            HAVE_ICONV)
@@ -248,4 +241,3 @@ if(BUILD_DUMPCAP)
   install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR})
 
 endif(BUILD_DUMPCAP)
-
