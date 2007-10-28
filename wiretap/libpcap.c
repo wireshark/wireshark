@@ -1426,6 +1426,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		orig_size -= sizeof (struct libpcap_bt_phdr);
 		packet_size -= sizeof (struct libpcap_bt_phdr);
 		wth->data_offset += sizeof (struct libpcap_bt_phdr);
+		break;
 
 	case WTAP_ENCAP_ERF:
 		if (packet_size < sizeof(struct erf_phdr) ) {
@@ -2439,6 +2440,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->len -= size;
 		whdr->caplen -= size;
 		pd += size;
+		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		if (whdr->caplen < sizeof (struct libpcap_bt_phdr)) {
