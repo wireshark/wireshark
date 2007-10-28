@@ -62,6 +62,7 @@ device-dirs:
 
 data-dirs:
 	if not exist $(DATA) $(MKDIR) $(DATA)
+	if not exist $(DATA)\"My Captures" $(MKDIR) $(DATA)\"My Captures"
 
 manifest-dirs:
 	if not exist $(MANIFEST) $(MKDIR) $(MANIFEST)
@@ -71,7 +72,7 @@ user-guide.chm:
 	nmake -f Makefile.nmake user-guide.chm
 	cd ../u3/win32
 
-distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util.exe user-guide.chm
+distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util.exe user-guide.chm wireshark.bat
 # manifest
 	$(COPY) manifest.u3i $(MANIFEST) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
@@ -274,6 +275,9 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 !ifdef LUA_DIR
 	$(COPY) $(LUA_DIR)\lib\dll\lua5.1.dll $(HOST) $(COPY_FLAGS)
 !endif
+!ifdef SMI_DIR
+	$(COPY) $(SMI_DIR)\lib\smi.dll $(HOST) $(COPY_FLAGS)
+!endif
 
 !IFDEF GTK2_DIR
 	$(COPY) $(TOPDIR)\wireshark-gtk2.exe $(HOST) $(COPY_FLAGS)
@@ -325,8 +329,13 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\tshark.exe $(HOST) $(COPY_FLAGS)
 	$(COPY) u3util.exe $(HOST) $(COPY_FLAGS)
 
-package:	distribution
-	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST)
+test:		distribution
+	wireshark.bat -D
+
+package:	test
+	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) wireshark.bat
+
+
 
 u3util_LIBS= user32.lib shell32.lib
 
