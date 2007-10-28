@@ -864,11 +864,13 @@ install-common-files:
 	xcopy ".\colorfilters" $(INSTALL_DIR) /d
 	xcopy ".\dfilters" $(INSTALL_DIR) /d
 	xcopy ".\smi_modules" $(INSTALL_DIR) /d
+!IFDEF LUA_DIR
 	xcopy ".\epan\wslua\init.lua" $(INSTALL_DIR) /d
 	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
-    xcopy doc\*.html $(INSTALL_DIR) /d
+!ENDIF
+	xcopy doc\*.html $(INSTALL_DIR) /d
 !IFDEF ETHEREAL_EUG_DIR
-    xcopy $(ETHEREAL_EUG_DIR) $(INSTALL_DIR) /d
+	xcopy $(ETHEREAL_EUG_DIR) $(INSTALL_DIR) /d
 !ENDIF
 	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
 	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
