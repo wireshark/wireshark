@@ -27,7 +27,7 @@ all:	package
 
 uuid.sed: $(TOPDIR)\config.nmake
 	cd $(TOOLSDIR)
-	nmake -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ..\win32
 	$(TOOLSDIR)\utest.exe "$(VERSION)" > $@
 
@@ -69,7 +69,7 @@ manifest-dirs:
 
 user-guide.chm:
 	cd ../../nsis
-	nmake -f Makefile.nmake user-guide.chm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
 	cd ../u3/win32
 
 distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util.exe user-guide.chm wireshark.bat

@@ -41,4 +41,4 @@ SET U3_DEVICE_EXEC_PATH=%CD%\device
 SET U3_ENV_VERSION=1.0
 SET U3_ENV_LANGUAGE=1033
 
-%U3_HOST_EXEC_PATH%\wireshark.exe %*
+"%U3_HOST_EXEC_PATH%\wireshark.exe" %*
