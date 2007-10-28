@@ -56,6 +56,7 @@
 #include <nettle/cbc.h>
 #endif
 #include <epan/strutil.h>
+#include <wiretap/file_util.h>
 #endif
 
 #include <epan/packet.h>
