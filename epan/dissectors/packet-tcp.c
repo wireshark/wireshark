@@ -221,6 +221,73 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
 
 struct tcp_analysis *
+new_tcp_conversation(packet_info *pinfo)
+{
+	int direction;
+	conversation_t *conv=NULL;
+	struct tcp_analysis *tcpd=NULL;
+
+	/* Create a new conversation. */
+	conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		
+	/* No no such data yet. Allocate and init it */
+	tcpd=se_alloc(sizeof(struct tcp_analysis));
+	tcpd->flow1.segments=NULL;
+	tcpd->flow1.base_seq=0;
+	tcpd->flow1.lastack=0;
+	tcpd->flow1.lastacktime.secs=0;
+	tcpd->flow1.lastacktime.nsecs=0;
+	tcpd->flow1.lastnondupack=0;
+	tcpd->flow1.nextseq=0;
+	tcpd->flow1.nextseqtime.secs=0;
+	tcpd->flow1.nextseqtime.nsecs=0;
+	tcpd->flow1.nextseqframe=0;
+	tcpd->flow1.window=0;
+	tcpd->flow1.win_scale=-1;
+	tcpd->flow1.flags=0;
+	tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+	tcpd->flow2.segments=NULL;
+	tcpd->flow2.base_seq=0;
+	tcpd->flow2.lastack=0;
+	tcpd->flow2.lastacktime.secs=0;
+	tcpd->flow2.lastacktime.nsecs=0;
+	tcpd->flow2.lastnondupack=0;
+	tcpd->flow2.nextseq=0;
+	tcpd->flow2.nextseqtime.secs=0;
+	tcpd->flow2.nextseqtime.nsecs=0;
+	tcpd->flow2.nextseqframe=0;
+	tcpd->flow2.window=0;
+	tcpd->flow2.win_scale=-1;
+	tcpd->flow2.flags=0;
+	tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+	tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
+	tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
+	tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
+	tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
+	tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
+
+
+	conversation_add_proto_data(conv, proto_tcp, tcpd);
+
+	/* check direction and get ua lists */
+	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+	/* if the addresses are equal, match the ports instead */
+	if(direction==0) {
+		direction= (pinfo->srcport > pinfo->destport)*2-1;
+	}
+	if(direction>=0){
+		tcpd->fwd=&(tcpd->flow1);
+		tcpd->rev=&(tcpd->flow2);
+	} else {
+		tcpd->fwd=&(tcpd->flow2);
+		tcpd->rev=&(tcpd->flow1);
+	}
+
+	tcpd->ta=NULL;
+	return tcpd;
+}
+
+struct tcp_analysis *
 get_tcp_conversation_data(packet_info *pinfo)
 {
 	int direction;
@@ -230,52 +297,11 @@ get_tcp_conversation_data(packet_info *pinfo)
 	/* Have we seen this conversation before? */
 	if( (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
 		/* No this is a new conversation. */
-		conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		tcpd=new_tcp_conversation(pinfo);
+	} else {
+		/* Get the data for this conversation */
+		tcpd=conversation_get_proto_data(conv, proto_tcp);
 	}
-
-	/* check if we have any data for this conversation */
-	tcpd=conversation_get_proto_data(conv, proto_tcp);
-	if(!tcpd){
-		/* No no such data yet. Allocate and init it */
-		tcpd=se_alloc(sizeof(struct tcp_analysis));
-		tcpd->flow1.segments=NULL;
-		tcpd->flow1.base_seq=0;
-		tcpd->flow1.lastack=0;
-		tcpd->flow1.lastacktime.secs=0;
-		tcpd->flow1.lastacktime.nsecs=0;
-		tcpd->flow1.lastnondupack=0;
-		tcpd->flow1.nextseq=0;
-		tcpd->flow1.nextseqtime.secs=0;
-		tcpd->flow1.nextseqtime.nsecs=0;
-		tcpd->flow1.nextseqframe=0;
-		tcpd->flow1.window=0;
-		tcpd->flow1.win_scale=-1;
-		tcpd->flow1.flags=0;
-		tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
-		tcpd->flow2.segments=NULL;
-		tcpd->flow2.base_seq=0;
-		tcpd->flow2.lastack=0;
-		tcpd->flow2.lastacktime.secs=0;
-		tcpd->flow2.lastacktime.nsecs=0;
-		tcpd->flow2.lastnondupack=0;
-		tcpd->flow2.nextseq=0;
-		tcpd->flow2.nextseqtime.secs=0;
-		tcpd->flow2.nextseqtime.nsecs=0;
-		tcpd->flow2.nextseqframe=0;
-		tcpd->flow2.window=0;
-		tcpd->flow2.win_scale=-1;
-		tcpd->flow2.flags=0;
-		tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
-		tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
-		tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
-		tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
-		tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
-		tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
-
-
-		conversation_add_proto_data(conv, proto_tcp, tcpd);
-	}
-
 
 	/* check direction and get ua lists */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -589,21 +615,13 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 	}
 
 
-	/* LOST PACKET / REUSED PORTS
+	/* LOST PACKET
 	 * If this segment is beyond the last seen nextseq we must
 	 * have missed some previous segment
 	 *
 	 * We only check for this if we have actually seen segments prior to this
 	 * one.
 	 * RST packets are not checked for this.
-	 *
-	 * If the packet is a SYN, then it's not a lost packet, then the tcp ports
-	 * are reused. This is seen often in load-balanced environments where 
-	 * client ports are preserved on the server-side. We only want to report
-	 * port reusage once, so the SYN/ACK is excluded from analysis.
-	 *
-	 * XXX The port reusage routine might better be handled by cleaning up
-	 * the conversation when a SYN is received and setting the TA_FLAG then.
 	 */
 	if( tcpd->fwd->nextseq
 	&&  GT_SEQ(seq, tcpd->fwd->nextseq)
@@ -611,10 +629,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 		if(!tcpd->ta){
 			tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
 		}
-		if ((flags&(TH_SYN|TH_ACK))==TH_SYN)
-			tcpd->ta->flags|=TCP_A_REUSED_PORTS;
-		else if ((flags&(TH_SYN|TH_ACK))!=(TH_SYN|TH_ACK))
-			tcpd->ta->flags|=TCP_A_LOST_PACKET;
+		tcpd->ta->flags|=TCP_A_LOST_PACKET;
 	}
 
 
@@ -1003,7 +1018,7 @@ tcp_sequence_number_analysis_print_reused(packet_info * pinfo,
     flags_item=proto_tree_add_none_format(flags_tree, 
 					  hf_tcp_analysis_reused_ports, 
 					  tvb, 0, 0, 
-					  "A new tcp session is started with the same"
+					  "A new tcp session is started with the same "
 					  "ports as an earlier session in this trace"
 					  );
     PROTO_ITEM_SET_GENERATED(flags_item);
@@ -2571,6 +2586,24 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* find(or create if needed) the conversation for this tcp session */
   tcpd=get_tcp_conversation_data(pinfo);
+
+  /* If this is a SYN packet, then check if it's seq-nr is different
+   * from the base_seq of the retrieved conversation. If this is the
+   * case, create a new conversation with the same addresses and ports
+   * and set the TA_PORTS_REUSED flag. If the seq-nr is the same as
+   * the base_seq, then do nothing so it will be marked as a retrans-
+   * mission later.
+   */
+  if( ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
+      (tcpd->fwd->base_seq!=0) &&
+      (tcph->th_seq!=tcpd->fwd->base_seq) ) {
+    if (!(pinfo->fd->flags.visited))
+      tcpd=new_tcp_conversation(pinfo);
+    if(!tcpd->ta)
+      tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+    tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+  }
+      
 
   /* Do we need to calculate timestamps relative to the tcp-stream? */
   if (tcp_calculate_ts) {
