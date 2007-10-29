@@ -80,11 +80,11 @@
 #include <epan/report_err.h>
 #include <epan/oids.h>
 
+
+#ifdef HAVE_LIBGCRYPT
 #ifdef _WIN32
 #include <winposixtype.h>
 #endif /* _WIN32 */
-
-#ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
 #endif
 

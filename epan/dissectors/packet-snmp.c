@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* ./packet-snmp.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -88,11 +88,11 @@
 #include <epan/report_err.h>
 #include <epan/oids.h>
 
+
+#ifdef HAVE_LIBGCRYPT
 #ifdef _WIN32
 #include <winposixtype.h>
 #endif /* _WIN32 */
-
-#ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
 #endif
 
@@ -2466,7 +2466,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 				"Failed to decrypt encryptedPDU: %s", error);
 
 			if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
 				
 			return offset;
 		} else {
@@ -2481,7 +2481,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 									   "Decrypted data not formated as expected");
 
 				if (check_col(actx->pinfo->cinfo, COL_INFO))
-					col_add_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formated as expected");
+					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formated as expected");
 				
 				return offset;
 			}
@@ -2496,7 +2496,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		 }
 	} else {
 			if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
 	}
 
 
@@ -2837,7 +2837,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1399 "packet-snmp-template.c"
+#line 1385 "packet-snmp-template.c"
 
 
 guint
@@ -3613,7 +3613,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1910 "packet-snmp-template.c"
+#line 1896 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3653,7 +3653,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1926 "packet-snmp-template.c"
+#line 1912 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
