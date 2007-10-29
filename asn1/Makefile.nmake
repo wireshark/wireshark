@@ -69,6 +69,7 @@ ber: \
 	smrse	\
 	snmp	\
 	spnego	\
+	t125	\
 	tcap	\
 	wlancertextn	\
 	x411	\
@@ -271,6 +272,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd spnego
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd t125
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd t38
@@ -599,6 +603,11 @@ snmp::
 
 spnego::
 	cd spnego
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+t125::
+	cd t125
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

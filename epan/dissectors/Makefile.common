@@ -139,6 +139,7 @@ ASN_DISSECTOR_SRC = \
 	packet-smrse.c \
 	packet-snmp.c \
 	packet-spnego.c \
+	packet-t125.c \
 	packet-tcap.c \
 	packet-ulp.c \
 	packet-wlancertextn.c \

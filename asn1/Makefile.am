@@ -82,6 +82,7 @@ SUBDIRS = \
 	smrse		\
 	snmp		\
 	spnego		\
+	t125		\
 	t38		\
 	tcap		\
 	ulp		\

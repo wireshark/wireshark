@@ -53,6 +53,10 @@ static int hf_x224_eot			= -1;
 static gint ett_x224           = -1;
 
 
+/* find the dissector for T.125 */
+static dissector_handle_t t125_handle;
+
+
 typedef struct _x224_conv_info_t {
 	guint8	class;
 } x224_conv_info_t;
@@ -135,9 +139,10 @@ dissect_x224_cc(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 static int
-dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, x224_conv_info_t *x224_info)
+dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, x224_conv_info_t *x224_info, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
+	tvbuff_t *next_tvb;
 
 	switch (x224_info->class >>4) {
 	case 2:
@@ -157,6 +162,10 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	proto_tree_add_item(tree, hf_x224_eot, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_x224_nr, tvb, offset, 1, FALSE);
 	offset+=1;
+
+
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	call_dissector(t125_handle, next_tvb, pinfo, parent_tree);
 
 	return offset;
 }
@@ -248,7 +257,7 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* XXX not implemented yet */
 		break;
 	case X224_CODE_DT:
-		offset = dissect_x224_dt(pinfo, tree, tvb, offset, x224_info);
+		offset = dissect_x224_dt(pinfo, tree, tvb, offset, x224_info, parent_tree);
 		break;
 	case X224_CODE_ED:
 		/* XXX not implemented yet */
@@ -318,4 +327,5 @@ proto_register_x224(void)
 void
 proto_reg_handoff_x224(void)
 {
+	t125_handle = find_dissector("t125");
 }

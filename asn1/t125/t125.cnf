@@ -1,0 +1,42 @@
+# T.125/MCS-PROTOCOL.cnf
+# Copyright 2007 Ronnie Sahlberg
+# $Id$
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+#.END
+
+#.PDU
+#----------------------------------------------------------------------------------------
+
+#.PDU_NEW
+#----------------------------------------------------------------------------------------
+ConnectMCSPDU
+DomainMCSPDU
+#.END
+
+#.VIRTUAL_ASSGN
+#----------------------------------------------------------------------------------------
+
+#.FN_BODY ConnectMCSPDU  VAL_PTR = &connectmcs_value
+  	guint32 connectmcs_value;
+
+%(DEFAULT_BODY)s
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
+		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ",
+			val_to_str(connectmcs_value, t125_ConnectMCSPDU_vals, "<unknown>"));
+	}
+#.END
+
+#.FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
+  	guint32 domainmcs_value;
+
+%(DEFAULT_BODY)s
+	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
+		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ",
+			val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "<unknown>"));
+	}
+#.END
+
+#----------------------------------------------------------------------------------------
+# vim:set ts=4 sts=2 sw=2:
