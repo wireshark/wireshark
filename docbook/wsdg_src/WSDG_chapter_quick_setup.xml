@@ -394,9 +394,15 @@
           version, e.g.: Version 0.99.4-myprotocol123 - you might
           run a release version previously installed!</para>
         </listitem>
-      </orderedlist>Tip: If compilation fails for suspicious
+      </orderedlist>
+       Tip: If compilation fails for suspicious
       reasons after you changed some source files try to distclean
-      the sources and make "all" again</para>
+      the sources and nmake "all" again.</para>
+      <para>Note that the Wireshark Windows nmake scripts do not currently 
+      track include file (.h) dependencies. A distclean and nmake "all" are
+      thus normally required 
+      after include file changes and after changes to files such as
+      config.nmake which are used when generating certain include files.</para>
     </section>
     <section>
       <title>Debug Environment Setup (XXX)</title>
