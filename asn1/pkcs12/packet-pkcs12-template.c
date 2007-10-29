@@ -43,14 +43,15 @@
 #include "packet-x509if.h"
 #include "packet-cms.h"
 
-#ifdef _WIN32  
-#include <winposixtype.h>
-#else
+#ifndef _WIN32  
 #include <sys/types.h>
 #include <sys/time.h>
 #endif
 
 #ifdef HAVE_LIBGCRYPT
+#ifdef _WIN32  
+#include <winposixtype.h>
+#endif
 #include "gcrypt.h"
 #endif 
 
