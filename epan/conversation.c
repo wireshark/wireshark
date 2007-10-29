@@ -656,7 +656,7 @@ conversation_lookup_hashtable(GHashTable *hashtable, guint32 frame_num, address 
 
 	if (match) {
 		for (conversation = match->next; conversation; conversation = conversation->next) {
-			if ((conversation->setup_frame < frame_num)
+			if ((conversation->setup_frame <= frame_num)
 				&& (conversation->setup_frame > match->setup_frame))
 				match = conversation;
 		}
