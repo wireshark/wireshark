@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-mpeg-audio.c                                                      */
-/* ../../tools/asn2wrs.py -e -p mpeg-audio -c mpeg-audio.cnf -s packet-mpeg-audio-template mpeg-audio.asn */
+/* packet-mpeg-audio.c                                                        */
+/* ../../tools/asn2wrs.py -p mpeg-audio -c mpeg-audio.cnf -s packet-mpeg-audio-template mpeg-audio.asn */
 
 /* Input file: packet-mpeg-audio-template.c */
 
@@ -244,7 +244,7 @@ dissect_mpeg_audio_Audio(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_mpeg_audio_OCTET_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, NULL);
+                                       3, 3, FALSE, NULL);
 
   return offset;
 }
@@ -254,7 +254,7 @@ dissect_mpeg_audio_OCTET_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_mpeg_audio_OCTET_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       30, 30, NULL);
+                                       30, 30, FALSE, NULL);
 
   return offset;
 }
@@ -264,7 +264,7 @@ dissect_mpeg_audio_OCTET_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_mpeg_audio_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, NULL);
+                                       4, 4, FALSE, NULL);
 
   return offset;
 }
@@ -274,7 +274,7 @@ dissect_mpeg_audio_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_mpeg_audio_OCTET_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       28, 28, NULL);
+                                       28, 28, FALSE, NULL);
 
   return offset;
 }

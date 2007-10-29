@@ -3,7 +3,7 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h323/2006/RAS-PROTOCOL-TUNNEL.asn
 --
--- $Id: H235-SECURITY-MESSAGES.asn 18339 2006-06-05 06:52:50Z kukosa $
+-- $Id$
 --
 
 -- Module RAS-PROTOCOL-TUNNEL (H.323:06/2006)

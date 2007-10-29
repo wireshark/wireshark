@@ -269,7 +269,7 @@ reserved_words = {
   'PRESENT'     : 'PRESENT',
   'PRIVATE'     : 'PRIVATE',
   'REAL'        : 'REAL',
-#  'RELATIVE-OID' : 'RELATIVE-OID',
+  'RELATIVE-OID' : 'RELATIVE_OID',
   'SEQUENCE'    : 'SEQUENCE',
   'SET'         : 'SET',
   'SIZE'        : 'SIZE',
@@ -4787,11 +4787,11 @@ class OctetStringType (Type):
       if self.HasContentsConstraint():
         body = ectx.eth_fn_call('dissect_%(ER)s_octet_string_containing%(FN_VARIANT)s', ret='offset',
                                 par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TYPE_REF_FN)s',),))
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(TYPE_REF_FN)s',),))
       else:
         body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
                                 par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s',),))
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body
@@ -5030,6 +5030,35 @@ class NamedNumListBase(Node):
     def to_python (self, ctx):
         return "asn1.%s_class ([%s])" % (self.asn1_typ,",".join (
             map (lambda x: x.to_python (ctx), self.named_list)))
+
+#--- RelativeOIDType ----------------------------------------------------------
+class RelativeOIDType (Type):
+
+  def eth_tname(self):
+    return 'RELATIVE_OID'
+
+  def eth_ftype(self, ectx):
+    return ('FT_BYTES', 'BASE_HEX')
+
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_RELATIVE_OID')
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['FN_VARIANT'] = ectx.default_oid_variant
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_relative_oid%(FN_VARIANT)s', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+    elif (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_relative_oid%(FN_VARIANT)s', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
 
 #--- IntegerType --------------------------------------------------------------
 class IntegerType (Type):
@@ -5594,6 +5623,7 @@ def p_BuiltinType (t):
                  | ObjectIdentifierType
                  | OctetStringType
                  | RealType
+                 | RelativeOIDType
                  | SequenceType
                  | SequenceOfType
                  | SetType
@@ -6115,7 +6145,15 @@ def p_NameAndNumberForm (t):
                        | LCASE_IDENT LPAREN NumberForm RPAREN'''
   t[0] = Node('name_and_number', ident = t[1], number = t[3])
   
-# 33 Notation for the embedded-pdv type -------------------------------------------
+# 32 Notation for the relative object identifier type -------------------------
+
+# 32.1
+def p_RelativeOIDType (t):
+  'RelativeOIDType : RELATIVE_OID'
+  t[0] = RelativeOIDType()
+
+# 33 Notation for the embedded-pdv type ---------------------------------------
+
 # 33.1
 def p_EmbeddedPDVType (t):
   'EmbeddedPDVType : EMBEDDED PDV'
@@ -7135,6 +7173,7 @@ def p_ContentsConstraint (t):
 # 8.1
 def p_ParameterizedAssignment (t):
   '''ParameterizedAssignment : ParameterizedTypeAssignment
+                             | ParameterizedObjectClassAssignment
                              | ParameterizedObjectAssignment
                              | ParameterizedObjectSetAssignment'''
   t[0] = t[1]
@@ -7144,6 +7183,14 @@ def p_ParameterizedTypeAssignment (t):
   'ParameterizedTypeAssignment : UCASE_IDENT ParameterList ASSIGNMENT Type'
   t[0] = t[4]
   t[0].SetName(t[1])  # t[0].SetName(t[1] + 'xxx')
+
+def p_ParameterizedObjectClassAssignment (t):
+  '''ParameterizedObjectClassAssignment : CLASS_IDENT ParameterList ASSIGNMENT ObjectClass
+                                        | UCASE_IDENT ParameterList ASSIGNMENT ObjectClass'''
+  t[0] = t[4]
+  t[0].SetName(t[1])
+  if isinstance(t[0], ObjectClassDefn):
+    t[0].reg_types()
 
 def p_ParameterizedObjectAssignment (t):
   'ParameterizedObjectAssignment : objectreference ParameterList DefinedObjectClass ASSIGNMENT Object'

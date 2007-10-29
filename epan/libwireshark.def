@@ -190,6 +190,8 @@ dissect_ndr_uint8
 dissect_ndr_uuid_t
 dissect_nt_64bit_time
 dissect_per_bit_string
+dissect_per_bit_string_containing_pdu
+dissect_per_bit_string_containing_pdu_new
 dissect_per_BMPString
 dissect_per_boolean
 dissect_per_choice
@@ -197,6 +199,7 @@ dissect_per_constrained_sequence_of
 dissect_per_constrained_set_of
 dissect_per_constrained_integer
 dissect_per_enumerated
+dissect_per_external_type
 dissect_per_GeneralString
 dissect_per_IA5String
 dissect_per_integer
@@ -205,7 +208,13 @@ dissect_per_NumericString
 dissect_per_object_identifier_str
 dissect_per_object_identifier
 dissect_per_octet_string
+dissect_per_octet_string_containing_pdu
+dissect_per_octet_string_containing_pdu_new
+dissect_per_open_type
+dissect_per_open_type_pdu
+dissect_per_open_type_pdu_new
 dissect_per_PrintableString
+dissect_per_real
 dissect_per_restricted_character_string
 dissect_per_sequence_of
 dissect_per_sequence

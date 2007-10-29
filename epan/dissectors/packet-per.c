@@ -538,7 +538,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 guint32
 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, NULL);
+	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, FALSE, NULL);
 
 	return offset;
 }
@@ -779,7 +779,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 guint32 
 dissect_per_object_descriptor(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
-	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, -1, -1, value_tvb);
+	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, -1, -1, FALSE, value_tvb);
 
 	return offset;
 }
@@ -1759,7 +1759,7 @@ guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset,
    hf_index can either be a FT_BYTES or an FT_STRING
 */
 guint32
-dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
+dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
 	gint val_start = 0, val_length;
 	guint32 length;
@@ -1769,6 +1769,13 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
 DEBUG_ENTRY("dissect_per_octet_string");
+
+	if (has_extension) {  /* 16.3 an extension marker is present */
+		gboolean extension_present;
+		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (extension_present) max_len = NO_BOUND;  /* skip to 16.8 */
+	}
 
 	if (min_len == NO_BOUND) {
 		min_len = 0;
@@ -1847,12 +1854,12 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	return offset;
 }
 
-guint32 dissect_per_octet_string_containing_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, dissector_t type_cb)
+guint32 dissect_per_octet_string_containing_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
 
-	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, &val_tvb);
+	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb);
 
 	if (type_cb && val_tvb) {
 		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
@@ -1862,12 +1869,12 @@ guint32 dissect_per_octet_string_containing_pdu(tvbuff_t *tvb, guint32 offset, a
 	return offset;
 }
 
-guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, new_dissector_t type_cb)
+guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, new_dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
 
-	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, &val_tvb);
+	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb);
 
 	if (type_cb && val_tvb) {
 		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
@@ -1937,7 +1944,7 @@ dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, &actx->external.octet_aligned);
+                                       NO_BOUND, NO_BOUND, FALSE, &actx->external.octet_aligned);
 
   if (actx->external.u.per.type_cb) {
     actx->external.u.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);

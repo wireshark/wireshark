@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-nbap.c                                                            */
+/* packet-nbap.c                                                              */
 /* ../../tools/asn2wrs.py -p nbap -c nbap.cnf -s packet-nbap-template NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
 /* Input file: packet-nbap-template.c */
@@ -6398,7 +6398,7 @@ dissect_nbap_Best_Cell_Portions_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 4, NULL);
+                                       1, 4, TRUE, NULL);
 
   return offset;
 }
