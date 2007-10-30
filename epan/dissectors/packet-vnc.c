@@ -549,11 +549,13 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		switch(security_type_selected) {
 
 		case 1 : /* None */
-			/* Despite the RealVNC VNC protocol document, both
-			   3.3/3.7 and 3.8 seem to go to the security result
-			   next. */
-			per_conversation_info->vnc_next_state =
+			if(per_conversation_info->client_proto_ver >= 3.008)
+				per_conversation_info->vnc_next_state =
 					SECURITY_RESULT;
+			else
+				per_conversation_info->vnc_next_state =
+					CLIENT_INIT;
+
 			break;
 
 		case 2 : /* VNC */
