@@ -252,7 +252,7 @@ decoder_attr decoder=\042
 <LOADING>{any} APPEND(yytext,yyleng);
 
 <LOADING,IN_DICT>{entity} {
-	gchar *p = ++yytext;
+	gchar *p = ++yytext, *temp_str;
 	entity_t* e;
 	
 	while(*p != ';') p++;
@@ -262,7 +262,7 @@ decoder_attr decoder=\042
 	D(("looking for entity: %s\n",yytext));
 
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
-		g_string_append_printf(
+		dict_error = g_string_append(
 			dict_error, "included files nested too deeply\n");
 		yyterminate();
 	}
@@ -284,8 +284,10 @@ decoder_attr decoder=\042
 	}
 	
 	if (!e) {
-		g_string_append_printf(
-			dict_error, "cannot find entity: '%s'\n", e->name);
+		temp_str = g_strdup_printf(
+			"cannot find entity: '%s'\n", e->name);
+		dict_error = g_string_append(dict_error, temp_str);
+		g_free(temp_str);
 		yyterminate();
 	}
 	
@@ -567,7 +569,7 @@ static FILE *wimaxasncp_dict_open(
 	const gchar *filename) 
 {
 	FILE *fh;
-	gchar *fname;
+	gchar *fname, *temp_str;
 	if (system_directory) 
 	{
 		int len =  strlen(system_directory) + strlen(filename) 
@@ -587,11 +589,13 @@ static FILE *wimaxasncp_dict_open(
 
 	if ( ! fh)
 	{
-		g_string_append_printf(
-			dict_error,
+		temp_str = g_strdup_printf(
 			"cannot open file: '%s', error: %s\n",
 			fname,
 			g_strerror(errno));
+		
+		dict_error = g_string_append(dict_error, temp_str);
+		g_free(temp_str);
 	}
 
 	g_free(fname);
