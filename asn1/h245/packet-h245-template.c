@@ -394,51 +394,51 @@ void proto_register_h245(void) {
   h245_tap = register_tap("h245");
   h245dg_tap = register_tap("h245dg");
 
-  add_oid_str_name("0.0.8.239.1.1","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ControlCapability(1)");
-  add_oid_str_name("0.0.8.239.1.2","itu-t(0) recommendation(0) h(8) h239(239) generic-capabilities(1) h239ExtendedVideoCapability(2)");
-  add_oid_str_name("0.0.8.239.2","itu-t(0) recommendation(0) h(8) h239(239) generic-message(2)");
-  add_oid_str_name("0.0.8.245.0.3","itu-t(0) recommendation(0) h(8) h245(245) version(0) 3");
-  add_oid_str_name("0.0.8.245.0.4","itu-t(0) recommendation(0) h(8) h245(245) version(0) 4");
-  add_oid_str_name("0.0.8.245.0.5","itu-t(0) recommendation(0) h(8) h245(245) version(0) 5");
-  add_oid_str_name("0.0.8.245.0.6","itu-t(0) recommendation(0) h(8) h245(245) version(0) 6");
-  add_oid_str_name("0.0.8.245.0.7","itu-t(0) recommendation(0) h(8) h245(245) version(0) 7");
-  add_oid_str_name("0.0.8.245.0.8","itu-t(0) recommendation(0) h(8) h245(245) version(0) 8");
-  add_oid_str_name("0.0.8.245.0.9","itu-t(0) recommendation(0) h(8) h245(245) version(0) 9");
-  add_oid_str_name("0.0.8.245.0.10","itu-t(0) recommendation(0) h(8) h245(245) version(0) 10");
-  add_oid_str_name("0.0.8.245.0.11","itu-t(0) recommendation(0) h(8) h245(245) version(0) 11");
-  add_oid_str_name("0.0.8.245.0.12","itu-t(0) recommendation(0) h(8) h245(245) version(0) 12");
-  add_oid_str_name("0.0.8.245.0.13","itu-t(0) recommendation(0) h(8) h245(245) version(0) 13");
+  oid_add_from_string("h239ControlCapability","0.0.8.239.1.1");
+  oid_add_from_string("h239ExtendedVideoCapability","0.0.8.239.1.2");
+  oid_add_from_string("generic-message","0.0.8.239.2");
+  oid_add_from_string("h245 version 3","0.0.8.245.0.3");
+  oid_add_from_string("h245 version 4","0.0.8.245.0.4");
+  oid_add_from_string("h245 version 5","0.0.8.245.0.5");
+  oid_add_from_string("h245 version 6","0.0.8.245.0.6");
+  oid_add_from_string("h245 version 7","0.0.8.245.0.7");
+  oid_add_from_string("h245 version 8","0.0.8.245.0.8");
+  oid_add_from_string("h245 version 9","0.0.8.245.0.9");
+  oid_add_from_string("h245 version 10","0.0.8.245.0.10");
+  oid_add_from_string("h245 version 11","0.0.8.245.0.11");
+  oid_add_from_string("h245 version 12","0.0.8.245.0.12");
+  oid_add_from_string("h245 version 13","0.0.8.245.0.13");
   /* This capability is defined in Annex E. */
-  add_oid_str_name("0.0.8.245.1.0.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) video (0) ISO/IEC 14496-2 (0)= MPEG-4 video");
+  oid_add_from_string("ISO/IEC 14496-2 MPEG-4 video","0.0.8.245.1.0.0");
   /* This capability is defined in Annex H. */
-  add_oid_str_name("0.0.8.245.1.1.0","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio (1) ISO/IEC 14496-3 (0)= MPEG-4 audio");
+  oid_add_from_string("ISO/IEC 14496-3 MPEG-4 audio","0.0.8.245.1.1.0");
   /* This capability is defined in Annex I. */	
-  add_oid_str_name("0.0.8.245.1.1.1","itu-t(0) recommendation(0) h(8) h245(245) generic-capabilities(1) audio(1) amr(1)");
+  oid_add_from_string("AMR","0.0.8.245.1.1.1");
   /* This capability is defined in Annex J. */
-  add_oid_str_name("0.0.8.245.1.1.2","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) acelp (2)");
+  oid_add_from_string("acelp","0.0.8.245.1.1.2");
   /* This capability is defined in Annex K. */
-  add_oid_str_name("0.0.8.245.1.1.3","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) us1 (3)");
+  oid_add_from_string("us1","0.0.8.245.1.1.3");
   /* This capability is defined in Annex L. */
-  add_oid_str_name("0.0.8.245.1.1.4","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) is127evrc (4)");
+  oid_add_from_string("is127evrc","0.0.8.245.1.1.4");
   /* This capability is defined in Annex M. */
-  add_oid_str_name("0.0.8.245.1.1.5","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) ISO/IEC 13818-7 (5)");
+  oid_add_from_string("ISO/IEC 13818-7","0.0.8.245.1.1.5");
   /* This capability is defined in Annex N. */
-  add_oid_str_name("0.0.8.245.1.1.6","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) rfc3389 (6)");
+  oid_add_from_string("rfc3389","0.0.8.245.1.1.6");
   /* This capability is defined in Annex O. */
-  add_oid_str_name("0.0.8.245.1.1.7","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) L-16 (7)");
+  oid_add_from_string("L-16","0.0.8.245.1.1.7");
   /* This capability is defined in Annex P. */
-  add_oid_str_name("0.0.8.245.1.1.8","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) bounded-audio-stream (8)");
+  oid_add_from_string("bounded-audio-stream","0.0.8.245.1.1.8");
   /* This capability is defined in Annex R. */
-  add_oid_str_name("0.0.8.245.1.1.9","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) amr-nb (9)");
+  oid_add_from_string("AMR-NB","0.0.8.245.1.1.9");
   /* This capability is defined in Annex R. */
-  add_oid_str_name("0.0.8.245.1.1.10","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) amr-wb (10)");
+  oid_add_from_string("AMR-WB","0.0.8.245.1.1.10");
   /* This capability is defined in Annex S. */
-  add_oid_str_name("0.0.8.245.1.1.11","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) audio (1) ilbc (11)");
+  oid_add_from_string("ilbc","0.0.8.245.1.1.11");
   
-  add_oid_str_name("0.0.8.245.1.2.0","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) data (2) ISO/IEC 14496-1 (0)");
-  add_oid_str_name("0.0.8.245.1.2.1","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) data (2) Nx64 (1)");
-  add_oid_str_name("0.0.8.245.1.3.0","itu-t (0) recommendation (0) h (8) 245 genericcapabilities (1) control (3) logical-channel-bit-ratemanagement(0)");
-  add_oid_str_name("0.0.8.241.0.0.1","itu-t(0) recommendation(0) h(8) h241(241) specificVideoCodecCapabilities(0) h264(0) generic-capabilities(1)");
+  oid_add_from_string("ISO/IEC 14496-1","0.0.8.245.1.2.0");
+  oid_add_from_string("Nx64","0.0.8.245.1.2.1");
+  oid_add_from_string("logical-channel-bit-ratemanagement","0.0.8.245.1.3.0");
+  oid_add_from_string("h264 generic-capabilities","0.0.8.241.0.0.1");
 
 
 }
