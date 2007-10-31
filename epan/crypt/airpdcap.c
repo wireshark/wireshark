@@ -231,6 +231,8 @@ static void AirPDcapRsnaPrfX(
     UCHAR *ptk)
     ;
 
+static void AirPDcapCleanKeys(PAIRPDCAP_CONTEXT ctx);
+
 #ifdef	__cplusplus
 }
 #endif
@@ -474,28 +476,24 @@ INT AirPDcapSetKeys(
     return success;
 }
 
-INT AirPDcapCleanKeys(
+static void
+AirPDcapCleanKeys(
     PAIRPDCAP_CONTEXT ctx)
 {
-    INT i;
     AIRPDCAP_DEBUG_TRACE_START("AirPDcapCleanKeys");
 
     if (ctx==NULL) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapCleanKeys", "NULL context", AIRPDCAP_DEBUG_LEVEL_5);
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapCleanKeys");
-        return 0;
+        return;
     }
 
-    for (i=0; i<AIRPDCAP_MAX_KEYS_NR; i++) {
-        memset(&ctx->keys[i], 0, sizeof(AIRPDCAP_KEY_ITEM));
-    }
+    memset(ctx->keys, 0, sizeof(AIRPDCAP_KEY_ITEM) * AIRPDCAP_MAX_KEYS_NR);
 
     ctx->keys_nr=0;
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapCleanKeys", "Keys collection cleaned!", AIRPDCAP_DEBUG_LEVEL_5);
     AIRPDCAP_DEBUG_TRACE_END("AirPDcapCleanKeys");
-
-    return i;
 }
 
 INT AirPDcapGetKeys(
@@ -564,6 +562,8 @@ INT AirPDcapInitContext(
     ctx->index=-1;
     ctx->last_stored_index=-1;
     ctx->pkt_ssid_len = 0;
+
+    memset(ctx->sa, 0, AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR * sizeof(AIRPDCAP_SEC_ASSOCIATION));
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapInitContext", "Context initialized!", AIRPDCAP_DEBUG_LEVEL_5);
     AIRPDCAP_DEBUG_TRACE_END("AirPDcapInitContext");

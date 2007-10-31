@@ -256,20 +256,6 @@ extern INT AirPDcapSetKeys(
 	;
 
 /**
- * Remove all keys from the active database
- * @param ctx [IN] pointer to the current context
- * @return The number of keys correctly removed.
- *
- * @note
- * This function is not thread-safe when used in parallel with context
- * management functions and the packet process function on the same
- * context.
- */
-INT AirPDcapCleanKeys(
-	PAIRPDCAP_CONTEXT ctx)
-	;
-
-/**
  * It gets the keys collection fom the specified context.
  * @param ctx [IN] pointer to the current context
  * @param key [IN] a preallocated array of keys to be returned
