@@ -262,7 +262,7 @@ void proto_reg_handoff_x411(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.6.0.1.6", "id-ac-mts-transfer");
+  oid_add_from_string("id-ac-mts-transfer","2.6.0.1.6");
 
   /* ABSTRACT SYNTAXES */
 

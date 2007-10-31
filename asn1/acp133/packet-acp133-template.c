@@ -93,56 +93,56 @@ void proto_reg_handoff_acp133(void) {
 #include "packet-acp133-dis-tab.c" 
 
   /* X.402 Object Classes */
-  add_oid_str_name("2.6.5.1.0","id-oc-mhs-distribution-list");
-  add_oid_str_name("2.6.5.1.1","id-oc-mhs-message-store");
-  add_oid_str_name("2.6.5.1.2","id-oc-mhs-message-transfer-agent");
-  add_oid_str_name("2.6.5.1.3","id-oc-mhs-user");
+  oid_add_from_string("id-oc-mhs-distribution-list","2.6.5.1.0");
+  oid_add_from_string("id-oc-mhs-message-store","2.6.5.1.1");
+  oid_add_from_string("id-oc-mhs-message-transfer-agent","2.6.5.1.2");
+  oid_add_from_string("id-oc-mhs-user","2.6.5.1.3");
 
   /* SDN.701 Object Classes */
-  add_oid_str_name("2.16.840.1.101.2.1.4.13", "id-oc-secure-user");
-  add_oid_str_name("2.16.840.1.101.2.1.4.16", "id-oc-ukms");
+  oid_add_from_string("id-oc-secure-user","2.16.840.1.101.2.1.4.13");
+  oid_add_from_string("id-oc-ukms","2.16.840.1.101.2.1.4.16");
 
   /* ACP133 Object Classes */
-  add_oid_str_name("2.16.840.1.101.2.2.3.26", "id-oc-plaData");
-  add_oid_str_name("2.16.840.1.101.2.2.3.28", "id-oc-cadACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.31", "id-oc-mLA");
-  add_oid_str_name("2.16.840.1.101.2.2.3.34", "id-oc-orgACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.35", "id-oc-plaCollectiveACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.37", "id-oc-routingIndicator");
-  add_oid_str_name("2.16.840.1.101.2.2.3.38", "id-oc-sigintPLA");
-  add_oid_str_name("2.16.840.1.101.2.2.3.39", "id-oc-sIPLA");
-  add_oid_str_name("2.16.840.1.101.2.2.3.40", "id-oc-spotPLA");
-  add_oid_str_name("2.16.840.1.101.2.2.3.41", "id-oc-taskForceACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.42", "id-oc-tenantACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.47", "id-oc-plaACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.52", "id-oc-aliasCommonName");
-  add_oid_str_name("2.16.840.1.101.2.2.3.53", "id-oc-aliasOrganizationalUnit");
-  add_oid_str_name("2.16.840.1.101.2.2.3.54", "id-oc-distributionCodesHandled");
-  add_oid_str_name("2.16.840.1.101.2.2.3.55", "id-oc-distributionCodeDescription");
-  add_oid_str_name("2.16.840.1.101.2.2.3.56", "id-oc-plaUser");
-  add_oid_str_name("2.16.840.1.101.2.2.3.57", "id-oc-addressList");
-  add_oid_str_name("2.16.840.1.101.2.2.3.58", "id-oc-altSpellingACP127");
-  add_oid_str_name("2.16.840.1.101.2.2.3.59", "id-oc-messagingGateway");
-  add_oid_str_name("2.16.840.1.101.2.2.3.60", "id-oc-network");
-  add_oid_str_name("2.16.840.1.101.2.2.3.61", "id-oc-networkInstructions");
-  add_oid_str_name("2.16.840.1.101.2.2.3.62", "id-oc-otherContactInformation");
-  add_oid_str_name("2.16.840.1.101.2.2.3.63", "id-oc-releaseAuthorityPerson");
-  add_oid_str_name("2.16.840.1.101.2.2.3.64", "id-oc-mLAgent");
-  add_oid_str_name("2.16.840.1.101.2.2.3.65", "id-oc-releaseAuthorityPersonA");
-  add_oid_str_name("2.16.840.1.101.2.2.3.66", "id-oc-securePkiUser");
-  add_oid_str_name("2.16.840.1.101.2.2.3.67", "id-oc-dSSCSPLA");
-  add_oid_str_name("2.16.840.1.101.2.2.3.68", "id-oc-aCPNetworkEdB");
-  add_oid_str_name("2.16.840.1.101.2.2.3.69", "id-oc-aCPNetworkInstructionsEdB");
+  oid_add_from_string("id-oc-plaData","2.16.840.1.101.2.2.3.26");
+  oid_add_from_string("id-oc-cadACP127","2.16.840.1.101.2.2.3.28");
+  oid_add_from_string("id-oc-mLA","2.16.840.1.101.2.2.3.31");
+  oid_add_from_string("id-oc-orgACP127","2.16.840.1.101.2.2.3.34");
+  oid_add_from_string("id-oc-plaCollectiveACP127","2.16.840.1.101.2.2.3.35");
+  oid_add_from_string("id-oc-routingIndicator","2.16.840.1.101.2.2.3.37");
+  oid_add_from_string("id-oc-sigintPLA","2.16.840.1.101.2.2.3.38");
+  oid_add_from_string("id-oc-sIPLA","2.16.840.1.101.2.2.3.39");
+  oid_add_from_string("id-oc-spotPLA","2.16.840.1.101.2.2.3.40");
+  oid_add_from_string("id-oc-taskForceACP127","2.16.840.1.101.2.2.3.41");
+  oid_add_from_string("id-oc-tenantACP127","2.16.840.1.101.2.2.3.42");
+  oid_add_from_string("id-oc-plaACP127","2.16.840.1.101.2.2.3.47");
+  oid_add_from_string("id-oc-aliasCommonName","2.16.840.1.101.2.2.3.52");
+  oid_add_from_string("id-oc-aliasOrganizationalUnit","2.16.840.1.101.2.2.3.53");
+  oid_add_from_string("id-oc-distributionCodesHandled","2.16.840.1.101.2.2.3.54");
+  oid_add_from_string("id-oc-distributionCodeDescription","2.16.840.1.101.2.2.3.55");
+  oid_add_from_string("id-oc-plaUser","2.16.840.1.101.2.2.3.56");
+  oid_add_from_string("id-oc-addressList","2.16.840.1.101.2.2.3.57");
+  oid_add_from_string("id-oc-altSpellingACP127","2.16.840.1.101.2.2.3.58");
+  oid_add_from_string("id-oc-messagingGateway","2.16.840.1.101.2.2.3.59");
+  oid_add_from_string("id-oc-network","2.16.840.1.101.2.2.3.60");
+  oid_add_from_string("id-oc-networkInstructions","2.16.840.1.101.2.2.3.61");
+  oid_add_from_string("id-oc-otherContactInformation","2.16.840.1.101.2.2.3.62");
+  oid_add_from_string("id-oc-releaseAuthorityPerson","2.16.840.1.101.2.2.3.63");
+  oid_add_from_string("id-oc-mLAgent","2.16.840.1.101.2.2.3.64");
+  oid_add_from_string("id-oc-releaseAuthorityPersonA","2.16.840.1.101.2.2.3.65");
+  oid_add_from_string("id-oc-securePkiUser","2.16.840.1.101.2.2.3.66");
+  oid_add_from_string("id-oc-dSSCSPLA","2.16.840.1.101.2.2.3.67");
+  oid_add_from_string("id-oc-aCPNetworkEdB","2.16.840.1.101.2.2.3.68");
+  oid_add_from_string("id-oc-aCPNetworkInstructionsEdB","2.16.840.1.101.2.2.3.69");
 
   /* gateway types */
-  add_oid_str_name("2.16.840.1.101.2.2.5.0", "acp120-acp127");
-  add_oid_str_name("2.16.840.1.101.2.2.5.1", "acp120-janap128");
-  add_oid_str_name("2.16.840.1.101.2.2.5.2", "acp120-mhs");
-  add_oid_str_name("2.16.840.1.101.2.2.5.3", "acp120-mmhs");
-  add_oid_str_name("2.16.840.1.101.2.2.5.4", "acp120-rfc822");
-  add_oid_str_name("2.16.840.1.101.2.2.5.5", "boundaryMTA");
-  add_oid_str_name("2.16.840.1.101.2.2.5.6", "mmhs-mhs");
-  add_oid_str_name("2.16.840.1.101.2.2.5.7", "mmhs-rfc822");
-  add_oid_str_name("2.16.840.1.101.2.2.5.8", "mta-acp127");
+  oid_add_from_string("acp120-acp127","2.16.840.1.101.2.2.5.0");
+  oid_add_from_string("acp120-janap128","2.16.840.1.101.2.2.5.1");
+  oid_add_from_string("acp120-mhs","2.16.840.1.101.2.2.5.2");
+  oid_add_from_string("acp120-mmhs","2.16.840.1.101.2.2.5.3");
+  oid_add_from_string("acp120-rfc822","2.16.840.1.101.2.2.5.4");
+  oid_add_from_string("boundaryMTA","2.16.840.1.101.2.2.5.5");
+  oid_add_from_string("mmhs-mhs","2.16.840.1.101.2.2.5.6");
+  oid_add_from_string("mmhs-rfc822","2.16.840.1.101.2.2.5.7");
+  oid_add_from_string("mta-acp127","2.16.840.1.101.2.2.5.8");
 
 }

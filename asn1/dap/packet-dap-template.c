@@ -321,7 +321,7 @@ void proto_reg_handoff_dap(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.1", "id-ac-directory-access");
+  oid_add_from_string("id-ac-directory-access","2.5.3.1");
 
   /* ABSTRACT SYNTAXES */
     

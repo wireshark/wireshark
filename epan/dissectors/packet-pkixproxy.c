@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkixproxy.c                                                       */
-/* ../../tools/asn2wrs.py -b -e -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
+/* packet-pkixproxy.c                                                         */
+/* ../../tools/asn2wrs.py -b -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
 
 /* Input file: packet-pkixproxy-template.c */
 
@@ -229,8 +229,8 @@ void proto_reg_handoff_pkixproxy(void) {
 
 /*--- End of included file: packet-pkixproxy-dis-tab.c ---*/
 #line 81 "packet-pkixproxy-template.c"
-  add_oid_str_name("1.3.6.1.5.5.7.21.0", "id-ppl-anyLanguage");
-  add_oid_str_name("1.3.6.1.5.5.7.21.1", "id-ppl-inheritAll");
-  add_oid_str_name("1.3.6.1.5.5.7.21.2", "id-ppl-independent");
+  oid_add_from_string("id-ppl-anyLanguage","1.3.6.1.5.5.7.21.0");
+  oid_add_from_string("id-ppl-inheritAll","1.3.6.1.5.5.7.21.1");
+  oid_add_from_string("id-ppl-independent","1.3.6.1.5.5.7.21.2");
 }
 

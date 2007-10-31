@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-wlancertextn.c                                                    */
-/* ../../tools/asn2wrs.py -b -e -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
+/* packet-wlancertextn.c                                                      */
+/* ../../tools/asn2wrs.py -b -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.c */
 
@@ -172,7 +172,7 @@ void proto_reg_handoff_wlancertextn(void) {
 
 /*--- End of included file: packet-wlancertextn-dis-tab.c ---*/
 #line 85 "packet-wlancertextn-template.c"
-  add_oid_str_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
-  add_oid_str_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
+  oid_add_from_string("id-kp-eapOverPPP","1.3.6.1.5.5.7.3.13");
+  oid_add_from_string("id-kp-eapOverLAN","1.3.6.1.5.5.7.3.14");
 }
 

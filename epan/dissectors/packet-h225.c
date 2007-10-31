@@ -10890,12 +10890,12 @@ void proto_register_h225(void) {
   register_init_routine(&h225_init_routine);
   h225_tap = register_tap("h225");
 
-  add_oid_str_name("0.0.8.2250.0.1", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 1 - Version 1");
-  add_oid_str_name("0.0.8.2250.0.2", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 2 - Version 2");
-  add_oid_str_name("0.0.8.2250.0.3", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 3 - Version 3");
-  add_oid_str_name("0.0.8.2250.0.4", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 4 - Version 4");
-  add_oid_str_name("0.0.8.2250.0.5", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 5 - Version 5");
-  add_oid_str_name("0.0.8.2250.0.6", "itu-t(0) recommendation(0) h(8) h225-0(2250) version(0) 6 - Version 6");
+  oid_add_from_string("Version 1","0.0.8.2250.0.1");
+  oid_add_from_string("Version 2","0.0.8.2250.0.2");
+  oid_add_from_string("Version 3","0.0.8.2250.0.3");
+  oid_add_from_string("Version 4","0.0.8.2250.0.4");
+  oid_add_from_string("Version 5","0.0.8.2250.0.5");
+  oid_add_from_string("Version 6","0.0.8.2250.0.6");
 
 }
 

@@ -296,7 +296,7 @@ void proto_reg_handoff_dop(void) {
 #include "packet-dop-dis-tab.c" 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.3", "id-ac-directory-operational-binding-management");
+  oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");
 
   /* ABSTRACT SYNTAXES */
     
@@ -307,26 +307,26 @@ void proto_reg_handoff_dop(void) {
 
   /* BINDING TYPES */
 
-  add_oid_str_name("2.5.19.1", "shadow-agreement");
-  add_oid_str_name("2.5.19.2", "hierarchical-agreement");
-  add_oid_str_name("2.5.19.3", "non-specific-hierarchical-agreement");
+  oid_add_from_string("shadow-agreement","2.5.19.1");
+  oid_add_from_string("hierarchical-agreement","2.5.19.2");
+  oid_add_from_string("non-specific-hierarchical-agreement","2.5.19.3");
 
   /* ACCESS CONTROL SCHEMES */
-  add_oid_str_name("2.5.28.1", "basic-ACS");
-  add_oid_str_name("2.5.28.2", "simplified-ACS");
-  add_oid_str_name("2.5.28.3", "ruleBased-ACS");
-  add_oid_str_name("2.5.28.4", "ruleAndBasic-ACS");
-  add_oid_str_name("2.5.28.5", "ruleAndSimple-ACS");
+  oid_add_from_string("basic-ACS","2.5.28.1");
+  oid_add_from_string("simplified-ACS","2.5.28.2");
+  oid_add_from_string("ruleBased-ACS","2.5.28.3");
+  oid_add_from_string("ruleAndBasic-ACS","2.5.28.4");
+  oid_add_from_string("ruleAndSimple-ACS","2.5.28.5");
 
   /* ADMINISTRATIVE ROLES */
-  add_oid_str_name("2.5.23.1", "id-ar-autonomousArea");
-  add_oid_str_name("2.5.23.2", "id-ar-accessControlSpecificArea");
-  add_oid_str_name("2.5.23.3", "id-ar-accessControlInnerArea");
-  add_oid_str_name("2.5.23.4", "id-ar-subschemaAdminSpecificArea");
-  add_oid_str_name("2.5.23.5", "id-ar-collectiveAttributeSpecificArea");
-  add_oid_str_name("2.5.23.6", "id-ar-collectiveAttributeInnerArea");
-  add_oid_str_name("2.5.23.7", "id-ar-contextDefaultSpecificArea");
-  add_oid_str_name("2.5.23.8", "id-ar-serviceSpecificArea");
+  oid_add_from_string("id-ar-autonomousArea","2.5.23.1");
+  oid_add_from_string("id-ar-accessControlSpecificArea","2.5.23.2");
+  oid_add_from_string("id-ar-accessControlInnerArea","2.5.23.3");
+  oid_add_from_string("id-ar-subschemaAdminSpecificArea","2.5.23.4");
+  oid_add_from_string("id-ar-collectiveAttributeSpecificArea","2.5.23.5");
+  oid_add_from_string("id-ar-collectiveAttributeInnerArea","2.5.23.6");
+  oid_add_from_string("id-ar-contextDefaultSpecificArea","2.5.23.7");
+  oid_add_from_string("id-ar-serviceSpecificArea","2.5.23.8");
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

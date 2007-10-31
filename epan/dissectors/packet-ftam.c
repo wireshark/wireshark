@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ftam.c                                                            */
-/* ../../tools/asn2wrs.py -b -X -T -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
+/* packet-ftam.c                                                              */
+/* ../../tools/asn2wrs.py -b -X -T -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
 
@@ -4985,7 +4985,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Diagnostic", HFILL }},
     { &hf_ftam__untag_item,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_UINT32, BASE_DEC, VALS(ftam_Contents_Type_List_item_vals), 0,
         "ftam.Contents_Type_List_item", HFILL }},
     { &hf_ftam_document_type_name,
@@ -5409,7 +5409,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Attribute_Extensions", HFILL }},
     { &hf_ftam__untag_item_01,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Charging_item", HFILL }},
     { &hf_ftam_resource_identifier,
@@ -5473,7 +5473,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, VALS(ftam_Access_Control_Attribute_vals), 0,
         "ftam.Access_Control_Attribute", HFILL }},
     { &hf_ftam__untag_item_02,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Diagnostic_item", HFILL }},
     { &hf_ftam_diagnostic_type,
@@ -5953,7 +5953,7 @@ void proto_register_ftam(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_attribute", HFILL }},
     { &hf_ftam__untag_item_03,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Scope_item", HFILL }},
     { &hf_ftam_root_directory,
@@ -6161,7 +6161,7 @@ void proto_register_ftam(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.T_extension_attribute_Pattern", HFILL }},
     { &hf_ftam__untag_item_04,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Read_Attributes", HFILL }},
     { &hf_ftam_success_Object_count,
@@ -6185,7 +6185,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.Password", HFILL }},
     { &hf_ftam__untag_item_05,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "ftam.Path_Access_Passwords_item", HFILL }},
     { &hf_ftam_ap,
@@ -6197,7 +6197,7 @@ void proto_register_ftam(void) {
         FT_UINT32, BASE_DEC, VALS(acse_ASO_qualifier_vals), 0,
         "ftam.AE_qualifier", HFILL }},
     { &hf_ftam__untag_item_06,
-      { "Item", "ftam.untag_item",
+      { "Item", "ftam._untag_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ftam.AND_Set", HFILL }},
     { &hf_ftam_Protocol_Version_U_version_1,
@@ -6739,20 +6739,20 @@ void proto_reg_handoff_ftam(void) {
 
 	/* Unstructured text file document type FTAM-1 */
 	register_ber_oid_dissector("1.0.8571.5.1", dissect_ftam_unstructured_text, proto_ftam,"ISO FTAM unstructured text");
-	add_oid_str_name("1.0.8571.5.2","ISO FTAM sequential text");
-	add_oid_str_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
-	add_oid_str_name("1.0.8571.2.5","FTAM simple-hierarchy");
-	add_oid_str_name("1.0.8571.3.1","FTAM hierarchical file model");
-	add_oid_str_name("1.0.8571.4.1","FTAM unstructured constraint set");
+	oid_add_from_string("ISO FTAM sequential text","1.0.8571.5.2");
+	oid_add_from_string("FTAM unstructured text abstract syntax","1.0.8571.2.3");
+	oid_add_from_string("FTAM simple-hierarchy","1.0.8571.2.5");
+	oid_add_from_string("FTAM hierarchical file model","1.0.8571.3.1");
+	oid_add_from_string("FTAM unstructured constraint set","1.0.8571.4.1");
 
 	/* Unstructured binary file document type FTAM-3 */
 	register_ber_oid_dissector("1.0.8571.5.3", dissect_ftam_unstructured_binary, proto_ftam,"ISO FTAM unstructured binary");
-	add_oid_str_name("1.0.8571.2.4","FTAM unstructured binary abstract syntax");
+	oid_add_from_string("FTAM unstructured binary abstract syntax","1.0.8571.2.4");
 
 	/* Filedirectory file document type NBS-9 */
-	add_oid_str_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+	oid_add_from_string("NBS-9 FTAM file directory file","1.3.14.5.5.9");
 
 	/* Filedirectory file document type NBS-9 (WITH OLD NIST OIDs)*/
-	add_oid_str_name("1.3.9999.1.5.9","NBS-9-OLD FTAM file directory file");
-	add_oid_str_name("1.3.9999.1.2.2","NIST file directory entry abstract syntax");
+	oid_add_from_string("NBS-9-OLD FTAM file directory file","1.3.9999.1.5.9");
+	oid_add_from_string("NIST file directory entry abstract syntax","1.3.9999.1.2.2");
 }

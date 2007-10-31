@@ -1987,7 +1987,7 @@ dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 		proto_tree_add_text(tree, tvb, offset, -1,"Anonymous");
 
 		if(check_col(actx->pinfo->cinfo, COL_INFO))
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " anonymous");
+			col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");
 
 	}
 	/* do the default thing */
@@ -4679,7 +4679,7 @@ dissect_dap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if(dap_dissector) {
 	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_str(pinfo->cinfo, COL_INFO, dap_op_name);
+	    col_set_str(pinfo->cinfo, COL_INFO, dap_op_name);
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
@@ -6377,7 +6377,7 @@ void proto_reg_handoff_dap(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.1", "id-ac-directory-access");
+  oid_add_from_string("id-ac-directory-access","2.5.3.1");
 
   /* ABSTRACT SYNTAXES */
     

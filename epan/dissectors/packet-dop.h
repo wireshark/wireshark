@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-dop.h                                                             */
+/* packet-dop.h                                                               */
 /* ../../tools/asn2wrs.py -b -X -T -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
 
 /* Input file: packet-dop-template.h */

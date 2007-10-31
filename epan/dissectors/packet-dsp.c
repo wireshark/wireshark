@@ -1914,7 +1914,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if(dsp_dissector) {
 	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_str(pinfo->cinfo, COL_INFO, dsp_op_name);
+	    col_set_str(pinfo->cinfo, COL_INFO, dsp_op_name);
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
@@ -2588,7 +2588,7 @@ void proto_reg_handoff_dsp(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.2", "id-ac-directory-system");
+  oid_add_from_string("id-ac-directory-system","2.5.3.2");
 
   /* ABSTRACT SYNTAXES */
     

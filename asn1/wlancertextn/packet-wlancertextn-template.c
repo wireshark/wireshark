@@ -82,7 +82,7 @@ void proto_register_wlancertextn(void) {
 /*--- proto_reg_handoff_wlancertextn -------------------------------------------*/
 void proto_reg_handoff_wlancertextn(void) {
 #include "packet-wlancertextn-dis-tab.c"
-  add_oid_str_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
-  add_oid_str_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
+  oid_add_from_string("id-kp-eapOverPPP","1.3.6.1.5.5.7.3.13");
+  oid_add_from_string("id-kp-eapOverLAN","1.3.6.1.5.5.7.3.14");
 }
 

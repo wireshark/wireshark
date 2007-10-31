@@ -587,7 +587,7 @@ void proto_reg_handoff_inap(void) {
 
     range_foreach(ssn_range, range_add_callback);
 
-	add_oid_str_name("0.4.0.1.1.0.3.0","Core-INAP-CS1-Codes");
+	oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
 }
 
 

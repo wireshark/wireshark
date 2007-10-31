@@ -326,7 +326,7 @@ void proto_reg_handoff_dsp(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.2", "id-ac-directory-system");
+  oid_add_from_string("id-ac-directory-system","2.5.3.2");
 
   /* ABSTRACT SYNTAXES */
     

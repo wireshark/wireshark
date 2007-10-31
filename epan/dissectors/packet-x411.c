@@ -7095,7 +7095,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_str(pinfo->cinfo, COL_INFO, x411_op_name);
+	  col_set_str(pinfo->cinfo, COL_INFO, x411_op_name);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
@@ -9324,7 +9324,7 @@ void proto_reg_handoff_x411(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.6.0.1.6", "id-ac-mts-transfer");
+  oid_add_from_string("id-ac-mts-transfer","2.6.0.1.6");
 
   /* ABSTRACT SYNTAXES */
 
