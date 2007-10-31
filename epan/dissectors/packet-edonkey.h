@@ -2,11 +2,12 @@
  * Declarations for edonkey dissection
  * Copyright 2003, Xuan Zhang <xz@aemail4u.com>
  * Copyright 2007, Stefano Picerno <stefano.picerno@gmail.com>
+ *
  * eDonkey dissector based on protocol descriptions from mldonkey:
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt 
  *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
  *
- * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.84b
+ * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.48a
  *
  * $Id$
  *
