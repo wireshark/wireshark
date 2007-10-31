@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-cmp.c                                                             */
-/* ../../tools/asn2wrs.py -b -e -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
+/* packet-cmp.c                                                               */
+/* ../../tools/asn2wrs.py -b -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/oids.h>
 #include <epan/asn1.h>
 #include "packet-ber.h"
 #include "packet-cmp.h"
@@ -232,7 +233,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 66 "packet-cmp-template.c"
+#line 67 "packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -288,7 +289,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 70 "packet-cmp-template.c"
+#line 71 "packet-cmp-template.c"
 
 static const char *object_identifier_id;
 
@@ -1768,7 +1769,7 @@ static void dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 75 "packet-cmp-template.c"
+#line 76 "packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
@@ -1812,7 +1813,7 @@ static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "PKIXCMP");
+		col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 	}
 
 
@@ -1937,7 +1938,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "PKIXCMP");
+		col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 	}
 
 
@@ -2608,7 +2609,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 286 "packet-cmp-template.c"
+#line 287 "packet-cmp-template.c"
   };
 
   /* List of subtrees */
@@ -2666,7 +2667,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 292 "packet-cmp-template.c"
+#line 293 "packet-cmp-template.c"
   };
   module_t *cmp_module;
 
@@ -2697,6 +2698,31 @@ void proto_reg_handoff_cmp(void) {
 	cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
 	dissector_add("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
-/*#include "packet-cmp-dis-tab.c"*/
+	oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");
+	oid_add_from_string("Cryptlib-PKIBoot","1.3.6.1.4.1.3029.3.1.2");
+
+
+/*--- Included file: packet-cmp-dis-tab.c ---*/
+#line 1 "packet-cmp-dis-tab.c"
+  register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_cmp, "id-PasswordBasedMac");
+  register_ber_oid_dissector("1.2.640.113533.7.66.30", dissect_DHBMParameter_PDU, proto_cmp, "id-DHBasedMac");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.1", dissect_CAProtEncCertValue_PDU, proto_cmp, "id-it-caProtEncCert");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.2", dissect_SignKeyPairTypesValue_PDU, proto_cmp, "id-it-signKeyPairTypes");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.3", dissect_EncKeyPairTypesValue_PDU, proto_cmp, "id-it-encKeyPairTypes");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.4", dissect_PreferredSymmAlgValue_PDU, proto_cmp, "id-it-preferredSymmAlg");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.5", dissect_CAKeyUpdateInfoValue_PDU, proto_cmp, "id-it-caKeyUpdateInfo");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.6", dissect_CurrentCRLValue_PDU, proto_cmp, "id-it-currentCRL");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.7", dissect_UnsupportedOIDsValue_PDU, proto_cmp, "id-it-unsupportedOIDs");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.10", dissect_KeyPairParamReqValue_PDU, proto_cmp, "id-it-keyPairParamReq");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.11", dissect_KeyPairParamRepValue_PDU, proto_cmp, "id-it-keyPairParamRep");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.12", dissect_RevPassphraseValue_PDU, proto_cmp, "id-it-revPassphrase");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.13", dissect_ImplicitConfirmValue_PDU, proto_cmp, "id-it-implicitConfirm");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.14", dissect_ConfirmWaitTimeValue_PDU, proto_cmp, "id-it-confirmWaitTime");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.15", dissect_OrigPKIMessageValue_PDU, proto_cmp, "id-it-origPKIMessage");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.4.16", dissect_SuppLangTagsValue_PDU, proto_cmp, "id-it-suppLangTags");
+
+
+/*--- End of included file: packet-cmp-dis-tab.c ---*/
+#line 327 "packet-cmp-template.c"
 }
 

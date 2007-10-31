@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/oids.h>
 #include <epan/asn1.h>
 #include "packet-ber.h"
 #include "packet-cmp.h"
@@ -319,6 +320,9 @@ void proto_reg_handoff_cmp(void) {
 	cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
 	dissector_add("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
-/*#include "packet-cmp-dis-tab.c"*/
+	oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");
+	oid_add_from_string("Cryptlib-PKIBoot","1.3.6.1.4.1.3029.3.1.2");
+
+#include "packet-cmp-dis-tab.c"
 }
 
