@@ -221,7 +221,7 @@ void
 register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
 {
 	dissector_add_string("ber.oid", oid, dissector);
-	add_oid_str_name(oid, name);
+	oid_add_from_string(name, oid);
 }
 
 void
@@ -231,7 +231,7 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 
 	dissector_handle=create_dissector_handle(dissector, proto);
 	dissector_add_string("ber.oid", oid, dissector_handle);
-	add_oid_str_name(oid, name);
+	oid_add_from_string(name, oid);
 }
 
 void 
@@ -259,7 +259,7 @@ register_ber_oid_syntax(const char *oid, const char *name, const char *syntax)
 void
 register_ber_oid_name(const char *oid, const char *name)
 {
-	add_oid_str_name(oid, name);
+	oid_add_from_string(name, oid);
 }
 
 static void ber_decode_as_dt(const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value, gpointer user_data)

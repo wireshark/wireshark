@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-x509sat.c                                                         */
+/* packet-x509sat.c                                                           */
 /* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
@@ -2231,65 +2231,65 @@ void proto_register_x509sat(void) {
         FT_BOOLEAN, 8, NULL, 0,
         "x509sat.Boolean", HFILL }},
     { &hf_x509sat_SyntaxGeneralizedTime_PDU,
-      { "GeneralizedTime", "x509sat.GeneralizedTime",
+      { "SyntaxGeneralizedTime", "x509sat.SyntaxGeneralizedTime",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.GeneralizedTime", HFILL }},
+        "x509sat.SyntaxGeneralizedTime", HFILL }},
     { &hf_x509sat_SyntaxUTCTime_PDU,
-      { "UTCTime", "x509sat.UTCTime",
+      { "SyntaxUTCTime", "x509sat.SyntaxUTCTime",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.UTCTime", HFILL }},
+        "x509sat.SyntaxUTCTime", HFILL }},
     { &hf_x509sat_SyntaxNumericString_PDU,
-      { "NumericString", "x509sat.NumericString",
+      { "SyntaxNumericString", "x509sat.SyntaxNumericString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.NumericString", HFILL }},
+        "x509sat.SyntaxNumericString", HFILL }},
     { &hf_x509sat_SyntaxPrintableString_PDU,
-      { "PrintableString", "x509sat.PrintableString",
+      { "SyntaxPrintableString", "x509sat.SyntaxPrintableString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.PrintableString", HFILL }},
+        "x509sat.SyntaxPrintableString", HFILL }},
     { &hf_x509sat_SyntaxIA5String_PDU,
-      { "IA5String", "x509sat.IA5String",
+      { "SyntaxIA5String", "x509sat.SyntaxIA5String",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.IA5String", HFILL }},
+        "x509sat.SyntaxIA5String", HFILL }},
     { &hf_x509sat_SyntaxBMPString_PDU,
-      { "BMPString", "x509sat.BMPString",
+      { "SyntaxBMPString", "x509sat.SyntaxBMPString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.BMPString", HFILL }},
+        "x509sat.SyntaxBMPString", HFILL }},
     { &hf_x509sat_SyntaxUniversalString_PDU,
-      { "UniversalString", "x509sat.UniversalString",
+      { "SyntaxUniversalString", "x509sat.SyntaxUniversalString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.UniversalString", HFILL }},
+        "x509sat.SyntaxUniversalString", HFILL }},
     { &hf_x509sat_SyntaxUTF8String_PDU,
-      { "UTF8String", "x509sat.UTF8String",
+      { "SyntaxUTF8String", "x509sat.SyntaxUTF8String",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.UTF8String", HFILL }},
+        "x509sat.SyntaxUTF8String", HFILL }},
     { &hf_x509sat_SyntaxTeletexString_PDU,
-      { "TeletexString", "x509sat.TeletexString",
+      { "SyntaxTeletexString", "x509sat.SyntaxTeletexString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.TeletexString", HFILL }},
+        "x509sat.SyntaxTeletexString", HFILL }},
     { &hf_x509sat_SyntaxT61String_PDU,
-      { "T61String", "x509sat.T61String",
+      { "SyntaxT61String", "x509sat.SyntaxT61String",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.T61String", HFILL }},
+        "x509sat.SyntaxT61String", HFILL }},
     { &hf_x509sat_SyntaxVideotexString_PDU,
-      { "VideotexString", "x509sat.VideotexString",
+      { "SyntaxVideotexString", "x509sat.SyntaxVideotexString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.VideotexString", HFILL }},
+        "x509sat.SyntaxVideotexString", HFILL }},
     { &hf_x509sat_SyntaxGraphicString_PDU,
-      { "GraphicString", "x509sat.GraphicString",
+      { "SyntaxGraphicString", "x509sat.SyntaxGraphicString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.GraphicString", HFILL }},
+        "x509sat.SyntaxGraphicString", HFILL }},
     { &hf_x509sat_SyntaxISO646String_PDU,
-      { "ISO646String", "x509sat.ISO646String",
+      { "SyntaxISO646String", "x509sat.SyntaxISO646String",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.ISO646String", HFILL }},
+        "x509sat.SyntaxISO646String", HFILL }},
     { &hf_x509sat_SyntaxVisibleString_PDU,
-      { "VisibleString", "x509sat.VisibleString",
+      { "SyntaxVisibleString", "x509sat.SyntaxVisibleString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.VisibleString", HFILL }},
+        "x509sat.SyntaxVisibleString", HFILL }},
     { &hf_x509sat_SyntaxGeneralString_PDU,
-      { "GeneralString", "x509sat.GeneralString",
+      { "SyntaxGeneralString", "x509sat.SyntaxGeneralString",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x509sat.GeneralString", HFILL }},
+        "x509sat.SyntaxGeneralString", HFILL }},
     { &hf_x509sat_teletexString,
       { "teletexString", "x509sat.teletexString",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -3012,37 +3012,37 @@ void proto_reg_handoff_x509sat(void) {
 
   /* OBJECT CLASSES */
 
-  add_oid_str_name("2.5.6.0", "top");
-  add_oid_str_name("2.5.6.1", "alias");
-  add_oid_str_name("2.5.6.2", "country");
-  add_oid_str_name("2.5.6.3", "locality");
-  add_oid_str_name("2.5.6.4", "organization");
-  add_oid_str_name("2.5.6.1", "organizationalUnit");
-  add_oid_str_name("2.5.6.6", "person");
-  add_oid_str_name("2.5.6.7", "organizationalPerson");
-  add_oid_str_name("2.5.6.8", "organizationalRole");
-  add_oid_str_name("2.5.6.9", "groupOfNames");
-  add_oid_str_name("2.5.6.10", "residentialPerson");
-  add_oid_str_name("2.5.6.11", "applicationProcess");
-  add_oid_str_name("2.5.6.12", "applicationEntity");
-  add_oid_str_name("2.5.6.13", "dSA");
-  add_oid_str_name("2.5.6.14", "device");
-  add_oid_str_name("2.5.6.15", "strongAuthenticationUser");
-  add_oid_str_name("2.5.6.16", "certificationAuthority");
-  add_oid_str_name("2.5.6.16.2", "certificationAuthorityV2");
-  add_oid_str_name("2.5.6.17", "groupOfUniqueNames");
-  add_oid_str_name("2.5.6.18", "userSecurityInformation");
-  add_oid_str_name("2.5.6.19", "cRLDistributionPoint");
-  add_oid_str_name("2.5.6.20", "dmd");
-  add_oid_str_name("2.5.6.21", "pkiUser");
-  add_oid_str_name("2.5.6.22", "pkiCA");
+  oid_add_from_string("top","2.5.6.0");
+  oid_add_from_string("alias","2.5.6.1");
+  oid_add_from_string("country","2.5.6.2");
+  oid_add_from_string("locality","2.5.6.3");
+  oid_add_from_string("organization","2.5.6.4");
+  oid_add_from_string("organizationalUnit","2.5.6.1");
+  oid_add_from_string("person","2.5.6.6");
+  oid_add_from_string("organizationalPerson","2.5.6.7");
+  oid_add_from_string("organizationalRole","2.5.6.8");
+  oid_add_from_string("groupOfNames","2.5.6.9");
+  oid_add_from_string("residentialPerson","2.5.6.10");
+  oid_add_from_string("applicationProcess","2.5.6.11");
+  oid_add_from_string("applicationEntity","2.5.6.12");
+  oid_add_from_string("dSA","2.5.6.13");
+  oid_add_from_string("device","2.5.6.14");
+  oid_add_from_string("strongAuthenticationUser","2.5.6.15");
+  oid_add_from_string("certificationAuthority","2.5.6.16");
+  oid_add_from_string("certificationAuthorityV2","2.5.6.16.2");
+  oid_add_from_string("groupOfUniqueNames","2.5.6.17");
+  oid_add_from_string("userSecurityInformation","2.5.6.18");
+  oid_add_from_string("cRLDistributionPoint","2.5.6.19");
+  oid_add_from_string("dmd","2.5.6.20");
+  oid_add_from_string("pkiUser","2.5.6.21");
+  oid_add_from_string("pkiCA","2.5.6.22");
   
-  add_oid_str_name("2.5.6.28", "parent");
-  add_oid_str_name("2.5.6.29", "child");
+  oid_add_from_string("parent","2.5.6.28");
+  oid_add_from_string("child","2.5.6.29");
 
   /* RFC 2247 */
-  add_oid_str_name("1.3.6.1.4.1.1446.344", "dcObject");
-  add_oid_str_name("0.9.2342.19200300.100.4.13", "domain");
+  oid_add_from_string("dcObject","1.3.6.1.4.1.1446.344");
+  oid_add_from_string("domain","0.9.2342.19200300.100.4.13");
 
 }
 

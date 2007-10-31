@@ -2,6 +2,10 @@
 # inap conformation file
 # $Id$
 
+# forward declarations for Remote-Operations-Information-Objects.asn wich is compiled too
+#.CLASS OPERATION
+#.CLASS ERROR
+
 #.EXPORTS
 BothwayThroughConnectionInd
 CallingPartysCategory
@@ -96,7 +100,7 @@ const value_string inap_opr_code_strings[] = {
 #.TABLE_HDR
 /* INAP ERRORS */
 static const value_string inap_err_code_string_vals[] = {
-#.TABLE_BODY ERROR&errorCode
+#.TABLE_BODY ERROR.&errorCode
 	{ %(&errorCode)-40s, "%(_ident)s" },  
 #.TABLE_FTR
   { 0, NULL }
@@ -118,6 +122,18 @@ static const inap_op_t inap_op_tab[] = {
 };
 #.END
 
+#.TABLE11_HDR
+typedef struct _camel_err_t {
+  gint32 errcode;
+  new_dissector_t err_pdu;
+} camel_err_t;
+
+static const camel_err_t camel_err_tab[] = {
+#.TABLE11_BODY ERROR.&errorCode
+  /* %(_name)-30s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#.TABLE11_FTR
+};
+#.END
 
 #.FN_BODY TriggerData/triggerPar
 /* FIX ME */

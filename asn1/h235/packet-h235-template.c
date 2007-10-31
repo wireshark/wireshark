@@ -93,28 +93,28 @@ void proto_register_h235(void) {
   /* OID names */
   /* H.235.1, Chapter 15, Table 3 */
     /* A */
-    add_oid_str_name("0.0.8.235.0.1.1", "itu-t(0) recommendation(0) h(8) 235 version(0) 1 1 - all fields in RAS/CS");
-    add_oid_str_name("0.0.8.235.0.2.1", "itu-t(0) recommendation(0) h(8) 235 version(0) 2 1 - all fields in RAS/CS");
+    oid_add_from_string("all fields in RAS/CS","0.0.8.235.0.1.1");
+    oid_add_from_string("all fields in RAS/CS","0.0.8.235.0.2.1");
     /* T */
-    add_oid_str_name("0.0.8.235.0.1.5", "itu-t(0) recommendation(0) h(8) 235 version(0) 1 5 - ClearToken");
-    add_oid_str_name("0.0.8.235.0.2.5", "itu-t(0) recommendation(0) h(8) 235 version(0) 2 5 - ClearToken");
+    oid_add_from_string("ClearToken","0.0.8.235.0.1.5");
+    oid_add_from_string("ClearToken","0.0.8.235.0.2.5");
     /* U */
-    add_oid_str_name("0.0.8.235.0.1.6", "itu-t(0) recommendation(0) h(8) 235 version(0) 1 6 - HMAC-SHA1-96");
-    add_oid_str_name("0.0.8.235.0.2.6", "itu-t(0) recommendation(0) h(8) 235 version(0) 2 6 - HMAC-SHA1-96");
+    oid_add_from_string("HMAC-SHA1-96","0.0.8.235.0.1.6");
+    oid_add_from_string("HMAC-SHA1-96","0.0.8.235.0.2.6");
   /* H.235.7, Chapter 5, Table 1 */
-    add_oid_str_name(OID_MIKEY,         "itu-t(0) recommendation(0) h(8) 235 version(0) 3 76 - MIKEY");
-    add_oid_str_name(OID_MIKEY_PS,      "itu-t(0) recommendation(0) h(8) 235 version(0) 3 72 - MIKEY-PS");
-    add_oid_str_name(OID_MIKEY_DHHMAC,  "itu-t(0) recommendation(0) h(8) 235 version(0) 3 73 - MIKEY-DHHMAC");
-    add_oid_str_name(OID_MIKEY_PK_SIGN, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 74 - MIKEY-PK-SIGN");
-    add_oid_str_name(OID_MIKEY_DH_SIGN, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 75 - MIKEY-DH-SIGN");
+    oid_add_from_string("MIKEY",			OID_MIKEY);
+    oid_add_from_string("MIKEY-PS",			OID_MIKEY_PS);
+    oid_add_from_string("MIKEY-DHHMAC",		OID_MIKEY_DHHMAC);
+    oid_add_from_string("MIKEY-PK-SIGN",	OID_MIKEY_PK_SIGN);
+    oid_add_from_string("MIKEY-DH-SIGN",	OID_MIKEY_DH_SIGN);
   /* H.235.7, Chapter 8.5 */
-    add_oid_str_name(OID_TG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 70 - TG");
+    oid_add_from_string("TG",OID_TG);
   /* H.235.7, Chapter 9.5 */
-    add_oid_str_name(OID_SG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 71 - SG");
+    oid_add_from_string("SG",OID_SG);
   /* H.235.8, Chapter 4.2, Table 2 */
-    add_oid_str_name("0.0.8.235.0.4.91", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 91 - AES_CM_128_HMAC_SHA1_80");
-    add_oid_str_name("0.0.8.235.0.4.92", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 92 - AES_CM_128_HMAC_SHA1_32");
-    add_oid_str_name("0.0.8.235.0.4.93", "itu-t(0) recommendation(0) h(8) 235 version(0) 4 93 - F8_128_HMAC_SHA1_80");
+    oid_add_from_string("AES_CM_128_HMAC_SHA1_80","0.0.8.235.0.4.91");
+    oid_add_from_string("AES_CM_128_HMAC_SHA1_32","0.0.8.235.0.4.92");
+    oid_add_from_string("F8_128_HMAC_SHA1_80","0.0.8.235.0.4.93");
 }
 
 
