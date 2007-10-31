@@ -25,9 +25,6 @@
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 
-
-all: generate_dissector
-
 generate_dissector: $(DISSECTOR_FILES)
 
 generate_export: $(EXPORT_FILES)

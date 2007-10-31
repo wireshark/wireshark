@@ -24,3 +24,6 @@
 
 MAKE_CNF_EXPORT = $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake generate_export
 
+
+all: generate_dissector
+
