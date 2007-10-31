@@ -473,7 +473,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 	payload_type = rp->info->info_payload_type;
 
 	/* Look for registered codecs */
-	decoder = g_hash_table_lookup(decoders_hash, (gpointer)payload_type);
+	decoder = g_hash_table_lookup(decoders_hash, GUINT_TO_POINTER(payload_type));
 	if (!decoder) {  /* Put either valid or empty decoder into the hash table */
 		decoder = g_malloc(sizeof(rtp_decoder_t));
 		decoder->handle = NULL;
@@ -484,7 +484,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 			if (decoder->handle)
 				decoder->context = codec_init(decoder->handle);
 		}
-		g_hash_table_insert(decoders_hash, (gpointer)payload_type, decoder);
+		g_hash_table_insert(decoders_hash, GUINT_TO_POINTER(payload_type), decoder);
 	}
 	if (decoder->handle) {  /* Decode with registered codec */
 		tmp_buff_len = codec_decode(decoder->handle, decoder->context, rp->payload_data, rp->info->info_payload_len, NULL, NULL);
