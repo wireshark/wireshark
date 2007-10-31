@@ -5310,6 +5310,9 @@ class FixedTypeValueFieldSpec (FieldSpec):
       repr = [self.typ.type]
     return repr
 
+class VariableTypeValueFieldSpec (FieldSpec):
+  pass
+
 class FixedTypeValueSetFieldSpec (FieldSpec):
   pass
 
@@ -6642,7 +6645,8 @@ def p_ObjectClassAssignment (t):
 # 9.2
 def p_ObjectClass (t):
   '''ObjectClass : DefinedObjectClass
-                 | ObjectClassDefn'''
+                 | ObjectClassDefn
+                 | ParameterizedObjectClass '''
   t[0] = t[1]
 
 # 9.3
@@ -6667,6 +6671,7 @@ def p_WithSyntaxSpec (t):
 def p_FieldSpec (t):
   '''FieldSpec : TypeFieldSpec
                | FixedTypeValueFieldSpec
+               | VariableTypeValueFieldSpec
                | FixedTypeValueSetFieldSpec
                | ObjectFieldSpec
                | ObjectSetFieldSpec '''
@@ -6703,6 +6708,14 @@ def p_ValueOptionalitySpec_1 (t):
 def p_ValueOptionalitySpec_2 (t):
   'ValueOptionalitySpec ::= DEFAULT Value'
   pass
+
+# 9.8
+
+def p_VariableTypeValueFieldSpec (t):
+  '''VariableTypeValueFieldSpec : lcasefieldreference FieldName
+                                | lcasefieldreference FieldName ValueOptionalitySpec '''
+  t[0] = VariableTypeValueFieldSpec()
+  t[0].SetName(t[1])
 
 # 9.9
 def p_FixedTypeValueSetFieldSpec (t):
@@ -7241,6 +7254,11 @@ def p_ParameterizedType (t):
   t[0] = t[1]
   #t[0].val += 'xxx'
 
+
+def p_ParameterizedObjectClass (t):
+  'ParameterizedObjectClass : DefinedObjectClass ActualParameterList'
+  t[0] = t[1]
+  #t[0].val += 'xxx'
 
 def p_ParameterizedObject (t):
   'ParameterizedObject : DefinedObject ActualParameterList'
