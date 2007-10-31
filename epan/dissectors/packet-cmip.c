@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-cmip.c                                                            */
+/* packet-cmip.c                                                              */
 /* ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
 /* Input file: packet-cmip-template.c */
@@ -2609,7 +2609,7 @@ int
 dissect_cmip_CMIPAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 222 "cmip.cnf"
   if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
   }
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2672,7 +2672,7 @@ int
 dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 228 "cmip.cnf"
   if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
+    col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
   }
 
   offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -6428,7 +6428,7 @@ void proto_register_cmip(void) {
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
 #line 209 "packet-cmip-template.c"
-    add_oid_str_name("2.9.3.2.7.1","discriminatorId(1) ");
+    oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
 }
 
@@ -6438,22 +6438,22 @@ void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
 	register_ber_oid_dissector("2.9.1.1.4", dissect_cmip, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
-	add_oid_str_name("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");  
-	add_oid_str_name("2.9.3.2.3.2","managedObjectClass(3) attributeValueChangeRecord(2)");
-	add_oid_str_name("2.9.3.2.3.3","managedObjectClass(3) discriminator(3)");
-	add_oid_str_name("2.9.3.2.3.4","managedObjectClass(3) eventForwardingDiscriminator(4)");
-	add_oid_str_name("2.9.3.2.3.5","managedObjectClass(3) eventLogRecord(5)");
-	add_oid_str_name("2.9.3.2.3.6","managedObjectClass(3) log(6)");
-	add_oid_str_name("2.9.3.2.3.7","managedObjectClass(3) logRecord(7)");
-	add_oid_str_name("2.9.3.2.3.8","managedObjectClass(3) objectCreationRecord(8)");
-	add_oid_str_name("2.9.3.2.3.9","managedObjectClass(3) objectDeletionRecord(9)");
-	add_oid_str_name("2.9.3.2.3.10","managedObjectClass(3) relationshipChangeRecord(10)");
-	add_oid_str_name("2.9.3.2.3.11","managedObjectClass(3) securityAlarmReportRecord(11)");
-	add_oid_str_name("2.9.3.2.3.12","managedObjectClass(3) stateChangeRecord(12)");
-	add_oid_str_name("2.9.3.2.3.13","managedObjectClass(3) system(13)");
-	add_oid_str_name("2.9.3.2.3.14","managedObjectClass(3) top(14)");
-	add_oid_str_name("2.9.3.2.4.14","administrativeStatePackage(14)");
-	add_oid_str_name("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
+	oid_add_from_string("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");  
+	oid_add_from_string("2.9.3.2.3.2","managedObjectClass(3) attributeValueChangeRecord(2)");
+	oid_add_from_string("2.9.3.2.3.3","managedObjectClass(3) discriminator(3)");
+	oid_add_from_string("2.9.3.2.3.4","managedObjectClass(3) eventForwardingDiscriminator(4)");
+	oid_add_from_string("2.9.3.2.3.5","managedObjectClass(3) eventLogRecord(5)");
+	oid_add_from_string("2.9.3.2.3.6","managedObjectClass(3) log(6)");
+	oid_add_from_string("2.9.3.2.3.7","managedObjectClass(3) logRecord(7)");
+	oid_add_from_string("2.9.3.2.3.8","managedObjectClass(3) objectCreationRecord(8)");
+	oid_add_from_string("2.9.3.2.3.9","managedObjectClass(3) objectDeletionRecord(9)");
+	oid_add_from_string("2.9.3.2.3.10","managedObjectClass(3) relationshipChangeRecord(10)");
+	oid_add_from_string("2.9.3.2.3.11","managedObjectClass(3) securityAlarmReportRecord(11)");
+	oid_add_from_string("2.9.3.2.3.12","managedObjectClass(3) stateChangeRecord(12)");
+	oid_add_from_string("2.9.3.2.3.13","managedObjectClass(3) system(13)");
+	oid_add_from_string("2.9.3.2.3.14","managedObjectClass(3) top(14)");
+	oid_add_from_string("2.9.3.2.4.14","administrativeStatePackage(14)");
+	oid_add_from_string("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
 /*#include "packet-cmip-dis-tab.c" */
 }

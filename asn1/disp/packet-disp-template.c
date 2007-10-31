@@ -247,10 +247,10 @@ void proto_reg_handoff_disp(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.4", "id-ac-shadow-consumer-initiated");
-  add_oid_str_name("2.5.3.5", "id-ac-shadow-supplier-initiated");
-  add_oid_str_name("2.5.3.6", "id-ac-reliable-shadow-consumer-initiated");
-  add_oid_str_name("2.5.3.7", "id-ac-reliable-shadow-supplier-initiated");
+  oid_add_from_string("id-ac-shadow-consumer-initiated","2.5.3.4");
+  oid_add_from_string("id-ac-shadow-supplier-initiated","2.5.3.5");
+  oid_add_from_string("id-ac-reliable-shadow-consumer-initiated","2.5.3.6");
+  oid_add_from_string("id-ac-reliable-shadow-supplier-initiated","2.5.3.7");
 
   /* ABSTRACT SYNTAXES */
 
@@ -263,7 +263,7 @@ void proto_reg_handoff_disp(void) {
   } 
 
   /* OPERATIONAL BINDING */
-  add_oid_str_name("2.5.1.0.5.1", "id-op-binding-shadow");
+  oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");
 
   tpkt_handle = find_dissector("tpkt");
 

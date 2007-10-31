@@ -172,9 +172,9 @@ void proto_register_cms(void) {
 void proto_reg_handoff_cms(void) {
 #include "packet-cms-dis-tab.c"
 
-  add_oid_str_name("1.2.840.113549.1.7.1", "id-data");
-  add_oid_str_name("1.2.840.113549.3.7", "id-alg-des-ede3-cbc");
-  add_oid_str_name("1.3.14.3.2.7", "id-alg-des-cbc");
+  oid_add_from_string("id-data","1.2.840.113549.1.7.1");
+  oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");
+  oid_add_from_string("id-alg-des-cbc","1.3.14.3.2.7");
 
 }
 

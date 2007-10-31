@@ -519,7 +519,7 @@ static const ber_sequence_t UnitOfReplication_sequence[] = {
   { &hf_disp_replication_attributes, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_disp_AttributeSelection },
   { &hf_disp_knowledge      , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_Knowledge },
   { &hf_disp_subordinates   , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_BOOLEAN },
-  { &hf_disp_contextSelection, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_ContextSelection },
+  { &hf_disp_contextSelection, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_ContextSelection },
   { &hf_disp_supplyContexts , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_disp_T_supplyContexts },
   { NULL, 0, 0, 0, NULL }
 };
@@ -706,7 +706,7 @@ static const ber_sequence_t CoordinateShadowUpdateArgumentData_sequence[] = {
   { &hf_disp_agreementID    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { &hf_disp_lastUpdate     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_Time },
   { &hf_disp_updateStrategy , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_T_updateStrategy },
-  { &hf_disp_securityParameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
+  { &hf_disp_securityParameters, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -922,7 +922,7 @@ static const ber_sequence_t RequestShadowUpdateArgumentData_sequence[] = {
   { &hf_disp_agreementID    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { &hf_disp_lastUpdate     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_Time },
   { &hf_disp_requestedStrategy, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_T_requestedStrategy },
-  { &hf_disp_securityParameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
+  { &hf_disp_securityParameters, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1140,7 +1140,7 @@ dissect_disp_T_rename(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static const ber_sequence_t SEQUENCE_OF_EntryModification_sequence_of[1] = {
-  { &hf_disp_changes_item   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_dap_EntryModification },
+  { &hf_disp_changes_item   , -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_dap_EntryModification },
 };
 
 static int
@@ -1314,7 +1314,7 @@ static const ber_sequence_t UpdateShadowArgumentData_sequence[] = {
   { &hf_disp_updateTime     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_disp_Time },
   { &hf_disp_updateWindow   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_UpdateWindow },
   { &hf_disp_updatedInfo    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_RefreshInformation },
-  { &hf_disp_securityParameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
+  { &hf_disp_securityParameters, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1616,7 +1616,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if(disp_dissector) {
 	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_add_str(pinfo->cinfo, COL_INFO, disp_op_name);
+	    col_set_str(pinfo->cinfo, COL_INFO, disp_op_name);
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
@@ -1694,7 +1694,7 @@ void proto_register_disp(void) {
         "disp.BOOLEAN", HFILL }},
     { &hf_disp_contextSelection,
       { "contextSelection", "disp.contextSelection",
-        FT_UINT32, BASE_DEC, VALS(dap_ContextSelection_vals), 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "dap.ContextSelection", HFILL }},
     { &hf_disp_supplyContexts,
       { "supplyContexts", "disp.supplyContexts",
@@ -2042,7 +2042,7 @@ void proto_register_disp(void) {
         "disp.SEQUENCE_OF_EntryModification", HFILL }},
     { &hf_disp_changes_item,
       { "Item", "disp.changes_item",
-        FT_UINT32, BASE_DEC, VALS(dap_EntryModification_vals), 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "dap.EntryModification", HFILL }},
     { &hf_disp_subordinate,
       { "subordinate", "disp.subordinate",
@@ -2182,10 +2182,10 @@ void proto_reg_handoff_disp(void) {
 
   /* APPLICATION CONTEXT */
 
-  add_oid_str_name("2.5.3.4", "id-ac-shadow-consumer-initiated");
-  add_oid_str_name("2.5.3.5", "id-ac-shadow-supplier-initiated");
-  add_oid_str_name("2.5.3.6", "id-ac-reliable-shadow-consumer-initiated");
-  add_oid_str_name("2.5.3.7", "id-ac-reliable-shadow-supplier-initiated");
+  oid_add_from_string("id-ac-shadow-consumer-initiated","2.5.3.4");
+  oid_add_from_string("id-ac-shadow-supplier-initiated","2.5.3.5");
+  oid_add_from_string("id-ac-reliable-shadow-consumer-initiated","2.5.3.6");
+  oid_add_from_string("id-ac-reliable-shadow-supplier-initiated","2.5.3.7");
 
   /* ABSTRACT SYNTAXES */
 
@@ -2198,7 +2198,7 @@ void proto_reg_handoff_disp(void) {
   } 
 
   /* OPERATIONAL BINDING */
-  add_oid_str_name("2.5.1.0.5.1", "id-op-binding-shadow");
+  oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");
 
   tpkt_handle = find_dissector("tpkt");
 

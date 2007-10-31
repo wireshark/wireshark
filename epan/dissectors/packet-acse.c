@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-acse.c                                                            */
+/* packet-acse.c                                                              */
 /* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -2495,7 +2495,7 @@ void proto_register_acse(void) {
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
 
-	add_oid_str_name("2.2.3.1.1","aCSE-id");
+	oid_add_from_string("aCSE-id","2.2.3.1.1");
 	register_ber_oid_dissector(ACSE_APDU_OID, dissect_acse, proto_acse, "acse-as-id");
 
 
