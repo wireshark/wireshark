@@ -5311,10 +5311,12 @@ class FixedTypeValueFieldSpec (FieldSpec):
     return repr
 
 class VariableTypeValueFieldSpec (FieldSpec):
-  pass
+  def get_repr(self):
+    return ['_' + self.type]
 
 class FixedTypeValueSetFieldSpec (FieldSpec):
-  pass
+  def get_repr(self):
+    return ['_' + self.type]
 
 class ObjectFieldSpec (FieldSpec):
   def get_repr(self):
@@ -6943,11 +6945,21 @@ object_class_typerefs = { }
 
 object_class_classrefs = { }
 
+# dummy types
+class _VariableTypeValueFieldSpec (AnyType):
+  pass
+
+class _FixedTypeValueSetFieldSpec (AnyType):
+  pass
+
 class_types_creator = {
   'BooleanType'          : lambda : BooleanType(),
   'IntegerType'          : lambda : IntegerType(),
   'ObjectIdentifierType' : lambda : ObjectIdentifierType(),
   'OpenType'             : lambda : OpenType(),
+  # dummy types
+  '_VariableTypeValueFieldSpec' : lambda : _VariableTypeValueFieldSpec(),
+  '_FixedTypeValueSetFieldSpec' : lambda : _FixedTypeValueSetFieldSpec(),
 }
 
 class_names = { }
