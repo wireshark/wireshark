@@ -3491,7 +3491,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		return;
 	}
 
-	oidname=get_oid_str_name(oid);
+	oidname=oid_resolved_from_string(oid);
 
 	if(oidname){
 		proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "OID: %s (%s)",oid,oidname);

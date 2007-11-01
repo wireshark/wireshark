@@ -2231,7 +2231,7 @@ dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 	if(content_type_id) {
-	  name = get_oid_str_name(content_type_id);
+	  name = oid_resolved_from_string(content_type_id);
 
   	  if(!name) name = content_type_id;
 
@@ -2743,7 +2743,7 @@ dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		}
 	} else if (object_identifier_id) {
 		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-		name = get_oid_str_name(object_identifier_id);
+		name = oid_resolved_from_string(object_identifier_id);
 		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
 	}
 		

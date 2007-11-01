@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-x509af.c                                                          */
+/* packet-x509af.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
@@ -273,7 +273,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
   if(algorithm_id) {
-    name = get_oid_str_name(algorithm_id);
+    name = oid_resolved_from_string(algorithm_id);
 
     proto_item_append_text(tree, " (%s)", name ? name : algorithm_id); 
   }
@@ -496,7 +496,7 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
   if(extension_id) {
-    name = get_oid_str_name(extension_id);
+    name = oid_resolved_from_string(extension_id);
 
     proto_item_append_text(tree, " (%s)", name ? name : extension_id);
   }
@@ -1126,7 +1126,7 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Certificate Revocation List");
+		col_set_str(pinfo->cinfo, COL_INFO, "Certificate Revocation List");
 	}
 
 

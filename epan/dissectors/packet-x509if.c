@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-x509if.c                                                          */
+/* packet-x509if.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x509if -c x509if.cnf -s packet-x509if-template InformationFramework.asn */
 
 /* Input file: packet-x509if-template.c */
@@ -383,7 +383,7 @@ dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   if(object_identifier_id) {
     /* see if we can find a nice name */
-    name = get_oid_str_name(object_identifier_id);
+    name = oid_resolved_from_string(object_identifier_id);
     if(!name) name = object_identifier_id;    
 
     if(doing_dn) { /* append it to the RDN */
@@ -469,7 +469,7 @@ dissect_x509if_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
 
-    if(!(name = get_oid_str_name(object_identifier_id)))
+    if(!(name = oid_resolved_from_string(object_identifier_id)))
       name = object_identifier_id;
     g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
 

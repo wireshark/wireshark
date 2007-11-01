@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-cdt.c                                                             */
-/* ../../tools/asn2wrs.py -b -X -T -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
+/* packet-cdt.c                                                               */
+/* ../../tools/asn2wrs.py -b -X -T -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
 
 /* Input file: packet-cdt-template.c */
 
@@ -192,7 +192,7 @@ dissect_cdt_T_contentType_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
 
   if (obj_id) {
-    const char *name = get_oid_str_name (obj_id);
+    const char *name = oid_resolved_from_string (obj_id);
 
     if (!name) {
       name = obj_id;
@@ -249,7 +249,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to get compressed content");
     if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr (actx->pinfo->cinfo, COL_INFO, 
+      col_append_str (actx->pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to get compressed content]");
     return offset;
   }
@@ -262,7 +262,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to uncompress content");
     if (check_col (actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr (actx->pinfo->cinfo, COL_INFO, 
+      col_append_str (actx->pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to uncompress content]");
     return offset;
   }

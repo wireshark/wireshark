@@ -73,7 +73,7 @@ EncryptedContentInfo/contentType	encryptedContentType
 	%(DEFAULT_BODY)s
 
 	if(object_identifier_id) {  
-		name = get_oid_str_name(object_identifier_id);
+		name = oid_resolved_from_string(object_identifier_id);
 		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
 	}
 
@@ -115,7 +115,7 @@ EncryptedContentInfo/contentType	encryptedContentType
   %(DEFAULT_BODY)s
 
   if(object_identifier_id) {
-    name = get_oid_str_name(object_identifier_id);
+    name = oid_resolved_from_string(object_identifier_id);
     proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
   }
 
@@ -147,7 +147,7 @@ EncryptedContentInfo/contentType	encryptedContentType
   %(DEFAULT_BODY)s
 
   if(object_identifier_id) {
-    name = get_oid_str_name(object_identifier_id);
+    name = oid_resolved_from_string(object_identifier_id);
     proto_item_append_text(tree, " %%s", name ? name : object_identifier_id); 
     cap_tree = tree;
   }

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkcs12.h                                                          */
+/* packet-pkcs12.h                                                            */
 /* ../../tools/asn2wrs.py -X -T -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.h */

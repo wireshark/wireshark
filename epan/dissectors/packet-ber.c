@@ -3144,7 +3144,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
 		if(actx->created_item){
 			/* see if we know the name of this oid */
-			name = get_oid_name(tvb_get_ptr(tvb, offset, len), len);
+			name = oid_resolved_from_encoded(tvb_get_ptr(tvb, offset, len), len);
 			if(name){
 				proto_item_append_text(actx->created_item, " (%s)", name);
 			}

@@ -4075,7 +4075,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_OID:
 			bytes = fvalue_get(&fi->value);
-			name = (oid_resolv_enabled()) ? get_oid_name(bytes, fvalue_length(&fi->value)) : NULL;
+			name = (oid_resolv_enabled()) ? oid_resolved_from_encoded(bytes, fvalue_length(&fi->value)) : NULL;
 			if (name) {
 				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s (%s)", hfinfo->name,

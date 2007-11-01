@@ -670,7 +670,7 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   
-  name = get_oid_str_name(object_identifier_id);
+  name = oid_resolved_from_string(object_identifier_id);
   proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
 
 
@@ -1472,7 +1472,7 @@ dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 #line 141 "x420.cnf"
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Message");
+   col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IPM_sequence, hf_index, ett_x420_IPM);
@@ -1744,7 +1744,7 @@ dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 #line 149 "x420.cnf"
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Notification");
+   col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               IPN_set, hf_index, ett_x420_IPN);
@@ -3347,7 +3347,7 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_str(pinfo->cinfo, COL_INFO, "InterPersonal");
+	  col_set_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
 	dissect_x420_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }

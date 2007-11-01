@@ -127,6 +127,7 @@ static enum_val_t l2tpv3_cookies[] = {
 #define L2TPv3_PROTOCOL_IP      4
 #define L2TPv3_PROTOCOL_MPLS    5
 #define L2TPv3_PROTOCOL_AAL5    6
+#define L2TPv3_PROTOCOL_LAPD	7
 
 static enum_val_t l2tpv3_protocols[] = {
     {"eth",     "Ethernet",     L2TPv3_PROTOCOL_ETH},
@@ -136,17 +137,20 @@ static enum_val_t l2tpv3_protocols[] = {
     {"ip",      "IP",           L2TPv3_PROTOCOL_IP},
     {"mpls",    "MPLS",         L2TPv3_PROTOCOL_MPLS},
     {"aal5",    "AAL5",         L2TPv3_PROTOCOL_AAL5},
+    {"lapd",	"LAPD",         L2TPv3_PROTOCOL_LAPD},
     {NULL, NULL, 0}
 };
 
 #define L2TPv3_L2_SPECIFIC_NONE         0
 #define L2TPv3_L2_SPECIFIC_DEFAULT      1
 #define L2TPv3_L2_SPECIFIC_ATM          2
+#define L2TPv3_L2_SPECIFIC_LAPD         3
 
 static enum_val_t l2tpv3_l2_specifics[] = {
     {"none",    "None",                 L2TPv3_L2_SPECIFIC_NONE},
     {"default", "Default L2-Specific",  L2TPv3_L2_SPECIFIC_DEFAULT},
     {"atm",     "ATM-Specific",         L2TPv3_L2_SPECIFIC_ATM},
+    {"lapd",    "LAPD-Specific",        L2TPv3_L2_SPECIFIC_LAPD},
     {NULL, NULL, 0}
 };
 
@@ -553,6 +557,7 @@ static dissector_handle_t fr_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t mpls_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t lapd_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -1403,6 +1408,10 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           case L2TPv3_L2_SPECIFIC_ATM:
                 next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie + 4, -1, -1);
                 break;
+		case L2TPv3_L2_SPECIFIC_LAPD:
+				proto_tree_add_text(tree, tvb, index + l2tpv3_cookie + 4, 3,"LAPD info");
+				next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie+4+3, -1, -1);
+				break;
           case L2TPv3_L2_SPECIFIC_NONE:
           default:
                 next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie, -1, -1);
@@ -1441,6 +1450,9 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         call_dissector(llc_handle, next_tvb, pinfo, tree);
                 }
                 break;
+		  case L2TPv3_PROTOCOL_LAPD:
+			  call_dissector(lapd_handle, next_tvb, pinfo, tree);
+			  break;
           default:
                 call_dissector(data_handle, next_tvb, pinfo, tree);
                 break;
@@ -2112,6 +2124,7 @@ proto_reg_handoff_l2tp(void)
 	ip_handle = find_dissector("ip");
 	mpls_handle = find_dissector("mpls");
 	llc_handle = find_dissector("llc");
+	lapd_handle = find_dissector("lapd");
 
 	data_handle = find_dissector("data");
 }

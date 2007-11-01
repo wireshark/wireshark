@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkcs12.c                                                          */
+/* packet-pkcs12.c                                                            */
 /* ../../tools/asn2wrs.py -X -T -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.c */
@@ -180,7 +180,7 @@ static void append_oid(proto_tree *tree, const char *oid)
 {
   	const char *name = NULL;
 
-	name = get_oid_str_name(oid);
+	name = oid_resolved_from_string(oid);
 	proto_item_append_text(tree, " (%s)", name ? name : oid); 
 }
 
@@ -456,7 +456,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	tvb_set_free_cb(clear_tvb, g_free);
 
 	name = g_string_new("");
-	oidname = get_oid_str_name(object_identifier_id);
+	oidname = oid_resolved_from_string(object_identifier_id);
 	g_string_sprintf(name, "Decrypted %s", oidname ? oidname : object_identifier_id);
 
 	/* add it as a new source */
