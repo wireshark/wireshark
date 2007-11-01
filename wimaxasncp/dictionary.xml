@@ -1631,7 +1631,7 @@
 
     <tlv name="RRM Spare Capacity Report Type"
          type="164"
-         decoder="WIMAXASNCP_TLV_HEX8">
+         decoder="WIMAXASNCP_TLV_ENUM8">
 
         <enum name="Type 1: Available radio resource indicator"
               code="0"/>
