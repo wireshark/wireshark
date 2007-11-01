@@ -738,12 +738,13 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         decoder = ssl->client;
     }
 
+    /* save data to update IV if decoder is available or updated later */
+    data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
+    data_for_iv_len = (record_length < 24) ? record_length : 24;
+    ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
+
     if (!decoder) {
         ssl_debug_printf("decrypt_ssl3_record: no decoder available\n");
-        /* save data to update IV if decoder is available later */
-        data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
-        data_for_iv_len = (record_length < 24) ? record_length : 24;
-        ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
         return ret;
     }
 
