@@ -155,20 +155,7 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
 
 /* macros for legacy oid functions */
-/* from former oid_resolv.h */
-#define add_oid_name(oid, oid_len, name) oid_add_from_encoded(name,oid,oid_len)
-#define get_oid_str_name(oidstr) oid_resolved_from_string(oidstr)
-#define get_oid_name(encoid, encoid_len) oid_resolved_from_encoded(encoid, encoid_len)
-#define oid_resolv_enabled() (1)
 #define oid_resolv_cleanup() ((void)0)
-
-/* from to_str.h */
-#define oid_to_str(encoid, encoid_len) oid_encoded2string(encoid, encoid_len)
-
-/* from former dissectors/format_oid.h */
-#define format_oid(oid, oid_length) ((void*)oid_resolved(oid_length,oid))
-#define new_format_oid(oid, oid_length, non_decoded, decoded) oid_both(oid_length, oid, non_decoded, decoded)
-
 #define subid_t guint32
 
 

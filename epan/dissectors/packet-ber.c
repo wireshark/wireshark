@@ -3140,7 +3140,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	if (hfi->type == FT_OID) {
 		actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
 	} else if (IS_FT_STRING(hfi->type)) {
-		str = oid_to_str(tvb_get_ptr(tvb, offset, len), len);
+		str = oid_encoded2string(tvb_get_ptr(tvb, offset, len), len);
 		actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
 		if(actx->created_item){
 			/* see if we know the name of this oid */
@@ -3168,7 +3168,7 @@ int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *actx, p
 
   if (value_string) {
     if (value_tvb && (length = tvb_length(value_tvb))) {
-      *value_string = oid_to_str(tvb_get_ptr(value_tvb, 0, length), length);
+      *value_string = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
     } else {
       *value_string = "";
     }

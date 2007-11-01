@@ -881,7 +881,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
   if (hfi->type == FT_OID) {
     item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, FALSE);
   } else if (IS_FT_STRING(hfi->type)) {
-    str = oid_to_str(tvb_get_ptr(val_tvb, 0, length), length);
+    str = oid_encoded2string(tvb_get_ptr(val_tvb, 0, length), length);
     item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -904,7 +904,7 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *act
 
   if (value_string) {
     if (value_tvb && (length = tvb_length(value_tvb))) {
-      *value_string = oid_to_str(tvb_get_ptr(value_tvb, 0, length), length);
+      *value_string = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
     } else {
       *value_string = "";
     }

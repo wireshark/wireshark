@@ -4075,15 +4075,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_OID:
 			bytes = fvalue_get(&fi->value);
-			name = (oid_resolv_enabled()) ? oid_resolved_from_encoded(bytes, fvalue_length(&fi->value)) : NULL;
+			name = oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
 			if (name) {
 				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s (%s)", hfinfo->name,
-					 oid_to_str(bytes, fvalue_length(&fi->value)), name);
+					 oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
 			} else {
 				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name,
-					 oid_to_str(bytes, fvalue_length(&fi->value)));
+					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';

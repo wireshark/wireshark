@@ -315,7 +315,7 @@ static int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, cha
 
 }
 
-/* XXX - Is there a particular reason we're not using oid_to_str() here? */
+/* XXX - Is there a particular reason we're not using oid_encoded2string() here? */
 static int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 {
 	int i, tlen = 0;

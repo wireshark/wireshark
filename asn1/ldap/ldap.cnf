@@ -53,7 +53,7 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 		return offset;
 
 	object_identifier_id = tvb_get_ephemeral_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
-	name = get_oid_str_name(object_identifier_id);
+	name = oid_resolved_from_string(object_identifier_id);
 
 	if(name){
 		item = get_ber_last_created_item();
