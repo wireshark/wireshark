@@ -9,9 +9,6 @@
 -k
 -o gsm_map
 #.END
-# forward declarations for Remote-Operations-Information-Objects.asn wich is compiled too
-#.CLASS OPERATION
-#.CLASS ERROR
 
 #.MODULE
 MAP-BS-Code             gsm_map        

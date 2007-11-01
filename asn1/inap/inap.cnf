@@ -2,10 +2,6 @@
 # inap conformation file
 # $Id$
 
-# forward declarations for Remote-Operations-Information-Objects.asn wich is compiled too
-#.CLASS OPERATION
-#.CLASS ERROR
-
 #.EXPORTS
 BothwayThroughConnectionInd
 CallingPartysCategory
