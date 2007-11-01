@@ -6,10 +6,6 @@
 #.IMPORT ../gsmmap/gsm_map-exp.cnf
 #.IMPORT ../inap/inap-exp.cnf
 
-# forward declarations for Remote-Operations-Information-Objects.asn wich is compiled too
-#.CLASS OPERATION
-#.CLASS ERROR
-
 #.MODULE
 CS1-DataTypes  inap
 CS2-datatypes  inap

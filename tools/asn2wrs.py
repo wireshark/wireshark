@@ -5367,8 +5367,13 @@ def p_modulereference (t):
 
 # 12.1
 def p_ModuleDefinition (t):
-  'ModuleDefinition : ModuleIdentifier DEFINITIONS TagDefault ASSIGNMENT BEGIN ModuleBody END'
-  t[0] = Module (ident = t[1], tag_def = t[3], body = t[6])
+  'ModuleDefinition : ModuleIdentifier DEFINITIONS TagDefault ASSIGNMENT ModuleBegin BEGIN ModuleBody END'
+  t[0] = Module (ident = t[1], tag_def = t[3], body = t[7])
+
+def p_ModuleBegin (t):
+  'ModuleBegin : '
+  if t[-4].val == 'Remote-Operations-Information-Objects':
+    x880_module_begin()
 
 def p_TagDefault_1 (t):
   '''TagDefault : EXPLICIT TAGS
@@ -7054,6 +7059,7 @@ def get_type_from_class(cls, fld):
   return creator()
 
 def set_type_to_class(cls, fld, pars):
+  #print "set_type_to_class", cls, fld, pars
   key = cls + '.' + fld
   typename = 'OpenType'
   if (len(pars) > 0):
@@ -7313,23 +7319,42 @@ x880_classes = {
     '&synchronous'          : [ 'BooleanType' ],
     '&idempotent'           : [ 'BooleanType' ],
     '&alwaysReturns'        : [ 'BooleanType' ],
-#    '&InvokePriority'         #UNSUPPORTED_FixedTypeValueSetFieldSpec
-#    '&ResultPriority'         #UNSUPPORTED_FixedTypeValueSetFieldSpec
+    '&InvokePriority'       : [ '_FixedTypeValueSetFieldSpec' ],
+    '&ResultPriority'       : [ '_FixedTypeValueSetFieldSpec' ],
     '&operationCode'        : [ 'TypeReference', 'Code' ],
   },
   'ERROR' : {
     '&ParameterType'         : [],                
     '&parameterTypeOptional' : [ 'BooleanType' ],
-#    '&ErrorPriority'          #UNSUPPORTED_FixedTypeValueSetFieldSpec
+    '&ErrorPriority'         : [ '_FixedTypeValueSetFieldSpec' ],
     '&errorCode'             : [ 'TypeReference', 'Code' ],
   },
   'OPERATION-PACKAGE' : {
+    '&Both'     : [ 'ClassReference', 'OPERATION' ],
+    '&Consumer' : [ 'ClassReference', 'OPERATION' ],
+    '&Supplier' : [ 'ClassReference', 'OPERATION' ],
+    '&id'       : [ 'ObjectIdentifierType' ],
   },
   'CONNECTION-PACKAGE' : {
+    '&bind'               : [ 'ClassReference', 'OPERATION' ],
+    '&unbind'             : [ 'ClassReference', 'OPERATION' ],
+    '&responderCanUnbind' : [ 'BooleanType' ],
+    '&unbindCanFail'      : [ 'BooleanType' ],
+    '&id'                 : [ 'ObjectIdentifierType' ],
   },
   'CONTRACT' : {
+    '&connection'          : [ 'ClassReference', 'CONNECTION-PACKAGE' ],
+    '&OperationsOf'        : [ 'ClassReference', 'OPERATION-PACKAGE' ],
+    '&InitiatorConsumerOf' : [ 'ClassReference', 'OPERATION-PACKAGE' ],
+    '&InitiatorSupplierOf' : [ 'ClassReference', 'OPERATION-PACKAGE' ],
+    '&id'                  : [ 'ObjectIdentifierType' ],
   },
   'ROS-OBJECT-CLASS' : {
+    '&Is'                   : [ 'ClassReference', 'ROS-OBJECT-CLASS' ],
+    '&Initiates'            : [ 'ClassReference', 'CONTRACT' ],
+    '&Responds'             : [ 'ClassReference', 'CONTRACT' ],
+    '&InitiatesAndResponds' : [ 'ClassReference', 'CONTRACT' ],
+    '&id'                   : [ 'ObjectIdentifierType' ],
   },
 }
 
@@ -7369,6 +7394,11 @@ x880_syntaxes = {
 #  'ROS-OBJECT-CLASS' : {
 #  },
 }
+
+def x880_module_begin():
+  #print "x880_module_begin()"
+  for name in x880_classes.keys():
+    add_class_ident(name)
 
 def x880_import(name):
   if x880_syntaxes.has_key(name):
