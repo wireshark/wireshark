@@ -156,7 +156,6 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
 /* macros for legacy oid functions */
 /* from former oid_resolv.h */
-#define add_oid_str_name(oidstr,oidname) oid_add_from_string(oidname, oidstr)
 #define add_oid_name(oid, oid_len, name) oid_add_from_encoded(name,oid,oid_len)
 #define get_oid_str_name(oidstr) oid_resolved_from_string(oidstr)
 #define get_oid_name(encoid, encoid_len) oid_resolved_from_encoded(encoid, encoid_len)
