@@ -263,6 +263,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   guint32     port=0;
   gboolean    is_rtp=FALSE;
+  gboolean    is_srtp=FALSE;
   gboolean    is_t38=FALSE;
   gboolean    is_msrp=FALSE;
   gboolean    set_rtp=FALSE;
@@ -447,6 +448,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        if(global_sdp_establish_conversation){
             /* Check if media protocol is RTP */
             is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
+            /* Check if media protocol is SRTP */
+            is_srtp = (strcmp(transport_info.media_proto[n],"RTP/SAVP")==0);
             /* Check if media protocol is T38 */
             is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
             /* Check if media protocol is MSRP/TCP */
@@ -476,12 +479,18 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
     set_rtp = FALSE;
-    /* Add rtp and rtcp conversation, if available (overrides t38 if conversation already set) */
-    if((!pinfo->fd->flags.visited) && port!=0 && is_rtp && (is_ipv4_addr || is_ipv6_addr)){
+    /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
+    if((!pinfo->fd->flags.visited) && port!=0 && (is_rtp||is_srtp) && (is_ipv4_addr || is_ipv6_addr)){
       src_addr.data=(guint8*)&ipaddr;
       if(rtp_handle){
-        rtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num,
-                        transport_info.media[n].rtp_dyn_payload);
+        if (is_srtp) {
+          struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+          srtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num,
+                           transport_info.media[n].rtp_dyn_payload, dummy_srtp_info);
+        } else {
+          rtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num,
+                          transport_info.media[n].rtp_dyn_payload);
+        }
         set_rtp = TRUE;
       }
       if(rtcp_handle){
