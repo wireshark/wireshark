@@ -15,3 +15,14 @@ ALIGNED
 #.PDU_NEW
 Message
 #.END
+
+#.FN_PARS MessageBody 
+  VAL_PTR = &msg_type
+#.FN_HDR
+  gint32 msg_type = -1;
+  const gchar *p = NULL;
+#.FN_FTR
+  p = match_strval(msg_type, VALS(h501_MessageBody_vals));
+  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_set_str(actx->pinfo->cinfo, COL_INFO, p);
+#.END

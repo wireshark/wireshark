@@ -2368,9 +2368,18 @@ static const per_choice_t MessageBody_choice[] = {
 
 static int
 dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 22 "h501.cnf"
+  gint32 msg_type = -1;
+  const gchar *p = NULL;
+
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h501_MessageBody, MessageBody_choice,
-                                 NULL);
+                                 &msg_type);
+
+#line 25 "h501.cnf"
+  p = match_strval(msg_type, VALS(h501_MessageBody_vals));
+  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_set_str(actx->pinfo->cinfo, COL_INFO, p);
 
   return offset;
 }
@@ -2527,7 +2536,7 @@ dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree  *h501_tree = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
   ti = proto_tree_add_item(tree, proto_h501, tvb, 0, -1, FALSE);
   h501_tree = proto_item_add_subtree(ti, ett_h501);

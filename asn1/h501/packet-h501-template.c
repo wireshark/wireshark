@@ -79,7 +79,7 @@ dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree  *h501_tree = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
   ti = proto_tree_add_item(tree, proto_h501, tvb, 0, -1, FALSE);
   h501_tree = proto_item_add_subtree(ti, ett_h501);
