@@ -1,0 +1,82 @@
+#
+# $Id$
+#
+
+include ../../../config.nmake
+include <win32.mak>
+
+FILES 		= Files
+APP 		= App
+DATA		= Data
+OTHER		= Other
+APPINFO		= AppInfo
+WIRESHARK 	= Wireshark
+SOURCE		= WiresharkPortableSource
+
+TOPDIR		= ..\..\..
+U3DIST		= ..\..\u3\win32
+COPY		= xcopy
+MKDIR		= mkdir
+COPY_FLAGS	= /d /y
+UPX		= upx301w\upx.exe
+
+PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
+
+all:	package
+
+package:	WiresharkPortable-$(VERSION).paf.exe
+
+dirs:
+	if not exist $(FILES) $(MKDIR) $(FILES)
+	if not exist $(FILES)\$(APP) $(MKDIR) $(FILES)\$(APP)
+	if not exist $(FILES)\$(APP)\$(APPINFO) $(MKDIR) $(FILES)\$(APP)\$(APPINFO)
+	if not exist $(FILES)\$(APP)\$(WIRESHARK) $(MKDIR) $(FILES)\$(APP)\$(WIRESHARK)
+	if not exist $(FILES)\$(DATA) $(MKDIR) $(FILES)\$(DATA)
+	if not exist $(FILES)\$(OTHER) $(MKDIR) $(FILES)\$(OTHER)
+	if not exist $(FILES)\$(OTHER)\$(SOURCE) $(MKDIR) $(FILES)\$(OTHER)\$(SOURCE)
+
+wireshark:
+	cd $(U3DIST)
+	nmake -f makefile.nmake test
+	cd ../../portableapps/win32
+	$(COPY) $(U3DIST)\device\* $(FILES)\$(APP)\$(WIRESHARK) /S $(COPY_FLAGS)		
+	$(COPY) $(U3DIST)\host\* $(FILES)\$(APP)\$(WIRESHARK) /S $(COPY_FLAGS)
+#	$(UPX) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
+
+appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
+	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
+            -e 's/$$(VERSION_MAJOR)/$(VERSION_MAJOR)/g' \
+            -e 's/$$(VERSION_MINOR)/$(VERSION_MINOR)/g' \
+	< appinfo.tmpl > appinfo.ini
+
+appinfo: appinfo.ini
+	$(COPY) appinfo.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)	
+	$(COPY) $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)	
+
+source: 
+	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+	$(COPY) WiresharkPortable.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+	$(COPY) Installer.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
+	
+
+WiresharkPortable-$(VERSION).paf.exe : dirs appinfo wireshark source Files/WiresharkPortable.exe Installer.nsi
+	$(MAKENSIS) \
+	/DVERSION=$(PAPPS_VERSION) \
+	/DWSVERSION=$(VERSION) \
+	Installer.nsi
+
+Files/WiresharkPortable.exe : WiresharkPortable.nsi
+	$(MAKENSIS) \
+	/DVERSION=$(PAPPS_VERSION) \
+	/DWSVERSION=$(VERSION) \
+	WiresharkPortable.nsi
+
+clean:
+	rm -rf $(FILES)
+	rm -rf appinfo.ini
+	rm -rf WiresharkPortable-$(VERSION).paf.exe
+   	rm -rf *~ *.*~
+
+distclean:	clean
+
+maintainer-clean:	distclean

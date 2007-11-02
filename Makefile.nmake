@@ -154,6 +154,15 @@ packaging_u3: all
 	cd ..
 	cd ..
 
+packaging_papps: all
+	cd packaging
+	cd portableapps
+	cd win32
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+	cd ..
+	cd ..
+	cd ..
+
 # use (info-)zip from cygwin to pack things
 packaging_zip1: all
 !IFDEF MSVCR_DLL
@@ -401,6 +410,8 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../u3/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../../portableapps/win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../../..
 
 # "distclean" removes all files not part of the distribution.
@@ -434,6 +445,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../u3/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../../portableapps/win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../../..
 
 # Make "maintainer-clean" only if you would like to remove ALL generated
@@ -464,6 +477,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../u3/win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../../portableapps/win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../../..
 
