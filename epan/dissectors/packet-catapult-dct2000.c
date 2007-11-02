@@ -511,7 +511,7 @@ void parse_outhdr_string(guchar *outhdr_string)
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; )
     {
-        guint start_i = n;
+        guint digits_start = n;
         guint digits;
 
         /* Find digits */
@@ -531,7 +531,7 @@ void parse_outhdr_string(guchar *outhdr_string)
 
         /* Convert digits into value */
         outhdr_values[outhdr_values_found++] =
-            atoi((char*)format_text((guchar*)outhdr_string+start_i, digits));
+            atoi((char*)format_text((guchar*)outhdr_string+digits_start, digits));
 
         /* Skip comma */
         n++;
@@ -765,24 +765,28 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int sub_dissector_result = 0;
     char        *protocol_name;
 
-    /* Protocol name */
+    /* Set Protocol */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
     }
 
-    /* Info column */
+    /* Clear Info */
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_clear(pinfo->cinfo, COL_INFO);
     }
 
-    /* Create protocol tree. */
+    /* Create root (protocol) tree. */
     if (tree)
     {
         ti = proto_tree_add_item(tree, proto_catapult_dct2000, tvb, offset, -1, FALSE);
         dct2000_tree = proto_item_add_subtree(ti, ett_catapult_dct2000);
     }
+
+    /*********************************************************************/
+    /* Note that these are the fields of the stub header as written out  */
+    /* by the wiretap module                                             */
 
     /* Context Name */
     context_length = tvb_strsize(tvb, offset);
@@ -806,21 +810,21 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += timestamp_length;
 
 
-    /* Original protocol name */
+    /* DCT2000 protocol name */
     protocol_start = offset;
     protocol_length = tvb_strsize(tvb, offset);
     proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
                         offset, protocol_length, FALSE);
     offset += protocol_length;
 
-    /* Variant */
+    /* Protocol Variant */
     variant_start = offset;
     variant_length = tvb_strsize(tvb, offset);
     proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
                         offset, variant_length, FALSE);
     offset += variant_length;
 
-    /* Outhdr */
+    /* Outhdr (shown as string) */
     outhdr_start = offset;
     outhdr_length = tvb_strsize(tvb, offset);
     if (outhdr_length > 1)
@@ -837,7 +841,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         offset, 1, FALSE);
     offset++;
 
-    /* Read file encap */
+    /* Read frame encapsulation set by wiretap */
     proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_encap, tvb, offset, 1, FALSE);
     encap = tvb_get_guint8(tvb, offset);
     offset++;
@@ -876,7 +880,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
-       the pseudo-header needed (in some cases) by the wireshark dissector */
+       the pseudo-header needed (in some cases) by the wireshark dissector that
+       this packet data will be handed off to. */
 
 
     /***********************************************************************/
@@ -917,7 +922,15 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DCT2000_ENCAP_NBAP:
             protocol_handle = find_dissector("nbap");
             break;
+
         case DCT2000_ENCAP_UNHANDLED:
+            /**********************************************************/
+            /* The wiretap module wasn't able to set an encapsulation */
+            /* type, but it may still be possible to dissect the data */
+            /* if we know about the protocol or if we can recognise   */
+            /* and parse or skip a primitive header                   */
+            /**********************************************************/
+
             /* Show context.port in src or dest column as appropriate */
             if (check_col(pinfo->cinfo, COL_DEF_SRC) && direction == 0)
             {
@@ -934,12 +947,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb_get_ephemeral_string(tvb, 0, context_length),
                              port_number);
             }
-
-            /* Many DCT2000 protocols have at least one IPPrim variant. If the
-               protocol names match, try to find the UDP/TCP data inside them and
-               pass that offset to dissector
-            */
-            protocol_handle = 0;
 
 
             /* Work with generic XML protocol.
@@ -959,7 +966,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
 
-            /* Try IP Prim heuristic if configured to */
+            /* Many DCT2000 protocols have at least one IPPrim variant. If the
+               protocol name can be matched to a dissector, try to find the
+               UDP/TCP data inside and dissect it.
+            */
+
             if (!protocol_handle && catapult_dct2000_try_ipprim_heuristic)
             {
                 guint32      source_addr_offset = 0, dest_addr_offset = 0;
@@ -981,8 +992,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_tree *ipprim_tree;
                     proto_item *ti;
-                    protocol_handle = heur_protocol_handle;
 
+                    /* Will use this dissector then. */
+                    protocol_handle = heur_protocol_handle;
 
                     /* Add address parameters to tree */
                     /* Unfortunately can't automatically create a conversation filter for this...
@@ -1161,11 +1173,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     (find_sctpprim_variant1_data_offset(tvb, &offset) ||
                      find_sctpprim_variant3_data_offset(tvb, &offset)))
                 {
+                    /* Will use this dissector then. */
                     protocol_handle = heur_protocol_handle;
                 }
             }
 
             break;
+
 
         default:
             /* !! If get here, there is a mismatch between
@@ -1188,7 +1202,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (protocol_handle == 0 || sub_dissector_result == 0)
     {
         /* Could get here because:
-           - encap is DCT2000_ENCAP_UNHANDLED, OR
+           - encap is DCT2000_ENCAP_UNHANDLED and we still didn't handle it, OR
            - desired protocol is unavailable (probably disabled), OR
            - protocol rejected our data
            Show remaining bytes as unparsed data */
@@ -1281,7 +1295,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_encap,
             { "Wireshark encapsulation",
               "dct2000.encapsulation", FT_UINT8, BASE_DEC, VALS(encap_vals), 0x0,
-              "Wireshark encapsulation used", HFILL
+              "Wireshark frame encapsulation used", HFILL
             }
         },
         { &hf_catapult_dct2000_unparsed_data,
@@ -1329,13 +1343,13 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_ipprim_addr_v4,
             { "Address",
               "dct2000.ipprim.addr", FT_IPv4, BASE_NONE, NULL, 0x0,
-              "IPPrim IPv4 Destination Address", HFILL
+              "IPPrim IPv4 Address", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_addr_v6,
             { "Address",
               "dct2000.ipprim.addrv6", FT_IPv6, BASE_NONE, NULL, 0x0,
-              "IPPrim IPv6 Destination Address", HFILL
+              "IPPrim IPv6 Address", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_udp_src_port,
@@ -1423,7 +1437,7 @@ void proto_register_catapult_dct2000(void)
 
     /* Determines whether for not-handled protocols we should try to parse it if:
        - it looks like its embedded in an ipprim message, AND
-       - the DCT2000 protocol name matches a wireshark dissector name */
+       - the DCT2000 protocol name can be matched to a wireshark dissector name */
     prefs_register_bool_preference(catapult_dct2000_module, "ipprim_heuristic",
                                    "Use IP Primitive heuristic",
                                    "If a payload looks like its embedded in an "
@@ -1434,7 +1448,7 @@ void proto_register_catapult_dct2000(void)
 
     /* Determines whether for not-handled protocols we should try to parse it if:
        - it looks like its embedded in an sctpprim message, AND
-       - the DCT2000 protocol name matches n wireshark dissector name */
+       - the DCT2000 protocol name can be matched to a wireshark dissector name */
     prefs_register_bool_preference(catapult_dct2000_module, "sctpprim_heuristic",
                                    "Use SCTP Primitive heuristic",
                                    "If a payload looks like its embedded in an "
