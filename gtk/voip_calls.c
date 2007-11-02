@@ -531,6 +531,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void con
 		strinfo->end_stream = FALSE;
 		strinfo->pt = pi->info_payload_type;
 		strinfo->pt_str = NULL;
+		strinfo->is_srtp = pi->info_is_srtp;
 		/* if it is dynamic payload, let use the conv data to see if it is defined */
 		if ( (strinfo->pt>95) && (strinfo->pt<128) ) {
 			/* Use existing packet info if available */
@@ -605,7 +606,9 @@ static void RTP_packet_draw(void *prs _U_)
 					if (rtp_listinfo->first_frame_num == gai->frame_num){
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
 						g_free(gai->comment);
-						gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us SSRC:0x%X", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
+						gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X", 
+														(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets, 
+														duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						break;
 					}
 
@@ -623,9 +626,11 @@ static void RTP_packet_draw(void *prs _U_)
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
-						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event")); 
+						new_gai->frame_label = g_strdup_printf("%s (%s) %s", (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event")); 
 						g_free(rtp_listinfo->pt_str);
-						new_gai->comment = g_strdup_printf("RTP Num packets:%u  Duration:%u.%03us SSRC:0x%X", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
+						new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X", 
+															(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets, 
+															duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
 						new_gai->display=FALSE;
 						new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */

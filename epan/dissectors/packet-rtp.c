@@ -896,6 +896,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	gboolean    marker_set;
 	unsigned int payload_type;
 	gchar *payload_type_str = NULL;
+	gboolean    is_srtp = FALSE;
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
 	unsigned int padding_count;
@@ -988,6 +989,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info->info_seq_num = seq_num;
 	rtp_info->info_timestamp = timestamp;
 	rtp_info->info_sync_src = sync_src;
+    rtp_info->info_is_srtp = FALSE;
 	rtp_info->info_setup_frame_num = 0;
 	rtp_info->info_payload_type_str = NULL;
 
@@ -1028,8 +1030,11 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	get_conv_info(pinfo, rtp_info);
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 
+	if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
+    rtp_info->info_is_srtp = is_srtp;
+
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
+		col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
 	}
 
 	/* check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */

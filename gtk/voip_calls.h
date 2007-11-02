@@ -191,6 +191,7 @@ typedef struct _voip_rtp_stream_info {
 	guint32 ssrc;
 	guint32  pt;
 	gchar *pt_str;
+	gboolean is_srtp;  
 	guint32 npackets;
 	gboolean end_stream;
 

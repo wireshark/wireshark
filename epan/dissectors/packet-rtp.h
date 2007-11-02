@@ -40,6 +40,7 @@ struct _rtp_info {
 	gboolean      info_all_data_present; /* FALSE if data is cut off */
 	guint         info_payload_offset; /* start of payload relative to info_data */
 	guint         info_payload_len;    /* length of payload (incl padding) */
+	gboolean      info_is_srtp;
 	guint32		  info_setup_frame_num; /* the frame num of the packet that set this RTP connection */
 	const guint8* info_data;           /* pointer to raw rtp data */
 	gchar		  *info_payload_type_str;
