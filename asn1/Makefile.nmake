@@ -83,6 +83,8 @@ per: \
 	h225	\
 	h235	\
 	h245	\
+	h282	\
+	h283	\
 	h323	\
 	h450	\
 	h450-ros	\
@@ -155,6 +157,12 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd h248
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd h282
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd h283
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd h323
@@ -408,6 +416,16 @@ h245::
 
 h248::
 	cd h248
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+h282::
+	cd h282
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+h283::
+	cd h283
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

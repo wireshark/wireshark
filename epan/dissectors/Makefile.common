@@ -102,6 +102,8 @@ ASN_DISSECTOR_SRC = \
 	packet-h235.c \
 	packet-h245.c \
 	packet-h248.c \
+	packet-h282.c \
+	packet-h283.c \
 	packet-h323.c \
 	packet-h450.c \
 	packet-h450-ros.c \
