@@ -2097,7 +2097,7 @@ Sam Leffler             <sam [AT] errno.com> {
 	   5.2 and later and by NetBSD-current
 }
 
-Martin Mathieson        <martin [AT] arca-technologies.com> {
+Martin Mathieson        <martin.r.mathieson [AT] googlemail.com> {
 	SIP sipfrag support
 	SIP statistics tap
 	Show setupframe in RTP and RTCP
