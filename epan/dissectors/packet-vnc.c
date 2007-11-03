@@ -26,7 +26,8 @@
 
 /* Dissection of the VNC (Virtual Network Computing) network traffic.
  *
- * Both versions of RealVNC (3.3 and 3.8) are supported.
+ * All versions of RealVNC and TightVNC are supported.
+ * Note: The addition of TightVNC support is not yet complete.
  *
  * Several VNC implementations available, see:
  * http://www.realvnc.com/
@@ -38,7 +39,7 @@
  *
  * This code is based on the protocol specification:
  *   http://www.realvnc.com/docs/rfbproto.pdf
- *  and the RealVNC free edition source code
+ *  and the RealVNC free edition & TightVNC source code
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,6 +71,18 @@ static const value_string security_types_vs[] = {
 	{ 19, "VeNCrypt" },
 	{ 0,  NULL       }
 };
+
+typedef enum {
+	INVALID  = 0,
+	NONE     = 1,
+	VNC      = 2,
+	RA2      = 5,
+	RA2ne    = 6,
+	TIGHT    = 16,
+	ULTRA    = 17,
+	TLS      = 18,
+	VENCRYPT = 19
+} security_types_e;
 
 static const value_string auth_result_vs[] = {
 	{ 0, "OK"     },
@@ -115,6 +128,9 @@ static const value_string encoding_types_vs[] = {
 	{ 2,  "RRE"                    },
 	{ 4,  "CoRRE"                  },
 	{ 5,  "Hextile"                },
+	{ 6,  "Zlib"                   },
+	{ 7,  "Tight"                  },
+	{ 8,  "ZlibHex"                },
 	{ 16, "ZRLE"                   },
 	{ 0,  NULL                     }
 };
@@ -122,18 +138,32 @@ static const value_string encoding_types_vs[] = {
 typedef enum {
 	SERVER_VERSION,
 	CLIENT_VERSION,
+
 	SECURITY,
 	SECURITY_TYPES,
+
+	TIGHT_UNKNOWN_PACKET1,
+	TIGHT_UNKNOWN_PACKET2,
+	TIGHT_AUTH_TYPE_AND_VENDOR_CODE,
+	TIGHT_UNKNOWN_PACKET3,
+
 	VNC_AUTHENTICATION_CHALLENGE,
 	VNC_AUTHENTICATION_RESPONSE,
+
 	SECURITY_RESULT,
+
 	CLIENT_INIT,
 	SERVER_INIT,
+
+	TIGHT_INTERACTION_CAPS,
+	TIGHT_UNKNOWN_PACKET4,
+
 	NORMAL_TRAFFIC
 } vnc_session_state_e;
 
 /* This structure will be tied to each conversation. */
 typedef struct {
+	guint8 security_type_selected;
 	gdouble server_proto_ver, client_proto_ver;
 	vnc_session_state_e vnc_next_state;
 } vnc_conversation_t;
@@ -222,6 +252,8 @@ static int hf_vnc_num_security_types = -1;
 static int hf_vnc_security_type = -1;
 static int hf_vnc_server_security_type = -1;
 static int hf_vnc_client_security_type = -1;
+static int hf_vnc_vendor_code = -1;
+static int hf_vnc_security_type_string = -1;
 static int hf_vnc_auth_challenge = -1;
 static int hf_vnc_auth_response = -1;
 static int hf_vnc_auth_result = -1;
@@ -243,6 +275,9 @@ static int hf_vnc_server_blue_shift = -1;
 static int hf_vnc_desktop_name = -1;
 static int hf_vnc_desktop_name_len = -1;
 
+static int hf_vnc_num_server_message_types = -1;
+static int hf_vnc_num_client_message_types = -1;
+static int hf_vnc_num_encoding_types = -1;
 
 /********** Client Message Types **********/
 
@@ -455,10 +490,11 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		     proto_tree *tree, vnc_conversation_t
 		     *per_conversation_info)
 {
-	guint8 num_security_types, security_type_selected;
+	guint8 num_security_types;
+	gchar *vendor;
 	guint32 desktop_name_len, auth_result, text_len;
-
 	vnc_packet_t *per_packet_info;
+	proto_item *ti;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
 
@@ -544,9 +580,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		
                 proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
                                     offset, 1, FALSE);
-		security_type_selected = tvb_get_guint8(tvb, offset);
+		per_conversation_info->security_type_selected =
+			tvb_get_guint8(tvb, offset);
 	
-		switch(security_type_selected) {
+		switch(per_conversation_info->security_type_selected) {
 
 		case 1 : /* None */
 			if(per_conversation_info->client_proto_ver >= 3.008)
@@ -562,13 +599,93 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			per_conversation_info->vnc_next_state =
 				VNC_AUTHENTICATION_CHALLENGE;
 			break;
+
+		case 16 : /* Tight */
+			per_conversation_info->vnc_next_state =
+				TIGHT_UNKNOWN_PACKET1;
+			
 		default :
 			/* Security type not supported by this dissector */
 			break;
 		}
 
 		break;
+
+	case TIGHT_UNKNOWN_PACKET1 :
+		if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                    "Unknown packet (TightVNC)");
+
+                proto_tree_add_text(tree, tvb, offset, -1,
+				    "Unknown packet (TightVNC)");
 		
+		per_conversation_info->vnc_next_state =
+			TIGHT_UNKNOWN_PACKET2;
+
+		break;
+
+	case TIGHT_UNKNOWN_PACKET2 :
+		if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                    "Unknown packet (TightVNC)");
+
+                proto_tree_add_text(tree, tvb, offset, -1,
+				    "Unknown packet (TightVNC)");
+
+		per_conversation_info->vnc_next_state =
+			TIGHT_AUTH_TYPE_AND_VENDOR_CODE;
+		
+		break;
+
+	case TIGHT_AUTH_TYPE_AND_VENDOR_CODE :
+		if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                    "Authentication type / vendor code");
+
+		proto_tree_add_item(tree, hf_vnc_server_security_type, tvb,
+				    offset, 4, FALSE);		
+
+		offset += 4;
+
+		/* Display vendor code */		
+		vendor = tvb_get_ephemeral_string(tvb, offset, 4);
+
+		ti = proto_tree_add_string(tree, hf_vnc_vendor_code, tvb,
+					   offset, 4, vendor);
+
+		if(g_ascii_strcasecmp(vendor, "STDV") == 0)
+			proto_item_append_text(ti, " (Standard VNC vendor)");
+
+		else if(g_ascii_strcasecmp(vendor, "TRDV") == 0)
+			proto_item_append_text(ti, " (Tridia VNC vendor)");
+
+		else if(g_ascii_strcasecmp(vendor, "TGHT") == 0)
+			proto_item_append_text(ti, " (Tight VNC vendor)");
+			
+		offset += 4;
+
+		/* Display authentication method string */
+		proto_tree_add_item(tree, hf_vnc_security_type_string, tvb,
+				    offset, 8, FALSE);
+
+		per_conversation_info->vnc_next_state =
+			TIGHT_UNKNOWN_PACKET3;
+
+		break;
+		
+	case TIGHT_UNKNOWN_PACKET3 :
+		if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                    "Unknown packet (TightVNC)");
+		
+                proto_tree_add_text(tree, tvb, offset, -1,
+				    "Unknown packet (TightVNC)");
+
+		per_conversation_info->vnc_next_state =
+			VNC_AUTHENTICATION_CHALLENGE;
+
+		break;
+
 	case VNC_AUTHENTICATION_CHALLENGE :
 		if (check_col(pinfo->cinfo, COL_INFO))
                         col_set_str(pinfo->cinfo, COL_INFO,
@@ -711,7 +828,53 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
                                             FALSE);
                 }
 
+		if(per_conversation_info->security_type_selected == TIGHT)
+			per_conversation_info->vnc_next_state =
+				TIGHT_INTERACTION_CAPS;
+		else
+			per_conversation_info->vnc_next_state = NORMAL_TRAFFIC;
+		break;
+		
+	case TIGHT_INTERACTION_CAPS :
+		if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                    "Interaction Capabilities");
+
+		proto_tree_add_item(tree, hf_vnc_num_server_message_types,
+				    tvb, offset, 2, FALSE);
+
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_vnc_num_client_message_types,
+				    tvb, offset, 2, FALSE);
+
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_vnc_num_encoding_types,
+				    tvb, offset, 2, FALSE);
+
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_vnc_padding, tvb, offset, 2,
+				    FALSE);
+
+		/* XXX - Display lists of server and client messages, the
+		 * number of each in the packet is found above. */
+
+		per_conversation_info->vnc_next_state = TIGHT_UNKNOWN_PACKET4;
+
+		break;
+
+	case TIGHT_UNKNOWN_PACKET4 :
+		if (check_col(pinfo->cinfo, COL_INFO))
+                        col_set_str(pinfo->cinfo, COL_INFO,
+                                    "Unknown packet (TightVNC)");
+		
+                proto_tree_add_text(tree, tvb, offset, -1,
+				    "Unknown packet (TightVNC)");
+		
 		per_conversation_info->vnc_next_state = NORMAL_TRAFFIC;
+		
 		break;
 
 	case NORMAL_TRAFFIC :
@@ -1618,12 +1781,22 @@ proto_register_vnc(void)
 		{ &hf_vnc_server_security_type,
 		  { "Security type", "vnc.server_security_type",
 		    FT_UINT32, BASE_DEC, VALS(security_types_vs), 0x0,
-		    "Security type mandated by the server (VNC versions < 3.007)", HFILL }
+		    "Security type mandated by the server", HFILL }
 		},
 		{ &hf_vnc_client_security_type,
 		  { "Security type selected", "vnc.security_type",
 		    FT_UINT8, BASE_DEC, VALS(security_types_vs), 0x0,
 		    "Security type selected by the client", HFILL }
+		},
+		{ &hf_vnc_vendor_code,
+		  { "Vendor code", "vnc.vendor_code",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Identifies the VNC server software's vendor", HFILL }
+		},
+		{ &hf_vnc_security_type_string,
+		  { "Security type string", "vnc.security_type_string",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Security type being used", HFILL }
 		},
 		{ &hf_vnc_auth_challenge,
 		  { "Authentication challenge", "vnc.auth_challenge",
@@ -1719,6 +1892,21 @@ proto_register_vnc(void)
 		  { "Desktop name", "vnc.desktop_name",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Name of the VNC desktop on the server", HFILL }
+		},
+		{ &hf_vnc_num_server_message_types,
+		  { "Server message types", "vnc.num_server_message_types",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Unknown", HFILL } /* XXX - Needs description */
+		},
+		{ &hf_vnc_num_client_message_types,
+		  { "Client message types", "vnc.num_client_message_types",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Unknown", HFILL } /* XXX - Needs description */
+		},
+		{ &hf_vnc_num_encoding_types,
+		  { "Encoding types", "vnc.num_encoding_types",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Unknown", HFILL } /* XXX - Needs description */
 		},
 		{ &hf_vnc_client_message_type,
 		  { "Client Message Type", "vnc.client_message_type",
