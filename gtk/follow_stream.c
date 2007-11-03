@@ -81,6 +81,9 @@ follow_read_stream(follow_info_t *follow_info,
 	case FOLLOW_TCP :
 		return follow_read_tcp_stream(follow_info, print_line, arg);
 
+	case FOLLOW_UDP :
+		return follow_read_udp_stream(follow_info, print_line, arg);
+
 	case FOLLOW_SSL :
 		return follow_read_ssl_stream(follow_info, print_line, arg);
 
@@ -542,7 +545,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 		return;
 	}
 
-	new_win = file_selection_new("Wireshark: Save TCP Follow Stream As",
+	new_win = file_selection_new("Wireshark: Save Follow Stream As",
 				     FILE_SELECTION_SAVE);
 	follow_info->follow_save_as_w = new_win;
 
@@ -728,7 +731,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	GtkWidget	*stream_fr, *stream_vb;
 	GtkWidget	*stream_om, *stream_menu, *stream_mi;
 	GtkTooltips	*tooltips;
-	follow_tcp_stats_t stats;
+	follow_stats_t stats;
 
 	streamwindow = dlg_window_new(title);
 
@@ -803,7 +806,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
         gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 	
 	/* Stream to show */
-	follow_tcp_stats(&stats);
+	follow_stats(&stats);
 
 	follow_info->is_ipv6 = stats.is_ipv6;
 
@@ -947,6 +950,7 @@ static void
 follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
 	follow_info_t *follow_info;
+	follow_record_t *follow_record;
 	GList *cur;
 	int i;
 
@@ -955,22 +959,35 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	switch(follow_info->follow_type) {
 	
 	case FOLLOW_TCP :
-		
 		i = unlink(follow_info->data_out_filename);
 		if(i != 0) {
 			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, strerror(errno), errno);        
 		}
 		break;
 		
+	case FOLLOW_UDP :
+		for(cur = follow_info->payload; cur; cur = g_list_next(cur))
+			if(cur->data) {
+				follow_record = cur->data;
+				if(follow_record->data)
+					g_byte_array_free(follow_record->data,
+							  TRUE);
+
+				g_free(follow_record);
+			}
+
+		g_list_free(follow_info->payload);
+		break;
+
 	case FOLLOW_SSL :
 		/* free decrypted data list*/
-		for (cur = follow_info->ssl_decrypted_data; cur; cur = g_list_next(cur))
+		for (cur = follow_info->payload; cur; cur = g_list_next(cur))
 			if (cur->data)
 				{
 					g_free(cur->data);
 					cur->data = NULL;
 				}
-		g_list_free (follow_info->ssl_decrypted_data);
+		g_list_free (follow_info->payload);
 		break;
 	}
 

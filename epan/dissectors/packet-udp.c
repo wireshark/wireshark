@@ -49,6 +49,7 @@
 #include <epan/tap.h>
 
 static int udp_tap = -1;
+static int udp_follow_tap = -1;
 
 static int proto_udp = -1;
 static int proto_udplite = -1;
@@ -110,8 +111,14 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (len > reported_len)
       len = reported_len;
   }
+
   next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
 
+  /* If the user has a "Follow UDP Stream" window loading, pass a pointer
+   * to the payload tvb through the tap system. */
+  if(have_tap_listener(udp_follow_tap))
+	  tap_queue_packet(udp_follow_tap, pinfo, next_tvb);
+  
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
@@ -532,4 +539,5 @@ proto_reg_handoff_udp(void)
 	dissector_add("ip.proto", IP_PROTO_UDPLITE, udplite_handle);
 	data_handle = find_dissector("data");
 	udp_tap = register_tap("udp");
+	udp_follow_tap = register_tap("udp_follow");
 }

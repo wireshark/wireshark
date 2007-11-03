@@ -32,7 +32,8 @@
 /* Type of follow we are doing */
 typedef enum {
 	FOLLOW_TCP,
-	FOLLOW_SSL
+	FOLLOW_SSL,
+	FOLLOW_UDP
 } follow_type_t;
 
 /* Show Stream */
@@ -59,6 +60,11 @@ typedef enum {
 } frs_return_t;
 
 typedef struct {
+	gboolean is_server;
+	GByteArray *data;
+} follow_record_t;
+
+typedef struct {
 	follow_type_t   follow_type;
 	show_stream_t	show_stream;
 	show_type_t	show_type;
@@ -77,7 +83,7 @@ typedef struct {
 	char		*filter_out_filter;
 	GtkWidget	*filter_te;
 	GtkWidget	*streamwindow;
-        GList           *ssl_decrypted_data;
+        GList           *payload;
         guint           bytes_written[2];
         guint           client_port;
         char            client_ip[MAX_IPADDR_LEN];
@@ -117,4 +123,5 @@ frs_return_t follow_show(follow_info_t *follow_info,
 			 void *arg, guint32 *global_pos);
 
 frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
+frs_return_t follow_read_udp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 frs_return_t follow_read_ssl_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);

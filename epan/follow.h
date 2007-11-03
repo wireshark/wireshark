@@ -48,11 +48,11 @@ void  reset_tcp_reassembly( void );
 
 typedef struct {
 	guint8		ip_address[2][MAX_IPADDR_LEN];
-	guint32		tcp_port[2];
+	guint32		port[2];
 	unsigned int	bytes_written[2];
 	gboolean        is_ipv6;
-} follow_tcp_stats_t;
+} follow_stats_t;
 
-void follow_tcp_stats(follow_tcp_stats_t* stats);
+void follow_stats(follow_stats_t* stats);
 
 #endif

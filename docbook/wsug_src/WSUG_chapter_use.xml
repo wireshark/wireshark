@@ -1351,6 +1351,14 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Follow UDP Stream</command></entry>
+		<entry></entry>
+		<entry><para>
+			Same functionality as "Follow TCP Stream" but
+			for UDP streams.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Follow SSL Stream</command></entry>
 		<entry></entry>
 		<entry><para>

@@ -56,6 +56,8 @@
 #include "packet_win.h"
 #include "print.h"
 #include "follow_tcp.h"
+#include "follow_udp.h"
+#include "follow_ssl.h"
 #include "decode_as_dlg.h"
 #include "help_dlg.h"
 #include "supported_protos_dlg.h"
@@ -79,7 +81,6 @@
 #include "simple_dialog.h"
 #include "packet_history.h"
 #include "color_filters.h"
-#include "follow_ssl.h"
 #include "sctp_stat.h"
 #include "firewall_dlg.h"
 #include "u3.h"
@@ -622,6 +623,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL,
                        follow_tcp_stream_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/_Follow UDP Stream", NULL,
+                       follow_udp_stream_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow SSL Stream", NULL,
                        follow_ssl_stream_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Statistics", NULL, NULL, 0, "<Branch>", NULL),
@@ -721,6 +724,8 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_tcp_stream_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Follow UDP Stream", NULL, follow_udp_stream_cb,
+                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, follow_ssl_stream_cb,
                        0, NULL, NULL),
 
@@ -791,6 +796,8 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_tcp_stream_cb,
+                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Follow UDP Stream", NULL, follow_udp_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, follow_ssl_stream_cb,
                        0, NULL, NULL),
@@ -2465,6 +2472,12 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(tree_view_menu_factory, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow UDP Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Follow UDP Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+  set_menu_sensitivity(tree_view_menu_factory, "/Follow UDP Stream",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Follow SSL Stream",
       cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Follow SSL Stream",

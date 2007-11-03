@@ -125,8 +125,8 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
       p += appl_data->plain_data.data_len; 
       appl_data = appl_data->next;
     } while (appl_data);
-    follow_info->ssl_decrypted_data = g_list_append(
-        follow_info->ssl_decrypted_data,rec);
+    follow_info->payload = g_list_append(
+        follow_info->payload,rec);
 
     return 0;
 }
@@ -150,7 +150,7 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     gchar	*server_to_client_string = NULL;
     gchar       *client_to_server_string = NULL;
     gchar	*both_directions_string = NULL;
-    follow_tcp_stats_t stats;
+    follow_stats_t stats;
     follow_info_t *follow_info;
     GString*    msg;
 
@@ -223,7 +223,7 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     remove_tap_listener(follow_info);
 
     /* Stream to show */
-    follow_tcp_stats(&stats);
+    follow_stats(&stats);
 
     if (stats.is_ipv6) {
 	    struct e_in6_addr ipaddr;
@@ -239,8 +239,8 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 	    hostname1 = get_hostname(ipaddr);
     }
     
-    port0 = get_tcp_port(stats.tcp_port[0]);
-    port1 = get_tcp_port(stats.tcp_port[1]);
+    port0 = get_tcp_port(stats.port[0]);
+    port1 = get_tcp_port(stats.port[1]);
     
     follow_info->is_ipv6 = stats.is_ipv6;
 
@@ -302,7 +302,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
     
-    for (cur = follow_info->ssl_decrypted_data; cur; cur = g_list_next(cur)) {
+    for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
         SslDecryptedRecord* rec = cur->data;
 	skip = FALSE;
 	if (!rec->is_server) {
@@ -320,7 +320,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 
         if (!skip) {
             size_t nchars = rec->data.data_len;
-            gchar *buffer = g_strndup(rec->data.data, nchars);
+            gchar *buffer = g_memdup(rec->data.data, nchars);
             
 	    frs_return = follow_show(follow_info, print_line, buffer, nchars,
 				     rec->is_server, arg, global_pos);

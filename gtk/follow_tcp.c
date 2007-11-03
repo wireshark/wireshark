@@ -111,7 +111,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	gchar		*server_to_client_string = NULL;
 	gchar		*client_to_server_string = NULL;
 	gchar		*both_directions_string = NULL;
-	follow_tcp_stats_t stats;
+	follow_stats_t stats;
 	follow_info_t	*follow_info;
 	tcp_stream_chunk sc;
 	size_t              nchars;
@@ -240,7 +240,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	   session (this is dumped to file by the TCP dissector). */
 
 	/* Stream to show */
-	follow_tcp_stats(&stats);
+	follow_stats(&stats);
 
 	if (stats.is_ipv6) {
 		struct e_in6_addr ipaddr;
@@ -258,8 +258,8 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 
         follow_info->is_ipv6 = stats.is_ipv6;
 
-	port0 = get_tcp_port(stats.tcp_port[0]);
-	port1 = get_tcp_port(stats.tcp_port[1]);
+	port0 = get_tcp_port(stats.port[0]);
+	port1 = get_tcp_port(stats.port[1]);
 
 	/* Host 0 --> Host 1 */
 	if(sc.src_port == strtol(port0, NULL, 10)) {

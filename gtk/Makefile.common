@@ -73,6 +73,7 @@ WIRESHARK_GTK_SRC = \
 	follow_ssl.c	\
 	follow_stream.c	\
 	follow_tcp.c	\
+	follow_udp.c	\
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \

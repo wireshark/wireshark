@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/ipproto.h>
 #include "follow.h"
 
 #define MAX_IPADDR_LEN  16
@@ -55,7 +56,7 @@ gboolean empty_tcp_stream;
 gboolean incomplete_tcp_stream;
 
 static guint8  ip_address[2][MAX_IPADDR_LEN];
-static guint   tcp_port[2];
+static guint   port[2];
 static guint   bytes_written[2];
 static gboolean is_ipv6 = FALSE;
 
@@ -63,13 +64,13 @@ static int check_fragments( int, tcp_stream_chunk * );
 static void write_packet_data( int, tcp_stream_chunk *, const char * );
 
 void
-follow_tcp_stats(follow_tcp_stats_t* stats)
+follow_stats(follow_stats_t* stats)
 {
 	int i;
 
 	for (i = 0; i < 2 ; i++) {
 		memcpy(stats->ip_address[i], ip_address[i], MAX_IPADDR_LEN);
-		stats->tcp_port[i] = tcp_port[i];
+		stats->port[i] = port[i];
 		stats->bytes_written[i] = bytes_written[i];
 		stats->is_ipv6 = is_ipv6;
 	}
@@ -84,7 +85,7 @@ build_follow_filter( packet_info *pi ) {
   char* buf;
   int len;
   if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	&& pi->ipproto == 6 ) {
+	&& pi->ipproto == IP_PROTO_TCP ) {
     /* TCP over IPv4 */
     buf = g_strdup_printf(
 	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
@@ -94,11 +95,33 @@ build_follow_filter( packet_info *pi ) {
     len = 4;
     is_ipv6 = FALSE;
   }
+  else if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+	   && pi->ipproto == IP_PROTO_UDP ) {
+  /* UDP over IPv4 */
+    buf = g_strdup_printf(
+	     "(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+	     ip_to_str( pi->net_src.data),
+	     ip_to_str( pi->net_dst.data),
+	     pi->srcport, pi->destport );
+    len = 4;
+    is_ipv6 = FALSE;
+  }
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == 6 ) {
+	&& pi->ipproto == IP_PROTO_TCP ) {
     /* TCP over IPv6 */
     buf = g_strdup_printf(
 	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
+	     pi->srcport, pi->destport );
+    len = 16;
+    is_ipv6 = TRUE;
+  }
+  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+	&& pi->ipproto == IP_PROTO_UDP ) {
+    /* UDP over IPv6 */
+    buf = g_strdup_printf(
+	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
 	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
 	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
 	     pi->srcport, pi->destport );
@@ -110,8 +133,8 @@ build_follow_filter( packet_info *pi ) {
   }
   memcpy(ip_address[0], pi->net_src.data, len);
   memcpy(ip_address[1], pi->net_dst.data, len);
-  tcp_port[0] = pi->srcport;
-  tcp_port[1] = pi->destport;
+  port[0] = pi->srcport;
+  port[1] = pi->destport;
   return buf;
 }
 
@@ -154,14 +177,14 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
       ! (
 	 memcmp(srcx, ip_address[0], len) == 0 &&
 	 memcmp(dstx, ip_address[1], len) == 0 &&
-	 srcport == tcp_port[0] &&
-	 dstport == tcp_port[1]
+	 srcport == port[0] &&
+	 dstport == port[1]
 	) &&
       ! (
 	 memcmp(srcx, ip_address[1], len) == 0 &&
 	 memcmp(dstx, ip_address[0], len) == 0 &&
-	 srcport == tcp_port[1] &&
-	 dstport == tcp_port[0]
+	 srcport == port[1] &&
+	 dstport == port[0]
 	)
      )
     return;
@@ -317,7 +340,7 @@ reset_tcp_reassembly(void)
     memset(src_addr[i], '\0', MAX_IPADDR_LEN);
     src_port[i] = 0;
     memset(ip_address[i], '\0', MAX_IPADDR_LEN);
-    tcp_port[i] = 0;
+    port[i] = 0;
     bytes_written[i] = 0;
     current = frags[i];
     while( current ) {
