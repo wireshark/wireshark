@@ -157,6 +157,8 @@ Section "Main"
 	FoundProgramEXE:
 		;=== Check if running
 		StrCmp $SECONDARYLAUNCH "true" GetPassedParameters
+		; if the following step fails, you'll need the FindProcDLL plug-in from:
+		; http://nsis.sourceforge.net/Find_Process_By_Name 
 		FindProcDLL::FindProc "${DEFAULTEXE}"
 		StrCmp $R0 "1" WarnAnotherInstance DisplaySplash
 
