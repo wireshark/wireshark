@@ -1,0 +1,31 @@
+$Id$
+
+Portable Wireshark
+==================
+
+This directory contains experimental packaging for running Wireshark under the Portable Apps 
+(http://www.portableapps.com/). 
+
+The packaging relies on the same "manifest" as used by the U3 packaging. Therefore there is no need to maintain a list of relevant files for the Portable Wireshark. Only the U3 list needs to be updated.
+
+Currently only an additional menu item for Wireshark is added - the other tools could be added to Portable Apps menu if required.
+
+WinPcap
+=======
+
+If you want to capture packets, then WinPcap needs to be installed. Wireshark Portable will try and install WinPcap if it doesn't find it installed on the local machine. If it does install it, it will uninstall it when Wireshark Portable quits.
+A quieter install/de-install for WinPcap would help matters - but ultimately a minimal installation mechanism needs to be identified for WinPcap. But that is not for the Wireshark forum.
+
+NSIS
+====
+
+The Portable Apps packaging uses the NullSoft Scriptable Installer System (NSIS) to create a installation package to install onto the USB drive, and a launcher to launch Wireshak from the USB drive.
+
+NSIS is used by the standard Win32 installation mechansim (packaging/nsis) but an additional plug-in is required for the Wireshark Portable launcher. This can be downloaded from:
+http://nsis.sourceforge.net/Find_Process_By_Name
+which also contains the instructions for its installation. 
+
+INI Settings
+============
+
+To be documented.
