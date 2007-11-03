@@ -71,6 +71,7 @@ noinst_HEADERS = \
 	follow_ssl.h	\
 	follow_stream.h	\
 	follow_tcp.h	\
+	follow_udp.h	\
 	font_utils.h	\
 	goto_dlg.h	\
 	graph_analysis.h \
