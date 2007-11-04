@@ -339,7 +339,7 @@ find_stream_circ
 find_tap_id
 find_val_for_string
 flags_set_truth                 DATA
-follow_tcp_stats
+follow_stats
 format_text
 format_uri
 fragment_add
