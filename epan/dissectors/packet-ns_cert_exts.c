@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ns_cert_exts.c                                                    */
-/* ../../tools/asn2wrs.py -b -e -p ns_cert_exts -c ns_cert_exts.cnf -s packet-ns_cert_exts-template NETSCAPE-CERT-EXTS.asn */
+/* packet-ns_cert_exts.c                                                      */
+/* ../../tools/asn2wrs.py -b -X -T -p ns_cert_exts -c ns_cert_exts.cnf -s packet-ns_cert_exts-template NETSCAPE-CERT-EXTS.asn */
 
 /* Input file: packet-ns_cert_exts-template.c */
 
@@ -81,9 +81,6 @@ static gint ett_ns_cert_exts_CertType = -1;
 
 /*--- Included file: packet-ns_cert_exts-fn.c ---*/
 #line 1 "packet-ns_cert_exts-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
