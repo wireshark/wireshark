@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-wlancertextn.c                                                      */
-/* ../../tools/asn2wrs.py -b -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
+/* ../../tools/asn2wrs.py -b -X -T -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.c */
 
@@ -77,9 +77,6 @@ static gint ett_wlancertextn_SSIDList = -1;
 
 /*--- Included file: packet-wlancertextn-fn.c ---*/
 #line 1 "packet-wlancertextn-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -89,19 +86,16 @@ dissect_wlancertextn_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_SSIDList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_wlancertextn_SSID(FALSE, tvb, offset, actx, tree, hf_wlancertextn_SSIDList_item);
-}
 
 
-static const ber_old_sequence_t SSIDList_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SSIDList_item },
+static const ber_sequence_t SSIDList_sequence_of[1] = {
+  { &hf_wlancertextn_SSIDList_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_wlancertextn_SSID },
 };
 
 static int
 dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
 
   return offset;
 }
