@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkixtsp.c                                                         */
-/* ../../tools/asn2wrs.py -b -e -p pkixtsp -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn */
+/* packet-pkixtsp.c                                                           */
+/* ../../tools/asn2wrs.py -b -X -T -p pkixtsp -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn */
 
 /* Input file: packet-pkixtsp-template.c */
 
@@ -69,7 +69,7 @@ static int hf_pkixtsp_status = -1;                /* PKIStatusInfo */
 static int hf_pkixtsp_timeStampToken = -1;        /* TimeStampToken */
 static int hf_pkixtsp_pki_status = -1;            /* PKIStatus */
 static int hf_pkixtsp_failInfo = -1;              /* PKIFailureInfo */
-static int hf_pkixtsp_tst_version = -1;           /* tst_version */
+static int hf_pkixtsp_tst_version = -1;           /* Tst_version */
 static int hf_pkixtsp_policy = -1;                /* TSAPolicyId */
 static int hf_pkixtsp_serialNumber = -1;          /* INTEGER */
 static int hf_pkixtsp_genTime = -1;               /* GeneralizedTime */
@@ -112,18 +112,6 @@ static gint ett_pkixtsp_Accuracy = -1;
 
 /*--- Included file: packet-pkixtsp-fn.c ---*/
 #line 1 "packet-pkixtsp-fn.c"
-/*--- Fields for imported types ---*/
-
-static int dissect_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_Extensions(TRUE, tvb, offset, actx, tree, hf_pkixtsp_extensions);
-}
-static int dissect_hashAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_pkixtsp_hashAlgorithm);
-}
-static int dissect_tsa_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1implicit_GeneralName(TRUE, tvb, offset, actx, tree, hf_pkixtsp_tsa);
-}
-
 
 static const value_string pkixtsp_T_version_vals[] = {
   {   1, "v1" },
@@ -138,9 +126,6 @@ dissect_pkixtsp_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_T_version(FALSE, tvb, offset, actx, tree, hf_pkixtsp_version);
-}
 
 
 
@@ -151,26 +136,20 @@ dissect_pkixtsp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_hashedMessage(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_pkixtsp_hashedMessage);
-}
 
 
-static const ber_old_sequence_t MessageImprint_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_hashAlgorithm },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hashedMessage },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t MessageImprint_sequence[] = {
+  { &hf_pkixtsp_hashAlgorithm, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_AlgorithmIdentifier },
+  { &hf_pkixtsp_hashedMessage, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixtsp_MessageImprint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       MessageImprint_sequence, hf_index, ett_pkixtsp_MessageImprint);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   MessageImprint_sequence, hf_index, ett_pkixtsp_MessageImprint);
 
   return offset;
-}
-static int dissect_messageImprint(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_MessageImprint(FALSE, tvb, offset, actx, tree, hf_pkixtsp_messageImprint);
 }
 
 
@@ -180,12 +159,6 @@ dissect_pkixtsp_TSAPolicyId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_reqPolicy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_TSAPolicyId(FALSE, tvb, offset, actx, tree, hf_pkixtsp_reqPolicy);
-}
-static int dissect_policy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_TSAPolicyId(FALSE, tvb, offset, actx, tree, hf_pkixtsp_policy);
 }
 
 
@@ -197,15 +170,6 @@ dissect_pkixtsp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_nonce(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkixtsp_nonce);
-}
-static int dissect_serialNumber(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkixtsp_serialNumber);
-}
-static int dissect_seconds(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkixtsp_seconds);
-}
 
 
 
@@ -215,28 +179,22 @@ dissect_pkixtsp_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_certReq(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_BOOLEAN(FALSE, tvb, offset, actx, tree, hf_pkixtsp_certReq);
-}
-static int dissect_ordering(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_BOOLEAN(FALSE, tvb, offset, actx, tree, hf_pkixtsp_ordering);
-}
 
 
-static const ber_old_sequence_t TimeStampReq_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_messageImprint },
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_reqPolicy },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_nonce },
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_certReq },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TimeStampReq_sequence[] = {
+  { &hf_pkixtsp_version     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_T_version },
+  { &hf_pkixtsp_messageImprint, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_MessageImprint },
+  { &hf_pkixtsp_reqPolicy   , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_TSAPolicyId },
+  { &hf_pkixtsp_nonce       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_INTEGER },
+  { &hf_pkixtsp_certReq     , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_BOOLEAN },
+  { &hf_pkixtsp_extensions  , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_Extensions },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixtsp_TimeStampReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TimeStampReq_sequence, hf_index, ett_pkixtsp_TimeStampReq);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TimeStampReq_sequence, hf_index, ett_pkixtsp_TimeStampReq);
 
   return offset;
 }
@@ -260,9 +218,6 @@ dissect_pkixtsp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_pki_status(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_PKIStatus(FALSE, tvb, offset, actx, tree, hf_pkixtsp_pki_status);
-}
 
 
 static const asn_namedbit PKIFailureInfo_bits[] = {
@@ -285,26 +240,20 @@ dissect_pkixtsp_PKIFailureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_failInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_PKIFailureInfo(FALSE, tvb, offset, actx, tree, hf_pkixtsp_failInfo);
-}
 
 
-static const ber_old_sequence_t PKIStatusInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pki_status },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_failInfo },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PKIStatusInfo_sequence[] = {
+  { &hf_pkixtsp_pki_status  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_PKIStatus },
+  { &hf_pkixtsp_failInfo    , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_PKIFailureInfo },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixtsp_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PKIStatusInfo_sequence, hf_index, ett_pkixtsp_PKIStatusInfo);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PKIStatusInfo_sequence, hf_index, ett_pkixtsp_PKIStatusInfo);
 
   return offset;
-}
-static int dissect_status(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_PKIStatusInfo(FALSE, tvb, offset, actx, tree, hf_pkixtsp_status);
 }
 
 
@@ -315,41 +264,35 @@ dissect_pkixtsp_TimeStampToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_timeStampToken(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_TimeStampToken(FALSE, tvb, offset, actx, tree, hf_pkixtsp_timeStampToken);
-}
 
 
-static const ber_old_sequence_t TimeStampResp_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_timeStampToken },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TimeStampResp_sequence[] = {
+  { &hf_pkixtsp_status      , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_PKIStatusInfo },
+  { &hf_pkixtsp_timeStampToken, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_TimeStampToken },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixtsp_TimeStampResp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TimeStampResp_sequence, hf_index, ett_pkixtsp_TimeStampResp);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TimeStampResp_sequence, hf_index, ett_pkixtsp_TimeStampResp);
 
   return offset;
 }
 
 
-static const value_string pkixtsp_tst_version_vals[] = {
+static const value_string pkixtsp_Tst_version_vals[] = {
   {   1, "v1" },
   { 0, NULL }
 };
 
 
 static int
-dissect_pkixtsp_tst_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkixtsp_Tst_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
-}
-static int dissect_tst_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_tst_version(FALSE, tvb, offset, actx, tree, hf_pkixtsp_tst_version);
 }
 
 
@@ -359,9 +302,6 @@ dissect_pkixtsp_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
-}
-static int dissect_genTime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_GeneralizedTime(FALSE, tvb, offset, actx, tree, hf_pkixtsp_genTime);
 }
 
 
@@ -373,51 +313,42 @@ dissect_pkixtsp_INTEGER_1_999(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_millis_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_INTEGER_1_999(TRUE, tvb, offset, actx, tree, hf_pkixtsp_millis);
-}
-static int dissect_micros_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_INTEGER_1_999(TRUE, tvb, offset, actx, tree, hf_pkixtsp_micros);
-}
 
 
-static const ber_old_sequence_t Accuracy_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_seconds },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_millis_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_micros_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Accuracy_sequence[] = {
+  { &hf_pkixtsp_seconds     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_INTEGER },
+  { &hf_pkixtsp_millis      , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkixtsp_INTEGER_1_999 },
+  { &hf_pkixtsp_micros      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkixtsp_INTEGER_1_999 },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixtsp_Accuracy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Accuracy_sequence, hf_index, ett_pkixtsp_Accuracy);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Accuracy_sequence, hf_index, ett_pkixtsp_Accuracy);
 
   return offset;
 }
-static int dissect_accuracy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixtsp_Accuracy(FALSE, tvb, offset, actx, tree, hf_pkixtsp_accuracy);
-}
 
 
-static const ber_old_sequence_t TSTInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tst_version },
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policy },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_messageImprint },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
-  { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_genTime },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_accuracy },
-  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ordering },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_nonce },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tsa_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TSTInfo_sequence[] = {
+  { &hf_pkixtsp_tst_version , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_Tst_version },
+  { &hf_pkixtsp_policy      , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_TSAPolicyId },
+  { &hf_pkixtsp_messageImprint, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_MessageImprint },
+  { &hf_pkixtsp_serialNumber, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_INTEGER },
+  { &hf_pkixtsp_genTime     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_pkixtsp_GeneralizedTime },
+  { &hf_pkixtsp_accuracy    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_Accuracy },
+  { &hf_pkixtsp_ordering    , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_BOOLEAN },
+  { &hf_pkixtsp_nonce       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixtsp_INTEGER },
+  { &hf_pkixtsp_tsa         , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1implicit_GeneralName },
+  { &hf_pkixtsp_extensions  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_Extensions },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixtsp_TSTInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TSTInfo_sequence, hf_index, ett_pkixtsp_TSTInfo);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TSTInfo_sequence, hf_index, ett_pkixtsp_TSTInfo);
 
   return offset;
 }
@@ -441,7 +372,7 @@ dissect_timestamp_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Reply");
+		col_set_str(pinfo->cinfo, COL_INFO, "Reply");
 	}
 
 
@@ -467,7 +398,7 @@ dissect_timestamp_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Query");
+		col_set_str(pinfo->cinfo, COL_INFO, "Query");
 	}
 
 
@@ -538,8 +469,8 @@ void proto_register_pkixtsp(void) {
         "pkixtsp.PKIFailureInfo", HFILL }},
     { &hf_pkixtsp_tst_version,
       { "version", "pkixtsp.version",
-        FT_INT32, BASE_DEC, VALS(pkixtsp_tst_version_vals), 0,
-        "pkixtsp.tst_version", HFILL }},
+        FT_INT32, BASE_DEC, VALS(pkixtsp_Tst_version_vals), 0,
+        "pkixtsp.Tst_version", HFILL }},
     { &hf_pkixtsp_policy,
       { "policy", "pkixtsp.policy",
         FT_OID, BASE_NONE, NULL, 0,

@@ -20,7 +20,7 @@ PKIX1Implicit88 pkix1implicit
 #.NO_EMIT
 
 #.TYPE_RENAME
-TSTInfo/version tst_version
+TSTInfo/version Tst_version
 
 #.FIELD_RENAME
 PKIStatusInfo/status	pki_status

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkixproxy.c                                                         */
-/* ../../tools/asn2wrs.py -b -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
+/* ../../tools/asn2wrs.py -b -X -T -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
 
 /* Input file: packet-pkixproxy-template.c */
 
@@ -77,9 +77,6 @@ static gint ett_pkixproxy_ProxyPolicy = -1;
 
 /*--- Included file: packet-pkixproxy-fn.c ---*/
 #line 1 "packet-pkixproxy-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -89,9 +86,6 @@ dissect_pkixproxy_ProxyCertPathLengthConstraint(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_pCPathLenConstraint(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixproxy_ProxyCertPathLengthConstraint(FALSE, tvb, offset, actx, tree, hf_pkixproxy_pCPathLenConstraint);
-}
 
 
 
@@ -100,9 +94,6 @@ dissect_pkixproxy_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_policyLanguage(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixproxy_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_pkixproxy_policyLanguage);
 }
 
 
@@ -114,39 +105,33 @@ dissect_pkixproxy_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_policy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixproxy_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_pkixproxy_policy);
-}
 
 
-static const ber_old_sequence_t ProxyPolicy_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_policyLanguage },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_policy },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ProxyPolicy_sequence[] = {
+  { &hf_pkixproxy_policyLanguage, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkixproxy_OBJECT_IDENTIFIER },
+  { &hf_pkixproxy_policy    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixproxy_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixproxy_ProxyPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ProxyPolicy_sequence, hf_index, ett_pkixproxy_ProxyPolicy);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ProxyPolicy_sequence, hf_index, ett_pkixproxy_ProxyPolicy);
 
   return offset;
 }
-static int dissect_proxyPolicy(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkixproxy_ProxyPolicy(FALSE, tvb, offset, actx, tree, hf_pkixproxy_proxyPolicy);
-}
 
 
-static const ber_old_sequence_t ProxyCertInfoExtension_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pCPathLenConstraint },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_proxyPolicy },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ProxyCertInfoExtension_sequence[] = {
+  { &hf_pkixproxy_pCPathLenConstraint, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixproxy_ProxyCertPathLengthConstraint },
+  { &hf_pkixproxy_proxyPolicy, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkixproxy_ProxyPolicy },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkixproxy_ProxyCertInfoExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ProxyCertInfoExtension_sequence, hf_index, ett_pkixproxy_ProxyCertInfoExtension);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ProxyCertInfoExtension_sequence, hf_index, ett_pkixproxy_ProxyCertInfoExtension);
 
   return offset;
 }
