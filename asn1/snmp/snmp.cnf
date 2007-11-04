@@ -8,10 +8,6 @@
 SMUX-PDUs
 
 #.NO_EMIT
-GetNextRequest-PDU
-GetResponse-PDU
-SetRequest-PDU
-GetRequest-PDU
 NotificationName
 VarBind
 
@@ -32,140 +28,19 @@ gint pdu_type;
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%%u)"));
 
-#.FN_BODY PDUs/get-request
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-#.FN_BODY PDUs/get-next-request
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-#.FN_BODY PDUs/get-response
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-#.FN_BODY PDUs/set-request
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-
 #.FN_BODY PDUs/trap
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
  offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/getBulkRequest
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
  offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/informRequest
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
  offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/sNMPv2-Trap
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
  offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/report
- gint8 class;
- gboolean pc, ind_field;
- gint32 tag;
- guint32 len1;
-
- if(!implicit_tag){
-   /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-    * XXX is some conformance file magic to work around that bug
-    */
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    offset = get_ber_length(tvb, offset, &len1, &ind_field);
- }
  offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_PARS HeaderData/msgSecurityModel
