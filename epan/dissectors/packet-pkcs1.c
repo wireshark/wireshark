@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkcs1.c                                                           */
-/* ../../tools/asn2wrs.py -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
+/* packet-pkcs1.c                                                             */
+/* ../../tools/asn2wrs.py -b -X -T -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
 /* Input file: packet-pkcs1-template.c */
 
@@ -85,9 +85,6 @@ static gint ett_pkcs1_DigestInfo = -1;
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
 #line 1 "packet-pkcs1-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 
 static int
@@ -97,42 +94,18 @@ dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_modulus(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_modulus);
-}
-static int dissect_publicExponent(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_publicExponent);
-}
-static int dissect_privateExponent(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_privateExponent);
-}
-static int dissect_prime1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_prime1);
-}
-static int dissect_prime2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_prime2);
-}
-static int dissect_exponent1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_exponent1);
-}
-static int dissect_exponent2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_exponent2);
-}
-static int dissect_coefficient(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_coefficient);
-}
 
 
-static const ber_old_sequence_t RSAPublicKey_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RSAPublicKey_sequence[] = {
+  { &hf_pkcs1_modulus       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_publicExponent, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
 
   return offset;
 }
@@ -146,28 +119,25 @@ dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_Version(FALSE, tvb, offset, actx, tree, hf_pkcs1_version);
-}
 
 
-static const ber_old_sequence_t RSAPrivateKey_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_modulus },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_publicExponent },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_privateExponent },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_prime1 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_prime2 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_exponent1 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_exponent2 },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_coefficient },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RSAPrivateKey_sequence[] = {
+  { &hf_pkcs1_version       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_Version },
+  { &hf_pkcs1_modulus       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_publicExponent, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_privateExponent, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_prime1        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_prime2        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_exponent1     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_exponent2     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_coefficient   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkcs1_INTEGER },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
 
   return offset;
 }
@@ -180,9 +150,6 @@ dissect_pkcs1_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_digestAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_DigestAlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_pkcs1_digestAlgorithm);
-}
 
 
 
@@ -193,21 +160,18 @@ dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_digest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_Digest(FALSE, tvb, offset, actx, tree, hf_pkcs1_digest);
-}
 
 
-static const ber_old_sequence_t DigestInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_digest },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DigestInfo_sequence[] = {
+  { &hf_pkcs1_digestAlgorithm, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkcs1_DigestAlgorithmIdentifier },
+  { &hf_pkcs1_digest        , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkcs1_Digest },
+  { NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
 
   return offset;
 }
