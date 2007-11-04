@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkinit.c                                                          */
-/* ../../tools/asn2wrs.py -e -b -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn */
+/* packet-pkinit.c                                                            */
+/* ../../tools/asn2wrs.py -b -X -T -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn */
 
 /* Input file: packet-pkinit-template.c */
 
@@ -105,42 +105,6 @@ static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t 
 
 /*--- Included file: packet-pkinit-fn.c ---*/
 #line 1 "packet-pkinit-fn.c"
-/*--- Fields for imported types ---*/
-
-static int dissect_signedAuthPack(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cms_ContentInfo(FALSE, tvb, offset, actx, tree, hf_pkinit_signedAuthPack);
-}
-static int dissect_kdcCert(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cms_IssuerAndSerialNumber(FALSE, tvb, offset, actx, tree, hf_pkinit_kdcCert);
-}
-static int dissect_caName(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_Name(FALSE, tvb, offset, actx, tree, hf_pkinit_caName);
-}
-static int dissect_issuerAndSerial(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cms_IssuerAndSerialNumber(FALSE, tvb, offset, actx, tree, hf_pkinit_issuerAndSerial);
-}
-static int dissect_clientPublicValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_SubjectPublicKeyInfo(FALSE, tvb, offset, actx, tree, hf_pkinit_clientPublicValue);
-}
-static int dissect_supportedCMSTypes_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkix1explicit_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_pkinit_supportedCMSTypes_item);
-}
-static int dissect_ctime(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_KerberosV5Spec2_KerberosTime(FALSE, tvb, offset, actx, tree, hf_pkinit_ctime);
-}
-static int dissect_paChecksum(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_KerberosV5Spec2_Checksum(FALSE, tvb, offset, actx, tree, hf_pkinit_paChecksum);
-}
-static int dissect_dhSignedData(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cms_ContentInfo(FALSE, tvb, offset, actx, tree, hf_pkinit_dhSignedData);
-}
-static int dissect_encKeyPack(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cms_ContentInfo(FALSE, tvb, offset, actx, tree, hf_pkinit_encKeyPack);
-}
-static int dissect_dhKeyExpiration(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_KerberosV5Spec2_KerberosTime(FALSE, tvb, offset, actx, tree, hf_pkinit_dhKeyExpiration);
-}
-
 
 static const value_string pkinit_TrustedCA_vals[] = {
   {   0, "caName" },
@@ -148,52 +112,46 @@ static const value_string pkinit_TrustedCA_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t TrustedCA_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_caName },
-  {   2, BER_CLASS_CON, 2, 0, dissect_issuerAndSerial },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t TrustedCA_choice[] = {
+  {   0, &hf_pkinit_caName       , BER_CLASS_CON, 0, 0, dissect_pkix1explicit_Name },
+  {   2, &hf_pkinit_issuerAndSerial, BER_CLASS_CON, 2, 0, dissect_cms_IssuerAndSerialNumber },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     TrustedCA_choice, hf_index, ett_pkinit_TrustedCA,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 TrustedCA_choice, hf_index, ett_pkinit_TrustedCA,
+                                 NULL);
 
   return offset;
 }
-static int dissect_trustedCertifiers_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_TrustedCA(FALSE, tvb, offset, actx, tree, hf_pkinit_trustedCertifiers_item);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_trustedCertifiers_item },
+static const ber_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
+  { &hf_pkinit_trustedCertifiers_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pkinit_TrustedCA },
 };
 
 static int
 dissect_pkinit_SEQUENCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
 
   return offset;
 }
-static int dissect_trustedCertifiers(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_SEQUENCE_OF_TrustedCA(FALSE, tvb, offset, actx, tree, hf_pkinit_trustedCertifiers);
-}
 
 
-static const ber_old_sequence_t PaPkAsReq_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_signedAuthPack },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_trustedCertifiers },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kdcCert },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PaPkAsReq_sequence[] = {
+  { &hf_pkinit_signedAuthPack, BER_CLASS_CON, 0, 0, dissect_cms_ContentInfo },
+  { &hf_pkinit_trustedCertifiers, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkinit_SEQUENCE_OF_TrustedCA },
+  { &hf_pkinit_kdcCert      , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_cms_IssuerAndSerialNumber },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PaPkAsReq_sequence, hf_index, ett_pkinit_PaPkAsReq);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PaPkAsReq_sequence, hf_index, ett_pkinit_PaPkAsReq);
 
   return offset;
 }
@@ -207,12 +165,6 @@ dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_cusec(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkinit_cusec);
-}
-static int dissect_dhNonce(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkinit_dhNonce);
-}
 
 
 
@@ -223,58 +175,49 @@ dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_paNonce(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_INTEGER_0_4294967295(FALSE, tvb, offset, actx, tree, hf_pkinit_paNonce);
-}
 
 
-static const ber_old_sequence_t PKAuthenticator_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_cusec },
-  { BER_CLASS_CON, 1, 0, dissect_ctime },
-  { BER_CLASS_CON, 2, 0, dissect_paNonce },
-  { BER_CLASS_CON, 3, 0, dissect_paChecksum },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t PKAuthenticator_sequence[] = {
+  { &hf_pkinit_cusec        , BER_CLASS_CON, 0, 0, dissect_pkinit_INTEGER },
+  { &hf_pkinit_ctime        , BER_CLASS_CON, 1, 0, dissect_KerberosV5Spec2_KerberosTime },
+  { &hf_pkinit_paNonce      , BER_CLASS_CON, 2, 0, dissect_pkinit_INTEGER_0_4294967295 },
+  { &hf_pkinit_paChecksum   , BER_CLASS_CON, 3, 0, dissect_KerberosV5Spec2_Checksum },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
 
   return offset;
 }
-static int dissect_pkAuthenticator(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_PKAuthenticator(FALSE, tvb, offset, actx, tree, hf_pkinit_pkAuthenticator);
-}
 
 
-static const ber_old_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_supportedCMSTypes_item },
+static const ber_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
+  { &hf_pkinit_supportedCMSTypes_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_AlgorithmIdentifier },
 };
 
 static int
 dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
 
   return offset;
 }
-static int dissect_supportedCMSTypes(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_pkinit_supportedCMSTypes);
-}
 
 
-static const ber_old_sequence_t AuthPack_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_pkAuthenticator },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_clientPublicValue },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_supportedCMSTypes },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AuthPack_sequence[] = {
+  { &hf_pkinit_pkAuthenticator, BER_CLASS_CON, 0, 0, dissect_pkinit_PKAuthenticator },
+  { &hf_pkinit_clientPublicValue, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkix1explicit_SubjectPublicKeyInfo },
+  { &hf_pkinit_supportedCMSTypes, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AuthPack_sequence, hf_index, ett_pkinit_AuthPack);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AuthPack_sequence, hf_index, ett_pkinit_AuthPack);
 
   return offset;
 }
@@ -286,17 +229,17 @@ static const value_string pkinit_PaPkAsRep_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t PaPkAsRep_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_dhSignedData },
-  {   1, BER_CLASS_CON, 1, 0, dissect_encKeyPack },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t PaPkAsRep_choice[] = {
+  {   0, &hf_pkinit_dhSignedData , BER_CLASS_CON, 0, 0, dissect_cms_ContentInfo },
+  {   1, &hf_pkinit_encKeyPack   , BER_CLASS_CON, 1, 0, dissect_cms_ContentInfo },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep,
+                                 NULL);
 
   return offset;
 }
@@ -311,22 +254,19 @@ dissect_pkinit_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_subjectPublicKey(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkinit_BIT_STRING(FALSE, tvb, offset, actx, tree, hf_pkinit_subjectPublicKey);
-}
 
 
-static const ber_old_sequence_t KDCDHKeyInfo_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_subjectPublicKey },
-  { BER_CLASS_CON, 1, 0, dissect_dhNonce },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dhKeyExpiration },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t KDCDHKeyInfo_sequence[] = {
+  { &hf_pkinit_subjectPublicKey, BER_CLASS_CON, 0, 0, dissect_pkinit_BIT_STRING },
+  { &hf_pkinit_dhNonce      , BER_CLASS_CON, 1, 0, dissect_pkinit_INTEGER },
+  { &hf_pkinit_dhKeyExpiration, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_KerberosV5Spec2_KerberosTime },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_KDCDHKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       KDCDHKeyInfo_sequence, hf_index, ett_pkinit_KDCDHKeyInfo);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   KDCDHKeyInfo_sequence, hf_index, ett_pkinit_KDCDHKeyInfo);
 
   return offset;
 }
