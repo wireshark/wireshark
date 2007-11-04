@@ -1,11 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-logotypecertextn.h                                                */
-/* ../../tools/asn2wrs.py -b -e -p logotypecertextn -c logotype-cert-extn.cnf -s packet-logotype-cert-extn-template LogotypeCertExtn.asn */
+/* packet-logotypecertextn.h                                                  */
+/* ../../tools/asn2wrs.py -b -X -T -p logotypecertextn -c logotypecertextn.cnf -s packet-logotypecertextn-template LogotypeCertExtn.asn */
 
-/* Input file: packet-logotype-cert-extn-template.h */
+/* Input file: packet-logotypecertextn-template.h */
 
-#line 1 "packet-logotype-cert-extn-template.h"
+#line 1 "packet-logotypecertextn-template.h"
 /* packet-logotype-cert-extn.h
  * Routines for RFC3907 Logotype Certificate Extensions packet dissection
  *    Ronnie Sahlberg 2004
