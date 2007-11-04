@@ -9,17 +9,18 @@ LDAPMessage
 
 #.TYPE_RENAME
 
-BindResponse/resultCode BindResponse_resultCode
-ExtendedResponse/resultCode ExtendedResponse_resultCode
-ModifyRequest/modification ModifyRequest_modification
+BindResponse/_untag/resultCode BindResponse_resultCode
+ExtendedResponse/_untag/resultCode ExtendedResponse_resultCode
+ModifyRequest/_untag/modification ModifyRequest_modification
 
 #.FIELD_RENAME
-BindResponse/resultCode bindResponse_resultCode
-ExtendedResponse/resultCode extendedResponse_resultCode
-SearchRequest/attributes searchRequest_attributes
-SearchResultEntry/attributes searchResultEntry_attributes
-ModifyRequest/modification modifyRequest_modification
+BindResponse/_untag/resultCode bindResponse_resultCode
+ExtendedResponse/_untag/resultCode extendedResponse_resultCode
+SearchRequest/_untag/attributes searchRequest_attributes
+SearchResultEntry/_untag/attributes searchResultEntry_attributes
+ModifyRequest/_untag/modification modifyRequest_modification
 SubstringFilter/substrings substringFilter_substrings
+BindResponse/_untag/matchedDN bindResponse_matchedDN
 
 #.TYPE_ATTR
 LDAPString TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -353,7 +354,7 @@ ldap_conv_info_t *ldap_info;
      
   }
 
-#.FN_BODY SearchRequest/scope VAL_PTR = &scope
+#.FN_BODY SearchRequest/_untag/scope VAL_PTR = &scope
 
   gint 	scope;
   const gchar *valstr;
@@ -390,7 +391,7 @@ ldap_conv_info_t *ldap_info;
 
   }
 
-#.FN_BODY BindResponse/resultCode  VAL_PTR = &result
+#.FN_BODY BindResponse/_untag/resultCode  VAL_PTR = &result
 
   const gchar *valstr;
 
@@ -480,10 +481,10 @@ ldap_conv_info_t *ldap_info;
 
 
 
-#.FN_HDR SearchRequest/filter
+#.FN_HDR SearchRequest/_untag/filter
 	Filter_string=NULL;
 
-#.FN_FTR SearchRequest/filter
+#.FN_FTR SearchRequest/_untag/filter
 	Filter_string=NULL;
 	and_filter_string=NULL;
 
@@ -639,7 +640,7 @@ offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_ind
 	call_dissector(ntlmssp_handle, tvb, actx->pinfo, tree);
 	offset+=tvb_length_remaining(tvb, offset);
 
-#.FN_BODY BindResponse/matchedDN
+#.FN_BODY BindResponse/_untag/matchedDN
 	tvbuff_t *new_tvb=NULL;
 
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_ldap_matchedDN, &new_tvb);
