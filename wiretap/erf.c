@@ -120,6 +120,14 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     
     packet_size = g_ntohs(header.rlen) - sizeof(header);
 
+    if (packet_size > WTAP_MAX_PACKET_SIZE) {
+      /*
+       * Probably a corrupt capture file; don't blow up trying
+       * to allocate space for an immensely-large packet.
+       */
+      return 0;
+    }
+ 
     /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
     /* Not all types within this range are decoded, but it is a first filter */
     if (header.type == 0 || header.type > ERF_TYPE_MAX ) {

@@ -171,6 +171,9 @@ int ber_open(wtap *wth, int *err, gchar **err_info _U_)
     if(len != file_size) {
       return 0; /* not ASN.1 */
     }
+  }else{
+	  /* XXX what if indefinet length? */
+	  return 0;
   }
 
   /* seek back to the start of the file  */
