@@ -15,45 +15,28 @@ ASO-qualifier
 AE-invocation-identifier
 
 #.TYPE_RENAME
-AARQ-apdu/protocol-version	T_AARQ_protocol_version
-AARE-apdu/protocol-version	T_AARE_protocol_version
-AARQ-apdu/aSO-context-name	T_AARQ_aSO_context_name		
-AARE-apdu/aSO-context-name	T_AARE_aSO_context_name
-ACRQ-apdu/aSO-context-name	T_ACRQ_aSO_context_name
-ACRP-apdu/aSO-context-name	T_ACRP_aSO_context_name
+AARQ-apdu/_untag/protocol-version	T_AARQ_protocol_version
+AARE-apdu/_untag/protocol-version	T_AARE_protocol_version
+AARQ-apdu/_untag/aSO-context-name	T_AARQ_aSO_context_name		
+AARE-apdu/_untag/aSO-context-name	T_AARE_aSO_context_name
+ACRQ-apdu/_untag/aSO-context-name	T_ACRQ_aSO_context_name
+ACRP-apdu/_untag/aSO-context-name	T_ACRP_aSO_context_name
 
 #.FIELD_RENAME
-AARQ-apdu/user-information	aARQ_user_information
-AARE-apdu/user-information	aARE_user_information
-ABRT-apdu/user-information	aBRT_user_information
-RLRE-apdu/user-information	rLRE_user_information
-RLRQ-apdu/user-information	rLRQ_user_information
-AARE-apdu/result		aARE_result
+AARQ-apdu/_untag/user-information	aARQ_user_information
+AARE-apdu/_untag/user-information	aARE_user_information
+ABRT-apdu/_untag/user-information	aBRT_user_information
+RLRE-apdu/_untag/user-information	rLRE_user_information
+RLRQ-apdu/_untag/user-information	rLRQ_user_information
 P-context-result-list/_item/result	pcontext_result
-RLRE-apdu/reason		rLRE_reason
-RLRQ-apdu/reason		rLRQ_reason
-AARQ-apdu/protocol-version	aARQ_protocol_version
-AARE-apdu/protocol-version	aARE_protocol_version
-AARQ-apdu/aSO-context-name	aARQ_aSO_context_name
-AARE-apdu/aSO-context-name	aARE_aSO_context_name
-ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
+RLRE-apdu/_untag/reason		rLRE_reason
+RLRQ-apdu/_untag/reason		rLRQ_reason
+AARQ-apdu/_untag/protocol-version	aARQ_protocol_version
+AARE-apdu/_untag/protocol-version	aARE_protocol_version
+AARQ-apdu/_untag/aSO-context-name	aARQ_aSO_context_name
+AARE-apdu/_untag/aSO-context-name	aARE_aSO_context_name
+ACRQ-apdu/_untag/aSO-context-name	aCRQ_aSO_context_name
 
-#.FN_BODY EXTERNALt
-  gint8 class;
-  gboolean pc, ind_field;
-  gint32 tag;
-  guint32 len1;
-
-  if(!implicit_tag) {
-    /* XXX  asn2wrs can not yet handle tagged assignment so for the
-     * time being  just remove this tag manually inside the EXTERNAL
-     * dissector.
-     */
-	offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len1, &ind_field);
-   }
-   offset = dissect_ber_old_sequence(TRUE, actx, tree, tvb, offset,
-                                EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
 
 #.FN_PARS Authentication-value-other/other-mechanism-name  
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
@@ -64,23 +47,23 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 #.FN_BODY PDV-list/presentation-data-values/simple-ASN1-type
 /*XXX not implemented yet */
 
-#.FN_BODY AARQ-apdu/aSO-context-name
+#.FN_BODY AARQ-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
-#.FN_BODY AARE-apdu/aSO-context-name
+#.FN_BODY AARE-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
-#.FN_BODY ACRQ-apdu/aSO-context-name
+#.FN_BODY ACRQ-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
-#.FN_BODY ACRP-apdu/aSO-context-name
+#.FN_BODY ACRP-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
-#.FN_BODY EXTERNALt/indirect-reference
+#.FN_BODY EXTERNALt/_untag/indirect-reference
   char *oid;
   offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
                 hf_acse_indirect_reference,
@@ -94,13 +77,13 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
   if(session)
 	session->pres_ctx_id = indir_ref;
 
-#.FN_PARS EXTERNALt/direct-reference
+#.FN_PARS EXTERNALt/_untag/direct-reference
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
-#.FN_BODY EXTERNALt/encoding/single-ASN1-type
+#.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 
-#.FN_BODY EXTERNALt/encoding/octet-aligned
+#.FN_BODY EXTERNALt/_untag/encoding/octet-aligned
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 
 #.FN_PARS Release-request-reason
