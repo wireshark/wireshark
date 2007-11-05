@@ -171,7 +171,8 @@ const value_string ssl_31_content_type[] = {
 };
 
 const value_string ssl_versions[] = {
-    { 0x0100, "DTLS 1.0" },
+    { 0xfeff, "DTLS 1.0" },
+    { 0x0100, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { 0x0302, "TLS 1.1" },
     { 0x0301, "TLS 1.0" },
     { 0x0300, "SSL 3.0" },
@@ -1764,7 +1765,8 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
 	worklen=worklen-decoder->cipher_suite->block;
 	memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
    }
-  if(ssl->version_netorder==DTLSV1DOT0_VERSION){
+  if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
+     ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         worklen=worklen-decoder->cipher_suite->block;
 	memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
    }
@@ -1783,8 +1785,10 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
             return -1;
         }
     }
-    else if(ssl->version_netorder==DTLSV1DOT0_VERSION){
+    else if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
+	    ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
       /* follow the openssl dtls errors the rigth test is : dtls_check_mac(decoder,ct,ssl->version_netorder,out,worklen,mac)< 0 */
+/* 	if(dtls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) { */
 	if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)< 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;

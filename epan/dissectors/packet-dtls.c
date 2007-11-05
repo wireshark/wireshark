@@ -1,6 +1,7 @@
 /* packet-dtls.c
  * Routines for dtls dissection
  * Copyright (c) 2006, Authesserre Samuel <sauthess@gmail.com>
+ * Copyright (c) 2007, Mikael Magnusson <mikma@users.sourceforge.net>
  *
  * $Id$
  *
@@ -30,7 +31,7 @@
  * This dissector is based on TLS one (packet-ssl.c) because of the proximity of DTLS and TLS, decryption works like him with RSA key exchange.
  * It uses the sames things (file, libraries) that SSL one (gnutls, packet-ssl-utils.h) to make it easily maintenable.
  *
- * It was developped to dissect and decrypt OpenSSL v 0.9.8b DTLS implementation.
+ * It was developped to dissect and decrypt OpenSSL v 0.9.8f DTLS implementation.
  * It is limited to this implementation  while there is no complete implementation.
  *
  * Implemented :
@@ -65,6 +66,7 @@
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include <epan/reassemble.h>
 #include "inet_v6defs.h"
 #include "packet-ssl-utils.h"
 
@@ -134,6 +136,15 @@ static gint hf_dtls_handshake_dnames           = -1;
 static gint hf_dtls_handshake_dname_len        = -1;
 static gint hf_dtls_handshake_dname            = -1;
 
+static gint hf_dtls_fragments = -1;
+static gint hf_dtls_fragment = -1;
+static gint hf_dtls_fragment_overlap = -1;
+static gint hf_dtls_fragment_overlap_conflicts = -1;
+static gint hf_dtls_fragment_multiple_tails = -1;
+static gint hf_dtls_fragment_too_long_fragment = -1;
+static gint hf_dtls_fragment_error = -1;
+static gint hf_dtls_reassembled_in = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_dtls                   = -1;
 static gint ett_dtls_record            = -1;
@@ -146,8 +157,13 @@ static gint ett_dtls_certs             = -1;
 static gint ett_dtls_cert_types        = -1;
 static gint ett_dtls_dnames            = -1;
 
+static gint ett_dtls_fragment          = -1;
+static gint ett_dtls_fragments         = -1;
+
 static GHashTable *dtls_session_hash = NULL;
 static GHashTable *dtls_key_hash = NULL;
+static GHashTable *dtls_fragment_table = NULL;
+static GHashTable *dtls_reassembled_table = NULL;
 static GTree* dtls_associations = NULL;
 static dissector_handle_t dtls_handle = NULL;
 static StringInfo dtls_compressed_data = {NULL, 0};
@@ -159,11 +175,31 @@ static gchar* dtls_keys_list = NULL;
 static gchar* dtls_debug_file_name = NULL;
 #endif
 
+static const fragment_items dtls_frag_items = {
+	/* Fragment subtrees */
+	&ett_dtls_fragment,
+	&ett_dtls_fragments,
+	/* Fragment fields */
+	&hf_dtls_fragments,
+	&hf_dtls_fragment,
+	&hf_dtls_fragment_overlap,
+	&hf_dtls_fragment_overlap_conflicts,
+	&hf_dtls_fragment_multiple_tails,
+	&hf_dtls_fragment_too_long_fragment,
+	&hf_dtls_fragment_error,
+	/* Reassembled in field */
+	&hf_dtls_reassembled_in,
+	/* Tag */
+	"Message fragments"
+};
+
 /* initialize/reset per capture state data (dtls sessions cache) */
 static void
 dtls_init(void)
 {
   ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
+  fragment_table_init (&dtls_fragment_table);
+  reassembled_table_init(&dtls_reassembled_table);  
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -642,7 +678,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   if (*conv_version == SSL_VER_UNKNOWN
       && dtls_is_authoritative_version_message(content_type, next_byte))
     {
-      if (version == DTLSV1DOT0_VERSION)
+      if (version == DTLSV1DOT0_VERSION ||
+	  version == DTLSV1DOT0_VERSION_NOT)
         {
 
 	  *conv_version = SSL_VER_DTLS;
@@ -938,14 +975,21 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
   /* set record_length to the max offset */
   record_length += offset;
-  while (offset < record_length)
+  for (; offset < record_length; offset += fragment_length,
+	 first_iteration = FALSE) /* set up for next pass, if any */
     {
+      fragment_data *frag_msg = NULL;
+      tvbuff_t *new_tvb = NULL;
+      gchar *frag_str = NULL;
+      gboolean fragmented;
+
       msg_type = tvb_get_guint8(tvb, offset);
       msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
       length   = tvb_get_ntoh24(tvb, offset + 1);
       message_seq = tvb_get_ntohs(tvb,offset + 4);
       fragment_offset = tvb_get_ntoh24(tvb, offset + 6);
       fragment_length = tvb_get_ntoh24(tvb, offset + 9);
+      fragmented = fragment_length != length;
 
       if (!msg_type_str && !first_iteration)
         {
@@ -970,36 +1014,93 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
 			? msg_type_str : "Encrypted Handshake Message");
 
+      /* Handle fragments of known message type */
+      if (fragmented)
+	{
+	  gboolean frag_hand;
+
+	  switch (msg_type) {
+	  case SSL_HND_HELLO_REQUEST:
+	  case SSL_HND_CLIENT_HELLO:
+	  case SSL_HND_HELLO_VERIFY_REQUEST:
+	  case SSL_HND_SERVER_HELLO:
+	  case SSL_HND_CERTIFICATE:
+	  case SSL_HND_SERVER_KEY_EXCHG:
+	  case SSL_HND_CERT_REQUEST:
+	  case SSL_HND_SVR_HELLO_DONE:
+	  case SSL_HND_CERT_VERIFY:
+	  case SSL_HND_CLIENT_KEY_EXCHG:
+	  case SSL_HND_FINISHED:
+	    frag_hand = TRUE;
+	    break;
+	  default:
+	    /* Ignore encrypted handshake messages */
+	    frag_hand = FALSE;
+	    break;
+	  }
+
+	  if (frag_hand) {
+	    /* Fragmented handshake message */
+	    pinfo->fragmented = TRUE;
+	    frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
+				    dtls_fragment_table,
+				    fragment_offset, fragment_length, TRUE);
+	    fragment_set_tot_len(pinfo, message_seq, dtls_fragment_table,
+				 length);
+
+	    if (frag_msg && (fragment_length + fragment_offset) == length)
+	      {
+		/* Reassembled */
+		new_tvb = process_reassembled_data(tvb, offset+12, pinfo,
+						   "Reassembled Message",
+						   frag_msg,
+						   &dtls_frag_items,
+						   NULL, tree);
+		frag_str = " (Reassembled)";
+	      }
+	    else
+	      {
+		frag_str = " (Fragment)";
+	      }
+
+	    if (check_col(pinfo->cinfo, COL_INFO))
+	      col_append_str(pinfo->cinfo, COL_INFO, frag_str);
+	  }
+	}
+
       if (tree)
         {
 	  /* set the label text on the record layer expanding node */
 	  if (first_iteration)
             {
-	      proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
+	      proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
 				  ssl_version_short_names[*conv_version],
 				  val_to_str(content_type, ssl_31_content_type, "unknown"),
 				  (msg_type_str!=NULL) ? msg_type_str :
-				  "Encrypted Handshake Message");
+				  "Encrypted Handshake Message",
+				  (frag_str!=NULL) ? frag_str : "");
             }
 	  else
             {
-	      proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
+	      proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
 				  ssl_version_short_names[*conv_version],
 				  val_to_str(content_type, ssl_31_content_type, "unknown"),
-				  "Multiple Handshake Messages");
+				  "Multiple Handshake Messages",
+				  (frag_str!=NULL) ? frag_str : "");
             }
 
 	  /* add a subtree for the handshake protocol */
 	  ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
-				   offset, length + 12, 0);
+				   offset, fragment_length + 12, 0);
 	  ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
 
 	  if (ssl_hand_tree)
             {
 	      /* set the text label on the subtree node */
-	      proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s",
+	      proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s%s",
 				  (msg_type_str != NULL) ? msg_type_str :
-				  "Encrypted Handshake Message");
+				  "Encrypted Handshake Message",
+				  (frag_str!=NULL) ? frag_str : "");
             }
         }
 
@@ -1010,6 +1111,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       /* if we are doing ssl decryption we must dissect some requests type */
       if (ssl_hand_tree || ssl)
         {
+	  tvbuff_t *sub_tvb = NULL;
+
 	  /* add nodes for the message type and message length */
 	  if (ssl_hand_tree)
 	    proto_tree_add_item(ssl_hand_tree, hf_dtls_handshake_type,
@@ -1033,6 +1136,22 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, offset, 3, fragment_length);
 	  offset += 3;
 
+	  if (fragmented && !new_tvb)
+	    {
+	      /* Skip fragmented messages not reassembled yet */
+	      continue;
+	    }
+
+	  if (new_tvb)
+	    {
+	      sub_tvb = new_tvb;
+	    }
+	  else
+	    {
+	      sub_tvb = tvb_new_subset(tvb, offset, fragment_length,
+					fragment_length);
+	    }
+
 	  /* now dissect the handshake message, if necessary */
 	  switch (msg_type) {
 	  case SSL_HND_HELLO_REQUEST:
@@ -1040,19 +1159,19 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	    break;
 
 	  case SSL_HND_CLIENT_HELLO:
-	    dissect_dtls_hnd_cli_hello(tvb, ssl_hand_tree, offset, length, ssl);
+	    dissect_dtls_hnd_cli_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
 	    break;
 
 	  case SSL_HND_HELLO_VERIFY_REQUEST:
-	    dissect_dtls_hnd_hello_verify_request(tvb, ssl_hand_tree, offset,  ssl);
+	    dissect_dtls_hnd_hello_verify_request(sub_tvb, ssl_hand_tree, 0,  ssl);
 	    break;
 
 	  case SSL_HND_SERVER_HELLO:
-	    dissect_dtls_hnd_srv_hello(tvb, ssl_hand_tree, offset, length, ssl);
+	    dissect_dtls_hnd_srv_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
 	    break;
 
 	  case SSL_HND_CERTIFICATE:
-	    dissect_dtls_hnd_cert(tvb, ssl_hand_tree, offset, pinfo);
+	    dissect_dtls_hnd_cert(sub_tvb, ssl_hand_tree, 0, pinfo);
 	    break;
 
 	  case SSL_HND_SERVER_KEY_EXCHG:
@@ -1060,7 +1179,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	    break;
 
 	  case SSL_HND_CERT_REQUEST:
-	    dissect_dtls_hnd_cert_req(tvb, ssl_hand_tree, offset);
+	    dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, offset);
 	    break;
 
 	  case SSL_HND_SVR_HELLO_DONE:
@@ -1119,8 +1238,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	    break;
 
 	  case SSL_HND_FINISHED:
-	    dissect_dtls_hnd_finished(tvb, ssl_hand_tree,
-				      offset, conv_version);
+	    dissect_dtls_hnd_finished(sub_tvb, ssl_hand_tree,
+				      0, conv_version);
 	    break;
 	  }
 
@@ -1128,8 +1247,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       else{
 	offset += 12;        /* skip the handshake header when handshake is not processed*/
       }
-      offset += length;
-      first_iteration = FALSE; /* set up for next pass, if any */
     }
 }
 
@@ -1822,7 +1939,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 
   /* now check to see if the version byte appears valid */
   version = tvb_get_ntohs(tvb, offset + 1);
-  if (version != DTLSV1DOT0_VERSION)
+  if (version != DTLSV1DOT0_VERSION && version != DTLSV1DOT0_VERSION_NOT)
     {
       return 0;
     }
@@ -2086,6 +2203,40 @@ proto_register_dtls(void)
 	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"Distinguished name of a CA that server trusts", HFILL }
     },
+    { &hf_dtls_fragments,
+      { "Message fragments", "dtls.fragments",
+	FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL }
+    },
+    { &hf_dtls_fragment,
+      { "Message fragment", "dtls.fragment",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_fragment_overlap,
+      { "Message fragment overlap", "dtls.fragment.overlap",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_fragment_overlap_conflicts,
+      { "Message fragment overlapping with conflicting data",
+	"dtls.fragment.overlap.conflicts",
+       FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_fragment_multiple_tails,
+      { "Message has multiple tail fragments",
+	"dtls.fragment.multiple_tails", 
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_fragment_too_long_fragment,
+      { "Message fragment too long", "dtls.fragment.too_long_fragment",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_fragment_error,
+      { "Message defragmentation error", "dtls.fragment.error",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_reassembled_in,
+      { "Reassembled in", "dtls.reassembled.in",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
@@ -2100,6 +2251,8 @@ proto_register_dtls(void)
     &ett_dtls_certs,
     &ett_dtls_cert_types,
     &ett_dtls_dnames,
+    &ett_dtls_fragment,
+    &ett_dtls_fragments,
   };
 
   /* Register the protocol name and description */

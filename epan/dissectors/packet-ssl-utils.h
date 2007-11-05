@@ -185,7 +185,8 @@ typedef struct _StringInfo {
 #define SSLV3_VERSION          0x300
 #define TLSV1_VERSION          0x301
 #define TLSV1DOT1_VERSION      0x302
-#define DTLSV1DOT0_VERSION     0x100
+#define DTLSV1DOT0_VERSION     0xfeff
+#define DTLSV1DOT0_VERSION_NOT 0x100
 
 #define SSL_CLIENT_RANDOM       1
 #define SSL_SERVER_RANDOM       2
