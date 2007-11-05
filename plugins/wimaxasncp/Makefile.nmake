@@ -102,5 +102,6 @@ clean:
 	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
 
 distclean: clean
+	rm -f wimaxasncp_dict.c wimaxasncp_dict_lex.h
 
 maintainer-clean: distclean
