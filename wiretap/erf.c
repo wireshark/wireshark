@@ -128,18 +128,23 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0;
     }
  
-    /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
-    /* Not all types within this range are decoded, but it is a first filter */
-    if (header.type == 0 || header.type > ERF_TYPE_MAX ) {
-      return 0;
-    }
-
     /* Skip PAD records, timestamps may not be set */
     if (header.type == ERF_TYPE_PAD) {
       if (file_seek(wth->fh, packet_size, SEEK_CUR, err) == -1) {
 	return -1;
       }
       continue;
+    }
+
+    /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
+    /* Not all types within this range are decoded, but it is a first filter */
+    if (header.type == 0 || header.type > ERF_TYPE_MAX ) {
+      return 0;
+    }
+
+    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_AAL2 */ 
+    if (header.type > ERF_TYPE_AAL2 ) {
+      return 0;
     }
 
     if ((ts = pletohll(&header.ts)) < prevts) {
