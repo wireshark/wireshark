@@ -1190,9 +1190,11 @@ FunctionEnd
 
 !include "GetWindowsVersion.nsh"
 !include WinMessages.nsh
+!include "VersionCompare.nsh"
 
-Var NPF_START ;declare variable for holding the value of a registry key
-Var WINPCAP_VERSION ;declare variable for holding the value of a registry key
+Var NPF_START ; NPF service registry key
+Var WINPCAP_NAME ; DisplayName from WinPcap installation
+Var WINPCAP_VERSION ; DisplayVersion from WinPcap installation
 
 Function myShowCallback
 
@@ -1254,7 +1256,7 @@ lbl_ignore_wimp:
 
 	; detect if WinPcap should be installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0.1"
-	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
+	ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Flags" "DISABLED"
@@ -1262,42 +1264,31 @@ lbl_ignore_wimp:
 	Goto lbl_winpcap_done
 
 lbl_winpcap_installed:
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_VERSION"
-	; WinPcap 2.x (including betas): the version string starts with "WinPcap 2."
-	StrCpy $1 "$WINPCAP_VERSION" 10
-	StrCmp $1 "WinPcap 2." lbl_winpcap_do_install
-	; WinPcap 3.0 (including betas): the version string starts with "WinPcap 3.0"
-	; WinPcap 3.x (all versions): the version string starts with "WinPcap 3."
-	StrCpy $1 "$WINPCAP_VERSION" 10
-	StrCmp $1 "WinPcap 3." lbl_winpcap_do_install
-	; WinPcap 4.0 alphas and betas: the version string starts with "WinPcap 4.0 {alpha|beta}"
-	StrCpy $1 "$WINPCAP_VERSION" 16
-	StrCmp $1 "WinPcap 4.0 alph" lbl_winpcap_do_install
-	StrCmp $1 "WinPcap 4.0 beta" lbl_winpcap_do_install
-	; Look further at version string
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
+	; Compare the installed build against the one we have.
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
-	; WinPcap 4.0: the version string start with "4.0.0"
-	StrCpy $1 "$WINPCAP_VERSION" 5
-	StrCmp $1 "4.0.0" lbl_winpcap_do_install
+	StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
+	${VersionCompare} $WINPCAP_VERSION "4.0.0.901" $1 ; WinPcap 4.0.1
+	StrCmp $1 "2" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
-	; seems to be the current version, so don't install
+	; The installed version is >= to what we have, so don't install
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_NAME will be uninstalled first."
 	Goto lbl_winpcap_done
 
 ;lbl_winpcap_dont_upgrade:
 	; force the user to upgrade by hand
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0.1, please uninstall $WINPCAP_VERSION manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0.1, please uninstall $WINPCAP_NAME manually first."
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 
 lbl_winpcap_do_install:
 	; seems to be an old version, install newer one
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_VERSION will be uninstalled first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
 
 lbl_winpcap_done:
 
