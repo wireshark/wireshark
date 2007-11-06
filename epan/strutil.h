@@ -235,4 +235,9 @@ gsize g_strlcpy(gchar *dest, const gchar *src, gsize dest_size);
 
 #endif
 
+#if GLIB_MAJOR_VERSION < 2
+/* g_byte_array_sized_new() doesnt exist in glib-1.2 */
+GByteArray *g_byte_array_sized_new(guint reserved_size);
+#endif
+
 #endif /* __STRUTIL_H__ */

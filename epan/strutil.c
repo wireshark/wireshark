@@ -1018,6 +1018,20 @@ g_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
 }
 #endif
 
+/* g_byte_array_sized_new() doesnt exist in glib-1.2 */
+#if GLIB_MAJOR_VERSION < 2
+GByteArray *
+g_byte_array_sized_new(guint reserved_size)
+{
+	GByteArray *gba;
+
+	gba = g_byte_array_new();
+	g_byte_array_set_size(gba, reserved_size);
+	
+	return gba;
+}
+#endif
+
 char *
 epan_strcasestr(const char *haystack, const char *needle)
 {
