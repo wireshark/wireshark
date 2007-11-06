@@ -192,8 +192,8 @@ static int hf_x420_mixed_mode = -1;               /* MixedModeBodyPart */
 static int hf_x420_bilaterally_defined = -1;      /* BilaterallyDefinedBodyPart */
 static int hf_x420_nationally_defined = -1;       /* NationallyDefinedBodyPart */
 static int hf_x420_extended = -1;                 /* ExtendedBodyPart */
-static int hf_x420_extended_parameters = -1;      /* EXTERNALt */
-static int hf_x420_extended_data = -1;            /* EXTERNALt */
+static int hf_x420_extended_parameters = -1;      /* EXTERNAL */
+static int hf_x420_extended_data = -1;            /* EXTERNAL */
 static int hf_x420_ia5text_parameters = -1;       /* IA5TextParameters */
 static int hf_x420_ia5text_data = -1;             /* IA5TextData */
 static int hf_x420_repertoire = -1;               /* Repertoire */
@@ -297,7 +297,7 @@ static int hf_x420_contents_type = -1;            /* ContentsTypeParameter */
 static int hf_x420_environment = -1;              /* EnvironmentParameter */
 static int hf_x420_compression = -1;              /* CompressionParameter */
 static int hf_x420_file_attributes = -1;          /* FileAttributes */
-static int hf_x420_FileTransferData_item = -1;    /* EXTERNALt */
+static int hf_x420_FileTransferData_item = -1;    /* EXTERNAL */
 static int hf_x420_RelatedStoredFile_item = -1;   /* RelatedStoredFile_item */
 static int hf_x420_file_identifier = -1;          /* FileIdentifier */
 static int hf_x420_relationship = -1;             /* Relationship */
@@ -664,7 +664,7 @@ dissect_x420_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 129 "x420.cnf"
+#line 128 "x420.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -682,7 +682,7 @@ dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_x420_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "x420.cnf"
+#line 136 "x420.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
@@ -859,7 +859,7 @@ dissect_x420_RelatedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 159 "x420.cnf"
+#line 158 "x420.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1125,7 +1125,7 @@ dissect_x420_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 178 "x420.cnf"
+#line 177 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1384,7 +1384,7 @@ dissect_x420_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 181 "x420.cnf"
+#line 180 "x420.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1393,9 +1393,18 @@ dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
+
+static int
+dissect_x420_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ExtendedBodyPart_sequence[] = {
-  { &hf_x420_extended_parameters, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acse_EXTERNALt },
-  { &hf_x420_extended_data  , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  { &hf_x420_extended_parameters, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x420_EXTERNAL },
+  { &hf_x420_extended_data  , BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_x420_EXTERNAL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1469,7 +1478,7 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "x420.cnf"
+#line 140 "x420.cnf"
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
@@ -1741,7 +1750,7 @@ static const ber_sequence_t IPN_set[] = {
 
 int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 149 "x420.cnf"
+#line 148 "x420.cnf"
 
  if(check_col(actx->pinfo->cinfo, COL_INFO))
    col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
@@ -2337,7 +2346,7 @@ dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 170 "x420.cnf"
+#line 169 "x420.cnf"
   guint32 crs;
   proto_item *pi;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2649,7 +2658,7 @@ dissect_x420_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x420_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "x420.cnf"
+#line 183 "x420.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -2805,7 +2814,7 @@ dissect_x420_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x420_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 187 "x420.cnf"
+#line 186 "x420.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -3094,7 +3103,7 @@ dissect_x420_FileTransferParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t FileTransferData_sequence_of[1] = {
-  { &hf_x420_FileTransferData_item, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  { &hf_x420_FileTransferData_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_x420_EXTERNAL },
 };
 
 static int
@@ -3749,11 +3758,11 @@ void proto_register_x420(void) {
     { &hf_x420_extended_parameters,
       { "parameters", "x420.parameters",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "x420.EXTERNAL", HFILL }},
     { &hf_x420_extended_data,
       { "data", "x420.data",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "x420.EXTERNAL", HFILL }},
     { &hf_x420_ia5text_parameters,
       { "parameters", "x420.parameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4169,7 +4178,7 @@ void proto_register_x420(void) {
     { &hf_x420_FileTransferData_item,
       { "Item", "x420.FileTransferData_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "x420.EXTERNAL", HFILL }},
     { &hf_x420_RelatedStoredFile_item,
       { "Item", "x420.RelatedStoredFile_item",
         FT_NONE, BASE_NONE, NULL, 0,

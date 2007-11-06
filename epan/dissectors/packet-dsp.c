@@ -203,7 +203,7 @@ static int hf_dsp_basicLevels = -1;               /* T_basicLevels */
 static int hf_dsp_level = -1;                     /* T_level */
 static int hf_dsp_localQualifier = -1;            /* INTEGER */
 static int hf_dsp_signed = -1;                    /* BOOLEAN */
-static int hf_dsp_other = -1;                     /* EXTERNALt */
+static int hf_dsp_other = -1;                     /* EXTERNAL */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
 #line 68 "packet-dsp-template.c"
@@ -504,6 +504,15 @@ dissect_dsp_T_basicLevels(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
+
+static int
+dissect_dsp_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
+
+  return offset;
+}
+
+
 static const value_string dsp_AuthenticationLevel_vals[] = {
   {   0, "basicLevels" },
   {   1, "other" },
@@ -512,7 +521,7 @@ static const value_string dsp_AuthenticationLevel_vals[] = {
 
 static const ber_choice_t AuthenticationLevel_choice[] = {
   {   0, &hf_dsp_basicLevels     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_basicLevels },
-  {   1, &hf_dsp_other           , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_dsp_other           , BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_dsp_EXTERNAL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2453,7 +2462,7 @@ void proto_register_dsp(void) {
     { &hf_dsp_other,
       { "other", "dsp.other",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "dsp.EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
 #line 283 "packet-dsp-template.c"

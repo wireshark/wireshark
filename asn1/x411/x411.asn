@@ -75,10 +75,7 @@ IMPORTS
   Certificates, AlgorithmIdentifier
     --==
     FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
-      authenticationFramework(7) 3} 
-  EXTERNALt
-    --==
-    FROM ACSE-1;
+      authenticationFramework(7) 3};
 
 
 --	Objects
@@ -3019,7 +3016,7 @@ EncryptionKey ::= BIT STRING
 --  IDENTIFIED BY  4
 --}
 
-BindTokenEncryptedData ::= EXTERNALt
+BindTokenEncryptedData ::= EXTERNAL
 
 --	Security Label
 SecurityLabel ::= SET {

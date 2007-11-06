@@ -10,7 +10,6 @@ MTSAbstractService	x411
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../acse/acse-exp.cnf
 
-
 #.MODULE
 x420		x420
 ftbp		ftbp

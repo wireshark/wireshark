@@ -49,8 +49,6 @@ IMPORTS
   ERROR, OPERATION
     FROM Remote-Operations-Information-Objects {joint-iso-itu-t
       remote-operations(4) informationObjects(5) version1(0)}--;
-  EXTERNALt 
-    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)}
   AlgorithmIdentifier
     FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
       authenticationFramework(7) 4};
@@ -471,7 +469,7 @@ AuthenticationLevel ::= CHOICE {
     localQualifier	INTEGER OPTIONAL,
     signed		BOOLEAN DEFAULT FALSE
   },
-  other	EXTERNALt
+  other	EXTERNAL
 }
 
 END -- DistributedOperations

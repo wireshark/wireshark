@@ -57,7 +57,7 @@ FileTransferParameters ::= SEQUENCE {
   extensions           [5]  ExtensionsField OPTIONAL
 }
 
-FileTransferData ::= SEQUENCE OF EXTERNALt
+FileTransferData ::= SEQUENCE OF EXTERNAL
 
 -- This conveys a sequence of data values representing file contents;
 -- The rules for generating this sequence are implied by the value of the contents-type parameter.

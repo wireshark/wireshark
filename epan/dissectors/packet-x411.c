@@ -5347,7 +5347,7 @@ dissect_x411_MessageOriginAuthenticationAlgorithmIdentifier(gboolean implicit_ta
 
 
 
-static int
+int
 dissect_x411_MessageSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_x411_SecurityLabel(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -6644,7 +6644,7 @@ dissect_x411_MessageTokenEncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_x411_BindTokenEncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_acse_EXTERNALt(implicit_tag, tvb, offset, actx, tree, hf_index);
+  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
 
   return offset;
 }
