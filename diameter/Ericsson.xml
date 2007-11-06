@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<application id="0" name="Diameter Common Messages" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+	<!-- *********** Last updated 2007-04-12 ************ -->
+		<avp name="Acc-Service-Type" code="261" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		   <type type-name="Enumerated"/>
+			<enum name="Audio Conference" code="0"/>
+			<enum name="Video Conference" code="1"/>
+		</avp>
+	</application>
+
