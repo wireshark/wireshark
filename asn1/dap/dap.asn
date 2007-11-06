@@ -70,13 +70,11 @@ IMPORTS
       remote-operations(4) useful-definitions(7) version1(0)}
   InvokeId
     FROM Remote-Operations-Generic-ROS-PDUs {joint-iso-itu-t
-      remote-operations(4) generic-ROS-PDUs(6) version1(0)}
+      remote-operations(4) generic-ROS-PDUs(6) version1(0)};
   -- from RFC 2025
 --  SPKM-ERROR, SPKM-REP-TI, SPKM-REQ
 --    FROM SpkmGssTokens {iso(1) identified-organization(3) dod(6) internet(1)
 --      security(5) mechanisms(5) spkm(1) spkmGssTokens(10)};
-  EXTERNALt 
-    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
 
 -- Common data types 
 --CommonArguments ::= SET {
@@ -301,7 +299,7 @@ DirectoryBindArgument ::= SET {
 Credentials ::= CHOICE {
   simple             [0]  SimpleCredentials,
   strong             [1]  StrongCredentials,
-  externalProcedure  [2]  EXTERNALt,
+  externalProcedure  [2]  EXTERNAL,
   spkm               [3]  SpkmCredentials
 }
 

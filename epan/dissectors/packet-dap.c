@@ -182,7 +182,7 @@ static int hf_dap_credentials = -1;               /* Credentials */
 static int hf_dap_versions = -1;                  /* Versions */
 static int hf_dap_simple = -1;                    /* SimpleCredentials */
 static int hf_dap_strong = -1;                    /* StrongCredentials */
-static int hf_dap_externalProcedure = -1;         /* EXTERNALt */
+static int hf_dap_externalProcedure = -1;         /* EXTERNAL */
 static int hf_dap_spkm = -1;                      /* SpkmCredentials */
 static int hf_dap_validity = -1;                  /* T_validity */
 static int hf_dap_time1 = -1;                     /* T_time1 */
@@ -1881,6 +1881,15 @@ dissect_dap_StrongCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
+dissect_dap_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 130 "dap.cnf"
 	/* XXX: not yet implemented */
@@ -1936,7 +1945,7 @@ static const value_string dap_Credentials_vals[] = {
 static const ber_choice_t Credentials_choice[] = {
   {   0, &hf_dap_simple          , BER_CLASS_CON, 0, 0, dissect_dap_SimpleCredentials },
   {   1, &hf_dap_strong          , BER_CLASS_CON, 1, 0, dissect_dap_StrongCredentials },
-  {   2, &hf_dap_externalProcedure, BER_CLASS_CON, 2, 0, dissect_acse_EXTERNALt },
+  {   2, &hf_dap_externalProcedure, BER_CLASS_CON, 2, 0, dissect_dap_EXTERNAL },
   {   3, &hf_dap_spkm            , BER_CLASS_CON, 3, 0, dissect_dap_SpkmCredentials },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -5118,7 +5127,7 @@ void proto_register_dap(void) {
     { &hf_dap_externalProcedure,
       { "externalProcedure", "dap.externalProcedure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "dap.EXTERNAL", HFILL }},
     { &hf_dap_spkm,
       { "spkm", "dap.spkm",
         FT_UINT32, BASE_DEC, VALS(dap_SpkmCredentials_vals), 0,
