@@ -156,7 +156,7 @@ proto_reg_handoff_llt(void)
 	llt_handle = create_dissector_handle(dissect_llt, proto_llt);
 	dissector_add("ethertype", ETHERTYPE_LLT, llt_handle);
 
-	if((preference_alternate_ethertype != 0xCAFE)
+	if((preference_alternate_ethertype != ETHERTYPE_LLT)
 	&& (preference_alternate_ethertype != 0x0)){
 		dissector_delete("ethertype", preference_alternate_ethertype_last, llt_handle);
 		preference_alternate_ethertype_last = preference_alternate_ethertype; /* Save the setting to see if it has changed later */
