@@ -91,7 +91,7 @@ sub ParseFunction($$$)
 		if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
 			$level = 1;
 			if ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") {
-				$self->pidl("if ( $e->{NAME} ) {");
+				$self->pidl("if ($e->{NAME} && r.out.$e->{NAME}) {");
 				$self->indent;
 			}
 		}

@@ -18,7 +18,7 @@ test_samba4_ndr("string-pull-empty",
 	struct TestString r;
 	r.in.data = NULL;
 
-	if (NT_STATUS_IS_ERR(ndr_pull_TestString(ndr, NDR_IN, &r))) 
+	if (!NT_STATUS_IS_OK(ndr_pull_TestString(ndr, NDR_IN, &r))) 
 		return 1;
 	
 	if (r.in.data == NULL)
@@ -40,7 +40,7 @@ test_samba4_ndr("string-ascii-pull",
 	struct TestString r;
 	r.in.data = NULL;
 
-	if (NT_STATUS_IS_ERR(ndr_pull_TestString(ndr, NDR_IN, &r))) 
+	if (!NT_STATUS_IS_OK(ndr_pull_TestString(ndr, NDR_IN, &r))) 
 		return 1;
 	
 	if (r.in.data == NULL)
@@ -69,7 +69,7 @@ test_samba4_ndr("string-out",
 	char *str = NULL;
 	r.out.data = &str;
 
-	if (NT_STATUS_IS_ERR(ndr_pull_TestString(ndr, NDR_IN, &r))) 
+	if (!NT_STATUS_IS_OK(ndr_pull_TestString(ndr, NDR_IN, &r))) 
 		return 1;
 
 	if (r.out.data == NULL)

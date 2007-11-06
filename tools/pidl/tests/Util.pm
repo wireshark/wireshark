@@ -47,6 +47,9 @@ use Parse::Pidl::Samba4::Header;
 sub test_samba4_ndr
 {
 	my ($name,$idl,$c,$extra) = @_;
+
+	$extra = "" unless defined($extra);
+
 	my $pidl = Parse::Pidl::IDL::parse_string("interface echo { $idl }; ", "<$name>");
 	ok(defined($pidl), "($name) parse idl");
 
@@ -66,8 +69,49 @@ SKIP: {
 	skip "no samba environment available, skipping compilation", 3 
 		if (system("pkg-config --exists ndr") != 0);
 
-	my $test_data_prefix = $ENV{TEST_DATA_PREFIX};
+	my $main = "
+#define uint_t unsigned int
+#define _GNU_SOURCE
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdarg.h>
+#include <util/data_blob.h>
 
+/* header start */
+$header
+/* header end */
+
+/* ndrheader start */
+$ndrheader
+/* ndrheader end */
+
+/* extra start */
+$extra
+/* extra end */
+
+/* ndrparser start */
+$ndrparser
+/* ndrparser end */
+
+/* main start */
+int main(int argc, const char **argv)
+{
+	TALLOC_CTX *mem_ctx = talloc_init(NULL);
+
+$c
+
+	talloc_free(mem_ctx);
+
+	return 0;
+}
+/* main end */
+\n";
+
+	my $main_debug = "# ".join("\n# ", split("\n", $main));
+
+	my $test_data_prefix = $ENV{TEST_DATA_PREFIX};
 	my $outfile;
 	if (defined($test_data_prefix)) {
 		$outfile = "$test_data_prefix/test-$name";	
@@ -95,32 +139,13 @@ SKIP: {
 	my $cmd = "$cc $cflags -x c - -o $outfile $flags $ldflags";
 	$cmd =~ s/\n//g;
 	open CC, "|$cmd";
-	print CC "#define uint_t unsigned int\n";
-	print CC "#define _GNU_SOURCE\n";
-	print CC "#include <stdint.h>\n";
-	print CC "#include <stdlib.h>\n";
-	print CC "#include <stdio.h>\n";
-	print CC "#include <stdbool.h>\n";
-	print CC "#include <stdarg.h>\n";
-	print CC "#include <util/data_blob.h>\n";
-	print CC $header;
-	print CC $ndrheader;
-	print CC $extra if ($extra);
-	print CC $ndrparser;
-	print CC "int main(int argc, const char **argv)
-{
-	TALLOC_CTX *mem_ctx = talloc_init(NULL);
-	
-	$c
- 
-	talloc_free(mem_ctx);
-	
-	return 0; }\n";
+	print CC $main;
 	close CC;
 
 	ok(-f $outfile, "($name) compile");
 
 	my $ret = system($outfile, ()) >> 8;
+	print "# code:\n#\n$main_debug\n" if ($ret != 0);
 	print "# cmd: $cmd\n" if ($ret != 0);
 	print "# return code: $ret\n" if ($ret != 0);
 

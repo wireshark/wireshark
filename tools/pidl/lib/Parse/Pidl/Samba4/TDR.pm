@@ -265,7 +265,7 @@ sub Parser($$$$)
 		$self->pidl("#include <stdint.h>");
 		$self->pidl("#include <stdarg.h>");
 		$self->pidl("#include <string.h>");
-		$self->pidl("#include <core/nterr.h>");
+		$self->pidl("#include <core/ntstatus.h>");
 	}
 	$self->pidl("#include \"$hdrname\"");
 	$self->pidl("");

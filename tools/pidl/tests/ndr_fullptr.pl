@@ -23,7 +23,7 @@ test_samba4_ndr("fullptr-push-dup",
 	r.in.x = &v; 
 	r.in.y = &v; 
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestFull(ndr, NDR_IN, &r))) {
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestFull(ndr, NDR_IN, &r))) {
 		fprintf(stderr, "push failed\n");
 		return 1;
 	}

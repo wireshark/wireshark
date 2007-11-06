@@ -17,7 +17,7 @@ test_samba4_ndr('struct-notypedef', '[public] struct bla { uint8 x; }; ',
 	DATA_BLOB result_blob;
 	r.x = 13;
 
-	if (NT_STATUS_IS_ERR(ndr_push_STRUCT_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_STRUCT_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
@@ -30,13 +30,13 @@ test_samba4_ndr('struct-notypedef-used', '[public] struct bla { uint8 x; };
 	[public] void myfn([in] struct bla r); ',
 '
 	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
-	struct bla r;
+	struct myfn fn;
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB expected_blob = { expected, 1 };
 	DATA_BLOB result_blob;
-	r.x = 13;
+	fn.in.r.x = 13;
 
-	if (NT_STATUS_IS_ERR(ndr_push_myfn(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_myfn(ndr, NDR_IN, &fn)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
@@ -47,16 +47,16 @@ test_samba4_ndr('struct-notypedef-used', '[public] struct bla { uint8 x; };
 
 
 test_samba4_ndr('struct-notypedef-embedded', 'struct bla { uint8 x; };
-	[public] struct myfn { struct bla r; }; ',
+	[public] struct myst { struct bla r; }; ',
 '
 	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
-	struct bla r;
+	struct myst st;
 	uint8_t expected[] = { 0x0D };
 	DATA_BLOB expected_blob = { expected, 1 };
 	DATA_BLOB result_blob;
-	r.x = 13;
+	st.r.x = 13;
 
-	if (NT_STATUS_IS_ERR(ndr_push_STRUCT_myfn(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_STRUCT_myst(ndr, NDR_IN, &st)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);

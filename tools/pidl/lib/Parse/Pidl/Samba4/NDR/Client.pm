@@ -109,7 +109,7 @@ sub Parse($$$$)
 		$res .= "#include <stdlib.h>\n";
 		$res .= "#include <stdint.h>\n";
 		$res .= "#include <stdarg.h>\n";
-		$res .= "#include <core/nterr.h>\n";
+		$res .= "#include <core/ntstatus.h>\n";
 	}
 	$res .= "#include \"$ndr_header\"\n";
 	$res .= "#include \"$client_header\"\n";

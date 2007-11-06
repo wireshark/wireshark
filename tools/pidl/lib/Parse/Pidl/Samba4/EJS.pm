@@ -128,7 +128,7 @@ sub EjsPullScalar($$$$$$$)
 		} else {
 			$t = $e->{TYPE};
 		}
-		$self->pidl("NDR_CHECK(ejs_pull_$t(ejs, v, $name, $var));");
+		$self->pidl("EJS_CHECK(ejs_pull_$t(ejs, v, $name, $var));");
 	}
 }
 
@@ -164,7 +164,7 @@ sub EjsPullString($$$$$$)
 	if (defined($pl) and $pl->{TYPE} eq "POINTER") {
 		$var = get_pointer_to($var);
 	}
-	$self->pidl("NDR_CHECK(ejs_pull_string(ejs, v, $name, $var));");
+	$self->pidl("EJS_CHECK(ejs_pull_string(ejs, v, $name, $var));");
 }
 
 ###########################
@@ -255,7 +255,7 @@ sub EjsStructPull($$$)
 {
 	my ($self, $d, $varname) = @_;
 	my $env = GenerateStructEnv($d, $varname);
-	$self->pidl("NDR_CHECK(ejs_pull_struct_start(ejs, &v, name));");
+	$self->pidl("EJS_CHECK(ejs_pull_struct_start(ejs, &v, name));");
     foreach my $e (@{$d->{ELEMENTS}}) {
 		$self->EjsPullElementTop($e, $env);
 	}
@@ -267,7 +267,7 @@ sub EjsUnionPull($$$)
 {
 	my ($self, $d, $varname) = @_;
 	my $have_default = 0;
-	$self->pidl("NDR_CHECK(ejs_pull_struct_start(ejs, &v, name));");
+	$self->pidl("EJS_CHECK(ejs_pull_struct_start(ejs, &v, name));");
 	$self->pidl("switch (ejs->switch_var) {");
 	$self->indent;
 	foreach my $e (@{$d->{ELEMENTS}}) {
@@ -317,7 +317,7 @@ sub EjsEnumPull($$$)
 	my ($self, $d, $varname) = @_;
 	$self->EjsEnumConstant($d);
 	$self->pidl("unsigned e;");
-	$self->pidl("NDR_CHECK(ejs_pull_enum(ejs, v, name, &e));");
+	$self->pidl("EJS_CHECK(ejs_pull_enum(ejs, v, name, &e));");
 	$self->pidl("*$varname = e;");
 }
 
@@ -327,7 +327,7 @@ sub EjsBitmapPull($$$)
 {
 	my ($self, $d, $varname) = @_;
 	my $type_fn = $d->{BASE_TYPE};
-	$self->pidl("NDR_CHECK(ejs_pull_$type_fn(ejs, v, name, $varname));");
+	$self->pidl("EJS_CHECK(ejs_pull_$type_fn(ejs, v, name, $varname));");
 }
 
 sub EjsTypePullFunction($$$)
@@ -388,7 +388,7 @@ sub EjsPullFunction($$)
 	$self->pidl("\nstatic NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, struct $name *r)");
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("NDR_CHECK(ejs_pull_struct_start(ejs, &v, \"input\"));");
+	$self->pidl("EJS_CHECK(ejs_pull_struct_start(ejs, &v, \"input\"));");
 
 	# we pull non-array elements before array elements as arrays
 	# may have length_is() or size_is() properties that depend
@@ -427,7 +427,7 @@ sub EjsPushScalar($$$$$$)
 					$var = get_pointer_to($var);
 			}
 
-		$self->pidl("NDR_CHECK(".TypeFunctionName("ejs_push", $e->{TYPE})."(ejs, v, $name, $var));");
+		$self->pidl("EJS_CHECK(".TypeFunctionName("ejs_push", $e->{TYPE})."(ejs, v, $name, $var));");
 	}
 }
 
@@ -440,7 +440,7 @@ sub EjsPushString($$$$$$)
 	if (defined($pl) and $pl->{TYPE} eq "POINTER") {
 		$var = get_pointer_to($var);
 	}
-	$self->pidl("NDR_CHECK(ejs_push_string(ejs, v, $name, $var));");
+	$self->pidl("EJS_CHECK(ejs_push_string(ejs, v, $name, $var));");
 }
 
 ###########################
@@ -453,7 +453,7 @@ sub EjsPushPointer($$$$$$)
 	if ($l->{POINTER_TYPE} eq "ref") {
 		$self->pidl("return NT_STATUS_INVALID_PARAMETER_MIX;");
 	} else {
-		$self->pidl("NDR_CHECK(ejs_push_null(ejs, v, $name));");
+		$self->pidl("EJS_CHECK(ejs_push_null(ejs, v, $name));");
 	}
 	$self->deindent;
 	$self->pidl("} else {");
@@ -543,7 +543,7 @@ sub EjsStructPush($$$)
 {
 	my ($self, $d, $varname) = @_;
 	my $env = GenerateStructEnv($d, $varname);
-	$self->pidl("NDR_CHECK(ejs_push_struct_start(ejs, &v, name));");
+	$self->pidl("EJS_CHECK(ejs_push_struct_start(ejs, &v, name));");
         foreach my $e (@{$d->{ELEMENTS}}) {
 		$self->EjsPushElementTop($e, $env);
 	}
@@ -555,7 +555,7 @@ sub EjsUnionPush($$$)
 {
 	my ($self, $d, $varname) = @_;
 	my $have_default = 0;
-	$self->pidl("NDR_CHECK(ejs_push_struct_start(ejs, &v, name));");
+	$self->pidl("EJS_CHECK(ejs_push_struct_start(ejs, &v, name));");
 	$self->pidl("switch (ejs->switch_var) {");
 	$self->indent;
 	foreach my $e (@{$d->{ELEMENTS}}) {
@@ -587,7 +587,7 @@ sub EjsEnumPush($$$)
 	my ($self, $d, $varname) = @_;
 	$self->EjsEnumConstant($d);
 	$self->pidl("unsigned e = ".get_value_of($varname).";");
-	$self->pidl("NDR_CHECK(ejs_push_enum(ejs, v, name, &e));");
+	$self->pidl("EJS_CHECK(ejs_push_enum(ejs, v, name, &e));");
 }
 
 ###########################
@@ -604,7 +604,7 @@ sub EjsBitmapPush($$$)
 			$self->{constants}->{$bname} = $v;
 		}
 	}
-	$self->pidl("NDR_CHECK(ejs_push_$type_fn(ejs, v, name, $varname));");
+	$self->pidl("EJS_CHECK(ejs_push_$type_fn(ejs, v, name, $varname));");
 }
 
 sub EjsTypePushFunction($$$)
@@ -667,7 +667,7 @@ sub EjsPushFunction($$)
 	$self->pidl("\nstatic NTSTATUS ejs_push_$d->{NAME}(struct ejs_rpc *ejs, struct MprVar *v, const struct $d->{NAME} *r)");
 	$self->pidl("{");
 	$self->indent;
-	$self->pidl("NDR_CHECK(ejs_push_struct_start(ejs, &v, \"output\"));");
+	$self->pidl("EJS_CHECK(ejs_push_struct_start(ejs, &v, \"output\"));");
 
 	foreach my $e (@{$d->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
@@ -675,7 +675,7 @@ sub EjsPushFunction($$)
 	}
 
 	if ($d->{RETURN_TYPE}) {
-		$self->pidl("NDR_CHECK(".TypeFunctionName("ejs_push", $d->{RETURN_TYPE})."(ejs, v, \"result\", &r->out.result));");
+		$self->pidl("EJS_CHECK(".TypeFunctionName("ejs_push", $d->{RETURN_TYPE})."(ejs, v, \"result\", &r->out.result));");
 	}
 
 	$self->pidl("return NT_STATUS_OK;");

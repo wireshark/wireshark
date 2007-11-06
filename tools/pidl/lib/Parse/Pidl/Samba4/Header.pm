@@ -10,7 +10,7 @@ use strict;
 use Parse::Pidl qw(fatal);
 use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use Parse::Pidl::Util qw(has_property is_constant unmake_str);
-use Parse::Pidl::Samba4 qw(is_intree ElementStars ArrayBrackets);
+use Parse::Pidl::Samba4 qw(is_intree ElementStars ArrayBrackets choose_header);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -326,7 +326,7 @@ sub HeaderImport
 	foreach (@imports) {
 		s/\.idl\"$//;
 		s/^\"//;
-		pidl "#include \"librpc/gen_ndr/$_\.h\"\n";
+		pidl choose_header("librpc/gen_ndr/$_\.h", "gen_ndr/$_.h") . "\n";
 	}
 }
 

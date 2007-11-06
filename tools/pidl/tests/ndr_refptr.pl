@@ -23,7 +23,7 @@ test_samba4_ndr("noptr-push",
 	struct echo_TestRef r;
 	r.in.foo.x = v; 
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r))) {
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r))) {
 		fprintf(stderr, "push failed\n");
 		return 1;
 	}
@@ -52,7 +52,7 @@ test_samba4_ndr("ptr-embedded-push",
 	struct echo_TestRef r;
 	r.in.foo.x = &v; 
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 6)
@@ -78,7 +78,7 @@ test_samba4_ndr("ptr-embedded-push-null",
 	struct echo_TestRef r;
 	r.in.foo.x = NULL; 
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 4)
@@ -103,7 +103,7 @@ test_samba4_ndr("refptr-embedded-push",
 	struct echo_TestRef r;
 	r.in.foo.x = &v; 
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 6)
@@ -150,7 +150,7 @@ test_samba4_ndr("ptr-top-push",
 	s.x = 13;
 	r.in.foo = &s;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 2)
@@ -195,7 +195,7 @@ test_samba4_ndr("refptr-top-push",
 	s.x = 13;
 	r.in.foo = &s;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 2)
@@ -239,7 +239,7 @@ test_samba4_ndr("uniqueptr-top-push",
 	s.x = 13;
 	r.in.foo = &s;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 6)
@@ -265,7 +265,7 @@ test_samba4_ndr("uniqueptr-top-push-null",
 	struct echo_TestRef r;
 	r.in.foo = NULL;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 4)
@@ -294,7 +294,7 @@ test_samba4_ndr("ptr-top-out-pull",
 
 	r.out.foo = &s;
 
-	if (NT_STATUS_IS_ERR(ndr_pull_echo_TestRef(ndr, NDR_OUT, &r)))
+	if (!NT_STATUS_IS_OK(ndr_pull_echo_TestRef(ndr, NDR_OUT, &r)))
 		return 1;
 
 	if (!r.out.foo)
@@ -344,7 +344,7 @@ test_samba4_ndr("refptr-top-out-pull",
 
 	r.out.foo = &s;
 
-	if (NT_STATUS_IS_ERR(ndr_pull_echo_TestRef(ndr, NDR_OUT, &r)))
+	if (!NT_STATUS_IS_OK(ndr_pull_echo_TestRef(ndr, NDR_OUT, &r)))
 		return 1;
 
 	if (!r.out.foo)
@@ -387,7 +387,7 @@ test_samba4_ndr("ptr-top-push-double",
 	uint16_t *pv = &v;
 	r.in.foo = &pv;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 6)
@@ -413,7 +413,7 @@ test_samba4_ndr("ptr-top-push-double-sndnull",
 	uint16_t *pv = NULL;
 	r.in.foo = &pv;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 4)
@@ -451,7 +451,7 @@ test_samba4_ndr("refptr-top-push-double",
 	uint16_t *pv = &v;
 	r.in.foo = &pv;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 6)
@@ -478,7 +478,7 @@ test_samba4_ndr("refptr-top-push-double-sndnull",
 	uint16_t *pv = NULL;
 	r.in.foo = &pv;
 
-	if (NT_STATUS_IS_ERR(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
+	if (!NT_STATUS_IS_OK(ndr_push_echo_TestRef(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 4)

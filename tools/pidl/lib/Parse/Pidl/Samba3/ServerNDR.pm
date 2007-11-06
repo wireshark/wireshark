@@ -84,7 +84,7 @@ sub ParseFunction($$)
 
 	my $op = "NDR_".uc($fn->{NAME});
 
-	pidl "static BOOL api_$fn->{NAME}(pipes_struct *p)";
+	pidl "static bool api_$fn->{NAME}(pipes_struct *p)";
 	pidl "{";
 	indent;
 	pidl "const struct ndr_interface_call *call;";
