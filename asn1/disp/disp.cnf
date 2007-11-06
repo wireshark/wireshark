@@ -9,7 +9,6 @@ OperationalBindingManagement	dop
 #.IMPORT ../dap/dap-exp.cnf
 #.IMPORT ../dsp/dsp-exp.cnf
 #.IMPORT ../dop/dop-exp.cnf
-#.IMPORT ../acse/acse-exp.cnf
 
 #.EXPORTS
 AgreementID
@@ -27,8 +26,8 @@ Information/signedInformation/information	information-data
 #.REGISTER
 
 ShadowingAgreementInfo	S dop.oid	"agreement.2.5.19.1"
-EstablishParameter	S dop.oid	"establish.rolea.2.5.19.1"
-EstablishParameter	S dop.oid	"establish.roleb.2.5.19.1"
+EstablishParameter		S dop.oid	"establish.rolea.2.5.19.1"
+EstablishParameter		S dop.oid	"establish.roleb.2.5.19.1"
 ModificationParameter 	S dop.oid	"modify.rolea.2.5.19.1"
 ModificationParameter 	S dop.oid	"modify.roleb.2.5.19.1"
 
