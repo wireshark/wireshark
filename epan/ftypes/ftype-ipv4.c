@@ -168,25 +168,15 @@ cmp_le(fvalue_t *a, fvalue_t *b)
 	return ipv4_addr_le(&a->value.ipv4, &b->value.ipv4);
 }
 
-static gboolean cmp_bytes_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
+static gboolean
+cmp_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
 {
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-	guint i = 0;
-	unsigned char *p_a, *p_b;
+	guint32		addr_a;
+	guint32		addr_b;
 
-	if (b->len != a->len) {
-		return FALSE;
-	}
-	p_a = a->data;
-	p_b = b->data;
-	while (i < b->len) {
-		if (p_a[i] & p_b[i])
-			i++;
-		else
-			return FALSE;
-	}
-	return TRUE;
+	addr_a = fv_a->value.ipv4.addr & fv_a->value.ipv4.nmask;
+	addr_b = fv_b->value.ipv4.addr & fv_b->value.ipv4.nmask;
+	return ((addr_a & addr_b) != 0);
 }
 
 void
@@ -223,7 +213,7 @@ ftype_register_ipv4(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_bytes_bitwise_and,
+		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
