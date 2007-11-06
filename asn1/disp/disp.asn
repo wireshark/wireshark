@@ -47,8 +47,6 @@ IMPORTS
     shadowConsumerInitiatedAC, shadowSupplierInitiatedAC
     FROM DirectoryInformationShadowProtocol {joint-iso-itu-t ds(5) module(1)
       disp(16) 4}
-  EXTERNALt 
-    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)}
   AlgorithmIdentifier, CertificationPath, ENCRYPTED{}, SIGNATURE{}, SIGNED{}
     FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
       authenticationFramework(7) 4}
@@ -193,7 +191,7 @@ CoordinateShadowUpdateArgumentData ::=
                       CHOICE {standard
                                 ENUMERATED {noChanges(0), incremental(1),
                                             total(2)},
-                              other     EXTERNALt},
+                              other     EXTERNAL},
                     securityParameters  SecurityParameters OPTIONAL} --}
 
 -- expand OPTIONALLY-PROTECTED macro
@@ -250,7 +248,7 @@ RequestShadowUpdateArgumentData ::=
                     lastUpdate          Time OPTIONAL,
                     requestedStrategy
                       CHOICE {standard  ENUMERATED {incremental(1), total(2)},
-                              other     EXTERNALt},
+                              other     EXTERNAL},
                     securityParameters  SecurityParameters OPTIONAL} --}
 
 -- expand OPTIONALLY-PROTECTED macro
@@ -316,7 +314,7 @@ RefreshInformation ::= CHOICE {
   noRefresh      NULL,
   total          [0]  TotalRefresh,
   incremental    [1]  IncrementalRefresh,
-  otherStrategy  EXTERNALt
+  otherStrategy  EXTERNAL
 }
 
 TotalRefresh ::= SEQUENCE {

@@ -123,7 +123,7 @@ static int hf_disp_agreementID = -1;              /* AgreementID */
 static int hf_disp_lastUpdate = -1;               /* Time */
 static int hf_disp_updateStrategy = -1;           /* T_updateStrategy */
 static int hf_disp_standardUpdate = -1;           /* StandardUpdate */
-static int hf_disp_other = -1;                    /* EXTERNALt */
+static int hf_disp_other = -1;                    /* EXTERNAL */
 static int hf_disp_securityParameters = -1;       /* SecurityParameters */
 static int hf_disp_unsignedCoordinateShadowUpdateArgument = -1;  /* CoordinateShadowUpdateArgumentData */
 static int hf_disp_signedCoordinateShadowUpdateArgument = -1;  /* T_signedCoordinateShadowUpdateArgument */
@@ -155,7 +155,7 @@ static int hf_disp_stop = -1;                     /* Time */
 static int hf_disp_noRefresh = -1;                /* NULL */
 static int hf_disp_total = -1;                    /* TotalRefresh */
 static int hf_disp_incremental = -1;              /* IncrementalRefresh */
-static int hf_disp_otherStrategy = -1;            /* EXTERNALt */
+static int hf_disp_otherStrategy = -1;            /* EXTERNAL */
 static int hf_disp_sDSE = -1;                     /* SDSEContent */
 static int hf_disp_subtree = -1;                  /* SET_OF_Subtree */
 static int hf_disp_subtree_item = -1;             /* Subtree */
@@ -519,7 +519,7 @@ static const ber_sequence_t UnitOfReplication_sequence[] = {
   { &hf_disp_replication_attributes, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_disp_AttributeSelection },
   { &hf_disp_knowledge      , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_Knowledge },
   { &hf_disp_subordinates   , BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_BOOLEAN },
-  { &hf_disp_contextSelection, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_ContextSelection },
+  { &hf_disp_contextSelection, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_ContextSelection },
   { &hf_disp_supplyContexts , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_disp_T_supplyContexts },
   { NULL, 0, 0, 0, NULL }
 };
@@ -680,6 +680,15 @@ dissect_disp_StandardUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
+
+static int
+dissect_disp_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
+
+  return offset;
+}
+
+
 static const value_string disp_T_updateStrategy_vals[] = {
   {   0, "standard" },
   {   1, "other" },
@@ -688,7 +697,7 @@ static const value_string disp_T_updateStrategy_vals[] = {
 
 static const ber_choice_t T_updateStrategy_choice[] = {
   {   0, &hf_disp_standardUpdate , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_disp_StandardUpdate },
-  {   1, &hf_disp_other          , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_disp_other          , BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_disp_EXTERNAL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -706,7 +715,7 @@ static const ber_sequence_t CoordinateShadowUpdateArgumentData_sequence[] = {
   { &hf_disp_agreementID    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { &hf_disp_lastUpdate     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_Time },
   { &hf_disp_updateStrategy , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_T_updateStrategy },
-  { &hf_disp_securityParameters, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
+  { &hf_disp_securityParameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -904,7 +913,7 @@ static const value_string disp_T_requestedStrategy_vals[] = {
 
 static const ber_choice_t T_requestedStrategy_choice[] = {
   {   0, &hf_disp_standard       , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_disp_T_standard },
-  {   1, &hf_disp_other          , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   1, &hf_disp_other          , BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_disp_EXTERNAL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -922,7 +931,7 @@ static const ber_sequence_t RequestShadowUpdateArgumentData_sequence[] = {
   { &hf_disp_agreementID    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { &hf_disp_lastUpdate     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_Time },
   { &hf_disp_requestedStrategy, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_T_requestedStrategy },
-  { &hf_disp_securityParameters, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
+  { &hf_disp_securityParameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1140,7 +1149,7 @@ dissect_disp_T_rename(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static const ber_sequence_t SEQUENCE_OF_EntryModification_sequence_of[1] = {
-  { &hf_disp_changes_item   , -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_dap_EntryModification },
+  { &hf_disp_changes_item   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_dap_EntryModification },
 };
 
 static int
@@ -1285,7 +1294,7 @@ static const ber_choice_t RefreshInformation_choice[] = {
   {   0, &hf_disp_noRefresh      , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_disp_NULL },
   {   1, &hf_disp_total          , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_disp_TotalRefresh },
   {   2, &hf_disp_incremental    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_disp_IncrementalRefresh },
-  {   3, &hf_disp_otherStrategy  , BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_acse_EXTERNALt },
+  {   3, &hf_disp_otherStrategy  , BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_disp_EXTERNAL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1314,7 +1323,7 @@ static const ber_sequence_t UpdateShadowArgumentData_sequence[] = {
   { &hf_disp_updateTime     , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_disp_Time },
   { &hf_disp_updateWindow   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_disp_UpdateWindow },
   { &hf_disp_updatedInfo    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_RefreshInformation },
-  { &hf_disp_securityParameters, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
+  { &hf_disp_securityParameters, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1694,7 +1703,7 @@ void proto_register_disp(void) {
         "disp.BOOLEAN", HFILL }},
     { &hf_disp_contextSelection,
       { "contextSelection", "disp.contextSelection",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(dap_ContextSelection_vals), 0,
         "dap.ContextSelection", HFILL }},
     { &hf_disp_supplyContexts,
       { "supplyContexts", "disp.supplyContexts",
@@ -1811,7 +1820,7 @@ void proto_register_disp(void) {
     { &hf_disp_other,
       { "other", "disp.other",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "disp.EXTERNAL", HFILL }},
     { &hf_disp_securityParameters,
       { "securityParameters", "disp.securityParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1939,7 +1948,7 @@ void proto_register_disp(void) {
     { &hf_disp_otherStrategy,
       { "otherStrategy", "disp.otherStrategy",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNALt", HFILL }},
+        "disp.EXTERNAL", HFILL }},
     { &hf_disp_sDSE,
       { "sDSE", "disp.sDSE",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2042,7 +2051,7 @@ void proto_register_disp(void) {
         "disp.SEQUENCE_OF_EntryModification", HFILL }},
     { &hf_disp_changes_item,
       { "Item", "disp.changes_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(dap_EntryModification_vals), 0,
         "dap.EntryModification", HFILL }},
     { &hf_disp_subordinate,
       { "subordinate", "disp.subordinate",
