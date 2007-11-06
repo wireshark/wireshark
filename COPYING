@@ -1,6 +1,12 @@
 Wireshark is distributed under the GNU GPL.  There are no restrictions
 on its use.  There are significant restrictions on its distribution.
 
+Most parts of Wireshark are covered by a "GPL version 2 or later" LICENSE.
+Some files are covered by different licenses that are compatible with
+the GPLv2.
+As a notable exception the pidl utility at tools/pidl is covered by a
+"GPL version 3 or later" LICENSE.
+
 Parts of Wireshark can be built and distributed as libraries.  These
 parts are still covered by the GPL, and NOT by the Lesser General Public
 License or any other license.
