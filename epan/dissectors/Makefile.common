@@ -745,6 +745,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-winsrepl.c	\
 	packet-wlancap.c	\
 	packet-wlccp.c		\
+	packet-wol.c		\
 	packet-wsp.c		\
 	packet-wtls.c		\
 	packet-wtp.c		\

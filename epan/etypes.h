@@ -71,6 +71,10 @@
 #define ETHERTYPE_ARP		0x0806
 #endif
 
+#ifndef ETHERTYPE_WOL
+#define ETHERTYPE_WOL		0x0842 /* Wake on LAN.  Not offically registered. */
+#endif
+
 #ifndef ETHERTYPE_WMX_M2M
 #define ETHERTYPE_WMX_M2M	0x08f0
 #endif

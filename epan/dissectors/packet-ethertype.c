@@ -53,6 +53,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_XNS_IDP,				"XNS Internet Datagram Protocol" },
     {ETHERTYPE_X25L3,				"X.25 Layer 3"			},
     {ETHERTYPE_ARP,					"ARP"				},
+    {ETHERTYPE_WOL,				"Wake on LAN"	       		},
     {ETHERTYPE_WMX_M2M,				"WiMax Mac-to-Mac"		},
     {ETHERTYPE_EPL_V1,				"EPL_V1"				},
     {ETHERTYPE_REVARP,				"RARP"				},
