@@ -23,13 +23,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* This code is based on the IEEE P802.1ag/D8.1 document, which is not formally
- * released at the time of this dissector development, and may change requiring
- * additional modifications to this code.
- *
- * The CFM dissector will recognize ITU Y.1731 opcodes but will not be
- * dissected, with the exception of AIS, until a future version of this code.
+/* This code is based on the IEEE P802.1ag/D8.1 document, and on the ITU-T Y.1731
+ * recommendation (05/2006,) which is not formally released at the time of this
+ * dissector development.  Any updates to these documents may require additional
+ * modifications to this code.
  */
+ 
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -93,11 +92,12 @@ static const value_string mdnameformattypes[] = {
 	{ 0, NULL }
 };
 static const value_string manameformattypes[] = {
-	{ 0, "Reserved for IEEE 802.1" },
-	{ 1, "Primary VID" },
-	{ 2, "Character String" },
-	{ 3, "2-octet integer" },
-	{ 4, "RFC 2685 VPN ID" },
+	{ 0,  "Reserved for IEEE 802.1" },
+	{ 1,  "Primary VID" },
+	{ 2,  "Character String" },
+	{ 3,  "2-octet integer" },
+	{ 4,  "RFC 2685 VPN ID" },
+	{ 32, "ICC-based Format" },
 	{ 0, NULL }
 };
 static const value_string relayactiontypes[] = {
@@ -128,6 +128,7 @@ static const value_string tlvtypefieldvalues[] = {
 	{ LTM_EGR_ID_TLV	, "LTM Egress Identifier TLV" },
 	{ LTR_EGR_ID_TLV	, "LTR Egress Identifier TLV" },
 	{ ORG_SPEC_TLV		, "Organizational-Specific TLV" },
+	{ TEST_TLV		, "Test TLV" },
 	{ 0                     , NULL }
 };
 static const value_string portstatTLVvalues[] = {
@@ -159,6 +160,13 @@ static const value_string replyegressTLVvalues[] = {
 	{ 4, "EgrVID" },
 	{ 0, NULL }
 };
+static const value_string testTLVpatterntypes[] = {
+	{ 0, "Null signal without CRC-32" },
+	{ 1, "Null signal with CRC-32" },
+	{ 2, "PRBS (2.e-31 -1), without CRC-32" },
+	{ 3, "PRBS (2.e-31 -1), with CRC-32" },
+	{ 0, NULL }
+};
 
 
 static int hf_cfm_md_level = -1;
@@ -184,12 +192,18 @@ static int hf_cfm_maid_md_name_format = -1;
 static int hf_cfm_maid_md_name_length = -1;
 static int hf_cfm_maid_md_name_string = -1;
 static int hf_cfm_maid_md_name_hex = -1;
+static int hf_cfm_maid_md_name_mac = -1;
+static int hf_cfm_maid_md_name_mac_id = -1;
 static int hf_cfm_maid_ma_name_format = -1;
 static int hf_cfm_maid_ma_name_length = -1;
 static int hf_cfm_maid_ma_name_string = -1;
 static int hf_cfm_maid_ma_name_hex = -1;
 static int hf_cfm_maid_padding = -1;
 static int hf_cfm_ccm_itu_t_y1731 = -1;
+static int hf_cfm_itu_TxFCf = -1;
+static int hf_cfm_itu_RxFCb = -1;
+static int hf_cfm_itu_TxFCb = -1;
+static int hf_cfm_itu_reserved = -1;
 
 static int hf_cfm_lbm_pdu = -1;
 static int hf_cfm_lb_transaction_id = -1;
@@ -208,6 +222,41 @@ static int hf_cfm_ltr_relay_action = -1;
 static int hf_cfm_ais_pdu = -1;
 static int hf_cfm_flags_ais_lck_Reserved = -1;
 static int hf_cfm_flags_ais_lck_Period = -1;
+
+static int hf_cfm_lck_pdu = -1;
+
+static int hf_cfm_tst_pdu = -1;
+static int hf_cfm_flags_Reserved = -1;
+static int hf_cfm_tst_sequence_num = -1;
+
+static int hf_cfm_aps_pdu = -1;
+static int hf_cfm_aps_data = -1;
+
+static int hf_cfm_mcc_pdu = -1;
+static int hf_cfm_mcc_data = -1;
+
+static int hf_cfm_lmm_pdu = -1;
+static int hf_cfm_lmr_pdu = -1;
+static int hf_cfm_lmm_lmr_TxFCf = -1;
+static int hf_cfm_lmm_lmr_RxFCf = -1;
+static int hf_cfm_lmm_lmr_TxFCb = -1;
+
+static int hf_cfm_odm_pdu = -1;
+static int hf_cfm_odm_dmm_dmr_TxTimestampf = -1;
+static int hf_cfm_odm_dmm_dmr_RxTimestampf = -1;
+
+static int hf_cfm_dmm_pdu = -1;
+static int hf_cfm_dmr_pdu = -1;
+static int hf_cfm_dmm_dmr_TxTimestampb = -1;
+static int hf_cfm_dmm_dmr_RxTimestampb = -1;
+
+static int hf_cfm_exm_pdu = -1;
+static int hf_cfm_exr_pdu = -1;
+static int hf_cfm_exm_exr_data = -1;
+
+static int hf_cfm_vsm_pdu = -1;
+static int hf_cfm_vsr_pdu = -1;
+static int hf_cfm_vsm_vsr_data = -1;
 
 static int hf_cfm_all_tlvs = -1;
 static int hf_cfm_tlv_type = -1;
@@ -230,23 +279,24 @@ static int hf_tlv_reply_ing_egr_portid_subtype = -1;
 static int hf_tlv_reply_ing_egr_portid = -1;
 static int hf_tlv_reply_egress_action = -1;
 static int hf_tlv_reply_egress_mac_address = -1;
-static int hf_tlv_ltr_egress_last_id = -1;
-static int hf_tlv_ltr_egress_next_id = -1;
+static int hf_tlv_ltr_egress_last_id_mac = -1;
+static int hf_tlv_ltr_egress_last_id_unique_identifier = -1;
+static int hf_tlv_ltr_egress_next_id_mac = -1;
+static int hf_tlv_ltr_egress_next_id_unique_identifier = -1;
 static int hf_tlv_ltm_egress_id_mac = -1;
 static int hf_tlv_ltm_egress_id_unique_identifier = -1;
 static int hf_tlv_org_spec_oui = -1;
 static int hf_tlv_org_spec_subtype = -1;
 static int hf_tlv_org_spec_value = -1;
+static int hf_tlv_tst_test_pattern_type = -1;
+static int hf_tlv_tst_test_pattern = -1;
+static int hf_tlv_tst_CRC32 = -1;
 
 static gint ett_cfm = -1;
-static gint ett_cfm_ccm = -1;
 static gint ett_cfm_flags = -1;
 static gint ett_cfm_ccm_maid = -1;
-static gint ett_cfm_lbm = -1;
-static gint ett_cfm_lbr = -1;
-static gint ett_cfm_ltm = -1;
-static gint ett_cfm_ltr = -1;
-static gint ett_cfm_ais = -1;
+static gint ett_cfm_ccm_itu = -1;
+static gint ett_cfm_pdu = -1;
 static gint ett_cfm_all_tlvs = -1;
 static gint ett_cfm_tlv = -1;
 
@@ -298,10 +348,10 @@ void proto_register_cfm(void)
 		},
 		{ &hf_cfm_ccm_ma_ep_id,
 			{ "Maintenance Association End Point Identifier", "cfm.ccm.ma.ep.id",
-			 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+			 FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_cfm_ccm_maid,
-			{ "Maintenance Association Identifier", "cfm.ccm.maid", FT_NONE,
+			{ "Maintenance Association Identifier (MEG ID)", "cfm.ccm.maid", FT_NONE,
 			 BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_md_name_format,
@@ -313,19 +363,27 @@ void proto_register_cfm(void)
 			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_md_name_string,
-			{ "MD Name", "cfm.maid.md.name", FT_STRING,
+			{ "MD Name (String)", "cfm.maid.md.name", FT_STRING,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_md_name_hex,
 			{ "MD Name", "cfm.maid.md.name", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_cfm_maid_md_name_mac,
+			{ "MD Name (MAC)", "cfm.maid.md.name.mac", FT_ETHER,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_maid_md_name_mac_id,
+			{ "MD Name (MAC)", "cfm.maid.md.name.mac.id", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_cfm_maid_ma_name_format,
-			{ "Short MA Name Format", "cfm.maid.ma.name.format", FT_UINT8,
+			{ "Short MA Name (MEG ID) Format", "cfm.maid.ma.name.format", FT_UINT8,
 			BASE_DEC, VALS(manameformattypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_ma_name_length,
-			{ "Short MA Name Length", "cfm.maid.ma.name.length", FT_UINT8,
+			{ "Short MA Name (MEG ID) Length", "cfm.maid.ma.name.length", FT_UINT8,
 			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_ma_name_string,
@@ -337,12 +395,28 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_padding,
-			{ "0 Padding", "cfm.ccm.maid.padding", FT_NONE,
+			{ "Zero-Padding", "cfm.ccm.maid.padding", FT_NONE,
 			 BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_ccm_itu_t_y1731,
 			{ "Defined by ITU-T Y.1731", "cfm.ccm.itu.t.y1731", FT_NONE,
 			 BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_itu_TxFCf,
+			{ "TxFCf", "cfm.itu.txfcf", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_itu_RxFCb,
+			{ "RxFCb", "cfm.itu.rxfcb", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_itu_TxFCb,
+			{ "TxFCb", "cfm.itu.txfcb", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_itu_reserved,
+			{ "Reserved", "cfm.itu.reserved", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
 		/* CFM LBM*/
@@ -425,6 +499,137 @@ void proto_register_cfm(void)
 		{ &hf_cfm_flags_ais_lck_Period,
 			{ "Period", "cfm.flags.period", FT_UINT8,
 			BASE_DEC, VALS(aislckperiodtypes), 0x07, NULL, HFILL }
+		},
+
+		/* CFM LCK */
+		{ &hf_cfm_lck_pdu,
+			{ "CFM LCK PDU", "cfm.lck.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* CFM TST */
+		{ &hf_cfm_tst_pdu,
+			{ "CFM TST PDU", "cfm.tst.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_flags_Reserved,
+			{ "Reserved", "cfm.flags.reserved", FT_UINT8,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_tst_sequence_num,
+			{ "Sequence Number", "cfm.tst.sequence.num", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* CFM APS */
+		{ &hf_cfm_aps_pdu,
+			{ "CFM APS PDU", "cfm.aps.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_aps_data,
+			{ "APS data", "cfm.aps.data", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CFM MCC */
+		{ &hf_cfm_mcc_pdu,
+			{ "CFM MCC PDU", "cfm.mcc.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_mcc_data,
+			{ "MCC data", "cfm.mcc.data", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CFM LMM */
+		{ &hf_cfm_lmm_pdu,
+			{ "CFM LMM PDU", "cfm.lmm.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_lmm_lmr_TxFCf,
+			{ "TxFCf", "cfm.lmm.lmr.txfcf", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_lmm_lmr_RxFCf,
+			{ "RxFCf", "cfm.lmm.lmr.rxfcf", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_lmm_lmr_TxFCb,
+			{ "TxFCb", "cfm.lmm.lmr.txfcb", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+
+		/* CFM LMR */
+		{ &hf_cfm_lmr_pdu,
+			{ "CFM LMR PDU", "cfm.lmr.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* CFM 1DM */
+		{ &hf_cfm_odm_pdu,
+			{ "CFM 1DM PDU", "cfm.odm.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_odm_dmm_dmr_TxTimestampf,
+			{ "TxTimestampf", "cfm.odm.dmm.dmr.txtimestampf", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_odm_dmm_dmr_RxTimestampf,
+			{ "RxTimestampf", "cfm.odm.dmm.dmr.rxtimestampf", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CFM DMM */
+		{ &hf_cfm_dmm_pdu,
+			{ "CFM DMM PDU", "cfm.dmm.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_dmm_dmr_TxTimestampb,
+			{ "TxTimestampb", "cfm.dmm.dmr.txtimestampb", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_dmm_dmr_RxTimestampb,
+			{ "RxTimestampb", "cfm.dmm.dmr.rxtimestampb", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CFM DMR */
+		{ &hf_cfm_dmr_pdu,
+			{ "CFM DMR PDU", "cfm.dmr.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* CFM EXM */
+		{ &hf_cfm_exm_pdu,
+			{ "CFM EXM PDU", "cfm.exm.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_exm_exr_data,
+			{ "EXM/EXR data", "cfm.mcc.data", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CFM EXR */
+		{ &hf_cfm_exr_pdu,
+			{ "CFM EXR PDU", "cfm.exr.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* CFM VSM */
+		{ &hf_cfm_vsm_pdu,
+			{ "CFM VSM PDU", "cfm.vsm.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_vsm_vsr_data,
+			{ "VSM/VSR data", "cfm.mcc.data", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+
+		/* CFM VSR */
+		{ &hf_cfm_vsr_pdu,
+			{ "CFM VSR PDU", "cfm.vsr.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 
 		/******************************* TLVs ****************************/
@@ -522,21 +727,29 @@ void proto_register_cfm(void)
 
 				/* LTM Egress Identifier TLV */
 		{ &hf_tlv_ltm_egress_id_mac,
-			{ "Egress Identifier - MAC of LT Initiator/Responder", "cfm.tlv.ltm.egress.id", FT_ETHER,
+			{ "Egress Identifier - MAC of LT Initiator/Responder", "cfm.tlv.ltm.egress.id.mac", FT_ETHER,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_tlv_ltm_egress_id_unique_identifier,
-			{ "Egress Identifier - Unique Identifier", "cfm.tlv.ltm.egress.id", FT_BYTES,
+			{ "Egress Identifier - Unique Identifier", "cfm.tlv.ltm.egress.id.ui", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 
 				/* LTR Egress Identifier TLV */
-		{ &hf_tlv_ltr_egress_last_id,
-			{ "Last Egress Identifier", "cfm.tlv.ltr.egress.last.id", FT_BYTES,
+		{ &hf_tlv_ltr_egress_last_id_mac,
+			{ "Last Egress Identifier - MAC address", "cfm.tlv.ltr.egress.last.id.mac", FT_ETHER,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
-		{ &hf_tlv_ltr_egress_next_id,
-			{ "Next Egress Identifier", "cfm.tlv.ltr.egress.next.id", FT_BYTES,
+		{ &hf_tlv_ltr_egress_last_id_unique_identifier,
+			{ "Last Egress Identifier - Unique Identifier", "cfm.tlv.ltr.egress.last.id.ui", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_tlv_ltr_egress_next_id_mac,
+			{ "Next Egress Identifier - MAC address", "cfm.tlv.ltr.egress.next.id.mac", FT_ETHER,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_tlv_ltr_egress_next_id_unique_identifier,
+			{ "Next Egress Identifier - Unique Identifier", "cfm.tlv.ltr.egress.next.id.ui", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 
@@ -552,20 +765,30 @@ void proto_register_cfm(void)
 		{ &hf_tlv_org_spec_value,
 			{ "Value", "cfm.tlv.org.spec.value", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
-		}
+		},
+
+				/* Test TLV */
+		{ &hf_tlv_tst_test_pattern_type,
+			{ "Test Pattern Type", "cfm.tlv.tst.test.pattern.type", FT_UINT8,
+			BASE_DEC, VALS(testTLVpatterntypes), 0x0, NULL, HFILL}
+		},
+		{ &hf_tlv_tst_test_pattern,
+			{ "Test Pattern", "cfm.tlv.tst.test.pattern", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_tlv_tst_CRC32,
+			{ "CRC-32", "cfm.tlv.tst.crc32", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_cfm,
-		&ett_cfm_ccm,
 		&ett_cfm_flags,
 		&ett_cfm_ccm_maid,
-		&ett_cfm_lbm,
-		&ett_cfm_lbr,
-		&ett_cfm_ltm,
-		&ett_cfm_ltr,
-		&ett_cfm_ais,
+		&ett_cfm_ccm_itu,
+		&ett_cfm_pdu,
 		&ett_cfm_all_tlvs,
 		&ett_cfm_tlv
 	};
@@ -597,6 +820,7 @@ void proto_reg_handoff_cfm(void)
 static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	gint maid_offset = 0;
+	gint itu_offset = 0;
 	gint padding_length = 0;
 
 	guint8 cfm_maid_md_name_format = 0;
@@ -607,29 +831,32 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_item *ti = NULL;
 	proto_item *fi = NULL;
 	proto_item *mi = NULL;
-	proto_tree *cfm_ccm_tree = NULL;
+	proto_item *wi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
 	proto_tree *cfm_flag_tree = NULL;
 	proto_tree *cfm_ccm_maid_tree = NULL;
+	proto_tree *cfm_ccm_itu_tree = NULL;
 
 
 	ti = proto_tree_add_item(tree, hf_cfm_ccm_pdu, tvb, offset, -1, FALSE);
-	cfm_ccm_tree = proto_item_add_subtree(ti, ett_cfm_ccm);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
 
-	fi = proto_tree_add_item(cfm_ccm_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
 	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_RDI, tvb, offset, 1, FALSE);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ccm_Reserved, tvb, offset, 1, FALSE);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Interval, tvb, offset, 1, FALSE);
 
 	offset += 1;
-	proto_tree_add_item(cfm_ccm_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_ccm_tree, hf_cfm_ccm_seq_number, tvb, offset, 4, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ccm_seq_number, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_item(cfm_ccm_tree, hf_cfm_ccm_ma_ep_id, tvb, offset, 2, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ccm_ma_ep_id, tvb, offset, 2, FALSE);
 	offset += 2;
 
-	mi = proto_tree_add_item(cfm_ccm_tree, hf_cfm_ccm_maid, tvb, offset, 48, FALSE);
+	/* dissect CCM MAID */
+	mi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_ccm_maid, tvb, offset, 48, FALSE);
 	cfm_ccm_maid_tree = proto_item_add_subtree(mi, ett_cfm_ccm_maid);
 	maid_offset = offset;
 	proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_format, tvb, maid_offset, 1, FALSE);
@@ -642,9 +869,20 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		maid_offset += 1;
 		if (cfm_maid_md_name_length) {
 			if (cfm_maid_md_name_format == 3) {
-				proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_hex,  
-					tvb, maid_offset, cfm_maid_md_name_length, FALSE);
+				/* MD name format is MAC + 2 octet id */
+				if (cfm_maid_md_name_length != 8) {
+					/* the MD name of type MAC should be 8 octets but if
+					 * it isn't we are going to try and process it anyways.*/
+					proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_hex,  
+						tvb, maid_offset, cfm_maid_md_name_length, FALSE);
+				} else {
+					proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_mac,  
+						tvb, maid_offset, 6, FALSE);
+					proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_mac_id,  
+						tvb, maid_offset+6, 2, FALSE);
+				}
 			} else {
+				/* MD name format is regular string or DNS string */
 				proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_string,  
 					tvb, maid_offset, cfm_maid_md_name_length, FALSE);
 			}
@@ -672,7 +910,19 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 			tvb, maid_offset, padding_length, FALSE);
 	}
 
-	proto_tree_add_item(cfm_ccm_tree, hf_cfm_ccm_itu_t_y1731, tvb, offset, 16, FALSE);
+	/* Dissect 16 octets reserved for Y.1731, samples of the wrap-around frame counters */
+	wi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_ccm_itu_t_y1731, tvb, offset, 16, FALSE);
+	cfm_ccm_itu_tree = proto_item_add_subtree(wi, ett_cfm_ccm_itu);
+	itu_offset = offset;
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_itu_TxFCf, tvb, itu_offset, 4, FALSE);
+	itu_offset += 4;
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_itu_RxFCb, tvb, itu_offset, 4, FALSE);
+	itu_offset += 4;
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_itu_TxFCb, tvb, itu_offset, 4, FALSE);
+	itu_offset += 4;
+	proto_tree_add_item(cfm_ccm_itu_tree, hf_cfm_itu_reserved, tvb, itu_offset, 4, FALSE);
+	itu_offset += 4;
+
 	offset += 16;
 	return offset;
 }
@@ -680,16 +930,16 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int dissect_cfm_lbm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti = NULL;
-	proto_tree *cfm_lbm_tree = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
 
 	ti = proto_tree_add_item(tree, hf_cfm_lbm_pdu, tvb, offset, -1, FALSE);
-	cfm_lbm_tree = proto_item_add_subtree(ti, ett_cfm_lbm);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
 
-	proto_tree_add_item(cfm_lbm_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_lbm_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_lbm_tree, hf_cfm_lb_transaction_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lb_transaction_id, tvb, offset, 4, FALSE);
 	offset += 4;
 	return offset;
 }
@@ -697,16 +947,16 @@ static int dissect_cfm_lbm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int dissect_cfm_lbr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti = NULL;
-	proto_tree *cfm_lbr_tree = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
 
 	ti = proto_tree_add_item(tree, hf_cfm_lbr_pdu, tvb, offset, -1, FALSE);
-	cfm_lbr_tree = proto_item_add_subtree(ti, ett_cfm_lbr);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
 
-	proto_tree_add_item(cfm_lbr_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_lbr_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_lbr_tree, hf_cfm_lb_transaction_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lb_transaction_id, tvb, offset, 4, FALSE);
 	offset += 4;
 	return offset;
 }
@@ -715,27 +965,27 @@ static int dissect_cfm_ltm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	proto_item *ti = NULL;
 	proto_item *fi = NULL;
-	proto_tree *cfm_ltm_tree = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
 	proto_tree *cfm_flag_tree = NULL;
 
 	ti = proto_tree_add_item(tree, hf_cfm_ltm_pdu, tvb, offset, -1, FALSE);
-	cfm_ltm_tree = proto_item_add_subtree(ti, ett_cfm_ltm);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
 
-	fi = proto_tree_add_item(cfm_ltm_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
 	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_UseFDBonly, tvb, offset, 1, FALSE);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ltm_Reserved, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(cfm_ltm_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_ltm_tree, hf_cfm_lt_transaction_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lt_transaction_id, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_item(cfm_ltm_tree, hf_cfm_lt_ttl, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lt_ttl, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_ltm_tree, hf_cfm_ltm_orig_addr, tvb, offset, 6, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltm_orig_addr, tvb, offset, 6, FALSE);
 	offset += 6;
-	proto_tree_add_item(cfm_ltm_tree, hf_cfm_ltm_targ_addr, tvb, offset, 6, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltm_targ_addr, tvb, offset, 6, FALSE);
 	offset += 6;
 	return offset;
 }
@@ -744,13 +994,13 @@ static int dissect_cfm_ltr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	proto_item *ti = NULL;
 	proto_item *fi = NULL;
-	proto_tree *cfm_ltr_tree = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
 	proto_tree *cfm_flag_tree = NULL;
 
 	ti = proto_tree_add_item(tree, hf_cfm_ltr_pdu, tvb, offset, -1, FALSE);
-	cfm_ltr_tree = proto_item_add_subtree(ti, ett_cfm_ltr);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
 
-	fi = proto_tree_add_item(cfm_ltr_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
 	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_UseFDBonly, tvb, offset, 1, FALSE);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_FwdYes, tvb, offset, 1, FALSE);
@@ -758,13 +1008,13 @@ static int dissect_cfm_ltr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ltr_Reserved, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(cfm_ltr_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_ltr_tree, hf_cfm_lt_transaction_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lt_transaction_id, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_item(cfm_ltr_tree, hf_cfm_lt_ttl, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lt_ttl, tvb, offset, 1, FALSE);
 	offset += 1;
-	proto_tree_add_item(cfm_ltr_tree, hf_cfm_ltr_relay_action, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltr_relay_action, tvb, offset, 1, FALSE);
 	offset += 1;
 	return offset;
 }
@@ -773,24 +1023,432 @@ static int dissect_cfm_ais(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	proto_item *ti = NULL;
 	proto_item *fi = NULL;
-	proto_tree *cfm_ais_tree = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
 	proto_tree *cfm_flag_tree = NULL;
 
 	ti = proto_tree_add_item(tree, hf_cfm_ais_pdu, tvb, offset, -1, FALSE);
-	cfm_ais_tree = proto_item_add_subtree(ti, ett_cfm_ais);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
 
-	fi = proto_tree_add_item(cfm_ais_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
 	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ais_lck_Reserved, tvb, offset, 1, FALSE);
 	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ais_lck_Period, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	proto_tree_add_item(cfm_ais_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
 	offset += 1;
 	
 	return offset;
 }
 
+static int dissect_cfm_lck(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_lck_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ais_lck_Reserved, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_ais_lck_Period, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+	
+	return offset;
+}
+
+static int dissect_cfm_tst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_tst_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_tst_sequence_num, tvb, offset, 4, FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
+static int dissect_cfm_aps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	gint cfm_tlv_offset = 0;
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_aps_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* The APS data field was not defined at the time of this code being written
+	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
+	 * the TLV offset and perform a hex dump */
+	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
+	if (cfm_tlv_offset > 0) {
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_aps_data, tvb, offset, cfm_tlv_offset, FALSE);
+		offset += cfm_tlv_offset;
+	}
+
+	return offset;
+}
+
+static int dissect_cfm_mcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	gint cfm_tlv_offset = 0;
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_mcc_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* The MCC data field was not defined at the time of this code being written
+	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
+	 * the TLV offset and perform a hex dump */
+	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
+	/* Remove OUI and subtype from the offset */
+	cfm_tlv_offset -= 4;
+	if (cfm_tlv_offset > 0) {
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_mcc_data, tvb, offset, cfm_tlv_offset, FALSE);
+		offset += cfm_tlv_offset;
+	}
+
+	return offset;
+}
+
+static int dissect_cfm_lmm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_lmm_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCf, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_RxFCf, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCb, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+static int dissect_cfm_lmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_lmr_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCf, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_RxFCf, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lmm_lmr_TxFCb, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+static int dissect_cfm_odm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_odm_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_odm_dmm_dmr_TxTimestampf, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_odm_dmm_dmr_RxTimestampf, tvb, offset, 8, FALSE);
+	offset += 8;
+
+	return offset;
+}
+
+static int dissect_cfm_dmm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_dmm_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_odm_dmm_dmr_TxTimestampf, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_odm_dmm_dmr_RxTimestampf, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_dmm_dmr_TxTimestampb, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_dmm_dmr_RxTimestampb, tvb, offset, 8, FALSE);
+	offset += 8;
+
+	return offset;
+}
+
+static int dissect_cfm_dmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_dmr_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_odm_dmm_dmr_TxTimestampf, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_odm_dmm_dmr_RxTimestampf, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_dmm_dmr_TxTimestampb, tvb, offset, 8, FALSE);
+	offset += 8;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_dmm_dmr_RxTimestampb, tvb, offset, 8, FALSE);
+	offset += 8;
+
+	return offset;
+}
+
+static int dissect_cfm_exm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	gint cfm_tlv_offset = 0;
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_exm_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* The EXM data field was not defined at the time of this code being written
+	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
+	 * the TLV offset and perform a hex dump */
+	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
+	/* Remove OUI and subtype from the offset */
+	cfm_tlv_offset -= 4;
+	if (cfm_tlv_offset > 0) {
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_exm_exr_data, tvb, offset, cfm_tlv_offset, FALSE);
+		offset += cfm_tlv_offset;
+	}
+
+	return offset;
+}
+
+static int dissect_cfm_exr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	gint cfm_tlv_offset = 0;
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_exr_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* The EXR data field was not defined at the time of this code being written
+	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
+	 * the TLV offset and perform a hex dump */
+	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
+	/* Remove OUI and subtype from the offset */
+	cfm_tlv_offset -= 4;
+	if (cfm_tlv_offset > 0) {
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_exm_exr_data, tvb, offset, cfm_tlv_offset, FALSE);
+		offset += cfm_tlv_offset;
+	}
+
+	return offset;
+}
+
+static int dissect_cfm_vsm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	gint cfm_tlv_offset = 0;
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_vsm_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* The VSM data field was not defined at the time of this code being written
+	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
+	 * the TLV offset and perform a hex dump */
+	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
+	/* Remove OUI and subtype from the offset */
+	cfm_tlv_offset -= 4;
+	if (cfm_tlv_offset > 0) {
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_vsm_vsr_data, tvb, offset, cfm_tlv_offset, FALSE);
+		offset += cfm_tlv_offset;
+	}
+
+	return offset;
+}
+
+static int dissect_cfm_vsr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	gint cfm_tlv_offset = 0;
+	proto_item *ti = NULL;
+	proto_item *fi = NULL;
+	proto_tree *cfm_pdu_tree = NULL;
+	proto_tree *cfm_flag_tree = NULL;
+
+	ti = proto_tree_add_item(tree, hf_cfm_vsr_pdu, tvb, offset, -1, FALSE);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, FALSE);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_oui, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(cfm_pdu_tree, hf_tlv_org_spec_subtype, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	/* The VSR data field was not defined at the time of this code being written
+	 * ITU-T Y.1731 (05/2006), so we are simply going to determine the length based on
+	 * the TLV offset and perform a hex dump */
+	cfm_tlv_offset = tvb_get_guint8(tvb, 3);
+	/* Remove OUI and subtype from the offset */
+	cfm_tlv_offset -= 4;
+	if (cfm_tlv_offset > 0) {
+		proto_tree_add_item(cfm_pdu_tree, hf_cfm_vsm_vsr_data, tvb, offset, cfm_tlv_offset, FALSE);
+		offset += cfm_tlv_offset;
+	}
+
+	return offset;
+}
 
 
 /* Main CFM EOAM protocol dissector */
@@ -809,6 +1467,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 tlv_management_addr_length = 0;
 	guint8 tlv_reply_ingress_portid_length = 0;
 	guint8 tlv_reply_egress_portid_length = 0;
+	guint8 tlv_tst_test_pattern_type = 0;
 
 	proto_item *ti = NULL;
 	proto_item *fi = NULL;
@@ -871,6 +1530,46 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case AIS:
 			offset = dissect_cfm_ais(tvb, pinfo, tree, offset);
+			break;
+		case LCK:
+			offset = dissect_cfm_lck(tvb, pinfo, tree, offset);
+			break;
+		case TST:
+			offset = dissect_cfm_tst(tvb, pinfo, tree, offset);
+			break;
+		case APS:
+			offset = dissect_cfm_aps(tvb, pinfo, tree, offset);
+			break;
+		case MCC:
+			offset = dissect_cfm_mcc(tvb, pinfo, tree, offset);
+			break;
+		case LMM:
+			offset = dissect_cfm_lmm(tvb, pinfo, tree, offset);
+			break;
+		case LMR:
+			offset = dissect_cfm_lmr(tvb, pinfo, tree, offset);
+			break;
+		case ODM:
+			offset = dissect_cfm_odm(tvb, pinfo, tree, offset);
+			break;
+		case DMM:
+			offset = dissect_cfm_dmm(tvb, pinfo, tree, offset);
+			break;
+		case DMR:
+			offset = dissect_cfm_dmr(tvb, pinfo, tree, offset);
+			break;
+		case EXM:
+			offset = dissect_cfm_exm(tvb, pinfo, tree, offset);
+			break;
+		case EXR:
+			offset = dissect_cfm_exr(tvb, pinfo, tree, offset);
+			break;
+		case VSM:
+			offset = dissect_cfm_vsm(tvb, pinfo, tree, offset);
+			break;
+		case VSR:
+			offset = dissect_cfm_vsr(tvb, pinfo, tree, offset);
+			break;
 		}
 
 		/* Get the TLV offset and add the offset of the common CFM header*/
@@ -879,7 +1578,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Begin dissecting the TLV's */
 		   /* the TLV offset should be the same as where the pdu left off or we have a problem */
-		if ((cfm_tlv_offset == offset) && (cfm_tlv_offset > 4)) {
+		if ((cfm_tlv_offset == offset) && (cfm_tlv_offset > 3)) {
 			ti = proto_tree_add_item(tree, hf_cfm_all_tlvs, tvb, cfm_tlv_offset, -1, FALSE);
 			cfm_all_tlvs_tree = proto_item_add_subtree(ti, ett_cfm_all_tlvs);
 
@@ -902,152 +1601,195 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_type, tvb, cfm_tlv_offset, 1, FALSE);
 				cfm_tlv_offset += 1;
-				if  ((cfm_tlv_type != END_TLV) && (cfm_tlv_length != 0)) {
+				if  (cfm_tlv_type != END_TLV) {
 					proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_length, tvb, cfm_tlv_offset, 2, FALSE);
 					cfm_tlv_offset += 2;
 
-					tlv_data_offset = cfm_tlv_offset;
+					if  (cfm_tlv_length != 0) {					
+						tlv_data_offset = cfm_tlv_offset;
 
-					switch(cfm_tlv_type) {
-					case SENDER_ID_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_length,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_chassis_id_length = tvb_get_guint8(tvb,tlv_data_offset);
-						tlv_data_offset += 1;
+						switch(cfm_tlv_type) {
+						case SENDER_ID_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_length,
+								       	tvb, tlv_data_offset, 1, FALSE);
+							tlv_chassis_id_length = tvb_get_guint8(tvb,tlv_data_offset);
+							tlv_data_offset += 1;
 
-						if (tlv_chassis_id_length > 0) {
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_subtype,
+							if (tlv_chassis_id_length > 0) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_subtype,
+									       	tvb, tlv_data_offset, 1, FALSE);
+								tlv_data_offset += 1;
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id,
+									       	tvb, tlv_data_offset, tlv_chassis_id_length, FALSE);
+								tlv_data_offset += tlv_chassis_id_length;
+							}
+
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain_length,
+								       	tvb, tlv_data_offset, 1, FALSE);
+							tlv_ma_domain_length = tvb_get_guint8(tvb,tlv_data_offset);
+							tlv_data_offset += 1;
+							if (tlv_ma_domain_length > 0) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain,
+									       	tvb, tlv_data_offset, tlv_ma_domain_length, FALSE);
+								tlv_data_offset += tlv_ma_domain_length;
+							}
+
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_length,
+								       	tvb, tlv_data_offset, 1, FALSE);
+							tlv_management_addr_length = tvb_get_guint8(tvb,tlv_data_offset);
+							tlv_data_offset += 1;
+							if (tlv_management_addr_length > 0) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr,
+									       	tvb, tlv_data_offset, tlv_management_addr_length, FALSE);
+								tlv_data_offset += tlv_management_addr_length;
+							}						
+							break;
+						case PORT_STAT_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_port_status_value,
 								       	tvb, tlv_data_offset, 1, FALSE);
 							tlv_data_offset += 1;
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id,
-								       	tvb, tlv_data_offset, tlv_chassis_id_length, FALSE);
-							tlv_data_offset += tlv_chassis_id_length;
-						}
-
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain_length,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_ma_domain_length = tvb_get_guint8(tvb,tlv_data_offset);
-						tlv_data_offset += 1;
-						if (tlv_ma_domain_length > 0) {
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain,
-								       	tvb, tlv_data_offset, tlv_ma_domain_length, FALSE);
-							tlv_data_offset += tlv_ma_domain_length;
-						}
-
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_length,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_management_addr_length = tvb_get_guint8(tvb,tlv_data_offset);
-						tlv_data_offset += 1;
-						if (tlv_management_addr_length > 0) {
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr,
-								       	tvb, tlv_data_offset, tlv_management_addr_length, FALSE);
-							tlv_data_offset += tlv_management_addr_length;
-						}						
-						break;
-					case PORT_STAT_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_port_status_value,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_data_offset += 1;
-						break;
-					case DATA_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_data_value,
-							       	tvb, tlv_data_offset, cfm_tlv_length, FALSE);
-						tlv_data_offset += cfm_tlv_length;						
-						break;
-					case INTERF_STAT_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_interface_status_value,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_data_offset += 1;
-						break;
-					case REPLY_ING_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ingress_action,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_data_offset += 1;
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ingress_mac_address,
-							       	tvb, tlv_data_offset, 6, FALSE);
-						tlv_data_offset += 6;
-
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_length,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_reply_ingress_portid_length = tvb_get_guint8(tvb,tlv_data_offset);
-						tlv_data_offset += 1;
-
-						if (tlv_reply_ingress_portid_length > 0) {
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_subtype,
+							break;
+						case DATA_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_data_value,
+								       	tvb, tlv_data_offset, cfm_tlv_length, FALSE);
+							tlv_data_offset += cfm_tlv_length;						
+							break;
+						case INTERF_STAT_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_interface_status_value,
 								       	tvb, tlv_data_offset, 1, FALSE);
 							tlv_data_offset += 1;
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid,
-								       	tvb, tlv_data_offset, tlv_reply_ingress_portid_length, FALSE);
-							tlv_data_offset += tlv_reply_ingress_portid_length;
-						}				
-						break;
-					case REPLY_EGR_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_egress_action,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_data_offset += 1;
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_egress_mac_address,
-							       	tvb, tlv_data_offset, 6, FALSE);
-						tlv_data_offset += 6;
-					
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_length,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_reply_egress_portid_length = tvb_get_guint8(tvb,tlv_data_offset);
-						tlv_data_offset += 1;
-
-						if (tlv_reply_egress_portid_length > 0) {
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_subtype,
+							break;
+						case REPLY_ING_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ingress_action,
 								       	tvb, tlv_data_offset, 1, FALSE);
 							tlv_data_offset += 1;
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid,
-								       	tvb, tlv_data_offset, tlv_reply_egress_portid_length, FALSE);
-							tlv_data_offset += tlv_reply_egress_portid_length;
-						}			
-						break;
-					case LTM_EGR_ID_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltm_egress_id_mac,
-							       	tvb, tlv_data_offset, 6, FALSE);
-						tlv_data_offset += 6;
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltm_egress_id_unique_identifier,
-							       	tvb, tlv_data_offset, 2, FALSE);
-						tlv_data_offset += 2;
-						break;
-					case LTR_EGR_ID_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_last_id,
-							       	tvb, tlv_data_offset, 8, FALSE);
-						tlv_data_offset += 8;
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_next_id,
-							       	tvb, tlv_data_offset, 8, FALSE);
-						tlv_data_offset += 8;
-						break;
-					case ORG_SPEC_TLV:
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_oui,
-							       	tvb, tlv_data_offset, 3, FALSE);
-						tlv_data_offset += 3;
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_subtype,
-							       	tvb, tlv_data_offset, 1, FALSE);
-						tlv_data_offset += 1;
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ingress_mac_address,
+								       	tvb, tlv_data_offset, 6, FALSE);
+							tlv_data_offset += 6;
 
-						if (cfm_tlv_length > 0) {   
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_value,
-							       	tvb, tlv_data_offset, cfm_tlv_length, FALSE);
-							tlv_data_offset -= 4;
+							/* For the IEEE standard if the TLV length is greater than 7 then we have
+							 * an ingress port ID
+							 */
+							if (cfm_tlv_length > 7) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_length,
+									       	tvb, tlv_data_offset, 1, FALSE);
+								tlv_reply_ingress_portid_length = tvb_get_guint8(tvb,tlv_data_offset);
+								tlv_data_offset += 1;
+
+								if (tlv_reply_ingress_portid_length > 0) {
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_subtype,
+										       	tvb, tlv_data_offset, 1, FALSE);
+									tlv_data_offset += 1;
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid,
+										       	tvb, tlv_data_offset, tlv_reply_ingress_portid_length, FALSE);
+									tlv_data_offset += tlv_reply_ingress_portid_length;
+								}
+							}				
+							break;
+						case REPLY_EGR_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_egress_action,
+								       	tvb, tlv_data_offset, 1, FALSE);
+							tlv_data_offset += 1;
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_egress_mac_address,
+								       	tvb, tlv_data_offset, 6, FALSE);
+							tlv_data_offset += 6;
+							
+							/* For the IEEE standard if the TLV length is greater than 7 then we have
+							 * an egress port ID
+							 */
+							if (cfm_tlv_length > 7) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_length,
+									       	tvb, tlv_data_offset, 1, FALSE);
+								tlv_reply_egress_portid_length = tvb_get_guint8(tvb,tlv_data_offset);
+								tlv_data_offset += 1;
+	
+								if (tlv_reply_egress_portid_length > 0) {
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_subtype,
+										       	tvb, tlv_data_offset, 1, FALSE);
+									tlv_data_offset += 1;
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid,
+										       	tvb, tlv_data_offset, tlv_reply_egress_portid_length, FALSE);
+									tlv_data_offset += tlv_reply_egress_portid_length;
+								}
+							}			
+							break;
+						case LTM_EGR_ID_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltm_egress_id_unique_identifier,
+								       	tvb, tlv_data_offset, 2, FALSE);
+							tlv_data_offset += 2;
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltm_egress_id_mac,
+								       	tvb, tlv_data_offset, 6, FALSE);
+							tlv_data_offset += 6;
+							break;
+						case LTR_EGR_ID_TLV:
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_last_id_unique_identifier,
+								       	tvb, tlv_data_offset, 2, FALSE);
+							tlv_data_offset += 2;
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_last_id_mac,
+								       	tvb, tlv_data_offset, 6, FALSE);
+							tlv_data_offset += 6;
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_next_id_unique_identifier,
+								       	tvb, tlv_data_offset, 2, FALSE);
+							tlv_data_offset += 2;
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_next_id_mac,
+								       	tvb, tlv_data_offset, 6, FALSE);
+							tlv_data_offset += 6;
+							break;
+						case ORG_SPEC_TLV:
+							/* The TLV length must be long enough to include the OUI
+							 * and the subtype.
+							 */
+							if (cfm_tlv_length > 3) {  
+							       	proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_oui,
+								       	tvb, tlv_data_offset, 3, FALSE);
+								tlv_data_offset += 3;
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_subtype,
+								       	tvb, tlv_data_offset, 1, FALSE);
+								tlv_data_offset += 1;	
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_org_spec_value,
+								       	tvb, tlv_data_offset, cfm_tlv_length-4, FALSE);
+								tlv_data_offset -= 4;
+							}
+							tlv_data_offset += cfm_tlv_length;
+							break;
+						case TEST_TLV:
+							/* There is a discrepancy in the recommendation ITU-T Y.1731
+							 * where the test pattern type may or may not be included in
+							 * the TLV length.  Going to assume that it is included in the
+							 * length which corresponds with the typical format for TLV's 
+							 * until the recommendation is more clear in this regard. */
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern_type,
+								       	tvb, tlv_data_offset, 1, FALSE);
+							tlv_tst_test_pattern_type = tvb_get_guint8(tvb,tlv_data_offset);
+							tlv_data_offset += 1;
+							if (cfm_tlv_length > 0) {
+								switch (tlv_tst_test_pattern_type) {
+								case 0:
+								case 2:
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern,
+										       	tvb, tlv_data_offset, cfm_tlv_length-1, FALSE);
+									tlv_data_offset += cfm_tlv_length;
+									break;
+								case 1:
+								case 3:
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern,
+									       	tvb, tlv_data_offset, cfm_tlv_length-5, FALSE);
+									tlv_data_offset += (cfm_tlv_length-5);
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_CRC32,
+										       	tvb, tlv_data_offset, 4, FALSE);
+									tlv_data_offset += 4;
+									break;
+								}
+							}
+							break;
 						}
-						tlv_data_offset += cfm_tlv_length;
-						
 
-						break;
+
+						cfm_tlv_offset += cfm_tlv_length;
 					}
-
-
-					cfm_tlv_offset += cfm_tlv_length;
 				}
-
-				
-
 			}
 		}
-		
 	}
-
 }
 

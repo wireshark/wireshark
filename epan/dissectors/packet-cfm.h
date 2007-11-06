@@ -58,5 +58,6 @@
 #define LTM_EGR_ID_TLV	0x07
 #define LTR_EGR_ID_TLV	0x08
 #define ORG_SPEC_TLV	0x1F
+#define TEST_TLV        0x20
 
 #endif
