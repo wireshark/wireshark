@@ -435,7 +435,8 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 	return (memcmp(a->data, b->data, a->len) <= 0);
 }
 
-static gboolean cmp_bytes_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
+static gboolean
+cmp_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
@@ -449,11 +450,11 @@ static gboolean cmp_bytes_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
 	p_b = b->data;
 	while (i < b->len) {
 		if (p_a[i] & p_b[i])
-			i++;
+			return TRUE;
 		else
-			return FALSE;
+			i++;
 	}
-	return TRUE;
+	return FALSE;
 }
 
 static gboolean
@@ -541,7 +542,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_bytes_bitwise_and,
+		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
 
@@ -579,7 +580,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_bytes_bitwise_and,
+		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
@@ -617,7 +618,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_bytes_bitwise_and,
+		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
 
@@ -655,7 +656,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_bytes_bitwise_and,
+		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
@@ -693,7 +694,7 @@ ftype_register_bytes(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_bytes_bitwise_and,
+		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
