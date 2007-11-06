@@ -802,6 +802,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	conversation_t *conversation;
 	address dst_addr, null_addr;
 	guint8		str_len;
+	address		src_addr;
 
 	ie_value = tvb_get_guint8(tvb,offset);
 	urr_ie_item = proto_tree_add_text(tree,tvb,offset,-1,"%s",
@@ -1296,8 +1297,6 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		}else{ /* All other values shall be interpreted as Ipv4 address in this version of the protocol.*/
 			unc_ipv4_address = tvb_get_ipv4(tvb, ie_offset);
 			proto_tree_add_ipv4(urr_ie_tree, hf_uma_urr_unc_ipv4, tvb, ie_offset, 4, unc_ipv4_address);
-			rtp_ipv4_address = unc_ipv4_address;
-
 		}
 		break;
 	case 98:		/* UNC Fully Qualified Domain/Host Name */
@@ -1397,13 +1396,15 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u Handle %u",
 			rtp_ipv4_address,RTP_UDP_port,rtp_handle);
 			*/
-
-		if((!pinfo->fd->flags.visited) && rtp_ipv4_address!=0 && RTP_UDP_port!=0 && rtp_handle){
-			address src_addr;
-
+		if(unc_ipv4_address!=0){
 			src_addr.type=AT_IPv4;
 			src_addr.len=4;
-			src_addr.data=(guint8 *)&rtp_ipv4_address;
+			src_addr.data=(guint8 *)&unc_ipv4_address;
+		}else{
+			/* Set Source IP = own IP */
+			src_addr = pinfo->src;
+		}
+		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0 && rtp_handle){
 
 			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->fd->num, 0);
 			if ((RTP_UDP_port & 0x1) == 0){ /* Even number RTP port RTCP should follow on odd number */
@@ -1417,8 +1418,6 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTCP_port, tvb, ie_offset, 2, FALSE);
 		/* TODO find out exactly which element contains IP addr */
 		if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
-			address src_addr;
-
 			src_addr.type=AT_IPv4;
 			src_addr.len=4;
 			src_addr.data=(guint8 *)&rtcp_ipv4_address;
