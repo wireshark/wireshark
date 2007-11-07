@@ -151,16 +151,22 @@
 
 static gboolean toolbar_init = FALSE;
 
+#if GTK_CHECK_VERSION(2,4,0)
+#define BUTTON_TYPE GtkToolItem
+#else /* GTK_CHECK_VERSION(2,4,0) */
+#define BUTTON_TYPE GtkWidget
+#endif /* GTK_CHECK_VERSION(2,4,0) */
+
 #ifdef HAVE_LIBPCAP
-static GtkWidget *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
-static GtkWidget *capture_filter_button, *autoscroll_button;
+static BUTTON_TYPE *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
+static BUTTON_TYPE *capture_filter_button, *autoscroll_button;
 #endif /* HAVE_LIBPCAP */
-static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *reload_button;
-static GtkWidget *print_button, *find_button, *history_forward_button, *history_back_button;
-static GtkWidget *go_to_button, *go_to_top_button, *go_to_bottom_button;
-static GtkWidget *display_filter_button;
-static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
-static GtkWidget *color_display_button, *prefs_button, *help_button;
+static BUTTON_TYPE *open_button, *save_button, *save_as_button, *close_button, *reload_button;
+static BUTTON_TYPE *print_button, *find_button, *history_forward_button, *history_back_button;
+static BUTTON_TYPE *go_to_button, *go_to_top_button, *go_to_bottom_button;
+static BUTTON_TYPE *display_filter_button;
+static BUTTON_TYPE *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
+static BUTTON_TYPE *color_display_button, *prefs_button, *help_button;
 
 #if GTK_MAJOR_VERSION >= 2
 typedef struct stock_pixmap_tag{
@@ -296,6 +302,11 @@ toolbar_redraw_all(void)
     gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
                           prefs.gui_toolbar_main_style);
 
+#if GTK_CHECK_VERSION(2,4,0)
+    gtk_toolbar_set_show_arrow(GTK_TOOLBAR(main_tb),
+			       prefs.gui_toolbar_arrow);
+#endif
+
 #if GTK_MAJOR_VERSION < 2
     /* In GTK+ 1.2[.x], the toolbar takes the maximum vertical size it ever
      * had, even if you change the style in such a way as to reduce its
@@ -311,10 +322,10 @@ toolbar_redraw_all(void)
    you've finished reading. */
 void set_toolbar_for_capture_file(gboolean have_capture_file) {
     if (toolbar_init) {
-        gtk_widget_set_sensitive(save_button, have_capture_file);
-        gtk_widget_set_sensitive(save_as_button, have_capture_file);
-        gtk_widget_set_sensitive(close_button, have_capture_file);
-        gtk_widget_set_sensitive(reload_button, have_capture_file);
+	gtk_widget_set_sensitive(GTK_WIDGET(save_button), have_capture_file);
+        gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), have_capture_file);
+        gtk_widget_set_sensitive(GTK_WIDGET(close_button), have_capture_file);
+        gtk_widget_set_sensitive(GTK_WIDGET(reload_button), have_capture_file);
     }
 }
 
@@ -323,14 +334,14 @@ void set_toolbar_for_capture_file(gboolean have_capture_file) {
 void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
     if (toolbar_init) {
         if(have_unsaved_capture_file) {
-            gtk_widget_hide(save_as_button);
-            gtk_widget_show(save_button);
+	    gtk_widget_hide(GTK_WIDGET(save_as_button));
+            gtk_widget_show(GTK_WIDGET(save_button));
         } else {
-            gtk_widget_show(save_as_button);
-            gtk_widget_hide(save_button);
+	    gtk_widget_show(GTK_WIDGET(save_as_button));
+	    gtk_widget_hide(GTK_WIDGET(save_button));
         }
-        /*gtk_widget_set_sensitive(save_button, have_unsaved_capture_file);
-        gtk_widget_set_sensitive(save_as_button, !have_unsaved_capture_file);*/
+        /*gtk_widget_set_sensitive((GTK_WIDGET(save_button), have_unsaved_capture_file);
+        gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), !have_unsaved_capture_file);*/
     }
 }
 
@@ -341,8 +352,8 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
  * @param forward_history some forward history entries available
  */
 void set_toolbar_for_packet_history(gboolean back_history, gboolean forward_history) {
-    gtk_widget_set_sensitive(history_back_button, back_history);
-    gtk_widget_set_sensitive(history_forward_button, forward_history);
+    gtk_widget_set_sensitive(GTK_WIDGET(history_back_button), back_history);
+    gtk_widget_set_sensitive(GTK_WIDGET(history_forward_button), forward_history);
 }
 
 
@@ -363,19 +374,19 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
 
     if (toolbar_init) {
 #ifdef HAVE_LIBPCAP
-        gtk_widget_set_sensitive(capture_options_button, !capture_in_progress);
-        gtk_widget_set_sensitive(new_button, !capture_in_progress);
-        gtk_widget_set_sensitive(stop_button, capture_in_progress);
-        gtk_widget_set_sensitive(clear_button, capture_in_progress);
+	gtk_widget_set_sensitive(GTK_WIDGET(capture_options_button), !capture_in_progress);
+        gtk_widget_set_sensitive(GTK_WIDGET(new_button), !capture_in_progress);
+        gtk_widget_set_sensitive(GTK_WIDGET(stop_button), capture_in_progress);
+	gtk_widget_set_sensitive(GTK_WIDGET(clear_button), capture_in_progress);
         /*if (capture_in_progress) {
-            gtk_widget_hide(new_button);
-            gtk_widget_show(stop_button);
+            gtk_widget_hide(GTK_WIDGET(new_button));
+            gtk_widget_show(GTK_WIDGET(stop_button));
         } else {
-            gtk_widget_show(new_button);
-            gtk_widget_hide(stop_button);
+            gtk_widget_show(GTK_WIDGET(new_button));
+            gtk_widget_hide(GTK_WIDGET(stop_button));
         }*/
 #endif /* HAVE_LIBPCAP */
-        gtk_widget_set_sensitive(open_button, !capture_in_progress);
+        gtk_widget_set_sensitive(GTK_WIDGET(open_button), !capture_in_progress);
     }
 }
 
@@ -383,20 +394,32 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
 void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
     if (toolbar_init) {
-        gtk_widget_set_sensitive(print_button, have_captured_packets);
-        gtk_widget_set_sensitive(find_button, have_captured_packets);
-        gtk_widget_set_sensitive(history_back_button, have_captured_packets);
-        gtk_widget_set_sensitive(history_forward_button, have_captured_packets);
-        gtk_widget_set_sensitive(go_to_button, have_captured_packets);
-        gtk_widget_set_sensitive(go_to_top_button, have_captured_packets);
-        gtk_widget_set_sensitive(go_to_bottom_button, have_captured_packets);
-        gtk_widget_set_sensitive(zoom_in_button, have_captured_packets);
-        gtk_widget_set_sensitive(zoom_out_button, have_captured_packets);
-        gtk_widget_set_sensitive(zoom_100_button, have_captured_packets);        
-        gtk_widget_set_sensitive(resize_columns_button, have_captured_packets);
+	gtk_widget_set_sensitive(GTK_WIDGET(print_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(find_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(history_back_button),
+				 have_captured_packets);
+	gtk_widget_set_sensitive(GTK_WIDGET(history_forward_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(go_to_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(go_to_top_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(go_to_bottom_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(zoom_in_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(zoom_out_button),
+				 have_captured_packets);
+        gtk_widget_set_sensitive(GTK_WIDGET(zoom_100_button),
+				 have_captured_packets);        
+        gtk_widget_set_sensitive(GTK_WIDGET(resize_columns_button),
+				 have_captured_packets);
         /* XXX - I don't see a reason why this should be done (as it is in the
          * menus) */
-        /* gtk_widget_set_sensitive(color_display_button, have_captured_packets);*/
+        /* gtk_widget_set_sensitive(GTK_WIDGET(color_display_button),
+	   have_captured_packets);*/
     }
 }
 
@@ -409,68 +432,123 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
      * So simply add a few spaces */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
-#else
+#else /* GTK_MAJOR_VERSION < 2 */
+#if GTK_CHECK_VERSION(2,4,0)
+    GtkToolItem *tool_item = gtk_separator_tool_item_new();
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1);
+    gtk_widget_show(GTK_WIDGET(tool_item));
+#else /* GTK_CHECK_VERSION(2,4,0) */
     /* GTK 2 uses (as it should be) a seperator when adding this space */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* GTK_MAJOR_VERSION */
 }
 
 
 
 #if GTK_MAJOR_VERSION < 2
-#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) { \
+#define toolbar_item(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
     iconw = gtk_pixmap_new(icon, mask); \
     new_item = gtk_toolbar_append_item(GTK_TOOLBAR (toolbar), \
-        stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
+        stock, tooltip_text, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
     }
-#else
-#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) { \
+#else /* GTK_MAJOR_VERSION < 2 */
+#if GTK_CHECK_VERSION(2,4,0)
+#define toolbar_item(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
+    new_item = gtk_tool_button_new_from_stock(stock); \
+    gtk_tool_item_set_tooltip(new_item, tooltips,  tooltip_text, NULL); \
+    g_signal_connect(new_item, "clicked", G_CALLBACK(callback), user_data); \
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), new_item, -1); \
+    gtk_widget_show(GTK_WIDGET(new_item)); \
+    }
+
+#else /* GTK_CHECK_VERSION(2,4,0) */
+
+#define toolbar_item(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
     new_item = gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar), \
-        stock, tooltip, "Private", G_CALLBACK(callback), user_data, -1);\
+        stock, tooltip_text, "Private", G_CALLBACK(callback), user_data, -1);\
     }
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* GTK_MAJOR_VERSION */
 
 
+#if GTK_MAJOR_VERSION < 2
 #define toolbar_icon(new_icon, window, xpm) { \
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
     new_icon = gtk_pixmap_new(icon, mask); \
     }
+#else
+#define toolbar_icon(new_icon, window, xpm) { \
+    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
+    new_icon = gtk_image_new_from_pixmap(icon, mask); \
+    }
+#endif
 
 
-#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) {\
+#if GTK_CHECK_VERSION(2,4,0)
+#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
+    new_item = gtk_toggle_tool_button_new_from_stock(stock); \
+    gtk_tool_item_set_tooltip(new_item, tooltips,  tooltip_text, NULL);	\
+    g_signal_connect(new_item, "toggled", G_CALLBACK(callback), user_data); \
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), new_item, -1); \
+    gtk_widget_show_all(GTK_WIDGET(new_item)); \
+    }
+#else /* GTK_CHECK_VERSION(2,4,0) */
+#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
     toolbar_icon(iconw, window, xpm); \
     new_item = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar), \
         GTK_TOOLBAR_CHILD_TOGGLEBUTTON, NULL, \
-        stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
+        stock, tooltip_text, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
     }
-
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 
 
 static void
-colorize_toggle_cb(GtkWidget *toggle_button, gpointer user_data _U_) {
+colorize_toggle_cb(GtkWidget *toggle_button, gpointer user_data _U_)  {
+#if GTK_CHECK_VERSION(2,4,0)
+    menu_colorize_changed(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button)));
+#else /* GTK_CHECK_VERSION(2,4,0) */
     menu_colorize_changed(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button)));
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
 
 void
 toolbar_colorize_changed(gboolean packet_list_colorize) {
+#if GTK_CHECK_VERSION(2,4,0)
+    if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(colorize_button)) != packet_list_colorize) {
+        gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(colorize_button), packet_list_colorize);
+    }
+#else /* GTK_CHECK_VERSION(2,4,0) */
     if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(colorize_button)) != packet_list_colorize) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(colorize_button), packet_list_colorize);
     }
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
 
 
 #ifdef HAVE_LIBPCAP
 static void
 auto_scroll_live_toggle_cb(GtkWidget *autoscroll_button, gpointer user_data _U_) {
+#if GTK_CHECK_VERSION(2,4,0)
+    menu_auto_scroll_live_changed(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(autoscroll_button)));
+#else /* GTK_CHECK_VERSION(2,4,0) */
     menu_auto_scroll_live_changed(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoscroll_button)));
+
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
 
 void
 toolbar_auto_scroll_live_changed(gboolean auto_scroll_live) {
+#if GTK_CHECK_VERSION(2,4,0)
+    if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(autoscroll_button)) != auto_scroll_live) {
+        gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(autoscroll_button), auto_scroll_live);
+    }
+#else /* GTK_CHECK_VERSION(2,4,0) */
     if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoscroll_button)) != auto_scroll_live) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(autoscroll_button), auto_scroll_live);
     }
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
 #endif
 
@@ -482,10 +560,14 @@ toolbar_new(void)
 {
     GtkWidget *main_tb;
     GtkWidget *window = top_level;
+#if !GTK_CHECK_VERSION(2,4,0)
     GdkPixmap *icon;
     GdkBitmap * mask;
     GtkWidget *iconw;
+#endif
+    GtkTooltips *tooltips;
 
+    tooltips = gtk_tooltips_new();
     
 #if GTK_MAJOR_VERSION >= 2
     /* create application specific stock icons */
@@ -519,79 +601,106 @@ toolbar_new(void)
 
 #ifdef HAVE_LIBPCAP
     toolbar_item(if_button, window, main_tb, 
-        WIRESHARK_STOCK_CAPTURE_INTERFACES, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
+	WIRESHARK_STOCK_CAPTURE_INTERFACES, tooltips, "List the available capture interfaces...", capture_interfaces_24_xpm, capture_if_cb, NULL);
+
     toolbar_item(capture_options_button, window, main_tb, 
-        WIRESHARK_STOCK_CAPTURE_OPTIONS, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
+	WIRESHARK_STOCK_CAPTURE_OPTIONS, tooltips, "Show the capture options...", capture_options_24_xpm, capture_prep_cb, NULL);
+
     toolbar_item(new_button, window, main_tb, 
-        WIRESHARK_STOCK_CAPTURE_START, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
+	WIRESHARK_STOCK_CAPTURE_START, tooltips, "Start a new live capture", capture_start_24_xpm, capture_start_cb, NULL);
+
     toolbar_item(stop_button, window, main_tb, 
-        WIRESHARK_STOCK_CAPTURE_STOP, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
+	WIRESHARK_STOCK_CAPTURE_STOP, tooltips, "Stop the running live capture", capture_stop_24_xpm, capture_stop_cb, NULL);
+
     toolbar_item(clear_button, window, main_tb, 
-        WIRESHARK_STOCK_CAPTURE_RESTART, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
+	WIRESHARK_STOCK_CAPTURE_RESTART, tooltips, "Restart the running live capture", capture_restart_24_xpm, capture_restart_cb, NULL);
+
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
     toolbar_item(open_button, window, main_tb, 
-        GTK_STOCK_OPEN, "Open a capture file...", stock_open_24_xpm, file_open_cmd_cb, NULL);
+	GTK_STOCK_OPEN, tooltips, "Open a capture file...", stock_open_24_xpm, file_open_cmd_cb, NULL);
+
     toolbar_item(save_button, window, main_tb, 
-        GTK_STOCK_SAVE, "Save this capture file...", stock_save_24_xpm, file_save_cmd_cb, NULL);
+	GTK_STOCK_SAVE, tooltips, "Save this capture file...", stock_save_24_xpm, file_save_cmd_cb, NULL);
+
     toolbar_item(save_as_button, window, main_tb, 
-        GTK_STOCK_SAVE_AS, "Save this capture file as...", stock_save_as_24_xpm, file_save_as_cmd_cb, NULL);
+	GTK_STOCK_SAVE_AS, tooltips, "Save this capture file as...", stock_save_as_24_xpm, file_save_as_cmd_cb, NULL);
+
     toolbar_item(close_button, window, main_tb, 
-        GTK_STOCK_CLOSE, "Close this capture file", stock_close_24_xpm, file_close_cmd_cb, NULL);
+	GTK_STOCK_CLOSE, tooltips, "Close this capture file", stock_close_24_xpm, file_close_cmd_cb, NULL);
+
     toolbar_item(reload_button, window, main_tb, 
-        GTK_STOCK_REFRESH, "Reload this capture file", stock_refresh_24_xpm, file_reload_cmd_cb, NULL);
+	GTK_STOCK_REFRESH, tooltips, "Reload this capture file", stock_refresh_24_xpm, file_reload_cmd_cb, NULL);
+
     toolbar_item(print_button, window, main_tb, 
-        GTK_STOCK_PRINT, "Print packet(s)...", stock_print_24_xpm, file_print_cmd_cb, NULL);
+	GTK_STOCK_PRINT, tooltips, "Print packet(s)...", stock_print_24_xpm, file_print_cmd_cb, NULL);
+
     toolbar_append_separator(main_tb);
 
     toolbar_item(find_button, window, main_tb, 
-        GTK_STOCK_FIND, "Find a packet...", stock_search_24_xpm, find_frame_cb, NULL);
+	GTK_STOCK_FIND, tooltips, "Find a packet...", stock_search_24_xpm, find_frame_cb, NULL);
+
     toolbar_item(history_back_button, window, main_tb, 
-        GTK_STOCK_GO_BACK, "Go back in packet history", stock_left_arrow_24_xpm, history_back_cb, NULL);
+	GTK_STOCK_GO_BACK, tooltips, "Go back in packet history", stock_left_arrow_24_xpm, history_back_cb, NULL);
+
     toolbar_item(history_forward_button, window, main_tb, 
-        GTK_STOCK_GO_FORWARD, "Go forward in packet history", stock_right_arrow_24_xpm, history_forward_cb, NULL);
+	GTK_STOCK_GO_FORWARD, tooltips, "Go forward in packet history", stock_right_arrow_24_xpm, history_forward_cb, NULL);
+
     toolbar_item(go_to_button, window, main_tb, 
-        GTK_STOCK_JUMP_TO, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb, NULL);
+	GTK_STOCK_JUMP_TO, tooltips, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb, NULL);
+
     toolbar_item(go_to_top_button, window, main_tb, 
-        GTK_STOCK_GOTO_TOP, "Go to the first packet", stock_top_24_xpm, goto_top_frame_cb, NULL);
+	GTK_STOCK_GOTO_TOP, tooltips, "Go to the first packet", stock_top_24_xpm, goto_top_frame_cb, NULL);
+
     toolbar_item(go_to_bottom_button, window, main_tb, 
-        GTK_STOCK_GOTO_BOTTOM, "Go to the last packet", stock_bottom_24_xpm, goto_bottom_frame_cb, NULL);
+	GTK_STOCK_GOTO_BOTTOM, tooltips, "Go to the last packet", stock_bottom_24_xpm, goto_bottom_frame_cb, NULL);
+
     toolbar_append_separator(main_tb);
 
     toolbar_toggle_button(colorize_button, window, main_tb, 
-        "Colorize"/*WIRESHARK_STOCK_COLORIZE*/, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+	WIRESHARK_STOCK_COLORIZE, tooltips, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+
 #ifdef HAVE_LIBPCAP
     toolbar_toggle_button(autoscroll_button, window, main_tb, 
-        "Auto Scroll" /*WIRESHARK_STOCK_AUTOSCROLL*/, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
+	WIRESHARK_STOCK_AUTOSCROLL, tooltips, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
 #endif
+
     toolbar_append_separator(main_tb);
 
     toolbar_item(zoom_in_button, window, main_tb, 
-        GTK_STOCK_ZOOM_IN, "Zoom in", stock_zoom_in_24_xpm, view_zoom_in_cb, NULL);
+	GTK_STOCK_ZOOM_IN, tooltips, "Zoom in", stock_zoom_in_24_xpm, view_zoom_in_cb, NULL);
+
     toolbar_item(zoom_out_button, window, main_tb, 
-        GTK_STOCK_ZOOM_OUT, "Zoom out", stock_zoom_out_24_xpm, view_zoom_out_cb, NULL);
+	GTK_STOCK_ZOOM_OUT, tooltips, "Zoom out", stock_zoom_out_24_xpm, view_zoom_out_cb, NULL);
+
     toolbar_item(zoom_100_button, window, main_tb, 
-        GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb, NULL);
+	GTK_STOCK_ZOOM_100, tooltips, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb, NULL);
+
     toolbar_item(resize_columns_button, window, main_tb, 
-        WIRESHARK_STOCK_RESIZE_COLUMNS, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
+	WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", resize_columns_24_xpm, packet_list_resize_columns_cb, NULL);
+
     toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP
     toolbar_item(capture_filter_button, window, main_tb, 
-        WIRESHARK_STOCK_CAPTURE_FILTER, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
+	WIRESHARK_STOCK_CAPTURE_FILTER, tooltips, "Edit capture filter...", capture_filter_24_xpm, cfilter_dialog_cb, NULL);
 #endif /* HAVE_LIBPCAP */
+
     toolbar_item(display_filter_button, window, main_tb, 
-        WIRESHARK_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
+	WIRESHARK_STOCK_DISPLAY_FILTER, tooltips, "Edit/apply display filter...", display_filter_24_xpm, dfilter_dialog_cb, NULL);
+
     toolbar_item(color_display_button, window, main_tb, 
-        GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb, NULL);
+	GTK_STOCK_SELECT_COLOR, tooltips, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb, NULL);
+
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
     toolbar_item(prefs_button, window, main_tb, 
-        WIRESHARK_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
+	WIRESHARK_STOCK_PREFS, tooltips, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
+
     toolbar_append_separator(main_tb);
 
     toolbar_item(help_button, window, main_tb, 
-        GTK_STOCK_HELP, "Show some help...", stock_help_24_xpm, topic_cb, GINT_TO_POINTER(HELP_CONTENT));
+	GTK_STOCK_HELP, tooltips, "Show some help...", stock_help_24_xpm, topic_cb, GINT_TO_POINTER(HELP_CONTENT));
 
     /* disable all "sensitive" items by default */
     toolbar_init = TRUE;

@@ -120,6 +120,7 @@ typedef struct _e_prefs {
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
   gint     gui_toolbar_main_style;
+  gboolean gui_toolbar_arrow;
   gchar   *gui_font_name1;
   gchar   *gui_font_name2;
   color_t  gui_marked_fg;
