@@ -503,6 +503,7 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
 
 #endif /* HAVE_LIBNETTLE */
 
+static const char* vid_to_str(tvbuff_t *, int, int);
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, int, guint8,
     guint8 *, guint16 *, proto_tree *);
 
@@ -1031,8 +1032,17 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
   next_payload = tvb_get_guint8(tvb, offset);
   payload_length = tvb_get_ntohs(tvb, offset + 2);
 
-  ti = proto_tree_add_text(tree, tvb, offset, payload_length,
-            "%s payload", payloadtype2str(isakmp_version, payload));
+  /* This is ugly, but the code is too inflexible to handle this at the
+   * proper place (dissect_vid)
+   */
+  if (payload == 13) { /* Vendor ID */
+	ti = proto_tree_add_text(tree, tvb, offset, payload_length,
+		"%s: %s", payloadtype2str(isakmp_version, payload),
+		vid_to_str(tvb, offset + 4, payload_length - 4));
+  } else {
+  	ti = proto_tree_add_text(tree, tvb, offset, payload_length,
+        	"%s payload", payloadtype2str(isakmp_version, payload));
+  }
   ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
 
   proto_tree_add_uint_format(ntree, hf_isakmp_nextpayload, tvb, offset, 1,
@@ -1977,6 +1987,186 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   }
 }
 
+static const char*
+vid_to_str(tvbuff_t* tvb, int offset, int length)
+{
+  const char * vendorstring;
+  const guint8 * pVID;
+
+  pVID = tvb_get_ptr(tvb, offset, length);
+
+  if (length == VID_CISCO_FRAG_LEN
+	&& memcmp(pVID, VID_CISCO_FRAG, length) == 0)
+	vendorstring = "Cisco Fragmentation";
+  else
+  if (length == VID_MS_LEN
+	&& memcmp(pVID, VID_MS_W2K_WXP, length) == 0)
+	vendorstring = "Microsoft Win2K/WinXP";
+  else
+  if (memcmp(pVID, VID_CP, isakmp_min(VID_CP_LEN, length)) == 0)
+	vendorstring = "Check Point";
+  else
+  if (memcmp(pVID, VID_CYBERGUARD, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Cyber Guard";
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_03, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-ietf-ipsec-nat-t-ike-03";
+  else
+  if (memcmp(pVID,  VID_rfc3947, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "RFC 3947 Negotiation of NAT-Traversal in the IKE";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 1.1.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 1.1.1";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 1.1.2";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 1.2.1";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 1.2.2";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_0_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 2.0.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 2.1.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 2.1.1";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 2.1.2";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 3.0.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 3.0.1";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 4.0.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 4.0.1";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 4.1.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 4.1.1";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 5.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 5.0.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 5.1.0";
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Ssh Communications Security IPSEC Express version 5.1.1";
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Sentinel";
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL_1_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Sentinel 1.1";
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL_1_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Sentinel 1.2";
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL_1_3, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Sentinel 1.3";
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_0_9_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Communications Security QuickSec 0.9.0";
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_0, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Communications Security QuickSec 1.1.0";
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Communications Security QuickSec 1.1.1";
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Communications Security QuickSec 1.1.2";
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_3, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "SSH Communications Security QuickSec 1.1.3";
+  else
+  if (memcmp(pVID,  VID_draft_huttunen_ipsec_esp_in_udp_01, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-huttunen-ipsec-esp-in-udp-01.txt";
+  else
+  if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_01, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-stenberg-ipsec-nat-traversal-01";
+  else
+  if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_02, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-stenberg-ipsec-nat-traversal-02";
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_00, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-ietf-ipsec-nat-t-ike-00";
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02a, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-ietf-ipsec-nat-t-ike-02";
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02b, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-ietf-ipsec-nat-t-ike-02\\n"; /* \n intentional */
+  else
+  if (memcmp(pVID,  VID_draft_beaulieu_ike_xauth_02, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "draft-beaulieu-ike-xauth-02.txt";
+  else
+  if (memcmp(pVID,  VID_rfc3706_dpd, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "RFC 3706 Detecting Dead IKE Peers (DPD)";
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys";
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys";
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)";
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)";
+  else
+  if (memcmp(pVID,  VID_MS_L2TP_IPSEC_VPN_CLIENT, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "Microsoft L2TP/IPSec VPN Client";
+  else
+  if (memcmp(pVID,  VID_GSS_API_1, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "A GSS-API Authentication Method for IKE";
+  else
+  if (memcmp(pVID,  VID_GSS_API_2, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "A GSS-API Authentication Method for IKE";
+  else
+  if (memcmp(pVID,  VID_GSSAPI, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "GSSAPI";
+  else
+  if (memcmp(pVID,  VID_MS_NT5_ISAKMPOAKLEY, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "MS NT5 ISAKMPOAKLEY";
+  else
+  if (memcmp(pVID,  VID_CISCO_UNITY_10, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "CISCO-UNITY-1.0";
+  else
+  if (memcmp(pVID,  VID_CISCO_UNITY, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "CISCO-UNITY";
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_antireplay_00, isakmp_min(VID_LEN_8, length)) == 0)
+        vendorstring = "draft-ietf-ipsec-antireplay-00.txt";
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_heartbeats_00, isakmp_min(VID_LEN_8, length)) == 0)
+        vendorstring = "draft-ietf-ipsec-heartbeats-00.txt";
+  else
+        vendorstring = tvb_bytes_to_str(tvb, offset, length);
+
+  return vendorstring;
+}
+
 static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
@@ -1985,19 +2175,13 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   const guint8 * pVID;
   proto_item * pt;
   proto_tree * ntree;
+
   pVID = tvb_get_ptr(tvb, offset, length);
-  pt = proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: ");
-  if (length == VID_CISCO_FRAG_LEN
-	&& memcmp(pVID, VID_CISCO_FRAG, length) == 0)
-	proto_item_append_text(pt, "Cisco Fragmentation");
-  else
-  if (length == VID_MS_LEN
-	&& memcmp(pVID, VID_MS_W2K_WXP, length) == 0)
-	proto_item_append_text(pt, "Microsoft Win2K/WinXP");
-  else
+  pt = proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: %s",
+	vid_to_str(tvb, offset, length));
+
   if (memcmp(pVID, VID_CP, isakmp_min(VID_CP_LEN, length)) == 0)
   {
-	proto_item_append_text(pt, "Check Point");
 	offset += VID_CP_LEN;
 	CPproduct = tvb_get_ntohl(tvb, offset);
 	ntree = proto_item_add_subtree(pt, ett_isakmp_payload);
@@ -2038,164 +2222,6 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 	offset += sizeof(CPversion);
 	proto_tree_add_text(ntree, tvb, offset, length - VID_CP_LEN - sizeof(CPproduct) - sizeof(CPversion),"Check Point Vendor ID parameters");
   }
-  else
-  if (memcmp(pVID, VID_CYBERGUARD, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Cyber Guard");
-  else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_03, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-03");
-  else
-  if (memcmp(pVID,  VID_rfc3947, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "RFC 3947 Negotiation of NAT-Traversal in the IKE");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.1");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.2");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.2.1");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.2.2");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_0_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.0.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.1.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.1.1");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.1.2");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 3.0.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 3.0.1");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.0.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.0.1");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.1.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.1.1");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.0.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.1.0");
-  else
-  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.1.1");
-  else
-  if (memcmp(pVID,  VID_SSH_SENTINEL, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Sentinel");
-  else
-  if (memcmp(pVID,  VID_SSH_SENTINEL_1_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Sentinel 1.1");
-  else
-  if (memcmp(pVID,  VID_SSH_SENTINEL_1_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Sentinel 1.2");
-  else
-  if (memcmp(pVID,  VID_SSH_SENTINEL_1_3, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Sentinel 1.3");
-  else
-  if (memcmp(pVID,  VID_SSH_QUICKSEC_0_9_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Communications Security QuickSec 0.9.0");
-  else
-  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_0, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.0");
-  else
-  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.1");
-  else
-  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.2");
-  else
-  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_3, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.3");
-  else
-  if (memcmp(pVID,  VID_draft_huttunen_ipsec_esp_in_udp_01, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-huttunen-ipsec-esp-in-udp-01.txt");
-  else
-  if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_01, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-stenberg-ipsec-nat-traversal-01");
-  else
-  if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_02, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-stenberg-ipsec-nat-traversal-02");
-  else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_00, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-00");
-  else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02a, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-02");
-  else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02b, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-02");
-  else
-  if (memcmp(pVID,  VID_draft_beaulieu_ike_xauth_02, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-beaulieu-ike-xauth-02.txt");
-  else
-  if (memcmp(pVID,  VID_rfc3706_dpd, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "RFC 3706 Detecting Dead IKE Peers (DPD)");
-  else
-  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys");
-  else
-  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys");
-  else
-  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)");
-  else
-  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)");
-  else
-  if (memcmp(pVID,  VID_MS_L2TP_IPSEC_VPN_CLIENT, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "Microsoft L2TP/IPSec VPN Client");
-  else
-  if (memcmp(pVID,  VID_GSS_API_1, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "A GSS-API Authentication Method for IKE");
-  else
-  if (memcmp(pVID,  VID_GSS_API_2, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "A GSS-API Authentication Method for IKE");
-  else
-  if (memcmp(pVID,  VID_GSSAPI, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "GSSAPI");
-  else
-  if (memcmp(pVID,  VID_MS_NT5_ISAKMPOAKLEY, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "MS NT5 ISAKMPOAKLEY");
-  else
-  if (memcmp(pVID,  VID_CISCO_UNITY_10, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "CISCO-UNITY-1.0");
-  else
-  if (memcmp(pVID,  VID_CISCO_UNITY, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "CISCO-UNITY");
-  else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_antireplay_00, isakmp_min(VID_LEN_8, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-antireplay-00.txt");
-  else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_heartbeats_00, isakmp_min(VID_LEN_8, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-heartbeats-00.txt");
-  else
-        proto_item_append_text(pt, "unknown vendor ID: 0x%s",tvb_bytes_to_str(tvb, offset, length));
 }
 
 static void
